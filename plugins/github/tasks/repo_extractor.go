@@ -98,7 +98,7 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 			}
 			results = append(results, githubRepository)
 
-			githubUser, err := convertAccount(body.Owner, data.Options.ConnectionId)
+			githubUser, err := convertAccount(body.Owner, data.Repo.GithubId, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}

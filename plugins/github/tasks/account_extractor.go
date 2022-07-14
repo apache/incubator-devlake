@@ -18,39 +18,82 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
+	"time"
+
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-type GithubAccountResponse struct {
-	Login             string `json:"login"`
-	Id                int    `json:"id"`
-	NodeId            string `json:"node_id"`
-	AvatarUrl         string `json:"avatar_url"`
-	GravatarId        string `json:"gravatar_id"`
-	Url               string `json:"url"`
-	HtmlUrl           string `json:"html_url"`
-	FollowersUrl      string `json:"followers_url"`
-	FollowingUrl      string `json:"following_url"`
-	GistsUrl          string `json:"gists_url"`
-	StarredUrl        string `json:"starred_url"`
-	SubscriptionsUrl  string `json:"subscriptions_url"`
-	OrganizationsUrl  string `json:"organizations_url"`
-	ReposUrl          string `json:"repos_url"`
-	EventsUrl         string `json:"events_url"`
-	ReceivedEventsUrl string `json:"received_events_url"`
-	Type              string `json:"type"`
-	SiteAdmin         bool   `json:"site_admin"`
+var ExtractAccountMeta = core.SubTaskMeta{
+	Name:             "ExtractAccounts",
+	EntryPoint:       ExtractAccounts,
+	EnabledByDefault: true,
+	Description:      "Extract raw account data  into tool layer table github_accounts",
+	DomainTypes:      core.DOMAIN_TYPES,
 }
 
-func convertAccount(res *GithubAccountResponse, connId uint64) (*models.GithubAccount, error) {
-	githubAccount := &models.GithubAccount{
-		ConnectionId: connId,
-		Id:           res.Id,
-		Login:        res.Login,
-		AvatarUrl:    res.AvatarUrl,
-		Url:          res.Url,
-		HtmlUrl:      res.HtmlUrl,
-		Type:         res.Type,
+type DetailGithubAccountResponse struct {
+	GithubAccountResponse
+	Name            string    `json:"name"`
+	Company         string    `json:"company"`
+	Blog            string    `json:"blog"`
+	Location        string    `json:"location"`
+	Email           string    `json:"email"`
+	Hireable        bool      `json:"hireable"`
+	Bio             string    `json:"bio"`
+	TwitterUsername string    `json:"twitter_username"`
+	PublicRepos     int       `json:"public_repos"`
+	PublicGists     int       `json:"public_gists"`
+	Followers       int       `json:"followers"`
+	Following       int       `json:"following"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
+}
+
+func ExtractAccounts(taskCtx core.SubTaskContext) error {
+	data := taskCtx.GetData().(*GithubTaskData)
+	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
+			},
+			Table: RAW_ACCOUNT_TABLE,
+		},
+		Extract: func(row *helper.RawData) ([]interface{}, error) {
+			apiAccount := &DetailGithubAccountResponse{}
+			err := json.Unmarshal(row.Data, apiAccount)
+			if err != nil {
+				return nil, err
+			}
+			results := make([]interface{}, 0, 1)
+			if apiAccount.Id == 0 {
+				return nil, nil
+			}
+			githubAccount := &models.GithubAccount{
+				ConnectionId: data.Options.ConnectionId,
+				Id:           apiAccount.Id,
+				Login:        apiAccount.Login,
+				Name:         apiAccount.Name,
+				Company:      apiAccount.Company,
+				Email:        apiAccount.Email,
+				AvatarUrl:    apiAccount.AvatarUrl,
+				Url:          apiAccount.Url,
+				HtmlUrl:      apiAccount.HtmlUrl,
+				Type:         apiAccount.Type,
+			}
+			results = append(results, githubAccount)
+			return results, nil
+		},
+	})
+
+	if err != nil {
+		return err
 	}
-	return githubAccount, nil
+
+	return extractor.Execute()
 }

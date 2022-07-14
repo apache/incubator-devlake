@@ -124,7 +124,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			if body.Assignee != nil {
 				githubIssue.AssigneeId = body.Assignee.Id
 				githubIssue.AssigneeName = body.Assignee.Login
-				relatedUser, err := convertAccount(body.Assignee, data.Options.ConnectionId)
+				relatedUser, err := convertAccount(body.Assignee, data.Repo.GithubId, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}
@@ -133,7 +133,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			if body.User != nil {
 				githubIssue.AuthorId = body.User.Id
 				githubIssue.AuthorName = body.User.Login
-				relatedUser, err := convertAccount(body.User, data.Options.ConnectionId)
+				relatedUser, err := convertAccount(body.User, data.Repo.GithubId, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}

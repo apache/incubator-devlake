@@ -25,5 +25,6 @@ import (
 func All() []migration.Script {
 	return []migration.Script{
 		new(initSchemas),
+		new(updateSchemas20220713000003),
 	}
 }

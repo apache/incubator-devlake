@@ -118,13 +118,13 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			if rawL.User != nil {
-				githubUser, err := convertAccount(rawL.User, data.Options.ConnectionId)
+				githubUser, err := convertAccount(rawL.User, data.Repo.GithubId, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}
 				results = append(results, githubUser)
 				githubPr.AuthorName = githubUser.Login
-				githubPr.AuthorId = githubUser.Id
+				githubPr.AuthorId = githubUser.AccountId
 			}
 			for _, label := range rawL.Labels {
 				results = append(results, &models.GithubPullRequestLabel{

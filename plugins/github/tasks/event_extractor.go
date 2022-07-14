@@ -71,7 +71,7 @@ func ExtractApiEvents(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			results = append(results, githubIssueEvent)
-			githubAccount, err := convertAccount(body.Actor, data.Options.ConnectionId)
+			githubAccount, err := convertAccount(body.Actor, data.Repo.GithubId, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}

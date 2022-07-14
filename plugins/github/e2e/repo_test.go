@@ -54,7 +54,7 @@ func TestRepoDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubRepo{})
-	dataflowTester.FlushTabler(&models.GithubAccount{})
+	dataflowTester.FlushTabler(&models.GithubRepoAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiRepoMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubRepo{},
@@ -77,16 +77,13 @@ func TestRepoDataFlow(t *testing.T) {
 		},
 	)
 	dataflowTester.VerifyTable(
-		models.GithubAccount{},
+		models.GithubRepoAccount{},
 		"./snapshot_tables/_tool_github_accounts_in_repo.csv",
 		[]string{
 			"connection_id",
-			"id",
+			"account_id",
+			"repo_github_id",
 			"login",
-			"avatar_url",
-			"url",
-			"html_url",
-			"type",
 		},
 	)
 
