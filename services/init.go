@@ -40,7 +40,7 @@ var cronManager *cron.Cron
 var log core.Logger
 var migrationRequireConfirmation bool
 
-// Init FIXME ...
+// Init the services module
 func Init() {
 	var err error
 	cfg = config.GetConfig()
@@ -63,7 +63,8 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	if !migration.NeedConfirmation() {
+	forceMigration := cfg.GetBool("FORCE_MIGRATION")
+	if !migration.NeedConfirmation() || forceMigration {
 		err = ExecuteMigration()
 		if err != nil {
 			panic(err)
