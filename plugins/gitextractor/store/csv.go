@@ -132,7 +132,7 @@ func (c *CsvStore) Refs(ref *code.Ref) error {
 func (c *CsvStore) CommitFiles(file *code.CommitFile) error {
 	return c.commitFileWriter.Write(file)
 }
-func (c *CsvStore) FileComponent(component *code.FileComponent) error {
+func (c *CsvStore) FileComponent(component *code.CommitFileComponent) error {
 	return c.commitFileWriter.Write(component)
 }
 

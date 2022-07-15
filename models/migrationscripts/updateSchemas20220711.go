@@ -23,55 +23,44 @@ import (
 	"gorm.io/gorm"
 )
 
-//type CodeComponent20220711 struct {
-//	ComponentId string `gorm:"primaryKey;type:varchar(255)"`
-//	PathRegex   string `gorm:"type:varchar(255)"`
-//}
-//
-//func (CodeComponent20220711) TableName() string {
-//	return "code_component_20220711"
-//}
-
 type Component struct {
-	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
-	Component string `gorm:"primaryKey;type:varchar(255)"`
+	RepoId    string `gorm:"type:varchar(255)"`
+	Name      string `gorm:"primaryKey;type:varchar(255)"`
 	PathRegex string `gorm:"type:varchar(255)"`
 }
 
 func (Component) TableName() string {
-	return "component"
+	return "components"
 }
 
 type CommitFile struct {
 	common.NoPKModel
-	CommitFileID string `gorm:"primaryKey;type:varchar(255)"`
-	CommitSha    string `gorm:"type:varchar(40)"`
-	FilePath     string `gorm:"type:varchar(255)"`
-	Additions    int
-	Deletions    int
-	Component    string `gorm:"type:varchar(255)"`
+	ID        string `gorm:"primaryKey;type:varchar(255)"`
+	CommitSha string `gorm:"type:varchar(40)"`
+	FilePath  string `gorm:"type:varchar(255)"`
+	Additions int
+	Deletions int
 }
 
 func (CommitFile) TableName() string {
 	return "commit_files"
 }
 
-type FileComponent struct {
+type CommitFileComponent struct {
 	common.NoPKModel
 	CommitFileID string `gorm:"primaryKey;type:varchar(255)"`
-	RepoId       string `gorm:"primaryKey;type:varchar(255)"`
 	Component    string `gorm:"type:varchar(255)"`
 }
 
-func (FileComponent) TableName() string {
-	return "file_component"
+func (CommitFileComponent) TableName() string {
+	return "commit_file_components"
 }
 
 type updateSchemas20220711 struct{}
 
 func (*updateSchemas20220711) Up(ctx context.Context, db *gorm.DB) error {
 
-	err := db.Migrator().AutoMigrate(Component{}, CommitFile{}, FileComponent{})
+	err := db.Migrator().AutoMigrate(Component{}, CommitFile{}, CommitFileComponent{})
 	if err != nil {
 		return err
 	}
@@ -80,9 +69,9 @@ func (*updateSchemas20220711) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*updateSchemas20220711) Version() uint64 {
-	return 202207151420
+	return 202207151644
 }
 
 func (*updateSchemas20220711) Name() string {
-	return "file_component table"
+	return "add commit_file_components components table,update commit_files table"
 }
