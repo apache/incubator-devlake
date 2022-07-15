@@ -189,15 +189,21 @@ export default function ConnectionForm (props) {
   useEffect(() => {
     console.log('>> PERSONAL ACCESS TOKENS ENTERED...', personalAccessTokens)
     onTokenChange(personalAccessTokens.join(',').trim())
-    const tokenTestResponses = personalAccessTokens.filter(t => t !== '').map((t,tIdx) => {
+    const tokenTestResponses = personalAccessTokens.filter(t => t !== '').map((t, tIdx) => {
       const withAlert = false
       const testPayload = {
         endpoint: endpointUrl,
         token: t
       }
       onTest(withAlert, testPayload)
+      return t
     })
-  }, [personalAccessTokens, onTokenChange])
+  }, [
+    personalAccessTokens,
+    endpointUrl,
+    onTokenChange,
+    onTest
+  ])
 
   useEffect(() => {
     console.log(
@@ -222,10 +228,10 @@ export default function ConnectionForm (props) {
         message: allTestResponses ? allTestResponses[t]?.message : 'invalid token',
         username: allTestResponses ? allTestResponses[t]?.login : '',
         status: getValidityStatus(t, allTestResponses ? allTestResponses[t] : null, allTestResponses),
-        isDuplicate: allTestResponses && allTestResponses[t] ? true : false
+        isDuplicate: !!(allTestResponses && allTestResponses[t])
       }
     }))
-  }, [allTestResponses])
+  }, [allTestResponses, personalAccessTokens, getValidityStatus])
 
   return (
     <>
@@ -472,25 +478,25 @@ export default function ConnectionForm (props) {
                                 style={{ display: 'flex', padding: '0 10px' }}
                               >
                                 {(tokenTests[patIdx]?.success && pat !== '') ? (
-                                    <>
-                                      {<span style={{ color: Colors.GRAY4, marginRight: '10px'}}>From: {tokenTests[patIdx]?.username}</span>}
-                                      <span
-                                        className='token-validation-status'
-                                        style={{ color: Colors.GREEN4 }}
-                                      >
-                                        {tokenTests[patIdx].status}
-                                      </span>
-                                    </>
-                                    ) : (
-                                      <>
-                                        <span
-                                          className='token-validation-status'
-                                          style={{ color: Colors.RED4 }}
-                                        >
-                                          {pat === '' ? '' : 'Invalid'}
-                                        </span>
-                                      </>
-                                    )}
+                                  <>
+                                    <span style={{ color: Colors.GRAY4, marginRight: '10px' }}>From: {tokenTests[patIdx]?.username}</span>
+                                    <span
+                                      className='token-validation-status'
+                                      style={{ color: Colors.GREEN4 }}
+                                    >
+                                      {tokenTests[patIdx].status}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span
+                                      className='token-validation-status'
+                                      style={{ color: Colors.RED4 }}
+                                    >
+                                      {pat === '' ? '' : 'Invalid'}
+                                    </span>
+                                  </>
+                                )}
                               </div>
                             )}
                             <div

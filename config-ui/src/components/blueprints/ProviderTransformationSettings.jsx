@@ -36,10 +36,12 @@ const ProviderTransformationSettings = (props) => {
     configuredProject,
     configuredBoard,
     transformation,
+    newTransformation,
     boards = [],
     issueTypes = [],
     fields = [],
     onSettingsChange = () => {},
+    changeTransformation = () => {},
     isSaving = false,
     isSavingConnection = false,
     jiraProxyError,
@@ -47,8 +49,9 @@ const ProviderTransformationSettings = (props) => {
   } = props
 
   useEffect(() => {
-    console.log('>>> activeTransformation?', transformation)
-  }, [transformation, boards, issueTypes, fields, configuredBoard])
+    console.log('>>> newTransformation?', newTransformation)
+  }, [newTransformation])
+  // }, [transformation, boards, issueTypes, fields, configuredBoard])
 
   return (
     <div className='transformation-settings' data-provider={provider?.id}>
@@ -87,7 +90,8 @@ const ProviderTransformationSettings = (props) => {
           issueTypes={issueTypes}
           fields={fields}
           transformation={transformation}
-          onSettingsChange={onSettingsChange}
+          newTransformation={newTransformation}
+          onSettingsChange={changeTransformation}
           entity={DataEntityTypes.TICKET}
           isSaving={isSaving}
           isSavingConnection={isSavingConnection}

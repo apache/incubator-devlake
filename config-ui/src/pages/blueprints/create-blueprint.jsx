@@ -378,7 +378,7 @@ const CreateBlueprint = (props) => {
     console.log('>>> MANAGING CONNECTION', managedConnection)
   }
 
-  const handleConnectionDialogClose = () => {
+  const handleConnectionDialogClose = useCallback(() => {
     setConnectionDialogIsOpen(false)
     setManagedConnection(NullBlueprintConnection)
     setTestStatus(0)
@@ -388,23 +388,34 @@ const CreateBlueprint = (props) => {
     clearActiveConnection()
     setActiveConnection(NullConnection)
     setSaveConnectionComplete(null)
-  }
+  }, [
+    clearActiveConnection,
+    setActiveConnection,
+    setAllTestResponses,
+    setInitialTokenStore,
+    setSaveConnectionComplete,
+    setTestResponse,
+    setTestStatus
+  ])
 
-  const handleTransformationSave = () => {
+  const handleTransformationSave = useCallback((settings, entity) => {
     console.log('>> SAVING / CLOSING Transformation Settings')
+    setTransformationSettings(settings, entity)
     setConfiguredProject(null)
     setConfiguredBoard(null)
-  }
+  }, [])
 
-  const handleTransformationCancel = () => {
+  const handleTransformationCancel = useCallback(() => {
     setConfiguredProject(null)
     setConfiguredBoard(null)
     console.log('>> Cancel Modify - Transformation Settings')
-  }
+  }, [])
 
   const handleTransformationClear = useCallback(() => {
     console.log(
       '>>> CLEARING TRANSFORMATION RULES!',
+      '==> PROJECT =',
+      configuredProject,
       '==> BOARD =',
       configuredBoard
     )
@@ -413,6 +424,8 @@ const CreateBlueprint = (props) => {
       [configuredProject]: {},
       [configuredBoard?.id]: {},
     }))
+    setConfiguredProject(null)
+    setConfiguredBoard(null)
   }, [setTransformations, configuredProject, configuredBoard])
 
   const handleBlueprintSave = useCallback(() => {
@@ -517,18 +530,18 @@ const CreateBlueprint = (props) => {
     [setProvider]
   )
 
-  const addProjectTransformation = (project) => {
+  const addProjectTransformation = useCallback((project) => {
     setConfiguredProject(project)
-  }
+  }, [])
 
-  const addBoardTransformation = (board) => {
+  const addBoardTransformation = useCallback((board) => {
     setConfiguredBoard(board)
-  }
+  }, [])
 
-  const addConnection = () => {
+  const addConnection = useCallback(() => {
     setManagedConnection(NullBlueprintConnection)
     setConnectionDialogIsOpen(true)
-  }
+  }, [])
 
   const setTransformationSettings = useCallback(
     (settings, configuredEntity) => {
@@ -545,7 +558,7 @@ const CreateBlueprint = (props) => {
         },
       }))
     },
-    []
+    [setTransformations]
   )
 
   const handleAdvancedMode = (enableAdvanced = true) => {
@@ -803,7 +816,7 @@ const CreateBlueprint = (props) => {
         case Providers.JIRA:
           transforms = {
             epicKeyField: '',
-            typeMappings: '',
+            typeMappings: {},
             storyPointField: '',
             remotelinkCommitShaPattern: '',
             bugTags: [],
@@ -859,7 +872,7 @@ const CreateBlueprint = (props) => {
   useEffect(() => {
     console.log(
       '>>> SELECTED BOARD TO CONFIGURE...',
-      configuredBoard,
+      configuredBoard?.id,
       transformations
     )
     setActiveTransformation((aT) =>
@@ -867,12 +880,12 @@ const CreateBlueprint = (props) => {
     )
   }, [configuredBoard, transformations])
 
-  useEffect(() => {
-    console.log(
-      '>>> ACTIVE/MODIFYING TRANSFORMATION RULES...',
-      activeTransformation
-    )
-  }, [activeTransformation])
+  // useEffect(() => {
+  //   console.log(
+  //     '>>> ACTIVE/MODIFYING TRANSFORMATION RULES...',
+  //     activeTransformation
+  //   )
+  // }, [activeTransformation])
 
   useEffect(() => {
     console.log('>>> BLUEPRINT WORKFLOW STEPS...', blueprintSteps)
@@ -914,7 +927,7 @@ const CreateBlueprint = (props) => {
       handleConnectionDialogClose()
       fetchAllConnections(false, true)
     }
-  }, [connectionDialogIsOpen, saveConnectionComplete])
+  }, [connectionDialogIsOpen, saveConnectionComplete, fetchAllConnections, handleConnectionDialogClose])
 
   useEffect(() => {
     console.log('>>> CONNECTIONS SELECTOR LIST UPDATED...', connectionsList)

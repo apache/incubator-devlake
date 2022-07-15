@@ -131,9 +131,9 @@ function useConnectionManager (
         )
         const res = await request.post(testUrl, connectionPayload)
         setTestResponse(res.data)
-        if([Providers.GITHUB].includes(provider.id)) {
+        if ([Providers.GITHUB].includes(provider.id)) {
           console.log('>>> SETTING TOKEN TEST RESPONSE FOR TOKEN >>>', manualPayload?.token || token)
-          setAllTestResponses(tRs => ({...tRs, [manualPayload.token]: res.data}))
+          setAllTestResponses(tRs => ({ ...tRs, [manualPayload.token]: res.data }))
         }
         if (res.data?.success && res.status === 200) {
           setIsTesting(false)

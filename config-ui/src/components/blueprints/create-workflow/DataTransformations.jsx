@@ -74,6 +74,37 @@ const DataTransformations = (props) => {
     isFetchingJIRA = false
   } = props
 
+  const [newTransformation, setNewTransformation] = useState({})
+
+  const changeTransformation = useCallback((settings, entity) => {
+    console.log('>>>>> CHANGING TRANSFORMATION FOR ENTITY!', entity, settings)
+    setNewTransformation(currentTransforms => ({
+      ...currentTransforms,
+      [entity]: { 
+        ...currentTransforms[entity],
+        ...settings
+      }
+    }))
+  }, [setNewTransformation])
+
+  const clearTransformation = useCallback(() => {
+    console.log('>>>>> CLEARING!!!!!', configuredBoard)
+    setNewTransformation({
+      [configuredBoard?.id]: {}
+    })
+    onClear()
+  }, [configuredProject, configuredBoard, onClear, setNewTransformation])
+
+  // useEffect(() => {
+  //   console.log('>>> LOOK HERE DataTransformationSettings:activeTransformation!!!!', activeTransformation)
+  // }, [activeTransformation])
+
+  // useEffect(() => {
+  //   console.log('>>> NEW TRANSFORMATION SETTINGS...', newTransformation)
+  //   // AUTO-SAVE All Transformation Keys
+  //   // Object.keys(newTransformation).forEach((k, kIdx) => setTransformationSettings(Object.values(newTransformation)[kIdx], k))
+  // }, [newTransformation])
+
   return (
     <div className='workflow-step workflow-step-add-transformation' data-step={activeStep?.id}>
       <p
@@ -200,7 +231,7 @@ const DataTransformations = (props) => {
                             text='Clear All'
                             intent={Intent.NONE}
                             href='#'
-                            onClick={onClear}
+                            onClick={clearTransformation}
                             style={{ float: 'right' }}
                             disabled={Object.keys(activeTransformation || {}).length === 0}
                           />
@@ -222,7 +253,12 @@ const DataTransformations = (props) => {
                           fields={fields}
                           boards={boards}
                           transformation={activeTransformation}
+                          newTransformation={newTransformation}
+                          newTransformation={newTransformation}
+                          setNewTransformation={setNewTransformation}
+                          changeTransformation={changeTransformation}
                           onSettingsChange={setTransformationSettings}
+                          // onSettingsChange={changeTransformation}
                           entity={DataEntityTypes.TICKET}
                           isSaving={isSaving}
                           isSavingConnection={isSavingConnection}
@@ -243,7 +279,7 @@ const DataTransformations = (props) => {
                           intent={Intent.PRIMARY}
                           small
                           outlined
-                          onClick={onSave}
+                          onClick={() => onSave(newTransformation[configuredBoard?.id], configuredBoard?.id)}
                           disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
                           style={{ marginLeft: '5px' }}
                         />

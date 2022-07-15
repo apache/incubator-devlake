@@ -40,9 +40,14 @@ const StandardStackedList = (props) => {
     style = { padding: 0, marginTop: '10px' }
   } = props
 
-  useEffect(() => {
-    console.log('>>> Selector List Transformations...', transformations, activeItem)
-  }, [transformations, activeItem])
+  const isEditing = useCallback((item) => {
+    const storedTransform = transformations[item] || transformations[item?.id]
+    return Object.values(storedTransform).some(v => v.length > 0)
+  }, [transformations])
+
+  // useEffect(() => {
+  //   console.log('>>> Selector List Transformations...', transformations, activeItem)
+  // }, [transformations, activeItem])
 
   return (
     <>
@@ -95,10 +100,10 @@ const StandardStackedList = (props) => {
                         color={Colors.BLUE4}
                       />
                     }
-                    text={transformations[activeItem?.id] ? editButtonText : addButtonText}
+                    text={isEditing(item) ? editButtonText : addButtonText}
                     color={Colors.BLUE3}
                     small
-                    minimal={activeItem !== item}
+                    minimal={activeItem || activeItem?.id !== item}
                     style={{
                       minWidth: '18px',
                       minHeight: '18px',

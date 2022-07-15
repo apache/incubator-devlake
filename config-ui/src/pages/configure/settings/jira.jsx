@@ -57,6 +57,7 @@ export default function JiraSettings (props) {
     // eslint-disable-next-line no-unused-vars
     configuredProject,
     transformation = {},
+    newTransformation = {},
     isSaving,
     onSettingsChange = () => {},
     // eslint-disable-next-line no-unused-vars
@@ -68,6 +69,8 @@ export default function JiraSettings (props) {
     jiraProxyError,
     isFetchingJIRA = false
   } = props
+
+  const [currentTransformation, setCurrentTransformation] = useState({})
 
   const [typeMappingBug, setTypeMappingBug] = useState([])
   const [typeMappingIncident, setTypeMappingIncident] = useState([])
@@ -91,14 +94,13 @@ export default function JiraSettings (props) {
   const [fieldsList, setFieldsList] = useState(fields)
   // const [issueTypesList, setIssueTypesList] = useState(issueTypes)
 
-  // useEffect(() => {
-  //   onSettingsChange({ ...transformation, typeMappings: typeMappingAll }, configuredBoard?.id)
-  // }, [
-  //   typeMappingAll,
-  //   onSettingsChange,
-  //   configuredBoard?.id,
-  //   transformation
-  // ])
+  useEffect(() => {
+    onSettingsChange({ typeMappings: typeMappingAll }, configuredBoard?.id)
+  }, [
+    typeMappingAll,
+    onSettingsChange,
+    configuredBoard?.id,
+  ])
 
   useEffect(() => {
     if (typeMappingBug && typeMappingIncident && typeMappingRequirement) {
@@ -128,20 +130,20 @@ export default function JiraSettings (props) {
     }
   }, [connection])
 
-  // @todo: FIX Error: Maximum update depth exceeded.
+
   useEffect(() => {
     setTypeMappingRequirement(requirementTags)
-    onSettingsChange({ ...transformation, requirementTags: requirementTags }, configuredBoard?.id)
+    onSettingsChange({ requirementTags: requirementTags }, configuredBoard?.id)
   }, [requirementTags, configuredBoard?.id, onSettingsChange])
 
   useEffect(() => {
     setTypeMappingBug(bugTags)
-    onSettingsChange({ ...transformation, bugTags: bugTags }, configuredBoard?.id)
+    onSettingsChange({ bugTags: bugTags }, configuredBoard?.id)
   }, [bugTags, configuredBoard?.id, onSettingsChange])
 
   useEffect(() => {
     setTypeMappingIncident(incidentTags)
-    onSettingsChange({ ...transformation, incidentTags: incidentTags }, configuredBoard?.id)
+    onSettingsChange({ incidentTags: incidentTags }, configuredBoard?.id)
   }, [incidentTags, configuredBoard?.id, onSettingsChange])
 
   useEffect(() => {
@@ -165,13 +167,19 @@ export default function JiraSettings (props) {
   }, [fieldsList, transformation?.storyPointField])
 
   useEffect(() => {
-    console.log('>>>> TRANSFORMATION SETTINGS OBJECT....', transformation)
-    setRemoteLinkCommitSha(transformation?.remotelinkCommitShaPattern)
-  }, [transformation])
+    console.log('>>>> (new) TRANSFORMATION SETTINGS OBJECT....', newTransformation)
+    setCurrentTransformation(newTransformation[configuredBoard?.id])
+  }, [newTransformation, configuredBoard?.id])
 
   useEffect(() => {
     console.log('>>>> CONFIGURING BOARD....', configuredBoard)
   }, [configuredBoard])
+
+  useEffect(() => {
+    setRequirementTags(transformation?.requirementTags || [])
+    setBugTags(transformation?.bugTags || [])
+    setIncidentTags(transformation?.incidentTags || [])
+  }, [transformation])
 
   return (
     <>
@@ -195,17 +203,17 @@ export default function JiraSettings (props) {
             inline={true}
             fill={true}
             items={requirementTagsList}
-            selectedItems={transformation?.requirementTags}
+            selectedItems={requirementTags}
             activeItem={null}
             itemPredicate={(query, item) => item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
             itemRenderer={(item, { handleClick, modifiers }) => (
               <MenuItem
-                active={modifiers.active || requirementTags.includes(item)}
-                disabled={requirementTags.includes(item)}
+                active={modifiers.active || requirementTags?.includes(item)}
+                disabled={requirementTags?.includes(item)}
                 key={item.value}
                 label={<span style={{ marginLeft: '20px' }}>{item.description || item.value}</span>}
                 onClick={handleClick}
-                text={requirementTags.includes(item)
+                text={requirementTags?.includes(item)
                   ? (
                     <>
                       <img src={item.iconUrl} width={12} height={12} /> {item.title} <Icon icon='small-tick' color={Colors.GREEN5} />
@@ -216,7 +224,7 @@ export default function JiraSettings (props) {
                       <img src={item.iconUrl} width={12} height={12} /> {item.title}
                     </span>
                     )}
-                style={{ marginBottom: '2px', fontWeight: requirementTags.includes(item) ? 700 : 'normal' }}
+                style={{ marginBottom: '2px', fontWeight: requirementTags?.includes(item) ? 700 : 'normal' }}
               />
             )}
             tagRenderer={(item) => item.title}
@@ -239,7 +247,7 @@ export default function JiraSettings (props) {
         <div className='multiselect-clear-action' style={{ marginLeft: '0' }}>
           <Button
             icon='eraser'
-            disabled={requirementTags.length === 0 || isSaving}
+            disabled={requirementTags?.length === 0 || isSaving}
             intent={Intent.NONE} minimal={false} onClick={() => setRequirementTags([])}
             style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, marginLeft: '-2px' }}
           />
@@ -260,7 +268,7 @@ export default function JiraSettings (props) {
             inline={true}
             fill={true}
             items={bugTagsList}
-            selectedItems={transformation?.bugTags}
+            selectedItems={bugTags}
             activeItem={null}
             itemPredicate={(query, item) => item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
             itemRenderer={(item, { handleClick, modifiers }) => (
@@ -325,7 +333,7 @@ export default function JiraSettings (props) {
             inline={true}
             fill={true}
             items={incidentTagsList}
-            selectedItems={transformation?.incidentTags}
+            selectedItems={incidentTags}
             activeItem={null}
             itemPredicate={(query, item) => item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
             itemRenderer={(item, { handleClick, modifiers }) => (
@@ -530,7 +538,6 @@ export default function JiraSettings (props) {
       </div>
       <div className='headlineContainer'>
         <h5>Additional Settings</h5>
-        {/* <h3 className='headline'>Remotelink Commit SHA <Tag className='bp3-form-helper-text'>RegExp</Tag></h3> */}
       </div>
       <div className='formContainer' style={{ maxWidth: '550px' }}>
         <FormGroup
@@ -546,7 +553,7 @@ export default function JiraSettings (props) {
             id='jira-remotelink-sha'
             fill={true}
             placeholder='/commit/([0-9a-f]{40})$'
-            value={transformation?.remotelinkCommitShaPattern}
+            value={newTransformation[configuredBoard?.id]?.remotelinkCommitShaPattern}
             onChange={(e) => onSettingsChange({ ...transformation, remotelinkCommitShaPattern: e.target.value }, configuredBoard?.id)}
             disabled={isSaving}
             className='input'
