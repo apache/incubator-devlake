@@ -69,7 +69,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 			return err
 		}
 		conn.Proxy = v.GetString("BITBUCKET_PROXY")
-		conn.RateLimit = v.GetInt("BITBUCKET_API_REQUESTS_PER_HOUR")
+		conn.RateLimitPerHour = v.GetInt("BITBUCKET_API_REQUESTS_PER_HOUR")
 
 		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
 
