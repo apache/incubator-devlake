@@ -15,16 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package crossdomain
+package main
 
-import "github.com/apache/incubator-devlake/models/common"
+import "github.com/apache/incubator-devlake/plugins/org/impl"
 
-type TeamUser struct {
-	TeamId string `gorm:"primaryKey;type:varchar(255)"`
-	UserId string `gorm:"primaryKey;type:varchar(255)"`
-	common.NoPKModel
-}
-
-func (TeamUser) TableName() string {
-	return "team_users"
-}
+var PluginEntry impl.Org //nolint

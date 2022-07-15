@@ -17,9 +17,12 @@ limitations under the License.
 
 package crossdomain
 
+import "github.com/apache/incubator-devlake/models/common"
+
 type UserAccount struct {
-	UserId    string `gorm:"primaryKey;type:varchar(255)"`
+	UserId    string `gorm:"type:varchar(255)"`
 	AccountId string `gorm:"primaryKey;type:varchar(255)"`
+	common.NoPKModel
 }
 
 func (UserAccount) TableName() string {

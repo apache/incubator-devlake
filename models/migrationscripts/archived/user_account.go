@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 type UserAccount struct {
-	UserId    string `gorm:"primaryKey;type:varchar(255)"`
+	UserId    string `gorm:"type:varchar(255)"`
 	AccountId string `gorm:"primaryKey;type:varchar(255)"`
+	NoPKModel
 }
 
 func (UserAccount) TableName() string {

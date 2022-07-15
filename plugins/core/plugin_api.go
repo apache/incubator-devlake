@@ -17,19 +17,30 @@ limitations under the License.
 
 package core
 
-import "net/url"
+import (
+	"net/http"
+	"net/url"
+)
 
 // Contains api request information
 type ApiResourceInput struct {
-	Params map[string]string      // path variables
-	Query  url.Values             // query string
-	Body   map[string]interface{} // json body
+	Params  map[string]string      // path variables
+	Query   url.Values             // query string
+	Body    map[string]interface{} // json body
+	Request *http.Request
+}
+
+// OutputFile is the file returned
+type OutputFile struct {
+	ContentType string
+	Data        []byte
 }
 
 // Describe response data of a api
 type ApiResourceOutput struct {
 	Body   interface{} // response body
 	Status int
+	File   *OutputFile
 }
 
 type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, error)
