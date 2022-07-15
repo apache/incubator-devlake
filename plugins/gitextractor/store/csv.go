@@ -132,6 +132,9 @@ func (c *CsvStore) Refs(ref *code.Ref) error {
 func (c *CsvStore) CommitFiles(file *code.CommitFile) error {
 	return c.commitFileWriter.Write(file)
 }
+func (c *CsvStore) CommitfileComponent(component *code.CommitfileComponent) error {
+	return c.commitFileWriter.Write(component)
+}
 
 func (c *CsvStore) CommitParents(pp []*code.CommitParent) error {
 	var err error

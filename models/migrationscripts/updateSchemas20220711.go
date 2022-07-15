@@ -55,11 +55,23 @@ func (CommitFile) TableName() string {
 	return "commit_files"
 }
 
+type CommitfileComponent struct {
+	common.NoPKModel
+	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
+	Component string `gorm:"type:varchar(255)"`
+	CommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	FilePath  string `gorm:"primaryKey;type:varchar(255)"`
+}
+
+func (CommitfileComponent) TableName() string {
+	return "commitfile_component"
+}
+
 type updateSchemas20220711 struct{}
 
 func (*updateSchemas20220711) Up(ctx context.Context, db *gorm.DB) error {
 
-	err := db.Migrator().AutoMigrate(FileComponent{}, CommitFile{})
+	err := db.Migrator().AutoMigrate(FileComponent{}, CommitFile{}, CommitfileComponent{})
 	if err != nil {
 		return err
 	}
@@ -68,7 +80,7 @@ func (*updateSchemas20220711) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*updateSchemas20220711) Version() uint64 {
-	return 20220711122512
+	return 20220711122544
 }
 
 func (*updateSchemas20220711) Name() string {

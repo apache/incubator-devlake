@@ -27,5 +27,6 @@ type Store interface {
 	Refs(ref *code.Ref) error
 	CommitFiles(file *code.CommitFile) error
 	CommitParents(pp []*code.CommitParent) error
+	CommitfileComponent(component *code.CommitfileComponent) error
 	Close() error
 }
