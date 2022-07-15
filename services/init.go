@@ -38,6 +38,7 @@ var cfg *viper.Viper
 var db *gorm.DB
 var cronManager *cron.Cron
 var log core.Logger
+var migrationRequireConfirmation bool
 
 // Init FIXME ...
 func Init() {
@@ -62,11 +63,28 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	err = migration.Execute(context.Background())
-	if err != nil {
-		panic(err)
+	if !migration.NeedConfirmation() {
+		err = ExecuteMigration()
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		migrationRequireConfirmation = true
 	}
+	log.Info("Db migration confirmation needed: %v", migrationRequireConfirmation)
+}
 
+func ExecuteMigration() error {
+	err := migration.Execute(context.Background())
+	if err != nil {
+		return err
+	}
 	// call service init
 	pipelineServiceInit()
+	migrationRequireConfirmation = false
+	return nil
+}
+
+func MigrationRequireConfirmation() bool {
+	return migrationRequireConfirmation
 }

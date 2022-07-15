@@ -18,12 +18,16 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
+	"net/http"
 	"time"
 
 	_ "github.com/apache/incubator-devlake/api/docs"
+	"github.com/apache/incubator-devlake/api/shared"
 	"github.com/apache/incubator-devlake/logger"
 
 	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -38,9 +42,38 @@ import (
 // @host localhost:8080
 // @BasePath /
 func CreateApiService() {
+	services.Init()
 	v := config.GetConfig()
 	gin.SetMode(v.GetString("MODE"))
 	router := gin.Default()
+
+	// Wait for user confirmation if db migration is needed
+	router.GET("/proceed-db-migration", func(ctx *gin.Context) {
+		if !services.MigrationRequireConfirmation() {
+			shared.ApiOutputError(ctx, fmt.Errorf("no pending migration"), http.StatusBadRequest)
+			return
+		}
+		err := services.ExecuteMigration()
+		if err != nil {
+			shared.ApiOutputError(ctx, err, http.StatusBadRequest)
+			return
+		}
+		shared.ApiOutputSuccess(ctx, nil, http.StatusOK)
+	})
+	router.Use(func(ctx *gin.Context) {
+		if !services.MigrationRequireConfirmation() {
+			return
+		}
+		shared.ApiOutputError(
+			ctx,
+			fmt.Errorf("Database migration is required for Apache DevLake to function properly, it might cause the "+
+				"collected data gets wiped out for consistency. Please send a request to `/proceed-migrations` "+
+				"if it is ok, or you may downgrade back to the older version you previous used"),
+			http.StatusPreconditionRequired,
+		)
+		ctx.Abort()
+		return
+	})
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
