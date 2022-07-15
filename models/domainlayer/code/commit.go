@@ -66,3 +66,15 @@ type FileComponent struct {
 func (FileComponent) TableName() string {
 	return "file_component"
 }
+
+type CommitfileComponent struct {
+	common.NoPKModel
+	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
+	Component string `gorm:"type:varchar(255)"`
+	CommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	FilePath  string `gorm:"primaryKey;type:varchar(255)"`
+}
+
+func (CommitfileComponent) TableName() string {
+	return "commitfile_component"
+}
