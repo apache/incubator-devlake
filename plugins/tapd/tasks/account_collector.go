@@ -36,6 +36,7 @@ var CollectAccountsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectAccounts,
 	EnabledByDefault: true,
 	Description:      "collect tapd accounts",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func CollectAccounts(taskCtx core.SubTaskContext) error {

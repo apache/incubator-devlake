@@ -32,6 +32,7 @@ var ExtractBugChangelogMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractBugChangelog,
 	EnabledByDefault: true,
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_bug_changelogs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractBugChangelog(taskCtx core.SubTaskContext) error {

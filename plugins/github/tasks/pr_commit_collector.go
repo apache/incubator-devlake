@@ -41,7 +41,7 @@ var CollectApiPullRequestCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestCommits data from Github api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 type SimplePr struct {

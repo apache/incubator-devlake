@@ -65,4 +65,5 @@ var CollectBugCustomFieldsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectBugCustomFields,
 	EnabledByDefault: true,
 	Description:      "collect Tapd BugCustomFields",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

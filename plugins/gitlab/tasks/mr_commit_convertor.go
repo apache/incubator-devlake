@@ -33,7 +33,7 @@ var ConvertApiMrCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertApiMergeRequestsCommits,
 	EnabledByDefault: true,
 	Description:      "Update domain layer PullRequestCommit according to GitlabMrCommit",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ConvertApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {

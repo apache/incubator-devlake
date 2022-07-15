@@ -130,5 +130,5 @@ var CollectApiCommentsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiComments,
 	EnabledByDefault: true,
 	Description:      "Collect comments data from Github api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_TICKET},
 }

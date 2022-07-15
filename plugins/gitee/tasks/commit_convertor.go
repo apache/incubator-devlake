@@ -34,6 +34,7 @@ var ConvertCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertCommits,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitee_commits into  domain layer table commits",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_CROSS},
 }
 
 func ConvertCommits(taskCtx core.SubTaskContext) error {

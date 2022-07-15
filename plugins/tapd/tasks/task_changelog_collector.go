@@ -88,4 +88,5 @@ var CollectTaskChangelogMeta = core.SubTaskMeta{
 	EntryPoint:       CollectTaskChangelogs,
 	EnabledByDefault: true,
 	Description:      "collect Tapd taskChangelogs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

@@ -34,6 +34,7 @@ var ConvertIssueLabelsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertIssueLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitee_issue_labels into  domain layer table issue_labels",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ConvertIssueLabels(taskCtx core.SubTaskContext) error {

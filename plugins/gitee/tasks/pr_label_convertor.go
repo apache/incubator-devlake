@@ -34,6 +34,7 @@ var ConvertPullRequestLabelsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertPullRequestLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitee_pull_request_labels into  domain layer table pull_request_labels",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {

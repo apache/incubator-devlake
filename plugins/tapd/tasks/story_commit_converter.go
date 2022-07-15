@@ -69,4 +69,5 @@ var ConvertStoryCommitMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertStoryCommit,
 	EnabledByDefault: true,
 	Description:      "convert Tapd StoryCommit",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }

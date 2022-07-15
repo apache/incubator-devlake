@@ -31,7 +31,7 @@ var ExtractAccountMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractAccounts,
 	EnabledByDefault: true,
 	Description:      "Extract raw account data  into tool layer table github_accounts",
-	DomainTypes:      core.DOMAIN_TYPES,
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 type DetailGithubAccountResponse struct {

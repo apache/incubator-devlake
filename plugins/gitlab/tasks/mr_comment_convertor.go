@@ -35,7 +35,7 @@ var ConvertMrCommentMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertMergeRequestComment,
 	EnabledByDefault: true,
 	Description:      "Update domain layer Comment according to GitlabMrComment",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {

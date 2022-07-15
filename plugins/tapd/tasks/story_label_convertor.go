@@ -33,6 +33,7 @@ var ConvertStoryLabelsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertStoryLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table tapd_issue_labels into  domain layer table issue_labels",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ConvertStoryLabels(taskCtx core.SubTaskContext) error {

@@ -65,4 +65,5 @@ var CollectStoryCategoriesMeta = core.SubTaskMeta{
 	EntryPoint:       CollectStoryCategories,
 	EnabledByDefault: true,
 	Description:      "collect Tapd StoryCategories",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

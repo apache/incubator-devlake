@@ -38,6 +38,7 @@ var CollectApiIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiIssues,
 	EnabledByDefault: true,
 	Description:      "Collect issues data from Gitee api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func CollectApiIssues(taskCtx core.SubTaskContext) error {

@@ -32,6 +32,7 @@ var ExtractIterationMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractIterations,
 	EnabledByDefault: true,
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractIterations(taskCtx core.SubTaskContext) error {

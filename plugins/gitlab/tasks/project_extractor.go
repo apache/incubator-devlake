@@ -30,7 +30,7 @@ var ExtractProjectMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiProject,
 	EnabledByDefault: true,
 	Description:      "Extract raw project data into tool layer table GitlabProject",
-	DomainTypes:      core.DOMAIN_TYPES,
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
 }
 
 // Convert the API response to our DB model instance

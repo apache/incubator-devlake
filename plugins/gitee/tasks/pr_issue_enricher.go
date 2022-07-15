@@ -37,6 +37,7 @@ var EnrichPullRequestIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       EnrichPullRequestIssues,
 	EnabledByDefault: true,
 	Description:      "Create tool layer table gitee_pull_request_issues from gitee_pull_reqeusts",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {

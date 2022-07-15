@@ -36,7 +36,7 @@ var EnrichPullRequestIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       EnrichPullRequestIssues,
 	EnabledByDefault: true,
 	Description:      "Create tool layer table github_pull_request_issues from github_pull_reqeusts",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {

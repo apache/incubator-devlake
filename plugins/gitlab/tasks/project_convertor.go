@@ -36,7 +36,7 @@ var ConvertProjectMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertApiProjects,
 	EnabledByDefault: true,
 	Description:      "Update domain layer Repo according to GitlabProject",
-	DomainTypes:      core.DOMAIN_TYPES,
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
 }
 
 func ConvertApiProjects(taskCtx core.SubTaskContext) error {

@@ -72,4 +72,5 @@ var ConvertTaskCommitMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertTaskCommit,
 	EnabledByDefault: true,
 	Description:      "convert Tapd TaskCommit",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }

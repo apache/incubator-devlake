@@ -36,6 +36,7 @@ var CollectCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiCommits,
 	EnabledByDefault: true,
 	Description:      "Collect commit data from gitee api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_CROSS},
 }
 
 func CollectApiCommits(taskCtx core.SubTaskContext) error {

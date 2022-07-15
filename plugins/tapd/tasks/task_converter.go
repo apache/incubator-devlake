@@ -108,4 +108,5 @@ var ConvertTaskMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertTask,
 	EnabledByDefault: true,
 	Description:      "convert Tapd Task",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

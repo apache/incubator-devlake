@@ -33,7 +33,7 @@ var ConvertMrLabelsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertMrLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_mr_labels into  domain layer table pull_request_labels",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ConvertMrLabels(taskCtx core.SubTaskContext) error {

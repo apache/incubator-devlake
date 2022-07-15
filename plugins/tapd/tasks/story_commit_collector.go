@@ -122,4 +122,5 @@ var CollectStoryCommitMeta = core.SubTaskMeta{
 	EntryPoint:       CollectStoryCommits,
 	EnabledByDefault: true,
 	Description:      "collect Tapd issueCommits",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }

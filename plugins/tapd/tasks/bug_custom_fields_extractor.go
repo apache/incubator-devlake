@@ -32,6 +32,7 @@ var ExtractBugCustomFieldsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractBugCustomFields,
 	EnabledByDefault: true,
 	Description:      "Extract raw company data into tool layer table _tool_tapd_bug_custom_fields",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractBugCustomFields(taskCtx core.SubTaskContext) error {

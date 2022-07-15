@@ -35,6 +35,7 @@ var CollectMilestonesMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiMilestones,
 	EnabledByDefault: true,
 	Description:      "Collect milestone data from Github api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func CollectApiMilestones(taskCtx core.SubTaskContext) error {

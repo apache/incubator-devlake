@@ -36,6 +36,7 @@ var CollectApiRepoMeta = core.SubTaskMeta{
 	EntryPoint:  CollectApiRepositories,
 	Required:    true,
 	Description: "Collect repositories data from Gitee api",
+	DomainTypes: []string{core.DOMAIN_TYPE_CODE},
 }
 
 func CollectApiRepositories(taskCtx core.SubTaskContext) error {

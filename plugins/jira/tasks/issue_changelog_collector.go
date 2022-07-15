@@ -40,7 +40,7 @@ var CollectIssueChangelogsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectIssueChangelogs,
 	EnabledByDefault: true,
 	Description:      "collect Jira Issue change logs",
-	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CROSS},
 }
 
 func CollectIssueChangelogs(taskCtx core.SubTaskContext) error {

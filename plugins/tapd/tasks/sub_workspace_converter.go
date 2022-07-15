@@ -73,4 +73,5 @@ var ConvertSubWorkspaceMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertSubWorkspace,
 	EnabledByDefault: true,
 	Description:      "convert Tapd workspace",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

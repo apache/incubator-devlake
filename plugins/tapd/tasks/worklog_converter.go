@@ -91,4 +91,5 @@ var ConvertWorklogMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertWorklog,
 	EnabledByDefault: true,
 	Description:      "convert Tapd Worklog",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }

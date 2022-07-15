@@ -101,4 +101,5 @@ var CalculateIssuesDiffMeta = core.SubTaskMeta{
 	EntryPoint:       CalculateIssuesDiff,
 	EnabledByDefault: true,
 	Description:      "Calculate diff issues between refs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
