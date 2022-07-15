@@ -32,14 +32,14 @@ import (
 //	return "code_component_20220711"
 //}
 
-type FileComponent struct {
+type Component struct {
 	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
 	Component string `gorm:"primaryKey;type:varchar(255)"`
 	PathRegex string `gorm:"type:varchar(255)"`
 }
 
-func (FileComponent) TableName() string {
-	return "file_component"
+func (Component) TableName() string {
+	return "component"
 }
 
 type CommitFile struct {
@@ -56,22 +56,22 @@ func (CommitFile) TableName() string {
 	return "commit_files"
 }
 
-type CommitfileComponent struct {
+type FileComponent struct {
 	common.NoPKModel
 	CommitFileID string `gorm:"primaryKey;type:varchar(255)"`
 	RepoId       string `gorm:"primaryKey;type:varchar(255)"`
 	Component    string `gorm:"type:varchar(255)"`
 }
 
-func (CommitfileComponent) TableName() string {
-	return "commitfile_component"
+func (FileComponent) TableName() string {
+	return "file_component"
 }
 
 type updateSchemas20220711 struct{}
 
 func (*updateSchemas20220711) Up(ctx context.Context, db *gorm.DB) error {
 
-	err := db.Migrator().AutoMigrate(FileComponent{}, CommitFile{}, CommitfileComponent{})
+	err := db.Migrator().AutoMigrate(Component{}, CommitFile{}, FileComponent{})
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (*updateSchemas20220711) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*updateSchemas20220711) Version() uint64 {
-	return 202207151400
+	return 202207151420
 }
 
 func (*updateSchemas20220711) Name() string {

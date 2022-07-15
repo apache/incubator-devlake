@@ -91,7 +91,7 @@ func (d *Database) CommitFiles(file *code.CommitFile) error {
 	return batch.Add(file)
 }
 
-func (d *Database) CommitfileComponent(commitfile *code.CommitfileComponent) error {
+func (d *Database) FileComponent(commitfile *code.FileComponent) error {
 	batch, err := d.driver.ForType(reflect.TypeOf(commitfile))
 	if err != nil {
 		return err

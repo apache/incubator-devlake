@@ -191,7 +191,7 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) error {
 		return err
 	}
 	db := subtaskCtx.GetDal()
-	components := make([]code.FileComponent, 0)
+	components := make([]code.Component, 0)
 	err = db.All(&components, dal.From(components), dal.Where("repo_id= ?", r.id))
 	if err != nil {
 		return err
@@ -312,7 +312,7 @@ func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, 
 
 func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, componentMap map[string]*regexp.Regexp) error {
 	var commitFile *code.CommitFile
-	var commitfileComponent *code.CommitfileComponent
+	var commitfileComponent *code.FileComponent
 	var err error
 	err = diff.ForEach(func(file git.DiffDelta, progress float64) (
 		git.DiffForEachHunkCallback, error) {
@@ -328,7 +328,7 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 		commitFile.CommitSha = commitSha
 		commitFile.FilePath = file.NewFile.Path
 		commitFile.CommitFileID = commitSha + ":" + file.NewFile.Path
-		commitfileComponent = new(code.CommitfileComponent)
+		commitfileComponent = new(code.FileComponent)
 		for component, reg := range componentMap {
 			if reg.MatchString(commitFile.FilePath) {
 				commitfileComponent.Component = component
@@ -355,9 +355,9 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 		}, nil
 	}, git.DiffDetailLines)
 	if commitfileComponent != nil {
-		err = r.store.CommitfileComponent(commitfileComponent)
+		err = r.store.FileComponent(commitfileComponent)
 		if err != nil {
-			r.logger.Error("CommitfileComponent error:", err)
+			r.logger.Error("FileComponent error:", err)
 		}
 	}
 	if commitFile != nil {
