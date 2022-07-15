@@ -44,11 +44,12 @@ func (FileComponent) TableName() string {
 
 type CommitFile struct {
 	common.NoPKModel
-	CommitSha string `gorm:"primaryKey;type:varchar(40)"`
-	FilePath  string `gorm:"primaryKey;type:varchar(255)"`
-	Additions int
-	Deletions int
-	Component string `gorm:"type:varchar(255)"`
+	CommitFileID string `gorm:"primaryKey;"`
+	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
+	FilePath     string `gorm:"primaryKey;type:varchar(255)"`
+	Additions    int
+	Deletions    int
+	Component    string `gorm:"type:varchar(255)"`
 }
 
 func (CommitFile) TableName() string {

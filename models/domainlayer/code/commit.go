@@ -50,7 +50,6 @@ type CommitFile struct {
 	FilePath  string `gorm:"primaryKey;type:varchar(255)"`
 	Additions int
 	Deletions int
-	Component string `gorm:"type:varchar(255)"`
 }
 
 func (CommitFile) TableName() string {
