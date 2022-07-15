@@ -34,7 +34,7 @@ func NewGitlabApiClient(taskCtx core.TaskContext, connection *models.GitlabConne
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
 	}
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy)
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}

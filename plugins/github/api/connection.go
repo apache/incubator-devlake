@@ -69,6 +69,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		},
 		3*time.Second,
 		params.Proxy,
+		basicRes,
 	)
 	if err != nil {
 		return nil, err

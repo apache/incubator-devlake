@@ -20,6 +20,7 @@ package helper
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -58,7 +59,9 @@ func NewApiClient(
 	headers map[string]string,
 	timeout time.Duration,
 	proxy string,
+	br core.BasicRes,
 ) (*ApiClient, error) {
+
 	parsedUrl, err := url.Parse(endpoint)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid URL: %w", err)
@@ -84,6 +87,18 @@ func NewApiClient(
 		headers,
 		timeout,
 	)
+	// create the Transport
+	apiClient.client.Transport = &http.Transport{}
+
+	// set insecureSkipVerify
+	insecureSkipVerify, err := utils.StrToBoolOr(br.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
+	if err != nil {
+		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
+	}
+	if insecureSkipVerify {
+		apiClient.client.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
 	if proxy != "" {
 		err = apiClient.SetProxy(proxy)
 		if err != nil {
@@ -153,7 +168,7 @@ func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
 		return err
 	}
 	if pu.Scheme == "http" || pu.Scheme == "socks5" {
-		apiClient.client.Transport = &http.Transport{Proxy: http.ProxyURL(pu)}
+		apiClient.client.Transport.(*http.Transport).Proxy = http.ProxyURL(pu)
 	}
 	return nil
 }

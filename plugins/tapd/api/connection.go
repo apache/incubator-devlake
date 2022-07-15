@@ -45,6 +45,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
+
 	// verify multiple token in parallel
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
 	token := params.Auth
@@ -56,6 +57,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		},
 		3*time.Second,
 		params.Proxy,
+		basicRes,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("verify token failed for %s %w", token, err)

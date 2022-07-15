@@ -32,7 +32,8 @@ const AUTH_ENDPOINT = "https://open.feishu.cn"
 const ENDPOINT = "https://open.feishu.cn/open-apis/vc/v1"
 
 func NewFeishuApiClient(taskCtx core.TaskContext, connection *models.FeishuConnection) (*helper.ApiAsyncClient, error) {
-	authApiClient, err := helper.NewApiClient(taskCtx.GetContext(), AUTH_ENDPOINT, nil, 0, connection.Proxy)
+
+	authApiClient, err := helper.NewApiClient(taskCtx.GetContext(), AUTH_ENDPOINT, nil, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +56,7 @@ func NewFeishuApiClient(taskCtx core.TaskContext, connection *models.FeishuConne
 		return nil, fmt.Errorf("failed to request access token")
 	}
 	// real request apiClient
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), ENDPOINT, nil, 0, connection.Proxy)
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), ENDPOINT, nil, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}

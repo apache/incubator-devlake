@@ -61,7 +61,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	secretKey := connection.SecretKey
 	proxy := connection.Proxy
 
-	apiClient, err := helper.NewApiClient(context.TODO(), endpoint, nil, 3*time.Second, proxy)
+	apiClient, err := helper.NewApiClient(context.TODO(), endpoint, nil, 3*time.Second, proxy, basicRes)
 	if err != nil {
 		return nil, err
 	}

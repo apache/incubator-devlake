@@ -31,7 +31,8 @@ func NewJiraApiClient(taskCtx core.TaskContext, connection *models.JiraConnectio
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 	}
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy)
+
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}

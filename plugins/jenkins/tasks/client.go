@@ -32,7 +32,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.JenkinsConnect
 		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 	}
 
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy)
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}
