@@ -72,4 +72,5 @@ var CollectCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectCommits,
 	EnabledByDefault: true,
 	Description:      "Collect commit analysis data from AE api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }

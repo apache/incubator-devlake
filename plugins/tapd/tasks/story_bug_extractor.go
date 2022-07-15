@@ -32,6 +32,7 @@ var ExtractStoryBugsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractStoryBugs,
 	EnabledByDefault: true,
 	Description:      "Extract raw company data into tool layer table _tool_tapd_story_bugs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractStoryBugs(taskCtx core.SubTaskContext) error {

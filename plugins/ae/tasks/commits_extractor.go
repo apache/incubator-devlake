@@ -76,4 +76,5 @@ var ExtractCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw commit data into tool layer table ae_commits",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }

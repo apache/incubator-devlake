@@ -111,4 +111,5 @@ var ConvertBugChangelogMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertBugChangelog,
 	EnabledByDefault: true,
 	Description:      "convert Tapd bug changelog",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

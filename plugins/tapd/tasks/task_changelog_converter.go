@@ -114,4 +114,5 @@ var ConvertTaskChangelogMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertTaskChangelog,
 	EnabledByDefault: true,
 	Description:      "convert Tapd task changelog",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

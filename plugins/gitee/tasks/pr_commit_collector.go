@@ -39,6 +39,7 @@ var CollectApiPullRequestCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestCommits data from Gitee api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 type SimplePr struct {

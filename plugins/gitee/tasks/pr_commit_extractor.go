@@ -31,6 +31,7 @@ var ExtractApiPullRequestCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequestCommits data into tool layer table gitee_commits",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 type PrCommitsResponse struct {

@@ -122,4 +122,5 @@ var CollectBugCommitMeta = core.SubTaskMeta{
 	EntryPoint:       CollectBugCommits,
 	EnabledByDefault: true,
 	Description:      "collect Tapd issueCommits",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }

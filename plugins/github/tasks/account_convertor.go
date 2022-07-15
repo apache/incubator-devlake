@@ -38,7 +38,7 @@ var ConvertAccountsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_accounts into  domain layer table accounts",
-	DomainTypes:      core.DOMAIN_TYPES,
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 type GithubAccountWithOrg struct {

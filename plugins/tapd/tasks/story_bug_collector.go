@@ -77,4 +77,5 @@ var CollectStoryBugMeta = core.SubTaskMeta{
 	EntryPoint:       CollectStoryBugs,
 	EnabledByDefault: true,
 	Description:      "collect Tapd storyBugs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

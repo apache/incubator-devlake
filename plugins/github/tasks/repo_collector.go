@@ -36,7 +36,7 @@ var CollectApiRepoMeta = core.SubTaskMeta{
 	EntryPoint:  CollectApiRepositories,
 	Required:    true,
 	Description: "Collect repositories data from Github api",
-	DomainTypes: core.DOMAIN_TYPES,
+	DomainTypes: []string{core.DOMAIN_TYPE_CODE},
 }
 
 func CollectApiRepositories(taskCtx core.SubTaskContext) error {

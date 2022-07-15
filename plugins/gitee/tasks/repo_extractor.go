@@ -31,6 +31,7 @@ var ExtractApiRepoMeta = core.SubTaskMeta{
 	EntryPoint:  ExtractApiRepositories,
 	Required:    true,
 	Description: "Extract raw Repositories data into tool layer table gitee_repos",
+	DomainTypes: []string{core.DOMAIN_TYPE_CODE},
 }
 
 type GiteeApiRepoResponse struct {

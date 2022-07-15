@@ -32,6 +32,7 @@ var ExtractApiCommitStatsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiCommitStats,
 	EnabledByDefault: false,
 	Description:      "Extract raw commit stats data into tool layer table gitee_commit_stats",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 type ApiSingleCommitResponse struct {

@@ -35,6 +35,7 @@ var ConvertPullRequestsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertPullRequests,
 	EnabledByDefault: true,
 	Description:      "ConvertPullRequests data from Gitee api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ConvertPullRequests(taskCtx core.SubTaskContext) error {

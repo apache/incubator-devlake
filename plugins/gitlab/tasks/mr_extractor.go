@@ -73,7 +73,7 @@ var ExtractApiMergeRequestsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiMergeRequests,
 	EnabledByDefault: true,
 	Description:      "Extract raw merge requests data into tool layer table GitlabMergeRequest and GitlabReviewer",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {

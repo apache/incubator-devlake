@@ -87,4 +87,5 @@ var CollectStoryChangelogMeta = core.SubTaskMeta{
 	EntryPoint:       CollectStoryChangelogs,
 	EnabledByDefault: true,
 	Description:      "collect Tapd storyChangelogs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

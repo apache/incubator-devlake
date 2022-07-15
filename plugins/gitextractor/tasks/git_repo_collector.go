@@ -98,6 +98,7 @@ var CollectGitCommitMeta = core.SubTaskMeta{
 	EntryPoint:       CollectGitCommits,
 	EnabledByDefault: true,
 	Description:      "collect git commits into Domain Layer Tables",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_CROSS},
 }
 
 var CollectGitBranchMeta = core.SubTaskMeta{
@@ -105,6 +106,7 @@ var CollectGitBranchMeta = core.SubTaskMeta{
 	EntryPoint:       CollectGitBranches,
 	EnabledByDefault: true,
 	Description:      "collect git branch into Domain Layer Tables",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 var CollectGitTagMeta = core.SubTaskMeta{
@@ -112,4 +114,5 @@ var CollectGitTagMeta = core.SubTaskMeta{
 	EntryPoint:       CollectGitTags,
 	EnabledByDefault: true,
 	Description:      "collect git tag into Domain Layer Tables",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }

@@ -35,7 +35,7 @@ var ConvertApiNotesMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertApiNotes,
 	EnabledByDefault: true,
 	Description:      "Update domain layer Note according to GitlabMrNote",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ConvertApiNotes(taskCtx core.SubTaskContext) error {

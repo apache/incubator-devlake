@@ -35,6 +35,7 @@ var CollectApiIssueCommentsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiIssueComments,
 	EnabledByDefault: true,
 	Description:      "Collect comments data from Gitee api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func CollectApiIssueComments(taskCtx core.SubTaskContext) error {

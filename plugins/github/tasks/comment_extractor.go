@@ -35,7 +35,7 @@ var ExtractApiCommentsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Description: "Extract raw comment data  into tool layer table github_pull_request_comments" +
 		"and github_issue_comments",
-	DomainTypes: []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
+	DomainTypes: []string{core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_TICKET},
 }
 
 type IssueComment struct {

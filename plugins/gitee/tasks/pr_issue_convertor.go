@@ -35,6 +35,7 @@ var ConvertPullRequestIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertPullRequestIssues,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitee_pull_request_issues into  domain layer table pull_request_issues",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {

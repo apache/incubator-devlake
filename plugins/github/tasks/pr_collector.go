@@ -40,7 +40,7 @@ var CollectApiPullRequestsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiPullRequests,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequests data from Github api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func CollectApiPullRequests(taskCtx core.SubTaskContext) error {

@@ -33,7 +33,7 @@ var ConvertIssueCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertIssueCommits,
 	EnabledByDefault: true,
 	Description:      "convert Jira issue commits",
-	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func ConvertIssueCommits(taskCtx core.SubTaskContext) error {

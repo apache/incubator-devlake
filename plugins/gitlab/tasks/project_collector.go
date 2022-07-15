@@ -46,7 +46,7 @@ var CollectProjectMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiProject,
 	EnabledByDefault: true,
 	Description:      "Collect project data from gitlab api",
-	DomainTypes:      core.DOMAIN_TYPES,
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
 }
 
 func CollectApiProject(taskCtx core.SubTaskContext) error {

@@ -38,7 +38,7 @@ var ConvertIssueChangelogsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertIssueChangelogs,
 	EnabledByDefault: true,
 	Description:      "convert Jira Issue change logs",
-	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CROSS},
 }
 
 type IssueChangelogItemResult struct {
