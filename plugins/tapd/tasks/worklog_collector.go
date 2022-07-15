@@ -87,5 +87,5 @@ var CollectWorklogMeta = core.SubTaskMeta{
 	EntryPoint:       CollectWorklogs,
 	EnabledByDefault: true,
 	Description:      "collect Tapd worklogs",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

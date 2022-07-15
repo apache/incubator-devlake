@@ -32,7 +32,7 @@ var ExtractWorklogMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractWorklogs,
 	EnabledByDefault: true,
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractWorklogs(taskCtx core.SubTaskContext) error {
