@@ -34,7 +34,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.AeConnection) 
 	secretKey := connection.SecretKey
 	proxy := connection.Proxy
 
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), endpoint, nil, 0, proxy)
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), endpoint, nil, 0, proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}

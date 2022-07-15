@@ -42,7 +42,6 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-
 	// test connection
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
@@ -52,6 +51,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		},
 		3*time.Second,
 		connection.Proxy,
+		basicRes,
 	)
 	if err != nil {
 		return nil, err

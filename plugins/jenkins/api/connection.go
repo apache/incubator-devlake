@@ -46,6 +46,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	}
 	// test connection
 	encodedToken := utils.GetEncodedToken(connection.Username, connection.Password)
+
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
 		connection.Endpoint,
@@ -54,6 +55,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		},
 		3*time.Second,
 		connection.Proxy,
+		basicRes,
 	)
 	if err != nil {
 		return nil, err

@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/utils"
-	"net/http"
 )
 
 const ENDPOINT = "https://people.apache.org/"
@@ -40,7 +41,7 @@ func NewIclaApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) 
 	proxy := taskCtx.GetConfig("ICLA_PROXY")
 
 	// real request apiClient
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), ENDPOINT, nil, 0, proxy)
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), ENDPOINT, nil, 0, proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}

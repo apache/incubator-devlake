@@ -33,7 +33,8 @@ func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnectio
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", auth),
 	}
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, "")
+
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, "", taskCtx)
 	if err != nil {
 		return nil, err
 	}

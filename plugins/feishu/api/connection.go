@@ -20,11 +20,12 @@ package api
 import (
 	"context"
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/mitchellh/mapstructure"
-	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 )
@@ -44,7 +45,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return nil, err
 	}
 
-	authApiClient, err := helper.NewApiClient(context.TODO(), params.Endpoint, nil, 0, params.Proxy)
+	authApiClient, err := helper.NewApiClient(context.TODO(), params.Endpoint, nil, 0, params.Proxy, basicRes)
 	if err != nil {
 		return nil, err
 	}

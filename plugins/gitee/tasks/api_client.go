@@ -30,7 +30,7 @@ import (
 )
 
 func NewGiteeApiClient(taskCtx core.TaskContext, connection *models.GiteeConnection) (*helper.ApiAsyncClient, error) {
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, nil, 0, connection.Proxy)
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, nil, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}
