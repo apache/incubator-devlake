@@ -57,7 +57,8 @@ func (h *Handlers) GetUserAccountMapping(input *core.ApiResourceInput) (*core.Ap
 // @Summary      Upload user_account_mapping.csv.csv file
 // @Description  upload user_account_mapping.csv.csv file
 // @Tags 		 plugins/org
-// @Accept       text/csv
+// @Accept       multipart/form-data
+// @Param        file formData file true "select file to upload"
 // @Produce      json
 // @Success      200
 // @Failure 400  {object} shared.ApiBody "Bad Request"

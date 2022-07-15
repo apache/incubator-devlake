@@ -30,7 +30,7 @@ import (
 var ConnectUserAccountsExactMeta = core.SubTaskMeta{
 	Name:             "connectUserAccountsExact",
 	EntryPoint:       ConnectUserAccountsExact,
-	EnabledByDefault: false,
+	EnabledByDefault: true,
 	Description:      "associate users and accounts",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }

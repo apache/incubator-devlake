@@ -66,7 +66,8 @@ func (h *Handlers) GetTeam(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 // @Summary      Upload teams.csv file
 // @Description  upload teams.csv file
 // @Tags 		 plugins/org
-// @Accept       text/csv
+// @Accept       multipart/form-data
+// @Param        file formData file true "select file to upload"
 // @Produce      json
 // @Success      200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
