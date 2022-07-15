@@ -65,5 +65,5 @@ var CollectTaskCustomFieldsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectTaskCustomFields,
 	EnabledByDefault: true,
 	Description:      "collect Tapd TaskCustomFields",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
