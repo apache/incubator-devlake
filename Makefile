@@ -48,7 +48,7 @@ swag:
 	swag init --parseDependency --parseInternal -o ./api/docs -g ./api/api.go -g plugins/*/api/*.go
 	echo "visit the swagger document on http://localhost:8080/swagger/index.html"
 
-dev: build-plugin swag run
+dev: build-plugin run
 
 debug: build-plugin-debug
 	dlv debug main.go

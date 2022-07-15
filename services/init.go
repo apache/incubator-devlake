@@ -38,8 +38,9 @@ var cfg *viper.Viper
 var db *gorm.DB
 var cronManager *cron.Cron
 var log core.Logger
+var migrationRequireConfirmation bool
 
-// Init FIXME ...
+// Init the services module
 func Init() {
 	var err error
 	cfg = config.GetConfig()
@@ -62,11 +63,29 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	err = migration.Execute(context.Background())
-	if err != nil {
-		panic(err)
+	forceMigration := cfg.GetBool("FORCE_MIGRATION")
+	if !migration.NeedConfirmation() || forceMigration {
+		err = ExecuteMigration()
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		migrationRequireConfirmation = true
 	}
+	log.Info("Db migration confirmation needed: %v", migrationRequireConfirmation)
+}
 
+func ExecuteMigration() error {
+	err := migration.Execute(context.Background())
+	if err != nil {
+		return err
+	}
 	// call service init
 	pipelineServiceInit()
+	migrationRequireConfirmation = false
+	return nil
+}
+
+func MigrationRequireConfirmation() bool {
+	return migrationRequireConfirmation
 }

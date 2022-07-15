@@ -25,7 +25,7 @@ import (
 	"sync"
 )
 
-var m = migrator{scripts: make(map[string]scriptWithComment)}
+var m = migrator{}
 
 type scriptWithComment struct {
 	Script
@@ -34,25 +34,37 @@ type scriptWithComment struct {
 type migrator struct {
 	sync.Mutex
 	db      *gorm.DB
-	scripts map[string]scriptWithComment
+	executed map[string]bool
+	scripts []*scriptWithComment
+	pending []*scriptWithComment
 }
 
 func Init(db *gorm.DB) {
 	m.db = db
+	var err error
+	m.executed, err = m.getExecuted()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (m *migrator) register(scripts []Script, comment string) {
 	m.Lock()
 	defer m.Unlock()
 	for _, script := range scripts {
-		m.scripts[fmt.Sprintf("%s:%d", script.Name(), script.Version())] = scriptWithComment{
+		key := fmt.Sprintf("%s:%d", script.Name(), script.Version())
+		swc := &scriptWithComment{
 			Script:  script,
 			comment: comment,
+		}
+		m.scripts = append(m.scripts, swc)
+		if !m.executed[key] {
+			m.pending = append(m.pending, swc)
 		}
 	}
 }
 
-func (m *migrator) bookKeep(script scriptWithComment) error {
+func (m *migrator) bookKeep(script *scriptWithComment) error {
 	record := &MigrationHistory{
 		ScriptVersion: script.Version(),
 		ScriptName:    script.Name(),
@@ -62,22 +74,11 @@ func (m *migrator) bookKeep(script scriptWithComment) error {
 }
 
 func (m *migrator) execute(ctx context.Context) error {
-	versions, err := m.getExecuted()
-	if err != nil {
-		return err
-	}
-	for key := range versions {
-		delete(m.scripts, key)
-	}
-	var scriptSlice []scriptWithComment
-	for _, script := range m.scripts {
-		scriptSlice = append(scriptSlice, script)
-	}
-	sort.Slice(scriptSlice, func(i, j int) bool {
-		return scriptSlice[i].Version() < scriptSlice[j].Version()
+	sort.Slice(m.pending, func(i, j int) bool {
+		return m.pending[i].Version() < m.pending[j].Version()
 	})
-	for _, script := range scriptSlice {
-		err = script.Up(ctx, m.db)
+	for _, script := range m.pending {
+		err := script.Up(ctx, m.db)
 		if err != nil {
 			return err
 		}
@@ -88,9 +89,9 @@ func (m *migrator) execute(ctx context.Context) error {
 	}
 	return nil
 }
-func (m *migrator) getExecuted() (map[string]struct{}, error) {
+func (m *migrator) getExecuted() (map[string]bool, error) {
 	var err error
-	versions := make(map[string]struct{})
+	versions := make(map[string]bool)
 	err = m.db.Migrator().AutoMigrate(&MigrationHistory{})
 	if err != nil {
 		return nil, err
@@ -101,7 +102,7 @@ func (m *migrator) getExecuted() (map[string]struct{}, error) {
 		return nil, err
 	}
 	for _, record := range records {
-		versions[fmt.Sprintf("%s:%d", record.ScriptName, record.ScriptVersion)] = struct{}{}
+		versions[fmt.Sprintf("%s:%d", record.ScriptName, record.ScriptVersion)] = true
 	}
 	return versions, nil
 }
@@ -112,4 +113,8 @@ func Register(scripts []Script, comment string) {
 
 func Execute(ctx context.Context) error {
 	return m.execute(ctx)
+}
+
+func NeedConfirmation() bool {
+	return len(m.executed) > 0 && len(m.pending) > 0
 }
