@@ -45,4 +45,4 @@ RUN apt update && apt install -y apache2-utils
 COPY ./nginx.sh /usr/bin/nginx.sh
 RUN chmod +x /usr/bin/nginx.sh
 USER 101
-CMD nginx.sh
+#CMD nginx.sh
