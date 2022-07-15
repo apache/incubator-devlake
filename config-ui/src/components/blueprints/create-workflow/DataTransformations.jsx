@@ -80,20 +80,20 @@ const DataTransformations = (props) => {
     console.log('>>>>> CHANGING TRANSFORMATION FOR ENTITY!', entity, settings)
     setNewTransformation(currentTransforms => ({
       ...currentTransforms,
-      [entity]: { 
+      [entity]: {
         ...currentTransforms[entity],
         ...settings
       }
     }))
   }, [setNewTransformation])
 
-  const clearTransformation = useCallback(() => {
-    console.log('>>>>> CLEARING!!!!!', configuredBoard)
-    setNewTransformation({
-      [configuredBoard?.id]: {}
-    })
-    onClear()
-  }, [configuredProject, configuredBoard, onClear, setNewTransformation])
+  // const clearTransformation = useCallback(() => {
+  //   console.log('>>>>> CLEARING!!!!!', configuredBoard)
+  //   setNewTransformation({
+  //     [configuredBoard?.id]: {}
+  //   })
+  //   onClear()
+  // }, [configuredProject, configuredBoard, onClear, setNewTransformation])
 
   // useEffect(() => {
   //   console.log('>>> LOOK HERE DataTransformationSettings:activeTransformation!!!!', activeTransformation)
@@ -225,7 +225,8 @@ const DataTransformations = (props) => {
                           Data Transformation Rules
                         </h4>
                         <div>
-                          <Button
+                          {/* @todo: reactivate clear all functionality */}
+                          {/* <Button
                             minimal
                             small
                             text='Clear All'
@@ -234,7 +235,7 @@ const DataTransformations = (props) => {
                             onClick={clearTransformation}
                             style={{ float: 'right' }}
                             disabled={Object.keys(activeTransformation || {}).length === 0}
-                          />
+                          /> */}
                         </div>
                       </div>
 
@@ -253,7 +254,6 @@ const DataTransformations = (props) => {
                           fields={fields}
                           boards={boards}
                           transformation={activeTransformation}
-                          newTransformation={newTransformation}
                           newTransformation={newTransformation}
                           setNewTransformation={setNewTransformation}
                           changeTransformation={changeTransformation}

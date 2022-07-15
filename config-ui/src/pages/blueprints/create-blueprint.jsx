@@ -398,13 +398,6 @@ const CreateBlueprint = (props) => {
     setTestStatus
   ])
 
-  const handleTransformationSave = useCallback((settings, entity) => {
-    console.log('>> SAVING / CLOSING Transformation Settings')
-    setTransformationSettings(settings, entity)
-    setConfiguredProject(null)
-    setConfiguredBoard(null)
-  }, [])
-
   const handleTransformationCancel = useCallback(() => {
     setConfiguredProject(null)
     setConfiguredBoard(null)
@@ -560,6 +553,13 @@ const CreateBlueprint = (props) => {
     },
     [setTransformations]
   )
+
+  const handleTransformationSave = useCallback((settings, entity) => {
+    console.log('>> SAVING / CLOSING Transformation Settings')
+    setTransformationSettings(settings, entity)
+    setConfiguredProject(null)
+    setConfiguredBoard(null)
+  }, [setTransformationSettings])
 
   const handleAdvancedMode = (enableAdvanced = true) => {
     setAdvancedMode(enableAdvanced)
