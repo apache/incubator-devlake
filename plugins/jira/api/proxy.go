@@ -24,11 +24,9 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"github.com/apache/incubator-devlake/utils"
 )
 
 const (
@@ -41,11 +39,6 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	if err != nil {
 		return nil, err
 	}
-	// set InsecureSkipVerify
-	insecureSkipVerify, err := utils.StrToBoolOr(config.GetConfig().GetString("IN_SECURE_SKIP_VERIFY"), false)
-	if err != nil {
-		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
-	}
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
 		connection.Endpoint,
@@ -54,7 +47,7 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 		},
 		30*time.Second,
 		connection.Proxy,
-		insecureSkipVerify,
+		basicRes,
 	)
 	if err != nil {
 		return nil, err

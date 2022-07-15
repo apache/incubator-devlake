@@ -27,7 +27,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -100,11 +99,6 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 				return nil, err
 			}
 			token := strings.Split(connection.Token, ",")[0]
-			// set InsecureSkipVerify
-			insecureSkipVerify, err := utils.StrToBoolOr(config.GetConfig().GetString("IN_SECURE_SKIP_VERIFY"), false)
-			if err != nil {
-				return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
-			}
 			apiClient, err := helper.NewApiClient(
 				context.TODO(),
 				connection.Endpoint,
@@ -113,7 +107,7 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 				},
 				10*time.Second,
 				connection.Proxy,
-				insecureSkipVerify,
+				basicRes,
 			)
 			if err != nil {
 				return nil, err

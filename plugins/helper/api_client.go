@@ -59,8 +59,9 @@ func NewApiClient(
 	headers map[string]string,
 	timeout time.Duration,
 	proxy string,
-	insecureSkipVerify bool,
+	br core.BasicRes,
 ) (*ApiClient, error) {
+
 	parsedUrl, err := url.Parse(endpoint)
 	if err != nil {
 		return nil, fmt.Errorf("Invalid URL: %w", err)
@@ -88,7 +89,12 @@ func NewApiClient(
 	)
 	// create the Transport
 	apiClient.client.Transport = &http.Transport{}
+
 	// set insecureSkipVerify
+	insecureSkipVerify, err := utils.StrToBoolOr(br.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
+	if err != nil {
+		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
+	}
 	if insecureSkipVerify {
 		apiClient.client.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}

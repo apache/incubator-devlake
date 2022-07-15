@@ -23,7 +23,6 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
-	"github.com/apache/incubator-devlake/utils"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -33,12 +32,8 @@ const AUTH_ENDPOINT = "https://open.feishu.cn"
 const ENDPOINT = "https://open.feishu.cn/open-apis/vc/v1"
 
 func NewFeishuApiClient(taskCtx core.TaskContext, connection *models.FeishuConnection) (*helper.ApiAsyncClient, error) {
-	// set InsecureSkipVerify
-	insecureSkipVerify, err := utils.StrToBoolOr(taskCtx.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
-	if err != nil {
-		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
-	}
-	authApiClient, err := helper.NewApiClient(taskCtx.GetContext(), AUTH_ENDPOINT, nil, 0, connection.Proxy, insecureSkipVerify)
+
+	authApiClient, err := helper.NewApiClient(taskCtx.GetContext(), AUTH_ENDPOINT, nil, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +56,7 @@ func NewFeishuApiClient(taskCtx core.TaskContext, connection *models.FeishuConne
 		return nil, fmt.Errorf("failed to request access token")
 	}
 	// real request apiClient
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), ENDPOINT, nil, 0, connection.Proxy, insecureSkipVerify)
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), ENDPOINT, nil, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}

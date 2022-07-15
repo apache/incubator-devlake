@@ -24,7 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"github.com/apache/incubator-devlake/utils"
 )
 
 func CreateApiClient(taskCtx core.TaskContext, connection *models.JenkinsConnection) (*helper.ApiAsyncClient, error) {
@@ -32,12 +31,8 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.JenkinsConnect
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 	}
-	// set InsecureSkipVerify
-	insecureSkipVerify, err := utils.StrToBoolOr(taskCtx.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
-	if err != nil {
-		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
-	}
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, insecureSkipVerify)
+
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}

@@ -25,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/ae/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/utils"
 )
 
 func CreateApiClient(taskCtx core.TaskContext, connection *models.AeConnection) (*helper.ApiAsyncClient, error) {
@@ -34,12 +33,8 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.AeConnection) 
 	appId := connection.AppId
 	secretKey := connection.SecretKey
 	proxy := connection.Proxy
-	// set InsecureSkipVerify
-	insecureSkipVerify, err := utils.StrToBoolOr(taskCtx.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
-	if err != nil {
-		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
-	}
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), endpoint, nil, 0, proxy, insecureSkipVerify)
+
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), endpoint, nil, 0, proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}

@@ -23,9 +23,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"github.com/apache/incubator-devlake/utils"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/mitchellh/mapstructure"
@@ -48,11 +46,6 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return nil, err
 	}
 
-	// set InsecureSkipVerify
-	insecureSkipVerify, err := utils.StrToBoolOr(config.GetConfig().GetString("IN_SECURE_SKIP_VERIFY"), false)
-	if err != nil {
-		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
-	}
 	// verify multiple token in parallel
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
 	token := params.Auth
@@ -64,7 +57,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		},
 		3*time.Second,
 		params.Proxy,
-		insecureSkipVerify,
+		basicRes,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("verify token failed for %s %w", token, err)
