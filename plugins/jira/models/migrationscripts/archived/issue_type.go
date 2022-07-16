@@ -29,7 +29,7 @@ type JiraIssueType struct {
 	IconURL          string `json:"iconUrl" gorm:"type:varchar(255)"`
 	Name             string `json:"name" gorm:"type:varchar(255)"`
 	UntranslatedName string `json:"untranslatedName" gorm:"type:varchar(255)"`
-	Subtask          bool   `json:"subtask" gorm:"type:varchar(255)"`
+	Subtask          bool   `json:"subtask"`
 	AvatarID         uint64 `json:"avatarId"`
 	HierarchyLevel   int    `json:"hierarchyLevel"`
 	archived.NoPKModel

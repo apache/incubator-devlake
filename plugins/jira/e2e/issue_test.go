@@ -40,6 +40,7 @@ func TestIssueDataFlow(t *testing.T) {
 
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issues.csv", "_raw_jira_api_issues")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_types.csv", "_raw_jira_api_issue_types")
 
 	// verify issue extraction
 	dataflowTester.FlushTabler(&models.JiraIssue{})
@@ -49,7 +50,30 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.JiraIssueChangelogItems{})
 	dataflowTester.FlushTabler(&models.JiraWorklog{})
 	dataflowTester.FlushTabler(&models.JiraAccount{})
+	dataflowTester.FlushTabler(&models.JiraIssueType{})
+	dataflowTester.Subtask(tasks.ExtractIssueTypesMeta, taskData)
 	dataflowTester.Subtask(tasks.ExtractIssuesMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.JiraIssueType{},
+		"./snapshot_tables/_tool_jira_issue_types.csv",
+		[]string{
+			"connection_id",
+			"self",
+			"id",
+			"description",
+			"icon_url",
+			"name",
+			"untranslated_name",
+			"subtask",
+			"avatar_id",
+			"hierarchy_level",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
 	dataflowTester.VerifyTable(
 		models.JiraIssue{},
 		"./snapshot_tables/_tool_jira_issues.csv",

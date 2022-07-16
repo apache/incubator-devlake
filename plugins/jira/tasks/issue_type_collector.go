@@ -19,12 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
-	"net/http"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"net/http"
 )
 
 const RAW_ISSUE_TYPE_TABLE = "jira_api_issue_types"
@@ -53,14 +50,8 @@ func CollectIssueTypes(taskCtx core.SubTaskContext) error {
 			Table: RAW_ISSUE_TYPE_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		PageSize:    50,
+		Concurrency: 1,
 		UrlTemplate: "api/3/issuetype",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
-			query := url.Values{}
-			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
-			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
-			return query, nil
-		},
 
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data []json.RawMessage
