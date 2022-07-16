@@ -172,11 +172,12 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.JiraSprintIssue{},
 		&archived.JiraStatus{},
 		&archived.JiraWorklog{},
+		&archived.JiraIssueType{},
 	)
 }
 
 func (*InitSchemas) Version() uint64 {
-	return 20220714201138
+	return 20220716201138
 }
 
 func (*InitSchemas) Name() string {

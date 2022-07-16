@@ -57,7 +57,7 @@ func CollectIssueChangelogs(taskCtx core.SubTaskContext) error {
 		dal.From("_tool_jira_board_issues bi"),
 		dal.Join("LEFT JOIN _tool_jira_issues i ON (bi.connection_id = i.connection_id AND bi.issue_id = i.issue_id)"),
 		dal.Join("LEFT JOIN _tool_jira_issue_changelogs c ON (c.connection_id = i.connection_id AND c.issue_id = i.issue_id)"),
-		dal.Where(`i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  `, data.Options.ConnectionId, data.Options.BoardId),
+		dal.Where(`i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ? AND i.std_type != ? `, data.Options.ConnectionId, data.Options.BoardId, "Epic"),
 		dal.Groupby("i.issue_id, i.updated"),
 		dal.Having("i.updated > max(c.issue_updated) OR  max(c.issue_updated) IS NULL"),
 	}
