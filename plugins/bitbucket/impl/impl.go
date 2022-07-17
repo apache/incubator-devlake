@@ -51,7 +51,13 @@ func (plugin Bitbucket) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
 		tasks.CollectApiRepoMeta,
 		tasks.ExtractApiRepoMeta,
+		tasks.CollectApiPullRequestsMeta,
+		tasks.ExtractApiPullRequestsMeta,
+		tasks.CollectApiIssuesMeta,
+		tasks.ExtractApiIssuesMeta,
 		tasks.ConvertRepoMeta,
+		tasks.ConvertPullRequestsMeta,
+		tasks.ConvertIssuesMeta,
 	}
 }
 

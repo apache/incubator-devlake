@@ -19,17 +19,19 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/models/common"
+	"time"
 )
 
-type BitbucketUser struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	UserName     string `json:"username"`
-	DisplayName  string `json:"display_name"`
-	AccountId    string `json:"account_id"`
-
+type BitbucketIssueEvent struct {
+	ConnectionId       uint64    `gorm:"primaryKey"`
+	BitbucketId        int       `gorm:"primaryKey"`
+	IssueId            int       `gorm:"index;comment:References the Issue"`
+	Type               string    `gorm:"type:varchar(255);comment:Events that can occur to an issue, ex. assigned, closed, labeled, etc."`
+	AuthorUsername     string    `gorm:"type:varchar(255)"`
+	BitbucketCreatedAt time.Time `gorm:"index"`
 	common.NoPKModel
 }
 
-func (BitbucketUser) TableName() string {
-	return "_tool_bitbucket_users"
+func (BitbucketIssueEvent) TableName() string {
+	return "_tool_bitbucket_issue_events"
 }

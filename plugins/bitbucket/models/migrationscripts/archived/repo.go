@@ -18,7 +18,7 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"time"
 )
 
@@ -32,7 +32,7 @@ type BitbucketRepo struct {
 	Language     string     `json:"language" gorm:"type:varchar(255)"`
 	CreatedDate  time.Time  `json:"createdDate"`
 	UpdatedDate  *time.Time `json:"updatedDate"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (BitbucketRepo) TableName() string {

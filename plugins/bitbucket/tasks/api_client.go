@@ -31,7 +31,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.BitbucketConne
 	// load configuration
 	token := connection.GetEncodedToken()
 	// create synchronize api client so we can calculate api rate limit dynamically
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, nil, 0, connection.Proxy)
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, nil, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}
