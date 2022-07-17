@@ -26,7 +26,6 @@ import {
 } from '@blueprintjs/core'
 import { ProviderIcons } from '@/data/Providers'
 
-
 const StageTaskIndicator = (props) => {
   const { task } = props
 

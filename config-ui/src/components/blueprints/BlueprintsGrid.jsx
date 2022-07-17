@@ -358,7 +358,7 @@ const BlueprintsGrid = (props) => {
                           <div
                             key={`pipeline-run-key-${pIdx}`}
                             className='pipeline-run-entry'
-                            style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', padding: '4px 0'}}
+                            style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', padding: '4px 0' }}
                           >
                             <div
                               className='pipeline-id'

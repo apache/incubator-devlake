@@ -39,11 +39,14 @@ const WorkflowActions = (props) => {
     onNext = () => {},
     onSave = () => {},
     onSaveAndRun = () => {},
+    isLoading = false
   } = props
 
   return (
     <div className='workflow-actions'>
       <Button
+        loading={isLoading}
+        disabled={isLoading}
         intent={Intent.PRIMARY}
         text='Previous Step'
         onClick={onPrev}
@@ -53,12 +56,16 @@ const WorkflowActions = (props) => {
       {activeStep?.id === blueprintSteps.length ? (
         <div style={{ marginLeft: 'auto' }}>
           <Button
+            loading={isLoading}
+            disabled={isLoading}
             intent={Intent.PRIMARY}
             text='Save Blueprint'
             // disabled
             onClick={onSave}
           />
           <Button
+            loading={isLoading}
+            disabled={isLoading}
             intent={Intent.DANGER}
             text='Save and Run Now'
             style={{ marginLeft: '5px' }}
@@ -69,6 +76,7 @@ const WorkflowActions = (props) => {
       ) : (
         <div style={{ display: 'flex', marginLeft: 'auto' }}>
           <Button
+            loading={isLoading}
             intent={Intent.PRIMARY}
             icon='code'
             text='Inspect'
@@ -78,6 +86,8 @@ const WorkflowActions = (props) => {
             small
           />
           <Button
+            loading={isLoading}
+            disabled={isLoading}
             intent={Intent.PRIMARY}
             text='Next Step'
             onClick={onNext}

@@ -652,7 +652,7 @@ const BlueprintDetail = (props) => {
 
   useEffect(() => {
     // if (lastPipeline?.id && lastPipeline.status === TaskStatus.RUNNING) {
-      if (lastPipeline?.id && [TaskStatus.RUNNING, TaskStatus.FAILED].includes(lastPipeline.status)) {
+    if (lastPipeline?.id && [TaskStatus.RUNNING, TaskStatus.FAILED].includes(lastPipeline.status)) {
       fetchPipeline(lastPipeline?.id)
       setCurrentRun((cR) => ({
         ...cR,
@@ -675,7 +675,10 @@ const BlueprintDetail = (props) => {
         error: lastPipeline.message || null,
       }))
     }
-  }, [lastPipeline])
+  }, [
+    fetchPipeline,
+    lastPipeline
+  ])
 
   useEffect(() => {
     fetchAllPipelines()
@@ -683,10 +686,9 @@ const BlueprintDetail = (props) => {
 
   useEffect(() => {
     if (activePipeline?.id && activePipeline?.id !== null) {
-      console.log('>> HERE!!!', activePipeline)
       setCurrentStages(buildPipelineStages(activePipeline.tasks))
     }
-  }, [activePipeline])
+  }, [activePipeline, buildPipelineStages])
 
   useEffect(() => {
     console.log('>> BUILDING CURRENT STAGES...', currentStages)
@@ -954,13 +956,13 @@ const BlueprintDetail = (props) => {
                     style={{ display: 'flex', width: '100%' }}
                   >
                     <div
-                    className='pipeline-task-activity' style={{
+                      className='pipeline-task-activity' style={{
                       // padding: '20px',
-                      flex: 1,
-                      padding: Object.keys(currentStages).length === 1 ? '0' : 0,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}
+                        flex: 1,
+                        padding: Object.keys(currentStages).length === 1 ? '0' : 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis'
+                      }}
                     >
                       {Object.keys(currentStages).length > 0 && (
                         <div

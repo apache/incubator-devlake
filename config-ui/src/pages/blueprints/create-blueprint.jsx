@@ -93,6 +93,8 @@ const CreateBlueprint = (props) => {
   const [enabledProviders, setEnabledProviders] = useState([])
   const [runTasks, setRunTasks] = useState([])
   const [runTasksAdvanced, setRunTasksAdvanced] = useState([])
+  const [runNow, setRunNow] = useState(false)
+  const [newBlueprintId, setNewBlueprintId] = useState()
   const [existingTasks, setExistingTasks] = useState([])
   const [rawConfiguration, setRawConfiguration] = useState(
     JSON.stringify([runTasks], null, '  ')
@@ -422,13 +424,16 @@ const CreateBlueprint = (props) => {
   }, [setTransformations, configuredProject, configuredBoard])
 
   const handleBlueprintSave = useCallback(() => {
+    console.log('>>> SAVING BLUEPRINT!!')
+    setRunNow(false)
     saveBlueprint()
   }, [saveBlueprint])
 
   const handleBlueprintSaveAndRun = useCallback(() => {
+    console.log('>>> SAVING BLUEPRINT & RUNNING NOW!!')
+    setRunNow(true)
     saveBlueprint()
-    runPipeline()
-  }, [saveBlueprint, runPipeline])
+  }, [saveBlueprint])
 
   const getRestrictedDataEntities = useCallback(() => {
     let items = []
@@ -647,6 +652,7 @@ const CreateBlueprint = (props) => {
     )
     setPipelineSettings({
       name: pipelineName,
+      // blueprintId: saveBlueprintComplete?.id || 0,
       plan: advancedMode ? runTasksAdvanced : [[...runTasks]],
     })
     // setRawConfiguration(JSON.stringify(buildPipelineStages(runTasks, true), null, '  '))
@@ -666,6 +672,7 @@ const CreateBlueprint = (props) => {
     validatePipeline,
     validateAdvancedPipeline,
     setBlueprintTasks,
+    // saveBlueprintComplete?.id
   ])
 
   useEffect(() => {
@@ -913,9 +920,38 @@ const CreateBlueprint = (props) => {
 
   useEffect(() => {
     if (saveBlueprintComplete?.id) {
+      setNewBlueprintId(saveBlueprintComplete?.id)
+    }
+  }, [
+    saveBlueprintComplete,
+    setPipelineSettings,
+    setPipelineSettings,
+    setNewBlueprintId,
+    runNow,
+    runPipeline,
+    history
+  ])
+
+  useEffect(() => {
+    if (runNow && newBlueprintId) {
+      const newPipelineConfiguration = {
+        name: `${saveBlueprintComplete?.name} ${Date.now()}`,
+        blueprintId: saveBlueprintComplete?.id,
+        plan: saveBlueprintComplete?.plan,
+      }
+      runPipeline(newPipelineConfiguration)
+      setRunNow(false)
+      history.push(`/blueprints/detail/${saveBlueprintComplete?.id}`)
+    } else if (newBlueprintId) {
       history.push(`/blueprints/detail/${saveBlueprintComplete?.id}`)
     }
-  }, [saveBlueprintComplete, history])
+  }, [
+    runNow,
+    saveBlueprintComplete,
+    newBlueprintId,
+    runPipeline,
+    history
+  ])
 
   useEffect(() => {
     console.log('>>> FETCHED JIRA API BOARDS FROM PROXY...', jiraApiBoards)
@@ -1095,6 +1131,7 @@ const CreateBlueprint = (props) => {
               onPrev={prevStep}
               onSave={handleBlueprintSave}
               onSaveAndRun={handleBlueprintSaveAndRun}
+              isLoading={isSaving}
             />
           </main>
         </Content>

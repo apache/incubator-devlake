@@ -21,6 +21,7 @@ import request from '@/utils/request'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
 import { ToastNotification } from '@/components/Toast'
 import { Providers } from '@/data/Providers'
+import { Intent } from '@blueprintjs/core'
 // import { integrationsData } from '@/data/integrations'
 
 function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initialTasks = []) {
@@ -55,20 +56,20 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
     Providers.DBT
   ])
 
-  const runPipeline = useCallback(() => {
+  const runPipeline = useCallback((runSettings = null) => {
     console.log('>> RUNNING PIPELINE....')
     try {
       setIsRunning(true)
       setErrors([])
       ToastNotification.clear()
-      console.log('>> DISPATCHING PIPELINE REQUEST', settings)
+      console.log('>> DISPATCHING PIPELINE REQUEST', runSettings || settings)
       const run = async () => {
-        const p = await request.post(`${DEVLAKE_ENDPOINT}/pipelines`, settings)
+        const p = await request.post(`${DEVLAKE_ENDPOINT}/pipelines`, runSettings || settings)
         const t = await request.get(`${DEVLAKE_ENDPOINT}/pipelines/${p.data?.ID || p.data?.id}/tasks`)
         console.log('>> RAW PIPELINE DATA FROM API...', p.data)
         setPipelineRun({ ...p.data, ID: p.data?.ID || p.data?.id, tasks: [...t.data.tasks] })
         setLastRunId(p.data?.ID || p.data?.id)
-        ToastNotification.show({ message: `Created New Pipeline - ${pipelineName}.`, intent: 'danger', icon: 'small-tick' })
+        ToastNotification.show({ message: `Created New Pipeline - ${pipelineName}.`, intent: Intent.SUCCESS, icon: 'small-tick' })
         setTimeout(() => {
           setIsRunning(false)
         }, 500)

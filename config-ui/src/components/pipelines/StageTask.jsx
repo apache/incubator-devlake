@@ -21,7 +21,6 @@ import StageTaskName from '@/components/pipelines/StageTaskName'
 import StageTaskIndicator from '@/components/pipelines/StageTaskIndicator'
 import StageTaskCaption from '@/components/pipelines/StageTaskCaption'
 
-
 const StageTask = (props) => {
   const {
     // stages = [],

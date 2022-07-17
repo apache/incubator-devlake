@@ -168,16 +168,16 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         }
         setBlueprint(blueprintObject)
         setSaveComplete(blueprintObject)
-        if (b.status === 200) {
+        if ([200, 201].includes(b.status)) {
           ToastNotification.show({
             message: `${blueprintId ? 'Updated' : 'Created'} Blueprint - ${name}.`,
-            intent: 'danger',
+            intent: Intent.SUCCESS,
             icon: 'small-tick'
           })
         } else {
           ToastNotification.show({
             message: `Blueprint Failure - ${b.message}`,
-            intent: 'danger',
+            intent: Intent.NONE,
             icon: 'error'
           })
         }
@@ -276,7 +276,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         console.log('>> RAW BLUEPRINT DATA FROM API...', activateB.data)
         // eslint-disable-next-line no-unused-vars
         const updatedBlueprint = activateB.data
-        setBlueprint(b => ({...b, ...updatedBlueprint}))
+        setBlueprint(b => ({ ...b, ...updatedBlueprint }))
         // setSaveComplete(b.data)
         ToastNotification.show({ message: `Activated Blueprint - ${blueprint.name}.`, intent: Intent.SUCCESS, icon: 'small-tick' })
         setTimeout(() => {
@@ -313,7 +313,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         console.log('>> RAW BLUEPRINT DATA FROM API...', deactivateB.data)
         // eslint-disable-next-line no-unused-vars
         const updatedBlueprint = deactivateB.data
-        setBlueprint(b => ({...b, ...updatedBlueprint}))
+        setBlueprint(b => ({ ...b, ...updatedBlueprint }))
         // setSaveComplete(b.data)
         ToastNotification.show({ message: `Deactivated Blueprint - ${blueprint.name}.`, intent: Intent.SUCCESS, icon: 'small-tick' })
         setTimeout(() => {
