@@ -134,9 +134,9 @@ const TEST_RUN = {
   startedAt: '7/7/2022, 5:31:33 PM',
   duration: '1 min',
   stage: 'Stage 1',
-  tasksCompleted: 5,
-  tasksPending: 8,
-  totalTasks: 13,
+  tasksTotal: 5,
+  tasksFinished: 8,
+  // totalTasks: 13,
   error: null,
 }
 
@@ -149,9 +149,9 @@ const EMPTY_RUN = {
   startedAt: Date.now(),
   duration: '0 min',
   stage: 'Stage 1',
-  tasksCompleted: 0,
-  tasksPending: 0,
-  totalTasks: 0,
+  tasksTotal: 0,
+  tasksFinished: 0,
+  // totalTasks: 0,
   error: null,
 }
 
@@ -669,11 +669,9 @@ const BlueprintDetail = (props) => {
               true
             ),
         stage: `Stage ${lastPipeline.stage}`,
-        tasksCompleted: lastPipeline.finishedTasks,
-        tasksPending: Number(
-          lastPipeline.totalTasks - lastPipeline.finishedTasks
-        ),
-        totalTasks: lastPipeline.totalTasks,
+        tasksFinished: Number(lastPipeline.finishedTasks),
+        tasksTotal: Number(lastPipeline.totalTasks),
+        // totalTasks: Number(lastPipeline.totalTasks),
         error: lastPipeline.message || null,
       }))
     }
@@ -856,8 +854,8 @@ const BlueprintDetail = (props) => {
                         Tasks Completed
                       </label>
                       <h4 style={{ fontSize: '15px', margin: 0, padding: 0 }}>
-                        {currentRun?.tasksCompleted} /{' '}
-                        {currentRun?.tasksPending}
+                        {currentRun?.tasksFinished} /{' '}
+                        {currentRun?.tasksTotal}
                       </h4>
                     </div>
                     <div
