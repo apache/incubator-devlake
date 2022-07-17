@@ -60,7 +60,7 @@ const StageTaskName = (props) => {
         enforceFocus={false}
         usePortal={true}
       >
-        <span className='task-plugin-text' ref={popoverTriggerRef}>{task.plugin}</span>
+        <span className='task-plugin-text' ref={popoverTriggerRef}><strong>Task ID {task.id}</strong> {' '} {ProviderLabels[task?.plugin?.toUpperCase()]}</span>
         <>
           <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '400px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -138,25 +138,6 @@ const StageTaskName = (props) => {
                 <div style={{ marginTop: '6px' }}>
                   <label style={{ color: Colors.GRAY2 }}>Status</label><br />
                   <strong>{task.status}</strong>{' '}
-                  <strong
-                    className='bp3-tag'
-                    style={{ minHeight: '16px', fontSize: '10px', padding: '2px 6px', borderRadius: '6px' }}
-                  >PROGRESS {task.progress * 100}%
-                  </strong>
-                </div>
-                <div style={{ marginTop: '6px' }}>
-                  <label style={{ color: Colors.GRAY2 }}>Options</label><br />
-                  <TextArea
-                    readOnly
-                    fill value={JSON.stringify(task.options)} style={{ fontSize: '10px', backgroundColor: '#f8f8f8', resize: 'none' }}
-                  />
-                  {/* <span>
-                        <pre style={{ margin: 0 }}>
-                          <code>
-                            {JSON.stringify(task.options)}
-                          </code>
-                        </pre>
-                      </span> */}
                 </div>
                 {task.message !== '' && (
                   <div style={{ marginTop: '6px' }}>

@@ -647,7 +647,7 @@ const CreateBlueprint = (props) => {
     )
     setPipelineSettings({
       name: pipelineName,
-      tasks: advancedMode ? runTasksAdvanced : [[...runTasks]],
+      plan: advancedMode ? runTasksAdvanced : [[...runTasks]],
     })
     // setRawConfiguration(JSON.stringify(buildPipelineStages(runTasks, true), null, '  '))
     if (advancedMode) {

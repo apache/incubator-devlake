@@ -17,6 +17,7 @@
  */
 import React from 'react'
 import { Providers } from '@/data/Providers'
+import { Colors } from '@blueprintjs/core'
 
 const StageTaskCaption = (props) => {
   const { task, options } = props
@@ -34,10 +35,11 @@ const StageTaskCaption = (props) => {
         textOverflow: 'ellipsis'
       }}
     >
-      {(task.plugin === Providers.GITLAB || task.plugin === Providers.JIRA) && (<>ID {options.projectId || options.boardId}</>)}
-      {task.plugin === Providers.GITHUB && (<>@{options.owner}/{options.repositoryName}</>)}
-      {task.plugin === Providers.JENKINS && (<>Task #{task.ID}</>)}
-      {(task.plugin === Providers.GITEXTRACTOR || task.plugin === Providers.REFDIFF) && (<>{options.repoId || `ID ${task.ID}`}</>)}
+      {task.status === 'TASK_RUNNING' && <span>Subtask {task?.progressDetail?.finishedSubTasks} / {task?.progressDetail?.totalSubTasks}</span>}
+      {task.status === 'TASK_COMPLETED' && <span>{task?.progressDetail?.finishedSubTasks} Subtasks completed</span>}
+      {task.status === 'TASK_COMPLETED' && <span>{task?.progressDetail?.finishedRecords}</span>}
+      {task.status === 'TASK_CREATED' && <span>Records Pending</span>}
+      {task.status === 'TASK_FAILED' && <span style={{ color: Colors.RED3 }}>Task failed</span>}
     </span>
   )
 }

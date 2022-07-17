@@ -91,6 +91,7 @@ const PipelineActivity = (props) => {
     tasks?.forEach(tS => {
       stages = {
         ...stages,
+        // [tS.pipelineRow]: tasks?.filter(t => t.pipelineRow === tS.pipelineRow)
         [tS.pipelineRow]: tasks?.filter(t => t.pipelineRow === tS.pipelineRow)
       }
     })

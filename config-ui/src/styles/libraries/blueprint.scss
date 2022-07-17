@@ -112,6 +112,10 @@ button, .bp3-button {
     background-color: #ffffff;
     color: #E34040;
   }
+  &.bp3-intent-success {
+    background-color: #ffffff;
+    color: #4DB764;
+  }
   > span.bp3-icon {
     color: inherit !important;
     > svg {

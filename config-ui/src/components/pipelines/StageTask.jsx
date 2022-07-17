@@ -21,6 +21,7 @@ import StageTaskName from '@/components/pipelines/StageTaskName'
 import StageTaskIndicator from '@/components/pipelines/StageTaskIndicator'
 import StageTaskCaption from '@/components/pipelines/StageTaskCaption'
 
+
 const StageTask = (props) => {
   const {
     // stages = [],
@@ -36,15 +37,15 @@ const StageTask = (props) => {
   }
 
   const determineCardElevation = (status, isElevated = false) => {
-    let elevation = Elevation.ONE
+    let elevation = Elevation.ZERO
     if (status === 'TASK_RUNNING' && isElevated) {
-      elevation = Elevation.THREE
+      elevation = Elevation.ZERO
     } else if (status === 'TASK_RUNNING' && !isElevated) {
-      elevation = Elevation.TWO
+      elevation = Elevation.ZERO
     } else if (isElevated) {
-      elevation = Elevation.THREE
+      elevation = Elevation.ZERO
     } else {
-      elevation = Elevation.ONE
+      elevation = Elevation.ZERO
     }
     return elevation
   }
@@ -71,14 +72,14 @@ const StageTask = (props) => {
             <StageTaskCaption task={task} options={task.options} />
           </div>
         </div>
-        <div
+        {/* <div
           className='task-module-progress'
           style={{
             fontWeight: task.status === 'TASK_COMPLETED' ? 700 : 300
           }}
         >
           {Number(task.status === 'TASK_COMPLETED' ? 100 : (task.progress / 1) * 100).toFixed(0)}%
-        </div>
+        </div> */}
       </Card>
     </>
   )

@@ -35,7 +35,9 @@ import {
   Popover,
 } from '@blueprintjs/core'
 import { NullBlueprint } from '@/data/NullBlueprint'
+import { NullPipelineRun } from '@/data/NullPipelineRun'
 import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+
 // import {
 //   WorkflowSteps,
 //   WorkflowAdvancedSteps,
@@ -46,6 +48,9 @@ import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import Content from '@/components/Content'
+import TaskActivity from '@/components/pipelines/TaskActivity'
+import CodeInspector from '@/components/pipelines/CodeInspector'
+import StageLane from '@/components/pipelines/StageLane'
 
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
@@ -267,6 +272,178 @@ const TEST_BLUEPRINT_API_RESPONSE = {
   updatedAt: '2022-07-11T10:23:38.908-04:00',
 }
 
+const TEST_STAGES = [
+  {
+    id: 1,
+    name: 'stage-1',
+    title: 'Stage 1',
+    status: StageStatus.COMPLETED,
+    icon: <Icon icon='tick-circle' size={14} color={StatusColors.COMPLETE} />,
+    tasks: [
+      {
+        id: 0,
+        provider: 'jira',
+        icon: ProviderIcons[Providers.JIRA](14, 14),
+        title: 'JIRA',
+        caption: 'STREAM Board',
+        duration: '4 min',
+        subTasksCompleted: 25,
+        recordsFinished: 1234,
+        message: 'All 25 subtasks completed',
+        status: TaskStatus.COMPLETE,
+      },
+      {
+        id: 0,
+        provider: 'jira',
+        icon: ProviderIcons[Providers.JIRA](14, 14),
+        title: 'JIRA',
+        caption: 'LAKE Board',
+        duration: '4 min',
+        subTasksCompleted: 25,
+        recordsFinished: 1234,
+        message: 'All 25 subtasks completed',
+        status: TaskStatus.COMPLETE,
+      },
+    ],
+    stageHeaderClassName: 'complete',
+  },
+  {
+    id: 2,
+    name: 'stage-2',
+    title: 'Stage 2',
+    status: StageStatus.PENDING,
+    icon: <Spinner size={14} intent={Intent.PRIMARY} />,
+    tasks: [
+      {
+        id: 0,
+        provider: 'jira',
+        icon: ProviderIcons[Providers.JIRA](14, 14),
+        title: 'JIRA',
+        caption: 'EE Board',
+        duration: '5 min',
+        subTasksCompleted: 25,
+        recordsFinished: 1234,
+        message: 'Subtask 5/25: Extracting Issues',
+        status: TaskStatus.ACTIVE,
+      },
+      {
+        id: 0,
+        provider: 'jira',
+        icon: ProviderIcons[Providers.JIRA](14, 14),
+        title: 'JIRA',
+        caption: 'EE Bugs Board',
+        duration: '0 min',
+        subTasksCompleted: 0,
+        recordsFinished: 0,
+        message: 'Invalid Board ID',
+        status: TaskStatus.FAILED,
+      },
+    ],
+    stageHeaderClassName: 'active',
+  },
+  {
+    id: 3,
+    name: 'stage-3',
+    title: 'Stage 3',
+    status: StageStatus.PENDING,
+    icon: null,
+    tasks: [
+      {
+        id: 0,
+        provider: 'github',
+        icon: ProviderIcons[Providers.GITHUB](14, 14),
+        title: 'GITHUB',
+        caption: 'merico-dev/lake',
+        duration: null,
+        subTasksCompleted: 0,
+        recordsFinished: 0,
+        message: 'Subtasks pending',
+        status: TaskStatus.CREATED,
+      },
+    ],
+    stageHeaderClassName: 'pending',
+  },
+  {
+    id: 4,
+    name: 'stage-4',
+    title: 'Stage 4',
+    status: StageStatus.PENDING,
+    icon: null,
+    tasks: [
+      {
+        id: 0,
+        providr: 'github',
+        icon: ProviderIcons[Providers.GITHUB](14, 14),
+        title: 'GITHUB',
+        caption: 'merico-dev/lake',
+        duration: null,
+        subTasksCompleted: 0,
+        recordsFinished: 0,
+        message: 'Subtasks pending',
+        status: TaskStatus.CREATED,
+      },
+    ],
+    stageHeaderClassName: 'pending',
+  },
+]
+
+const TEST_HISTORICAL_RUNS = [
+  {
+    id: 0,
+    status: 'TASK_COMPLETED',
+    statusLabel: 'Completed',
+    statusIcon: <Icon icon='tick-circle' size={14} color={Colors.GREEN5} />,
+    startedAt: '05/25/2022 0:00 AM',
+    completedAt: '05/25/2022 0:15 AM',
+    duration: '15 min',
+  },
+  {
+    id: 1,
+    status: 'TASK_COMPLETED',
+    statusLabel: 'Completed',
+    statusIcon: <Icon icon='tick-circle' size={14} color={Colors.GREEN5} />,
+    startedAt: '05/25/2022 0:00 AM',
+    completedAt: '05/25/2022 0:15 AM',
+    duration: '15 min',
+  },
+  {
+    id: 2,
+    status: 'TASK_FAILED',
+    statusLabel: 'Failed',
+    statusIcon: <Icon icon='delete' size={14} color={Colors.RED5} />,
+    startedAt: '05/25/2022 0:00 AM',
+    completedAt: '05/25/2022 0:00 AM',
+    duration: '0 min',
+  },
+  {
+    id: 3,
+    status: 'TASK_COMPLETED',
+    statusLabel: 'Completed',
+    statusIcon: <Icon icon='tick-circle' size={14} color={Colors.GREEN5} />,
+    startedAt: '05/25/2022 0:00 AM',
+    completedAt: '05/25/2022 0:15 AM',
+    duration: '15 min',
+  },
+  {
+    id: 4,
+    status: 'TASK_COMPLETED',
+    statusLabel: 'Completed',
+    statusIcon: <Icon icon='tick-circle' size={14} color={Colors.GREEN5} />,
+    startedAt: '05/25/2022 0:00 AM',
+    completedAt: '05/25/2022 0:15 AM',
+    duration: '15 min',
+  },
+  {
+    id: 5,
+    status: 'TASK_FAILED',
+    statusLabel: 'Failed',
+    statusIcon: <Icon icon='delete' size={14} color={Colors.RED5} />,
+    startedAt: '05/25/2022 0:00 AM',
+    completedAt: '05/25/2022 0:00 AM',
+    duration: '0 min',
+  },
+]
+
 const BlueprintDetail = (props) => {
   // eslint-disable-next-line no-unused-vars
   const history = useHistory()
@@ -279,178 +456,12 @@ const BlueprintDetail = (props) => {
   const [blueprintConnections, setBlueprintConnections] = useState([])
   const [blueprintPipelines, setBlueprintPipelines] = useState([])
   const [lastPipeline, setLastPipeline] = useState()
+  const [inspectedPipeline, setInspectedPipeline] = useState(NullPipelineRun)
   const [currentRun, setCurrentRun] = useState()
-  const [showCurrentRunTasks, setShowCurrentRunTasks] = useState(false)
-  const [currentStages, setCurrentStages] = useState([
-    {
-      id: 1,
-      name: 'stage-1',
-      title: 'Stage 1',
-      status: StageStatus.COMPLETED,
-      icon: <Icon icon='tick-circle' size={14} color={StatusColors.COMPLETE} />,
-      tasks: [
-        {
-          id: 0,
-          provider: 'jira',
-          icon: ProviderIcons[Providers.JIRA](14, 14),
-          title: 'JIRA',
-          caption: 'STREAM Board',
-          duration: '4 min',
-          subTasksCompleted: 25,
-          recordsFinished: 1234,
-          message: 'All 25 subtasks completed',
-          status: TaskStatus.COMPLETE,
-        },
-        {
-          id: 0,
-          provider: 'jira',
-          icon: ProviderIcons[Providers.JIRA](14, 14),
-          title: 'JIRA',
-          caption: 'LAKE Board',
-          duration: '4 min',
-          subTasksCompleted: 25,
-          recordsFinished: 1234,
-          message: 'All 25 subtasks completed',
-          status: TaskStatus.COMPLETE,
-        },
-      ],
-      stageHeaderClassName: 'complete',
-    },
-    {
-      id: 2,
-      name: 'stage-2',
-      title: 'Stage 2',
-      status: StageStatus.PENDING,
-      icon: <Spinner size={14} intent={Intent.PRIMARY} />,
-      tasks: [
-        {
-          id: 0,
-          provider: 'jira',
-          icon: ProviderIcons[Providers.JIRA](14, 14),
-          title: 'JIRA',
-          caption: 'EE Board',
-          duration: '5 min',
-          subTasksCompleted: 25,
-          recordsFinished: 1234,
-          message: 'Subtask 5/25: Extracting Issues',
-          status: TaskStatus.ACTIVE,
-        },
-        {
-          id: 0,
-          provider: 'jira',
-          icon: ProviderIcons[Providers.JIRA](14, 14),
-          title: 'JIRA',
-          caption: 'EE Bugs Board',
-          duration: '0 min',
-          subTasksCompleted: 0,
-          recordsFinished: 0,
-          message: 'Invalid Board ID',
-          status: TaskStatus.FAILED,
-        },
-      ],
-      stageHeaderClassName: 'active',
-    },
-    {
-      id: 3,
-      name: 'stage-3',
-      title: 'Stage 3',
-      status: StageStatus.PENDING,
-      icon: null,
-      tasks: [
-        {
-          id: 0,
-          provider: 'github',
-          icon: ProviderIcons[Providers.GITHUB](14, 14),
-          title: 'GITHUB',
-          caption: 'merico-dev/lake',
-          duration: null,
-          subTasksCompleted: 0,
-          recordsFinished: 0,
-          message: 'Subtasks pending',
-          status: TaskStatus.CREATED,
-        },
-      ],
-      stageHeaderClassName: 'pending',
-    },
-    {
-      id: 4,
-      name: 'stage-4',
-      title: 'Stage 4',
-      status: StageStatus.PENDING,
-      icon: null,
-      tasks: [
-        {
-          id: 0,
-          providr: 'github',
-          icon: ProviderIcons[Providers.GITHUB](14, 14),
-          title: 'GITHUB',
-          caption: 'merico-dev/lake',
-          duration: null,
-          subTasksCompleted: 0,
-          recordsFinished: 0,
-          message: 'Subtasks pending',
-          status: TaskStatus.CREATED,
-        },
-      ],
-      stageHeaderClassName: 'pending',
-    },
-  ])
-  const [historicalRuns, setHistoricalRuns] = useState([
-    {
-      id: 0,
-      status: 'TASK_COMPLETED',
-      statusLabel: 'Completed',
-      statusIcon: <Icon icon='tick-circle' size={14} color={Colors.GREEN5} />,
-      startedAt: '05/25/2022 0:00 AM',
-      completedAt: '05/25/2022 0:15 AM',
-      duration: '15 min',
-    },
-    {
-      id: 1,
-      status: 'TASK_COMPLETED',
-      statusLabel: 'Completed',
-      statusIcon: <Icon icon='tick-circle' size={14} color={Colors.GREEN5} />,
-      startedAt: '05/25/2022 0:00 AM',
-      completedAt: '05/25/2022 0:15 AM',
-      duration: '15 min',
-    },
-    {
-      id: 2,
-      status: 'TASK_FAILED',
-      statusLabel: 'Failed',
-      statusIcon: <Icon icon='delete' size={14} color={Colors.RED5} />,
-      startedAt: '05/25/2022 0:00 AM',
-      completedAt: '05/25/2022 0:00 AM',
-      duration: '0 min',
-    },
-    {
-      id: 3,
-      status: 'TASK_COMPLETED',
-      statusLabel: 'Completed',
-      statusIcon: <Icon icon='tick-circle' size={14} color={Colors.GREEN5} />,
-      startedAt: '05/25/2022 0:00 AM',
-      completedAt: '05/25/2022 0:15 AM',
-      duration: '15 min',
-    },
-    {
-      id: 4,
-      status: 'TASK_COMPLETED',
-      statusLabel: 'Completed',
-      statusIcon: <Icon icon='tick-circle' size={14} color={Colors.GREEN5} />,
-      startedAt: '05/25/2022 0:00 AM',
-      completedAt: '05/25/2022 0:15 AM',
-      duration: '15 min',
-    },
-    {
-      id: 5,
-      status: 'TASK_FAILED',
-      statusLabel: 'Failed',
-      statusIcon: <Icon icon='delete' size={14} color={Colors.RED5} />,
-      startedAt: '05/25/2022 0:00 AM',
-      completedAt: '05/25/2022 0:00 AM',
-      duration: '0 min',
-    },
-  ])
+  const [showCurrentRunTasks, setShowCurrentRunTasks] = useState(true)
+  const [showInspector, setShowInspector] = useState(false)
+  const [currentStages, setCurrentStages] = useState([])
+  const [historicalRuns, setHistoricalRuns] = useState(TEST_HISTORICAL_RUNS)
 
   const {
     // eslint-disable-next-line no-unused-vars
@@ -489,8 +500,10 @@ const BlueprintDetail = (props) => {
   } = useBlueprintManager()
 
   const {
+    activePipeline,
     pipelines,
     isFetchingAll: isFetchingAllPipelines,
+    fetchPipeline,
     runPipeline,
     cancelPipeline,
     fetchAllPipelines,
@@ -502,24 +515,44 @@ const BlueprintDetail = (props) => {
     detectPipelineProviders,
   } = usePipelineManager()
 
-  useEffect(() => {
-    setBlueprintId(bId)
-    console.log('>>> REQUESTED BLUEPRINT ID ===', bId)
-  }, [bId])
-
-  useEffect(() => {
-    if (blueprintId) {
-      // @todo: enable blueprint data fetch
-      fetchBlueprint(blueprintId)
-      fetchAllPipelines()
-    }
-  }, [blueprintId, fetchBlueprint, fetchAllPipelines])
+  const buildPipelineStages = useCallback((tasks = []) => {
+    let stages = {}
+    console.log('>>>> RECEIVED PIPELINE TASKS FOR STAGE...', tasks)
+    tasks?.forEach(tS => {
+      stages = {
+        ...stages,
+        [tS.pipelineRow]: tasks?.filter(t => t.pipelineRow === tS.pipelineRow)
+      }
+    })
+    console.log('>>> BUILDING PIPELINE STAGES...', stages)
+    return stages
+  }, [])
 
   const runBlueprint = useCallback(() => {
     if (activeBlueprint !== null) {
       runPipeline()
     }
   }, [activeBlueprint, runPipeline])
+
+  const handleBlueprintActivation = useCallback((blueprint) => {
+    if (blueprint.enable) {
+      deactivateBlueprint(blueprint)
+    } else {
+      activateBlueprint(blueprint)
+    }
+    // fetchBlueprint(blueprint?.id)
+    // fetchAllPipelines()
+  }, [activateBlueprint, deactivateBlueprint])
+
+  const inspectRun = useCallback((pipelineRun) => {
+    setInspectedPipeline(pipelineRun)
+    setShowInspector(true)
+  }, [])
+
+  const handleInspectorClose = useCallback(() => {
+    setInspectedPipeline(NullPipelineRun)
+    setShowInspector(false)
+  }, [])
 
   const cancelRun = () => {}
 
@@ -544,6 +577,19 @@ const BlueprintDetail = (props) => {
   }
 
   useEffect(() => {
+    setBlueprintId(bId)
+    console.log('>>> REQUESTED BLUEPRINT ID ===', bId)
+  }, [bId])
+
+  useEffect(() => {
+    if (blueprintId) {
+      // @todo: enable blueprint data fetch
+      fetchBlueprint(blueprintId)
+      fetchAllPipelines()
+    }
+  }, [blueprintId, fetchBlueprint, fetchAllPipelines])
+
+  useEffect(() => {
     console.log('>>>> SETTING ACTIVE BLUEPRINT...', blueprint)
     if (blueprint?.id) {
       setActiveBlueprint((b) => ({
@@ -553,7 +599,7 @@ const BlueprintDetail = (props) => {
         name: blueprint.name,
       }))
       setBlueprintConnections(
-        blueprint.settings?.connections.map((connection, cIdx) => ({
+        blueprint?.settings?.connections.map((connection, cIdx) => ({
           id: cIdx,
           provider: connection?.plugin,
           name: `${
@@ -566,9 +612,9 @@ const BlueprintDetail = (props) => {
         }))
       )
       setPipelineSettings({
-        name: `${blueprint.name} ${Date.now()}`,
-        blueprintId: blueprint.id,
-        plan: blueprint.plan,
+        name: `${blueprint?.name} ${Date.now()}`,
+        blueprintId: blueprint?.id,
+        plan: blueprint?.plan,
       })
     }
   }, [blueprint, setPipelineSettings])
@@ -605,7 +651,9 @@ const BlueprintDetail = (props) => {
   }, [blueprintPipelines])
 
   useEffect(() => {
-    if (lastPipeline?.id && lastPipeline.status === TaskStatus.RUNNING) {
+    // if (lastPipeline?.id && lastPipeline.status === TaskStatus.RUNNING) {
+      if (lastPipeline?.id && [TaskStatus.RUNNING, TaskStatus.FAILED].includes(lastPipeline.status)) {
+      fetchPipeline(lastPipeline?.id)
       setCurrentRun((cR) => ({
         ...cR,
         id: lastPipeline.id,
@@ -634,6 +682,17 @@ const BlueprintDetail = (props) => {
   useEffect(() => {
     fetchAllPipelines()
   }, [lastRunId, fetchAllPipelines])
+
+  useEffect(() => {
+    if (activePipeline?.id && activePipeline?.id !== null) {
+      console.log('>> HERE!!!', activePipeline)
+      setCurrentStages(buildPipelineStages(activePipeline.tasks))
+    }
+  }, [activePipeline])
+
+  useEffect(() => {
+    console.log('>> BUILDING CURRENT STAGES...', currentStages)
+  }, [currentStages])
 
   return (
     <>
@@ -700,8 +759,8 @@ const BlueprintDetail = (props) => {
                         ? 'Blueprint Enabled'
                         : 'Blueprint Disabled'
                     }
-                    // onChange={(e) => toggleBlueprintStatus()}
-                    style={{ marginBottom: 0, marginTop: 0 }}
+                    onChange={() => handleBlueprintActivation(activeBlueprint)}
+                    style={{ marginBottom: 0, marginTop: 0, color: !activeBlueprint?.enable ? Colors.GRAY3 : 'inherit' }}
                   />
                 </div>
                 <div style={{ padding: '0 10px' }}>
@@ -896,7 +955,26 @@ const BlueprintDetail = (props) => {
                     className='blueprint-run-activity'
                     style={{ display: 'flex', width: '100%' }}
                   >
-                    {currentStages.map((stage, stageIdx) => (
+                    <div
+                    className='pipeline-task-activity' style={{
+                      // padding: '20px',
+                      flex: 1,
+                      padding: Object.keys(currentStages).length === 1 ? '0' : 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                    >
+                      {Object.keys(currentStages).length > 0 && (
+                        <div
+                          className='pipeline-multistage-activity'
+                        >
+                          {Object.keys(currentStages).map((sK, sIdx) => (
+                            <StageLane key={`stage-lane-key-${sIdx}`} stages={currentStages} sK={sK} sIdx={sIdx} showStageTasks={showCurrentRunTasks} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {/* {currentStages.map((stage, stageIdx) => (
                       <div
                         className='run-stage'
                         key={`run-stage-key-${stageIdx}`}
@@ -985,7 +1063,7 @@ const BlueprintDetail = (props) => {
                           </div>
                         )}
                       </div>
-                    ))}
+                    ))} */}
                     <Button
                       icon={
                         showCurrentRunTasks ? 'chevron-down' : 'chevron-right'
@@ -1102,6 +1180,7 @@ const BlueprintDetail = (props) => {
                               minimal
                               small
                               icon='code'
+                              onClick={() => inspectRun(blueprintPipelines.find(p => p.id === run.id))}
                             />
                           </Tooltip>
                           <Tooltip
@@ -1109,20 +1188,27 @@ const BlueprintDetail = (props) => {
                             content='View Full Log'
                           >
                             <Button
-                              intent={Intent.PRIMARY}
+                              intent={Intent.NONE}
                               minimal
                               small
                               icon='document'
                               style={{ marginLeft: '10px' }}
+                              // @todo: enable log view dialog support feature
+                              disabled
                             />
                           </Tooltip>
-                          <Button
+                          <Tooltip
                             intent={Intent.PRIMARY}
-                            minimal
-                            small
-                            icon='chevron-right'
-                            style={{ marginLeft: '10px' }}
-                          />
+                            content='Show Run Activity'
+                          >
+                            <Button
+                              intent={Intent.PRIMARY}
+                              minimal
+                              small
+                              icon='chevron-right'
+                              style={{ marginLeft: '10px' }}
+                            />
+                          </Tooltip>
                         </td>
                       </tr>
                     ))}
@@ -1141,6 +1227,7 @@ const BlueprintDetail = (props) => {
           </main>
         </Content>
       </div>
+      <CodeInspector isOpen={showInspector} activePipeline={inspectedPipeline} onClose={handleInspectorClose} />
     </>
   )
 }

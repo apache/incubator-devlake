@@ -214,10 +214,6 @@ const BlueprintsGrid = (props) => {
                         Blueprint Name
                       </label>
                     </div>
-                    <Icon
-                      size={16}
-                      icon={b.enable ? 'calendar' : 'disable'}
-                    />
                     {b.name}
                   </div>
                   <div className='blueprint-interval' style={{ flex: 1, minWidth: '60px' }}>
@@ -247,11 +243,11 @@ const BlueprintsGrid = (props) => {
                     <div>
                       {dayjs(getNextRunDate(b.cronConfig)).format('L LTS')}
                     </div>
-                    <div>
+                    {/* <div>
                       <span style={{ color: b.enable ? Colors.GREEN5 : Colors.GRAY3, position: 'absolute', bottom: '4px' }}>
                         {b.cronConfig}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                   <div className='blueprint-actions' style={{ flex: 1, textAlign: 'right' }}>
                     <div style={{ height: '24px', lineHeight: '24px' }}>
@@ -267,18 +263,18 @@ const BlueprintsGrid = (props) => {
                     <div style={{ display: 'flex', alignItems: 'center', justifySelf: 'flex-end' }}>
                       <Button small minimal style={{ marginLeft: 'auto', marginRight: '5px' }} onClick={() => configureBlueprint(b)}>
                         <Tooltip
-                          content='Blueprint Settings'
+                          content='Blueprint Detail'
                           interactionKind={PopoverInteractionKind.HOVER}
                           openOnTargetFocus={false}
                           enforceFocus={false}
                           autoFocus={false}
                         >
-                          <Icon icon='cog' size={16} color={Colors.GRAY3} />
+                          <Icon icon='eye-open' size={16} color={Colors.GRAY3} />
                         </Tooltip>
                       </Button>
-                      <Popover position={Position.LEFT}>
-                        <Button small minimal style={{ marginRight: '10px' }}>
-                          <Icon icon='trash' color={Colors.GRAY3} size={15} />
+                      <Popover position={Position.LEFT} disabled>
+                        <Button disabled small minimal style={{ marginRight: '10px' }}>
+                          <Icon icon='trash' color={Colors.LIGHT_GRAY3} size={15} />
                         </Button>
                         <DeletePopover
                           activeBlueprint={b}
@@ -334,10 +330,10 @@ const BlueprintsGrid = (props) => {
                   <Divider style={{ marginRight: 0, marginLeft: 0 }} />
                   <div style={{ padding: '20px', display: 'flex' }}>
                     <div style={{ flex: 2, paddingRight: '30px' }}>
-                      <h3 style={{ margin: 0, textTransform: 'uppercase' }}>Pipeline Run Schedule</h3>
+                      <h3 style={{ margin: 0, textTransform: 'uppercase' }}>Run Schedule</h3>
                       <p style={{ margin: 0 }}>
                         Based on the current CRON settings, here are next{' '}
-                        <strong>5</strong> expected pipeline collection dates.
+                        <strong>5</strong> expected data collection dates.
                       </p>
                       <div style={{ margin: '10px 0' }}>
                         {activeBlueprint?.id && blueprintSchedule.map((s, sIdx) => (
@@ -354,7 +350,7 @@ const BlueprintsGrid = (props) => {
                       <div className='related-pipelines-list' style={{ marginBottom: '20px' }}>
                         {!isLoading && (
                           <h3 style={{ margin: '0 0 5px 0', textTransform: 'uppercase' }}>
-                            Pipeline Runs <small style={{ color: Colors.GRAY5 }}>(last 5)</small>
+                            Historical Runs <small style={{ color: Colors.GRAY5 }}>(last 5)</small>
                           </h3>
                         )}
                         {!isLoading && pipelines.length === 0 && (<p>No Pipelines have been found for this blueprint.</p>)}
@@ -362,7 +358,7 @@ const BlueprintsGrid = (props) => {
                           <div
                             key={`pipeline-run-key-${pIdx}`}
                             className='pipeline-run-entry'
-                            style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}
+                            style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', padding: '4px 0'}}
                           >
                             <div
                               className='pipeline-id'
@@ -392,13 +388,13 @@ const BlueprintsGrid = (props) => {
                             </div>
                             <div>{p.status?.replace('TASK_', '')}</div>
                             <div style={{ padding: '0 15px' }}>
-                              <Button
-                                onClick={() => onViewPipeline(p.id || p.ID)}
+                              {/* <Button
+                                onClick={() => onViewPipeline(b.blueprintId)}
                                 icon='eye-open'
                                 size={14}
                                 color={Colors.GRAY3}
                                 small minimal
-                              />
+                              /> */}
                             </div>
                           </div>
                         ))}
@@ -424,7 +420,7 @@ const BlueprintsGrid = (props) => {
                         {dayjs(getNextRunDate(b.cronConfig)).fromNow()}
                       </h3>
 
-                      <label style={{ color: Colors.GRAY3 }}>Operations</label>
+                      {/* <label style={{ color: Colors.GRAY3 }}>Operations</label> */}
                       <div style={{
                         marginTop: '5px',
                         display: 'flex',

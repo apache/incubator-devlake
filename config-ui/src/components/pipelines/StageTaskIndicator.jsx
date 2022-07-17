@@ -24,6 +24,8 @@ import {
   Position,
   Intent,
 } from '@blueprintjs/core'
+import { ProviderIcons } from '@/data/Providers'
+
 
 const StageTaskIndicator = (props) => {
   const { task } = props
@@ -40,7 +42,10 @@ const StageTaskIndicator = (props) => {
         outline: 'none'
       }}
     >
-      {task.status === 'TASK_COMPLETED' && (
+      <span>
+        {ProviderIcons[task.plugin] && ProviderIcons[task?.plugin](14, 14)}
+      </span>
+      {/* {task.status === 'TASK_COMPLETED' && (
         <Tooltip content={`Task Complete [STAGE ${task.pipelineRow}]`} position={Position.TOP} intent={Intent.SUCCESS}>
           <Icon icon='small-tick' size={18} color={Colors.GREEN5} style={{ marginLeft: '0', outline: 'none' }} />
         </Tooltip>
@@ -72,9 +77,8 @@ const StageTaskIndicator = (props) => {
             size={14}
             value={0}
           />
-          {/* <Icon icon='stopwatch' size={14} color={Colors.GRAY3} style={{ marginLeft: '0', marginBottom: '3px' }} /> */}
         </Tooltip>
-      )}
+      )} */}
     </div>
   )
 }

@@ -162,8 +162,9 @@ const Blueprints = (props) => {
     return blueprintValidationErrors.find(e => e.includes(fieldId))
   }
 
-  const viewPipeline = (runId) => {
-    history.push(`/pipelines/activity/${runId}`)
+  const viewPipeline = (blueprintId) => {
+    // history.push(`/pipelines/activity/${runId}`)
+    history.push(`/blueprints/detail/${blueprintId}`)
   }
 
   useEffect(() => {

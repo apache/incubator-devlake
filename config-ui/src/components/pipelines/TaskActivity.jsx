@@ -52,10 +52,10 @@ const TaskActivity = (props) => {
   }
 
   useEffect(() => {
-    setProgressDetail(initialDetail => getActiveTask(activePipeline.tasks)
-      ? getActiveTask(activePipeline.tasks).progressDetail
+    setProgressDetail(initialDetail => getActiveTask(activePipeline.plan)
+      ? getActiveTask(activePipeline.plan).progressDetail
       : initialDetail)
-    setActiveTask(activePipeline.tasks.find(t => t.status === 'TASK_RUNNING'))
+    setActiveTask(activePipeline.plan.find(t => t.status === 'TASK_RUNNING'))
   }, [activePipeline])
 
   useEffect(() => {
@@ -82,7 +82,7 @@ const TaskActivity = (props) => {
             ))}
           </div>
         )}
-        {Object.keys(stages).length === 1 && activePipeline?.ID && activePipeline.tasks && activePipeline.tasks.map((t, tIdx) => (
+        {Object.keys(stages).length === 1 && activePipeline?.ID && activePipeline.plan && activePipeline.plan.map((t, tIdx) => (
           <div className='pipeline-task-block' key={`pipeline-task-key-${tIdx}`}>
             <div
               className='pipeline-task-row'
@@ -331,7 +331,7 @@ const TaskActivity = (props) => {
             </Collapse>
           </div>
         ))}
-        {(!activePipeline.tasks || activePipeline.tasks.length === 0) && (
+        {(!activePipeline.plan || activePipeline.plan.length === 0) && (
           <>
             <div style={{ display: 'flex' }}>
               <Icon

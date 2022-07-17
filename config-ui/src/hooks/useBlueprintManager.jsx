@@ -22,6 +22,7 @@ import { ToastNotification } from '@/components/Toast'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
 import cron from 'cron-validate'
 import parser from 'cron-parser'
+import { Intent } from '@blueprintjs/core'
 
 function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, initialConfiguration = {}) {
   const [isFetching, setIsFetching] = useState(false)
@@ -275,9 +276,9 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         console.log('>> RAW BLUEPRINT DATA FROM API...', activateB.data)
         // eslint-disable-next-line no-unused-vars
         const updatedBlueprint = activateB.data
-        // setBlueprint(b.data)
+        setBlueprint(b => ({...b, ...updatedBlueprint}))
         // setSaveComplete(b.data)
-        ToastNotification.show({ message: `Activated Blueprint - ${blueprint.name}.`, intent: 'danger', icon: 'small-tick' })
+        ToastNotification.show({ message: `Activated Blueprint - ${blueprint.name}.`, intent: Intent.SUCCESS, icon: 'small-tick' })
         setTimeout(() => {
           setIsSaving(false)
           fetchAllBlueprints()
@@ -312,9 +313,9 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         console.log('>> RAW BLUEPRINT DATA FROM API...', deactivateB.data)
         // eslint-disable-next-line no-unused-vars
         const updatedBlueprint = deactivateB.data
-        // setBlueprint(b.data)
+        setBlueprint(b => ({...b, ...updatedBlueprint}))
         // setSaveComplete(b.data)
-        ToastNotification.show({ message: `Deactivated Blueprint - ${blueprint.name}.`, intent: 'danger', icon: 'small-tick' })
+        ToastNotification.show({ message: `Deactivated Blueprint - ${blueprint.name}.`, intent: Intent.SUCCESS, icon: 'small-tick' })
         setTimeout(() => {
           setIsSaving(false)
           fetchAllBlueprints()

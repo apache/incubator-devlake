@@ -29,7 +29,7 @@ import {
 } from '@blueprintjs/core'
 
 const CodeInspector = (props) => {
-  const { activePipeline, isOpen, onClose, titleIcon = 'code', title = `Inspect RUN #${activePipeline.ID}`, subtitle = 'JSON RESPONSE', hasBackdrop = true } = props
+  const { activePipeline, isOpen, onClose, titleIcon = 'code', title = `Inspect RUN #${activePipeline.id}`, subtitle = 'JSON RESPONSE', hasBackdrop = true } = props
 
   return (
     <Drawer

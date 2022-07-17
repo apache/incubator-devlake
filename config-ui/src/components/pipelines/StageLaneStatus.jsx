@@ -65,20 +65,19 @@ const StageLaneStatus = (props) => {
             {isStageCompleted(sK) ? getCompletedTaskCount(stage) : getRunningTaskCount(stage)}/{getTotalTasksCount(stage)}
           </span>
         </div>
-        <div className='stage-caption'>
+        {/* <div className='stage-caption'>
           {isStageActive(sK) && <>Stage Running ~{duration}</>}
-          {/* {isStageFailed(sK) && <>Stage Failed</>} */}
           {(isStageCompleted(sK) || isStageFailed(sK)) && <>{duration.startsWith('0') ? '< 1min' : duration}</>}
           {isStagePending(sK) && <><Icon icon='more' color={Colors.GRAY5} size={12} /></>}
-        </div>
+        </div> */}
       </div>
-      {isStageActive(sK) && (
+      {/* {isStageActive(sK) && (
         <ProgressBar
           className='stage-lane-progressbar'
           stripes={true}
           intent={Intent.SUCCESS} value={calculateStageLaneProgress(stage)} style={{ borderRadius: 0 }}
         />
-      )}
+      )} */}
     </>
   )
 }

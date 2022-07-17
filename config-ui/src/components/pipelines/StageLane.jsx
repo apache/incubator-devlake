@@ -21,13 +21,15 @@ import {
   Icon,
   Colors,
   H4,
+  Spinner,
+  Intent,
 } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
 import StageTask from '@/components/pipelines/StageTask'
 import StageLaneStatus from '@/components/pipelines/StageLaneStatus'
 
 const StageLane = (props) => {
-  const { stages = [], sK = 1, sIdx } = props
+  const { stages = [], sK = 1, sIdx, showStageTasks = true } = props
 
   const [activeStage, setActiveStage] = useState(stages[sK])
   const [readyStageModules, setReadyStageModules] = useState([])
@@ -86,7 +88,7 @@ const StageLane = (props) => {
     const diffDuration = (pV, cV) => pV + dayjs(cV.status === 'TASK_RUNNING'
       ? now
       : (cV.status === 'TASK_FAILED' ? cV.finishedAt == null : cV.updatedAt || cV.finishedAt)).diff(dayjs(cV.beganAt), unit)
-    const filterParallel = (pV, cV) => !pV.some(t => t.CreatedAt.split('.')[0] === cV.CreatedAt.split('.')[0]) ? [...pV, cV] : [...pV]
+    const filterParallel = (pV, cV) => !pV.some(t => t.createdAt.split('.')[0] === cV.createdAt.split('.')[0]) ? [...pV, cV] : [...pV]
     const parallelTasks = stageTasks.reduce(filterParallel, [])
     duration = parallelMode && !isStageFailed(sK) ? parallelTasks.reduce(diffDuration, 0) : stageTasks.reduce(diffDuration, 0)
     // console.log('>> CALCULATED DURATION =', stageTasks, duration)
@@ -127,7 +129,7 @@ const StageLane = (props) => {
     <>
       <div
         // key={`stage-lane-key-${sIdx}`}
-        className={`stage-lane ${generateStageCssClasses(sK)} ${isStageActive(sK) ? 'bp3-elevation-2' : ''}`}
+        className={`stage-lane ${generateStageCssClasses(sK)} ${isStageActive(sK) ? '' : ''}`}
         style={{
           position: 'relative',
           display: 'flex',
@@ -140,27 +142,24 @@ const StageLane = (props) => {
         }}
       >
         {isStageActive(sK) && (
-          <Icon
-            icon='dot'
-            color={Colors.GREEN5}
-            size={14}
-            style={{ position: 'absolute', display: 'inline-block', right: '5px', top: '5px' }}
-          />
+          <span style={{ position: 'absolute', display: 'inline-block', right: '8px', top: '8px' }}>
+            <Spinner size={14} intent={Intent.PRIMARY} />
+          </span>
         )}
         {isStageFailed(sK) && (
           <Icon
-            icon='warning-sign'
+            icon='error'
             color={Colors.RED5}
-            size={10}
-            style={{ position: 'absolute', display: 'inline-block', right: '5px', top: '5px' }}
+            size={14}
+            style={{ position: 'absolute', display: 'inline-block', right: '8px', top: '8px' }}
           />
         )}
         {isStageCompleted(sK) && (
           <Icon
             icon='tick'
             color={Colors.GREEN5}
-            size={12}
-            style={{ position: 'absolute', display: 'inline-block', right: '5px', top: '5px' }}
+            size={14}
+            style={{ position: 'absolute', display: 'inline-block', right: '8px', top: '8px' }}
           />
         )}
         <H4
@@ -172,7 +171,7 @@ const StageLane = (props) => {
           Stage {sIdx + 1}
         </H4>
         {/* {sIdx} */}
-        {stages[sK].map((t, tIdx) => (
+        {showStageTasks && stages[sK].map((t, tIdx) => (
           <CSSTransition
             key={`fx-key-stage-task-${tIdx}`}
             in={readyStageModules.includes(tIdx)}
@@ -183,7 +182,7 @@ const StageLane = (props) => {
             <StageTask task={t} key={`stage-task-key-${tIdx}`} />
           </CSSTransition>
         ))}
-        <StageLaneStatus
+        {/* <StageLaneStatus
           sK={sK}
           stage={activeStage}
           stages={stages}
@@ -200,7 +199,7 @@ const StageLane = (props) => {
           getTotalTasksCount={getTotalTasksCount}
           getCompletedTaskCount={getCompletedTaskCount}
           getRunningTaskCount={getRunningTaskCount}
-        />
+        /> */}
       </div>
     </>
   )
