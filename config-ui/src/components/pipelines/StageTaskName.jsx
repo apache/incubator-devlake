@@ -59,6 +59,7 @@ const StageTaskName = (props) => {
         autoFocus={false}
         enforceFocus={false}
         usePortal={true}
+        disabled
       >
         <span className='task-plugin-text' ref={popoverTriggerRef}><strong>Task ID {task.id}</strong> {' '} {ProviderLabels[task?.plugin?.toUpperCase()]}</span>
         <>

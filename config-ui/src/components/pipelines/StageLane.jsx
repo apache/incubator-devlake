@@ -135,7 +135,7 @@ const StageLane = (props) => {
           display: 'flex',
           flexDirection: 'column',
           flex: 1,
-          justifyContent: 'center',
+          justifyContent: 'flex-start',
           alignContent: 'flex-start',
           alignItems: 'center',
           padding: '0'
