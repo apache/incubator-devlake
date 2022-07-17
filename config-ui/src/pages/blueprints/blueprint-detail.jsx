@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 // import { CSSTransition } from 'react-transition-group'
 import dayjs from '@/utils/time'
@@ -463,6 +463,10 @@ const BlueprintDetail = (props) => {
   const [currentStages, setCurrentStages] = useState([])
   const [historicalRuns, setHistoricalRuns] = useState(TEST_HISTORICAL_RUNS)
 
+  const pollTimer = 5000
+  const pollInterval = useRef()
+  const [autoRefresh, setAutoRefresh] = useState(false)
+
   const {
     // eslint-disable-next-line no-unused-vars
     blueprint,
@@ -652,7 +656,7 @@ const BlueprintDetail = (props) => {
 
   useEffect(() => {
     // if (lastPipeline?.id && lastPipeline.status === TaskStatus.RUNNING) {
-    if (lastPipeline?.id && [TaskStatus.RUNNING, TaskStatus.FAILED].includes(lastPipeline.status)) {
+    if (lastPipeline?.id && [TaskStatus.RUNNING, TaskStatus.COMPLETE, TaskStatus.FAILED].includes(lastPipeline.status)) {
       fetchPipeline(lastPipeline?.id)
       setCurrentRun((cR) => ({
         ...cR,
@@ -687,12 +691,27 @@ const BlueprintDetail = (props) => {
   useEffect(() => {
     if (activePipeline?.id && activePipeline?.id !== null) {
       setCurrentStages(buildPipelineStages(activePipeline.tasks))
+      setAutoRefresh(activePipeline?.status === TaskStatus.RUNNING)
     }
   }, [activePipeline, buildPipelineStages])
 
   useEffect(() => {
     console.log('>> BUILDING CURRENT STAGES...', currentStages)
   }, [currentStages])
+
+  useEffect(() => {
+    if (autoRefresh) {
+      console.log('>> ACTIVITY POLLING ENABLED!')
+      pollInterval.current = setInterval(() => {
+        fetchPipeline(activePipeline?.id)
+      }, pollTimer)
+    } else {
+      console.log('>> ACTIVITY POLLING DISABLED!')
+      clearInterval(pollInterval.current)
+      fetchPipeline(activePipeline?.id)
+      fetchAllPipelines()
+    }
+  }, [autoRefresh, fetchPipeline, fetchAllPipelines, activePipeline?.id, pollTimer])
 
   return (
     <>

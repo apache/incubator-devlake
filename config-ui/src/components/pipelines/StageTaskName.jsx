@@ -61,7 +61,7 @@ const StageTaskName = (props) => {
         usePortal={true}
         disabled
       >
-        <span className='task-plugin-text' ref={popoverTriggerRef}><strong>Task ID {task.id}</strong> {' '} {ProviderLabels[task?.plugin?.toUpperCase()]}</span>
+        <span className='task-plugin-text' ref={popoverTriggerRef} style={{ display: 'block', margin: '5px 0 5px 0' }}><strong>Task ID {task.id}</strong> {' '} {ProviderLabels[task?.plugin?.toUpperCase()]}</span>
         <>
           <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '400px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>

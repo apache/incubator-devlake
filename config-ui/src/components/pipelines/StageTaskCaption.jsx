@@ -16,8 +16,9 @@
  *
  */
 import React from 'react'
-import { Providers } from '@/data/Providers'
 import { Colors } from '@blueprintjs/core'
+import dayjs from '@/utils/time'
+import { Providers } from '@/data/Providers'
 
 const StageTaskCaption = (props) => {
   const { task, options } = props
@@ -28,18 +29,23 @@ const StageTaskCaption = (props) => {
       style={{
         opacity: 0.4,
         display: 'block',
-        width: '90%',
+        width: '100%',
         fontSize: '9px',
         overflow: 'hidden',
         whiteSpace: 'nowrap',
         textOverflow: 'ellipsis'
       }}
     >
+      {task.status === 'TASK_RUNNING' || task.status === 'TASK_COMPLETED' && (<span style={{ float: 'right' }}>
+        {task.status === 'TASK_RUNNING'
+          ? dayjs(task.beganAt).toNow(true)
+          : dayjs(task.beganAt).from(task.finishedAt || task.updatedAt, true)}
+      </span>)}
       {task.status === 'TASK_RUNNING' && <span>Subtask {task?.progressDetail?.finishedSubTasks} / {task?.progressDetail?.totalSubTasks}</span>}
       {task.status === 'TASK_COMPLETED' && <span>{task?.progressDetail?.finishedSubTasks} Subtasks completed</span>}
       {task.status === 'TASK_COMPLETED' && <span>{task?.progressDetail?.finishedRecords}</span>}
       {task.status === 'TASK_CREATED' && <span>Records Pending</span>}
-      {task.status === 'TASK_FAILED' && <span style={{ color: Colors.RED3 }}>Task failed</span>}
+      {task.status === 'TASK_FAILED' && <span style={{ color: Colors.RED3 }}>Task failed &mdash; <strong>{task?.failedSubTask}</strong></span>}
     </span>
   )
 }

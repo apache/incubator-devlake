@@ -637,13 +637,13 @@
 
   .bp3-card.pipeline-task-module {
     display: flex;
-    padding: 0;
+    padding: 0 0 10px 0;
     transition: all 0.3s ease-out;
-    width: 80%;
+    width: 100%;
     border-radius: 12px;
     margin: 5px;
     min-width: 100px;
-    max-width: 210px;
+    max-width: 100%;
     min-height: 32px;
     height: auto;
     // border: 2px solid #ddd;
@@ -665,7 +665,7 @@
       // background-color: #fff;
 
       &.active {
-        transform: scale(1.06);
+        // transform: scale(1.06);
       }
 
       &:hover,
@@ -681,7 +681,7 @@
 
       .task-module-name {
         // border-right: 1px solid rgba(61, 204, 145, 0.95);
-        font-weight: 800;
+        font-weight: 400;
       }
     }
 
@@ -690,7 +690,7 @@
       // background-color: #ffffff;
 
       &.active {
-        transform: scale(1.06);
+        // transform: scale(1.06);
       }
 
       &:hover,
@@ -720,7 +720,7 @@
       // border: 2px solid rgba(255, 115, 115, 0.9);
 
       &.active {
-        transform: scale(1.06);
+        // transform: scale(1.06);
       }
 
       &:hover,
@@ -752,7 +752,7 @@
       }
 
       &.active {
-        transform: scale(1.06);
+        // transform: scale(1.06);
       }
 
       &:hover,
@@ -786,7 +786,7 @@
       display: flex;
       flex: 1;
       // border-right: 1px solid #ddd;
-      max-width: calc(100% - 50px);
+      // max-width: calc(100% - 50px);
       overflow: hidden;
       text-overflow: ellipsis;
     }
