@@ -822,7 +822,7 @@ const BlueprintDetail = (props) => {
                     <div>
                       <label style={{ color: '#94959F' }}>Status</label>
                       <div style={{ display: 'flex' }}>
-                        <span style={{ marginRight: '6px' }}>
+                        <span style={{ marginRight: '6px', marginTop: '2px' }}>
                           {currentRun?.icon}
                         </span>
                         <h4
