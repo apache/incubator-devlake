@@ -18,41 +18,34 @@ limitations under the License.
 package tasks
 
 import (
-	"encoding/json"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"io/ioutil"
-	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-const RAW_REPOSITORIES_TABLE = "bitbucket_api_repositories"
+const RAW_COMMIT_TABLE = "bitbucket_api_commits"
 
-var CollectApiRepoMeta = core.SubTaskMeta{
-	Name:        "collectApiRepo",
-	EntryPoint:  CollectApiRepositories,
-	Required:    true,
-	Description: "Collect repositories data from Bitbucket api",
-	DomainTypes: core.DOMAIN_TYPES,
+var CollectApiCommitsMeta = core.SubTaskMeta{
+	Name:             "collectApiCommits",
+	EntryPoint:       CollectApiCommits,
+	EnabledByDefault: false,
+	Required:         false,
+	Description:      "Collect commits data from Bitbucket api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
-func CollectApiRepositories(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_REPOSITORIES_TABLE)
+func CollectApiCommits(taskCtx core.SubTaskContext) error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
-
-		UrlTemplate: "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}",
-		Query:       GetQuery,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			body, err := ioutil.ReadAll(res.Body)
-			res.Body.Close()
-			if err != nil {
-				return nil, err
-			}
-			return []json.RawMessage{body}, nil
-		},
+		PageSize:           100,
+		Incremental:        false,
+		UrlTemplate:        "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/commits",
+		Query:              GetQuery,
+		GetTotalPages:      GetTotalPagesFromResponse,
+		ResponseParser:     GetRawMessageFromResponse,
 	})
 
 	if err != nil {

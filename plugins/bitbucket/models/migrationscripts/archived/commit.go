@@ -15,21 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"time"
+
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type BitbucketUser struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	UserName     string `json:"username"`
-	DisplayName  string `json:"display_name"`
-	AccountId    string `json:"account_id"`
-
-	common.NoPKModel
+type BitbucketCommit struct {
+	Sha           string `gorm:"primaryKey;type:varchar(40)"`
+	AuthorId      string `gorm:"type:varchar(255)"`
+	AuthorName    string `gorm:"type:varchar(255)"`
+	AuthorEmail   string `gorm:"type:varchar(255)"`
+	AuthoredDate  time.Time
+	CommittedDate time.Time
+	Message       string
+	Url           string `gorm:"type:varchar(255)"`
+	Additions     int    `gorm:"comment:Added lines of code"`
+	Deletions     int    `gorm:"comment:Deleted lines of code"`
+	archived.NoPKModel
 }
 
-func (BitbucketUser) TableName() string {
-	return "_tool_bitbucket_users"
+func (BitbucketCommit) TableName() string {
+	return "_tool_bitbucket_commits"
 }

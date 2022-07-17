@@ -17,15 +17,15 @@ limitations under the License.
 
 package archived
 
-import "time"
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type BitbucketUser struct {
-	ConnectionId uint64     `gorm:"primaryKey"`
-	UserName     string     `json:"username"`
-	DisplayName  string     `json:"display_name"`
-	AccountId    string     `json:"account_id"`
-	CreateOn     time.Time  `json:"create_on"`
-	UpdateOn     *time.Time `json:"update_on"`
+	ConnectionId uint64 `gorm:"primaryKey"`
+	UserName     string `json:"username"`
+	DisplayName  string `json:"display_name"`
+	AccountId    string `json:"account_id"`
+
+	archived.NoPKModel
 }
 
 func (BitbucketUser) TableName() string {

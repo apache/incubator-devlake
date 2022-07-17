@@ -33,6 +33,10 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.BitbucketRepo{},
 		&archived.BitbucketRepoCommit{},
 		&archived.BitbucketConnection{},
+		&archived.BitbucketAccount{},
+		&archived.BitbucketCommit{},
+		&archived.BitbucketPullRequest{},
+		&archived.BitbucketIssue{},
 		"_raw_bitbucket_api_repositories",
 	)
 
@@ -45,6 +49,10 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.BitbucketRepo{},
 		&archived.BitbucketRepoCommit{},
 		&archived.BitbucketConnection{},
+		&archived.BitbucketAccount{},
+		&archived.BitbucketCommit{},
+		&archived.BitbucketPullRequest{},
+		&archived.BitbucketIssue{},
 	)
 
 	if err != nil {
@@ -86,5 +94,5 @@ func (*InitSchemas) Version() uint64 {
 }
 
 func (*InitSchemas) Name() string {
-	return "BITBUCKET init schemas"
+	return "Bitbucket init schemas"
 }

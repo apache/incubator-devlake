@@ -6,7 +6,7 @@ The ASF licenses this file to You under the Apache License, Version 2.0
 (the "License"); you may not use this file except in compliance with
 the License.  You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+   http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,15 +21,19 @@ import (
 	"github.com/apache/incubator-devlake/models/common"
 )
 
-type BitbucketUser struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	UserName     string `json:"username"`
-	DisplayName  string `json:"display_name"`
-	AccountId    string `json:"account_id"`
-
+type BitbucketAccount struct {
+	ConnectionId  uint64 `gorm:"primaryKey"`
+	UserName      string `gorm:"type:varchar(255)"`
+	AccountId     string `gorm:"type:varchar(255)"`
+	AccountStatus string `gorm:"type:varchar(255)"`
+	DisplayName   string `gorm:"type:varchar(255)"`
+	AvatarUrl     string `gorm:"type:varchar(255)"`
+	HtmlUrl       string `gorm:"type:varchar(255)"`
+	Uuid          string `gorm:"type:varchar(255)"`
+	Has2FaEnabled bool
 	common.NoPKModel
 }
 
-func (BitbucketUser) TableName() string {
-	return "_tool_bitbucket_users"
+func (BitbucketAccount) TableName() string {
+	return "_tool_bitbucket_accounts"
 }

@@ -21,7 +21,7 @@ import "github.com/apache/incubator-devlake/models/common"
 
 type BitbucketRepoCommit struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	RepoId       int    `gorm:"primaryKey"`
+	RepoId       string `gorm:"primaryKey"`
 	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
 	common.NoPKModel
 }

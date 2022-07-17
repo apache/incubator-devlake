@@ -17,13 +17,13 @@ limitations under the License.
 
 package archived
 
-import "github.com/apache/incubator-devlake/models/common"
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type BitbucketRepoCommit struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	RepoId       int    `gorm:"primaryKey"`
+	RepoId       string `gorm:"primaryKey"`
 	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (BitbucketRepoCommit) TableName() string {
