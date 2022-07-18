@@ -57,6 +57,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 
 	issueIdGen := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketIssue{})
 	boardIdGen := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketRepo{})
+	accountIdGen := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -94,11 +95,11 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 			}
 			if issue.AssigneeName != "" {
 				domainIssue.AssigneeName = issue.AssigneeName
-				domainIssue.AssigneeId = issue.AssigneeId
+				domainIssue.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId)
 			}
 			if issue.AuthorName != "" {
 				domainIssue.CreatorName = issue.AuthorName
-				domainIssue.CreatorId = issue.AuthorId
+				domainIssue.CreatorId = accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId)
 			}
 			boardIssue := &ticket.BoardIssue{
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, repoId),
