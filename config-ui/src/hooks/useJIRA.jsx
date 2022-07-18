@@ -18,6 +18,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import request from '@/utils/request'
 import { ToastNotification } from '@/components/Toast'
+import { Providers } from "@/data/Providers";
 
 const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint }, activeConnection = null) => {
   const [isFetching, setIsFetching] = useState(false)
@@ -30,6 +31,9 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
   const [error, setError] = useState()
 
   const fetchIssueTypes = useCallback(() => {
+    if (activeConnection.plugin !== Providers.JIRA) {
+      return
+    }
     try {
       if (apiProxyPath.includes('null')) {
         throw new Error('Connection ID is Null')
@@ -55,6 +59,9 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
   }, [issuesEndpoint, activeConnection, apiProxyPath])
 
   const fetchFields = useCallback(() => {
+    if (activeConnection.plugin !== Providers.JIRA) {
+      return
+    }
     try {
       if (apiProxyPath.includes('null')) {
         throw new Error('Connection ID is Null')
@@ -80,6 +87,9 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
   }, [fieldsEndpoint, activeConnection, apiProxyPath])
 
   const fetchBoards = useCallback(() => {
+    if (activeConnection.plugin !== Providers.JIRA) {
+      return
+    }
     try {
       if (apiProxyPath.includes('null')) {
         throw new Error('Connection ID is Null')
