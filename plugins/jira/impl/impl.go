@@ -64,6 +64,9 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectBoardMeta,
 		tasks.ExtractBoardMeta,
 
+		tasks.CollectIssueTypesMeta,
+		tasks.ExtractIssueTypesMeta,
+
 		tasks.CollectIssuesMeta,
 		tasks.ExtractIssuesMeta,
 

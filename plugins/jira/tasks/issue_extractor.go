@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"strconv"
 	"strings"
 	"time"
@@ -41,21 +42,35 @@ var ExtractIssuesMeta = core.SubTaskMeta{
 
 func ExtractIssues(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
+	db := taskCtx.GetDal()
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	logger.Info("extract Issues, connection_id=%d, board_id=%d", connectionId, boardId)
+	typeIdMapping := make(map[string]string)
+	issueTypes := make([]models.JiraIssueType, 0)
+	clauses := []dal.Clause{
+		dal.From(&models.JiraIssueType{}),
+		dal.Where("connection_id = ?", connectionId),
+	}
+	err := db.All(&issueTypes, clauses...)
+	if err != nil {
+		return err
+	}
+	for _, issueType := range issueTypes {
+		typeIdMapping[issueType.Id] = issueType.UntranslatedName
+	}
 	// prepare getStdType function
 	// TODO: implement type mapping
-	typeMappings := make(map[string]string)
+	stdTypeMappings := make(map[string]string)
 	for _, userType := range data.Options.TransformationRules.RequirementTypeMapping {
-		typeMappings[userType] = "REQUIREMENT"
+		stdTypeMappings[userType] = "REQUIREMENT"
 	}
 	for _, userType := range data.Options.TransformationRules.BugTypeMapping {
-		typeMappings[userType] = "BUG"
+		stdTypeMappings[userType] = "BUG"
 	}
 	for _, userType := range data.Options.TransformationRules.IncidentTypeMapping {
-		typeMappings[userType] = "INCIDENT"
+		stdTypeMappings[userType] = "INCIDENT"
 	}
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -105,8 +120,9 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 					issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
 				}
 			}
+			issue.Type = typeIdMapping[issue.Type]
 			issue.StdStoryPoint = int64(issue.StoryPoint)
-			issue.StdType = typeMappings[issue.Type]
+			issue.StdType = stdTypeMappings[issue.Type]
 			if issue.StdType == "" {
 				issue.StdType = strings.ToUpper(issue.Type)
 			}
