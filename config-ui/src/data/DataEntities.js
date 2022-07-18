@@ -19,7 +19,7 @@
 const DataEntityTypes = {
   CODE: 'CODE',
   TICKET: 'TICKET',
-  CODE_REVIEW: 'CODE_REVIEW',
+  CODE_REVIEW: 'CODEREVIEW',
   CROSSDOMAIN: 'CROSS',
   DEVOPS: 'CICD',
   // USER: 'user',
