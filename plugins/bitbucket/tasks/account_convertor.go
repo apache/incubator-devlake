@@ -37,7 +37,7 @@ var ConvertAccountsMeta = core.SubTaskMeta{
 	Name:             "convertAccounts",
 	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
-	Required: true,
+	Required:         true,
 	Description:      "Convert tool layer table bitbucket_accounts into  domain layer table accounts",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
