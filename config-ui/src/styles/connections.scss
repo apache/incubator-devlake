@@ -7,6 +7,20 @@
     display: flex;
     max-width: none;
     margin-bottom: 10px;
+    
+    &.bp3-inline {
+      .bp3-form-content {
+        .bp3-input-group, .connection-tokens-personal-group {
+          margin-left: 0.75rem;
+        }
+
+        .connection-tokens-personal-group {
+          .bp3-input-group {
+            margin-left: 0;
+          }
+        }
+      }
+    }
 
     .bp3-form-content {
       width: 100%;
@@ -53,9 +67,11 @@
     }
 
     label {
-      display: inline;
+      display: flex;
       min-width: 150px;
+      max-height: 30px;
       text-align: right;
+      font-weight: bold;
     }
   }
 
@@ -161,7 +177,6 @@
 .confirmation-text {
 
   strong {
-    font-family: "Montserrat", sans-serif;
     font-size: 14px;
     font-weight: 800;
     color: rgb(219, 55, 55);

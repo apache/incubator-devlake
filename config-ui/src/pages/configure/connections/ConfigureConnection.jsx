@@ -60,8 +60,11 @@ export default function ConfigureConnection () {
     username,
     password,
     token,
+    initialTokenStore,
     errors,
     testStatus,
+    testResponse,
+    allTestResponses,
     isSaving: isSavingConnection,
     isTesting: isTestingConnection,
     isFetching: isLoadingConnection,
@@ -71,6 +74,7 @@ export default function ConfigureConnection () {
     setUsername,
     setPassword,
     setToken,
+    setInitialTokenStore,
     // saveComplete: saveConnectionComplete,
     showError: showConnectionError,
     isDeleting: isDeletingConnection,
@@ -247,6 +251,7 @@ export default function ConfigureConnection () {
                             endpointUrl={endpointUrl}
                             proxy={proxy}
                             token={token}
+                            initialTokenStore={initialTokenStore}
                             username={username}
                             password={password}
                             // JIRA and GITLAB are multi-connection plugins, for now we intentially won't include additional settings during save...
@@ -263,6 +268,8 @@ export default function ConfigureConnection () {
                             isSaving={isSavingConnection}
                             isTesting={isTestingConnection}
                             testStatus={testStatus}
+                            testResponse={testResponse}
+                            allTestResponses={allTestResponses}
                             errors={errors}
                             showError={showConnectionError}
                             authType={[Providers.JENKINS, Providers.JIRA].includes(activeProvider.id) ? 'plain' : 'token'}
@@ -285,19 +292,11 @@ export default function ConfigureConnection () {
                       <FormValidationErrors errors={validationErrors} />
                     )} */}
                   </Card>
-                  <div style={{ marginTop: '30px' }}>
+                  {/* <div style={{ marginTop: '30px' }}>
                     {renderProviderSettings(providerId, activeProvider)}
-                  </div>
-                  <div className='form-actions-block' style={{ display: 'flex', marginTop: '60px', justifyContent: 'space-between' }}>
-                    <div>
-                      {/* <Button
-                        icon={getConnectionStatusIcon()}
-                        text='Test Connection'
-                        onClick={testConnection}
-                        loading={isTesting}
-                        disabled={isTesting || isSaving}
-                      /> */}
-                    </div>
+                  </div> */}
+                  {/* <div className='form-actions-block' style={{ display: 'flex', marginTop: '60px', justifyContent: 'space-between' }}>
+                    <div />
                     <div>
                       <Button icon='remove' text='Cancel' onClick={cancel} disabled={isSaving} />
                       <Button
@@ -310,8 +309,7 @@ export default function ConfigureConnection () {
                         style={{ marginLeft: '10px' }}
                       />
                     </div>
-                  </div>
-
+                  </div> */}
                 </>
               )}
             </div>

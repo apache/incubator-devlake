@@ -20,11 +20,13 @@ import {
   // BrowserRouter as Router,
   useRouteMatch,
 } from 'react-router-dom'
-import { Button, Card, Elevation } from '@blueprintjs/core'
+import { Card, Elevation } from '@blueprintjs/core'
 import request from '@/utils/request'
 import SidebarMenu from '@/components/Sidebar/SidebarMenu'
 import MenuConfiguration from '@/components/Sidebar/MenuConfiguration'
-import { DEVLAKE_ENDPOINT, GRAFANA_URL } from '@/utils/config'
+import { DEVLAKE_ENDPOINT } from '@/utils/config'
+import { ReactComponent as Logo } from '@/images/devlake-logo.svg'
+import { ReactComponent as LogoText } from '@/images/devlake-textmark.svg'
 
 import '@/styles/sidebar.scss'
 
@@ -56,29 +58,31 @@ const Sidebar = () => {
 
   return (
     <Card interactive={false} elevation={Elevation.ZERO} className='card sidebar-card'>
-      <img src='/logo.svg' className='logo' />
-      <a href={GRAFANA_URL} rel='noreferrer' target='_blank' className='dashboardBtnLink'>
+      <div className='devlake-logo'>
+        <Logo width={48} height={48} className='logo' />
+        <LogoText width={100} height={13} className='logo-textmark' />
+      </div>
+      {/* <a href={GRAFANA_URL} rel='noreferrer' target='_blank' className='dashboardBtnLink'>
         <Button icon='grouped-bar-chart' outlined={true} className='dashboardBtn'>View Dashboards</Button>
-      </a>
+      </a> */}
 
-      <h3
+      {/* <h3
         className='sidebar-app-heading'
         style={{
           marginTop: '30px',
           letterSpacing: '3px',
           marginBottom: 0,
-          fontFamily: '"Montserrat", sans-serif',
           fontWeight: 900,
           color: '#444444',
           textAlign: 'center'
         }}
       >
         <sup style={{ fontSize: '9px', color: '#cccccc', marginLeft: '-30px' }}>DEV</sup>LAKE
-      </h3>
+      </h3> */}
       <SidebarMenu menu={menu} />
       <span className='copyright-tag'>
         <span className='version-tag'>{versionTag || ''}</span><br />
-        <strong>Apache 2.0 License</strong><br />&copy; 2021 Merico
+        <strong>Apache 2.0 License</strong><br />
       </span>
     </Card>
   )

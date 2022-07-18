@@ -2,7 +2,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "Inter", sans-serif;
   width: 100%;
   height: 100%;
 }
@@ -20,7 +20,7 @@ body {
 }
 
 a {
-  color: inherit;
+  // color: inherit;
   text-decoration: none;
 }
 
@@ -30,22 +30,19 @@ a {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2 {
-  font-family: 'JetBrains Mono', sans-serif;
-}
-
 h1 {
-  color: #303033;
+  // color: #303033;
   font-weight: 600;
 }
 
 h2 {
-  color: #4B4D58;
+  // color: #4B4D58;
   font-weight: 500;
 }
 
 p {
-  color: #717484;
+  // color: #717484;
+  color: #94959F;
 }
 
 .no-user-select {
