@@ -72,6 +72,9 @@ import DataSync from '@/components/blueprints/create-workflow/DataSync'
 import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
 import AdvancedJSONValidation from '@/components/blueprints/create-workflow/AdvancedJSONValidation'
 
+import { DEVLAKE_ENDPOINT } from '@/utils/config'
+import request from '@/utils/request'
+
 // import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 
 const CreateBlueprint = (props) => {
@@ -118,6 +121,14 @@ const CreateBlueprint = (props) => {
   const [configuredConnection, setConfiguredConnection] = useState()
   const [dataEntities, setDataEntities] = useState({})
   const [activeConnectionTab, setActiveConnectionTab] = useState()
+
+  const [onlineStatus, setOnlineStatus] = useState({})
+  useEffect(async () => {
+    const results = await Promise.all(blueprintConnections.map(
+      c => request.post(`${DEVLAKE_ENDPOINT}/plugins/${c.plugin}/test`, c))
+    )
+    setOnlineStatus(results.map(r => r.status === 200 ? "Online" : "Offline"))
+  }, [blueprintConnections])
 
   const [showBlueprintInspector, setShowBlueprintInspector] = useState(false)
 
@@ -342,7 +353,7 @@ const CreateBlueprint = (props) => {
     password,
   })
 
-  const isValidStep = useCallback((stepId) => {}, [])
+  const isValidStep = useCallback((stepId) => { }, [])
 
   const nextStep = useCallback(() => {
     setActiveStep((aS) =>
@@ -477,7 +488,7 @@ const CreateBlueprint = (props) => {
             options: {
               boardId: Number(b.id),
               // @todo: verify initial value of since date for jira provider
-              since: new Date(),
+              // since: new Date(),
             },
             transformation: { ...transformations[b.id] },
           }))
@@ -693,7 +704,7 @@ const CreateBlueprint = (props) => {
     validateBlueprint,
   ])
 
-  useEffect(() => {}, [activeConnectionTab])
+  useEffect(() => { }, [activeConnectionTab])
 
   useEffect(() => {
     setConfiguredConnection(
@@ -1001,7 +1012,7 @@ const CreateBlueprint = (props) => {
                       // manageConnection={manageConnection}
                       onAdvancedMode={handleAdvancedMode}
                       // @todo add multistage checker method
-                      isMultiStagePipeline={() => {}}
+                      isMultiStagePipeline={() => { }}
                       rawConfiguration={rawConfiguration}
                       setRawConfiguration={setRawConfiguration}
                       isSaving={isSaving}
@@ -1034,6 +1045,7 @@ const CreateBlueprint = (props) => {
                       activeStep={activeStep}
                       advancedMode={advancedMode}
                       blueprintConnections={blueprintConnections}
+                      onlineStatus={onlineStatus}
                       connectionsList={connectionsList}
                       name={name}
                       setBlueprintName={setBlueprintName}
@@ -1183,21 +1195,21 @@ const CreateBlueprint = (props) => {
         activePipeline={
           !advancedMode
             ? {
-                // ID: 0,
-                name,
-                // tasks: blueprintTasks,
-                settings: blueprintSettings,
-                cronConfig,
-                enable,
-                mode,
-              }
+              // ID: 0,
+              name,
+              // tasks: blueprintTasks,
+              settings: blueprintSettings,
+              cronConfig,
+              enable,
+              mode,
+            }
             : {
-                name,
-                plan: blueprintTasks,
-                cronConfig,
-                enable,
-                mode,
-              }
+              name,
+              plan: blueprintTasks,
+              cronConfig,
+              enable,
+              mode,
+            }
         }
         onClose={setShowBlueprintInspector}
         hasBackdrop={false}

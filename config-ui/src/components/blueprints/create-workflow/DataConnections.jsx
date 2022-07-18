@@ -36,6 +36,7 @@ const DataConnections = (props) => {
     activeStep,
     name,
     blueprintConnections = [],
+    onlineStatus = [],
     connectionsList = [],
     setBlueprintName = () => {},
     setBlueprintConnections = () => {},
@@ -160,7 +161,7 @@ const DataConnections = (props) => {
                     className='connection-status'
                     style={{ textTransform: 'capitalize' }}
                   >
-                    {bC.status}
+                    {onlineStatus[bcIdx] || "Testing"}
                   </div>
                   <div
                     className='connection-actions'
