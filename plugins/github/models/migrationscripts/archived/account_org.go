@@ -15,34 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import (
-	"context"
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
-)
-
-type initPreSchemas struct{}
-
-func (*initPreSchemas) Up(ctx context.Context, db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(
-		&archived.Task{},
-		&archived.Notification{},
-		&archived.Pipeline{},
-		&archived.Blueprint{},
-	)
+type GithubAccountOrg struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	AccountId    int    `gorm:"primaryKey;autoIncrement:false"`
+	OrgId        int    `gorm:"primaryKey;autoIncrement:false"`
+	OrgLogin     string `json:"org_login" gorm:"type:varchar(255)"`
+	archived.NoPKModel
 }
 
-func (*initPreSchemas) Version() uint64 {
-	return 20220406212344
-}
-
-func (*initPreSchemas) Owner() string {
-	return "Framework"
-}
-
-func (*initPreSchemas) Name() string {
-	return "create init pre-schemas"
+func (GithubAccountOrg) TableName() string {
+	return "_tool_github_account_orgs"
 }

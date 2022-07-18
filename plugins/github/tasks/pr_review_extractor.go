@@ -26,9 +26,9 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ExtractApiPullRequestReviewersMeta = core.SubTaskMeta{
-	Name:             "extractApiPullRequestReviewers",
-	EntryPoint:       ExtractApiPullRequestReviewers,
+var ExtractApiPullRequestReviewsMeta = core.SubTaskMeta{
+	Name:             "extractApiPullRequestReviews",
+	EntryPoint:       ExtractApiPullRequestReviews,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequestReviewers data into tool layer table github_reviewers",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
@@ -39,10 +39,11 @@ type PullRequestReview struct {
 	User        *GithubAccountResponse
 	Body        string
 	State       string
+	CommitId    string             `json:"commit_id"`
 	SubmittedAt helper.Iso8601Time `json:"submitted_at"`
 }
 
-func ExtractApiPullRequestReviewers(taskCtx core.SubTaskContext) error {
+func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -59,7 +60,7 @@ func ExtractApiPullRequestReviewers(taskCtx core.SubTaskContext) error {
 			/*
 				Table store raw data
 			*/
-			Table: RAW_PULL_REQUEST_REVIEW_TABLE,
+			Table: RAW_PR_REVIEW_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			apiPullRequestReview := &PullRequestReview{}
@@ -69,6 +70,9 @@ func ExtractApiPullRequestReviewers(taskCtx core.SubTaskContext) error {
 			err := json.Unmarshal(row.Data, apiPullRequestReview)
 			if err != nil {
 				return nil, err
+			}
+			if apiPullRequestReview.State == "PENDING" {
+				return nil, nil
 			}
 			pull := &SimplePr{}
 			err = json.Unmarshal(row.Input, pull)
@@ -84,7 +88,22 @@ func ExtractApiPullRequestReviewers(taskCtx core.SubTaskContext) error {
 				Login:         apiPullRequestReview.User.Login,
 				PullRequestId: pull.GithubId,
 			}
+
+			githubPrReview := &models.GithubPrReview{
+				ConnectionId:   data.Options.ConnectionId,
+				GithubId:       apiPullRequestReview.GithubId,
+				Body:           apiPullRequestReview.Body,
+				State:          apiPullRequestReview.State,
+				CommitSha:      apiPullRequestReview.CommitId,
+				GithubSubmitAt: apiPullRequestReview.SubmittedAt.ToNullableTime(),
+
+				PullRequestId:  pull.GithubId,
+				AuthorUsername: apiPullRequestReview.User.Login,
+				AuthorUserId:   apiPullRequestReview.User.Id,
+			}
+
 			results = append(results, githubReviewer)
+			results = append(results, githubPrReview)
 			githubUser, err := convertAccount(apiPullRequestReview.User, data.Repo.GithubId, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err

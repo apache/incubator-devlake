@@ -17,16 +17,32 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"context"
 
-// All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(initLakeSchemas),
-		new(updateSchemas20220505),
-		new(updateSchemas20220601),
-		new(updateSchemas20220616),
-		new(blueprintNormalMode),
-		new(initDomainSchemas),
-	}
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
+)
+
+type initLakeSchemas struct{}
+
+func (*initLakeSchemas) Up(ctx context.Context, db *gorm.DB) error {
+	return db.Migrator().AutoMigrate(
+		&archived.Task{},
+		&archived.Notification{},
+		&archived.Pipeline{},
+		&archived.Blueprint{},
+	)
+}
+
+func (*initLakeSchemas) Version() uint64 {
+	return 20220406212344
+}
+
+func (*initLakeSchemas) Owner() string {
+	return "Framework"
+}
+
+func (*initLakeSchemas) Name() string {
+	return "create init pre-schemas"
 }

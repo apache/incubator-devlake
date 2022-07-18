@@ -20,44 +20,34 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/http"
 	"net/url"
-	"reflect"
-
-	"github.com/apache/incubator-devlake/plugins/helper"
-
-	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-const RAW_PR_REVIEW_TABLE = "github_api_pull_request_reviews"
+const RAW_PR_REVIEW_COMMENTS_TABLE = "github_api_pull_request_review_comments"
 
-// this struct should be moved to `gitub_api_common.go`
+// this struct should be moved to `github_api_common.go`
 
-var CollectApiPullRequestReviewsMeta = core.SubTaskMeta{
-	Name:             "collectApiPullRequestReviews",
-	EntryPoint:       CollectApiPullRequestReviews,
-	EnabledByDefault: true,
-	Description:      "Collect PullRequestReviews data from Github api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
-}
-
-func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
+func CollectPrReviewComments(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-	since := data.Since
 
+	since := data.Since
 	incremental := false
 	if since == nil {
-		var latestUpdatedPrReview models.GithubPrReview
+		var latestUpdatedPrReviewComt models.GithubPrComment
 		err := db.All(
-			&latestUpdatedPrReview,
+			&latestUpdatedPrReviewComt,
 			dal.Join(`left join _tool_github_pull_requests on 
-				_tool_github_pull_requests.github_id = _tool_github_pull_request_reviews.pull_request_id 
-				and _tool_github_pull_requests.connection_id = _tool_github_pull_request_reviews.connection_id`),
+				_tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id 
+				and _tool_github_pull_requests.connection_id = _tool_github_pull_request_comments.connection_id`),
 			dal.Where(
-				"_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId,
+				"_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ? AND _tool_github_pull_request_comments.type = ?",
+				data.Repo.GithubId, data.Repo.ConnectionId, "DIFF",
 			),
 			dal.Orderby("github_updated_at DESC"),
 			dal.Limit(1),
@@ -65,64 +55,38 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)
 		}
-		if latestUpdatedPrReview.GithubId > 0 {
-			since = latestUpdatedPrReview.GithubSubmitAt
+		if latestUpdatedPrReviewComt.GithubId > 0 {
+			since = &latestUpdatedPrReviewComt.GithubUpdatedAt
 			incremental = true
 		}
-	}
-	clauses := []dal.Clause{
-		dal.Select("number, github_id"),
-		dal.From(models.GithubPullRequest{}.TableName()),
-		dal.Where("repo_id = ? and connection_id=?", data.Repo.GithubId, data.Options.ConnectionId),
-	}
-	if since != nil {
-		clauses = append(clauses, dal.Where("github_updated_at > ?", *since))
-	}
-	cursor, err := db.Cursor(
-		clauses...,
-	)
-	if err != nil {
-		return err
-	}
-
-	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimplePr{}))
-	if err != nil {
-		return err
 	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
 			Params: GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,
 			},
-
-			/*
-				Table store raw data
-			*/
-			Table: RAW_PR_REVIEW_TABLE,
+			Table: RAW_PR_REVIEW_COMMENTS_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
-		Input:       iterator,
 
-		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/reviews",
-
+		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
+			if since != nil {
+				query.Set("since", since.String())
+			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
-
 			return query, nil
 		},
+		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var items []json.RawMessage
 			err := helper.UnmarshalResponse(res, &items)
@@ -136,5 +100,14 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
+
 	return collector.Execute()
+}
+
+var CollectApiPrReviewCommentsMeta = core.SubTaskMeta{
+	Name:             "CollectApiPrReviewCommentsMeta",
+	EntryPoint:       CollectPrReviewComments,
+	EnabledByDefault: true,
+	Description:      "Collect pr review comments data from Github api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }

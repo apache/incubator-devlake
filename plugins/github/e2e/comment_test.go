@@ -59,15 +59,17 @@ func TestCommentDataFlow(t *testing.T) {
 
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_comments.csv", "_raw_github_api_comments")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_pull_request_review_comments.csv", "_raw_github_api_pull_request_review_comments")
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_issues.csv", &models.GithubIssue{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_issue_labels.csv", &models.GithubIssueLabel{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_pull_requests.csv", models.GithubPullRequest{})
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubIssueComment{})
-	dataflowTester.FlushTabler(&models.GithubPullRequestComment{})
+	dataflowTester.FlushTabler(&models.GithubPrComment{})
 	dataflowTester.FlushTabler(&models.GithubRepoAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiCommentsMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractApiPrReviewCommentsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubIssueComment{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueComment{}.TableName()),
@@ -87,8 +89,8 @@ func TestCommentDataFlow(t *testing.T) {
 		},
 	)
 	dataflowTester.VerifyTable(
-		models.GithubPullRequestComment{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPullRequestComment{}.TableName()),
+		models.GithubPrComment{},
+		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPrComment{}.TableName()),
 		[]string{
 			"connection_id",
 			"github_id",
@@ -96,8 +98,11 @@ func TestCommentDataFlow(t *testing.T) {
 			"body",
 			"author_username",
 			"author_user_id",
+			"commit_sha",
 			"github_created_at",
 			"github_updated_at",
+			"review_id",
+			"type",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -138,12 +143,19 @@ func TestCommentDataFlow(t *testing.T) {
 		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestComment{}.TableName()),
 		[]string{
 			"id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 			"pull_request_id",
 			"body",
 			"user_id",
 			"created_date",
 			"commit_sha",
 			"position",
+			"type",
+			"review_id",
+			"status",
 		},
 	)
 }

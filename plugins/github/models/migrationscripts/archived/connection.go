@@ -19,13 +19,15 @@ package archived
 
 import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-type GithubPullRequestCommit struct {
-	ConnectionId  uint64 `gorm:"primaryKey"`
-	CommitSha     string `gorm:"primaryKey;type:varchar(40)"`
-	PullRequestId int    `gorm:"primaryKey;autoIncrement:false"`
-	archived.NoPKModel
+type GithubConnection struct {
+	archived.Model
+	Name             string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	Endpoint         string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required"`
+	Proxy            string `mapstructure:"proxy" env:"GITHUB_PROXY"`
+	RateLimitPerHour int    `comment:"api request rate limit per hour"`
+	Token            string `mapstructure:"token" env:"GITHUB_AUTH" validate:"required" encrypt:"yes"`
 }
 
-func (GithubPullRequestCommit) TableName() string {
-	return "_tool_github_pull_request_commits"
+func (GithubConnection) TableName() string {
+	return "_tool_github_connections"
 }

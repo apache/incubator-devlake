@@ -63,7 +63,7 @@ Type in which plugin do you want init migrations in, then generator will create 
 
 		// read template
 		templates := map[string]string{
-			`initSchema.go`:     util.ReadTemplate("generator/template/migrationscripts/init_schema.go-template"),
+			`initSchema.go`:     util.ReadTemplate("generator/template/migrationscripts/init_domain_schemas.go-template"),
 			`register.go`:       util.ReadTemplate("generator/template/migrationscripts/register.go-template"),
 			`archived/.gitkeep`: ``,
 		}

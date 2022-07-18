@@ -178,7 +178,7 @@ func (collector *ApiCollector) Execute() error {
 	if err != nil {
 		return err
 	}
-	logger.Debug("wait for all async api to finished")
+	logger.Debug("wait for all async api to be finished")
 	err = collector.args.ApiClient.WaitAsync()
 	if err != nil {
 		logger.Info("end api collection error: %w", err)

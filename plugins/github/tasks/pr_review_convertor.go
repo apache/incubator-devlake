@@ -20,43 +20,45 @@ package tasks
 import (
 	"reflect"
 
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertPullRequestIssuesMeta = core.SubTaskMeta{
-	Name:             "convertPullRequestIssues",
-	EntryPoint:       ConvertPullRequestIssues,
+var ConvertPullRequestReviewsMeta = core.SubTaskMeta{
+	Name:             "convertPullRequestReviews",
+	EntryPoint:       ConvertPullRequestReviews,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table github_pull_request_issues into  domain layer table pull_request_issues",
+	Description:      "ConvertPullRequestReviews data from Github api",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
-func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
+func ConvertPullRequestReviews(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
 	cursor, err := db.Cursor(
-		dal.From(&githubModels.GithubPrIssue{}),
-		dal.Join(`left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_issues.pull_request_id`),
-		dal.Where("_tool_github_pull_requests.repo_id = ? and _tool_github_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
-		dal.Orderby("pull_request_id ASC"),
+		dal.From(&githubModels.GithubPrReview{}),
+		dal.Join("left join _tool_github_pull_requests "+
+			"on _tool_github_pull_requests.github_id = _tool_github_pull_request_reviews.pull_request_id"),
+		dal.Where("repo_id = ? and _tool_github_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
+
+	prReviewUIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPrReview{})
 	prIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
-	issueIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubIssue{})
+	accountIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(githubModels.GithubPrIssue{}),
+		InputRowType: reflect.TypeOf(githubModels.GithubPrReview{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -65,18 +67,26 @@ func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,
 			},
-			Table: RAW_PULL_REQUEST_TABLE,
+			Table: RAW_PR_REVIEW_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			githubPrIssue := inputRow.(*githubModels.GithubPrIssue)
-			pullRequestIssue := &crossdomain.PullRequestIssue{
-				PullRequestId:     prIdGen.Generate(data.Options.ConnectionId, githubPrIssue.PullRequestId),
-				IssueId:           issueIdGen.Generate(data.Options.ConnectionId, githubPrIssue.IssueId),
-				IssueNumber:       githubPrIssue.IssueNumber,
-				PullRequestNumber: githubPrIssue.PullRequestNumber,
+			githubPullRequestReview := inputRow.(*githubModels.GithubPrReview)
+			domainPrReview := &code.PullRequestComment{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: prReviewUIdGen.Generate(data.Options.ConnectionId, githubPullRequestReview.GithubId),
+				},
+				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, githubPullRequestReview.PullRequestId),
+				Body:          githubPullRequestReview.Body,
+				UserId:        accountIdGen.Generate(data.Options.ConnectionId, githubPullRequestReview.AuthorUserId),
+				CommitSha:     githubPullRequestReview.CommitSha,
+				Type:          "REVIEW",
+				Status:        githubPullRequestReview.State,
+			}
+			if githubPullRequestReview.GithubSubmitAt != nil {
+				domainPrReview.CreatedDate = *githubPullRequestReview.GithubSubmitAt
 			}
 			return []interface{}{
-				pullRequestIssue,
+				domainPrReview,
 			}, nil
 		},
 	})

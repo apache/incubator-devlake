@@ -19,7 +19,7 @@ package archived
 
 import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-type GithubPullRequestIssue struct {
+type GithubPrIssue struct {
 	ConnectionId      uint64 `gorm:"primaryKey"`
 	PullRequestId     int    `gorm:"primaryKey"`
 	IssueId           int    `gorm:"primaryKey"`
@@ -28,6 +28,6 @@ type GithubPullRequestIssue struct {
 	archived.NoPKModel
 }
 
-func (GithubPullRequestIssue) TableName() string {
+func (GithubPrIssue) TableName() string {
 	return "_tool_github_pull_request_issues"
 }

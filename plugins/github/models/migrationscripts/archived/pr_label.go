@@ -15,18 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import "github.com/apache/incubator-devlake/migration"
+import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-// All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(initLakeSchemas),
-		new(updateSchemas20220505),
-		new(updateSchemas20220601),
-		new(updateSchemas20220616),
-		new(blueprintNormalMode),
-		new(initDomainSchemas),
-	}
+// Please note that Issue Labels can also apply to Pull Requests.
+// Pull Requests are considered Issues in GitHub.
+
+type GithubPrLabel struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	PullId       int    `gorm:"primaryKey;autoIncrement:false"`
+	LabelName    string `gorm:"primaryKey;type:varchar(255)"`
+	archived.NoPKModel
+}
+
+func (GithubPrLabel) TableName() string {
+	return "_tool_github_pull_request_labels"
 }

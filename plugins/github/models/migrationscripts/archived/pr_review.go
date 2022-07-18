@@ -15,36 +15,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"time"
 )
 
-type GithubAccountOrg20220713 struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	AccountId    int    `gorm:"primaryKey;autoIncrement:false"`
-	OrgId        int    `gorm:"primaryKey;autoIncrement:false"`
-	OrgLogin     string `json:"org_login" gorm:"type:varchar(255)"`
+type GithubPrReview struct {
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	GithubId       int    `gorm:"primaryKey"`
+	PullRequestId  int    `gorm:"index"`
+	Body           string
+	AuthorUsername string `gorm:"type:varchar(255)"`
+	AuthorUserId   int
+	GithubSubmitAt time.Time
+	CommitSha      string `gorm:"type:varchar(255)"`
+	State          string `gorm:"type:varchar(255)"`
 	archived.NoPKModel
 }
 
-func (GithubAccountOrg20220713) TableName() string {
-	return "_tool_github_account_orgs"
-}
-
-type updateSchemas20220713000004 struct{}
-
-func (*updateSchemas20220713000004) Up(ctx context.Context, db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(&GithubAccountOrg20220713{})
-}
-
-func (*updateSchemas20220713000004) Version() uint64 {
-	return 20220713000004
-}
-
-func (*updateSchemas20220713000004) Name() string {
-	return "UpdateSchemas for add org in 20220713"
+func (GithubPrReview) TableName() string {
+	return "_tool_github_pull_request_reviews"
 }

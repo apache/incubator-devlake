@@ -45,7 +45,7 @@ func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
 	pullIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
 
 	cursor, err := db.Cursor(
-		dal.From(&githubModels.GithubPullRequestCommit{}),
+		dal.From(&githubModels.GithubPrCommit{}),
 		dal.Join(`left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_commits.pull_request_id`),
 		dal.Where("_tool_github_pull_requests.repo_id = ? and _tool_github_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
 		dal.Orderby("pull_request_id ASC"),
@@ -56,7 +56,7 @@ func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
 	defer cursor.Close()
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(githubModels.GithubPullRequestCommit{}),
+		InputRowType: reflect.TypeOf(githubModels.GithubPrCommit{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -65,10 +65,10 @@ func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,
 			},
-			Table: RAW_PULL_REQUEST_COMMIT_TABLE,
+			Table: RAW_PR_COMMIT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			githubPullRequestCommit := inputRow.(*githubModels.GithubPullRequestCommit)
+			githubPullRequestCommit := inputRow.(*githubModels.GithubPrCommit)
 			domainPrCommit := &code.PullRequestCommit{
 				CommitSha:     githubPullRequestCommit.CommitSha,
 				PullRequestId: pullIdGen.Generate(data.Options.ConnectionId, githubPullRequestCommit.PullRequestId),

@@ -15,18 +15,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"github.com/apache/incubator-devlake/models/common"
+	"time"
+)
 
-// All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(initLakeSchemas),
-		new(updateSchemas20220505),
-		new(updateSchemas20220601),
-		new(updateSchemas20220616),
-		new(blueprintNormalMode),
-		new(initDomainSchemas),
-	}
+type GithubPrReview struct {
+	ConnectionId   uint64 `gorm:"primaryKey"`
+	GithubId       int    `gorm:"primaryKey"`
+	PullRequestId  int    `gorm:"index"`
+	Body           string
+	AuthorUsername string `gorm:"type:varchar(255)"`
+	AuthorUserId   int
+	CommitSha      string
+	GithubSubmitAt *time.Time
+	State          string
+	common.NoPKModel
+}
+
+func (GithubPrReview) TableName() string {
+	return "_tool_github_pull_request_reviews"
 }
