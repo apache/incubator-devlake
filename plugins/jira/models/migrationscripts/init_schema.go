@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"strings"
 
 	"github.com/apache/incubator-devlake/config"
@@ -90,6 +91,9 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 
 				c := config.GetConfig()
 				encKey := c.GetString("ENCODE_KEY")
+				if encKey == "" {
+					return fmt.Errorf("jira v0.11 invalid encKey")
+				}
 				auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
 				if err != nil {
 					return err
@@ -101,7 +105,10 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 				originInfo := strings.Split(string(pk), ":")
 				if len(originInfo) == 2 {
 					conn.Username = originInfo[0]
-					conn.Password = originInfo[1]
+					conn.Password, err = core.Encrypt(encKey, originInfo[1])
+					if err != nil {
+						return err
+					}
 					// create
 					db.Create(&conn)
 				}
@@ -131,6 +138,9 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 
 				c := config.GetConfig()
 				encKey := c.GetString("ENCODE_KEY")
+				if encKey == "" {
+					return fmt.Errorf("jia v0.10 invalid encKey")
+				}
 				auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
 				if err != nil {
 					return err
@@ -142,7 +152,10 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 				originInfo := strings.Split(string(pk), ":")
 				if len(originInfo) == 2 {
 					conn.Username = originInfo[0]
-					conn.Password = originInfo[1]
+					conn.Password, err = core.Encrypt(encKey, originInfo[1])
+					if err != nil {
+						return err
+					}
 					// create
 					db.Create(&conn)
 				}
