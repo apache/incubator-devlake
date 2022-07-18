@@ -20,6 +20,8 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"gorm.io/gorm"
 	"regexp"
 	"runtime/debug"
 	"strconv"
@@ -89,11 +91,16 @@ func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) error {
 			if prUrlRegex != nil {
 				groups := prUrlRegex.FindStringSubmatch(prReviewComment.PrUrl)
 				if len(groups) > 0 {
-					prId, err := strconv.Atoi(groups[1])
+					prNumber, err := strconv.Atoi(groups[1])
 					if err != nil {
 						return nil, fmt.Errorf("parse prId failed:[%s] stack:[%s]", err.Error(), debug.Stack())
 					}
-					githubPrComment.PullRequestId = prId
+					pr := &models.GithubPullRequest{}
+					err = taskCtx.GetDal().First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, prNumber, data.Repo.GithubId))
+					if err != nil && err != gorm.ErrRecordNotFound {
+						return nil, err
+					}
+					githubPrComment.PullRequestId = pr.GithubId
 				}
 			}
 			results = append(results, githubPrComment)
