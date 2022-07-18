@@ -139,7 +139,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 				c := config.GetConfig()
 				encKey := c.GetString("ENCODE_KEY")
 				if encKey == "" {
-					return fmt.Errorf("jia v0.10 invalid encKey")
+					return fmt.Errorf("jira v0.10 invalid encKey")
 				}
 				auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
 				if err != nil {
