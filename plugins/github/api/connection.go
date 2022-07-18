@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/api/shared"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -61,39 +62,75 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-	apiClient, err := helper.NewApiClient(
-		context.TODO(),
-		params.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %s", params.Token),
-		},
-		3*time.Second,
-		params.Proxy,
-		basicRes,
-	)
-	if err != nil {
-		return nil, err
+	tokens := strings.Split(params.Token, ",")
+
+	// verify multiple token in parallel
+	type VerifyResult struct {
+		err   error
+		login string
 	}
-	res, err := apiClient.Get("user", nil, nil)
-	if err != nil {
-		return nil, err
+	results := make(chan VerifyResult)
+	for i := 0; i < len(tokens); i++ {
+		token := tokens[i]
+		j := i + 1
+		go func() {
+			apiClient, err := helper.NewApiClient(
+				context.TODO(),
+				params.Endpoint,
+				map[string]string{
+					"Authorization": fmt.Sprintf("Bearer %s", token),
+				},
+				3*time.Second,
+				params.Proxy,
+				basicRes,
+			)
+			if err != nil {
+				results <- VerifyResult{err: fmt.Errorf("verify token failed for #%v %s %w", j, token, err)}
+				return
+			}
+			res, err := apiClient.Get("user", nil, nil)
+			if err != nil {
+				results <- VerifyResult{err: fmt.Errorf("verify token failed for #%v %s %w", j, token, err)}
+				return
+			}
+			githubUserOfToken := &models.GithubUserOfToken{}
+			err = helper.UnmarshalResponse(res, githubUserOfToken)
+			if err != nil {
+				results <- VerifyResult{err: fmt.Errorf("verify token failed for #%v %s %w", j, token, err)}
+				return
+			} else if githubUserOfToken.Login == "" {
+				results <- VerifyResult{err: fmt.Errorf("invalid token for #%v %s", j, token)}
+				return
+			}
+			results <- VerifyResult{login: githubUserOfToken.Login}
+		}()
 	}
+
+	// collect verification results
+	logins := make([]string, 0)
+	msgs := make([]string, 0)
+	i := 0
+	for result := range results {
+		if result.err != nil {
+			msgs = append(msgs, result.err.Error())
+		}
+		logins = append(logins, result.login)
+		i++
+		if i == len(tokens) {
+			close(results)
+		}
+	}
+	if len(msgs) > 0 {
+		return nil, fmt.Errorf(strings.Join(msgs, "\n"))
+	}
+
 	var githubApiResponse struct {
 		shared.ApiBody
 		Login string `json:"login"`
 	}
-	githubUserOfToken := &models.GithubUserOfToken{}
-	err = helper.UnmarshalResponse(res, githubUserOfToken)
-	if err != nil {
-		return nil, err
-	} else if githubUserOfToken.Login == "" {
-		return nil, fmt.Errorf("invalid token")
-	}
 	githubApiResponse.Success = true
 	githubApiResponse.Message = "success"
-	githubApiResponse.Login = githubUserOfToken.Login
-
-	// output
+	githubApiResponse.Login = strings.Join(logins, `,`)
 	return &core.ApiResourceOutput{Body: githubApiResponse, Status: http.StatusOK}, nil
 }
 
