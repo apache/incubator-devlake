@@ -22,10 +22,12 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/utils"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"reflect"
 )
 
 type BitbucketApiParams struct {
@@ -36,7 +38,6 @@ type BitbucketApiParams struct {
 
 type BitbucketInput struct {
 	BitbucketId int
-	Iid         int
 }
 
 func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helper.RawDataSubTaskArgs, *BitbucketTaskData) {
@@ -91,4 +92,44 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 	}
 
 	return rawMessages.Values, nil
+}
+
+func GetPullRequestsIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, error) {
+	db := taskCtx.GetDal()
+	data := taskCtx.GetData().(*BitbucketTaskData)
+	clauses := []dal.Clause{
+		dal.Select("bpr.bitbucket_id"),
+		dal.From("_tool_bitbucket_pull_requests bpr"),
+		dal.Where(
+			`bpr.repo_id = ? and bpr.connection_id = ?`,
+			"repositories/"+data.Options.Owner+"/"+data.Options.Repo, data.Options.ConnectionId,
+		),
+	}
+	// construct the input iterator
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return nil, err
+	}
+
+	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketInput{}))
+}
+
+func GetIssuesIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, error) {
+	db := taskCtx.GetDal()
+	data := taskCtx.GetData().(*BitbucketTaskData)
+	clauses := []dal.Clause{
+		dal.Select("bpr.bitbucket_id"),
+		dal.From("_tool_bitbucket_issues bpr"),
+		dal.Where(
+			`bpr.repo_id = ? and bpr.connection_id = ?`,
+			"repositories/"+data.Options.Owner+"/"+data.Options.Repo, data.Options.ConnectionId,
+		),
+	}
+	// construct the input iterator
+	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return nil, err
+	}
+
+	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketInput{}))
 }
