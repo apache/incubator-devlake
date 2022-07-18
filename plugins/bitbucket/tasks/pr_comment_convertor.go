@@ -53,7 +53,9 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
+	domainIdGeneratorComment := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketPrComment{})
 	prIdGen := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketPullRequest{})
+	accountIdGen := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(bitbucketModels.BitbucketPrComment{}),
@@ -71,10 +73,10 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 			bitbucketPullRequestComment := inputRow.(*bitbucketModels.BitbucketPrComment)
 			domainPrComment := &code.PullRequestComment{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: prIdGen.Generate(data.Options.ConnectionId, bitbucketPullRequestComment.BitbucketId),
+					Id: domainIdGeneratorComment.Generate(data.Options.ConnectionId, bitbucketPullRequestComment.BitbucketId),
 				},
 				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, bitbucketPullRequestComment.PullRequestId),
-				UserId:        bitbucketPullRequestComment.AuthorUserId,
+				UserId:        accountIdGen.Generate(data.Options.ConnectionId, bitbucketPullRequestComment.AuthorUserId),
 				CreatedDate:   bitbucketPullRequestComment.CreatedAt,
 				CommitSha:     "",
 				Position:      0,

@@ -55,6 +55,7 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 
 	prIdGen := didgen.NewDomainIdGenerator(&models.BitbucketPullRequest{})
 	repoIdGen := didgen.NewDomainIdGenerator(&models.BitbucketRepo{})
+	domainUserIdGen := didgen.NewDomainIdGenerator(&models.BitbucketAccount{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(models.BitbucketPullRequest{}),
@@ -78,7 +79,7 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 				Status:         pr.State,
 				Title:          pr.Title,
 				Url:            pr.Url,
-				AuthorId:       pr.AuthorId,
+				AuthorId:       domainUserIdGen.Generate(data.Options.ConnectionId, pr.AuthorId),
 				AuthorName:     pr.AuthorName,
 				Description:    pr.Body,
 				CreatedDate:    pr.BitbucketCreatedAt,
