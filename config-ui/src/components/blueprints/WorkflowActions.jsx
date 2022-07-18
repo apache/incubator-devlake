@@ -46,11 +46,10 @@ const WorkflowActions = (props) => {
     <div className='workflow-actions'>
       <Button
         loading={isLoading}
-        disabled={isLoading}
+        disabled={activeStep?.id === 1 || isLoading}
         intent={Intent.PRIMARY}
         text='Previous Step'
         onClick={onPrev}
-        disabled={activeStep?.id === 1}
       />
 
       {activeStep?.id === blueprintSteps.length ? (
