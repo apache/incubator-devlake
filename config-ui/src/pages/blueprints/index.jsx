@@ -309,7 +309,7 @@ const Blueprints = (props) => {
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
                   <Button
-                    disabled={pipelines.length === 0}
+                    // disabled={pipelines.length === 0}
                     icon='plus' intent={Intent.PRIMARY}
                     text='New Blueprint'
                     onClick={() => createNewBlueprint()}
