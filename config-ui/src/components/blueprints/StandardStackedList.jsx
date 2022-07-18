@@ -42,7 +42,7 @@ const StandardStackedList = (props) => {
 
   const isEditing = useCallback((item) => {
     const storedTransform = transformations[item] || transformations[item?.id]
-    return Object.values(storedTransform).some(v => v.length > 0)
+    return Object.values(storedTransform).some(v => v && v.length > 0)
   }, [transformations])
 
   // useEffect(() => {

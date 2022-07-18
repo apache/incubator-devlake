@@ -48,7 +48,7 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			}
 		}
 		// refdiff
-		if refdiffRules, ok := transformationRules["refdiff"]; ok {
+		if refdiffRules, ok := transformationRules["refdiff"]; ok && refdiffRules != nil {
 			// add a new task to next stage
 			j := i + 1
 			if j == len(plan) {

@@ -702,10 +702,12 @@ const CreateBlueprint = (props) => {
     const getDefaultEntities = (providerId) => {
       let entities = []
       switch (providerId) {
-        case Providers.JIRA:
         case Providers.GITHUB:
         case Providers.GITLAB:
           entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
+          break
+        case Providers.JIRA:
+          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
           break
         case Providers.JENKINS:
           entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
@@ -740,12 +742,16 @@ const CreateBlueprint = (props) => {
       setConfiguredBoard(null)
       switch (configuredConnection.provider) {
         case Providers.GITLAB:
-        case Providers.JIRA:
         case Providers.GITHUB:
           setDataEntitiesList(
             DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
           )
           // setConfiguredProject(projects.length > 0 ? projects[0] : null)
+          break
+        case Providers.JIRA:
+          setDataEntitiesList(
+            DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
+          )
           break
         case Providers.JENKINS:
           setDataEntitiesList(
@@ -813,11 +819,7 @@ const CreateBlueprint = (props) => {
             issueTypeRequirement: '',
             issueTypeBug: '',
             issueTypeIncident: '',
-            refdiff: {
-              tagsOrder: '',
-              tagsPattern: '',
-              tagsLimit: 10,
-            },
+            refdiff: null,
           }
           break
         case Providers.JIRA:
