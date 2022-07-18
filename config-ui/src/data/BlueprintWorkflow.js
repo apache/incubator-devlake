@@ -101,11 +101,17 @@ const DEFAULT_DATA_ENTITIES = [
   },
   {
     id: 3,
+    name: 'code-review',
+    title: 'Code Review',
+    value: DataEntityTypes.CODE_REVIEW,
+  },
+  {
+    id: 4,
     name: 'cross-domain',
     title: 'Crossdomain',
     value: DataEntityTypes.CROSSDOMAIN,
   },
-  { id: 4, name: 'ci-cd', title: 'CI/CD', value: DataEntityTypes.DEVOPS },
+  { id: 5, name: 'ci-cd', title: 'CI/CD', value: DataEntityTypes.DEVOPS },
 ]
 
 const DEFAULT_BOARDS = [

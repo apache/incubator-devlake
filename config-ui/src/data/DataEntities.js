@@ -18,17 +18,19 @@
 
 const DataEntityTypes = {
   CODE: 'CODE',
+  TICKET: 'TICKET',
+  CODE_REVIEW: 'CODE_REVIEW',
   CROSSDOMAIN: 'CROSS',
   DEVOPS: 'CICD',
-  TICKET: 'TICKET',
   // USER: 'user',
 }
 
 const DataEntities = [
   DataEntityTypes.CODE,
+  DataEntityTypes.TICKET,
+  DataEntityTypes.CODE_REVIEW,
   DataEntityTypes.CROSSDOMAIN,
   DataEntityTypes.DEVOPS,
-  DataEntityTypes.TICKET,
   // DataEntityTypes.USER,
 ]
 
