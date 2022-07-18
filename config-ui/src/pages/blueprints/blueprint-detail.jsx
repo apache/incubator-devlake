@@ -85,7 +85,7 @@ const TaskStatusLabels = {
   [TaskStatus.RUNNING]: 'In Progress',
   [TaskStatus.CREATED]: 'Created (Pending)',
   [TaskStatus.PENDING]: 'Created (Pending)',
-  [TaskStatus.PENDING]: 'Cancelled',
+  [TaskStatus.CANCELLED]: 'Cancelled',
 }
 
 const StatusColors = {
@@ -679,7 +679,7 @@ const BlueprintDetail = (props) => {
 
   useEffect(() => {
     // if (lastPipeline?.id && lastPipeline.status === TaskStatus.RUNNING) {
-    if (lastPipeline?.id && [TaskStatus.RUNNING, TaskStatus.COMPLETE, TaskStatus.FAILED].includes(lastPipeline.status)) {
+    if (lastPipeline?.id && [TaskStatus.CREATED, TaskStatus.RUNNING, TaskStatus.COMPLETE, TaskStatus.FAILED].includes(lastPipeline.status)) {
       fetchPipeline(lastPipeline?.id)
       setCurrentRun((cR) => ({
         ...cR,
