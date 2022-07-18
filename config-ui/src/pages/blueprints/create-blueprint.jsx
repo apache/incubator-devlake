@@ -353,7 +353,7 @@ const CreateBlueprint = (props) => {
     password,
   })
 
-  const isValidStep = useCallback((stepId) => {}, [])
+  const isValidStep = useCallback((stepId) => { }, [])
 
   const nextStep = useCallback(() => {
     setActiveStep((aS) =>
@@ -488,7 +488,7 @@ const CreateBlueprint = (props) => {
             options: {
               boardId: Number(b.id),
               // @todo: verify initial value of since date for jira provider
-              since: new Date(),
+              // since: new Date(),
             },
             transformation: { ...transformations[b.id] },
           }))
@@ -704,7 +704,7 @@ const CreateBlueprint = (props) => {
     validateBlueprint,
   ])
 
-  useEffect(() => {}, [activeConnectionTab])
+  useEffect(() => { }, [activeConnectionTab])
 
   useEffect(() => {
     setConfiguredConnection(
@@ -1012,7 +1012,7 @@ const CreateBlueprint = (props) => {
                       // manageConnection={manageConnection}
                       onAdvancedMode={handleAdvancedMode}
                       // @todo add multistage checker method
-                      isMultiStagePipeline={() => {}}
+                      isMultiStagePipeline={() => { }}
                       rawConfiguration={rawConfiguration}
                       setRawConfiguration={setRawConfiguration}
                       isSaving={isSaving}
@@ -1195,21 +1195,21 @@ const CreateBlueprint = (props) => {
         activePipeline={
           !advancedMode
             ? {
-                // ID: 0,
-                name,
-                // tasks: blueprintTasks,
-                settings: blueprintSettings,
-                cronConfig,
-                enable,
-                mode,
-              }
+              // ID: 0,
+              name,
+              // tasks: blueprintTasks,
+              settings: blueprintSettings,
+              cronConfig,
+              enable,
+              mode,
+            }
             : {
-                name,
-                plan: blueprintTasks,
-                cronConfig,
-                enable,
-                mode,
-              }
+              name,
+              plan: blueprintTasks,
+              cronConfig,
+              enable,
+              mode,
+            }
         }
         onClose={setShowBlueprintInspector}
         hasBackdrop={false}
