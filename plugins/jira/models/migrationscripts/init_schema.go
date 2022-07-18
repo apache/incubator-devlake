@@ -162,6 +162,11 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 			}
 		}
 	} else {
+		c := config.GetConfig()
+		encKey := c.GetString("ENCODE_KEY")
+		if encKey == "" {
+			return fmt.Errorf("invalid encKey")
+		}
 		err := db.Migrator().AutoMigrate(&archived.JiraConnection{})
 		if err != nil {
 			return err
