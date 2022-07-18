@@ -181,7 +181,7 @@ export default function GithubSettings (props) {
             disabled={isSaving || isSavingConnection}
             inline={true}
             label='Type/Incident'
-            labelFor='github-issue-bug'
+            labelFor='github-issue-incident'
             className='formGroup'
             contentClassName='formGroupContent'
           >
