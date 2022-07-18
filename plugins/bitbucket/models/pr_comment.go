@@ -18,22 +18,23 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/common"
 )
 
-type BitbucketIssueComment struct {
+type BitbucketPrComment struct {
 	ConnectionId   uint64 `gorm:"primaryKey"`
 	BitbucketId    int    `gorm:"primaryKey"`
-	IssueId        int    `gorm:"index;comment:References the Issue"`
+	PullRequestId  int    `gorm:"index"`
+	AuthorUserId   string
 	AuthorUsername string `gorm:"type:varchar(255)"`
-	AuthorUserId   string `gorm:"type:varchar(255)"`
 	CreatedAt      time.Time
-	UpdatedAt      time.Time `gorm:"index"`
-	Type           string
+	UpdatedAt      time.Time
+	Type           string `gorm:"comment:if type=null, it is normal comment,if type=diffNote,it is diff comment"`
 	common.NoPKModel
 }
 
-func (BitbucketIssueComment) TableName() string {
-	return "_tool_bitbucket_issue_comments"
+func (BitbucketPrComment) TableName() string {
+	return "_tool_bitbucket_pull_request_comments"
 }

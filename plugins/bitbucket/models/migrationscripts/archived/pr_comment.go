@@ -15,25 +15,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type BitbucketIssueComment struct {
+type BitbucketPrComment struct {
 	ConnectionId   uint64 `gorm:"primaryKey"`
 	BitbucketId    int    `gorm:"primaryKey"`
-	IssueId        int    `gorm:"index;comment:References the Issue"`
+	PullRequestId  int    `gorm:"index"`
+	AuthorUserId   string
 	AuthorUsername string `gorm:"type:varchar(255)"`
-	AuthorUserId   string `gorm:"type:varchar(255)"`
 	CreatedAt      time.Time
-	UpdatedAt      time.Time `gorm:"index"`
-	Type           string
-	common.NoPKModel
+	UpdatedAt      time.Time
+	Type           string `gorm:"comment:if type=null, it is normal comment,if type=diffNote,it is diff comment"`
+	archived.NoPKModel
 }
 
-func (BitbucketIssueComment) TableName() string {
-	return "_tool_bitbucket_issue_comments"
+func (BitbucketPrComment) TableName() string {
+	return "_tool_bitbucket_pull_request_comments"
 }

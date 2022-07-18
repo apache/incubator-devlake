@@ -37,6 +37,8 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.BitbucketCommit{},
 		&archived.BitbucketPullRequest{},
 		&archived.BitbucketIssue{},
+		&archived.BitbucketPrComment{},
+		&archived.BitbucketIssueComment{},
 		"_raw_bitbucket_api_repositories",
 	)
 
@@ -53,6 +55,8 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.BitbucketCommit{},
 		&archived.BitbucketPullRequest{},
 		&archived.BitbucketIssue{},
+		&archived.BitbucketPrComment{},
+		&archived.BitbucketIssueComment{},
 	)
 
 	if err != nil {
