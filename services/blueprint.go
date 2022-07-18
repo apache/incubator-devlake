@@ -20,6 +20,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
@@ -42,7 +43,7 @@ type BlueprintQuery struct {
 var blueprintLog = logger.Global.Nested("blueprint")
 var vld = validator.New()
 
-// CreateBlueprint FIXME ...
+// CreateBlueprint accepts a Blueprint instance and insert it to database
 func CreateBlueprint(blueprint *models.Blueprint) error {
 	err := validateBlueprint(blueprint)
 	if err != nil {
@@ -59,7 +60,7 @@ func CreateBlueprint(blueprint *models.Blueprint) error {
 	return nil
 }
 
-// GetBlueprints FIXME ...
+// GetBlueprints returns a paginated list of Blueprints based on `query`
 func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, error) {
 	blueprints := make([]*models.Blueprint, 0)
 	db := db.Model(blueprints).Order("id DESC")
@@ -83,7 +84,7 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, error) {
 	return blueprints, count, nil
 }
 
-// GetBlueprint FIXME ...
+// GetBlueprint returns the detail of a given Blueprint ID
 func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
 	blueprint := &models.Blueprint{}
 	err := db.First(blueprint, blueprintId).Error
@@ -102,13 +103,14 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 	if err != nil {
 		return err
 	}
-	if blueprint.CronConfig != "" {
+	if strings.ToLower(blueprint.CronConfig) == "manual" {
+		blueprint.IsManual = true
+	}
+	if !blueprint.IsManual{
 		_, err = cron.ParseStandard(blueprint.CronConfig)
 		if err != nil {
 			return fmt.Errorf("invalid cronConfig: %w", err)
 		}
-	} else if !blueprint.IsManual {
-		return fmt.Errorf("cronConfig is required for Automated blueprint")
 	}
 	if blueprint.Mode == models.BLUEPRINT_MODE_ADVANCED {
 		plan := make(core.PipelinePlan, 0)

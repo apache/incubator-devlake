@@ -16,13 +16,24 @@
  *
  */
 import axios from 'axios'
+import { ToastNotification } from '@/components/Toast'
 
 const headers = {}
+let warned428 = false
 
 const handleErrorResponse = (e) => {
   let errorResponse = { success: false, message: e.message, data: null, status: 504 }
   if (e.response) {
-    errorResponse = { ...errorResponse, data: e.response ? e.response.data : null, message: e.response?.data?.message, status: e.response ? e.response.status : 504 }
+    errorResponse = {
+      ...errorResponse,
+      data: e.response ? e.response.data : null,
+      message: e.response?.data?.message,
+      status: e.response ? e.response.status : 504,
+    }
+  }
+  if (!warned428 && e.response?.status === 428) {
+    warned428 = true
+    ToastNotification.show({ message: e.response.data.message, intent: 'danger', icon: 'error', timeout: -1 })
   }
   return errorResponse
 }

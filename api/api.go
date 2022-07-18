@@ -67,8 +67,9 @@ func CreateApiService() {
 		shared.ApiOutputError(
 			ctx,
 			fmt.Errorf("Database migration is required for Apache DevLake to function properly, it might cause the "+
-				"collected data gets wiped out for consistency. Please send a request to `/proceed-migrations` "+
-				"if it is ok, or you may downgrade back to the older version you previous used"),
+				"collected data gets wiped out for consistency. \nPlease send a request to `/proceed-db-migration` "+
+				"(or `/api/proceed-db-migration` from config-ui)if it is ok, or you may downgrade back to the older "+
+				"version you previous used."),
 			http.StatusPreconditionRequired,
 		)
 		ctx.Abort()
