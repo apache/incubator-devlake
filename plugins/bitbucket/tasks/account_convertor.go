@@ -31,10 +31,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
+const RAW_ACCOUNT_TABLE = "bitbucket_api_accounts"
+
 var ConvertAccountsMeta = core.SubTaskMeta{
 	Name:             "convertAccounts",
 	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
+	Required: true,
 	Description:      "Convert tool layer table bitbucket_accounts into  domain layer table accounts",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
@@ -61,7 +64,7 @@ func ConvertAccounts(taskCtx core.SubTaskContext) error {
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,
 			},
-			Table: RAW_COMMIT_TABLE,
+			Table: RAW_ACCOUNT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			bitbucketUser := inputRow.(*bitbucketModels.BitbucketAccount)
