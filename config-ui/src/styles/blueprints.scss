@@ -245,6 +245,10 @@
       }
     }
   }
+  &.dialog-view-pipeline {
+    width: auto;
+    min-width: 500px;
+  }
 }
 
 .connections-multiselect-selector {

@@ -36,16 +36,16 @@ const StageTaskCaption = (props) => {
         textOverflow: 'ellipsis'
       }}
     >
-      {task.status === 'TASK_RUNNING' || task.status === 'TASK_COMPLETED' && (<span style={{ float: 'right' }}>
+      {(task.status === 'TASK_RUNNING' || task.status === 'TASK_COMPLETED') && (<span style={{ float: 'right' }}>
         {task.status === 'TASK_RUNNING'
           ? dayjs(task.beganAt).toNow(true)
           : dayjs(task.beganAt).from(task.finishedAt || task.updatedAt, true)}
       </span>)}
       {task.status === 'TASK_RUNNING' && <span>Subtask {task?.progressDetail?.finishedSubTasks} / {task?.progressDetail?.totalSubTasks}</span>}
-      {task.status === 'TASK_COMPLETED' && <span>{task?.progressDetail?.finishedSubTasks} Subtasks completed</span>}
+      {task.status === 'TASK_COMPLETED' && <span>{task?.progressDetail?.finishedSubTasks || 'All'} Subtasks completed</span>}
       {task.status === 'TASK_COMPLETED' && <span>{task?.progressDetail?.finishedRecords}</span>}
       {task.status === 'TASK_CREATED' && <span>Records Pending</span>}
-      {task.status === 'TASK_FAILED' && <span style={{ color: Colors.RED3 }}>Task failed &mdash; <strong>{task?.failedSubTask}</strong></span>}
+      {task.status === 'TASK_FAILED' && <span style={{ color: Colors.RED3 }}>Task failed &mdash; <strong>{task?.failedSubTask || task?.message}</strong></span>}
     </span>
   )
 }

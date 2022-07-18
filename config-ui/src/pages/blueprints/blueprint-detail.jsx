@@ -18,6 +18,8 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 // import { CSSTransition } from 'react-transition-group'
+import { DEVLAKE_ENDPOINT } from '@/utils/config'
+import request from '@/utils/request'
 import dayjs from '@/utils/time'
 import {
   Button,
@@ -33,6 +35,8 @@ import {
   Classes,
   Position,
   Popover,
+  Collapse,
+  Dialog
 } from '@blueprintjs/core'
 import { NullBlueprint } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
@@ -467,6 +471,8 @@ const BlueprintDetail = (props) => {
   const pollInterval = useRef()
   const [autoRefresh, setAutoRefresh] = useState(false)
 
+  const [expandRun, setExpandRun] = useState(null)
+
   const {
     // eslint-disable-next-line no-unused-vars
     blueprint,
@@ -548,10 +554,27 @@ const BlueprintDetail = (props) => {
     // fetchAllPipelines()
   }, [activateBlueprint, deactivateBlueprint])
 
+  const handlePipelineDialogClose = useCallback(() => {
+    setExpandRun(null)
+  }, [])
+
   const inspectRun = useCallback((pipelineRun) => {
     setInspectedPipeline(pipelineRun)
     setShowInspector(true)
   }, [])
+
+  const viewPipelineRun = useCallback((pipelineRun) => {
+    const fetchPipelineTasks = async () => {
+      const t = await request.get(`${DEVLAKE_ENDPOINT}/pipelines/${pipelineRun?.id}/tasks`)
+      setExpandRun({
+        ...pipelineRun,
+        tasks: t.data?.tasks || []
+      })
+    }
+    if (pipelineRun?.id !== null) {
+      fetchPipelineTasks()
+    }
+  }, [setExpandRun])
 
   const handleInspectorClose = useCallback(() => {
     setInspectedPipeline(NullPipelineRun)
@@ -700,7 +723,7 @@ const BlueprintDetail = (props) => {
   }, [currentStages])
 
   useEffect(() => {
-    if (autoRefresh) {
+    if (autoRefresh && activePipeline?.id) {
       console.log('>> ACTIVITY POLLING ENABLED!')
       pollInterval.current = setInterval(() => {
         fetchPipeline(activePipeline?.id)
@@ -708,10 +731,16 @@ const BlueprintDetail = (props) => {
     } else {
       console.log('>> ACTIVITY POLLING DISABLED!')
       clearInterval(pollInterval.current)
-      fetchPipeline(activePipeline?.id)
-      fetchAllPipelines()
+      if (activePipeline?.id) {
+        fetchPipeline(activePipeline?.id)
+        fetchAllPipelines()
+      }
     }
   }, [autoRefresh, fetchPipeline, fetchAllPipelines, activePipeline?.id, pollTimer])
+
+  // useEffect(() => {
+  //   console.log('>> VIEW PIPELINE RUN....', expandRun)
+  // }, [expandRun])
 
   return (
     <>
@@ -1202,20 +1231,20 @@ const BlueprintDetail = (props) => {
                               onClick={() => inspectRun(blueprintPipelines.find(p => p.id === run.id))}
                             />
                           </Tooltip>
-                          <Tooltip
+                          {/* <Tooltip
                             intent={Intent.PRIMARY}
                             content='View Full Log'
-                          >
-                            <Button
-                              intent={Intent.NONE}
-                              minimal
-                              small
-                              icon='document'
-                              style={{ marginLeft: '10px' }}
-                              // @todo: enable log view dialog support feature
-                              disabled
-                            />
-                          </Tooltip>
+                          > */}
+                          <Button
+                            intent={Intent.NONE}
+                            minimal
+                            small
+                            icon='document'
+                            style={{ marginLeft: '10px' }}
+                            // @todo: enable log view dialog support feature
+                            disabled
+                          />
+                          {/* </Tooltip> */}
                           <Tooltip
                             intent={Intent.PRIMARY}
                             content='Show Run Activity'
@@ -1224,8 +1253,9 @@ const BlueprintDetail = (props) => {
                               intent={Intent.PRIMARY}
                               minimal
                               small
-                              icon='chevron-right'
+                              icon={expandRun?.id === run.id ? 'chevron-down' : 'chevron-right'}
                               style={{ marginLeft: '10px' }}
+                              onClick={() => viewPipelineRun(blueprintPipelines.find(p => p.id === run.id))}
                             />
                           </Tooltip>
                         </td>
@@ -1247,6 +1277,28 @@ const BlueprintDetail = (props) => {
         </Content>
       </div>
       <CodeInspector isOpen={showInspector} activePipeline={inspectedPipeline} onClose={handleInspectorClose} />
+      <Dialog
+        className='dialog-view-pipeline'
+        // icon=
+        title={`Historical Run #${expandRun?.id}`}
+        isOpen={expandRun !== null}
+        onClose={handlePipelineDialogClose}
+        onClosed={() => {}}
+        canOutsideClickClose={true}
+        style={{ backgroundColor: '#ffffff' }}
+      >
+        <div className={Classes.DIALOG_BODY}>
+          {Object.keys(buildPipelineStages(expandRun?.tasks)).length > 0 && (
+            <div
+              className='pipeline-multistage-activity'
+            >
+              {Object.keys(buildPipelineStages(expandRun?.tasks)).map((sK, sIdx) => (
+                <StageLane key={`stage-lane-key-${sIdx}`} stages={buildPipelineStages(expandRun?.tasks)} sK={sK} sIdx={sIdx} showStageTasks={true} />
+              ))}
+            </div>
+          )}
+        </div>
+      </Dialog>
     </>
   )
 }

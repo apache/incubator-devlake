@@ -42,7 +42,7 @@ const StageTaskIndicator = (props) => {
       }}
     >
       <span>
-        {ProviderIcons[task.plugin] && ProviderIcons[task?.plugin](14, 14)}
+        {ProviderIcons[task?.plugin] && ProviderIcons[task?.plugin](14, 14)}
       </span>
       {/* {task.status === 'TASK_COMPLETED' && (
         <Tooltip content={`Task Complete [STAGE ${task.pipelineRow}]`} position={Position.TOP} intent={Intent.SUCCESS}>
