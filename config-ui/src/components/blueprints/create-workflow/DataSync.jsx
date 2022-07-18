@@ -271,13 +271,13 @@ const DataSync = (props) => {
               style={{ marginTop: ' 20px' }}
             />
             <div>
-              <Button
-                text='View Schedule'
-                icon='time'
-                intent={Intent.NONE}
-                small
-                style={{ float: 'right', fontSize: '11px' }}
-              />
+              {/* <Button */}
+              {/*   text='View Schedule' */}
+              {/*   icon='time' */}
+              {/*   intent={Intent.NONE} */}
+              {/*   small */}
+              {/*   style={{ float: 'right', fontSize: '11px' }} */}
+              {/* /> */}
 
               <h4 style={{ marginRight: 0, marginBottom: 0 }}>Next Run Date</h4>
             </div>
