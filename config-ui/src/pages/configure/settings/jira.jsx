@@ -422,7 +422,7 @@ export default function JiraSettings (props) {
               noResults={<MenuItem disabled={true} text='No epic results.' />}
               onItemSelect={(item) => {
                 setJiraIssueEpicKeyField(item)
-                onSettingsChange({ ...transformation, epicKeyField: item?.value }, configuredBoard?.id)
+                onSettingsChange({ epicKeyField: item?.value }, configuredBoard?.id)
               }}
               popoverProps={{
                 position: Position.TOP
@@ -443,7 +443,7 @@ export default function JiraSettings (props) {
               icon='eraser'
               intent={jiraIssueEpicKeyField ? Intent.NONE : Intent.NONE} minimal={false} onClick={() => {
                 setJiraIssueEpicKeyField('')
-                onSettingsChange({ ...transformation, epicKeyField: '' }, configuredBoard?.id)
+                onSettingsChange({ epicKeyField: '' }, configuredBoard?.id)
               }}
             />
           </ButtonGroup>
@@ -497,7 +497,7 @@ export default function JiraSettings (props) {
               noResults={<MenuItem disabled={true} text='No epic results.' />}
               onItemSelect={(item) => {
                 setJiraIssueStoryPointField(item)
-                onSettingsChange({ ...transformation, storyPointField: item?.value }, configuredBoard?.id)
+                onSettingsChange({ storyPointField: item?.value }, configuredBoard?.id)
               }}
               popoverProps={{
                 position: Position.TOP
@@ -521,7 +521,7 @@ export default function JiraSettings (props) {
                 ? Intent.NONE
                 : Intent.NONE} minimal={false} onClick={() => {
                   setJiraIssueStoryPointField('')
-                  onSettingsChange({ ...transformation, storyPointField: '' }, configuredBoard?.id)
+                  onSettingsChange({ storyPointField: '' }, configuredBoard?.id)
                 }}
             />
           </ButtonGroup>
@@ -553,7 +553,7 @@ export default function JiraSettings (props) {
             fill={true}
             placeholder='/commit/([0-9a-f]{40})$'
             value={newTransformation[configuredBoard?.id]?.remotelinkCommitShaPattern}
-            onChange={(e) => onSettingsChange({ ...transformation, remotelinkCommitShaPattern: e.target.value }, configuredBoard?.id)}
+            onChange={(e) => onSettingsChange({ remotelinkCommitShaPattern: e.target.value }, configuredBoard?.id)}
             disabled={isSaving}
             className='input'
           />
