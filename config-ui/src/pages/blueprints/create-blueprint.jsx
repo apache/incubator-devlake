@@ -819,11 +819,7 @@ const CreateBlueprint = (props) => {
             issueTypeRequirement: '',
             issueTypeBug: '',
             issueTypeIncident: '',
-            refdiff: {
-              tagsOrder: '',
-              tagsPattern: '',
-              tagsLimit: 10,
-            },
+            refdiff: null,
           }
           break
         case Providers.JIRA:

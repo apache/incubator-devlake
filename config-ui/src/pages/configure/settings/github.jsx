@@ -38,16 +38,12 @@ export default function GithubSettings (props) {
 
   const handleAdditionalSettings = (setting) => {
     setEnableAdditionalCalculations(setting)
+    onSettingsChange({ refdiff: setting ? { tagsOrder: '', tagsPattern: '', tagsLimit: 10, } : null }, configuredProject)
   }
 
   useEffect(() => {
     console.log('>>>> TRANSFORMATION SETTINGS OBJECT....', transformation)
-    if (transformation?.refdiff !== '' &&
-      transformation?.refdiff?.tagsOrder &&
-      transformation?.refdiff?.tagsPattern &&
-      transformation?.refdiff?.tagsLimit) {
-      setEnableAdditionalCalculations(true)
-    }
+    setEnableAdditionalCalculations(!!transformation?.refdiff)
   }, [transformation])
 
   useEffect(() => {
@@ -271,7 +267,7 @@ export default function GithubSettings (props) {
                   // onBlur={}
                   // onKeyDown={}
                   onValueChange={(tagsLimitNumeric) => onSettingsChange({ refdiff: { ...transformation?.refdiff, tagsLimit: tagsLimitNumeric } }, configuredProject)}
-                  value={transformation?.refdiff?.tagsLimit || 10}
+                  value={transformation?.refdiff?.tagsLimit}
                 />
               </FormGroup>
               <FormGroup
