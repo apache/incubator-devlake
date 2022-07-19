@@ -55,20 +55,16 @@ func Decrypt(encKey, encryptedText string) (string, error) {
 		// return error message
 		return encryptedText, fmt.Errorf("encKey is required")
 	}
-	fmt.Println(encKey)
-	fmt.Println(encryptedText)
 	// Decode Base64
 	decodingFromBase64, err1 := base64.StdEncoding.DecodeString(encryptedText)
 	if err1 != nil {
 		return encryptedText, err1
 	}
-	fmt.Println(decodingFromBase64)
 	// perform AES decryption
 	output, err2 := AesDecrypt(decodingFromBase64, []byte(encKey))
 	if err2 != nil {
 		return encryptedText, err2
 	}
-	fmt.Println(output)
 
 	// Verify and remove suffix
 	oSize := len(output)
@@ -81,7 +77,7 @@ func Decrypt(encKey, encryptedText string) (string, error) {
 			return string(output), nil
 		}
 	}
-	return "", fmt.Errorf("frame invalid encKey")
+	return "", fmt.Errorf("invalid encKey")
 }
 
 // PKCS7 padding

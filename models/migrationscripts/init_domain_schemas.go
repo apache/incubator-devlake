@@ -115,5 +115,5 @@ func (*initDomainSchemas) Owner() string {
 }
 
 func (*initDomainSchemas) Name() string {
-	return "create init schemas"
+	return "create domain layer init schemas"
 }

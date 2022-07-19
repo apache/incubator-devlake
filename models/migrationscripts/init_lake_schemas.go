@@ -44,5 +44,5 @@ func (*initLakeSchemas) Owner() string {
 }
 
 func (*initLakeSchemas) Name() string {
-	return "create init pre-schemas"
+	return "create lake init pre-schemas"
 }

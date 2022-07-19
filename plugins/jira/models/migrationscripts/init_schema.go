@@ -51,7 +51,6 @@ func (JiraConnectionV011) TableName() string {
 type InitSchemas struct{}
 
 func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
-	fmt.Println("jira migration log")
 
 	err := db.Migrator().DropTable(
 		// history table
@@ -89,7 +88,6 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	m := db.Migrator()
 
 	if m.HasTable(&JiraConnectionV011{}) {
-		fmt.Println("jira1 migration log")
 		var jiraConns []JiraConnectionV011
 		result = db.Find(&jiraConns)
 
@@ -119,10 +117,8 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 				//base64.StdEncoding.DecodeString() v.BasicAuthEncoded
 				auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
 				if err != nil {
-					fmt.Println("jira v0.11 decrypt fail")
 					return err
 				}
-				fmt.Println("jira v0.11 decrypt success")
 				pk, err := base64.StdEncoding.DecodeString(auth)
 				if err != nil {
 					return err
@@ -140,7 +136,6 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 			}
 		}
 	} else {
-		fmt.Println("jira2 migration log")
 		c := config.GetConfig()
 		encKey := c.GetString("ENCODE_KEY")
 		if encKey == "" {
@@ -151,7 +146,6 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 			return err
 		}
 	}
-	fmt.Println("jira3 migration log")
 
 	return db.Migrator().AutoMigrate(
 		&archived.JiraAccount{},

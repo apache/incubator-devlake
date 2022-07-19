@@ -23,9 +23,9 @@ import "github.com/apache/incubator-devlake/migration"
 func All() []migration.Script {
 	return []migration.Script{
 		new(initLakeSchemas),
-		new(updateSchemas20220505),
-		new(updateSchemas20220601),
-		new(updateSchemas20220616),
+		new(InitLakeStageSchemas),
+		new(InitLakeTasksSchemas),
+		new(InitLakeBlueprintSchemas),
 		new(blueprintNormalMode),
 		new(initDomainSchemas),
 	}
