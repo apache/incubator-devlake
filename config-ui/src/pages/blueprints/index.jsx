@@ -202,10 +202,10 @@ const Blueprints = (props) => {
     fetchAllBlueprints()
   }, [fetchAllBlueprints])
 
-  useEffect(() => {
-    // console.log('>> BLUEPRINT VALIDATION....')
-    validate()
-  }, [name, cronConfig, customCronConfig, tasks, enable, validate])
+  // useEffect(() => {
+  //   // console.log('>> BLUEPRINT VALIDATION....')
+  //   validate()
+  // }, [name, cronConfig, customCronConfig, tasks, enable, validate])
 
   useEffect(() => {
     if (blueprintDialogIsOpen) {
@@ -213,20 +213,20 @@ const Blueprints = (props) => {
     }
   }, [blueprintDialogIsOpen, fetchAllPipelines])
 
-  useEffect(() => {
-    setPipelineTemplates(pipelines.slice(0, 100).map(p => ({ ...p, id: p.id, title: p.name, value: p.id })))
-  }, [pipelines, activeBlueprint?.id])
+  // useEffect(() => {
+  //   setPipelineTemplates(pipelines.slice(0, 100).map(p => ({ ...p, id: p.id, title: p.name, value: p.id })))
+  // }, [pipelines, activeBlueprint?.id])
 
-  useEffect(() => {
-    if ((!draftBlueprint?.id && selectedPipelineTemplate) || (tasks.length === 0 && selectedPipelineTemplate)) {
-      console.log('>>>> SELECTED TEMPLATE?', selectedPipelineTemplate.tasks)
-      setBlueprintTasks(selectedPipelineTemplate.tasks)
-    }
-  }, [selectedPipelineTemplate, setBlueprintTasks, tasks?.length, draftBlueprint?.id])
+  // useEffect(() => {
+  //   if ((!draftBlueprint?.id && selectedPipelineTemplate) || (tasks.length === 0 && selectedPipelineTemplate)) {
+  //     console.log('>>>> SELECTED TEMPLATE?', selectedPipelineTemplate.tasks)
+  //     setBlueprintTasks(selectedPipelineTemplate.tasks)
+  //   }
+  // }, [selectedPipelineTemplate, setBlueprintTasks, tasks?.length, draftBlueprint?.id])
 
-  useEffect(() => {
-    setSelectedPipelineTemplate(pipelineTemplates.find(pT => pT.tasks?.flat().toString() === tasks.flat().toString()))
-  }, [pipelineTemplates])
+  // useEffect(() => {
+  //   setSelectedPipelineTemplate(pipelineTemplates.find(pT => pT.tasks?.flat().toString() === tasks.flat().toString()))
+  // }, [pipelineTemplates])
 
   useEffect(() => {
     fetchAllPipelines()
@@ -262,12 +262,12 @@ const Blueprints = (props) => {
     }
   }, [activeFilterStatus, blueprints, getCronPreset])
 
-  useEffect(() => {
-    if (Array.isArray(tasks)) {
-      setDetectedProviderTasks([...tasks.flat()])
-    }
-    return () => setDetectedProviderTasks([])
-  }, [tasks, setDetectedProviderTasks])
+  // useEffect(() => {
+  //   if (Array.isArray(tasks)) {
+  //     setDetectedProviderTasks([...tasks.flat()])
+  //   }
+  //   return () => setDetectedProviderTasks([])
+  // }, [tasks, setDetectedProviderTasks])
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDERS TASKS....', detectedProviderTasks)
