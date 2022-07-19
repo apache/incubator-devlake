@@ -22,12 +22,31 @@ import (
 	"encoding/base64"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
+
+type JiraConnectionV11 struct {
+	ID                         uint64    `gorm:"primaryKey" json:"id"`
+	CreatedAt                  time.Time `json:"createdAt"`
+	UpdatedAt                  time.Time `json:"updatedAt"`
+	Name                       string    `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	Endpoint                   string    `json:"endpoint" validate:"required"`
+	BasicAuthEncoded           string    `json:"basicAuthEncoded" validate:"required"`
+	EpicKeyField               string    `gorm:"type:varchar(50);" json:"epicKeyField"`
+	StoryPointField            string    `gorm:"type:varchar(50);" json:"storyPointField"`
+	RemotelinkCommitShaPattern string    `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
+	Proxy                      string    `json:"proxy"`
+	RateLimit                  int       `comment:"api request rate limt per hour" json:"rateLimit"`
+}
+
+func (JiraConnectionV11) TableName() string {
+	return "_tool_jira_connections"
+}
 
 type InitSchemas struct{}
 
@@ -67,12 +86,12 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	var result *gorm.DB
 	m := db.Migrator()
 
-	if m.HasTable(&archived.JiraConnectionV11{}) {
-		var jiraConns []archived.JiraConnectionV11
+	if m.HasTable(&JiraConnectionV11{}) {
+		var jiraConns []JiraConnectionV11
 		result = db.Find(&jiraConns)
 
 		if result.Error == nil {
-			err := db.Migrator().DropTable(&archived.JiraConnectionV11{})
+			err := db.Migrator().DropTable(&JiraConnectionV11{})
 			if err != nil {
 				return err
 			}
@@ -87,59 +106,12 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 				conn.Name = v.Name
 				conn.Endpoint = v.Endpoint
 				conn.Proxy = v.Proxy
-				conn.RateLimitPerHour = v.RateLimitPerHour
+				conn.RateLimitPerHour = v.RateLimit
 
 				c := config.GetConfig()
 				encKey := c.GetString("ENCODE_KEY")
 				if encKey == "" {
 					return fmt.Errorf("jira v0.11 invalid encKey")
-				}
-				auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
-				if err != nil {
-					return err
-				}
-				pk, err := base64.StdEncoding.DecodeString(auth)
-				if err != nil {
-					return err
-				}
-				originInfo := strings.Split(string(pk), ":")
-				if len(originInfo) == 2 {
-					conn.Username = originInfo[0]
-					conn.Password, err = core.Encrypt(encKey, originInfo[1])
-					if err != nil {
-						return err
-					}
-					// create
-					db.Create(&conn)
-				}
-			}
-		}
-	} else if m.HasTable(&archived.JiraConnectionV10{}) {
-		var jiraConns []archived.JiraConnectionV10
-		result = db.Find(&jiraConns)
-
-		if result.Error == nil {
-			err := db.Migrator().DropTable(&archived.JiraConnectionV10{})
-			if err != nil {
-				return err
-			}
-			err = db.Migrator().AutoMigrate(&archived.JiraConnection{})
-			if err != nil {
-				return err
-			}
-
-			for _, v := range jiraConns {
-				conn := &archived.JiraConnection{}
-				conn.ID = v.ID
-				conn.Name = v.Name
-				conn.Endpoint = v.Endpoint
-				conn.Proxy = v.Proxy
-				conn.RateLimitPerHour = v.RateLimitPerHour
-
-				c := config.GetConfig()
-				encKey := c.GetString("ENCODE_KEY")
-				if encKey == "" {
-					return fmt.Errorf("jira v0.10 invalid encKey")
 				}
 				auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
 				if err != nil {
