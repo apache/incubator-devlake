@@ -27,12 +27,12 @@ import (
 )
 
 type TransformationRules struct {
-	RequirementTypeMapping     []string
-	BugTypeMapping             []string
-	IncidentTypeMapping        []string
-	EpicKeyField               string
-	StoryPointField            string
-	RemotelinkCommitShaPattern string
+	EpicKeyField               string `json:"epicKeyField"`
+	StoryPointField            string `json:"storyPointField"`
+	RemotelinkCommitShaPattern string `json:"remotelinkCommitShaPattern"`
+	TypeMappings               map[string]struct {
+		StandardType string `json:"standardType"`
+	} `json:"typeMappings"`
 }
 
 type JiraOptions struct {
