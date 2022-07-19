@@ -60,19 +60,11 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 	for _, issueType := range issueTypes {
 		typeIdMapping[issueType.Id] = issueType.UntranslatedName
 	}
-	// prepare getStdType function
-	// TODO: implement type mapping
-	stdTypeMappings := make(map[string]string)
-	for _, userType := range data.Options.TransformationRules.RequirementTypeMapping {
-		stdTypeMappings[userType] = "REQUIREMENT"
-	}
-	for _, userType := range data.Options.TransformationRules.BugTypeMapping {
-		stdTypeMappings[userType] = "BUG"
-	}
-	for _, userType := range data.Options.TransformationRules.IncidentTypeMapping {
-		stdTypeMappings[userType] = "INCIDENT"
-	}
 
+	stdTypeMappings := make(map[string]string)
+	for userType, stdType := range data.Options.TransformationRules.TypeMappings {
+		stdTypeMappings[userType] = strings.ToUpper(stdType.StandardType)
+	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
