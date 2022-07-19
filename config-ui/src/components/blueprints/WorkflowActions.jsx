@@ -89,7 +89,7 @@ const WorkflowActions = (props) => {
               minimal
               small
             />
-           )}
+          )}
           <Button
             loading={isLoading}
             disabled={isLoading || !canGoNext || !isValid}

@@ -114,63 +114,50 @@ const Blueprints = (props) => {
     tasks
   })
 
-  const handleBlueprintActivation = (blueprint) => {
+  const handleBlueprintActivation = useCallback((blueprint) => {
     if (blueprint.enable) {
       deactivateBlueprint(blueprint)
     } else {
       activateBlueprint(blueprint)
     }
-  }
+  }, [activateBlueprint, deactivateBlueprint])
 
-  const expandBlueprint = (blueprint) => {
+  const expandBlueprint = useCallback((blueprint) => {
     setExpandDetails(opened => blueprint.id === activeBlueprint?.id && opened ? false : !opened)
     fetchAllPipelines()
     setActiveBlueprint(blueprint)
-  }
+  }, [fetchAllPipelines, setExpandDetails, setActiveBlueprint])
 
-  const configureBlueprint = (blueprint) => {
-    // setDraftBlueprint(b => ({ ...b, ...blueprint }))
+  const configureBlueprint = useCallback((blueprint) => {
     history.push(`/blueprints/detail/${blueprint.id}`)
-  }
+  }, [history])
 
-  const createNewBlueprint = () => {
-    // setDraftBlueprint(null)
-    // setExpandDetails(false)
-    // setBlueprintName('MY BLUEPRINT')
-    // setCronConfig('0 0 * * *')
-    // setCustomCronConfig('0 0 * * *')
-    // setEnableBlueprint(true)
-    // setBlueprintTasks([])
-    // setSelectedPipelineTemplate(null)
-    // setBlueprintDialogIsOpen(true)
+  const createNewBlueprint = useCallback(() => {
     history.push('/blueprints/create')
-  }
+  }, [history])
 
-  const isActiveBlueprint = (bId) => {
+  const isActiveBlueprint = useCallback((bId) => {
     return activeBlueprint?.id === bId
-  }
+  }, [])
 
   const isStandardCronPreset = useCallback((cronConfig) => {
     return cronPresets.some(p => p.cronConfig === cronConfig)
   }, [cronPresets])
 
-  const fieldHasError = (fieldId) => {
+  const fieldHasError = useCallback((fieldId) => {
     return blueprintValidationErrors.some(e => e.includes(fieldId))
-  }
+  }, [blueprintValidationErrors])
 
-  const getFieldError = (fieldId) => {
+  const getFieldError = useCallback((fieldId) => {
     return blueprintValidationErrors.find(e => e.includes(fieldId))
-  }
+  }, [blueprintValidationErrors])
 
-  const viewPipeline = (blueprintId) => {
+  const viewPipeline = useCallback((blueprintId) => {
     // history.push(`/pipelines/activity/${runId}`)
     history.push(`/blueprints/detail/${blueprintId}`)
-  }
+  }, [history])
 
   useEffect(() => {
-    // if (activeBlueprint) {
-    //   console.log(getSchedule(activeBlueprint?.cronConfig))
-    // }
     setBlueprintSchedule(activeBlueprint?.id ? getSchedule(activeBlueprint.cronConfig) : [])
     setRelatedPipelines(pipelines.filter(p => p.blueprintId === activeBlueprint?.id))
     console.log('>>> ACTIVE/EXPANDED BLUEPRINT', activeBlueprint)

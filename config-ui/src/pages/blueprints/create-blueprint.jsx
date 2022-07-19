@@ -586,7 +586,7 @@ const CreateBlueprint = (props) => {
     setTransformationSettings(settings, entity)
     setConfiguredProject(null)
     setConfiguredBoard(null)
-    ToastNotification.show({ message: `Transformation Rules Added.`, intent: Intent.SUCCESS, icon: 'small-tick' })
+    ToastNotification.show({ message: 'Transformation Rules Added.', intent: Intent.SUCCESS, icon: 'small-tick' })
   }, [setTransformationSettings])
 
   const handleAdvancedMode = (enableAdvanced = true) => {
