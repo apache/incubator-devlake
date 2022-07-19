@@ -355,6 +355,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 		// save to db
 		count := len(items)
 		if count == 0 {
+			collector.args.Ctx.IncProgress(1)
 			return nil
 		}
 		db := collector.args.Ctx.GetDal()
