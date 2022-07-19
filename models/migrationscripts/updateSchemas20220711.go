@@ -44,9 +44,9 @@ func (FileComponent) TableName() string {
 
 type CommitFile struct {
 	common.NoPKModel
-	CommitFileID string `gorm:"primaryKey;"`
-	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
-	FilePath     string `gorm:"primaryKey;type:varchar(255)"`
+	CommitFileID string `gorm:"primaryKey;type:varchar(255)"`
+	CommitSha    string `gorm:"type:varchar(40)"`
+	FilePath     string `gorm:"type:varchar(255)"`
 	Additions    int
 	Deletions    int
 	Component    string `gorm:"type:varchar(255)"`
@@ -58,10 +58,9 @@ func (CommitFile) TableName() string {
 
 type CommitfileComponent struct {
 	common.NoPKModel
-	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
-	Component string `gorm:"type:varchar(255)"`
-	CommitSha string `gorm:"primaryKey;type:varchar(40)"`
-	FilePath  string `gorm:"primaryKey;type:varchar(255)"`
+	CommitFileID string `gorm:"primaryKey;type:varchar(255)"`
+	RepoId       string `gorm:"primaryKey;type:varchar(255)"`
+	Component    string `gorm:"type:varchar(255)"`
 }
 
 func (CommitfileComponent) TableName() string {
@@ -81,7 +80,7 @@ func (*updateSchemas20220711) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*updateSchemas20220711) Version() uint64 {
-	return 20220711122544
+	return 202207151400
 }
 
 func (*updateSchemas20220711) Name() string {

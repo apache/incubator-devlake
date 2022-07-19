@@ -327,6 +327,7 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 		commitFile = new(code.CommitFile)
 		commitFile.CommitSha = commitSha
 		commitFile.FilePath = file.NewFile.Path
+		commitFile.CommitFileID = commitSha + ":" + file.NewFile.Path
 		commitfileComponent = new(code.CommitfileComponent)
 		for component, reg := range componentMap {
 			if reg.MatchString(commitFile.FilePath) {
@@ -335,8 +336,9 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 			}
 		}
 		commitfileComponent.RepoId = r.id
-		commitfileComponent.FilePath = file.NewFile.Path
-		commitfileComponent.CommitSha = commitSha
+		commitfileComponent.CommitFileID = commitSha + ":" + file.NewFile.Path
+		//commitfileComponent.FilePath = file.NewFile.Path
+		//commitfileComponent.CommitSha = commitSha
 		if commitfileComponent.Component == "" {
 			commitfileComponent.Component = "Default"
 		}
