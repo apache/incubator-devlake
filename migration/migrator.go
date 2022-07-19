@@ -20,12 +20,14 @@ package migration
 import (
 	"context"
 	"fmt"
-	"gorm.io/gorm"
 	"sort"
 	"sync"
+
+	"gorm.io/gorm"
 )
 
 var m = migrator{}
+var versionTime uint64
 
 type scriptWithComment struct {
 	Script
@@ -33,10 +35,10 @@ type scriptWithComment struct {
 }
 type migrator struct {
 	sync.Mutex
-	db      *gorm.DB
+	db       *gorm.DB
 	executed map[string]bool
-	scripts []*scriptWithComment
-	pending []*scriptWithComment
+	scripts  []*scriptWithComment
+	pending  []*scriptWithComment
 }
 
 func Init(db *gorm.DB) {
@@ -58,7 +60,7 @@ func (m *migrator) register(scripts []Script, comment string) {
 			comment: comment,
 		}
 		m.scripts = append(m.scripts, swc)
-		if !m.executed[key] {
+		if !m.executed[key] && versionTime < script.Version() {
 			m.pending = append(m.pending, swc)
 		}
 	}
@@ -102,6 +104,9 @@ func (m *migrator) getExecuted() (map[string]bool, error) {
 		return nil, err
 	}
 	for _, record := range records {
+		if record.ScriptVersion >= versionTime {
+			versionTime = record.ScriptVersion
+		}
 		versions[fmt.Sprintf("%s:%d", record.ScriptName, record.ScriptVersion)] = true
 	}
 	return versions, nil
