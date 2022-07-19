@@ -61,5 +61,5 @@ func (*UpdateSchemas20220505) Owner() string {
 }
 
 func (*UpdateSchemas20220505) Name() string {
-	return "Rename source to connection "
+	return "preparation for jira init_schemas"
 }
