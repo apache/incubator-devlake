@@ -78,16 +78,18 @@ const WorkflowActions = (props) => {
         </div>
       ) : (
         <div style={{ display: 'flex', marginLeft: 'auto' }}>
-          {ENVIRONMENT !== 'production' && (<Button
-            loading={isLoading}
-            intent={Intent.PRIMARY}
-            icon='code'
-            text='Inspect'
-            onClick={() => setShowBlueprintInspector(true)}
-            style={{ marginRight: '8px' }}
-            minimal
-            small
-                                            />)}
+          {ENVIRONMENT !== 'production' && (
+            <Button
+              loading={isLoading}
+              intent={Intent.PRIMARY}
+              icon='code'
+              text='Inspect'
+              onClick={() => setShowBlueprintInspector(true)}
+              style={{ marginRight: '8px' }}
+              minimal
+              small
+            />
+           )}
           <Button
             loading={isLoading}
             disabled={isLoading || !canGoNext || !isValid}
