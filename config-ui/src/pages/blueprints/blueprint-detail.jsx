@@ -664,15 +664,12 @@ const BlueprintDetail = (props) => {
         status: p.status,
         statusLabel: TaskStatusLabels[p.status],
         statusIcon: getTaskStatusIcon(p.status),
-        startedAt: dayjs(p.beganAt).format('L LTS'),
-        completedAt:
-          p.status === 'TASK_RUNNING'
-            ? ' - '
-            : dayjs(p.finishedAt || p.updatedAt).format('L LTS'),
+        startedAt: p.beganAt ? dayjs(p.beganAt).format('L LTS') : '-',
+        completedAt: p.finishedAt ? dayjs(p.updatedAt).format('L LTS') : ' - ',
         duration:
-          p.status === 'TASK_RUNNING'
-            ? dayjs(p.beganAt).toNow(true)
-            : dayjs(p.beganAt).from(p.finishedAt || p.updatedAt, true),
+          p.beganAt && p.finishedAt
+            ? dayjs(p.beganAt).from(p.finishedAt, true)
+            : (p.beganAt ? dayjs(p.beganAt).toNow(true) : ' - '),
       }))
     )
   }, [blueprintPipelines])
