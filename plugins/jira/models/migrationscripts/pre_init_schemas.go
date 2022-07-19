@@ -23,7 +23,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type JiraConnection20220505 struct {
+type JiraConnectionV010 struct {
 	common.Model
 	Name                       string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	Endpoint                   string `json:"endpoint" validate:"required"`
@@ -35,16 +35,16 @@ type JiraConnection20220505 struct {
 	RateLimit                  int    `comment:"api request rate limt per hour" json:"rateLimit"`
 }
 
-func (JiraConnection20220505) TableName() string {
+func (JiraConnectionV010) TableName() string {
 	return "_tool_jira_connections"
 }
 
-type UpdateSchemas20220505 struct{}
+type PreJiraInitSchemas struct{}
 
-func (*UpdateSchemas20220505) Up(ctx context.Context, db *gorm.DB) error {
+func (*PreJiraInitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	m := db.Migrator()
 	if m.HasTable(&archived.JiraSource{}) && !m.HasTable(&archived.JiraConnection{}) {
-		err := db.Migrator().RenameTable(archived.JiraSource{}, JiraConnection20220505{})
+		err := db.Migrator().RenameTable(archived.JiraSource{}, JiraConnectionV010{})
 		if err != nil {
 			return err
 		}
@@ -52,14 +52,14 @@ func (*UpdateSchemas20220505) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*UpdateSchemas20220505) Version() uint64 {
+func (*PreJiraInitSchemas) Version() uint64 {
 	return 20220505212344
 }
 
-func (*UpdateSchemas20220505) Owner() string {
+func (*PreJiraInitSchemas) Owner() string {
 	return "Jira"
 }
 
-func (*UpdateSchemas20220505) Name() string {
+func (*PreJiraInitSchemas) Name() string {
 	return "preparation for jira init_schemas"
 }

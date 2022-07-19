@@ -30,7 +30,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type JiraConnectionV11 struct {
+type JiraConnectionV011 struct {
 	ID                         uint64    `gorm:"primaryKey" json:"id"`
 	CreatedAt                  time.Time `json:"createdAt"`
 	UpdatedAt                  time.Time `json:"updatedAt"`
@@ -44,7 +44,7 @@ type JiraConnectionV11 struct {
 	RateLimit                  int       `comment:"api request rate limt per hour" json:"rateLimit"`
 }
 
-func (JiraConnectionV11) TableName() string {
+func (JiraConnectionV011) TableName() string {
 	return "_tool_jira_connections"
 }
 
@@ -86,12 +86,12 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	var result *gorm.DB
 	m := db.Migrator()
 
-	if m.HasTable(&JiraConnectionV11{}) {
-		var jiraConns []JiraConnectionV11
+	if m.HasTable(&JiraConnectionV011{}) {
+		var jiraConns []JiraConnectionV011
 		result = db.Find(&jiraConns)
 
 		if result.Error == nil {
-			err := db.Migrator().DropTable(&JiraConnectionV11{})
+			err := db.Migrator().DropTable(&JiraConnectionV011{})
 			if err != nil {
 				return err
 			}
