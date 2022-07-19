@@ -26,7 +26,7 @@ import {
   BOARDS_ENDPOINT,
 } from '@/config/jiraApiProxy'
 import { integrationsData } from '@/data/integrations'
-import { Divider, Elevation, Card } from '@blueprintjs/core'
+import { Divider, Elevation, Card, Intent } from '@blueprintjs/core'
 import {
   Providers,
   ProviderTypes,
@@ -38,6 +38,7 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 // import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
+import { ToastNotification } from '@/components/Toast'
 
 import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
@@ -585,6 +586,7 @@ const CreateBlueprint = (props) => {
     setTransformationSettings(settings, entity)
     setConfiguredProject(null)
     setConfiguredBoard(null)
+    ToastNotification.show({ message: `Transformation Rules Added.`, intent: Intent.SUCCESS, icon: 'small-tick' })
   }, [setTransformationSettings])
 
   const handleAdvancedMode = (enableAdvanced = true) => {
