@@ -71,6 +71,7 @@ const AdvancedJSON = (props) => {
       >
         <h3>
           JSON Configuration
+          {validationAdvancedError && <Icon icon='warning-sign' size={15} color={Colors.ORANGE5} style={{ marginLeft: '6px', marginBottom: '2px' }} />}
         </h3>
         <Divider className='section-divider' />
 
@@ -87,7 +88,7 @@ const AdvancedJSON = (props) => {
             growVertically={false}
             fill={true}
             className='codeArea'
-            style={{ minHeight: '240px' }}
+            style={{ minHeight: '240px', backgroundColor: validationAdvancedError ? '#fff9e9' : '#f9f9f9' }}
             value={rawConfiguration}
             onChange={(e) => setRawConfiguration(e.target.value)}
           />

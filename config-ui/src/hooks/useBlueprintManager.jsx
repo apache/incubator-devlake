@@ -58,18 +58,18 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
   const [deleteComplete, setDeleteComplete] = useState(false)
 
   const parseCronExpression = useCallback((expression, utc = true, additionalOptions = {}) => {
-    if (expression.toLowerCase() === "manual") {
+    if (expression.toLowerCase() === 'manual') {
       return {
-        next: () => "manual",
-        prev: () => "manual",
+        next: () => 'manual',
+        prev: () => 'manual',
       }
     }
     return parser.parseExpression(expression, { utc, ...additionalOptions })
   }, [])
 
   const detectCronInterval = useCallback((cronConfig) => {
-    if (cronConfig === "manual") {
-      return "Manual"
+    if (cronConfig === 'manual') {
+      return 'Manual'
     }
     return cronPresets.find(p => p.cronConfig === cronConfig)
       ? cronPresets.find(p => p.cronConfig === cronConfig).label

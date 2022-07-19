@@ -127,7 +127,7 @@ const CreateBlueprint = (props) => {
     const results = await Promise.all(blueprintConnections.map(
       c => request.post(`${DEVLAKE_ENDPOINT}/plugins/${c.plugin}/test`, c))
     )
-    setOnlineStatus(results.map(r => r.status === 200 ? "Online" : "Offline"))
+    setOnlineStatus(results.map(r => r.status === 200 ? 'Online' : 'Offline'))
   }, [blueprintConnections])
 
   const [showBlueprintInspector, setShowBlueprintInspector] = useState(false)
@@ -157,6 +157,9 @@ const CreateBlueprint = (props) => {
     'calculateCommitsDiff',
     'calculateIssuesDiff',
   ])
+
+  const [canAdvanceNext, setCanAdvanceNext] = useState(true)
+  const [canAdvancePrev, setCanAdvancePrev] = useState(true)
 
   const [configuredProject, setConfiguredProject] = useState(
     projects.length > 0 ? projects[0] : null
@@ -215,11 +218,18 @@ const CreateBlueprint = (props) => {
     getFieldError,
   } = useBlueprintValidation({
     name,
+    boards,
+    projects,
     cronConfig,
     customCronConfig,
     enable,
     tasks: blueprintTasks,
     mode,
+    connections: blueprintConnections,
+    entities: dataEntities,
+    activeStep,
+    activeProvider,
+    activeConnection: configuredConnection
   })
 
   const {
@@ -581,20 +591,21 @@ const CreateBlueprint = (props) => {
     setAdvancedMode(enableAdvanced)
   }
 
-  const parseJSON = (jsonString = '') => {
+  const parseJSON = useCallback((jsonString = '') => {
     try {
       return JSON.parse(jsonString)
     } catch (e) {
       console.log('>> PARSE JSON ERROR!', e)
       throw e
     }
-  }
+  }, [])
 
   const isValidCode = useCallback(() => {
     let isValid = false
     try {
       const parsedCode = parseJSON(rawConfiguration)
       isValid = true
+      setValidationAdvancedError(null)
     } catch (e) {
       console.log('>> FORMAT CODE: Invalid Code Format!', e)
       isValid = false
@@ -602,7 +613,7 @@ const CreateBlueprint = (props) => {
     }
     setIsValidConfiguration(isValid)
     return isValid
-  }, [rawConfiguration])
+  }, [rawConfiguration, parseJSON])
 
   useEffect(() => {
     console.log('>> ACTIVE STEP CHANGED: ', activeStep)
@@ -700,6 +711,7 @@ const CreateBlueprint = (props) => {
     cronConfig,
     customCronConfig,
     blueprintTasks,
+    connectionsList,
     enable,
     validateBlueprint,
   ])
@@ -887,6 +899,7 @@ const CreateBlueprint = (props) => {
     setActiveTransformation((aT) =>
       configuredProject ? transformations[configuredProject] : aT
     )
+    setCanAdvanceNext(!configuredProject)
   }, [configuredProject, transformations])
 
   useEffect(() => {
@@ -898,6 +911,7 @@ const CreateBlueprint = (props) => {
     setActiveTransformation((aT) =>
       configuredBoard ? transformations[configuredBoard?.id] : aT
     )
+    setCanAdvanceNext(!configuredBoard)
   }, [configuredBoard, transformations])
 
   // useEffect(() => {
@@ -981,6 +995,10 @@ const CreateBlueprint = (props) => {
   useEffect(() => {
     console.log('>>> CONNECTIONS SELECTOR LIST UPDATED...', connectionsList)
   }, [connectionsList])
+
+  useEffect(() => {
+    console.log('>>> validationAdvancedError', validationAdvancedError)
+  }, [validationAdvancedError])
 
   return (
     <>
@@ -1140,12 +1158,14 @@ const CreateBlueprint = (props) => {
               blueprintSteps={blueprintSteps}
               advancedMode={advancedMode}
               setShowBlueprintInspector={setShowBlueprintInspector}
-              validationErrors={validationErrors}
+              validationErrors={[...validationErrors, ...blueprintValidationErrors]}
               onNext={nextStep}
               onPrev={prevStep}
               onSave={handleBlueprintSave}
               onSaveAndRun={handleBlueprintSaveAndRun}
               isLoading={isSaving}
+              isValid={isValidBlueprint}
+              canGoNext={canAdvanceNext}
             />
           </main>
         </Content>
@@ -1196,20 +1216,20 @@ const CreateBlueprint = (props) => {
           !advancedMode
             ? {
               // ID: 0,
-              name,
-              // tasks: blueprintTasks,
-              settings: blueprintSettings,
-              cronConfig,
-              enable,
-              mode,
-            }
+                name,
+                // tasks: blueprintTasks,
+                settings: blueprintSettings,
+                cronConfig,
+                enable,
+                mode,
+              }
             : {
-              name,
-              plan: blueprintTasks,
-              cronConfig,
-              enable,
-              mode,
-            }
+                name,
+                plan: blueprintTasks,
+                cronConfig,
+                enable,
+                mode,
+              }
         }
         onClose={setShowBlueprintInspector}
         hasBackdrop={false}

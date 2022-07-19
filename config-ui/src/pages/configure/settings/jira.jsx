@@ -385,7 +385,7 @@ export default function JiraSettings (props) {
 
       <div className='epic-key-select' style={{ display: 'flex', marginBottom: '10px' }}>
         <div className='epick-key-label' style={{ minWidth: '120px', paddingRight: '10px', paddingTop: '3px' }}>
-          <label>Epic Key</label>
+          <label>Epic Link</label>
         </div>
         <div style={{ display: 'flex', minWidth: '260px' }}>
           <ButtonGroup disabled={isSaving} fill={true}>
@@ -460,7 +460,7 @@ export default function JiraSettings (props) {
 
       <div className='story-point-select' style={{ display: 'flex', marginBottom: '10px' }}>
         <div className='story-point-label' style={{ minWidth: '120px', paddingRight: '10px', paddingTop: '3px' }}>
-          <label>Story Point Field</label>
+          <label>Story Point</label>
         </div>
         <div style={{ display: 'flex', minWidth: '260px' }}>
           <ButtonGroup disabled={isSaving}>

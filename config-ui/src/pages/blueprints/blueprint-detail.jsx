@@ -724,6 +724,7 @@ const BlueprintDetail = (props) => {
       console.log('>> ACTIVITY POLLING ENABLED!')
       pollInterval.current = setInterval(() => {
         fetchPipeline(activePipeline?.id)
+        // setLastPipeline(activePipeline)
       }, pollTimer)
     } else {
       console.log('>> ACTIVITY POLLING DISABLED!')

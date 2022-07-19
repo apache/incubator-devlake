@@ -161,7 +161,7 @@ const DataConnections = (props) => {
                     className='connection-status'
                     style={{ textTransform: 'capitalize' }}
                   >
-                    {onlineStatus[bcIdx] || "Testing"}
+                    {onlineStatus[bcIdx] || 'Testing'}
                   </div>
                   <div
                     className='connection-actions'

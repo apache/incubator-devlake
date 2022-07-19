@@ -18,6 +18,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import parser from 'cron-parser'
 import { BlueprintMode } from '@/data/NullBlueprint'
+import { Providers } from '@/data/Providers'
 
 function useBlueprintValidation ({
   name,
@@ -26,7 +27,13 @@ function useBlueprintValidation ({
   enable,
   tasks = [],
   mode = null,
-  activeStep = null
+  connections = [],
+  entities = {},
+  boards = {},
+  projects = {},
+  activeStep = null,
+  activeProvider = null,
+  activeConnection = null
 }) {
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
@@ -58,24 +65,45 @@ function useBlueprintValidation ({
       errs.push('Blueprint Name: Name too short, 3 chars minimum.')
     }
 
-    if (!cronConfig) {
-      errs.push('Blueprint Cron: No Crontab schedule defined.')
-    }
-
-    if (cronConfig && cronConfig !== 'custom' && !isValidCronExpression(cronConfig)) {
-      errs.push('Blueprint Cron: Invalid Crontab Expression, unable to parse.')
-    }
-
-    if (cronConfig === 'custom' && !isValidCronExpression(customCronConfig)) {
-      errs.push(`Blueprint Cron: Invalid Custom Expression, unable to parse. [${customCronConfig}]`)
-    }
-
-    if (enable && tasks?.length === 0) {
-      errs.push('Blueprint Tasks: Invalid/Empty Configuration')
-    }
-
     if (mode !== null && ![BlueprintMode.NORMAL, BlueprintMode.ADVANCED].includes(mode)) {
       errs.push('Invalid / Unsupported Blueprint Mode Detected!')
+    }
+
+    if (mode === BlueprintMode.NORMAL) {
+      if (!cronConfig) {
+        errs.push('Blueprint Cron: No Crontab schedule defined.')
+      }
+
+      if (cronConfig && cronConfig !== 'custom' && !isValidCronExpression(cronConfig)) {
+        errs.push('Blueprint Cron: Invalid Crontab Expression, unable to parse.')
+      }
+
+      if (cronConfig === 'custom' && !isValidCronExpression(customCronConfig)) {
+        errs.push(`Blueprint Cron: Invalid Custom Expression, unable to parse. [${customCronConfig}]`)
+      }
+
+      if (enable && tasks?.length === 0) {
+        errs.push('Blueprint Tasks: Invalid/Empty Configuration')
+      }
+
+      switch (activeStep?.id) {
+        case 1:
+          if (connections.length === 0) {
+            errs.push('No Data Connections selected.')
+          }
+          break
+        case 2:
+          if (activeProvider?.id === Providers.JIRA && boards[activeConnection?.id]?.length === 0) {
+            errs.push('No Boards selected.')
+          }
+          if (entities[activeConnection?.id]?.length === 0) {
+            errs.push('No Data Entities selected.')
+          }
+          if (activeProvider?.id === Providers.GITLAB && projects[activeConnection?.id]?.length === 0) {
+            errs.push('No Projects selected.')
+          }
+          break
+      }
     }
 
     setErrors(errs)
@@ -85,7 +113,14 @@ function useBlueprintValidation ({
     customCronConfig,
     tasks,
     enable,
-    mode
+    mode,
+    connections,
+    boards,
+    entities,
+    projects,
+    activeStep,
+    activeProvider?.id,
+    activeConnection
   ])
 
   const fieldHasError = useCallback((fieldId) => {
