@@ -22,18 +22,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type initSchemas struct {}
+type addInitTables struct {}
 
-func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	return db.Migrator().AutoMigrate(
 		// TODO add you models
 	)
 }
 
-func (*initSchemas) Version() uint64 {
+func (*addInitTables) Version() uint64 {
 	return {{ .Date }}000001
 }
 
-func (*initSchemas) Name() string {
+func (*addInitTables) Name() string {
 	return "{{ .pluginName }} init schemas {{ .Date }}"
 }
