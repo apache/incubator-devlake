@@ -20,34 +20,29 @@ package migrationscripts
 import (
 	"context"
 
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
-type Blueprint20220616 struct {
-	Mode     string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	IsManual bool   `json:"isManual"`
+type addFrameTables struct{}
+
+func (*addFrameTables) Up(ctx context.Context, db *gorm.DB) error {
+	return db.Migrator().AutoMigrate(
+		&archived.Task{},
+		&archived.Notification{},
+		&archived.Pipeline{},
+		&archived.Blueprint{},
+	)
 }
 
-func (Blueprint20220616) TableName() string {
-	return "_devlake_blueprints"
+func (*addFrameTables) Version() uint64 {
+	return 20220406212344
 }
 
-type updateSchemas20220616 struct{}
-
-func (*updateSchemas20220616) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().AutoMigrate(&Blueprint20220616{})
-	if err != nil {
-		return err
-	}
-	db.Model(&Blueprint20220616{}).Where("mode is null").Update("mode", "ADVANCED")
-	db.Model(&Blueprint20220616{}).Where("is_manual is null").Update("is_manual", false)
-	return nil
+func (*addFrameTables) Owner() string {
+	return "Framework"
 }
 
-func (*updateSchemas20220616) Version() uint64 {
-	return 20220616110537
-}
-
-func (*updateSchemas20220616) Name() string {
-	return "add mode field to blueprint"
+func (*addFrameTables) Name() string {
+	return "create init schemas"
 }

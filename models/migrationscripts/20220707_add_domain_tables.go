@@ -24,9 +24,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type initDomainSchemas struct{}
+type addDomainTables struct{}
 
-func (*initDomainSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*addDomainTables) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().DropTable(
 		"issue_assignee_history",
 		"issue_status_history",
@@ -106,14 +106,14 @@ func (*initDomainSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	)
 }
 
-func (*initDomainSchemas) Version() uint64 {
+func (*addDomainTables) Version() uint64 {
 	return 20220707232344
 }
 
-func (*initDomainSchemas) Owner() string {
+func (*addDomainTables) Owner() string {
 	return "Framework"
 }
 
-func (*initDomainSchemas) Name() string {
-	return "create init schemas"
+func (*addDomainTables) Name() string {
+	return "create domain layer init schemas"
 }

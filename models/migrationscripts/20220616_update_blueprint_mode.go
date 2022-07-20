@@ -20,29 +20,34 @@ package migrationscripts
 import (
 	"context"
 
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
-type initLakeSchemas struct{}
-
-func (*initLakeSchemas) Up(ctx context.Context, db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(
-		&archived.Task{},
-		&archived.Notification{},
-		&archived.Pipeline{},
-		&archived.Blueprint{},
-	)
+type Blueprint20220616 struct {
+	Mode     string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+	IsManual bool   `json:"isManual"`
 }
 
-func (*initLakeSchemas) Version() uint64 {
-	return 20220406212344
+func (Blueprint20220616) TableName() string {
+	return "_devlake_blueprints"
 }
 
-func (*initLakeSchemas) Owner() string {
-	return "Framework"
+type updateBlueprintMode struct{}
+
+func (*updateBlueprintMode) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().AutoMigrate(&Blueprint20220616{})
+	if err != nil {
+		return err
+	}
+	db.Model(&Blueprint20220616{}).Where("mode is null").Update("mode", "ADVANCED")
+	db.Model(&Blueprint20220616{}).Where("is_manual is null").Update("is_manual", false)
+	return nil
 }
 
-func (*initLakeSchemas) Name() string {
-	return "create init pre-schemas"
+func (*updateBlueprintMode) Version() uint64 {
+	return 20220616110537
+}
+
+func (*updateBlueprintMode) Name() string {
+	return "add mode field to blueprint"
 }

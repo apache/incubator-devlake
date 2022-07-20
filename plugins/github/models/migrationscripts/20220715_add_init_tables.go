@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 
@@ -26,15 +27,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type initSchemas struct {
+type addInitTables struct {
 	config core.ConfigGetter
 }
 
-func (u *initSchemas) SetConfigGetter(config core.ConfigGetter) {
+func (u *addInitTables) SetConfigGetter(config core.ConfigGetter) {
 	u.config = config
 }
 
-func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().DropTable(
 		&archived.GithubRepo{},
 		&archived.GithubConnection{},
@@ -121,10 +122,10 @@ func (u *initSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	)
 }
 
-func (*initSchemas) Version() uint64 {
+func (*addInitTables) Version() uint64 {
 	return 20220715000001
 }
 
-func (*initSchemas) Name() string {
+func (*addInitTables) Name() string {
 	return "Github init schemas 20220707"
 }

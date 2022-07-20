@@ -27,15 +27,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type InitSchemas struct {
+type addInitTables struct {
 	config core.ConfigGetter
 }
 
-func (u *InitSchemas) SetConfigGetter(config core.ConfigGetter) {
+func (u *addInitTables) SetConfigGetter(config core.ConfigGetter) {
 	u.config = config
 }
 
-func (u *InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().DropTable(
 		&archived.FeishuConnection{},
 		&archived.FeishuMeetingTopUserItem{},
@@ -70,10 +70,10 @@ func (u *InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*InitSchemas) Version() uint64 {
+func (*addInitTables) Version() uint64 {
 	return 20220714000001
 }
 
-func (*InitSchemas) Name() string {
+func (*addInitTables) Name() string {
 	return "Feishu init schemas"
 }

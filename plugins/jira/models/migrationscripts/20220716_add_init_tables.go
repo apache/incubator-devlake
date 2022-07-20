@@ -48,9 +48,10 @@ func (JiraConnectionV011) TableName() string {
 	return "_tool_jira_connections"
 }
 
-type InitSchemas struct{}
+type addInitTables struct{}
 
-func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
+
 	err := db.Migrator().DropTable(
 		// history table
 		"_raw_jira_api_users",
@@ -109,7 +110,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 				conn.RateLimitPerHour = v.RateLimit
 
 				c := config.GetConfig()
-				encKey := c.GetString("ENCODE_KEY")
+				encKey := c.GetString(core.EncodeKeyEnvStr)
 				if encKey == "" {
 					return fmt.Errorf("jira v0.11 invalid encKey")
 				}
@@ -137,7 +138,7 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 		c := config.GetConfig()
 		encKey := c.GetString("ENCODE_KEY")
 		if encKey == "" {
-			return fmt.Errorf("invalid encKey")
+			return fmt.Errorf("jira invalid encKey")
 		}
 		err := db.Migrator().AutoMigrate(&archived.JiraConnection{})
 		if err != nil {
@@ -166,10 +167,10 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	)
 }
 
-func (*InitSchemas) Version() uint64 {
+func (*addInitTables) Version() uint64 {
 	return 20220716201138
 }
 
-func (*InitSchemas) Name() string {
+func (*addInitTables) Name() string {
 	return "Jira init schemas"
 }
