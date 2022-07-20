@@ -61,9 +61,9 @@ func (*blueprintNormalMode) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*blueprintNormalMode) Version() uint64 {
-	return 20220704110537
+	return 20220622110537
 }
 
 func (*blueprintNormalMode) Name() string {
-	return "lake blueprint normal mode support and rename tasks to plan"
+	return "blueprint normal mode support"
 }

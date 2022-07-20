@@ -19,35 +19,24 @@ package migrationscripts
 
 import (
 	"context"
-
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
-type Blueprint20220616 struct {
-	Mode     string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	IsManual bool   `json:"isManual"`
-}
+type InitLakeStageSchemas struct{}
 
-func (Blueprint20220616) TableName() string {
-	return "_devlake_blueprints"
-}
-
-type InitLakeBlueprintSchemas struct{}
-
-func (*InitLakeBlueprintSchemas) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().AutoMigrate(&Blueprint20220616{})
+func (*InitLakeStageSchemas) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().RenameColumn(archived.Pipeline{}, "step", "stage")
 	if err != nil {
 		return err
 	}
-	db.Model(&Blueprint20220616{}).Where("mode is null").Update("mode", "ADVANCED")
-	db.Model(&Blueprint20220616{}).Where("is_manual is null").Update("is_manual", false)
 	return nil
 }
 
-func (*InitLakeBlueprintSchemas) Version() uint64 {
-	return 20220703110537
+func (*InitLakeStageSchemas) Version() uint64 {
+	return 20220505212344
 }
 
-func (*InitLakeBlueprintSchemas) Name() string {
-	return "lake add mode field to blueprint"
+func (*InitLakeStageSchemas) Name() string {
+	return "Rename step to stage "
 }

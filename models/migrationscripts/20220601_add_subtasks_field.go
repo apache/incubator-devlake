@@ -60,9 +60,9 @@ func (*InitLakeTasksSchemas) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*InitLakeTasksSchemas) Version() uint64 {
-	return 20220702000005
+	return 20220601000005
 }
 
 func (*InitLakeTasksSchemas) Name() string {
-	return "lake add column `subtasks` at _devlake_tasks"
+	return "add column `subtasks` at _devlake_tasks"
 }

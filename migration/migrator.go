@@ -27,7 +27,6 @@ import (
 )
 
 var m = migrator{}
-var versionTime uint64
 
 type scriptWithComment struct {
 	Script
@@ -60,7 +59,7 @@ func (m *migrator) register(scripts []Script, comment string) {
 			comment: comment,
 		}
 		m.scripts = append(m.scripts, swc)
-		if !m.executed[key] && versionTime < script.Version() {
+		if !m.executed[key] {
 			m.pending = append(m.pending, swc)
 		}
 	}
@@ -104,9 +103,6 @@ func (m *migrator) getExecuted() (map[string]bool, error) {
 		return nil, err
 	}
 	for _, record := range records {
-		if record.ScriptVersion >= versionTime {
-			versionTime = record.ScriptVersion
-		}
 		versions[fmt.Sprintf("%s:%d", record.ScriptName, record.ScriptVersion)] = true
 	}
 	return versions, nil

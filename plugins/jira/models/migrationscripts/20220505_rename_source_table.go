@@ -61,5 +61,5 @@ func (*PreJiraInitSchemas) Owner() string {
 }
 
 func (*PreJiraInitSchemas) Name() string {
-	return "preparation for jira init_schemas"
+	return "Rename source to connection "
 }

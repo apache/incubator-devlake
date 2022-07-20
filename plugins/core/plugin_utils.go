@@ -55,6 +55,7 @@ func Decrypt(encKey, encryptedText string) (string, error) {
 		// return error message
 		return encryptedText, fmt.Errorf("encKey is required")
 	}
+
 	// Decode Base64
 	decodingFromBase64, err1 := base64.StdEncoding.DecodeString(encryptedText)
 	if err1 != nil {
