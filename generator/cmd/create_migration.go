@@ -124,9 +124,9 @@ func purposeNotExistValidate(input string) error {
 	if input == `` {
 		return errors.New("purpose require")
 	}
-	camelNameReg := regexp.MustCompile(`^[A-Za-z][A-Za-z0-9]*$`)
+	camelNameReg := regexp.MustCompile(`^[a-z][A-Za-z0-9]*$`)
 	if !camelNameReg.MatchString(input) {
-		return errors.New("purpose invalid (start with a-z and consist with a-z0-9)")
+		return errors.New("purpose invalid (please use camelCase format, start with a-z and consist with a-zA-Z0-9)")
 	}
 
 	return nil
