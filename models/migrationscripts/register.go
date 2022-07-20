@@ -22,7 +22,6 @@ import "github.com/apache/incubator-devlake/migration"
 // All return all the migration scripts of framework
 func All() []migration.Script {
 	return []migration.Script{
-
 		new(addFrameTables),
 		new(renameStepToStage),
 		new(addSubtasksField),
@@ -30,6 +29,6 @@ func All() []migration.Script {
 		new(renameTasksToPlan),
 		new(addDomainTables),
 		new(addTypeField),
-		new(updateSchemas20220711),
+		new(commitfileComponent),
 	}
 }

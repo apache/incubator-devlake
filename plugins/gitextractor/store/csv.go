@@ -132,8 +132,8 @@ func (c *CsvStore) Refs(ref *code.Ref) error {
 func (c *CsvStore) CommitFiles(file *code.CommitFile) error {
 	return c.commitFileWriter.Write(file)
 }
-func (c *CsvStore) FileComponent(component *code.CommitFileComponent) error {
-	return c.commitFileWriter.Write(component)
+func (c *CsvStore) CommitFileComponents(commitFileComponent *code.CommitFileComponent) error {
+	return c.commitFileWriter.Write(commitFileComponent)
 }
 
 func (c *CsvStore) CommitParents(pp []*code.CommitParent) error {

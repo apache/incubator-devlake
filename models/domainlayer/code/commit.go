@@ -18,6 +18,7 @@ limitations under the License.
 package code
 
 import (
+	"github.com/apache/incubator-devlake/models/domainlayer"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/common"
@@ -45,8 +46,7 @@ func (Commit) TableName() string {
 }
 
 type CommitFile struct {
-	common.NoPKModel
-	ID        string `gorm:"primaryKey;type:varchar(255)"`
+	domainlayer.DomainEntity
 	CommitSha string `gorm:"type:varchar(40)"`
 	FilePath  string `gorm:"type:varchar(255)"`
 	Additions int
@@ -58,8 +58,8 @@ func (CommitFile) TableName() string {
 }
 
 type Component struct {
-	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
-	Name      string `gorm:"type:varchar(255)"`
+	RepoId    string `gorm:"type:varchar(255)"`
+	Name      string `gorm:"primaryKey;type:varchar(255)"`
 	PathRegex string `gorm:"type:varchar(255)"`
 }
 
@@ -69,8 +69,8 @@ func (Component) TableName() string {
 
 type CommitFileComponent struct {
 	common.NoPKModel
-	CommitFileID string `gorm:"primaryKey;type:varchar(255)"`
-	Component    string `gorm:"type:varchar(255)"`
+	CommitFileId  string `gorm:"primaryKey;type:varchar(255)"`
+	ComponentName string `gorm:"type:varchar(255)"`
 }
 
 func (CommitFileComponent) TableName() string {
