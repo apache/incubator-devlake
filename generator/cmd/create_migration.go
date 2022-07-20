@@ -124,8 +124,8 @@ func purposeNotExistValidate(input string) error {
 	if input == `` {
 		return errors.New("purpose require")
 	}
-	snakeNameReg := regexp.MustCompile(`^[A-Za-z][A-Za-z0-9]*$`)
-	if !snakeNameReg.MatchString(input) {
+	camelNameReg := regexp.MustCompile(`^[A-Za-z][A-Za-z0-9]*$`)
+	if !camelNameReg.MatchString(input) {
 		return errors.New("purpose invalid (start with a-z and consist with a-z0-9)")
 	}
 
