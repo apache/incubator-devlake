@@ -32,9 +32,9 @@ func (Blueprint20220616) TableName() string {
 	return "_devlake_blueprints"
 }
 
-type InitLakeBlueprintSchemas struct{}
+type updateBlueprintMode struct{}
 
-func (*InitLakeBlueprintSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*updateBlueprintMode) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().AutoMigrate(&Blueprint20220616{})
 	if err != nil {
 		return err
@@ -44,10 +44,10 @@ func (*InitLakeBlueprintSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*InitLakeBlueprintSchemas) Version() uint64 {
+func (*updateBlueprintMode) Version() uint64 {
 	return 20220616110537
 }
 
-func (*InitLakeBlueprintSchemas) Name() string {
+func (*updateBlueprintMode) Name() string {
 	return "add mode field to blueprint"
 }

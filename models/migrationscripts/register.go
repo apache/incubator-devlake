@@ -22,11 +22,11 @@ import "github.com/apache/incubator-devlake/migration"
 // All return all the migration scripts of framework
 func All() []migration.Script {
 	return []migration.Script{
-		new(initLakeSchemas),
-		new(InitLakeStageSchemas),
-		new(InitLakeTasksSchemas),
-		new(InitLakeBlueprintSchemas),
-		new(blueprintNormalMode),
-		new(initDomainSchemas),
+		new(addFrameTables),
+		new(renameStepToStage),
+		new(addSubtasksField),
+		new(updateBlueprintMode),
+		new(renameTasksToPlan),
+		new(addDomainTables),
 	}
 }

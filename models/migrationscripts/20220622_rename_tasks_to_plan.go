@@ -42,9 +42,9 @@ func (blueprintNormalMode_Pipeline) TableName() string {
 }
 
 // migration script
-type blueprintNormalMode struct{}
+type renameTasksToPlan struct{}
 
-func (*blueprintNormalMode) Up(ctx context.Context, db *gorm.DB) error {
+func (*renameTasksToPlan) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().AutoMigrate(&blueprintNormalMode_Blueprint{})
 	if err != nil {
 		return err
@@ -60,10 +60,10 @@ func (*blueprintNormalMode) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*blueprintNormalMode) Version() uint64 {
+func (*renameTasksToPlan) Version() uint64 {
 	return 20220622110537
 }
 
-func (*blueprintNormalMode) Name() string {
+func (*renameTasksToPlan) Name() string {
 	return "blueprint normal mode support"
 }

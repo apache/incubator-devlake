@@ -23,9 +23,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type InitLakeStageSchemas struct{}
+type renameStepToStage struct{}
 
-func (*InitLakeStageSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*renameStepToStage) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().RenameColumn(archived.Pipeline{}, "step", "stage")
 	if err != nil {
 		return err
@@ -33,10 +33,10 @@ func (*InitLakeStageSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*InitLakeStageSchemas) Version() uint64 {
+func (*renameStepToStage) Version() uint64 {
 	return 20220505212344
 }
 
-func (*InitLakeStageSchemas) Name() string {
+func (*renameStepToStage) Name() string {
 	return "Rename step to stage "
 }

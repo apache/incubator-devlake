@@ -30,9 +30,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type InitSchemas struct{}
+type addInitTables struct{}
 
-func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	rawTableList := []string{
 		"_raw_gitee_api_commit",
 		"_raw_gitee_api_issues",
@@ -117,10 +117,10 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*InitSchemas) Version() uint64 {
+func (*addInitTables) Version() uint64 {
 	return 20220714231268
 }
 
-func (*InitSchemas) Name() string {
+func (*addInitTables) Name() string {
 	return "Gitee init schemas"
 }

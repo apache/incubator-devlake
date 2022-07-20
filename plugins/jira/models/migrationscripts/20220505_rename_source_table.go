@@ -39,9 +39,9 @@ func (JiraConnectionV010) TableName() string {
 	return "_tool_jira_connections"
 }
 
-type PreJiraInitSchemas struct{}
+type renameSourceTable struct{}
 
-func (*PreJiraInitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*renameSourceTable) Up(ctx context.Context, db *gorm.DB) error {
 	m := db.Migrator()
 	if m.HasTable(&archived.JiraSource{}) && !m.HasTable(&archived.JiraConnection{}) {
 		err := db.Migrator().RenameTable(archived.JiraSource{}, JiraConnectionV010{})
@@ -52,14 +52,14 @@ func (*PreJiraInitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*PreJiraInitSchemas) Version() uint64 {
+func (*renameSourceTable) Version() uint64 {
 	return 20220505212344
 }
 
-func (*PreJiraInitSchemas) Owner() string {
+func (*renameSourceTable) Owner() string {
 	return "Jira"
 }
 
-func (*PreJiraInitSchemas) Name() string {
+func (*renameSourceTable) Name() string {
 	return "Rename source to connection "
 }

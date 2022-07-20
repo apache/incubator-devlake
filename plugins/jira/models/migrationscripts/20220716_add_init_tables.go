@@ -48,9 +48,9 @@ func (JiraConnectionV011) TableName() string {
 	return "_tool_jira_connections"
 }
 
-type InitSchemas struct{}
+type addInitTables struct{}
 
-func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 
 	err := db.Migrator().DropTable(
 		// history table
@@ -167,10 +167,10 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	)
 }
 
-func (*InitSchemas) Version() uint64 {
+func (*addInitTables) Version() uint64 {
 	return 20220716201138
 }
 
-func (*InitSchemas) Name() string {
+func (*addInitTables) Name() string {
 	return "Jira init schemas"
 }

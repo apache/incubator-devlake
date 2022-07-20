@@ -27,9 +27,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type InitSchemas struct{}
+type addInitTables struct{}
 
-func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().DropTable(
 		"_raw_jenkins_api_jobs",
 		"_raw_jenkins_api_builds",
@@ -78,10 +78,10 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*InitSchemas) Version() uint64 {
+func (*addInitTables) Version() uint64 {
 	return 20220714201237
 }
 
-func (*InitSchemas) Name() string {
+func (*addInitTables) Name() string {
 	return "Jenkins init schemas"
 }

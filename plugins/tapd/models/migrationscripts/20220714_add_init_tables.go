@@ -24,9 +24,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type InitSchemas struct{}
+type addInitTables struct{}
 
-func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().DropTable(
 		"_raw_tapd_api_bug_changelogs",
 		"_raw_tapd_api_bugs",
@@ -130,10 +130,10 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	)
 }
 
-func (*InitSchemas) Version() uint64 {
+func (*addInitTables) Version() uint64 {
 	return 20220714201138
 }
 
-func (*InitSchemas) Name() string {
+func (*addInitTables) Name() string {
 	return "Tapd init schemas"
 }

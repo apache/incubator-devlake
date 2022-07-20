@@ -47,9 +47,9 @@ func (Task20220601) TableName() string {
 	return "_devlake_tasks"
 }
 
-type InitLakeTasksSchemas struct{}
+type addSubtasksField struct{}
 
-func (*InitLakeTasksSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*addSubtasksField) Up(ctx context.Context, db *gorm.DB) error {
 
 	err := db.Migrator().AddColumn(Task20220601{}, "subtasks")
 	if err != nil {
@@ -59,10 +59,10 @@ func (*InitLakeTasksSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*InitLakeTasksSchemas) Version() uint64 {
+func (*addSubtasksField) Version() uint64 {
 	return 20220601000005
 }
 
-func (*InitLakeTasksSchemas) Name() string {
+func (*addSubtasksField) Name() string {
 	return "add column `subtasks` at _devlake_tasks"
 }

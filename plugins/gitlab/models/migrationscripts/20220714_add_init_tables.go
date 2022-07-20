@@ -27,9 +27,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type InitSchemas struct{}
+type addInitTables struct{}
 
-func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().DropTable(
 		&archived.GitlabProject{},
 		&archived.GitlabMergeRequest{},
@@ -114,10 +114,10 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*InitSchemas) Version() uint64 {
+func (*addInitTables) Version() uint64 {
 	return 20220714231236
 }
 
-func (*InitSchemas) Name() string {
+func (*addInitTables) Name() string {
 	return "Gitlab init schemas"
 }

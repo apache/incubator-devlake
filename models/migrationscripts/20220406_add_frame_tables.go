@@ -24,9 +24,9 @@ import (
 	"gorm.io/gorm"
 )
 
-type initLakeSchemas struct{}
+type addFrameTables struct{}
 
-func (*initLakeSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*addFrameTables) Up(ctx context.Context, db *gorm.DB) error {
 	return db.Migrator().AutoMigrate(
 		&archived.Task{},
 		&archived.Notification{},
@@ -35,14 +35,14 @@ func (*initLakeSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	)
 }
 
-func (*initLakeSchemas) Version() uint64 {
+func (*addFrameTables) Version() uint64 {
 	return 20220406212344
 }
 
-func (*initLakeSchemas) Owner() string {
+func (*addFrameTables) Owner() string {
 	return "Framework"
 }
 
-func (*initLakeSchemas) Name() string {
+func (*addFrameTables) Name() string {
 	return "create init schemas"
 }
