@@ -327,19 +327,19 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 		commitFile = new(code.CommitFile)
 		commitFile.CommitSha = commitSha
 		commitFile.FilePath = file.NewFile.Path
-		commitFile.ID = commitSha + ":" + file.NewFile.Path
+		commitFile.Id = commitSha + ":" + file.NewFile.Path
 		commitFileComponent = new(code.CommitFileComponent)
 		for component, reg := range componentMap {
 			if reg.MatchString(commitFile.FilePath) {
-				commitFileComponent.Component = component
+				commitFileComponent.ComponentName = component
 				break
 			}
 		}
-		commitFileComponent.CommitFileID = commitSha + ":" + file.NewFile.Path
+		commitFileComponent.CommitFileId = commitSha + ":" + file.NewFile.Path
 		//commitFileComponent.FilePath = file.NewFile.Path
 		//commitFileComponent.CommitSha = commitSha
-		if commitFileComponent.Component == "" {
-			commitFileComponent.Component = "Default"
+		if commitFileComponent.ComponentName == "" {
+			commitFileComponent.ComponentName = "Default"
 		}
 		return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
 			return func(line git.DiffLine) error {
@@ -354,9 +354,9 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 		}, nil
 	}, git.DiffDetailLines)
 	if commitFileComponent != nil {
-		err = r.store.FileComponent(commitFileComponent)
+		err = r.store.CommitFileComponents(commitFileComponent)
 		if err != nil {
-			r.logger.Error("FileComponent error:", err)
+			r.logger.Error("CommitFileComponents error:", err)
 		}
 	}
 	if commitFile != nil {

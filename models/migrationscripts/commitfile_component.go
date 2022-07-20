@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"context"
 	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer"
 	"gorm.io/gorm"
 )
 
@@ -34,8 +35,7 @@ func (Component) TableName() string {
 }
 
 type CommitFile struct {
-	common.NoPKModel
-	ID        string `gorm:"primaryKey;type:varchar(255)"`
+	domainlayer.DomainEntity
 	CommitSha string `gorm:"type:varchar(40)"`
 	FilePath  string `gorm:"type:varchar(255)"`
 	Additions int
@@ -48,17 +48,17 @@ func (CommitFile) TableName() string {
 
 type CommitFileComponent struct {
 	common.NoPKModel
-	CommitFileID string `gorm:"primaryKey;type:varchar(255)"`
-	Component    string `gorm:"type:varchar(255)"`
+	CommitFileId  string `gorm:"primaryKey;type:varchar(255)"`
+	ComponentName string `gorm:"type:varchar(255)"`
 }
 
 func (CommitFileComponent) TableName() string {
 	return "commit_file_components"
 }
 
-type updateSchemas20220711 struct{}
+type commitfileComponent struct{}
 
-func (*updateSchemas20220711) Up(ctx context.Context, db *gorm.DB) error {
+func (*commitfileComponent) Up(ctx context.Context, db *gorm.DB) error {
 
 	err := db.Migrator().AutoMigrate(Component{}, CommitFile{}, CommitFileComponent{})
 	if err != nil {
@@ -68,10 +68,10 @@ func (*updateSchemas20220711) Up(ctx context.Context, db *gorm.DB) error {
 
 }
 
-func (*updateSchemas20220711) Version() uint64 {
-	return 202207151644
+func (*commitfileComponent) Version() uint64 {
+	return 202207201009
 }
 
-func (*updateSchemas20220711) Name() string {
+func (*commitfileComponent) Name() string {
 	return "add commit_file_components components table,update commit_files table"
 }

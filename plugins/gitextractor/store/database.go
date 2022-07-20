@@ -91,12 +91,12 @@ func (d *Database) CommitFiles(file *code.CommitFile) error {
 	return batch.Add(file)
 }
 
-func (d *Database) FileComponent(commitfile *code.CommitFileComponent) error {
-	batch, err := d.driver.ForType(reflect.TypeOf(commitfile))
+func (d *Database) CommitFileComponents(commitFileComponent *code.CommitFileComponent) error {
+	batch, err := d.driver.ForType(reflect.TypeOf(commitFileComponent))
 	if err != nil {
 		return err
 	}
-	return batch.Add(commitfile)
+	return batch.Add(commitFileComponent)
 }
 
 func (d *Database) CommitParents(pp []*code.CommitParent) error {
