@@ -38,8 +38,8 @@ var createMigrationCmd = &cobra.Command{
 	Use:   "create-migration [plugin_name/framework]",
 	Short: "Create a new migration",
 	Long: `Create a new migration
-Type in what the purpose of migration is, then generator will create a new migration in plugins/$plugin_name/models/migrationscripts/updateSchemasXXXXXXXX.go for you.
-If framework passed, generator will create a new migration in models/migrationscripts/updateSchemasXXXXXXXX.go`,
+Type in what the purpose of migration is, then generator will create a new migration in plugins/$plugin_name/models/migrationscripts/$date_$purpose.go for you.
+If framework passed, generator will create a new migration in models/migrationscripts/$date_$purpose.go`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var pluginName string
 		var purpose string
@@ -103,9 +103,9 @@ If framework passed, generator will create a new migration in models/migrationsc
 		// read template
 		templates := map[string]string{}
 		if withConfig == `Yes` {
-			templates[`updateSchemas`+values[`Date`]+values[`Count`]+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration_with_config.go-template")
+			templates[values[`Date`]+`_`+values[`Purpose`]+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration_with_config.go-template")
 		} else {
-			templates[`updateSchemas`+values[`Date`]+values[`Count`]+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration.go-template")
+			templates[values[`Date`]+`_`+values[`Purpose`]+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration.go-template")
 		}
 		values = util.DetectExistVars(templates, values)
 		println(`vars in template:`, fmt.Sprint(values))
@@ -117,7 +117,7 @@ If framework passed, generator will create a new migration in models/migrationsc
 			util.ReplaceVarInFile(
 				filepath.Join(migrationPath, `register.go`),
 				regexp.MustCompile(`(return +\[]migration\.Script ?\{ ?\n?)((\s*[\w.()]+,\n?)*)(\s*})`),
-				fmt.Sprintf("$1$2\t\tnew(updateSchemas%s%s),\n$4", values[`Date`], values[`Count`]),
+				fmt.Sprintf("$1$2\t\tnew(%s),\n$4", values[`Purpose`]),
 			)
 		}
 	},
