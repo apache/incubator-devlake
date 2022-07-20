@@ -42,5 +42,5 @@ func (*{{ .Purpose }}) Version() uint64 {
 }
 
 func (*{{ .Purpose }}) Name() string {
-	return "UpdateSchemas for {{ .Purpose }} in {{ .Date }}"
+	return "UpdateSchemas for {{ .Purpose }}"
 }
