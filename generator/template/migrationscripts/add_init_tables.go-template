@@ -35,5 +35,5 @@ func (*addInitTables) Version() uint64 {
 }
 
 func (*addInitTables) Name() string {
-	return "{{ .pluginName }} init schemas {{ .Date }}"
+	return "{{ .pluginName }} init schemas"
 }

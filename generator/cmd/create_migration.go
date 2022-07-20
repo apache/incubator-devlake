@@ -24,12 +24,12 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/generator/util"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"github.com/stoewer/go-strcase"
 )
 
 func init() {
@@ -92,7 +92,7 @@ If framework passed, generator will create a new migration in models/migrationsc
 		// create vars
 		values := map[string]string{}
 		values[`Date`] = time.Now().Format(`20060102`)
-		values[`Purpose`] = purpose
+		values[`Purpose`] = strcase.LowerCamelCase(purpose)
 		existMigrations, err := ioutil.ReadDir(migrationPath)
 		cobra.CheckErr(err)
 		values[`Count`] = fmt.Sprintf(`%06d`, len(existMigrations))
@@ -100,9 +100,9 @@ If framework passed, generator will create a new migration in models/migrationsc
 		// read template
 		templates := map[string]string{}
 		if withConfig == `Yes` {
-			templates[values[`Date`]+`_`+ToSnakeCase(values[`Purpose`])+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration_with_config.go-template")
+			templates[values[`Date`]+`_`+strcase.SnakeCase(values[`Purpose`])+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration_with_config.go-template")
 		} else {
-			templates[values[`Date`]+`_`+ToSnakeCase(values[`Purpose`])+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration.go-template")
+			templates[values[`Date`]+`_`+strcase.SnakeCase(values[`Purpose`])+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration.go-template")
 		}
 		values = util.DetectExistVars(templates, values)
 		println(`vars in template:`, fmt.Sprint(values))
@@ -114,7 +114,7 @@ If framework passed, generator will create a new migration in models/migrationsc
 			util.ReplaceVarInFile(
 				filepath.Join(migrationPath, `register.go`),
 				regexp.MustCompile(`(return +\[]migration\.Script ?\{ ?\n?)((\s*[\w.()]+,\n?)*)(\s*})`),
-				fmt.Sprintf("$1$2\t\tnew(%s),\n$4", values[`Purpose`]),
+				fmt.Sprintf("$1$2\t\tnew(%s),\n$4", strcase.LowerCamelCase(values[`Purpose`])),
 			)
 		}
 	},
@@ -130,13 +130,4 @@ func purposeNotExistValidate(input string) error {
 	}
 
 	return nil
-}
-
-var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
-var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
-
-func ToSnakeCase(str string) string {
-	snake := matchFirstCap.ReplaceAllString(str, "${1}_${2}")
-	snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
-	return strings.ToLower(snake)
 }
