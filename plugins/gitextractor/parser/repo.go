@@ -29,7 +29,6 @@ import (
 
 type GitRepo struct {
 	store   models.Store
-	ctx     context.Context
 	logger  core.Logger
 	id      string
 	repo    *git.Repository
@@ -66,7 +65,7 @@ func (r *GitRepo) CountTags() (int, error) {
 	return len(tags), nil
 }
 
-func (r *GitRepo) CountBranches() (int, error) {
+func (r *GitRepo) CountBranches(ctx context.Context) (int, error) {
 	var branchIter *git.BranchIterator
 	branchIter, err := r.repo.NewBranchIterator(git.BranchAll)
 	if err != nil {
@@ -75,8 +74,8 @@ func (r *GitRepo) CountBranches() (int, error) {
 	count := 0
 	err = branchIter.ForEach(func(branch *git.Branch, branchType git.BranchType) error {
 		select {
-		case <-r.ctx.Done():
-			return r.ctx.Err()
+		case <-ctx.Done():
+			return ctx.Err()
 		default:
 		}
 		if branch.IsBranch() || branch.IsRemote() {
@@ -87,7 +86,7 @@ func (r *GitRepo) CountBranches() (int, error) {
 	return count, err
 }
 
-func (r *GitRepo) CountCommits() (int, error) {
+func (r *GitRepo) CountCommits(ctx context.Context) (int, error) {
 	odb, err := r.repo.Odb()
 	if err != nil {
 		return 0, err
@@ -95,8 +94,8 @@ func (r *GitRepo) CountCommits() (int, error) {
 	count := 0
 	err = odb.ForEach(func(id *git.Oid) error {
 		select {
-		case <-r.ctx.Done():
-			return r.ctx.Err()
+		case <-ctx.Done():
+			return ctx.Err()
 		default:
 		}
 		commit, _ := r.repo.LookupCommit(id)
@@ -111,8 +110,8 @@ func (r *GitRepo) CountCommits() (int, error) {
 func (r *GitRepo) CollectTags(subtaskCtx core.SubTaskContext) error {
 	return r.repo.Tags.Foreach(func(name string, id *git.Oid) error {
 		select {
-		case <-r.ctx.Done():
-			return r.ctx.Err()
+		case <-subtaskCtx.GetContext().Done():
+			return subtaskCtx.GetContext().Err()
 		default:
 		}
 		var err1 error
@@ -124,7 +123,7 @@ func (r *GitRepo) CollectTags(subtaskCtx core.SubTaskContext) error {
 		} else {
 			tagCommit = id.String()
 		}
-		r.logger.Info("tagCommit", tagCommit)
+		r.logger.Info("tagCommit:%s", tagCommit)
 		if tagCommit != "" {
 			ref := &code.Ref{
 				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s", r.id, name)},
@@ -151,8 +150,8 @@ func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) error {
 	}
 	return repoInter.ForEach(func(branch *git.Branch, branchType git.BranchType) error {
 		select {
-		case <-r.ctx.Done():
-			return r.ctx.Err()
+		case <-subtaskCtx.GetContext().Done():
+			return subtaskCtx.GetContext().Err()
 		default:
 		}
 		if branch.IsBranch() || branch.IsRemote() {
@@ -194,8 +193,8 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) error {
 	}
 	return odb.ForEach(func(id *git.Oid) error {
 		select {
-		case <-r.ctx.Done():
-			return r.ctx.Err()
+		case <-subtaskCtx.GetContext().Done():
+			return subtaskCtx.GetContext().Err()
 		default:
 		}
 		commit, _ := r.repo.LookupCommit(id)

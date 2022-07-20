@@ -30,14 +30,14 @@ const (
 )
 
 type GitRepoCreator struct {
-	store   models.Store
-	taskCtx core.TaskContext
+	store  models.Store
+	logger core.Logger
 }
 
-func NewGitRepoCreator(store models.Store, taskCtx core.TaskContext) *GitRepoCreator {
+func NewGitRepoCreator(store models.Store, logger core.Logger) *GitRepoCreator {
 	return &GitRepoCreator{
-		store:   store,
-		taskCtx: taskCtx,
+		store:  store,
+		logger: logger,
 	}
 }
 
@@ -49,12 +49,11 @@ func (l *GitRepoCreator) LocalRepo(repoPath, repoId string) (*GitRepo, error) {
 	return l.newGitRepo(repoId, repo), nil
 }
 
-func (l *GitRepoCreator) newGitRepo(id string, repo *git.Repository) *GitRepo {
+func (l *GitRepoCreator) newGitRepo(repoId string, repo *git.Repository) *GitRepo {
 	return &GitRepo{
 		store:  l.store,
-		ctx:    l.taskCtx.GetContext(),
-		logger: l.taskCtx.GetLogger(),
-		id:     id,
+		logger: l.logger,
+		id:     repoId,
 		repo:   repo,
 	}
 }
