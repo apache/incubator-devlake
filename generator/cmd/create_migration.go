@@ -24,6 +24,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/generator/util"
@@ -99,9 +100,9 @@ If framework passed, generator will create a new migration in models/migrationsc
 		// read template
 		templates := map[string]string{}
 		if withConfig == `Yes` {
-			templates[values[`Date`]+`_`+values[`Purpose`]+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration_with_config.go-template")
+			templates[values[`Date`]+`_`+ToSnakeCase(values[`Purpose`])+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration_with_config.go-template")
 		} else {
-			templates[values[`Date`]+`_`+values[`Purpose`]+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration.go-template")
+			templates[values[`Date`]+`_`+ToSnakeCase(values[`Purpose`])+`.go`] = util.ReadTemplate("generator/template/migrationscripts/migration.go-template")
 		}
 		values = util.DetectExistVars(templates, values)
 		println(`vars in template:`, fmt.Sprint(values))
@@ -123,10 +124,19 @@ func purposeNotExistValidate(input string) error {
 	if input == `` {
 		return errors.New("purpose require")
 	}
-	snakeNameReg := regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`)
+	snakeNameReg := regexp.MustCompile(`^[A-Za-z][A-Za-z0-9]*$`)
 	if !snakeNameReg.MatchString(input) {
-		return errors.New("purpose invalid (start with a-z and consist with a-z0-9_)")
+		return errors.New("purpose invalid (start with a-z and consist with a-z0-9)")
 	}
 
 	return nil
+}
+
+var matchFirstCap = regexp.MustCompile("(.)([A-Z][a-z]+)")
+var matchAllCap = regexp.MustCompile("([a-z0-9])([A-Z])")
+
+func ToSnakeCase(str string) string {
+	snake := matchFirstCap.ReplaceAllString(str, "${1}_${2}")
+	snake = matchAllCap.ReplaceAllString(snake, "${1}_${2}")
+	return strings.ToLower(snake)
 }
