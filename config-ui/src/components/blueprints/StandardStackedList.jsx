@@ -29,7 +29,7 @@ import {
 const StandardStackedList = (props) => {
   const {
     items = [],
-    transformations = {},
+    checkTransformationIsExist = (connection, entity) => Boolean,
     className = 'selected-items-list',
     connection,
     activeItem,
@@ -39,11 +39,6 @@ const StandardStackedList = (props) => {
     onChange = () => {},
     style = { padding: 0, marginTop: '10px' }
   } = props
-
-  const isEditing = useCallback((item) => {
-    const storedTransform = transformations[item] || transformations[item?.id]
-    return Object.values(storedTransform).some(v => v && v.length > 0)
-  }, [transformations])
 
   // useEffect(() => {
   //   console.log('>>> Selector List Transformations...', transformations, activeItem)
@@ -100,7 +95,7 @@ const StandardStackedList = (props) => {
                         color={Colors.BLUE4}
                       />
                     }
-                    text={isEditing(item) ? editButtonText : addButtonText}
+                    text={checkTransformationIsExist(connection, item) ? editButtonText : addButtonText}
                     color={Colors.BLUE3}
                     small
                     minimal={activeItem || activeItem?.id !== item}
