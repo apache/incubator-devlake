@@ -20,14 +20,15 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/generator/util"
-	"github.com/manifoldco/promptui"
-	"github.com/spf13/cobra"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
 	"time"
+
+	"github.com/apache/incubator-devlake/generator/util"
+	"github.com/manifoldco/promptui"
+	"github.com/spf13/cobra"
 )
 
 func init() {
@@ -74,13 +75,8 @@ If framework passed, generator will create a new migration in models/migrationsc
 		cobra.CheckErr(err)
 
 		prompt := promptui.Prompt{
-			Label: "purpose",
-			Validate: func(input string) error {
-				if input == `` {
-					return errors.New("purpose require")
-				}
-				return nil
-			},
+			Label:    "purpose",
+			Validate: purposeNotExistValidate,
 		}
 		purpose, err = prompt.Run()
 		cobra.CheckErr(err)
@@ -121,4 +117,16 @@ If framework passed, generator will create a new migration in models/migrationsc
 			)
 		}
 	},
+}
+
+func purposeNotExistValidate(input string) error {
+	if input == `` {
+		return errors.New("purpose require")
+	}
+	snakeNameReg := regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`)
+	if !snakeNameReg.MatchString(input) {
+		return errors.New("purpose invalid (start with a-z and consist with a-z0-9_)")
+	}
+
+	return nil
 }
