@@ -189,18 +189,22 @@ export default function ConnectionForm (props) {
   }, [tokenStore])
 
   useEffect(() => {
-    console.log('>> PERSONAL ACCESS TOKENS ENTERED...', personalAccessTokens)
-    onTokenChange(personalAccessTokens.join(',').trim())
-    const tokenTestResponses = personalAccessTokens.filter(t => t !== '').map((t, tIdx) => {
-      const withAlert = false
-      const testPayload = {
-        endpoint: endpointUrl,
-        token: t
-      }
-      onTest(withAlert, testPayload)
-      return t
-    })
+    if (activeProvider?.id === Providers.GITHUB) {
+      console.log('>> PERSONAL ACCESS TOKENS ENTERED...', personalAccessTokens)
+      onTokenChange(personalAccessTokens.join(',').trim())
+      // eslint-disable-next-line no-unused-vars
+      const tokenTestResponses = personalAccessTokens.filter(t => t !== '').map((t, tIdx) => {
+        const withAlert = false
+        const testPayload = {
+          endpoint: endpointUrl,
+          token: t
+        }
+        onTest(withAlert, testPayload)
+        return t
+      })
+    }
   }, [
+    activeProvider?.id,
     personalAccessTokens,
     endpointUrl,
     onTokenChange,
