@@ -200,5 +200,8 @@ GET /plugins/jira/connections/:connectionId
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.JiraConnection{}
 	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
 	return &core.ApiResourceOutput{Body: connection}, err
 }
