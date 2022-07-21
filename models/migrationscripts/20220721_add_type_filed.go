@@ -17,17 +17,39 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"context"
 
-// All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(addFrameTables),
-		new(renameStepToStage),
-		new(addSubtasksField),
-		new(updateBlueprintMode),
-		new(renameTasksToPlan),
-		new(addDomainTables),
-		new(addTypeField),
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
+)
+
+type Job20220721 struct {
+	Name string `gorm:"type:varchar(255)"`
+	Type string `gorm:"type:varchar(255)"`
+	archived.DomainEntity
+}
+
+func (Job20220721) TableName() string {
+	return "jobs"
+}
+
+type addTypeField struct{}
+
+func (*addTypeField) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().AddColumn(Job20220721{}, "type")
+	if err != nil {
+		return err
 	}
+
+	return nil
+}
+
+func (*addTypeField) Version() uint64 {
+	return 20220721000005
+}
+
+func (*addTypeField) Name() string {
+	return "add column `type` at jobs"
 }
