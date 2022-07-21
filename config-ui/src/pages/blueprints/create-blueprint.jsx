@@ -137,7 +137,6 @@ const CreateBlueprint = (props) => {
   const [transformations, setTransformations] = useState({})
   // const [activeTransformation, setActiveTransformation] = useState({})
 
-
   // @todo: replace with $projects
   const [projectId, setProjectId] = useState([])
   const [projects, setProjects] = useState({})
@@ -171,7 +170,6 @@ const CreateBlueprint = (props) => {
   )
 
   const activeTransformation = useMemo(() => transformations[configuredProject], [transformations, configuredProject])
-
 
   const {
     activeConnection,
