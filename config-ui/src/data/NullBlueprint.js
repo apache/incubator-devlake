@@ -47,7 +47,8 @@ const NullBlueprint = {
   description: '',
   interval: 'daily',
   enabled: BlueprintStatus.DISABLED,
-  mode: BlueprintMode.NORMAL
+  mode: BlueprintMode.NORMAL,
+  isManual: false
 }
 
 export {

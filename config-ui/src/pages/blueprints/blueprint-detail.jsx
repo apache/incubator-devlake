@@ -776,10 +776,16 @@ const BlueprintDetail = (props) => {
                   </span>{' '}
                   &nbsp;{' '}
                   <span className='blueprint-schedule-nextrun'>
-                    Next Run{' '}
-                    {dayjs(
-                      getNextRunDate(activeBlueprint?.cronConfig)
-                    ).fromNow()}
+                    {activeBlueprint?.isManual
+                      ? <strong>Manual Mode</strong>
+                      : (
+                        <>
+                          Next Run{' '}
+                          {dayjs(
+                            getNextRunDate(activeBlueprint?.cronConfig)
+                          ).fromNow()}
+                        </>
+                        )}
                   </span>
                 </div>
                 <div

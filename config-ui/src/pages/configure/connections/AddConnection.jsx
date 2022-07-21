@@ -103,11 +103,11 @@ export default function AddConnection () {
 
   useEffect(() => {
     // Selected Provider
-    if (activeProvider && activeProvider.id) {
+    if (activeProvider?.id) {
       fetchAllConnections()
       switch (activeProvider.id) {
         case Providers.JENKINS:
-          setName(ProviderLabels.JENKINS)
+          // setName(ProviderLabels.JENKINS)
           break
         case Providers.GITHUB:
         case Providers.GITLAB:
@@ -117,7 +117,7 @@ export default function AddConnection () {
           break
       }
     }
-  }, [activeProvider.id])
+  }, [activeProvider.id, fetchAllConnections, setName])
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER = ', providerId)

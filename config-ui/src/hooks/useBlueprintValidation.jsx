@@ -74,7 +74,7 @@ function useBlueprintValidation ({
         errs.push('Blueprint Cron: No Crontab schedule defined.')
       }
 
-      if (cronConfig && cronConfig !== 'custom' && !isValidCronExpression(cronConfig)) {
+      if (cronConfig && !['custom', 'manual'].includes(cronConfig) && !isValidCronExpression(cronConfig)) {
         errs.push('Blueprint Cron: Invalid Crontab Expression, unable to parse.')
       }
 
@@ -95,6 +95,9 @@ function useBlueprintValidation ({
         case 2:
           if (activeProvider?.id === Providers.JIRA && boards[activeConnection?.id]?.length === 0) {
             errs.push('No Boards selected.')
+          }
+          if (activeProvider?.id === Providers.GITHUB && projects[activeConnection?.id]?.length === 0) {
+            errs.push('No Projects selected.')
           }
           if (entities[activeConnection?.id]?.length === 0) {
             errs.push('No Data Entities selected.')

@@ -193,6 +193,7 @@ const CreateBlueprint = (props) => {
     setDetectedProviderTasks,
     setEnable: setEnableBlueprint,
     setMode: setBlueprintMode,
+    setIsManual: setIsManualBlueprint,
     // eslint-disable-next-line no-unused-vars
     isFetching: isFetchingBlueprints,
     isSaving,
@@ -205,33 +206,34 @@ const CreateBlueprint = (props) => {
     saveBlueprint,
     deleteBlueprint,
     isDeleting: isDeletingBlueprint,
+    isManual: isManualBlueprint,
     saveComplete: saveBlueprintComplete,
   } = useBlueprintManager()
 
-  const {
-    // eslint-disable-next-line no-unused-vars
-    validate: validateBlueprint,
-    // eslint-disable-next-line no-unused-vars
-    errors: blueprintValidationErrors,
-    // setErrors: setBlueprintErrors,
-    isValid: isValidBlueprint,
-    fieldHasError,
-    getFieldError,
-  } = useBlueprintValidation({
-    name,
-    boards,
-    projects,
-    cronConfig,
-    customCronConfig,
-    enable,
-    tasks: blueprintTasks,
-    mode,
-    connections: blueprintConnections,
-    entities: dataEntities,
-    activeStep,
-    activeProvider,
-    activeConnection: configuredConnection
-  })
+  // const {
+  //   // eslint-disable-next-line no-unused-vars
+  //   validate: validateBlueprint,
+  //   // eslint-disable-next-line no-unused-vars
+  //   errors: blueprintValidationErrors,
+  //   // setErrors: setBlueprintErrors,
+  //   isValid: isValidBlueprint,
+  //   fieldHasError,
+  //   getFieldError,
+  // } = useBlueprintValidation({
+  //   name,
+  //   boards,
+  //   projects,
+  //   cronConfig,
+  //   customCronConfig,
+  //   enable,
+  //   tasks: blueprintTasks,
+  //   mode,
+  //   connections: blueprintConnections,
+  //   entities: dataEntities,
+  //   activeStep,
+  //   activeProvider: provider,
+  //   activeConnection: configuredConnection
+  // })
 
   const {
     pipelineName,
@@ -261,7 +263,7 @@ const CreateBlueprint = (props) => {
     validateAdvanced: validateAdvancedPipeline,
     errors: validationErrors,
     setErrors: setPipelineErrors,
-    isValid: isValidPipelineForm,
+    isValid: isValidPipeline,
     detectedProviders,
   } = usePipelineValidation({
     enabledProviders,
@@ -349,6 +351,28 @@ const CreateBlueprint = (props) => {
     },
     managedConnection && managedConnection?.id !== null
   )
+
+  const {
+    validate: validateBlueprint,
+    errors: blueprintValidationErrors,
+    isValid: isValidBlueprint,
+    fieldHasError,
+    getFieldError,
+  } = useBlueprintValidation({
+    name,
+    boards,
+    projects,
+    cronConfig,
+    customCronConfig,
+    enable,
+    tasks: blueprintTasks,
+    mode,
+    connections: blueprintConnections,
+    entities: dataEntities,
+    activeStep,
+    activeProvider: provider,
+    activeConnection: configuredConnection
+  })
 
   const {
     validate: validateConnection,
@@ -718,12 +742,25 @@ const CreateBlueprint = (props) => {
     validateBlueprint,
   ])
 
+  useEffect(() => {
+    setIsManualBlueprint(cronConfig === 'manual')
+  }, [cronConfig, setIsManualBlueprint])
+
   useEffect(() => { }, [activeConnectionTab])
 
   useEffect(() => {
-    setConfiguredConnection(
-      blueprintConnections.length > 0 ? blueprintConnections[0] : null
-    )
+    console.log('>>>> MY SELECTED BLUEPRINT CONNECTIONS...', blueprintConnections)
+    const someConnection = blueprintConnections.find(c => c)
+    if (someConnection) {
+      setConfiguredConnection(someConnection)
+      setActiveConnectionTab(`connection-${someConnection?.id}`)
+      setActiveProvider(
+        integrationsData.find((p) => p.id === someConnection.provider)
+      )
+      setProvider(
+        integrationsData.find((p) => p.id === someConnection.provider)
+      )
+    }
     const getDefaultEntities = (providerId) => {
       let entities = []
       switch (providerId) {
@@ -758,7 +795,7 @@ const CreateBlueprint = (props) => {
     setEnabledProviders([
       ...new Set(blueprintConnections.map((c) => c.provider)),
     ])
-  }, [blueprintConnections])
+  }, [blueprintConnections, setProvider])
 
   useEffect(() => {
     console.log('>> CONFIGURING CONNECTION', configuredConnection)
@@ -788,7 +825,7 @@ const CreateBlueprint = (props) => {
           break
       }
     }
-  }, [configuredConnection])
+  }, [configuredConnection, setActiveConnectionTab])
 
   useEffect(() => {
     console.log('>> DATA ENTITIES', dataEntities)
@@ -1166,7 +1203,7 @@ const CreateBlueprint = (props) => {
               onSave={handleBlueprintSave}
               onSaveAndRun={handleBlueprintSaveAndRun}
               isLoading={isSaving}
-              isValid={isValidBlueprint}
+              isValid={advancedMode ? isValidBlueprint && isValidPipeline : isValidBlueprint}
               canGoNext={canAdvanceNext}
             />
           </main>
@@ -1221,16 +1258,18 @@ const CreateBlueprint = (props) => {
                 name,
                 // tasks: blueprintTasks,
                 settings: blueprintSettings,
-                cronConfig,
+                cronConfig: isManualBlueprint ? '0 0 * * *' : (cronConfig === 'custom' ? customCronConfig : cronConfig),
                 enable,
                 mode,
+                isManual: isManualBlueprint
               }
             : {
                 name,
                 plan: blueprintTasks,
-                cronConfig,
+                cronConfig: isManualBlueprint ? '0 0 * * *' : (cronConfig === 'custom' ? customCronConfig : cronConfig),
                 enable,
                 mode,
+                isManual: isManualBlueprint
               }
         }
         onClose={setShowBlueprintInspector}
