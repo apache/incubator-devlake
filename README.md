@@ -29,7 +29,7 @@ Apache DevLake is designed for developer teams looking to make better sense of t
 
 ## 🤓 How do I use DevLake?
 ### 1. Set up DevLake
-You can easily set up Apache DevLake by following our step-by step instructions for [Install via Docker Compose](https://devlake.apache.org/docs/QuickStart/DockerComposeSetup) or [Install via Kubernetes](https://devlake.apache.org/docs/QuickStart/KubernetesSetup).
+You can set up Apache DevLake by following our step-by step instructions for [Install via Docker Compose](https://devlake.apache.org/docs/QuickStart/DockerComposeSetup) or [Install via Kubernetes](https://devlake.apache.org/docs/QuickStart/KubernetesSetup). Please ask community if you get stuck at any point. 
 
 ### 2. Create a Blueprint
 The DevLake Configuration UI will guide you through the process (a Blueprint) to define the data connections, data scope, transformation and sync frequency of the data you wish to collect.

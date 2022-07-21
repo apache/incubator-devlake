@@ -57,7 +57,7 @@ func (plugin GitExtractor) PrepareTaskData(taskCtx core.TaskContext, options map
 		return nil, err
 	}
 	storage := store.NewDatabase(taskCtx, op.Url)
-	repo, err := newGitRepo(taskCtx, storage, op)
+	repo, err := newGitRepo(taskCtx.GetLogger(), storage, op)
 	if err != nil {
 		return nil, err
 	}
@@ -77,10 +77,10 @@ func (plugin GitExtractor) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/gitextractor"
 }
 
-func newGitRepo(ctx core.TaskContext, storage models.Store, op tasks.GitExtractorOptions) (*parser.GitRepo, error) {
+func newGitRepo(logger core.Logger, storage models.Store, op tasks.GitExtractorOptions) (*parser.GitRepo, error) {
 	var err error
 	var repo *parser.GitRepo
-	p := parser.NewGitRepoCreator(storage, ctx)
+	p := parser.NewGitRepoCreator(storage, logger)
 	if strings.HasPrefix(op.Url, "http") {
 		repo, err = p.CloneOverHTTP(op.RepoId, op.Url, op.User, op.Password, op.Proxy)
 	} else if url := strings.TrimPrefix(op.Url, "ssh://"); strings.HasPrefix(url, "git@") {

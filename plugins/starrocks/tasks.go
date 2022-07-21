@@ -153,7 +153,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 		}
 		for rows.Next() {
 			row := make(map[string]interface{})
-			columns := make([]string, len(cols))
+			columns := make([]interface{}, len(cols))
 			columnPointers := make([]interface{}, len(cols))
 			for i := range columns {
 				columnPointers[i] = &columns[i]

@@ -20,12 +20,12 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/apache/incubator-devlake/logger"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
 
 	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -74,7 +74,7 @@ func main() {
 		"git extractor",
 		nil,
 	)
-	repo, err := newGitRepo(subTaskCtx.TaskContext(), storage, tasks.GitExtractorOptions{
+	repo, err := newGitRepo(log, storage, tasks.GitExtractorOptions{
 		RepoId:   *id,
 		Url:      *url,
 		User:     *user,
