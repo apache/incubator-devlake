@@ -186,21 +186,12 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			body := &IssuesResponse{}
 			err := json.Unmarshal(row.Data, body)
-			fmt.Println(string(row.Data))
 			if err != nil {
 				return nil, err
 			}
 
 			if body.ProjectId == 0 {
 				return nil, nil
-			}
-
-			//If this have the info about Type or IssueType
-			if body.IssueType != "" || body.Type != "" {
-				//If this is not Issue, ignore
-				if body.IssueType != "ISSUE" && body.Type != "ISSUE" {
-					return nil, nil
-				}
 			}
 
 			results := make([]interface{}, 0, 2)
