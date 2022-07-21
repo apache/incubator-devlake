@@ -63,7 +63,8 @@ func ConvertAccounts(taskCtx core.SubTaskContext) error {
 			GitlabAccount := inputRow.(*gitlabModels.GitlabAccount)
 			domainUser := &crossdomain.Account{
 				DomainEntity: domainlayer.DomainEntity{Id: accountIdGen.Generate(data.Options.ConnectionId, GitlabAccount.GitlabId)},
-				UserName:     GitlabAccount.Name,
+				UserName:     GitlabAccount.Username,
+				FullName:     GitlabAccount.Name,
 				Email:        GitlabAccount.Email,
 				AvatarUrl:    GitlabAccount.AvatarUrl,
 			}
