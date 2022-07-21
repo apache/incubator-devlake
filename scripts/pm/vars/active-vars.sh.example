@@ -16,11 +16,7 @@
 # limitations under the License.
 #
 
-SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
-FILE=$SCRIPT_DIR/../.env
-
-if [ -f "$FILE" ]; then
-    export $(grep -v '^#' $FILE | sed 's/#.*$//g' | xargs)
-else 
-    echo "$FILE does not exist."
-fi
+# ln -s local-vars.sh active-vars.sh
+LAKE_ENDPOINT=${LAKE_ENDPOINT-'http://localhost:8080'}
+JIRA_ENDPOINT=https://merico.atlassian.net/rest
+JIRA_BASIC_AUTH=
