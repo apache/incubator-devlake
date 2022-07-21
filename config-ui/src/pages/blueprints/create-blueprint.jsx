@@ -169,7 +169,7 @@ const CreateBlueprint = (props) => {
     boards.length > 0 ? boards[0] : null
   )
 
-  const activeTransformation = useMemo(() => transformations[configuredProject], [transformations, configuredProject])
+  const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
 
   const {
     activeConnection,
