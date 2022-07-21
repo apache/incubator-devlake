@@ -193,10 +193,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			if body.ProjectId == 0 {
 				return nil, nil
 			}
-			//If this is not Issue, ignore
-			if body.IssueType != "ISSUE" && body.Type != "ISSUE" {
-				return nil, nil
-			}
+
 			results := make([]interface{}, 0, 2)
 			gitlabIssue, err := convertGitlabIssue(body, data.Options.ProjectId)
 			if err != nil {
