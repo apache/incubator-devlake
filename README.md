@@ -24,12 +24,12 @@ Apache DevLake is designed for developer teams looking to make better sense of t
 
 1. Collect DevOps data across the entire Software Development Life Cycle (SDLC) and connect the siloed data with a standard [data model](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema).
 2. Visualize out-of-the-box engineering [metrics](https://devlake.apache.org/docs/EngineeringMetrics) in a series of use-case driven dashboards.
-3. Easily extend DevLake to support your data sources, metrics, and dashboards with a flexible [framework](https://devlake.apache.org/docs/Overview/Architecture) for data collection and ETL.
+3. Easily extend DevLake to support your data sources, metrics, and dashboards with a flexible [framework](https://devlake.apache.org/docs/Overview/Architecture) for data collection and ETL (Extract, Transform, Load).
 
 
 ## 🤓 How do I use DevLake?
 ### 1. Set up DevLake
-You can easily set up Apache DevLake by following our step-by step instruction for [Install via Docker Compose](https://devlake.apache.org/docs/QuickStart/DockerComposeSetup) or [Install via Kubernetes](https://devlake.apache.org/docs/QuickStart/KubernetesSetup).
+You can easily set up Apache DevLake by following our step-by step instructions for [Install via Docker Compose](https://devlake.apache.org/docs/QuickStart/DockerComposeSetup) or [Install via Kubernetes](https://devlake.apache.org/docs/QuickStart/KubernetesSetup).
 
 ### 2. Create a Blueprint
 The DevLake Configuration UI will guide you through the process (a Blueprint) to define the data connections, data scope, transformation and sync frequency of the data you wish to collect.
@@ -46,7 +46,7 @@ Once the first run of the Blueprint is completed, you can view the corresponding
 
 ![img](img/userflow3.png)
 
-### 5. Customize the dahsboards with SQL
+### 5. Customize the dashboards with SQL
 If the pre-built dashboards are limited for your use cases, you can always customize or create your own metrics or dashboards with SQL.
 
 ![img](img/userflow4.png)
