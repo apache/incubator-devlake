@@ -69,7 +69,7 @@ func (*commitfileComponent) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*commitfileComponent) Version() uint64 {
-	return 202207201009
+	return 202207211505
 }
 
 func (*commitfileComponent) Name() string {

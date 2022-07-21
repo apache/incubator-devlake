@@ -57,16 +57,6 @@ func (CommitFile) TableName() string {
 	return "commit_files"
 }
 
-type Component struct {
-	RepoId    string `gorm:"type:varchar(255)"`
-	Name      string `gorm:"primaryKey;type:varchar(255)"`
-	PathRegex string `gorm:"type:varchar(255)"`
-}
-
-func (Component) TableName() string {
-	return "components"
-}
-
 type CommitFileComponent struct {
 	common.NoPKModel
 	CommitFileId  string `gorm:"primaryKey;type:varchar(255)"`
