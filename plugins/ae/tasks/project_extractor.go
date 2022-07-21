@@ -78,4 +78,5 @@ var ExtractProjectMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractProject,
 	EnabledByDefault: true,
 	Description:      "Extract raw project data into tool layer table ae_projects",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

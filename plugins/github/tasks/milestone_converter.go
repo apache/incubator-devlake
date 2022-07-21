@@ -34,6 +34,7 @@ var ConvertMilestonesMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertMilestones,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_milestones into  domain layer table milestones",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 type MilestoneConverterModel struct {

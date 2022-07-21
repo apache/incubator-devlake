@@ -24,8 +24,11 @@ import {
 
 import 'normalize.css'
 import '@/styles/app.scss'
-import 'typeface-montserrat'
-import 'jetbrains-mono'
+// import 'typeface-montserrat'
+// import 'jetbrains-mono'
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/600.css'
+import '@fontsource/inter/variable-full.css'
 // Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
 // import '@/styles/theme.scss'
 
@@ -41,6 +44,9 @@ import Pipelines from '@/pages/pipelines/index'
 import CreatePipeline from '@/pages/pipelines/create'
 import PipelineActivity from '@/pages/pipelines/activity'
 import Blueprints from '@/pages/blueprints/index'
+import CreateBlueprint from '@/pages/blueprints/create-blueprint'
+import BlueprintDetail from '@/pages/blueprints/blueprint-detail'
+import Connections from '@/pages/connections/index'
 
 function App () {
   return (
@@ -79,8 +85,17 @@ function App () {
       <Route exact path='/pipelines/activity/:pId'>
         <PipelineActivity />
       </Route>
+      <Route exact path='/blueprints/create'>
+        <CreateBlueprint />
+      </Route>
+      <Route exact path='/blueprints/detail/:bId'>
+        <BlueprintDetail />
+      </Route>
       <Route exact path='/blueprints'>
         <Blueprints />
+      </Route>
+      <Route exact path='/connections'>
+        <Connections />
       </Route>
       <Route exact path='/lake/api/configuration'>
         <Configure />

@@ -24,6 +24,6 @@ import (
 // All return all the migration scripts
 func All() []migration.Script {
 	return []migration.Script{
-		new(InitSchemas),
+		new(addInitTables),
 	}
 }

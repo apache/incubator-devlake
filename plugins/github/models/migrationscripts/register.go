@@ -24,8 +24,6 @@ import (
 // All return all the migration scripts
 func All() []migration.Script {
 	return []migration.Script{
-		new(initSchemas),
-		new(updateSchemas20220713000003),
-		new(updateSchemas20220713000004),
+		new(addInitTables),
 	}
 }

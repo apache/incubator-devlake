@@ -62,9 +62,11 @@ const ProviderLabels = {
 }
 
 const ProviderConnectionLimits = {
-  jenkins: 1,
-  // jira: null, // (Multi-connection, no-limit)
+  // (All providers are mult-connection, no source limits defined)
+  // jenkins: null,
+  // jira: null,
   // github: null
+  // gitlab: null
 }
 
 // NOTE: Not all fields may be referenced/displayed for a provider,
@@ -99,8 +101,29 @@ const ProviderFormLabels = {
     endpoint: 'Endpoint URL',
     proxy: 'Proxy URL',
     token: 'Basic Auth Token',
-    username: 'Username',
-    password: 'Password'
+    username: 'Username / E-mail',
+    // password; 'Password',
+    password: (
+      <>
+        Password
+        <Tooltip
+          content={(<span>If you are using JIRA Cloud or JIRA Server, <br />your API Token should be used as password.</span>)}
+          intent='primary'
+        >
+          <Icon
+            icon='info-sign'
+            size={12}
+            style={{
+              float: 'left',
+              display: 'inline-block',
+              alignContent: 'center',
+              marginBottom: '4px',
+              marginLeft: '8px',
+              color: '#999'
+            }}
+          />
+        </Tooltip>
+      </>),
   },
   github: {
     name: 'Connection Name',
@@ -109,6 +132,7 @@ const ProviderFormLabels = {
     // token: 'Auth Token(s)',
     token: (
       <>
+        Auth Token(s)
         <Tooltip
           content={(<span>Due to Github’s rate limit, input more tokens, <br />comma separated, to accelerate data collection.</span>)}
           intent='primary'
@@ -121,12 +145,11 @@ const ProviderFormLabels = {
               display: 'inline-block',
               alignContent: 'center',
               marginBottom: '4px',
-              marginRight: '8px',
+              marginLeft: '8px',
               color: '#999'
             }}
           />
         </Tooltip>
-        Auth Token(s)
       </>),
     username: 'Username',
     password: 'Password'
@@ -188,6 +211,18 @@ const ProviderIcons = {
   [Providers.DBT]: (w, h) => <Icon icon='box' size={w || 24} />,
 }
 
+const ConnectionStatus = {
+  OFFLINE: 0,
+  ONLINE: 1,
+  DISCONNECTED: 2
+}
+
+const ConnectionStatusLabels = {
+  [ConnectionStatus.OFFLINE]: 'Offline',
+  [ConnectionStatus.ONLINE]: 'Online',
+  [ConnectionStatus.DISCONNECTED]: 'Disconnected',
+}
+
 export {
   Providers,
   ProviderTypes,
@@ -195,5 +230,7 @@ export {
   ProviderLabels,
   ProviderConnectionLimits,
   ProviderFormLabels,
-  ProviderFormPlaceholders
+  ProviderFormPlaceholders,
+  ConnectionStatus,
+  ConnectionStatusLabels
 }

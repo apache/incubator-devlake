@@ -46,7 +46,7 @@ var ExtractApiMrNotesMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiMergeRequestsNotes,
 	EnabledByDefault: true,
 	Description:      "Extract raw merge requests notes data into tool layer table GitlabMrNote",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {

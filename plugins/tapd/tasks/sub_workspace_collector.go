@@ -67,4 +67,5 @@ var CollectSubWorkspaceMeta = core.SubTaskMeta{
 	EntryPoint:       CollectSubWorkspaces,
 	EnabledByDefault: true,
 	Description:      "collect Tapd workspaces",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

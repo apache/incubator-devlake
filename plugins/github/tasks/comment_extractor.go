@@ -19,9 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
+	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -35,7 +35,7 @@ var ExtractApiCommentsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Description: "Extract raw comment data  into tool layer table github_pull_request_comments" +
 		"and github_issue_comments",
-	DomainTypes: []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
+	DomainTypes: []string{core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_TICKET},
 }
 
 type IssueComment struct {
@@ -78,7 +78,7 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 			}
 			issue := &models.GithubIssue{}
 			err = taskCtx.GetDal().All(issue, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Repo.GithubId))
-			if err != nil {
+			if err != nil && err != gorm.ErrRecordNotFound {
 				return nil, err
 			}
 			//if we can not find issues with issue number above, move the comments to github_pull_request_comments
@@ -88,7 +88,7 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 				if err != nil && err != gorm.ErrRecordNotFound {
 					return nil, err
 				}
-				githubPrComment := &models.GithubPullRequestComment{
+				githubPrComment := &models.GithubPrComment{
 					ConnectionId:    data.Options.ConnectionId,
 					GithubId:        apiComment.GithubId,
 					PullRequestId:   pr.GithubId,
@@ -97,6 +97,7 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 					AuthorUserId:    apiComment.User.Id,
 					GithubCreatedAt: apiComment.GithubCreatedAt.ToTime(),
 					GithubUpdatedAt: apiComment.GithubUpdatedAt.ToTime(),
+					Type:            "NORMAL",
 				}
 				results = append(results, githubPrComment)
 			} else {

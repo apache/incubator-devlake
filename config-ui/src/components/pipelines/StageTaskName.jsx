@@ -59,8 +59,9 @@ const StageTaskName = (props) => {
         autoFocus={false}
         enforceFocus={false}
         usePortal={true}
+        disabled
       >
-        <span className='task-plugin-text' ref={popoverTriggerRef}>{task.plugin}</span>
+        <span className='task-plugin-text' ref={popoverTriggerRef} style={{ display: 'block', margin: '5px 0 5px 0' }}><strong>Task ID {task.id}</strong> {' '} {ProviderLabels[task?.plugin?.toUpperCase()]}</span>
         <>
           <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '400px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -69,13 +70,11 @@ const StageTaskName = (props) => {
                 color: Colors.GRAY2,
                 fontWeight: 700,
                 fontSize: '14px',
-                fontFamily: '"Montserrat", sans-serif',
                 maxWidth: '60%'
               }}
               >
                 <H3 style={{
                   margin: 0,
-                  fontFamily: '"JetBrains Mono", monospace',
                   fontSize: '18px',
                   color: Colors.BLACK,
                   textOverflow: 'ellipsis',
@@ -95,7 +94,6 @@ const StageTaskName = (props) => {
                 )}
               </div>
               <div style={{
-                fontFamily: '"Montserrat", sans-serif',
                 fontWeight: 800,
                 displays: 'flex',
                 alignItems: 'center',
@@ -141,25 +139,6 @@ const StageTaskName = (props) => {
                 <div style={{ marginTop: '6px' }}>
                   <label style={{ color: Colors.GRAY2 }}>Status</label><br />
                   <strong>{task.status}</strong>{' '}
-                  <strong
-                    className='bp3-tag'
-                    style={{ minHeight: '16px', fontSize: '10px', padding: '2px 6px', borderRadius: '6px' }}
-                  >PROGRESS {task.progress * 100}%
-                  </strong>
-                </div>
-                <div style={{ marginTop: '6px' }}>
-                  <label style={{ color: Colors.GRAY2 }}>Options</label><br />
-                  <TextArea
-                    readOnly
-                    fill value={JSON.stringify(task.options)} style={{ fontSize: '10px', backgroundColor: '#f8f8f8', resize: 'none' }}
-                  />
-                  {/* <span>
-                        <pre style={{ margin: 0 }}>
-                          <code>
-                            {JSON.stringify(task.options)}
-                          </code>
-                        </pre>
-                      </span> */}
                 </div>
                 {task.message !== '' && (
                   <div style={{ marginTop: '6px' }}>

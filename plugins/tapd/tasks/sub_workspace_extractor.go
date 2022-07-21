@@ -32,6 +32,7 @@ var ExtractSubWorkspaceMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractSubWorkspaces,
 	EnabledByDefault: true,
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_workspaces",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractSubWorkspaces(taskCtx core.SubTaskContext) error {

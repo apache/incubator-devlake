@@ -33,6 +33,7 @@ var ExtractApiIssueCommentsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Description: "Extract raw comment data  into tool layer table gitee_pull_request_comments" +
 		"and gitee_issue_comments",
+	DomainTypes: []string{core.DOMAIN_TYPE_TICKET},
 }
 
 type IssueComment struct {

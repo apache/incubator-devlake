@@ -34,6 +34,7 @@ var ExtractApiIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiIssues,
 	EnabledByDefault: true,
 	Description:      "Extract raw Issues data into tool layer table gitee_issues",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 type IssuesResponse struct {

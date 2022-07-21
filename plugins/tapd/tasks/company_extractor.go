@@ -32,6 +32,7 @@ var ExtractCompanyMeta = core.SubTaskMeta{
 	EntryPoint:  ExtractCompanies,
 	Required:    false,
 	Description: "Extract raw company data into tool layer table _tool_tapd_workspaces",
+	DomainTypes: []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractCompanies(taskCtx core.SubTaskContext) error {

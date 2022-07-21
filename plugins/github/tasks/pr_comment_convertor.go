@@ -34,7 +34,7 @@ var ConvertPullRequestCommentsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertPullRequestComments,
 	EnabledByDefault: true,
 	Description:      "ConvertPullRequestComments data from Github api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
@@ -43,7 +43,7 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 	repoId := data.Repo.GithubId
 
 	cursor, err := db.Cursor(
-		dal.From(&githubModels.GithubPullRequestComment{}),
+		dal.From(&githubModels.GithubPrComment{}),
 		dal.Join("left join _tool_github_pull_requests "+
 			"on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id"),
 		dal.Where("repo_id = ? and _tool_github_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
@@ -53,11 +53,12 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
+	prCommentIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPrComment{})
 	prIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
 	accountIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubAccount{})
-
+	prReviewIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPrReview{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(githubModels.GithubPullRequestComment{}),
+		InputRowType: reflect.TypeOf(githubModels.GithubPrComment{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -69,17 +70,18 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 			Table: RAW_COMMENTS_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			githubPullRequestComment := inputRow.(*githubModels.GithubPullRequestComment)
+			githubPullRequestComment := inputRow.(*githubModels.GithubPrComment)
 			domainPrComment := &code.PullRequestComment{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: prIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.GithubId),
+					Id: prCommentIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.GithubId),
 				},
 				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.PullRequestId),
 				Body:          githubPullRequestComment.Body,
 				UserId:        accountIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.AuthorUserId),
 				CreatedDate:   githubPullRequestComment.GithubCreatedAt,
-				CommitSha:     "",
-				Position:      0,
+				CommitSha:     githubPullRequestComment.CommitSha,
+				Type:          githubPullRequestComment.Type,
+				ReviewId:      prReviewIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.ReviewId),
 			}
 			return []interface{}{
 				domainPrComment,

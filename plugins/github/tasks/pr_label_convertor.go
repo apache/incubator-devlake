@@ -34,7 +34,7 @@ var ConvertPullRequestLabelsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertPullRequestLabels,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_labels into  domain layer table pull_request_labels",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
@@ -43,7 +43,7 @@ func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
 	repoId := data.Repo.GithubId
 
 	cursor, err := db.Cursor(
-		dal.From(&githubModels.GithubPullRequestLabel{}),
+		dal.From(&githubModels.GithubPrLabel{}),
 		dal.Join(`left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_labels.pull_id`),
 		dal.Where("_tool_github_pull_requests.repo_id = ? and _tool_github_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
 		dal.Orderby("pull_id ASC"),
@@ -55,7 +55,7 @@ func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
 	prIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(githubModels.GithubPullRequestLabel{}),
+		InputRowType: reflect.TypeOf(githubModels.GithubPrLabel{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -67,7 +67,7 @@ func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			prLabel := inputRow.(*githubModels.GithubPullRequestLabel)
+			prLabel := inputRow.(*githubModels.GithubPrLabel)
 			domainPrLabel := &code.PullRequestLabel{
 				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, prLabel.PullId),
 				LabelName:     prLabel.LabelName,

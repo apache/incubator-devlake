@@ -89,4 +89,5 @@ var ConvertIterationMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertIteration,
 	EnabledByDefault: true,
 	Description:      "convert Tapd iteration",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

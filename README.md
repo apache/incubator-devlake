@@ -23,13 +23,13 @@ Apache DevLake is designed for developer teams looking to make better sense of t
 ## 🎯 What can be accomplished with Apache DevLake?
 
 1. Collect DevOps data across the entire Software Development Life Cycle (SDLC) and connect the siloed data with a standard [data model](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema).
-2. Visualize out-of-the-box engineering [metrics](https://devlake.apache.org/docs/EngineeringMetrics) in a series of use-case driven dashboards。
+2. Visualize out-of-the-box engineering [metrics](https://devlake.apache.org/docs/EngineeringMetrics) in a series of use-case driven dashboards.
 3. Easily extend DevLake to support your data sources, metrics, and dashboards with a flexible [framework](https://devlake.apache.org/docs/Overview/Architecture) for data collection and ETL.
 
 
 ## 🤓 How do I use DevLake?
 ### 1. Set up DevLake
-You can set up Apache DevLake by following our step-by step instruction for [local setup](https://devlake.apache.org/docs/QuickStart/LocalSetup) or [Kubernetes setup](https://devlake.apache.org/docs/QuickStart/KubernetesSetup). Please ask community if you get stuck at any point. 
+You can set up Apache DevLake by following our step-by step instruction for [Install via Docker Compose](https://devlake.apache.org/docs/QuickStart/DockerComposeSetup) or [Kubernetes setup](https://devlake.apache.org/docs/QuickStart/KubernetesSetup). Please ask community if you get stuck at any point. 
 
 ### 2. Create a Blueprint
 The DevLake Configuration UI will guide you through the process (a Blueprint) to define the data connections, data scope, transformation and sync frequency of the data you wish to collect.
@@ -66,10 +66,10 @@ If the pre-built dashboards are limited for your use cases, you can always custo
 
 
 ## 🚀 Quick Start
-- [Deploy Locally](https://devlake.apache.org/docs/QuickStart/LocalSetup)
-- [Deploy to Kubernetes](https://devlake.apache.org/docs/QuickStart/KubernetesSetup)
-- [Deploy in Temporal Mode](https://devlake.apache.org/docs/UserManuals/TemporalSetup)
-- [Deploy in Developer Mode](https://devlake.apache.org/docs/DeveloperManuals/DeveloperSetup)
+- [Install via Docker Compose](https://devlake.apache.org/docs/QuickStart/DockerComposeSetup)
+- [Install via Kubernetes](https://devlake.apache.org/docs/QuickStart/KubernetesSetup)
+- [Install in Temporal Mode](https://devlake.apache.org/docs/UserManuals/TemporalSetup)
+- [Install in Developer Mode](https://devlake.apache.org/docs/DeveloperManuals/DeveloperSetup)
 
 
 ## ⌚ Project Roadmap

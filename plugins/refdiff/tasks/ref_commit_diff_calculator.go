@@ -148,4 +148,5 @@ var CalculateCommitsDiffMeta = core.SubTaskMeta{
 	EntryPoint:       CalculateCommitsDiff,
 	EnabledByDefault: true,
 	Description:      "Calculate diff commits between refs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }

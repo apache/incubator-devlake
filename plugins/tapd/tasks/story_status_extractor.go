@@ -32,6 +32,7 @@ var ExtractStoryStatusMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractStoryStatus,
 	EnabledByDefault: true,
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_bugStatus",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractStoryStatus(taskCtx core.SubTaskContext) error {

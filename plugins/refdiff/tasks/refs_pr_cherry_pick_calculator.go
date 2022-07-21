@@ -190,4 +190,5 @@ var CalculatePrCherryPickMeta = core.SubTaskMeta{
 	EntryPoint:       CalculatePrCherryPick,
 	EnabledByDefault: true,
 	Description:      "Calculate pr cherry pick",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }

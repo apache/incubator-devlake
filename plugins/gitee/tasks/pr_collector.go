@@ -39,6 +39,7 @@ var CollectApiPullRequestsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiPullRequests,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequests data from Gitee api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func CollectApiPullRequests(taskCtx core.SubTaskContext) error {

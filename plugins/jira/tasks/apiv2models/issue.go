@@ -163,7 +163,7 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		IssueKey:           i.Key,
 		StoryPoint:         workload,
 		Summary:            i.Fields.Summary,
-		Type:               i.Fields.Issuetype.Name,
+		Type:               i.Fields.Issuetype.ID,
 		StatusName:         i.Fields.Status.Name,
 		StatusKey:          i.Fields.Status.StatusCategory.Key,
 		ResolutionDate:     i.Fields.Resolutiondate.ToNullableTime(),

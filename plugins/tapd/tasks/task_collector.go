@@ -91,4 +91,5 @@ var CollectTaskMeta = core.SubTaskMeta{
 	EntryPoint:       CollectTasks,
 	EnabledByDefault: true,
 	Description:      "collect Tapd tasks",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

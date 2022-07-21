@@ -32,6 +32,7 @@ var ExtractBugCommitMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractBugCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw BugCommits data into tool layer table _tool_tapd_issue_commits",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func ExtractBugCommits(taskCtx core.SubTaskContext) error {

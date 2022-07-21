@@ -37,6 +37,7 @@ var ConvertRepoMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertRepo,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitee_repos into  domain layer table repos and boards",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ConvertRepo(taskCtx core.SubTaskContext) error {

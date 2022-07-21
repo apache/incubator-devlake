@@ -1,0 +1,1532 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 15,
+  "iteration": 1657889619666,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 89,
+      "panels": [],
+      "title": "1. Throughput/Quality",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisLabel": "Pull Request Count",
+            "axisPlacement": "auto",
+            "barAlignment": 1,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Opened"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Merged"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 1
+      },
+      "id": 79,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  count(id) as \"PR: Opened\",\n  count(distinct case when merged_date is not null then id else null end) as \"PR: Merged\"\nFROM pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in ($repo_id)\ngroup by 1\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PRs Opened/Merged",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Issue Count",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Issues Opened"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Issues Completed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 1
+      },
+      "id": 74,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE_ADD(date(i.created_date), INTERVAL -$interval(date(i.created_date))+1 DAY) as time,\n  count(i.id) as 'Issues Opened',\n  count(case when i.status = 'DONE' then i.id else null end) as 'Issues Completed'\nFROM issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nWHERE\n  $__timeFilter(i.created_date)\n  and b.id in ($board_id)\ngroup by 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Issue Opened/Completed",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Story Points",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 1
+      },
+      "id": 98,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE_ADD(date(i.created_date), INTERVAL -$interval(date(i.created_date))+1 DAY) as time,\n  sum(case when i.status = 'DONE' then i.story_point else 0 end) as 'Story Points Completed'\nFROM issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nWHERE\n  $__timeFilter(i.created_date)\n  and b.id in ($board_id)\ngroup by 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Issue Story Points Completed",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "PR Review Depth",
+            "axisPlacement": "auto",
+            "barAlignment": 1,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 8
+      },
+      "id": 99,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n  count(distinct prc.id)/count(pr.id) as \"PR Review Depth\"\nFROM \n  pull_requests pr\n  left join pull_request_comments prc on pr.id = prc.pull_request_id\nWHERE\n  $__timeFilter(pr.created_date)\n  and pr.base_repo_id in ($repo_id)\n  and pr.merged_date is not null\ngroup by 1\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PR Review Depth",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "Bug Count",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 8
+      },
+      "id": 100,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE_ADD(date(i.created_date), INTERVAL -$interval(date(i.created_date))+1 DAY) as time,\n  count(distinct i.id) as 'P0/P1 Bugs'\nFROM issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nWHERE\n  $__timeFilter(i.created_date)\n  and b.id in ($board_id)\n  and i.type = 'BUG'\n  and i.priority in ($priority)\ngroup by 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "P0/P1 Bugs",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "PR Size",
+            "axisPlacement": "auto",
+            "barAlignment": 1,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 8
+      },
+      "id": 101,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _pr_commits_data as(\n  SELECT\n    DATE_ADD(date(pr.created_date), INTERVAL -$interval(date(pr.created_date))+1 DAY) as time,\n    pr.id as pr_id,\n    prc.commit_sha,\n    sum(c.additions)+sum(c.deletions) as loc\n  FROM \n    pull_requests pr\n    left join pull_request_commits prc on pr.id = prc.pull_request_id\n    left join commits c on prc.commit_sha = c.sha\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.base_repo_id in ($repo_id)\n  group by 1,2,3\n)\n\nSELECT \n  time,\n  sum(loc)/count(distinct pr_id) as 'PR Size'\nFROM _pr_commits_data\nGROUP BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PR Size",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "id": 103,
+      "panels": [],
+      "title": "2. Quality + Cycle Time",
+      "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Opened"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Merged"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "super-light-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 109,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.url,\n    pr.author_id,\n    min(c.authored_date) as first_commit_authored_date,\n    pr.created_date as pr_issued_date,\n    min(prc.created_date) as first_comment_date,\n    max(prc.created_date) as last_comment_date,\n    pr.merged_date as pr_merged_date\n  FROM pull_requests pr\n    left join pull_request_comments prc on pr.id = prc.pull_request_id\n    left join pull_request_commits prc2 on pr.id = prc2.pull_request_id\n    left join commits c on prc2.commit_sha = c.sha\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.base_repo_id in ($repo_id)\n  GROUP BY 1,2,3,5,8\n),\n\n_deduped_prs as(\n  SELECT distinct \n    id,\n    url,\n    first_commit_authored_date,\n    pr_issued_date,\n    first_comment_date,\n    last_comment_date,\n    pr_merged_date\n  FROM _prs\n  WHERE\n    -- remove edge data and make data scope for all cycle time metrics consistent\n    (first_commit_authored_date is null or first_commit_authored_date < pr_issued_date)\n    and (first_comment_date is null or pr_issued_date < first_comment_date)\n    and (last_comment_date is null or first_comment_date < last_comment_date)\n    and (pr_merged_date is null or first_comment_date < pr_merged_date)\n),\n\n_coding_pickup_review_time as(\n  SELECT \n    id,\n    url,\n    pr_issued_date,\n    case when first_commit_authored_date is null then 0 else TIMESTAMPDIFF(Minute,first_commit_authored_date,pr_issued_date)/60 end as coding_time,\n    case when first_comment_date is null then 0 else TIMESTAMPDIFF(Minute,pr_issued_date,first_comment_date)/60 end as pickup_time,\n    case when $review_end_date is null then 0 else TIMESTAMPDIFF(Minute,first_comment_date,$review_end_date)/60 end as review_time\n  FROM _deduped_prs\n),\n\n_cycle_time as(\n  SELECT \n    *, \n    case when coding_time is null and pickup_time is null and review_time is null then null else coalesce(coding_time,0) + coalesce(pickup_time,0) + coalesce(review_time,0) end as cycle_time \n  FROM _coding_pickup_review_time\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(cycle_time) as 'Cycle Time(h)'\nFROM _cycle_time\nGROUP BY 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Total Cycle Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 23
+      },
+      "id": 104,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.url,\n    pr.author_id,\n    min(c.authored_date) as first_commit_authored_date,\n    pr.created_date as pr_issued_date,\n    min(prc.created_date) as first_comment_date,\n    max(prc.created_date) as last_comment_date,\n    pr.merged_date as pr_merged_date\n  FROM pull_requests pr\n    left join pull_request_comments prc on pr.id = prc.pull_request_id\n    left join pull_request_commits prc2 on pr.id = prc2.pull_request_id\n    left join commits c on prc2.commit_sha = c.sha\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.base_repo_id in ($repo_id)\n  GROUP BY 1,2,3,5,8\n),\n\n_deduped_prs as(\n  SELECT distinct \n    id,\n    url,\n    first_commit_authored_date,\n    pr_issued_date,\n    first_comment_date,\n    last_comment_date,\n    pr_merged_date\n  FROM _prs\n  WHERE\n    -- remove edge data and make data scope for all cycle time metrics consistent\n    (first_commit_authored_date is null or first_commit_authored_date < pr_issued_date)\n    and (first_comment_date is null or pr_issued_date < first_comment_date)\n    and (last_comment_date is null or first_comment_date < last_comment_date)\n    and (pr_merged_date is null or first_comment_date < pr_merged_date)\n),\n\n_coding_pickup_review_time as(\n  SELECT \n    id,\n    url,\n    pr_issued_date,\n    case when first_commit_authored_date is null then 0 else TIMESTAMPDIFF(Minute,first_commit_authored_date,pr_issued_date)/60 end as coding_time,\n    case when first_comment_date is null then 0 else TIMESTAMPDIFF(Minute,pr_issued_date,first_comment_date)/60 end as pickup_time,\n    case when $review_end_date is null then 0 else TIMESTAMPDIFF(Minute,first_comment_date,$review_end_date)/60 end as review_time\n  FROM _deduped_prs\n),\n\n_cycle_time as(\n  SELECT \n    *, \n    case when coding_time is null and pickup_time is null and review_time is null then null else coalesce(coding_time,0) + coalesce(pickup_time,0) + coalesce(review_time,0) end as cycle_time \n  FROM _coding_pickup_review_time\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(coding_time) as 'Coding Time(h)'\nFROM _cycle_time\nGROUP BY 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Coding Time(h)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Opened"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Merged"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "super-light-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 23
+      },
+      "id": 105,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.url,\n    pr.author_id,\n    min(c.authored_date) as first_commit_authored_date,\n    pr.created_date as pr_issued_date,\n    min(prc.created_date) as first_comment_date,\n    max(prc.created_date) as last_comment_date,\n    pr.merged_date as pr_merged_date\n  FROM pull_requests pr\n    left join pull_request_comments prc on pr.id = prc.pull_request_id\n    left join pull_request_commits prc2 on pr.id = prc2.pull_request_id\n    left join commits c on prc2.commit_sha = c.sha\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.base_repo_id in ($repo_id)\n  GROUP BY 1,2,3,5,8\n),\n\n_deduped_prs as(\n  SELECT distinct \n    id,\n    url,\n    first_commit_authored_date,\n    pr_issued_date,\n    first_comment_date,\n    last_comment_date,\n    pr_merged_date\n  FROM _prs\n  WHERE\n    -- remove edge data and make data scope for all cycle time metrics consistent\n    (first_commit_authored_date is null or first_commit_authored_date < pr_issued_date)\n    and (first_comment_date is null or pr_issued_date < first_comment_date)\n    and (last_comment_date is null or first_comment_date < last_comment_date)\n    and (pr_merged_date is null or first_comment_date < pr_merged_date)\n),\n\n_coding_pickup_review_time as(\n  SELECT \n    id,\n    url,\n    pr_issued_date,\n    case when first_commit_authored_date is null then 0 else TIMESTAMPDIFF(Minute,first_commit_authored_date,pr_issued_date)/60 end as coding_time,\n    case when first_comment_date is null then 0 else TIMESTAMPDIFF(Minute,pr_issued_date,first_comment_date)/60 end as pickup_time,\n    case when $review_end_date is null then 0 else TIMESTAMPDIFF(Minute,first_comment_date,$review_end_date)/60 end as review_time\n  FROM _deduped_prs\n),\n\n_cycle_time as(\n  SELECT \n    *, \n    case when coding_time is null and pickup_time is null and review_time is null then null else coalesce(coding_time,0) + coalesce(pickup_time,0) + coalesce(review_time,0) end as cycle_time \n  FROM _coding_pickup_review_time\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(pickup_time) as 'Pickup Time(h)'\nFROM _cycle_time\nGROUP BY 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Pickup Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Opened"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "PR: Merged"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "super-light-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 23
+      },
+      "id": 107,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.url,\n    pr.author_id,\n    min(c.authored_date) as first_commit_authored_date,\n    pr.created_date as pr_issued_date,\n    min(prc.created_date) as first_comment_date,\n    max(prc.created_date) as last_comment_date,\n    pr.merged_date as pr_merged_date\n  FROM pull_requests pr\n    left join pull_request_comments prc on pr.id = prc.pull_request_id\n    left join pull_request_commits prc2 on pr.id = prc2.pull_request_id\n    left join commits c on prc2.commit_sha = c.sha\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pr.base_repo_id in ($repo_id)\n  GROUP BY 1,2,3,5,8\n),\n\n_deduped_prs as(\n  SELECT distinct \n    id,\n    url,\n    first_commit_authored_date,\n    pr_issued_date,\n    first_comment_date,\n    last_comment_date,\n    pr_merged_date\n  FROM _prs\n  WHERE\n    -- remove edge data and make data scope for all cycle time metrics consistent\n    (first_commit_authored_date is null or first_commit_authored_date < pr_issued_date)\n    and (first_comment_date is null or pr_issued_date < first_comment_date)\n    and (last_comment_date is null or first_comment_date < last_comment_date)\n    and (pr_merged_date is null or first_comment_date < pr_merged_date)\n),\n\n_coding_pickup_review_time as(\n  SELECT \n    id,\n    url,\n    pr_issued_date,\n    case when first_commit_authored_date is null then 0 else TIMESTAMPDIFF(Minute,first_commit_authored_date,pr_issued_date)/60 end as coding_time,\n    case when first_comment_date is null then 0 else TIMESTAMPDIFF(Minute,pr_issued_date,first_comment_date)/60 end as pickup_time,\n    case when $review_end_date is null then 0 else TIMESTAMPDIFF(Minute,first_comment_date,$review_end_date)/60 end as review_time\n  FROM _deduped_prs\n),\n\n_cycle_time as(\n  SELECT \n    *, \n    case when coding_time is null and pickup_time is null and review_time is null then null else coalesce(coding_time,0) + coalesce(pickup_time,0) + coalesce(review_time,0) end as cycle_time \n  FROM _coding_pickup_review_time\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(review_time) as 'Review Time(h)'\nFROM _cycle_time\nGROUP BY 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Review Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 30
+      },
+      "id": 108,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  sum(case when id not in (SELECT pull_request_id FROM pull_request_comments) then 1 else 0 end) as \"PRs Merged w/o Review\"\nFROM \n  pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in ($repo_id)\n  and merged_date is not null\nGROUP BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PRs Merged w/o Review",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": "",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select concat(name, '--', id) as text from repos",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Repo",
+        "multi": true,
+        "name": "repo_id",
+        "options": [],
+        "query": "select concat(name, '--', id) as text from repos",
+        "refresh": 1,
+        "regex": "/^(?<text>.*)--(?<value>.*)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": "",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select concat(name, '--', id) as text from boards",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Board",
+        "multi": true,
+        "name": "board_id",
+        "options": [],
+        "query": "select concat(name, '--', id) as text from boards",
+        "refresh": 1,
+        "regex": "/^(?<text>.*)--(?<value>.*)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": "",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "mysql",
+        "definition": "select distinct priority from issues where priority != ''",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "P0+P1 Priority",
+        "multi": true,
+        "name": "priority",
+        "options": [],
+        "query": "select distinct priority from issues where priority != ''",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "Month",
+          "value": "DAYOFMONTH"
+        },
+        "description": "",
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Time Interval",
+        "multi": false,
+        "name": "interval",
+        "options": [
+          {
+            "selected": true,
+            "text": "Month",
+            "value": "DAYOFMONTH"
+          },
+          {
+            "selected": false,
+            "text": "Week",
+            "value": "WEEKDAY"
+          }
+        ],
+        "query": "Month : DAYOFMONTH, Week : WEEKDAY",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "Last Comment Date",
+          "value": "last_comment_date"
+        },
+        "description": "",
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Review End Date",
+        "multi": false,
+        "name": "review_end_date",
+        "options": [
+          {
+            "selected": false,
+            "text": "PR Merged Date",
+            "value": "pr_merged_date"
+          },
+          {
+            "selected": true,
+            "text": "Last Comment Date",
+            "value": "last_comment_date"
+          }
+        ],
+        "query": "PR Merged Date : pr_merged_date, Last Comment Date : last_comment_date",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Engineering Throughput and Cycle Time",
+  "uid": "Jaaimc67k",
+  "version": 19
+}

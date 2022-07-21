@@ -24,23 +24,23 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type updateSchemas{{ .Date }}{{ .Count }} struct{
+type {{ .Purpose }} struct{
 	config core.ConfigGetter
 }
 
-func (u *updateSchemas{{ .Date }}{{ .Count }}) SetConfigGetter(config core.ConfigGetter) {
+func (u *{{ .Purpose }}) SetConfigGetter(config core.ConfigGetter) {
 	u.config = config
 }
 
-func (*updateSchemas{{ .Date }}{{ .Count }}) Up(ctx context.Context, db *gorm.DB) error {
+func (*{{ .Purpose }}) Up(ctx context.Context, db *gorm.DB) error {
 	// TODO db.Migrator()...
 	return nil
 }
 
-func (*updateSchemas{{ .Date }}{{ .Count }}) Version() uint64 {
+func (*{{ .Purpose }}) Version() uint64 {
 	return {{ .Date }}{{ .Count }}
 }
 
-func (*updateSchemas{{ .Date }}{{ .Count }}) Name() string {
-	return "UpdateSchemas for {{ .Purpose }} in {{ .Date }}"
+func (*{{ .Purpose }}) Name() string {
+	return "UpdateSchemas for {{ .Purpose }}"
 }

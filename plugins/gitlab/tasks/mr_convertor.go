@@ -34,7 +34,7 @@ var ConvertApiMergeRequestsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertApiMergeRequests,
 	EnabledByDefault: true,
 	Description:      "Update domain layer PullRequest according to GitlabMergeRequest",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ConvertApiMergeRequests(taskCtx core.SubTaskContext) error {

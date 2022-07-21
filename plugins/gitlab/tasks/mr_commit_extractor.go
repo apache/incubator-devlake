@@ -29,7 +29,7 @@ var ExtractApiMrCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiMergeRequestsCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw merge requests commit data into tool layer table GitlabMrCommit and GitlabCommit",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ExtractApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {

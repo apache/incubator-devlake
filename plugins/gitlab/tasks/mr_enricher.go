@@ -32,7 +32,7 @@ var EnrichMergeRequestsMeta = core.SubTaskMeta{
 	EntryPoint:       EnrichMergeRequests,
 	EnabledByDefault: true,
 	Description:      "Enrich merge requests data from GitlabCommit, GitlabMrNote and GitlabMergeRequest",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func EnrichMergeRequests(taskCtx core.SubTaskContext) error {

@@ -47,10 +47,10 @@ func ReadTemplate(templateFile string) string {
 
 // WriteTemplates write some strings to files
 func WriteTemplates(path string, templates map[string]string) {
-	err := os.MkdirAll(path, 0600)
+	err := os.MkdirAll(path, 0755)
 	cobra.CheckErr(err)
 	for name, template := range templates {
-		err := os.MkdirAll(filepath.Dir(filepath.Join(path, name)), 0600)
+		err := os.MkdirAll(filepath.Dir(filepath.Join(path, name)), 0755)
 		cobra.CheckErr(err)
 		err = ioutil.WriteFile(filepath.Join(path, name), []byte(template), 0600)
 		cobra.CheckErr(err)

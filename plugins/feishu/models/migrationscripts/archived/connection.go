@@ -23,12 +23,12 @@ import (
 
 type FeishuConnection struct {
 	commonArchived.Model
-	Name             string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
-	Endpoint         string `mapstructure:"endpoint" env:"GITHUB_ENDPOINT" validate:"required"`
-	Proxy            string `mapstructure:"proxy" env:"GITHUB_PROXY"`
+	Name      string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	Endpoint  string `gorm:"type:varchar(255)"`
+	Proxy     string `json:"proxy" gorm:"type:varchar(255)"`
 	RateLimitPerHour int    `comment:"api request rate limit per hour"`
-	AppId            string `mapstructure:"app_id" validate:"required" json:"app_id"`
-	SecretKey        string `mapstructure:"secret_key" validate:"required" json:"secret_key" encrypt:"yes"`
+	AppId     string `gorm:"type:varchar(255)"`
+	SecretKey string `gorm:"type:varchar(255)"`
 }
 
 func (FeishuConnection) TableName() string {

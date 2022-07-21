@@ -90,4 +90,5 @@ var CollectBugMeta = core.SubTaskMeta{
 	EntryPoint:       CollectBugs,
 	EnabledByDefault: true,
 	Description:      "collect Tapd bugs",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

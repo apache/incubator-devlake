@@ -53,7 +53,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)
 		}
-		var latestUpdatedPrComt models.GithubPullRequestComment
+		var latestUpdatedPrComt models.GithubPrComment
 		err = db.All(
 			&latestUpdatedPrComt,
 			dal.Join("left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id"),
@@ -130,5 +130,5 @@ var CollectApiCommentsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiComments,
 	EnabledByDefault: true,
 	Description:      "Collect comments data from Github api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_TICKET},
 }

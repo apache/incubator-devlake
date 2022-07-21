@@ -128,6 +128,7 @@ func (extractor *ApiExtractor) Execute() error {
 			if err != nil {
 				return err
 			}
+			extractor.args.Ctx.IncProgress(1)
 		}
 		extractor.args.Ctx.IncProgress(1)
 	}

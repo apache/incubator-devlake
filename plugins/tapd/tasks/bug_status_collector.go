@@ -59,4 +59,5 @@ var CollectBugStatusMeta = core.SubTaskMeta{
 	EntryPoint:       CollectBugStatus,
 	EnabledByDefault: true,
 	Description:      "collect Tapd bugStatus",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

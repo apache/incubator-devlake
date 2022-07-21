@@ -30,6 +30,7 @@ var ExtractCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw commit data into tool layer table GiteeCommit,GiteeAccount and GiteeRepoCommit",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_CROSS},
 }
 
 type GiteeCommit struct {

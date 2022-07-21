@@ -30,6 +30,7 @@ var ExtractAccountMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractAccounts,
 	EnabledByDefault: true,
 	Description:      "Extract raw workspace data into tool layer table _tool_gitlab_accounts",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func ExtractAccounts(taskCtx core.SubTaskContext) error {

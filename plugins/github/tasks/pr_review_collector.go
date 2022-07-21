@@ -20,19 +20,18 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"net/http"
 	"net/url"
 	"reflect"
-
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-const RAW_PULL_REQUEST_REVIEW_TABLE = "github_api_pull_request_reviews"
+const RAW_PR_REVIEW_TABLE = "github_api_pull_request_reviews"
 
 // this struct should be moved to `gitub_api_common.go`
 
@@ -41,25 +40,56 @@ var CollectApiPullRequestReviewsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiPullRequestReviews,
 	EnabledByDefault: true,
 	Description:      "Collect PullRequestReviews data from Github api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS, core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
+	since := data.Since
 
-	cursor, err := db.Cursor(
+	incremental := false
+	if since == nil {
+		var latestUpdatedPrReview models.GithubPrReview
+		err := db.All(
+			&latestUpdatedPrReview,
+			dal.Join(`left join _tool_github_pull_requests on 
+				_tool_github_pull_requests.github_id = _tool_github_pull_request_reviews.pull_request_id 
+				and _tool_github_pull_requests.connection_id = _tool_github_pull_request_reviews.connection_id`),
+			dal.Where(
+				"_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId,
+			),
+			dal.Orderby("github_updated_at DESC"),
+			dal.Limit(1),
+		)
+		if err != nil {
+			return fmt.Errorf("failed to get latest github issue record: %w", err)
+		}
+		if latestUpdatedPrReview.GithubId > 0 {
+			since = latestUpdatedPrReview.GithubSubmitAt
+			incremental = true
+		}
+	}
+	clauses := []dal.Clause{
 		dal.Select("number, github_id"),
 		dal.From(models.GithubPullRequest{}.TableName()),
 		dal.Where("repo_id = ? and connection_id=?", data.Repo.GithubId, data.Options.ConnectionId),
+	}
+	if since != nil {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", *since))
+	}
+	cursor, err := db.Cursor(
+		clauses...,
 	)
 	if err != nil {
 		return err
 	}
+
 	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimplePr{}))
 	if err != nil {
 		return err
 	}
+
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -76,18 +106,17 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 			/*
 				Table store raw data
 			*/
-			Table: RAW_PULL_REQUEST_REVIEW_TABLE,
+			Table: RAW_PR_REVIEW_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		Incremental: false,
+		Incremental: incremental,
 		Input:       iterator,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/reviews",
 
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
-			query.Set("state", "all")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))

@@ -65,4 +65,5 @@ var CollectStoryCustomFieldsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectStoryCustomFields,
 	EnabledByDefault: true,
 	Description:      "collect Tapd StoryCustomFields",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

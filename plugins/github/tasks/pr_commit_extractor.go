@@ -31,7 +31,7 @@ var ExtractApiPullRequestCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequestCommits data into tool layer table github_commits",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 type PrCommitsResponse struct {
@@ -72,7 +72,7 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 			/*
 				Table store raw data
 			*/
-			Table: RAW_PULL_REQUEST_COMMIT_TABLE,
+			Table: RAW_PR_COMMIT_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			apiPullRequestCommit := &PrCommitsResponse{}
@@ -97,7 +97,7 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 			}
 			results = append(results, githubCommit)
 
-			githubPullRequestCommit := &models.GithubPullRequestCommit{
+			githubPullRequestCommit := &models.GithubPrCommit{
 				ConnectionId:  data.Options.ConnectionId,
 				CommitSha:     apiPullRequestCommit.Sha,
 				PullRequestId: pull.GithubId,

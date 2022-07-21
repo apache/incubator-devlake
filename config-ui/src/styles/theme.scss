@@ -1,14 +1,29 @@
-$pt-intent-primary: #E8471C !default;
-$pt-intent-success: #2E5EAA !default;
-$pt-intent-warning: #5B4E77 !default;
-$pt-intent-danger: #1A1B41 !default;
-// $pt-app-background-color	Application background color
+// Licensed to the Apache Software Foundation (ASF) under one or more
+// contributor license agreements.  See the NOTICE file distributed with
+// this work for additional information regarding copyright ownership.
+// The ASF licenses this file to You under the Apache License, Version 2.0
+// (the "License"); you may not use this file except in compliance with
+// the License.  You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+$pt-intent-primary: #7497F7 !default;
+$pt-intent-success: #4DB764 !default;
+$pt-intent-warning: #E34040 !default;
+$pt-intent-danger: #292B3F !default;
+$pt-app-background-color: #ffffff !default;
 // $pt-dark-app-background-color	Dark theme application background color
-// $pt-text-color	Default text color
+$pt-text-color: #292B3F !default;
 // $pt-text-color-muted	Muted text color
 // $pt-text-color-disabled	Disabled text color
 // $pt-heading-color	Text color for headers
-// $pt-link-color	Text color for links
+$pt-link-color: #7497F7 !default;
 // $pt-dark-text-color	Dark theme default text color
 // $pt-dark-text-color-muted	Dark theme muted text color
 // $pt-dark-text-color-disabled	Dark theme disabled text color

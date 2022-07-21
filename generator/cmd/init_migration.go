@@ -20,13 +20,14 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"time"
+
 	"github.com/apache/incubator-devlake/generator/util"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/stoewer/go-strcase"
-	"os"
-	"path/filepath"
-	"time"
 )
 
 func init() {
@@ -61,17 +62,19 @@ Type in which plugin do you want init migrations in, then generator will create 
 			cobra.CheckErr(errors.New(`migrationscripts inited or path read file`))
 		}
 
+		// create vars
+		values := map[string]string{}
+		util.GenerateAllFormatVar(values, `plugin_name`, pluginName)
+		versionTimestamp := time.Now().Format(`20060102`)
+
 		// read template
 		templates := map[string]string{
-			`initSchema.go`:     util.ReadTemplate("generator/template/migrationscripts/init_schema.go-template"),
+			fmt.Sprintf("%s_add_init_tables.go", versionTimestamp): util.ReadTemplate("generator/template/migrationscripts/add_init_tables.go-template"),
 			`register.go`:       util.ReadTemplate("generator/template/migrationscripts/register.go-template"),
 			`archived/.gitkeep`: ``,
 		}
 
-		// create vars
-		values := map[string]string{}
-		util.GenerateAllFormatVar(values, `plugin_name`, pluginName)
-		values[`Date`] = time.Now().Format(`20060102`)
+		values[`Date`] = versionTimestamp
 		values = util.DetectExistVars(templates, values)
 		println(`vars in template:`, fmt.Sprint(values))
 

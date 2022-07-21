@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"strconv"
 	"strings"
 	"time"
@@ -36,28 +37,34 @@ var ExtractIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractIssues,
 	EnabledByDefault: true,
 	Description:      "extract Jira issues",
-	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CROSS},
 }
 
 func ExtractIssues(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
+	db := taskCtx.GetDal()
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
 	logger := taskCtx.GetLogger()
 	logger.Info("extract Issues, connection_id=%d, board_id=%d", connectionId, boardId)
-	// prepare getStdType function
-	// TODO: implement type mapping
-	typeMappings := make(map[string]string)
-	for _, userType := range data.Options.TransformationRules.RequirementTypeMapping {
-		typeMappings[userType] = "REQUIREMENT"
+	typeIdMapping := make(map[string]string)
+	issueTypes := make([]models.JiraIssueType, 0)
+	clauses := []dal.Clause{
+		dal.From(&models.JiraIssueType{}),
+		dal.Where("connection_id = ?", connectionId),
 	}
-	for _, userType := range data.Options.TransformationRules.BugTypeMapping {
-		typeMappings[userType] = "BUG"
+	err := db.All(&issueTypes, clauses...)
+	if err != nil {
+		return err
 	}
-	for _, userType := range data.Options.TransformationRules.IncidentTypeMapping {
-		typeMappings[userType] = "INCIDENT"
+	for _, issueType := range issueTypes {
+		typeIdMapping[issueType.Id] = issueType.UntranslatedName
 	}
 
+	stdTypeMappings := make(map[string]string)
+	for userType, stdType := range data.Options.TransformationRules.TypeMappings {
+		stdTypeMappings[userType] = strings.ToUpper(stdType.StandardType)
+	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -105,8 +112,9 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 					issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
 				}
 			}
+			issue.Type = typeIdMapping[issue.Type]
 			issue.StdStoryPoint = int64(issue.StoryPoint)
-			issue.StdType = typeMappings[issue.Type]
+			issue.StdType = stdTypeMappings[issue.Type]
 			if issue.StdType == "" {
 				issue.StdType = strings.ToUpper(issue.Type)
 			}

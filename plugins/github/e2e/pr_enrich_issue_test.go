@@ -59,10 +59,10 @@ func TestPrEnrichIssueDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_pull_requests.csv", models.GithubPullRequest{})
 
 	// verify extraction
-	dataflowTester.FlushTabler(&models.GithubPullRequestIssue{})
+	dataflowTester.FlushTabler(&models.GithubPrIssue{})
 	dataflowTester.Subtask(tasks.EnrichPullRequestIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
-		models.GithubPullRequestIssue{},
+		models.GithubPrIssue{},
 		"./snapshot_tables/_tool_github_pull_request_issues.csv",
 		[]string{
 			"connection_id",

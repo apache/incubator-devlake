@@ -29,7 +29,7 @@ var CollectApiPipelinesMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiPipelines,
 	EnabledByDefault: true,
 	Description:      "Collect pipeline data from gitlab api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
 func CollectApiPipelines(taskCtx core.SubTaskContext) error {

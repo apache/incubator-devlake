@@ -67,4 +67,5 @@ var CollectCompanyMeta = core.SubTaskMeta{
 	EntryPoint:  CollectCompanies,
 	Required:    false,
 	Description: "collect Tapd companies",
+	DomainTypes: []string{core.DOMAIN_TYPE_TICKET},
 }

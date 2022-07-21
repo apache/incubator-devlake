@@ -173,7 +173,6 @@ const BlueprintsGrid = (props) => {
                         marginLeft: '25px',
                         fontSize: '9px',
                         fontWeight: '400',
-                        fontFamily: 'Montserrat, sans-serif',
                         color: '#777777'
                       }}
                       >
@@ -209,17 +208,12 @@ const BlueprintsGrid = (props) => {
                       <label style={{
                         fontSize: '9px',
                         fontWeight: '400',
-                        fontFamily: 'Montserrat, sans-serif',
                         color: '#777777'
                       }}
                       >
                         Blueprint Name
                       </label>
                     </div>
-                    <Icon
-                      size={16}
-                      icon={b.enable ? 'calendar' : 'disable'}
-                    />
                     {b.name}
                   </div>
                   <div className='blueprint-interval' style={{ flex: 1, minWidth: '60px' }}>
@@ -227,7 +221,6 @@ const BlueprintsGrid = (props) => {
                       <label style={{
                         fontSize: '9px',
                         fontWeight: '400',
-                        fontFamily: 'Montserrat, sans-serif',
                         color: '#777777'
                       }}
                       >
@@ -241,7 +234,6 @@ const BlueprintsGrid = (props) => {
                       <label style={{
                         fontSize: '9px',
                         fontWeight: '400',
-                        fontFamily: 'Montserrat, sans-serif',
                         color: '#777777'
                       }}
                       >
@@ -249,20 +241,19 @@ const BlueprintsGrid = (props) => {
                       </label>
                     </div>
                     <div>
-                      {dayjs(getNextRunDate(b.cronConfig)).format('L LTS')}
+                      {b.isManual ? "Manual" : dayjs(getNextRunDate(b.cronConfig)).format('L LTS')}
                     </div>
-                    <div>
+                    {/* <div>
                       <span style={{ color: b.enable ? Colors.GREEN5 : Colors.GRAY3, position: 'absolute', bottom: '4px' }}>
                         {b.cronConfig}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                   <div className='blueprint-actions' style={{ flex: 1, textAlign: 'right' }}>
                     <div style={{ height: '24px', lineHeight: '24px' }}>
                       <label style={{
                         fontSize: '9px',
                         fontWeight: '400',
-                        fontFamily: 'Montserrat, sans-serif',
                         color: '#777777'
                       }}
                       >
@@ -272,18 +263,18 @@ const BlueprintsGrid = (props) => {
                     <div style={{ display: 'flex', alignItems: 'center', justifySelf: 'flex-end' }}>
                       <Button small minimal style={{ marginLeft: 'auto', marginRight: '5px' }} onClick={() => configureBlueprint(b)}>
                         <Tooltip
-                          content='Blueprint Settings'
+                          content='Blueprint Detail'
                           interactionKind={PopoverInteractionKind.HOVER}
                           openOnTargetFocus={false}
                           enforceFocus={false}
                           autoFocus={false}
                         >
-                          <Icon icon='cog' size={16} color={Colors.GRAY3} />
+                          <Icon icon='eye-open' size={16} color={Colors.GRAY3} />
                         </Tooltip>
                       </Button>
-                      <Popover position={Position.LEFT}>
-                        <Button small minimal style={{ marginRight: '10px' }}>
-                          <Icon icon='trash' color={Colors.GRAY3} size={15} />
+                      <Popover position={Position.LEFT} disabled>
+                        <Button disabled small minimal style={{ marginRight: '10px' }}>
+                          <Icon icon='trash' color={Colors.LIGHT_GRAY3} size={15} />
                         </Button>
                         <DeletePopover
                           activeBlueprint={b}
@@ -313,7 +304,7 @@ const BlueprintsGrid = (props) => {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '0', padding: '10px' }}>
-                    <div style={{ fontFamily: 'Montserrat', letterSpacing: '1px', fontWeight: 800 }}>
+                    <div style={{ letterSpacing: '1px', fontWeight: 800 }}>
                       <Icon icon='bold' color={Colors.BLUE4} size={14} style={{ marginRight: '5px' }} /> BLUEPRINT ID {activeBlueprint?.id}
                       {isLoading && (
                         <span style={{ paddingLeft: '20px', fontWeight: 700, color: '#777777', fontSize: '11px' }}>
@@ -339,10 +330,10 @@ const BlueprintsGrid = (props) => {
                   <Divider style={{ marginRight: 0, marginLeft: 0 }} />
                   <div style={{ padding: '20px', display: 'flex' }}>
                     <div style={{ flex: 2, paddingRight: '30px' }}>
-                      <h3 style={{ margin: 0, textTransform: 'uppercase' }}>Pipeline Run Schedule</h3>
+                      <h3 style={{ margin: 0, textTransform: 'uppercase' }}>Run Schedule</h3>
                       <p style={{ margin: 0 }}>
                         Based on the current CRON settings, here are next{' '}
-                        <strong>5</strong> expected pipeline collection dates.
+                        <strong>5</strong> expected data collection dates.
                       </p>
                       <div style={{ margin: '10px 0' }}>
                         {activeBlueprint?.id && blueprintSchedule.map((s, sIdx) => (
@@ -359,7 +350,7 @@ const BlueprintsGrid = (props) => {
                       <div className='related-pipelines-list' style={{ marginBottom: '20px' }}>
                         {!isLoading && (
                           <h3 style={{ margin: '0 0 5px 0', textTransform: 'uppercase' }}>
-                            Pipeline Runs <small style={{ color: Colors.GRAY5 }}>(last 5)</small>
+                            Historical Runs <small style={{ color: Colors.GRAY5 }}>(last 5)</small>
                           </h3>
                         )}
                         {!isLoading && pipelines.length === 0 && (<p>No Pipelines have been found for this blueprint.</p>)}
@@ -367,7 +358,7 @@ const BlueprintsGrid = (props) => {
                           <div
                             key={`pipeline-run-key-${pIdx}`}
                             className='pipeline-run-entry'
-                            style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}
+                            style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', padding: '4px 0' }}
                           >
                             <div
                               className='pipeline-id'
@@ -397,39 +388,39 @@ const BlueprintsGrid = (props) => {
                             </div>
                             <div>{p.status?.replace('TASK_', '')}</div>
                             <div style={{ padding: '0 15px' }}>
-                              <Button
-                                onClick={() => onViewPipeline(p.id || p.ID)}
+                              {/* <Button
+                                onClick={() => onViewPipeline(b.blueprintId)}
                                 icon='eye-open'
                                 size={14}
                                 color={Colors.GRAY3}
                                 small minimal
-                              />
+                              /> */}
                             </div>
                           </div>
                         ))}
                       </div>
 
                       {!b.enable && (
-                        <p style={{ marginTop: '10px 0 0 0', fontSize: '9px', fontFamily: 'Montserrat, sans-serif' }}>
+                        <p style={{ marginTop: '10px 0 0 0', fontSize: '9px' }}>
                           <Icon icon='warning-sign' size={11} color={Colors.ORANGE5} style={{ float: 'left', marginRight: '5px' }} />
                           Blueprint is NOT Enabled / Active this schedule will not run.
                         </p>
                       )}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <label style={{ color: Colors.GRAY1, fontFamily: 'Montserrat,sans-serif' }}>Blueprint</label>
+                      <label style={{ color: Colors.GRAY1 }}>Blueprint</label>
                       <h3 style={{ marginTop: 0, fontSize: '18px', fontWeight: 800 }}>
                         {b.name}
                       </h3>
-                      <label style={{ color: Colors.GRAY1, fontFamily: 'Montserrat,sans-serif' }}>Crontab Configuration</label>
+                      <label style={{ color: Colors.GRAY1 }}>Crontab Configuration</label>
                       <h3 style={{ margin: '0 0 20px 0', fontSize: '18px' }}>{b.cronConfig}</h3>
 
-                      <label style={{ color: Colors.GRAY1, fontFamily: 'Montserrat,sans-serif' }}>Next Run</label>
+                      <label style={{ color: Colors.GRAY1 }}>Next Run</label>
                       <h3 style={{ margin: '0 0 20px 0', fontSize: '18px' }}>
                         {dayjs(getNextRunDate(b.cronConfig)).fromNow()}
                       </h3>
 
-                      <label style={{ color: Colors.GRAY3, fontFamily: 'Montserrat,sans-serif' }}>Operations</label>
+                      {/* <label style={{ color: Colors.GRAY3 }}>Operations</label> */}
                       <div style={{
                         marginTop: '5px',
                         display: 'flex',
@@ -439,7 +430,7 @@ const BlueprintsGrid = (props) => {
                         fontSize: '10px'
                       }}
                       >
-                        <Button
+                        {/* <Button
                           intent={Intent.PRIMARY}
                           icon='cog'
                           text='Settings'
@@ -461,7 +452,7 @@ const BlueprintsGrid = (props) => {
                           label={b.enable ? 'Disable' : 'Enable'}
                           onChange={() => handleBlueprintActivation(b)}
                           style={{ marginBottom: '0', fontSize: '11px' }}
-                        />
+                        /> */}
                       </div>
                     </div>
 
@@ -478,7 +469,6 @@ const BlueprintsGrid = (props) => {
                 letterSpacing: '2px',
                 textTransform: 'uppercase',
                 margin: 0,
-                fontFamily: '"Montserrat", sans-serif'
               }}
               >0 Blueprints
               </h3>
@@ -489,7 +479,7 @@ const BlueprintsGrid = (props) => {
           )}
         </div>
       </Card>
-      <div style={{
+      {/* <div style={{
         display: 'flex',
         margin: '20px 10px',
         alignSelf: 'flex-start',
@@ -503,7 +493,7 @@ const BlueprintsGrid = (props) => {
           <span>by {' '} <strong>Administrator</strong></span><br />
           Displaying {activeFilterStatus ? filteredBlueprints.length : blueprints.length} Blueprints from API.
         </div>
-      </div>
+      </div> */}
     </>
   )
 }

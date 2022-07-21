@@ -20,9 +20,10 @@ package migration
 import (
 	"context"
 	"fmt"
-	"gorm.io/gorm"
 	"sort"
 	"sync"
+
+	"gorm.io/gorm"
 )
 
 var m = migrator{}
@@ -33,10 +34,10 @@ type scriptWithComment struct {
 }
 type migrator struct {
 	sync.Mutex
-	db      *gorm.DB
+	db       *gorm.DB
 	executed map[string]bool
-	scripts []*scriptWithComment
-	pending []*scriptWithComment
+	scripts  []*scriptWithComment
+	pending  []*scriptWithComment
 }
 
 func Init(db *gorm.DB) {

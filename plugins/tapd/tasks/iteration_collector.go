@@ -95,4 +95,5 @@ var CollectIterationMeta = core.SubTaskMeta{
 	EntryPoint:       CollectIterations,
 	EnabledByDefault: true,
 	Description:      "collect Tapd iterations",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

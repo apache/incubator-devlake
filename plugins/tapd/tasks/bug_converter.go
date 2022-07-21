@@ -108,4 +108,5 @@ var ConvertBugMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertBug,
 	EnabledByDefault: true,
 	Description:      "convert Tapd Bug",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

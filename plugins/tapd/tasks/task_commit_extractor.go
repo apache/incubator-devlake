@@ -32,6 +32,7 @@ var ExtractTaskCommitMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractTaskCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw TaskCommits data into tool layer table _tool_tapd_issue_commits",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func ExtractTaskCommits(taskCtx core.SubTaskContext) error {

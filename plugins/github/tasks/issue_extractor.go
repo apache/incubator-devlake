@@ -159,7 +159,6 @@ func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId
 		Title:           issue.Title,
 		Body:            string(issue.Body),
 		Url:             issue.HtmlUrl,
-		MilestoneId:     issue.Milestone.Id,
 		ClosedAt:        helper.Iso8601TimeToTime(issue.ClosedAt),
 		GithubCreatedAt: issue.GithubCreatedAt.ToTime(),
 		GithubUpdatedAt: issue.GithubUpdatedAt.ToTime(),
@@ -174,6 +173,9 @@ func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId
 	}
 	if issue.ClosedAt != nil {
 		githubIssue.LeadTimeMinutes = uint(issue.ClosedAt.ToTime().Sub(issue.GithubCreatedAt.ToTime()).Minutes())
+	}
+	if issue.Milestone != nil {
+		githubIssue.MilestoneId = issue.Milestone.Id
 	}
 	return githubIssue, nil
 }

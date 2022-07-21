@@ -29,6 +29,7 @@ var ExtractMilestonesMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractMilestones,
 	EnabledByDefault: true,
 	Description:      "Extract raw milestone data into tool layer table github_milestones",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 type MilestonesResponse struct {

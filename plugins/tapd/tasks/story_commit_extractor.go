@@ -32,6 +32,7 @@ var ExtractStoryCommitMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractStoryCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw StoryCommits data into tool layer table _tool_tapd_issue_commits",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func ExtractStoryCommits(taskCtx core.SubTaskContext) error {

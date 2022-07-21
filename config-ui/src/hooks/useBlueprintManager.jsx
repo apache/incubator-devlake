@@ -19,8 +19,10 @@ import { useCallback, useState } from 'react'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { ToastNotification } from '@/components/Toast'
+import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
 import cron from 'cron-validate'
 import parser from 'cron-parser'
+import { Intent } from '@blueprintjs/core'
 
 function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, initialConfiguration = {}) {
   const [isFetching, setIsFetching] = useState(false)
@@ -35,6 +37,11 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
   const [cronConfig, setCronConfig] = useState('0 0 * * *')
   const [customCronConfig, setCustomCronConfig] = useState('0 0 * * *')
   const [tasks, setTasks] = useState([])
+  const [settings, setSettings] = useState({
+    version: '1.0.0',
+    connections: []
+  })
+  const [mode, setMode] = useState(BlueprintMode.NORMAL)
   const [enable, setEnable] = useState(true)
   const [detectedProviderTasks, setDetectedProviderTasks] = useState([])
 
@@ -51,10 +58,19 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
   const [deleteComplete, setDeleteComplete] = useState(false)
 
   const parseCronExpression = useCallback((expression, utc = true, additionalOptions = {}) => {
+    if (expression.toLowerCase() === "manual") {
+      return {
+        next: () => "manual",
+        prev: () => "manual",
+      }
+    }
     return parser.parseExpression(expression, { utc, ...additionalOptions })
   }, [])
 
   const detectCronInterval = useCallback((cronConfig) => {
+    if (cronConfig === "manual") {
+      return "Manual"
+    }
     return cronPresets.find(p => p.cronConfig === cronConfig)
       ? cronPresets.find(p => p.cronConfig === cronConfig).label
       : 'Custom'
@@ -92,7 +108,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       setBlueprintCount(0)
       setErrors([e.message])
     }
-  }, [])
+  }, [detectCronInterval])
 
   const fetchBlueprint = useCallback((blueprintId = null) => {
     console.log('>> FETCHING BLUEPRINT....')
@@ -105,14 +121,15 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         const b = await request.get(`${DEVLAKE_ENDPOINT}/blueprints/${blueprintId}`)
         const blueprintData = b.data
         console.log('>> RAW BLUEPRINT DATA FROM API...', b)
-        setBlueprint({
+        setBlueprint(b => ({
+          ...b,
           ...blueprintData,
           id: blueprintData.id,
-          enable: blueprint.enable,
+          enable: blueprintData.enable,
           status: 0,
           nextRunAt: null, // @todo: calculate next run date
-          interval: detectCronInterval(blueprint.cronConfig)
-        })
+          interval: detectCronInterval(blueprintData.cronConfig)
+        }))
         setTimeout(() => {
           setIsFetching(false)
         }, 500)
@@ -125,7 +142,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       ToastNotification.show({ message: `${e}`, intent: 'danger', icon: 'error' })
       console.log('>> FAILED TO FETCH BLUEPRINT', e)
     }
-  }, [blueprint, detectCronInterval])
+  }, [detectCronInterval])
 
   const saveBlueprint = useCallback((blueprintId = null) => {
     console.log('>> SAVING BLUEPRINT....')
@@ -136,8 +153,11 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       const blueprintPayload = {
         name,
         cronConfig: cronConfig === 'custom' ? customCronConfig : cronConfig,
-        tasks,
-        enable: enable
+        // @todo: refactor tasks ===> plan at higher levels
+        plan: tasks,
+        settings,
+        enable: enable,
+        mode
       }
       console.log('>> DISPATCHING BLUEPRINT SAVE REQUEST', blueprintPayload)
       const run = async () => {
@@ -157,11 +177,19 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         }
         setBlueprint(blueprintObject)
         setSaveComplete(blueprintObject)
-        ToastNotification.show({
-          message: `${blueprintId ? 'Updated' : 'Created'} Blueprint - ${name}.`,
-          intent: 'danger',
-          icon: 'small-tick'
-        })
+        if ([200, 201].includes(b.status)) {
+          ToastNotification.show({
+            message: `${blueprintId ? 'Updated' : 'Created'} Blueprint - ${name}.`,
+            intent: Intent.SUCCESS,
+            icon: 'small-tick'
+          })
+        } else {
+          ToastNotification.show({
+            message: `Blueprint Failure - ${b.message}`,
+            intent: Intent.NONE,
+            icon: 'error'
+          })
+        }
         setTimeout(() => {
           setIsSaving(false)
         }, 500)
@@ -173,7 +201,16 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       setSaveComplete(false)
       console.log('>> FAILED TO SAVE BLUEPRINT!!', e)
     }
-  }, [name, cronConfig, customCronConfig, tasks, enable, detectCronInterval])
+  }, [
+    name,
+    mode,
+    settings,
+    cronConfig,
+    customCronConfig,
+    tasks,
+    enable,
+    detectCronInterval
+  ])
 
   const deleteBlueprint = useCallback(async (blueprint) => {
     try {
@@ -213,10 +250,10 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       console.log('>> INVALID CRON SCHEDULE!', e)
     }
     return schedule
-  }, [])
+  }, [parseCronExpression])
 
   const getNextRunDate = useCallback((cronExpression) => {
-    return parseCronExpression(cronExpression).next().toString()
+    return cronExpression && parseCronExpression(cronExpression).next().toString()
   }, [parseCronExpression])
 
   const getCronPreset = useCallback((presetName) => {
@@ -248,9 +285,9 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         console.log('>> RAW BLUEPRINT DATA FROM API...', activateB.data)
         // eslint-disable-next-line no-unused-vars
         const updatedBlueprint = activateB.data
-        // setBlueprint(b.data)
+        setBlueprint(b => ({ ...b, ...updatedBlueprint }))
         // setSaveComplete(b.data)
-        ToastNotification.show({ message: `Activated Blueprint - ${blueprint.name}.`, intent: 'danger', icon: 'small-tick' })
+        ToastNotification.show({ message: `Activated Blueprint - ${blueprint.name}.`, intent: Intent.SUCCESS, icon: 'small-tick' })
         setTimeout(() => {
           setIsSaving(false)
           fetchAllBlueprints()
@@ -263,7 +300,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       // setSaveComplete(false)
       console.log('>> FAILED TO ACTIVATE BLUEPRINT!!', e)
     }
-  }, [])
+  }, [fetchAllBlueprints])
 
   const deactivateBlueprint = useCallback((blueprint) => {
     console.log('>> DEACTIVATING BLUEPRINT....')
@@ -285,9 +322,9 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         console.log('>> RAW BLUEPRINT DATA FROM API...', deactivateB.data)
         // eslint-disable-next-line no-unused-vars
         const updatedBlueprint = deactivateB.data
-        // setBlueprint(b.data)
+        setBlueprint(b => ({ ...b, ...updatedBlueprint }))
         // setSaveComplete(b.data)
-        ToastNotification.show({ message: `Deactivated Blueprint - ${blueprint.name}.`, intent: 'danger', icon: 'small-tick' })
+        ToastNotification.show({ message: `Deactivated Blueprint - ${blueprint.name}.`, intent: Intent.SUCCESS, icon: 'small-tick' })
         setTimeout(() => {
           setIsSaving(false)
           fetchAllBlueprints()
@@ -300,9 +337,10 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       // setSaveComplete(false)
       console.log('>> FAILED TO DEACTIVATE BLUEPRINT!!', e)
     }
-  }, [])
+  }, [fetchAllBlueprints])
 
   return {
+    blueprint,
     blueprints,
     blueprintCount,
     name,
@@ -310,8 +348,10 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     customCronConfig,
     cronPresets,
     tasks,
+    settings,
     detectedProviderTasks,
     enable,
+    mode,
     saveBlueprint,
     deleteBlueprint,
     fetchAllBlueprints,
@@ -331,7 +371,9 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     setCustomCronConfig,
     setCronPresets,
     setTasks,
+    setSettings,
     setEnable,
+    setMode,
     setDetectedProviderTasks,
     isFetching,
     isSaving,

@@ -18,16 +18,22 @@
 import { useEffect, useState, useCallback } from 'react'
 import request from '@/utils/request'
 import { ToastNotification } from '@/components/Toast'
+import { Providers } from "@/data/Providers";
 
-const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
+const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint }, activeConnection = null) => {
   const [isFetching, setIsFetching] = useState(false)
   const [issueTypes, setIssueTypes] = useState([])
   const [fields, setFields] = useState([])
+  const [boards, setBoards] = useState([])
   const [issueTypesResponse, setIssueTypesResponse] = useState([])
   const [fieldsResponse, setFieldsResponse] = useState([])
+  const [boardsResponse, setBoardsResponse] = useState([])
   const [error, setError] = useState()
 
   const fetchIssueTypes = useCallback(() => {
+    if (activeConnection.plugin !== Providers.JIRA) {
+      return
+    }
     try {
       if (apiProxyPath.includes('null')) {
         throw new Error('Connection ID is Null')
@@ -36,7 +42,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
       const fetchIssueTypes = async () => {
         const issues = await
         request
-          .get(issuesEndpoint)
+          .get(activeConnection?.connectionId ? issuesEndpoint.replace('[:connectionId:]', activeConnection?.connectionId) : issuesEndpoint)
           .catch(e => setError(e))
         console.log('>>> JIRA API PROXY: Issues Response...', issues)
         setIssueTypesResponse(issues && Array.isArray(issues.data) ? issues.data : [])
@@ -50,9 +56,12 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
       setError(e)
       ToastNotification.show({ message: e.message, intent: 'danger', icon: 'error' })
     }
-  }, [issuesEndpoint, apiProxyPath])
+  }, [issuesEndpoint, activeConnection, apiProxyPath])
 
   const fetchFields = useCallback(() => {
+    if (activeConnection.plugin !== Providers.JIRA) {
+      return
+    }
     try {
       if (apiProxyPath.includes('null')) {
         throw new Error('Connection ID is Null')
@@ -61,7 +70,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
       const fetchIssueFields = async () => {
         const fields = await
         request
-          .get(fieldsEndpoint)
+          .get(activeConnection?.connectionId ? fieldsEndpoint.replace('[:connectionId:]', activeConnection?.connectionId) : fieldsEndpoint)
           .catch(e => setError(e))
         console.log('>>> JIRA API PROXY: Fields Response...', fields)
         setFieldsResponse(fields && Array.isArray(fields.data) ? fields.data : [])
@@ -75,19 +84,45 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
       setError(e)
       ToastNotification.show({ message: e.message, intent: 'danger', icon: 'error' })
     }
-  }, [fieldsEndpoint, apiProxyPath])
+  }, [fieldsEndpoint, activeConnection, apiProxyPath])
+
+  const fetchBoards = useCallback(() => {
+    if (activeConnection.plugin !== Providers.JIRA) {
+      return
+    }
+    try {
+      if (apiProxyPath.includes('null')) {
+        throw new Error('Connection ID is Null')
+      }
+      setError(null)
+      const fetchApiBoards = async () => {
+        const boards = await
+        request
+          .get(activeConnection?.connectionId ? boardsEndpoint.replace('[:connectionId:]', activeConnection?.connectionId) : boardsEndpoint)
+          .catch(e => setError(e))
+        console.log('>>> JIRA API PROXY: Boards Response...', boards)
+        setBoardsResponse(boards && Array.isArray(boards.data?.values) ? boards.data?.values : [])
+        setTimeout(() => {
+          setIsFetching(false)
+        }, 1000)
+      }
+      fetchApiBoards()
+    } catch (e) {
+      setIsFetching(false)
+      setError(e)
+      ToastNotification.show({ message: e.message, intent: 'danger', icon: 'error' })
+    }
+  }, [boardsEndpoint, activeConnection, apiProxyPath])
 
   const createListData = (data = [], titleProperty = 'name', valueProperty = 'name') => {
-    return data.map((d, dIdx) => {
-      return {
-        ...d,
-        id: dIdx,
-        key: d.key ? d.key : dIdx,
-        title: d[titleProperty],
-        value: d[valueProperty],
-        type: d.schema?.type || 'string'
-      }
-    })
+    return data.map((d, dIdx) => ({
+      ...d,
+      id: d.id || dIdx,
+      key: d.key ? d.key : dIdx,
+      title: d[titleProperty],
+      value: d[valueProperty],
+      type: d.schema?.type || 'string'
+    }))
   }
 
   useEffect(() => {
@@ -101,8 +136,16 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
   }, [fieldsResponse])
 
   useEffect(() => {
+    setBoards(boardsResponse ? createListData(boardsResponse, 'name', 'name') : [])
+  }, [boardsResponse])
+
+  useEffect(() => {
     console.log('>>> JIRA API PROXY: FIELD SELECTOR LIST DATA', fields)
   }, [fields])
+
+  useEffect(() => {
+    console.log('>>> JIRA API PROXY: FIELD SELECTOR BOARDS DATA', boards)
+  }, [boards])
 
   useEffect(() => {
     if (error) {
@@ -110,15 +153,22 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint }) => {
     }
   }, [error])
 
+  // useEffect(() => {
+  //   console.log('>>> JIRA PROXY ACTIVE CONNECTION...', activeConnection)
+  // }, [activeConnection])
+
   return {
     isFetching,
     fetchFields,
     fetchIssueTypes,
+    fetchBoards,
     createListData,
     issueTypesResponse,
     fieldsResponse,
+    boardsResponse,
     issueTypes,
     fields,
+    boards,
     error
   }
 }

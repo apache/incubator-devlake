@@ -35,6 +35,7 @@ var ConvertAccountsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,
 	Description:      "convert tapd account",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func ConvertAccounts(taskCtx core.SubTaskContext) error {

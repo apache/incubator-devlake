@@ -49,7 +49,7 @@ func TestPrCommitDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubCommit{})
-	dataflowTester.FlushTabler(&models.GithubPullRequestCommit{})
+	dataflowTester.FlushTabler(&models.GithubPrCommit{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestCommitsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubCommit{},
@@ -76,7 +76,7 @@ func TestPrCommitDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.VerifyTable(
-		models.GithubPullRequestCommit{},
+		models.GithubPrCommit{},
 		"./snapshot_tables/_tool_github_pull_request_commits.csv",
 		[]string{
 			"connection_id",

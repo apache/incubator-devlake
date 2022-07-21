@@ -33,7 +33,7 @@ var ExtractApiPullRequestsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiPullRequests,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequests data into tool layer table github_pull_requests",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 type GithubApiPullRequest struct {
@@ -127,7 +127,7 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 				githubPr.AuthorId = githubUser.AccountId
 			}
 			for _, label := range rawL.Labels {
-				results = append(results, &models.GithubPullRequestLabel{
+				results = append(results, &models.GithubPrLabel{
 					ConnectionId: data.Options.ConnectionId,
 					PullId:       githubPr.GithubId,
 					LabelName:    label.Name,

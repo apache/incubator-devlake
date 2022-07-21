@@ -17,6 +17,7 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import parser from 'cron-parser'
+import { BlueprintMode } from '@/data/NullBlueprint'
 
 function useBlueprintValidation ({
   name,
@@ -24,6 +25,8 @@ function useBlueprintValidation ({
   customCronConfig,
   enable,
   tasks = [],
+  mode = null,
+  activeStep = null
 }) {
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
@@ -71,13 +74,18 @@ function useBlueprintValidation ({
       errs.push('Blueprint Tasks: Invalid/Empty Configuration')
     }
 
+    if (mode !== null && ![BlueprintMode.NORMAL, BlueprintMode.ADVANCED].includes(mode)) {
+      errs.push('Invalid / Unsupported Blueprint Mode Detected!')
+    }
+
     setErrors(errs)
   }, [
     name,
     cronConfig,
     customCronConfig,
     tasks,
-    enable
+    enable,
+    mode
   ])
 
   const fieldHasError = useCallback((fieldId) => {

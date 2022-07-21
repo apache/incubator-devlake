@@ -34,7 +34,7 @@ var ConvertPullRequestIssuesMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertPullRequestIssues,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_issues into  domain layer table pull_request_issues",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
@@ -43,7 +43,7 @@ func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
 	repoId := data.Repo.GithubId
 
 	cursor, err := db.Cursor(
-		dal.From(&githubModels.GithubPullRequestIssue{}),
+		dal.From(&githubModels.GithubPrIssue{}),
 		dal.Join(`left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_issues.pull_request_id`),
 		dal.Where("_tool_github_pull_requests.repo_id = ? and _tool_github_pull_requests.connection_id = ?", repoId, data.Options.ConnectionId),
 		dal.Orderby("pull_request_id ASC"),
@@ -56,7 +56,7 @@ func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
 	issueIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubIssue{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(githubModels.GithubPullRequestIssue{}),
+		InputRowType: reflect.TypeOf(githubModels.GithubPrIssue{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -68,7 +68,7 @@ func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			githubPrIssue := inputRow.(*githubModels.GithubPullRequestIssue)
+			githubPrIssue := inputRow.(*githubModels.GithubPrIssue)
 			pullRequestIssue := &crossdomain.PullRequestIssue{
 				PullRequestId:     prIdGen.Generate(data.Options.ConnectionId, githubPrIssue.PullRequestId),
 				IssueId:           issueIdGen.Generate(data.Options.ConnectionId, githubPrIssue.IssueId),

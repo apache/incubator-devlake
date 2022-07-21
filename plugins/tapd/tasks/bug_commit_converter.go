@@ -71,4 +71,5 @@ var ConvertBugCommitMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertBugCommit,
 	EnabledByDefault: true,
 	Description:      "convert Tapd BugCommit",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }

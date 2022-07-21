@@ -29,7 +29,7 @@ var CollectApiMrCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectApiMergeRequestsCommits,
 	EnabledByDefault: true,
 	Description:      "Collect merge requests commits data from gitlab api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func CollectApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {

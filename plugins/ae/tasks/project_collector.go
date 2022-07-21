@@ -64,4 +64,5 @@ var CollectProjectMeta = core.SubTaskMeta{
 	EntryPoint:       CollectProject,
 	EnabledByDefault: true,
 	Description:      "Collect analysis project data from AE api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

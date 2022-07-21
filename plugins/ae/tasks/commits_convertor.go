@@ -74,4 +74,5 @@ var ConvertCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertCommits,
 	EnabledByDefault: true,
 	Description:      "Update domain layer commits dev_eq field according to ae_commits",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }

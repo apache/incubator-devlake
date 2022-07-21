@@ -36,6 +36,7 @@ var ExtractBugMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractBugs,
 	EnabledByDefault: true,
 	Description:      "Extract raw workspace data into tool layer table _tool_tapd_iterations",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractBugs(taskCtx core.SubTaskContext) error {

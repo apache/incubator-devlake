@@ -94,5 +94,5 @@ var CollectAccountMeta = core.SubTaskMeta{
 	EntryPoint:       CollectAccount,
 	EnabledByDefault: true,
 	Description:      "Collect accounts data from Github api",
-	DomainTypes:      core.DOMAIN_TYPES,
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }

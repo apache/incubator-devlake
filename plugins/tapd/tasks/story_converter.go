@@ -111,4 +111,5 @@ var ConvertStoryMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertStory,
 	EnabledByDefault: true,
 	Description:      "convert Tapd story",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

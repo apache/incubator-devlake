@@ -31,6 +31,7 @@ var ExtractApiPullRequestReviewsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiPullRequestReviews,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequestReviews data into tool layer table gitee_reviewers",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 type PullRequestReview struct {
