@@ -383,6 +383,8 @@ const CreateBlueprint = (props) => {
     setActiveStep((aS) =>
       blueprintSteps.find((s) => s.id === Math.max(aS.id - 1, 1))
     )
+    setConfiguredProject(null)
+    setConfiguredBoard(null)
   }, [blueprintSteps])
 
   const handleConnectionTabChange = useCallback(
@@ -588,12 +590,13 @@ const CreateBlueprint = (props) => {
 
   const handleTransformationSave = useCallback((settings, entity) => {
     console.log('>> SAVING / CLOSING Transformation Settings')
-    setTransformationSettings(settings, entity)
+    // manual @save disabled, reactive auto-saving writes settings to transform object...
+    // setTransformationSettings(settings, entity)
     setConfiguredProject(null)
     setConfiguredBoard(null)
     ToastNotification.clear()
     ToastNotification.show({ message: 'Transformation Rules Added.', intent: Intent.SUCCESS, icon: 'small-tick' })
-  }, [setTransformationSettings])
+  }, [])
 
   const handleAdvancedMode = (enableAdvanced = true) => {
     setAdvancedMode(enableAdvanced)
