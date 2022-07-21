@@ -28,5 +28,6 @@ func All() []migration.Script {
 		new(updateBlueprintMode),
 		new(renameTasksToPlan),
 		new(addDomainTables),
+		new(addSubtasksTable),
 	}
 }
