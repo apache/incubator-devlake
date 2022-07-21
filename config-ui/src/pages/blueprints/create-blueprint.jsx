@@ -1114,6 +1114,7 @@ const CreateBlueprint = (props) => {
                       prevStep={prevStep}
                       isSaving={isSaving}
                       isRunning={isRunning}
+                      validationErrors={[...validationErrors, ...blueprintValidationErrors]}
                     />
                   )}
 

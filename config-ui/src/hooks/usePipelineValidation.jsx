@@ -63,14 +63,14 @@ function usePipelineValidation ({
     setErrors([])
   }
 
-  const validateNumericSet = (set = []) => {
-    return Array.isArray(set) ? set.every(i => !isNaN(i)) : false
-  }
+  // const validateNumericSet = (set = []) => {
+  //   return Array.isArray(set) ? set.every(i => !isNaN(i)) : false
+  // }
 
-  const validateRepositoryName = (set = []) => {
-    const repoRegExp = /([a-z0-9_-]){2,}\/([a-z0-9_-]){2,}/gi
-    return set.every(i => i.match(repoRegExp))
-  }
+  // const validateRepositoryName = (set = []) => {
+  //   const repoRegExp = /([a-z0-9_-]){2,}\/([a-z0-9_-]){2,}/gi
+  //   return set.every(i => i.match(repoRegExp))
+  // }
 
   const parseJSON = useCallback((jsonString = '') => {
     try {

@@ -49,6 +49,7 @@ const DataScopes = (props) => {
     dataEntities = [],
     projects = [],
     boards = [],
+    validationErrors = [],
     configuredConnection,
     handleConnectionTabChange = () => {},
     setDataEntities = () => {},
@@ -108,7 +109,8 @@ const DataScopes = (props) => {
                   ) && (
                     <>
                       <h4>Projects *</h4>
-                      <p>Enter the projects you would like to sync.</p>
+                      {configuredConnection.provider === Providers.GITHUB && (<p>Enter the project names you would like to sync.</p>)}
+                      {configuredConnection.provider === Providers.GITLAB && (<p>Enter the project ids you would like to sync.</p>)}
                       <TagInput
                         id='project-id'
                         disabled={isRunning}
@@ -141,7 +143,7 @@ const DataScopes = (props) => {
                         onKeyDown={(e) =>
                           e.key === 'Enter' && e.preventDefault()}
                         tagProps={{
-                          intent: Intent.PRIMARY,
+                          intent: validationErrors.some(e => e.startsWith('Projects:')) ? Intent.WARNING : Intent.PRIMARY,
                           minimal: true,
                         }}
                         className='input-project-id tagInput'

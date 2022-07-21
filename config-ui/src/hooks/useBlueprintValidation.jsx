@@ -53,6 +53,15 @@ function useBlueprintValidation ({
     return isValid
   }
 
+  const validateNumericSet = (set = []) => {
+    return Array.isArray(set) ? set.every(i => !isNaN(i)) : false
+  }
+
+  const validateRepositoryName = (set = []) => {
+    const repoRegExp = /([a-z0-9_-]){2,}\/([a-z0-9_-]){2,}/gi
+    return set.every(i => i.match(repoRegExp))
+  }
+
   const validate = useCallback(() => {
     const errs = []
     // console.log('>> VALIDATING BLUEPRINT ', name)
@@ -94,16 +103,22 @@ function useBlueprintValidation ({
           break
         case 2:
           if (activeProvider?.id === Providers.JIRA && boards[activeConnection?.id]?.length === 0) {
-            errs.push('No Boards selected.')
+            errs.push('Boards: No Boards selected.')
           }
           if (activeProvider?.id === Providers.GITHUB && projects[activeConnection?.id]?.length === 0) {
-            errs.push('No Projects selected.')
+            errs.push('Projects: No Project Repsitories entered.')
+          }
+          if (activeProvider?.id === Providers.GITHUB && !validateRepositoryName(projects[activeConnection?.id])) {
+            errs.push('Projects: Only Git Repository Names are supported (username/repo).')
           }
           if (entities[activeConnection?.id]?.length === 0) {
-            errs.push('No Data Entities selected.')
+            errs.push('Data Entities: No Data Entities selected.')
           }
           if (activeProvider?.id === Providers.GITLAB && projects[activeConnection?.id]?.length === 0) {
-            errs.push('No Projects selected.')
+            errs.push('Projects: No Project IDs entered.')
+          }
+          if (activeProvider?.id === Providers.GITLAB && !validateNumericSet(projects[activeConnection?.id])) {
+            errs.push('Projects: Only Numeric Project IDs are supported.')
           }
           break
       }
