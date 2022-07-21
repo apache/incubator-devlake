@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { FormGroup, Checkbox, InputGroup, NumericInput, Tag } from '@blueprintjs/core'
 
 import '@/styles/integration.scss'
@@ -36,10 +36,15 @@ export default function GithubSettings (props) {
   const [errors, setErrors] = useState([])
   const [enableAdditionalCalculations, setEnableAdditionalCalculations] = useState(false)
 
-  const handleAdditionalSettings = (setting) => {
+  // eslint-disable-next-line no-unused-vars
+  const handleSettingsChange = useCallback((setting) => {
+    onSettingsChange(setting, configuredProject)
+  }, [onSettingsChange, configuredProject])
+
+  const handleAdditionalSettings = useCallback((setting) => {
     setEnableAdditionalCalculations(setting)
     onSettingsChange({ refdiff: setting ? { tagsOrder: '', tagsPattern: '', tagsLimit: 10, } : null }, configuredProject)
-  }
+  }, [setEnableAdditionalCalculations, onSettingsChange])
 
   useEffect(() => {
     console.log('>>>> TRANSFORMATION SETTINGS OBJECT....', transformation)
@@ -75,12 +80,11 @@ export default function GithubSettings (props) {
               placeholder='severity/(.*)$'
               // defaultValue={transformation?.issueSeverity}
               value={transformation?.issueSeverity}
-              // key={issueSeverity}
               onChange={(e) => onSettingsChange({ issueSeverity: e.target.value }, configuredProject)}
-              // onKeyUp={(e) => e.target.value.length === 0 ? setIssueSeverity('') : null}
               disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
+              autoFocus={true}
             />
           </FormGroup>
         </div>
@@ -97,9 +101,7 @@ export default function GithubSettings (props) {
               id='github-issue-component'
               placeholder='component/(.*)$'
               value={transformation?.issueComponent}
-              // key={issueComponent}
               onChange={(e) => onSettingsChange({ issueComponent: e.target.value }, configuredProject)}
-              // onKeyUp={(e) => e.target.value.length === 0 ? setIssueComponent('') : null}
               disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
@@ -119,9 +121,7 @@ export default function GithubSettings (props) {
               id='github-issue-priority'
               placeholder='(highest|high|medium|low)$'
               value={transformation?.issuePriority}
-              // key={issuePriority}
               onChange={(e) => onSettingsChange({ issuePriority: e.target.value }, configuredProject)}
-              // onKeyUp={(e) => e.target.value.length === 0 ? setIssuePriority('') : null}
               disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
@@ -141,9 +141,7 @@ export default function GithubSettings (props) {
               id='github-issue-requirement'
               placeholder='(feat|feature|proposal|requirement)$'
               value={transformation?.issueTypeRequirement}
-              // key={issueTypeRequirement}
               onChange={(e) => onSettingsChange({ issueTypeRequirement: e.target.value }, configuredProject)}
-              // onKeyUp={(e) => e.target.value.length === 0 ? setIssueTypeRequirement('') : null}
               disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
@@ -163,9 +161,7 @@ export default function GithubSettings (props) {
               id='github-issue-bug'
               placeholder='(bug|broken)$'
               value={transformation?.issueTypeBug}
-              // key={issueTypeBug}
               onChange={(e) => onSettingsChange({ issueTypeBug: e.target.value }, configuredProject)}
-              // onKeyUp={(e) => e.target.value.length === 0 ? setIssueTypeBug('') : null}
               disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
@@ -185,9 +181,7 @@ export default function GithubSettings (props) {
               id='github-issue-incident'
               placeholder='(incident|p0|p1|p2)$'
               value={transformation?.issueTypeIncident}
-              // key={issueTypeIncident}
               onChange={(e) => onSettingsChange({ issueTypeIncident: e.target.value }, configuredProject)}
-              // onKeyUp={(e) => e.target.value.length === 0 ? setIssueTypeIncident('') : null}
               disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
@@ -213,9 +207,7 @@ export default function GithubSettings (props) {
               id='github-pr-type'
               placeholder='type/(.*)$'
               value={transformation?.prType}
-              // key={prType}
               onChange={(e) => onSettingsChange({ prType: e.target.value }, configuredProject)}
-              // onKeyUp={(e) => e.target.value.length === 0 ? setPrType('') : null}
               disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
@@ -235,9 +227,7 @@ export default function GithubSettings (props) {
               id='github-pr-type'
               placeholder='component/(.*)$'
               value={transformation?.prComponent}
-              // key={prComponent}
               onChange={(e) => onSettingsChange({ prComponent: e.target.value }, configuredProject)}
-              // onKeyUp={(e) => e.target.value.length === 0 ? setPrComponent('') : null}
               disabled={isSaving || isSavingConnection}
               className='input'
               maxLength={255}
@@ -264,8 +254,6 @@ export default function GithubSettings (props) {
                   fill={true}
                   placeholder='10'
                   allowNumericCharactersOnly={true}
-                  // onBlur={}
-                  // onKeyDown={}
                   onValueChange={(tagsLimitNumeric) => onSettingsChange({ refdiff: { ...transformation?.refdiff, tagsLimit: tagsLimitNumeric } }, configuredProject)}
                   value={transformation?.refdiff?.tagsLimit}
                 />

@@ -61,7 +61,7 @@ const DataTransformations = (props) => {
     prevStep = () => {},
     addBoardTransformation = () => {},
     addProjectTransformation = () => {},
-    activeTransformation,
+    activeTransformation = {},
     setTransformations = () => {},
     setTransformationSettings = () => {},
     onSave = () => {},

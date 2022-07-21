@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useState, useCallback } from 'react'
+import React, { Fragment, useEffect, useState, useCallback, useMemo } from 'react'
 import { CSSTransition } from 'react-transition-group'
 import { useHistory, useLocation, Link } from 'react-router-dom'
 import dayjs from '@/utils/time'
@@ -135,7 +135,8 @@ const CreateBlueprint = (props) => {
 
   const [dataScopes, setDataScopes] = useState([])
   const [transformations, setTransformations] = useState({})
-  const [activeTransformation, setActiveTransformation] = useState()
+  // const [activeTransformation, setActiveTransformation] = useState({})
+
 
   // @todo: replace with $projects
   const [projectId, setProjectId] = useState([])
@@ -168,6 +169,9 @@ const CreateBlueprint = (props) => {
   const [configuredBoard, setConfiguredBoard] = useState(
     boards.length > 0 ? boards[0] : null
   )
+
+  const activeTransformation = useMemo(() => transformations[configuredProject], [transformations, configuredProject])
+
 
   const {
     activeConnection,
@@ -589,6 +593,7 @@ const CreateBlueprint = (props) => {
     setTransformationSettings(settings, entity)
     setConfiguredProject(null)
     setConfiguredBoard(null)
+    ToastNotification.clear()
     ToastNotification.show({ message: 'Transformation Rules Added.', intent: Intent.SUCCESS, icon: 'small-tick' })
   }, [setTransformationSettings])
 
@@ -912,25 +917,23 @@ const CreateBlueprint = (props) => {
     console.log(
       '>>> SELECTED PROJECT TO CONFIGURE...',
       configuredProject,
-      transformations
     )
-    setActiveTransformation((aT) =>
-      configuredProject ? transformations[configuredProject] : aT
-    )
+    // setActiveTransformation((aT) =>
+    //   configuredProject !== null ? transformations[configuredProject] : {}
+    // )
     setCanAdvanceNext(!configuredProject)
-  }, [configuredProject, transformations])
+  }, [configuredProject, setCanAdvanceNext])
 
   useEffect(() => {
     console.log(
       '>>> SELECTED BOARD TO CONFIGURE...',
       configuredBoard?.id,
-      transformations
     )
-    setActiveTransformation((aT) =>
-      configuredBoard ? transformations[configuredBoard?.id] : aT
-    )
+    // setActiveTransformation((aT) =>
+    //   configuredBoard ? transformations[configuredBoard?.id] : aT
+    // )
     setCanAdvanceNext(!configuredBoard)
-  }, [configuredBoard, transformations])
+  }, [configuredBoard, setCanAdvanceNext])
 
   // useEffect(() => {
   //   console.log(
