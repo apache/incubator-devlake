@@ -25,7 +25,9 @@ import {
   Position,
   Tooltip,
   Colors,
+  Card,
   NonIdealState,
+  Elevation,
 } from '@blueprintjs/core'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
@@ -35,7 +37,7 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import AddBlueprintDialog from '@/components/blueprints/AddBlueprintDialog'
-import { ReactComponent as HelpIcon } from '@/images/help.svg'
+import { ReactComponent as NoBlueprintsIcon } from '@/images/no-blueprints.svg'
 import BlueprintsGrid from '@/components/blueprints/BlueprintsGrid'
 
 const Blueprints = (props) => {
@@ -295,12 +297,12 @@ const Blueprints = (props) => {
                   </h1>
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                  <Button
+                  {blueprints.length > 0 && (<Button
                     // disabled={pipelines.length === 0}
                     icon='plus' intent={Intent.PRIMARY}
                     text='New Blueprint'
                     onClick={() => createNewBlueprint()}
-                  />
+                  />)}
                 </div>
               </div>
             </div>
@@ -330,13 +332,14 @@ const Blueprints = (props) => {
               </>)}
 
             {!isFetchingBlueprints && blueprints.length === 0 && (
-              <div style={{ marginTop: '36px' }}>
+              <Card style={{ marginTop: '36px' }} elevation={Elevation.TWO}>
                 <NonIdealState
-                  icon='grid'
-                  title='No Defined Blueprints'
+                  className='blueprints-non-ideal-state'
+                  icon={<NoBlueprintsIcon width={120} height={120} style={{ marginBottom: '-30px' }} />}
+                  title=''
                   description={(
                     <>
-                      Please create a new blueprint to get started. Need Help? Visit the DevLake Wiki on <strong>GitHub</strong>.{' '}
+                      <p style={{ color: '#292B3F', fontSize: '15px', padding: '0 14%', textAlign: 'center' }}>A blueprint is the plan that covers all the work, such as selecting and transforming the data you wish to collect, to get your raw data ready for query and metric computaion in the dashboards. Try adding your first blueprint!</p>
                       <div style={{
                         display: 'flex',
                         alignSelf: 'center',
@@ -346,18 +349,18 @@ const Blueprints = (props) => {
                       >
                         {pipelines.length === 0
                           ? (
-                            <Tooltip content='Please RUN at least 1 successful pipeline to enable blueprints.'>
                               <Button
-                                disabled={pipelines.length === 0}
-                                intent={Intent.PRIMARY} text='Create Blueprint' small
+                                // disabled={pipelines.length === 0}
+                                icon='plus'
+                                intent={Intent.PRIMARY} text='New Blueprint'
                                 style={{ marginRight: '10px' }}
                                 onClick={createNewBlueprint}
                               />
-                            </Tooltip>
                             )
                           : (
                             <Button
-                              intent={Intent.PRIMARY} text='Create Blueprint' small
+                              icon='plus'
+                              intent={Intent.PRIMARY} text='New Blueprint'
                               style={{ marginRight: '10px' }}
                               onClick={createNewBlueprint}
                             />
@@ -368,7 +371,7 @@ const Blueprints = (props) => {
                   )}
                   // action={createNewBlueprint}
                 />
-              </div>
+              </Card>
             )}
           </main>
         </Content>
