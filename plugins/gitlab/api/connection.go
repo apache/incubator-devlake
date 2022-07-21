@@ -159,6 +159,9 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GitlabConnection{}
 	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
