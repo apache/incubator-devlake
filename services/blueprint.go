@@ -200,7 +200,7 @@ func ReloadBlueprints(c *cron.Cron) error {
 			return err
 		}
 		_, err = c.AddFunc(pp.CronConfig, func() {
-			pipeline, err := createAndRunPipelineByBlueprint(blueprint.ID, blueprint.Name, plan)
+			pipeline, err := createPipelineByBlueprint(blueprint.ID, blueprint.Name, plan)
 			if err != nil {
 				blueprintLog.Error("run cron job failed: %s", err)
 			} else {
@@ -219,7 +219,7 @@ func ReloadBlueprints(c *cron.Cron) error {
 	return nil
 }
 
-func createAndRunPipelineByBlueprint(blueprintId uint64, name string, plan core.PipelinePlan) (*models.Pipeline, error) {
+func createPipelineByBlueprint(blueprintId uint64, name string, plan core.PipelinePlan) (*models.Pipeline, error) {
 	newPipeline := models.NewPipeline{}
 	newPipeline.Plan = plan
 	newPipeline.Name = name
@@ -309,7 +309,7 @@ func TriggerBlueprint(id uint64) (*models.Pipeline, error) {
 	if err != nil {
 		return nil, err
 	}
-	pipeline, err := createAndRunPipelineByBlueprint(blueprint.ID, blueprint.Name, plan)
+	pipeline, err := createPipelineByBlueprint(blueprint.ID, blueprint.Name, plan)
 	// done
 	return pipeline, err
 }

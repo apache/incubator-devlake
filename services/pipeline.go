@@ -80,8 +80,12 @@ func pipelineServiceInit() {
 	}
 
 	var pipelineMaxParallel = cfg.GetInt64("PIPELINE_MAX_PARALLEL")
-	if pipelineMaxParallel <= 0 {
+	if pipelineMaxParallel < 0 {
 		panic(fmt.Errorf(`PIPELINE_MAX_PARALLEL should be a positive integer`))
+	}
+	if pipelineMaxParallel == 0 {
+		pipelineLog.Warn(`pipelineMaxParallel=0 means pipeline will be run No Limit`)
+		pipelineMaxParallel = 10000
 	}
 	// run pipeline with independent goroutine
 	go RunPipelineInQueue(pipelineMaxParallel)
@@ -216,9 +220,9 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 		}
 		startedPipelineIds = append(startedPipelineIds, pipeline.ID)
 		go func() {
+			defer sema.Release(1)
 			pipelineLog.Info("run pipeline, %d", pipeline.ID)
 			_ = runPipeline(pipeline.ID)
-			defer sema.Release(1)
 		}()
 	}
 }
