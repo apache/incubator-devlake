@@ -35,23 +35,17 @@ const ProviderTransformationSettings = (props) => {
     configuredConnection,
     configuredProject,
     configuredBoard,
-    transformation,
+    oldTransformation,
     newTransformation,
     boards = [],
     issueTypes = [],
     fields = [],
-    onSettingsChange = () => {},
-    changeTransformation = () => {},
+    changeNewTransformation = (settings) => {},
     isSaving = false,
     isSavingConnection = false,
     jiraProxyError,
     isFetchingJIRA = false
   } = props
-
-  useEffect(() => {
-    console.log('>>> newTransformation?', newTransformation)
-  }, [newTransformation])
-  // }, [transformation, boards, issueTypes, fields, configuredBoard])
 
   return (
     <div className='transformation-settings' data-provider={provider?.id}>
@@ -60,8 +54,9 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={configuredConnection}
           configuredProject={configuredProject}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
+          oldTransformation={oldTransformation}
+          newTransformation={newTransformation}
+          onSettingsChange={changeNewTransformation}
           entity={DataEntityTypes.TICKET}
           isSaving={isSaving}
           isSavingConnection={isSavingConnection}
@@ -73,8 +68,9 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={configuredConnection}
           configuredProject={configuredProject}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
+          oldTransformation={oldTransformation}
+          newTransformation={newTransformation}
+          onSettingsChange={changeNewTransformation}
           entity={DataEntityTypes.TICKET}
           isSaving={isSaving}
           isSavingConnection={isSavingConnection}
@@ -89,9 +85,9 @@ const ProviderTransformationSettings = (props) => {
           boards={boards}
           issueTypes={issueTypes}
           fields={fields}
-          transformation={transformation}
+          oldTransformation={oldTransformation}
           newTransformation={newTransformation}
-          onSettingsChange={changeTransformation}
+          onSettingsChange={changeNewTransformation}
           entity={DataEntityTypes.TICKET}
           isSaving={isSaving}
           isSavingConnection={isSavingConnection}
@@ -104,8 +100,9 @@ const ProviderTransformationSettings = (props) => {
         <JenkinsSettings
           provider={provider}
           connection={configuredConnection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
+          oldTransformation={oldTransformation}
+          newTransformation={newTransformation}
+          onSettingsChange={changeNewTransformation}
           entity={DataEntityTypes.TICKET}
           isSaving={isSaving}
           isSavingConnection={isSavingConnection}

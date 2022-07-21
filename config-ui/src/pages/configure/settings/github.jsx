@@ -25,7 +25,8 @@ export default function GithubSettings (props) {
   const {
     // eslint-disable-next-line no-unused-vars
     connection,
-    transformation = {},
+    oldTransformation = {},
+    newTransformation = {},
     isSaving,
     isSavingConnection,
     onSettingsChange = () => {},
@@ -38,13 +39,13 @@ export default function GithubSettings (props) {
 
   const handleAdditionalSettings = (setting) => {
     setEnableAdditionalCalculations(setting)
-    onSettingsChange({ refdiff: setting ? { tagsOrder: '', tagsPattern: '', tagsLimit: 10, } : null }, configuredProject)
+    onSettingsChange({ refdiff: setting ? { tagsOrder: '', tagsPattern: '', tagsLimit: 10, } : null })
   }
 
   useEffect(() => {
-    console.log('>>>> TRANSFORMATION SETTINGS OBJECT....', transformation)
-    setEnableAdditionalCalculations(!!transformation?.refdiff)
-  }, [transformation])
+    console.log('>>>> TRANSFORMATION SETTINGS OBJECT....', oldTransformation)
+    setEnableAdditionalCalculations(!!oldTransformation?.refdiff)
+  }, [oldTransformation])
 
   useEffect(() => {
     console.log('>>>> ENABLE GITHUB ADDITIONAL SETTINGS..?', enableAdditionalCalculations)
@@ -74,7 +75,7 @@ export default function GithubSettings (props) {
               id='github-issue-severity'
               placeholder='severity/(.*)$'
               // defaultValue={transformation?.issueSeverity}
-              value={transformation?.issueSeverity}
+              value={newTransformation?.issueSeverity}
               // key={issueSeverity}
               onChange={(e) => onSettingsChange({ issueSeverity: e.target.value }, configuredProject)}
               // onKeyUp={(e) => e.target.value.length === 0 ? setIssueSeverity('') : null}
@@ -96,7 +97,7 @@ export default function GithubSettings (props) {
             <InputGroup
               id='github-issue-component'
               placeholder='component/(.*)$'
-              value={transformation?.issueComponent}
+              value={newTransformation?.issueComponent}
               // key={issueComponent}
               onChange={(e) => onSettingsChange({ issueComponent: e.target.value }, configuredProject)}
               // onKeyUp={(e) => e.target.value.length === 0 ? setIssueComponent('') : null}
@@ -118,7 +119,7 @@ export default function GithubSettings (props) {
             <InputGroup
               id='github-issue-priority'
               placeholder='(highest|high|medium|low)$'
-              value={transformation?.issuePriority}
+              value={newTransformation?.issuePriority}
               // key={issuePriority}
               onChange={(e) => onSettingsChange({ issuePriority: e.target.value }, configuredProject)}
               // onKeyUp={(e) => e.target.value.length === 0 ? setIssuePriority('') : null}
@@ -140,7 +141,7 @@ export default function GithubSettings (props) {
             <InputGroup
               id='github-issue-requirement'
               placeholder='(feat|feature|proposal|requirement)$'
-              value={transformation?.issueTypeRequirement}
+              value={newTransformation?.issueTypeRequirement}
               // key={issueTypeRequirement}
               onChange={(e) => onSettingsChange({ issueTypeRequirement: e.target.value }, configuredProject)}
               // onKeyUp={(e) => e.target.value.length === 0 ? setIssueTypeRequirement('') : null}
@@ -162,7 +163,7 @@ export default function GithubSettings (props) {
             <InputGroup
               id='github-issue-bug'
               placeholder='(bug|broken)$'
-              value={transformation?.issueTypeBug}
+              value={newTransformation?.issueTypeBug}
               // key={issueTypeBug}
               onChange={(e) => onSettingsChange({ issueTypeBug: e.target.value }, configuredProject)}
               // onKeyUp={(e) => e.target.value.length === 0 ? setIssueTypeBug('') : null}
@@ -184,7 +185,7 @@ export default function GithubSettings (props) {
             <InputGroup
               id='github-issue-incident'
               placeholder='(incident|p0|p1|p2)$'
-              value={transformation?.issueTypeIncident}
+              value={newTransformation?.issueTypeIncident}
               // key={issueTypeIncident}
               onChange={(e) => onSettingsChange({ issueTypeIncident: e.target.value }, configuredProject)}
               // onKeyUp={(e) => e.target.value.length === 0 ? setIssueTypeIncident('') : null}
@@ -212,7 +213,7 @@ export default function GithubSettings (props) {
             <InputGroup
               id='github-pr-type'
               placeholder='type/(.*)$'
-              value={transformation?.prType}
+              value={newTransformation?.prType}
               // key={prType}
               onChange={(e) => onSettingsChange({ prType: e.target.value }, configuredProject)}
               // onKeyUp={(e) => e.target.value.length === 0 ? setPrType('') : null}
@@ -234,7 +235,7 @@ export default function GithubSettings (props) {
             <InputGroup
               id='github-pr-type'
               placeholder='component/(.*)$'
-              value={transformation?.prComponent}
+              value={newTransformation?.prComponent}
               // key={prComponent}
               onChange={(e) => onSettingsChange({ prComponent: e.target.value }, configuredProject)}
               // onKeyUp={(e) => e.target.value.length === 0 ? setPrComponent('') : null}
@@ -266,8 +267,8 @@ export default function GithubSettings (props) {
                   allowNumericCharactersOnly={true}
                   // onBlur={}
                   // onKeyDown={}
-                  onValueChange={(tagsLimitNumeric) => onSettingsChange({ refdiff: { ...transformation?.refdiff, tagsLimit: tagsLimitNumeric } }, configuredProject)}
-                  value={transformation?.refdiff?.tagsLimit}
+                  onValueChange={(tagsLimitNumeric) => onSettingsChange({ refdiff: { ...newTransformation?.refdiff, tagsLimit: tagsLimitNumeric } }, configuredProject)}
+                  value={newTransformation?.refdiff?.tagsLimit}
                 />
               </FormGroup>
               <FormGroup
@@ -280,8 +281,8 @@ export default function GithubSettings (props) {
                 <InputGroup
                   id='refdiff-tags-pattern'
                   placeholder='(regex)$'
-                  value={transformation?.refdiff?.tagsPattern}
-                  onChange={(e) => onSettingsChange({ refdiff: { ...transformation?.refdiff, tagsPattern: e.target.value } }, configuredProject)}
+                  value={newTransformation?.refdiff?.tagsPattern}
+                  onChange={(e) => onSettingsChange({ refdiff: { ...newTransformation?.refdiff, tagsPattern: e.target.value } }, configuredProject)}
                   disabled={isSaving || isSavingConnection}
                   className='input'
                   maxLength={255}
@@ -297,8 +298,8 @@ export default function GithubSettings (props) {
                 <InputGroup
                   id='refdiff-tags-order'
                   placeholder='reverse semver'
-                  value={transformation?.refdiff?.tagsOrder}
-                  onChange={(e) => onSettingsChange({ refdiff: { ...transformation?.refdiff, tagsOrder: e.target.value } }, configuredProject)}
+                  value={newTransformation?.refdiff?.tagsOrder}
+                  onChange={(e) => onSettingsChange({ refdiff: { ...newTransformation?.refdiff, tagsOrder: e.target.value } }, configuredProject)}
                   disabled={isSaving || isSavingConnection}
                   className='input'
                   maxLength={255}

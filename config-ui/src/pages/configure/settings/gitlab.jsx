@@ -25,7 +25,7 @@ export default function GitlabSettings (props) {
   const {
     connection,
     // eslint-disable-next-line max-len
-    transformation = {},
+    newTransformation = {},
     provider,
     onSettingsChange = () => {}
   } = props

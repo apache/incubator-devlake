@@ -77,6 +77,118 @@ import request from '@/utils/request'
 
 // import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 
+// manage transformations in one place
+const useTransformationsManager = () => {
+  const [transformations, setTransformations] = useState({})
+
+  const generateKey = (connection, projectNameOrBoard) => {
+    console.log(
+      '>> generateKey generateKeygenerateKeygenerateKeygenerateKeygenerateKey',
+      connection,
+      projectNameOrBoard
+    )
+    return `${connection?.provider}/${connection?.id}/${projectNameOrBoard.id || projectNameOrBoard}`
+  }
+
+  const changeTransformationSettings = useCallback((settings, connection, projectNameOrBoard) => {
+    const key = generateKey(connection, projectNameOrBoard)
+    console.log(
+      '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
+      key,
+      settings
+    )
+    setTransformations((existingTransformations) => ({
+      ...existingTransformations,
+      [key]: {
+        ...existingTransformations[key],
+        ...settings,
+      },
+    }))
+  }, [setTransformations])
+
+  const getDefaultTransformations = (provider) => {
+    let transforms = {}
+    switch (provider) {
+      case Providers.GITHUB:
+        transforms = {
+          prType: '',
+          prComponent: '',
+          issueSeverity: '',
+          issueComponent: '',
+          issuePriority: '',
+          issueTypeRequirement: '',
+          issueTypeBug: '',
+          issueTypeIncident: '',
+          refdiff: null,
+        }
+        break
+      case Providers.JIRA:
+        transforms = {
+          epicKeyField: '',
+          typeMappings: {},
+          storyPointField: '',
+          remotelinkCommitShaPattern: '',
+          bugTags: [],
+          incidentTags: [],
+          requirementTags: [],
+        }
+        break
+      case Providers.JENKINS:
+        // No Transform Settings...
+        break
+      case Providers.GITLAB:
+        // No Transform Settings...
+        break
+    }
+    return transforms
+  }
+
+  const initDefaultTransformationSettingsIfNotExist = useCallback((connection, projectNameOrBoard) => {
+    const key = generateKey(connection, projectNameOrBoard)
+    console.log(
+      '>> INIT DEFAULT TRANSFORMATION SETTINGS PROJECT/BOARD...',
+      key,
+    )
+    if (!transformations[key]) {
+      setTransformations(old => ({
+        ...old,
+        [key]: getDefaultTransformations(connection?.provider),
+      }))
+    }
+  }, [setTransformations, transformations])
+
+  const getTransformation = useCallback((connection, projectNameOrBoard) => {
+    const key = generateKey(connection, projectNameOrBoard)
+    return transformations[key]
+  }, [transformations])
+
+  const clearTransformationSettings = useCallback((connection, projectNameOrBoard) => {
+    const key = generateKey(connection, projectNameOrBoard)
+    console.log(
+      '>> CLEAR TRANSFORMATION SETTINGS PROJECT/BOARD...',
+      key,
+    )
+    setTransformations((existingTransformations) => ({
+      ...existingTransformations,
+      [key]: null,
+    }))
+  }, [setTransformations])
+
+  const checkTransformationIsExist = useCallback((connection, projectNameOrBoard) => {
+    const key = generateKey(connection, projectNameOrBoard)
+    const storedTransform = transformations[key]
+    return Object.values(storedTransform).some(v => v && v.length > 0)
+  }, [transformations])
+
+  return {
+    getTransformation,
+    changeTransformationSettings,
+    initDefaultTransformationSettingsIfNotExist,
+    clearTransformationSettings,
+    checkTransformationIsExist,
+  }
+}
+
 const CreateBlueprint = (props) => {
   const history = useHistory()
   // const dispatch = useDispatch()
@@ -132,8 +244,13 @@ const CreateBlueprint = (props) => {
 
   const [showBlueprintInspector, setShowBlueprintInspector] = useState(false)
 
-  const [dataScopes, setDataScopes] = useState([])
-  const [transformations, setTransformations] = useState({})
+  const {
+    getTransformation,
+    changeTransformationSettings,
+    initDefaultTransformationSettingsIfNotExist,
+    clearTransformationSettings,
+    checkTransformationIsExist,
+  } = useTransformationsManager()
   const [activeTransformation, setActiveTransformation] = useState()
 
   // @todo: replace with $projects
@@ -425,14 +542,15 @@ const CreateBlueprint = (props) => {
       '==> BOARD =',
       configuredBoard
     )
-    setTransformations((existingTransformations) => ({
-      ...existingTransformations,
-      [configuredProject]: {},
-      [configuredBoard?.id]: {},
-    }))
+    if (configuredProject) {
+      clearTransformationSettings(configuredConnection, configuredProject)
+    }
+    if (configuredBoard) {
+      clearTransformationSettings(configuredConnection, configuredBoard)
+    }
     setConfiguredProject(null)
     setConfiguredBoard(null)
-  }, [setTransformations, configuredProject, configuredBoard])
+  }, [clearTransformationSettings, configuredConnection, configuredProject, configuredBoard])
 
   const handleBlueprintSave = useCallback(() => {
     console.log('>>> SAVING BLUEPRINT!!')
@@ -469,7 +587,7 @@ const CreateBlueprint = (props) => {
       entities = [],
       boards = [],
       projects = [],
-      transformations = [],
+      getTransformation = (connection, projectOrBoard) => {},
       defaultScope = { transformation: {}, options: {}, entities: [] }
     ) => {
       console.log(
@@ -490,7 +608,7 @@ const CreateBlueprint = (props) => {
               // @todo: verify initial value of since date for jira provider
               // since: new Date(),
             },
-            transformation: { ...transformations[b.id] },
+            transformation: { ...getTransformation(connection, b) },
           }))
           break
         case Providers.GITLAB:
@@ -514,7 +632,7 @@ const CreateBlueprint = (props) => {
               owner: p.split('/')[0],
               repo: p.split('/')[1],
             },
-            transformation: { ...transformations[p] },
+            transformation: { ...getTransformation(connection, p) },
           }))
           break
       }
@@ -552,30 +670,12 @@ const CreateBlueprint = (props) => {
     setConnectionDialogIsOpen(true)
   }, [])
 
-  const setTransformationSettings = useCallback(
-    (settings, configuredEntity) => {
-      console.log(
-        '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
-        configuredEntity,
-        settings
-      )
-      setTransformations((existingTransformations) => ({
-        ...existingTransformations,
-        [configuredEntity]: {
-          ...existingTransformations[configuredEntity],
-          ...settings,
-        },
-      }))
-    },
-    [setTransformations]
-  )
-
-  const handleTransformationSave = useCallback((settings, entity) => {
-    console.log('>> SAVING / CLOSING Transformation Settings')
-    setTransformationSettings(settings, entity)
+  const handleTransformationSave = useCallback((settings, connection, projectNameOrBoard) => {
+    console.log('>> SAVING / CLOSING Transformation Settings', settings, connection, projectNameOrBoard)
+    changeTransformationSettings(settings, connection, projectNameOrBoard)
     setConfiguredProject(null)
     setConfiguredBoard(null)
-  }, [setTransformationSettings])
+  }, [changeTransformationSettings])
 
   const handleAdvancedMode = (enableAdvanced = true) => {
     setAdvancedMode(enableAdvanced)
@@ -704,8 +804,6 @@ const CreateBlueprint = (props) => {
     validateBlueprint,
   ])
 
-  useEffect(() => { }, [activeConnectionTab])
-
   useEffect(() => {
     setConfiguredConnection(
       blueprintConnections.length > 0 ? blueprintConnections[0] : null
@@ -798,7 +896,7 @@ const CreateBlueprint = (props) => {
           dataEntities,
           boards,
           projects,
-          transformations
+          getTransformation
         ),
       })),
     }))
@@ -808,7 +906,7 @@ const CreateBlueprint = (props) => {
     dataEntities,
     boards,
     projects,
-    transformations,
+    getTransformation,
     validatePipeline,
     createProviderScopes,
     setBlueprintSettings,
@@ -817,88 +915,33 @@ const CreateBlueprint = (props) => {
   useEffect(() => {
     console.log('>> PROJECTS LIST', projects)
     console.log('>> BOARDS LIST', boards)
-    const getDefaultTransformations = (providerId) => {
-      let transforms = {}
-      switch (providerId) {
-        case Providers.GITHUB:
-          transforms = {
-            prType: '',
-            prComponent: '',
-            issueSeverity: '',
-            issueComponent: '',
-            issuePriority: '',
-            issueTypeRequirement: '',
-            issueTypeBug: '',
-            issueTypeIncident: '',
-            refdiff: null,
-          }
-          break
-        case Providers.JIRA:
-          transforms = {
-            epicKeyField: '',
-            typeMappings: {},
-            storyPointField: '',
-            remotelinkCommitShaPattern: '',
-            bugTags: [],
-            incidentTags: [],
-            requirementTags: [],
-          }
-          break
-        case Providers.JENKINS:
-          // No Transform Settings...
-          break
-        case Providers.GITLAB:
-          // No Transform Settings...
-          break
-      }
-      return transforms
-    }
-
-    const initializeTransformations = (pV, cV) => ({
-      ...pV,
-      [cV]: getDefaultTransformations(configuredConnection?.provider),
-    })
-    const projectTransformation = projects[configuredConnection?.id]
-    const boardTransformation = boards[configuredConnection?.id]?.map(
-      (b) => b.id
+    projects[configuredConnection?.id]?.map(
+      (p) => initDefaultTransformationSettingsIfNotExist(configuredConnection, p)
     )
-    if (projectTransformation) {
-      setTransformations((cT) => ({
-        ...projectTransformation.reduce(initializeTransformations, {}),
-        // Spread Current/Existing Transformations Settings
-        ...cT,
-      }))
-    }
-    if (boardTransformation) {
-      setTransformations((cT) => ({
-        ...boardTransformation.reduce(initializeTransformations, {}), // @todo: FIXME
-        // Spread Current/Existing Transformations Settings
-        ...cT,
-      }))
-    }
-  }, [projects, boards, configuredConnection])
+    boards[configuredConnection?.id]?.map(
+      (b) => initDefaultTransformationSettingsIfNotExist(configuredConnection, b)
+    )
+  }, [initDefaultTransformationSettingsIfNotExist, projects, boards, configuredConnection])
 
   useEffect(() => {
     console.log(
       '>>> SELECTED PROJECT TO CONFIGURE...',
       configuredProject,
-      transformations
     )
     setActiveTransformation((aT) =>
-      configuredProject ? transformations[configuredProject] : aT
+      configuredProject ? getTransformation(configuredConnection, configuredProject) : aT
     )
-  }, [configuredProject, transformations])
+  }, [configuredProject, getTransformation])
 
   useEffect(() => {
     console.log(
       '>>> SELECTED BOARD TO CONFIGURE...',
       configuredBoard?.id,
-      transformations
     )
     setActiveTransformation((aT) =>
-      configuredBoard ? transformations[configuredBoard?.id] : aT
+      configuredBoard ? getTransformation(configuredConnection, configuredBoard) : aT
     )
-  }, [configuredBoard, transformations])
+  }, [configuredBoard, getTransformation])
 
   // useEffect(() => {
   //   console.log(
@@ -1101,10 +1144,8 @@ const CreateBlueprint = (props) => {
                       prevStep={prevStep}
                       addBoardTransformation={addBoardTransformation}
                       addProjectTransformation={addProjectTransformation}
-                      transformations={transformations}
+                      checkTransformationIsExist={checkTransformationIsExist}
                       activeTransformation={activeTransformation}
-                      setTransformations={setTransformations}
-                      setTransformationSettings={setTransformationSettings}
                       isSaving={isSaving}
                       isSavingConnection={isSavingConnection}
                       isRunning={isRunning}

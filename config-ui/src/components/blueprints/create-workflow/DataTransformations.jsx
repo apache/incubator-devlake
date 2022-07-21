@@ -53,7 +53,7 @@ const DataTransformations = (props) => {
     boards = [],
     issueTypes = [],
     fields = [],
-    transformations = {},
+    checkTransformationIsExist = (connection, entity) => Boolean,
     configuredConnection,
     configuredProject,
     configuredBoard,
@@ -62,9 +62,7 @@ const DataTransformations = (props) => {
     addBoardTransformation = () => {},
     addProjectTransformation = () => {},
     activeTransformation,
-    setTransformations = () => {},
-    setTransformationSettings = () => {},
-    onSave = () => {},
+    onSave = (settings, connection, entity) => {},
     onCancel = () => {},
     onClear = () => {},
     isSaving = false,
@@ -76,14 +74,16 @@ const DataTransformations = (props) => {
 
   const [newTransformation, setNewTransformation] = useState({})
 
-  const changeTransformation = useCallback((settings, entity) => {
-    console.log('>>>>> CHANGING TRANSFORMATION FOR ENTITY!', entity, settings)
-    setNewTransformation(currentTransforms => ({
-      ...currentTransforms,
-      [entity]: {
-        ...currentTransforms[entity],
-        ...settings
-      }
+  useEffect(() => {
+    console.log('>>> activeTransformation?', activeTransformation, activeConnectionTab, configuredConnection)
+    setNewTransformation(activeTransformation)
+  }, [setNewTransformation, activeTransformation])
+
+  const changeNewTransformation = useCallback((settings) => {
+    console.log('>>>>> CHANGING TRANSFORMATION FOR NEW ONE!', settings)
+    setNewTransformation(currentTransform => ({
+      ...currentTransform,
+      ...settings
     }))
   }, [setNewTransformation])
 
@@ -174,7 +174,7 @@ const DataTransformations = (props) => {
                     <>
                       <StandardStackedList
                         items={projects}
-                        transformations={transformations}
+                        checkTransformationIsExist={checkTransformationIsExist}
                         className='selected-items-list selected-projects-list'
                         connection={configuredConnection}
                         activeItem={configuredProject}
@@ -198,7 +198,7 @@ const DataTransformations = (props) => {
                     <>
                       <StandardStackedList
                         items={boards}
-                        transformations={transformations}
+                        checkTransformationIsExist={checkTransformationIsExist}
                         className='selected-items-list selected-boards-list'
                         connection={configuredConnection}
                         activeItem={configuredBoard}
@@ -253,12 +253,9 @@ const DataTransformations = (props) => {
                           issueTypes={issueTypes}
                           fields={fields}
                           boards={boards}
-                          transformation={activeTransformation}
+                          oldTransformation={activeTransformation}
                           newTransformation={newTransformation}
-                          setNewTransformation={setNewTransformation}
-                          changeTransformation={changeTransformation}
-                          onSettingsChange={setTransformationSettings}
-                          // onSettingsChange={changeTransformation}
+                          changeNewTransformation={changeNewTransformation}
                           entity={DataEntityTypes.TICKET}
                           isSaving={isSaving}
                           isSavingConnection={isSavingConnection}
@@ -279,7 +276,7 @@ const DataTransformations = (props) => {
                           intent={Intent.PRIMARY}
                           small
                           outlined
-                          onClick={() => onSave(newTransformation[configuredBoard?.id], configuredBoard?.id)}
+                          onClick={() => onSave(newTransformation, configuredConnection, configuredProject || configuredBoard)}
                           disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
                           style={{ marginLeft: '5px' }}
                         />

@@ -56,7 +56,7 @@ export default function JiraSettings (props) {
     configuredBoard,
     // eslint-disable-next-line no-unused-vars
     configuredProject,
-    transformation = {},
+    oldTransformation = {},
     newTransformation = {},
     isSaving,
     onSettingsChange = () => {},
@@ -69,8 +69,6 @@ export default function JiraSettings (props) {
     jiraProxyError,
     isFetchingJIRA = false
   } = props
-
-  const [currentTransformation, setCurrentTransformation] = useState({})
 
   const [typeMappingBug, setTypeMappingBug] = useState([])
   const [typeMappingIncident, setTypeMappingIncident] = useState([])
@@ -158,27 +156,22 @@ export default function JiraSettings (props) {
   }, [issueTypes])
 
   useEffect(() => {
-    setJiraIssueEpicKeyField(fieldsList.find(f => f.value === transformation?.epicKeyField))
-  }, [fieldsList, transformation?.epicKeyField])
+    setJiraIssueEpicKeyField(fieldsList.find(f => f.value === oldTransformation?.epicKeyField))
+  }, [fieldsList, oldTransformation?.epicKeyField])
 
   useEffect(() => {
-    setJiraIssueStoryPointField(fieldsList.find(f => f.value === transformation?.storyPointField))
-  }, [fieldsList, transformation?.storyPointField])
-
-  useEffect(() => {
-    console.log('>>>> (new) TRANSFORMATION SETTINGS OBJECT....', newTransformation)
-    setCurrentTransformation(newTransformation[configuredBoard?.id])
-  }, [newTransformation, configuredBoard?.id])
+    setJiraIssueStoryPointField(fieldsList.find(f => f.value === oldTransformation?.storyPointField))
+  }, [fieldsList, oldTransformation?.storyPointField])
 
   useEffect(() => {
     console.log('>>>> CONFIGURING BOARD....', configuredBoard)
   }, [configuredBoard])
 
   useEffect(() => {
-    setRequirementTags(transformation?.requirementTags || [])
-    setBugTags(transformation?.bugTags || [])
-    setIncidentTags(transformation?.incidentTags || [])
-  }, [transformation])
+    setRequirementTags(oldTransformation?.requirementTags || [])
+    setBugTags(oldTransformation?.bugTags || [])
+    setIncidentTags(oldTransformation?.incidentTags || [])
+  }, [oldTransformation])
 
   return (
     <>
@@ -552,7 +545,7 @@ export default function JiraSettings (props) {
             id='jira-remotelink-sha'
             fill={true}
             placeholder='/commit/([0-9a-f]{40})$'
-            value={newTransformation[configuredBoard?.id]?.remotelinkCommitShaPattern}
+            value={newTransformation?.remotelinkCommitShaPattern}
             onChange={(e) => onSettingsChange({ remotelinkCommitShaPattern: e.target.value }, configuredBoard?.id)}
             disabled={isSaving}
             className='input'
