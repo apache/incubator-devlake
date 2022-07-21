@@ -40,7 +40,8 @@ function usePipelineValidation ({
   advancedMode,
   mode = null,
   connection,
-  entities = []
+  entities = [],
+  rawConfiguration
 }) {
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
@@ -71,6 +72,15 @@ function usePipelineValidation ({
     return set.every(i => i.match(repoRegExp))
   }
 
+  const parseJSON = useCallback((jsonString = '') => {
+    try {
+      return JSON.parse(jsonString)
+    } catch (e) {
+      console.log('>> PARSE JSON ERROR!', e)
+      throw e
+    }
+  }, [])
+
   const validate = useCallback(() => {
     const errs = []
     console.log('>> VALIDATING PIPELINE RUN ', pipelineName)
@@ -99,7 +109,7 @@ function usePipelineValidation ({
 
   const validateAdvanced = useCallback(() => {
     const errs = []
-    let parsed = []
+    const parsed = []
     if (advancedMode) {
       console.log('>> VALIDATING ADVANCED PIPELINE RUN ', tasksAdvanced, pipelineName)
 
@@ -113,10 +123,10 @@ function usePipelineValidation ({
       }
 
       try {
-        // eslint-disable-next-line no-unused-vars
-        parsed = JSON.parse(JSON.stringify(tasksAdvanced))
+        const parsedResponse = parseJSON(rawConfiguration)
+        console.log('>>>> MY PARSED = ', parsedResponse)
       } catch (e) {
-        errs.push('Advanced Pipeline: Invalid JSON Configuration')
+        errs.push(`Advanced Pipeline: ${e?.message}`)
       }
 
       if (Array.isArray(tasksAdvanced) && tasksAdvanced?.flat().length === 0) {
@@ -138,7 +148,9 @@ function usePipelineValidation ({
     advancedMode,
     tasksAdvanced,
     pipelineName,
-    allowedProviders
+    allowedProviders,
+    rawConfiguration,
+    parseJSON
   ])
 
   useEffect(() => {
@@ -162,7 +174,8 @@ function usePipelineValidation ({
     clear,
     setAllowedProviders,
     allowedProviders,
-    detectedProviders
+    detectedProviders,
+    parseJSON
   }
 }
 

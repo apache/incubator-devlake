@@ -100,9 +100,9 @@ const CreateBlueprint = (props) => {
   const [runNow, setRunNow] = useState(false)
   const [newBlueprintId, setNewBlueprintId] = useState()
   const [existingTasks, setExistingTasks] = useState([])
-  const [rawConfiguration, setRawConfiguration] = useState(
-    JSON.stringify([runTasks], null, '  ')
-  )
+  // const [rawConfiguration, setRawConfiguration] = useState(
+  //   JSON.stringify([runTasks], null, '  ')
+  // )
   const [isValidConfiguration, setIsValidConfiguration] = useState(false)
   const [validationAdvancedError, setValidationAdvancedError] = useState()
 
@@ -185,6 +185,7 @@ const CreateBlueprint = (props) => {
     detectedProviderTasks,
     enable,
     mode,
+    rawConfiguration,
     setName: setBlueprintName,
     setCronConfig,
     setCustomCronConfig,
@@ -194,6 +195,7 @@ const CreateBlueprint = (props) => {
     setEnable: setEnableBlueprint,
     setMode: setBlueprintMode,
     setIsManual: setIsManualBlueprint,
+    setRawConfiguration,
     // eslint-disable-next-line no-unused-vars
     isFetching: isFetchingBlueprints,
     isSaving,
@@ -207,33 +209,8 @@ const CreateBlueprint = (props) => {
     deleteBlueprint,
     isDeleting: isDeletingBlueprint,
     isManual: isManualBlueprint,
-    saveComplete: saveBlueprintComplete,
+    saveComplete: saveBlueprintComplete
   } = useBlueprintManager()
-
-  // const {
-  //   // eslint-disable-next-line no-unused-vars
-  //   validate: validateBlueprint,
-  //   // eslint-disable-next-line no-unused-vars
-  //   errors: blueprintValidationErrors,
-  //   // setErrors: setBlueprintErrors,
-  //   isValid: isValidBlueprint,
-  //   fieldHasError,
-  //   getFieldError,
-  // } = useBlueprintValidation({
-  //   name,
-  //   boards,
-  //   projects,
-  //   cronConfig,
-  //   customCronConfig,
-  //   enable,
-  //   tasks: blueprintTasks,
-  //   mode,
-  //   connections: blueprintConnections,
-  //   entities: dataEntities,
-  //   activeStep,
-  //   activeProvider: provider,
-  //   activeConnection: configuredConnection
-  // })
 
   const {
     pipelineName,
@@ -265,6 +242,7 @@ const CreateBlueprint = (props) => {
     setErrors: setPipelineErrors,
     isValid: isValidPipeline,
     detectedProviders,
+    parseJSON
   } = usePipelineValidation({
     enabledProviders,
     pipelineName,
@@ -286,6 +264,7 @@ const CreateBlueprint = (props) => {
     mode,
     connection: configuredConnection,
     entities: dataEntities,
+    rawConfiguration
   })
 
   const {
@@ -617,14 +596,14 @@ const CreateBlueprint = (props) => {
     setAdvancedMode(enableAdvanced)
   }
 
-  const parseJSON = useCallback((jsonString = '') => {
-    try {
-      return JSON.parse(jsonString)
-    } catch (e) {
-      console.log('>> PARSE JSON ERROR!', e)
-      throw e
-    }
-  }, [])
+  // const parseJSON = useCallback((jsonString = '') => {
+  //   try {
+  //     return JSON.parse(jsonString)
+  //   } catch (e) {
+  //     console.log('>> PARSE JSON ERROR!', e)
+  //     throw e
+  //   }
+  // }, [])
 
   const isValidCode = useCallback(() => {
     let isValid = false

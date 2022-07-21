@@ -45,6 +45,9 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
   const [enable, setEnable] = useState(true)
   const [detectedProviderTasks, setDetectedProviderTasks] = useState([])
   const [isManual, setIsManual] = useState(false)
+  const [rawConfiguration, setRawConfiguration] = useState(
+    JSON.stringify([tasks], null, '  ')
+  )
 
   const [cronPresets, setCronPresets] = useState([
     // eslint-disable-next-line max-len
@@ -366,6 +369,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     detectedProviderTasks,
     enable,
     mode,
+    rawConfiguration,
     saveBlueprint,
     deleteBlueprint,
     fetchAllBlueprints,
@@ -390,6 +394,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     setMode,
     setDetectedProviderTasks,
     setIsManual,
+    setRawConfiguration,
     isFetching,
     isSaving,
     isDeleting,
