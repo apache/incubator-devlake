@@ -32,6 +32,7 @@ import (
 	v11 "go.temporal.io/api/enums/v1"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/converter"
+	"golang.org/x/sync/semaphore"
 	"gorm.io/gorm"
 )
 
@@ -77,9 +78,16 @@ func pipelineServiceInit() {
 	if err != nil {
 		panic(err)
 	}
+
+	var pipelineMaxParallel = cfg.GetInt64("PIPELINE_MAX_PARALLEL")
+	if pipelineMaxParallel <= 0 {
+		panic(fmt.Errorf(`PIPELINE_MAX_PARALLEL should be a positive integer`))
+	}
+	// run pipeline with independent goroutine
+	go RunPipelineInQueue(pipelineMaxParallel)
 }
 
-// CreatePipeline FIXME ...
+// CreatePipeline and return the model
 func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	// create pipeline object from posted data
 	pipeline := &models.Pipeline{
@@ -144,7 +152,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	return pipeline, nil
 }
 
-// GetPipelines FIXME ...
+// GetPipelines by query
 func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 	pipelines := make([]*models.Pipeline, 0)
 	db := db.Model(pipelines).Order("id DESC")
@@ -170,7 +178,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 	return pipelines, count, nil
 }
 
-// GetPipeline FIXME ...
+// GetPipeline by id
 func GetPipeline(pipelineId uint64) (*models.Pipeline, error) {
 	pipeline := &models.Pipeline{}
 	err := db.First(pipeline, pipelineId).Error
@@ -183,8 +191,40 @@ func GetPipeline(pipelineId uint64) (*models.Pipeline, error) {
 	return pipeline, nil
 }
 
-// RunPipeline FIXME ...
-func RunPipeline(pipelineId uint64) error {
+// RunPipelineInQueue query pipeline from db and run it in a queue
+func RunPipelineInQueue(pipelineMaxParallel int64) {
+	sema := semaphore.NewWeighted(pipelineMaxParallel)
+	startedPipelineIds := []uint64{}
+	for true {
+		pipelineLog.Info("wait for new pipeline")
+		// start goroutine when sema lock ready and pipeline exist.
+		// to avoid read old pipeline, acquire lock before read exist pipeline
+		err := sema.Acquire(context.TODO(), 1)
+		if err != nil {
+			panic(err)
+		}
+		pipelineLog.Info("get lock and wait pipeline")
+		pipeline := &models.Pipeline{}
+		for true {
+			db.Where("status = ?", models.TASK_CREATED).
+				Not(startedPipelineIds).
+				Order("id ASC").Limit(1).Find(pipeline)
+			if pipeline.ID != 0 {
+				break
+			}
+			time.Sleep(time.Second)
+		}
+		startedPipelineIds = append(startedPipelineIds, pipeline.ID)
+		go func() {
+			pipelineLog.Info("run pipeline, %d", pipeline.ID)
+			_ = runPipeline(pipeline.ID)
+			defer sema.Release(1)
+		}()
+	}
+}
+
+// runPipeline start a pipeline actually
+func runPipeline(pipelineId uint64) error {
 	var err error
 	// run
 	if temporalClient != nil {

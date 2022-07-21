@@ -106,7 +106,7 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 	if strings.ToLower(blueprint.CronConfig) == "manual" {
 		blueprint.IsManual = true
 	}
-	if !blueprint.IsManual{
+	if !blueprint.IsManual {
 		_, err = cron.ParseStandard(blueprint.CronConfig)
 		if err != nil {
 			return fmt.Errorf("invalid cronConfig: %w", err)
@@ -230,7 +230,6 @@ func createAndRunPipelineByBlueprint(blueprintId uint64, name string, plan core.
 		blueprintLog.Error("created cron job failed: %s", err)
 		return nil, err
 	}
-	go RunPipeline(pipeline.ID)
 	return pipeline, err
 }
 
@@ -312,5 +311,5 @@ func TriggerBlueprint(id uint64) (*models.Pipeline, error) {
 	}
 	pipeline, err := createAndRunPipelineByBlueprint(blueprint.ID, blueprint.Name, plan)
 	// done
-	return  pipeline, err
+	return pipeline, err
 }
