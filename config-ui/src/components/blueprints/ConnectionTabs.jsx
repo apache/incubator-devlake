@@ -16,18 +16,31 @@
  *
  */
 import React from 'react'
-import { Button, Intent, Colors, Classes, Tabs, Tab } from '@blueprintjs/core'
+import {
+  Button,
+  Intent,
+  Colors,
+  Icon,
+  Classes,
+  Tabs,
+  Tab,
+} from '@blueprintjs/core'
 
 const ConnectionTabs = (props) => {
-  const { connections = [], selectedTabId, onChange = () => {} } = props
+  const {
+    connections = [],
+    errors = [],
+    selectedTabId,
+    onChange = () => {},
+  } = props
 
   return (
     <>
       <Tabs
-        className='connection-tabs'
+        className="connection-tabs"
         animate={false}
         vertical={true}
-        id='connection-tabs'
+        id="connection-tabs"
         onChange={(tabId) => onChange(tabId)}
         selectedTabId={selectedTabId}
       >
@@ -35,7 +48,22 @@ const ConnectionTabs = (props) => {
           <Tab
             key={`tab-key-${cIdx}`}
             id={`connection-${c.id}`}
-            title={c.title}
+            title={
+              errors.some((e) => e.includes(c.name)) ? (
+                <>
+                  {c.title}{' '}
+                  <span style={{ display: 'flex', alignItems: 'center', alignSelf: 'center', marginLeft: '10px' }}>
+                    <Icon
+                      icon="warning-sign"
+                      size={10}
+                      color={Colors.ORANGE4}
+                    />
+                  </span>
+                </>
+              ) : (
+                c.title
+              )
+            }
             connection={c}
             // disabled=
           />

@@ -42,7 +42,7 @@ function useBlueprintValidation ({
     setErrors([])
   }
 
-  const isValidCronExpression = (expression) => {
+  const isValidCronExpression = useCallback((expression) => {
     let isValid = false
     try {
       parser.parseExpression(expression)
@@ -51,16 +51,20 @@ function useBlueprintValidation ({
       isValid = false
     }
     return isValid
-  }
+  }, [])
 
-  const validateNumericSet = (set = []) => {
+  const validateNumericSet = useCallback((set = []) => {
     return Array.isArray(set) ? set.every(i => !isNaN(i)) : false
-  }
+  }, [])
 
-  const validateRepositoryName = (set = []) => {
+  const validateRepositoryName = useCallback((set = []) => {
     const repoRegExp = /([a-z0-9_-]){2,}\/([a-z0-9_-]){2,}/gi
     return set.every(i => i.match(repoRegExp))
-  }
+  }, [])
+
+  const valiateNonEmptySet = useCallback((set = []) => {
+    return set.length > 0
+  }, [])
 
   const validate = useCallback(() => {
     const errs = []
@@ -120,6 +124,28 @@ function useBlueprintValidation ({
           if (activeProvider?.id === Providers.GITLAB && !validateNumericSet(projects[activeConnection?.id])) {
             errs.push('Projects: Only Numeric Project IDs are supported.')
           }
+
+          connections.forEach(c => {
+            if (c.provider === Providers.JIRA && boards[c?.id]?.length === 0) {
+              errs.push(`${c.name} requires a Board`)
+            }
+            if (c.provider === Providers.GITHUB && projects[c?.id]?.length === 0) {
+              errs.push(`${c.name} requires Project Names`)
+            }
+            if (c.provider === Providers.GITHUB && !validateRepositoryName(projects[c?.id])) {
+              errs.push(`${c.name} has Invalid Project Repository`)
+            }
+            if (c.provider === Providers.GITLAB && projects[c?.id]?.length === 0) {
+              errs.push(`${c.name} requires Project IDs`)
+            }
+            if (c.provider === Providers.GITLAB && !validateNumericSet(projects[c?.id])) {
+              errs.push(`${c.name} has invalid Project ID`)
+            }
+            if (entities[c?.id]?.length === 0) {
+              errs.push(`${c.name} is missing Data Entities`)
+            }
+          })
+
           break
       }
     }

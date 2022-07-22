@@ -22,6 +22,7 @@ import {
   Intent,
   InputGroup,
   Divider,
+  Spinner,
   Elevation,
   Card,
   Colors,
@@ -49,6 +50,20 @@ const DataConnections = (props) => {
     advancedMode = false
   } = props
 
+  const displayOnlineStatus = useCallback((testResponse) => {
+    let status = null
+    switch (testResponse?.status) {
+      case 200:
+        status = <span style={{ color: Colors.GREEN4 }}>Online</span>
+        break
+      case 400:
+      case 404:
+      default:
+        status = <span style={{ color: Colors.RED4 }}>Offline</span>
+    }
+    return status
+  }, [])
+
   return (
     <div className='workflow-step workflow-step-data-connections' data-step={activeStep?.id}>
       <BlueprintNameCard
@@ -59,35 +74,6 @@ const DataConnections = (props) => {
         fieldHasError={fieldHasError}
         getFieldError={getFieldError}
       />
-      {/* <Card
-        className='workflow-card'
-        elevation={Elevation.TWO}
-        style={{ width: '100%' }}
-      >
-        <h3>
-          Blueprint Name <span className='required-star'>*</span>
-        </h3>
-        <Divider className='section-divider' />
-        <p>
-          Give your Blueprint a unique name to help you identify it in the
-          future.
-        </p>
-        <InputGroup
-          id='blueprint-name'
-          placeholder='Enter Blueprint Name'
-          value={name}
-          onChange={(e) => setBlueprintName(e.target.value)}
-          className={`blueprint-name-input ${
-            fieldHasError('Blueprint Name') ? 'invalid-field' : ''
-          }`}
-          inline={true}
-          style={{ marginBottom: '10px' }}
-          rightElement={
-            <InputValidationError error={getFieldError('Blueprint Name')} />
-          }
-        />
-      </Card> */}
-
       <Card
         className='workflow-card'
         elevation={Elevation.TWO}
@@ -161,7 +147,7 @@ const DataConnections = (props) => {
                     className='connection-status'
                     style={{ textTransform: 'capitalize' }}
                   >
-                    {onlineStatus[bcIdx] || 'Testing'}
+                    {(bC.statusResponse && displayOnlineStatus(bC.statusResponse)) || <><span style={{ display: 'inline-block', marginRight: '5px', width: '12px', height: '12px', float: 'left' }}><Spinner size={12} color={Colors.GRAY3} /></span> Testing</>}
                   </div>
                   <div
                     className='connection-actions'

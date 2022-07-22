@@ -302,7 +302,7 @@ const Blueprints = (props) => {
                     icon='plus' intent={Intent.PRIMARY}
                     text='New Blueprint'
                     onClick={() => createNewBlueprint()}
-                  />)}
+                                             />)}
                 </div>
               </div>
             </div>
@@ -349,13 +349,13 @@ const Blueprints = (props) => {
                       >
                         {pipelines.length === 0
                           ? (
-                              <Button
+                            <Button
                                 // disabled={pipelines.length === 0}
-                                icon='plus'
-                                intent={Intent.PRIMARY} text='New Blueprint'
-                                style={{ marginRight: '10px' }}
-                                onClick={createNewBlueprint}
-                              />
+                              icon='plus'
+                              intent={Intent.PRIMARY} text='New Blueprint'
+                              style={{ marginRight: '10px' }}
+                              onClick={createNewBlueprint}
+                            />
                             )
                           : (
                             <Button

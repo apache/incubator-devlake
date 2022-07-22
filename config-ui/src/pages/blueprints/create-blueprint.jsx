@@ -26,7 +26,7 @@ import {
   BOARDS_ENDPOINT,
 } from '@/config/jiraApiProxy'
 import { integrationsData } from '@/data/integrations'
-import { Divider, Elevation, Card, Intent } from '@blueprintjs/core'
+import { Divider, Elevation, Card, Intent, Colors } from '@blueprintjs/core'
 import {
   Providers,
   ProviderTypes,
@@ -100,9 +100,7 @@ const CreateBlueprint = (props) => {
   const [runNow, setRunNow] = useState(false)
   const [newBlueprintId, setNewBlueprintId] = useState()
   const [existingTasks, setExistingTasks] = useState([])
-  // const [rawConfiguration, setRawConfiguration] = useState(
-  //   JSON.stringify([runTasks], null, '  ')
-  // )
+
   const [isValidConfiguration, setIsValidConfiguration] = useState(false)
   const [validationAdvancedError, setValidationAdvancedError] = useState()
 
@@ -123,25 +121,16 @@ const CreateBlueprint = (props) => {
   const [dataEntities, setDataEntities] = useState({})
   const [activeConnectionTab, setActiveConnectionTab] = useState()
 
-  const [onlineStatus, setOnlineStatus] = useState({})
-  useEffect(async () => {
-    const results = await Promise.all(blueprintConnections.map(
-      c => request.post(`${DEVLAKE_ENDPOINT}/plugins/${c.plugin}/test`, c))
-    )
-    setOnlineStatus(results.map(r => r.status === 200 ? 'Online' : 'Offline'))
-  }, [blueprintConnections])
-
+  const [onlineStatus, setOnlineStatus] = useState([])
   const [showBlueprintInspector, setShowBlueprintInspector] = useState(false)
 
   const [dataScopes, setDataScopes] = useState([])
+  const [dataConnections, setDataConnections] = useState([])
   const [transformations, setTransformations] = useState({})
-  // const [activeTransformation, setActiveTransformation] = useState({})
 
-  // @todo: replace with $projects
   const [projectId, setProjectId] = useState([])
   const [projects, setProjects] = useState({})
   const [boards, setBoards] = useState({})
-  // @todo: replace with $boards
   const [boardId, setBoardId] = useState([])
   const [connectionId, setConnectionId] = useState('')
   const [connections, setConnections] = useState([])
@@ -290,6 +279,7 @@ const CreateBlueprint = (props) => {
 
   const {
     testConnection,
+    testAllConnections,
     saveConnection,
     fetchConnection,
     allProviderConnections,
@@ -323,6 +313,7 @@ const CreateBlueprint = (props) => {
     connectionLimitReached,
     clearConnection: clearActiveConnection,
     testResponse,
+    testedConnections,
     allTestResponses,
     saveComplete: saveConnectionComplete
   } = useConnectionManager(
@@ -405,11 +396,13 @@ const CreateBlueprint = (props) => {
     [blueprintConnections, setProvider]
   )
 
-  const handleConnectionDialogOpen = () => {
+  const handleConnectionDialogOpen = useCallback(() => {
     console.log('>>> MANAGING CONNECTION', managedConnection)
-  }
+  }, [managedConnection])
 
-  const handleConnectionDialogClose = useCallback(() => {
+  const handleConnectionDialogClose = useCallback((savedConnection = {}) => {
+    fetchAllConnections(false, true)
+    testSelectedConnections(blueprintConnections, savedConnection)
     setConnectionDialogIsOpen(false)
     setManagedConnection(NullBlueprintConnection)
     setTestStatus(0)
@@ -418,8 +411,11 @@ const CreateBlueprint = (props) => {
     setInitialTokenStore({})
     clearActiveConnection()
     setActiveConnection(NullConnection)
-    setSaveConnectionComplete(null)
+    // setSaveConnectionComplete(null)
   }, [
+    blueprintConnections,
+    testSelectedConnections,
+    fetchAllConnections,
     clearActiveConnection,
     setActiveConnection,
     setAllTestResponses,
@@ -557,6 +553,34 @@ const CreateBlueprint = (props) => {
     [setProvider]
   )
 
+  const testSelectedConnections = useCallback((connections, savedConnection = {}, callback = () => {}) => {
+    const runTest = async () => {
+      const results = await Promise.all(connections.map(
+        c => {
+          const testPayload = c.connectionId === savedConnection?.id && c.name === savedConnection?.name ? {
+            endpoint: savedConnection?.endpoint,
+            username: savedConnection?.username,
+            password: savedConnection?.password,
+            token: savedConnection?.token,
+            proxy: savedConnection?.proxy
+          } : {
+            endpoint: c.endpoint,
+            username: c.username,
+            password: c.password,
+            token: c.token,
+            proxy: c.proxy
+          }
+          return request.post(`${DEVLAKE_ENDPOINT}/plugins/${c.plugin}/test`, testPayload)
+        })
+      )
+      setOnlineStatus(results.map(r => r))
+    }
+    if (mode === BlueprintMode.NORMAL && connections.length > 0) {
+      runTest()
+    }
+    callback()
+  }, [mode])
+
   const addProjectTransformation = useCallback((project) => {
     setConfiguredProject(project)
   }, [])
@@ -602,15 +626,6 @@ const CreateBlueprint = (props) => {
     setAdvancedMode(enableAdvanced)
   }
 
-  // const parseJSON = useCallback((jsonString = '') => {
-  //   try {
-  //     return JSON.parse(jsonString)
-  //   } catch (e) {
-  //     console.log('>> PARSE JSON ERROR!', e)
-  //     throw e
-  //   }
-  // }, [])
-
   const isValidCode = useCallback(() => {
     let isValid = false
     try {
@@ -628,12 +643,12 @@ const CreateBlueprint = (props) => {
 
   useEffect(() => {
     console.log('>> ACTIVE STEP CHANGED: ', activeStep)
-    if (activeStep?.id === 1) {
+    if (mode === BlueprintMode.NORMAL && activeStep?.id === 1) {
       const enableNotifications = false
       const getAllSources = true
       fetchAllConnections(enableNotifications, getAllSources)
     }
-    if (activeStep?.id === 2 || activeStep?.id === 3) {
+    if (mode === BlueprintMode.NORMAL && ([2, 3].includes(activeStep?.id))) {
       fetchBoards()
       fetchIssueTypes()
       fetchFields()
@@ -658,6 +673,7 @@ const CreateBlueprint = (props) => {
     fetchBoards,
     fetchFields,
     fetchIssueTypes,
+    mode
   ])
 
   useEffect(() => {
@@ -780,7 +796,9 @@ const CreateBlueprint = (props) => {
     setEnabledProviders([
       ...new Set(blueprintConnections.map((c) => c.provider)),
     ])
-  }, [blueprintConnections, setProvider])
+
+    testSelectedConnections(blueprintConnections)
+  }, [blueprintConnections, setProvider, testSelectedConnections])
 
   useEffect(() => {
     console.log('>> CONFIGURING CONNECTION', configuredConnection)
@@ -936,13 +954,6 @@ const CreateBlueprint = (props) => {
     setCanAdvanceNext(!configuredBoard)
   }, [configuredBoard, setCanAdvanceNext])
 
-  // useEffect(() => {
-  //   console.log(
-  //     '>>> ACTIVE/MODIFYING TRANSFORMATION RULES...',
-  //     activeTransformation
-  //   )
-  // }, [activeTransformation])
-
   useEffect(() => {
     console.log('>>> BLUEPRINT WORKFLOW STEPS...', blueprintSteps)
   }, [blueprintSteps])
@@ -1009,18 +1020,29 @@ const CreateBlueprint = (props) => {
 
   useEffect(() => {
     if (saveConnectionComplete?.id && connectionDialogIsOpen) {
-      handleConnectionDialogClose()
-      fetchAllConnections(false, true)
+      handleConnectionDialogClose(saveConnectionComplete)
+      // fetchAllConnections(false, true)
+      // testSelectedConnections(blueprintConnections, saveConnectionComplete)
     }
-  }, [connectionDialogIsOpen, saveConnectionComplete, fetchAllConnections, handleConnectionDialogClose])
+    return () => setSaveConnectionComplete(null)
+  }, [
+    connectionDialogIsOpen,
+    saveConnectionComplete,
+    fetchAllConnections,
+    blueprintConnections,
+    testSelectedConnections,
+    handleConnectionDialogClose,
+    saveConnectionComplete
+  ])
 
   useEffect(() => {
-    console.log('>>> CONNECTIONS SELECTOR LIST UPDATED...', connectionsList)
-  }, [connectionsList])
-
-  useEffect(() => {
-    console.log('>>> validationAdvancedError', validationAdvancedError)
-  }, [validationAdvancedError])
+    console.log('>>> ONLINE STATUS UPDATED...', onlineStatus)
+    setDataConnections(blueprintConnections.map((c, cIdx) => ({ 
+      ...c, 
+      statusResponse: onlineStatus[cIdx],
+      status: onlineStatus[cIdx]?.status 
+    })))
+  }, [onlineStatus, blueprintConnections])
 
   return (
     <>
@@ -1084,7 +1106,9 @@ const CreateBlueprint = (props) => {
                     <DataConnections
                       activeStep={activeStep}
                       advancedMode={advancedMode}
-                      blueprintConnections={blueprintConnections}
+                      blueprintConnections={dataConnections}
+                      // blueprintConnections={blueprintConnections}
+                      // blueprintConnections={[...blueprintConnections.map((c, cIdx) => ({...c, statusResponse: onlineStatus[cIdx], status: onlineStatus[cIdx]?.status }))]}
                       onlineStatus={onlineStatus}
                       connectionsList={connectionsList}
                       name={name}

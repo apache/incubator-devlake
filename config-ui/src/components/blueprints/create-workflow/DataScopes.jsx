@@ -77,6 +77,7 @@ const DataScopes = (props) => {
                 connections={blueprintConnections}
                 onChange={handleConnectionTabChange}
                 selectedTabId={activeConnectionTab}
+                errors={validationErrors}
               />
             </Card>
           </div>
