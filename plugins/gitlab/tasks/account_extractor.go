@@ -25,7 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ExtractAccountMeta = core.SubTaskMeta{
+var ExtractAccountsMeta = core.SubTaskMeta{
 	Name:             "extractAccounts",
 	EntryPoint:       ExtractAccounts,
 	EnabledByDefault: true,

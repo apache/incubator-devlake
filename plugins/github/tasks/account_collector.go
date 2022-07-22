@@ -37,7 +37,7 @@ type SimpleAccount struct {
 	Login string
 }
 
-func CollectAccount(taskCtx core.SubTaskContext) error {
+func CollectAccounts(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
@@ -89,9 +89,9 @@ func CollectAccount(taskCtx core.SubTaskContext) error {
 	return collector.Execute()
 }
 
-var CollectAccountMeta = core.SubTaskMeta{
-	Name:             "collectAccount",
-	EntryPoint:       CollectAccount,
+var CollectAccountsMeta = core.SubTaskMeta{
+	Name:             "collectAccounts",
+	EntryPoint:       CollectAccounts,
 	EnabledByDefault: true,
 	Description:      "Collect accounts data from Github api",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
