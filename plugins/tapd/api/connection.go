@@ -167,5 +167,5 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	if err != nil {
 		return nil,err
 	}
-	return &core.ApiResourceOutput{Body: connection}, nil
+	return &core.ApiResourceOutput{Body: connection},nil
 }
