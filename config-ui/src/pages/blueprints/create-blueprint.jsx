@@ -378,6 +378,34 @@ const CreateBlueprint = (props) => {
     setConfiguredBoard(null)
   }, [blueprintSteps])
 
+  const testSelectedConnections = useCallback((connections, savedConnection = {}, callback = () => {}) => {
+    const runTest = async () => {
+      const results = await Promise.all(connections.map(
+        c => {
+          const testPayload = c.connectionId === savedConnection?.id && c.name === savedConnection?.name ? {
+            endpoint: savedConnection?.endpoint,
+            username: savedConnection?.username,
+            password: savedConnection?.password,
+            token: savedConnection?.token,
+            proxy: savedConnection?.proxy
+          } : {
+            endpoint: c.endpoint,
+            username: c.username,
+            password: c.password,
+            token: c.token,
+            proxy: c.proxy
+          }
+          return request.post(`${DEVLAKE_ENDPOINT}/plugins/${c.plugin}/test`, testPayload)
+        })
+      )
+      setOnlineStatus(results.map(r => r))
+    }
+    if (mode === BlueprintMode.NORMAL && connections.length > 0) {
+      runTest()
+    }
+    callback()
+  }, [mode])
+
   const handleConnectionTabChange = useCallback(
     (tab) => {
       console.log('>> CONNECTION TAB CHANGED', tab)
@@ -552,34 +580,6 @@ const CreateBlueprint = (props) => {
     },
     [setProvider]
   )
-
-  const testSelectedConnections = useCallback((connections, savedConnection = {}, callback = () => {}) => {
-    const runTest = async () => {
-      const results = await Promise.all(connections.map(
-        c => {
-          const testPayload = c.connectionId === savedConnection?.id && c.name === savedConnection?.name ? {
-            endpoint: savedConnection?.endpoint,
-            username: savedConnection?.username,
-            password: savedConnection?.password,
-            token: savedConnection?.token,
-            proxy: savedConnection?.proxy
-          } : {
-            endpoint: c.endpoint,
-            username: c.username,
-            password: c.password,
-            token: c.token,
-            proxy: c.proxy
-          }
-          return request.post(`${DEVLAKE_ENDPOINT}/plugins/${c.plugin}/test`, testPayload)
-        })
-      )
-      setOnlineStatus(results.map(r => r))
-    }
-    if (mode === BlueprintMode.NORMAL && connections.length > 0) {
-      runTest()
-    }
-    callback()
-  }, [mode])
 
   const addProjectTransformation = useCallback((project) => {
     setConfiguredProject(project)
@@ -1037,10 +1037,10 @@ const CreateBlueprint = (props) => {
 
   useEffect(() => {
     console.log('>>> ONLINE STATUS UPDATED...', onlineStatus)
-    setDataConnections(blueprintConnections.map((c, cIdx) => ({ 
-      ...c, 
+    setDataConnections(blueprintConnections.map((c, cIdx) => ({
+      ...c,
       statusResponse: onlineStatus[cIdx],
-      status: onlineStatus[cIdx]?.status 
+      status: onlineStatus[cIdx]?.status
     })))
   }, [onlineStatus, blueprintConnections])
 

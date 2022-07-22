@@ -37,10 +37,10 @@ const ConnectionTabs = (props) => {
   return (
     <>
       <Tabs
-        className="connection-tabs"
+        className='connection-tabs'
         animate={false}
         vertical={true}
-        id="connection-tabs"
+        id='connection-tabs'
         onChange={(tabId) => onChange(tabId)}
         selectedTabId={selectedTabId}
       >
@@ -54,7 +54,7 @@ const ConnectionTabs = (props) => {
                   {c.title}{' '}
                   <span style={{ display: 'flex', alignItems: 'center', alignSelf: 'center', marginLeft: '10px' }}>
                     <Icon
-                      icon="warning-sign"
+                      icon='warning-sign'
                       size={10}
                       color={Colors.ORANGE4}
                     />
