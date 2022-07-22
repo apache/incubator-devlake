@@ -93,6 +93,3 @@ clean:
 
 restart:
 	docker-compose down; docker-compose up -d
-
-swag:
-	swag init --parseDependency --parseInternal -o ./api/docs -g ./api/api.go

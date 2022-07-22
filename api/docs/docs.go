@@ -11,9 +11,6 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {},
-        "license": {
-            "name": "Apache-2.0"
-        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -149,7 +146,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -188,6 +185,47 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/models.Blueprint"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internel Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/blueprints/{blueprintId}/trigger": {
+            "post": {
+                "description": "trigger a blueprint immediately",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Blueprints"
+                ],
+                "summary": "trigger blueprint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "blueprintId",
+                        "name": "blueprintId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Pipeline"
                         }
                     },
                     "400": {
@@ -246,7 +284,7 @@ const docTemplate = `{
                 "summary": "Ping",
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -355,7 +393,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internel Error",
+                        "description": "Internal Error",
                         "schema": {
                             "type": "string"
                         }
@@ -415,7 +453,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -468,6 +506,409 @@ const docTemplate = `{
                         "description": "Internel Error",
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/ae/connections": {
+            "get": {
+                "description": "Get all AE connections",
+                "tags": [
+                    "plugins/AE"
+                ],
+                "summary": "get all ae connections",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internel Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create AE connection",
+                "tags": [
+                    "plugins/AE"
+                ],
+                "summary": "create ae connection",
+                "parameters": [
+                    {
+                        "description": "json body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AeConnection"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internel Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/ae/connections/{connectionId}": {
+            "get": {
+                "description": "Get AE connection detail",
+                "tags": [
+                    "plugins/AE"
+                ],
+                "summary": "get ae connection detail",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internel Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a AE connection",
+                "tags": [
+                    "plugins/AE"
+                ],
+                "summary": "delete a ae connection",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internel Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "Patch AE connection",
+                "tags": [
+                    "plugins/AE"
+                ],
+                "summary": "patch ae connection",
+                "parameters": [
+                    {
+                        "description": "json body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AeConnection"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internel Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/ae/test": {
+            "post": {
+                "description": "Test AE Connection",
+                "tags": [
+                    "plugins/AE"
+                ],
+                "summary": "test ae connection",
+                "parameters": [
+                    {
+                        "description": "json body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.TestConnectionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internel Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/org/teams.csv": {
+            "get": {
+                "description": "get teams.csv file",
+                "produces": [
+                    "text/csv"
+                ],
+                "tags": [
+                    "plugins/org"
+                ],
+                "summary": "Get teams.csv file",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "return fake data or not",
+                        "name": "fake_data",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.ApiBody"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Error",
+                        "schema": {
+                            "$ref": "#/definitions/shared.ApiBody"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "upload teams.csv file",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plugins/org"
+                ],
+                "summary": "Upload teams.csv file",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "select file to upload",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.ApiBody"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Error",
+                        "schema": {
+                            "$ref": "#/definitions/shared.ApiBody"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/org/user_account_mapping.csv": {
+            "get": {
+                "description": "get user_account_mapping.csv.csv file",
+                "produces": [
+                    "text/csv"
+                ],
+                "tags": [
+                    "plugins/org"
+                ],
+                "summary": "Get user_account_mapping.csv.csv file",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.ApiBody"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Error",
+                        "schema": {
+                            "$ref": "#/definitions/shared.ApiBody"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "upload user_account_mapping.csv.csv file",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plugins/org"
+                ],
+                "summary": "Upload user_account_mapping.csv.csv file",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "select file to upload",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.ApiBody"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Error",
+                        "schema": {
+                            "$ref": "#/definitions/shared.ApiBody"
+                        }
+                    }
+                }
+            }
+        },
+        "/plugins/org/users.csv": {
+            "get": {
+                "description": "get users.csv file",
+                "produces": [
+                    "text/csv"
+                ],
+                "tags": [
+                    "plugins/org"
+                ],
+                "summary": "Get users.csv file",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "return fake data or not",
+                        "name": "fake_data",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.ApiBody"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Error",
+                        "schema": {
+                            "$ref": "#/definitions/shared.ApiBody"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "upload users.csv file",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "plugins/org"
+                ],
+                "summary": "Upload users.csv file",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "select file to upload",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/shared.ApiBody"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Error",
+                        "schema": {
+                            "$ref": "#/definitions/shared.ApiBody"
                         }
                     }
                 }
@@ -582,6 +1023,44 @@ const docTemplate = `{
         "gin.H": {
             "type": "object",
             "additionalProperties": true
+        },
+        "models.AeConnection": {
+            "type": "object",
+            "required": [
+                "app_id",
+                "endpoint",
+                "name",
+                "secret_key"
+            ],
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "endpoint": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "proxy": {
+                    "type": "string"
+                },
+                "rateLimit": {
+                    "type": "integer"
+                },
+                "secret_key": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
         },
         "models.Blueprint": {
             "type": "object",
@@ -701,18 +1180,50 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "models.TestConnectionRequest": {
+            "type": "object",
+            "required": [
+                "app_id",
+                "secret_key"
+            ],
+            "properties": {
+                "app_id": {
+                    "type": "string"
+                },
+                "endpoint": {
+                    "type": "string"
+                },
+                "proxy": {
+                    "type": "string"
+                },
+                "secret_key": {
+                    "type": "string"
+                }
+            }
+        },
+        "shared.ApiBody": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.1",
-	Host:             "localhost:8080",
-	BasePath:         "/",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "DevLake Swagger API",
-	Description:      "<h2>This is the main page of devlake api</h2>",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

@@ -1,0 +1,2 @@
+connection_id,board_id,created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark,project_id,name,self,type
+1,93,2022-07-19T19:36:30.254+00:00,2022-07-19T19:36:30.254+00:00,"{""ConnectionId"":1,""BoardId"":93}",_raw_jira_api_boards,1,,10050,test_board,https://merico.atlassian.net/rest/agile/1.0/board/93,kanban

@@ -20,6 +20,7 @@ package tasks
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -53,38 +54,9 @@ var CollectExternalEpicsMeta = core.SubTaskMeta{
 func CollectExternalEpics(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
-
-	// union of
-	// 1. issues with epics not from this board and not in the issues table
-	// 2. issues with epics not from this board that ARE already in the issues table (from previous runs)
-	// the above two selections are mutually exclusive
-	cursor, err := db.RawCursor(fmt.Sprintf(`
-			SELECT tji.epic_key as epicKey FROM _tool_jira_issues tji
-			LEFT JOIN _tool_jira_board_issues tjbi
-			ON tji.issue_id = tjbi.issue_id
-			WHERE
-			tjbi.board_id = %d AND tji.epic_key != "" AND NOT EXISTS (
-				SELECT issue_key FROM _tool_jira_issues tji2 
-				WHERE tji2.issue_key = tji.epic_key
-			)
-			UNION
-			SELECT tji.issue_key as epicKey FROM _tool_jira_issues tji
-			LEFT JOIN _tool_jira_board_issues tjbi
-			ON tji.issue_id = tjbi.issue_id
-			WHERE 
-			tjbi.issue_id IS NULL;
-		`, data.Options.BoardId))
+	externalEpicKeys, err := GetExternalEpicKeys(db, data)
 	if err != nil {
-		return fmt.Errorf("unable to query for external epics: %v", err)
-	}
-	var externalEpicKeys []string
-	for cursor.Next() {
-		epicKey := ""
-		err = cursor.Scan(&epicKey)
-		if err != nil {
-			return fmt.Errorf("couldn't read returned epic key: %v", err)
-		}
-		externalEpicKeys = append(externalEpicKeys, epicKey)
+		return err
 	}
 	if len(externalEpicKeys) == 0 {
 		taskCtx.GetLogger().Info("no external epic keys found for Jira board %d", data.Options.BoardId)
@@ -141,4 +113,40 @@ func CollectExternalEpics(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	return collector.Execute()
+}
+
+func GetExternalEpicKeys(db dal.Dal, data *JiraTaskData) ([]string, error) {
+	// union of
+	// 1. issues with epics not from this board and not in the issues table
+	// 2. issues with epics not from this board that ARE already in the issues table (from previous runs)
+	// the above two selections are mutually exclusive
+	cursor, err := db.RawCursor(fmt.Sprintf(`
+			SELECT tji.epic_key as epicKey FROM _tool_jira_issues tji
+			LEFT JOIN _tool_jira_board_issues tjbi
+			ON tji.issue_id = tjbi.issue_id
+			WHERE
+			tjbi.board_id = %d AND tji.epic_key != "" AND NOT EXISTS (
+				SELECT issue_key FROM _tool_jira_issues tji2 
+				WHERE tji2.issue_key = tji.epic_key
+			)
+			UNION
+			SELECT tji.issue_key as epicKey FROM _tool_jira_issues tji
+			LEFT JOIN _tool_jira_board_issues tjbi
+			ON tji.issue_id = tjbi.issue_id
+			WHERE 
+			tjbi.issue_id IS NULL;
+		`, data.Options.BoardId))
+	if err != nil {
+		return nil, fmt.Errorf("unable to query for external epics: %v", err)
+	}
+	var externalEpicKeys []string
+	for cursor.Next() {
+		epicKey := ""
+		err = cursor.Scan(&epicKey)
+		if err != nil {
+			return nil, fmt.Errorf("couldn't read returned epic key: %v", err)
+		}
+		externalEpicKeys = append(externalEpicKeys, epicKey)
+	}
+	return externalEpicKeys, nil
 }
