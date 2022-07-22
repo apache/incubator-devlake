@@ -370,3 +370,11 @@ h4 {
     color: #94959F;
   }
 }
+
+.bp3-non-ideal-state {
+  &.blueprints-non-ideal-state {
+    > * {
+      max-width: 100%;
+    }
+  }
+}

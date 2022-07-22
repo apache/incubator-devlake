@@ -83,9 +83,9 @@ export default function JiraSettings (props) {
   // eslint-disable-next-line no-unused-vars
   const [remoteLinkCommitSha, setRemoteLinkCommitSha] = useState('')
 
-  const [requirementTags, setRequirementTags] = useState([])
-  const [bugTags, setBugTags] = useState([])
-  const [incidentTags, setIncidentTags] = useState([])
+  const [requirementTags, setRequirementTags] = useState([...transformation?.requirementTags])
+  const [bugTags, setBugTags] = useState([...transformation?.bugTags])
+  const [incidentTags, setIncidentTags] = useState([...transformation?.incidentTags])
 
   const [requirementTagsList, setRequirementTagsList] = useState([])
   const [bugTagsList, setBugTagsList] = useState([])
@@ -166,18 +166,11 @@ export default function JiraSettings (props) {
   }, [fieldsList, transformation?.storyPointField])
 
   useEffect(() => {
-    console.log('>>>> (new) TRANSFORMATION SETTINGS OBJECT....', newTransformation)
-    setCurrentTransformation(newTransformation[configuredBoard?.id])
-  }, [newTransformation, configuredBoard?.id])
-
-  useEffect(() => {
     console.log('>>>> CONFIGURING BOARD....', configuredBoard)
   }, [configuredBoard])
 
   useEffect(() => {
-    setRequirementTags(transformation?.requirementTags || [])
-    setBugTags(transformation?.bugTags || [])
-    setIncidentTags(transformation?.incidentTags || [])
+    console.log('>>>> MY CURRENT JIRA TRANSFORM SETTINGS..', transformation)
   }, [transformation])
 
   return (
@@ -385,7 +378,7 @@ export default function JiraSettings (props) {
 
       <div className='epic-key-select' style={{ display: 'flex', marginBottom: '10px' }}>
         <div className='epick-key-label' style={{ minWidth: '120px', paddingRight: '10px', paddingTop: '3px' }}>
-          <label>Epic Key</label>
+          <label>Epic Link</label>
         </div>
         <div style={{ display: 'flex', minWidth: '260px' }}>
           <ButtonGroup disabled={isSaving} fill={true}>
@@ -460,7 +453,7 @@ export default function JiraSettings (props) {
 
       <div className='story-point-select' style={{ display: 'flex', marginBottom: '10px' }}>
         <div className='story-point-label' style={{ minWidth: '120px', paddingRight: '10px', paddingTop: '3px' }}>
-          <label>Story Point Field</label>
+          <label>Story Point</label>
         </div>
         <div style={{ display: 'flex', minWidth: '260px' }}>
           <ButtonGroup disabled={isSaving}>
@@ -552,7 +545,7 @@ export default function JiraSettings (props) {
             id='jira-remotelink-sha'
             fill={true}
             placeholder='/commit/([0-9a-f]{40})$'
-            value={newTransformation[configuredBoard?.id]?.remotelinkCommitShaPattern}
+            value={transformation?.remotelinkCommitShaPattern}
             onChange={(e) => onSettingsChange({ remotelinkCommitShaPattern: e.target.value }, configuredBoard?.id)}
             disabled={isSaving}
             className='input'

@@ -86,6 +86,8 @@ export default function ConnectionForm (props) {
   const connectionNameRef = useRef()
   const connectionEndpointRef = useRef()
   const connectionTokenRef = useRef()
+  const connectionUsernameRef = useRef()
+  const connectionPasswordRef = useRef()
 
   // const [isValidForm, setIsValidForm] = useState(true)
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
@@ -187,18 +189,22 @@ export default function ConnectionForm (props) {
   }, [tokenStore])
 
   useEffect(() => {
-    console.log('>> PERSONAL ACCESS TOKENS ENTERED...', personalAccessTokens)
-    onTokenChange(personalAccessTokens.join(',').trim())
-    const tokenTestResponses = personalAccessTokens.filter(t => t !== '').map((t, tIdx) => {
-      const withAlert = false
-      const testPayload = {
-        endpoint: endpointUrl,
-        token: t
-      }
-      onTest(withAlert, testPayload)
-      return t
-    })
+    if (activeProvider?.id === Providers.GITHUB) {
+      console.log('>> PERSONAL ACCESS TOKENS ENTERED...', personalAccessTokens)
+      onTokenChange(personalAccessTokens.join(',').trim())
+      // eslint-disable-next-line no-unused-vars
+      const tokenTestResponses = personalAccessTokens.filter(t => t !== '').map((t, tIdx) => {
+        const withAlert = false
+        const testPayload = {
+          endpoint: endpointUrl,
+          token: t
+        }
+        onTest(withAlert, testPayload)
+        return t
+      })
+    }
   }, [
+    activeProvider?.id,
     personalAccessTokens,
     endpointUrl,
     onTokenChange,
@@ -303,6 +309,7 @@ export default function ConnectionForm (props) {
             <InputGroup
               id='connection-name'
               autoComplete='false'
+              autoFocus='true'
               inputRef={connectionNameRef}
               disabled={isTesting || isSaving || isLocked}
               // readOnly={[Providers.JENKINS].includes(activeProvider.id)}
@@ -621,17 +628,25 @@ export default function ConnectionForm (props) {
                 </Label>
                 <InputGroup
                   id='connection-username'
+                  tabIndex={0}
                   autoComplete='false'
+                  inputRef={connectionUsernameRef}
                   disabled={isTesting || isSaving || isLocked}
                   placeholder='Enter Username'
                   defaultValue={username}
                   onChange={(e) => onUsernameChange(e.target.value)}
                   className={`input username-input ${
-                    fieldHasError('Username') ? 'invalid-field' : ''
+                    stateErrored === 'Username' ? 'invalid-field' : ''
                   }`}
                   // style={{ maxWidth: '300px' }}
                   rightElement={
-                    <InputValidationError error={getFieldError('Username')} />
+                    <InputValidationError
+                      error={getFieldError('Username')}
+                      elementRef={connectionUsernameRef}
+                      onError={activateErrorStates}
+                      onSuccess={() => setStateErrored(null)}
+                      validateOnFocus
+                    />
                   }
                 />
               </FormGroup>
@@ -651,18 +666,26 @@ export default function ConnectionForm (props) {
                 </Label>
                 <InputGroup
                   id='connection-password'
+                  tabIndex={1}
                   type='password'
                   autoComplete='false'
+                  inputRef={connectionPasswordRef}
                   disabled={isTesting || isSaving || isLocked}
                   placeholder='Enter Password'
                   defaultValue={password}
                   onChange={(e) => onPasswordChange(e.target.value)}
                   className={`input password-input ${
-                    fieldHasError('Password') ? 'invalid-field' : ''
+                    stateErrored === 'Password' ? 'invalid-field' : ''
                   }`}
                   // style={{ maxWidth: '300px' }}
                   rightElement={
-                    <InputValidationError error={getFieldError('Password')} />
+                    <InputValidationError
+                      error={getFieldError('Password')}
+                      elementRef={connectionPasswordRef}
+                      onError={activateErrorStates}
+                      onSuccess={() => setStateErrored(null)}
+                      validateOnFocus
+                    />
                   }
                 />
               </FormGroup>
@@ -683,6 +706,7 @@ export default function ConnectionForm (props) {
               <Label>{labels ? labels.proxy : <>Proxy&nbsp;URL</>}</Label>
               <InputGroup
                 id='connection-proxy'
+                tabIndex={3}
                 placeholder={
                   placeholders.proxy
                     ? placeholders.proxy

@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useState, useCallback } from 'react'
+import React, { Fragment, useEffect, useState, useCallback, useMemo } from 'react'
 import { CSSTransition } from 'react-transition-group'
 import { useHistory, useLocation, Link } from 'react-router-dom'
 import dayjs from '@/utils/time'
@@ -26,7 +26,7 @@ import {
   BOARDS_ENDPOINT,
 } from '@/config/jiraApiProxy'
 import { integrationsData } from '@/data/integrations'
-import { Divider, Elevation, Card } from '@blueprintjs/core'
+import { Divider, Elevation, Card, Intent, Colors } from '@blueprintjs/core'
 import {
   Providers,
   ProviderTypes,
@@ -38,6 +38,7 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 // import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
+import { ToastNotification } from '@/components/Toast'
 
 import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
@@ -99,9 +100,7 @@ const CreateBlueprint = (props) => {
   const [runNow, setRunNow] = useState(false)
   const [newBlueprintId, setNewBlueprintId] = useState()
   const [existingTasks, setExistingTasks] = useState([])
-  const [rawConfiguration, setRawConfiguration] = useState(
-    JSON.stringify([runTasks], null, '  ')
-  )
+
   const [isValidConfiguration, setIsValidConfiguration] = useState(false)
   const [validationAdvancedError, setValidationAdvancedError] = useState()
 
@@ -122,25 +121,16 @@ const CreateBlueprint = (props) => {
   const [dataEntities, setDataEntities] = useState({})
   const [activeConnectionTab, setActiveConnectionTab] = useState()
 
-  const [onlineStatus, setOnlineStatus] = useState({})
-  useEffect(async () => {
-    const results = await Promise.all(blueprintConnections.map(
-      c => request.post(`${DEVLAKE_ENDPOINT}/plugins/${c.plugin}/test`, c))
-    )
-    setOnlineStatus(results.map(r => r.status === 200 ? "Online" : "Offline"))
-  }, [blueprintConnections])
-
+  const [onlineStatus, setOnlineStatus] = useState([])
   const [showBlueprintInspector, setShowBlueprintInspector] = useState(false)
 
   const [dataScopes, setDataScopes] = useState([])
+  const [dataConnections, setDataConnections] = useState([])
   const [transformations, setTransformations] = useState({})
-  const [activeTransformation, setActiveTransformation] = useState()
 
-  // @todo: replace with $projects
   const [projectId, setProjectId] = useState([])
   const [projects, setProjects] = useState({})
   const [boards, setBoards] = useState({})
-  // @todo: replace with $boards
   const [boardId, setBoardId] = useState([])
   const [connectionId, setConnectionId] = useState('')
   const [connections, setConnections] = useState([])
@@ -158,12 +148,17 @@ const CreateBlueprint = (props) => {
     'calculateIssuesDiff',
   ])
 
+  const [canAdvanceNext, setCanAdvanceNext] = useState(true)
+  const [canAdvancePrev, setCanAdvancePrev] = useState(true)
+
   const [configuredProject, setConfiguredProject] = useState(
     projects.length > 0 ? projects[0] : null
   )
   const [configuredBoard, setConfiguredBoard] = useState(
     boards.length > 0 ? boards[0] : null
   )
+
+  const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
 
   const {
     activeConnection,
@@ -181,6 +176,7 @@ const CreateBlueprint = (props) => {
     detectedProviderTasks,
     enable,
     mode,
+    rawConfiguration,
     setName: setBlueprintName,
     setCronConfig,
     setCustomCronConfig,
@@ -189,6 +185,8 @@ const CreateBlueprint = (props) => {
     setDetectedProviderTasks,
     setEnable: setEnableBlueprint,
     setMode: setBlueprintMode,
+    setIsManual: setIsManualBlueprint,
+    setRawConfiguration,
     // eslint-disable-next-line no-unused-vars
     isFetching: isFetchingBlueprints,
     isSaving,
@@ -201,26 +199,9 @@ const CreateBlueprint = (props) => {
     saveBlueprint,
     deleteBlueprint,
     isDeleting: isDeletingBlueprint,
-    saveComplete: saveBlueprintComplete,
+    isManual: isManualBlueprint,
+    saveComplete: saveBlueprintComplete
   } = useBlueprintManager()
-
-  const {
-    // eslint-disable-next-line no-unused-vars
-    validate: validateBlueprint,
-    // eslint-disable-next-line no-unused-vars
-    errors: blueprintValidationErrors,
-    // setErrors: setBlueprintErrors,
-    isValid: isValidBlueprint,
-    fieldHasError,
-    getFieldError,
-  } = useBlueprintValidation({
-    name,
-    cronConfig,
-    customCronConfig,
-    enable,
-    tasks: blueprintTasks,
-    mode,
-  })
 
   const {
     pipelineName,
@@ -250,8 +231,9 @@ const CreateBlueprint = (props) => {
     validateAdvanced: validateAdvancedPipeline,
     errors: validationErrors,
     setErrors: setPipelineErrors,
-    isValid: isValidPipelineForm,
+    isValid: isValidPipeline,
     detectedProviders,
+    parseJSON
   } = usePipelineValidation({
     enabledProviders,
     pipelineName,
@@ -273,6 +255,7 @@ const CreateBlueprint = (props) => {
     mode,
     connection: configuredConnection,
     entities: dataEntities,
+    rawConfiguration
   })
 
   const {
@@ -296,6 +279,7 @@ const CreateBlueprint = (props) => {
 
   const {
     testConnection,
+    testAllConnections,
     saveConnection,
     fetchConnection,
     allProviderConnections,
@@ -329,6 +313,7 @@ const CreateBlueprint = (props) => {
     connectionLimitReached,
     clearConnection: clearActiveConnection,
     testResponse,
+    testedConnections,
     allTestResponses,
     saveComplete: saveConnectionComplete
   } = useConnectionManager(
@@ -338,6 +323,28 @@ const CreateBlueprint = (props) => {
     },
     managedConnection && managedConnection?.id !== null
   )
+
+  const {
+    validate: validateBlueprint,
+    errors: blueprintValidationErrors,
+    isValid: isValidBlueprint,
+    fieldHasError,
+    getFieldError,
+  } = useBlueprintValidation({
+    name,
+    boards,
+    projects,
+    cronConfig,
+    customCronConfig,
+    enable,
+    tasks: blueprintTasks,
+    mode,
+    connections: blueprintConnections,
+    entities: dataEntities,
+    activeStep,
+    activeProvider: provider,
+    activeConnection: configuredConnection
+  })
 
   const {
     validate: validateConnection,
@@ -367,7 +374,37 @@ const CreateBlueprint = (props) => {
     setActiveStep((aS) =>
       blueprintSteps.find((s) => s.id === Math.max(aS.id - 1, 1))
     )
+    setConfiguredProject(null)
+    setConfiguredBoard(null)
   }, [blueprintSteps])
+
+  const testSelectedConnections = useCallback((connections, savedConnection = {}, callback = () => {}) => {
+    const runTest = async () => {
+      const results = await Promise.all(connections.map(
+        c => {
+          const testPayload = c.connectionId === savedConnection?.id && c.name === savedConnection?.name ? {
+            endpoint: savedConnection?.endpoint,
+            username: savedConnection?.username,
+            password: savedConnection?.password,
+            token: savedConnection?.token,
+            proxy: savedConnection?.proxy
+          } : {
+            endpoint: c.endpoint,
+            username: c.username,
+            password: c.password,
+            token: c.token,
+            proxy: c.proxy
+          }
+          return request.post(`${DEVLAKE_ENDPOINT}/plugins/${c.plugin}/test`, testPayload)
+        })
+      )
+      setOnlineStatus(results.map(r => r))
+    }
+    if (mode === BlueprintMode.NORMAL && connections.length > 0) {
+      runTest()
+    }
+    callback()
+  }, [mode])
 
   const handleConnectionTabChange = useCallback(
     (tab) => {
@@ -387,11 +424,13 @@ const CreateBlueprint = (props) => {
     [blueprintConnections, setProvider]
   )
 
-  const handleConnectionDialogOpen = () => {
+  const handleConnectionDialogOpen = useCallback(() => {
     console.log('>>> MANAGING CONNECTION', managedConnection)
-  }
+  }, [managedConnection])
 
-  const handleConnectionDialogClose = useCallback(() => {
+  const handleConnectionDialogClose = useCallback((savedConnection = {}) => {
+    fetchAllConnections(false, true)
+    testSelectedConnections(blueprintConnections, savedConnection)
     setConnectionDialogIsOpen(false)
     setManagedConnection(NullBlueprintConnection)
     setTestStatus(0)
@@ -400,8 +439,11 @@ const CreateBlueprint = (props) => {
     setInitialTokenStore({})
     clearActiveConnection()
     setActiveConnection(NullConnection)
-    setSaveConnectionComplete(null)
+    // setSaveConnectionComplete(null)
   }, [
+    blueprintConnections,
+    testSelectedConnections,
+    fetchAllConnections,
     clearActiveConnection,
     setActiveConnection,
     setAllTestResponses,
@@ -572,22 +614,16 @@ const CreateBlueprint = (props) => {
 
   const handleTransformationSave = useCallback((settings, entity) => {
     console.log('>> SAVING / CLOSING Transformation Settings')
-    setTransformationSettings(settings, entity)
+    // manual @save disabled, reactive auto-saving writes settings to transform object...
+    // setTransformationSettings(settings, entity)
     setConfiguredProject(null)
     setConfiguredBoard(null)
-  }, [setTransformationSettings])
+    ToastNotification.clear()
+    ToastNotification.show({ message: 'Transformation Rules Added.', intent: Intent.SUCCESS, icon: 'small-tick' })
+  }, [])
 
   const handleAdvancedMode = (enableAdvanced = true) => {
     setAdvancedMode(enableAdvanced)
-  }
-
-  const parseJSON = (jsonString = '') => {
-    try {
-      return JSON.parse(jsonString)
-    } catch (e) {
-      console.log('>> PARSE JSON ERROR!', e)
-      throw e
-    }
   }
 
   const isValidCode = useCallback(() => {
@@ -595,6 +631,7 @@ const CreateBlueprint = (props) => {
     try {
       const parsedCode = parseJSON(rawConfiguration)
       isValid = true
+      setValidationAdvancedError(null)
     } catch (e) {
       console.log('>> FORMAT CODE: Invalid Code Format!', e)
       isValid = false
@@ -602,16 +639,16 @@ const CreateBlueprint = (props) => {
     }
     setIsValidConfiguration(isValid)
     return isValid
-  }, [rawConfiguration])
+  }, [rawConfiguration, parseJSON])
 
   useEffect(() => {
     console.log('>> ACTIVE STEP CHANGED: ', activeStep)
-    if (activeStep?.id === 1) {
+    if (mode === BlueprintMode.NORMAL && activeStep?.id === 1) {
       const enableNotifications = false
       const getAllSources = true
       fetchAllConnections(enableNotifications, getAllSources)
     }
-    if (activeStep?.id === 2 || activeStep?.id === 3) {
+    if (mode === BlueprintMode.NORMAL && ([2, 3].includes(activeStep?.id))) {
       fetchBoards()
       fetchIssueTypes()
       fetchFields()
@@ -636,6 +673,7 @@ const CreateBlueprint = (props) => {
     fetchBoards,
     fetchFields,
     fetchIssueTypes,
+    mode
   ])
 
   useEffect(() => {
@@ -700,16 +738,30 @@ const CreateBlueprint = (props) => {
     cronConfig,
     customCronConfig,
     blueprintTasks,
+    connectionsList,
     enable,
     validateBlueprint,
   ])
 
+  useEffect(() => {
+    setIsManualBlueprint(cronConfig === 'manual')
+  }, [cronConfig, setIsManualBlueprint])
+
   useEffect(() => { }, [activeConnectionTab])
 
   useEffect(() => {
-    setConfiguredConnection(
-      blueprintConnections.length > 0 ? blueprintConnections[0] : null
-    )
+    console.log('>>>> MY SELECTED BLUEPRINT CONNECTIONS...', blueprintConnections)
+    const someConnection = blueprintConnections.find(c => c)
+    if (someConnection) {
+      setConfiguredConnection(someConnection)
+      setActiveConnectionTab(`connection-${someConnection?.id}`)
+      setActiveProvider(
+        integrationsData.find((p) => p.id === someConnection.provider)
+      )
+      setProvider(
+        integrationsData.find((p) => p.id === someConnection.provider)
+      )
+    }
     const getDefaultEntities = (providerId) => {
       let entities = []
       switch (providerId) {
@@ -744,7 +796,9 @@ const CreateBlueprint = (props) => {
     setEnabledProviders([
       ...new Set(blueprintConnections.map((c) => c.provider)),
     ])
-  }, [blueprintConnections])
+
+    testSelectedConnections(blueprintConnections)
+  }, [blueprintConnections, setProvider, testSelectedConnections])
 
   useEffect(() => {
     console.log('>> CONFIGURING CONNECTION', configuredConnection)
@@ -774,7 +828,7 @@ const CreateBlueprint = (props) => {
           break
       }
     }
-  }, [configuredConnection])
+  }, [configuredConnection, setActiveConnectionTab])
 
   useEffect(() => {
     console.log('>> DATA ENTITIES', dataEntities)
@@ -882,30 +936,23 @@ const CreateBlueprint = (props) => {
     console.log(
       '>>> SELECTED PROJECT TO CONFIGURE...',
       configuredProject,
-      transformations
     )
-    setActiveTransformation((aT) =>
-      configuredProject ? transformations[configuredProject] : aT
-    )
-  }, [configuredProject, transformations])
+    // setActiveTransformation((aT) =>
+    //   configuredProject !== null ? transformations[configuredProject] : {}
+    // )
+    setCanAdvanceNext(!configuredProject)
+  }, [configuredProject, setCanAdvanceNext])
 
   useEffect(() => {
     console.log(
       '>>> SELECTED BOARD TO CONFIGURE...',
       configuredBoard?.id,
-      transformations
     )
-    setActiveTransformation((aT) =>
-      configuredBoard ? transformations[configuredBoard?.id] : aT
-    )
-  }, [configuredBoard, transformations])
-
-  // useEffect(() => {
-  //   console.log(
-  //     '>>> ACTIVE/MODIFYING TRANSFORMATION RULES...',
-  //     activeTransformation
-  //   )
-  // }, [activeTransformation])
+    // setActiveTransformation((aT) =>
+    //   configuredBoard ? transformations[configuredBoard?.id] : aT
+    // )
+    setCanAdvanceNext(!configuredBoard)
+  }, [configuredBoard, setCanAdvanceNext])
 
   useEffect(() => {
     console.log('>>> BLUEPRINT WORKFLOW STEPS...', blueprintSteps)
@@ -973,14 +1020,29 @@ const CreateBlueprint = (props) => {
 
   useEffect(() => {
     if (saveConnectionComplete?.id && connectionDialogIsOpen) {
-      handleConnectionDialogClose()
-      fetchAllConnections(false, true)
+      handleConnectionDialogClose(saveConnectionComplete)
+      // fetchAllConnections(false, true)
+      // testSelectedConnections(blueprintConnections, saveConnectionComplete)
     }
-  }, [connectionDialogIsOpen, saveConnectionComplete, fetchAllConnections, handleConnectionDialogClose])
+    return () => setSaveConnectionComplete(null)
+  }, [
+    connectionDialogIsOpen,
+    saveConnectionComplete,
+    fetchAllConnections,
+    blueprintConnections,
+    testSelectedConnections,
+    handleConnectionDialogClose,
+    saveConnectionComplete
+  ])
 
   useEffect(() => {
-    console.log('>>> CONNECTIONS SELECTOR LIST UPDATED...', connectionsList)
-  }, [connectionsList])
+    console.log('>>> ONLINE STATUS UPDATED...', onlineStatus)
+    setDataConnections(blueprintConnections.map((c, cIdx) => ({
+      ...c,
+      statusResponse: onlineStatus[cIdx],
+      status: onlineStatus[cIdx]?.status
+    })))
+  }, [onlineStatus, blueprintConnections])
 
   return (
     <>
@@ -1044,7 +1106,9 @@ const CreateBlueprint = (props) => {
                     <DataConnections
                       activeStep={activeStep}
                       advancedMode={advancedMode}
-                      blueprintConnections={blueprintConnections}
+                      blueprintConnections={dataConnections}
+                      // blueprintConnections={blueprintConnections}
+                      // blueprintConnections={[...blueprintConnections.map((c, cIdx) => ({...c, statusResponse: onlineStatus[cIdx], status: onlineStatus[cIdx]?.status }))]}
                       onlineStatus={onlineStatus}
                       connectionsList={connectionsList}
                       name={name}
@@ -1078,6 +1142,7 @@ const CreateBlueprint = (props) => {
                       prevStep={prevStep}
                       isSaving={isSaving}
                       isRunning={isRunning}
+                      validationErrors={[...validationErrors, ...blueprintValidationErrors]}
                     />
                   )}
 
@@ -1140,12 +1205,14 @@ const CreateBlueprint = (props) => {
               blueprintSteps={blueprintSteps}
               advancedMode={advancedMode}
               setShowBlueprintInspector={setShowBlueprintInspector}
-              validationErrors={validationErrors}
+              validationErrors={[...validationErrors, ...blueprintValidationErrors]}
               onNext={nextStep}
               onPrev={prevStep}
               onSave={handleBlueprintSave}
               onSaveAndRun={handleBlueprintSaveAndRun}
               isLoading={isSaving}
+              isValid={advancedMode ? isValidBlueprint && isValidPipeline : isValidBlueprint}
+              canGoNext={canAdvanceNext}
             />
           </main>
         </Content>
@@ -1196,20 +1263,22 @@ const CreateBlueprint = (props) => {
           !advancedMode
             ? {
               // ID: 0,
-              name,
-              // tasks: blueprintTasks,
-              settings: blueprintSettings,
-              cronConfig,
-              enable,
-              mode,
-            }
+                name,
+                // tasks: blueprintTasks,
+                settings: blueprintSettings,
+                cronConfig: isManualBlueprint ? '0 0 * * *' : (cronConfig === 'custom' ? customCronConfig : cronConfig),
+                enable,
+                mode,
+                isManual: isManualBlueprint
+              }
             : {
-              name,
-              plan: blueprintTasks,
-              cronConfig,
-              enable,
-              mode,
-            }
+                name,
+                plan: blueprintTasks,
+                cronConfig: isManualBlueprint ? '0 0 * * *' : (cronConfig === 'custom' ? customCronConfig : cronConfig),
+                enable,
+                mode,
+                isManual: isManualBlueprint
+              }
         }
         onClose={setShowBlueprintInspector}
         hasBackdrop={false}

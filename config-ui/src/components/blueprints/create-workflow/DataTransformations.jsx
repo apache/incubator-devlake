@@ -61,7 +61,7 @@ const DataTransformations = (props) => {
     prevStep = () => {},
     addBoardTransformation = () => {},
     addProjectTransformation = () => {},
-    activeTransformation,
+    activeTransformation = {},
     setTransformations = () => {},
     setTransformationSettings = () => {},
     onSave = () => {},
@@ -86,24 +86,6 @@ const DataTransformations = (props) => {
       }
     }))
   }, [setNewTransformation])
-
-  // const clearTransformation = useCallback(() => {
-  //   console.log('>>>>> CLEARING!!!!!', configuredBoard)
-  //   setNewTransformation({
-  //     [configuredBoard?.id]: {}
-  //   })
-  //   onClear()
-  // }, [configuredProject, configuredBoard, onClear, setNewTransformation])
-
-  // useEffect(() => {
-  //   console.log('>>> LOOK HERE DataTransformationSettings:activeTransformation!!!!', activeTransformation)
-  // }, [activeTransformation])
-
-  // useEffect(() => {
-  //   console.log('>>> NEW TRANSFORMATION SETTINGS...', newTransformation)
-  //   // AUTO-SAVE All Transformation Keys
-  //   // Object.keys(newTransformation).forEach((k, kIdx) => setTransformationSettings(Object.values(newTransformation)[kIdx], k))
-  // }, [newTransformation])
 
   return (
     <div className='workflow-step workflow-step-add-transformation' data-step={activeStep?.id}>
@@ -268,7 +250,7 @@ const DataTransformations = (props) => {
                       )}
 
                       <div className='transformation-actions' style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <Button
+                        {/* <Button
                           text='Cancel'
                           small
                           outlined
@@ -276,6 +258,15 @@ const DataTransformations = (props) => {
                         />
                         <Button
                           text='Save'
+                          intent={Intent.PRIMARY}
+                          small
+                          outlined
+                          onClick={() => onSave(newTransformation[configuredBoard?.id], configuredBoard?.id)}
+                          disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
+                          style={{ marginLeft: '5px' }}
+                        /> */}
+                        <Button
+                          text='Go Back'
                           intent={Intent.PRIMARY}
                           small
                           outlined

@@ -44,6 +44,10 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
   const [mode, setMode] = useState(BlueprintMode.NORMAL)
   const [enable, setEnable] = useState(true)
   const [detectedProviderTasks, setDetectedProviderTasks] = useState([])
+  const [isManual, setIsManual] = useState(false)
+  const [rawConfiguration, setRawConfiguration] = useState(
+    JSON.stringify([tasks], null, '  ')
+  )
 
   const [cronPresets, setCronPresets] = useState([
     // eslint-disable-next-line max-len
@@ -58,18 +62,18 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
   const [deleteComplete, setDeleteComplete] = useState(false)
 
   const parseCronExpression = useCallback((expression, utc = true, additionalOptions = {}) => {
-    if (expression.toLowerCase() === "manual") {
+    if (expression.toLowerCase() === 'manual') {
       return {
-        next: () => "manual",
-        prev: () => "manual",
+        next: () => 'manual',
+        prev: () => 'manual',
       }
     }
     return parser.parseExpression(expression, { utc, ...additionalOptions })
   }, [])
 
   const detectCronInterval = useCallback((cronConfig) => {
-    if (cronConfig === "manual") {
-      return "Manual"
+    if (cronConfig === 'manual') {
+      return 'Manual'
     }
     return cronPresets.find(p => p.cronConfig === cronConfig)
       ? cronPresets.find(p => p.cronConfig === cronConfig).label
@@ -150,14 +154,26 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       setIsSaving(true)
       setErrors([])
       ToastNotification.clear()
+      const detectCronConfig = () => {
+        if (cronConfig === 'custom') {
+          return customCronConfig
+          // For "Manual" frequency, we'll save cronConfig as daily to comply with BE API expectation of valid cron
+          // Once user re-enables an automated frequency, this will get overwritten
+        } else if (cronConfig === 'manual') {
+          return '0 0 * * *'
+        } else {
+          return cronConfig
+        }
+      }
       const blueprintPayload = {
         name,
-        cronConfig: cronConfig === 'custom' ? customCronConfig : cronConfig,
+        cronConfig: detectCronConfig(),
         // @todo: refactor tasks ===> plan at higher levels
         plan: tasks,
         settings,
         enable: enable,
-        mode
+        mode,
+        isManual
       }
       console.log('>> DISPATCHING BLUEPRINT SAVE REQUEST', blueprintPayload)
       const run = async () => {
@@ -209,6 +225,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     customCronConfig,
     tasks,
     enable,
+    isManual,
     detectCronInterval
   ])
 
@@ -352,6 +369,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     detectedProviderTasks,
     enable,
     mode,
+    rawConfiguration,
     saveBlueprint,
     deleteBlueprint,
     fetchAllBlueprints,
@@ -375,9 +393,12 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     setEnable,
     setMode,
     setDetectedProviderTasks,
+    setIsManual,
+    setRawConfiguration,
     isFetching,
     isSaving,
     isDeleting,
+    isManual,
     errors
   }
 }

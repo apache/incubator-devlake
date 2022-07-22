@@ -99,6 +99,7 @@ button, .bp3-button {
 }
 
 .bp3-toast {
+  margin-left: 250px; // compensate for sidebar, toasts will appear centered
   background-color: #ffffff;
   &.bp3-intent-primary {
     background-color: #ffffff;

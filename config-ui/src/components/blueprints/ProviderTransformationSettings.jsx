@@ -35,8 +35,8 @@ const ProviderTransformationSettings = (props) => {
     configuredConnection,
     configuredProject,
     configuredBoard,
-    transformation,
-    newTransformation,
+    transformation = {},
+    newTransformation = {},
     boards = [],
     issueTypes = [],
     fields = [],
@@ -91,7 +91,7 @@ const ProviderTransformationSettings = (props) => {
           fields={fields}
           transformation={transformation}
           newTransformation={newTransformation}
-          onSettingsChange={changeTransformation}
+          onSettingsChange={onSettingsChange}
           entity={DataEntityTypes.TICKET}
           isSaving={isSaving}
           isSavingConnection={isSavingConnection}
