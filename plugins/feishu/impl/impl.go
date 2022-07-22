@@ -123,7 +123,20 @@ func (plugin Feishu) MigrationScripts() []migration.Script {
 }
 
 func (plugin Feishu) ApiResources() map[string]map[string]core.ApiResourceHandler {
-	return map[string]map[string]core.ApiResourceHandler{}
+	return map[string]map[string]core.ApiResourceHandler{
+		"test": {
+			"POST": api.TestConnection,
+		},
+		"connections": {
+			"POST": api.PostConnections,
+			"GET":  api.ListConnections,
+		},
+		"connections/:connectionId": {
+			"PATCH":  api.PatchConnection,
+			"DELETE": api.DeleteConnection,
+			"GET":    api.GetConnection,
+		},
+	}
 }
 
 func (plugin Feishu) Close(taskCtx core.TaskContext) error {
