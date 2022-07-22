@@ -71,10 +71,6 @@ func Post(c *gin.Context) {
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
 	}
-
-	go func() {
-		_ = services.RunPipeline(pipeline.ID)
-	}()
 	shared.ApiOutputSuccess(c, pipeline, http.StatusCreated)
 }
 
