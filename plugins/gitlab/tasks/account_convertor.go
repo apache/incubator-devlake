@@ -29,7 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertAccountMeta = core.SubTaskMeta{
+var ConvertAccountsMeta = core.SubTaskMeta{
 	Name:             "convertAccounts",
 	EntryPoint:       ConvertAccounts,
 	EnabledByDefault: true,

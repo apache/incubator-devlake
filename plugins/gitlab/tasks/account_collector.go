@@ -28,7 +28,7 @@ import (
 
 const RAW_USER_TABLE = "gitlab_api_users"
 
-var CollectAccountMeta = core.SubTaskMeta{
+var CollectAccountsMeta = core.SubTaskMeta{
 	Name:             "collectAccounts",
 	EntryPoint:       CollectAccounts,
 	EnabledByDefault: true,

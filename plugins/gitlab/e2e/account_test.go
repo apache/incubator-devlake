@@ -46,7 +46,7 @@ func TestGitlabAccountDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabAccount{})
-	dataflowTester.Subtask(tasks.ExtractAccountMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractAccountsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabAccount{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabAccount{}.TableName()),
@@ -69,7 +69,7 @@ func TestGitlabAccountDataFlow(t *testing.T) {
 
 	// verify conversion
 	dataflowTester.FlushTabler(&crossdomain.Account{})
-	dataflowTester.Subtask(tasks.ConvertAccountMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertAccountsMeta, taskData)
 	dataflowTester.VerifyTable(
 		crossdomain.Account{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", crossdomain.Account{}.TableName()),

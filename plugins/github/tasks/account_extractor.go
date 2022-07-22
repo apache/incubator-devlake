@@ -26,8 +26,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ExtractAccountMeta = core.SubTaskMeta{
-	Name:             "ExtractAccounts",
+var ExtractAccountsMeta = core.SubTaskMeta{
+	Name:             "extractAccounts",
 	EntryPoint:       ExtractAccounts,
 	EnabledByDefault: true,
 	Description:      "Extract raw account data  into tool layer table github_accounts",
