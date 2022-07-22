@@ -16,6 +16,7 @@
  *
  */
 import React, { Fragment, useEffect, useState, useCallback } from 'react'
+import { ENVIRONMENT } from '@/config/environment'
 import { CSSTransition } from 'react-transition-group'
 import {
   PopoverInteractionKind,
@@ -39,7 +40,10 @@ const WorkflowActions = (props) => {
     onNext = () => {},
     onSave = () => {},
     onSaveAndRun = () => {},
-    isLoading = false
+    isLoading = false,
+    isValid = true,
+    canGoNext = true,
+    canGoPrev = true
   } = props
 
   return (
@@ -74,19 +78,21 @@ const WorkflowActions = (props) => {
         </div>
       ) : (
         <div style={{ display: 'flex', marginLeft: 'auto' }}>
+          {ENVIRONMENT !== 'production' && (
+            <Button
+              loading={isLoading}
+              intent={Intent.PRIMARY}
+              icon='code'
+              text='Inspect'
+              onClick={() => setShowBlueprintInspector(true)}
+              style={{ marginRight: '8px' }}
+              minimal
+              small
+            />
+          )}
           <Button
             loading={isLoading}
-            intent={Intent.PRIMARY}
-            icon='code'
-            text='Inspect'
-            onClick={() => setShowBlueprintInspector(true)}
-            style={{ marginRight: '8px' }}
-            minimal
-            small
-          />
-          <Button
-            loading={isLoading}
-            disabled={isLoading}
+            disabled={isLoading || !canGoNext || !isValid}
             intent={Intent.PRIMARY}
             text='Next Step'
             onClick={onNext}
@@ -95,6 +101,8 @@ const WorkflowActions = (props) => {
                 ? (
                   <Popover
                     interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
+                    defaultIsOpen={true}
+                    enforceFocus={false}
                   >
                     <Icon
                       icon='warning-sign'

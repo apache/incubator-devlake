@@ -18,6 +18,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import parser from 'cron-parser'
 import { BlueprintMode } from '@/data/NullBlueprint'
+import { Providers } from '@/data/Providers'
 
 function useBlueprintValidation ({
   name,
@@ -26,7 +27,13 @@ function useBlueprintValidation ({
   enable,
   tasks = [],
   mode = null,
-  activeStep = null
+  connections = [],
+  entities = {},
+  boards = {},
+  projects = {},
+  activeStep = null,
+  activeProvider = null,
+  activeConnection = null
 }) {
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
@@ -35,7 +42,7 @@ function useBlueprintValidation ({
     setErrors([])
   }
 
-  const isValidCronExpression = (expression) => {
+  const isValidCronExpression = useCallback((expression) => {
     let isValid = false
     try {
       parser.parseExpression(expression)
@@ -44,7 +51,20 @@ function useBlueprintValidation ({
       isValid = false
     }
     return isValid
-  }
+  }, [])
+
+  const validateNumericSet = useCallback((set = []) => {
+    return Array.isArray(set) ? set.every(i => !isNaN(i)) : false
+  }, [])
+
+  const validateRepositoryName = useCallback((set = []) => {
+    const repoRegExp = /([a-z0-9_-]){2,}\/([a-z0-9_-]){2,}/gi
+    return set.every(i => i.match(repoRegExp))
+  }, [])
+
+  const valiateNonEmptySet = useCallback((set = []) => {
+    return set.length > 0
+  }, [])
 
   const validate = useCallback(() => {
     const errs = []
@@ -58,24 +78,76 @@ function useBlueprintValidation ({
       errs.push('Blueprint Name: Name too short, 3 chars minimum.')
     }
 
-    if (!cronConfig) {
-      errs.push('Blueprint Cron: No Crontab schedule defined.')
-    }
-
-    if (cronConfig && cronConfig !== 'custom' && !isValidCronExpression(cronConfig)) {
-      errs.push('Blueprint Cron: Invalid Crontab Expression, unable to parse.')
-    }
-
-    if (cronConfig === 'custom' && !isValidCronExpression(customCronConfig)) {
-      errs.push(`Blueprint Cron: Invalid Custom Expression, unable to parse. [${customCronConfig}]`)
-    }
-
-    if (enable && tasks?.length === 0) {
-      errs.push('Blueprint Tasks: Invalid/Empty Configuration')
-    }
-
     if (mode !== null && ![BlueprintMode.NORMAL, BlueprintMode.ADVANCED].includes(mode)) {
       errs.push('Invalid / Unsupported Blueprint Mode Detected!')
+    }
+
+    if (mode === BlueprintMode.NORMAL) {
+      if (!cronConfig) {
+        errs.push('Blueprint Cron: No Crontab schedule defined.')
+      }
+
+      if (cronConfig && !['custom', 'manual'].includes(cronConfig) && !isValidCronExpression(cronConfig)) {
+        errs.push('Blueprint Cron: Invalid Crontab Expression, unable to parse.')
+      }
+
+      if (cronConfig === 'custom' && !isValidCronExpression(customCronConfig)) {
+        errs.push(`Blueprint Cron: Invalid Custom Expression, unable to parse. [${customCronConfig}]`)
+      }
+
+      if (enable && tasks?.length === 0) {
+        errs.push('Blueprint Tasks: Invalid/Empty Configuration')
+      }
+
+      switch (activeStep?.id) {
+        case 1:
+          if (connections.length === 0) {
+            errs.push('No Data Connections selected.')
+          }
+          break
+        case 2:
+          if (activeProvider?.id === Providers.JIRA && boards[activeConnection?.id]?.length === 0) {
+            errs.push('Boards: No Boards selected.')
+          }
+          if (activeProvider?.id === Providers.GITHUB && projects[activeConnection?.id]?.length === 0) {
+            errs.push('Projects: No Project Repsitories entered.')
+          }
+          if (activeProvider?.id === Providers.GITHUB && !validateRepositoryName(projects[activeConnection?.id])) {
+            errs.push('Projects: Only Git Repository Names are supported (username/repo).')
+          }
+          if (entities[activeConnection?.id]?.length === 0) {
+            errs.push('Data Entities: No Data Entities selected.')
+          }
+          if (activeProvider?.id === Providers.GITLAB && projects[activeConnection?.id]?.length === 0) {
+            errs.push('Projects: No Project IDs entered.')
+          }
+          if (activeProvider?.id === Providers.GITLAB && !validateNumericSet(projects[activeConnection?.id])) {
+            errs.push('Projects: Only Numeric Project IDs are supported.')
+          }
+
+          connections.forEach(c => {
+            if (c.provider === Providers.JIRA && boards[c?.id]?.length === 0) {
+              errs.push(`${c.name} requires a Board`)
+            }
+            if (c.provider === Providers.GITHUB && projects[c?.id]?.length === 0) {
+              errs.push(`${c.name} requires Project Names`)
+            }
+            if (c.provider === Providers.GITHUB && !validateRepositoryName(projects[c?.id])) {
+              errs.push(`${c.name} has Invalid Project Repository`)
+            }
+            if (c.provider === Providers.GITLAB && projects[c?.id]?.length === 0) {
+              errs.push(`${c.name} requires Project IDs`)
+            }
+            if (c.provider === Providers.GITLAB && !validateNumericSet(projects[c?.id])) {
+              errs.push(`${c.name} has invalid Project ID`)
+            }
+            if (entities[c?.id]?.length === 0) {
+              errs.push(`${c.name} is missing Data Entities`)
+            }
+          })
+
+          break
+      }
     }
 
     setErrors(errs)
@@ -85,7 +157,14 @@ function useBlueprintValidation ({
     customCronConfig,
     tasks,
     enable,
-    mode
+    mode,
+    connections,
+    boards,
+    entities,
+    projects,
+    activeStep,
+    activeProvider?.id,
+    activeConnection
   ])
 
   const fieldHasError = useCallback((fieldId) => {

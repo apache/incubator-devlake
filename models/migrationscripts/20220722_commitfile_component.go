@@ -15,34 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package code
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer"
-	"time"
-
+	"context"
 	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
-type Commit struct {
-	common.NoPKModel
-	Sha            string `json:"sha" gorm:"primaryKey;type:varchar(40);comment:commit hash"`
-	Additions      int    `json:"additions" gorm:"comment:Added lines of code"`
-	Deletions      int    `json:"deletions" gorm:"comment:Deleted lines of code"`
-	DevEq          int    `json:"deveq" gorm:"comment:Merico developer equivalent from analysis engine"`
-	Message        string
-	AuthorName     string `gorm:"type:varchar(255)"`
-	AuthorEmail    string `gorm:"type:varchar(255)"`
-	AuthoredDate   time.Time
-	AuthorId       string `gorm:"type:varchar(255)"`
-	CommitterName  string `gorm:"type:varchar(255)"`
-	CommitterEmail string `gorm:"type:varchar(255)"`
-	CommittedDate  time.Time
-	CommitterId    string `gorm:"index;type:varchar(255)"`
+type Component struct {
+	RepoId    string `gorm:"type:varchar(255)"`
+	Name      string `gorm:"primaryKey;type:varchar(255)"`
+	PathRegex string `gorm:"type:varchar(255)"`
 }
 
-func (Commit) TableName() string {
-	return "commits"
+func (Component) TableName() string {
+	return "components"
 }
 
 type CommitFile struct {
@@ -65,4 +55,28 @@ type CommitFileComponent struct {
 
 func (CommitFileComponent) TableName() string {
 	return "commit_file_components"
+}
+
+type commitfileComponent struct{}
+
+func (*commitfileComponent) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().DropTable(&archived.CommitFile{})
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().AutoMigrate(Component{}, CommitFile{}, CommitFileComponent{})
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+func (*commitfileComponent) Version() uint64 {
+	return 20220722165805
+}
+
+func (*commitfileComponent) Name() string {
+
+	return "add commit_file_components components table,update commit_files table"
 }

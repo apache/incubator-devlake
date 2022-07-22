@@ -724,6 +724,7 @@ const BlueprintDetail = (props) => {
       console.log('>> ACTIVITY POLLING ENABLED!')
       pollInterval.current = setInterval(() => {
         fetchPipeline(activePipeline?.id)
+        // setLastPipeline(activePipeline)
       }, pollTimer)
     } else {
       console.log('>> ACTIVITY POLLING DISABLED!')
@@ -775,10 +776,16 @@ const BlueprintDetail = (props) => {
                   </span>{' '}
                   &nbsp;{' '}
                   <span className='blueprint-schedule-nextrun'>
-                    Next Run{' '}
-                    {dayjs(
-                      getNextRunDate(activeBlueprint?.cronConfig)
-                    ).fromNow()}
+                    {activeBlueprint?.isManual
+                      ? <strong>Manual Mode</strong>
+                      : (
+                        <>
+                          Next Run{' '}
+                          {dayjs(
+                            getNextRunDate(activeBlueprint?.cronConfig)
+                          ).fromNow()}
+                        </>
+                        )}
                   </span>
                 </div>
                 <div
@@ -790,8 +797,7 @@ const BlueprintDetail = (props) => {
                     small
                     text='Run Now'
                     onClick={runBlueprint}
-                    disabled={!activeBlueprint?.enable}
-                    // disabled={currentRun?.status === TaskStatus.RUNNING}
+                    disabled={!activeBlueprint?.enable || currentRun?.status === TaskStatus.RUNNING}
                   />
                 </div>
                 <div className='blueprint-enabled'>
@@ -806,6 +812,7 @@ const BlueprintDetail = (props) => {
                     }
                     onChange={() => handleBlueprintActivation(activeBlueprint)}
                     style={{ marginBottom: 0, marginTop: 0, color: !activeBlueprint?.enable ? Colors.GRAY3 : 'inherit' }}
+                    disabled={currentRun?.status === TaskStatus.RUNNING}
                   />
                 </div>
                 <div style={{ padding: '0 10px' }}>

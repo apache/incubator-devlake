@@ -76,6 +76,7 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+			"type",
 		},
 	)
 }

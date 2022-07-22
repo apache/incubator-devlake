@@ -69,7 +69,7 @@ export default function EditConnection () {
     if (activeProvider && connectionId) {
       fetchConnection()
     }
-  }, [activeProvider, providerId, connectionId])
+  }, [activeProvider, providerId, connectionId, fetchConnection])
 
   useEffect(() => {
     setName(activeConnection.name)
@@ -84,7 +84,15 @@ export default function EditConnection () {
         setToken(activeConnection.token)
         break
     }
-  }, [activeConnection, activeProvider.id])
+  }, [
+    activeConnection,
+    activeProvider.id,
+    setEndpointUrl,
+    setName,
+    setPassword,
+    setToken,
+    setUsername
+  ])
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER = ', providerId)

@@ -241,7 +241,7 @@ const BlueprintsGrid = (props) => {
                       </label>
                     </div>
                     <div>
-                      {b.isManual ? "Manual" : dayjs(getNextRunDate(b.cronConfig)).format('L LTS')}
+                      {b.isManual ? 'Manual' : dayjs(getNextRunDate(b.cronConfig)).format('L LTS')}
                     </div>
                     {/* <div>
                       <span style={{ color: b.enable ? Colors.GREEN5 : Colors.GRAY3, position: 'absolute', bottom: '4px' }}>

@@ -81,7 +81,7 @@ const Sidebar = () => {
       </h3> */}
       <SidebarMenu menu={menu} />
       <span className='copyright-tag'>
-        <span className='version-tag'>{versionTag || ''}</span><br />
+        {/* <span className='version-tag'>{versionTag || ''}</span><br /> */}
         <strong>Apache 2.0 License</strong><br />
       </span>
     </Card>

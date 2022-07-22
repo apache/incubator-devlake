@@ -23,6 +23,7 @@ import (
 
 type Job struct {
 	Name string `gorm:"type:varchar(255)"`
+	Type string `gorm:"type:varchar(255)"`
 	domainlayer.DomainEntity
 }
 

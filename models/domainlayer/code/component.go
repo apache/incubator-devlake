@@ -15,20 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package code
 
-import "github.com/apache/incubator-devlake/migration"
+type Component struct {
+	RepoId    string `gorm:"type:varchar(255)"`
+	Name      string `gorm:"primaryKey;type:varchar(255)"`
+	PathRegex string `gorm:"type:varchar(255)"`
+}
 
-// All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(addFrameTables),
-		new(renameStepToStage),
-		new(addSubtasksField),
-		new(updateBlueprintMode),
-		new(renameTasksToPlan),
-		new(addDomainTables),
-		new(addTypeField),
-		new(commitfileComponent),
-	}
+func (Component) TableName() string {
+	return "components"
 }

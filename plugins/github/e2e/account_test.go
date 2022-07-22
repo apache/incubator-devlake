@@ -49,7 +49,7 @@ func TestAccountDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubAccount{})
-	dataflowTester.Subtask(tasks.ExtractAccountMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractAccountsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.GithubAccount{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/_tool_github_account.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},

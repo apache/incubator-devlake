@@ -71,6 +71,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) error {
 					Id: jobIdGen.Generate(jenkinsJob.ConnectionId, jenkinsJob.Name),
 				},
 				Name: jenkinsJob.Name,
+				Type: jenkinsJob.Class,
 			}
 			return []interface{}{
 				job,

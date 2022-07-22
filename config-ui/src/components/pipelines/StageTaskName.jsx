@@ -90,7 +90,7 @@ const StageTaskName = (props) => {
                   {task.plugin === Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>@{task.options.owner}/{task.options.repositoryName}</>)}
                 </H3>
                 {![Providers.JENKINS, Providers.REFDIFF, Providers.GITEXTRACTOR].includes(task.plugin) && (
-                  <>{ProviderLabels[task.plugin.toUpperCase()] || 'System Task'}<br /></>
+                  <>{ProviderLabels[task.plugin?.toUpperCase()] || 'System Task'}<br /></>
                 )}
               </div>
               <div style={{

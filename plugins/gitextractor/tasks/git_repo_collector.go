@@ -54,7 +54,7 @@ func (o GitExtractorOptions) Valid() error {
 
 func CollectGitCommits(subTaskCtx core.SubTaskContext) error {
 	repo := getGitRepo(subTaskCtx)
-	if count, err := repo.CountCommits(); err != nil {
+	if count, err := repo.CountCommits(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error("unable to get commit count: %v", err)
 		subTaskCtx.SetProgress(0, -1)
 	} else {
@@ -65,7 +65,7 @@ func CollectGitCommits(subTaskCtx core.SubTaskContext) error {
 
 func CollectGitBranches(subTaskCtx core.SubTaskContext) error {
 	repo := getGitRepo(subTaskCtx)
-	if count, err := repo.CountBranches(); err != nil {
+	if count, err := repo.CountBranches(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error("unable to get branch count: %v", err)
 		subTaskCtx.SetProgress(0, -1)
 	} else {

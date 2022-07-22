@@ -15,44 +15,8 @@
  * limitations under the License.
  *
  */
-const BlueprintMode = {
-  NORMAL: 'NORMAL',
-  ADVANCED: 'ADVANCED'
-}
-
-const BlueprintStatus = {
-  ENABLED: true,
-  DISABLED: false
-}
-
-const NullBlueprint = {
-  id: null,
-  createdAt: null,
-  updatedAt: null,
-  name: null,
-  // Advanced mode uses tasks
-  // @todo sort out which key is to be used
-  tasks: [
-    []
-  ],
-  plan: [
-    []
-  ],
-  // Normal mode uses settings
-  settings: {
-    version: '1.0',
-    connections: []
-  },
-  cronConfig: '0 0 * * *',
-  description: '',
-  interval: 'daily',
-  enabled: BlueprintStatus.DISABLED,
-  mode: BlueprintMode.NORMAL,
-  isManual: false
-}
+const ENVIRONMENT = process.env.NODE_ENV
 
 export {
-  NullBlueprint,
-  BlueprintMode,
-  BlueprintStatus
+  ENVIRONMENT
 }

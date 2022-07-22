@@ -112,7 +112,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 /*
 GET /plugins/feishu/connections
 */
-func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func ListConnections(_ *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var connections []models.FeishuConnection
 	err := connectionHelper.List(&connections)
 	if err != nil {
