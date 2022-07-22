@@ -59,8 +59,11 @@ func (CommitFileComponent) TableName() string {
 type commitfileComponent struct{}
 
 func (*commitfileComponent) Up(ctx context.Context, db *gorm.DB) error {
-
-	err := db.Migrator().AutoMigrate(Component{}, CommitFile{}, CommitFileComponent{})
+	err := db.Migrator().DropTable(&CommitFile{})
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().AutoMigrate(Component{}, CommitFile{}, CommitFileComponent{})
 	if err != nil {
 		return err
 	}
