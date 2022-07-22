@@ -21,6 +21,7 @@ import (
 	"context"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
@@ -59,7 +60,7 @@ func (CommitFileComponent) TableName() string {
 type commitfileComponent struct{}
 
 func (*commitfileComponent) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().DropTable(&CommitFile{})
+	err := db.Migrator().DropTable(&archived.CommitFile{})
 	if err != nil {
 		return err
 	}
@@ -72,7 +73,7 @@ func (*commitfileComponent) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*commitfileComponent) Version() uint64 {
-	return 20220722162305
+	return 20220722165805
 }
 
 func (*commitfileComponent) Name() string {
