@@ -165,7 +165,7 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	connection := &models.TapdConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
-		return nil, err
+		return nil,err
 	}
-	return &core.ApiResourceOutput{Body: connection}, err
+	return &core.ApiResourceOutput{Body: connection}, nil
 }
