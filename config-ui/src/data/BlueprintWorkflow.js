@@ -115,22 +115,6 @@ const DEFAULT_DATA_ENTITIES = [
 ]
 
 const DEFAULT_BOARDS = [
-  {
-    id: 1,
-    name: 'scrum-lake',
-    title: 'DEVLAKE BOARD',
-    value: 'scrum-lake',
-    type: 'scrum',
-    self: 'https://your-domain.atlassian.net/rest/agile/1.0/board/1',
-  },
-  {
-    id: 2,
-    name: 'scrum-stream',
-    title: 'DEVSTREAM BOARD',
-    value: 'scrum-stream',
-    type: 'scrum',
-    self: 'https://your-domain.atlassian.net/rest/agile/1.0/board/2',
-  },
 ]
 
 export { WorkflowSteps, WorkflowAdvancedSteps, DEFAULT_DATA_ENTITIES, DEFAULT_BOARDS }

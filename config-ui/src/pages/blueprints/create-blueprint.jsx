@@ -583,10 +583,12 @@ const CreateBlueprint = (props) => {
 
   const addProjectTransformation = useCallback((project) => {
     setConfiguredProject(project)
+    ToastNotification.clear()
   }, [])
 
   const addBoardTransformation = useCallback((board) => {
     setConfiguredBoard(board)
+    ToastNotification.clear()
   }, [])
 
   const addConnection = useCallback(() => {

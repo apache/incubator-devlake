@@ -35,6 +35,9 @@ import {
   ConnectionStatusLabels,
 } from '@/data/Providers'
 import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
+import {
+  DEFAULT_DATA_ENTITIES
+} from '@/data/BlueprintWorkflow'
 
 import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import NoData from '@/components/NoData'
@@ -225,7 +228,7 @@ const DataTransformations = (props) => {
                         (dataEntities[configuredConnection.id]?.length ===
                           0 && <p>(No Data Entities Selected)</p>)}
                       {dataEntities[configuredConnection.id]?.find(
-                        (e) => e.value === DataEntityTypes.TICKET
+                        (e) => DEFAULT_DATA_ENTITIES.some(dE => dE.value === e.value)
                       ) && (
                         <ProviderTransformationSettings
                           provider={integrationsData.find(i => i.id === configuredConnection?.provider)}
@@ -235,6 +238,7 @@ const DataTransformations = (props) => {
                           issueTypes={issueTypes}
                           fields={fields}
                           boards={boards}
+                          entities={dataEntities}
                           transformation={activeTransformation}
                           newTransformation={newTransformation}
                           setNewTransformation={setNewTransformation}
@@ -270,7 +274,7 @@ const DataTransformations = (props) => {
                           intent={Intent.PRIMARY}
                           small
                           outlined
-                          onClick={() => onSave(newTransformation[configuredBoard?.id], configuredBoard?.id)}
+                          onClick={() => onSave()}
                           disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
                           style={{ marginLeft: '5px' }}
                         />

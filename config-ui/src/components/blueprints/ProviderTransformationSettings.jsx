@@ -32,12 +32,13 @@ import GithubSettings from '@/pages/configure/settings/github'
 const ProviderTransformationSettings = (props) => {
   const {
     provider,
-    configuredConnection,
+    connection,
     configuredProject,
     configuredBoard,
     transformation = {},
     newTransformation = {},
     boards = [],
+    entities = {},
     issueTypes = [],
     fields = [],
     onSettingsChange = () => {},
@@ -48,21 +49,16 @@ const ProviderTransformationSettings = (props) => {
     isFetchingJIRA = false
   } = props
 
-  useEffect(() => {
-    console.log('>>> newTransformation?', newTransformation)
-  }, [newTransformation])
-  // }, [transformation, boards, issueTypes, fields, configuredBoard])
-
   return (
     <div className='transformation-settings' data-provider={provider?.id}>
       {provider?.id === Providers.GITHUB && (
         <GithubSettings
           provider={provider}
-          connection={configuredConnection}
+          connection={connection}
           configuredProject={configuredProject}
           transformation={transformation}
           onSettingsChange={onSettingsChange}
-          entity={DataEntityTypes.TICKET}
+          entities={entities[connection?.id]}
           isSaving={isSaving}
           isSavingConnection={isSavingConnection}
         />
@@ -71,11 +67,11 @@ const ProviderTransformationSettings = (props) => {
       {provider?.id === Providers.GITLAB && (
         <GitlabSettings
           provider={provider}
-          connection={configuredConnection}
+          connection={connection}
           configuredProject={configuredProject}
           transformation={transformation}
           onSettingsChange={onSettingsChange}
-          entity={DataEntityTypes.TICKET}
+          entities={entities[connection?.id]}
           isSaving={isSaving}
           isSavingConnection={isSavingConnection}
         />
@@ -84,7 +80,7 @@ const ProviderTransformationSettings = (props) => {
       {provider?.id === Providers.JIRA && (
         <JiraSettings
           provider={provider}
-          connection={configuredConnection}
+          connection={connection}
           configuredBoard={configuredBoard}
           boards={boards}
           issueTypes={issueTypes}
@@ -92,7 +88,7 @@ const ProviderTransformationSettings = (props) => {
           transformation={transformation}
           newTransformation={newTransformation}
           onSettingsChange={onSettingsChange}
-          entity={DataEntityTypes.TICKET}
+          entities={entities[connection?.id]}
           isSaving={isSaving}
           isSavingConnection={isSavingConnection}
           jiraProxyError={jiraProxyError}
@@ -103,10 +99,10 @@ const ProviderTransformationSettings = (props) => {
       {provider?.id === Providers.JENKINS && (
         <JenkinsSettings
           provider={provider}
-          connection={configuredConnection}
+          connection={connection}
           transformation={transformation}
           onSettingsChange={onSettingsChange}
-          entity={DataEntityTypes.TICKET}
+          entities={entities[connection?.id]}
           isSaving={isSaving}
           isSavingConnection={isSavingConnection}
         />

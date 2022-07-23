@@ -17,6 +17,7 @@
  */
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
+import { DataEntityTypes } from '@/data/DataEntities'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -24,6 +25,7 @@ import '@/styles/connections.scss'
 export default function GitlabSettings (props) {
   const {
     connection,
+    entities = [],
     // eslint-disable-next-line max-len
     transformation = {},
     provider,
