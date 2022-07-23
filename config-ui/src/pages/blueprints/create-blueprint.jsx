@@ -286,6 +286,7 @@ const CreateBlueprint = (props) => {
     errors: connectionErrors,
     isSaving: isSavingConnection,
     isTesting: isTestingConnection,
+    isFetching: isFetchingConnection,
     showError,
     testStatus,
     name: connectionName,
@@ -448,7 +449,7 @@ const CreateBlueprint = (props) => {
     setActiveConnection,
     setAllTestResponses,
     setInitialTokenStore,
-    setSaveConnectionComplete,
+    // setSaveConnectionComplete,
     setTestResponse,
     setTestStatus
   ])
@@ -690,6 +691,7 @@ const CreateBlueprint = (props) => {
         status:
           ConnectionStatusLabels[c.status] ||
           ConnectionStatusLabels[ConnectionStatus.OFFLINE],
+        statusResponse: null,
         provider: c.provider,
         plugin: c.provider,
       }))
@@ -1034,7 +1036,7 @@ const CreateBlueprint = (props) => {
     blueprintConnections,
     testSelectedConnections,
     handleConnectionDialogClose,
-    saveConnectionComplete
+    setSaveConnectionComplete
   ])
 
   useEffect(() => {
@@ -1045,6 +1047,15 @@ const CreateBlueprint = (props) => {
       status: onlineStatus[cIdx]?.status
     })))
   }, [onlineStatus, blueprintConnections])
+
+  useEffect(() => {
+    setConnectionsList(cList => cList.map((c, cIdx) => ({
+      ...c,
+      statusResponse: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider),
+      status: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status
+    })))
+    setCanAdvanceNext(dataConnections.every(dC => dC.status === 200))
+  }, [dataConnections])
 
   return (
     <>
@@ -1212,7 +1223,7 @@ const CreateBlueprint = (props) => {
               onPrev={prevStep}
               onSave={handleBlueprintSave}
               onSaveAndRun={handleBlueprintSaveAndRun}
-              isLoading={isSaving}
+              isLoading={isSaving || isFetchingJIRA || isFetchingConnection || isTestingConnection}
               isValid={advancedMode ? isValidBlueprint && isValidPipeline : isValidBlueprint}
               canGoNext={canAdvanceNext}
             />

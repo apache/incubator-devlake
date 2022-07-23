@@ -309,7 +309,7 @@ export default function ConnectionForm (props) {
             <InputGroup
               id='connection-name'
               autoComplete='false'
-              autoFocus='true'
+              autoFocus={true}
               inputRef={connectionNameRef}
               disabled={isTesting || isSaving || isLocked}
               // readOnly={[Providers.JENKINS].includes(activeProvider.id)}

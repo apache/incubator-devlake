@@ -46,7 +46,7 @@ export default function GithubSettings (props) {
   const handleAdditionalSettings = useCallback((setting) => {
     setEnableAdditionalCalculations(setting)
     onSettingsChange({ refdiff: setting ? { tagsOrder: '', tagsPattern: '', tagsLimit: 10, } : null }, configuredProject)
-  }, [setEnableAdditionalCalculations, onSettingsChange])
+  }, [setEnableAdditionalCalculations, configuredProject, onSettingsChange])
 
   useEffect(() => {
     console.log('>>>> TRANSFORMATION SETTINGS OBJECT....', transformation)
