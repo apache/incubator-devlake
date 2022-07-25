@@ -15,10 +15,33 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 17,
-  "iteration": 1658414945725,
+  "id": 9,
+  "iteration": 1658758447987,
   "links": [],
   "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 3,
+        "w": 13,
+        "x": 0,
+        "y": 0
+      },
+      "id": 48,
+      "options": {
+        "content": "- Use Cases: This dashboard can be used to track community growth by OSS maintainers.\n- Data Source Required: GitHub users' organizations are used to filter issues/PRs created by certain users. [Publicize users' org](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-your-membership-in-organizations/publicizing-or-hiding-organization-membership) so that Apache DevLake can collect users' org.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
     {
       "collapsed": false,
       "datasource": null,
@@ -26,7 +49,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 42,
       "panels": [],
@@ -61,7 +84,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 1
+        "y": 4
       },
       "id": 6,
       "options": {
@@ -142,7 +165,7 @@
         "h": 8,
         "w": 6,
         "x": 8,
-        "y": 1
+        "y": 4
       },
       "id": 22,
       "options": {
@@ -224,7 +247,7 @@
         "h": 8,
         "w": 6,
         "x": 14,
-        "y": 1
+        "y": 4
       },
       "id": 23,
       "options": {
@@ -309,7 +332,7 @@
         "h": 8,
         "w": 4,
         "x": 20,
-        "y": 1
+        "y": 4
       },
       "id": 45,
       "options": {
@@ -383,7 +406,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 9
+        "y": 12
       },
       "id": 24,
       "options": {
@@ -529,7 +552,7 @@
         "h": 8,
         "w": 16,
         "x": 8,
-        "y": 9
+        "y": 12
       },
       "id": 25,
       "options": {
@@ -596,7 +619,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "d"
         },
         "overrides": []
       },
@@ -604,7 +627,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 17
+        "y": 20
       },
       "id": 26,
       "options": {
@@ -630,7 +653,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n    join boards b on bi.board_id = b.id\n    left join issue_comments ic on i.id = ic.issue_id\n  where\n    i.type in ($issue_type)\n    and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n    and b.id in ($repo_id)\n    and i.creator_id not in (select distinct id from accounts where organization in ($org))\n)\n\nselect\n  avg((TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/60)\nfrom issue_comment_list\nwhere comment_rank = 1",
+          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    issues i\n    join board_issues bi on i.id = bi.issue_id\n    join boards b on bi.board_id = b.id\n    left join issue_comments ic on i.id = ic.issue_id\n  where\n    i.type in ($issue_type)\n    and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n    and b.id in ($repo_id)\n    and i.creator_id not in (select distinct id from accounts where organization in ($org))\n)\n\nselect\n  avg((TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/1440)\nfrom issue_comment_list\nwhere comment_rank = 1",
           "refId": "A",
           "select": [
             [
@@ -654,7 +677,7 @@
           ]
         }
       ],
-      "title": "New Community Issues' Average Response Time in Hours [Previous Week]",
+      "title": "New Community Issues' Average Response Time in Days [Previous Week]",
       "type": "stat"
     },
     {
@@ -839,7 +862,7 @@
         "h": 8,
         "w": 16,
         "x": 8,
-        "y": 17
+        "y": 20
       },
       "id": 28,
       "options": {
@@ -888,7 +911,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 25
+        "y": 28
       },
       "id": 44,
       "panels": [],
@@ -924,7 +947,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 26
+        "y": 29
       },
       "id": 31,
       "options": {
@@ -1006,7 +1029,7 @@
         "h": 8,
         "w": 6,
         "x": 8,
-        "y": 26
+        "y": 29
       },
       "id": 34,
       "options": {
@@ -1088,7 +1111,7 @@
         "h": 8,
         "w": 6,
         "x": 14,
-        "y": 26
+        "y": 29
       },
       "id": 35,
       "options": {
@@ -1174,7 +1197,7 @@
         "h": 8,
         "w": 4,
         "x": 20,
-        "y": 26
+        "y": 29
       },
       "id": 46,
       "options": {
@@ -1244,7 +1267,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 34
+        "y": 37
       },
       "id": 36,
       "options": {
@@ -1331,7 +1354,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 34
+        "y": 37
       },
       "id": 37,
       "options": {
@@ -1405,7 +1428,8 @@
                 "value": 3
               }
             ]
-          }
+          },
+          "unit": "d"
         },
         "overrides": []
       },
@@ -1413,7 +1437,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 34
+        "y": 37
       },
       "id": 39,
       "options": {
@@ -1509,7 +1533,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 42
+        "y": 45
       },
       "id": 33,
       "options": {
@@ -1594,7 +1618,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 42
+        "y": 45
       },
       "id": 40,
       "options": {
@@ -1685,7 +1709,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "All",
           "value": "$__all"
         },
@@ -1744,5 +1768,5 @@
   "timezone": "",
   "title": "Weekly Community Retro",
   "uid": "VTr6Y_q7z",
-  "version": 19
+  "version": 5
 }

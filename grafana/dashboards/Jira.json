@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 12,
-  "iteration": 1652286394084,
+  "id": 8,
+  "iteration": 1658757165613,
   "links": [
     {
       "asDropdown": false,
@@ -49,10 +49,33 @@
     {
       "datasource": null,
       "gridPos": {
+        "h": 3,
+        "w": 13,
+        "x": 0,
+        "y": 0
+      },
+      "id": 128,
+      "options": {
+        "content": "- Use Cases: This dashboard shows the basic project management metrics from Jira.\n- Data Source Required: Jira",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 126,
       "title": "1. Issue Throughput",
@@ -83,7 +106,7 @@
         "h": 6,
         "w": 4,
         "x": 0,
-        "y": 1
+        "y": 4
       },
       "id": 114,
       "options": {
@@ -160,7 +183,7 @@
         "h": 6,
         "w": 4,
         "x": 4,
-        "y": 1
+        "y": 4
       },
       "id": 116,
       "options": {
@@ -269,7 +292,7 @@
         "h": 6,
         "w": 16,
         "x": 8,
-        "y": 1
+        "y": 4
       },
       "id": 120,
       "interval": null,
@@ -350,7 +373,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 7
+        "y": 10
       },
       "id": 117,
       "options": {
@@ -460,7 +483,7 @@
         "h": 6,
         "w": 16,
         "x": 8,
-        "y": 7
+        "y": 10
       },
       "id": 121,
       "links": [],
@@ -516,7 +539,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 16
       },
       "id": 110,
       "panels": [],
@@ -550,7 +573,7 @@
         "h": 6,
         "w": 4,
         "x": 0,
-        "y": 14
+        "y": 17
       },
       "id": 12,
       "options": {
@@ -630,7 +653,7 @@
         "h": 6,
         "w": 4,
         "x": 4,
-        "y": 14
+        "y": 17
       },
       "id": 13,
       "options": {
@@ -727,7 +750,7 @@
         "h": 6,
         "w": 16,
         "x": 8,
-        "y": 14
+        "y": 17
       },
       "id": 17,
       "interval": "",
@@ -797,7 +820,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 15,
@@ -982,5 +1005,5 @@
   "timezone": "",
   "title": "Jira",
   "uid": "F5vqBQl7z",
-  "version": 65
+  "version": 4
 }

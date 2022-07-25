@@ -15,10 +15,33 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 12,
-  "iteration": 1650627258965,
+  "id": 7,
+  "iteration": 1658757686977,
   "links": [],
   "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 58,
+      "options": {
+        "content": "- Use Cases: This dashboard shows the basic CI/CD metrics from Jenkins.\n- Data Source Required: Jenkins",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
     {
       "datasource": "mysql",
       "description": "Number of builds executed in the selected time range",
@@ -41,7 +64,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 4,
       "options": {
@@ -120,7 +143,7 @@
         "h": 6,
         "w": 6,
         "x": 6,
-        "y": 0
+        "y": 3
       },
       "id": 6,
       "options": {
@@ -225,7 +248,7 @@
         "h": 6,
         "w": 6,
         "x": 12,
-        "y": 0
+        "y": 3
       },
       "id": 37,
       "interval": null,
@@ -317,7 +340,7 @@
         "h": 6,
         "w": 6,
         "x": 18,
-        "y": 0
+        "y": 3
       },
       "id": 55,
       "options": {
@@ -411,7 +434,7 @@
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 6
+        "y": 9
       },
       "id": 52,
       "options": {
@@ -525,7 +548,7 @@
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 6
+        "y": 9
       },
       "id": 50,
       "interval": "",
@@ -672,7 +695,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 12
+        "y": 15
       },
       "id": 54,
       "options": {
@@ -780,7 +803,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 21
       },
       "id": 56,
       "options": {

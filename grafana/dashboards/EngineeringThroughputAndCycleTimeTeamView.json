@@ -15,10 +15,33 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 16,
-  "iteration": 1658114695221,
+  "id": 1,
+  "iteration": 1658758034209,
   "links": [],
   "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 3,
+        "w": 13,
+        "x": 0,
+        "y": 0
+      },
+      "id": 142,
+      "options": {
+        "content": "- Use Cases: This dashboard shows the engineering throughput and and cycle time, which helps to identify productivity and bottlenecks of the development process.\n- Data Source Required: GitHub and Jira([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional) required to tell DevLake what the story_points field is). You also need to do [team configuration](https://devlake.apache.org/docs/UserManuals/TeamConfiguration) to use this dashboard.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
     {
       "collapsed": false,
       "datasource": null,
@@ -26,7 +49,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 89,
       "panels": [],
@@ -121,7 +144,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 1
+        "y": 4
       },
       "id": 111,
       "options": {
@@ -259,7 +282,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 1
+        "y": 4
       },
       "id": 110,
       "options": {
@@ -397,7 +420,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 11
       },
       "id": 79,
       "options": {
@@ -535,7 +558,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 11
       },
       "id": 112,
       "options": {
@@ -592,7 +615,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 18
       },
       "id": 114,
       "panels": [
@@ -883,7 +906,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 19
       },
       "id": 126,
       "panels": [
@@ -1174,7 +1197,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 17
+        "y": 20
       },
       "id": 124,
       "panels": [
@@ -1465,7 +1488,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 21
       },
       "id": 119,
       "panels": [
@@ -1756,7 +1779,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 22
       },
       "id": 103,
       "panels": [
@@ -2311,7 +2334,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 23
       },
       "id": 139,
       "panels": [
@@ -2464,9 +2487,10 @@
       {
         "allValue": "",
         "current": {
+          "isNone": true,
           "selected": false,
-          "text": "DevLake",
-          "value": "1"
+          "text": "None",
+          "value": ""
         },
         "datasource": "mysql",
         "definition": "select concat(name, '--', id) as text from teams",
@@ -2488,9 +2512,10 @@
       {
         "allValue": "",
         "current": {
+          "isNone": true,
           "selected": false,
-          "text": "DevStream",
-          "value": "2"
+          "text": "None",
+          "value": ""
         },
         "datasource": "mysql",
         "definition": "select concat(name, '--', id) as text from teams",
@@ -2665,5 +2690,5 @@
   "timezone": "",
   "title": "Engineering Throughput and Cycle Time - Team View",
   "uid": "nJ1ijje7k",
-  "version": 88
+  "version": 2
 }

@@ -15,10 +15,33 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 8,
-  "iteration": 1658722995471,
+  "id": 15,
+  "iteration": 1658757077334,
   "links": [],
   "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 3,
+        "w": 13,
+        "x": 0,
+        "y": 0
+      },
+      "id": 28,
+      "options": {
+        "content": "- Use Cases: This dashboard can be used to track bugs.\n- Data Source Required: GitHub ([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub#step-3---adding-transformation-rules-optional) required) or Jira ([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional) required). Transformation is the configuration for you to tell DevLake what is a bug.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
     {
       "datasource": "mysql",
       "fieldConfig": {
@@ -47,7 +70,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 6,
       "options": {
@@ -122,7 +145,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 0
+        "y": 3
       },
       "id": 26,
       "options": {
@@ -293,7 +316,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 0
+        "y": 3
       },
       "id": 4,
       "options": {
@@ -363,7 +386,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 8
+        "y": 11
       },
       "id": 8,
       "options": {
@@ -449,7 +472,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 8
+        "y": 11
       },
       "id": 24,
       "options": {
@@ -601,7 +624,7 @@
         "h": 16,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 11
       },
       "id": 10,
       "options": {
@@ -685,7 +708,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 19
       },
       "id": 23,
       "options": {
@@ -768,7 +791,7 @@
         "h": 9,
         "w": 6,
         "x": 0,
-        "y": 24
+        "y": 27
       },
       "id": 16,
       "options": {
@@ -849,7 +872,7 @@
         "h": 9,
         "w": 6,
         "x": 6,
-        "y": 24
+        "y": 27
       },
       "id": 25,
       "options": {
@@ -1025,7 +1048,7 @@
         "h": 18,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 27
       },
       "id": 14,
       "options": {
@@ -1108,7 +1131,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 33
+        "y": 36
       },
       "id": 18,
       "options": {
@@ -1204,7 +1227,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 42
+        "y": 45
       },
       "id": 2,
       "options": {
@@ -1299,7 +1322,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 51
+        "y": 54
       },
       "id": 20,
       "options": {
@@ -1394,7 +1417,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 61
+        "y": 64
       },
       "id": 21,
       "options": {
@@ -1514,5 +1537,5 @@
   "timezone": "",
   "title": "Weekly Bug Retro",
   "uid": "-5EKA5w7k",
-  "version": 3
+  "version": 2
 }
