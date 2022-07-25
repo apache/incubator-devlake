@@ -711,7 +711,7 @@ const BlueprintDetail = (props) => {
   useEffect(() => {
     if (activePipeline?.id && activePipeline?.id !== null) {
       setCurrentStages(buildPipelineStages(activePipeline.tasks))
-      setAutoRefresh(activePipeline?.status === TaskStatus.RUNNING)
+      setAutoRefresh([TaskStatus.RUNNING, TaskStatus.CREATED].includes(activePipeline?.status))
     }
   }, [activePipeline, buildPipelineStages])
 
