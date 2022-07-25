@@ -152,7 +152,7 @@ spec:
         - name: config-ui
           image: mericodev/config-ui:latest
           ports:
-            - containerPort: 4000
+            - containerPort: 30004
           envFrom:
             - configMapRef:
                 name: devlake-config
