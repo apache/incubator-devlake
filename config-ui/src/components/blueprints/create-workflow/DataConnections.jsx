@@ -112,70 +112,78 @@ const DataConnections = (props) => {
           disabled={isSaving}
         />
         {blueprintConnections.length > 0 && (
-          <Card
-            className='selected-connections-list'
-            elevation={Elevation.ZERO}
-            style={{ padding: 0, marginTop: '10px' }}
-          >
-            {blueprintConnections.map((bC, bcIdx) => (
-              <div
-                className='connection-entry'
-                key={`connection-row-key-${bcIdx}`}
-                style={{
-                  display: 'flex',
-                  width: '100%',
-                  height: '32px',
-                  lineHeight: '100%',
-                  justifyContent: 'space-between',
-                  // margin: '8px 0',
-                  padding: '8px 12px',
-                  borderBottom: '1px solid #f0f0f0',
-                }}
-              >
-                <div>
-                  <div className='connection-name' style={{ fontWeight: 600 }}>
-                    {bC.title}
-                  </div>
-                </div>
+          <>
+            <Card
+              className='selected-connections-list'
+              elevation={Elevation.ZERO}
+              style={{ padding: 0, marginTop: '10px' }}
+            >
+              {blueprintConnections.map((bC, bcIdx) => (
                 <div
+                  className='connection-entry'
+                  key={`connection-row-key-${bcIdx}`}
                   style={{
                     display: 'flex',
-                    alignContent: 'center',
+                    width: '100%',
+                    height: '32px',
+                    lineHeight: '100%',
+                    justifyContent: 'space-between',
+                    // margin: '8px 0',
+                    padding: '8px 12px',
+                    borderBottom: '1px solid #f0f0f0',
                   }}
                 >
-                  <div
-                    className='connection-status'
-                    style={{ textTransform: 'capitalize' }}
-                  >
-                    {(bC.statusResponse && displayOnlineStatus(bC.statusResponse)) || <><span style={{ display: 'inline-block', marginRight: '5px', width: '12px', height: '12px', float: 'left' }}><Spinner size={12} color={Colors.GRAY3} /></span> Testing</>}
+                  <div>
+                    <div className='connection-name' style={{ display: 'flex', alignItems: 'center', fontWeight: 600 }}>
+                      {bC.title}
+                    </div>
                   </div>
                   <div
-                    className='connection-actions'
-                    style={{ paddingLeft: '20px' }}
+                    style={{
+                      display: 'flex',
+                      alignContent: 'center',
+                      alignItems: 'center'
+                    }}
                   >
-                    <Button
-                      className='connection-action-settings'
-                      icon={
-                        <Icon
-                          icon='cog'
-                          size={12}
-                          color={Colors.BLUE4}
-                          onClick={() => manageConnection(bC)}
-                        />
-                      }
-                      color={Colors.BLUE3}
-                      small
-                      minimal
-                      style={{
-                        minWidth: '18px',
-                        minHeight: '18px',
-                      }}
-                    />
+                    <div
+                      className='connection-status'
+                      style={{ textTransform: 'capitalize' }}
+                    >
+                      {(bC.statusResponse && displayOnlineStatus(bC.statusResponse)) || <><span style={{ display: 'inline-block', marginRight: '5px', width: '12px', height: '12px', float: 'left' }}><Spinner size={12} color={Colors.GRAY3} /></span> Testing</>}
+                    </div>
+                    <div
+                      className='connection-actions'
+                      style={{ paddingLeft: '20px' }}
+                    >
+                      <Button
+                        className='connection-action-settings'
+                        icon={
+                          <Icon
+                            icon='cog'
+                            size={12}
+                            color={Colors.BLUE4}
+                            onClick={() => manageConnection(bC)}
+                          />
+                        }
+                        color={Colors.BLUE3}
+                        small
+                        minimal
+                        style={{
+                          minWidth: '18px',
+                          minHeight: '18px',
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </Card>
+              ))}
+            </Card>
+            {blueprintConnections.some(c => c.status !== 200) && (
+              <p style={{ margin: '10px 0', color: Colors.RED4 }}>
+                Please fix the offline connection.
+              </p>
+            )}
+          </>
         )}
       </Card>
 

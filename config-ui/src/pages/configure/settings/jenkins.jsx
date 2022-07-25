@@ -20,12 +20,13 @@ import {
   useParams,
   useHistory
 } from 'react-router-dom'
+import { DataEntityTypes } from '@/data/DataEntities'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
 export default function JenkinsSettings (props) {
-  const { provider, onSettingsChange = () => {} } = props
+  const { provider, connection, entities = [], onSettingsChange = () => {} } = props
   const history = useHistory()
   const { providerId, connectionId } = useParams()
 

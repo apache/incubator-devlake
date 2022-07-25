@@ -214,13 +214,15 @@ const ProviderIcons = {
 const ConnectionStatus = {
   OFFLINE: 0,
   ONLINE: 1,
-  DISCONNECTED: 2
+  DISCONNECTED: 2,
+  TESTING: 3
 }
 
 const ConnectionStatusLabels = {
   [ConnectionStatus.OFFLINE]: 'Offline',
   [ConnectionStatus.ONLINE]: 'Online',
   [ConnectionStatus.DISCONNECTED]: 'Disconnected',
+  [ConnectionStatus.TESTING]: 'Testing'
 }
 
 export {

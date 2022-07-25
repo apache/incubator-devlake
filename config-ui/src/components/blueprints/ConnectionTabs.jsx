@@ -56,7 +56,7 @@ const ConnectionTabs = (props) => {
                     <Icon
                       icon='warning-sign'
                       size={10}
-                      color={Colors.ORANGE4}
+                      color={Colors.GRAY4}
                     />
                   </span>
                 </>
