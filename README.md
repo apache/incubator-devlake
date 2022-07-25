@@ -27,9 +27,30 @@ Apache DevLake is designed for developer teams looking to make better sense of t
 3. Easily extend DevLake to support your data sources, metrics, and dashboards with a flexible [framework](https://devlake.apache.org/docs/Overview/Architecture) for data collection and ETL (Extract, Transform, Load).
 
 
+## 💪 Supported Data Sources
+
+| Data Source                                                | Domain                                                | Supported Versions                   |
+| ---------------------------------------------------------- | ------------------------------------------------------| ------------------------------------ |
+| [GitHub](https://devlake.apache.org/docs/Plugins/github)   | Source Code Management, Code Review, Issue Management | Cloud                                |
+| [Gitlab](https://devlake.apache.org/docs/Plugins/gitlab)   | Source Code Management, Code Review, Issue Management | Cloud, Community Edition 13.x+       |
+| [Jira](https://devlake.apache.org/docs/Plugins/jira)       | Issue Management                                      | Cloud, Server 8.x+, Data Center 8.x+ |
+| [Jenkins](https://devlake.apache.org/docs/Plugins/jenkins) | CI/CD                                                 | 2.263.x+                             |
+| [Feishu](https://devlake.apache.org/docs/Plugins/feishu)   | Documentation                                         | Cloud                                |
+| TAPD                                                       | Issue Management                                      | Cloud                                |
+
+
+
+## 🚀 Getting Started
+- [Install via Docker Compose](https://devlake.apache.org/docs/QuickStart/DockerComposeSetup)
+- [Install via Kubernetes](https://devlake.apache.org/docs/QuickStart/KubernetesSetup)
+- [Install in Temporal Mode](https://devlake.apache.org/docs/QuickStart/TemporalSetup)
+- [Install in Developer Mode](https://devlake.apache.org/docs/DeveloperManuals/DeveloperSetup)
+
+
+
 ## 🤓 How do I use DevLake?
 ### 1. Set up DevLake
-You can set up Apache DevLake by following our step-by step instructions for [Install via Docker Compose](https://devlake.apache.org/docs/QuickStart/DockerComposeSetup) or [Install via Kubernetes](https://devlake.apache.org/docs/QuickStart/KubernetesSetup). Please ask community if you get stuck at any point. 
+You can set up Apache DevLake by following our step-by-step instructions for [Install via Docker Compose](https://devlake.apache.org/docs/QuickStart/DockerComposeSetup) or [Install via Kubernetes](https://devlake.apache.org/docs/QuickStart/KubernetesSetup). Please ask community if you get stuck at any point. 
 
 ### 2. Create a Blueprint
 The DevLake Configuration UI will guide you through the process (a Blueprint) to define the data connections, data scope, transformation and sync frequency of the data you wish to collect.
@@ -52,45 +73,25 @@ If the pre-built dashboards are limited for your use cases, you can always custo
 ![img](img/userflow4.png)
 
 
+## 😍 How to Contribute
+Please read the [contribution guidelines](https://devlake.apache.org/community) before you make contributon. The following docs list the resources you might need to know after you decided to make contribution.
 
-## 💪 Supported Data Sources
-
-| Data Source                                                | Domain                                                     | Versions                             |
-| ---------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------ |
-| [Feishu](https://devlake.apache.org/docs/Plugins/feishu)   | Documentation                                              | Cloud                                |
-| [GitHub](https://devlake.apache.org/docs/Plugins/github)   | Source Code Management, Code Review, Issue/Task Management | Cloud                                |
-| [Gitlab](https://devlake.apache.org/docs/Plugins/gitlab)   | Source Code Management, Code Review, Issue/Task Management | Cloud, Community Edition 13.x+       |
-| [Jenkins](https://devlake.apache.org/docs/Plugins/jenkins) | CI/CD                                                      | 2.263.x+                             |
-| [Jira](https://devlake.apache.org/docs/Plugins/jira)       | Issue/Task Management                                      | Cloud, Server 8.x+, Data Center 8.x+ |
-| TAPD                                                       | Issue/Task Management                                      | Cloud                                |
-
-
-## 🚀 Quick Start
-- [Install via Docker Compose](https://devlake.apache.org/docs/QuickStart/DockerComposeSetup)
-- [Install via Kubernetes](https://devlake.apache.org/docs/QuickStart/KubernetesSetup)
-- [Install in Temporal Mode](https://devlake.apache.org/docs/UserManuals/TemporalSetup)
-- [Install in Developer Mode](https://devlake.apache.org/docs/DeveloperManuals/DeveloperSetup)
+- [Create an Issue](https://devlake.apache.org/community/make-contribution/fix-or-create-issues): Report a bug or feature request to Apache DevLake
+- [Put Up a PR](https://devlake.apache.org/community/make-contribution/development-workflow): Start with [good first issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [issues with no assignees](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+no%3Aassignee)
+- [Mailing list](https://devlake.apache.org/community/subscribe): Initiate or participate in project discussions on the mailing list
+- [Write a Blog](https://devlake.apache.org/community/make-contribution/BlogSubmission): Write a blog to share your use cases about Apache DevLake
+- [Contribute a Plugin](https://devlake.apache.org/docs/DeveloperManuals/PluginImplementation): [Add a plugin](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+label%3Aadd-a-plugin+) to integrate Apache DevLake with more data sources for the community
 
 
 ## ⌚ Project Roadmap
 - <a href="https://devlake.apache.org/docs/Overview/Roadmap" target="_blank">Roadmap 2022</a>: Detailed project roadmaps for 2022.
 
 
-## 😍 How to Contribute
-This section lists all the documents to help you contribute to the repo.
-
-- [Architecture](https://devlake.apache.org/docs/Overview/Architecture): Architecture of Apache DevLake
-- [Data Model](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema): Domain Layer Schema
-- [Add a Plugin](/plugins/README.md): Guide to add a plugin
-- [Add Metrics](/plugins/HOW-TO-ADD-METRICS.md): Guide to add metrics in a plugin
-- [Contribution Guidelines](https://devlake.apache.org/community): Start from here if you want to make contribution
-
-
 ## 💙 Community
 
 - <a href="https://join.slack.com/t/devlake-io/shared_invite/zt-18uayb6ut-cHOjiYcBwERQ8VVPZ9cQQw" target="_blank">Slack</a>: Message us on Slack
 - <a href="https://github.com/apache/incubator-devlake/wiki/FAQ" target="_blank">FAQ</a>: Frequently Asked Questions
-- Wechat Community:<br>
+- Wechat Community:<br/>
   ![](img/wechat_community_barcode.png)
 
 
