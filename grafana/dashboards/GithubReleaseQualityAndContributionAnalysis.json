@@ -15,10 +15,33 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 15,
-  "iteration": 1658723594192,
+  "id": 13,
+  "iteration": 1658758698345,
   "links": [],
   "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 3,
+        "w": 13,
+        "x": 0,
+        "y": 0
+      },
+      "id": 57,
+      "options": {
+        "content": "- Use Cases: This dashboard can be used to track bugs.\n- Data Source Required: GitHub ([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub#step-3---adding-transformation-rules-optional) required. Additional settings are required to get version data).",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
     {
       "collapsed": false,
       "datasource": null,
@@ -26,7 +49,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 45,
       "panels": [],
@@ -57,7 +80,7 @@
         "h": 7,
         "w": 7,
         "x": 0,
-        "y": 1
+        "y": 4
       },
       "id": 15,
       "options": {
@@ -192,7 +215,7 @@
         "h": 7,
         "w": 17,
         "x": 7,
-        "y": 1
+        "y": 4
       },
       "id": 29,
       "options": {
@@ -269,7 +292,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 8
+        "y": 11
       },
       "id": 55,
       "options": {
@@ -424,7 +447,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 8
+        "y": 11
       },
       "id": 53,
       "options": {
@@ -509,7 +532,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 8
+        "y": 11
       },
       "id": 51,
       "options": {
@@ -690,7 +713,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 18
       },
       "id": 43,
       "options": {
@@ -756,7 +779,7 @@
         "h": 7,
         "w": 11,
         "x": 0,
-        "y": 22
+        "y": 25
       },
       "id": 30,
       "options": {
@@ -842,7 +865,7 @@
         "h": 7,
         "w": 13,
         "x": 11,
-        "y": 22
+        "y": 25
       },
       "id": 31,
       "options": {
@@ -938,7 +961,7 @@
         "h": 7,
         "w": 6,
         "x": 0,
-        "y": 29
+        "y": 32
       },
       "id": 23,
       "options": {
@@ -1034,7 +1057,7 @@
         "h": 7,
         "w": 18,
         "x": 6,
-        "y": 29
+        "y": 32
       },
       "id": 18,
       "options": {
@@ -1118,7 +1141,7 @@
         "h": 6,
         "w": 4,
         "x": 0,
-        "y": 36
+        "y": 39
       },
       "id": 33,
       "options": {
@@ -1214,7 +1237,7 @@
         "h": 6,
         "w": 20,
         "x": 4,
-        "y": 36
+        "y": 39
       },
       "id": 32,
       "options": {
@@ -1298,7 +1321,7 @@
         "h": 6,
         "w": 4,
         "x": 0,
-        "y": 42
+        "y": 45
       },
       "id": 34,
       "options": {
@@ -1470,7 +1493,7 @@
         "h": 6,
         "w": 20,
         "x": 4,
-        "y": 42
+        "y": 45
       },
       "id": 38,
       "options": {
@@ -1591,7 +1614,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 48
+        "y": 51
       },
       "id": 35,
       "options": {
@@ -1767,7 +1790,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 48
+        "y": 51
       },
       "id": 39,
       "options": {
@@ -1816,7 +1839,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 54
+        "y": 57
       },
       "id": 47,
       "panels": [],
@@ -1864,7 +1887,7 @@
         "h": 7,
         "w": 6,
         "x": 0,
-        "y": 55
+        "y": 58
       },
       "id": 41,
       "options": {
@@ -1986,7 +2009,7 @@
         "h": 7,
         "w": 18,
         "x": 6,
-        "y": 55
+        "y": 58
       },
       "id": 42,
       "options": {
@@ -2081,7 +2104,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 62
+        "y": 65
       },
       "id": 26,
       "options": {
@@ -2197,7 +2220,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 62
+        "y": 65
       },
       "id": 36,
       "options": {
@@ -2313,7 +2336,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 62
+        "y": 65
       },
       "id": 37,
       "options": {
@@ -2409,7 +2432,7 @@
         "h": 7,
         "w": 6,
         "x": 0,
-        "y": 69
+        "y": 72
       },
       "id": 27,
       "options": {
@@ -2504,7 +2527,7 @@
         "h": 7,
         "w": 18,
         "x": 6,
-        "y": 69
+        "y": 72
       },
       "id": 3,
       "options": {
@@ -2601,5 +2624,5 @@
   "timezone": "",
   "title": "GitHub_Release_Quality_and_Contribution_Analysis",
   "uid": "2xuOaQUnk4",
-  "version": 3
+  "version": 2
 }

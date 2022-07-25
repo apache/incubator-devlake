@@ -15,10 +15,33 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 13,
-  "iteration": 1658298341844,
+  "id": 2,
+  "iteration": 1658758592543,
   "links": [],
   "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 3,
+        "w": 13,
+        "x": 0,
+        "y": 0
+      },
+      "id": 99,
+      "options": {
+        "content": "- Use Cases: This dashboard shows the basic Git and Code Reivew metrics from GitHub.\n- Data Source Required: GitHub",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
     {
       "collapsed": false,
       "datasource": null,
@@ -26,7 +49,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 89,
       "panels": [],
@@ -62,7 +85,7 @@
         "h": 6,
         "w": 7,
         "x": 0,
-        "y": 1
+        "y": 4
       },
       "id": 62,
       "options": {
@@ -157,7 +180,7 @@
         "h": 6,
         "w": 17,
         "x": 7,
-        "y": 1
+        "y": 4
       },
       "id": 74,
       "options": {
@@ -221,7 +244,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 10
       },
       "id": 87,
       "panels": [],
@@ -257,7 +280,7 @@
         "h": 6,
         "w": 7,
         "x": 0,
-        "y": 8
+        "y": 11
       },
       "id": 43,
       "options": {
@@ -383,7 +406,7 @@
         "h": 6,
         "w": 17,
         "x": 7,
-        "y": 8
+        "y": 11
       },
       "id": 76,
       "options": {
@@ -462,7 +485,7 @@
         "h": 6,
         "w": 7,
         "x": 0,
-        "y": 14
+        "y": 17
       },
       "id": 64,
       "options": {
@@ -557,7 +580,7 @@
         "h": 6,
         "w": 17,
         "x": 7,
-        "y": 14
+        "y": 17
       },
       "id": 75,
       "options": {
@@ -655,7 +678,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 23
       },
       "id": 93,
       "options": {
@@ -835,7 +858,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 29
       },
       "id": 92,
       "options": {
@@ -884,7 +907,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 35
       },
       "id": 83,
       "panels": [],
@@ -920,7 +943,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 33
+        "y": 36
       },
       "id": 68,
       "options": {
@@ -1015,7 +1038,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 33
+        "y": 36
       },
       "id": 77,
       "options": {
@@ -1113,7 +1136,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 42
       },
       "id": 59,
       "options": {
@@ -1175,7 +1198,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 48
       },
       "id": 85,
       "panels": [],
@@ -1212,7 +1235,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 46
+        "y": 49
       },
       "id": 66,
       "options": {
@@ -1316,7 +1339,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 46
+        "y": 49
       },
       "id": 79,
       "options": {
@@ -1395,7 +1418,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 52
+        "y": 55
       },
       "id": 80,
       "options": {
@@ -1505,7 +1528,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 52
+        "y": 55
       },
       "id": 81,
       "options": {
@@ -1582,7 +1605,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 58
+        "y": 61
       },
       "id": 72,
       "options": {
@@ -1677,7 +1700,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 58
+        "y": 61
       },
       "id": 95,
       "options": {
@@ -1761,7 +1784,7 @@
         "h": 6,
         "w": 6,
         "x": 0,
-        "y": 64
+        "y": 67
       },
       "id": 96,
       "options": {
@@ -1854,7 +1877,7 @@
         "h": 6,
         "w": 18,
         "x": 6,
-        "y": 64
+        "y": 67
       },
       "id": 97,
       "options": {
@@ -1952,7 +1975,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Github_Basic_Metrics",
+  "title": "GitHub",
   "uid": "KXWvOFQnz",
-  "version": 4
+  "version": 3
 }

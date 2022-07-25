@@ -15,10 +15,33 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 15,
-  "iteration": 1657889619666,
+  "id": 12,
+  "iteration": 1658758247771,
   "links": [],
   "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 3,
+        "w": 13,
+        "x": 0,
+        "y": 0
+      },
+      "id": 111,
+      "options": {
+        "content": "- Use Cases: This dashboard shows the engineering throughput and and cycle time, which helps to identify productivity and bottlenecks of the development process.\n- Data Source Required: GitHub and Jira([transformation](https://devlake.apache.org/docs/UserManuals/ConfigUI/Jira#step-3---adding-transformation-rules-optional) required to tell DevLake what the story_points field is)",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
     {
       "collapsed": false,
       "datasource": null,
@@ -26,7 +49,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 89,
       "panels": [],
@@ -121,7 +144,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 1
+        "y": 4
       },
       "id": 79,
       "options": {
@@ -259,7 +282,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 1
+        "y": 4
       },
       "id": 74,
       "options": {
@@ -366,7 +389,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 1
+        "y": 4
       },
       "id": 98,
       "options": {
@@ -473,7 +496,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 8
+        "y": 11
       },
       "id": 99,
       "options": {
@@ -581,7 +604,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 8
+        "y": 11
       },
       "id": 100,
       "options": {
@@ -688,7 +711,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 8
+        "y": 11
       },
       "id": 101,
       "options": {
@@ -745,7 +768,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 18
       },
       "id": 103,
       "panels": [],
@@ -837,7 +860,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 19
       },
       "id": 109,
       "options": {
@@ -941,7 +964,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 23
+        "y": 26
       },
       "id": 104,
       "options": {
@@ -1076,7 +1099,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 23
+        "y": 26
       },
       "id": 105,
       "options": {
@@ -1211,7 +1234,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 23
+        "y": 26
       },
       "id": 107,
       "options": {
@@ -1315,7 +1338,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 30
+        "y": 33
       },
       "id": 108,
       "options": {
@@ -1338,7 +1361,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  sum(case when id not in (SELECT pull_request_id FROM pull_request_comments) then 1 else 0 end) as \"PRs Merged w/o Review\"\nFROM \n  pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in ($repo_id)\n  and merged_date is not null\nGROUP BY 1",
+          "rawSql": "SELECT\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  sum(case when id not in (SELECT pull_request_id FROM pull_request_comments) then 1 else 0 end) as \"PRs Merged w/o Review\"\nFROM \n  pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in ($repo_id)\n  and merged_date is not null\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1528,5 +1551,5 @@
   "timezone": "",
   "title": "Engineering Throughput and Cycle Time",
   "uid": "Jaaimc67k",
-  "version": 19
+  "version": 5
 }

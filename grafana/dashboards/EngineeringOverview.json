@@ -15,10 +15,33 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 12,
-  "iteration": 1658734029836,
+  "id": 17,
+  "iteration": 1658758283524,
   "links": [],
   "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 3,
+        "w": 13,
+        "x": 0,
+        "y": 0
+      },
+      "id": 32,
+      "options": {
+        "content": "- Use Cases: This dashboard is to overview the Git and project management metrics.\n- Data Source Required: Jira + GitHub, or Jira + GitLab.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
     {
       "datasource": "mysql",
       "fieldConfig": {
@@ -51,7 +74,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 8,
       "options": {
@@ -145,7 +168,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 0
+        "y": 3
       },
       "id": 22,
       "options": {
@@ -230,7 +253,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 8
+        "y": 11
       },
       "id": 10,
       "options": {
@@ -336,7 +359,7 @@
               }
             ]
           },
-          "unit": "d"
+          "unit": "none"
         },
         "overrides": []
       },
@@ -344,7 +367,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 8
+        "y": 11
       },
       "id": 23,
       "options": {
@@ -424,7 +447,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 16
+        "y": 19
       },
       "id": 14,
       "options": {
@@ -518,7 +541,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 16
+        "y": 19
       },
       "id": 24,
       "options": {
@@ -607,7 +630,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 24
+        "y": 27
       },
       "id": 6,
       "options": {
@@ -718,7 +741,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 24
+        "y": 27
       },
       "id": 25,
       "options": {
@@ -795,7 +818,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 32
+        "y": 35
       },
       "id": 4,
       "options": {
@@ -890,7 +913,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 32
+        "y": 35
       },
       "id": 26,
       "options": {
@@ -978,7 +1001,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 40
+        "y": 43
       },
       "id": 16,
       "options": {
@@ -1088,7 +1111,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 40
+        "y": 43
       },
       "id": 28,
       "options": {
@@ -1165,7 +1188,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 48
+        "y": 51
       },
       "id": 12,
       "options": {
@@ -1275,7 +1298,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 48
+        "y": 51
       },
       "id": 29,
       "options": {
@@ -1354,7 +1377,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 56
+        "y": 59
       },
       "id": 2,
       "options": {
@@ -1466,7 +1489,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 56
+        "y": 59
       },
       "id": 30,
       "options": {
@@ -1487,7 +1510,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  DATE_ADD(date(pr.created_date), INTERVAL -DAY(date(pr.created_date))+1 DAY) as time,\n  AVG(TIMESTAMPDIFF(MINUTE, pr.created_date, pr.merged_date) / 1440) as pr_cycle_time_in_days\nfrom\n  lake.pull_requests pr\nwhere\n  pr.merged_date is not null\n  and pr.base_repo_id in ($repo_id)\n  and $__timeFilter(pr.created_date)\n  and pr.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\ngroup by time",
+          "rawSql": "select\n  DATE_ADD(date(pr.created_date), INTERVAL -DAY(date(pr.created_date))+1 DAY) as time,\n  AVG(TIMESTAMPDIFF(MINUTE, pr.created_date, pr.merged_date) / 1440) as pr_cycle_time_in_days\nfrom\n  lake.pull_requests pr\nwhere\n  pr.merged_date is not null\n  and pr.base_repo_id in ($repo_id)\n  and $__timeFilter(pr.created_date)\n  and pr.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\ngroup by time\norder by time",
           "refId": "A",
           "select": [
             [
@@ -1556,7 +1579,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 64
+        "y": 67
       },
       "id": 20,
       "options": {
@@ -1607,7 +1630,7 @@
           ]
         }
       ],
-      "title": "Average Age of Critical Outstanding Defects by Severity",
+      "title": "Average Age of Critical Outstanding Defects by Priority",
       "type": "barchart"
     },
     {
@@ -1632,7 +1655,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 64
+        "y": 67
       },
       "id": 21,
       "options": {
@@ -1667,7 +1690,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  sum(case when type = 'BUG' then 1 else 0 end) as 'Bug',\n  sum(case when type != 'BUG' and epic_key != '' then 1 else 0 end) as 'Strategic',\n  sum(case when type != 'BUG' and epic_key = '' then 1 else 0 end) as 'Non-Strategic'\nfrom\n  issues\nwhere\n  resolution_date is not null and\n  date(resolution_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY",
+          "rawSql": "select\n  sum(case when type = 'BUG' then 1 else 0 end) as 'Bug',\n  sum(case when type = 'BUG' and epic_key != '' then 1 else 0 end) as 'Strategic',\n  sum(case when type != 'BUG' and epic_key = '' then 1 else 0 end) as 'Non-Strategic'\nfrom\n  issues\nwhere\n  resolution_date is not null and\n  date(resolution_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY",
           "refId": "A",
           "select": [
             [
@@ -1704,7 +1727,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "All",
           "value": "$__all"
         },
@@ -1728,7 +1751,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "2022-06",
           "value": "2022-06-01"
         },
@@ -1845,5 +1868,5 @@
   "timezone": "",
   "title": "Engineering Overview",
   "uid": "ZF6abXX7z",
-  "version": 1
+  "version": 8
 }
