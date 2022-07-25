@@ -683,7 +683,7 @@ const BlueprintDetail = (props) => {
         status: lastPipeline.status,
         statusLabel: TaskStatusLabels[lastPipeline.status],
         icon: getTaskStatusIcon(lastPipeline.status),
-        startedAt: dayjs(lastPipeline.beganAt || lastPipeline.createdAt).format('L LTS'),
+        startedAt: lastPipeline.beganAt ? dayjs(lastPipeline.beganAt).format('L LTS') : '-',
         duration:
           [TaskStatus.CREATED, TaskStatus.RUNNING].includes(lastPipeline.status)
             ? dayjs(lastPipeline.beganAt || lastPipeline.createdAt).toNow(true)
@@ -713,6 +713,8 @@ const BlueprintDetail = (props) => {
       setAutoRefresh([TaskStatus.RUNNING, TaskStatus.CREATED].includes(activePipeline?.status))
       setCurrentRun((cR) => ({
         ...cR,
+        startedAt: activePipeline?.beganAt ? dayjs(activePipeline?.beganAt).format('L LTS') : '-',
+        stage: `Stage ${activePipeline.stage}`,
         status: activePipeline?.status,
         statusLabel: TaskStatusLabels[activePipeline?.status],
         icon: getTaskStatusIcon(activePipeline?.status),
