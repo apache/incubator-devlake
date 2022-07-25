@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 6,
+  "id": 4,
   "links": [
     {
       "asDropdown": false,
@@ -203,6 +203,30 @@
                 "value": 753
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "created_date"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "status"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 284
+              }
+            ]
           }
         ]
       },
@@ -225,7 +249,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n    title,\n    description,\n    case when assignee_id = '' then '-' else assignee_name end as assignee,\n    status,\n    created_date\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  order by created_date desc",
+          "rawSql": "select \n    title,\n    description,\n    case when assignee_id = '' then '-' else assignee_name end as assignee,\n    status,\n    created_date,\n    url\n  from issues i\n  where \n    type = 'Bug'\n    and $__timeFilter(created_date)\n  order by created_date desc",
           "refId": "A",
           "select": [
             [
@@ -265,5 +289,5 @@
   "timezone": "",
   "title": "Demo-Detailed Bug Info",
   "uid": "s48Lzn5nz",
-  "version": 2
+  "version": 1
 }
