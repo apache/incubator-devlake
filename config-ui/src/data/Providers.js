@@ -167,7 +167,7 @@ const ProviderFormPlaceholders = {
   },
   gitlab: {
     name: 'eg. GitLab',
-    endpoint: 'eg. https://gitlab.com/api/v4',
+    endpoint: 'eg. https://gitlab.com/api/v4/',
     proxy: 'eg. http://proxy.localhost:8080',
     token: 'eg. ff9d1ad0e5c04f1f98fa',
     username: 'Enter Username / E-mail',
@@ -175,7 +175,7 @@ const ProviderFormPlaceholders = {
   },
   jenkins: {
     name: 'eg. Jenkins',
-    endpoint: 'URL eg. https://api.jenkins.io',
+    endpoint: 'URL eg. https://api.jenkins.io/',
     proxy: 'eg. http://proxy.localhost:8080',
     token: 'eg. 6b057ffe68464c93a057',
     username: 'eg. admin',
@@ -191,7 +191,7 @@ const ProviderFormPlaceholders = {
   },
   github: {
     name: 'eg. GitHub',
-    endpoint: 'eg. https://api.github.com',
+    endpoint: 'eg. https://api.github.com/',
     proxy: 'eg. http://proxy.localhost:8080',
     token: 'eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
     username: 'eg. admin',
