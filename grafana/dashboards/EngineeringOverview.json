@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 13,
-  "iteration": 1653390976868,
+  "id": 12,
+  "iteration": 1658734029836,
   "links": [],
   "panels": [
     {
@@ -256,7 +256,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _inprogress_times as (\n  select\n    i.id as issue_id,\n    c.created_date as inprogress_time\n  from\n    lake.issues i\n    join lake.changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.to in ($inprogress_status) \n    and date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n),\n\n_done_times as (\n  select\n    i.id as issue_id,\n    c.created_date as done_time\n  from\n    lake.issues i\n    join lake.changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.to in ($done_status)\n    and date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n)\n\nselect\n  AVG(TIMESTAMPDIFF(MINUTE, inprogress_time, done_time) / 1440)\nfrom\n  _inprogress_times it\n  join _done_times dt on it.issue_id = dt.issue_id",
+          "rawSql": "with _inprogress_times as (\n  select\n    i.id as issue_id,\n    c.created_date as inprogress_time\n  from\n    lake.issues i\n    join lake.issue_changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.original_to_value in ($inprogress_status) \n    and date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n),\n\n_done_times as (\n  select\n    i.id as issue_id,\n    c.created_date as done_time\n  from\n    lake.issues i\n    join lake.issue_changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.original_to_value in ($done_status)\n    and date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n)\n\nselect\n  AVG(TIMESTAMPDIFF(MINUTE, inprogress_time, done_time) / 1440)\nfrom\n  _inprogress_times it\n  join _done_times dt on it.issue_id = dt.issue_id",
           "refId": "A",
           "select": [
             [
@@ -365,7 +365,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _inprogress_times as (\n  select\n    i.id as issue_id,\n    i.created_date,\n    c.created_date as inprogress_time\n  from\n    lake.issues i\n    join lake.changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.to in ($inprogress_status) \n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n),\n\n_done_times as (\n  select\n    i.id as issue_id,\n    i.created_date,\n    c.created_date as done_time\n  from\n    lake.issues i\n    join lake.changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.to in ($done_status)\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n)\n\nselect\n  DATE_ADD(date(it.created_date), INTERVAL -DAY(date(it.created_date))+1 DAY) as time,\n  AVG(TIMESTAMPDIFF(MINUTE, inprogress_time, done_time) / 1440) as avg_issue_cycle_time_in_days\nfrom\n  _inprogress_times it\n  join _done_times dt on it.issue_id = dt.issue_id\ngroup by time",
+          "rawSql": "with _inprogress_times as (\n  select\n    i.id as issue_id,\n    i.created_date,\n    c.created_date as inprogress_time\n  from\n    lake.issues i\n    join lake.issue_changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.original_to_value in ($inprogress_status) \n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n),\n\n_done_times as (\n  select\n    i.id as issue_id,\n    i.created_date,\n    c.created_date as done_time\n  from\n    lake.issues i\n    join lake.issue_changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.original_to_value in ($done_status)\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n)\n\nselect\n  DATE_ADD(date(it.created_date), INTERVAL -DAY(date(it.created_date))+1 DAY) as time,\n  AVG(TIMESTAMPDIFF(MINUTE, inprogress_time, done_time) / 1440) as avg_issue_cycle_time_in_days\nfrom\n  _inprogress_times it\n  join _done_times dt on it.issue_id = dt.issue_id\ngroup by time",
           "refId": "A",
           "select": [
             [
@@ -408,7 +408,7 @@
                 "value": null
               },
               {
-                "color": "orange",
+                "color": "yellow",
                 "value": 10
               },
               {
@@ -633,7 +633,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _num_issues_with_sprint_updated as (\n  select\n    count(*) as num_issues_with_sprint_updated\n  from\n    lake.issues i\n    join lake.changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'Sprint' and\n    c.from != '' and\n    c.to != '' and\n    date(i.created_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n),\n\n_total_num_issues as (\n  select\n    count(*) as total_num_issues\n  from\n    lake.issues i\n  where\n    date(i.created_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n)\n\nselect\n  now() as time,\n  100 - 100 * (select 1.0 * num_issues_with_sprint_updated from _num_issues_with_sprint_updated) / (select total_num_issues from _total_num_issues) as ratio;",
+          "rawSql": "with _num_issues_with_sprint_updated as (\n  select\n    count(*) as num_issues_with_sprint_updated\n  from\n    lake.issues i\n    join lake.issue_changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'Sprint' and\n    c.original_from_value != '' and\n    c.original_to_value != '' and\n    date(i.created_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n),\n\n_total_num_issues as (\n  select\n    count(*) as total_num_issues\n  from\n    lake.issues i\n  where\n    date(i.created_date) between\n      STR_TO_DATE('$month','%Y-%m-%d') and\n      STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n)\n\nselect\n  now() as time,\n  100 - 100 * (select 1.0 * num_issues_with_sprint_updated from _num_issues_with_sprint_updated) / (select total_num_issues from _total_num_issues) as ratio;",
           "refId": "A",
           "select": [
             [
@@ -739,7 +739,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _num_issues_with_sprint_updated as (\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(*) as num_issues_with_sprint_updated\n  from\n    lake.issues i\n    join lake.changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'Sprint'\n    and c.from != '' \n    and c.to != ''\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n),\n\n_total_num_issues as (\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(*) as total_num_issues\n  from\n    lake.issues i\n  where\n    $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  x.time,\n  100 - 100 * (1.0 * x.num_issues_with_sprint_updated / y.total_num_issues) as delivery_rate\nfrom \n  _num_issues_with_sprint_updated x \n  join _total_num_issues y on x.time = y.time",
+          "rawSql": "with _num_issues_with_sprint_updated as (\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(*) as num_issues_with_sprint_updated\n  from\n    lake.issues i\n    join lake.issue_changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'Sprint'\n    and c.original_from_value != '' \n    and c.original_to_value != ''\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n),\n\n_total_num_issues as (\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(*) as total_num_issues\n  from\n    lake.issues i\n  where\n    $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  x.time,\n  100 - 100 * (1.0 * x.num_issues_with_sprint_updated / y.total_num_issues) as delivery_rate\nfrom \n  _num_issues_with_sprint_updated x \n  join _total_num_issues y on x.time = y.time",
           "refId": "A",
           "select": [
             [
@@ -821,7 +821,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  lake.pull_requests pr\nwhere\n  pr.merged_date is not null and\n  date(pr.merged_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY and\n  pr.base_repo_id in ($repo_id);",
+          "rawSql": "select\n  count(*)\nfrom\n  lake.pull_requests pr\nwhere\n  pr.merged_date is not null \n  and date(pr.merged_date) between\n    STR_TO_DATE('$month','%Y-%m-%d')\n    and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY \n  and pr.base_repo_id in ($repo_id);",
           "refId": "A",
           "select": [
             [
@@ -1380,7 +1380,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  AVG(TIMESTAMPDIFF(MINUTE, pr.created_date, pr.merged_date) / 1440)\nfrom\n  lake.pull_requests pr\nwhere\n  pr.merged_date is not null\n  and pr.base_repo_id in ($repo_id)\n  and date(pr.created_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') and\n    STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY",
+          "rawSql": "select\n  AVG(TIMESTAMPDIFF(MINUTE, pr.created_date, pr.merged_date) / 1440)\nfrom\n  lake.pull_requests pr\nwhere\n  pr.merged_date is not null\n  and pr.base_repo_id in ($repo_id)\n  and date(pr.created_date) between\n    STR_TO_DATE('$month','%Y-%m-%d') \n    and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY",
           "refId": "A",
           "select": [
             [
@@ -1729,8 +1729,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "2022-03",
-          "value": "2022-03-01"
+          "text": "2022-06",
+          "value": "2022-06-01"
         },
         "datasource": "mysql",
         "definition": "select\n  distinct(concat(date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m') , ':', date_format(DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY), '%Y-%m-%d'))) as month\nfrom\n  lake.issues i\norder by month desc",
@@ -1754,12 +1754,12 @@
         "current": {
           "selected": true,
           "text": [
-            "Highest",
-            "High"
+            "High",
+            "Highest"
           ],
           "value": [
-            "Highest",
-            "High"
+            "High",
+            "Highest"
           ]
         },
         "datasource": "mysql",
@@ -1784,18 +1784,14 @@
         "current": {
           "selected": true,
           "text": [
-            "In Progress",
-            "处理中",
-            "In Development"
+            "All"
           ],
           "value": [
-            "In Progress",
-            "处理中",
-            "In Development"
+            "$__all"
           ]
         },
         "datasource": "mysql",
-        "definition": "select `to` from changelogs where field_name = 'status'",
+        "definition": "select original_to_value from issue_changelogs where field_name = 'status'",
         "description": "Customize status(es) that are considered as \"In-Progress\"",
         "error": null,
         "hide": 0,
@@ -1804,7 +1800,7 @@
         "multi": true,
         "name": "inprogress_status",
         "options": [],
-        "query": "select `to` from changelogs where field_name = 'status'",
+        "query": "select original_to_value from issue_changelogs where field_name = 'status'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1816,18 +1812,14 @@
         "current": {
           "selected": true,
           "text": [
-            "Resolved",
-            "已关闭",
-            "已完成"
+            "All"
           ],
           "value": [
-            "Resolved",
-            "已关闭",
-            "已完成"
+            "$__all"
           ]
         },
         "datasource": "mysql",
-        "definition": "select `to` from changelogs where field_name = 'status'",
+        "definition": "select original_to_value from issue_changelogs where field_name = 'status'",
         "description": "Customize status(es) that are considered as \"Done\"",
         "error": null,
         "hide": 0,
@@ -1836,7 +1828,7 @@
         "multi": true,
         "name": "done_status",
         "options": [],
-        "query": "select `to` from changelogs where field_name = 'status'",
+        "query": "select original_to_value from issue_changelogs where field_name = 'status'",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1853,5 +1845,5 @@
   "timezone": "",
   "title": "Engineering Overview",
   "uid": "ZF6abXX7z",
-  "version": 46
+  "version": 1
 }
