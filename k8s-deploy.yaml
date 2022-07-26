@@ -12,8 +12,8 @@
 #    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
-  
-  ---
+
+---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -25,10 +25,20 @@ metadata:
   name: devlake-config
   namespace: devlake
 data:
+  # shared between deployment
   MYSQL_USER: merico
   MYSQL_PASSWORD: merico
   MYSQL_DATABASE: lake
   MYSQL_ROOT_PASSWORD: admin
+  MYSQL_URL: mysql:3306
+  # grafana deployment
+  GF_SERVER_ROOT_URL: http://YOURDOMAIN:30002/grafana
+  # for devlake deployment
+  DB_URL: mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True
+  DEVLAKE_ENDPOINT: devlake.devlake.svc.cluster.local:8080
+  GRAFANA_ENDPOINT: grafana.devlake.svc.cluster.local:3000
+  # ADMIN_USER: devlake
+  # ADMIN_PASS: merico
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -104,15 +114,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: devlake-config
-          env:
-            - name: GF_USERS_ALLOW_SIGN_UP
-              value: 'false'
-            - name: GF_DASHBOARDS_JSON_ENABLED
-              value: 'true'
-            - name: GF_LIVE_ALLOWED_ORIGINS
-              value: '*'
-            - name: MYSQL_URL
-              value: mysql:3306
 
 ---
 apiVersion: v1
@@ -157,14 +158,6 @@ spec:
             - configMapRef:
                 name: devlake-config
           env:
-            - name: DEVLAKE_ENDPOINT
-              value: devlake.devlake.svc.cluster.local:8080
-            - name: GRAFANA_ENDPOINT
-              value: grafana.devlake.svc.cluster.local:3000
-            #- name: ADMIN_USER
-              #value: devlake
-            #- name: ADMIN_PASS
-              #value: merico
 ---
 apiVersion: v1
 kind: Service
@@ -204,9 +197,9 @@ spec:
           image: mericodev/devlake:latest
           ports:
             - containerPort: 8080
-          env:
-            - name: DB_URL
-              value: 'mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True'
+          envFrom:
+            - configMapRef:
+                name: devlake-config
           volumeMounts:
             - name: config
               mountPath: "/app/.env"
