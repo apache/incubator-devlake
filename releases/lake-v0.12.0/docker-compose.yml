@@ -35,9 +35,7 @@ services:
     volumes:
       - grafana-storage:/var/lib/grafana
     environment:
-      GF_USERS_ALLOW_SIGN_UP: 'false'
-      GF_DASHBOARDS_JSON_ENABLED: 'true'
-      GF_LIVE_ALLOWED_ORIGINS: '*'
+      GF_SERVER_ROOT_URL: "http://localhost:4000/grafana"
       MYSQL_URL: mysql:3306
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
