@@ -29,7 +29,7 @@ services:
       MYSQL_PASSWORD: merico
 
   grafana:
-    image: mericodev/grafana:latest
+    image: mericodev/devlake-dashboard:latest
     build:
       context: grafana/
     ports:
@@ -49,7 +49,7 @@ services:
       - mysql
 
   devlake:
-    image: mericodev/lake:latest
+    image: mericodev/devlake:latest
     build:
       context: "."
       args:
@@ -69,7 +69,7 @@ services:
       - TEMPORAL_URL=temporal:7233
 
   devlake-worker:
-    image: mericodev/lake:latest
+    image: mericodev/devlake:latest
     build:
       context: "."
       args:
@@ -88,7 +88,7 @@ services:
       - TEMPORAL_URL=temporal:7233
 
   config-ui:
-    image: mericodev/config-ui:latest
+    image: mericodev/devlake-config-ui:latest
     build:
       context: "config-ui"
     ports:
