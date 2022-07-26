@@ -29,17 +29,17 @@ services:
       MYSQL_USER: merico
       MYSQL_PASSWORD: merico
 
-  postgres:
-    image: postgres:14.2
-    volumes:
-      - postgres-storage:/var/lib/postgresql
-    restart: always
-    ports:
-      - 127.0.0.1:5432:5432
-    environment:
-      POSTGRES_DB: lake
-      POSTGRES_USER: merico
-      POSTGRES_PASSWORD: merico
+  # postgres:
+  #   image: postgres:14.2
+  #   volumes:
+  #     - postgres-storage:/var/lib/postgresql
+  #   restart: always
+  #   ports:
+  #     - 127.0.0.1:5432:5432
+  #   environment:
+  #     POSTGRES_DB: lake
+  #     POSTGRES_USER: merico
+  #     POSTGRES_PASSWORD: merico
 
   grafana:
     image: mericodev/devlake-dashboard:latest
@@ -50,11 +50,7 @@ services:
     volumes:
       - grafana-storage:/var/lib/grafana
     environment:
-      GF_USERS_ALLOW_SIGN_UP: 'false'
       GF_SERVER_ROOT_URL: "http://localhost:4000/grafana"
-      GF_SERVER_SERVE_FROM_SUB_PATH: 'true'
-      GF_DASHBOARDS_JSON_ENABLED: 'true'
-      GF_LIVE_ALLOWED_ORIGINS: '*'
       MYSQL_URL: mysql:3306
       MYSQL_DATABASE: lake
       MYSQL_USER: merico
