@@ -675,7 +675,6 @@ const BlueprintDetail = (props) => {
   }, [blueprintPipelines])
 
   useEffect(() => {
-    // if (lastPipeline?.id && lastPipeline.status === TaskStatus.RUNNING) {
     if (lastPipeline?.id && [TaskStatus.CREATED, TaskStatus.RUNNING, TaskStatus.COMPLETE, TaskStatus.FAILED].includes(lastPipeline.status)) {
       fetchPipeline(lastPipeline?.id)
       setCurrentRun((cR) => ({
@@ -684,10 +683,10 @@ const BlueprintDetail = (props) => {
         status: lastPipeline.status,
         statusLabel: TaskStatusLabels[lastPipeline.status],
         icon: getTaskStatusIcon(lastPipeline.status),
-        startedAt: dayjs(lastPipeline.beganAt).format('L LTS'),
+        startedAt: lastPipeline.beganAt ? dayjs(lastPipeline.beganAt).format('L LTS') : '-',
         duration:
-          lastPipeline.status === 'TASK_RUNNING'
-            ? dayjs(lastPipeline.beganAt).toNow(true)
+          [TaskStatus.CREATED, TaskStatus.RUNNING].includes(lastPipeline.status)
+            ? dayjs(lastPipeline.beganAt || lastPipeline.createdAt).toNow(true)
             : dayjs(lastPipeline.beganAt).from(
               lastPipeline.finishedAt || lastPipeline.updatedAt,
               true
@@ -712,6 +711,14 @@ const BlueprintDetail = (props) => {
     if (activePipeline?.id && activePipeline?.id !== null) {
       setCurrentStages(buildPipelineStages(activePipeline.tasks))
       setAutoRefresh([TaskStatus.RUNNING, TaskStatus.CREATED].includes(activePipeline?.status))
+      setCurrentRun((cR) => ({
+        ...cR,
+        startedAt: activePipeline?.beganAt ? dayjs(activePipeline?.beganAt).format('L LTS') : '-',
+        stage: `Stage ${activePipeline.stage}`,
+        status: activePipeline?.status,
+        statusLabel: TaskStatusLabels[activePipeline?.status],
+        icon: getTaskStatusIcon(activePipeline?.status),
+      }))
     }
   }, [activePipeline, buildPipelineStages])
 
