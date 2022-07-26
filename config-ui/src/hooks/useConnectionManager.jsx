@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 import { ToastNotification } from '@/components/Toast'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
@@ -76,6 +76,7 @@ function useConnectionManager (
 
   const [saveComplete, setSaveComplete] = useState(false)
   const [deleteComplete, setDeleteComplete] = useState(false)
+  const connectionTestPayload = useMemo(() => ({ endpoint: endpointUrl, username, password, token, proxy }), [endpointUrl, password, proxy, token, username])
 
   const testConnection = useCallback(
     (
@@ -90,57 +91,25 @@ function useConnectionManager (
       setTestResponse(null)
 
       const runTest = async () => {
-        let connectionPayload
-        switch (provider.id) {
-          case Providers.JIRA:
-            connectionPayload = {
-              endpoint: endpointUrl,
-              username: username,
-              password: password,
-              proxy: proxy,
-            }
-            break
-          case Providers.GITHUB:
-            connectionPayload = {
-              endpoint: endpointUrl,
-              token: token,
-              proxy: proxy,
-            }
-            break
-          case Providers.JENKINS:
-            connectionPayload = {
-              endpoint: endpointUrl,
-              username: username,
-              password: password,
-            }
-            break
-          case Providers.GITLAB:
-            connectionPayload = {
-              endpoint: endpointUrl,
-              token: token,
-              proxy: proxy,
-            }
-            break
-        }
-        connectionPayload = Object.keys(manualPayload).length > 0 ? manualPayload : connectionPayload
+        const payload = Object.keys(manualPayload).length > 0 ? manualPayload : connectionTestPayload
         const testUrl = `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/test`
         console.log(
-          'INFO >>> Endopoint URL & Payload for testing: ',
+          'INFO >>> Endpoint URL & Payload for testing: ',
           testUrl,
-          connectionPayload
+          payload
         )
-        const res = await request.post(testUrl, connectionPayload)
+        const res = await request.post(testUrl, payload)
         setTestResponse(res.data)
         if ([Providers.GITHUB].includes(provider.id)) {
-          console.log('>>> SETTING TOKEN TEST RESPONSE FOR TOKEN >>>', manualPayload?.token || token)
-          setAllTestResponses(tRs => ({ ...tRs, [manualPayload.token]: res.data }))
+          console.log('>>> SETTING TOKEN TEST RESPONSE FOR TOKEN >>>', manualPayload?.token || connectionTestPayload.token)
+          setAllTestResponses(tRs => ({ ...tRs, [manualPayload?.token]: res.data }))
         }
         if (res.data?.success && res.status === 200) {
           setIsTesting(false)
           setTestStatus(1)
           if (notify) {
             ToastNotification.show({
-              message: `Connection test OK. ${connectionPayload.endpoint}`,
+              message: `Connection test OK. ${payload.endpoint}`,
               intent: 'success',
               icon: 'small-tick',
             })
@@ -163,7 +132,7 @@ function useConnectionManager (
       }
       runTest()
     },
-    [provider?.id, endpointUrl, password, proxy, token, username]
+    [provider?.id, connectionTestPayload]
   )
 
   const saveConnection = (configurationSettings = {}) => {
@@ -174,7 +143,6 @@ function useConnectionManager (
         connectionPayload = {
           name: name,
           endpoint: endpointUrl,
-          // basicAuthEncoded: token,
           username: username,
           password: password,
           proxy: proxy,
@@ -186,8 +154,6 @@ function useConnectionManager (
           name: name,
           endpoint: endpointUrl,
           token: token,
-          // @todo: remove auth, testing only
-          auth: token,
           proxy: proxy,
           ...connectionPayload,
         }
@@ -207,8 +173,6 @@ function useConnectionManager (
           name: name,
           endpoint: endpointUrl,
           token: token,
-          // @todo: remove auth, testing only
-          auth: token,
           proxy: proxy,
           ...connectionPayload,
         }
@@ -375,13 +339,9 @@ function useConnectionManager (
         setErrors([])
         ToastNotification.clear()
         console.log('>> FETCHING ALL CONNECTION SOURCES')
-        // const c = await request.get(
-        //   `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections`
-        // )
         let c = null
         if (allSources) {
           const aC = await Promise.all([
-            // @todo: re-enable JIRA & fix encKey warning msg (rebuild local db)
             request.get(
               `${DEVLAKE_ENDPOINT}/plugins/${Providers.JIRA}/connections`
             ),
@@ -403,13 +363,6 @@ function useConnectionManager (
               // @todo: inject realtime connection status...
               status: ConnectionStatus.ONLINE
             })))
-          // .map((providerResponse) => [
-          //   {
-          //     ...[].concat(providerResponse.data || []).reduce((cV, pV) => ({...pV, connectionId: pV.id}), {}),
-          //     provider: providerResponse.config?.url?.split('/')[3],
-          //     status: ConnectionStatus.ONLINE
-          //   },
-          // ])
           setAllProviderConnections(builtConnections.flat())
           console.log(
             '>> ALL SOURCE CONNECTIONS: FETCHING ALL CONNECTION FROM ALL DATA SOURCES'
@@ -505,12 +458,11 @@ function useConnectionManager (
         console.log('>>> TESTING CONNECTION INSTANCE...', c)
         const notify = false
         const payload = {
-          endpoint: c.Endpoint || c.endpoint,
+          endpoint: c.endpoint,
           username: c.username,
           password: c.password,
-          // @todo: cleanup legacy auth fields and only use $token value
-          token: c.token || c.basicAuthEncoded || c.auth,
-          proxy: c.Proxy || c.Proxy,
+          token: c.token,
+          proxy: c.proxy,
         }
         const onSuccess = (res) => {
           setTestedConnections((testedConnections) => [
@@ -577,7 +529,7 @@ function useConnectionManager (
   }, [])
 
   useEffect(() => {
-    if (activeConnection && activeConnection.ID !== null) {
+    if (activeConnection && activeConnection.id !== null) {
       const connectionToken = activeConnection.auth || activeConnection.token || activeConnection.basicAuthEncoded
       setName(activeConnection.name)
       setEndpointUrl(activeConnection.endpoint)
@@ -696,6 +648,7 @@ function useConnectionManager (
     sourceLimits,
     connectionCount,
     connectionLimitReached,
+    connectionTestPayload,
     Providers,
     saveComplete,
     deleteComplete,

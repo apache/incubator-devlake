@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState, useCallback, useRef } from 'react'
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import {
   Button,
   Colors,
@@ -88,6 +88,7 @@ export default function ConnectionForm (props) {
   const connectionTokenRef = useRef()
   const connectionUsernameRef = useRef()
   const connectionPasswordRef = useRef()
+  const connectionProxyRef = useRef()
 
   // const [isValidForm, setIsValidForm] = useState(true)
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
@@ -95,6 +96,8 @@ export default function ConnectionForm (props) {
   const [tokenStore, setTokenStore] = useState(initialTokenStore)
   const [personalAccessTokens, setPersonalAccessTokens] = useState([])
   const [tokenTests, setTokenTests] = useState([])
+
+  const patTestPayload = useMemo(() => ({ endpoint: endpointUrl, proxy }), [endpointUrl, proxy])
 
   const getConnectionStatusIcon = () => {
     let statusIcon = <Icon icon='full-circle' size='10' color={Colors.RED3} />
@@ -165,6 +168,26 @@ export default function ConnectionForm (props) {
     )
   }
 
+  const syncPersonalAcessTokens = useCallback(() => {
+    onTokenChange(personalAccessTokens.join(',').trim())
+    // eslint-disable-next-line no-unused-vars
+    const tokenTestResponses = personalAccessTokens.filter(t => t !== '').map((t, tIdx) => {
+      const withAlert = false
+      const testPayload = {
+        ...patTestPayload,
+        token: t,
+      }
+      if (![connectionEndpointRef.current?.id, connectionProxyRef.current?.id].includes(document.activeElement?.id)) {
+        onTest(withAlert, testPayload)
+      }
+      return t
+    })
+  }, [
+    personalAccessTokens,
+    onTokenChange,
+    onTest
+  ])
+
   useEffect(() => {
     if (!allowedAuthTypes.includes(authType)) {
       console.log('INVALID AUTH TYPE!')
@@ -191,24 +214,11 @@ export default function ConnectionForm (props) {
   useEffect(() => {
     if (activeProvider?.id === Providers.GITHUB) {
       console.log('>> PERSONAL ACCESS TOKENS ENTERED...', personalAccessTokens)
-      onTokenChange(personalAccessTokens.join(',').trim())
-      // eslint-disable-next-line no-unused-vars
-      const tokenTestResponses = personalAccessTokens.filter(t => t !== '').map((t, tIdx) => {
-        const withAlert = false
-        const testPayload = {
-          endpoint: endpointUrl,
-          token: t
-        }
-        onTest(withAlert, testPayload)
-        return t
-      })
+      syncPersonalAcessTokens()
     }
   }, [
     activeProvider?.id,
-    personalAccessTokens,
-    endpointUrl,
-    onTokenChange,
-    onTest
+    syncPersonalAcessTokens
   ])
 
   useEffect(() => {
@@ -706,6 +716,7 @@ export default function ConnectionForm (props) {
               <Label>{labels ? labels.proxy : <>Proxy&nbsp;URL</>}</Label>
               <InputGroup
                 id='connection-proxy'
+                inputRef={connectionProxyRef}
                 tabIndex={3}
                 placeholder={
                   placeholders.proxy
