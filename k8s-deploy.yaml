@@ -160,7 +160,7 @@ spec:
             - name: DEVLAKE_ENDPOINT
               value: devlake.devlake.svc.cluster.local:8080
             - name: GRAFANA_ENDPOINT
-              value: http://grafana-on-yourdomain.example.com
+              value: grafana.devlake.svc.cluster.local:3000
             #- name: ADMIN_USER
               #value: devlake
             #- name: ADMIN_PASS
