@@ -91,20 +91,20 @@ function usePipelineValidation ({
 
     setErrors(errs)
   }, [
-    enabledProviders,
+    // enabledProviders,
     pipelineName,
-    projectId,
-    boardId,
-    owner,
-    repositoryName,
-    gitExtractorUrl,
-    gitExtractorRepoId,
-    refDiffRepoId,
-    refDiffTasks,
-    refDiffPairs,
-    connectionId,
-    boards,
-    projects
+    // projectId,
+    // boardId,
+    // owner,
+    // repositoryName,
+    // gitExtractorUrl,
+    // gitExtractorRepoId,
+    // refDiffRepoId,
+    // refDiffTasks,
+    // refDiffPairs,
+    // connectionId,
+    // boards,
+    // projects
   ])
 
   const validateAdvanced = useCallback(() => {

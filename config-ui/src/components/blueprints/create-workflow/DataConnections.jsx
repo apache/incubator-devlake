@@ -47,6 +47,7 @@ const DataConnections = (props) => {
     manageConnection = () => {},
     onAdvancedMode = () => {},
     isSaving = false,
+    isTesting = false,
     advancedMode = false
   } = props
 
@@ -178,7 +179,7 @@ const DataConnections = (props) => {
                 </div>
               ))}
             </Card>
-            {blueprintConnections.some(c => c.status !== 200) && (
+            {blueprintConnections.some(c => c.status !== 200) && !isTesting && (
               <p style={{ margin: '10px 0', color: Colors.RED4 }}>
                 Please fix the offline connection.
               </p>

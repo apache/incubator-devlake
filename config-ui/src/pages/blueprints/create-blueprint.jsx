@@ -1132,6 +1132,7 @@ const CreateBlueprint = (props) => {
                       addConnection={addConnection}
                       manageConnection={manageConnection}
                       onAdvancedMode={handleAdvancedMode}
+                      isTesting={isTestingConnection}
                     />
                   )}
 
