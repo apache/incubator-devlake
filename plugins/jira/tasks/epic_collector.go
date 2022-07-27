@@ -23,19 +23,15 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"strings"
 
+	"encoding/json"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 )
 
-import (
-	"encoding/json"
-	"io/ioutil"
-)
+const RAW_EPIC_TABLE = "jira_api_epics"
 
-const RAW_EXTERNAL_EPIC_TABLE = "jira_external_epics"
-
-// this struct should be moved to `jira_api_common.go`
 type JiraEpicParams struct {
 	ConnectionId uint64
 	BoardId      uint64
@@ -43,18 +39,18 @@ type JiraEpicParams struct {
 
 var _ core.SubTaskEntryPoint = CollectIssues
 
-var CollectExternalEpicsMeta = core.SubTaskMeta{
-	Name:             "collectExternalEpics",
-	EntryPoint:       CollectExternalEpics,
+var CollectEpicsMeta = core.SubTaskMeta{
+	Name:             "collectEpics",
+	EntryPoint:       CollectEpics,
 	EnabledByDefault: true,
-	Description:      "collect Jira epics from other boards",
+	Description:      "collect Jira epics from all boards",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CROSS},
 }
 
-func CollectExternalEpics(taskCtx core.SubTaskContext) error {
+func CollectEpics(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
-	externalEpicKeys, err := GetExternalEpicKeys(db, data)
+	externalEpicKeys, err := GetEpicKeys(db, data)
 	if err != nil {
 		return err
 	}
@@ -77,7 +73,7 @@ func CollectExternalEpics(taskCtx core.SubTaskContext) error {
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
-			Table: RAW_EXTERNAL_EPIC_TABLE,
+			Table: RAW_EPIC_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
@@ -115,27 +111,24 @@ func CollectExternalEpics(taskCtx core.SubTaskContext) error {
 	return collector.Execute()
 }
 
-func GetExternalEpicKeys(db dal.Dal, data *JiraTaskData) ([]string, error) {
-	// union of
-	// 1. issues with epics not from this board and not in the issues table
-	// 2. issues with epics not from this board that ARE already in the issues table (from previous runs)
-	// the above two selections are mutually exclusive
-	cursor, err := db.RawCursor(fmt.Sprintf(`
-			SELECT tji.epic_key as epicKey FROM _tool_jira_issues tji
-			LEFT JOIN _tool_jira_board_issues tjbi
-			ON tji.issue_id = tjbi.issue_id
-			WHERE
-			tjbi.board_id = %d AND tji.epic_key != "" AND NOT EXISTS (
-				SELECT issue_key FROM _tool_jira_issues tji2 
-				WHERE tji2.issue_key = tji.epic_key
-			)
-			UNION
-			SELECT tji.issue_key as epicKey FROM _tool_jira_issues tji
-			LEFT JOIN _tool_jira_board_issues tjbi
-			ON tji.issue_id = tjbi.issue_id
-			WHERE 
-			tjbi.issue_id IS NULL;
-		`, data.Options.BoardId))
+func GetEpicKeys(db dal.Dal, data *JiraTaskData) ([]string, error) {
+	cursor, err := db.RawCursor(`
+		select
+			distinct epic_key
+		from
+			_tool_jira_issues i
+		left join _tool_jira_board_issues bi on (
+			i.connection_id = bi.connection_id
+			and 
+			i.issue_id = bi.issue_id
+		)
+		where
+		i.connection_id = ?
+		and 
+		bi.board_id = ?
+		and
+		i.epic_key != ''
+		`, data.Options.ConnectionId, data.Options.BoardId)
 	if err != nil {
 		return nil, fmt.Errorf("unable to query for external epics: %v", err)
 	}

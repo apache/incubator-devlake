@@ -73,85 +73,91 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			Table: RAW_ISSUE_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var apiIssue apiv2models.Issue
-			err := json.Unmarshal(row.Data, &apiIssue)
-			if err != nil {
-				return nil, err
-			}
-			err = apiIssue.SetAllFields(row.Data)
-			if err != nil {
-				return nil, err
-			}
-			var results []interface{}
-			sprints, issue, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Options.ConnectionId)
-			for _, sprintId := range sprints {
-				sprintIssue := &models.JiraSprintIssue{
-					ConnectionId:     data.Options.ConnectionId,
-					SprintId:         sprintId,
-					IssueId:          issue.IssueId,
-					IssueCreatedDate: &issue.Created,
-					ResolutionDate:   issue.ResolutionDate,
-				}
-				results = append(results, sprintIssue)
-			}
-			if issue.ResolutionDate != nil {
-				issue.LeadTimeMinutes = uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
-			}
-			if data.Options.TransformationRules.StoryPointField != "" {
-				strStoryPoint, _ := apiIssue.Fields.AllFields[data.Options.TransformationRules.StoryPointField].(string)
-				if strStoryPoint != "" {
-					issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
-				}
-			}
-			issue.Type = mappings.typeIdMappings[issue.Type]
-			issue.StdStoryPoint = int64(issue.StoryPoint)
-			issue.StdType = mappings.stdTypeMappings[issue.Type]
-			if issue.StdType == "" {
-				issue.StdType = strings.ToUpper(issue.Type)
-			}
-			issue.StdStatus = getStdStatus(issue.StatusKey)
-			results = append(results, issue)
-			for _, worklog := range worklogs {
-				results = append(results, worklog)
-			}
-			var issueUpdated *time.Time
-			// likely this issue has more changelogs to be collected
-			if len(changelogs) == 100 {
-				issueUpdated = nil
-			} else {
-				issueUpdated = &issue.Updated
-			}
-			for _, changelog := range changelogs {
-				changelog.IssueUpdated = issueUpdated
-				results = append(results, changelog)
-			}
-			for _, changelogItem := range changelogItems {
-				results = append(results, changelogItem)
-			}
-			for _, user := range users {
-				results = append(results, user)
-			}
-			results = append(results, &models.JiraBoardIssue{
-				ConnectionId: connectionId,
-				BoardId:      boardId,
-				IssueId:      issue.IssueId,
-			})
-			labels := apiIssue.Fields.Labels
-			for _, v := range labels {
-				issueLabel := &models.JiraIssueLabel{
-					IssueId:      issue.IssueId,
-					LabelName:    v,
-					ConnectionId: data.Options.ConnectionId,
-				}
-				results = append(results, issueLabel)
-			}
-			return results, nil
+			return extractIssues(data, mappings, false, row)
 		},
 	})
 	if err != nil {
 		return err
 	}
 	return extractor.Execute()
+}
+
+func extractIssues(data *JiraTaskData, mappings *typeMappings, ignoreBoard bool, row *helper.RawData) ([]interface{}, error) {
+	var apiIssue apiv2models.Issue
+	err := json.Unmarshal(row.Data, &apiIssue)
+	if err != nil {
+		return nil, err
+	}
+	err = apiIssue.SetAllFields(row.Data)
+	if err != nil {
+		return nil, err
+	}
+	var results []interface{}
+	sprints, issue, worklogs, changelogs, changelogItems, users := apiIssue.ExtractEntities(data.Options.ConnectionId)
+	for _, sprintId := range sprints {
+		sprintIssue := &models.JiraSprintIssue{
+			ConnectionId:     data.Options.ConnectionId,
+			SprintId:         sprintId,
+			IssueId:          issue.IssueId,
+			IssueCreatedDate: &issue.Created,
+			ResolutionDate:   issue.ResolutionDate,
+		}
+		results = append(results, sprintIssue)
+	}
+	if issue.ResolutionDate != nil {
+		issue.LeadTimeMinutes = uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
+	}
+	if data.Options.TransformationRules.StoryPointField != "" {
+		strStoryPoint, _ := apiIssue.Fields.AllFields[data.Options.TransformationRules.StoryPointField].(string)
+		if strStoryPoint != "" {
+			issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
+		}
+	}
+	issue.Type = mappings.typeIdMappings[issue.Type]
+	issue.StdStoryPoint = int64(issue.StoryPoint)
+	issue.StdType = mappings.stdTypeMappings[issue.Type]
+	if issue.StdType == "" {
+		issue.StdType = strings.ToUpper(issue.Type)
+	}
+	issue.StdStatus = getStdStatus(issue.StatusKey)
+	results = append(results, issue)
+	for _, worklog := range worklogs {
+		results = append(results, worklog)
+	}
+	var issueUpdated *time.Time
+	// likely this issue has more changelogs to be collected
+	if len(changelogs) == 100 {
+		issueUpdated = nil
+	} else {
+		issueUpdated = &issue.Updated
+	}
+	for _, changelog := range changelogs {
+		changelog.IssueUpdated = issueUpdated
+		results = append(results, changelog)
+	}
+	for _, changelogItem := range changelogItems {
+		results = append(results, changelogItem)
+	}
+	for _, user := range users {
+		results = append(results, user)
+	}
+	if !ignoreBoard {
+		results = append(results, &models.JiraBoardIssue{
+			ConnectionId: data.Options.ConnectionId,
+			BoardId:      data.Options.BoardId,
+			IssueId:      issue.IssueId,
+		})
+	}
+	labels := apiIssue.Fields.Labels
+	for _, v := range labels {
+		issueLabel := &models.JiraIssueLabel{
+			IssueId:      issue.IssueId,
+			LabelName:    v,
+			ConnectionId: data.Options.ConnectionId,
+		}
+		results = append(results, issueLabel)
+	}
+	return results, nil
 }
 
 func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, error) {

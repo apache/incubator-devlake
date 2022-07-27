@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestExternalEpicDataflow(t *testing.T) {
+func TestEpicDataflow(t *testing.T) {
 	var plugin impl.Jira
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "jira", plugin)
 	taskData := &tasks.JiraTaskData{
@@ -23,7 +23,7 @@ func TestExternalEpicDataflow(t *testing.T) {
 
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issue_types.csv", "_raw_jira_api_issue_types")
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issues.csv", "_raw_jira_api_issues")
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_external_epics.csv", "_raw_jira_external_epics")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_external_epics.csv", "_raw_jira_api_epics")
 
 	dataflowTester.FlushTabler(&models.JiraIssue{})
 	dataflowTester.FlushTabler(&models.JiraBoardIssue{})
@@ -57,12 +57,11 @@ func TestExternalEpicDataflow(t *testing.T) {
 	)
 
 	// run the part of the collector that queries tools data
-	keys, err := tasks.GetExternalEpicKeys(ctx.GetDal(), taskData)
+	keys, err := tasks.GetEpicKeys(ctx.GetDal(), taskData)
 	require.NoError(t, err)
-	require.Equal(t, 1, len(keys))
-	require.Equal(t, "K5-1", keys[0])
+	require.Contains(t, keys, "K5-1") //epic not on the board
 
-	require.NoError(t, tasks.ExtractExternalEpicsMeta.EntryPoint(ctx))
+	require.NoError(t, tasks.ExtractEpicsMeta.EntryPoint(ctx))
 
 	dataflowTester.VerifyTableWithOptions(
 		models.JiraBoardIssue{}, e2ehelper.TableOptions{
