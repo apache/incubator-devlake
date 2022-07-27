@@ -30,5 +30,6 @@ func All() []migration.Script {
 		new(addDomainTables),
 		new(addTypeField),
 		new(commitfileComponent),
+		new(removeNotes),
 	}
 }

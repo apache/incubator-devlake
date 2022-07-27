@@ -131,28 +131,6 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	)
 
 	// verify conversion
-	dataflowTester.FlushTabler(&code.Note{})
-	dataflowTester.Subtask(tasks.ConvertApiNotesMeta, taskData)
-	dataflowTester.VerifyTable(
-		code.Note{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.Note{}.TableName()),
-		[]string{
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-			"id",
-			"pr_id",
-			"type",
-			"author",
-			"body",
-			"resolvable",
-			"is_system",
-			"created_date",
-		},
-	)
-
-	// verify conversion
 	dataflowTester.FlushTabler(&code.PullRequestComment{})
 	dataflowTester.Subtask(tasks.ConvertMrCommentMeta, taskData)
 	dataflowTester.VerifyTable(
