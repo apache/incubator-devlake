@@ -20,19 +20,16 @@
 
 curl -sv $LAKE_ENDPOINT/pipelines --data @- <<JSON | jq
 {
-    "name": "test-all",
+    "name": "test-github",
     "plan": [
         [
             {
-                "plugin": "jira",
+                "plugin": "github",
                 "options": {
                     "connectionId": 1,
-                    "boardId": 8
+                    "owner": "apache",
+                    "repo": "incubator-devlake"
                 }
-            },
-            {
-                "plugin": "jenkins",
-                "options": {}
             }
         ]
     ]
