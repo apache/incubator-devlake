@@ -32,6 +32,7 @@ var _ core.PluginMeta = (*{{ .PluginName }})(nil)
 var _ core.PluginInit = (*{{ .PluginName }})(nil)
 var _ core.PluginTask = (*{{ .PluginName }})(nil)
 var _ core.PluginApi = (*{{ .PluginName }})(nil)
+var _ core.CloseablePluginTask = (*{{ .PluginName }})(nil)
 
 // Export a variable named PluginEntry for Framework to search and load
 var PluginEntry {{ .PluginName }} //nolint
@@ -74,6 +75,15 @@ func (plugin {{ .PluginName }}) RootPkgPath() string {
 }
 
 func (plugin {{ .PluginName }}) ApiResources() map[string]map[string]core.ApiResourceHandler {
+	return nil
+}
+
+func (plugin {{ .PluginName }}) Close(taskCtx core.TaskContext) error {
+	data, ok := taskCtx.GetData().(*tasks.{{ .PluginName }}TaskData)
+	if !ok {
+		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+	}
+	data.ApiClient.Release()
 	return nil
 }
 

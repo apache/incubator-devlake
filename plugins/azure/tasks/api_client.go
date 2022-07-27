@@ -19,16 +19,14 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/azure/models"
+	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/utils"
 )
 
-// TODO add what host would want to requist
-const ENDPOINT = "{{ .Endpoint }}"
-
-func CreateApiClient(taskCtx core.TaskContext, connection *models.{{ .PluginName }}Connection) (*helper.ApiAsyncClient, error) {
+func CreateApiClient(taskCtx core.TaskContext, connection *models.AzureConnection) (*helper.ApiAsyncClient, error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
@@ -45,7 +43,6 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.{{ .PluginName
 		}
 		return nil
 	})
-
 
 	// TODO add some check after request if necessary
 	// create rate limit calculator
