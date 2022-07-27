@@ -100,6 +100,9 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 
 		tasks.ExtractAccountsMeta,
 		tasks.ConvertAccountsMeta,
+
+		tasks.CollectEpicsMeta,
+		tasks.ExtractEpicsMeta,
 	}
 }
 
