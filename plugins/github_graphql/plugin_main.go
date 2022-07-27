@@ -31,6 +31,7 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
 	"gorm.io/gorm"
+	"reflect"
 	"strings"
 	"time"
 )
@@ -60,6 +61,14 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectRepoMeta,
 		tasks.CollectIssueMeta,
 		tasks.CollectPrMeta,
+	}
+}
+
+type GraphQueryRateLimit struct {
+	RateLimit struct {
+		Limit     graphql.Int
+		Remaining graphql.Int
+		ResetAt   time.Time
 	}
 }
 
@@ -93,23 +102,21 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 	httpClient := oauth2.NewClient(taskCtx.GetContext(), src)
 	client := graphql.NewClient(connection.Endpoint+`graphql`, httpClient)
 	asyncClient := helper.CreateAsyncGraphqlClient(taskCtx.GetContext(), client, taskCtx.GetLogger(),
-		func(ctx context.Context, client *graphql.Client, logger core.Logger) (rateRemaining int, resetAt *time.Time) {
-			var query struct {
-				RateLimit struct {
-					Limit     graphql.Int
-					Remaining graphql.Int
-					ResetAt   time.Time
-				}
-			}
+		func(ctx context.Context, client *graphql.Client, logger core.Logger) (rateRemaining int, resetAt *time.Time, err error) {
+			var query GraphQueryRateLimit
 			err = client.Query(taskCtx.GetContext(), &query, nil)
 			if err != nil {
-				rateRemaining = 0
-				return 0, nil
+				return 0, nil, err
 			}
 			logger.Info(`github graphql init success with remaining %d/%d and will reset at %s`,
 				query.RateLimit.Remaining, query.RateLimit.Limit, query.RateLimit.ResetAt)
-			return int(query.RateLimit.Remaining), &query.RateLimit.ResetAt
+			return int(query.RateLimit.Remaining), &query.RateLimit.ResetAt, nil
 		})
+
+	asyncClient.SetGetRateCost(func(q interface{}) int {
+		v := reflect.ValueOf(q)
+		return int(v.Elem().FieldByName(`RateLimit`).FieldByName(`Cost`).Int())
+	})
 
 	return &tasks.GithubGraphqlTaskData{
 		Options: &op,

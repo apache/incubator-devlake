@@ -31,10 +31,7 @@ var _ core.SubTaskEntryPoint = CollectRepo
 
 type GraphqlQueryRepo struct {
 	RateLimit struct {
-		Limit     int
-		Cost      int
-		Remaining int
-		ResetAt   time.Time
+		Cost int
 	}
 	Repository struct {
 		Name      string `graphql:"name"`
@@ -74,7 +71,7 @@ func CollectRepo(taskCtx core.SubTaskContext) error {
 				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
-			Params: GithubGraphqlOptions{
+			Params: GithubGraphqlApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,

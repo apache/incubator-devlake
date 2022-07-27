@@ -30,6 +30,9 @@ import (
 const RAW_ISSUES_TABLE = "github_graphql_issues"
 
 type GraphqlQueryIssueWrapper struct {
+	RateLimit struct {
+		Cost int
+	}
 	Repository struct {
 		IssueList struct {
 			TotalCount graphql.Int
@@ -90,7 +93,7 @@ func CollectIssue(taskCtx core.SubTaskContext) error {
 				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
-			Params: GithubGraphqlOptions{
+			Params: GithubGraphqlApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,

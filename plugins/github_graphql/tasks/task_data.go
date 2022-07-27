@@ -23,6 +23,9 @@ import (
 )
 
 type GithubGraphqlApiParams struct {
+	ConnectionId uint64 `json:"connectionId"`
+	Owner        string
+	Repo         string
 }
 
 type GithubGraphqlOptions struct {
