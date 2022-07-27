@@ -15,22 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
-import "github.com/apache/incubator-devlake/migration"
+type ProjectMapping struct {
+	ProjectName string `gorm:"primaryKey;type:varchar(255)"`
+	Table       string `gorm:"primaryKey;type:varchar(255)"`
+	RowId       string `gorm:"primaryKey;type:varchar(255)"`
+	NoPKModel
+}
 
-// All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(addFrameTables),
-		new(renameStepToStage),
-		new(addSubtasksField),
-		new(updateBlueprintMode),
-		new(renameTasksToPlan),
-		new(addDomainTables),
-		new(addTypeField),
-		new(commitfileComponent),
-		new(removeNotes),
-		new(addProjectMapping),
-	}
+func (ProjectMapping) TableName() string {
+	return "project_mapping"
 }

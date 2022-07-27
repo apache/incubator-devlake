@@ -57,6 +57,24 @@ var fakeTeams = []team{{
 	SortingIndex: 2,
 }}
 
+var fakeProjectMapping = []projectMapping{
+	{
+		ProjectName: "Apache DevLake",
+		Table:       "repos",
+		RowId:       "github:GithubRepo:1:1",
+	},
+	{
+		ProjectName: "Apache DevLake",
+		Table:       "repos",
+		RowId:       "github:GithubRepo:1:2",
+	},
+	{
+		ProjectName: "Apache DevLake",
+		Table:       "jobs",
+		RowId:       "jenkins:JenkinsJob:1:3",
+	},
+}
+
 type user struct {
 	Id      string
 	Name    string
@@ -222,4 +240,38 @@ func (*team) toDomainLayer(tt []team) []*crossdomain.Team {
 
 func (*team) fakeData() []team {
 	return fakeTeams
+}
+
+type projectMapping struct {
+	ProjectName string
+	Table       string
+	RowId       string
+}
+
+func (*projectMapping) fromDomainLayer(tt []crossdomain.ProjectMapping) []projectMapping {
+	var result []projectMapping
+	for _, t := range tt {
+		result = append(result, projectMapping{
+			ProjectName: t.ProjectName,
+			Table:       t.Table,
+			RowId:       t.RowId,
+		})
+	}
+	return result
+}
+
+func (*projectMapping) toDomainLayer(tt []projectMapping) []*crossdomain.ProjectMapping {
+	var result []*crossdomain.ProjectMapping
+	for _, t := range tt {
+		result = append(result, &crossdomain.ProjectMapping{
+			ProjectName: t.ProjectName,
+			Table:       t.Table,
+			RowId:       t.RowId,
+		})
+	}
+	return result
+}
+
+func (m *projectMapping) fakeData() []projectMapping {
+	return fakeProjectMapping
 }

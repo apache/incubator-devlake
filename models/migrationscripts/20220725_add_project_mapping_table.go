@@ -17,20 +17,28 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"context"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
+)
 
-// All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(addFrameTables),
-		new(renameStepToStage),
-		new(addSubtasksField),
-		new(updateBlueprintMode),
-		new(renameTasksToPlan),
-		new(addDomainTables),
-		new(addTypeField),
-		new(commitfileComponent),
-		new(removeNotes),
-		new(addProjectMapping),
+type addProjectMapping struct{}
+
+func (*addProjectMapping) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().AutoMigrate(&archived.ProjectMapping{})
+	if err != nil {
+		return err
 	}
+
+	return nil
+}
+
+func (*addProjectMapping) Version() uint64 {
+	return 20220725152355
+}
+
+func (*addProjectMapping) Name() string {
+	return "add project_mapping table to domain layer"
 }

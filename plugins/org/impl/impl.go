@@ -83,5 +83,9 @@ func (plugin Org) ApiResources() map[string]map[string]core.ApiResourceHandler {
 			"GET": plugin.handlers.GetUserAccountMapping,
 			"PUT": plugin.handlers.CreateUserAccountMapping,
 		},
+		"project_mapping.csv": {
+			"GET": plugin.handlers.GetProjectMapping,
+			"PUT": plugin.handlers.CreateProjectMapping,
+		},
 	}
 }
