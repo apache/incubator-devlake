@@ -15,25 +15,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package code
+package migrationscripts
 
 import (
-	"time"
-
-	"github.com/apache/incubator-devlake/models/domainlayer"
+	"context"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
-type Note struct {
-	domainlayer.DomainEntity
-	PrId        string `gorm:"index;comment:References the pull request for this note;type:varchar(100)"`
-	Type        string `gorm:"type:varchar(100)"`
-	Author      string `gorm:"type:varchar(255)"`
-	Body        string
-	Resolvable  bool `gorm:"comment:Is or is not a review comment"`
-	IsSystem    bool `gorm:"comment:Is or is not auto-generated vs. human generated"`
-	CreatedDate time.Time
+type removeNotes struct{}
+
+func (*removeNotes) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().DropTable(archived.Note{})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (Note) TableName() string {
-	return "notes"
+func (*removeNotes) Version() uint64 {
+	return 20220727165805
+}
+
+func (*removeNotes) Name() string {
+	return "remove notes from domain layer"
 }
