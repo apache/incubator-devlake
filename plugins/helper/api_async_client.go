@@ -177,7 +177,10 @@ func (apiClient *ApiAsyncClient) DoAsync(
 			if retry < apiClient.maxRetry && err != context.Canceled {
 				apiClient.logger.Warn("retry #%d for %s", retry, err.Error())
 				retry++
-				apiClient.scheduler.NextTick(request)
+				apiClient.scheduler.NextTick(func() error {
+					apiClient.scheduler.SubmitBlocking(request)
+					return nil
+				})
 				return nil
 			}
 		}
