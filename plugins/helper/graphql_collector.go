@@ -108,7 +108,7 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, error) {
 // Start collection
 func (collector *GraphqlCollector) Execute() error {
 	logger := collector.args.Ctx.GetLogger()
-	logger.Info("start api collection")
+	logger.Info("start graphql collection")
 
 	// make sure table is created
 	db := collector.args.Ctx.GetDal()
@@ -145,16 +145,14 @@ func (collector *GraphqlCollector) Execute() error {
 	collector.exec(divider, nil)
 	//}
 
-	if err != nil {
-		return err
-	}
 	logger.Debug("wait for all async api to finished")
-	//err = collector.args.GraphqlClient.WaitAsync()
-	//if err != nil {
-	//	logger.Info("end api collection error: %w", err)
-	//} else {
-	//	logger.Info("end api collection without error")
-	//}
+
+	err = collector.args.GraphqlClient.Wait()
+	if err != nil {
+		logger.Info("end api collection error: %w", err)
+	} else {
+		logger.Info("end api collection without error")
+	}
 	err = divider.Close()
 
 	return err

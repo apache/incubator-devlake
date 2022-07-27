@@ -38,7 +38,7 @@ type GraphqlAsyncClient struct {
 
 	rateExhaustCond  *sync.Cond
 	rateRemaining    int
-	getRateRemaining func(context.Context, *graphql.Client, core.Logger) (rateRemaining int, resetAt *time.Time)
+	getRateRemaining func(context.Context, *graphql.Client, core.Logger) (rateRemaining int, resetAt *time.Time, err error)
 	getRateCost      func(q interface{}) int
 }
 
@@ -47,7 +47,7 @@ func CreateAsyncGraphqlClient(
 	ctx context.Context,
 	graphqlClient *graphql.Client,
 	logger core.Logger,
-	getRateRemaining func(context.Context, *graphql.Client, core.Logger) (rateRemaining int, resetAt *time.Time),
+	getRateRemaining func(context.Context, *graphql.Client, core.Logger) (rateRemaining int, resetAt *time.Time, err error),
 ) *GraphqlAsyncClient {
 	ctxWithCancel, cancel := context.WithCancel(ctx)
 	graphqlAsyncClient := &GraphqlAsyncClient{
@@ -60,7 +60,10 @@ func CreateAsyncGraphqlClient(
 		getRateRemaining: getRateRemaining,
 	}
 	if getRateRemaining != nil {
-		rateRemaining, resetAt := getRateRemaining(ctx, graphqlClient, logger)
+		rateRemaining, resetAt, err := getRateRemaining(ctx, graphqlClient, logger)
+		if err != nil {
+			panic(err)
+		}
 		graphqlAsyncClient.updateRateRemaining(rateRemaining, resetAt)
 	}
 	return graphqlAsyncClient
@@ -78,7 +81,10 @@ func (apiClient *GraphqlAsyncClient) updateRateRemaining(rateRemaining int, rese
 			nextDuring = resetAt.Sub(time.Now())
 		}
 		<-time.After(nextDuring)
-		newRateRemaining, newResetAt := apiClient.getRateRemaining(apiClient.ctx, apiClient.client, apiClient.logger)
+		newRateRemaining, newResetAt, err := apiClient.getRateRemaining(apiClient.ctx, apiClient.client, apiClient.logger)
+		if err != nil {
+			panic(err)
+		}
 		apiClient.updateRateRemaining(newRateRemaining, newResetAt)
 	}()
 }
@@ -91,12 +97,17 @@ func (apiClient *GraphqlAsyncClient) SetGetRateCost(getRateCost func(q interface
 
 // Query send a graphql request when get lock
 func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]interface{}) error {
+	apiClient.waitGroup.Add(1)
+	defer apiClient.waitGroup.Done()
 	apiClient.mu.Lock()
 	defer apiClient.mu.Unlock()
+	println(2)
+	defer println(-2)
 
 	apiClient.rateExhaustCond.L.Lock()
 	defer apiClient.rateExhaustCond.L.Unlock()
 	for apiClient.rateRemaining <= 0 {
+		apiClient.logger.Info(`rate limit remaining exhausted, waiting for next period.`)
 		apiClient.rateExhaustCond.Wait()
 	}
 	select {
@@ -112,6 +123,8 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 			cost = apiClient.getRateCost(q)
 		}
 		apiClient.rateRemaining -= cost
+		fmt.Printf("query cost %d in %v \n", cost, variables)
+		apiClient.logger.Debug(`query cost %d in %v`, cost, variables)
 		return nil
 	}
 }
@@ -126,7 +139,9 @@ func (apiClient *GraphqlAsyncClient) NextTick(task func() error) {
 		case <-apiClient.ctx.Done():
 			return
 		default:
-			apiClient.checkError(task())
+			go func() {
+				apiClient.checkError(task())
+			}()
 		}
 	}()
 }

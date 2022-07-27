@@ -31,6 +31,9 @@ import (
 const RAW_PRS_TABLE = "github_graphql_prs"
 
 type GraphqlQueryPrWrapper struct {
+	RateLimit struct {
+		Cost int
+	}
 	Repository struct {
 		PullRequests struct {
 			PageInfo   *helper.GraphqlQueryPageInfo
@@ -143,7 +146,7 @@ func CollectPr(taskCtx core.SubTaskContext) error {
 	collector, err := helper.NewGraphqlCollector(helper.GraphqlCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: GithubGraphqlOptions{
+			Params: GithubGraphqlApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,
