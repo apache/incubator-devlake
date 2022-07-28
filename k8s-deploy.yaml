@@ -204,6 +204,10 @@ spec:
             - name: config
               mountPath: "/app/.env"
       volumes:
+        - name: configdir
+          hostPath:
+            path: /var/lib/devlake
+            type: DirectoryOrCreate
         - name: config
           hostPath:
             path: /var/lib/devlake/env
