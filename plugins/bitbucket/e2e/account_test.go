@@ -46,15 +46,15 @@ func TestAccountDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_issues.csv","_raw_bitbucket_api_issues")
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_pull_requests.csv","_raw_bitbucket_api_pull_requests")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_issues.csv", "_raw_bitbucket_api_issues")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_pull_requests.csv", "_raw_bitbucket_api_pull_requests")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BitbucketAccount{})
 	dataflowTester.FlushTabler(&models.BitbucketIssue{})
 	dataflowTester.FlushTabler(&models.BitbucketPullRequest{})
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
-	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta,taskData)
+	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BitbucketAccount{},
 		fmt.Sprintf("./snapshot_tables/%s.csv", models.BitbucketAccount{}.TableName()),

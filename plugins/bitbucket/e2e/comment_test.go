@@ -61,7 +61,6 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_issue_comments.csv", "_raw_bitbucket_api_issue_comments")
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_bitbucket_api_pullrequest_comments.csv", "_raw_bitbucket_api_pull_request_comments")
 
-
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BitbucketIssueComment{})
 	dataflowTester.FlushTabler(&models.BitbucketPrComment{})

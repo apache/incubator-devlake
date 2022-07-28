@@ -26,9 +26,9 @@ import (
 )
 
 type BitbucketIssueCommentsResponse struct {
-	Type        string    `json:"type"`
-	BitbucketId int       `json:"id"`
-	CreatedOn   time.Time `json:"created_on"`
+	Type        string     `json:"type"`
+	BitbucketId int        `json:"id"`
+	CreatedOn   time.Time  `json:"created_on"`
 	UpdatedOn   *time.Time `json:"updated_on"`
 	Content     struct {
 		Type string
@@ -109,13 +109,13 @@ func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {
 
 func convertIssueComment(issueComment *BitbucketIssueCommentsResponse) (*models.BitbucketIssueComment, error) {
 	bitbucketIssueComment := &models.BitbucketIssueComment{
-		BitbucketId:    issueComment.BitbucketId,
-		AuthorUserId:   issueComment.User.AccountId,
-		IssueId:        issueComment.Issue.Id,
-		AuthorUsername: issueComment.User.DisplayName,
-		BitbucketCreatedAt:      issueComment.CreatedOn,
+		BitbucketId:        issueComment.BitbucketId,
+		AuthorUserId:       issueComment.User.AccountId,
+		IssueId:            issueComment.Issue.Id,
+		AuthorUsername:     issueComment.User.DisplayName,
+		BitbucketCreatedAt: issueComment.CreatedOn,
 		BitbucketUpdatedAt: issueComment.UpdatedOn,
-		Type:           issueComment.Type,
+		Type:               issueComment.Type,
 	}
 	return bitbucketIssueComment, nil
 }

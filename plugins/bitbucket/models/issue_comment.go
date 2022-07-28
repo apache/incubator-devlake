@@ -23,14 +23,14 @@ import (
 )
 
 type BitbucketIssueComment struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	BitbucketId    int    `gorm:"primaryKey"`
-	IssueId        int    `gorm:"index;comment:References the Issue"`
-	AuthorUsername string `gorm:"type:varchar(255)"`
-	AuthorUserId   string `gorm:"type:varchar(255)"`
-	BitbucketCreatedAt      time.Time
-	BitbucketUpdatedAt      *time.Time
-	Type           string
+	ConnectionId       uint64 `gorm:"primaryKey"`
+	BitbucketId        int    `gorm:"primaryKey"`
+	IssueId            int    `gorm:"index;comment:References the Issue"`
+	AuthorUsername     string `gorm:"type:varchar(255)"`
+	AuthorUserId       string `gorm:"type:varchar(255)"`
+	BitbucketCreatedAt time.Time
+	BitbucketUpdatedAt *time.Time
+	Type               string
 	common.NoPKModel
 }
 
