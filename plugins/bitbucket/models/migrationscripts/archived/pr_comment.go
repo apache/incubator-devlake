@@ -24,14 +24,14 @@ import (
 )
 
 type BitbucketPrComment struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	BitbucketId    int    `gorm:"primaryKey"`
-	PullRequestId  int    `gorm:"index"`
-	AuthorUserId   string
-	AuthorUsername string `gorm:"type:varchar(255)"`
-	BitbucketCreatedAt      time.Time
-	BitbucketUpdatedAt      *time.Time
-	Type           string `gorm:"comment:if type=null, it is normal comment,if type=diffNote,it is diff comment"`
+	ConnectionId       uint64 `gorm:"primaryKey"`
+	BitbucketId        int    `gorm:"primaryKey"`
+	PullRequestId      int    `gorm:"index"`
+	AuthorUserId       string
+	AuthorUsername     string `gorm:"type:varchar(255)"`
+	BitbucketCreatedAt time.Time
+	BitbucketUpdatedAt *time.Time
+	Type               string `gorm:"comment:if type=null, it is normal comment,if type=diffNote,it is diff comment"`
 	archived.NoPKModel
 }
 
