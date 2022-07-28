@@ -15,22 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package crossdomain
 
-import "github.com/apache/incubator-devlake/migration"
+import "github.com/apache/incubator-devlake/models/common"
 
-// All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(addFrameTables),
-		new(renameStepToStage),
-		new(addSubtasksField),
-		new(updateBlueprintMode),
-		new(renameTasksToPlan),
-		new(addDomainTables),
-		new(addTypeField),
-		new(commitfileComponent),
-		new(removeNotes),
-		new(addProjectMapping),
-	}
+type ProjectMapping struct {
+	ProjectName string `gorm:"primaryKey;type:varchar(255)"`
+	Table       string `gorm:"primaryKey;type:varchar(255)"`
+	RowId       string `gorm:"primaryKey;type:varchar(255)"`
+	common.NoPKModel
+}
+
+func (ProjectMapping) TableName() string {
+	return "project_mapping"
 }

@@ -18,28 +18,35 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"net/http"
 
-	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/gocarina/gocsv"
 )
 
-// GetUserAccountMapping returns all user/account mapping in csv format
-// @Summary      Get user_account_mapping.csv.csv file
-// @Description  get user_account_mapping.csv.csv file
+// GetProjectMapping returns all project mapping in csv format
+// @Summary      Get project_mapping.csv file
+// @Description  get project_mapping.csv file
 // @Tags 		 plugins/org
 // @Produce      text/csv
+// @Param        fake_data    query     bool  false  "return fake data or not"
 // @Success      200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router       /plugins/org/user_account_mapping.csv [get]
-func (h *Handlers) GetUserAccountMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	accounts, err := h.store.findAllAccounts()
-	if err != nil {
-		return nil, err
+// @Router       /plugins/org/project_mapping.csv [get]
+func (h *Handlers) GetProjectMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	input.Query.Get("fake_data")
+	var mapping []projectMapping
+	var err error
+	if input.Query.Get("fake_data") == "true" {
+		mapping = fakeProjectMapping
+	} else {
+		mapping, err = h.store.findAllProjectMapping()
+		if err != nil {
+			return nil, err
+		}
 	}
-	blob, err := gocsv.MarshalBytes(accounts)
+	blob, err := gocsv.MarshalBytes(mapping)
 	if err != nil {
 		return nil, err
 	}
@@ -53,9 +60,9 @@ func (h *Handlers) GetUserAccountMapping(input *core.ApiResourceInput) (*core.Ap
 	}, nil
 }
 
-// CreateUserAccountMapping accepts a CSV file containing user/account mapping and saves it to the database
-// @Summary      Upload user_account_mapping.csv.csv file
-// @Description  upload user_account_mapping.csv.csv file
+// CreateProjectMapping accepts a CSV file containing project mapping and saves it to the database
+// @Summary      Upload project_mapping.csv file
+// @Description  upload project_mapping.csv file
 // @Tags 		 plugins/org
 // @Accept       multipart/form-data
 // @Param        file formData file true "select file to upload"
@@ -63,22 +70,17 @@ func (h *Handlers) GetUserAccountMapping(input *core.ApiResourceInput) (*core.Ap
 // @Success      200
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router       /plugins/org/user_account_mapping.csv [put]
-func (h *Handlers) CreateUserAccountMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	var aa []account
-	err := h.unmarshal(input.Request, &aa)
+// @Router       /plugins/org/project_mapping.csv [put]
+func (h *Handlers) CreateProjectMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	var mapping []projectMapping
+	err := h.unmarshal(input.Request, &mapping)
 	if err != nil {
 		return nil, err
 	}
-	var a *account
+	var pm *projectMapping
 	var items []interface{}
-	userAccounts := a.toDomainLayer(aa)
-	for _, userAccount := range userAccounts {
-		items = append(items, userAccount)
-	}
-	err = h.store.deleteAll(&crossdomain.UserAccount{})
-	if err != nil {
-		return nil, err
+	for _, tm := range pm.toDomainLayer(mapping) {
+		items = append(items, tm)
 	}
 	err = h.store.save(items)
 	if err != nil {

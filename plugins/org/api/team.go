@@ -25,7 +25,7 @@ import (
 	"github.com/gocarina/gocsv"
 )
 
-// GetTeam godoc
+// GetTeam returns all team in csv format
 // @Summary      Get teams.csv file
 // @Description  get teams.csv file
 // @Tags 		 plugins/org
@@ -62,7 +62,7 @@ func (h *Handlers) GetTeam(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 	}, nil
 }
 
-// CreateTeam godoc
+// CreateTeam accepts a CSV file containing team information and saves it to the database
 // @Summary      Upload teams.csv file
 // @Description  upload teams.csv file
 // @Tags 		 plugins/org

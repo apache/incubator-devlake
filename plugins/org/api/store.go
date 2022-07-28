@@ -31,6 +31,7 @@ type store interface {
 	findAllTeams() ([]team, error)
 	findAllAccounts() ([]account, error)
 	findAllUserAccounts() ([]userAccount, error)
+	findAllProjectMapping() ([]projectMapping, error)
 	deleteAll(i interface{}) error
 	save(items []interface{}) error
 }
@@ -92,6 +93,16 @@ func (d *dbStore) findAllUserAccounts() ([]userAccount, error) {
 
 	var au *userAccount
 	return au.fromDomainLayer(uas), nil
+}
+
+func (d *dbStore) findAllProjectMapping() ([]projectMapping, error) {
+	var mapping []crossdomain.ProjectMapping
+	err := d.db.All(&mapping)
+	if err != nil {
+		return nil, err
+	}
+	var pm *projectMapping
+	return pm.fromDomainLayer(mapping), nil
 }
 func (d *dbStore) deleteAll(i interface{}) error {
 	return d.db.Delete(i, dal.Where("1=1"))
