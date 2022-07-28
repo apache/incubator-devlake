@@ -53,7 +53,6 @@ import StageLane from '@/components/pipelines/StageLane'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
 
-
 const BlueprintDetail = (props) => {
   // eslint-disable-next-line no-unused-vars
   const history = useHistory()
