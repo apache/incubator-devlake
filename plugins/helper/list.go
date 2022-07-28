@@ -26,14 +26,14 @@ func (l *ListBaseNode) Data() interface{} {
 	panic("list node Data() needs to be implemented by subclasses")
 }
 
-func (l *ListBaseNode) Next() QueueNode {
+func (l *ListBaseNode) Next() interface{} {
 	if l.next == nil {
 		return nil
 	}
 	return l.next
 }
 
-func (l *ListBaseNode) SetNext(next QueueNode) {
+func (l *ListBaseNode) SetNext(next interface{}) {
 	l.next = next.(*ListBaseNode)
 }
 

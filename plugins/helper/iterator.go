@@ -157,7 +157,7 @@ func (q *QueueIterator) Fetch() (interface{}, error) {
 }
 
 func (q *QueueIterator) Push(data QueueNode) {
-	q.queue.PushWitouLock(data)
+	q.queue.PushWithoutLock(data)
 }
 
 func (q *QueueIterator) Close() error {
