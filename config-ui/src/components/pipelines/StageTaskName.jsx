@@ -53,15 +53,21 @@ const StageTaskName = (props) => {
       <Popover
         className='trigger-pipeline-activity-help'
         popoverClassName='popover-help-pipeline-activity'
-        // isOpen={showDetails && showDetails.ID === task.ID}
+        // isOpen={false}
         onClosed={onClose}
         position={Position.RIGHT}
         autoFocus={false}
         enforceFocus={false}
         usePortal={true}
-        disabled
+        // disabled
       >
-        <span className='task-plugin-text' ref={popoverTriggerRef} style={{ display: 'block', margin: '5px 0 5px 0' }}><strong>Task ID {task.id}</strong> {' '} {ProviderLabels[task?.plugin?.toUpperCase()]}</span>
+        <span className='task-plugin-text' ref={popoverTriggerRef} style={{ display: 'block', margin: '5px 0 5px 0' }}>
+          <strong>Task ID {task.id}</strong> {' '} {ProviderLabels[task?.plugin?.toUpperCase()]}{' '}
+          {task.plugin === Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>@{task.options.owner}/{task.options.repo}</>)}
+          {task.plugin === Providers.JIRA && (<>Board ID {task.options.boardId}</>)}
+          {task.plugin === Providers.GITLAB && (<>Project ID {task.options.projectId}</>)}
+          {task.plugin === Providers.GITEXTRACTOR && (<>{task.options.repoId}</>)}
+        </span>
         <>
           <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '400px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -86,8 +92,9 @@ const StageTaskName = (props) => {
                   {task.plugin === Providers.GITEXTRACTOR && (<>{ProviderLabels.GITEXTRACTOR}</>)}
                   {task.plugin === Providers.FEISHU && (<>{ProviderLabels.FEISHU}</>)}
                   {task.plugin === Providers.JENKINS && (<>{ProviderLabels.JENKINS}</>)}
-                  {(task.plugin === Providers.GITLAB || task.plugin === Providers.JIRA) && (<>ID {task.options.projectId || task.options.boardId}</>)}
-                  {task.plugin === Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>@{task.options.owner}/{task.options.repositoryName}</>)}
+                  {task.plugin === Providers.JIRA && (<>Board ID {task.options.boardId}</>)}
+                  {task.plugin === Providers.GITLAB && (<>Project ID {task.options.projectId}</>)}
+                  {task.plugin === Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>@{task.options.owner}/{task.options.repo}</>)}
                 </H3>
                 {![Providers.JENKINS, Providers.REFDIFF, Providers.GITEXTRACTOR].includes(task.plugin) && (
                   <>{ProviderLabels[task.plugin?.toUpperCase()] || 'System Task'}<br /></>
@@ -107,15 +114,14 @@ const StageTaskName = (props) => {
                 {Number(task.status === 'TASK_COMPLETED' ? 100 : (task.progress / 1) * 100).toFixed(0)}%
               </div>
               <div style={{ padding: '0 0 10px 20px' }}>
-                {ProviderIcons[task.plugin.toLowerCase()](32, 32)}
+                {ProviderIcons[task.plugin?.toLowerCase()] ? ProviderIcons[task.plugin?.toLowerCase()](24, 24) : null }
               </div>
             </div>
             {task.status === 'TASK_CREATED' && (
               <div style={{ fontSize: '10px' }}>
-                <p style={{ fontSize: '14px' }}>
-                  This task (ID #{task.ID}) is <strong>PENDING</strong> and has not yet started.
+                <p style={{ fontSize: '12px' }}>
+                  Task #{task.id} is <strong>pending</strong> and has not yet started.
                 </p>
-                <strong>Created Date &mdash;</strong> <span>{dayjs(task.CreatedAt).format('L LT')}</span>
               </div>
             )}
             {task.status !== 'TASK_CREATED' && (
@@ -123,7 +129,7 @@ const StageTaskName = (props) => {
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                   <div>
                     <label style={{ color: Colors.GRAY2 }}>ID</label><br />
-                    <span>{task.ID}</span>
+                    <span>{task.id}</span>
                   </div>
                   <div style={{ marginLeft: '20px' }}>
                     <label style={{ color: Colors.GRAY2 }}>Created</label><br />
