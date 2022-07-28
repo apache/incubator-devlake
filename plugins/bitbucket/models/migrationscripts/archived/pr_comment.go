@@ -29,8 +29,8 @@ type BitbucketPrComment struct {
 	PullRequestId  int    `gorm:"index"`
 	AuthorUserId   string
 	AuthorUsername string `gorm:"type:varchar(255)"`
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	BitbucketCreatedAt      time.Time
+	BitbucketUpdatedAt      *time.Time
 	Type           string `gorm:"comment:if type=null, it is normal comment,if type=diffNote,it is diff comment"`
 	archived.NoPKModel
 }

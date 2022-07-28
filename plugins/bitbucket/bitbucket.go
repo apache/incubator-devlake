@@ -38,7 +38,7 @@ func main() {
 
 	prType := cmd.Flags().String("prType", "type/(.*)$", "pr type")
 	prComponent := cmd.Flags().String("prComponent", "component/(.*)$", "pr component")
-	prBodyClosePattern := cmd.Flags().String("prBodyClosePattern", "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/bitbucket.org/2.0\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)", "pr body close pattern")
+	prBodyClosePattern := cmd.Flags().String("prBodyClosePattern", "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/api.bitbucket.org\\/2.0\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)", "pr body close pattern")
 	issueSeverity := cmd.Flags().String("issueSeverity", "severity/(.*)$", "issue severity")
 	issuePriority := cmd.Flags().String("issuePriority", "^(highest|high|medium|low)$", "issue priority")
 	issueComponent := cmd.Flags().String("issueComponent", "component/(.*)$", "issue component")

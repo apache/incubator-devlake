@@ -37,7 +37,7 @@ var ExtractApiPrCommentsMeta = core.SubTaskMeta{
 type BitbucketPrCommentsResponse struct {
 	BitbucketId int       `json:"id"`
 	CreatedOn   time.Time `json:"created_on"`
-	UpdatedOn   time.Time `json:"updated_on"`
+	UpdatedOn   *time.Time `json:"updated_on"`
 	Content     struct {
 		Type string
 		Raw  string
@@ -87,6 +87,15 @@ func ExtractApiPullRequestsComments(taskCtx core.SubTaskContext) error {
 			}
 			results := make([]interface{}, 0, 2)
 
+			if prComment.User != nil {
+				bitbucketUser, err := convertAccount(prComment.User, data.Options.ConnectionId)
+				if err != nil {
+					return nil, err
+				}
+				toolprComment.AuthorUserId = bitbucketUser.AccountId
+				toolprComment.AuthorUsername = bitbucketUser.UserName
+				results = append(results, bitbucketUser)
+			}
 			results = append(results, toolprComment)
 
 			return results, nil
@@ -106,7 +115,8 @@ func convertPullRequestComment(prComment *BitbucketPrCommentsResponse) (*models.
 		AuthorUserId:   prComment.User.AccountId,
 		PullRequestId:  prComment.PullRequest.Id,
 		AuthorUsername: prComment.User.DisplayName,
-		CreatedAt:      prComment.CreatedOn,
+		BitbucketCreatedAt: prComment.CreatedOn,
+		BitbucketUpdatedAt: prComment.UpdatedOn,
 		Type:           prComment.Type,
 	}
 	return bitbucketPrComment, nil

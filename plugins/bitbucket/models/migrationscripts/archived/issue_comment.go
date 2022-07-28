@@ -28,8 +28,8 @@ type BitbucketIssueComment struct {
 	IssueId        int    `gorm:"index;comment:References the Issue"`
 	AuthorUsername string `gorm:"type:varchar(255)"`
 	AuthorUserId   string `gorm:"type:varchar(255)"`
-	CreatedAt      time.Time
-	UpdatedAt      time.Time `gorm:"index"`
+	BitbucketCreatedAt      time.Time
+	BitbucketUpdatedAt      *time.Time
 	Type           string
 	archived.NoPKModel
 }

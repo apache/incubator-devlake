@@ -27,14 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ExtractApiIssuesMeta = core.SubTaskMeta{
-	Name:             "extractApiIssues",
-	EntryPoint:       ExtractApiIssues,
-	EnabledByDefault: true,
-	Description:      "Extract raw Issues data into tool layer table bitbucket_issues",
-	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
-}
-
 type IssuesResponse struct {
 	Type        string `json:"type"`
 	BitbucketId int    `json:"id"`
@@ -68,6 +60,14 @@ type IssueRegexes struct {
 	TypeBugRegex         *regexp.Regexp
 	TypeRequirementRegex *regexp.Regexp
 	TypeIncidentRegex    *regexp.Regexp
+}
+
+var ExtractApiIssuesMeta = core.SubTaskMeta{
+	Name:             "extractApiIssues",
+	EntryPoint:       ExtractApiIssues,
+	EnabledByDefault: true,
+	Description:      "Extract raw Issues data into tool layer table bitbucket_issues",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractApiIssues(taskCtx core.SubTaskContext) error {

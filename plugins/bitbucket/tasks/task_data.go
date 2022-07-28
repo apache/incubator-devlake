@@ -61,8 +61,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOpt
 		op.PrComponent = "component/(.*)$"
 	}
 	if op.PrBodyClosePattern == "" {
-		// url需要考虑更换
-		op.PrBodyClosePattern = "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)"
+		op.PrBodyClosePattern = "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/api.bitbucket.org\\/2.0\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)"
 	}
 	if op.IssueSeverity == "" {
 		op.IssueSeverity = "severity/(.*)$"

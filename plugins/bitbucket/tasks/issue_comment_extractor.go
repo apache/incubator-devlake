@@ -25,20 +25,11 @@ import (
 	"time"
 )
 
-var ExtractApiIssueCommentsMeta = core.SubTaskMeta{
-	Name:             "extractApiIssueComments",
-	EntryPoint:       ExtractApiIssueComments,
-	EnabledByDefault: true,
-	Required:         true,
-	Description:      "Extract raw issue comments data into tool layer table BitbucketIssueComments",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
-}
-
 type BitbucketIssueCommentsResponse struct {
 	Type        string    `json:"type"`
 	BitbucketId int       `json:"id"`
 	CreatedOn   time.Time `json:"created_on"`
-	UpdatedOn   time.Time `json:"updated_on"`
+	UpdatedOn   *time.Time `json:"updated_on"`
 	Content     struct {
 		Type string
 		Raw  string
@@ -65,6 +56,15 @@ type BitbucketIssueCommentsResponse struct {
 	} `json:"links"`
 }
 
+var ExtractApiIssueCommentsMeta = core.SubTaskMeta{
+	Name:             "extractApiIssueComments",
+	EntryPoint:       ExtractApiIssueComments,
+	EnabledByDefault: true,
+	Required:         true,
+	Description:      "Extract raw issue comments data into tool layer table BitbucketIssueComments",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+}
+
 func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_COMMENTS_TABLE)
 
@@ -83,6 +83,16 @@ func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			results := make([]interface{}, 0, 2)
+
+			if issueComment.User != nil {
+				bitbucketUser, err := convertAccount(issueComment.User, data.Options.ConnectionId)
+				if err != nil {
+					return nil, err
+				}
+				toolIssueComment.AuthorUserId = bitbucketUser.AccountId
+				toolIssueComment.AuthorUsername = bitbucketUser.UserName
+				results = append(results, bitbucketUser)
+			}
 
 			results = append(results, toolIssueComment)
 
@@ -103,7 +113,8 @@ func convertIssueComment(issueComment *BitbucketIssueCommentsResponse) (*models.
 		AuthorUserId:   issueComment.User.AccountId,
 		IssueId:        issueComment.Issue.Id,
 		AuthorUsername: issueComment.User.DisplayName,
-		CreatedAt:      issueComment.CreatedOn,
+		BitbucketCreatedAt:      issueComment.CreatedOn,
+		BitbucketUpdatedAt: issueComment.UpdatedOn,
 		Type:           issueComment.Type,
 	}
 	return bitbucketIssueComment, nil
