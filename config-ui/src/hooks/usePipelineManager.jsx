@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
@@ -55,6 +55,9 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
     Providers.AE,
     Providers.DBT
   ])
+
+  const PIPELINES_ENDPOINT = useMemo(() => `${DEVLAKE_ENDPOINT}/pipelines`, [DEVLAKE_ENDPOINT])
+  const [logfile, setLogfile] = useState('logging.tar.gz')
 
   const runPipeline = useCallback((runSettings = null) => {
     console.log('>> RUNNING PIPELINE....')
@@ -211,6 +214,10 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
 
   }, [pipelineName, initialTasks])
 
+  const getPipelineLogfile = useCallback((pipelineId = 0) => {
+    return `${PIPELINES_ENDPOINT}/${pipelineId}/${logfile}`
+  }, [PIPELINES_ENDPOINT, logfile])
+
   return {
     errors,
     isRunning,
@@ -226,6 +233,7 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
     pipelines,
     pipelineCount,
     lastRunId,
+    logfile,
     runPipeline,
     cancelPipeline,
     fetchPipeline,
@@ -234,7 +242,8 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
     buildPipelineStages,
     detectPipelineProviders,
     allowedProviders,
-    setAllowedProviders
+    setAllowedProviders,
+    getPipelineLogfile
   }
 }
 
