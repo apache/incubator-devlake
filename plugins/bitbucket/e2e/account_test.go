@@ -68,8 +68,6 @@ func TestAccountDataFlow(t *testing.T) {
 			"html_url",
 			"uuid",
 			"has2_fa_enabled",
-			"created_at",
-			"updated_at",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
