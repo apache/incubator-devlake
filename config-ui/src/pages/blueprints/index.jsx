@@ -249,6 +249,9 @@ const Blueprints = (props) => {
         case 'monthly':
           setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
           break
+        case 'manual':
+          setFilteredBlueprints(blueprints.filter(b => b.isManual))
+          break
         case 'custom':
           setFilteredBlueprints(blueprints.filter(
             b => b.cronConfig !== getCronPreset('hourly').cronConfig &&

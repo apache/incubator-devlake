@@ -114,6 +114,13 @@ const BlueprintsGrid = (props) => {
             Monthly
           </Button>
           <Button
+            intent={activeFilterStatus === 'manual' ? Intent.PRIMARY : Intent.NONE}
+            active={activeFilterStatus === 'manual'}
+            onClick={() => onFilter('manual')}
+          >
+            Manual
+          </Button>
+          <Button
             intent={activeFilterStatus === 'custom' ? Intent.PRIMARY : Intent.NONE}
             active={activeFilterStatus === 'custom'}
             onClick={() => onFilter('custom')}
@@ -304,7 +311,7 @@ const BlueprintsGrid = (props) => {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '0', padding: '10px' }}>
-                    <div style={{ letterSpacing: '1px', fontWeight: 800 }}>
+                    <div style={{ letterSpacing: '1px', fontWeight: 800, whiteSpace: 'nowrap' }}>
                       <Icon icon='bold' color={Colors.BLUE4} size={14} style={{ marginRight: '5px' }} /> BLUEPRINT ID {activeBlueprint?.id}
                       {isLoading && (
                         <span style={{ paddingLeft: '20px', fontWeight: 700, color: '#777777', fontSize: '11px' }}>
