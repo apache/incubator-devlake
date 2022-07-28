@@ -23,8 +23,8 @@ on:
 
 jobs:
   check-ASF-header:
-    name: Build lake image
+    name: check Apache license header
     runs-on: ubuntu-20.04
     steps:
       - name: Check License Header
-        uses: apache/skywalking-eyes/header@0.4.0
+        uses: apache/skywalking-eyes/header@v0.4.0
