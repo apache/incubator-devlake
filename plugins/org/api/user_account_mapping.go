@@ -25,7 +25,7 @@ import (
 	"github.com/gocarina/gocsv"
 )
 
-// GetUserAccountMapping godoc
+// GetUserAccountMapping returns all user/account mapping in csv format
 // @Summary      Get user_account_mapping.csv.csv file
 // @Description  get user_account_mapping.csv.csv file
 // @Tags 		 plugins/org
@@ -53,7 +53,7 @@ func (h *Handlers) GetUserAccountMapping(input *core.ApiResourceInput) (*core.Ap
 	}, nil
 }
 
-// CreateUserAccountMapping godoc
+// CreateUserAccountMapping accepts a CSV file containing user/account mapping and saves it to the database
 // @Summary      Upload user_account_mapping.csv.csv file
 // @Description  upload user_account_mapping.csv.csv file
 // @Tags 		 plugins/org

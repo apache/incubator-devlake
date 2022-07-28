@@ -24,7 +24,7 @@ import (
 	"github.com/gocarina/gocsv"
 )
 
-// GetProjectMapping godoc
+// GetProjectMapping returns all project mapping in csv format
 // @Summary      Get project_mapping.csv file
 // @Description  get project_mapping.csv file
 // @Tags 		 plugins/org
@@ -60,7 +60,7 @@ func (h *Handlers) GetProjectMapping(input *core.ApiResourceInput) (*core.ApiRes
 	}, nil
 }
 
-// CreateProjectMapping godoc
+// CreateProjectMapping accepts a CSV file containing project mapping and saves it to the database
 // @Summary      Upload project_mapping.csv file
 // @Description  upload project_mapping.csv file
 // @Tags 		 plugins/org

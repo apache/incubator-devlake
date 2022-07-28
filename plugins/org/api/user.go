@@ -25,7 +25,7 @@ import (
 	"github.com/gocarina/gocsv"
 )
 
-// GetUser godoc
+// GetUser returns all user in csv format
 // @Summary      Get users.csv file
 // @Description  get users.csv file
 // @Tags 		 plugins/org
@@ -61,7 +61,7 @@ func (h *Handlers) GetUser(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 	}, nil
 }
 
-// CreateUser godoc
+// CreateUser accepts a CSV file containing user information mapping and saves it to the database
 // @Summary      Upload users.csv file
 // @Description  upload users.csv file
 // @Tags 		 plugins/org
