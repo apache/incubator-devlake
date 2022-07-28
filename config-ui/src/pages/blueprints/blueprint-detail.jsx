@@ -21,6 +21,7 @@ import { useParams, useHistory } from 'react-router-dom'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import dayjs from '@/utils/time'
+import { saveAs } from 'file-saver'
 import {
   Button,
   Elevation,
@@ -49,6 +50,7 @@ import Content from '@/components/Content'
 // import TaskActivity from '@/components/pipelines/TaskActivity'
 import CodeInspector from '@/components/pipelines/CodeInspector'
 import StageLane from '@/components/pipelines/StageLane'
+import { ToastNotification } from '@/components/Toast'
 
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
@@ -76,6 +78,7 @@ const BlueprintDetail = (props) => {
   const [autoRefresh, setAutoRefresh] = useState(false)
 
   const [expandRun, setExpandRun] = useState(null)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   const {
     // eslint-disable-next-line no-unused-vars
@@ -127,6 +130,8 @@ const BlueprintDetail = (props) => {
     allowedProviders,
     // eslint-disable-next-line no-unused-vars
     detectPipelineProviders,
+    logfile: pipelineLogFilename,
+    getPipelineLogfile
   } = usePipelineManager()
 
   const buildPipelineStages = useCallback((tasks = []) => {
@@ -206,6 +211,31 @@ const BlueprintDetail = (props) => {
     }
     return icon
   }
+
+  const downloadPipelineLog = useCallback((pipeline) => {
+    console.log(`>>> DOWNLOADING PIPELINE #${pipeline?.id}  LOG...`, getPipelineLogfile(pipeline?.id))
+    setIsDownloading(true)
+    ToastNotification.clear()
+    let downloadStatus = 404
+    const checkDownloadStatus = async (pipeline) => {
+      const d = await request.get(getPipelineLogfile(pipeline?.id))
+      downloadStatus = d?.status
+    }
+    checkDownloadStatus()
+    if (pipeline?.id && downloadStatus === 200) {
+      saveAs(
+        getPipelineLogfile(pipeline?.id),
+        pipelineLogFilename
+      )
+      setIsDownloading(false)
+    } else if (pipeline?.id && downloadStatus === 404) {
+      ToastNotification.show({ message: 'Logfile not available', intent: 'danger', icon: 'error' })
+      setIsDownloading(false)
+    } else {
+      ToastNotification.show({ message: 'Pipeline Invalid or Missing', intent: 'danger', icon: 'error' })
+      setIsDownloading(false)
+    }
+  }, [getPipelineLogfile, pipelineLogFilename])
 
   useEffect(() => {
     setBlueprintId(bId)
@@ -434,32 +464,6 @@ const BlueprintDetail = (props) => {
               </div>
             </div>
 
-            {/* <div className='blueprint-connections' style={{ width: '100%', alignSelf: 'flex-start' }}>
-              <h3>Overview</h3>
-              <Card elevation={Elevation.TWO} style={{ padding: '2px' }}>
-              <table className='bp3-html-table bp3-html-table-bordered connections-overview-table' style={{ width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th style={{ minWidth: '200px' }}>Data Connection</th>
-                    <th style={{ width: '100%' }}>Data Scope</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {blueprintConnections?.map((c, cIdx) => (
-                  <tr key={`connection-row-key-${cIdx}`}>
-                    <td>
-                      {c.name}
-                    </td>
-                    <td>
-                      {c.dataScope}{' '}
-                    </td>
-                  </tr>
-                  ))}
-                </tbody>
-              </table>
-              </Card>
-            </div> */}
-
             <div
               className='blueprint-run'
               style={{
@@ -616,7 +620,6 @@ const BlueprintDetail = (props) => {
                   >
                     <div
                       className='pipeline-task-activity' style={{
-                      // padding: '20px',
                         flex: 1,
                         padding: Object.keys(currentStages).length === 1 ? '0' : 0,
                         overflow: 'hidden',
@@ -633,96 +636,7 @@ const BlueprintDetail = (props) => {
                         </div>
                       )}
                     </div>
-                    {/* {currentStages.map((stage, stageIdx) => (
-                      <div
-                        className='run-stage'
-                        key={`run-stage-key-${stageIdx}`}
-                        style={{ flex: 1, margin: '0 4px' }}
-                      >
-                        <h3
-                          className={`stage-header ${stage?.stageHeaderClassName}`}
-                          style={{ margin: '0', padding: '7px' }}
-                        >
-                          <span style={{ float: 'right' }}>{stage?.icon}</span>
-                          {stage?.title}
-                        </h3>
-                        {showCurrentRunTasks && (
-                          <div className='task-activity'>
-                            {stage.tasks.map((stageTask, stIdx) => (
-                              <div
-                                className='stage-task'
-                                key={`stage-task-key-${stIdx}`}
-                                style={{
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                }}
-                              >
-                                <div
-                                  className='stage-task-info'
-                                  style={{ display: 'flex', padding: '8px' }}
-                                >
-                                  <div
-                                    className='task-icon'
-                                    style={{ minWidth: '24px' }}
-                                  >
-                                    {stageTask.icon}
-                                  </div>
-                                  <div
-                                    className='task-title'
-                                    style={{ flex: 1 }}
-                                  >
-                                    <div style={{ marginBottom: '8px' }}>
-                                      <strong>{stageTask.title}</strong>{' '}
-                                      {stageTask?.caption}
-                                    </div>
-                                    <div
-                                      className='stage-task-progress'
-                                      style={{
-                                        color:
-                                          stageTask?.status ===
-                                          TaskStatus.FAILED
-                                            ? StatusColors.FAILED
-                                            : 'inherit',
-                                      }}
-                                    >
-                                      <div>{stageTask?.message}</div>
-                                      <div>
-                                        {stageTask?.recordsFinished} records
-                                        finished
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div
-                                    className='task-duration'
-                                    style={{
-                                      display: 'flex',
-                                      justifyContent: 'center',
-                                      alignItems: 'center',
-                                      color: StatusColors[stageTask?.status],
-                                    }}
-                                  >
-                                    {stageTask.duration}{' '}
-                                    {stageTask?.status ===
-                                      TaskStatus.FAILED && (
-                                      <>
-                                        ({TaskStatusLabels[TaskStatus.FAILED]})
-                                      </>
-                                    )}
-                                    {stageTask?.status ===
-                                      TaskStatus.ACTIVE && (
-                                      <>
-                                        ({TaskStatusLabels[TaskStatus.ACTIVE]})
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                                <Divider />
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))} */}
+
                     <Button
                       icon={
                         showCurrentRunTasks ? 'chevron-down' : 'chevron-right'
@@ -842,20 +756,20 @@ const BlueprintDetail = (props) => {
                               onClick={() => inspectRun(blueprintPipelines.find(p => p.id === run.id))}
                             />
                           </Tooltip>
-                          {/* <Tooltip
+                          <Tooltip
                             intent={Intent.PRIMARY}
                             content='View Full Log'
-                          > */}
-                          <Button
-                            intent={Intent.NONE}
-                            minimal
-                            small
-                            icon='document'
-                            style={{ marginLeft: '10px' }}
-                            // @todo: enable log view dialog support feature
-                            disabled
-                          />
-                          {/* </Tooltip> */}
+                          >
+                            <Button
+                              intent={Intent.NONE}
+                              loading={isDownloading}
+                              minimal
+                              small
+                              icon='document'
+                              style={{ marginLeft: '10px' }}
+                              onClick={() => downloadPipelineLog(blueprintPipelines.find(p => p.id === run.id))}
+                            />
+                          </Tooltip>
                           <Tooltip
                             intent={Intent.PRIMARY}
                             content='Show Run Activity'
