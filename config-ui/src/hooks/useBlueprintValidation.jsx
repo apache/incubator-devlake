@@ -164,7 +164,10 @@ function useBlueprintValidation ({
     projects,
     activeStep,
     activeProvider?.id,
-    activeConnection
+    activeConnection,
+    isValidCronExpression,
+    validateNumericSet,
+    validateRepositoryName
   ])
 
   const fieldHasError = useCallback((fieldId) => {
