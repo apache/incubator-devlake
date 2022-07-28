@@ -180,11 +180,16 @@ func (t *DataFlowTester) FlushTabler(dst schema.Tabler) {
 
 // Subtask executes specified subtasks
 func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interface{}) {
-	subtaskCtx := helper.NewStandaloneSubTaskContext(context.Background(), t.Cfg, t.Log, t.Db, t.Name, taskData)
+	subtaskCtx := t.SubtaskContext(taskData)
 	err := subtaskMeta.EntryPoint(subtaskCtx)
 	if err != nil {
 		panic(err)
 	}
+}
+
+// SubtaskContext creates a subtask context
+func (t *DataFlowTester) SubtaskContext(taskData interface{}) core.SubTaskContext {
+	return helper.NewStandaloneSubTaskContext(context.Background(), t.Cfg, t.Log, t.Db, t.Name, taskData)
 }
 
 func filterColumn(column dal.ColumnMeta, opts TableOptions) bool {
@@ -241,6 +246,8 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 			forScanValues[i] = new(sql.NullTime)
 		} else if columnType.ScanType().Name() == `bool` {
 			forScanValues[i] = new(bool)
+		} else if columnType.ScanType().Name() == `RawBytes` {
+			forScanValues[i] = new(sql.NullString)
 		} else {
 			forScanValues[i] = new(string)
 		}
@@ -266,6 +273,13 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 					values[i] = `1`
 				} else {
 					values[i] = `0`
+				}
+			case *sql.NullString:
+				value := *forScanValues[i].(*sql.NullString)
+				if value.Valid {
+					values[i] = value.String
+				} else {
+					values[i] = ``
 				}
 			case *string:
 				values[i] = fmt.Sprint(*forScanValues[i].(*string))

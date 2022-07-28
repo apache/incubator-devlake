@@ -25,6 +25,7 @@ import (
 type QueueNode interface {
 	Next() interface{}
 	SetNext(next interface{})
+	Data() interface{}
 }
 
 type Queue struct {
@@ -38,7 +39,7 @@ type Queue struct {
 func (q *Queue) Push(node QueueNode) {
 	q.mux.Lock()
 	defer q.mux.Unlock()
-	q.PushWitouLock(node)
+	q.PushWithoutLock(node)
 }
 
 // Pull get a node from queue
@@ -57,8 +58,8 @@ func (q *Queue) Pull(add *int64) QueueNode {
 	return node
 }
 
-// PushWitouLock is no lock mode of Push
-func (q *Queue) PushWitouLock(node QueueNode) {
+// PushWithoutLock is no lock mode of Push
+func (q *Queue) PushWithoutLock(node QueueNode) {
 	if q.tail == nil {
 		q.head = node
 		q.tail = node
@@ -70,7 +71,7 @@ func (q *Queue) PushWitouLock(node QueueNode) {
 	}
 }
 
-// PullWitouLock is no lock mode of Pull
+// PullWithOutLock is no lock mode of Pull
 func (q *Queue) PullWithOutLock() QueueNode {
 	var node QueueNode = nil
 
@@ -123,5 +124,31 @@ func NewQueue() *Queue {
 		head:  nil,
 		tail:  nil,
 		mux:   sync.Mutex{},
+	}
+}
+
+type QueueIteratorNode struct {
+	next *QueueIteratorNode
+	data interface{}
+}
+
+func (q *QueueIteratorNode) Next() interface{} {
+	if q.next == nil {
+		return nil
+	}
+	return q.next
+}
+
+func (q *QueueIteratorNode) SetNext(next interface{}) {
+	q.next, _ = next.(*QueueIteratorNode)
+}
+
+func (q *QueueIteratorNode) Data() interface{} {
+	return q.data
+}
+
+func NewQueueIteratorNode(data interface{}) *QueueIteratorNode {
+	return &QueueIteratorNode{
+		data: data,
 	}
 }

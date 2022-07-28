@@ -100,6 +100,9 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 
 		tasks.ExtractAccountsMeta,
 		tasks.ConvertAccountsMeta,
+
+		tasks.CollectEpicsMeta,
+		tasks.ExtractEpicsMeta,
 	}
 }
 
@@ -110,10 +113,10 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	logger.Debug("%v", options)
 	err = mapstructure.Decode(options, &op)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not decode Jira options: %v", err)
 	}
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("connectionId is invalid")
+		return nil, fmt.Errorf("jira connectionId is invalid")
 	}
 	connection := &models.JiraConnection{}
 	connectionHelper := helper.NewConnectionHelper(
@@ -121,11 +124,11 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		nil,
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not get connection API instance for Jira: %v", err)
 	}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get Jira connection: %v", err)
 	}
 
 	var since time.Time
