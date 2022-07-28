@@ -1,2 +1,0 @@
-connection_id,bitbucket_id,name,html_url,description,owner_id,language,created_date,updated_date,created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
-1,repositories/panjf2000/ants,panjf2000/ants,https://bitbucket.org/panjf2000/ants,,62abf394192edb006fa0e8cf,,2022-06-17T03:27:18.865+00:00,2022-07-18T05:39:20.737+00:00,2022-07-28T12:27:54.770+00:00,2022-07-28T12:27:54.770+00:00,"{""ConnectionId"":1,""Owner"":""panjf2000"",""Repo"":""ants""}",_raw_bitbucket_api_repositories,1,
