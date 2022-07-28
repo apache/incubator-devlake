@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-name: unit-test
+name: check-Apache-license-header
 
 on:
   pull_request:
