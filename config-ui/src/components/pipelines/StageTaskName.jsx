@@ -114,7 +114,7 @@ const StageTaskName = (props) => {
                 {Number(task.status === 'TASK_COMPLETED' ? 100 : (task.progress / 1) * 100).toFixed(0)}%
               </div>
               <div style={{ padding: '0 0 10px 20px' }}>
-                {ProviderIcons[task.plugin?.toLowerCase()] ? ProviderIcons[task.plugin?.toLowerCase()](24, 24) : null }
+                {ProviderIcons[task.plugin?.toLowerCase()] ? ProviderIcons[task.plugin?.toLowerCase()](24, 24) : null}
               </div>
             </div>
             {task.status === 'TASK_CREATED' && (
