@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"reflect"
 	"strings"
 
 	"encoding/json"
@@ -32,12 +33,7 @@ import (
 
 const RAW_EPIC_TABLE = "jira_api_epics"
 
-type JiraEpicParams struct {
-	ConnectionId uint64
-	BoardId      uint64
-}
-
-var _ core.SubTaskEntryPoint = CollectIssues
+var _ core.SubTaskEntryPoint = CollectEpics
 
 var CollectEpicsMeta = core.SubTaskMeta{
 	Name:             "collectEpics",
@@ -50,13 +46,9 @@ var CollectEpicsMeta = core.SubTaskMeta{
 func CollectEpics(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
-	externalEpicKeys, err := GetEpicKeys(db, data)
+	epicIterator, err := GetEpicKeysIterator(db, data, 100)
 	if err != nil {
 		return err
-	}
-	if len(externalEpicKeys) == 0 {
-		taskCtx.GetLogger().Info("no external epic keys found for Jira board %d", data.Options.BoardId)
-		return nil
 	}
 	since := data.Since
 	jql := "ORDER BY created ASC"
@@ -64,12 +56,10 @@ func CollectEpics(taskCtx core.SubTaskContext) error {
 		// prepend a time range criteria if `since` was specified, either by user or from database
 		jql = fmt.Sprintf("updated >= '%s' %s", since.Format("2006/01/02 15:04"), jql)
 	}
-	jql = fmt.Sprintf("issue in (%s) %s", strings.Join(externalEpicKeys, ","), jql)
-
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: JiraEpicParams{
+			Params: JiraApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},
@@ -81,13 +71,18 @@ func CollectEpics(taskCtx core.SubTaskContext) error {
 		UrlTemplate: "api/2/search",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
-			query.Set("jql", jql)
-			query.Set("issue in", fmt.Sprintf("(%s)", strings.Join(externalEpicKeys, ",")))
+			epicKeys := []string{}
+			for _, e := range reqData.Input.([]interface{}) {
+				epicKeys = append(epicKeys, *e.(*string))
+			}
+			localJQL := fmt.Sprintf("issue in (%s) %s", strings.Join(epicKeys, ","), jql)
+			query.Set("jql", localJQL)
 			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
 			query.Set("maxResults", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("expand", "changelog")
 			return query, nil
 		},
+		Input:         epicIterator,
 		GetTotalPages: GetTotalPagesFromResponse,
 		Concurrency:   10,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
@@ -111,35 +106,30 @@ func CollectEpics(taskCtx core.SubTaskContext) error {
 	return collector.Execute()
 }
 
-func GetEpicKeys(db dal.Dal, data *JiraTaskData) ([]string, error) {
+func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (helper.Iterator, error) {
 	cursor, err := db.RawCursor(`
-		select
-			distinct epic_key
-		from
-			_tool_jira_issues i
-		left join _tool_jira_board_issues bi on (
-			i.connection_id = bi.connection_id
-			and 
-			i.issue_id = bi.issue_id
-		)
-		where
-		i.connection_id = ?
-		and 
-		bi.board_id = ?
-		and
-		i.epic_key != ''
+			SELECT
+				DISTINCT epic_key
+			FROM
+				_tool_jira_issues i
+			LEFT JOIN _tool_jira_board_issues bi ON (
+				i.connection_id = bi.connection_id
+				AND 
+				i.issue_id = bi.issue_id
+			)
+			WHERE
+				i.connection_id = ?
+				AND 
+				bi.board_id = ?
+				AND
+				i.epic_key != ''
 		`, data.Options.ConnectionId, data.Options.BoardId)
 	if err != nil {
 		return nil, fmt.Errorf("unable to query for external epics: %v", err)
 	}
-	var externalEpicKeys []string
-	for cursor.Next() {
-		epicKey := ""
-		err = cursor.Scan(&epicKey)
-		if err != nil {
-			return nil, fmt.Errorf("couldn't read returned epic key: %v", err)
-		}
-		externalEpicKeys = append(externalEpicKeys, epicKey)
+	iter, err := helper.NewBatchedDalCursorIterator(db, cursor, reflect.TypeOf(""), batchSize)
+	if err != nil {
+		return nil, err
 	}
-	return externalEpicKeys, nil
+	return iter, nil
 }

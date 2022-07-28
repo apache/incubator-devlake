@@ -34,27 +34,41 @@ type Iterator interface {
 
 // DalCursorIterator FIXME ...
 type DalCursorIterator struct {
-	db       dal.Dal
-	cursor   *sql.Rows
-	elemType reflect.Type
+	db        dal.Dal
+	cursor    *sql.Rows
+	elemType  reflect.Type
+	batchSize int
 }
 
 // NewDalCursorIterator FIXME ...
 func NewDalCursorIterator(db dal.Dal, cursor *sql.Rows, elemType reflect.Type) (*DalCursorIterator, error) {
+	return NewBatchedDalCursorIterator(db, cursor, elemType, -1)
+}
+
+// NewBatchedDalCursorIterator FIXME ...
+func NewBatchedDalCursorIterator(db dal.Dal, cursor *sql.Rows, elemType reflect.Type, batchSize int) (*DalCursorIterator, error) {
 	return &DalCursorIterator{
-		db:       db,
-		cursor:   cursor,
-		elemType: elemType,
+		db:        db,
+		cursor:    cursor,
+		elemType:  elemType,
+		batchSize: batchSize,
 	}, nil
 }
 
-// HasNext FIXME ...
+// HasNext increments the row curser. If we're at the end, it'll return false.
 func (c *DalCursorIterator) HasNext() bool {
 	return c.cursor.Next()
 }
 
-// Fetch FIXME ...
+// Fetch if batching is disabled, it'll read a single row, otherwise it'll read as many rows up to the batch size, and the
+// runtime return type will be []interface{}. Note, HasNext needs to have been called before invoking this.
 func (c *DalCursorIterator) Fetch() (interface{}, error) {
+	if c.batchSize > 0 {
+		return c.batchedFetch()
+	}
+	if c.batchSize != -1 {
+		panic("invalid batch size")
+	}
 	elem := reflect.New(c.elemType).Interface()
 	err := c.db.Fetch(c.cursor, elem)
 	if err != nil {
@@ -63,7 +77,23 @@ func (c *DalCursorIterator) Fetch() (interface{}, error) {
 	return elem, nil
 }
 
-// Close interator
+func (c *DalCursorIterator) batchedFetch() (interface{}, error) {
+	var elems []interface{}
+	for i := 1; ; i++ {
+		elem := reflect.New(c.elemType).Interface()
+		err := c.cursor.Scan(elem)
+		if err != nil {
+			return nil, err
+		}
+		elems = append(elems, elem)
+		if i == c.batchSize || !c.HasNext() {
+			break
+		}
+	}
+	return elems, nil
+}
+
+// Close iterator
 func (c *DalCursorIterator) Close() error {
 	return c.cursor.Close()
 }
@@ -112,22 +142,6 @@ func NewDateIterator(days int) (*DateIterator, error) {
 		Days:      days,
 		Current:   0,
 	}, nil
-}
-
-type QueueIteratorNode struct {
-	data interface{}
-	next *QueueIteratorNode
-}
-
-func (q *QueueIteratorNode) Next() interface{} {
-	if q.next == nil {
-		return nil
-	}
-	return q.next
-}
-
-func (q *QueueIteratorNode) SetNext(next interface{}) {
-	q.next, _ = next.(*QueueIteratorNode)
 }
 
 type QueueIterator struct {

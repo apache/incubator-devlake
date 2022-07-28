@@ -22,7 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var _ core.SubTaskEntryPoint = ExtractIssues
+var _ core.SubTaskEntryPoint = ExtractEpics
 
 var ExtractEpicsMeta = core.SubTaskMeta{
 	Name:             "extractEpics",
@@ -46,7 +46,7 @@ func ExtractEpics(taskCtx core.SubTaskContext) error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: JiraEpicParams{
+			Params: JiraApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				BoardId:      data.Options.BoardId,
 			},

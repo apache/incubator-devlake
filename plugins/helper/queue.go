@@ -23,8 +23,9 @@ import (
 )
 
 type QueueNode interface {
-	Next() interface{}
-	SetNext(next interface{})
+	Next() QueueNode
+	SetNext(next QueueNode)
+	Data() interface{}
 }
 
 type Queue struct {
@@ -123,5 +124,31 @@ func NewQueue() *Queue {
 		head:  nil,
 		tail:  nil,
 		mux:   sync.Mutex{},
+	}
+}
+
+type QueueIteratorNode struct {
+	next *QueueIteratorNode
+	data interface{}
+}
+
+func (q *QueueIteratorNode) Next() QueueNode {
+	if q.next == nil {
+		return nil
+	}
+	return q.next
+}
+
+func (q *QueueIteratorNode) SetNext(next QueueNode) {
+	q.next, _ = next.(*QueueIteratorNode)
+}
+
+func (q *QueueIteratorNode) Data() interface{} {
+	return q.data
+}
+
+func NewQueueIteratorNode(data interface{}) *QueueIteratorNode {
+	return &QueueIteratorNode{
+		data: data,
 	}
 }

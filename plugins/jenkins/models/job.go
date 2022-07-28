@@ -44,8 +44,8 @@ func (JenkinsJob) TableName() string {
 }
 
 type FolderInput struct {
-	Path string
 	*helper.ListBaseNode
+	Path string
 }
 
 func NewFolderInput(path string) *FolderInput {

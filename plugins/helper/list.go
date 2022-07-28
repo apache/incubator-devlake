@@ -17,22 +17,27 @@ limitations under the License.
 
 package helper
 
+// ListBaseNode 'abstract' base struct for Nodes that are chained in a linked list manner
 type ListBaseNode struct {
-	next interface{}
+	next *ListBaseNode
 }
 
-func (l *ListBaseNode) Next() interface{} {
+func (l *ListBaseNode) Data() interface{} {
+	panic("list node Data() needs to be implemented by subclasses")
+}
+
+func (l *ListBaseNode) Next() QueueNode {
 	if l.next == nil {
 		return nil
 	}
 	return l.next
 }
 
-func (l *ListBaseNode) SetNext(next interface{}) {
-	l.next = next
+func (l *ListBaseNode) SetNext(next QueueNode) {
+	l.next = next.(*ListBaseNode)
 }
 
-// NewListBaseNode create and init a new node
+// NewListBaseNode create and init a new node (only to be called by subclasses)
 func NewListBaseNode() *ListBaseNode {
 	return &ListBaseNode{
 		next: nil,
