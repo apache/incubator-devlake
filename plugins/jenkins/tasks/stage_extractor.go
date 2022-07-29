@@ -26,15 +26,15 @@ import (
 
 // this struct should be moved to `gitub_api_common.go`
 
-var ExtractApiJobsMeta = core.SubTaskMeta{
-	Name:             "extractApiJobs",
-	EntryPoint:       ExtractApiJobs,
+var ExtractApiStagesMeta = core.SubTaskMeta{
+	Name:             "extractApiStages",
+	EntryPoint:       ExtractApiStages,
 	EnabledByDefault: true,
-	Description:      "Extract raw jobs data into tool layer table jenkins_jobs",
+	Description:      "Extract raw stages data into tool layer table jenkins_stages",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ExtractApiJobs(taskCtx core.SubTaskContext) error {
+func ExtractApiStages(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -49,44 +49,35 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) error {
 			/*
 				Table store raw data
 			*/
-			Table: RAW_JOB_TABLE,
+			Table: RAW_STAGE_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			body := &models.Job{}
+			body := &models.Stage{}
 			err := json.Unmarshal(row.Data, body)
 			if err != nil {
 				return nil, err
 			}
-
-			input := &models.FolderInput{}
+			input := &SimpleBuild{}
 			err = json.Unmarshal(row.Input, input)
 			if err != nil {
 				return nil, err
 			}
 
-			results := make([]interface{}, 0, 1+len(body.UpstreamProjects))
+			results := make([]interface{}, 0)
 
-			job := &models.JenkinsJob{
-				JenkinsJobProps: models.JenkinsJobProps{
-					ConnectionId:        data.Options.ConnectionId,
-					Name:                body.Name,
-					Path:                input.Path,
-					Class:               body.Class,
-					Color:               body.Color,
-					HasUpstreamProjects: len(body.UpstreamProjects) > 0,
-				},
-			}
-			for _, upstreamProject := range body.UpstreamProjects {
-				upDownJob := models.JenkinsUpDownJob{
-					ConnetionId:   data.Options.ConnectionId,
-					UpstreamJob:   upstreamProject.Name,
-					DownstreamJob: job.Name,
-				}
-				results = append(results, &upDownJob)
+			stage := &models.JenkinsStage{
+				ConnectionId:        data.Options.ConnectionId,
+				ID:                  body.ID,
+				Name:                body.Name,
+				ExecNode:            body.ExecNode,
+				Status:              body.Status,
+				StartTimeMillis:     body.StartTimeMillis,
+				DurationMillis:      body.DurationMillis,
+				PauseDurationMillis: body.PauseDurationMillis,
+				BuildName:           input.DisplayName,
 			}
 
-			results = append(results, job)
-
+			results = append(results, stage)
 			return results, nil
 		},
 	})

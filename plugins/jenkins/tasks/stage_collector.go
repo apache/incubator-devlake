@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -29,28 +28,30 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-const RAW_BUILD_TABLE = "jenkins_api_builds"
+const RAW_STAGE_TABLE = "jenkins_api_stages"
 
-var CollectApiBuildsMeta = core.SubTaskMeta{
-	Name:             "collectApiBuilds",
-	EntryPoint:       CollectApiBuilds,
+var CollectApiStagesMeta = core.SubTaskMeta{
+	Name:             "collectApiStages",
+	EntryPoint:       CollectApiStages,
 	EnabledByDefault: true,
-	Description:      "Collect builds data from jenkins api",
+	Description:      "Collect stages data from jenkins api",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-type SimpleJob struct {
-	Name string
-	Path string
+type SimpleBuild struct {
+	JobName     string
+	Number      string
+	DisplayName string
 }
 
-func CollectApiBuilds(taskCtx core.SubTaskContext) error {
+func CollectApiStages(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	clauses := []dal.Clause{
-		dal.Select("tjj.name,tjj.path"),
-		dal.From("_tool_jenkins_jobs tjj"),
-		dal.Where(`tjj.connection_id = ?`, data.Options.ConnectionId),
+		dal.Select("tjb.job_name,tjb.number, tjb.display_name"),
+		dal.From("_tool_jenkins_builds tjb"),
+		dal.Where(`tjb.connection_id = ? and tjb.type = ?`,
+			data.Options.ConnectionId, "WorkflowRun"),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -59,7 +60,7 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleJob{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleBuild{}))
 	if err != nil {
 		return err
 	}
@@ -70,32 +71,28 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 				ConnectionId: data.Options.ConnectionId,
 			},
 			Ctx:   taskCtx,
-			Table: RAW_BUILD_TABLE,
+			Table: RAW_STAGE_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
-		UrlTemplate: "{{ .Input.Path }}job/{{ .Input.Name }}/api/json",
+		UrlTemplate: "job/{{ .Input.JobName }}/{{ .Input.Number }}/wfapi/describe",
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
-			treeValue := fmt.Sprintf(
-				"allBuilds[number,timestamp,duration,estimatedDuration,fullDisplayName,result,actions[lastBuiltRevision[SHA1],remoteUrls,mercurialRevisionNumber,triggeredBuilds[fullDisplayName,number,url,result,status,duration]],changeSet[kind,revisions[revision]]]{%d,%d}",
-				reqData.Pager.Skip, reqData.Pager.Skip+reqData.Pager.Size)
-			query.Set("tree", treeValue)
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
-				Builds []json.RawMessage `json:"allBuilds"`
+				Stages []json.RawMessage `json:"stages"`
 			}
 			err := helper.UnmarshalResponse(res, &data)
 			if err != nil {
 				return nil, err
 			}
-			return data.Builds, nil
+			return data.Stages, nil
 		},
 	})
 

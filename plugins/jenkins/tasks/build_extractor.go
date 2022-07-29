@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -66,10 +67,12 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 
-			results := make([]interface{}, 0, 1)
-
+			results := make([]interface{}, 0)
+			strList := strings.Split(body.Class, ".")
+			class := strList[len(strList)-1]
 			build := &models.JenkinsBuild{
 				ConnectionId:      data.Options.ConnectionId,
+				Type:              class,
 				JobName:           input.Name,
 				Duration:          body.Duration,
 				DisplayName:       body.DisplayName,
@@ -82,11 +85,37 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 			vcs := body.ChangeSet.Kind
 			if vcs == "git" || vcs == "hg" {
 				for _, a := range body.Actions {
+					sha := ""
 					if a.LastBuiltRevision.SHA1 != "" {
-						build.CommitSha = a.LastBuiltRevision.SHA1
+						sha = a.LastBuiltRevision.SHA1
 					}
 					if a.MercurialRevisionNumber != "" {
-						build.CommitSha = a.MercurialRevisionNumber
+						sha = a.MercurialRevisionNumber
+					}
+					build.CommitSha = sha
+					for _, url := range a.RemoteUrls {
+						if url != "" {
+							buildCommitRemoteUrl := models.JenkinsBuildCommitRepoUrl{
+								ConnectionId: data.Options.ConnectionId,
+								BuildName:    build.DisplayName,
+								CommitSha:    sha,
+								RemoteUrl:    url,
+							}
+							results = append(results, &buildCommitRemoteUrl)
+						}
+					}
+					if a.TriggeredBuilds != nil && len(a.TriggeredBuilds) > 0 {
+						for _, b := range a.TriggeredBuilds {
+							if b.DisplayName == "" {
+								continue
+							}
+							buildTrigger := models.JenkinsBuildTriggeredBuilds{
+								ConnectionId:       data.Options.ConnectionId,
+								BuildName:          build.DisplayName,
+								TriggeredBuildName: b.DisplayName,
+							}
+							results = append(results, &buildTrigger)
+						}
 					}
 				}
 			} else if vcs == "svn" {
