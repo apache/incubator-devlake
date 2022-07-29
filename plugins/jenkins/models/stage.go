@@ -15,16 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/models/common"
 )
 
-// All return all the migration scripts
-func All() []migration.Script {
-	return []migration.Script{
-		new(addInitTables),
-		new(modifyAllEntities),
-	}
+type JenkinsStage struct {
+	common.NoPKModel
+	ConnectionId        uint64 `gorm:"primaryKey"`
+	ID                  string `json:"id" gorm:"primaryKey;type:varchar(255)"`
+	Name                string `json:"name" gorm:"type:varchar(255)"`
+	ExecNode            string `json:"execNode" gorm:"type:varchar(255)"`
+	Status              string `json:"status" gorm:"type:varchar(255)"`
+	StartTimeMillis     int64  `json:"startTimeMillis"`
+	DurationMillis      int    `json:"durationMillis"`
+	PauseDurationMillis int    `json:"pauseDurationMillis"`
+	BuildName           string `gorm:"primaryKey;type:varchar(255)"`
+}
+
+func (JenkinsStage) TableName() string {
+	return "_tool_jenkins_stages"
 }

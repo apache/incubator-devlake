@@ -37,12 +37,19 @@ type ApiResponse struct {
 	NodeDescription string           `json:"nodeDescription"`
 }
 type Job struct {
-	URL   string `json:"url"`
-	Name  string `json:"name"`
-	Color string `json:"color"`
-	Class string `json:"_class"`
-	Jobs  *[]Job `json:"jobs"`
+	URL              string    `json:"url"`
+	Name             string    `json:"name"`
+	Color            string    `json:"color"`
+	Class            string    `json:"_class"`
+	Jobs             *[]Job    `json:"jobs"`
+	UpstreamProjects []Project `json:"upstreamProjects"`
 }
+
+type Project struct {
+	Class string `json:"_class"`
+	Name  string `json:"name"`
+}
+
 type Views struct {
 	URL   string `json:"url"`
 	Name  string `json:"name"`
@@ -66,10 +73,10 @@ type ApiBuildResponse struct {
 	Class             string    `json:"_class"`
 	Number            int64     `json:"number"`
 	Result            string    `json:"result"`
-	Actions           []Actions `json:"actions"`
+	Actions           []Action  `json:"actions"`
 	Duration          float64   `json:"duration"`
 	Timestamp         int64     `json:"timestamp"`
-	DisplayName       string    `json:"displayName"`
+	DisplayName       string    `json:"fullDisplayName"`
 	EstimatedDuration float64   `json:"estimatedDuration"`
 	ChangeSet         ChangeSet `json:"changeSet"`
 }
@@ -77,10 +84,12 @@ type LastBuiltRevision struct {
 	SHA1 string `json:"SHA1"`
 }
 
-type Actions struct {
-	Class                   string            `json:"_class,omitempty"`
-	LastBuiltRevision       LastBuiltRevision `json:"lastBuiltRevision,omitempty"`
-	MercurialRevisionNumber string            `json:"mercurialRevisionNumber"`
+type Action struct {
+	Class                   string             `json:"_class,omitempty"`
+	LastBuiltRevision       LastBuiltRevision  `json:"lastBuiltRevision,omitempty"`
+	MercurialRevisionNumber string             `json:"mercurialRevisionNumber"`
+	RemoteUrls              []string           `json:"remoteUrls"`
+	TriggeredBuilds         []ApiBuildResponse `json:"triggeredBuilds"`
 }
 type ChangeSet struct {
 	Class     string     `json:"_class"`
@@ -91,4 +100,19 @@ type ChangeSet struct {
 type Revision struct {
 	Module   string
 	Revision int
+}
+
+type Stage struct {
+	Links struct {
+		Self struct {
+			Href string `json:"href"`
+		} `json:"self"`
+	} `json:"_links"`
+	ID                  string `json:"id"`
+	Name                string `json:"name"`
+	ExecNode            string `json:"execNode"`
+	Status              string `json:"status"`
+	StartTimeMillis     int64  `json:"startTimeMillis"`
+	DurationMillis      int    `json:"durationMillis"`
+	PauseDurationMillis int    `json:"pauseDurationMillis"`
 }

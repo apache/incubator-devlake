@@ -38,6 +38,7 @@ type JenkinsBuild struct {
 	Timestamp         int64     // start time
 	StartTime         time.Time // convered by timestamp
 	CommitSha         string    `gorm:"type:varchar(255)"`
+	Type              string    `gorm:"index;type:varchar(255)"`
 }
 
 func (JenkinsBuild) TableName() string {
