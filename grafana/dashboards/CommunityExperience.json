@@ -1,0 +1,786 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 18,
+  "iteration": 1659127662313,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "d"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {
+          "titleSize": 2
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    lake.issues i\n    join lake.board_issues bi on i.id = bi.issue_id\n    join lake.boards b on bi.board_id = b.id\n    left join lake.issue_comments ic on i.id = ic.issue_id\n  where\n    date(i.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and b.id in ($repo_id)\n)\n\nselect\n  avg((TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/1440)\nfrom issue_comment_list\nwhere comment_rank = 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Time To Initial Issue Response [Last Month]",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "d"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select \n\tAVG(i.lead_time_minutes/1440) issue_lead_time\nfrom \n\tissues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  date(i.created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n  and i.status = \"DONE\"\n  and b.id in ($repo_id)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Issue Resolution Time [Last Month]",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 95
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    lake.issues i\n    join lake.board_issues bi on i.id = bi.issue_id\n    join lake.boards b on bi.board_id = b.id\n    left join lake.issue_comments ic on i.id = ic.issue_id\n  where\n    date(i.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and b.id in ($repo_id)\n)\n\nselect\n  100 * sum(case when (TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/60 < $iir_sla then 1 else null end) / count(*)\nfrom issue_comment_list\nwhere comment_rank = 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Issue Response Rate within SLA [Last Month]",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n  count(*)\nfrom\n  lake.issues i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join lake.boards b on bi.board_id = b.id\n  join lake.issue_labels il on il.issue_id = i.id\nwhere\n  il.label_name = \"$label_gfi\" and\n  i.status != 'DONE' and\n  b.id in ($repo_id)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Number of Good First Issues [Outstanding]",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "d"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "with pr_comment_list as(\n  select\n    pr.id as issue_id,\n    pr.url,\n    pr.title,\n    pr.created_date as pr_created_date,\n    prc.id as comment_id,\n    prc.created_date as comment_date,\n    prc.user_id,\n    case when prc.id is not null then rank() over (partition by pr.id order by prc.created_date asc) else null end as comment_rank\n  from\n    lake.pull_requests pr\n    left join lake.pull_request_comments prc on pr.id = prc.pull_request_id\n  where\n    date(pr.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and pr.base_repo_id in ($repo_id)\n)\n\nselect\n  avg((TIMESTAMPDIFF(MINUTE, pr_created_date, comment_date))/1440)\nfrom pr_comment_list\nwhere comment_rank = 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Time to Initial PR Review  [Last Month]",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "d"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 8
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n\tavg(TIMESTAMPDIFF(Minute,created_date,closed_date)/1440) as time_to_close\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand status = 'closed'\n\tand pr.base_repo_id in ($repo_id)\n\n\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PR Resolution Time [Last Month]",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 95
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 8
+      },
+      "id": 18,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n  100 * sum(case when TIMESTAMPDIFF(Minute, created_date, closed_date) / 1440 < $prrt_sla then 1 else null end) / count(*)\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand status = 'closed'\n\tand pr.base_repo_id in ($repo_id)\n\n\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PR Resolution Rate within SLA [Last Month]",
+      "type": "stat"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 60
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "textMode": "auto"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select\n  100 * count(distinct case when status = 'closed' and merged_date is null then id else null end)/count(distinct case when status = 'closed' then id else null end) as ratio\nfrom \n\tpull_requests pr\nwhere\n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n  and pr.base_repo_id in ($repo_id)",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PR Closed W/O Merging Ratio [Last Month]",
+      "type": "stat"
+    }
+  ],
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "mysql",
+        "definition": "select concat(name, '-', id) from lake.repos",
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Repo",
+        "multi": true,
+        "name": "repo_id",
+        "options": [],
+        "query": "select concat(name, '-', id) from lake.repos",
+        "refresh": 1,
+        "regex": "/^(?<text>.*)-(?<value>.*)$/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "24",
+          "value": "24"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "label": "Time to Initial Issue Response SLA (in hours)",
+        "name": "iir_sla",
+        "options": [
+          {
+            "selected": true,
+            "text": "24",
+            "value": "24"
+          }
+        ],
+        "query": "24",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "7",
+          "value": "7"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "label": "PR Resolution Time SLA (in days)",
+        "name": "prrt_sla",
+        "options": [
+          {
+            "selected": true,
+            "text": "7",
+            "value": "7"
+          }
+        ],
+        "query": "7",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "good first issue",
+          "value": "good first issue"
+        },
+        "description": null,
+        "error": null,
+        "hide": 0,
+        "label": "Label for good first issues",
+        "name": "label_gfi",
+        "options": [
+          {
+            "selected": true,
+            "text": "good first issue",
+            "value": "good first issue"
+          }
+        ],
+        "query": "good first issue",
+        "skipUrlSync": false,
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Community Experience",
+  "uid": "bwsP5Nz4z",
+  "version": 7
+}
