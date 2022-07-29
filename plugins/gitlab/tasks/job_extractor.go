@@ -25,58 +25,44 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-type ApiDetailedStatus struct {
-	Icon        string
-	Text        string
-	Label       string
-	Group       string
-	Tooltip     string
-	HasDetails  bool   `json:"has_details"`
-	DetailsPath string `json:"details_path"`
-	Favicon     string
-}
-
-type ApiPipeline struct {
-	Id       int `json:"id"`
-	Ref      string
-	Sha      string
-	Status   string
-	Tag      bool
-	Duration int
-	WebUrl   string `json:"web_url"`
+type ApiJob struct {
+	Id           int `json:"id"`
+	Status       string
+	Stage        string
+	Name         string
+	Ref          string
+	Tag          bool
+	AllowFailure bool `json:"allow_failure"`
+	Duration     float64
+	WebUrl       string `json:"web_url"`
 
 	CreatedAt  *helper.Iso8601Time `json:"created_at"`
-	UpdatedAt  *helper.Iso8601Time `json:"updated_at"`
 	StartedAt  *helper.Iso8601Time `json:"started_at"`
 	FinishedAt *helper.Iso8601Time `json:"finished_at"`
-
-	ApiDetailedStatus
 }
 
-var ExtractApiPipelinesMeta = core.SubTaskMeta{
-	Name:             "extractApiPipelines",
-	EntryPoint:       ExtractApiPipelines,
+var ExtractApiJobsMeta = core.SubTaskMeta{
+	Name:             "extractApiJobs",
+	EntryPoint:       ExtractApiJobs,
 	EnabledByDefault: true,
 	Description:      "Extract raw pipelines data into tool layer table GitlabPipeline",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
+func ExtractApiJobs(taskCtx core.SubTaskContext) error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			// create gitlab commit
-			gitlabApiPipeline := &ApiPipeline{}
-			err := json.Unmarshal(row.Data, gitlabApiPipeline)
+			gitlabApiJob := &ApiJob{}
+			err := json.Unmarshal(row.Data, gitlabApiJob)
 			if err != nil {
 				return nil, err
 			}
 
-			duration := int(gitlabApiPipeline.UpdatedAt.ToTime().Sub(gitlabApiPipeline.CreatedAt.ToTime()).Seconds())
-			gitlabApiPipeline.Duration = duration
-			gitlabPipeline, err := convertPipeline(gitlabApiPipeline, data.Options.ProjectId)
+			gitlabPipeline, err := convertJob(gitlabApiJob, data.Options.ProjectId)
 			if err != nil {
 				return nil, err
 			}
@@ -98,19 +84,21 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertPipeline(pipeline *ApiPipeline, projectId int) (*models.GitlabPipeline, error) {
-	gitlabPipeline := &models.GitlabPipeline{
-		GitlabId:         pipeline.Id,
-		ProjectId:        projectId,
-		Ref:              pipeline.Ref,
-		Sha:              pipeline.Sha,
-		WebUrl:           pipeline.WebUrl,
-		Status:           pipeline.Status,
-		GitlabCreatedAt:  helper.Iso8601TimeToTime(pipeline.CreatedAt),
-		GitlabUpdatedAt:  helper.Iso8601TimeToTime(pipeline.UpdatedAt),
-		GitlabStartedAt:  helper.Iso8601TimeToTime(pipeline.StartedAt),
-		GitlabFinishedAt: helper.Iso8601TimeToTime(pipeline.FinishedAt),
-		Duration:         pipeline.Duration,
-	}
-	return gitlabPipeline, nil
+func convertJob(job *ApiJob, projectId int) (*models.GitlabJob, error) {
+	return &models.GitlabJob{
+		GitlabId:     job.Id,
+		ProjectId:    projectId,
+		Status:       job.Status,
+		Stage:        job.Stage,
+		Name:         job.Name,
+		Ref:          job.Ref,
+		Tag:          job.Tag,
+		AllowFailure: job.AllowFailure,
+		Duration:     job.Duration,
+		WebUrl:       job.WebUrl,
+
+		GitlabCreatedAt:  helper.Iso8601TimeToTime(job.CreatedAt),
+		GitlabStartedAt:  helper.Iso8601TimeToTime(job.StartedAt),
+		GitlabFinishedAt: helper.Iso8601TimeToTime(job.FinishedAt),
+	}, nil
 }

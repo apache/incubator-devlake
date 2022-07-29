@@ -64,6 +64,8 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractApiMrCommitsMeta,
 		tasks.CollectApiPipelinesMeta,
 		tasks.ExtractApiPipelinesMeta,
+		tasks.CollectApiJobsMeta,
+		tasks.ExtractApiJobsMeta,
 		tasks.EnrichMergeRequestsMeta,
 		tasks.CollectAccountsMeta,
 		tasks.ExtractAccountsMeta,

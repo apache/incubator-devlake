@@ -23,26 +23,27 @@ import (
 	"github.com/apache/incubator-devlake/models/common"
 )
 
-type GitlabPipeline struct {
+type GitlabJob struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
-	GitlabId  int    `gorm:"primaryKey"`
-	ProjectId int    `gorm:"index"`
-	Status    string `gorm:"type:varchar(100)"`
-	Ref       string `gorm:"type:varchar(255)"`
-	Sha       string `gorm:"type:varchar(255)"`
-	WebUrl    string `gorm:"type:varchar(255)"`
-	Duration  int
+	GitlabId     int     `gorm:"primaryKey"`
+	ProjectId    int     `gorm:"index"`
+	Status       string  `gorm:"type:varchar(255)"`
+	Stage        string  `gorm:"type:varchar(255)"`
+	Name         string  `gorm:"type:varchar(255)"`
+	Ref          string  `gorm:"type:varchar(255)"`
+	Tag          bool    `gorm:"type:boolean"`
+	AllowFailure bool    `json:"allow_failure"`
+	Duration     float64 `gorm:"type:text"`
+	WebUrl       string  `gorm:"type:varchar(255)"`
 
 	GitlabCreatedAt  *time.Time
-	GitlabUpdatedAt  *time.Time
 	GitlabStartedAt  *time.Time
 	GitlabFinishedAt *time.Time
-	Coverage         string
 
 	common.NoPKModel
 }
 
-func (GitlabPipeline) TableName() string {
-	return "_tool_gitlab_pipelines"
+func (GitlabJob) TableName() string {
+	return "_tool_gitlab_jobs"
 }
