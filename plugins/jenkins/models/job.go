@@ -49,7 +49,6 @@ type FolderInput struct {
 }
 
 func (f *FolderInput) Data() interface{} {
-	// default implementation
 	return f.Path
 }
 
