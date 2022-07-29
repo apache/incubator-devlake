@@ -19,11 +19,12 @@ package helper
 
 // ListBaseNode 'abstract' base struct for Nodes that are chained in a linked list manner
 type ListBaseNode struct {
-	next *ListBaseNode
+	next QueueNode
 }
 
 func (l *ListBaseNode) Data() interface{} {
-	panic("list node Data() needs to be implemented by subclasses")
+	// default implementation
+	return nil
 }
 
 func (l *ListBaseNode) Next() interface{} {
@@ -34,7 +35,11 @@ func (l *ListBaseNode) Next() interface{} {
 }
 
 func (l *ListBaseNode) SetNext(next interface{}) {
-	l.next = next.(*ListBaseNode)
+	if next == nil {
+		l.next = nil
+	} else {
+		l.next = next.(QueueNode)
+	}
 }
 
 // NewListBaseNode create and init a new node (only to be called by subclasses)

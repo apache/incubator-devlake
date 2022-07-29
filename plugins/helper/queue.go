@@ -128,7 +128,7 @@ func NewQueue() *Queue {
 }
 
 type QueueIteratorNode struct {
-	next *QueueIteratorNode
+	next QueueNode
 	data interface{}
 }
 
@@ -140,7 +140,11 @@ func (q *QueueIteratorNode) Next() interface{} {
 }
 
 func (q *QueueIteratorNode) SetNext(next interface{}) {
-	q.next, _ = next.(*QueueIteratorNode)
+	if next == nil {
+		q.next = nil
+	} else {
+		q.next, _ = next.(QueueNode)
+	}
 }
 
 func (q *QueueIteratorNode) Data() interface{} {

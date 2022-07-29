@@ -48,6 +48,11 @@ type FolderInput struct {
 	Path string
 }
 
+func (f *FolderInput) Data() interface{} {
+	// default implementation
+	return f.Path
+}
+
 func NewFolderInput(path string) *FolderInput {
 	return &FolderInput{
 		Path:         path,
