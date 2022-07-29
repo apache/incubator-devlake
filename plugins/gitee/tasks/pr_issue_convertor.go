@@ -65,10 +65,10 @@ func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
 			giteePrIssue := inputRow.(*models.GiteePullRequestIssue)
 			issueNum, _ := strconv.Atoi(giteePrIssue.IssueNumber)
 			pullRequestIssue := &crossdomain.PullRequestIssue{
-				PullRequestId:     prIdGen.Generate(data.Options.ConnectionId, giteePrIssue.PullRequestId),
-				IssueId:           issueIdGen.Generate(data.Options.ConnectionId, giteePrIssue.IssueId),
-				IssueNumber:       issueNum,
-				PullRequestNumber: giteePrIssue.PullRequestNumber,
+				PullRequestId:  prIdGen.Generate(data.Options.ConnectionId, giteePrIssue.PullRequestId),
+				IssueId:        issueIdGen.Generate(data.Options.ConnectionId, giteePrIssue.IssueId),
+				IssueKey:       issueNum,
+				PullRequestKey: giteePrIssue.PullRequestNumber,
 			}
 			return []interface{}{
 				pullRequestIssue,
