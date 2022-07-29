@@ -17,27 +17,25 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/plugins/helper"
+import (
+	"github.com/apache/incubator-devlake/models/common"
+)
 
-// This object conforms to what the frontend currently sends.
-type AzureConnection struct {
-	helper.RestConnection `mapstructure:",squash"`
-	helper.BasicAuth      `mapstructure:",squash"`
+type AzureRepo struct {
+	ConnectionId  uint64 `gorm:"primaryKey"`
+	AzureId       string `gorm:"primaryKey;type:varchar(255)" json:"id"`
+	Name          string `gorm:"type:varchar(255)" json:"name"`
+	Url           string `gorm:"type:varchar(255)" json:"url"`
+	ProjectId     string `gorm:"type:varchar(255);index"`
+	DefaultBranch string `json:"defaultBranch"`
+	Size          int    `json:"size"`
+	RemoteURL     string `json:"remoteUrl"`
+	SshUrl        string `gorm:"type:varchar(255)" json:"sshUrl"`
+	WebUrl        string `gorm:"type:varchar(255)" json:"webUrl"`
+	IsDisabled    bool   `json:"isDisabled"`
+	common.NoPKModel
 }
 
-type AzureResponse struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	AzureConnection
-}
-
-type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint" validate:"required"`
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
-	Proxy    string `json:"proxy"`
-}
-
-func (AzureConnection) TableName() string {
-	return "_tool_azure_connections"
+func (AzureRepo) TableName() string {
+	return "_tool_azure_repos"
 }

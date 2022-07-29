@@ -15,38 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/plugins/azure/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type addInitTables struct{}
-
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
-	if !db.Migrator().HasTable(&archived.AzureConnection{}) {
-		err := db.Migrator().AutoMigrate(&archived.AzureConnection{})
-		if err != nil {
-			return err
-		}
-	}
-	err := db.Migrator().AutoMigrate(
-		//&archived.AzureRepo{},
-		&archived.AzureBuildDefinition{},
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
+type AzureRepo struct {
+	ConnectionId  uint64 `gorm:"primaryKey"`
+	AzureId       string `gorm:"primaryKey;type:varchar(255)" json:"id"`
+	Name          string `gorm:"type:varchar(255)" json:"name"`
+	Url           string `gorm:"type:varchar(255)" json:"url"`
+	ProjectId     string `gorm:"type:varchar(255);index"`
+	DefaultBranch string `json:"defaultBranch"`
+	Size          int    `json:"size"`
+	RemoteURL     string `json:"remoteUrl"`
+	SshUrl        string `gorm:"type:varchar(255)" json:"sshUrl"`
+	WebUrl        string `gorm:"type:varchar(255)" json:"webUrl"`
+	IsDisabled    bool   `json:"isDisabled"`
+	archived.NoPKModel
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20220727231237
-}
-
-func (*addInitTables) Name() string {
-	return "Azure init schemas"
+func (AzureRepo) TableName() string {
+	return "_tool_azure_repos"
 }

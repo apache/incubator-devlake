@@ -25,10 +25,13 @@ import (
 )
 
 type AzureApiParams struct {
+	ConnectionId uint64
+	Project      string
 }
 
 type AzureOptions struct {
 	ConnectionId uint64 `json:"connectionId"`
+	Project      string
 	Since        string
 	Tasks        []string `json:"tasks,omitempty"`
 }
@@ -37,6 +40,7 @@ type AzureTaskData struct {
 	Options    *AzureOptions
 	ApiClient  *helper.ApiAsyncClient
 	Connection *models.AzureConnection
+	Repo       *models.AzureRepo
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*AzureOptions, error) {

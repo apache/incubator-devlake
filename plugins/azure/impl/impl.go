@@ -36,8 +36,12 @@ func (plugin Azure) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) e
 }
 
 func (plugin Azure) SubTaskMetas() []core.SubTaskMeta {
-	// TODO add your sub task here
-	return []core.SubTaskMeta{}
+	return []core.SubTaskMeta{
+		tasks.CollectApiRepoMeta,
+		tasks.ExtractApiRepoMeta,
+		tasks.CollectApiBuildDefinitionMeta,
+		tasks.ExtractApiBuildDefinitionMeta,
+	}
 }
 
 func (plugin Azure) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
@@ -79,7 +83,20 @@ func (plugin Azure) RootPkgPath() string {
 }
 
 func (plugin Azure) ApiResources() map[string]map[string]core.ApiResourceHandler {
-	return nil
+	return map[string]map[string]core.ApiResourceHandler{
+		"test": {
+			"POST": api.TestConnection,
+		},
+		"connections": {
+			"POST": api.PostConnections,
+			"GET":  api.ListConnections,
+		},
+		"connections/:connectionId": {
+			"GET":    api.GetConnection,
+			"PATCH":  api.PatchConnection,
+			"DELETE": api.DeleteConnection,
+		},
+	}
 }
 
 func (plugin Azure) MigrationScripts() []migration.Script {

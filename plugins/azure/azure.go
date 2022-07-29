@@ -30,10 +30,12 @@ func main() {
 	cmd := &cobra.Command{Use: "azure"}
 
 	connectionId := cmd.Flags().Uint64P("connection", "c", 1, "azure connection id")
+	project := cmd.Flags().StringP("project", "p", "", "azure project name")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"connectionId": *connectionId,
+			"project":      *project,
 		})
 	}
 	runner.RunCmd(cmd)
