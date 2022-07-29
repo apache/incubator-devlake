@@ -50,10 +50,10 @@ type BlueprintSettings struct {
 
 // UnmarshalPlan unmarshals Plan in JSON to strong-typed core.PipelinePlan
 func (bp *Blueprint) UnmarshalPlan() (core.PipelinePlan, error) {
-		var plan core.PipelinePlan
-		err := json.Unmarshal(bp.Plan, &plan)
-		if err != nil {
-			return nil, err
-		}
-		return plan, nil
+	var plan core.PipelinePlan
+	err := json.Unmarshal(bp.Plan, &plan)
+	if err != nil {
+		return nil, err
+	}
+	return plan, nil
 }
