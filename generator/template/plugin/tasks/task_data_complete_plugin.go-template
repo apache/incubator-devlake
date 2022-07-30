@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
+    "github.com/mitchellh/mapstructure"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -29,9 +31,25 @@ type {{ .PluginName }}Options struct {
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
 	// You can use it in sub tasks and you need pass it in main.go and pipelines.
+    ConnectionId               uint64   `json:"connectionId"`
+    Tasks                      []string `json:"tasks,omitempty"`
+    Since                      string
 }
 
 type {{ .PluginName }}TaskData struct {
 	Options   *{{ .PluginName }}Options
 	ApiClient *helper.ApiAsyncClient
+}
+
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*{{ .PluginName }}Options, error) {
+	var op {{ .PluginName }}Options
+	err := mapstructure.Decode(options, &op)
+	if err != nil {
+		return nil, err
+	}
+
+	if op.ConnectionId == 0 {
+		return nil, fmt.Errorf("connectionId is invalid")
+	}
+	return &op, nil
 }

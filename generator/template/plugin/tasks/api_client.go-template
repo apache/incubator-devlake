@@ -19,54 +19,55 @@ package tasks
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+	"time"
 
+	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/utils"
 )
 
-// TODO add what host would want to requist
-const ENDPOINT = "{{ .Endpoint }}"
-
-func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
-	// load and process configuration
-	token := taskCtx.GetConfig("{{ .PLUGIN_NAME }}_TOKEN")
-	if token == "" {
-		println("invalid {{ .PLUGIN_NAME }}_TOKEN, but ignore this error now")
+func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext, connection *models.{{ .PluginName }}Connection) (*helper.ApiAsyncClient, error) {
+	// create synchronize api client so we can calculate api rate limit dynamically
+	headers := map[string]string{
+		"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
 	}
-	userRateLimit, err := utils.StrToIntOr(taskCtx.GetConfig("{{ .PLUGIN_NAME }}_API_REQUESTS_PER_HOUR"), 18000)
+	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}
-	proxy := taskCtx.GetConfig("{{ .PLUGIN_NAME }}_PROXY")
-
-	// real request apiClient
-	apiClient, err := helper.NewApiClient(ENDPOINT, nil, 0, proxy, taskCtx.GetContext())
-	if err != nil {
-		return nil, err
-	}
-	// set token
-	if token != "" {
-		apiClient.SetHeaders(map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %v", token),
-		})
-	}
-
-	// TODO add some check after request if necessary
-	// apiClient.SetAfterFunction(func(res *http.Response) error {
-	//    if res.StatusCode == http.StatusUnauthorized {
-	//        return fmt.Errorf("authentication failed, please check your Bearer Auth Token")
-	//    }
-	//    return nil
-	// })
-
-	// create async api client
-    asyncApiClient, err := helper.CreateAsyncApiClient(taskCtx, apiClient, &helper.ApiRateLimitCalculator{
-		UserRateLimitPerHour: userRateLimit,
+	apiClient.SetAfterFunction(func(res *http.Response) error {
+		if res.StatusCode == http.StatusUnauthorized {
+			return fmt.Errorf("authentication failed, please check your AccessToken")
+		}
+		return nil
 	})
+
+	// create rate limit calculator
+	rateLimiter := &helper.ApiRateLimitCalculator{
+		UserRateLimitPerHour: connection.RateLimitPerHour,
+		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
+			rateLimitHeader := res.Header.Get("RateLimit-Limit")
+			if rateLimitHeader == "" {
+				// use default
+				return 0, 0, nil
+			}
+			rateLimit, err := strconv.Atoi(rateLimitHeader)
+			if err != nil {
+				return 0, 0, fmt.Errorf("failed to parse RateLimit-Limit header: %w", err)
+			}
+			// seems like {{ .plugin-ame }} rate limit is on minute basis
+			return rateLimit, 1 * time.Minute, nil
+		},
+	}
+	asyncApiClient, err := helper.CreateAsyncApiClient(
+		taskCtx,
+		apiClient,
+		rateLimiter,
+	)
 	if err != nil {
 		return nil, err
 	}
-
 	return asyncApiClient, nil
 }
