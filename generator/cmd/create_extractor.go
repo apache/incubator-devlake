@@ -121,6 +121,11 @@ Type in what the name of extractor is, then generator will create a new extracto
 				regexp.MustCompile(`(return +\[]core\.SubTaskMeta ?\{ ?\n?)((\s*[\w.]+,\n)*)(\s*})`),
 				fmt.Sprintf("$1$2\t\ttasks.Extract%sMeta,\n$4", extractorDataNameUpperCamel),
 			)
+			util.ReplaceVarInFile(
+				filepath.Join(`plugins`, pluginName, `impl/impl.go`),
+				regexp.MustCompile(`(return +\[]core\.SubTaskMeta ?\{ ?\n?)((\s*[\w.]+,\n)*)(\s*})`),
+				fmt.Sprintf("$1$2\t\ttasks.Extract%sMeta,\n$4", extractorDataNameUpperCamel),
+			)
 		}
 	},
 }

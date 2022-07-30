@@ -27,6 +27,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 )
 
 func init() {
@@ -103,7 +104,7 @@ Type in what the name of plugin is, then generator will create a new plugin in p
 		}
 
 		prompt := promptui.Select{
-			Label: "with_api_client (Will this plugin request HTTP APIs?)",
+			Label: "complete_plugin (Will this plugin request HTTP APIs?)",
 			Items: []string{"Yes", "No"},
 		}
 		_, withApiClient, err := prompt.Run()
@@ -112,30 +113,22 @@ Type in what the name of plugin is, then generator will create a new plugin in p
 		values := map[string]string{}
 		templates := map[string]string{}
 		if withApiClient == `Yes` {
-			prompt := promptui.Prompt{
-				Label:   "Endpoint (which host to request)",
-				Default: `https://open.example.cn/api/v1`,
-				Validate: func(input string) error {
-					if input == `` {
-						return errors.New("endpoint require")
-					}
-					if !strings.HasPrefix(input, `http`) {
-						return errors.New("endpoint should start with http")
-					}
-					return nil
-				},
-			}
-			endpoint, err := prompt.Run()
-			cobra.CheckErr(err)
-
+			versionTimestamp := time.Now().Format(`20060102`)
+			values[`Date`] = versionTimestamp
 			// read template
 			templates = map[string]string{
-				`plugin_main.go`:      util.ReadTemplate("generator/template/plugin/plugin_main_with_api_client.go-template"),
-				`tasks/api_client.go`: util.ReadTemplate("generator/template/plugin/tasks/api_client.go-template"),
-				`tasks/task_data.go`:  util.ReadTemplate("generator/template/plugin/tasks/task_data_with_api_client.go-template"),
+				fmt.Sprintf(`%s.go`, pluginName): util.ReadTemplate("generator/template/plugin/plugin_main_complete_plugin.go-template"),
+				`impl/impl.go`:                   util.ReadTemplate("generator/template/plugin/impl/impl_complete_plugin.go-template"),
+				`tasks/api_client.go`:            util.ReadTemplate("generator/template/plugin/tasks/api_client.go-template"),
+				`tasks/task_data.go`:             util.ReadTemplate("generator/template/plugin/tasks/task_data_complete_plugin.go-template"),
+				`api/connection.go`:              util.ReadTemplate("generator/template/plugin/api/connection.go-template"),
+				`models/connection.go`:           util.ReadTemplate("generator/template/plugin/models/connection.go-template"),
+				fmt.Sprintf("models/migrationscripts/%s_add_init_tables.go", versionTimestamp): util.ReadTemplate("generator/template/migrationscripts/add_init_tables.go-template"),
+				`models/migrationscripts/register.go`:                                          util.ReadTemplate("generator/template/migrationscripts/register.go-template"),
+				`api/init.go`:                                                                  util.ReadTemplate("generator/template/plugin/api/init.go-template"),
+				`api/blueprint.go`:                                                             util.ReadTemplate("generator/template/plugin/api/blueprint.go-template"),
 			}
 			util.GenerateAllFormatVar(values, `plugin_name`, pluginName)
-			values[`Endpoint`] = endpoint
 		} else if withApiClient == `No` {
 			// read template
 			templates = map[string]string{
