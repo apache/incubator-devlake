@@ -1,6 +1,6 @@
 # Deploy devlake with helm
 
-## Prerequest
+## Prerequisites
 
 - Helm >= 3.6.0
 - Kubernetes >= 1.19.0
@@ -10,7 +10,7 @@
 
 clone the code, and enter the deployment/helm folder.
 ```
-helm install devlake . --set service.grafanaEndpoint=http://YOUR-NODE-IP:32000
+helm install devlake .
 ```
 
 And visit your devlake from the node port (32001 by default).
@@ -24,10 +24,10 @@ http://YOUR-NODE-IP:32001
 
 Conditions:
  - IP Address of Kubernetes node: 192.168.0.6
- - Want to visit devlake with port 30000, and grafana at port 30001
+ - Want to visit devlake with port 30000.
 
 ```
-helm install devlake . --set "service.uiPort=30000,service.grafanaPort=30001,service.grafanaEndpoint=http://192.168.0.6:30001"
+helm install devlake . --set service.uiPort=30000
 ```
 
 After deployed, visit devlake: http://192.168.0.6:30000
@@ -98,9 +98,7 @@ Some useful parameters for the chart, you could also check them in values.yaml
 | ui.image.tag  | image tag for ui's image | latest  |
 | ui.image.pullPolicy  | pullPolicy for ui's image | Always  |
 | service.type  | Service type for exposed service | NodePort  |
-| service.grafanaPort  | Service port for grafana | 32000  |
 | service.uiPort  | Service port for config ui | 32001  |
-| service.grafanaEndpoint  | The external grafana endpoint, used when ingress not configured  |  http://127.0.0.1:32000  |
 | service.ingress.enabled  | If enable ingress  |  false  |
 | service.ingress.enableHttps  | If enable https  |  false  |
 | service.ingress.className  | The class name for ingressClass. If leave empty, the default IngressClass will be used  | ""  |
