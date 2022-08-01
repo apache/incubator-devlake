@@ -31,6 +31,7 @@ type JenkinsStage struct {
 	StartTimeMillis     int64  `json:"startTimeMillis"`
 	DurationMillis      int    `json:"durationMillis"`
 	PauseDurationMillis int    `json:"pauseDurationMillis"`
+	Type                string `gorm:"index;type:varchar(255)"`
 	BuildName           string `gorm:"primaryKey;type:varchar(255)"`
 }
 

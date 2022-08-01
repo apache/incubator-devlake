@@ -39,6 +39,9 @@ type JenkinsBuild struct {
 	StartTime         time.Time // convered by timestamp
 	CommitSha         string    `gorm:"type:varchar(255)"`
 	Type              string    `gorm:"index;type:varchar(255)"`
+	Class             string    `gorm:"index;type:varchar(255)" `
+	TriggeredBy       string    `gorm:"type:varchar(255)"`
+	Building          bool
 }
 
 func (JenkinsBuild) TableName() string {

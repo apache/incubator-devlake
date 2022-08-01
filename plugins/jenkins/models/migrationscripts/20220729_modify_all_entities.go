@@ -19,62 +19,46 @@ package migrationscripts
 
 import (
 	"context"
-	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type modifyAllEntities struct{}
 
-// JenkinsBuild db entity for jenkins build
-type JenkinsBuild0729 struct {
-	Type string `gorm:"index;type:varchar(255)" `
-}
-
-func (JenkinsBuild0729) TableName() string {
-	return "_tool_jenkins_builds"
-}
-
-type JenkinsJob0729 struct {
-	HasUpstreamProjects bool
-}
-
-func (JenkinsJob0729) TableName() string {
-	return "_tool_jenkins_jobs"
-}
-
-type JenkinsUpDownJob0729 struct {
+type JenkinsJobDag0729 struct {
 	ConnetionId   uint64 `gorm:"primaryKey"`
 	UpstreamJob   string `gorm:"primaryKey;type:varchar(255)"`
 	DownstreamJob string `gorm:"primaryKey;type:varchar(255)"`
 	archived.NoPKModel
 }
 
-func (JenkinsUpDownJob0729) TableName() string {
-	return "_tool_jenkins_up_down_jobs"
+func (JenkinsJobDag0729) TableName() string {
+	return "_tool_jenkins_job_dags"
 }
 
-type JenkinsBuildCommitRepoUrl0729 struct {
+// JenkinsBuild db entity for jenkins build
+type JenkinsBuild0729 struct {
+	TriggeredBy string `gorm:"type:varchar(255)"`
+	Type        string `gorm:"index;type:varchar(255)" `
+	Class       string `gorm:"index;type:varchar(255)" `
+	Building    bool
+}
+
+func (JenkinsBuild0729) TableName() string {
+	return "_tool_jenkins_builds"
+}
+
+type JenkinsBuildRepo0729 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	BuildName    string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha    string `gorm:"primaryKey;type:varchar(255)"`
-	RemoteUrl    string `gorm:"primaryKey;type:varchar(255)"`
-	common.NoPKModel
-}
-
-func (JenkinsBuildCommitRepoUrl0729) TableName() string {
-	return "_tool_jenkins_build_commit_repo_urls"
-}
-
-type JenkinsBuildTriggeredBuilds0729 struct {
-	ConnectionId       uint64 `gorm:"primaryKey"`
-	BuildName          string `gorm:"primaryKey;type:varchar(255)"`
-	TriggeredBuildName string `gorm:"primaryKey;type:varchar(255)"`
+	Branch       string `gorm:"type:varchar(255)"`
+	RepoUrl      string `gorm:"primaryKey;type:varchar(255)"`
 	archived.NoPKModel
 }
 
-func (JenkinsBuildTriggeredBuilds0729) TableName() string {
-	return "_tool_jenkins_build_triggered_builds"
+func (JenkinsBuildRepo0729) TableName() string {
+	return "_tool_jenkins_build_repos"
 }
 
 type JenkinsStage0729 struct {
@@ -88,6 +72,7 @@ type JenkinsStage0729 struct {
 	DurationMillis      int    `json:"durationMillis"`
 	PauseDurationMillis int    `json:"pauseDurationMillis"`
 	BuildName           string `gorm:"primaryKey;type:varchar(255)"`
+	Type                string `gorm:"index;type:varchar(255)"`
 }
 
 func (JenkinsStage0729) TableName() string {
@@ -99,14 +84,17 @@ func (*modifyAllEntities) Up(ctx context.Context, db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-	err = db.Migrator().AddColumn(JenkinsJob0729{}, "has_upstream_projects")
+	err = db.Migrator().AddColumn(JenkinsBuild0729{}, "triggered_by")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().AddColumn(JenkinsBuild0729{}, "building")
 	if err != nil {
 		return err
 	}
 	err = db.Migrator().AutoMigrate(
-		JenkinsUpDownJob0729{},
-		JenkinsBuildCommitRepoUrl0729{},
-		JenkinsBuildTriggeredBuilds0729{},
+		JenkinsJobDag0729{},
+		JenkinsBuildRepo0729{},
 		JenkinsStage0729{},
 	)
 	if err != nil {
