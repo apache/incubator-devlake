@@ -41,6 +41,8 @@ import {
   Tag,
 } from '@blueprintjs/core'
 import { MultiSelect, Select } from '@blueprintjs/select'
+import InputValidationError from '@/components/validation/InputValidationError'
+
 const DataEntitiesSelector = (props) => {
   const {
     connections = [],
@@ -55,6 +57,8 @@ const DataEntitiesSelector = (props) => {
     onItemSelect = () => {},
     onRemove = () => {},
     onClear = () => {},
+    fieldHasError = () => {},
+    getFieldError = () => {},
     itemRenderer = (item, { handleClick, modifiers }) => (
       <MenuItem
         active={modifiers.active || selectedItems.find(i => i.id === item.id)}
@@ -101,7 +105,7 @@ const DataEntitiesSelector = (props) => {
             resetOnSelect={true}
             placeholder={placeholder}
             popoverProps={{ usePortal: false, minimal: true }}
-            className='multiselector-connections'
+            className='multiselector-entities'
             inline={true}
             fill={true}
             items={items}

@@ -306,7 +306,7 @@ export default function GithubSettings (props) {
         </>
       )}
 
-      {(entities?.length === 0 || entities.some(e => e.value === DataEntityTypes.CROSSDOMAIN)) && (
+      {(entities?.length === 0 || entities.every(e => e.value === DataEntityTypes.CROSSDOMAIN)) && (
         <div className='headlineContainer'>
           <h5>No Data Entities</h5>
           <p className='description'>

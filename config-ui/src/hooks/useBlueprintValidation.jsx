@@ -58,7 +58,7 @@ function useBlueprintValidation ({
   }, [])
 
   const validateRepositoryName = useCallback((set = []) => {
-    const repoRegExp = /([a-z0-9_-]){2,}\/([a-z0-9_-]){2,}/gi
+    const repoRegExp = /([a-z0-9_-]){2,}\/([a-z0-9_-]){2,}$/gi
     return set.every(i => i.match(repoRegExp))
   }, [])
 
@@ -68,7 +68,6 @@ function useBlueprintValidation ({
 
   const validate = useCallback(() => {
     const errs = []
-    // console.log('>> VALIDATING BLUEPRINT ', name)
 
     if (!name) {
       errs.push('Blueprint Name: Enter a valid Name')

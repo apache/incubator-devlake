@@ -206,7 +206,10 @@ const BlueprintDetail = (props) => {
         icon = <Icon icon='delete' size={14} color={Colors.RED5} />
         break
       case TaskStatus.CANCELLED:
+        icon = <Icon icon='undo' size={14} color={Colors.RED5} />
+        break
       case TaskStatus.CREATED:
+        icon = <Icon icon='stopwatch' size={14} color={Colors.GRAY3} />
         break
     }
     return icon
