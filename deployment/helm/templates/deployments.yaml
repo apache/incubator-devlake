@@ -58,9 +58,6 @@ spec:
             initialDelaySeconds: 30
             timeoutSeconds: 30
           volumeMounts:
-            - mountPath: /etc/grafana/grafana.ini
-              name: {{ include "devlake.fullname" . }}-grafana-config
-              subPath: grafana.ini
             {{- if ne .Values.option.localtime "" }}
             - name: {{ include "devlake.fullname" . }}-grafana-localtime
               mountPath: /etc/localtime
@@ -70,19 +67,11 @@ spec:
             - configMapRef:
                 name: {{ include "devlake.fullname" . }}-config
           env:
-            - name: GF_USERS_ALLOW_SIGN_UP
-              value: 'false'
-            - name: GF_DASHBOARDS_JSON_ENABLED
-              value: 'true'
-            - name: GF_LIVE_ALLOWED_ORIGINS
-              value: '*'
+            - name: GF_SERVER_ROOT_URL
+              value: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
             - name: MYSQL_URL
               value: {{ include "devlake.fullname" . }}-mysql:3306
       volumes:
-        - configMap:
-            defaultMode: 420
-            name: {{ include "devlake.fullname" . }}-grafana-config
-          name: {{ include "devlake.fullname" . }}-grafana-config
         {{- if ne .Values.option.localtime "" }}
         - name: {{ include "devlake.fullname" . }}-grafana-localtime
           hostPath:
@@ -123,7 +112,7 @@ spec:
               # TODO: remove hardcoded `cluster.local`
               value: {{ include "devlake.fullname" . }}-lake.{{ .Release.Namespace }}.svc.cluster.local:8080
             - name: GRAFANA_ENDPOINT
-              value: "{{ include "devlake.grafanaEndpoint" . }}"
+              value: {{ include "devlake.fullname" . }}-grafana.{{ .Release.Namespace }}.svc.cluster.local:3000
             # - name: ADMIN_USER
             #   value: "admin"
             # - name: ADMIN_PASS

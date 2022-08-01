@@ -77,28 +77,6 @@ The ui endpoint prefix
 {{- end }}
 
 {{/*
-The grafana endpoint
-*/}}
-{{- define "devlake.grafanaEndpoint" -}}
-{{- if .Values.ingress.enabled }}
-{{- $grafanaPortString := "" }}
-{{- if .Values.ingress.enableHttps }}
-{{- if ne 443 ( .Values.ingress.httpsPort | int) }}
-{{- $grafanaPortString = printf ":%d" ( .Values.ingress.httpsPort | int) }}
-{{- end }}
-{{- printf "https://%s%s/%s" .Values.ingress.hostname $grafanaPortString (include "devlake.grafanaEndpointPrefix" .) }}
-{{- else }}
-{{- if ne 80 ( .Values.ingress.httpPort | int) }}
-{{- $grafanaPortString = printf ":%d" ( .Values.ingress.httpPort | int) }}
-{{- end }}
-{{- printf "http://%s%s/%s" .Values.ingress.hostname $grafanaPortString (include "devlake.grafanaEndpointPrefix" .) }}
-{{- end }}
-{{- else }}
-{{ .Values.service.grafanaEndpoint }}
-{{- end }}
-{{- end }}
-
-{{/*
 The ui endpoint
 */}}
 {{- define "devlake.uiEndpoint" -}}

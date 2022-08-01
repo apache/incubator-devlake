@@ -67,8 +67,6 @@ jobs:
           echo Node IP: ${NODE_IP}
           helm install --wait --timeout 300s deploy-test deployment/helm \
             --set service.uiPort=30000 \
-            --set service.grafanaPort=30001 \
-            --set service.grafanaEndpoint=http://${NODE_IP}:30001 \
             --set option.localtime=""
           kubectl get pods -o wide
           kubectl get services -o wide
@@ -85,7 +83,7 @@ jobs:
             # API for devlake
             curl --fail http://${NODE_IP}:30000/api/blueprints || failed=1
             # API for grafana
-            curl --fail http://${NODE_IP}:30001/api/health || failed=1
+            curl --fail http://${NODE_IP}:30000/grafana/api/health || failed=1
             if [ $failed -eq 0 ] ; then
               break
             else
