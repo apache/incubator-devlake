@@ -81,20 +81,25 @@ type ApiBuildResponse struct {
 	ChangeSet         ChangeSet `json:"changeSet"`
 }
 type LastBuiltRevision struct {
-	SHA1 string `json:"SHA1"`
+	SHA1     string   `json:"SHA1"`
+	Branches []Branch `json:"branch"`
 }
 
 type Action struct {
-	Class                   string             `json:"_class,omitempty"`
-	LastBuiltRevision       LastBuiltRevision  `json:"lastBuiltRevision,omitempty"`
-	MercurialRevisionNumber string             `json:"mercurialRevisionNumber"`
-	RemoteUrls              []string           `json:"remoteUrls"`
-	TriggeredBuilds         []ApiBuildResponse `json:"triggeredBuilds"`
+	Class                   string            `json:"_class,omitempty"`
+	LastBuiltRevision       LastBuiltRevision `json:"lastBuiltRevision,omitempty"`
+	MercurialRevisionNumber string            `json:"mercurialRevisionNumber"`
+	RemoteUrls              []string          `json:"remoteUrls"`
+	Causes                  []Cause           `json:"causes"`
 }
 type ChangeSet struct {
 	Class     string     `json:"_class"`
 	Kind      string     `json:"kind"`
 	Revisions []Revision `json:"revision"`
+}
+
+type Branch struct {
+	Name string `json:"name"`
 }
 
 type Revision struct {
@@ -115,4 +120,12 @@ type Stage struct {
 	StartTimeMillis     int64  `json:"startTimeMillis"`
 	DurationMillis      int    `json:"durationMillis"`
 	PauseDurationMillis int    `json:"pauseDurationMillis"`
+}
+
+type Cause struct {
+	Class            string `json:"_class"`
+	ShortDescription string `json:"shortDescription"`
+	UpstreamBuild    int    `json:"upstreamBuild"`
+	UpstreamProject  string `json:"upstreamProject"`
+	UpstreamURL      string `json:"upstreamUrl"`
 }

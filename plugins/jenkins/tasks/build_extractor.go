@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -72,7 +73,6 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 			class := strList[len(strList)-1]
 			build := &models.JenkinsBuild{
 				ConnectionId:      data.Options.ConnectionId,
-				Type:              class,
 				JobName:           input.Name,
 				Duration:          body.Duration,
 				DisplayName:       body.DisplayName,
@@ -80,12 +80,14 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 				Number:            body.Number,
 				Result:            body.Result,
 				Timestamp:         body.Timestamp,
+				Class:             class,
 				StartTime:         time.Unix(body.Timestamp/1000, 0),
 			}
 			vcs := body.ChangeSet.Kind
 			if vcs == "git" || vcs == "hg" {
 				for _, a := range body.Actions {
 					sha := ""
+					branch := ""
 					if a.LastBuiltRevision.SHA1 != "" {
 						sha = a.LastBuiltRevision.SHA1
 					}
@@ -93,28 +95,27 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 						sha = a.MercurialRevisionNumber
 					}
 					build.CommitSha = sha
+					if len(a.LastBuiltRevision.Branches) > 0 {
+						branch = a.LastBuiltRevision.Branches[0].Name
+					}
 					for _, url := range a.RemoteUrls {
 						if url != "" {
-							buildCommitRemoteUrl := models.JenkinsBuildCommitRepoUrl{
+							buildCommitRemoteUrl := models.JenkinsBuildRepo{
 								ConnectionId: data.Options.ConnectionId,
 								BuildName:    build.DisplayName,
 								CommitSha:    sha,
-								RemoteUrl:    url,
+								RepoUrl:      url,
+								Branch:       branch,
 							}
 							results = append(results, &buildCommitRemoteUrl)
 						}
 					}
-					if a.TriggeredBuilds != nil && len(a.TriggeredBuilds) > 0 {
-						for _, b := range a.TriggeredBuilds {
-							if b.DisplayName == "" {
-								continue
+					if len(a.Causes) > 0 {
+						for _, cause := range a.Causes {
+							if cause.UpstreamProject != "" {
+								triggeredByBuild := fmt.Sprintf("%s #%d", cause.UpstreamProject, cause.UpstreamBuild)
+								build.TriggeredBy = triggeredByBuild
 							}
-							buildTrigger := models.JenkinsBuildTriggeredBuilds{
-								ConnectionId:       data.Options.ConnectionId,
-								BuildName:          build.DisplayName,
-								TriggeredBuildName: b.DisplayName,
-							}
-							results = append(results, &buildTrigger)
 						}
 					}
 				}

@@ -68,16 +68,15 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) error {
 
 			job := &models.JenkinsJob{
 				JenkinsJobProps: models.JenkinsJobProps{
-					ConnectionId:        data.Options.ConnectionId,
-					Name:                body.Name,
-					Path:                input.Path,
-					Class:               body.Class,
-					Color:               body.Color,
-					HasUpstreamProjects: len(body.UpstreamProjects) > 0,
+					ConnectionId: data.Options.ConnectionId,
+					Name:         body.Name,
+					Path:         input.Path,
+					Class:        body.Class,
+					Color:        body.Color,
 				},
 			}
 			for _, upstreamProject := range body.UpstreamProjects {
-				upDownJob := models.JenkinsUpDownJob{
+				upDownJob := models.JenkinsJobDag{
 					ConnetionId:   data.Options.ConnectionId,
 					UpstreamJob:   upstreamProject.Name,
 					DownstreamJob: job.Name,
