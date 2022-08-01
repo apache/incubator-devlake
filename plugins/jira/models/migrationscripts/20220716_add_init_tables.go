@@ -83,17 +83,22 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 
+	err = db.Migrator().AutoMigrate(&archived.JiraConnectionTemp{})
+	if err != nil {
+		return err
+	}
+	defer db.Migrator().DropTable(&archived.JiraConnectionTemp{})
+
 	// get connection history data
 	var result *gorm.DB
 	m := db.Migrator()
-
 	if m.HasTable(&JiraConnectionV011{}) {
 		var jiraConns []JiraConnectionV011
 		result = db.Find(&jiraConns)
 
 		if result.Error == nil {
 			for _, v := range jiraConns {
-				conn := &archived.JiraConnection{}
+				conn := &archived.JiraConnectionTemp{}
 				conn.ID = v.ID
 				conn.Name = v.Name
 				conn.Endpoint = v.Endpoint
@@ -120,19 +125,19 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 					if err != nil {
 						return err
 					}
-					
-					err = db.Migrator().DropTable(&JiraConnectionV011{})
-					if err != nil {
-						return err
-					}
-					err = db.Migrator().AutoMigrate(&archived.JiraConnection{})
-					if err != nil {
-						return err
-					}
 					// create
 					db.Create(&conn)
 				}
 			}
+		}
+
+		err = db.Migrator().DropTable(&JiraConnectionV011{})
+		if err != nil {
+			return err
+		}
+		err = db.Migrator().RenameTable(archived.JiraConnectionTemp{}, archived.JiraConnection{})
+		if err != nil {
+			return err
 		}
 	} else {
 		c := config.GetConfig()
