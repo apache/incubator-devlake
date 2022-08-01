@@ -63,7 +63,7 @@ func ExtractApiEvents(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			results := make([]interface{}, 0, 1)
-			if body.GithubId == 0 {
+			if body.GithubId == 0 || body.Actor == nil {
 				return nil, nil
 			}
 			githubIssueEvent, err := convertGithubEvent(body, data.Options.ConnectionId)
