@@ -280,7 +280,28 @@ func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan
 			return nil, fmt.Errorf("plugin %s does not support blueprint protocol version 1.0.0", connection.Plugin)
 		}
 	}
-	return MergePipelinePlans(plans...), nil
+	newPipelinePlan := core.PipelinePlan{}
+	if settings.BeforePlan != nil {
+		beforePipelinePlan := core.PipelinePlan{}
+		err = json.Unmarshal(settings.BeforePlan, &beforePipelinePlan)
+		if err != nil {
+			return nil, err
+		}
+		newPipelinePlan = append(newPipelinePlan, beforePipelinePlan...)
+	}
+
+	mergedPipelinePlan := MergePipelinePlans(plans...)
+	newPipelinePlan = append(newPipelinePlan, mergedPipelinePlan...)
+
+	if settings.AfterPlan != nil {
+		afterPipelinePlan := core.PipelinePlan{}
+		err = json.Unmarshal(settings.AfterPlan, &afterPipelinePlan)
+		if err != nil {
+			return nil, err
+		}
+		newPipelinePlan = append(newPipelinePlan, afterPipelinePlan...)
+	}
+	return newPipelinePlan, nil
 }
 
 // MergePipelinePlans merges multiple pipelines into one unified pipeline

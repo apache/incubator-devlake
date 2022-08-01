@@ -47,6 +47,8 @@ func (Blueprint) TableName() string {
 type BlueprintSettings struct {
 	Version     string          `json:"version" validate:"required,semver,oneof=1.0.0"`
 	Connections json.RawMessage `json:"connections" validate:"required"`
+	BeforePlan  json.RawMessage `json:"before_plan"`
+	AfterPlan   json.RawMessage `json:"after_plan"`
 }
 
 // UnmarshalPlan unmarshals Plan in JSON to strong-typed core.PipelinePlan
