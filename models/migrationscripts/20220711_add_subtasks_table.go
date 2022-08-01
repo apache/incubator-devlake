@@ -15,6 +15,7 @@ type Subtask20220711 struct {
 	commonArchived.Model
 	TaskID       uint64     `json:"task_id" gorm:"index"`
 	SubtaskName  string     `json:"name" gorm:"column:name;index"`
+	Number       int        `json:"number"`
 	BeganAt      *time.Time `json:"beganAt"`
 	FinishedAt   *time.Time `json:"finishedAt" gorm:"index"`
 	SpentSeconds int64      `json:"spentSeconds"`

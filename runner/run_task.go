@@ -261,7 +261,7 @@ func RunPluginSubTasks(
 				SubTaskNumber: subtaskNumber,
 			}
 		}
-		subtask, err := runSubtask(taskID, subtaskCtx, subtaskMeta.EntryPoint)
+		subtask, err := runSubtask(taskID, subtaskNumber, subtaskCtx, subtaskMeta.EntryPoint)
 		subtasks = append(subtasks, subtask)
 		if err != nil {
 			return &errors.SubTaskError{
@@ -304,6 +304,7 @@ func UpdateProgressDetail(db *gorm.DB, logger core.Logger, taskId uint64, progre
 
 func runSubtask(
 	parentID uint64,
+	subtaskNumber int,
 	ctx core.SubTaskContext,
 	entryPoint core.SubTaskEntryPoint,
 ) (*models.Subtask, error) {
@@ -311,6 +312,7 @@ func runSubtask(
 	subtask := &models.Subtask{
 		Name:    ctx.GetName(),
 		TaskID:  parentID,
+		Number:  subtaskNumber,
 		BeganAt: &beginAt,
 	}
 	defer func() {
