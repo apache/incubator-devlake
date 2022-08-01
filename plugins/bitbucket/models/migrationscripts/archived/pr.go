@@ -24,8 +24,8 @@ import (
 
 type BitbucketPullRequest struct {
 	ConnectionId       uint64 `gorm:"primaryKey"`
-	BitbucketId        string `gorm:"primaryKey"`
-	RepoId             string `gorm:"index"`
+	BitbucketId        string `gorm:"primaryKey;type:varchar(255)"`
+	RepoId             string `gorm:"index;type:varchar(255)"`
 	Number             int    `gorm:"index"` // This number is used in GET requests to the API associated to reviewers / comments / etc.
 	State              string `gorm:"type:varchar(255)"`
 	Title              string

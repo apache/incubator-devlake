@@ -24,7 +24,7 @@ import (
 type BitbucketAccount struct {
 	ConnectionId  uint64 `gorm:"primaryKey"`
 	UserName      string `gorm:"type:varchar(255)"`
-	AccountId     string `gorm:"primaryKey"`
+	AccountId     string `gorm:"primaryKey;type:varchar(255)"`
 	AccountStatus string `gorm:"type:varchar(255)"`
 	DisplayName   string `gorm:"type:varchar(255)"`
 	AvatarUrl     string `gorm:"type:varchar(255)"`

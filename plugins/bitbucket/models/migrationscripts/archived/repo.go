@@ -24,7 +24,7 @@ import (
 
 type BitbucketRepo struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-	BitbucketId  string `gorm:"primaryKey"`
+	BitbucketId  string `gorm:"primaryKey;type:varchar(255)"`
 	Name         string `gorm:"type:varchar(255)"`
 	HTMLUrl      string `gorm:"type:varchar(255)"`
 	Description  string

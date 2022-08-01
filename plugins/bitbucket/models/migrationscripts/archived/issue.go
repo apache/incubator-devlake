@@ -25,7 +25,7 @@ import (
 type BitbucketIssue struct {
 	ConnectionId       uint64 `gorm:"primaryKey"`
 	BitbucketId        int    `gorm:"primaryKey"`
-	RepoId             string `gorm:"index"`
+	RepoId             string `gorm:"index;type:varchar(255)"`
 	Number             int    `gorm:"index;comment:Used in API requests ex. api/repo/1/issue/<THIS_NUMBER>"`
 	State              string `gorm:"type:varchar(255)"`
 	Title              string `gorm:"type:varchar(255)"`
