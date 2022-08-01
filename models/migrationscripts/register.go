@@ -32,5 +32,6 @@ func All() []migration.Script {
 		new(commitfileComponent),
 		new(removeNotes),
 		new(addProjectMapping),
+		new(addNoPKModelToCommitParent),
 	}
 }
