@@ -92,15 +92,6 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		result = db.Find(&jiraConns)
 
 		if result.Error == nil {
-			err := db.Migrator().DropTable(&JiraConnectionV011{})
-			if err != nil {
-				return err
-			}
-			err = db.Migrator().AutoMigrate(&archived.JiraConnection{})
-			if err != nil {
-				return err
-			}
-
 			for _, v := range jiraConns {
 				conn := &archived.JiraConnection{}
 				conn.ID = v.ID
@@ -126,6 +117,15 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 				if len(originInfo) == 2 {
 					conn.Username = originInfo[0]
 					conn.Password, err = core.Encrypt(encKey, originInfo[1])
+					if err != nil {
+						return err
+					}
+					
+					err = db.Migrator().DropTable(&JiraConnectionV011{})
+					if err != nil {
+						return err
+					}
+					err = db.Migrator().AutoMigrate(&archived.JiraConnection{})
 					if err != nil {
 						return err
 					}
