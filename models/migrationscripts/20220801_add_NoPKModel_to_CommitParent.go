@@ -15,16 +15,39 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package code
+package migrationscripts
 
-import "github.com/apache/incubator-devlake/models/common"
+import (
+	"context"
+	"github.com/apache/incubator-devlake/models/common"
+	"gorm.io/gorm"
+)
 
-type CommitParent struct {
+type commitParent struct {
 	common.NoPKModel
 	CommitSha       string `json:"commitSha" gorm:"primaryKey;type:varchar(40);comment:commit hash"`
 	ParentCommitSha string `json:"parentCommitSha" gorm:"primaryKey;type:varchar(40);comment:parent commit hash"`
 }
 
-func (CommitParent) TableName() string {
+func (commitParent) TableName() string {
 	return "commit_parents"
+}
+
+type addNoPKModelToCommitParent struct{}
+
+func (*addNoPKModelToCommitParent) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().AutoMigrate(&commitParent{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*addNoPKModelToCommitParent) Version() uint64 {
+	return 20220801162735
+}
+
+func (*addNoPKModelToCommitParent) Name() string {
+	return "add NoPKModel to commit_parents"
 }

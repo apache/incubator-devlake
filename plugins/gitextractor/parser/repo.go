@@ -235,7 +235,8 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) error {
 			c.CommitterId = committer.Email
 			c.CommittedDate = committer.When
 		}
-		if err != r.storeParentCommits(commitSha, commit) {
+		err = r.storeParentCommits(commitSha, commit)
+		if err != nil {
 			return err
 		}
 		if commit.ParentCount() > 0 {
