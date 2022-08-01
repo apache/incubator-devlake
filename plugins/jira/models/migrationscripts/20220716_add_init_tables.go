@@ -30,6 +30,15 @@ import (
 	"gorm.io/gorm"
 )
 
+type JiraConnectionTemp struct {
+	archived.RestConnection `mapstructure:",squash"`
+	archived.BasicAuth      `mapstructure:",squash"`
+}
+
+func (JiraConnectionTemp) TableName() string {
+	return "_tool_jira_connections_temp"
+}
+
 type JiraConnectionV011 struct {
 	ID                         uint64    `gorm:"primaryKey" json:"id"`
 	CreatedAt                  time.Time `json:"createdAt"`
@@ -84,11 +93,11 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	}
 
 	// get connection history data
-	err = db.Migrator().AutoMigrate(&archived.JiraConnectionTemp{})
+	err = db.Migrator().AutoMigrate(&JiraConnectionTemp{})
 	if err != nil {
 		return err
 	}
-	defer db.Migrator().DropTable(&archived.JiraConnectionTemp{})
+	defer db.Migrator().DropTable(&JiraConnectionTemp{})
 
 	var result *gorm.DB
 	var jiraConns []JiraConnectionV011
@@ -96,7 +105,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 
 	if result.Error == nil {
 		for _, v := range jiraConns {
-			conn := &archived.JiraConnectionTemp{}
+			conn := &JiraConnectionTemp{}
 			conn.ID = v.ID
 			conn.Name = v.Name
 			conn.Endpoint = v.Endpoint
@@ -124,7 +133,10 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 					return err
 				}
 				// create
-				db.Create(&conn)
+				err := db.Create(&conn)
+				if err.Error != nil {
+					return err.Error
+				}
 			}
 		}
 	}
@@ -133,7 +145,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-	err = db.Migrator().RenameTable(archived.JiraConnectionTemp{}, archived.JiraConnection{})
+	err = db.Migrator().RenameTable(JiraConnectionTemp{}, archived.JiraConnection{})
 	if err != nil {
 		return err
 	}
