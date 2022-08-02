@@ -39,8 +39,8 @@ type GithubJob20220729 struct {
 	HTMLURL       string         `json:"html_url" gorm:"type:varchar(255)"`
 	Status        string         `json:"status" gorm:"type:varchar(255)"`
 	Conclusion    string         `json:"conclusion" gorm:"type:varchar(255)"`
-	StartedAt     time.Time      `json:"started_at"`
-	CompletedAt   time.Time      `json:"completed_at"`
+	StartedAt     *time.Time     `json:"started_at"`
+	CompletedAt   *time.Time     `json:"completed_at"`
 	Name          string         `json:"name" gorm:"type:varchar(255)"`
 	Steps         datatypes.JSON `json:"steps"`
 	CheckRunURL   string         `json:"check_run_url" gorm:"type:varchar(255)"`

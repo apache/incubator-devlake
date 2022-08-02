@@ -25,33 +25,34 @@ import (
 
 type GithubRun struct {
 	common.NoPKModel
-	ConnectionId     uint64    `gorm:"primaryKey"`
-	ID               int64     `json:"id" gorm:"primaryKey;autoIncrement:false"`
-	Name             string    `json:"name" gorm:"type:varchar(255)"`
-	NodeID           string    `json:"node_id" gorm:"type:varchar(255)"`
-	HeadBranch       string    `json:"head_branch" gorm:"type:varchar(255)"`
-	HeadSha          string    `json:"head_sha" gorm:"type:varchar(255)"`
-	Path             string    `json:"path" gorm:"type:varchar(255)"`
-	RunNumber        int       `json:"run_number"`
-	Event            string    `json:"event" gorm:"type:varchar(255)"`
-	Status           string    `json:"status" gorm:"type:varchar(255)"`
-	Conclusion       string    `json:"conclusion" gorm:"type:varchar(255)"`
-	WorkflowID       int       `json:"workflow_id"`
-	CheckSuiteID     int64     `json:"check_suite_id"`
-	CheckSuiteNodeID string    `json:"check_suite_node_id" gorm:"type:varchar(255)"`
-	URL              string    `json:"url" gorm:"type:varchar(255)"`
-	HTMLURL          string    `json:"html_url" gorm:"type:varchar(255)"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
-	RunAttempt       int       `json:"run_attempt"`
-	RunStartedAt     time.Time `json:"run_started_at"`
-	JobsURL          string    `json:"jobs_url" gorm:"type:varchar(255)"`
-	LogsURL          string    `json:"logs_url" gorm:"type:varchar(255)"`
-	CheckSuiteURL    string    `json:"check_suite_url" gorm:"type:varchar(255)"`
-	ArtifactsURL     string    `json:"artifacts_url" gorm:"type:varchar(255)"`
-	CancelURL        string    `json:"cancel_url" gorm:"type:varchar(255)"`
-	RerunURL         string    `json:"rerun_url" gorm:"type:varchar(255)"`
-	WorkflowURL      string    `json:"workflow_url" gorm:"type:varchar(255)"`
+	ConnectionId     uint64     `gorm:"primaryKey"`
+	GithubId         int        `gorm:"primaryKey"`
+	ID               int64      `json:"id" gorm:"primaryKey;autoIncrement:false"`
+	Name             string     `json:"name" gorm:"type:varchar(255)"`
+	NodeID           string     `json:"node_id" gorm:"type:varchar(255)"`
+	HeadBranch       string     `json:"head_branch" gorm:"type:varchar(255)"`
+	HeadSha          string     `json:"head_sha" gorm:"type:varchar(255)"`
+	Path             string     `json:"path" gorm:"type:varchar(255)"`
+	RunNumber        int        `json:"run_number"`
+	Event            string     `json:"event" gorm:"type:varchar(255)"`
+	Status           string     `json:"status" gorm:"type:varchar(255)"`
+	Conclusion       string     `json:"conclusion" gorm:"type:varchar(255)"`
+	WorkflowID       int        `json:"workflow_id"`
+	CheckSuiteID     int64      `json:"check_suite_id"`
+	CheckSuiteNodeID string     `json:"check_suite_node_id" gorm:"type:varchar(255)"`
+	URL              string     `json:"url" gorm:"type:varchar(255)"`
+	HTMLURL          string     `json:"html_url" gorm:"type:varchar(255)"`
+	GithubCreatedAt  *time.Time `json:"created_at"`
+	GithubUpdatedAt  *time.Time `json:"updated_at"`
+	RunAttempt       int        `json:"run_attempt"`
+	RunStartedAt     *time.Time `json:"run_started_at"`
+	JobsURL          string     `json:"jobs_url" gorm:"type:varchar(255)"`
+	LogsURL          string     `json:"logs_url" gorm:"type:varchar(255)"`
+	CheckSuiteURL    string     `json:"check_suite_url" gorm:"type:varchar(255)"`
+	ArtifactsURL     string     `json:"artifacts_url" gorm:"type:varchar(255)"`
+	CancelURL        string     `json:"cancel_url" gorm:"type:varchar(255)"`
+	RerunURL         string     `json:"rerun_url" gorm:"type:varchar(255)"`
+	WorkflowURL      string     `json:"workflow_url" gorm:"type:varchar(255)"`
 }
 
 func (GithubRun) TableName() string {
