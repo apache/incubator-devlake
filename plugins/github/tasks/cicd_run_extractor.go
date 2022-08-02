@@ -35,6 +35,7 @@ var ExtractRunsMeta = core.SubTaskMeta{
 
 func ExtractRuns(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -56,6 +57,7 @@ func ExtractRuns(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0, 1)
 			githubRunResult := &models.GithubRun{
 				ConnectionId:     data.Options.ConnectionId,
+				GithubId:         repoId,
 				ID:               githubRun.ID,
 				Name:             githubRun.Name,
 				NodeID:           githubRun.NodeID,
@@ -71,8 +73,8 @@ func ExtractRuns(taskCtx core.SubTaskContext) error {
 				CheckSuiteNodeID: githubRun.CheckSuiteNodeID,
 				URL:              githubRun.URL,
 				HTMLURL:          githubRun.HTMLURL,
-				CreatedAt:        githubRun.CreatedAt,
-				UpdatedAt:        githubRun.UpdatedAt,
+				GithubCreatedAt:  githubRun.GithubCreatedAt,
+				GithubUpdatedAt:  githubRun.GithubUpdatedAt,
 				RunAttempt:       githubRun.RunAttempt,
 				RunStartedAt:     githubRun.RunStartedAt,
 				JobsURL:          githubRun.JobsURL,
