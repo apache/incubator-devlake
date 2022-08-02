@@ -236,10 +236,6 @@ func RunPluginSubTasks(
 	// execute subtasks in order
 	taskCtx.SetProgress(0, steps)
 	subtaskNumber := 0
-	var subtasks []*models.Subtask
-	defer func() {
-		recordSubtasks(logger, db, subtasks)
-	}()
 	for _, subtaskMeta := range subtaskMetas {
 		subtaskCtx, err := taskCtx.SubTaskContext(subtaskMeta.Name)
 		if err != nil {
@@ -261,8 +257,7 @@ func RunPluginSubTasks(
 				SubTaskNumber: subtaskNumber,
 			}
 		}
-		subtask, err := runSubtask(taskID, subtaskNumber, subtaskCtx, subtaskMeta.EntryPoint)
-		subtasks = append(subtasks, subtask)
+		err = runSubtask(logger, db, taskID, subtaskNumber, subtaskCtx, subtaskMeta.EntryPoint)
 		if err != nil {
 			return &errors.SubTaskError{
 				SubTaskName: subtaskMeta.Name,
@@ -303,11 +298,13 @@ func UpdateProgressDetail(db *gorm.DB, logger core.Logger, taskId uint64, progre
 }
 
 func runSubtask(
+	logger core.Logger,
+	db *gorm.DB,
 	parentID uint64,
 	subtaskNumber int,
 	ctx core.SubTaskContext,
 	entryPoint core.SubTaskEntryPoint,
-) (*models.Subtask, error) {
+) error {
 	beginAt := time.Now()
 	subtask := &models.Subtask{
 		Name:    ctx.GetName(),
@@ -319,12 +316,13 @@ func runSubtask(
 		finishedAt := time.Now()
 		subtask.FinishedAt = &finishedAt
 		subtask.SpentSeconds = finishedAt.Unix() - beginAt.Unix()
+		recordSubtask(logger, db, subtask)
 	}()
-	return subtask, entryPoint(ctx)
+	return entryPoint(ctx)
 }
 
-func recordSubtasks(logger core.Logger, db *gorm.DB, subtasks []*models.Subtask) {
-	if err := db.Create(&subtasks).Error; err != nil {
-		logger.Error("error writing %d subtask statuses to DB: %v", len(subtasks), err)
+func recordSubtask(logger core.Logger, db *gorm.DB, subtask *models.Subtask) {
+	if err := db.Create(&subtask).Error; err != nil {
+		logger.Error("error writing subtask %d status to DB: %v", subtask.ID, err)
 	}
 }
