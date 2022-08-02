@@ -50,6 +50,8 @@ func RegisterRouter(r *gin.Engine) {
 	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
 	r.GET("/pipelines/:pipelineId/tasks", task.Index)
 
+	r.GET("/pipelines/:pipelineId/logging.tar.gz", pipelines.DownloadLogs)
+
 	r.GET("/ping", ping.Get)
 	r.GET("/version", version.Get)
 	r.POST("/push/:tableName", push.Post)

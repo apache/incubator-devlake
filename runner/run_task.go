@@ -52,6 +52,7 @@ func RunTask(
 	if task.Status == models.TASK_COMPLETED {
 		return fmt.Errorf("invalid task status")
 	}
+	logger = logger.Nested(fmt.Sprintf("task #%d", taskId), task.GetLoggerConfig())
 	beganAt := time.Now()
 	// make sure task status always correct even if it panicked
 	defer func() {

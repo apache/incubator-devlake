@@ -23,19 +23,39 @@ import (
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
-	"regexp"
+	"path/filepath"
 )
 
+const defaultLogFilename = "devlake"
+const defaultBasePath = "./logs"
+
 type DefaultLogger struct {
-	prefix     string
-	log        *logrus.Logger
-	loggerPool map[string]*logrus.Logger
+	prefix    string
+	log       *logrus.Logger
+	pool      map[string]core.Logger
+	basePath  string
+	directory string
+	filename  string
 }
 
-func NewDefaultLogger(log *logrus.Logger, prefix string, loggerPool map[string]*logrus.Logger) *DefaultLogger {
-	newDefaultLogger := &DefaultLogger{prefix: prefix, log: log}
-	newDefaultLogger.loggerPool = loggerPool
-	return newDefaultLogger
+func NewDefaultLogger(log *logrus.Logger, rootLogDir string) (core.Logger, error) {
+	if rootLogDir == "" {
+		rootLogDir = defaultBasePath
+	}
+	defaultLogger := &DefaultLogger{
+		prefix:    "",
+		log:       log,
+		pool:      map[string]core.Logger{},
+		basePath:  rootLogDir,
+		filename:  defaultLogFilename,
+		directory: "",
+	}
+	filePath := defaultLogger.getFilePath(defaultLogger.directory, defaultLogFilename)
+	err := defaultLogger.createNewLogFilestream(log, filePath)
+	if err != nil {
+		return nil, err
+	}
+	return defaultLogger, nil
 }
 
 func (l *DefaultLogger) IsLevelEnabled(level core.LogLevel) bool {
@@ -75,32 +95,84 @@ func (l *DefaultLogger) Error(format string, a ...interface{}) {
 	l.Log(core.LOG_ERROR, format, a...)
 }
 
-// bind two writer to logger
-func (l *DefaultLogger) Nested(name string) core.Logger {
+func (l *DefaultLogger) Nested(newPrefix string, config ...*core.LoggerConfig) core.Logger {
+	newTotalPrefix := newPrefix
+	if newPrefix != "" {
+		newTotalPrefix = fmt.Sprintf("%s [%s]", l.prefix, newPrefix)
+	}
+	cfg := &core.LoggerConfig{}
+	if len(config) == 1 {
+		cfg = config[0]
+	} else if len(config) > 1 {
+		panic("more than one config provided")
+	}
+	newLogger, err := l.getLogger(newTotalPrefix, cfg)
+	if err != nil {
+		l.Error("error getting a new logger: %v", newLogger)
+		return l
+	}
+	return newLogger
+}
+
+func (l *DefaultLogger) GetFsPath() string {
+	return fmt.Sprintf("%s/%s/%s.log", l.basePath, l.directory, l.filename)
+}
+
+func (l *DefaultLogger) getLogger(prefix string, config *core.LoggerConfig) (core.Logger, error) {
+	// if there are zero-values, inherit from current logger
+	if config.Filename == "" {
+		config.Filename = l.filename
+	}
+	if config.Directory == "" || config.InheritBase {
+		config.Directory = l.directory
+	}
+	logFilePath := l.getFilePath(config.Directory, config.Filename)
+	loggerKey := getLoggerKey(prefix, logFilePath)
+	newLogger, ok := l.pool[loggerKey]
+	if ok {
+		return newLogger, nil
+	}
+	// cache miss - create a new instance
+	newLogrus := logrus.New()
+	newLogrus.SetLevel(l.log.Level)
+	newLogrus.SetFormatter(l.log.Formatter)
+	err := l.createNewLogFilestream(newLogrus, logFilePath)
+	if err != nil {
+		return nil, err
+	}
+	newLogger = &DefaultLogger{
+		prefix:    prefix,
+		log:       newLogrus,
+		pool:      l.pool,
+		basePath:  l.basePath,
+		directory: config.Directory,
+		filename:  config.Filename,
+	}
+	l.pool[loggerKey] = newLogger
+	return newLogger, nil
+}
+
+func (l *DefaultLogger) createNewLogFilestream(logger *logrus.Logger, logFilePath string) error {
+	err := os.MkdirAll(filepath.Dir(logFilePath), os.ModePerm)
+	if err != nil {
+		return err
+	}
 	writerStd := os.Stdout
-	fileName := ""
-	loggerPrefixRegex := regexp.MustCompile(`(\[task #\d+]\s\[\w+])`)
-	groups := loggerPrefixRegex.FindStringSubmatch(fmt.Sprintf("%s [%s]", l.prefix, name))
-	if len(groups) > 1 {
-		fileName = groups[1]
+	if file, err := os.OpenFile(logFilePath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666); err == nil {
+		logger.SetOutput(io.MultiWriter(writerStd, file))
+	} else {
+		return err
 	}
+	return nil
+}
 
-	if fileName == "" {
-		fileName = "devlake"
-	}
+func (l *DefaultLogger) getFilePath(directory string, filename string) string {
+	filename = filename + ".log"
+	return filepath.Join(l.basePath, directory, filename)
+}
 
-	if l.loggerPool[fileName] != nil {
-		return NewDefaultLogger(l.loggerPool[fileName], fmt.Sprintf("%s [%s]", l.prefix, name), l.loggerPool)
-	}
-	newLog := logrus.New()
-	newLog.SetLevel(l.log.Level)
-	newLog.SetFormatter(l.log.Formatter)
-
-	if file, err := os.OpenFile(fmt.Sprintf("logs/%s.log", fileName), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666); err == nil {
-		newLog.SetOutput(io.MultiWriter(writerStd, file))
-	}
-	l.loggerPool[fileName] = newLog
-	return NewDefaultLogger(newLog, fmt.Sprintf("%s [%s]", l.prefix, name), l.loggerPool)
+func getLoggerKey(prefix string, filename string) string {
+	return fmt.Sprintf("%s-%s", filename, prefix)
 }
 
 var _ core.Logger = (*DefaultLogger)(nil)

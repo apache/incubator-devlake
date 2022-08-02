@@ -18,6 +18,7 @@ limitations under the License.
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/common"
@@ -84,4 +85,11 @@ func (Task) TableName() string {
 
 func (Subtask) TableName() string {
 	return "_devlake_subtasks"
+}
+
+func (t Task) GetLoggerConfig() *core.LoggerConfig {
+	return &core.LoggerConfig{
+		Filename:    fmt.Sprintf("task-%d-%d-%d-%s", t.ID, t.PipelineRow, t.PipelineCol, t.Plugin),
+		InheritBase: true,
+	}
 }

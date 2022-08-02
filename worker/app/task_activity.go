@@ -27,11 +27,12 @@ import (
 )
 
 // DevLakeTaskActivity FIXME ...
-func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64) error {
+func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64, loggerConfig *core.LoggerConfig) error {
 	cfg, log, db, err := loadResources(configJson)
 	if err != nil {
 		return err
 	}
+	log = log.Nested("", loggerConfig)
 	log.Info("received task #%d", taskId)
 	progressDetail := &models.TaskProgressDetail{}
 	progChan := make(chan core.RunningProgress)

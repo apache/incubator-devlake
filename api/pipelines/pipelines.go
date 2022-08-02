@@ -18,7 +18,11 @@ limitations under the License.
 package pipelines
 
 import (
+	"fmt"
+	"github.com/apache/incubator-devlake/utils"
+	"github.com/google/uuid"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/apache/incubator-devlake/api/shared"
@@ -166,4 +170,42 @@ func Delete(c *gin.Context) {
 		return
 	}
 	shared.ApiOutputSuccess(c, nil, http.StatusOK)
+}
+
+/*
+Get download logs of a pipeline
+GET /pipelines/:pipelineId/logging.tar.gz
+*/
+// download logs of a pipeline
+// @Description GET /pipelines/:pipelineId/logging.tar.gz
+// @Tags pipelines
+// @Param pipelineId path int true "query"
+// @Success 200  {object} []byte "The archive file"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /pipelines/{pipelineId}/logging.tar.gz [get]
+func DownloadLogs(c *gin.Context) {
+	pipelineId := c.Param("pipelineId")
+	id, err := strconv.ParseUint(pipelineId, 10, 64)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	_, err = services.GetPipeline(id)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	logPath, err := services.GetPipelineLogsPath(id)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusInternalServerError)
+		return
+	}
+	archive := fmt.Sprintf("%s/%s/logging.tar.gz", os.TempDir(), uuid.New())
+	if err = utils.CreateArchive(archive, logPath); err != nil {
+		shared.ApiOutputError(c, err, http.StatusInternalServerError)
+		return
+	}
+	defer os.Remove(archive)
+	c.File(archive)
 }

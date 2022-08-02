@@ -37,10 +37,28 @@ type Logger interface {
 	Info(format string, a ...interface{})
 	Warn(format string, a ...interface{})
 	Error(format string, a ...interface{})
-	// return a new logger which output nested log
-	Nested(name string) Logger
+	// Nested return a new logger instance. `name` is the extra prefix to be prepended to each message. Leaving it blank
+	// will add no additional prefix.
+	Nested(name string, config ...*LoggerConfig) Logger
+	// GetFsPath get the filepath of the log file associated with this logger
+	GetFsPath() string
+}
+
+type LoggerConfig struct {
+	// name of the log file (no extension)
+	Filename string
+	// The directory relative to the root directory or the parent logger directory (see InheritBase) in which the log file
+	// will be created
+	Directory string
+	// InheritBase if true, the log Directory will be relative to the directory of the parent Logger, otherwise it's
+	// relative to the root log directory
+	InheritBase bool
 }
 
 type InjectLogger interface {
 	SetLogger(logger Logger)
+}
+
+type LoggerConfigProvider interface {
+	GetLoggerConfig() *LoggerConfig
 }
