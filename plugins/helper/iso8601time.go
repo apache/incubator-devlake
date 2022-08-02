@@ -19,12 +19,9 @@ package helper
 
 import (
 	"fmt"
-	"reflect"
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/mitchellh/mapstructure"
 )
 
 /*
@@ -133,47 +130,4 @@ func Iso8601TimeToTime(iso8601Time *Iso8601Time) *time.Time {
 	}
 	t := iso8601Time.ToTime()
 	return &t
-}
-
-// DecodeMapStruct with time.Time and Iso8601Time support
-func DecodeMapStruct(input map[string]interface{}, result interface{}) error {
-	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Metadata: nil,
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(
-			func(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
-				if t != reflect.TypeOf(Iso8601Time{}) && t != reflect.TypeOf(time.Time{}) {
-					return data, nil
-				}
-
-				var tt time.Time
-				var err error
-
-				switch f.Kind() {
-				case reflect.String:
-					tt, err = ConvertStringToTime(data.(string))
-				case reflect.Float64:
-					tt = time.Unix(0, int64(data.(float64))*int64(time.Millisecond))
-				case reflect.Int64:
-					tt = time.Unix(0, data.(int64)*int64(time.Millisecond))
-				}
-				if err != nil {
-					return data, nil
-				}
-
-				if t == reflect.TypeOf(Iso8601Time{}) {
-					return Iso8601Time{time: tt}, nil
-				}
-				return tt, nil
-			},
-		),
-		Result: result,
-	})
-	if err != nil {
-		return err
-	}
-
-	if err := decoder.Decode(input); err != nil {
-		return err
-	}
-	return err
 }
