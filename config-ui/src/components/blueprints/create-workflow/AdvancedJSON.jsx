@@ -64,6 +64,7 @@ const AdvancedJSON = (props) => {
         setBlueprintName={setBlueprintName}
         getFieldError={getFieldError}
         fieldHasError={fieldHasError}
+        isSaving={isSaving}
       />
 
       <Card

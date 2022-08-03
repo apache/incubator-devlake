@@ -27,19 +27,24 @@ const BlueprintNameCard = (props) => {
     fieldHasError = () => {},
     getFieldError = () => {},
     advancedMode = false,
+    elevation = Elevation.TWO,
+    enableDivider = true,
+    isSaving = false,
+    cardStyle = {}
   } = props
 
   return (
     <Card
       className='workflow-card'
-      elevation={Elevation.TWO}
-      style={{ width: '100%' }}
+      elevation={elevation}
+      style={{ width: '100%', ...cardStyle }}
     >
+
       <h3>
         {advancedMode ? 'Advanced' : ''} Blueprint Name{' '}
         <span className='required-star'>*</span>
       </h3>
-      <Divider className='section-divider' />
+      {enableDivider && (<Divider className='section-divider' />)}
       <p>
         Give your Blueprint a unique name to help you identify it in the future.
       </p>
@@ -56,6 +61,7 @@ const BlueprintNameCard = (props) => {
         rightElement={
           <InputValidationError error={getFieldError('Blueprint Name')} />
         }
+        disabled={isSaving}
       />
     </Card>
   )

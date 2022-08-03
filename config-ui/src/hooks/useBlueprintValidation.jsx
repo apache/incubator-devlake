@@ -66,6 +66,10 @@ function useBlueprintValidation ({
     return set.length > 0
   }, [])
 
+  const validateBlueprintName = useCallback((name = '') => {
+    return name && name.length >= 2
+  }, [])
+
   const validate = useCallback(() => {
     const errs = []
 
@@ -192,7 +196,12 @@ function useBlueprintValidation ({
     validate,
     clear,
     fieldHasError,
-    getFieldError
+    getFieldError,
+    isValidCronExpression,
+    validateNumericSet,
+    validateRepositoryName,
+    valiateNonEmptySet,
+    validateBlueprintName
   }
 }
 

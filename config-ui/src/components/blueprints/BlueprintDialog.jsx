@@ -39,6 +39,7 @@ const Modes = {
 const BlueprintDialog = (props) => {
   const {
     isOpen = false,
+    title = 'Manage Blueprint',
     blueprint = NullBlueprint,
     mode = Modes.EDIT,
     canOutsideClickClose = false,
@@ -46,32 +47,35 @@ const BlueprintDialog = (props) => {
     onCancel = () => {},
     onSave = () => {},
     isSaving = false,
-    isValid = false,
-    isTesting = false
+    isValid = true,
+    isTesting = false,
+    content = null
   } = props
+
+  useEffect(() => {
+
+  }, [content])
 
   return (
     <>
       <Dialog
         className='dialog-manage-blueprint'
-        icon={mode === Modes.EDIT ? 'edit' : 'add'}
-        title={
-          mode === Modes.EDIT
-            ? `Modify ${blueprint?.name} [#${blueprint?.id}]`
-            : 'Create New Blueprint'
-        }
+        // icon={mode === Modes.EDIT ? 'edit' : 'add'}
+        title={title}
         isOpen={isOpen}
         onClose={onClose}
         onClosed={() => {}}
         canOutsideClickClose={canOutsideClickClose}
         style={{ backgroundColor: '#ffffff' }}
       >
-        <div className={Classes.DIALOG_BODY} />
+        <div className={Classes.DIALOG_BODY}>
+          {content}
+        </div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
               className='btn-cancel'
-              disabled={isSaving || !isValid || isTesting}
+              disabled={isSaving}
               intent={Intent.NONE}
               onClick={onCancel}
               loading={isSaving}
@@ -85,7 +89,7 @@ const BlueprintDialog = (props) => {
               intent={Intent.PRIMARY}
               onClick={onSave}
               loading={isSaving}
-              outlined
+              // outlined
             >
               Save Changes
             </Button>
@@ -95,3 +99,5 @@ const BlueprintDialog = (props) => {
     </>
   )
 }
+
+export default BlueprintDialog
