@@ -62,6 +62,7 @@ import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import useBlueprintValidation from '@/hooks/useBlueprintValidation'
 import BlueprintDialog from '@/components/blueprints/BlueprintDialog'
+import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 
 // eslint-disable-next-line no-unused-vars
 const TEST_CONNECTIONS = [
@@ -300,7 +301,7 @@ const BlueprintSettings = (props) => {
         provider: integrationsData.find((i) => i.id === c.plugin),
         providerLabel: ProviderLabels[c.plugin],
         name: `Connection ID #${c.connectionId}`,
-        entities: ['Source Code Management', 'Issue Tracking', 'Code Review'],
+        entities:  c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)?.title),
         projects: [Providers.GITLAB, Providers.GITHUB].includes(c.plugin)
           ? c.scope.map((s) => `${s.options.owner}/${s.options?.repo}`)
           : [],
