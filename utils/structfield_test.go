@@ -15,17 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package utils
 
 import (
-	"github.com/apache/incubator-devlake/migration"
+	"reflect"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
-// All return all the migration scripts
-func All() []migration.Script {
-	return []migration.Script{
-		new(InitSchemas),
-		new(renameSourceTable),
-		new(addInitTables),
-	}
+type TestStructForWalkFields struct {
+	ID   string    `gorm:"primaryKey"`
+	Time time.Time `gorm:"primaryKey"`
+	Data string
+}
+
+// TestWalkFields test the WalkFields
+func TestWalkFields(t *testing.T) {
+	fs := WalkFields(reflect.TypeOf(TestStructForWalkFields{}), func(field *reflect.StructField) bool {
+		return strings.Contains(strings.ToLower(field.Tag.Get("gorm")), "primarykey")
+	})
+
+	assert.Equal(t, fs[0].Name, "ID")
+	assert.Equal(t, fs[1].Name, "Time")
 }

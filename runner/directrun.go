@@ -79,11 +79,13 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 		panic(err)
 	}
 	ctx := createContext()
+	var parentTaskID uint64 = 0
 	err = RunPluginSubTasks(
 		ctx,
 		cfg,
 		log,
 		db,
+		parentTaskID,
 		cmd.Use,
 		tasks,
 		options,

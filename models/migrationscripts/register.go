@@ -33,5 +33,7 @@ func All() []migration.Script {
 		new(removeNotes),
 		new(addProjectMapping),
 		new(renameColumnsOfPullRequestIssue),
+		new(addNoPKModelToCommitParent),
+		new(addSubtasksTable),
 	}
 }

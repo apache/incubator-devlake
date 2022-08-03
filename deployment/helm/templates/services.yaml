@@ -41,18 +41,15 @@ metadata:
   labels:
     {{- include "devlake.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: ClusterIP
   selector:
     {{- include "devlake.selectorLabels" . | nindent 4 }}
     devlakeComponent: grafana
   ports:
     - protocol: TCP
       name: grafana
-      port: {{ .Values.service.grafanaPort }}
+      port: 3000
       targetPort: 3000
-      {{- if eq .Values.service.type "NodePort" }}
-      nodePort: {{ .Values.service.grafanaPort }}
-      {{- end }}
 
 
 

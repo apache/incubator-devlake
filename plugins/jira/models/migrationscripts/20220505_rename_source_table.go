@@ -42,12 +42,9 @@ func (JiraConnectionV010) TableName() string {
 type renameSourceTable struct{}
 
 func (*renameSourceTable) Up(ctx context.Context, db *gorm.DB) error {
-	m := db.Migrator()
-	if m.HasTable(&archived.JiraSource{}) && !m.HasTable(&archived.JiraConnection{}) {
-		err := db.Migrator().RenameTable(archived.JiraSource{}, JiraConnectionV010{})
-		if err != nil {
-			return err
-		}
+	err := db.Migrator().RenameTable(archived.JiraSource{}, JiraConnectionV010{})
+	if err != nil {
+		return err
 	}
 	return nil
 }

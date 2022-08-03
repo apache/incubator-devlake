@@ -71,7 +71,7 @@ func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			if apiPullRequestReview.State == "PENDING" {
+			if apiPullRequestReview.State == "PENDING" || apiPullRequestReview.User == nil {
 				return nil, nil
 			}
 			pull := &SimplePr{}
