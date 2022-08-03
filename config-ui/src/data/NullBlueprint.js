@@ -46,7 +46,7 @@ const NullBlueprint = {
   cronConfig: '0 0 * * *',
   description: '',
   interval: 'daily',
-  enabled: BlueprintStatus.DISABLED,
+  enable: BlueprintStatus.DISABLED,
   mode: BlueprintMode.NORMAL,
   isManual: false
 }
