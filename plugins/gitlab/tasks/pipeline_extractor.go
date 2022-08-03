@@ -100,17 +100,17 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
 
 func convertPipeline(pipeline *ApiPipeline, projectId int) (*models.GitlabPipeline, error) {
 	gitlabPipeline := &models.GitlabPipeline{
-		GitlabId:         pipeline.Id,
-		ProjectId:        projectId,
-		Ref:              pipeline.Ref,
-		Sha:              pipeline.Sha,
-		WebUrl:           pipeline.WebUrl,
-		Status:           pipeline.Status,
-		GitlabCreatedAt:  helper.Iso8601TimeToTime(pipeline.CreatedAt),
-		GitlabUpdatedAt:  helper.Iso8601TimeToTime(pipeline.UpdatedAt),
-		GitlabStartedAt:  helper.Iso8601TimeToTime(pipeline.StartedAt),
-		GitlabFinishedAt: helper.Iso8601TimeToTime(pipeline.FinishedAt),
-		Duration:         pipeline.Duration,
+		GitlabId:        pipeline.Id,
+		ProjectId:       projectId,
+		Ref:             pipeline.Ref,
+		Sha:             pipeline.Sha,
+		WebUrl:          pipeline.WebUrl,
+		Status:          pipeline.Status,
+		GitlabCreatedAt: helper.Iso8601TimeToTime(pipeline.CreatedAt),
+		GitlabUpdatedAt: helper.Iso8601TimeToTime(pipeline.UpdatedAt),
+		StartedAt:       helper.Iso8601TimeToTime(pipeline.StartedAt),
+		FinishedAt:      helper.Iso8601TimeToTime(pipeline.FinishedAt),
+		Duration:        pipeline.Duration,
 	}
 	return gitlabPipeline, nil
 }

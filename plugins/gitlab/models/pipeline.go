@@ -34,11 +34,11 @@ type GitlabPipeline struct {
 	WebUrl    string `gorm:"type:varchar(255)"`
 	Duration  int
 
-	GitlabCreatedAt  *time.Time
-	GitlabUpdatedAt  *time.Time
-	GitlabStartedAt  *time.Time
-	GitlabFinishedAt *time.Time
-	Coverage         string
+	GitlabCreatedAt *time.Time
+	GitlabUpdatedAt *time.Time
+	StartedAt       *time.Time
+	FinishedAt      *time.Time
+	Coverage        string
 
 	common.NoPKModel
 }

@@ -37,9 +37,9 @@ type GitlabJob struct {
 	Duration     float64 `gorm:"type:text"`
 	WebUrl       string  `gorm:"type:varchar(255)"`
 
-	GitlabCreatedAt  *time.Time
-	GitlabStartedAt  *time.Time
-	GitlabFinishedAt *time.Time
+	GitlabCreatedAt *time.Time
+	StartedAt       *time.Time
+	FinishedAt      *time.Time
 
 	common.NoPKModel
 }

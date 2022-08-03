@@ -97,8 +97,8 @@ func convertJob(job *ApiJob, projectId int) (*models.GitlabJob, error) {
 		Duration:     job.Duration,
 		WebUrl:       job.WebUrl,
 
-		GitlabCreatedAt:  helper.Iso8601TimeToTime(job.CreatedAt),
-		GitlabStartedAt:  helper.Iso8601TimeToTime(job.StartedAt),
-		GitlabFinishedAt: helper.Iso8601TimeToTime(job.FinishedAt),
+		GitlabCreatedAt: helper.Iso8601TimeToTime(job.CreatedAt),
+		StartedAt:       helper.Iso8601TimeToTime(job.StartedAt),
+		FinishedAt:      helper.Iso8601TimeToTime(job.FinishedAt),
 	}, nil
 }
