@@ -32,6 +32,14 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+// @Summary test jira connection
+// @Description Test Jira Connection
+// @Tags plugins/Jira
+// @Param body body models.TestConnectionRequest true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/jira/test [POST]
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// decode
 	var err error
@@ -124,15 +132,14 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	return nil, nil
 }
 
-/*
-POST /plugins/jira/connections
-{
-	"name": "jira data connection name",
-	"endpoint": "jira api endpoint, i.e. https://merico.atlassian.net/rest",
-	"username": "username, usually should be email address",
-	"password": "jira api access token"
-}
-*/
+// @Summary create jira connection
+// @Description Create Jira connection
+// @Tags plugins/Jira
+// @Param body body models.JiraConnection true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/jira/connections [POST]
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// update from request and save to database
 	connection := &models.JiraConnection{}
@@ -143,15 +150,14 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-PATCH /plugins/jira/connections/:connectionId
-{
-	"name": "jira data connection name",
-	"endpoint": "jira api endpoint, i.e. https://merico.atlassian.net/rest",
-	"username": "username, usually should be email address",
-	"password": "jira api access token"
-}
-*/
+// @Summary patch jira connection
+// @Description Patch Jira connection
+// @Tags plugins/Jira
+// @Param body body models.JiraConnection true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/jira/connections/{connectionId} [PATCH]
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.JiraConnection{}
 	err := connectionHelper.Patch(connection, input)
@@ -161,9 +167,13 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection}, nil
 }
 
-/*
-DELETE /plugins/jira/connections/:connectionId
-*/
+// @Summary delete a jira connection
+// @Description Delete a Jira connection
+// @Tags plugins/Jira
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/jira/connections/{connectionId} [DELETE]
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.JiraConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -174,9 +184,13 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
-/*
-GET /plugins/jira/connections
-*/
+// @Summary get all jira connections
+// @Description Get all Jira connections
+// @Tags plugins/Jira
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/jira/connections [GET]
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var connections []models.JiraConnection
 	err := connectionHelper.List(&connections)
@@ -186,17 +200,13 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
-/*
-GET /plugins/jira/connections/:connectionId
-
-
-{
-	"name": "jira data connection name",
-	"endpoint": "jira api endpoint, i.e. https://merico.atlassian.net/rest",
-	"username": "username, usually should be email address",
-	"password": "jira api access token"
-}
-*/
+// @Summary get jira connection detail
+// @Description Get Jira connection detail
+// @Tags plugins/Jira
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/jira/connections/{connectionId} [GET]
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.JiraConnection{}
 	err := connectionHelper.First(connection, input.Params)
