@@ -25,9 +25,9 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type InitSchemas struct{}
+type addInitTables struct{}
 
-func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().DropTable(
 		&archived.BitbucketUser{},
 		&archived.BitbucketRepo{},
@@ -93,10 +93,10 @@ func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*InitSchemas) Version() uint64 {
-	return 20220622200403
+func (*addInitTables) Version() uint64 {
+	return 202208032208
 }
 
-func (*InitSchemas) Name() string {
-	return "Bitbucket init schemas"
+func (*addInitTables) Name() string {
+	return "Bitbucket init schema 20220803"
 }
