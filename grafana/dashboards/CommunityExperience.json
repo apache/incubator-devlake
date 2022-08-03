@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 18,
-  "iteration": 1659127662313,
+  "iteration": 1659563546800,
   "links": [],
   "panels": [
     {
@@ -240,7 +240,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    lake.issues i\n    join lake.board_issues bi on i.id = bi.issue_id\n    join lake.boards b on bi.board_id = b.id\n    left join lake.issue_comments ic on i.id = ic.issue_id\n  where\n    date(i.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and b.id in ($repo_id)\n)\n\nselect\n  100 * sum(case when (TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/60 < $iir_sla then 1 else null end) / count(*)\nfrom issue_comment_list\nwhere comment_rank = 1",
+          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    lake.issues i\n    join lake.board_issues bi on i.id = bi.issue_id\n    join lake.boards b on bi.board_id = b.id\n    left join lake.issue_comments ic on i.id = ic.issue_id\n  where\n    date(i.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and b.id in ($repo_id)\n)\n\nselect\n  100 * sum(case when (TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/60 < $iir_sla then 1 else null end) / count(*)\nfrom issue_comment_list\nwhere comment_rank = 1 or comment_rank is null",
           "refId": "A",
           "select": [
             [
@@ -781,6 +781,6 @@
   "timepicker": {},
   "timezone": "",
   "title": "Community Experience",
-  "uid": "bwsP5Nz4z",
-  "version": 7
+  "uid": "6625-YkVk",
+  "version": 3
 }
