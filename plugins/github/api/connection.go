@@ -173,7 +173,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 		return nil, err
 	}
 	err = connectionHelper.Delete(connection)
-	return &core.ApiResourceOutput{Body: connection}, err
+	return &core.ApiResourceOutput{Body: connection}, nil
 }
 
 // @Summary get all github connections
@@ -206,5 +206,5 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: connection}, err
+	return &core.ApiResourceOutput{Body: connection}, nil
 }
