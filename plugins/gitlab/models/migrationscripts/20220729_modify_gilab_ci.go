@@ -26,7 +26,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type alertPipeline struct{}
+type modifyGitlabCI struct{}
 
 type GitlabPipeline20220729 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
@@ -39,11 +39,11 @@ type GitlabPipeline20220729 struct {
 	WebUrl    string `gorm:"type:varchar(255)"`
 	Duration  int
 
-	GitlabCreatedAt  *time.Time
-	GitlabUpdatedAt  *time.Time
-	GitlabStartedAt  *time.Time
-	GitlabFinishedAt *time.Time
-	Coverage         string
+	GitlabCreatedAt *time.Time
+	GitlabUpdatedAt *time.Time
+	StartedAt       *time.Time
+	FinishedAt      *time.Time
+	Coverage        string
 
 	common.NoPKModel
 }
@@ -66,9 +66,9 @@ type GitlabJob20220729 struct {
 	Duration     float64 `gorm:"type:text"`
 	WebUrl       string  `gorm:"type:varchar(255)"`
 
-	GitlabCreatedAt  *time.Time
-	GitlabStartedAt  *time.Time
-	GitlabFinishedAt *time.Time
+	GitlabCreatedAt *time.Time
+	StartedAt       *time.Time
+	FinishedAt      *time.Time
 
 	common.NoPKModel
 }
@@ -77,7 +77,7 @@ func (GitlabJob20220729) TableName() string {
 	return "_tool_gitlab_jobs"
 }
 
-func (*alertPipeline) Up(ctx context.Context, db *gorm.DB) error {
+func (*modifyGitlabCI) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().DropColumn(&archived.GitlabPipeline{}, "started_at")
 	if err != nil {
 		return err
@@ -92,12 +92,12 @@ func (*alertPipeline) Up(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 
-	err = db.Migrator().AddColumn(&GitlabPipeline20220729{}, "gitlab_started_at")
+	err = db.Migrator().AddColumn(&GitlabPipeline20220729{}, "started_at")
 	if err != nil {
 		return err
 	}
 
-	err = db.Migrator().AddColumn(&GitlabPipeline20220729{}, "gitlab_finished_at")
+	err = db.Migrator().AddColumn(&GitlabPipeline20220729{}, "finished_at")
 	if err != nil {
 		return err
 	}
@@ -110,10 +110,10 @@ func (*alertPipeline) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*alertPipeline) Version() uint64 {
+func (*modifyGitlabCI) Version() uint64 {
 	return 20220729231236
 }
 
-func (*alertPipeline) Name() string {
+func (*modifyGitlabCI) Name() string {
 	return "pipeline and job"
 }
