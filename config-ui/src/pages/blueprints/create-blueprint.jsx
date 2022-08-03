@@ -494,6 +494,7 @@ const CreateBlueprint = (props) => {
     switch (configuredConnection.provider) {
       case Providers.GITLAB:
       case Providers.JIRA:
+      case Providers.TAPD:
       case Providers.GITHUB:
         items = dataEntitiesList.filter((d) => d.name !== 'ci-cd')
         break
@@ -546,6 +547,11 @@ const CreateBlueprint = (props) => {
           }))
           break
         case Providers.JENKINS:
+          newScope = {
+            ...newScope,
+          }
+          break
+        case Providers.TAPD:
           newScope = {
             ...newScope,
           }
@@ -903,6 +909,9 @@ const CreateBlueprint = (props) => {
           }
           break
         case Providers.JENKINS:
+          // No Transform Settings...
+          break
+        case Providers.TAPD:
           // No Transform Settings...
           break
         case Providers.GITLAB:

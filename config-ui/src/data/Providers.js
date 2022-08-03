@@ -21,6 +21,7 @@ import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitl
 import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
+import { ReactComponent as TapdProviderIcon } from '@/images/integrations/tapd.svg'
 // import GitExtractorIcon from '@/images/git.png'
 // import RefDiffIcon from '@/images/git-diff.png'
 import FeishuIcon from '@/images/feishu.png'
@@ -39,6 +40,7 @@ const Providers = {
   AE: 'ae',
   DBT: 'dbt',
   STARROCKS: 'starrocks',
+  TAPD: 'tapd',
 }
 
 const ProviderTypes = {
@@ -59,6 +61,7 @@ const ProviderLabels = {
   AE: 'Analysis Engine (AE)',
   DBT: 'Data Build Tool (DBT)',
   STARROCKS: 'StarRocks',
+  TAPD: 'Tapd',
 }
 
 const ProviderConnectionLimits = {
@@ -96,10 +99,17 @@ const ProviderFormLabels = {
     username: 'Username',
     password: 'Password'
   },
-  jira: {
+  tapd: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
     proxy: 'Proxy URL',
+    token: 'Basic Auth Token',
+    username: 'Username',
+    password: 'Password',
+  },
+  jira: {
+    name: 'Connection Name',
+    endpoint: 'Endpoint URL',
     token: 'Basic Auth Token',
     username: 'Username / E-mail',
     // password; 'Password',
@@ -181,6 +191,14 @@ const ProviderFormPlaceholders = {
     username: 'eg. admin',
     password: 'eg. ************'
   },
+  tapd: {
+    name: 'eg. Tapd',
+    endpoint: 'URL eg. https://api.tapd.cn/',
+    proxy: 'eg. http://proxy.localhost:8080',
+    token: 'eg. 6b057ffe68464c93a057',
+    username: 'eg. admin',
+    password: 'eg. ************'
+  },
   jira: {
     name: 'eg. JIRA',
     endpoint: 'eg. https://your-domain.atlassian.net/rest/',
@@ -202,6 +220,7 @@ const ProviderFormPlaceholders = {
 const ProviderIcons = {
   [Providers.GITLAB]: (w, h) => <GitlabProviderIcon width={w || 24} height={h || 24} />,
   [Providers.JENKINS]: (w, h) => <JenkinsProviderIcon width={w || 24} height={h || 24} />,
+  [Providers.TAPD]: (w, h) => <TapdProviderIcon width={w || 24} height={h || 24} />,
   [Providers.JIRA]: (w, h) => <JiraProviderIcon width={w || 24} height={h || 24} />,
   [Providers.GITHUB]: (w, h) => <GitHubProviderIcon width={w || 24} height={h || 24} />,
   [Providers.REFDIFF]: (w, h) => <Icon icon='box' size={w || 24} />,
