@@ -17,23 +17,32 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"context"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
+)
 
-// All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(addFrameTables),
-		new(renameStepToStage),
-		new(addSubtasksField),
-		new(updateBlueprintMode),
-		new(renameTasksToPlan),
-		new(addDomainTables),
-		new(addTypeField),
-		new(commitfileComponent),
-		new(removeNotes),
-		new(addProjectMapping),
-		new(renameColumnsOfPullRequestIssue),
-		new(addNoPKModelToCommitParent),
-		new(addSubtasksTable),
+type renameColumnsOfPullRequestIssue struct{}
+
+func (*renameColumnsOfPullRequestIssue) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().RenameColumn(&archived.PullRequestIssue{}, "pull_request_number", "pull_request_key")
+	if err != nil {
+		return err
 	}
+	err = db.Migrator().RenameColumn(&archived.PullRequestIssue{}, "issue_number", "issue_key")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*renameColumnsOfPullRequestIssue) Version() uint64 {
+	return 20220729165805
+}
+
+func (*renameColumnsOfPullRequestIssue) Name() string {
+	return "rename pull_request_number to pull_request_key, issue_number to issue_key"
 }
