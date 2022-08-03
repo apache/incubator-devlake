@@ -92,6 +92,7 @@ const StageTaskName = (props) => {
                   {task.plugin === Providers.GITEXTRACTOR && (<>{ProviderLabels.GITEXTRACTOR}</>)}
                   {task.plugin === Providers.FEISHU && (<>{ProviderLabels.FEISHU}</>)}
                   {task.plugin === Providers.JENKINS && (<>{ProviderLabels.JENKINS}</>)}
+                  {task.plugin === Providers.TAPD && (<>{ProviderLabels.TAPD}</>)}
                   {task.plugin === Providers.JIRA && (<>Board ID {task.options.boardId}</>)}
                   {task.plugin === Providers.GITLAB && (<>Project ID {task.options.projectId}</>)}
                   {task.plugin === Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>@{task.options.owner}/{task.options.repo}</>)}

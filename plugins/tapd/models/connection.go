@@ -25,9 +25,9 @@ import (
 )
 
 type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint" validate:"required,url"`
-	Auth     string `json:"auth" validate:"required"`
-	Proxy    string `json:"proxy" gorm:"type:varchar(255)"`
+	Endpoint         string `json:"endpoint"`
+	Proxy            string `json:"proxy"`
+	helper.BasicAuth `mapstructure:",squash"`
 }
 
 type WorkspaceResponse struct {

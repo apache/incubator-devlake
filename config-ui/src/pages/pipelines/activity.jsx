@@ -44,6 +44,7 @@ import TaskActivity from '@/components/pipelines/TaskActivity'
 import CodeInspector from '@/components/pipelines/CodeInspector'
 import { ReactComponent as GitlabProviderIcon } from '@/images/integrations/gitlab.svg'
 import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jenkins.svg'
+import { ReactComponent as TapdProviderIcon } from '@/images/integrations/tapd.svg'
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
 import { ReactComponent as HelpIcon } from '@/images/help.svg'
@@ -501,6 +502,24 @@ const PipelineActivity = (props) => {
                               fontWeight: 800
                             }}
                             >{ProviderLabels.JENKINS}
+                            </strong><br />Auto-configured
+                          </label>
+                          <span style={{ color: Colors.GRAY3 }}>(No Settings)</span>
+                        </div>
+                      </div>
+                    )}
+                    {pipelineHasProvider(Providers.TAPD) && (
+                      <div className='jenkins-settings' style={{ display: 'flex' }}>
+                        <div style={{ display: 'flex', padding: '2px 6px' }}>
+                          <TapdProviderIcon width={24} height={24} />
+                        </div>
+                        <div>
+                          <label style={{ lineHeight: '100%', display: 'block', fontSize: '10px', marginTop: '2px', marginBottom: '10px' }}>
+                            <strong style={{
+                              fontSize: '16px',
+                              fontWeight: 800
+                            }}
+                            >{ProviderLabels.TAPD}
                             </strong><br />Auto-configured
                           </label>
                           <span style={{ color: Colors.GRAY3 }}>(No Settings)</span>

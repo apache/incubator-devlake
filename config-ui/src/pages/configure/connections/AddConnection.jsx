@@ -112,6 +112,7 @@ export default function AddConnection () {
         case Providers.GITHUB:
         case Providers.GITLAB:
         case Providers.JIRA:
+        case Providers.TAPD:
         default:
           setName('')
           break
@@ -184,7 +185,7 @@ export default function AddConnection () {
                   allTestResponses={allTestResponses}
                   errors={errors}
                   showError={showError}
-                  authType={[Providers.JENKINS, Providers.JIRA].includes(activeProvider.id) ? 'plain' : 'token'}
+                  authType={[Providers.JENKINS, Providers.JIRA, Providers.TAPD].includes(activeProvider.id) ? 'plain' : 'token'}
                   sourceLimits={ProviderConnectionLimits}
                   labels={ProviderFormLabels[activeProvider.id]}
                   placeholders={ProviderFormPlaceholders[activeProvider.id]}
