@@ -56,6 +56,8 @@ const DataScopes = (props) => {
     setProjects = () => {},
     setBoards = () => {},
     prevStep = () => {},
+    fieldHasError = () => {},
+    getFieldError = () => {},
     isSaving = false,
     isRunning = false,
   } = props
@@ -186,6 +188,8 @@ const DataScopes = (props) => {
                     // restrictedItems={getRestrictedDataEntities()}
                     onItemSelect={setDataEntities}
                     onClear={setDataEntities}
+                    fieldHasError={fieldHasError}
+                    getFieldError={getFieldError}
                     onRemove={setDataEntities}
                     disabled={isSaving}
                     configuredConnection={configuredConnection}

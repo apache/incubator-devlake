@@ -1190,6 +1190,8 @@ const CreateBlueprint = (props) => {
                       onSave={handleTransformationSave}
                       onCancel={handleTransformationCancel}
                       onClear={handleTransformationClear}
+                      fieldHasError={fieldHasError}
+                      getFieldError={getFieldError}
                       jiraProxyError={jiraProxyError}
                       isFetchingJIRA={isFetchingJIRA}
                     />

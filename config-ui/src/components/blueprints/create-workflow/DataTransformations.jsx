@@ -70,6 +70,8 @@ const DataTransformations = (props) => {
     onSave = () => {},
     onCancel = () => {},
     onClear = () => {},
+    fieldHasError = () => {},
+    getFieldError = () => {},
     isSaving = false,
     isSavingConnection = false,
     isRunning = false,
