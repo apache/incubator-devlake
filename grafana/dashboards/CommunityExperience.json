@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 18,
-  "iteration": 1659563546800,
+  "id": 19,
+  "iteration": 1659564067353,
   "links": [],
   "panels": [
     {
@@ -567,7 +567,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  100 * sum(case when TIMESTAMPDIFF(Minute, created_date, closed_date) / 1440 < $prrt_sla then 1 else null end) / count(*)\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand status = 'closed'\n\tand pr.base_repo_id in ($repo_id)\n\n\n",
+          "rawSql": "select\n  100 * sum(case when closed_date and TIMESTAMPDIFF(Minute, created_date, closed_date) / 1440 < $prrt_sla then 1 else 0 end) / count(*)\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand pr.base_repo_id in ($repo_id)\n",
           "refId": "A",
           "select": [
             [
@@ -685,9 +685,13 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": "mysql",
         "definition": "select concat(name, '-', id) from lake.repos",
@@ -781,6 +785,6 @@
   "timepicker": {},
   "timezone": "",
   "title": "Community Experience",
-  "uid": "6625-YkVk",
-  "version": 3
+  "uid": "MpKr-LzVz",
+  "version": 2
 }
