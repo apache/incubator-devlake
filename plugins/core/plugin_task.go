@@ -19,7 +19,6 @@ package core
 
 import (
 	"context"
-
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"gorm.io/gorm"
 )
