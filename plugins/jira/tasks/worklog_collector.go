@@ -53,7 +53,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 		dal.Join("LEFT JOIN _tool_jira_worklogs wl ON (wl.connection_id = i.connection_id AND wl.issue_id = i.issue_id)"),
 		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  ", data.Options.ConnectionId, data.Options.BoardId),
 		dal.Groupby("i.issue_id, i.updated"),
-		dal.Having("i.updated > max(wl.issue_updated) OR  max(wl.issue_updated) IS NULL"),
+		dal.Having("i.updated > max(wl.issue_updated) OR  (max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0)"),
 	}
 	// apply time range if any
 	if since != nil {
