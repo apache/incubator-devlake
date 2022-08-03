@@ -56,7 +56,8 @@ function usePipelineValidation ({
     Providers.FEISHU,
     Providers.AE,
     Providers.DBT,
-    Providers.STARROCKS
+    Providers.STARROCKS,
+    Providers.TAPD
   ])
 
   const clear = () => {

@@ -27,6 +27,7 @@ import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
+import TapdSettings from '@/pages/configure/settings/tapd'
 import GithubSettings from '@/pages/configure/settings/github'
 
 const ProviderTransformationSettings = (props) => {
@@ -98,6 +99,17 @@ const ProviderTransformationSettings = (props) => {
 
       {provider?.id === Providers.JENKINS && (
         <JenkinsSettings
+          provider={provider}
+          connection={connection}
+          transformation={transformation}
+          onSettingsChange={onSettingsChange}
+          entities={entities[connection?.id]}
+          isSaving={isSaving}
+          isSavingConnection={isSavingConnection}
+        />
+      )}
+      {provider?.id === Providers.TAPD && (
+        <TapdSettings
           provider={provider}
           connection={connection}
           transformation={transformation}

@@ -75,6 +75,12 @@ const DATA_SOURCES_LIST = [
     title: ProviderLabels[Providers.JENKINS.toUpperCase()],
     value: Providers.JENKINS,
   },
+  {
+    id: 5,
+    name: Providers.TAPD,
+    title: ProviderLabels[Providers.TAPD.toUpperCase()],
+    value: Providers.TAPD,
+  },
 ]
 
 const ConnectionDialog = (props) => {

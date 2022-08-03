@@ -41,38 +41,37 @@ import (
 // @Router /plugins/tapd/test [POST]
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// process input
-	var params models.TestConnectionRequest
-	err := mapstructure.Decode(input.Body, &params)
+	var connection models.TestConnectionRequest
+	err := mapstructure.Decode(input.Body, &connection)
 	if err != nil {
 		return nil, err
 	}
-	err = vld.Struct(params)
+	err = vld.Struct(connection)
 	if err != nil {
 		return nil, err
 	}
 
 	// verify multiple token in parallel
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
-	token := params.Auth
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
-		params.Endpoint,
+		connection.Endpoint,
 		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %s", token),
+			"Authorization": fmt.Sprintf("Basic %s", connection.GetEncodedToken()),
 		},
 		3*time.Second,
-		params.Proxy,
+		connection.Proxy,
 		basicRes,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("verify token failed for %s %w", token, err)
+		return nil, fmt.Errorf("verify token failed for %s %w", connection.Username, err)
 	}
 	res, err := apiClient.Get("/quickstart/testauth", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, fmt.Errorf("verify token failed for %s", token)
+		return nil, fmt.Errorf("verify token failed for %s", connection.Username)
 	}
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)

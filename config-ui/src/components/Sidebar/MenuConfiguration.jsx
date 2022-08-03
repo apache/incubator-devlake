@@ -59,6 +59,14 @@ const MenuConfiguration = (activeRoute) => {
           active: activeRoute.url.endsWith('/integrations/jenkins') || activeRoute.url.endsWith('/jenkins'),
           icon: 'layers',
           classNames: [],
+        },
+        {
+          id: 4,
+          label: ProviderLabels.TAPD,
+          route: '/integrations/tapd',
+          active: activeRoute.url.endsWith('/integrations/tapd') || activeRoute.url.endsWith('/tapd'),
+          icon: 'layers',
+          classNames: [],
         }
       ]
     },
