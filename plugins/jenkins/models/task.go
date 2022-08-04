@@ -1,11 +1,11 @@
-package devops
+package models
 
 import (
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"time"
 )
 
-type CICDTask struct {
+type JenkinsTask struct {
 	domainlayer.DomainEntity
 	Name         string `gorm:"type:varchar(255)"`
 	PipelineId   string `gorm:"index;type:varchar(255)"`
@@ -14,9 +14,9 @@ type CICDTask struct {
 	Type         string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
 	DurationSec  uint64
 	StatedDate   time.Time
-	FinishedDate *time.Time
+	FinishedDate time.Time
 }
 
-func (CICDTask) TableName() string {
-	return "cicd_tasks"
+func (JenkinsTask) TableName() string {
+	return "_tool_jenkins_tasks"
 }

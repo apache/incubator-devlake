@@ -53,7 +53,8 @@ type JenkinsBuildRepo0729 struct {
 	BuildName    string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha    string `gorm:"primaryKey;type:varchar(255)"`
 	Branch       string `gorm:"type:varchar(255)"`
-	RepoUrl      string `gorm:"primaryKey;type:varchar(255)"`
+	RepoUrl      string `gorm:"type:varchar(255)"`
+	HasStages    bool
 	archived.NoPKModel
 }
 
@@ -81,6 +82,10 @@ func (JenkinsStage0729) TableName() string {
 
 func (*modifyAllEntities) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().AddColumn(JenkinsBuild0729{}, "type")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().AddColumn(JenkinsBuild0729{}, "class")
 	if err != nil {
 		return err
 	}
