@@ -86,7 +86,7 @@ func (plugin Bitbucket) PrepareTaskData(taskCtx core.TaskContext, options map[st
 
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to get bitbucket API client instance: %v", err)
 	}
 
 	return &tasks.BitbucketTaskData{

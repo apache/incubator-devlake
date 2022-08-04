@@ -49,7 +49,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.BitbucketUser{},
 		&archived.BitbucketRepo{},
 		&archived.BitbucketRepoCommit{},
-		//&archived.BitbucketConnection{},
+		&archived.BitbucketConnection{},
 		&archived.BitbucketAccount{},
 		&archived.BitbucketCommit{},
 		&archived.BitbucketPullRequest{},
@@ -93,7 +93,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*addInitTables) Version() uint64 {
-	return 202208032208
+	return 20220803220824
 }
 
 func (*addInitTables) Name() string {
