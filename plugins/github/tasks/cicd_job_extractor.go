@@ -74,6 +74,8 @@ func ExtractJobs(taskCtx core.SubTaskContext) error {
 				RunnerID:      githubJob.RunID,
 				RunnerName:    githubJob.RunnerName,
 				RunnerGroupID: githubJob.RunnerGroupID,
+				// TODO
+				//Type: "CI/CD",
 			}
 			results = append(results, githubJobResult)
 			return results, nil

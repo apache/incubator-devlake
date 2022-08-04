@@ -15,18 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"github.com/apache/incubator-devlake/migration"
+	"time"
+
+	"github.com/apache/incubator-devlake/models/common"
 )
 
-// All return all the migration scripts
-func All() []migration.Script {
-	return []migration.Script{
-		new(addInitTables),
-		new(addGithubRunsTable),
-		new(addGithubJobsTable),
-		new(addGithubPipelineTable),
-	}
+type GithubPipeline struct {
+	common.NoPKModel
+	ConnectionId uint64     `gorm:"primaryKey"`
+	Branch       string     `json:"branch" gorm:"primaryKey;type:varchar(255)"`
+	Commit       string     `json:"commit" gorm:"primaryKey;type:varchar(255)"`
+	StartedDate  *time.Time `json:"started_time"`
+	FinishedDate *time.Time `json:"finished_time"`
+	Duration     float64    `json:"duration"`
+	Status       string     `json:"status" gorm:"type:varchar(255)"`
+	Results      string     `json:"results" gorm:"type:varchar(255)"`
+	Type         string     `json:"type" gorm:"type:varchar(255)"`
+}
+
+func (GithubPipeline) TableName() string {
+	return "_tool_github_pipelines"
 }

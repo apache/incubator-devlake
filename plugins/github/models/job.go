@@ -45,6 +45,7 @@ type GithubJob struct {
 	RunnerID      int            `json:"runner_id"`
 	RunnerName    string         `json:"runner_name" gorm:"type:varchar(255)"`
 	RunnerGroupID int            `json:"runner_group_id"`
+	Type          string         `json:"type" gorm:"type:varchar(255)"`
 }
 
 func (GithubJob) TableName() string {
