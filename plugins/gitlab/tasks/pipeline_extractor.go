@@ -25,29 +25,32 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-type ApiPipeline struct {
-	GitlabId        int                 `json:"id"`
-	ProjectId       int                 `json:"project_id"`
-	GitlabCreatedAt *helper.Iso8601Time `json:"created_at"`
-	UpdatedAt       *helper.Iso8601Time `json:"updated_at"`
-	Ref             string
-	Sha             string
-	Duration        int
-	WebUrl          string `json:"web_url"`
-	Status          string
+type ApiDetailedStatus struct {
+	Icon        string
+	Text        string
+	Label       string
+	Group       string
+	Tooltip     string
+	HasDetails  bool   `json:"has_details"`
+	DetailsPath string `json:"details_path"`
+	Favicon     string
 }
 
-type ApiSinglePipelineResponse struct {
-	GitlabId        int                 `json:"id"`
-	ProjectId       int                 `json:"project_id"`
-	GitlabCreatedAt *helper.Iso8601Time `json:"created_at"`
-	Ref             string
-	Sha             string
-	WebUrl          string `json:"web_url"`
-	Duration        int
-	UpdatedAt       *helper.Iso8601Time `json:"updated_at"`
-	Coverage        string
-	Status          string
+type ApiPipeline struct {
+	Id       int `json:"id"`
+	Ref      string
+	Sha      string
+	Status   string
+	Tag      bool
+	Duration int
+	WebUrl   string `json:"web_url"`
+
+	CreatedAt  *helper.Iso8601Time `json:"created_at"`
+	UpdatedAt  *helper.Iso8601Time `json:"updated_at"`
+	StartedAt  *helper.Iso8601Time `json:"started_at"`
+	FinishedAt *helper.Iso8601Time `json:"finished_at"`
+
+	ApiDetailedStatus
 }
 
 var ExtractApiPipelinesMeta = core.SubTaskMeta{
@@ -70,9 +73,10 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, err
 			}
-			duration := int(gitlabApiPipeline.UpdatedAt.ToTime().Sub(gitlabApiPipeline.GitlabCreatedAt.ToTime()).Seconds())
+
+			duration := int(gitlabApiPipeline.UpdatedAt.ToTime().Sub(gitlabApiPipeline.CreatedAt.ToTime()).Seconds())
 			gitlabApiPipeline.Duration = duration
-			gitlabPipeline, err := convertPipeline(gitlabApiPipeline)
+			gitlabPipeline, err := convertPipeline(gitlabApiPipeline, data.Options.ProjectId)
 			if err != nil {
 				return nil, err
 			}
@@ -94,17 +98,18 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertPipeline(pipeline *ApiPipeline) (*models.GitlabPipeline, error) {
+func convertPipeline(pipeline *ApiPipeline, projectId int) (*models.GitlabPipeline, error) {
 	gitlabPipeline := &models.GitlabPipeline{
-		GitlabId:        pipeline.GitlabId,
-		ProjectId:       pipeline.ProjectId,
-		GitlabCreatedAt: pipeline.GitlabCreatedAt.ToTime(),
+		GitlabId:        pipeline.Id,
+		ProjectId:       projectId,
 		Ref:             pipeline.Ref,
 		Sha:             pipeline.Sha,
 		WebUrl:          pipeline.WebUrl,
 		Status:          pipeline.Status,
-		StartedAt:       helper.Iso8601TimeToTime(pipeline.GitlabCreatedAt),
-		FinishedAt:      helper.Iso8601TimeToTime(pipeline.UpdatedAt),
+		GitlabCreatedAt: helper.Iso8601TimeToTime(pipeline.CreatedAt),
+		GitlabUpdatedAt: helper.Iso8601TimeToTime(pipeline.UpdatedAt),
+		StartedAt:       helper.Iso8601TimeToTime(pipeline.StartedAt),
+		FinishedAt:      helper.Iso8601TimeToTime(pipeline.FinishedAt),
 		Duration:        pipeline.Duration,
 	}
 	return gitlabPipeline, nil

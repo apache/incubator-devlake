@@ -26,17 +26,26 @@ func WalkFields(t reflect.Type, filter func(field *reflect.StructField) bool) (f
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		if field.Type.Kind() == reflect.Struct {
-			f = append(f, WalkFields(field.Type, filter)...)
-		} else {
-			if filter == nil {
-				f = append(f, field)
-			} else if filter(&field) {
+
+	if filter == nil {
+		for i := 0; i < t.NumField(); i++ {
+			field := t.Field(i)
+			if field.Type.Kind() == reflect.Struct {
+				f = append(f, WalkFields(field.Type, filter)...)
+			} else {
 				f = append(f, field)
 			}
 		}
+	} else {
+		for i := 0; i < t.NumField(); i++ {
+			field := t.Field(i)
+			if filter(&field) {
+				f = append(f, field)
+			} else if field.Type.Kind() == reflect.Struct {
+				f = append(f, WalkFields(field.Type, filter)...)
+			}
+		}
 	}
+
 	return f
 }

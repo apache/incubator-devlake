@@ -68,6 +68,20 @@ type NewTask struct {
 	PipelineCol int    `json:"-"`
 }
 
+type Subtask struct {
+	common.Model
+	TaskID       uint64     `json:"task_id" gorm:"index"`
+	Name         string     `json:"name" gorm:"index"`
+	Number       int        `json:"number"`
+	BeganAt      *time.Time `json:"beganAt"`
+	FinishedAt   *time.Time `json:"finishedAt" gorm:"index"`
+	SpentSeconds int64      `json:"spentSeconds"`
+}
+
 func (Task) TableName() string {
 	return "_devlake_tasks"
+}
+
+func (Subtask) TableName() string {
+	return "_devlake_subtasks"
 }

@@ -55,6 +55,8 @@ func (plugin Jenkins) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractApiJobsMeta,
 		tasks.CollectApiBuildsMeta,
 		tasks.ExtractApiBuildsMeta,
+		tasks.CollectApiStagesMeta,
+		tasks.ExtractApiStagesMeta,
 		tasks.ConvertJobsMeta,
 		tasks.ConvertBuildsMeta,
 	}

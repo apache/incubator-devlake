@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -65,7 +64,7 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 
-			results := make([]interface{}, 0, 1)
+			results := make([]interface{}, 0, 1+len(body.UpstreamProjects))
 
 			job := &models.JenkinsJob{
 				JenkinsJobProps: models.JenkinsJobProps{
@@ -76,6 +75,15 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) error {
 					Color:        body.Color,
 				},
 			}
+			for _, upstreamProject := range body.UpstreamProjects {
+				upDownJob := models.JenkinsJobDag{
+					ConnetionId:   data.Options.ConnectionId,
+					UpstreamJob:   upstreamProject.Name,
+					DownstreamJob: job.Name,
+				}
+				results = append(results, &upDownJob)
+			}
+
 			results = append(results, job)
 
 			return results, nil

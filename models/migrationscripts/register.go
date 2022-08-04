@@ -32,5 +32,9 @@ func All() []migration.Script {
 		new(commitfileComponent),
 		new(removeNotes),
 		new(addProjectMapping),
+		new(renameColumnsOfPullRequestIssue),
+		new(addNoPKModelToCommitParent),
+		new(addSubtasksTable),
+		new(addCICD),
 	}
 }

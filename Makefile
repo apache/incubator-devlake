@@ -21,6 +21,11 @@ SHA = $(shell git show -s --format=%h)
 TAG = $(shell git tag --points-at HEAD)
 VERSION = $(TAG)@$(SHA)
 
+swag:
+	echo "you need to install swag by `go install github.com/swaggo/swag/cmd/swag@latest` first"
+	swag init --parseDependency --parseInternal -o ./api/docs -g ./api/api.go -g plugins/*/api/*.go
+	echo "visit the swagger document on http://localhost:8080/swagger/index.html"
+
 build-plugin:
 	@sh scripts/compile-plugins.sh
 
@@ -30,7 +35,7 @@ build-plugin-debug:
 build-worker:
 	go build -ldflags "-X 'github.com/apache/incubator-devlake/version.Version=$(VERSION)'" -o bin/lake-worker ./worker/
 
-build-server:
+build-server: swag
 	go build -ldflags "-X 'github.com/apache/incubator-devlake/version.Version=$(VERSION)'" -o bin/lake
 
 build: build-plugin build-server
@@ -42,11 +47,6 @@ run:
 
 worker:
 	go run worker/*.go
-
-swag:
-	echo "you need to install swag by `go install github.com/swaggo/swag/cmd/swag@latest` first"
-	swag init --parseDependency --parseInternal -o ./api/docs -g ./api/api.go -g plugins/*/api/*.go
-	echo "visit the swagger document on http://localhost:8080/swagger/index.html"
 
 dev: build-plugin run
 

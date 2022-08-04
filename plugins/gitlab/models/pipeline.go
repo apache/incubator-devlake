@@ -18,24 +18,28 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/common"
 )
 
 type GitlabPipeline struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
-	GitlabId        int `gorm:"primaryKey"`
-	ProjectId       int `gorm:"index"`
-	GitlabCreatedAt time.Time
-	Status          string `gorm:"type:varchar(100)"`
-	Ref             string `gorm:"type:varchar(255)"`
-	Sha             string `gorm:"type:varchar(255)"`
-	WebUrl          string `gorm:"type:varchar(255)"`
-	Duration        int
+	GitlabId  int    `gorm:"primaryKey"`
+	ProjectId int    `gorm:"index"`
+	Status    string `gorm:"type:varchar(100)"`
+	Ref       string `gorm:"type:varchar(255)"`
+	Sha       string `gorm:"type:varchar(255)"`
+	WebUrl    string `gorm:"type:varchar(255)"`
+	Duration  int
+
+	GitlabCreatedAt *time.Time
+	GitlabUpdatedAt *time.Time
 	StartedAt       *time.Time
 	FinishedAt      *time.Time
 	Coverage        string
+
 	common.NoPKModel
 }
 
