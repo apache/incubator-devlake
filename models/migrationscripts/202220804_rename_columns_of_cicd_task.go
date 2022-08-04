@@ -18,14 +18,26 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/migration"
+	"context"
+
+	"gorm.io/gorm"
 )
 
-// All return all the migration scripts
-func All() []migration.Script {
-	return []migration.Script{
-		new(addInitTables),
-		new(modifyGitlabCI),
-		new(addPipelineID),
+type renameCICDTask struct{}
+
+func (*renameCICDTask) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().RenameColumn(&CICDTask{}, "stated_date", "started_date")
+	if err != nil {
+		return err
 	}
+
+	return nil
+}
+
+func (*renameCICDTask) Version() uint64 {
+	return 20220804233622
+}
+
+func (*renameCICDTask) Name() string {
+	return "rename stated to started"
 }
