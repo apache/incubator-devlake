@@ -16,9 +16,17 @@ type CICDPipeline struct {
 	Type         string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
 	DurationSec  uint64
 	CreatedDate  time.Time
-	FinishedDate time.Time
+	FinishedDate *time.Time
 }
 
 func (CICDPipeline) TableName() string {
 	return "cicd_pipelines"
 }
+
+const (
+	SUCCESS     = "SUCCESS"
+	FAILURE     = "FAILURE"
+	ABORT       = "ABORT"
+	IN_PROGRESS = "IN_PROGRESS"
+	DONE        = "DONE"
+)

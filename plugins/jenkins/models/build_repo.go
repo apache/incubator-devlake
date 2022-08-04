@@ -7,7 +7,7 @@ type JenkinsBuildRepo struct {
 	BuildName    string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha    string `gorm:"primaryKey;type:varchar(255)"`
 	Branch       string `gorm:"type:varchar(255)"`
-	RepoUrl      string `gorm:"primaryKey;type:varchar(255)"`
+	RepoUrl      string `gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
 
