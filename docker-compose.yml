@@ -42,7 +42,7 @@ services:
   #     POSTGRES_PASSWORD: merico
 
   grafana:
-    image: mericodev/devlake-dashboard:latest
+    image: mericodev/devlake-dashboard:v0.12.1-beta
     build:
       context: grafana/
     ports:
@@ -60,7 +60,7 @@ services:
       - mysql
 
   devlake:
-    image: mericodev/devlake:latest
+    image: mericodev/devlake:v0.12.1-beta
     build:
       context: "."
       args:
@@ -75,7 +75,7 @@ services:
       - mysql
 
   config-ui:
-    image: mericodev/devlake-config-ui:latest
+    image: mericodev/devlake-config-ui:v0.12.1-beta
     build:
       context: "config-ui"
     ports:
