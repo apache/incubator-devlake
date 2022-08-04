@@ -39,7 +39,6 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.BitbucketIssue{},
 		&archived.BitbucketPrComment{},
 		&archived.BitbucketIssueComment{},
-		"_raw_bitbucket_api_repositories",
 	)
 
 	if err != nil {
@@ -50,7 +49,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.BitbucketUser{},
 		&archived.BitbucketRepo{},
 		&archived.BitbucketRepoCommit{},
-		&archived.BitbucketConnection{},
+		//&archived.BitbucketConnection{},
 		&archived.BitbucketAccount{},
 		&archived.BitbucketCommit{},
 		&archived.BitbucketPullRequest{},
