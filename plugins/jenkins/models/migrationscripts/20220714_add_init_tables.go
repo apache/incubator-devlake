@@ -20,11 +20,8 @@ package migrationscripts
 import (
 	"context"
 
-	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts/archived"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type addInitTables struct{}
@@ -43,37 +40,37 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	err = db.Migrator().AutoMigrate(
 		&archived.JenkinsJob{},
 		&archived.JenkinsBuild{},
-		&archived.JenkinsConnection{},
+		//&archived.JenkinsConnection{},
 	)
 	if err != nil {
 		return err
 	}
 
-	v := config.GetConfig()
+	//v := config.GetConfig()
 
-	encKey := v.GetString("ENCODE_KEY")
-	endPoint := v.GetString("JENKINS_ENDPOINT")
-	useName := v.GetString("JENKINS_USERNAME")
-	passWord := v.GetString("JENKINS_PASSWORD")
-	if encKey == "" || endPoint == "" || useName == "" || passWord == "" {
-		return nil
-	}
-	conn := &archived.JenkinsConnection{}
-	conn.Name = "init jenkins connection"
-	conn.ID = 1
-	conn.Endpoint = endPoint
-	conn.Proxy = v.GetString("JENKINS_PROXY")
-	conn.RateLimitPerHour = v.GetInt("JENKINS_API_REQUESTS_PER_HOUR")
-	conn.Username = useName
-	conn.Password, err = core.Encrypt(encKey, passWord)
-	if err != nil {
-		return err
-	}
-	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
-
-	if err != nil {
-		return err
-	}
+	//encKey := v.GetString("ENCODE_KEY")
+	//endPoint := v.GetString("JENKINS_ENDPOINT")
+	//useName := v.GetString("JENKINS_USERNAME")
+	//passWord := v.GetString("JENKINS_PASSWORD")
+	//if encKey == "" || endPoint == "" || useName == "" || passWord == "" {
+	//	return nil
+	//}
+	//conn := &archived.JenkinsConnection{}
+	//conn.Name = "init jenkins connection"
+	//conn.ID = 1
+	//conn.Endpoint = endPoint
+	//conn.Proxy = v.GetString("JENKINS_PROXY")
+	//conn.RateLimitPerHour = v.GetInt("JENKINS_API_REQUESTS_PER_HOUR")
+	//conn.Username = useName
+	//conn.Password, err = core.Encrypt(encKey, passWord)
+	//if err != nil {
+	//	return err
+	//}
+	//err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
+	//
+	//if err != nil {
+	//	return err
+	//}
 
 	return nil
 }
