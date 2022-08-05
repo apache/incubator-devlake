@@ -29,6 +29,7 @@ import (
 type GithubRun20220728 struct {
 	archived.NoPKModel
 	ConnectionId     uint64     `gorm:"primaryKey"`
+	RepoId           int        `gorm:"primaryKey"`
 	ID               int64      `json:"id" gorm:"primaryKey;autoIncrement:false"`
 	Name             string     `json:"name" gorm:"type:varchar(255)"`
 	NodeID           string     `json:"node_id" gorm:"type:varchar(255)"`

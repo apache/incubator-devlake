@@ -35,6 +35,7 @@ var ExtractJobsMeta = core.SubTaskMeta{
 
 func ExtractJobs(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -56,6 +57,7 @@ func ExtractJobs(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0, 1)
 			githubJobResult := &models.GithubJob{
 				ConnectionId:  data.Options.ConnectionId,
+				RepoId:        repoId,
 				ID:            githubJob.ID,
 				RunID:         githubJob.RunID,
 				RunURL:        githubJob.RunURL,

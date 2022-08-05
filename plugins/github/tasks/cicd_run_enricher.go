@@ -35,11 +35,10 @@ func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	entity := &githubModels.GithubPipeline{}
 	cursor, err := db.Cursor(
 		dal.Select("head_sha, head_branch, status, conclusion, github_created_at, github_updated_at, run_attempt, run_started_at"),
 		dal.From(&githubModels.GithubRun{}),
-		dal.Orderby("head_sha"),
+		dal.Orderby("head_sha, github_created_at"),
 	)
 	if err != nil {
 		return err
@@ -47,6 +46,7 @@ func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 	defer cursor.Close()
 
 	for cursor.Next() {
+		entity := &githubModels.GithubPipeline{}
 		var item githubModels.GithubRun
 		err = db.Fetch(cursor, &item)
 		if err != nil {
@@ -55,15 +55,16 @@ func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 
 		if item.HeadSha != entity.Commit {
 			entity.ConnectionId = data.Options.ConnectionId
+			entity.RepoId = item.RepoId
 			entity.Commit = item.HeadSha
-			entity.Branch = item.HeadBranch // to do
+			entity.Branch = item.HeadBranch
 			entity.StartedDate = item.GithubCreatedAt
 			entity.FinishedDate = item.GithubUpdatedAt
 			entity.Status = item.Status
 			if entity.Status == "completed" {
 				entity.Duration = float64(item.GithubUpdatedAt.Sub(*item.GithubCreatedAt).Seconds())
 			}
-			entity.Results = item.Conclusion
+			entity.Result = item.Conclusion
 			// TODO
 			entity.Type = "CI/CD"
 		} else {
@@ -72,14 +73,13 @@ func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 			}
 			if item.GithubUpdatedAt.After(*entity.FinishedDate) {
 				entity.FinishedDate = item.GithubCreatedAt
+				entity.Duration = float64(item.GithubUpdatedAt.Sub(*item.GithubCreatedAt).Seconds())
 			}
 			if item.Status != "completed" {
 				entity.Status = item.Status
-			} else {
-				entity.Duration = float64(item.GithubUpdatedAt.Sub(*item.GithubCreatedAt).Seconds())
 			}
 			if item.Conclusion != "success" {
-				entity.Results = item.Conclusion
+				entity.Result = item.Conclusion
 			}
 
 		}

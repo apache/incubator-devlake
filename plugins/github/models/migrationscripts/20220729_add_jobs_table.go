@@ -30,6 +30,7 @@ import (
 type GithubJob20220729 struct {
 	archived.NoPKModel
 	ConnectionId  uint64         `gorm:"primaryKey"`
+	RepoId        int            `gorm:"primaryKey"`
 	ID            int            `json:"id" gorm:"primaryKey;autoIncrement:false"`
 	RunID         int            `json:"run_id"`
 	RunURL        string         `json:"run_url" gorm:"type:varchar(255)"`

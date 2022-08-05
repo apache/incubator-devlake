@@ -35,6 +35,7 @@ var ExtractRunsMeta = core.SubTaskMeta{
 
 func ExtractRuns(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -57,6 +58,7 @@ func ExtractRuns(taskCtx core.SubTaskContext) error {
 			githubRunResult := &models.GithubRun{
 				ConnectionId:     data.Options.ConnectionId,
 				ID:               githubRun.ID,
+				RepoId:           repoId,
 				Name:             githubRun.Name,
 				NodeID:           githubRun.NodeID,
 				HeadBranch:       githubRun.HeadBranch,
