@@ -19,9 +19,10 @@ package migrationscripts
 
 import (
 	"context"
+	"time"
+
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
-	"time"
 )
 
 type addCICD struct{}
@@ -57,7 +58,7 @@ type CICDPipeline struct {
 	Type         string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
 	DurationSec  uint64
 	CreatedDate  time.Time
-	FinishedDate time.Time
+	FinishedDate *time.Time
 }
 
 func (CICDPipeline) TableName() string {
@@ -72,8 +73,8 @@ type CICDTask struct {
 	Status       string `gorm:"type:varchar(100)"`
 	Type         string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
 	DurationSec  uint64
-	StatedDate   time.Time
-	FinishedDate time.Time
+	StartedDate  time.Time
+	FinishedDate *time.Time
 }
 
 func (CICDTask) TableName() string {

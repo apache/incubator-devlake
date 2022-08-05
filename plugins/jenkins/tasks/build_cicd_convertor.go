@@ -19,14 +19,15 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"reflect"
-	"time"
 )
 
 type JenkinsBuildWithRepo struct {
@@ -143,7 +144,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 					Status:       jenkinsPipelineStatus,
 					Type:         "CI/CD",
 					DurationSec:  uint64(durationSec),
-					StatedDate:   jenkinsBuildWithRepo.StartTime,
+					StartedDate:  jenkinsBuildWithRepo.StartTime,
 					FinishedDate: jenkinsPipelineFinishedDate,
 				}
 				if jenkinsBuildWithRepo.TriggeredBy != "" {

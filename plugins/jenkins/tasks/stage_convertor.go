@@ -19,14 +19,15 @@ package tasks
 
 import (
 	"fmt"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"reflect"
-	"time"
 )
 
 type JenkinsBuildWithRepoStage struct {
@@ -121,7 +122,7 @@ func ConvertStages(taskCtx core.SubTaskContext) error {
 				Status:       jenkinsTaskStatus,
 				Type:         "CI/CD",
 				DurationSec:  uint64(body.DurationMillis / 1000),
-				StatedDate:   time.Unix(durationSec, 0),
+				StartedDate:  time.Unix(durationSec, 0),
 				FinishedDate: jenkinsTaskFinishedDate,
 			}
 			jenkinsTask.RawDataOrigin = body.RawDataOrigin

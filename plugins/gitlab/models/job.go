@@ -28,6 +28,7 @@ type GitlabJob struct {
 
 	GitlabId     int     `gorm:"primaryKey"`
 	ProjectId    int     `gorm:"index"`
+	PipelineId   int     `gorm:"index"`
 	Status       string  `gorm:"type:varchar(255)"`
 	Stage        string  `gorm:"type:varchar(255)"`
 	Name         string  `gorm:"type:varchar(255)"`

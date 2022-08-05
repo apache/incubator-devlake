@@ -25,37 +25,14 @@ import (
 	"gorm.io/gorm"
 )
 
-type modifyGitlabCI struct{}
+type addPipelineID struct{}
 
-type GitlabPipeline20220729 struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-
-	GitlabId  int    `gorm:"primaryKey"`
-	ProjectId int    `gorm:"index"`
-	Status    string `gorm:"type:varchar(100)"`
-	Ref       string `gorm:"type:varchar(255)"`
-	Sha       string `gorm:"type:varchar(255)"`
-	WebUrl    string `gorm:"type:varchar(255)"`
-	Duration  int
-
-	GitlabCreatedAt *time.Time
-	GitlabUpdatedAt *time.Time
-	StartedAt       *time.Time
-	FinishedAt      *time.Time
-	Coverage        string
-
-	common.NoPKModel
-}
-
-func (GitlabPipeline20220729) TableName() string {
-	return "_tool_gitlab_pipelines"
-}
-
-type GitlabJob20220729 struct {
+type GitlabJob20220804 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
 	GitlabId     int     `gorm:"primaryKey"`
 	ProjectId    int     `gorm:"index"`
+	PipelineId   int     `gorm:"index"`
 	Status       string  `gorm:"type:varchar(255)"`
 	Stage        string  `gorm:"type:varchar(255)"`
 	Name         string  `gorm:"type:varchar(255)"`
@@ -72,28 +49,22 @@ type GitlabJob20220729 struct {
 	common.NoPKModel
 }
 
-func (GitlabJob20220729) TableName() string {
+func (GitlabJob20220804) TableName() string {
 	return "_tool_gitlab_jobs"
 }
 
-func (*modifyGitlabCI) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().AddColumn(&GitlabPipeline20220729{}, "gitlab_updated_at")
+func (*addPipelineID) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().AddColumn(&GitlabJob20220804{}, "pipeline_id")
 	if err != nil {
 		return err
 	}
-
-	err = db.Migrator().AutoMigrate(&GitlabJob20220729{})
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func (*modifyGitlabCI) Version() uint64 {
-	return 20220729231236
+func (*addPipelineID) Version() uint64 {
+	return 20220804230912
 }
 
-func (*modifyGitlabCI) Name() string {
-	return "pipeline and job"
+func (*addPipelineID) Name() string {
+	return "add pipeline id to job"
 }

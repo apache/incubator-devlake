@@ -1,8 +1,9 @@
 package devops
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/domainlayer"
 )
 
 type CICDTask struct {
@@ -13,7 +14,7 @@ type CICDTask struct {
 	Status       string `gorm:"type:varchar(100)"`
 	Type         string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
 	DurationSec  uint64
-	StatedDate   time.Time
+	StartedDate  time.Time
 	FinishedDate *time.Time
 }
 

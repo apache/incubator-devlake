@@ -35,6 +35,9 @@ type ApiJob struct {
 	AllowFailure bool `json:"allow_failure"`
 	Duration     float64
 	WebUrl       string `json:"web_url"`
+	Pipeline     struct {
+		Id int
+	}
 
 	CreatedAt  *helper.Iso8601Time `json:"created_at"`
 	StartedAt  *helper.Iso8601Time `json:"started_at"`
@@ -45,7 +48,7 @@ var ExtractApiJobsMeta = core.SubTaskMeta{
 	Name:             "extractApiJobs",
 	EntryPoint:       ExtractApiJobs,
 	EnabledByDefault: true,
-	Description:      "Extract raw pipelines data into tool layer table GitlabPipeline",
+	Description:      "Extract raw GitlabJob data into tool layer table GitlabPipeline",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
@@ -96,6 +99,7 @@ func convertJob(job *ApiJob, projectId int) (*models.GitlabJob, error) {
 		AllowFailure: job.AllowFailure,
 		Duration:     job.Duration,
 		WebUrl:       job.WebUrl,
+		PipelineId:   job.Pipeline.Id,
 
 		GitlabCreatedAt: helper.Iso8601TimeToTime(job.CreatedAt),
 		StartedAt:       helper.Iso8601TimeToTime(job.StartedAt),
