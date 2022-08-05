@@ -69,10 +69,6 @@ func ConvertJobs(taskCtx core.SubTaskContext) error {
 			if gitlabJob.StartedAt != nil {
 				startedAt = *gitlabJob.StartedAt
 			}
-			finishedAt := time.Now()
-			if gitlabJob.FinishedAt != nil {
-				finishedAt = *gitlabJob.FinishedAt
-			}
 
 			domainJob := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
@@ -81,13 +77,20 @@ func ConvertJobs(taskCtx core.SubTaskContext) error {
 
 				Name:       fmt.Sprintf("%d", gitlabJob.GitlabId),
 				PipelineId: fmt.Sprintf("%d", gitlabJob.PipelineId),
-				Result:     gitlabJob.Status,
-				Status:     gitlabJob.Status,
-				Type:       "CI/CD",
+				Result: devops.GetResult(&devops.ResultRule{
+					Failed:  []string{"failed"},
+					Abort:   []string{"canceled", "skipped"},
+					Default: devops.SUCCESS,
+				}, gitlabJob.Status),
+				Status: devops.GetStatus(&devops.StatusRule{
+					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "manual", "scheduled"},
+					Default:    devops.DONE,
+				}, gitlabJob.Status),
+				Type: "CI/CD",
 
 				DurationSec:  uint64(gitlabJob.Duration),
 				StartedDate:  startedAt,
-				FinishedDate: finishedAt,
+				FinishedDate: gitlabJob.FinishedAt,
 			}
 
 			return []interface{}{
