@@ -34,31 +34,94 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 import (
-	"context"
+	"archive/tar"
 	"fmt"
-	"github.com/viant/afs"
+	"io"
+	"os"
 	"path/filepath"
 )
 
-// fs abstract filesystem interface singleton instance
-var fs = afs.New()
+type pathStats struct {
+	info     os.FileInfo
+	path     string
+	filename string
+	isNested bool
+}
 
-// CreateArchive creates a tar archive and writes the files/directories associated with the `targetPaths` to it.
-func CreateArchive(archivePath string, targetPaths ...string) error {
-	var err error
-	for _, targetPath := range targetPaths {
-		targetPath, err = filepath.Abs(targetPath)
+// CreateArchive creates a tar archive and writes the files/directories associated with the `sourcePaths` to it.
+// source adapted from https://golangdocs.com/tar-gzip-in-golang.
+func CreateArchive(archivePath string, sourcePaths ...string) error {
+	tarfile, err := os.Create(archivePath)
+	if err != nil {
+		return fmt.Errorf("error creating archive %s: %v", archivePath, err)
+	}
+	defer tarfile.Close()
+	tarball := tar.NewWriter(tarfile)
+	defer tarball.Close()
+	for _, sourcePath := range sourcePaths {
+		var source *pathStats
+		source, err = getPathStats(sourcePath)
 		if err != nil {
 			return err
 		}
-		archivePath, err = filepath.Abs(archivePath)
-		if err != nil {
+		err = filepath.Walk(sourcePath, func(subPath string, subPathInfo os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			header, err := tar.FileInfoHeader(subPathInfo, subPathInfo.Name())
+			if err != nil {
+				return err
+			}
+			header.Name = subPath
+
+			// should skip if the src is a nested file, and this is a file that does not exactly match that
+			shouldSkip := !subPathInfo.IsDir() && source.isNested &&
+				source.filename != subPathInfo.Name() &&
+				filepath.Dir(source.filename) == subPathInfo.Name()
+			if shouldSkip {
+				return nil
+			}
+			if err = tarball.WriteHeader(header); err != nil {
+				return err
+			}
+			if subPathInfo.IsDir() {
+				return nil
+			}
+			file, err := os.Open(subPath)
+			if err != nil {
+				return err
+			}
+			defer file.Close()
+			_, err = io.Copy(tarball, file)
 			return err
-		}
-		err = fs.Copy(context.Background(), fmt.Sprintf("file://%s", targetPath), fmt.Sprintf("file:%s/tar:///", archivePath))
+		})
 		if err != nil {
-			return err
+			return fmt.Errorf("error copying %s into archive %s: %v", sourcePath, archivePath, err)
 		}
 	}
 	return nil
+}
+
+func getPathStats(sourcePath string) (*pathStats, error) {
+	sourceInfo, err := os.Stat(sourcePath)
+	if err != nil {
+		return nil, fmt.Errorf("error getting metadata about %s", sourcePath)
+	}
+	filename := filepath.Base(sourcePath)
+	if !sourceInfo.IsDir() && filepath.Dir(sourcePath) != "." {
+		sourcePath = filepath.Dir(sourcePath)
+		sourceInfo, _ = os.Stat(sourcePath)
+		return &pathStats{
+			info:     sourceInfo,
+			path:     sourcePath,
+			filename: filename,
+			isNested: true,
+		}, nil
+	}
+	return &pathStats{
+		info:     sourceInfo,
+		path:     sourcePath,
+		filename: filename,
+		isNested: false,
+	}, nil
 }
