@@ -44,6 +44,7 @@ type StatusRule struct {
 	Default    string
 }
 
+// GetResult compare the input with rule for return the enmu value of result
 func GetResult(rule *ResultRule, input interface{}) string {
 	for suc := range rule.Success {
 		if suc == input {
@@ -63,6 +64,7 @@ func GetResult(rule *ResultRule, input interface{}) string {
 	return rule.Default
 }
 
+// GetStatus compare the input with rule for return the enmu value of status
 func GetStatus(rule *StatusRule, input interface{}) string {
 	for inp := range rule.InProgress {
 		if inp == input {
