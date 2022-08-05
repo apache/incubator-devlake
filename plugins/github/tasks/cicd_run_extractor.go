@@ -57,8 +57,8 @@ func ExtractRuns(taskCtx core.SubTaskContext) error {
 			results := make([]interface{}, 0, 1)
 			githubRunResult := &models.GithubRun{
 				ConnectionId:     data.Options.ConnectionId,
-				GithubId:         repoId,
 				ID:               githubRun.ID,
+				RepoId:           repoId,
 				Name:             githubRun.Name,
 				NodeID:           githubRun.NodeID,
 				HeadBranch:       githubRun.HeadBranch,
@@ -84,6 +84,8 @@ func ExtractRuns(taskCtx core.SubTaskContext) error {
 				CancelURL:        githubRun.CancelURL,
 				RerunURL:         githubRun.RerunURL,
 				WorkflowURL:      githubRun.WorkflowURL,
+				// TODO
+				//Type: "CI/CD",
 			}
 			results = append(results, githubRunResult)
 			return results, nil

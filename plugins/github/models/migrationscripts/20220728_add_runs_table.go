@@ -29,7 +29,7 @@ import (
 type GithubRun20220728 struct {
 	archived.NoPKModel
 	ConnectionId     uint64     `gorm:"primaryKey"`
-	GithubId         int        `gorm:"primaryKey"`
+	RepoId           int        `gorm:"primaryKey"`
 	ID               int64      `json:"id" gorm:"primaryKey;autoIncrement:false"`
 	Name             string     `json:"name" gorm:"type:varchar(255)"`
 	NodeID           string     `json:"node_id" gorm:"type:varchar(255)"`
@@ -56,6 +56,7 @@ type GithubRun20220728 struct {
 	CancelURL        string     `json:"cancel_url" gorm:"type:varchar(255)"`
 	RerunURL         string     `json:"rerun_url" gorm:"type:varchar(255)"`
 	WorkflowURL      string     `json:"workflow_url" gorm:"type:varchar(255)"`
+	Type             string     `json:"type" gorm:"type:varchar(255)"`
 }
 
 func (GithubRun20220728) TableName() string {
