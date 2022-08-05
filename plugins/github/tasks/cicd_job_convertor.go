@@ -90,7 +90,7 @@ func ConvertTasks(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{Id: jobIdGen.Generate(data.Options.ConnectionId, repoId, line.ID)},
 				Name:         line.Name,
 				Type:         line.Type,
-				StatedDate:   *line.StartedAt,
+				StartedDate:  *line.StartedAt,
 				FinishedDate: line.CompletedAt,
 			}
 			if len(tmp) > 0 {

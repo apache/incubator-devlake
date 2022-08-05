@@ -69,12 +69,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 			if gitlabPipeline.GitlabCreatedAt != nil {
 				createdAt = *gitlabPipeline.GitlabCreatedAt
 			}
-			finishedAt := time.Now()
-			if gitlabPipeline.Status == "success" && gitlabPipeline.GitlabUpdatedAt != nil {
-				finishedAt = *gitlabPipeline.GitlabUpdatedAt
-			}
 
-			durationTime := finishedAt.Sub(createdAt)
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
@@ -95,10 +90,20 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 				}, gitlabPipeline.Status),
 				Type: "CI/CD",
 
-				DurationSec:  uint64(durationTime.Seconds()),
 				CreatedDate:  createdAt,
 				FinishedDate: gitlabPipeline.GitlabUpdatedAt,
 			}
+
+			// rebuild the FinishedDate and DurationSec by Status
+			finishedAt := time.Now()
+			if domainPipeline.Status != devops.DONE {
+				domainPipeline.FinishedDate = nil
+			} else if gitlabPipeline.GitlabUpdatedAt != nil {
+				finishedAt = *gitlabPipeline.GitlabUpdatedAt
+			}
+			durationTime := finishedAt.Sub(createdAt)
+
+			domainPipeline.DurationSec = uint64(durationTime.Seconds())
 
 			return []interface{}{
 				domainPipeline,
