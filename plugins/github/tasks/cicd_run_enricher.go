@@ -18,10 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 )
+
+const TOOL_PIPELINE_TABLE = "_tool_github_pipelines"
 
 var EnrichPipelinesMeta = core.SubTaskMeta{
 	Name:             "enrichPipelines",
@@ -37,7 +41,7 @@ func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 	repoId := data.Repo.GithubId
 
 	cursor, err := db.Cursor(
-		dal.Select("head_sha, head_branch, status, conclusion, github_created_at, github_updated_at, run_attempt, run_started_at"),
+		dal.Select("head_sha, head_branch, status, conclusion, github_created_at, github_updated_at, run_attempt, run_started_at, _raw_data_id"),
 		dal.From(&githubModels.GithubRun{}),
 		dal.Orderby("head_sha, github_created_at"),
 	)
@@ -45,6 +49,15 @@ func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 		return err
 	}
 	defer cursor.Close()
+
+	apiParamsJson, err := json.Marshal(GithubApiParams{
+		ConnectionId: data.Options.ConnectionId,
+		Owner:        data.Options.Owner,
+		Repo:         data.Options.Repo,
+	})
+	if err != nil {
+		return err
+	}
 
 	for cursor.Next() {
 		entity := &githubModels.GithubPipeline{}
@@ -55,6 +68,9 @@ func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 		}
 
 		if item.HeadSha != entity.Commit {
+			entity.NoPKModel.RawDataId = item.NoPKModel.RawDataId
+			entity.NoPKModel.RawDataTable = RAW_RUN_TABLE
+			entity.NoPKModel.RawDataParams = string(apiParamsJson)
 			entity.ConnectionId = data.Options.ConnectionId
 			entity.RepoId = repoId
 			entity.Commit = item.HeadSha
@@ -84,7 +100,7 @@ func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 			}
 
 		}
-		err := db.CreateOrUpdate(entity)
+		err = db.CreateOrUpdate(entity)
 		if err != nil {
 			return err
 		}
