@@ -45,11 +45,7 @@ func (blueprintNormalMode_Pipeline) TableName() string {
 type renameTasksToPlan struct{}
 
 func (*renameTasksToPlan) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().AutoMigrate(&blueprintNormalMode_Blueprint{})
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().RenameColumn(&blueprintNormalMode_Blueprint{}, "tasks", "plan")
+	err := db.Migrator().RenameColumn(&blueprintNormalMode_Blueprint{}, "tasks", "plan")
 	if err != nil {
 		return err
 	}
