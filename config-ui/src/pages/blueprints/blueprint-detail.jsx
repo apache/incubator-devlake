@@ -468,7 +468,7 @@ const BlueprintDetail = (props) => {
               </div>
             </div>
 
-            <BlueprintNavigationLinks 
+            <BlueprintNavigationLinks
               blueprint={activeBlueprint}
             />
 

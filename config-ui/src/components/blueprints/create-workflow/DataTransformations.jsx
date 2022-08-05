@@ -196,7 +196,7 @@ const DataTransformations = (props) => {
 
                   {useDropdownSelector && (
                     <div className='project-or-board-select' style={{ marginBottom: '20px' }}>
-                      <h4>{configuredConnection.provider === Providers.JIRA ? 'Board' : 'Project' }</h4>
+                      <h4>{configuredConnection.provider === Providers.JIRA ? 'Board' : 'Project'}</h4>
                       <Select
                         popoverProps={{ usePortal: false }}
                         className='selector-entity'

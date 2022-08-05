@@ -128,6 +128,9 @@ const BlueprintSettings = (props) => {
   const [configuredBoard, setConfiguredBoard] = useState(null)
   const [scopeConnection, setScopeConnection] = useState()
 
+  const [boards, setBoards] = useState({ [configuredConnection?.id]: [] })
+  const [projects, setProjects] = useState({ [configuredConnection?.id]: [] })
+
   const [blueprintDialogIsOpen, setBlueprintDialogIsOpen] = useState(false)
   const [blueprintScopesDialogIsOpen, setBlueprintScopesDialogIsOpen] = useState(false)
 
@@ -231,9 +234,6 @@ const BlueprintSettings = (props) => {
     },
     configuredConnection
   )
-
-  const [boards, setBoards] = useState({ [configuredConnection?.id]: [] })
-  const [projects, setProjects] = useState({ [configuredConnection?.id]: [] })
 
   // const withBlueprintName = useMemo(() => BlueprintNameCard => props => (
   //   <BlueprintNameCard
@@ -707,8 +707,8 @@ const BlueprintSettings = (props) => {
                 </div>
               </div>
             </div>
-            
-            <BlueprintNavigationLinks 
+
+            <BlueprintNavigationLinks
               blueprint={activeBlueprint}
             />
             {/* <div
@@ -894,7 +894,7 @@ const BlueprintSettings = (props) => {
                               ))}
                             </ul>
                           </div>
-                          <div className='cell scope' style={{ display: 'flex', flex: 1, alignItems: 'center'  }}>
+                          <div className='cell scope' style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
                             {[Providers.GITLAB, Providers.GITHUB].includes(
                               c.provider?.id
                             ) && (
