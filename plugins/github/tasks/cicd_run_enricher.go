@@ -34,6 +34,7 @@ var EnrichPipelinesMeta = core.SubTaskMeta{
 func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
 
 	cursor, err := db.Cursor(
 		dal.Select("head_sha, head_branch, status, conclusion, github_created_at, github_updated_at, run_attempt, run_started_at"),
@@ -55,7 +56,7 @@ func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 
 		if item.HeadSha != entity.Commit {
 			entity.ConnectionId = data.Options.ConnectionId
-			entity.RepoId = item.RepoId
+			entity.RepoId = repoId
 			entity.Commit = item.HeadSha
 			entity.Branch = item.HeadBranch
 			entity.StartedDate = item.GithubCreatedAt
