@@ -47,6 +47,7 @@ func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 		return err
 	}
 	defer cursor.Close()
+	taskCtx.SetProgress(0, -1)
 
 	apiParamsJson, err := json.Marshal(GithubApiParams{
 		ConnectionId: data.Options.ConnectionId,
@@ -102,6 +103,7 @@ func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 		if err != nil {
 			return err
 		}
+		taskCtx.IncProgress(1)
 	}
 
 	return err
