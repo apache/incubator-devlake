@@ -25,8 +25,6 @@ import (
 	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-const TOOL_PIPELINE_TABLE = "_tool_github_pipelines"
-
 var EnrichPipelinesMeta = core.SubTaskMeta{
 	Name:             "enrichPipelines",
 	EntryPoint:       EnrichPipelines,
