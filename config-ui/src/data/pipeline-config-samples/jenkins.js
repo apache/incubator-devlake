@@ -19,7 +19,9 @@ const jenkinsConfig = [
   [
     {
       Plugin: 'jenkins',
-      Options: {}
+      Options: {
+        connectionId: 1
+      }
     }
   ]
 ]

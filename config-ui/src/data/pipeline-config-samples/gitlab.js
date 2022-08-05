@@ -18,7 +18,8 @@
 const gitlabConfig = [[{
   Plugin: 'gitlab',
   Options: {
-    projectId: 278964
+    projectId: 278964,
+    connectionId: 1
   }
 }]]
 

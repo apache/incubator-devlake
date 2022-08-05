@@ -21,11 +21,13 @@ import {
   Icon,
   Intent,
   InputGroup,
+  MenuItem,
   Divider,
   Elevation,
   Card,
   Colors,
 } from '@blueprintjs/core'
+import { Select } from '@blueprintjs/select'
 import { integrationsData } from '@/data/integrations'
 import {
   Providers,
@@ -52,8 +54,8 @@ const DataTransformations = (props) => {
     activeConnectionTab,
     blueprintConnections = [],
     dataEntities = {},
-    projects = [],
-    boards = [],
+    projects = {},
+    boards = {},
     issueTypes = [],
     fields = [],
     transformations = {},
@@ -76,10 +78,25 @@ const DataTransformations = (props) => {
     isSavingConnection = false,
     isRunning = false,
     jiraProxyError,
-    isFetchingJIRA = false
+    isFetchingJIRA = false,
+    enableConnectionTabs = true,
+    enableNoticeAlert = true,
+    useDropdownSelector = false,
+    enableGoBack = true,
+    elevation = Elevation.TWO,
+    cardStyle = {}
   } = props
 
   const [newTransformation, setNewTransformation] = useState({})
+
+  const [entityList, setEntityList] = useState([...boards[configuredConnection?.id], ...projects[configuredConnection?.id]].map((e, eIdx) => ({
+    id: eIdx,
+    value: e?.value || e,
+    title: e?.title || e,
+    entity: e,
+    type: typeof e === 'object' ? 'board' : 'project'
+  })))
+  const [activeEntity, setActiveEntity] = useState()
 
   const changeTransformation = useCallback((settings, entity) => {
     console.log('>>>>> CHANGING TRANSFORMATION FOR ENTITY!', entity, settings)
@@ -92,52 +109,74 @@ const DataTransformations = (props) => {
     }))
   }, [setNewTransformation])
 
+  useEffect(() => {
+    console.log('>>> PROJECT/BOARD SELECT LIST DATA...', entityList)
+    setActiveEntity(Array.isArray(entityList) ? entityList[0] : null)
+  }, [entityList])
+
+  useEffect(() => {
+    console.log('>>>>> PROJECT / BOARD ENTITY SELECTED!', activeEntity)
+    switch (activeEntity?.type) {
+      case 'board':
+        addBoardTransformation(activeEntity?.entity)
+        break
+      case 'project':
+        addProjectTransformation(activeEntity?.entity)
+        break
+    }
+  }, [activeEntity])
+
   return (
     <div className='workflow-step workflow-step-add-transformation' data-step={activeStep?.id}>
-      <p
-        className='alert neutral'
-      >
-        Set transformation rules for your selected data to view more complex
-        metrics in the dashboards.
-        <br />
-        <a
-          href='#'
-          className='more-link'
-          rel='noreferrer'
-          style={{
-            // color: '#7497F7',
-            marginTop: '5px',
-            display: 'inline-block',
-          }}
+      {enableNoticeAlert && (
+        <p
+          className='alert neutral'
         >
-          Find out more
-        </a>
-      </p>
+          Set transformation rules for your selected data to view more complex
+          metrics in the dashboards.
+          <br />
+          <a
+            href='#'
+            className='more-link'
+            rel='noreferrer'
+            style={{
+              // color: '#7497F7',
+              marginTop: '5px',
+              display: 'inline-block',
+            }}
+          >
+            Find out more
+          </a>
+        </p>
+      )}
       {blueprintConnections.length > 0 && (
         <div style={{ display: 'flex' }}>
-          <div
-            className='connection-tab-selector'
-            style={{ minWidth: '200px' }}
-          >
-            <Card
-              className='workflow-card connection-tabs-card'
-              elevation={Elevation.TWO}
-              style={{ padding: '10px' }}
+          {enableConnectionTabs && (
+            <div
+              className='connection-tab-selector'
+              style={{ minWidth: '200px' }}
             >
-              <ConnectionTabs
-                connections={blueprintConnections}
-                onChange={handleConnectionTabChange}
-                selectedTabId={activeConnectionTab}
-              />
-            </Card>
-          </div>
+              <Card
+                className='workflow-card connection-tabs-card'
+                elevation={Elevation.TWO}
+                style={{ padding: '10px' }}
+              >
+                <ConnectionTabs
+                  connections={blueprintConnections}
+                  onChange={handleConnectionTabChange}
+                  selectedTabId={activeConnectionTab}
+                />
+              </Card>
+            </div>
+          )}
           <div
             className='connection-transformation'
             style={{ marginLeft: '10px', width: '100%' }}
           >
             <Card
               className='workflow-card workflow-panel-card'
-              elevation={Elevation.TWO}
+              elevation={elevation}
+              style={{ ...cardStyle }}
             >
               {configuredConnection && (
                 <>
@@ -155,9 +194,60 @@ const DataTransformations = (props) => {
                   </h3>
                   <Divider className='section-divider' />
 
+                  {useDropdownSelector && (
+                    <div className='project-or-board-select' style={{ marginBottom: '20px' }}>
+                      <h4>{configuredConnection.provider === Providers.JIRA ? 'Board' : 'Project' }</h4>
+                      <Select
+                        popoverProps={{ usePortal: false }}
+                        className='selector-entity'
+                        id='selector-entity'
+                        inline={false}
+                        fill={true}
+                        items={entityList}
+                        activeItem={activeEntity}
+                        itemPredicate={(query, item) =>
+                          item?.title?.toLowerCase().indexOf(query.toLowerCase()) >=
+                          0}
+                        itemRenderer={(item, { handleClick, modifiers }) => (
+                          <MenuItem
+                            active={modifiers.active}
+                            key={item.value}
+                            // label={item.value}
+                            onClick={handleClick}
+                            text={item.title}
+                          />
+                        )}
+                        noResults={
+                          <MenuItem disabled={true} text='No projects or boards.' />
+                        }
+                        onItemSelect={(item) => {
+                          setActiveEntity(item)
+                        }}
+                      >
+                        <Button
+                          className='btn-select-entity'
+                          intent={Intent.PRIMARY}
+                          outlined
+                          text={
+                            activeEntity
+                              ? `${activeEntity.title}`
+                              : '< Select Project / Board >'
+                          }
+                          rightIcon='double-caret-vertical'
+                          fill
+                          style={{
+                            maxWidth: '100%',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                          }}
+                        />
+                      </Select>
+                    </div>
+                  )}
+
                   {[Providers.GITLAB, Providers.GITHUB].includes(
                     configuredConnection.provider
-                  ) && (!configuredProject) && (
+                  ) && !useDropdownSelector && (!configuredProject) && (
                     <>
                       <StandardStackedList
                         items={projects}
@@ -181,7 +271,7 @@ const DataTransformations = (props) => {
 
                   {[Providers.JIRA].includes(
                     configuredConnection.provider
-                  ) && (!configuredBoard) && (
+                  ) && !useDropdownSelector && (!configuredBoard) && (
                     <>
                       <StandardStackedList
                         items={boards}
@@ -205,8 +295,12 @@ const DataTransformations = (props) => {
 
                   {(configuredProject || configuredBoard) && (
                     <div>
-                      <h4>Project</h4>
-                      <p style={{ color: '#292B3F' }}>{configuredProject || configuredBoard?.name || '< select a project >'}</p>
+                      {!useDropdownSelector && (
+                        <>
+                          <h4>Project</h4>
+                          <p style={{ color: '#292B3F' }}>{configuredProject || configuredBoard?.name || '< select a project >'}</p>
+                        </>
+                      )}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h4 style={{ margin: 0 }}>
                           Data Transformation Rules
@@ -271,15 +365,17 @@ const DataTransformations = (props) => {
                           disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
                           style={{ marginLeft: '5px' }}
                         /> */}
-                        <Button
-                          text='Go Back'
-                          intent={Intent.PRIMARY}
-                          small
-                          outlined
-                          onClick={() => onSave()}
-                          disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
-                          style={{ marginLeft: '5px' }}
-                        />
+                        {enableGoBack && (
+                          <Button
+                            text='Go Back'
+                            intent={Intent.PRIMARY}
+                            small
+                            outlined
+                            onClick={() => onSave()}
+                            disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
+                            style={{ marginLeft: '5px' }}
+                          />
+                        )}
                       </div>
                     </div>
                   )}

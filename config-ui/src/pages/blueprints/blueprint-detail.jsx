@@ -51,6 +51,7 @@ import Content from '@/components/Content'
 import CodeInspector from '@/components/pipelines/CodeInspector'
 import StageLane from '@/components/pipelines/StageLane'
 import { ToastNotification } from '@/components/Toast'
+import BlueprintNavigationLinks from '@/components/blueprints/BlueprintNavigationLinks'
 
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
@@ -466,6 +467,10 @@ const BlueprintDetail = (props) => {
                 </div>
               </div>
             </div>
+
+            <BlueprintNavigationLinks 
+              blueprint={activeBlueprint}
+            />
 
             <div
               className='blueprint-run'

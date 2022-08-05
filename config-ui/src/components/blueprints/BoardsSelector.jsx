@@ -38,23 +38,23 @@ const BoardsSelector = (props) => {
     onClear = () => {},
     itemRenderer = (item, { handleClick, modifiers }) => (
       <MenuItem
-        active={modifiers.active || selectedItems.find(i => i.id === item.id)}
+        active={modifiers.active || selectedItems.find(i => i?.id === item?.id)}
         disabled={
-          selectedItems.find(i => i.id === item.id)
+          selectedItems.find(i => i?.id === item?.id)
         }
         key={item.value}
         // label=
         onClick={handleClick}
         text={
-          selectedItems.find(i => i.id === item.id)
+          selectedItems.find(i => i?.id === item?.id)
             ? (
               <>
-                <input type='checkbox' checked readOnly /> {item.title}
+                <input type='checkbox' checked readOnly /> {item?.title}
               </>
               )
             : (
               <span style={{ fontWeight: 700 }}>
-                <input type='checkbox' readOnly /> {item.title}
+                <input type='checkbox' readOnly /> {item?.title}
               </span>
               )
         }
@@ -64,7 +64,7 @@ const BoardsSelector = (props) => {
         }}
       />
     ),
-    tagRenderer = (item) => item.title,
+    tagRenderer = (item) => item?.title,
   } = props
   return (
     <>
@@ -89,7 +89,7 @@ const BoardsSelector = (props) => {
             selectedItems={selectedItems}
             activeItem={activeItem}
             itemPredicate={(query, item) =>
-              item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+              item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0}
             itemRenderer={itemRenderer}
             tagRenderer={tagRenderer}
             tagInputProps={{

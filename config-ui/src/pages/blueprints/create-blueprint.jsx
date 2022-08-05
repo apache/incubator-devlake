@@ -109,7 +109,7 @@ const CreateBlueprint = (props) => {
     NullBlueprintConnection
   )
 
-  const [connectionsList, setConnectionsList] = useState([])
+  // const [connectionsList, setConnectionsList] = useState([])
 
   const [dataEntitiesList, setDataEntitiesList] = useState([
     ...DEFAULT_DATA_ENTITIES,
@@ -283,6 +283,7 @@ const CreateBlueprint = (props) => {
     saveConnection,
     fetchConnection,
     allProviderConnections,
+    connectionsList,
     errors: connectionErrors,
     isSaving: isSavingConnection,
     isTesting: isTestingConnection,
@@ -309,6 +310,7 @@ const CreateBlueprint = (props) => {
     setTestStatus,
     setTestResponse,
     setAllTestResponses,
+    setConnectionsList,
     setSaveComplete: setSaveConnectionComplete,
     fetchAllConnections,
     connectionLimitReached,
@@ -685,24 +687,24 @@ const CreateBlueprint = (props) => {
     mode
   ])
 
-  useEffect(() => {
-    console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)
-    setConnectionsList(
-      allProviderConnections?.map((c, cIdx) => ({
-        ...c,
-        id: cIdx,
-        name: c.name,
-        title: c.name,
-        value: c.id,
-        status:
-          ConnectionStatusLabels[c.status] ||
-          ConnectionStatusLabels[ConnectionStatus.OFFLINE],
-        statusResponse: null,
-        provider: c.provider,
-        plugin: c.provider,
-      }))
-    )
-  }, [allProviderConnections])
+  // useEffect(() => {
+  //   console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)
+  //   setConnectionsList(
+  //     allProviderConnections?.map((c, cIdx) => ({
+  //       ...c,
+  //       id: cIdx,
+  //       name: c.name,
+  //       title: c.name,
+  //       value: c.id,
+  //       status:
+  //         ConnectionStatusLabels[c.status] ||
+  //         ConnectionStatusLabels[ConnectionStatus.OFFLINE],
+  //       statusResponse: null,
+  //       provider: c.provider,
+  //       plugin: c.provider,
+  //     }))
+  //   )
+  // }, [allProviderConnections])
 
   useEffect(() => {
     console.log(
