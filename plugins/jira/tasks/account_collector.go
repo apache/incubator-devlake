@@ -57,9 +57,12 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	queryKey := "accountId"
+	urlTemplate := "api/2/user"
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 		queryKey = "username"
+		urlTemplate = "api/2/user/search"
 	}
+
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -71,7 +74,7 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
-		UrlTemplate: "api/2/user",
+		UrlTemplate: urlTemplate,
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			user := reqData.Input.(*models.JiraAccount)
 			query := url.Values{}

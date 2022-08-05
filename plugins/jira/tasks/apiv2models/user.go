@@ -46,10 +46,6 @@ func (u *Account) getAccountId() string {
 	if u.AccountId != "" {
 		return u.AccountId
 	}
-	//TODO add this code,run success,no test for jira cloud
-	if u.Name != "" {
-		return u.Name
-	}
 	return u.EmailAddress
 }
 
