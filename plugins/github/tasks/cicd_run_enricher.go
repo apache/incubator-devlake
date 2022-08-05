@@ -72,7 +72,7 @@ func EnrichPipelines(taskCtx core.SubTaskContext) (err error) {
 			if item.GithubCreatedAt.Before(*entity.StartedDate) {
 				entity.StartedDate = item.GithubCreatedAt
 			}
-			if item.GithubUpdatedAt.After(*entity.FinishedDate) {
+			if item.GithubUpdatedAt.After(*entity.FinishedDate) && item.Status == "completed" {
 				entity.FinishedDate = item.GithubCreatedAt
 				entity.Duration = float64(item.GithubUpdatedAt.Sub(*item.GithubCreatedAt).Seconds())
 			}
