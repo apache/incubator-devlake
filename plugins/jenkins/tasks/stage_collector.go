@@ -50,7 +50,7 @@ func CollectApiStages(taskCtx core.SubTaskContext) error {
 	clauses := []dal.Clause{
 		dal.Select("tjb.job_name,tjb.number, tjb.display_name"),
 		dal.From("_tool_jenkins_builds tjb"),
-		dal.Where(`tjb.connection_id = ? and tjb.type = ?`,
+		dal.Where(`tjb.connection_id = ? and tjb.class = ?`,
 			data.Options.ConnectionId, "WorkflowRun"),
 	}
 

@@ -21,6 +21,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
+	"strconv"
+	"strings"
 )
 
 // this struct should be moved to `gitub_api_common.go`
@@ -43,6 +45,9 @@ func EnrichApiBuilds(taskCtx core.SubTaskContext) error {
 		dal.Groupby("build_name"),
 	}
 	cursor, err := db.Cursor(clauses...)
+	defer cursor.Close()
+	taskCtx.SetProgress(0, -1)
+
 	for cursor.Next() {
 		var buildName string
 		err = cursor.Scan(&buildName)
@@ -53,11 +58,25 @@ func EnrichApiBuilds(taskCtx core.SubTaskContext) error {
 			continue
 		}
 		build := &models.JenkinsBuild{}
-		build.HasStages = true
-		err = db.Update(&models.JenkinsBuild{}, dal.Where("connection_id = ? and build_name = ?", data.Options.ConnectionId, buildName))
+		build.ConnectionId = data.Options.ConnectionId
+		str := strings.Split(buildName, "#")
+		build.JobName = strings.TrimSpace(str[0])
+		number, err := strconv.Atoi(strings.TrimSpace(str[1]))
 		if err != nil {
 			return err
 		}
+		build.Number = int64(number)
+		err = db.First(build)
+		if err != nil {
+			return err
+		}
+		build.HasStages = true
+
+		err = db.Update(build)
+		if err != nil {
+			return err
+		}
+		taskCtx.IncProgress(1)
 	}
 	return nil
 }

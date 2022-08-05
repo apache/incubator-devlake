@@ -46,7 +46,7 @@ type JenkinsBuildWithRepo struct {
 	Building          bool
 	Branch            string `gorm:"type:varchar(255)"`
 	RepoUrl           string `gorm:"type:varchar(255)"`
-	StageCount        int
+	HasStages         bool
 	common.NoPKModel
 }
 
@@ -64,8 +64,9 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 
 	clauses := []dal.Clause{
 		dal.Select(`tjb.connection_id, tjb.duration, tjb.display_name, tjb.estimated_duration, tjb.number,
+			tjb._raw_data_remark, tjb._raw_data_id, tjb._raw_data_table, tjb._raw_data_params,
 			tjb.result, tjb.timestamp, tjb.start_time, tjbr.commit_sha, tjb.type, tjb.class, 
-			tjb.triggered_by, tjb.building, tjbr.branch, tjbr.repo_url`),
+			tjb.triggered_by, tjb.building, tjbr.branch, tjbr.repo_url, tjb.has_stages`),
 		dal.From("_tool_jenkins_builds tjb"),
 		dal.Join("left join _tool_jenkins_build_repos tjbr on tjbr.build_name = tjb.display_name"),
 		dal.Where("tjb.connection_id = ?", data.Options.ConnectionId),
@@ -75,9 +76,6 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	defer cursor.Close()
-
-	//jobIdGen := didgen.NewDomainIdGenerator(&models.JenkinsJob{})
-	//buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(JenkinsBuildWithRepo{}),
@@ -124,25 +122,26 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 					Result:       jenkinsPipelineResult,
 					Status:       jenkinsPipelineStatus,
 					FinishedDate: jenkinsPipelineFinishedDate,
-					//Type:         "",
-					DurationSec: uint64(durationSec),
-					CreatedDate: jenkinsBuildWithRepo.StartTime,
+					Type:         "CI/CD",
+					DurationSec:  uint64(durationSec),
+					CreatedDate:  jenkinsBuildWithRepo.StartTime,
 				}
 				if jenkinsPipelineFinishedDate != nil {
 				}
+				jenkinsPipeline.RawDataOrigin = jenkinsBuildWithRepo.RawDataOrigin
 				results = append(results, jenkinsPipeline)
 			}
 
-			if jenkinsBuildWithRepo.StageCount == 0 {
+			if !jenkinsBuildWithRepo.HasStages {
 				jenkinsTask := &devops.CICDTask{
 					DomainEntity: domainlayer.DomainEntity{
 						Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsTask", jenkinsBuildWithRepo.ConnectionId,
 							jenkinsBuildWithRepo.DisplayName),
 					},
-					Name:   jenkinsBuildWithRepo.DisplayName,
-					Result: jenkinsPipelineResult,
-					Status: jenkinsPipelineStatus,
-					//Type:         "",
+					Name:         jenkinsBuildWithRepo.DisplayName,
+					Result:       jenkinsPipelineResult,
+					Status:       jenkinsPipelineStatus,
+					Type:         "CI/CD",
 					DurationSec:  uint64(durationSec),
 					StatedDate:   jenkinsBuildWithRepo.StartTime,
 					FinishedDate: jenkinsPipelineFinishedDate,
@@ -150,9 +149,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 				if jenkinsBuildWithRepo.TriggeredBy != "" {
 					tmp := make([]*JenkinsBuildWithRepo, 0)
 					clauses := []dal.Clause{
-						dal.Select(`tjb.connection_id, tjb.duration, tjb.display_name, tjb.estimated_duration, tjb.number,
-							tjb.result, tjb.timestamp, tjbr.commit_sha, tjb.type, tjb.class, 
-							tjb.triggered_by, tjb.building, tjbr.branch, tjbr.repo_url`),
+						dal.Select(`tjb.display_name, tjb.result, tjb.timestamp, tjbr.commit_sha`),
 						dal.From("_tool_jenkins_builds tjb"),
 						dal.Join("left join _tool_jenkins_build_repos tjbr on tjbr.build_name = tjb.display_name"),
 						dal.Where("tjb.connection_id = ? and tjb.display_name = ?", data.Options.ConnectionId, jenkinsBuildWithRepo.TriggeredBy),
@@ -169,6 +166,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 					jenkinsTask.PipelineId = fmt.Sprintf("%s:%s:%d:%s:%s", "jenkins", "JenkinsPipeline", jenkinsBuildWithRepo.ConnectionId,
 						jenkinsBuildWithRepo.CommitSha, jenkinsBuildWithRepo.DisplayName)
 				}
+				jenkinsTask.RawDataOrigin = jenkinsBuildWithRepo.RawDataOrigin
 				results = append(results, jenkinsTask)
 
 			}
