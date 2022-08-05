@@ -76,7 +76,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) error {
 				},
 
 				Name:       fmt.Sprintf("%d", gitlabJob.GitlabId),
-				PipelineId: fmt.Sprintf("%d", gitlabJob.PipelineId),
+				PipelineId: jobIdGen.Generate(data.Options.ConnectionId, gitlabJob.PipelineId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"failed"},
 					Abort:   []string{"canceled", "skipped"},

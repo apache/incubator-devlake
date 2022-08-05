@@ -84,13 +84,20 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 				CommitSha: gitlabPipeline.Sha,
 				Branch:    gitlabPipeline.Ref,
 				Repo:      fmt.Sprintf("%d", gitlabPipeline.ProjectId),
-				Result:    gitlabPipeline.Status,
-				Status:    gitlabPipeline.Status,
-				Type:      "CI/CD",
+				Result: devops.GetResult(&devops.ResultRule{
+					Failed:  []string{"failed"},
+					Abort:   []string{"canceled", "skipped"},
+					Default: devops.SUCCESS,
+				}, gitlabPipeline.Status),
+				Status: devops.GetStatus(&devops.StatusRule{
+					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "manual", "scheduled"},
+					Default:    devops.DONE,
+				}, gitlabPipeline.Status),
+				Type: "CI/CD",
 
 				DurationSec:  uint64(durationTime.Seconds()),
 				CreatedDate:  createdAt,
-				FinishedDate: finishedAt,
+				FinishedDate: gitlabPipeline.GitlabUpdatedAt,
 			}
 
 			return []interface{}{
