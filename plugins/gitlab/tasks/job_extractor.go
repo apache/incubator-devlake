@@ -48,7 +48,7 @@ var ExtractApiJobsMeta = core.SubTaskMeta{
 	Name:             "extractApiJobs",
 	EntryPoint:       ExtractApiJobs,
 	EnabledByDefault: true,
-	Description:      "Extract raw jobs data into tool layer table GitlabPipeline",
+	Description:      "Extract raw GitlabJob data into tool layer table GitlabPipeline",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
