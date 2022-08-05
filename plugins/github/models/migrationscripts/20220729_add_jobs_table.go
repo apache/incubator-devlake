@@ -30,6 +30,7 @@ import (
 type GithubJob20220729 struct {
 	archived.NoPKModel
 	ConnectionId  uint64         `gorm:"primaryKey"`
+	RepoId        int            `gorm:"primaryKey"`
 	ID            int            `json:"id" gorm:"primaryKey;autoIncrement:false"`
 	RunID         int            `json:"run_id"`
 	RunURL        string         `json:"run_url" gorm:"type:varchar(255)"`
@@ -48,6 +49,7 @@ type GithubJob20220729 struct {
 	RunnerID      int            `json:"runner_id"`
 	RunnerName    string         `json:"runner_name" gorm:"type:varchar(255)"`
 	RunnerGroupID int            `json:"runner_group_id"`
+	Type          string         `json:"type" gorm:"type:varchar(255)"`
 }
 
 func (GithubJob20220729) TableName() string {
