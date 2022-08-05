@@ -75,7 +75,6 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 				CommitSha:    line.Commit,
 				Branch:       line.Branch,
 				Repo:         strconv.Itoa(repoId),
-				Status:       line.Status,
 				Type:         line.Type,
 				DurationSec:  uint64(line.Duration),
 				CreatedDate:  *line.StartedDate,
@@ -83,13 +82,16 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 			}
 			if line.Result == "success" {
 				domainPipeline.Result = devops.SUCCESS
-			} else if line.Result == "cancelled" {
-				domainPipeline.Result = devops.ABORT
-			} else {
+			} else if line.Result == "failure" || line.Result == "startup_failure" {
 				domainPipeline.Result = devops.FAILURE
+			} else {
+				domainPipeline.Result = devops.ABORT
 			}
+
 			if line.Status != "completed" {
-				domainPipeline.Result = devops.IN_PROGRESS
+				domainPipeline.Status = devops.IN_PROGRESS
+			} else {
+				domainPipeline.Status = devops.DONE
 			}
 
 			return []interface{}{

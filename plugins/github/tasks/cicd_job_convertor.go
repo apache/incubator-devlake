@@ -89,7 +89,6 @@ func ConvertTasks(taskCtx core.SubTaskContext) error {
 			domainjob := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{Id: jobIdGen.Generate(data.Options.ConnectionId, repoId, line.ID)},
 				Name:         line.Name,
-				Status:       line.Status,
 				Type:         line.Type,
 				StatedDate:   *line.StartedAt,
 				FinishedDate: line.CompletedAt,
@@ -97,18 +96,20 @@ func ConvertTasks(taskCtx core.SubTaskContext) error {
 			if len(tmp) > 0 {
 				domainjob.PipelineId = fmt.Sprintf("%s:%s:%d:%d:%s:%s", "github", "GithubPipeline", data.Options.ConnectionId, repoId, tmp[0].HeadBranch, line.HeadSha)
 			}
-			if line.Status == "completed" {
-				domainjob.DurationSec = uint64(line.CompletedAt.Sub(*line.StartedAt).Seconds())
-			}
+
 			if line.Conclusion == "success" {
 				domainjob.Result = devops.SUCCESS
-			} else if line.Conclusion == "cancelled" {
-				domainjob.Result = devops.ABORT
-			} else {
+			} else if line.Conclusion == "failure" || line.Conclusion == "startup_failure" {
 				domainjob.Result = devops.FAILURE
+			} else {
+				domainjob.Result = devops.ABORT
 			}
+
 			if line.Status != "completed" {
-				domainjob.Result = devops.IN_PROGRESS
+				domainjob.Status = devops.IN_PROGRESS
+			} else {
+				domainjob.Status = devops.DONE
+				domainjob.DurationSec = uint64(line.CompletedAt.Sub(*line.StartedAt).Seconds())
 			}
 
 			return []interface{}{
