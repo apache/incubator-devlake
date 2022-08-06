@@ -202,7 +202,7 @@ func DownloadLogs(c *gin.Context) {
 		return
 	}
 	archive := fmt.Sprintf("%s/%s/logging.tar.gz", os.TempDir(), uuid.New())
-	if err = utils.CreateArchive(archive, logPath); err != nil {
+	if err = utils.CreateArchive(archive, true, logPath); err != nil {
 		shared.ApiOutputError(c, err, http.StatusInternalServerError)
 		return
 	}

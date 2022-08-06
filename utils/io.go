@@ -39,6 +39,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type pathStats struct {
@@ -48,9 +49,18 @@ type pathStats struct {
 	isNested bool
 }
 
-// CreateArchive creates a tar archive and writes the files/directories associated with the `sourcePaths` to it.
-// source adapted from https://golangdocs.com/tar-gzip-in-golang.
-func CreateArchive(archivePath string, sourcePaths ...string) error {
+// CreateArchive creates a tar archive and writes the files/directories associated with the 'sourcePaths' to it.
+//
+// 'archivePath': the path on the filesystem where the archive file will be located.
+//
+// 'relativeCopy': if true, it'll only copy the contents inside a sourcePath (if sourcePath is a file, then just the file), otherwise the sourcePath is recursively copied.
+//
+// 'sourcePaths': each sourcePath may be a file or a directory. A file nested in a directory (i.e. a/b/x.log) will be copied along with its parent folders unless relativeCopy is true.
+func CreateArchive(archivePath string, relativeCopy bool, sourcePaths ...string) error {
+	err := os.MkdirAll(filepath.Dir(archivePath), os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("error creating path for %s: %v", archivePath, err)
+	}
 	tarfile, err := os.Create(archivePath)
 	if err != nil {
 		return fmt.Errorf("error creating archive %s: %v", archivePath, err)
@@ -59,8 +69,8 @@ func CreateArchive(archivePath string, sourcePaths ...string) error {
 	tarball := tar.NewWriter(tarfile)
 	defer tarball.Close()
 	for _, sourcePath := range sourcePaths {
-		var source *pathStats
-		source, err = getPathStats(sourcePath)
+		var sourceStats *pathStats
+		sourceStats, err = getPathStats(sourcePath)
 		if err != nil {
 			return err
 		}
@@ -68,18 +78,24 @@ func CreateArchive(archivePath string, sourcePaths ...string) error {
 			if err != nil {
 				return err
 			}
+			// if we're copying the contents of a directory 'relatively' then skip until we reach that directory
+			if relativeCopy && !sourceStats.isNested && isParentTo(subPath, sourcePath) {
+				return nil
+			}
+			// should skip if the src is a nested file, and this is a file that does not exactly match it
+			if !subPathInfo.IsDir() && sourceStats.isNested && sourceStats.filename != subPathInfo.Name() &&
+				filepath.Dir(sourceStats.filename) == subPathInfo.Name() {
+				return nil
+			}
 			header, err := tar.FileInfoHeader(subPathInfo, subPathInfo.Name())
 			if err != nil {
 				return err
 			}
-			header.Name = subPath
-
-			// should skip if the src is a nested file, and this is a file that does not exactly match that
-			shouldSkip := !subPathInfo.IsDir() && source.isNested &&
-				source.filename != subPathInfo.Name() &&
-				filepath.Dir(source.filename) == subPathInfo.Name()
-			if shouldSkip {
-				return nil
+			if relativeCopy {
+				// adjust the header to the correct relative path
+				header.Name = removeParent(sourcePath, subPath)
+			} else {
+				header.Name = subPath
 			}
 			if err = tarball.WriteHeader(header); err != nil {
 				return err
@@ -124,4 +140,25 @@ func getPathStats(sourcePath string) (*pathStats, error) {
 		filename: filename,
 		isNested: false,
 	}, nil
+}
+
+// example: (a/b, a/b/c) -> true
+func isParentTo(parent string, path string) bool {
+	p := path
+	for p != "." {
+		if p == parent {
+			return true
+		}
+		p = filepath.Dir(p)
+	}
+	return false
+}
+
+// example (a/b, a/b/c) -> c
+func removeParent(parent string, child string) string {
+	s := strings.TrimPrefix(strings.TrimPrefix(child, parent), "/")
+	if s == "" {
+		return filepath.Base(child)
+	}
+	return s
 }
