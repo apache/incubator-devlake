@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/merico-dev/graphql"
 	"net/http"
 	"reflect"
 )
@@ -246,10 +247,11 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 		panic(err)
 	}
 	db := collector.args.Ctx.GetDal()
+	queryStr, _ := graphql.ConstructQuery(query, variables)
 	row := &RawData{
 		Params: collector.params,
 		Data:   paramsBytes,
-		Url:    `TODO query`,
+		Url:    queryStr,
 		Input:  reqData.InputJSON,
 	}
 	err = db.Create(row, dal.From(collector.table))
