@@ -56,7 +56,13 @@ type GraphqlCollectorArgs struct {
 	PageSize int
 	// GraphqlClient is a asynchronize api request client with qps
 	GraphqlClient *GraphqlAsyncClient
-	// GetTotalCount is to tell `ApiCollector` is next page
+	// Input helps us collect data based on previous collected data, like collecting changelogs based on jira
+	// issue ids
+	Input Iterator
+	// how many times fetched from input, default 1 means only fetch once
+	// NOTICE: InputStep=1 will fill value as item and InputStep>1 will fill value as []item
+	InputStep int
+	// GetPageInfo is to tell `GraphqlCollector` is page information
 	GetPageInfo    func(query interface{}, args *GraphqlCollectorArgs) (*GraphqlQueryPageInfo, error)
 	BatchSize      int
 	ResponseParser func(query interface{}, variables map[string]interface{}) ([]interface{}, error)
@@ -92,6 +98,9 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, error) {
 	if args.BatchSize == 0 {
 		args.BatchSize = 500
 	}
+	if args.InputStep == 0 {
+		args.InputStep = 1
+	}
 	//if args.AfterResponse != nil {
 	//	apicllector.SetAfterResponse(args.AfterResponse)
 	//} else {
@@ -125,25 +134,33 @@ func (collector *GraphqlCollector) Execute() error {
 	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.table, collector.params)
 
 	collector.args.Ctx.SetProgress(0, -1)
-	//if collector.args.Input != nil {
-	//	iterator := collector.args.Input
-	//	defer iterator.Close()
-	//	apiClient := collector.args.GraphqlClient
-	//	if apiClient == nil {
-	//		return fmt.Errorf("api_collector can not Execute with nil apiClient")
-	//	}
-	//	defer apiClient.Release()
-	//	for iterator.HasNext() && !apiClient.HasError() {
-	//		input, err := iterator.Fetch()
-	//		if err != nil {
-	//			break
-	//		}
-	//		collector.exec(input)
-	//	}
-	//} else {
-	// or we just did it once
-	collector.exec(divider, nil)
-	//}
+	if collector.args.Input != nil {
+		iterator := collector.args.Input
+		defer iterator.Close()
+		apiClient := collector.args.GraphqlClient
+		for iterator.HasNext() && !apiClient.HasError() {
+			if collector.args.InputStep == 1 {
+				input, err := iterator.Fetch()
+				if err != nil {
+					break
+				}
+				collector.exec(divider, input)
+			} else {
+				var inputs []interface{}
+				for i := 0; i < collector.args.InputStep && iterator.HasNext(); i++ {
+					input, err := iterator.Fetch()
+					if err != nil {
+						break
+					}
+					inputs = append(inputs, input)
+				}
+				collector.exec(divider, inputs)
+			}
+		}
+	} else {
+		// or we just did it once
+		collector.exec(divider, nil)
+	}
 
 	logger.Debug("wait for all async api to finished")
 

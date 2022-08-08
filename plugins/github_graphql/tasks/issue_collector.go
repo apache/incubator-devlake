@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/shurcooL/graphql"
+	"github.com/merico-dev/graphql"
 	"time"
 )
 
@@ -49,14 +49,14 @@ type GraphqlQueryIssue struct {
 	StateReason  string
 	Title        string
 	Body         string
-	Author       *GithubAccountResponse
+	Author       *GraphqlInlineAccountQuery
 	Url          string
 	ClosedAt     *time.Time
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 	AssigneeList struct {
 		// FIXME now domain layer just support one assignee
-		Assignees []GithubAccountResponse `graphql:"nodes"`
+		Assignees []GraphqlInlineAccountQuery `graphql:"nodes"`
 	} `graphql:"assignees(first: 1)"`
 	Milestone *struct {
 		Number int `json:"number"`
@@ -100,7 +100,7 @@ func CollectIssue(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_ISSUES_TABLE,
 		},
-		GraphqlClient: data.Client,
+		GraphqlClient: data.GraphqlClient,
 		PageSize:      100,
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
@@ -136,18 +136,18 @@ func CollectIssue(taskCtx core.SubTaskContext) error {
 				results = append(results, githubLabels...)
 				results = append(results, githubIssue)
 				if issue.AssigneeList.Assignees != nil && len(issue.AssigneeList.Assignees) > 0 {
-					relatedUsers, err := convertAccount(issue.AssigneeList.Assignees[0], data.Options.ConnectionId)
+					relatedUser, err := convertGraphqlPreAccount(issue.AssigneeList.Assignees[0], data.Repo.GithubId, data.Options.ConnectionId)
 					if err != nil {
 						return nil, err
 					}
-					results = append(results, relatedUsers...)
+					results = append(results, relatedUser)
 				}
 				if issue.Author != nil {
-					relatedUsers, err := convertAccount(*issue.Author, data.Options.ConnectionId)
+					relatedUser, err := convertGraphqlPreAccount(*issue.Author, data.Repo.GithubId, data.Options.ConnectionId)
 					if err != nil {
 						return nil, err
 					}
-					results = append(results, relatedUsers...)
+					results = append(results, relatedUser)
 				}
 			}
 			return results, nil

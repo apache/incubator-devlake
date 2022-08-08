@@ -36,7 +36,8 @@ type GithubGraphqlOptions struct {
 }
 
 type GithubGraphqlTaskData struct {
-	Options *GithubGraphqlOptions
-	Client  *helper.GraphqlAsyncClient
-	Repo    *models.GithubRepo
+	Options       *GithubGraphqlOptions
+	GraphqlClient *helper.GraphqlAsyncClient
+	HttpClient    *helper.ApiAsyncClient
+	Repo          *models.GithubRepo
 }

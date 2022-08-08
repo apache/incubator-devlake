@@ -22,7 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/shurcooL/graphql"
+	"github.com/merico-dev/graphql"
 	"regexp"
 	"runtime/debug"
 	"time"
@@ -56,10 +56,10 @@ type GraphqlQueryPr struct {
 			Name string
 		}
 	} `graphql:"labels(first: 100)"`
-	Author    *GithubAccountResponse
+	Author    *GraphqlInlineAccountQuery
 	Assignees struct {
 		// FIXME now domain layer just support one assignee
-		Assignees []GithubAccountResponse `graphql:"nodes"`
+		Assignees []GraphqlInlineAccountQuery `graphql:"nodes"`
 	} `graphql:"assignees(first: 1)"`
 	ClosedAt    *time.Time
 	MergedAt    *time.Time
@@ -85,7 +85,7 @@ type GraphqlQueryPr struct {
 
 type GraphqlQueryReview struct {
 	Body       string
-	Author     *GithubAccountResponse
+	Author     *GraphqlInlineAccountQuery
 	State      string `json:"state"`
 	DatabaseId int    `json:"databaseId"`
 	Commit     struct {
@@ -102,7 +102,7 @@ type GraphqlQueryCommit struct {
 			Name  string
 			Email string
 			Date  time.Time
-			User  *GithubAccountResponse
+			User  *GraphqlInlineAccountQuery
 		}
 		Committer struct {
 			Date  time.Time
@@ -153,7 +153,7 @@ func CollectPr(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_PRS_TABLE,
 		},
-		GraphqlClient: data.Client,
+		GraphqlClient: data.GraphqlClient,
 		PageSize:      100,
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
@@ -184,11 +184,11 @@ func CollectPr(taskCtx core.SubTaskContext) error {
 					return nil, err
 				}
 				if rawL.Author != nil {
-					githubUsers, err := convertAccount(*rawL.Author, data.Options.ConnectionId)
+					githubUser, err := convertGraphqlPreAccount(*rawL.Author, data.Repo.GithubId, data.Options.ConnectionId)
 					if err != nil {
 						return nil, err
 					}
-					results = append(results, githubUsers...)
+					results = append(results, githubUser)
 				}
 				for _, label := range rawL.Labels.Nodes {
 					results = append(results, &models.GithubPrLabel{
@@ -238,11 +238,11 @@ func CollectPr(taskCtx core.SubTaskContext) error {
 
 						results = append(results, githubReviewer)
 						results = append(results, githubPrReview)
-						githubUsers, err := convertAccount(*apiPullRequestReview.Author, data.Options.ConnectionId)
+						githubUser, err := convertGraphqlPreAccount(*apiPullRequestReview.Author, data.Repo.GithubId, data.Options.ConnectionId)
 						if err != nil {
 							return nil, err
 						}
-						results = append(results, githubUsers...)
+						results = append(results, githubUser)
 					}
 				}
 
@@ -264,11 +264,11 @@ func CollectPr(taskCtx core.SubTaskContext) error {
 					results = append(results, githubPullRequestCommit)
 
 					if apiPullRequestCommit.Commit.Author.User != nil {
-						githubUsers, err := convertAccount(*apiPullRequestCommit.Commit.Author.User, data.Options.ConnectionId)
+						githubUser, err := convertGraphqlPreAccount(*apiPullRequestCommit.Commit.Author.User, data.Repo.GithubId, data.Options.ConnectionId)
 						if err != nil {
 							return nil, err
 						}
-						results = append(results, githubUsers...)
+						results = append(results, githubUser)
 					}
 				}
 

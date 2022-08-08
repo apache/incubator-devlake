@@ -21,7 +21,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/shurcooL/graphql"
+	"github.com/merico-dev/graphql"
 	"sync"
 	"time"
 )
@@ -101,8 +101,6 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 	defer apiClient.waitGroup.Done()
 	apiClient.mu.Lock()
 	defer apiClient.mu.Unlock()
-	println(2)
-	defer println(-2)
 
 	apiClient.rateExhaustCond.L.Lock()
 	defer apiClient.rateExhaustCond.L.Unlock()
@@ -160,4 +158,9 @@ func (apiClient *GraphqlAsyncClient) checkError(err error) {
 		return
 	}
 	apiClient.workerErrors = append(apiClient.workerErrors, err)
+}
+
+// HasError return if any error occurred
+func (apiClient *GraphqlAsyncClient) HasError() bool {
+	return len(apiClient.workerErrors) > 0
 }

@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/shurcooL/graphql"
+	"github.com/merico-dev/graphql"
 	"time"
 )
 
@@ -43,7 +43,7 @@ type GraphqlQueryRepo struct {
 			}
 		} `graphql:"languages(first: 1)"`
 		Description string `graphql:"description"`
-		Owner       GithubAccountResponse
+		Owner       GraphqlInlineAccountQuery
 		CreatedDate time.Time  `graphql:"createdAt"`
 		UpdatedDate *time.Time `graphql:"updatedAt"`
 		Parent      *struct {
@@ -78,7 +78,7 @@ func CollectRepo(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_REPO_TABLE,
 		},
-		GraphqlClient: data.Client,
+		GraphqlClient: data.GraphqlClient,
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
@@ -118,11 +118,11 @@ func CollectRepo(taskCtx core.SubTaskContext) error {
 			}
 			results = append(results, githubRepository)
 
-			githubUsers, err := convertAccount(repository.Owner, data.Options.ConnectionId)
+			githubUser, err := convertGraphqlPreAccount(repository.Owner, data.Repo.GithubId, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}
-			results = append(results, githubUsers...)
+			results = append(results, githubUser)
 			return results, nil
 		},
 	})

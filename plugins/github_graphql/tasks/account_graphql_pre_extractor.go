@@ -30,43 +30,18 @@ type GithubAccountEdge struct {
 	AvatarUrl string
 	HtmlUrl   string `graphql:"url"`
 	//Type      string
-	Organizations struct {
-		Nodes []struct {
-			Email      string
-			Name       string
-			DatabaseId int
-			Login      string
-		}
-	} `graphql:"organizations(first: 10)"`
 }
-type GithubAccountResponse struct {
+type GraphqlInlineAccountQuery struct {
 	GithubAccountEdge `graphql:"... on User"`
 }
 
-func convertAccount(res GithubAccountResponse, connId uint64) ([]interface{}, error) {
-	results := make([]interface{}, 0, len(res.Organizations.Nodes)+1)
-	githubAccount := &models.GithubAccount{
+func convertGraphqlPreAccount(res GraphqlInlineAccountQuery, repoId int, connId uint64) (*models.GithubRepoAccount, error) {
+	githubAccount := &models.GithubRepoAccount{
 		ConnectionId: connId,
-		Id:           res.Id,
+		RepoGithubId: repoId,
 		Login:        res.Login,
-		Name:         res.Name,
-		Company:      res.Company,
-		Email:        res.Email,
-		AvatarUrl:    res.AvatarUrl,
-		//Url:          res.Url,
-		HtmlUrl: res.HtmlUrl,
-		//Type:         res.Type,
-	}
-	results = append(results, githubAccount)
-	for _, apiAccountOrg := range res.Organizations.Nodes {
-		githubAccountOrg := &models.GithubAccountOrg{
-			ConnectionId: connId,
-			AccountId:    res.Id,
-			OrgId:        apiAccountOrg.DatabaseId,
-			OrgLogin:     apiAccountOrg.Login,
-		}
-		results = append(results, githubAccountOrg)
+		AccountId:    res.Id,
 	}
 
-	return results, nil
+	return githubAccount, nil
 }
