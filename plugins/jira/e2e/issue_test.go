@@ -127,7 +127,7 @@ func TestIssueDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.JiraIssueChangelogs{},
-		"./snapshot_tables/_tool_jira_changelogs.csv",
+		"./snapshot_tables/_tool_jira_issue_changelogs.csv",
 		[]string{
 			"connection_id",
 			"changelog_id",
@@ -141,7 +141,7 @@ func TestIssueDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.JiraIssueChangelogItems{},
-		"./snapshot_tables/_tool_jira_changelog_items.csv",
+		"./snapshot_tables/_tool_jira_issue_changelog_items.csv",
 		[]string{
 			"connection_id",
 			"changelog_id",
