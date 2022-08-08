@@ -56,6 +56,15 @@ func ConvertIssueChangelogs(taskCtx core.SubTaskContext) error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("covert changelog")
+	var allStatus []models.JiraStatus
+	err := db.All(&allStatus)
+	if err != nil {
+		return err
+	}
+	statusMap := make(map[string]models.JiraStatus)
+	for _, v := range allStatus {
+		statusMap[v.Name] = v
+	}
 	// select all changelogs belongs to the board
 	clauses := []dal.Clause{
 		dal.Select("_tool_jira_issue_changelog_items.*, _tool_jira_issue_changelogs.issue_id, author_account_id, author_display_name, created"),
@@ -127,8 +136,12 @@ func ConvertIssueChangelogs(taskCtx core.SubTaskContext) error {
 				}
 			}
 			if row.Field == "status" {
-				changelog.FromValue = getStdStatus(row.FromString)
-				changelog.ToValue = getStdStatus(row.ToString)
+				if fromStatus, ok := statusMap[row.FromString]; ok {
+					changelog.FromValue = getStdStatus(fromStatus.StatusCategory)
+				}
+				if toStatus, ok := statusMap[row.ToString]; ok {
+					changelog.ToValue = getStdStatus(toStatus.StatusCategory)
+				}
 			}
 			return []interface{}{changelog}, nil
 		},

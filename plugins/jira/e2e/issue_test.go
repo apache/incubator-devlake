@@ -125,6 +125,34 @@ func TestIssueDataFlow(t *testing.T) {
 		"./snapshot_tables/_tool_jira_board_issues.csv",
 		[]string{"connection_id", "board_id", "issue_id"},
 	)
+	dataflowTester.VerifyTable(
+		models.JiraIssueChangelogs{},
+		"./snapshot_tables/_tool_jira_issue_changelogs.csv",
+		[]string{
+			"connection_id",
+			"changelog_id",
+			"issue_id",
+			"author_account_id",
+			"author_display_name",
+			"author_active",
+			"created",
+			"issue_updated",
+		},
+	)
+	dataflowTester.VerifyTable(
+		models.JiraIssueChangelogItems{},
+		"./snapshot_tables/_tool_jira_issue_changelog_items.csv",
+		[]string{
+			"connection_id",
+			"changelog_id",
+			"field",
+			"field_type",
+			"field_id",
+			"from_value",
+			"from_string",
+			"to_value",
+			"to_string"},
+	)
 
 	// verify issue conversion
 	dataflowTester.FlushTabler(&ticket.Issue{})

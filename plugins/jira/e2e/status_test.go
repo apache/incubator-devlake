@@ -21,13 +21,12 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/jira/impl"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 )
 
-func TestIssueChangelogDataFlow(t *testing.T) {
+func TestStatusDataFlow(t *testing.T) {
 	var plugin impl.Jira
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "jira", plugin)
 
@@ -38,27 +37,23 @@ func TestIssueChangelogDataFlow(t *testing.T) {
 		},
 	}
 
-	// verify changelog conversion
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_changelogs.csv", &models.JiraIssueChangelogs{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_changelog_items.csv", &models.JiraIssueChangelogItems{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_statuses.csv", &models.JiraStatus{})
-	dataflowTester.FlushTabler(&ticket.IssueChangelogs{})
-	dataflowTester.Subtask(tasks.ConvertIssueChangelogsMeta, taskData)
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_status.csv", "_raw_jira_api_status")
+
+	// verify status extraction
+	dataflowTester.FlushTabler(&models.JiraStatus{})
+	dataflowTester.Subtask(tasks.ExtractStatusMeta, taskData)
 	dataflowTester.VerifyTable(
-		ticket.IssueChangelogs{},
-		"./snapshot_tables/issue_changelogs.csv",
+		models.JiraStatus{},
+		"./snapshot_tables/_tool_jira_statuses.csv",
 		[]string{
 			"id",
-			"issue_id",
-			"author_id",
-			"author_name",
-			"field_id",
-			"field_name",
-			"original_from_value",
-			"original_to_value",
-			"from_value",
-			"to_value",
-			"created_date",
+			"name",
+			"status_category",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 }
