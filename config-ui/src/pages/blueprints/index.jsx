@@ -342,7 +342,7 @@ const Blueprints = (props) => {
                   title=''
                   description={(
                     <>
-                      <p style={{ color: '#292B3F', fontSize: '15px', padding: '0 14%', textAlign: 'center' }}>A blueprint is the plan that covers all the work, such as selecting and transforming the data you wish to collect, to get your raw data ready for query and metric computaion in the dashboards. Try adding your first blueprint!</p>
+                      <p style={{ color: '#292B3F', fontSize: '15px', padding: '0 14%', textAlign: 'center' }}>A blueprint is a plan that covers all the work, such as selecting and transforming the data you wish to collect, to get your raw data ready for query and metric computation in the dashboards. Try adding your first blueprint!</p>
                       <div style={{
                         display: 'flex',
                         alignSelf: 'center',
