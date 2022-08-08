@@ -29,6 +29,14 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+// @Summary test gitlab connection
+// @Description Test gitlab Connection
+// @Tags plugins/gitlab
+// @Param body body models.TestConnectionRequest true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/gitlab/test [POST]
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// decode
 	var err error
@@ -73,14 +81,14 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	return nil, nil
 }
 
-/*
-POST /plugins/gitlab/connections
-{
-	"name": "gitlab data connection name",
-	"endpoint": "gitlab api endpoint, i.e. https://gitlab.com/api/v4/",
-	"token": "gitlab api access token"
-}
-*/
+// @Summary create gitlab connection
+// @Description Create gitlab connection
+// @Tags plugins/gitlab
+// @Param body body models.GitlabConnection true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/gitlab/connections [POST]
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// update from request and save to database
 	connection := &models.GitlabConnection{}
@@ -91,14 +99,14 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-PATCH /plugins/gitlab/connections/:connectionId
-{
-	"name": "gitlab data connection name",
-	"endpoint": "gitlab api endpoint, i.e. https://gitlab.com/api/v4/",
-	"token": "gitlab api access token"
-}
-*/
+// @Summary patch gitlab connection
+// @Description Patch gitlab connection
+// @Tags plugins/gitlab
+// @Param body body models.GitlabConnection true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/gitlab/connections/{connectionId} [PATCH]
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GitlabConnection{}
 	err := connectionHelper.Patch(connection, input)
@@ -108,9 +116,13 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection}, nil
 }
 
-/*
-DELETE /plugins/gitlab/connections/:connectionId
-*/
+// @Summary delete a gitlab connection
+// @Description Delete a gitlab connection
+// @Tags plugins/gitlab
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/gitlab/connections/{connectionId} [DELETE]
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GitlabConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -121,9 +133,13 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
-/*
-GET /plugins/gitlab/connections
-*/
+// @Summary get all gitlab connections
+// @Description Get all gitlab connections
+// @Tags plugins/gitlab
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/gitlab/connections [GET]
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var connections []models.GitlabConnection
 	err := connectionHelper.List(&connections)
@@ -133,16 +149,13 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
-/*
-GET /plugins/gitlab/connections/:connectionId
-
-
-{
-	"name": "gitlab data connection name",
-	"endpoint": "gitlab api endpoint, i.e. https://gitlab.com/api/v4/",
-	"token": "gitlab api access token"
-}
-*/
+// @Summary get gitlab connection detail
+// @Description Get gitlab connection detail
+// @Tags plugins/gitlab
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/gitlab/connections/{connectionId} [GET]
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GitlabConnection{}
 	err := connectionHelper.First(connection, input.Params)
