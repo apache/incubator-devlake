@@ -141,6 +141,9 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
+		"connections/:connectionId/proxy/rest/*path": {
+			"GET": api.Proxy,
+		},
 	}
 }
 
