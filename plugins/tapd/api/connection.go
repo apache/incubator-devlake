@@ -31,9 +31,14 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-/*
-POST /plugins/tapd/test
-*/
+// @Summary test tapd connection
+// @Description Test Tapd Connection
+// @Tags plugins/Tapd
+// @Param body body models.TestConnectionRequest true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/tapd/test [POST]
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// process input
 	var params models.TestConnectionRequest
@@ -76,16 +81,14 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	return nil, nil
 }
 
-/*
-POST /plugins/tapd/connections
-{
-	"name": "tapd data connections name",
-	"endpoint": "tapd api endpoint, i.e. https://merico.atlassian.net/rest",
-	"username": "username, usually should be email address",
-	"password": "jenkins api access token",
-	"rateLimit": 10800,
-}
-*/
+// @Summary create tapd connection
+// @Description Create Tapd connection
+// @Tags plugins/Tapd
+// @Param body body models.TapdConnection true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/tapd/connections [POST]
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// create a new connections
 	connection := &models.TapdConnection{}
@@ -100,16 +103,14 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-PATCH /plugins/tapd/connections/:connectionId
-{
-	"name": "tapd data connections name",
-	"endpoint": "tapd api endpoint, i.e. https://merico.atlassian.net/rest",
-	"username": "username, usually should be email address",
-	"password": "jenkins api access token",
-	"rateLimit": 10800,
-}
-*/
+// @Summary patch tapd connection
+// @Description Patch Tapd connection
+// @Tags plugins/Tapd
+// @Param body body models.TapdConnection true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/tapd/connections/{connectionId} [PATCH]
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.TapdConnection{}
 	err := connectionHelper.Patch(connection, input)
@@ -120,9 +121,13 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection}, nil
 }
 
-/*
-DELETE /plugins/tapd/connections/:connectionId
-*/
+// @Summary delete a tapd connection
+// @Description Delete a Tapd connection
+// @Tags plugins/Tapd
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/tapd/connections/{connectionId} [DELETE]
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.TapdConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -133,9 +138,13 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
-/*
-GET /plugins/tapd/connections
-*/
+// @Summary get all tapd connections
+// @Description Get all Tapd connections
+// @Tags plugins/Tapd
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/tapd/connections [GET]
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var connections []models.TapdConnection
 	err := connectionHelper.List(&connections)
@@ -146,18 +155,13 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
-/*
-GET /plugins/tapd/connections/:connectionId
-
-
-{
-	"name": "tapd data connections name",
-	"endpoint": "tapd api endpoint, i.e. https://merico.atlassian.net/rest",
-	"username": "username, usually should be email address",
-	"password": "jenkins api access token",
-	"rateLimit": 10800,
-}
-*/
+// @Summary get tapd connection detail
+// @Description Get Tapd connection detail
+// @Tags plugins/Tapd
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/tapd/connections/{connectionId} [GET]
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.TapdConnection{}
 	err := connectionHelper.First(connection, input.Params)
