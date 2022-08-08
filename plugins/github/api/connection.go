@@ -33,24 +33,14 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-/*
-POST /plugins/github/test
-REQUEST BODY:
-{
-	"endpoint": "https://api.github.com/",
-	"token": "github api access token"
-}
-RESPONSE BODY:
-Success:
-{
-	"login": "xxx"
-}
-Failure:
-{
-	"success": false,
-	"message": "invalid token"
-}
-*/
+// @Summary test github connection
+// @Description Test Github Connection
+// @Tags plugins/github
+// @Param body body models.TestConnectionRequest true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/github/test [POST]
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// process input
 	var params models.TestConnectionRequest
@@ -134,9 +124,14 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	return &core.ApiResourceOutput{Body: githubApiResponse, Status: http.StatusOK}, nil
 }
 
-/*
-POST /plugins/github/connections
-*/
+// @Summary create github connection
+// @Description Create github connection
+// @Tags plugins/github
+// @Param body body models.GithubConnection true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/github/connections [POST]
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GithubConnection{}
 	err := connectionHelper.Create(connection, input)
@@ -146,9 +141,14 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-PATCH /plugins/github/connections/:connectionId
-*/
+// @Summary patch github connection
+// @Description Patch github connection
+// @Tags plugins/github
+// @Param body body models.GithubConnection true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/github/connections/{connectionId} [PATCH]
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GithubConnection{}
 	err := connectionHelper.Patch(connection, input)
@@ -158,9 +158,13 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-DELETE /plugins/github/connections/:connectionId
-*/
+// @Summary delete a github connection
+// @Description Delete a github connection
+// @Tags plugins/github
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/github/connections/{connectionId} [DELETE]
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GithubConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -171,9 +175,13 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
-/*
-GET /plugins/github/connections
-*/
+// @Summary get all github connections
+// @Description Get all github connections
+// @Tags plugins/github
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/github/connections [GET]
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var connections []models.GithubConnection
 	err := connectionHelper.List(&connections)
@@ -184,9 +192,13 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connections}, nil
 }
 
-/*
-GET /plugins/github/connections/:connectionId
-*/
+// @Summary get github connection detail
+// @Description Get github connection detail
+// @Tags plugins/github
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/github/connections/{connectionId} [GET]
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GithubConnection{}
 	err := connectionHelper.First(connection, input.Params)
