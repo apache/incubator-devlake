@@ -82,12 +82,12 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			var result json.RawMessage
-			err := helper.UnmarshalResponse(res, &result)
+			var results []json.RawMessage
+			err := helper.UnmarshalResponse(res, &results)
 			if err != nil {
 				return nil, err
 			}
-			return []json.RawMessage{result}, nil
+			return results[:], nil
 		},
 	})
 	if err != nil {

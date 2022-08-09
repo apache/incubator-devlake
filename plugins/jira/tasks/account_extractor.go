@@ -47,16 +47,12 @@ func ExtractAccounts(taskCtx core.SubTaskContext) error {
 			Table: RAW_USERS_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			var result []interface{}
-			var users []apiv2models.Account
-			err := json.Unmarshal(row.Data, &users)
+			var user apiv2models.Account
+			err := json.Unmarshal(row.Data, &user)
 			if err != nil {
 				return nil, err
 			}
-			for _, user := range users {
-				result = append(result, user.ToToolLayer(data.Options.ConnectionId))
-			}
-			return result[:], nil
+			return []interface{}{user.ToToolLayer(data.Options.ConnectionId)}, nil
 
 		},
 	})
