@@ -33,9 +33,9 @@ import (
 
 // @Summary test tapd connection
 // @Description Test Tapd Connection
-// @Tags plugins/Tapd
+// @Tags plugins/tapd
 // @Param body body models.TestConnectionRequest true "json body"
-// @Success 200
+// @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/test [POST]
@@ -82,9 +82,9 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 
 // @Summary create tapd connection
 // @Description Create Tapd connection
-// @Tags plugins/Tapd
+// @Tags plugins/tapd
 // @Param body body models.TapdConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.TapdConnection "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections [POST]
@@ -104,9 +104,9 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 
 // @Summary patch tapd connection
 // @Description Patch Tapd connection
-// @Tags plugins/Tapd
+// @Tags plugins/tapd
 // @Param body body models.TapdConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.TapdConnection "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections/{connectionId} [PATCH]
@@ -122,8 +122,8 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 
 // @Summary delete a tapd connection
 // @Description Delete a Tapd connection
-// @Tags plugins/Tapd
-// @Success 200
+// @Tags plugins/tapd
+// @Success 200  {object} models.TapdConnection "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections/{connectionId} [DELETE]
@@ -139,8 +139,8 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 
 // @Summary get all tapd connections
 // @Description Get all Tapd connections
-// @Tags plugins/Tapd
-// @Success 200
+// @Tags plugins/tapd
+// @Success 200  {object} models.TapdConnection "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections [GET]
@@ -156,8 +156,8 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 
 // @Summary get tapd connection detail
 // @Description Get Tapd connection detail
-// @Tags plugins/Tapd
-// @Success 200
+// @Tags plugins/tapd
+// @Success 200  {object} models.TapdConnection "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections/{connectionId} [GET]

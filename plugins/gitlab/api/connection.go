@@ -33,7 +33,7 @@ import (
 // @Description Test gitlab Connection
 // @Tags plugins/gitlab
 // @Param body body models.TestConnectionRequest true "json body"
-// @Success 200
+// @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/gitlab/test [POST]
@@ -85,7 +85,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 // @Description Create gitlab connection
 // @Tags plugins/gitlab
 // @Param body body models.GitlabConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.GitlabConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/gitlab/connections [POST]
@@ -103,7 +103,7 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Description Patch gitlab connection
 // @Tags plugins/gitlab
 // @Param body body models.GitlabConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.GitlabConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/gitlab/connections/{connectionId} [PATCH]
@@ -119,7 +119,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Summary delete a gitlab connection
 // @Description Delete a gitlab connection
 // @Tags plugins/gitlab
-// @Success 200
+// @Success 200  {object} models.GitlabConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/gitlab/connections/{connectionId} [DELETE]
@@ -136,7 +136,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 // @Summary get all gitlab connections
 // @Description Get all gitlab connections
 // @Tags plugins/gitlab
-// @Success 200
+// @Success 200  {object} []models.GitlabConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/gitlab/connections [GET]
@@ -152,7 +152,7 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Summary get gitlab connection detail
 // @Description Get gitlab connection detail
 // @Tags plugins/gitlab
-// @Success 200
+// @Success 200  {object} models.GitlabConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/gitlab/connections/{connectionId} [GET]

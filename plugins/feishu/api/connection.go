@@ -30,9 +30,14 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-/*
-POST /plugins/feishu/test
-*/
+// @Summary test feishu connection
+// @Description Test feishu Connection
+// @Tags plugins/feishu
+// @Param body body models.TestConnectionRequest true "json body"
+// @Success 200  {object} shared.ApiBody "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/feishu/test [POST]
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// process input
 	var params models.TestConnectionRequest
@@ -72,9 +77,14 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	return nil, nil
 }
 
-/*
-POST /plugins/feishu/connections
-*/
+// @Summary create feishu connection
+// @Description Create feishu connection
+// @Tags plugins/feishu
+// @Param body body models.FeishuConnection true "json body"
+// @Success 200  {object} models.FeishuConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/feishu/connections [POST]
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.FeishuConnection{}
 	err := connectionHelper.Create(connection, input)
@@ -84,9 +94,14 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-PATCH /plugins/feishu/connections/:connectionId
-*/
+// @Summary patch feishu connection
+// @Description Patch feishu connection
+// @Tags plugins/feishu
+// @Param body body models.FeishuConnection true "json body"
+// @Success 200  {object} models.FeishuConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/feishu/connections/{connectionId} [PATCH]
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.FeishuConnection{}
 	err := connectionHelper.Patch(connection, input)
@@ -96,9 +111,13 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-DELETE /plugins/feishu/connections/:connectionId
-*/
+// @Summary delete a feishu connection
+// @Description Delete a feishu connection
+// @Tags plugins/feishu
+// @Success 200  {object} models.FeishuConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/feishu/connections/{connectionId} [DELETE]
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.FeishuConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -109,9 +128,13 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
-/*
-GET /plugins/feishu/connections
-*/
+// @Summary get all feishu connections
+// @Description Get all feishu connections
+// @Tags plugins/feishu
+// @Success 200  {object} models.FeishuConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/feishu/connections [GET]
 func ListConnections(_ *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var connections []models.FeishuConnection
 	err := connectionHelper.List(&connections)
@@ -122,9 +145,13 @@ func ListConnections(_ *core.ApiResourceInput) (*core.ApiResourceOutput, error) 
 	return &core.ApiResourceOutput{Body: connections}, nil
 }
 
-/*
-GET /plugins/feishu/connections/:connectionId
-*/
+// @Summary get feishu connection detail
+// @Description Get feishu connection detail
+// @Tags plugins/feishu
+// @Success 200  {object} models.FeishuConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/feishu/connections/{connectionId} [GET]
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.FeishuConnection{}
 	err := connectionHelper.First(connection, input.Params)

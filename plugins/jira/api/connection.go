@@ -34,9 +34,9 @@ import (
 
 // @Summary test jira connection
 // @Description Test Jira Connection
-// @Tags plugins/Jira
+// @Tags plugins/jira
 // @Param body body models.TestConnectionRequest true "json body"
-// @Success 200
+// @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jira/test [POST]
@@ -134,9 +134,9 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 
 // @Summary create jira connection
 // @Description Create Jira connection
-// @Tags plugins/Jira
+// @Tags plugins/jira
 // @Param body body models.JiraConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.JiraConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jira/connections [POST]
@@ -152,9 +152,9 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 
 // @Summary patch jira connection
 // @Description Patch Jira connection
-// @Tags plugins/Jira
+// @Tags plugins/jira
 // @Param body body models.JiraConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.JiraConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jira/connections/{connectionId} [PATCH]
@@ -169,8 +169,8 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 
 // @Summary delete a jira connection
 // @Description Delete a Jira connection
-// @Tags plugins/Jira
-// @Success 200
+// @Tags plugins/jira
+// @Success 200  {object} models.JiraConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jira/connections/{connectionId} [DELETE]
@@ -186,8 +186,8 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 
 // @Summary get all jira connections
 // @Description Get all Jira connections
-// @Tags plugins/Jira
-// @Success 200
+// @Tags plugins/jira
+// @Success 200  {object} []models.JiraConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jira/connections [GET]
@@ -202,8 +202,8 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 
 // @Summary get jira connection detail
 // @Description Get Jira connection detail
-// @Tags plugins/Jira
-// @Success 200
+// @Tags plugins/jira
+// @Success 200  {object} models.JiraConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jira/connections/{connectionId} [GET]

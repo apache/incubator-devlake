@@ -33,11 +33,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
+type GithubTestConnResponse struct {
+	shared.ApiBody
+	Login string `json:"login"`
+}
+
 // @Summary test github connection
 // @Description Test github Connection
 // @Tags plugins/github
 // @Param body body models.TestConnectionRequest true "json body"
-// @Success 200
+// @Success 200  {object} GithubTestConnResponse
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/github/test [POST]
@@ -114,10 +119,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return nil, fmt.Errorf(strings.Join(msgs, "\n"))
 	}
 
-	var githubApiResponse struct {
-		shared.ApiBody
-		Login string `json:"login"`
-	}
+	githubApiResponse := GithubTestConnResponse{}
 	githubApiResponse.Success = true
 	githubApiResponse.Message = "success"
 	githubApiResponse.Login = strings.Join(logins, `,`)
@@ -128,7 +130,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 // @Description Create github connection
 // @Tags plugins/github
 // @Param body body models.GithubConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.GithubConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/github/connections [POST]
@@ -145,7 +147,7 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Description Patch github connection
 // @Tags plugins/github
 // @Param body body models.GithubConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.GithubConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/github/connections/{connectionId} [PATCH]
@@ -161,7 +163,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Summary delete a github connection
 // @Description Delete a github connection
 // @Tags plugins/github
-// @Success 200
+// @Success 200  {object} models.GithubConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/github/connections/{connectionId} [DELETE]
@@ -178,7 +180,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 // @Summary get all github connections
 // @Description Get all github connections
 // @Tags plugins/github
-// @Success 200
+// @Success 200  {object} []models.GithubConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/github/connections [GET]
@@ -195,7 +197,7 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Summary get github connection detail
 // @Description Get github connection detail
 // @Tags plugins/github
-// @Success 200
+// @Success 200  {object} models.GithubConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/github/connections/{connectionId} [GET]

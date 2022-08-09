@@ -36,7 +36,7 @@ import (
 */
 // @Summary POST /push/:tableName
 // @Description POST /push/:tableName
-// @Tags push
+// @Tags framework/push
 // @Accept application/json
 // @Param tableName path string true "table name"
 // @Param data body string true "data"
