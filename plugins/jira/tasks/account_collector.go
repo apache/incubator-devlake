@@ -89,11 +89,13 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 					return nil, err
 				}
 				return results, nil
+
 			} else {
 				var result json.RawMessage
 				err := helper.UnmarshalResponse(res, &result)
 				if err != nil {
 					return nil, err
+
 				}
 				return []json.RawMessage{result}, nil
 			}
