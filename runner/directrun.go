@@ -21,16 +21,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/logger"
-	"github.com/apache/incubator-devlake/migration"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/spf13/cobra"
 	"io"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
+
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/spf13/cobra"
 )
 
 // RunCmd FIXME ...
@@ -64,9 +65,17 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 			panic(err)
 		}
 	}
+
 	err = core.RegisterPlugin(cmd.Use, pluginTask.(core.PluginMeta))
 	if err != nil {
 		panic(err)
+	}
+
+	if PluginInfo, ok := pluginTask.(core.PluginInfo); ok {
+		err := core.RegisterPluginInfo(PluginInfo)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	// collect migration and run
