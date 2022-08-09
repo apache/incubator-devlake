@@ -18,6 +18,7 @@ limitations under the License.
 package services
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -91,4 +92,46 @@ func TestMergePipelineTasks(t *testing.T) {
 		},
 		MergePipelinePlans(plan1, plan2, plan3),
 	)
+}
+
+func TestFormatPipelinePlans(t *testing.T) {
+	beforePlan2 := json.RawMessage(`[[{"plugin":"github"},{"plugin":"gitlab"}],[{"plugin":"gitextractor1"},{"plugin":"gitextractor2"}]]`)
+
+	mainPlan := core.PipelinePlan{
+		{
+			{Plugin: "jira"},
+		},
+	}
+
+	afterPlan2 := json.RawMessage(`[[{"plugin":"jenkins"}],[{"plugin":"jenkins"}]]`)
+
+	result1, err1 := FormatPipelinePlans(nil, mainPlan, nil)
+	assert.Nil(t, err1)
+	assert.Equal(t, mainPlan, result1)
+
+	result2, err2 := FormatPipelinePlans(beforePlan2, mainPlan, afterPlan2)
+	assert.Nil(t, err2)
+	assert.Equal(t, core.PipelinePlan{
+		{
+			{Plugin: "github"},
+			{Plugin: "gitlab"},
+		},
+		{
+			{Plugin: "gitextractor1"},
+			{Plugin: "gitextractor2"},
+		},
+		{
+			{Plugin: "jira"},
+		},
+		{
+			{Plugin: "jenkins"},
+		},
+		{
+			{Plugin: "jenkins"},
+		},
+	}, result2)
+
+	result3, err3 := FormatPipelinePlans(json.RawMessage("[]"), mainPlan, json.RawMessage("[]"))
+	assert.Nil(t, err3)
+	assert.Equal(t, mainPlan, result3)
 }
