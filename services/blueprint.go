@@ -342,3 +342,22 @@ func TriggerBlueprint(id uint64) (*models.Pipeline, error) {
 	// done
 	return pipeline, err
 }
+
+// GetBlueprintPipelines returns a list of pipelines based on blueprint id
+func GetBlueprintPipelines(id uint64) ([]*models.Pipeline, error) {
+	pipelines := make([]*models.Pipeline, 0)
+	db := db.Model(pipelines).Where("blueprint_id = ?", id)
+	err := db.Find(&pipelines).Error
+	if err != nil {
+		return nil, err
+	}
+	return pipelines, nil
+
+	// blueprints := make([]*models.Blueprint, 0)
+	// db := db.Model(blueprints).Where("id = ?", id).Order("id DESC")
+	// err := db.Find(&blueprints).Error
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return blueprints, nil
+}

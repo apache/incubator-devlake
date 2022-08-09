@@ -201,3 +201,19 @@ func Trigger(c *gin.Context) {
 	}
 	shared.ApiOutputSuccess(c, pipeline, http.StatusOK)
 }
+
+// @Router /blueprints/{blueprintId}/pipelines [get]
+func GetBlueprintPipelines(c *gin.Context) {
+	blueprintId := c.Param("blueprintId")
+	id, err := strconv.ParseUint(blueprintId, 10, 64)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	pipelines, err := services.GetBlueprintPipelines(id)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	shared.ApiOutputSuccess(c, pipelines, http.StatusOK)
+}
