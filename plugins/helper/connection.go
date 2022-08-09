@@ -63,7 +63,7 @@ type RestConnection struct {
 	BaseConnection   `mapstructure:",squash"`
 	Endpoint         string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
 	Proxy            string `mapstructure:"proxy" json:"proxy"`
-	RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimit"`
+	RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimitPerHour"`
 }
 
 // ConnectionApiHelper is used to write the CURD of connection

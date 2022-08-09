@@ -45,7 +45,7 @@ GET /pipelines/pipeline:id/tasks?status=TASK_RUNNING&pending=1&page=1&=pagesize=
 // @Description 	],
 // @Description 	"count": 5
 // @Description }
-// @Tags task
+// @Tags framework/task
 // @Accept application/json
 // @Param pipelineId path int true "pipelineId"
 // @Success 200  {string} gin.H "{"tasks": tasks, "count": count}"

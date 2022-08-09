@@ -33,9 +33,9 @@ import (
 
 // @Summary test jenkins connection
 // @Description Test Jenkins Connection
-// @Tags plugins/Jenkins
+// @Tags plugins/jenkins
 // @Param body body models.TestConnectionRequest true "json body"
-// @Success 200
+// @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jenkins/test [POST]
@@ -81,9 +81,9 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 
 // @Summary create jenkins connection
 // @Description Create Jenkins connection
-// @Tags plugins/Jenkins
+// @Tags plugins/jenkins
 // @Param body body models.JenkinsConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.JenkinsConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jenkins/connections [POST]
@@ -101,9 +101,9 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 
 // @Summary patch jenkins connection
 // @Description Patch Jenkins connection
-// @Tags plugins/Jenkins
+// @Tags plugins/jenkins
 // @Param body body models.JenkinsConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.JenkinsConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jenkins/connections/{connectionId} [PATCH]
@@ -119,8 +119,8 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 
 // @Summary delete a jenkins connection
 // @Description Delete a Jenkins connection
-// @Tags plugins/Jenkins
-// @Success 200
+// @Tags plugins/jenkins
+// @Success 200  {object} models.JenkinsConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jenkins/connections/{connectionId} [DELETE]
@@ -136,8 +136,8 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 
 // @Summary get all jenkins connections
 // @Description Get all Jenkins connections
-// @Tags plugins/Jenkins
-// @Success 200
+// @Tags plugins/jenkins
+// @Success 200  {object} []models.JenkinsConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jenkins/connections [GET]
@@ -153,8 +153,8 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 
 // @Summary get jenkins connection detail
 // @Description Get Jenkins connection detail
-// @Tags plugins/Jenkins
-// @Success 200
+// @Tags plugins/jenkins
+// @Success 200  {object} models.JenkinsConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jenkins/connections/{connectionId} [GET]

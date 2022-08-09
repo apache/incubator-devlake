@@ -25,7 +25,7 @@ import (
 
 // @Summary Ping
 // @Description check http status
-// @Tags Ping
+// @Tags framework/ping
 // @Success 200
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
