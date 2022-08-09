@@ -19,3 +19,4 @@ FROM golang:1.17-alpine3.15 as builder
 #RUN apk add --update gcc=130.2.1_pre1-r3 g++=10.2.1_pre1-r3
 RUN apk update && apk upgrade && apk add --no-cache tzdata libgit2-dev gcc g++ make tar git
 RUN go install github.com/vektra/mockery/v2@v2.12.3
+RUN go install github.com/swaggo/swag/cmd/swag@v1.8.4
