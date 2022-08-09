@@ -147,7 +147,7 @@ func convertAccount(res GraphqlQueryAccount, connId uint64) ([]interface{}, erro
 		AvatarUrl:    res.AvatarUrl,
 		//Url:          res.Url,
 		HtmlUrl: res.HtmlUrl,
-		//Type:         res.Type,
+		Type:    `User`,
 	}
 	results = append(results, githubAccount)
 	for _, apiAccountOrg := range res.Organizations.Nodes {

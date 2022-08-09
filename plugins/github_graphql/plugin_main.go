@@ -22,11 +22,12 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/github_graphql/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/runner"
+	"github.com/merico-dev/graphql"
 	"github.com/mitchellh/mapstructure"
-	"github.com/shurcooL/graphql"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
@@ -61,6 +62,13 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectRepoMeta,
 		tasks.CollectIssueMeta,
 		tasks.CollectPrMeta,
+		tasks.CollectAccountMeta,
+		//tasks.CollectApiCommentsMeta,
+		//tasks.ExtractApiCommentsMeta,
+		tasks.CollectApiEventsMeta,
+		tasks.ExtractApiEventsMeta,
+		//tasks.CollectMilestonesMeta,
+		//tasks.ExtractMilestonesMeta,
 	}
 }
 
@@ -101,7 +109,7 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 	)
 	httpClient := oauth2.NewClient(taskCtx.GetContext(), src)
 	client := graphql.NewClient(connection.Endpoint+`graphql`, httpClient)
-	asyncClient := helper.CreateAsyncGraphqlClient(taskCtx.GetContext(), client, taskCtx.GetLogger(),
+	graphqlClient := helper.CreateAsyncGraphqlClient(taskCtx.GetContext(), client, taskCtx.GetLogger(),
 		func(ctx context.Context, client *graphql.Client, logger core.Logger) (rateRemaining int, resetAt *time.Time, err error) {
 			var query GraphQueryRateLimit
 			err = client.Query(taskCtx.GetContext(), &query, nil)
@@ -113,14 +121,20 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 			return int(query.RateLimit.Remaining), &query.RateLimit.ResetAt, nil
 		})
 
-	asyncClient.SetGetRateCost(func(q interface{}) int {
+	graphqlClient.SetGetRateCost(func(q interface{}) int {
 		v := reflect.ValueOf(q)
 		return int(v.Elem().FieldByName(`RateLimit`).FieldByName(`Cost`).Int())
 	})
 
+	apiClient, err := githubTasks.CreateApiClient(taskCtx, connection)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get github API client instance: %v", err)
+	}
+
 	return &tasks.GithubGraphqlTaskData{
-		Options: &op,
-		Client:  asyncClient,
+		Options:       &op,
+		GraphqlClient: graphqlClient,
+		HttpClient:    apiClient,
 	}, nil
 }
 

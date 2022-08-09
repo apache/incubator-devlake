@@ -42,12 +42,15 @@ type GithubAccountResponse struct {
 	SiteAdmin         bool   `json:"site_admin"`
 }
 
-func convertRestPreAccount(res *GithubAccountResponse, repoId int, connId uint64) (*models.GithubRepoAccount, error) {
+func convertRestPreAccount(res *GithubAccountResponse, repoId int, connId uint64) ([]interface{}, error) {
+	if res.Type != `User` {
+		return nil, nil
+	}
 	githubAccount := &models.GithubRepoAccount{
 		ConnectionId: connId,
 		RepoGithubId: repoId,
 		Login:        res.Login,
 		AccountId:    res.Id,
 	}
-	return githubAccount, nil
+	return []interface{}{githubAccount}, nil
 }

@@ -71,11 +71,11 @@ func ExtractApiEvents(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			results = append(results, githubIssueEvent)
-			githubAccount, err := convertRestPreAccount(body.Actor, data.Repo.GithubId, data.Options.ConnectionId)
+			githubAccounts, err := convertRestPreAccount(body.Actor, data.Repo.GithubId, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}
-			results = append(results, githubAccount)
+			results = append(results, githubAccounts...)
 
 			return results, nil
 		},
