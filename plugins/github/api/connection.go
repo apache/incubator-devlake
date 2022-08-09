@@ -34,7 +34,7 @@ import (
 )
 
 // @Summary test github connection
-// @Description Test Github Connection
+// @Description Test github Connection
 // @Tags plugins/github
 // @Param body body models.TestConnectionRequest true "json body"
 // @Success 200
