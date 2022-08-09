@@ -54,8 +54,8 @@ type AccessToken struct {
 
 // AppKey FIXME ...
 type AppKey struct {
-	AppId     string `mapstructure:"app_id" validate:"required" json:"app_id"`
-	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secret_key" encrypt:"yes"`
+	AppId     string `mapstructure:"app_id" validate:"required" json:"appId"`
+	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secretKey" encrypt:"yes"`
 }
 
 // RestConnection FIXME ...
