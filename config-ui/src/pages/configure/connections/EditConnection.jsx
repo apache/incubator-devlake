@@ -76,6 +76,7 @@ export default function EditConnection () {
     setEndpointUrl(activeConnection.endpoint)
     switch (activeProvider.id) {
       case Providers.JENKINS:
+      case Providers.TAPD:
       case Providers.JIRA:
         setUsername(activeConnection.username)
         setPassword(activeConnection.password)
@@ -155,7 +156,7 @@ export default function EditConnection () {
                   testStatus={testStatus}
                   errors={errors}
                   showError={showError}
-                  authType={[Providers.JENKINS, Providers.JIRA].includes(activeProvider.id) ? 'plain' : 'token'}
+                  authType={[Providers.JENKINS, Providers.JIRA, Providers.TAPD].includes(activeProvider.id) ? 'plain' : 'token'}
                   sourceLimits={ProviderConnectionLimits}
                   labels={ProviderFormLabels[activeProvider.id]}
                   placeholders={ProviderFormPlaceholders[activeProvider.id]}

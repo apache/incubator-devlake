@@ -53,7 +53,8 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
     Providers.GITEXTRACTOR,
     Providers.FEISHU,
     Providers.AE,
-    Providers.DBT
+    Providers.DBT,
+    Providers.TAPD
   ])
 
   const PIPELINES_ENDPOINT = useMemo(() => `${DEVLAKE_ENDPOINT}/pipelines`, [DEVLAKE_ENDPOINT])

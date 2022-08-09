@@ -149,6 +149,16 @@ function useConnectionManager (
           ...connectionPayload,
         }
         break
+      case Providers.TAPD:
+        connectionPayload = {
+          name: name,
+          endpoint: endpointUrl,
+          username: username,
+          password: password,
+          proxy: proxy,
+          ...connectionPayload,
+        }
+        break
       case Providers.GITHUB:
         connectionPayload = {
           name: name,
