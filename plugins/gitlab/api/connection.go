@@ -21,12 +21,15 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/utils"
 	"github.com/mitchellh/mapstructure"
+	"gorm.io/gorm/schema"
 )
 
 // @Summary test gitlab connection
@@ -160,4 +163,33 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	connection := &models.GitlabConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err
+}
+
+// @Summary get table info
+// @Description Get table info map
+// @Tags plugins/gitlab
+// @Success 200
+// @Router /plugins/gitlab/table [GET]
+func GetTableInfo(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	info := make(map[string]interface{})
+
+	err := core.GetTotalInfo().VisitTable("Gitlab", func(pluginName string, ts *core.TablesInfo) (err error) {
+
+		tableInfo := make(map[string]interface{})
+		info[pluginName] = &tableInfo
+
+		return ts.Traversal(func(pluginName, name string, describe *string, table schema.Tabler) (err error) {
+			tableData := make(map[string]reflect.StructField)
+			tableInfo[name] = &tableData
+
+			sf := utils.WalkFields(reflect.TypeOf(table), nil)
+			for _, f := range sf {
+				tableData[f.Name] = f
+			}
+
+			return
+		})
+	})
+
+	return &core.ApiResourceOutput{Body: info}, err
 }

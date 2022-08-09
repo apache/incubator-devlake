@@ -33,6 +33,7 @@ import (
 
 var _ core.PluginMeta = (*Gitlab)(nil)
 var _ core.PluginInit = (*Gitlab)(nil)
+var _ core.PluginInfo = (*Gitlab)(nil)
 var _ core.PluginTask = (*Gitlab)(nil)
 var _ core.PluginApi = (*Gitlab)(nil)
 var _ core.Migratable = (*Gitlab)(nil)
@@ -43,6 +44,29 @@ type Gitlab string
 
 func (plugin Gitlab) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
 	api.Init(config, logger, db)
+	return nil
+}
+
+func (plugin Gitlab) RegisterTablesInfo(ms *core.TablesInfo) error {
+	ms.Adds(
+		&models.GitlabConnection{},
+		&models.GitlabAccount{},
+		&models.GitlabCommit{},
+		&models.GitlabIssue{},
+		&models.GitlabIssueLabel{},
+		&models.GitlabJob{},
+		&models.GitlabMergeRequest{},
+		&models.GitlabMrComment{},
+		&models.GitlabMrCommit{},
+		&models.GitlabMrLabel{},
+		&models.GitlabMrNote{},
+		&models.GitlabPipeline{},
+		&models.GitlabProject{},
+		&models.GitlabProjectCommit{},
+		// &models.GitlabResponse{},
+		&models.GitlabReviewer{},
+		&models.GitlabTag{},
+	)
 	return nil
 }
 
@@ -143,6 +167,9 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
+		},
+		"table": {
+			"GET": api.GetTableInfo,
 		},
 	}
 }
