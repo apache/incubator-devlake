@@ -49,7 +49,7 @@ POST /pipelines
 // @Description 		[ {"plugin": "github", ...}],
 // @Description 	]
 // @Description }
-// @Tags pipelines
+// @Tags framework/pipelines
 // @Accept application/json
 // @Param pipeline body models.NewPipeline true "json"
 // @Success 200  {object} models.Pipeline
@@ -94,7 +94,7 @@ GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
 // @Description 	],
 // @Description 	"count": 5
 // @Description }
-// @Tags pipelines
+// @Tags framework/pipelines
 // @Param status query string true "query"
 // @Param pending query int true "query"
 // @Param page query int true "query"
@@ -135,7 +135,7 @@ GET /pipelines/:pipelineId
 // @Description 	"name": "test-pipeline",
 // @Description 	...
 // @Description }
-// @Tags pipelines
+// @Tags framework/pipelines
 // @Param pipelineId path int true "query"
 // @Success 200  {object} models.Pipeline
 // @Failure 400  {string} errcode.Error "Bad Request"
@@ -162,7 +162,7 @@ DELETE /pipelines/:pipelineId
 */
 // @Cancel a pending pipeline
 // @Description Cancel a pending pipeline
-// @Tags pipelines
+// @Tags framework/pipelines
 // @Param pipelineId path int true "pipeline ID"
 // @Success 200
 // @Failure 400  {string} errcode.Error "Bad Request"

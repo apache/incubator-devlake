@@ -30,7 +30,7 @@ import (
 
 // @Summary post blueprints
 // @Description post blueprints
-// @Tags Blueprints
+// @Tags framework/blueprints
 // @Accept application/json
 // @Param blueprint body string true "json"
 // @Success 200  {object} models.Blueprint
@@ -57,7 +57,7 @@ func Post(c *gin.Context) {
 
 // @Summary get blueprints
 // @Description get blueprints
-// @Tags Blueprints
+// @Tags framework/blueprints
 // @Accept application/json
 // @Success 200  {object} gin.H
 // @Failure 400  {string} errcode.Error "Bad Request"
@@ -80,7 +80,7 @@ func Index(c *gin.Context) {
 
 // @Summary get blueprints
 // @Description get blueprints
-// @Tags Blueprints
+// @Tags framework/blueprints
 // @Accept application/json
 // @Param blueprintId path int true "blueprint id"
 // @Success 200  {object} models.Blueprint
@@ -104,7 +104,7 @@ func Get(c *gin.Context) {
 
 // @Summary delete blueprints
 // @Description Delete BluePrints
-// @Tags Blueprints
+// @Tags framework/blueprints
 // @Param blueprintId path string true "blueprintId"
 // @Success 200
 // @Failure 400  {string} errcode.Error "Bad Request"
@@ -150,7 +150,7 @@ func Put(c *gin.Context) {
 
 // @Summary patch blueprints
 // @Description patch blueprints
-// @Tags Blueprints
+// @Tags framework/blueprints
 // @Accept application/json
 // @Param blueprintId path string true "blueprintId"
 // @Success 200  {object} models.Blueprint
@@ -180,7 +180,7 @@ func Patch(c *gin.Context) {
 
 // @Summary trigger blueprint
 // @Description trigger a blueprint immediately
-// @Tags Blueprints
+// @Tags framework/blueprints
 // @Accept application/json
 // @Param blueprintId path string true "blueprintId"
 // @Success 200  {object} models.Pipeline
