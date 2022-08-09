@@ -33,9 +33,9 @@ type ApiMeResponse struct {
 	Name string `json:"name"`
 }
 
-// @Summary test AE connection
+// @Summary test ae connection
 // @Description Test AE Connection
-// @Tags plugins/ae
+// @Tags plugins/AE
 // @Param body body models.TestConnectionRequest true "json body"
 // @Success 200
 // @Failure 400  {string} errcode.Error "Bad Request"
