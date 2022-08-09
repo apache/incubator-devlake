@@ -32,9 +32,14 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-/*
-POST /plugins/gitee/test
-*/
+// @Summary test gitee connection
+// @Description Test gitee Connection
+// @Tags plugins/gitee
+// @Param body body models.TestConnectionRequest true "json body"
+// @Success 200  {object} shared.ApiBody "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/gitee/test [POST]
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var connection models.TestConnectionRequest
 	err := mapstructure.Decode(input.Body, &connection)
@@ -77,9 +82,14 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	return nil, nil
 }
 
-/*
-POST /plugins/gitee/connections
-*/
+// @Summary create gitee connection
+// @Description Create gitee connection
+// @Tags plugins/gitee
+// @Param body body models.GithubConnection true "json body"
+// @Success 200  {object} models.GiteeConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/gitee/connections [POST]
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GiteeConnection{}
 	err := connectionHelper.Create(connection, input)
@@ -89,9 +99,14 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-PATCH /plugins/gitee/connections/:connectionId
-*/
+// @Summary patch gitee connection
+// @Description Patch gitee connection
+// @Tags plugins/gitee
+// @Param body body models.GithubConnection true "json body"
+// @Success 200  {object} models.GiteeConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/gitee/connections/{connectionId} [PATCH]
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GiteeConnection{}
 	err := connectionHelper.Patch(connection, input)
@@ -101,9 +116,13 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-DELETE /plugins/gitee/connections/:connectionId
-*/
+// @Summary delete a gitee connection
+// @Description Delete a gitee connection
+// @Tags plugins/gitee
+// @Success 200  {object} models.GiteeConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/gitee/connections/{connectionId} [DELETE]
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GiteeConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -114,9 +133,13 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
-/*
-GET /plugins/gitee/connections
-*/
+// @Summary get all gitee connections
+// @Description Get all gitee connections
+// @Tags plugins/gitee
+// @Success 200  {object} models.GiteeConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/gitee/connections [GET]
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var connections []models.GiteeConnection
 	err := connectionHelper.List(&connections)
@@ -127,9 +150,13 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connections}, nil
 }
 
-/*
-GET /plugins/gitee/connections/:connectionId
-*/
+// @Summary get gitee connection detail
+// @Description Get gitee connection detail
+// @Tags plugins/gitee
+// @Success 200  {object} models.GiteeConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/gitee/connections/{connectionId} [GET]
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GiteeConnection{}
 	err := connectionHelper.First(connection, input.Params)
