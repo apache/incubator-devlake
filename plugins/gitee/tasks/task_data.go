@@ -25,12 +25,9 @@ import (
 )
 
 type GiteeOptions struct {
-	ConnectionId               uint64   `json:"connectionId"`
-	Tasks                      []string `json:"tasks,omitempty"`
-	Since                      string
+	ConnectionId               uint64 `json:"connectionId"`
 	Owner                      string
 	Repo                       string
-	Token                      string
 	models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
