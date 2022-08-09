@@ -82,12 +82,21 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			var results []json.RawMessage
-			err := helper.UnmarshalResponse(res, &results)
-			if err != nil {
-				return nil, err
+			if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+				var results []json.RawMessage
+				err := helper.UnmarshalResponse(res, &results)
+				if err != nil {
+					return nil, err
+				}
+				return results, nil
+			} else {
+				var result json.RawMessage
+				err := helper.UnmarshalResponse(res, &result)
+				if err != nil {
+					return nil, err
+				}
+				return []json.RawMessage{result}, nil
 			}
-			return results[:], nil
 		},
 	})
 	if err != nil {
