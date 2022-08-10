@@ -29,11 +29,10 @@ import (
 
 // DevLakePipelineWorkflow FIXME ...
 func DevLakePipelineWorkflow(ctx workflow.Context, configJson []byte, pipelineId uint64, loggerConfig *core.LoggerConfig) error {
-	cfg, log, db, err := loadResources(configJson)
+	cfg, log, db, err := loadResources(configJson, loggerConfig)
 	if err != nil {
 		return err
 	}
-	log = log.Nested(fmt.Sprintf("pipeline #%d", pipelineId), loggerConfig)
 	log.Info("received pipeline #%d", pipelineId)
 	err = runner.RunPipeline(
 		cfg,
@@ -41,7 +40,7 @@ func DevLakePipelineWorkflow(ctx workflow.Context, configJson []byte, pipelineId
 		db,
 		pipelineId,
 		func(taskIds []uint64) error {
-			return runTasks(ctx, configJson, taskIds, loggerConfig)
+			return runTasks(ctx, configJson, taskIds, log)
 		},
 	)
 	if err != nil {
@@ -51,7 +50,13 @@ func DevLakePipelineWorkflow(ctx workflow.Context, configJson []byte, pipelineId
 	return err
 }
 
-func runTasks(ctx workflow.Context, configJson []byte, taskIds []uint64, loggerConfig *core.LoggerConfig) error {
+func runTasks(ctx workflow.Context, configJson []byte, taskIds []uint64, logger core.Logger) error {
+	cleanExit := false
+	defer func() {
+		if !cleanExit {
+			logger.Error("fatal error while executing task Ids: %v", taskIds)
+		}
+	}()
 	futures := make([]workflow.Future, len(taskIds))
 	for i, taskId := range taskIds {
 		activityOpts := workflow.ActivityOptions{
@@ -60,7 +65,7 @@ func runTasks(ctx workflow.Context, configJson []byte, taskIds []uint64, loggerC
 			WaitForCancellation: true,
 		}
 		activityCtx := workflow.WithActivityOptions(ctx, activityOpts)
-		futures[i] = workflow.ExecuteActivity(activityCtx, DevLakeTaskActivity, configJson, taskId, loggerConfig)
+		futures[i] = workflow.ExecuteActivity(activityCtx, DevLakeTaskActivity, configJson, taskId, logger)
 	}
 	errs := make([]string, 0)
 	for _, future := range futures {
@@ -69,6 +74,7 @@ func runTasks(ctx workflow.Context, configJson []byte, taskIds []uint64, loggerC
 			errs = append(errs, err.Error())
 		}
 	}
+	cleanExit = true
 	if len(errs) > 0 {
 		return fmt.Errorf(strings.Join(errs, "\n"))
 	}

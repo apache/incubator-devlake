@@ -18,7 +18,6 @@ limitations under the License.
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/common"
@@ -52,12 +51,4 @@ type NewPipeline struct {
 
 func (Pipeline) TableName() string {
 	return "_devlake_pipelines"
-}
-
-func (p Pipeline) GetLoggerConfig() *core.LoggerConfig {
-	formattedCreationTime := p.CreatedAt.UTC().Format("20060102-1504")
-	return &core.LoggerConfig{
-		Filename:  "pipeline",
-		Directory: fmt.Sprintf("pipeline-%d-%s", p.ID, formattedCreationTime),
-	}
 }

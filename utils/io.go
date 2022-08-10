@@ -46,7 +46,7 @@ func CreateArchive(archivePath string, relativeCopy bool, sourcePaths ...string)
 		}
 		if relativeCopy {
 			if srcInfo.IsDir() {
-				err = copyContentsToArchive(archivePathAbs, archivePathAbs)
+				err = copyContentsToArchive(srcPathAbs, archivePathAbs)
 			} else {
 				err = copyToArchive(srcPathAbs, archivePathAbs, srcInfo.Name())
 			}

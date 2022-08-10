@@ -45,4 +45,12 @@ func NewNotFound(message string) *Error {
 	return NewError(http.StatusNotFound, message)
 }
 
+func IsNotFound(err error) bool {
+	errCast, ok := err.(*Error)
+	if !ok {
+		return false
+	}
+	return errCast.Status == http.StatusNotFound
+}
+
 var InternalError = NewError(http.StatusInternalServerError, "Server Internal Error")

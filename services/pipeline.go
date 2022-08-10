@@ -21,6 +21,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/utils"
+	"github.com/google/uuid"
 	"os"
 	"path/filepath"
 	"strings"
@@ -199,23 +201,17 @@ func GetPipeline(pipelineId uint64) (*models.Pipeline, error) {
 	return pipeline, nil
 }
 
-// GetPipelineLogsPath gets the logs directory of this pipeline
-func GetPipelineLogsPath(pipelineId uint64) (string, error) {
-	pipeline, err := GetPipeline(pipelineId)
+// GetPipelineLogsArchivePath creates an archive for the logs of this pipeline and returns its file path
+func GetPipelineLogsArchivePath(pipeline *models.Pipeline) (string, error) {
+	logPath, err := getPipelineLogsPath(pipeline)
 	if err != nil {
 		return "", err
 	}
-	pipelineLog := getPipelineLogger(pipeline)
-	path := pipelineLog.GetFsPath()
-	path = filepath.Dir(path)
-	_, err = os.Stat(path)
-	if err == nil {
-		return path, nil
+	archive := fmt.Sprintf("%s/%s/logging.tar.gz", os.TempDir(), uuid.New())
+	if err = utils.CreateArchive(archive, true, logPath); err != nil {
+		return "", err
 	}
-	if os.IsNotExist(err) {
-		return "", fmt.Errorf("logs for pipeline #%d not found: %v", pipelineId, err)
-	}
-	return "", fmt.Errorf("err validating logs path for pipeline #%d: %v", pipelineId, err)
+	return archive, err
 }
 
 // RunPipelineInQueue query pipeline from db and run it in a queue
@@ -388,4 +384,18 @@ func CancelPipeline(pipelineId uint64) error {
 		_ = CancelTask(pendingTask.ID)
 	}
 	return err
+}
+
+// getPipelineLogsPath gets the logs directory of this pipeline
+func getPipelineLogsPath(pipeline *models.Pipeline) (string, error) {
+	pipelineLog := getPipelineLogger(pipeline)
+	path := filepath.Dir(pipelineLog.GetConfig().Path)
+	_, err := os.Stat(path)
+	if err == nil {
+		return path, nil
+	}
+	if os.IsNotExist(err) {
+		return "", fmt.Errorf("logs for pipeline #%d not found: %v", pipeline.ID, err)
+	}
+	return "", fmt.Errorf("err validating logs path for pipeline #%d: %v", pipeline.ID, err)
 }

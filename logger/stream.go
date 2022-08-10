@@ -15,37 +15,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package app
+package logger
 
 import (
-	"context"
-
-	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/runner"
-	"go.temporal.io/sdk/activity"
+	"io"
+	"os"
+	"path/filepath"
 )
 
-// DevLakeTaskActivity FIXME ...
-func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64, loggerConfig *core.LoggerConfig) error {
-	cfg, log, db, err := loadResources(configJson, loggerConfig)
-	if err != nil {
-		return err
-	}
-	log.Info("received task #%d", taskId)
-	progressDetail := &models.TaskProgressDetail{}
-	progChan := make(chan core.RunningProgress)
-	defer close(progChan)
-	go func() {
-		for p := range progChan {
-			runner.UpdateProgressDetail(db, log, taskId, progressDetail, &p)
-			activity.RecordHeartbeat(ctx, progressDetail)
-		}
-	}()
-	err = runner.RunTask(ctx, cfg, log, db, progChan, taskId)
-	if err != nil {
-		log.Error("failed to execute task #%d: %w", taskId, err)
-	}
-	log.Info("finished task #%d", taskId)
-	return err
+type LogFileStream struct {
 }
+
+func NewLogFileStream() core.LoggerStream {
+	return &LogFileStream{}
+}
+
+func (s *LogFileStream) GetStream(path string) (io.Writer, error) {
+	if path == "" {
+		return os.Stdout, nil
+	}
+	err := os.MkdirAll(filepath.Dir(path), os.ModePerm)
+	if err != nil {
+		return nil, err
+	}
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+	if err != nil {
+		return nil, err
+	}
+	return io.MultiWriter(os.Stdout, file), nil
+}
+
+var _ core.LoggerStream = (*LogFileStream)(nil)

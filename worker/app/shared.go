@@ -27,7 +27,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func loadResources(configJson []byte) (*viper.Viper, core.Logger, *gorm.DB, error) {
+func loadResources(configJson []byte, loggerConfig *core.LoggerConfig) (*viper.Viper, core.Logger, *gorm.DB, error) {
 	// prepare
 	cfg := viper.New()
 	cfg.SetConfigType("json")
@@ -41,5 +41,22 @@ func loadResources(configJson []byte) (*viper.Viper, core.Logger, *gorm.DB, erro
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	return cfg, globalLogger, db, err
+	log, err := getWorkerLogger(globalLogger, loggerConfig)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return cfg, log, db, err
+}
+
+func getWorkerLogger(log core.Logger, logConfig *core.LoggerConfig) (core.Logger, error) {
+	newLog := log.Nested(logConfig.Prefix)
+	newLogConfig := newLog.GetConfig()
+	newLogConfig.Path = logConfig.Path
+	newLogConfig.LoggerStream = logger.NewLogFileStream()
+	if writer, err := newLogConfig.GetStream(logConfig.Path); err != nil {
+		return nil, err
+	} else {
+		newLog.SetStream(writer)
+	}
+	return newLog, nil
 }

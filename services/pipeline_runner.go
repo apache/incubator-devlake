@@ -13,18 +13,18 @@ import (
 )
 
 type pipelineRunner struct {
-	log      core.Logger
+	logger   core.Logger
 	pipeline *models.Pipeline
 }
 
 func (p *pipelineRunner) runPipelineStandalone() error {
 	return runner.RunPipeline(
 		cfg,
-		p.log,
+		p.logger,
 		db,
 		p.pipeline.ID,
 		func(taskIds []uint64) error {
-			return runTasksStandalone(p.log, taskIds)
+			return runTasksStandalone(p.logger, taskIds)
 		},
 	)
 }
@@ -39,32 +39,39 @@ func (p *pipelineRunner) runPipelineViaTemporal() error {
 	if err != nil {
 		return err
 	}
-	p.log.Info("enqueue pipeline #%d into temporal task queue", p.pipeline.ID)
+	p.logger.Info("enqueue pipeline #%d into temporal task queue", p.pipeline.ID)
 	workflow, err := temporalClient.ExecuteWorkflow(
 		context.Background(),
 		workflowOpts,
 		app.DevLakePipelineWorkflow,
 		configJson,
 		p.pipeline.ID,
-		p.pipeline.GetLoggerConfig(),
+		p.logger.GetConfig(),
 	)
 	if err != nil {
-		p.log.Error("failed to enqueue pipeline #%d into temporal", p.pipeline.ID)
+		p.logger.Error("failed to enqueue pipeline #%d into temporal", p.pipeline.ID)
 		return err
 	}
 	err = workflow.Get(context.Background(), nil)
 	if err != nil {
-		p.log.Info("failed to execute pipeline #%d via temporal: %w", p.pipeline.ID, err)
+		p.logger.Info("failed to execute pipeline #%d via temporal: %w", p.pipeline.ID, err)
 	}
-	p.log.Info("pipeline #%d finished by temporal", p.pipeline.ID)
+	p.logger.Info("pipeline #%d finished by temporal", p.pipeline.ID)
 	return err
 }
 
 func getPipelineLogger(pipeline *models.Pipeline) core.Logger {
-	return globalPipelineLog.Nested(
+	pipelineLogger := globalPipelineLog.Nested(
 		fmt.Sprintf("pipeline #%d", pipeline.ID),
-		pipeline.GetLoggerConfig(),
 	)
+	loggingPath := models.GetPipelineLoggerPath(pipelineLogger.GetConfig(), pipeline)
+	pipelineLogger.GetConfig().Path = loggingPath
+	if writer, err := pipelineLogger.GetConfig().GetStream(loggingPath); err != nil {
+		globalPipelineLog.Error("unable to set stream for logging pipeline %d", pipeline.ID)
+	} else {
+		pipelineLogger.SetStream(writer)
+	}
+	return pipelineLogger
 }
 
 // runPipeline start a pipeline actually
@@ -74,7 +81,7 @@ func runPipeline(pipelineId uint64) error {
 		return err
 	}
 	pipelineRun := pipelineRunner{
-		log:      getPipelineLogger(pipeline),
+		logger:   getPipelineLogger(pipeline),
 		pipeline: pipeline,
 	}
 	// run

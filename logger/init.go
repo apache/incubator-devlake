@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
+	"path/filepath"
 	"strings"
 )
 
@@ -48,9 +49,23 @@ func init() {
 		FullTimestamp:   true,
 	})
 	basePath := cfg.GetString("LOGGING_DIR")
+	if basePath != "" {
+		basePath = filepath.Join(basePath, "devlake.log")
+	}
+	loggingConfig := &core.LoggerConfig{
+		LoggerStream: NewLogFileStream(),
+		Path:         basePath,
+		Prefix:       "",
+	}
 	var err error
-	Global, err = NewDefaultLogger(inner, basePath)
+	Global, err = NewDefaultLogger(inner, loggingConfig)
 	if err != nil {
 		panic(err)
+	}
+	if basePath != "" {
+		_, err = loggingConfig.GetStream(basePath)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
