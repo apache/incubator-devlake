@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/merico-dev/graphql"
 	"reflect"
@@ -69,7 +70,7 @@ var _ core.SubTaskEntryPoint = CollectAccount
 
 func CollectAccount(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*GithubGraphqlTaskData)
+	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 
 	cursor, err := db.Cursor(
 		dal.Select("login"),
@@ -87,7 +88,7 @@ func CollectAccount(taskCtx core.SubTaskContext) error {
 	collector, err := helper.NewGraphqlCollector(helper.GraphqlCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: GithubGraphqlApiParams{
+			Params: githubTasks.GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,

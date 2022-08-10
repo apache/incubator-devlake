@@ -36,10 +36,11 @@ type GithubOptions struct {
 }
 
 type GithubTaskData struct {
-	Options   *GithubOptions
-	ApiClient *helper.ApiAsyncClient
-	Since     *time.Time
-	Repo      *models.GithubRepo
+	Options       *GithubOptions
+	ApiClient     *helper.ApiAsyncClient
+	GraphqlClient *helper.GraphqlAsyncClient
+	Since         *time.Time
+	Repo          *models.GithubRepo
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOptions, error) {

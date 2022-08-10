@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/merico-dev/graphql"
 	"time"
@@ -79,9 +79,9 @@ var CollectIssueMeta = core.SubTaskMeta{
 var _ core.SubTaskEntryPoint = CollectIssue
 
 func CollectIssue(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*GithubGraphqlTaskData)
+	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 	config := data.Options.TransformationRules
-	issueRegexes, err := tasks.NewIssueRegexes(config)
+	issueRegexes, err := githubTasks.NewIssueRegexes(config)
 	if err != nil {
 		return nil
 	}
@@ -93,7 +93,7 @@ func CollectIssue(taskCtx core.SubTaskContext) error {
 				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
-			Params: GithubGraphqlApiParams{
+			Params: githubTasks.GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,
@@ -192,7 +192,7 @@ func convertGithubIssue(issue GraphqlQueryIssue, connectionId uint64, repository
 	return githubIssue, nil
 }
 
-func convertGithubLabels(issueRegexes *tasks.IssueRegexes, issue GraphqlQueryIssue, githubIssue *models.GithubIssue) ([]interface{}, error) {
+func convertGithubLabels(issueRegexes *githubTasks.IssueRegexes, issue GraphqlQueryIssue, githubIssue *models.GithubIssue) ([]interface{}, error) {
 	var results []interface{}
 	for _, label := range issue.Labels.Nodes {
 		results = append(results, &models.GithubIssueLabel{

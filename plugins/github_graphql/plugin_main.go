@@ -62,14 +62,14 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectIssueMeta,
 		tasks.CollectPrMeta,
 
-		tasks.CollectApiCommentsMeta,
-		tasks.ExtractApiCommentsMeta,
-		tasks.CollectApiEventsMeta,
-		tasks.ExtractApiEventsMeta,
-		tasks.CollectMilestonesMeta,
-		tasks.ExtractMilestonesMeta,
-		tasks.CollectApiPrReviewCommentsMeta,
-		tasks.ExtractApiPrReviewCommentsMeta,
+		githubTasks.CollectApiCommentsMeta,
+		githubTasks.ExtractApiCommentsMeta,
+		githubTasks.CollectApiEventsMeta,
+		githubTasks.ExtractApiEventsMeta,
+		githubTasks.CollectMilestonesMeta,
+		githubTasks.ExtractMilestonesMeta,
+		githubTasks.CollectApiPrReviewCommentsMeta,
+		githubTasks.ExtractApiPrReviewCommentsMeta,
 
 		tasks.CollectAccountMeta,
 	}
@@ -84,7 +84,7 @@ type GraphQueryRateLimit struct {
 }
 
 func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
-	var op tasks.GithubGraphqlOptions
+	var op githubTasks.GithubOptions
 	err := mapstructure.Decode(options, &op)
 	if err != nil {
 		return nil, err
@@ -134,10 +134,10 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 		return nil, fmt.Errorf("unable to get github API client instance: %v", err)
 	}
 
-	return &tasks.GithubGraphqlTaskData{
+	return &githubTasks.GithubTaskData{
 		Options:       &op,
+		ApiClient:     apiClient,
 		GraphqlClient: graphqlClient,
-		HttpClient:    apiClient,
 	}, nil
 }
 

@@ -20,6 +20,7 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/merico-dev/graphql"
 	"time"
@@ -61,7 +62,7 @@ var CollectRepoMeta = core.SubTaskMeta{
 }
 
 func CollectRepo(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*GithubGraphqlTaskData)
+	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 	db := taskCtx.GetDal()
 
 	collector, err := helper.NewGraphqlCollector(helper.GraphqlCollectorArgs{
@@ -71,7 +72,7 @@ func CollectRepo(taskCtx core.SubTaskContext) error {
 				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
 				set of data to be process, for example, we process JiraIssues by Board
 			*/
-			Params: GithubGraphqlApiParams{
+			Params: githubTasks.GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,

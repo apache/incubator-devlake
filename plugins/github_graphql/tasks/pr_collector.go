@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/merico-dev/graphql"
 	"regexp"
@@ -123,7 +124,7 @@ var CollectPrMeta = core.SubTaskMeta{
 var _ core.SubTaskEntryPoint = CollectPr
 
 func CollectPr(taskCtx core.SubTaskContext) error {
-	data := taskCtx.GetData().(*GithubGraphqlTaskData)
+	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 	config := data.Options.TransformationRules
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
@@ -146,7 +147,7 @@ func CollectPr(taskCtx core.SubTaskContext) error {
 	collector, err := helper.NewGraphqlCollector(helper.GraphqlCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			Params: GithubGraphqlApiParams{
+			Params: githubTasks.GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,
