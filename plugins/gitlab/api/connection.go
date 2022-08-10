@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/mitchellh/mapstructure"
-	"gorm.io/gorm/schema"
 )
 
 // @Summary test gitlab connection
@@ -171,25 +170,28 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 // @Success 200
 // @Router /plugins/gitlab/table [GET]
 func GetTableInfo(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	plugin, err := core.GetPlugin("gitlab")
+	if err != nil {
+		return nil, err
+	}
+	pm, ok := plugin.(core.PluginModel)
+	if !ok {
+		return nil, fmt.Errorf("plugin Gitlab can not change to PluginModel")
+	}
+
+	tables := pm.GetTablesInfo()
+
 	info := make(map[string]interface{})
 
-	err := core.GetTotalInfo().VisitTable("Gitlab", func(pluginName string, ts *core.TablesInfo) (err error) {
+	for _, table := range tables {
+		sf := utils.WalkFields(reflect.TypeOf(table), nil)
+		tableInfo := make(map[string]string)
+		info[table.TableName()] = tableInfo
 
-		tableInfo := make(map[string]interface{})
-		info[pluginName] = &tableInfo
-
-		return ts.Traversal(func(pluginName, name string, describe *string, table schema.Tabler) (err error) {
-			tableData := make(map[string]reflect.StructField)
-			tableInfo[name] = &tableData
-
-			sf := utils.WalkFields(reflect.TypeOf(table), nil)
-			for _, f := range sf {
-				tableData[f.Name] = f
-			}
-
-			return
-		})
-	})
+		for _, s := range sf {
+			tableInfo[s.Name] = string(s.Tag)
+		}
+	}
 
 	return &core.ApiResourceOutput{Body: info}, err
 }

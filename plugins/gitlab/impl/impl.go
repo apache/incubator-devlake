@@ -33,7 +33,7 @@ import (
 
 var _ core.PluginMeta = (*Gitlab)(nil)
 var _ core.PluginInit = (*Gitlab)(nil)
-var _ core.PluginInfo = (*Gitlab)(nil)
+var _ core.PluginModel = (*Gitlab)(nil)
 var _ core.PluginTask = (*Gitlab)(nil)
 var _ core.PluginApi = (*Gitlab)(nil)
 var _ core.Migratable = (*Gitlab)(nil)
@@ -47,8 +47,8 @@ func (plugin Gitlab) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) 
 	return nil
 }
 
-func (plugin Gitlab) RegisterTablesInfo(ms *core.TablesInfo) error {
-	ms.Adds(
+func (plugin Gitlab) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{
 		&models.GitlabConnection{},
 		&models.GitlabAccount{},
 		&models.GitlabCommit{},
@@ -66,8 +66,7 @@ func (plugin Gitlab) RegisterTablesInfo(ms *core.TablesInfo) error {
 		// &models.GitlabResponse{},
 		&models.GitlabReviewer{},
 		&models.GitlabTag{},
-	)
-	return nil
+	}
 }
 
 func (plugin Gitlab) Description() string {

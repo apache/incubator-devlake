@@ -71,13 +71,6 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 		panic(err)
 	}
 
-	if PluginInfo, ok := pluginTask.(core.PluginInfo); ok {
-		err := core.RegisterPluginInfo(PluginInfo)
-		if err != nil {
-			panic(err)
-		}
-	}
-
 	// collect migration and run
 	migration.Init(db)
 	if migratable, ok := pluginTask.(core.Migratable); ok {
