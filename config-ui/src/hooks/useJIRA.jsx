@@ -39,6 +39,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
         throw new Error('Connection ID is Null')
       }
       setError(null)
+      setIsFetching(true)
       const fetchIssueTypes = async () => {
         const issues = await
         request
@@ -46,9 +47,9 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
           .catch(e => setError(e))
         console.log('>>> JIRA API PROXY: Issues Response...', issues)
         setIssueTypesResponse(issues && Array.isArray(issues.data) ? issues.data : [])
-        setTimeout(() => {
-          setIsFetching(false)
-        }, 1000)
+        // setTimeout(() => {
+        setIsFetching(false)
+        // }, 1000)
       }
       fetchIssueTypes()
     } catch (e) {
@@ -67,6 +68,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
         throw new Error('Connection ID is Null')
       }
       setError(null)
+      setIsFetching(true)
       const fetchIssueFields = async () => {
         const fields = await
         request
@@ -74,9 +76,9 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
           .catch(e => setError(e))
         console.log('>>> JIRA API PROXY: Fields Response...', fields)
         setFieldsResponse(fields && Array.isArray(fields.data) ? fields.data : [])
-        setTimeout(() => {
-          setIsFetching(false)
-        }, 1000)
+        // setTimeout(() => {
+        setIsFetching(false)
+        // }, 1000)
       }
       fetchIssueFields()
     } catch (e) {
@@ -95,6 +97,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
         throw new Error('Connection ID is Null')
       }
       setError(null)
+      setIsFetching(true)
       const fetchApiBoards = async () => {
         const boards = await
         request
@@ -102,9 +105,9 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
           .catch(e => setError(e))
         console.log('>>> JIRA API PROXY: Boards Response...', boards)
         setBoardsResponse(boards && Array.isArray(boards.data?.values) ? boards.data?.values : [])
-        setTimeout(() => {
-          setIsFetching(false)
-        }, 1000)
+        // setTimeout(() => {
+        setIsFetching(false)
+        // }, 1000)
       }
       fetchApiBoards()
     } catch (e) {

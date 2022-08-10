@@ -72,7 +72,7 @@ const BlueprintDataScopesDialog = (props) => {
     issueTypesList = [],
     fieldsList = [],
     boards = {},
-    // dataEntities = [],
+    entities = {},
     projects = {},
     mode = Modes.EDIT,
     canOutsideClickClose = false,
@@ -85,14 +85,17 @@ const BlueprintDataScopesDialog = (props) => {
     hasTitle = true,
     activeStep = null,
     onStepChange = () => {},
+    onOpening = () => {},
     onClose = () => {},
     onCancel = () => {},
     onSave = () => {},
     setDataEntities = () => {},
     setProjects = () => {},
     setBoards = () => {},
+    setEntities = () => {},
     setConfiguredProject = () => {},
     setConfiguredBoard = () => {},
+    setTransformationSettings = () => {},
     fieldHasError = () => {},
     getFieldError = () => {},
     isSaving = false,
@@ -127,22 +130,13 @@ const BlueprintDataScopesDialog = (props) => {
     }
   } = props
 
-  // const [boards, setBoards] = useState({ [configuredConnection?.id]: [] })
-  // const [projects, setProjects] = useState({ [configuredConnection?.id]: [] })
-
-  useEffect(() => {
-    console.log('>>> MY BOARDS LIST!!!!', boardsList)
-  }, [boardsList])
-
-  useEffect(() => {
-    console.log('>>> MY SELECTED BOARDS!!!!', boards)
-  }, [boards])
+  // useEffect(() => {
+  //   console.log('>>> MY BOARDS LIST!!!!', boardsList)
+  // }, [boardsList])
 
   // useEffect(() => {
-  //   console.log('>>> MY CONNECTION SCOPE!!!!', scopeConnection)
-  //   setBoards({ [configuredConnection?.id]: scopeConnection?.boardsList })
-  //   setProjects({ [configuredConnection?.id]: scopeConnection?.projects })
-  // }, [scopeConnection, configuredConnection])
+  //   console.log('>>> MY SELECTED BOARDS!!!!', boards)
+  // }, [boards])
 
   return (
     <>
@@ -163,6 +157,7 @@ const BlueprintDataScopesDialog = (props) => {
         isCloseButtonShown={isCloseButtonShown}
         canOutsideClickClose={canOutsideClickClose}
         resetOnClose={resetOnClose}
+        onOpening={onOpening}
         onClose={onClose}
         onClosed={() => {}}
         onChange={onStepChange}
@@ -174,31 +169,17 @@ const BlueprintDataScopesDialog = (props) => {
               <DataScopes
                 provider={provider}
                 activeStep={activeStep}
-                // advancedMode={false}
-                // activeConnectionTab={activeConnectionTab}
                 blueprintConnections={blueprintConnections}
                 dataEntitiesList={dataEntitiesList}
                 boardsList={boardsList}
-                // boards={{
-                //   [configuredConnection?.id]: scopeConnection?.boardsList
-                // }}
                 boards={boards}
-                dataEntities={{
-                  [configuredConnection?.id]: scopeConnection?.entityList
-                  // [configuredConnection?.id]: []
-                }}
-                // projects={{
-                //   [configuredConnection?.id]: scopeConnection?.projects
-                // }}
+                dataEntities={entities}
                 projects={projects}
                 configuredConnection={configuredConnection}
-                // handleConnectionTabChange={handleConnectionTabChange}
-                setDataEntities={setDataEntities}
+                setDataEntities={setEntities}
                 setProjects={setProjects}
                 setBoards={setBoards}
-                // prevStep={prevStep}
                 isSaving={isSaving}
-                // isRunning={isRunning}
                 validationErrors={[]}
                 enableConnectionTabs={false}
                 elevation={Elevation.ZERO}
@@ -216,33 +197,19 @@ const BlueprintDataScopesDialog = (props) => {
                 provider={provider}
                 activeTransformation={activeTransformation}
                 blueprintConnections={blueprintConnections}
-                dataEntities={{
-                  [configuredConnection?.id]: scopeConnection?.entityList
-                }}
-                projects={{
-                  [configuredConnection?.id]: scopeConnection?.projects
-                }}
-                boards={{
-                  [configuredConnection?.id]: scopeConnection?.boardsList
-                }}
-                // transformations={[projects].map(entity => ({[entity]: {}}).reduce((pV, cV) => ({...pV}), {}))}
+                dataEntities={entities}
+                projects={projects}
+                boards={boards}
                 boardsList={boardsList}
                 issueTypes={issueTypesList}
                 fields={fieldsList}
                 configuredConnection={configuredConnection}
                 configuredProject={configuredProject}
                 configuredBoard={configuredBoard}
-                // handleConnectionTabChange={handleConnectionTabChange}
-                // prevStep={prevStep}
                 addBoardTransformation={(board) => setConfiguredBoard(board)}
                 addProjectTransformation={(project) => setConfiguredProject(project)}
-                // transformations={transformations}
-                // activeTransformation={activeTransformation}
-                // setTransformations={setTransformations}
-                // setTransformationSettings={setTransformationSettings}
                 isSaving={isSaving}
-                // isSavingConnection={isSavingConnection}
-                // isRunning={isRunning}
+                setTransformationSettings={setTransformationSettings}
                 // onSave={handleTransformationSave}
                 // onCancel={handleTransformationCancel}
                 // onClear={handleTransformationClear}

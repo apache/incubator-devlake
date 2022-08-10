@@ -55,6 +55,7 @@ import {
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import useConnectionManager from '@/hooks/useConnectionManager'
+import useDataScopesManager from '@/hooks/useDataScopesManager'
 import useBlueprintValidation from '@/hooks/useBlueprintValidation'
 import usePipelineValidation from '@/hooks/usePipelineValidation'
 import useConnectionValidation from '@/hooks/useConnectionValidation'
@@ -118,47 +119,54 @@ const CreateBlueprint = (props) => {
 
   const [blueprintConnections, setBlueprintConnections] = useState([])
   const [configuredConnection, setConfiguredConnection] = useState()
-  const [dataEntities, setDataEntities] = useState({})
+  // @moved to Data Scopes Manager
+  // const [dataEntities, setDataEntities] = useState({})
+
   const [activeConnectionTab, setActiveConnectionTab] = useState()
 
   const [onlineStatus, setOnlineStatus] = useState([])
   const [showBlueprintInspector, setShowBlueprintInspector] = useState(false)
 
-  const [dataScopes, setDataScopes] = useState([])
+  // const [dataScopes, setDataScopes] = useState([])
   const [dataConnections, setDataConnections] = useState([])
-  const [transformations, setTransformations] = useState({})
+  // @moved to Data Scopes Manager
+  // const [transformations, setTransformations] = useState({})
 
-  const [projectId, setProjectId] = useState([])
-  const [projects, setProjects] = useState({})
-  const [boards, setBoards] = useState({})
-  const [boardId, setBoardId] = useState([])
+  // @moved to Data Scopes Manager
+  // const [projects, setProjects] = useState({})
+  // const [boards, setBoards] = useState({})
+
   const [connectionId, setConnectionId] = useState('')
-  const [connections, setConnections] = useState([])
-  const [repositories, setRepositories] = useState([])
-  const [selectedConnection, setSelectedConnection] = useState()
-  const [repositoryName, setRepositoryName] = useState('')
-  const [owner, setOwner] = useState('')
-  const [gitExtractorUrl, setGitExtractorUrl] = useState('')
-  const [gitExtractorRepoId, setGitExtractorRepoId] = useState('')
-  const [selectedGithubRepo, setSelectedGithubRepo] = useState()
-  const [refDiffRepoId, setRefDiffRepoId] = useState('')
-  const [refDiffPairs, setRefDiffPairs] = useState([])
-  const [refDiffTasks, setRefDiffTasks] = useState([
-    'calculateCommitsDiff',
-    'calculateIssuesDiff',
-  ])
+  // const [connections, setConnections] = useState([])
+  // const [repositories, setRepositories] = useState([])
+  // const [selectedConnection, setSelectedConnection] = useState()
+
+  // @disabled Legacy V11 Pipeline Props
+  // const [projectId, setProjectId] = useState([])
+  // const [boardId, setBoardId] = useState([])
+  // const [repositoryName, setRepositoryName] = useState('')
+  // const [owner, setOwner] = useState('')
+  // const [gitExtractorUrl, setGitExtractorUrl] = useState('')
+  // const [gitExtractorRepoId, setGitExtractorRepoId] = useState('')
+  // const [selectedGithubRepo, setSelectedGithubRepo] = useState()
+  // const [refDiffRepoId, setRefDiffRepoId] = useState('')
+  // const [refDiffPairs, setRefDiffPairs] = useState([])
+  // const [refDiffTasks, setRefDiffTasks] = useState([
+  //   'calculateCommitsDiff',
+  //   'calculateIssuesDiff',
+  // ])
 
   const [canAdvanceNext, setCanAdvanceNext] = useState(true)
   const [canAdvancePrev, setCanAdvancePrev] = useState(true)
 
-  const [configuredProject, setConfiguredProject] = useState(
-    projects.length > 0 ? projects[0] : null
-  )
-  const [configuredBoard, setConfiguredBoard] = useState(
-    boards.length > 0 ? boards[0] : null
-  )
+  // const [configuredProject, setConfiguredProject] = useState(
+  //   projects.length > 0 ? projects[0] : null
+  // )
+  // const [configuredBoard, setConfiguredBoard] = useState(
+  //   boards.length > 0 ? boards[0] : null
+  // )
 
-  const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
+  // const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
 
   const {
     activeConnection,
@@ -204,6 +212,21 @@ const CreateBlueprint = (props) => {
   } = useBlueprintManager()
 
   const {
+    boards,
+    projects,
+    entities: dataEntities,
+    transformations,
+    setBoards,
+    setProjects,
+    setEntities: setDataEntities,
+    setTransformations,
+    createProviderScopes,
+    createProviderConnections,
+    getDefaultTransformations,
+    initializeTransformations
+  } = useDataScopesManager({ connection: configuredConnection, settings: blueprintSettings })
+
+  const {
     pipelineName,
     pipelines,
     runPipeline,
@@ -237,18 +260,18 @@ const CreateBlueprint = (props) => {
   } = usePipelineValidation({
     enabledProviders,
     pipelineName,
-    projectId,
+    // projectId,
     projects,
-    boardId,
+    // boardId,
     boards,
-    owner,
-    repositoryName,
+    // owner,
+    // repositoryName,
     connectionId,
-    gitExtractorUrl,
-    gitExtractorRepoId,
-    refDiffRepoId,
-    refDiffTasks,
-    refDiffPairs,
+    // gitExtractorUrl,
+    // gitExtractorRepoId,
+    // refDiffRepoId,
+    // refDiffTasks,
+    // refDiffPairs,
     tasks: runTasks,
     tasksAdvanced: runTasksAdvanced,
     advancedMode,
@@ -362,6 +385,15 @@ const CreateBlueprint = (props) => {
     username,
     password,
   })
+
+  const [configuredProject, setConfiguredProject] = useState(
+    projects.length > 0 ? projects[0] : null
+  )
+  const [configuredBoard, setConfiguredBoard] = useState(
+    boards.length > 0 ? boards[0] : null
+  )
+
+  const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
 
   const isValidStep = useCallback((stepId) => { }, [])
 
@@ -496,7 +528,6 @@ const CreateBlueprint = (props) => {
     switch (configuredConnection.provider) {
       case Providers.GITLAB:
       case Providers.JIRA:
-      case Providers.TAPD:
       case Providers.GITHUB:
         items = dataEntitiesList.filter((d) => d.name !== 'ci-cd')
         break
@@ -507,72 +538,67 @@ const CreateBlueprint = (props) => {
     return items
   }, [dataEntitiesList, configuredConnection])
 
-  const createProviderScopes = useCallback(
-    (
-      providerId,
-      connection,
-      connectionIdx,
-      entities = [],
-      boards = [],
-      projects = [],
-      transformations = [],
-      defaultScope = { transformation: {}, options: {}, entities: [] }
-    ) => {
-      console.log(
-        '>>> CREATING PROVIDER SCOPE FOR CONNECTION...',
-        connectionIdx,
-        connection
-      )
-      let newScope = {
-        ...defaultScope,
-        entities: entities[connection.id]?.map((entity) => entity.value) || [],
-      }
-      switch (providerId) {
-        case Providers.JIRA:
-          newScope = boards[connection.id]?.map((b) => ({
-            ...newScope,
-            options: {
-              boardId: Number(b.id),
-              // @todo: verify initial value of since date for jira provider
-              // since: new Date(),
-            },
-            transformation: { ...transformations[b.id] },
-          }))
-          break
-        case Providers.GITLAB:
-          newScope = projects[connection.id]?.map((p) => ({
-            ...newScope,
-            options: {
-              projectId: Number(p),
-            },
-            transformation: {},
-          }))
-          break
-        case Providers.JENKINS:
-          newScope = {
-            ...newScope,
-          }
-          break
-        case Providers.TAPD:
-          newScope = {
-            ...newScope,
-          }
-          break
-        case Providers.GITHUB:
-          newScope = projects[connection.id]?.map((p) => ({
-            ...newScope,
-            options: {
-              owner: p.split('/')[0],
-              repo: p.split('/')[1],
-            },
-            transformation: { ...transformations[p] },
-          }))
-          break
-      }
-      return Array.isArray(newScope) ? newScope.flat() : [newScope]
-    },
-    []
-  )
+  // const createProviderScopes = useCallback(
+  //   (
+  //     providerId,
+  //     connection,
+  //     connectionIdx,
+  //     entities = [],
+  //     boards = [],
+  //     projects = [],
+  //     transformations = [],
+  //     defaultScope = { transformation: {}, options: {}, entities: [] }
+  //   ) => {
+  //     console.log(
+  //       '>>> CREATING PROVIDER SCOPE FOR CONNECTION...',
+  //       connectionIdx,
+  //       connection
+  //     )
+  //     let newScope = {
+  //       ...defaultScope,
+  //       entities: entities[connection.id]?.map((entity) => entity.value) || [],
+  //     }
+  //     switch (providerId) {
+  //       case Providers.JIRA:
+  //         newScope = boards[connection.id]?.map((b) => ({
+  //           ...newScope,
+  //           options: {
+  //             boardId: Number(b.id),
+  //             // @todo: verify initial value of since date for jira provider
+  //             // since: new Date(),
+  //           },
+  //           transformation: { ...transformations[b.id] },
+  //         }))
+  //         break
+  //       case Providers.GITLAB:
+  //         newScope = projects[connection.id]?.map((p) => ({
+  //           ...newScope,
+  //           options: {
+  //             projectId: Number(p),
+  //           },
+  //           transformation: {},
+  //         }))
+  //         break
+  //       case Providers.JENKINS:
+  //         newScope = {
+  //           ...newScope,
+  //         }
+  //         break
+  //       case Providers.GITHUB:
+  //         newScope = projects[connection.id]?.map((p) => ({
+  //           ...newScope,
+  //           options: {
+  //             owner: p.split('/')[0],
+  //             repo: p.split('/')[1],
+  //           },
+  //           transformation: { ...transformations[p] },
+  //         }))
+  //         break
+  //     }
+  //     return Array.isArray(newScope) ? newScope.flat() : [newScope]
+  //   },
+  //   []
+  // )
 
   const manageConnection = useCallback(
     (connection) => {
@@ -883,50 +909,49 @@ const CreateBlueprint = (props) => {
   useEffect(() => {
     console.log('>> PROJECTS LIST', projects)
     console.log('>> BOARDS LIST', boards)
-    const getDefaultTransformations = (providerId) => {
-      let transforms = {}
-      switch (providerId) {
-        case Providers.GITHUB:
-          transforms = {
-            prType: '',
-            prComponent: '',
-            issueSeverity: '',
-            issueComponent: '',
-            issuePriority: '',
-            issueTypeRequirement: '',
-            issueTypeBug: '',
-            issueTypeIncident: '',
-            refdiff: null,
-          }
-          break
-        case Providers.JIRA:
-          transforms = {
-            epicKeyField: '',
-            typeMappings: {},
-            storyPointField: '',
-            remotelinkCommitShaPattern: '',
-            bugTags: [],
-            incidentTags: [],
-            requirementTags: [],
-          }
-          break
-        case Providers.JENKINS:
-          // No Transform Settings...
-          break
-        case Providers.TAPD:
-          // No Transform Settings...
-          break
-        case Providers.GITLAB:
-          // No Transform Settings...
-          break
-      }
-      return transforms
-    }
+    // @relocated to Data Scopes Manager
+    // const getDefaultTransformations = (providerId) => {
+    //   let transforms = {}
+    //   switch (providerId) {
+    //     case Providers.GITHUB:
+    //       transforms = {
+    //         prType: '',
+    //         prComponent: '',
+    //         issueSeverity: '',
+    //         issueComponent: '',
+    //         issuePriority: '',
+    //         issueTypeRequirement: '',
+    //         issueTypeBug: '',
+    //         issueTypeIncident: '',
+    //         refdiff: null,
+    //       }
+    //       break
+    //     case Providers.JIRA:
+    //       transforms = {
+    //         epicKeyField: '',
+    //         typeMappings: {},
+    //         storyPointField: '',
+    //         remotelinkCommitShaPattern: '',
+    //         bugTags: [],
+    //         incidentTags: [],
+    //         requirementTags: [],
+    //       }
+    //       break
+    //     case Providers.JENKINS:
+    //       // No Transform Settings...
+    //       break
+    //     case Providers.GITLAB:
+    //       // No Transform Settings...
+    //       break
+    //   }
+    //   return transforms
+    // }
 
-    const initializeTransformations = (pV, cV) => ({
-      ...pV,
-      [cV]: getDefaultTransformations(configuredConnection?.provider),
-    })
+    // @relocated to Data Scopes Manager
+    // const initializeTransformations = (pV, cV) => ({
+    //   ...pV,
+    //   [cV]: getDefaultTransformations(configuredConnection?.provider),
+    // })
     const projectTransformation = projects[configuredConnection?.id]
     const boardTransformation = boards[configuredConnection?.id]?.map(
       (b) => b.id

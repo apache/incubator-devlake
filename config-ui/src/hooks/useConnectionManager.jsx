@@ -626,6 +626,7 @@ function useConnectionManager (
           ConnectionStatusLabels[ConnectionStatus.OFFLINE],
         statusResponse: null,
         provider: c.provider,
+        providerId: c.provider,
         plugin: c.provider,
       }))
     )

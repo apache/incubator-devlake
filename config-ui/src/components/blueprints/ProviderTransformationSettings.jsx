@@ -87,7 +87,6 @@ const ProviderTransformationSettings = (props) => {
           issueTypes={issueTypes}
           fields={fields}
           transformation={transformation}
-          newTransformation={newTransformation}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}

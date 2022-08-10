@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useState, useCallback } from 'react'
+import React, { Fragment, useEffect, useState, useCallback, useMemo } from 'react'
 import {
   Button,
   Icon,
@@ -88,8 +88,14 @@ const DataTransformations = (props) => {
   } = props
 
   const [newTransformation, setNewTransformation] = useState({})
-
-  const [entityList, setEntityList] = useState([...boards[configuredConnection?.id], ...projects[configuredConnection?.id]].map((e, eIdx) => ({
+  const boardsAndProjects = useMemo(() => [
+    ...(boards[configuredConnection?.id] ? boards[configuredConnection?.id] : []),
+    ...(projects[configuredConnection?.id] ? projects[configuredConnection?.id] : [])], [
+    projects,
+    boards,
+    configuredConnection?.id
+  ])
+  const [entityList, setEntityList] = useState(boardsAndProjects.map((e, eIdx) => ({
     id: eIdx,
     value: e?.value || e,
     title: e?.title || e,
@@ -98,16 +104,16 @@ const DataTransformations = (props) => {
   })))
   const [activeEntity, setActiveEntity] = useState()
 
-  const changeTransformation = useCallback((settings, entity) => {
-    console.log('>>>>> CHANGING TRANSFORMATION FOR ENTITY!', entity, settings)
-    setNewTransformation(currentTransforms => ({
-      ...currentTransforms,
-      [entity]: {
-        ...currentTransforms[entity],
-        ...settings
-      }
-    }))
-  }, [setNewTransformation])
+  // const changeTransformation = useCallback((settings, entity) => {
+  //   console.log('>>>>> CHANGING TRANSFORMATION FOR ENTITY!', entity, settings)
+  //   setNewTransformation(currentTransforms => ({
+  //     ...currentTransforms,
+  //     [entity]: {
+  //       ...currentTransforms[entity],
+  //       ...settings
+  //     }
+  //   }))
+  // }, [setNewTransformation])
 
   useEffect(() => {
     console.log('>>> PROJECT/BOARD SELECT LIST DATA...', entityList)
@@ -124,7 +130,7 @@ const DataTransformations = (props) => {
         addProjectTransformation(activeEntity?.entity)
         break
     }
-  }, [activeEntity])
+  }, [activeEntity, addBoardTransformation, addProjectTransformation])
 
   return (
     <div className='workflow-step workflow-step-add-transformation' data-step={activeStep?.id}>
@@ -338,14 +344,13 @@ const DataTransformations = (props) => {
                           transformation={activeTransformation}
                           newTransformation={newTransformation}
                           setNewTransformation={setNewTransformation}
-                          changeTransformation={changeTransformation}
+                          // changeTransformation={changeTransformation}
                           onSettingsChange={setTransformationSettings}
-                          // onSettingsChange={changeTransformation}
                           entity={DataEntityTypes.TICKET}
                           isSaving={isSaving}
+                          isFetchingJIRA={isFetchingJIRA}
                           isSavingConnection={isSavingConnection}
                           jiraProxyError={jiraProxyError}
-                          isFetchingJIRA={isFetchingJIRA}
                         />
                       )}
 

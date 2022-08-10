@@ -32,6 +32,7 @@ const BoardsSelector = (props) => {
     restrictedItems = [],
     activeItem = null,
     disabled = false,
+    isLoading = false,
     isSaving = false,
     onItemSelect = () => {},
     onRemove = () => {},
@@ -77,7 +78,7 @@ const BoardsSelector = (props) => {
           style={{ minWidth: '200px', width: '100%' }}
         >
           <MultiSelect
-            disabled={disabled || isSaving}
+            disabled={disabled || isSaving || isLoading}
             // openOnKeyDown={true}
             resetOnSelect={true}
             placeholder={placeholder}
@@ -104,7 +105,7 @@ const BoardsSelector = (props) => {
                 return {
                   ...rT,
                   [configuredConnection.id]: rT[configuredConnection.id].filter(
-                    (t) => t.id !== item.id
+                    (t) => t?.id !== item.id
                   ),
                 }
               })

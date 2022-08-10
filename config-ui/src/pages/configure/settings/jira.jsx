@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import {
   Button,
   ButtonGroup,
@@ -84,6 +84,8 @@ export default function JiraSettings (props) {
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState('')
   // eslint-disable-next-line no-unused-vars
   const [remoteLinkCommitSha, setRemoteLinkCommitSha] = useState('')
+
+  const savedTags = useMemo(() => transformation?.requirementTags, [])
 
   const [requirementTags, setRequirementTags] = useState(Array.isArray(transformation?.requirementTags) ? [...transformation?.requirementTags] : [])
   const [bugTags, setBugTags] = useState(Array.isArray(transformation?.bugTags) ? [...transformation?.bugTags] : [])
@@ -171,9 +173,15 @@ export default function JiraSettings (props) {
     console.log('>>>> CONFIGURING BOARD....', configuredBoard)
   }, [configuredBoard])
 
+  // useEffect(() => {
+  //   console.log('>>>> MY CURRENT JIRA TRANSFORM SETTINGS..', transformation)
+  // }, [transformation])
+
   useEffect(() => {
-    console.log('>>>> MY CURRENT JIRA TRANSFORM SETTINGS..', transformation)
-  }, [transformation])
+    console.log('>>>> MY JIRA REQUIREMENT TAGS..', savedTags)
+    setRequirementTags(rT => [...rT, ...savedTags])
+  }, [savedTags])
+
 
   return (
     <>
@@ -558,7 +566,7 @@ export default function JiraSettings (props) {
         </>
       )}
 
-      {(entities?.length === 0 || entities.some(e => e.value === DataEntityTypes.CROSSDOMAIN)) && (
+      {(entities?.length === 0 || entities.every(e => e.value === DataEntityTypes.CROSSDOMAIN)) && (
         <div className='headlineContainer'>
           <h5>No Data Entities</h5>
           <p className='description'>

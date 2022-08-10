@@ -275,7 +275,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       setErrors([e.message])
       console.log('>> FAILED TO PATCH BLUEPRINT', e)
     }
-  }, [])
+  }, [detectCronInterval])
 
   const getCronSchedule = useCallback((cronExpression, events = 5) => {
     let schedule = []
