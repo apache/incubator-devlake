@@ -121,7 +121,6 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 			cost = apiClient.getRateCost(q)
 		}
 		apiClient.rateRemaining -= cost
-		fmt.Printf("query cost %d in %v \n", cost, variables)
 		apiClient.logger.Debug(`query cost %d in %v`, cost, variables)
 		return nil
 	}

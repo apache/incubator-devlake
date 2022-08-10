@@ -20,52 +20,63 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/github/models"
+	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"net/http"
 	"net/url"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-const RAW_EVENTS_TABLE = "github_api_events"
+const RAW_COMMENTS_TABLE = "github_api_comments"
 
-// this struct should be moved to `gitub_api_common.go`
-
-var CollectApiEventsMeta = core.SubTaskMeta{
-	Name:             "collectApiEvents",
-	EntryPoint:       CollectApiEvents,
-	EnabledByDefault: true,
-	Description:      "Collect Events data from Github api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
-}
-
-func CollectApiEvents(taskCtx core.SubTaskContext) error {
+func CollectApiComments(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubGraphqlTaskData)
 
 	since := data.Since
 	incremental := false
-	// user didn't specify a time range to sync, try load from database
-	// actually, for github pull, since doesn't make any sense, github pull api doesn't support it
 	if since == nil {
-		var latestUpdatedIssueEvent models.GithubIssueEvent
+		var latestUpdatedIssueComt models.GithubIssueComment
 		err := db.All(
-			&latestUpdatedIssueEvent,
-			dal.Join("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_events.issue_id"),
-			dal.Where("_tool_github_issues.repo_id = ? and _tool_github_issues.repo_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
-			dal.Orderby("github_created_at DESC"),
+			&latestUpdatedIssueComt,
+			dal.Join("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id"),
+			dal.Where(
+				"_tool_github_issues.repo_id = ? AND _tool_github_issues.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId,
+			),
+			dal.Orderby("github_updated_at DESC"),
 			dal.Limit(1),
 		)
 		if err != nil {
 			return fmt.Errorf("failed to get latest github issue record: %w", err)
 		}
-
-		if latestUpdatedIssueEvent.GithubId > 0 {
-			since = &latestUpdatedIssueEvent.GithubCreatedAt
+		var latestUpdatedPrComt models.GithubPrComment
+		err = db.All(
+			&latestUpdatedPrComt,
+			dal.Join("left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id"),
+			dal.Where("_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
+			dal.Orderby("github_updated_at DESC"),
+			dal.Limit(1),
+		)
+		if err != nil {
+			return fmt.Errorf("failed to get latest github issue record: %w", err)
+		}
+		if latestUpdatedIssueComt.GithubId > 0 && latestUpdatedPrComt.GithubId > 0 {
+			if latestUpdatedIssueComt.GithubUpdatedAt.Before(latestUpdatedPrComt.GithubUpdatedAt) {
+				since = &latestUpdatedPrComt.GithubUpdatedAt
+			} else {
+				since = &latestUpdatedIssueComt.GithubUpdatedAt
+			}
+			incremental = true
+		} else if latestUpdatedIssueComt.GithubId > 0 {
+			since = &latestUpdatedIssueComt.GithubUpdatedAt
+			incremental = true
+		} else if latestUpdatedPrComt.GithubId > 0 {
+			since = &latestUpdatedPrComt.GithubUpdatedAt
 			incremental = true
 		}
 	}
@@ -78,13 +89,13 @@ func CollectApiEvents(taskCtx core.SubTaskContext) error {
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,
 			},
-			Table: RAW_EVENTS_TABLE,
+			Table: RAW_COMMENTS_TABLE,
 		},
 		ApiClient:   data.HttpClient,
 		PageSize:    100,
 		Incremental: incremental,
 
-		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/issues/events",
+		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/issues/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("state", "all")
@@ -113,4 +124,12 @@ func CollectApiEvents(taskCtx core.SubTaskContext) error {
 	}
 
 	return collector.Execute()
+}
+
+var CollectApiCommentsMeta = core.SubTaskMeta{
+	Name:             "collectApiComments",
+	EntryPoint:       CollectApiComments,
+	EnabledByDefault: true,
+	Description:      "Collect comments data from Github api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_TICKET},
 }

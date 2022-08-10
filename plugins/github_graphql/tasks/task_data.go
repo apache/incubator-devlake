@@ -20,6 +20,7 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"time"
 )
 
 type GithubGraphqlApiParams struct {
@@ -40,4 +41,5 @@ type GithubGraphqlTaskData struct {
 	GraphqlClient *helper.GraphqlAsyncClient
 	HttpClient    *helper.ApiAsyncClient
 	Repo          *models.GithubRepo
+	Since         *time.Time
 }

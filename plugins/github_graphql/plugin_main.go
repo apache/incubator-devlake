@@ -57,18 +57,20 @@ func (plugin GithubGraphql) Init(config *viper.Viper, logger core.Logger, db *go
 }
 
 func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
-	// TODO add your sub task here
 	return []core.SubTaskMeta{
 		tasks.CollectRepoMeta,
 		tasks.CollectIssueMeta,
 		tasks.CollectPrMeta,
 		tasks.CollectAccountMeta,
-		//tasks.CollectApiCommentsMeta,
-		//tasks.ExtractApiCommentsMeta,
+
+		tasks.CollectApiCommentsMeta,
+		tasks.ExtractApiCommentsMeta,
 		tasks.CollectApiEventsMeta,
 		tasks.ExtractApiEventsMeta,
-		//tasks.CollectMilestonesMeta,
-		//tasks.ExtractMilestonesMeta,
+		tasks.CollectMilestonesMeta,
+		tasks.ExtractMilestonesMeta,
+		tasks.CollectApiPrReviewCommentsMeta,
+		tasks.ExtractApiPrReviewCommentsMeta,
 	}
 }
 
