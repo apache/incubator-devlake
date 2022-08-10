@@ -202,6 +202,14 @@ func Trigger(c *gin.Context) {
 	shared.ApiOutputSuccess(c, pipeline, http.StatusOK)
 }
 
+// @Summary get pipelines by blueprint id
+// @Description get pipelines by blueprint id
+// @Tags framework/blueprints
+// @Accept application/json
+// @Param blueprintId path int true "blueprint id"
+// @Success 200  {object} []models.Pipeline
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /blueprints/{blueprintId}/pipelines [get]
 func GetBlueprintPipelines(c *gin.Context) {
 	blueprintId := c.Param("blueprintId")
