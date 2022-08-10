@@ -6,7 +6,7 @@ The ASF licenses this file to You under the Apache License, Version 2.0
 (the "License"); you may not use this file except in compliance with
 the License.  You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -105,7 +105,7 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 		if !ok {
 			return fmt.Errorf("Get [%s] ColumeType Failed", name)
 		}
-		column := fmt.Sprintf("%s %s", name, getDataType(starrocksDatatype))
+		column := fmt.Sprintf("`%s` %s", name, getDataType(starrocksDatatype))
 		columns = append(columns, column)
 		isPrimaryKey, ok := cm.PrimaryKey()
 		if isPrimaryKey && ok {
@@ -126,7 +126,7 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 	if extra == "" {
 		extra = fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "1")`, pks)
 	}
-	tableSql := fmt.Sprintf(`create table if not exists %s ( %s ) %s`, starrocksTable, strings.Join(columns, ","), extra)
+	tableSql := fmt.Sprintf("create table if not exists `%s` ( %s ) %s", starrocksTable, strings.Join(columns, ","), extra)
 	c.GetLogger().Info(tableSql)
 	_, err = starrocks.Exec(tableSql)
 	return err
