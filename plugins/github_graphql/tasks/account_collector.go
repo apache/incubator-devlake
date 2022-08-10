@@ -94,9 +94,10 @@ func CollectAccount(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_ACCOUNTS_TABLE,
 		},
-		Input:         iterator,
-		InputStep:     100,
-		GraphqlClient: data.GraphqlClient,
+		IgnoreQueryErr: true,
+		Input:          iterator,
+		InputStep:      100,
+		GraphqlClient:  data.GraphqlClient,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
 			accounts := reqData.Input.([]interface{})
 			query := &GraphqlQueryAccountWrapper{}

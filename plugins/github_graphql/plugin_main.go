@@ -61,7 +61,6 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectRepoMeta,
 		tasks.CollectIssueMeta,
 		tasks.CollectPrMeta,
-		tasks.CollectAccountMeta,
 
 		tasks.CollectApiCommentsMeta,
 		tasks.ExtractApiCommentsMeta,
@@ -71,6 +70,8 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractMilestonesMeta,
 		tasks.CollectApiPrReviewCommentsMeta,
 		tasks.ExtractApiPrReviewCommentsMeta,
+
+		tasks.CollectAccountMeta,
 	}
 }
 

@@ -76,7 +76,6 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 		},
 		AfterResponse: func(res *http.Response) error {
 			if res.StatusCode == http.StatusNotFound {
-				println(res.Request.URL)
 				return helper.ErrIgnoreAndContinue
 			}
 			return nil

@@ -62,7 +62,8 @@ type GraphqlCollectorArgs struct {
 	Input Iterator
 	// how many times fetched from input, default 1 means only fetch once
 	// NOTICE: InputStep=1 will fill value as item and InputStep>1 will fill value as []item
-	InputStep int
+	InputStep      int
+	IgnoreQueryErr bool
 	// GetPageInfo is to tell `GraphqlCollector` is page information
 	GetPageInfo    func(query interface{}, args *GraphqlCollectorArgs) (*GraphqlQueryPageInfo, error)
 	BatchSize      int
@@ -238,7 +239,12 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	logger := collector.args.Ctx.GetLogger()
 	err = collector.args.GraphqlClient.Query(query, variables)
 	if err != nil {
-		panic(err)
+		if collector.args.IgnoreQueryErr {
+			logger.Error("fetchAsync fail and got:", err)
+			return
+		} else {
+			panic(err)
+		}
 	}
 	defer logger.Debug("fetchAsync >>> done for %v %v", query, variables)
 
