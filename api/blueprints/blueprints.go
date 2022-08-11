@@ -218,10 +218,12 @@ func GetBlueprintPipelines(c *gin.Context) {
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
 	}
-	pipelines, err := services.GetBlueprintPipelines(id)
+	var query services.PipelineQuery
+	query.BlueprintId = id
+	pipelines, count, err := services.GetPipelines(&query)
 	if err != nil {
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
 	}
-	shared.ApiOutputSuccess(c, pipelines, http.StatusOK)
+	shared.ApiOutputSuccess(c, gin.H{"pipelines": pipelines, "count": count}, http.StatusOK)
 }

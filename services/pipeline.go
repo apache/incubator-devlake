@@ -42,10 +42,11 @@ var pipelineLog = logger.Global.Nested("pipeline service")
 
 // PipelineQuery FIXME ...
 type PipelineQuery struct {
-	Status   string `form:"status"`
-	Pending  int    `form:"pending"`
-	Page     int    `form:"page"`
-	PageSize int    `form:"pageSize"`
+	Status      string `form:"status"`
+	Pending     int    `form:"pending"`
+	Page        int    `form:"page"`
+	PageSize    int    `form:"pageSize"`
+	BlueprintId uint64 `form:"blueprint_id"`
 }
 
 func pipelineServiceInit() {
@@ -159,7 +160,12 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 // GetPipelines by query
 func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 	pipelines := make([]*models.Pipeline, 0)
-	db := db.Model(pipelines).Order("id DESC")
+	var dbResusts *gorm.DB
+	if query.BlueprintId != 0 {
+		dbResusts = db.Model(pipelines).Where("blueprint_id = ?", query.BlueprintId)
+	} else {
+		dbResusts = db.Model(pipelines).Order("id DESC")
+	}
 	if query.Status != "" {
 		db = db.Where("status = ?", query.Status)
 	}
@@ -167,7 +173,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 		db = db.Where("finished_at is null")
 	}
 	var count int64
-	err := db.Count(&count).Error
+	err := dbResusts.Count(&count).Error
 	if err != nil {
 		return nil, 0, err
 	}
@@ -175,7 +181,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 		offset := query.PageSize * (query.Page - 1)
 		db = db.Limit(query.PageSize).Offset(offset)
 	}
-	err = db.Find(&pipelines).Error
+	err = dbResusts.Find(&pipelines).Error
 	if err != nil {
 		return nil, count, err
 	}
