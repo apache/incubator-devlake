@@ -160,3 +160,19 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	}
 	return &core.ApiResourceOutput{Body: connection}, err
 }
+
+// @Summary pipelines plan for feishu
+// @Description pipelines plan for feishu
+// @Tags plugins/feishu
+// @Accept application/json
+// @Param blueprint body FeishuPipelinePlan true "json"
+// @Router /pipelines/feishu/pipeline-plan [post]
+func PostFeishuPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &FeishuPipelinePlan{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type FeishuPipelinePlan [][]struct {
+	Plugin  string   `json:"plugin"`
+	Options struct{} `json:"options"`
+}
