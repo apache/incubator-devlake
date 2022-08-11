@@ -35,6 +35,17 @@ import (
 	"github.com/apache/incubator-devlake/utils"
 )
 
+// MakePipelinePlan create blueprint
+// @Summary      create blueprint
+// @Description  create blueprint
+// @Tags 		 plugins/gitlab
+// @Accept 		 application/json
+// @Produce      application/json
+// @Param blueprint body blueprintInput true "json"
+// @Success 201  {object} blueprintOutput
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router       /plugins/gitlab/blueprints [post]
 func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
 	var err error
 	plan := make(core.PipelinePlan, len(scope))
