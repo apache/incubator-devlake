@@ -160,11 +160,9 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 // GetPipelines by query
 func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 	pipelines := make([]*models.Pipeline, 0)
-	var dbResusts *gorm.DB
+	db := db.Model(pipelines).Order("id DESC")
 	if query.BlueprintId != 0 {
-		dbResusts = db.Model(pipelines).Where("blueprint_id = ?", query.BlueprintId)
-	} else {
-		dbResusts = db.Model(pipelines).Order("id DESC")
+		db = db.Where("blueprint_id = ?", query.BlueprintId)
 	}
 	if query.Status != "" {
 		db = db.Where("status = ?", query.Status)
@@ -173,7 +171,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 		db = db.Where("finished_at is null")
 	}
 	var count int64
-	err := dbResusts.Count(&count).Error
+	err := db.Count(&count).Error
 	if err != nil {
 		return nil, 0, err
 	}
@@ -181,7 +179,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 		offset := query.PageSize * (query.Page - 1)
 		db = db.Limit(query.PageSize).Offset(offset)
 	}
-	err = dbResusts.Find(&pipelines).Error
+	err = db.Find(&pipelines).Error
 	if err != nil {
 		return nil, count, err
 	}

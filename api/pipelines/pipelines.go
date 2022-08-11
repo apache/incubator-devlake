@@ -28,11 +28,6 @@ import (
 	"github.com/gin-gonic/gin/binding"
 )
 
-type ResponsePipelines struct {
-	Count     int64              `json:"count"`
-	Pipelines []*models.Pipeline `json:"pipelines"`
-}
-
 /*
 Create and run a new pipeline
 POST /pipelines
@@ -97,7 +92,7 @@ GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
 // @Param pending query int true "query"
 // @Param page query int true "query"
 // @Param pagesize query int true "query"
-// @Success 200  {object} ResponsePipelines
+// @Success 200  {object} shared.ResponsePipelines
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /pipelines [get]
@@ -113,7 +108,7 @@ func Index(c *gin.Context) {
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
 	}
-	shared.ApiOutputSuccess(c, gin.H{"pipelines": pipelines, "count": count}, http.StatusOK)
+	shared.ApiOutputSuccess(c, shared.ResponsePipelines{Pipelines: pipelines, Count: count}, http.StatusOK)
 }
 
 /*

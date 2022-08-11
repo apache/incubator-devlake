@@ -22,7 +22,6 @@ import (
 	"strconv"
 
 	"github.com/apache/incubator-devlake/api/shared"
-
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/services"
 	"github.com/gin-gonic/gin"
@@ -207,7 +206,7 @@ func Trigger(c *gin.Context) {
 // @Tags framework/blueprints
 // @Accept application/json
 // @Param blueprintId path int true "blueprint id"
-// @Success 200  {object} pipelines.ResponsePipelines
+// @Success 200  {object} shared.ResponsePipelines
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /blueprints/{blueprintId}/pipelines [get]
@@ -225,5 +224,5 @@ func GetBlueprintPipelines(c *gin.Context) {
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
 	}
-	shared.ApiOutputSuccess(c, gin.H{"pipelines": pipelines, "count": count}, http.StatusOK)
+	shared.ApiOutputSuccess(c, shared.ResponsePipelines{Pipelines: pipelines, Count: count}, http.StatusOK)
 }
