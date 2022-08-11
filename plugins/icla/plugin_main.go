@@ -42,6 +42,12 @@ var PluginEntry Icla //nolint
 
 type Icla struct{}
 
+func (plugin Icla) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{
+		&models.IclaCommitter{},
+	}
+}
+
 func (plugin Icla) Description() string {
 	return "collect some Icla data"
 }

@@ -63,6 +63,7 @@ func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db 
 			if err != nil {
 				return nil
 			}
+
 			logger.Info(`plugin loaded %s`, pluginName)
 		}
 		return nil

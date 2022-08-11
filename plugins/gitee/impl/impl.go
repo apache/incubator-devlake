@@ -46,6 +46,27 @@ func (plugin Gitee) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) e
 	return nil
 }
 
+func (plugin Gitee) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{
+		&models.GiteeConnection{},
+		&models.GiteeAccount{},
+		&models.GiteeCommit{},
+		&models.GiteeCommitStat{},
+		&models.GiteeIssue{},
+		&models.GiteeIssueComment{},
+		&models.GiteeIssueLabel{},
+		&models.GiteePullRequest{},
+		&models.GiteePullRequestComment{},
+		&models.GiteePullRequestCommit{},
+		&models.GiteePullRequestIssue{},
+		&models.GiteePullRequestLabel{},
+		&models.GiteeRepo{},
+		&models.GiteeRepoCommit{},
+		&models.GiteeResponse{},
+		&models.GiteeReviewer{},
+	}
+}
+
 func (plugin Gitee) Description() string {
 	return "To collect and enrich data from Gitee"
 }

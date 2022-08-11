@@ -48,6 +48,29 @@ func (plugin Jira) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 	api.Init(config, logger, db)
 	return nil
 }
+func (plugin Jira) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{
+		&models.ApiMyselfResponse{},
+		&models.JiraAccount{},
+		&models.JiraBoard{},
+		&models.JiraBoardIssue{},
+		&models.JiraBoardSprint{},
+		&models.JiraConnection{},
+		&models.JiraIssue{},
+		&models.JiraIssueChangelogItems{},
+		&models.JiraIssueChangelogs{},
+		&models.JiraIssueCommit{},
+		&models.JiraIssueLabel{},
+		&models.JiraIssueType{},
+		&models.JiraProject{},
+		&models.JiraRemotelink{},
+		&models.JiraServerInfo{},
+		&models.JiraSprint{},
+		&models.JiraSprintIssue{},
+		&models.JiraStatus{},
+		&models.JiraWorklog{},
+	}
+}
 
 func (plugin Jira) Description() string {
 	return "To collect and enrich data from JIRA"
