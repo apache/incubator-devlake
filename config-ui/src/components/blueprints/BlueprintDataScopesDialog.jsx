@@ -96,6 +96,8 @@ const BlueprintDataScopesDialog = (props) => {
     setConfiguredProject = () => {},
     setConfiguredBoard = () => {},
     setTransformationSettings = () => {},
+    addBoardTransformation = () => {},
+    addProjectTransformation = () => {},
     fieldHasError = () => {},
     getFieldError = () => {},
     isSaving = false,
@@ -108,25 +110,29 @@ const BlueprintDataScopesDialog = (props) => {
       // disabled:
       intent: Intent.PRIMARY,
       text: 'Previous Step',
-      outlined: true
+      outlined: true,
+      loading: isFetchingJIRA || isSaving
     },
     nextButtonProps = {
       disabled: !isValid,
       intent: Intent.PRIMARY,
       text: 'Next Step',
-      outlined: true
+      outlined: true,
+      loading: isFetchingJIRA || isSaving
     },
     finalButtonProps = {
       disabled: !isValid,
       intent: Intent.PRIMARY,
       onClick: onSave,
       text: 'Save Changes',
+      loading: isFetchingJIRA || isSaving
     },
     closeButtonProps = {
       // disabled:
       intent: Intent.PRIMARY,
       text: 'Cancel',
-      outlined: true
+      outlined: true,
+      loading: isFetchingJIRA || isSaving
     }
   } = props
 
@@ -195,6 +201,7 @@ const BlueprintDataScopesDialog = (props) => {
             <DialogPanel>
               <DataTransformations
                 provider={provider}
+                blueprint={blueprint}
                 activeTransformation={activeTransformation}
                 blueprintConnections={blueprintConnections}
                 dataEntities={entities}
@@ -206,8 +213,8 @@ const BlueprintDataScopesDialog = (props) => {
                 configuredConnection={configuredConnection}
                 configuredProject={configuredProject}
                 configuredBoard={configuredBoard}
-                addBoardTransformation={(board) => setConfiguredBoard(board)}
-                addProjectTransformation={(project) => setConfiguredProject(project)}
+                addBoardTransformation={addBoardTransformation}
+                addProjectTransformation={addProjectTransformation}
                 isSaving={isSaving}
                 setTransformationSettings={setTransformationSettings}
                 // onSave={handleTransformationSave}

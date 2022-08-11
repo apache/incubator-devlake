@@ -268,11 +268,12 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       setBlueprint(b => ({ ...b, ...p?.data, interval: detectCronInterval(p?.data?.cronConfig) }))
       setIsSaving(false)
       setSaveComplete({ status: p.status, data: p.data || null })
-      callback()
+      callback(p)
     } catch (e) {
       setIsSaving(false)
       setSaveComplete(null)
       setErrors([e.message])
+      callback(e)
       console.log('>> FAILED TO PATCH BLUEPRINT', e)
     }
   }, [detectCronInterval])

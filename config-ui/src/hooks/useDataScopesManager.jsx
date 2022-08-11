@@ -40,18 +40,30 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
   const [configuredProject, setConfiguredProject] = useState(null)
   const [configuredBoard, setConfiguredBoard] = useState(null)
 
+  const activeProject = useMemo(() => configuredProject, [configuredProject])
+  const activeBoard = useMemo(() => configuredBoard, [configuredBoard])
+
   // @todo: fix check why these are empty
-  const selectedProjects = useMemo(() => projects[connection?.id], [projects, connection?.id])
+  const selectedProjects = useMemo(() => projects[connection?.id] || [], [projects, connection?.id])
   const selectedBoards = useMemo(() => boards[connection?.id]?.map(
-    (b) => b?.id
+    (b) => b && b?.id
   ), [boards, connection?.id])
 
-  const activeProjectTransformation = useMemo(() => connection?.transformations[connection?.projects?.findIndex(p => p === configuredProject)], [connection, configuredProject])
-  const activeBoardTransformation = useMemo(() => connection?.transformations[connection?.boardIds?.findIndex(b => b === configuredBoard?.id)], [connection, configuredBoard?.id])
-  // const activeTransformation = useMemo(() => activeProjectTransformation || activeBoardTransformation, [activeProjectTransformation, activeBoardTransformation])
-  const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
+  const storedProjectTransformation = useMemo(() => connection?.transformations[connection?.projects?.findIndex(p => p === configuredProject)], [connection, configuredProject])
+  const storedBoardTransformation = useMemo(() => connection?.transformations[connection?.boardIds?.findIndex(b => b === configuredBoard?.id)], [connection, configuredBoard?.id])
 
-  // @todo: fix blank providerId
+  // @todo: re-enable
+  // const activeProjectTransformation = useMemo(() => transformations[configuredProject], [transformations, configuredProject])
+  // const activeBoardTransformation = useMemo(() => transformations[configuredBoard?.id], [transformations, configuredBoard?.id])
+
+  const activeProjectTransformation = useMemo(() => transformations[activeProject], [transformations, activeProject])
+  const activeBoardTransformation = useMemo(() => transformations[activeBoard?.id], [transformations, activeBoard?.id])
+
+  // const activeTransformation = useMemo(() => connection?.providerId === Providers.JIRA ? activeBoardTransformation : activeProjectTransformation, [connection?.providerId, transformations, activeProjectTransformation, activeBoardTransformation, configuredProject, configuredBoard?.id])
+  // const activeTransformation = useMemo(() => connection?.providerId === Providers.JIRA ? activeBoardTransformation : activeProjectTransformation, [activeBoardTransformation])
+
+  const activeTransformation = useMemo(() => transformations[connection?.providerId === Providers.JIRA ? configuredBoard?.id : configuredProject], [transformations, configuredProject, configuredBoard?.id])
+
   const getDefaultTransformations = useCallback((providerId) => {
     let transforms = {}
     switch (providerId) {
@@ -85,6 +97,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
       case Providers.GITLAB:
         // No Transform Settings...
         break
+      // @todo: add tapd
     }
     console.log('>>>>> DATA SCOPES MANAGER: Getting Default Transformation Values for PROVIDER Type ', providerId, transforms)
     return transforms
@@ -139,6 +152,9 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
         case Providers.JENKINS:
           newScope = {
             ...newScope,
+            // options: {
+            // },
+            // transformation: {},
           }
           break
         case Providers.GITHUB:
@@ -151,6 +167,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
             transformation: { ...transformations[p] },
           }))
           break
+        // @todo: add tapd
       }
       return Array.isArray(newScope) ? newScope.flat() : [newScope]
     },
@@ -218,30 +235,32 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: INITIALIZING TRANSFORMATION RULES...', selectedProjects)
 
-    if (selectedProjects && Array.isArray(selectedProjects)) {
-      console.log('>>>>> DATA SCOPES MANAGER: SELECTED PROJECTS?', selectedProjects)
-      setTransformations((cT) => ({
-        ...selectedProjects.reduce(initializeTransformations, {}),
-        // Spread Current/Existing Transformations Settings
-        ...cT,
-      }))
-    }
-    if (selectedBoards && Array.isArray(selectedBoards)) {
-      console.log('>>>>> DATA SCOPES MANAGER: SELECTED BOARDS?', selectedBoards)
-      setTransformations((cT) => ({
-        ...selectedBoards.reduce(initializeTransformations, {}),
-        // Spread Current/Existing Transformations Settings
-        ...cT,
-      }))
-    }
+    // if (selectedProjects && Array.isArray(selectedProjects)) {
+    //   console.log('>>>>> DATA SCOPES MANAGER: SELECTED PROJECTS?', selectedProjects)
+    //   setTransformations((cT) => ({
+    //     ...selectedProjects.reduce(initializeTransformations, {}),
+    //     // Spread Current/Existing Transformations Settings
+    //     ...cT,
+    //   }))
+    // }
+
+    // if (selectedBoards && Array.isArray(selectedBoards)) {
+    //   console.log('>>>>> DATA SCOPES MANAGER: SELECTED BOARDS?', selectedBoards)
+    //   setTransformations((cT) => ({
+    //     ...selectedBoards.reduce(initializeTransformations, {}),
+    //     // Spread Current/Existing Transformations Settings
+    //     ...cT,
+    //   }))
+    // }
   }, [selectedProjects, selectedBoards, initializeTransformations])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: CONFIGURED CONNECTION', connection)
     switch (connection?.provider?.id) {
       case Providers.GITHUB:
-        setProjects(p => ({ ...p, [connection?.id]: connection?.projects }))
-        setEntities(e => ({ ...e, [connection?.id]: connection?.entityList }))
+      case Providers.GITLAB:
+        setProjects(p => ({ ...p, [connection?.id]: connection?.projects || [] }))
+        setEntities(e => ({ ...e, [connection?.id]: connection?.entityList || [] }))
         // @todo: re-enable initial properties
         // setTransformations(existingTransforms => ({
         //   ...connection?.projects.map(
@@ -255,15 +274,21 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
         // fetchBoards()
         // fetchIssueTypes()
         // fetchFields()
-        setBoards(b => ({ ...b, [connection?.id]: connection?.boardsList }))
-        setEntities(e => ({ ...e, [connection?.id]: connection?.entityList }))
+        setBoards(b => ({ ...b, [connection?.id]: connection?.boardsList || [] }))
+        setEntities(e => ({ ...e, [connection?.id]: connection?.entityList || [] }))
         // setTransformations(existingTransforms => ({
         //   ...connection?.boardIds.map(
         //     (bId, bIdx) => ({ [bId]: connection.transformations[bIdx] })
         //   ).reduce((pV, cV) => ({ ...cV, ...pV }), {}),
         //   ...existingTransforms
         // }))
-        connection?.boardIds.forEach((bId, bIdx) => setTransformationSettings(connection.transformations[bIdx], bId))
+        connection?.boardIds.forEach((bId, bIdx) => {
+          setTransformationSettings(connection.transformations[bIdx], bId)
+          console.log('>>> LOOK HERERE!!!', connection.transformations[bIdx])
+        })
+        break
+      case Providers.JENKINS:
+        setEntities(e => ({ ...e, [connection?.id]: connection?.entityList || [] }))
         break
     }
   }, [connection])
@@ -284,20 +309,26 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     switch (provider?.id) {
       case Providers.GITHUB:
         break
+      case Providers.GITLAB:
+        break
       case Providers.JIRA:
         break
+      case Providers.JENKINS:
+        break
+      // @todo: add tapd
     }
   }, [provider])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: BOARDS...', boards)
     const boardTransformations = boards[connection?.id]
-    if (Array.isArray(boardTransformations)) {
-      setTransformations((cT) => ({
-        ...boardTransformations.reduce(initializeTransformations, {}),
-        // Spread Current/Existing Transformations Settings
-        ...cT,
-      }))
+    if (Array.isArray(boardTransformations) && boardTransformations?.length > 0) {
+      // @todo: check & re-enable
+      // setTransformations((cT) => ({
+      //   ...boardTransformations.reduce(initializeTransformations, {}),
+      //   // Spread Current/Existing Transformations Settings
+      //   ...cT,
+      // }))
     }
   }, [boards, connection?.id])
 

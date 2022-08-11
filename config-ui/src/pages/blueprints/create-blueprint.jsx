@@ -387,10 +387,12 @@ const CreateBlueprint = (props) => {
   })
 
   const [configuredProject, setConfiguredProject] = useState(
-    projects.length > 0 ? projects[0] : null
+    // projects.length > 0 ? projects[0] : null
+    null
   )
   const [configuredBoard, setConfiguredBoard] = useState(
-    boards.length > 0 ? boards[0] : null
+    // boards.length > 0 ? boards[0] : null
+    null
   )
 
   const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
@@ -492,7 +494,7 @@ const CreateBlueprint = (props) => {
     setConfiguredProject(null)
     setConfiguredBoard(null)
     console.log('>> Cancel Modify - Transformation Settings')
-  }, [])
+  }, [setConfiguredProject, setConfiguredBoard])
 
   const handleTransformationClear = useCallback(() => {
     console.log(
@@ -619,12 +621,12 @@ const CreateBlueprint = (props) => {
   const addProjectTransformation = useCallback((project) => {
     setConfiguredProject(project)
     ToastNotification.clear()
-  }, [])
+  }, [setConfiguredProject])
 
   const addBoardTransformation = useCallback((board) => {
     setConfiguredBoard(board)
     ToastNotification.clear()
-  }, [])
+  }, [setConfiguredBoard])
 
   const addConnection = useCallback(() => {
     setManagedConnection(NullBlueprintConnection)

@@ -134,6 +134,10 @@ const Blueprints = (props) => {
     history.push(`/blueprints/detail/${blueprint.id}`)
   }, [history])
 
+  const configureBlueprintSettings = useCallback((blueprint) => {
+    history.push(`/blueprints/settings/${blueprint.id}`)
+  }, [history])
+
   const createNewBlueprint = useCallback(() => {
     history.push('/blueprints/create')
   }, [history])
@@ -326,6 +330,7 @@ const Blueprints = (props) => {
                   getNextRunDate={getNextRunDate}
                   handleBlueprintActivation={handleBlueprintActivation}
                   configureBlueprint={configureBlueprint}
+                  configureBlueprintSettings={configureBlueprintSettings}
                   isDeleting={isDeleting}
                   isLoading={isFetchingAllPipelines}
                   expandDetails={expandDetails}

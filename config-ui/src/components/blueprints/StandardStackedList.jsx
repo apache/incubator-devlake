@@ -37,17 +37,14 @@ const StandardStackedList = (props) => {
     addButtonText = 'Add Transformation',
     onAdd = () => {},
     onChange = () => {},
+    isEditing = () => {},
     style = { padding: 0, marginTop: '10px' }
   } = props
 
-  const isEditing = useCallback((item) => {
-    const storedTransform = transformations[item] || transformations[item?.id]
-    return storedTransform && Object.values(storedTransform).some(v => v && v.length > 0)
-  }, [transformations])
-
-  // useEffect(() => {
-  //   console.log('>>> Selector List Transformations...', transformations, activeItem)
-  // }, [transformations, activeItem])
+  // const isEditing = useCallback((item) => {
+  //   const storedTransform = transformations[item] || transformations[item?.id]
+  //   return storedTransform && Object.values(storedTransform).some(v => v && v.length > 0)
+  // }, [transformations])
 
   return (
     <>

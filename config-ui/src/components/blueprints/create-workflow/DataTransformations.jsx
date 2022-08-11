@@ -50,6 +50,7 @@ import GithubSettings from '@/pages/configure/settings/github'
 const DataTransformations = (props) => {
   const {
     provider,
+    blueprint,
     activeStep,
     activeConnectionTab,
     blueprintConnections = [],
@@ -87,7 +88,6 @@ const DataTransformations = (props) => {
     cardStyle = {}
   } = props
 
-  const [newTransformation, setNewTransformation] = useState({})
   const boardsAndProjects = useMemo(() => [
     ...(boards[configuredConnection?.id] ? boards[configuredConnection?.id] : []),
     ...(projects[configuredConnection?.id] ? projects[configuredConnection?.id] : [])], [
@@ -95,6 +95,7 @@ const DataTransformations = (props) => {
     boards,
     configuredConnection?.id
   ])
+
   const [entityList, setEntityList] = useState(boardsAndProjects.map((e, eIdx) => ({
     id: eIdx,
     value: e?.value || e,
@@ -104,16 +105,10 @@ const DataTransformations = (props) => {
   })))
   const [activeEntity, setActiveEntity] = useState()
 
-  // const changeTransformation = useCallback((settings, entity) => {
-  //   console.log('>>>>> CHANGING TRANSFORMATION FOR ENTITY!', entity, settings)
-  //   setNewTransformation(currentTransforms => ({
-  //     ...currentTransforms,
-  //     [entity]: {
-  //       ...currentTransforms[entity],
-  //       ...settings
-  //     }
-  //   }))
-  // }, [setNewTransformation])
+  const isEditingTransformation = useCallback((item) => {
+    const storedTransform = transformations[item] || transformations[item?.id]
+    return storedTransform && Object.values(storedTransform).some(v => v && v.length > 0)
+  }, [transformations])
 
   useEffect(() => {
     console.log('>>> PROJECT/BOARD SELECT LIST DATA...', entityList)
@@ -125,9 +120,11 @@ const DataTransformations = (props) => {
     switch (activeEntity?.type) {
       case 'board':
         addBoardTransformation(activeEntity?.entity)
+        // addProjectTransformation(null)
         break
       case 'project':
         addProjectTransformation(activeEntity?.entity)
+        // addBoardTransformation(null)
         break
     }
   }, [activeEntity, addBoardTransformation, addProjectTransformation])
@@ -200,10 +197,11 @@ const DataTransformations = (props) => {
                   </h3>
                   <Divider className='section-divider' />
 
-                  {useDropdownSelector && (
+                  {useDropdownSelector && [Providers.JIRA, Providers.GITHUB].includes(configuredConnection.provider) && (
                     <div className='project-or-board-select' style={{ marginBottom: '20px' }}>
                       <h4>{configuredConnection.provider === Providers.JIRA ? 'Board' : 'Project'}</h4>
                       <Select
+                        disabled={configuredConnection.provider === Providers.JENKINS}
                         popoverProps={{ usePortal: false }}
                         className='selector-entity'
                         id='selector-entity'
@@ -231,12 +229,13 @@ const DataTransformations = (props) => {
                         }}
                       >
                         <Button
+                          disabled={configuredConnection.provider === Providers.JENKINS}
                           className='btn-select-entity'
                           intent={Intent.PRIMARY}
                           outlined
                           text={
                             activeEntity
-                              ? `${activeEntity.title}`
+                              ? `${activeEntity?.title || '- None Available -'}`
                               : '< Select Project / Board >'
                           }
                           rightIcon='double-caret-vertical'
@@ -263,6 +262,7 @@ const DataTransformations = (props) => {
                         activeItem={configuredProject}
                         onAdd={addProjectTransformation}
                         onChange={addProjectTransformation}
+                        isEditing={isEditingTransformation}
                       />
                       {projects[configuredConnection.id].length === 0 && (
                         <NoData
@@ -287,6 +287,7 @@ const DataTransformations = (props) => {
                         activeItem={configuredBoard}
                         onAdd={addBoardTransformation}
                         onChange={addBoardTransformation}
+                        isEditing={isEditingTransformation}
                       />
                       {boards[configuredConnection.id].length === 0 && (
                         <NoData
@@ -334,17 +335,17 @@ const DataTransformations = (props) => {
                       ) && (
                         <ProviderTransformationSettings
                           provider={integrationsData.find(i => i.id === configuredConnection?.provider)}
+                          blueprint={blueprint}
                           connection={configuredConnection}
                           configuredProject={configuredProject}
                           configuredBoard={configuredBoard}
                           issueTypes={issueTypes}
                           fields={fields}
                           boards={boards}
+                          projects={projects}
                           entities={dataEntities}
                           transformation={activeTransformation}
-                          newTransformation={newTransformation}
-                          setNewTransformation={setNewTransformation}
-                          // changeTransformation={changeTransformation}
+                          transformations={transformations}
                           onSettingsChange={setTransformationSettings}
                           entity={DataEntityTypes.TICKET}
                           isSaving={isSaving}
@@ -377,7 +378,7 @@ const DataTransformations = (props) => {
                             small
                             outlined
                             onClick={() => onSave()}
-                            disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
+                            // disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
                             style={{ marginLeft: '5px' }}
                           />
                         )}
