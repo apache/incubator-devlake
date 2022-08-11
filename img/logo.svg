@@ -1,3 +1,19 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
 <svg width="86" height="64" viewBox="0 0 86 64" fill="none" xmlns="http://www.w3.org/2000/svg">
 <circle cx="32" cy="32" r="30" fill="#7497F7"/>
 <path d="M47.4455 37.3015C45.5675 37.3452 43.843 37.2221 42.2473 36.9688C44.0458 35.348 45.1034 33.118 44.9725 30.7079C44.8485 28.4315 43.6852 26.4196 41.9002 24.9929C44.2929 23.9743 47.0645 22.3845 48.4968 20.1165C50.1586 17.4848 49.1404 15.266 48.3264 14.1222C48.0011 13.6649 47.2356 13.6227 46.7632 14.0385L36.7274 22.8706C36.1965 22.8065 35.6521 22.7812 35.0987 22.7953C36.7816 20.8059 38.4364 18.1876 38.8842 15.2449C39.4673 11.4145 37.4618 9.55034 36.1296 8.7526C35.5972 8.43393 34.7895 8.81873 34.4804 9.5426L26.5515 27.6197C25.8762 28.8402 25.5298 30.2162 25.6086 31.6562C25.8614 36.2843 30.4012 39.8235 35.7479 39.5618C36.6802 39.5161 37.5752 39.3578 38.4174 39.1031C37.0816 39.6202 35.6219 39.9051 34.0924 39.9051C27.7162 39.9051 22.5469 34.959 22.5469 28.8578C22.5469 27.9299 22.6673 27.0288 22.8927 26.1677C20.0035 24.2515 17.0347 23.1097 13.1759 23.9504C4.23509 25.8976 7.61649 32.9654 12.3041 30.1838C14.0955 29.1209 17.5114 28.3443 18.2684 31.1005C19.2549 34.6917 14.9004 33.9003 11.2035 40.8625C18.4487 38.2238 24.4073 38.2864 31.4504 40.3588C46.1583 44.6866 55.2145 42.56 55.1983 39.5287C55.1829 36.7388 51.4304 37.2101 47.4469 37.303L47.4455 37.3015Z" fill="white"/>

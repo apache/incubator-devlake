@@ -1,3 +1,19 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
 <svg width="100" height="69" viewBox="0 0 100 69" fill="none" xmlns="http://www.w3.org/2000/svg">
 <circle cx="50" cy="24" r="24" fill="#7497F7"/>
 <path d="M62.3564 28.2413C60.854 28.2762 59.4744 28.1777 58.1978 27.9751C59.6366 26.6784 60.4827 24.8944 60.3779 22.9664C60.2788 21.1452 59.3482 19.5357 57.9201 18.3944C59.8343 17.5795 62.0516 16.3076 63.1974 14.4932C64.5269 12.3879 63.7123 10.6129 63.0611 9.69778C62.8008 9.33198 62.1885 9.29821 61.8105 9.63081L53.7819 16.6965C53.3571 16.6453 52.9217 16.625 52.4789 16.6363C53.8253 15.0447 55.1491 12.9501 55.5074 10.596C55.9738 7.53166 54.3694 6.0403 53.3036 5.40211C52.8777 5.14717 52.2316 5.45501 51.9843 6.03411L45.6412 20.4958C45.1009 21.4722 44.8238 22.573 44.8869 23.725C45.0891 27.4275 48.7209 30.2588 52.9983 30.0495C53.7441 30.0129 54.4601 29.8863 55.1339 29.6825C54.0652 30.0962 52.8975 30.3241 51.6739 30.3241C46.5729 30.3241 42.4375 26.3672 42.4375 21.4863C42.4375 20.744 42.5338 20.023 42.7141 19.3342C40.4027 17.8012 38.0277 16.8878 34.9407 17.5603C27.788 19.1181 30.4932 24.7723 34.2433 22.5471C35.6764 21.6967 38.4091 21.0754 39.0147 23.2804C39.8039 26.1534 36.3203 25.5202 33.3628 31.09C39.1589 28.9791 43.9258 29.0292 49.5603 30.6871C61.3266 34.1493 68.5716 32.448 68.5587 30.023C68.5463 27.791 65.5443 28.1681 62.3575 28.2424L62.3564 28.2413Z" fill="white"/>
