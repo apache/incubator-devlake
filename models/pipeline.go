@@ -45,7 +45,7 @@ type Pipeline struct {
 // to be executed concurrently, while each set is to be executed sequentially.
 type NewPipeline struct {
 	Name        string            `json:"name"`
-	Plan        core.PipelinePlan `json:"plan"`
+	Plan        core.PipelinePlan `json:"plan" swaggertype:"array,string" example:"please check api /pipelines/<PLUGIN_NAME>/pipeline-plan"`
 	BlueprintId uint64
 }
 
