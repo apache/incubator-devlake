@@ -42,10 +42,11 @@ var pipelineLog = logger.Global.Nested("pipeline service")
 
 // PipelineQuery FIXME ...
 type PipelineQuery struct {
-	Status   string `form:"status"`
-	Pending  int    `form:"pending"`
-	Page     int    `form:"page"`
-	PageSize int    `form:"pageSize"`
+	Status      string `form:"status"`
+	Pending     int    `form:"pending"`
+	Page        int    `form:"page"`
+	PageSize    int    `form:"pageSize"`
+	BlueprintId uint64 `form:"blueprint_id"`
 }
 
 func pipelineServiceInit() {
@@ -160,6 +161,9 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 	pipelines := make([]*models.Pipeline, 0)
 	db := db.Model(pipelines).Order("id DESC")
+	if query.BlueprintId != 0 {
+		db = db.Where("blueprint_id = ?", query.BlueprintId)
+	}
 	if query.Status != "" {
 		db = db.Where("status = ?", query.Status)
 	}

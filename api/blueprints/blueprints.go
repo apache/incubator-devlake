@@ -22,7 +22,6 @@ import (
 	"strconv"
 
 	"github.com/apache/incubator-devlake/api/shared"
-
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/services"
 	"github.com/gin-gonic/gin"
@@ -200,4 +199,30 @@ func Trigger(c *gin.Context) {
 		return
 	}
 	shared.ApiOutputSuccess(c, pipeline, http.StatusOK)
+}
+
+// @Summary get pipelines by blueprint id
+// @Description get pipelines by blueprint id
+// @Tags framework/blueprints
+// @Accept application/json
+// @Param blueprintId path int true "blueprint id"
+// @Success 200  {object} shared.ResponsePipelines
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /blueprints/{blueprintId}/pipelines [get]
+func GetBlueprintPipelines(c *gin.Context) {
+	blueprintId := c.Param("blueprintId")
+	id, err := strconv.ParseUint(blueprintId, 10, 64)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	var query services.PipelineQuery
+	query.BlueprintId = id
+	pipelines, count, err := services.GetPipelines(&query)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	shared.ApiOutputSuccess(c, shared.ResponsePipelines{Pipelines: pipelines, Count: count}, http.StatusOK)
 }
