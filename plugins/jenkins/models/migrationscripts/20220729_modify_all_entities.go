@@ -41,6 +41,7 @@ type JenkinsBuild0729 struct {
 	TriggeredBy string `gorm:"type:varchar(255)"`
 	Type        string `gorm:"index;type:varchar(255)" `
 	Class       string `gorm:"index;type:varchar(255)" `
+	HasStages   bool
 	Building    bool
 }
 
@@ -54,7 +55,6 @@ type JenkinsBuildRepo0729 struct {
 	CommitSha    string `gorm:"primaryKey;type:varchar(255)"`
 	Branch       string `gorm:"type:varchar(255)"`
 	RepoUrl      string `gorm:"type:varchar(255)"`
-	HasStages    bool
 	archived.NoPKModel
 }
 
@@ -94,6 +94,10 @@ func (*modifyAllEntities) Up(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 	err = db.Migrator().AddColumn(JenkinsBuild0729{}, "building")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().AddColumn(JenkinsBuild0729{}, "has_stages")
 	if err != nil {
 		return err
 	}
