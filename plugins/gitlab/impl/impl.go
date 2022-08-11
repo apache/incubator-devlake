@@ -63,7 +63,6 @@ func (plugin Gitlab) GetTablesInfo() []core.Tabler {
 		&models.GitlabPipeline{},
 		&models.GitlabProject{},
 		&models.GitlabProjectCommit{},
-		// &models.GitlabResponse{},
 		&models.GitlabReviewer{},
 		&models.GitlabTag{},
 	}
@@ -166,9 +165,6 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
-		},
-		"table": {
-			"GET": api.GetTableInfo,
 		},
 	}
 }

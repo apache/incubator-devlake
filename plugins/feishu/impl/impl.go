@@ -76,6 +76,13 @@ func (plugin Feishu) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) 
 	return nil
 }
 
+func (plugin Feishu) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{
+		&models.FeishuConnection{},
+		&models.FeishuMeetingTopUserItem{},
+	}
+}
+
 func (plugin Feishu) Description() string {
 	return "To collect and enrich data from Feishu"
 }

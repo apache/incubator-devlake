@@ -21,13 +21,11 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/utils"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -162,36 +160,4 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	connection := &models.GitlabConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err
-}
-
-// @Summary get table info
-// @Description Get table info map
-// @Tags plugins/gitlab
-// @Success 200
-// @Router /plugins/gitlab/table [GET]
-func GetTableInfo(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	plugin, err := core.GetPlugin("gitlab")
-	if err != nil {
-		return nil, err
-	}
-	pm, ok := plugin.(core.PluginModel)
-	if !ok {
-		return nil, fmt.Errorf("plugin Gitlab can not change to PluginModel")
-	}
-
-	tables := pm.GetTablesInfo()
-
-	info := make(map[string]interface{})
-
-	for _, table := range tables {
-		sf := utils.WalkFields(reflect.TypeOf(table), nil)
-		tableInfo := make(map[string]string)
-		info[table.TableName()] = tableInfo
-
-		for _, s := range sf {
-			tableInfo[s.Name] = string(s.Tag)
-		}
-	}
-
-	return &core.ApiResourceOutput{Body: info}, err
 }

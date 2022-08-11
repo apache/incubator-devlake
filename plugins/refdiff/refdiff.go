@@ -43,6 +43,10 @@ func (plugin RefDiff) Description() string {
 	return "Calculate commits diff for specified ref pairs based on `commits` and `commit_parents` tables"
 }
 
+func (plugin RefDiff) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
+}
+
 func (plugin RefDiff) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
 	return nil
 }

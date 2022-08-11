@@ -18,19 +18,24 @@ limitations under the License.
 package main
 
 import (
+	"strings"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
 	"github.com/mitchellh/mapstructure"
-	"strings"
 )
 
 var _ core.PluginMeta = (*GitExtractor)(nil)
 var _ core.PluginTask = (*GitExtractor)(nil)
 
 type GitExtractor struct{}
+
+func (plugin GitExtractor) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
+}
 
 func (plugin GitExtractor) Description() string {
 	return "extract infos from git repository"

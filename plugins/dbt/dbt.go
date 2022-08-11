@@ -42,6 +42,10 @@ func (plugin Dbt) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
+func (plugin Dbt) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
+}
+
 func (plugin Dbt) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
 	var op tasks.DbtOptions
 	err := mapstructure.Decode(options, &op)
