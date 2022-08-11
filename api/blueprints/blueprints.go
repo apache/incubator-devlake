@@ -207,7 +207,7 @@ func Trigger(c *gin.Context) {
 // @Tags framework/blueprints
 // @Accept application/json
 // @Param blueprintId path int true "blueprint id"
-// @Success 200  {object} []models.Pipeline
+// @Success 200  {object} pipelines.ResponsePipelines
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /blueprints/{blueprintId}/pipelines [get]
