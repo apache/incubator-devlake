@@ -101,10 +101,10 @@ export default function JiraSettings (props) {
 
   // const [bugTags, setBugTags] = useState(Array.isArray(transformation?.bugTags) ? [...transformation?.bugTags] : [])
   // const [bugTags, setBugTags] = useState(boards[connection?.id] ? boards[connection?.id].reduce((pV, cV) => ({ ...pV, [cV?.id]: [] }), {}) : {})
-  const [bugTags, setBugTags] = useState({ [configuredBoard?.id]: Array.isArray(transformation?.bugTags) ? [...transformation?.bugTags] : [] })
+  const [bugTags, setBugTags] = useState({ [configuredBoard?.id]: Array.isArray(transformation?.bugTags) ? savedBugTags : [] })
 
   // const [incidentTags, setIncidentTags] = useState(Array.isArray(transformation?.incidentTags) ? [...transformation?.incidentTags] : [])
-  const [incidentTags, setIncidentTags] = useState(boards[connection?.id] ? boards[connection?.id].reduce((pV, cV) => ({ ...pV, [cV?.id]: [] }), {}) : {})
+  const [incidentTags, setIncidentTags] = useState(boards[connection?.id] ? boards[connection?.id].reduce((pV, cV) => ({ ...pV, [cV?.id]: savedIncidentTags }), {}) : {})
 
   const [requirementTagsList, setRequirementTagsList] = useState([])
   const [bugTagsList, setBugTagsList] = useState([])
@@ -553,7 +553,7 @@ export default function JiraSettings (props) {
                   }}
                 >
                   <Button
-                  // loading={isFetchingJIRA}
+                    // loading={isFetchingJIRA}
                     disabled={isSaving || fieldsList.length === 0}
                     fill={true}
                     style={{ justifyContent: 'space-between', display: 'flex', minWidth: '260px', maxWidth: '300px' }}
@@ -590,7 +590,6 @@ export default function JiraSettings (props) {
           <div className='formContainer' style={{ maxWidth: '550px' }}>
             <FormGroup
               disabled={isSaving}
-            // label={<></>}
               labelFor='jira-remotelink-sha'
               className='formGroup'
               contentClassName='formGroupContent'
