@@ -91,18 +91,20 @@ export default function JiraSettings (props) {
   // const savedRequirementTags = useMemo(() => connection?.transformations[Object.keys(boards[connection?.id])[0]?.requirementTags], [connection?.id, connection?.transformations, configuredBoard?.id])
   // const savedBugTags = useMemo(() => transformation?.bugTags, [transformation?.bugTags])
   // const savedIncidentTags = useMemo(() => transformation?.incidentTags, [transformation?.incidentTags])
-  const savedRequirementTags = useMemo(() => transformation?.requirementTags || [], [transformation?.requirementTags])
-  const savedBugTags = useMemo(() => transformation?.bugTags || [], [transformation?.bugTags])
-  const savedIncidentTags = useMemo(() => transformation?.incidentTags || [], [transformation?.incidentTags])
+  const savedRequirementTags = useMemo(() => transformation?.requirementTags || [], [transformation?.requirementTags, configuredBoard?.id])
+  const savedBugTags = useMemo(() => transformation?.bugTags || [], [transformation?.bugTags, configuredBoard?.id])
+  const savedIncidentTags = useMemo(() => transformation?.incidentTags || [], [transformation?.incidentTags, configuredBoard?.id])
 
   // const [requirementTags, setRequirementTags] = useState(Array.isArray(transformation?.requirementTags) ? [...transformation?.requirementTags] : [])
-  const [requirementTags, setRequirementTags] = useState(boards[connection?.id] ? boards[connection?.id].reduce((pV, cV) => ({ ...pV, [cV?.id]: [] }), {}) : {})
+  // const [requirementTags, setRequirementTags] = useState(boards[connection?.id] ? boards[connection?.id].reduce((pV, cV) => ({ ...pV, [cV?.id]: [] }), {}) : {})
+  const [requirementTags, setRequirementTags] = useState({ [configuredBoard?.id]: savedRequirementTags })
 
   // const [bugTags, setBugTags] = useState(Array.isArray(transformation?.bugTags) ? [...transformation?.bugTags] : [])
-  const [bugTags, setBugTags] = useState(boards[connection?.id] ? boards[connection?.id].reduce((pV, cV) => ({ ...pV, [cV?.id]: savedBugTags }), {}) : {})
+  // const [bugTags, setBugTags] = useState(boards[connection?.id] ? boards[connection?.id].reduce((pV, cV) => ({ ...pV, [cV?.id]: [] }), {}) : {})
+  const [bugTags, setBugTags] = useState({ [configuredBoard?.id]: Array.isArray(transformation?.bugTags) ? [...transformation?.bugTags] : [] })
 
   // const [incidentTags, setIncidentTags] = useState(Array.isArray(transformation?.incidentTags) ? [...transformation?.incidentTags] : [])
-  const [incidentTags, setIncidentTags] = useState(boards[connection?.id] ? boards[connection?.id].reduce((pV, cV) => ({ ...pV, [cV?.id]: savedIncidentTags }), {}) : {})
+  const [incidentTags, setIncidentTags] = useState(boards[connection?.id] ? boards[connection?.id].reduce((pV, cV) => ({ ...pV, [cV?.id]: [] }), {}) : {})
 
   const [requirementTagsList, setRequirementTagsList] = useState([])
   const [bugTagsList, setBugTagsList] = useState([])
@@ -193,24 +195,16 @@ export default function JiraSettings (props) {
   }, [configuredBoard])
 
   useEffect(() => {
-    console.log('>>>> MY CURRENT JIRA REQUIREMENT TAGS...', transformation?.requirementTags)
-  }, [transformation?.requirementTags])
-
-  useEffect(() => {
     console.log('>>>> MY SAVED JIRA REQUIREMENT TAGS...', savedRequirementTags)
-    if (configuredBoard?.id && savedRequirementTags) {
-      // setRequirementTags(t => ({...t, [configuredBoard?.id]: [savedRequirementTags]}))
-    }
-  }, [savedRequirementTags, configuredBoard?.id])
+  }, [savedRequirementTags])
 
   useEffect(() => {
     console.log('>>>> MY SAVED JIRA BUG TAGS...', savedBugTags)
   }, [savedBugTags])
 
   useEffect(() => {
-    console.log('>>>> transformation?.requirementTags..', transformation?.requirementTags)
-    // setRequirementTags(rT => ({...rT, [configuredBoard?.id]: [...savedTags] }))
-  }, [transformation?.requirementTags])
+    console.log('>>>> MY SAVED JIRA INCIDENT TAGS...', savedIncidentTags)
+  }, [savedIncidentTags])
 
   useEffect(() => {
     console.log('>>> JIRA SETTINGS :: CONNECTION OBJECT!', connection)

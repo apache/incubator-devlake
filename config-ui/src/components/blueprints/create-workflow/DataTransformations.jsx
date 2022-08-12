@@ -105,7 +105,7 @@ const DataTransformations = (props) => {
   })))
   const [activeEntity, setActiveEntity] = useState()
 
-  const isEditingTransformation = useCallback((item) => {
+  const transformationHasProperties = useCallback((item) => {
     const storedTransform = transformations[item] || transformations[item?.id]
     return storedTransform && Object.values(storedTransform).some(v => v && v.length > 0)
   }, [transformations])
@@ -197,7 +197,7 @@ const DataTransformations = (props) => {
                   </h3>
                   <Divider className='section-divider' />
 
-                  {useDropdownSelector && [Providers.JIRA, Providers.GITHUB].includes(configuredConnection.provider) && (
+                  {useDropdownSelector && entityList && [Providers.JIRA, Providers.GITHUB].includes(configuredConnection.provider) && (
                     <div className='project-or-board-select' style={{ marginBottom: '20px' }}>
                       <h4>{configuredConnection.provider === Providers.JIRA ? 'Board' : 'Project'}</h4>
                       <Select
@@ -262,7 +262,7 @@ const DataTransformations = (props) => {
                         activeItem={configuredProject}
                         onAdd={addProjectTransformation}
                         onChange={addProjectTransformation}
-                        isEditing={isEditingTransformation}
+                        isEditing={transformationHasProperties}
                       />
                       {projects[configuredConnection.id].length === 0 && (
                         <NoData
@@ -287,7 +287,7 @@ const DataTransformations = (props) => {
                         activeItem={configuredBoard}
                         onAdd={addBoardTransformation}
                         onChange={addBoardTransformation}
-                        isEditing={isEditingTransformation}
+                        isEditing={transformationHasProperties}
                       />
                       {boards[configuredConnection.id].length === 0 && (
                         <NoData

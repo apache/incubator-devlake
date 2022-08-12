@@ -269,7 +269,7 @@ const BlueprintsGrid = (props) => {
                       </label>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifySelf: 'flex-end' }}>
-                      <Button small minimal style={{ marginLeft: 'auto', marginRight: '5px' }} onClick={() => configureBlueprint(b)}>
+                      <Button small minimal style={{ marginLeft: 'auto', marginRight: '10px' }} onClick={() => configureBlueprint(b)}>
                         <Tooltip
                           content='Blueprint Status'
                           interactionKind={PopoverInteractionKind.HOVER}
@@ -280,7 +280,7 @@ const BlueprintsGrid = (props) => {
                           <Icon icon='pulse' size={16} color={Colors.GRAY3} />
                         </Tooltip>
                       </Button>
-                      <Button small minimal style={{ marginLeft: 'auto', marginRight: '5px' }} onClick={() => configureBlueprintSettings(b)}>
+                      <Button small minimal style={{ marginRight: '10px' }} onClick={() => configureBlueprintSettings(b)}>
                         <Tooltip
                           content='Blueprint Settings'
                           interactionKind={PopoverInteractionKind.HOVER}

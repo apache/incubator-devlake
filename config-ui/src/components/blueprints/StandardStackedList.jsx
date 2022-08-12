@@ -41,11 +41,6 @@ const StandardStackedList = (props) => {
     style = { padding: 0, marginTop: '10px' }
   } = props
 
-  // const isEditing = useCallback((item) => {
-  //   const storedTransform = transformations[item] || transformations[item?.id]
-  //   return storedTransform && Object.values(storedTransform).some(v => v && v.length > 0)
-  // }, [transformations])
-
   return (
     <>
       {items[connection.id]?.length > 0 && (

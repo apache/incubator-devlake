@@ -25,15 +25,16 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
   const [issueTypes, setIssueTypes] = useState([])
   const [fields, setFields] = useState([])
   const [boards, setBoards] = useState([])
+  const [allResources, setAllResources] = useState({ boards, fields, issueTypes })
   const [issueTypesResponse, setIssueTypesResponse] = useState([])
   const [fieldsResponse, setFieldsResponse] = useState([])
   const [boardsResponse, setBoardsResponse] = useState([])
   const [error, setError] = useState()
 
   const fetchIssueTypes = useCallback(() => {
-    if (activeConnection?.plugin !== Providers.JIRA) {
-      return
-    }
+    // if (activeConnection?.plugin !== Providers.JIRA) {
+    //   return
+    // }
     try {
       if (apiProxyPath.includes('null')) {
         throw new Error('Connection ID is Null')
@@ -60,9 +61,9 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
   }, [issuesEndpoint, activeConnection, apiProxyPath])
 
   const fetchFields = useCallback(() => {
-    if (activeConnection?.plugin !== Providers.JIRA) {
-      return
-    }
+    // if (activeConnection?.plugin !== Providers.JIRA) {
+    //   return
+    // }
     try {
       if (apiProxyPath.includes('null')) {
         throw new Error('Connection ID is Null')
@@ -89,9 +90,9 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
   }, [fieldsEndpoint, activeConnection, apiProxyPath])
 
   const fetchBoards = useCallback(() => {
-    if (activeConnection?.plugin !== Providers.JIRA) {
-      return
-    }
+    // if (activeConnection?.plugin !== Providers.JIRA) {
+    //   return
+    // }
     try {
       if (apiProxyPath.includes('null')) {
         throw new Error('Connection ID is Null')
@@ -116,6 +117,41 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
       ToastNotification.show({ message: e.message, intent: 'danger', icon: 'error' })
     }
   }, [boardsEndpoint, activeConnection, apiProxyPath])
+
+  const fetchAllResources = useCallback(async (connectionId, callback = () => {}) => {
+    try {
+      if (apiProxyPath.includes('null')) {
+        throw new Error('Connection ID is Null')
+      }
+      setError(null)
+      setIsFetching(true)
+      const aR = await Promise.all([
+        request
+          .get(activeConnection?.connectionId ? boardsEndpoint.replace('[:connectionId:]', connectionId || activeConnection?.connectionId) : boardsEndpoint),
+        request
+          .get(activeConnection?.connectionId ? fieldsEndpoint.replace('[:connectionId:]', connectionId || activeConnection?.connectionId) : fieldsEndpoint),
+        request
+          .get(activeConnection?.connectionId ? issuesEndpoint.replace('[:connectionId:]', connectionId || activeConnection?.connectionId) : issuesEndpoint),
+      ])
+      console.log('>>> JIRA API PROXY: ALL API RESOURCES...', aR)
+      const apiResources = { boards: aR[0]?.data?.values || [], fields: aR[1]?.data || [], issues: aR[2].data || [] }
+      setAllResources(apiResources)
+      setBoardsResponse(Array.isArray(aR[0]?.data.values) ? aR[0]?.data.values : [])
+      setFieldsResponse(Array.isArray(aR[1]?.data) ? aR[1]?.data : [])
+      setIssueTypesResponse(Array.isArray(aR[2]?.data) ? aR[2]?.data : [])
+      setIsFetching(false)
+      callback(apiResources)
+    } catch (e) {
+      setIsFetching(false)
+      setError(e)
+      callback(e)
+    }
+  }, [
+    boardsEndpoint,
+    fieldsEndpoint,
+    issuesEndpoint,
+    activeConnection,
+    apiProxyPath])
 
   const createListData = (data = [], titleProperty = 'name', valueProperty = 'name') => {
     return data.map((d, dIdx) => ({
@@ -165,10 +201,12 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
     fetchFields,
     fetchIssueTypes,
     fetchBoards,
+    fetchAllResources,
     createListData,
     issueTypesResponse,
     fieldsResponse,
     boardsResponse,
+    allResources,
     issueTypes,
     fields,
     boards,

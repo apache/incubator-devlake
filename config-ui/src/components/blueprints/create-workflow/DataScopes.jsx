@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useState, useCallback } from 'react'
+import React, { Fragment, useEffect, useState, useCallback, useMemo } from 'react'
 import {
   Button,
   Icon,
@@ -60,10 +60,17 @@ const DataScopes = (props) => {
     getFieldError = () => {},
     isSaving = false,
     isRunning = false,
+    isFetching = false,
     enableConnectionTabs = true,
     elevation = Elevation.TWO,
     cardStyle = {}
   } = props
+
+  const selectedBoards = useMemo(() => boards[configuredConnection.id], [boards, configuredConnection?.id])
+
+  useEffect(() => {
+    console.log('>> OVER HERE!!!', selectedBoards)
+  }, [selectedBoards])
 
   return (
     <div className='workflow-step workflow-step-data-scope' data-step={activeStep?.id}>
@@ -166,12 +173,13 @@ const DataScopes = (props) => {
                       <p>Select the boards you would like to sync.</p>
                       <BoardsSelector
                         items={boardsList}
-                        selectedItems={boards[configuredConnection.id] || []}
+                        selectedItems={selectedBoards}
                         onItemSelect={setBoards}
                         onClear={setBoards}
                         onRemove={setBoards}
                         disabled={isSaving}
                         configuredConnection={configuredConnection}
+                        isLoading={isFetching}
                       />
                     </>
                   )}

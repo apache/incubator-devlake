@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React from 'react'
+import React, { useEffect, useMemo } from 'react'
 import {
   Intent,
   MenuItem,
@@ -39,7 +39,7 @@ const BoardsSelector = (props) => {
     onClear = () => {},
     itemRenderer = (item, { handleClick, modifiers }) => (
       <MenuItem
-        active={modifiers.active || selectedItems.find(i => i?.id === item?.id)}
+        active={modifiers.active}
         disabled={
           selectedItems.find(i => i?.id === item?.id)
         }
@@ -67,6 +67,7 @@ const BoardsSelector = (props) => {
     ),
     tagRenderer = (item) => item?.title,
   } = props
+
   return (
     <>
       <div
@@ -96,7 +97,7 @@ const BoardsSelector = (props) => {
             tagInputProps={{
               tagProps: {
                 intent: Intent.PRIMARY,
-                minimal: true,
+                minimal: true
               },
             }}
             noResults={<MenuItem disabled={true} text='No Boards Available.' />}
@@ -125,6 +126,7 @@ const BoardsSelector = (props) => {
             }}
             style={{ borderRight: 0 }}
           />
+
         </div>
       </div>
     </>

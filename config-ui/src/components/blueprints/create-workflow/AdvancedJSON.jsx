@@ -52,40 +52,55 @@ const AdvancedJSON = (props) => {
     isValidConfiguration = false,
     advancedMode = false,
     validationAdvancedError,
-    validationErrors = []
+    validationErrors = [],
+    enableHeader = true,
+    useBlueprintName = true,
+    showTemplates = true,
+    showModeNotice = true,
+    elevation = Elevation.TWO,
+    cardStyle = {},
+    title = 'JSON Configuration',
+    subTitle = 'Task Editor',
+    descriptionText = 'Enter JSON Configuration or preload from a template'
   } = props
 
   return (
     <div className='workflow-step workflow-step-advanced-json' data-step={activeStep?.id}>
-      <BlueprintNameCard
-        activeStep={activeStep}
-        advancedMode={advancedMode}
-        name={name}
-        setBlueprintName={setBlueprintName}
-        getFieldError={getFieldError}
-        fieldHasError={fieldHasError}
-        isSaving={isSaving}
-      />
+      {useBlueprintName && (
+        <BlueprintNameCard
+          activeStep={activeStep}
+          advancedMode={advancedMode}
+          name={name}
+          setBlueprintName={setBlueprintName}
+          getFieldError={getFieldError}
+          fieldHasError={fieldHasError}
+          isSaving={isSaving}
+        />
+      )}
 
       <Card
         className='workflow-card workflow-panel-card'
-        elevation={Elevation.TWO}
-        style={{ width: '100%' }}
+        elevation={elevation}
+        style={{ width: '100%', ...cardStyle }}
       >
-        <h3>
-          JSON Configuration
-          {validationAdvancedError && <Icon icon='warning-sign' size={15} color={Colors.ORANGE5} style={{ marginLeft: '6px', marginBottom: '2px' }} />}
-        </h3>
-        <Divider className='section-divider' />
+        {enableHeader && (
+          <>
+            <h3>
+              {title}
+              {validationAdvancedError && <Icon icon='warning-sign' size={15} color={Colors.ORANGE5} style={{ marginLeft: '6px', marginBottom: '2px' }} />}
+            </h3>
+            <Divider className='section-divider' />
+          </>
+        )}
 
-        <h4>Task Editor</h4>
-        <p>Enter JSON Configuration or preload from a template</p>
+        <h4>{subTitle}</h4>
+        <p>{descriptionText}</p>
 
         <Card
           className='code-editor-card'
           interactive={false}
-          elevation={Elevation.ZERO}
-          style={{ padding: '2px', minWidth: '320px', width: '100%', maxWidth: '100%', marginBottom: '20px' }}
+          elevation={elevation}
+          style={{ padding: '2px', minWidth: '320px', width: '100%', maxWidth: '100%', marginBottom: '20px', ...cardStyle }}
         >
           <TextArea
             growVertically={false}
@@ -118,24 +133,26 @@ const AdvancedJSON = (props) => {
                 icon='eraser'
                 onClick={() => setRawConfiguration('[[]]')}
               />
-              <Popover
-                className='popover-options-menu-trigger'
-                popoverClassName='popover-options-menu'
-                position={Position.TOP}
-                usePortal={true}
-              >
-                <Button
-                  disabled={isRunning}
-                  rightIcon='caret-down'
-                  text='Load Templates'
-                />
-                <>
-                  <PipelineConfigsMenu
-                    setRawConfiguration={setRawConfiguration}
-                    advancedMode={advancedMode}
+              {showTemplates && (
+                <Popover
+                  className='popover-options-menu-trigger'
+                  popoverClassName='popover-options-menu'
+                  position={Position.TOP}
+                  usePortal={true}
+                >
+                  <Button
+                    disabled={isRunning}
+                    rightIcon='caret-down'
+                    text='Load Templates'
                   />
-                </>
-              </Popover>
+                  <>
+                    <PipelineConfigsMenu
+                      setRawConfiguration={setRawConfiguration}
+                      advancedMode={advancedMode}
+                    />
+                  </>
+                </Popover>
+              )}
               {/* <Button
                 disabled={!isValidConfiguration}
                 small text='Format' icon='align-left'
@@ -151,9 +168,11 @@ const AdvancedJSON = (props) => {
 
       </Card>
 
-      <div className='mode-notice normal-mode-notice'>
-        <p>To visually define blueprint tasks, please use <a href='#' rel='noreferrer' onClick={() => onAdvancedMode(false)}>Normal Mode</a></p>
-      </div>
+      {showModeNotice && (
+        <div className='mode-notice normal-mode-notice'>
+          <p>To visually define blueprint tasks, please use <a href='#' rel='noreferrer' onClick={() => onAdvancedMode(false)}>Normal Mode</a></p>
+        </div>
+      )}
 
     </div>
   )

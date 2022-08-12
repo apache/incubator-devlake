@@ -72,45 +72,17 @@ import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import useConnectionManager from '@/hooks/useConnectionManager'
+import usePipelineManager from '@/hooks/usePipelineManager'
 import useDataScopesManager from '@/hooks/useDataScopesManager'
 import useJIRA from '@/hooks/useJIRA'
 import useBlueprintValidation from '@/hooks/useBlueprintValidation'
+import usePipelineValidation from '@/hooks/usePipelineValidation'
+
 import BlueprintDialog from '@/components/blueprints/BlueprintDialog'
 import BlueprintDataScopesDialog from '@/components/blueprints/BlueprintDataScopesDialog'
 import BlueprintNavigationLinks from '@/components/blueprints/BlueprintNavigationLinks'
-import DataScopesGrid from '../../components/blueprints/DataScopesGrid'
-
-// eslint-disable-next-line no-unused-vars
-const TEST_CONNECTIONS = [
-  {
-    id: 0,
-    provider: integrationsData.find((i) => i.id === Providers.GITHUB),
-    providerLabel: ProviderLabels[Providers.GITHUB],
-    name: 'Merico Github',
-    entities: ['Source Code Management', 'Issue Tracking', 'Code Review'],
-    projects: [
-      'apache/incubator-devlake',
-      'merico/devstream',
-      'merico/another-project',
-    ],
-    boards: [],
-    transformation: {},
-    transformationStates: ['Added', '-', 'Added'],
-    editable: true,
-  },
-  {
-    id: 1,
-    provider: integrationsData.find((i) => i.id === Providers.JIRA),
-    providerLabel: ProviderLabels[Providers.JIRA],
-    name: 'Merico JIRA',
-    entities: ['Source Code Management', 'Issue Tracking', 'Code Review'],
-    projects: [],
-    boards: ['Board 1', 'Board 2', 'Board 3', 'Board 4'],
-    transformation: {},
-    transformationStates: ['Added', 'Added', '-', '-'],
-    editable: true,
-  },
-]
+import DataScopesGrid from '@/components/blueprints/DataScopesGrid'
+import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
 
 const BlueprintSettings = (props) => {
   // eslint-disable-next-line no-unused-vars
@@ -132,24 +104,9 @@ const BlueprintSettings = (props) => {
   // const [connections, setConnections] = useState([])
   const [blueprintConnections, setBlueprintConnections] = useState([])
   const [configuredConnection, setConfiguredConnection] = useState()
-  // @disabled Provided By Data Scopes Manager
-  // const [configuredProject, setConfiguredProject] = useState(null)
-  // const [configuredBoard, setConfiguredBoard] = useState(null)
 
-  // @disabled Provided By Data Scopes Manager
-  // const [scopeConnection, setScopeConnection] = useState()
-
+  // @todo: relocate or discard
   const [newConnectionScopes, setNewConnectionScopes] = useState({})
-
-  // @disabled Provided by Data Scopes Manager
-  // const [boards, setBoards] = useState({ [configuredConnection?.id]: [] })
-  // const [projects, setProjects] = useState({ [configuredConnection?.id]: [] })
-  // const [entities, setEntities] = useState({ [configuredConnection?.id]: [] })
-
-  // @disabled Provided by Data Scopes Manager
-  // const [boards, setBoards] = useState({})
-  // const [projects, setProjects] = useState({})
-  // const [entities, setEntities] = useState({})
 
   const [blueprintDialogIsOpen, setBlueprintDialogIsOpen] = useState(false)
   const [blueprintScopesDialogIsOpen, setBlueprintScopesDialogIsOpen] = useState(false)
@@ -160,14 +117,9 @@ const BlueprintSettings = (props) => {
     payload: {},
   })
 
-  // const [activeSettingComponent, setActiveSettingComponent] = useState(null)
-
-  // @relocatd to Data Scopes Manager
-  // const activeProjectTransformation = useMemo(() => scopeConnection?.transformations[scopeConnection?.projects?.findIndex(p => p === configuredProject)], [scopeConnection, configuredProject])
-  // const activeBoardTransformation = useMemo(() => scopeConnection?.transformations[scopeConnection?.boardIds?.findIndex(b => b === configuredBoard?.id)], [scopeConnection, configuredBoard])
-  // const [transformations, setTransformations] = useState({})
-
   const [showBlueprintInspector, setShowBlueprintInspector] = useState(false)
+  const [runTasks, setRunTasks] = useState([])
+  const [runTasksAdvanced, setRunTasksAdvanced] = useState([])
 
   const {
     // eslint-disable-next-line no-unused-vars
@@ -179,6 +131,7 @@ const BlueprintSettings = (props) => {
     enable,
     tasks: blueprintTasks,
     settings: blueprintSettings,
+    rawConfiguration,
     mode,
     interval,
     isSaving,
@@ -196,7 +149,9 @@ const BlueprintSettings = (props) => {
     setMode,
     setInterval,
     setIsManual,
+    setTasks: setBlueprintTasks,
     setSettings: setBlueprintSettings,
+    setRawConfiguration,
     createCron,
     getCronPreset,
     getCronPresetByConfig,
@@ -218,6 +173,7 @@ const BlueprintSettings = (props) => {
     activeTransformation,
     configuredBoard,
     configuredProject,
+    enabledProviders,
     setConfiguredBoard,
     setConfiguredProject,
     setBoards,
@@ -228,6 +184,7 @@ const BlueprintSettings = (props) => {
     // setActiveTransformation,
     setConnections,
     setScopeConnection,
+    setEnabledProviders,
     createProviderConnections,
     createProviderScopes,
   } = useDataScopesManager({
@@ -253,12 +210,39 @@ const BlueprintSettings = (props) => {
   )
 
   const {
+    // eslint-disable-next-line no-unused-vars
+    pipelineName,
+    // pipelines,
+    // runPipeline,
+    // cancelPipeline,
+    // fetchPipeline,
+    // fetchAllPipelines,
+    // pipelineRun,
+    // buildPipelineStages,
+    // isRunning,
+    isFetchingAll: isFetchingAllPipelines,
+    // eslint-disable-next-line no-unused-vars
+    errors: pipelineErrors,
+    setSettings: setPipelineSettings,
+    setPipelineName,
+    // eslint-disable-next-line no-unused-vars
+    lastRunId,
+    // eslint-disable-next-line no-unused-vars
+    allowedProviders,
+    // eslint-disable-next-line no-unused-vars
+    detectPipelineProviders,
+  } = usePipelineManager(null, runTasks)
+
+  const {
     validate: validateBlueprint,
     errors: blueprintValidationErrors,
     isValid: isValidBlueprint,
     fieldHasError,
     getFieldError,
     isValidCronExpression,
+    isValidJSON,
+    isValidConfiguration: isValidJSONConfiguration,
+    validateAdvancedError,
     validateBlueprintName,
   } = useBlueprintValidation({
     name: blueprintName,
@@ -277,9 +261,34 @@ const BlueprintSettings = (props) => {
   })
 
   const {
+    validate: validatePipeline,
+    validateAdvanced: validateAdvancedPipeline,
+    errors: pipelineValidationErrors,
+    setErrors: setPipelineErrors,
+    isValid: isValidPipeline,
+    detectedProviders,
+    parseJSON
+  } = usePipelineValidation({
+    enabledProviders,
+    pipelineName: activeBlueprint?.name,
+    projects,
+    boards,
+    connectionId: scopeConnection?.id,
+    tasks: runTasks,
+    tasksAdvanced: runTasksAdvanced,
+    advancedMode: activeBlueprint?.mode === BlueprintMode.ADVANCED,
+    mode,
+    connection: configuredConnection,
+    entities: entities,
+    rawConfiguration
+  })
+
+  const {
     fetchIssueTypes,
     fetchFields,
     fetchBoards,
+    fetchAllResources,
+    allResources: allJiraResources,
     boards: jiraApiBoards,
     issueTypes: jiraApiIssueTypes,
     fields: jiraApiFields,
@@ -294,21 +303,6 @@ const BlueprintSettings = (props) => {
     },
     configuredConnection
   )
-
-  // const withBlueprintName = useMemo(() => BlueprintNameCard => props => (
-  //   <BlueprintNameCard
-  //     name={blueprintName}
-  //     setBlueprintName={setBlueprintName}
-  //     fieBldHasError={fieldHasError}
-  //     getFieldError={getFieldError}
-  //     elevation={Elevation.ZERO}
-  //     enableDivider={false}
-  //     cardStyle={{ padding: 0 }}
-  //     {...props}
-  //   />
-  // ), [blueprintName])
-
-  // const NameSettings = useMemo(() => withBlueprintName(BlueprintNameCard), [BlueprintNameCard, withBlueprintName])
 
   const handleBlueprintActivation = useCallback(
     (blueprint) => {
@@ -353,39 +347,10 @@ const BlueprintSettings = (props) => {
     scopeConnection
   ])
 
-  const fetchJIRAResources = useCallback(async (callback = () => {}) => {
-    const jiraPromise = await new Promise((resolve, reject) => {
-      try {
-        fetchBoards()
-        fetchFields()
-        fetchIssueTypes()
-        resolve({ issues: jiraApiBoards, issueTypes: jiraApiIssueTypes, fields: jiraApiFields })
-      } catch (e) {
-        reject(e)
-      }
-    }).then((response) => {
-      callback(response)
-    })
-  }, [
-    fetchBoards,
-    fetchFields,
-    fetchIssueTypes,
-    jiraApiBoards,
-    jiraApiIssueTypes,
-    jiraApiFields
-  ])
-
   const handleBlueprintScopesDialogOpening = useCallback(() => {
     console.log('>>> OPENING BLUEPRINT CONNECTION SCOPES DIALOG...')
-    // if (activeProvider?.id === Providers.JIRA) {
-    //   fetchJIRAResources((jiraResources) => {
-    //     alert('JIRA DONE!')
-    //     console.log('>>> GOT JIRA RESOURCES = ', jiraResources)
-    //   })
-    // }
   }, [
-    // fetchJIRAResources,
-    activeProvider?.id
+    // activeProvider?.id
   ])
 
   const handleBlueprintSave = useCallback(() => {
@@ -412,11 +377,9 @@ const BlueprintSettings = (props) => {
     console.log('>>> CONNECTION SETTINGS STEP CHANGED...', newStepId, lastStepId, e)
     switch (newStepId) {
       case 'scopes':
-        // fetchJIRAResources()
         setActiveSetting((aS) => ({ ...aS, id: 'scopes', title: 'Change Data Scope' }))
         break
       case 'transformations':
-        // fetchJIRAResources()
         setActiveSetting((aS) => ({ ...aS, id: 'transformations', title: 'Change Transformation Rules' }))
         break
     }
@@ -462,71 +425,58 @@ const BlueprintSettings = (props) => {
     // setConfiguredConnection(connection)
     setConfiguredConnection({ ...connection, transformations: connectionWithScope.transformations })
     setScopeConnection({ ...connection, ...connectionWithScope })
-
-    // setProjects({ [scopedConnection?.id]: scopedConnection?.projects })
-
-    // if (connection.provider === Providers.JIRA) {
-    //   console.log('>>> JIRA PROVIDER DETECTED, FETCHING API PROXY RESOURCES...', activeProvider)
-    //   fetchBoards()
-    //   fetchIssueTypes()
-    //   fetchFields()
-    //   setBlueprintScopesDialogIsOpen(true)
-    // } else {
-    //   setBlueprintScopesDialogIsOpen(true)
-    // }
-    // loadBlueprint()
-
-    // setEntities({ [connectionWithScope?.id]: connectionWithScope?.entityList })
   }, [
     activeProvider,
     connectionsList,
     connections,
     setScopeConnection
-    // fetchBoards,
-    // fetchFields,
-    // fetchIssueTypes
   ])
 
   const validateActiveSetting = useCallback(() => {
     let isValid = false
-    switch (activeSetting?.id) {
-      case 'name':
-        isValid = validateBlueprintName(blueprintName)
-        break
-      case 'cronConfig':
-        isValid =
+    if (activeBlueprint?.mode === BlueprintMode.NORMAL) {
+      switch (activeSetting?.id) {
+        case 'name':
+          isValid = validateBlueprintName(blueprintName)
+          break
+        case 'cronConfig':
+          isValid =
           cronConfig === 'custom'
             ? isValidCronExpression(customCronConfig)
             : ['manual', 'custom'].includes(cronConfig) ||
               isValidCronExpression(cronConfig)
-        break
-      case 'scopes':
-      case 'transformations':
-        switch (activeProvider?.id) {
-          case Providers.GITHUB:
-            isValid = Array.isArray(projects[configuredConnection?.id]) &&
+          break
+        case 'scopes':
+        case 'transformations':
+          switch (activeProvider?.id) {
+            case Providers.GITHUB:
+              isValid = Array.isArray(projects[configuredConnection?.id]) &&
               projects[configuredConnection?.id]?.length > 0 &&
               Array.isArray(entities[configuredConnection?.id]) &&
               entities[configuredConnection?.id]?.length > 0
-            break
-          case Providers.GITLAB:
-            isValid = entities[configuredConnection?.id]?.length > 0
-            break
-          case Providers.JIRA:
-            isValid = Array.isArray(boards[configuredConnection?.id]) &&
+              break
+            case Providers.GITLAB:
+              isValid = entities[configuredConnection?.id]?.length > 0
+              break
+            case Providers.JIRA:
+              isValid = Array.isArray(boards[configuredConnection?.id]) &&
               boards[configuredConnection?.id]?.length > 0 &&
               Array.isArray(entities[configuredConnection?.id]) &&
               entities[configuredConnection?.id]?.length > 0
-            break
-          case Providers.JENKINS:
-            isValid = entities[configuredConnection?.id]?.length > 0
-            break
-          default:
-            isValid = true
-        }
-        break
+              break
+            case Providers.JENKINS:
+              isValid = entities[configuredConnection?.id]?.length > 0
+              break
+            default:
+              isValid = true
+          }
+          break
         // @todo: add tapd
+      }
+    } else if (activeBlueprint?.mode === BlueprintMode.ADVANCED) {
+      isValid = isValidBlueprint && isValidPipeline
     }
+
     return isValid
   }, [
     activeSetting?.id,
@@ -535,10 +485,14 @@ const BlueprintSettings = (props) => {
     customCronConfig,
     validateBlueprintName,
     isValidCronExpression,
+    isValidBlueprint,
+    isValidPipeline,
     projects,
+    boards,
     entities,
     configuredConnection,
-    activeProvider?.id
+    activeProvider?.id,
+    activeBlueprint?.mode
   ])
 
   const getDefaultEntities = useCallback((providerId) => {
@@ -559,69 +513,50 @@ const BlueprintSettings = (props) => {
   }, [])
 
   // @todo: relocate or disable
-  const loadBlueprint = useCallback(() => {
-    console.log('>>> HERE!!! LOAD BLUEPRINT PROPERTIES...')
-    setDataEntitiesList(deList => activeProvider ? getDefaultEntities(activeProvider?.id) : deList)
-    switch (scopeConnection?.provider?.id) {
-      case Providers.GITHUB:
-        // setActiveTransformation(scopeConnection?.transformation[scopeConnection?.projects?.findIndex(p => p === configuredProject)])
-        // setActiveTransformation(activeProjectTransformation)
-        setProjects(p => ({ ...p, [configuredConnection?.id]: scopeConnection?.projects }))
-        setEntities(e => ({ ...e, [configuredConnection?.id]: scopeConnection?.entityList }))
-        setTransformations(existingTransforms => ({
-          ...scopeConnection?.projects.map(
-            (p, pIdx) => ({ [p]: scopeConnection.transformations[pIdx] })
-          ).reduce((pV, cV) => ({ ...cV, ...pV }), {}),
-          ...existingTransforms
-        }))
-        break
-      case Providers.JIRA:
-        // setActiveTransformation(scopeConnection?.transformation[scopeConnection?.boards?.findIndex(b => b === `Board ${configuredBoard?.id}`)])
-        // setActiveTransformation(activeBoardTransformation)
-        setBoards(b => ({ ...b, [configuredConnection?.id]: scopeConnection?.boardsList }))
-        setEntities(e => ({ ...e, [configuredConnection?.id]: scopeConnection?.entityList }))
-        setTransformations(existingTransforms => ({
-          ...scopeConnection?.boardIds.map(
-            (bId, bIdx) => ({ [bId]: scopeConnection.transformations[bIdx] })
-          ).reduce((pV, cV) => ({ ...cV, ...pV }), {}),
-          ...existingTransforms
-        }))
-        break
-    }
-  }, [
-    activeProvider,
-    // activeBoardTransformation,
-    // activeProjectTransformation,
-    scopeConnection,
-    configuredConnection?.id,
-    configuredProject,
-    configuredBoard?.id,
-    getDefaultEntities,
-    setBoards,
-    setEntities,
-    setProjects,
-    setTransformations
+  // const loadBlueprint = useCallback(() => {
+  //   console.log('>>> HERE!!! LOAD BLUEPRINT PROPERTIES...')
+  //   setDataEntitiesList(deList => activeProvider ? getDefaultEntities(activeProvider?.id) : deList)
+  //   switch (scopeConnection?.provider?.id) {
+  //     case Providers.GITHUB:
+  //       // setActiveTransformation(scopeConnection?.transformation[scopeConnection?.projects?.findIndex(p => p === configuredProject)])
+  //       // setActiveTransformation(activeProjectTransformation)
+  //       setProjects(p => ({ ...p, [configuredConnection?.id]: scopeConnection?.projects }))
+  //       setEntities(e => ({ ...e, [configuredConnection?.id]: scopeConnection?.entityList }))
+  //       setTransformations(existingTransforms => ({
+  //         ...scopeConnection?.projects.map(
+  //           (p, pIdx) => ({ [p]: scopeConnection.transformations[pIdx] })
+  //         ).reduce((pV, cV) => ({ ...cV, ...pV }), {}),
+  //         ...existingTransforms
+  //       }))
+  //       break
+  //     case Providers.JIRA:
+  //       // setActiveTransformation(scopeConnection?.transformation[scopeConnection?.boards?.findIndex(b => b === `Board ${configuredBoard?.id}`)])
+  //       // setActiveTransformation(activeBoardTransformation)
+  //       setBoards(b => ({ ...b, [configuredConnection?.id]: scopeConnection?.boardsList }))
+  //       setEntities(e => ({ ...e, [configuredConnection?.id]: scopeConnection?.entityList }))
+  //       setTransformations(existingTransforms => ({
+  //         ...scopeConnection?.boardIds.map(
+  //           (bId, bIdx) => ({ [bId]: scopeConnection.transformations[bIdx] })
+  //         ).reduce((pV, cV) => ({ ...cV, ...pV }), {}),
+  //         ...existingTransforms
+  //       }))
+  //       break
+  //   }
+  // }, [
+  //   activeProvider,
+  //   // activeBoardTransformation,
+  //   // activeProjectTransformation,
+  //   scopeConnection,
+  //   configuredConnection?.id,
+  //   configuredProject,
+  //   configuredBoard?.id,
+  //   getDefaultEntities,
+  //   setBoards,
+  //   setEntities,
+  //   setProjects,
+  //   setTransformations
 
-  ])
-
-  // @disabled Provided By Data Scopes Manager
-  // const setTransformationSettings = useCallback(
-  //   (settings, configuredEntity) => {
-  //     console.log(
-  //       '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
-  //       configuredEntity,
-  //       settings
-  //     )
-  //     setTransformations((existingTransformations) => ({
-  //       ...existingTransformations,
-  //       [configuredEntity]: {
-  //         ...existingTransformations[configuredEntity],
-  //         ...settings,
-  //       },
-  //     }))
-  //   },
-  //   [setTransformations]
-  // )
+  // ])
 
   const addProjectTransformation = useCallback((project) => {
     setConfiguredProject(project)
@@ -633,22 +568,25 @@ const BlueprintSettings = (props) => {
     // ToastNotification.clear()
   }, [setConfiguredBoard])
 
+  const getJiraMappedBoards = useCallback((scope, boards = []) => {
+    return scope.map((s, sIdx) => {
+      const boardObject = boards.find(apiBoard => Number(apiBoard.id) === Number(s.options?.boardId))
+      return {
+        ...boardObject,
+        key: sIdx,
+        value: boardObject?.name,
+        title: boardObject?.name,
+      }
+    })
+  }, [])
+
   useEffect(() => {
     console.log('>>> ACTIVE PROVIDER!', activeProvider)
     setDataEntitiesList(deList => activeProvider ? getDefaultEntities(activeProvider?.id) : deList)
-    // if (activeProvider?.id === Providers.JIRA) {
-    //   console.log('>>> JIRA PROVIDER DETECTED, FETCHING API PROXY RESOURCES...', activeProvider)
-    //   fetchBoards()
-    //   fetchIssueTypes()
-    //   fetchFields()
-    // }
   }, [
     activeProvider,
     getDefaultEntities,
     setDataEntitiesList,
-    // fetchBoards,
-    // fetchIssueTypes,
-    // fetchFields
   ])
 
   useEffect(() => {
@@ -682,52 +620,68 @@ const BlueprintSettings = (props) => {
     const getGitlabProjects = (c) => [Providers.GITLAB].includes(c.plugin)
       ? c.scope.map((s) => s.options?.projectId)
       : []
+    // @todo: handle multi-stage
+    const getAdvancedGithubProjects = (t, providerId) => [Providers.GITHUB].includes(providerId)
+      ? [`${t.Options.owner}/${t.Options?.repo}`]
+      : []
+    const getAdvancedGitlabProjects = (t, providerId) => [Providers.GITLAB].includes(providerId)
+      ? [t.Options?.projectId]
+      : []
     // @todo: migrate to data scopes manager
     if (activeBlueprint?.mode === BlueprintMode.NORMAL) {
-    setConnections(
-      activeBlueprint?.settings?.connections.map((c, cIdx) => ({
-        ...c,
-        // Preserve Original **LIST INDEX** ID!
-        id: connectionsList.find(lC => lC.value === c.connectionId && lC.provider === c.plugin)?.id,
-        connectionId: c.connectionId,
-        value: c.connectionId,
-        provider: integrationsData.find((i) => i.id === c.plugin),
-        providerLabel: ProviderLabels[c.plugin.toUpperCase()],
-        providerId: c.plugin,
-        plugin: c.plugin,
-        icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
-        // name: `Connection ID #${c.connectionId}`,
-        name: allProviderConnections.find(pC => pC.connectionId === c.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.connectionId}`,
-        entities: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)?.title),
-        entityList: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)),
-        projects: [Providers.GITLAB].includes(c.plugin)
-          ? getGitlabProjects(c)
-          : getGithubProjects(c),
-        boards: [Providers.JIRA].includes(c.plugin)
-          ? c.scope.map((s) => `Board ${s.options?.boardId}`)
-          : [],
-        boardIds: [Providers.JIRA].includes(c.plugin)
-          ? c.scope.map((s) => s.options?.boardId)
-          : [],
-        boardsList: [],
-        // boardsList: c.plugin === Providers.JIRA ? c.scope.map((s) => jiraApiBoards.find(apiBoard => apiBoard.id === s.options?.boardId)) : [],
-        // boardsList: [Providers.JIRA].includes(c.plugin)
-        //   ? c.scope.map((s) => jiraApiBoards.find(apiBoard => apiBoard.id === s.options?.boardId))
-        //   : [],
-        transformations: c.scope.map((s) => ({ ...s.transformation })),
-        transformationStates: c.scope.map((s) =>
-          Object.values(s.transformation).some((v) => Array.isArray(v) ? v.length > 0 : (v && typeof v === 'object' ? Object.keys(v)?.length > 0 : v?.toString().length > 0))
-            ? 'Added'
-            : '-'
-        ),
-        scope: c.scope,
-        editable: [Providers.JENKINS].includes(c.plugin) ? false : true,
-        advancedEditable: false
-      }))
-    )
-    } else {
+      // fetchJIRAResources((jiraResourcesResponse) => {
+      //   console.log('>>> HERE!!!!', jiraResourcesResponse)
+      // })
       setConnections(
-        activeBlueprint?.plan[0].map((c, cIdx) => ({
+        activeBlueprint?.settings?.connections.map((c, cIdx) => ({
+          ...c,
+          // Preserve Original **LIST INDEX** ID!
+          id: connectionsList.find(lC => lC.value === c.connectionId && lC.provider === c.plugin)?.id,
+          connectionId: c.connectionId,
+          value: c.connectionId,
+          provider: integrationsData.find((i) => i.id === c.plugin),
+          providerLabel: ProviderLabels[c.plugin.toUpperCase()],
+          providerId: c.plugin,
+          plugin: c.plugin,
+          icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
+          // name: `Connection ID #${c.connectionId}`,
+          name: allProviderConnections.find(pC => pC.connectionId === c.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.connectionId}`,
+          entities: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)?.title),
+          entityList: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)),
+          projects: [Providers.GITLAB].includes(c.plugin)
+            ? getGitlabProjects(c)
+            : getGithubProjects(c),
+          boards: [Providers.JIRA].includes(c.plugin)
+            ? c.scope.map((s) => `Board ${s.options?.boardId}`)
+            : [],
+          boardIds: [Providers.JIRA].includes(c.plugin)
+            ? c.scope.map((s) => s.options?.boardId)
+            : [],
+          boardsList: [],
+          // boardsList: c.providerId === Providers.JIRA ? c.scope.map((s) => jiraResourcesResponse?.boards?.find(apiBoard => apiBoard.id === s.options?.boardId)) : [],
+          // boardsList: c.plugin === Providers.JIRA ? c.scope.map((s) => jiraApiBoards.find(apiBoard => apiBoard.id === s.options?.boardId)) : [],
+          // boardsList: [Providers.JIRA].includes(c.plugin)
+          //   ? c.scope.map((s) => jiraApiBoards.find(apiBoard => apiBoard.id === s.options?.boardId))
+          //   : [],
+          transformations: c.scope.map((s) => ({ ...s.transformation })),
+          transformationStates: c.scope.map((s) =>
+            Object.values(s.transformation).some((v) => Array.isArray(v) ? v.length > 0 : (v && typeof v === 'object' ? Object.keys(v)?.length > 0 : v?.toString().length > 0))
+              ? 'Added'
+              : '-'
+          ),
+          scope: c.scope,
+          editable: ![Providers.JENKINS].includes(c.plugin),
+          advancedEditable: false,
+          isMultiStage: false,
+          isSingleStage: true,
+          stages: 1
+        }))
+      )
+    } else if (activeBlueprint?.mode === BlueprintMode.ADVANCED) {
+      // Advanced Mode Data Scope Connections
+      // @todo: handle multi-stage
+      setConnections(
+        activeBlueprint?.plan?.flat().map((c, cIdx) => ({
           ...c,
           id: connectionsList.find(lC => lC.value === c.Options.connectionId && lC.provider === c.Plugin)?.id,
           connectionId: c.Options?.connectionId,
@@ -738,17 +692,26 @@ const BlueprintSettings = (props) => {
           providerId: c.Plugin,
           icon: ProviderIcons[c.Plugin] ? ProviderIcons[c.Plugin](18, 18) : null,
           name: allProviderConnections.find(pC => pC.connectionId === c.Options.connectionId && pC.provider === c.Plugin)?.name || `Connection ID #${c.Options.connectionId}`,
-          projects: [],
-          entities: ['-'],
-          entitityList: [],
+          projects: [Providers.GITLAB].includes(c.Plugin)
+            ? getAdvancedGitlabProjects(c, c.Plugin)
+            : getAdvancedGithubProjects(c, c.Plugin),
+          entities: [<Tag key={0} minimal small>Default Entities</Tag>],
+          entitityList: getDefaultEntities(c.Plugin),
           boards: [],
           boardList: [],
           transformations: {},
-          transformationStates: [],
+          // transformationStates: ['-'],
+          transformationStates: typeof c.Options?.transformationRules === 'object'
+            ? Object.values(c.Options?.transformationRules).map(v => Array.isArray(v) && v.length > 0 ? 'Added'
+              : (v !== '' ? 'Added' : '-')) : ['-'],
           scope: c,
           task: c,
           editable: false,
-          advancedEditable: true
+          advancedEditable: true,
+          plan: activeBlueprint?.plan,
+          isMultiStage: Array.isArray(activeBlueprint?.plan) && activeBlueprint?.plan.length > 1,
+          isSingleStage: Array.isArray(activeBlueprint?.plan) && activeBlueprint?.plan.length === 1,
+          stagesCount: activeBlueprint?.plan?.length,
         }))
       )
     }
@@ -774,6 +737,7 @@ const BlueprintSettings = (props) => {
     setMode(activeBlueprint?.mode)
     setEnable(activeBlueprint?.enable)
     setIsManual(activeBlueprint?.isManual)
+    setRawConfiguration(JSON.stringify(activeBlueprint?.plan, null, '  ') || JSON.stringify([[]], null, '  '))
     // setBlueprintSettings(activeBlueprint?.settings)
   }, [
     activeBlueprint,
@@ -788,7 +752,8 @@ const BlueprintSettings = (props) => {
     setIsManual,
     setMode,
     setBlueprintSettings,
-    jiraApiBoards,
+    // jiraApiBoards,
+    // allJiraResources?.boards,
     allProviderConnections,
     isFetchingJIRA,
     connectionsList
@@ -830,6 +795,15 @@ const BlueprintSettings = (props) => {
           },
         }))
         break
+      case 'plan':
+        setActiveSetting((aS) => ({
+          ...aS,
+          payload: {
+            // plan: JSON.parse(rawConfiguration)
+            plan: runTasksAdvanced
+          },
+        }))
+        break
     }
   }, [
     blueprintName,
@@ -838,7 +812,8 @@ const BlueprintSettings = (props) => {
     activeSetting?.id,
     getCronPreset,
     blueprintSettings,
-    transformations
+    transformations,
+    runTasksAdvanced
   ])
 
   useEffect(() => {
@@ -887,10 +862,7 @@ const BlueprintSettings = (props) => {
     const isJIRAProvider = scopeConnection?.providerId === Providers.JIRA
     if (scopeConnection) {
       if (isJIRAProvider) {
-        fetchJIRAResources((jiraResources) => {
-          console.log('>>> GOT JIRA RESOURCES = ', jiraResources)
-          setBlueprintScopesDialogIsOpen(true)
-        })
+        setBlueprintScopesDialogIsOpen(true)
       } else {
         setBlueprintScopesDialogIsOpen(true)
       }
@@ -905,6 +877,12 @@ const BlueprintSettings = (props) => {
   ])
 
   useEffect(() => {
+    if (allJiraResources?.boards?.length > 0) {
+      // setBlueprintScopesDialogIsOpen(true)
+    }
+  }, [allJiraResources])
+
+  useEffect(() => {
     console.log('>>> CONFIGURING / MODIFYING CONNECTION', configuredConnection)
     if (configuredConnection?.id) {
       // setBoards({ [configuredConnection?.id]: [] })
@@ -913,17 +891,32 @@ const BlueprintSettings = (props) => {
     }
   }, [configuredConnection])
 
-  // useEffect(() => {
-  //   console.log('>>> ACTIVE TRANSFORMATION RULES...', activeTransformation)
-  // }, [activeTransformation])
-
   useEffect(() => {
-    console.log('>>> jiraApiBoards...', jiraApiBoards)
-    if (jiraApiBoards.length) {
-      setConnections(Cs => Cs.map(c => ({
-        ...c,
-        boardsList: c.providerId === Providers.JIRA ? c.scope.map((s) => jiraApiBoards.find(apiBoard => apiBoard.id === s.options?.boardId)) : []
-      })))
+    // console.log('>>> jiraApiBoards...', jiraApiBoards)
+    if (
+      scopeConnection?.providerId === Providers.JIRA &&
+        scopeConnection?.connectionId &&
+        activeBlueprint?.mode === BlueprintMode.NORMAL
+    ) {
+      // const getJiraMappedBoards = (scope, boards = []) => {
+      //   return scope.map((s, sIdx) => {
+      //     const boardObject = boards.find(apiBoard => Number(apiBoard.id) === Number(s.options?.boardId))
+      //     return {
+      //       ...boardObject,
+      //       key: sIdx,
+      //       value: boardObject?.name,
+      //       title: boardObject?.name,
+      //     }
+      //   })
+      // }
+      fetchAllResources(scopeConnection?.connectionId, (jiraResourcesResponse) => {
+        console.log('>>> HERE!!!!', jiraResourcesResponse)
+        setConnections(Cs => Cs.map(c => ({
+          ...c,
+          // c.scope.map((s) => jiraResourcesResponse?.boards?.find(apiBoard => apiBoard.id === s.options?.boardId))
+          boardsList: getJiraMappedBoards(c.scope, jiraResourcesResponse?.boards)
+        })))
+      })
       // setConnections(Cs => [
       //   ...Cs.filter(c => c.providerId !== Providers.JIRA),
       //   ...Cs.filter(c => c.providerId === Providers.JIRA).map(c => ({
@@ -932,7 +925,13 @@ const BlueprintSettings = (props) => {
       //   })),
       // ])
     }
-  }, [jiraApiBoards])
+  }, [
+    activeBlueprint?.mode,
+    fetchAllResources,
+    scopeConnection?.connectionId,
+    scopeConnection?.providerId,
+    getJiraMappedBoards
+  ])
 
   useEffect(() => {
     console.log('>>> PROJECTS SELECTED...', projects)
@@ -978,27 +977,43 @@ const BlueprintSettings = (props) => {
     // setScopeConnection(sC => ({...sC, projects: newConnectionScopes[configuredConnection?.id]?.projects }))
   }, [newConnectionScopes, configuredConnection?.id])
 
-  // @todo: verify active state
-  // useEffect(() => {
-  //   console.log('>>> TRANSFORMATION PROJECT/BOARD SETTINGS...', transformations)
-  //   setActiveTransformation(aT => ({
-  //     ...aT,
-  //     ...(configuredProject ? transformations[configuredProject] : {}),
-  //     ...(configuredBoard ? transformations[configuredBoard?.id] : {}),
-  //   }))
-  // }, [transformations, configuredProject, configuredBoard])
-
-  // useEffect(() => {
-  //   console.log('>>> TRANSFORMATION BOARD SETTINGS...', transformations)
-  //   setActiveTransformation(aT => ({
-  //     ...aT,
-  //     ...transformations[configuredBoard?.id]
-  //   }))
-  // }, [transformations, configuredBoard])
-
   useEffect(() => {
     console.log('>>>> SELECTED BOARDS!', boards)
   }, [boards])
+
+  useEffect(() => {
+    console.log(
+      '>> PIPELINE RUN TASK SETTINGS FOR PIPELINE MANAGER ....',
+      runTasks
+    )
+    setPipelineSettings({
+      name: pipelineName,
+      plan: activeBlueprint?.mode === BlueprintMode.ADVANCED ? runTasksAdvanced : [[...runTasks]],
+    })
+    if (activeBlueprint?.mode === BlueprintMode.ADVANCED) {
+      validateAdvancedPipeline()
+      setBlueprintTasks(runTasksAdvanced)
+    } else {
+      validatePipeline()
+      setBlueprintTasks([[...runTasks]])
+    }
+  }, [
+    pipelineName,
+    activeBlueprint?.mode,
+    runTasks,
+    runTasksAdvanced,
+    setPipelineSettings,
+    validatePipeline,
+    validateAdvancedPipeline,
+    setBlueprintTasks,
+    // saveBlueprintComplete?.id
+  ])
+
+  useEffect(() => {
+    if (isValidJSON(rawConfiguration)) {
+      setRunTasksAdvanced(JSON.parse(rawConfiguration))
+    }
+  }, [rawConfiguration, isValidJSON])
 
   return (
     <>
@@ -1024,8 +1039,8 @@ const BlueprintSettings = (props) => {
                     display: 'flex',
                     alignItems: 'center',
                     color: !activeBlueprint?.enable
-                    ? Colors.GRAY1
-                    : 'inherit',
+                      ? Colors.GRAY1
+                      : 'inherit',
                   }}
                 >
                   {activeBlueprint?.name}
@@ -1157,12 +1172,12 @@ const BlueprintSettings = (props) => {
 
             <div
               className='blueprint-main-settings'
-              style={{ 
+              style={{
                 display: 'flex',
                 alignSelf: 'flex-start',
                 color: !activeBlueprint?.enable
                   ? Colors.GRAY2
-                  : 'inherit' 
+                  : 'inherit'
               }}
             >
               <div className='configure-settings-name'>
@@ -1222,11 +1237,11 @@ const BlueprintSettings = (props) => {
                   }}
                 >
                   <h2
-                    style={{ 
-                      fontWeight: 'bold', 
+                    style={{
+                      fontWeight: 'bold',
                       color: !activeBlueprint?.enable
-                      ? Colors.GRAY1
-                      : 'inherit'
+                        ? Colors.GRAY1
+                        : 'inherit'
                     }}
                   >
                     Data Scope and Transformation
@@ -1236,174 +1251,8 @@ const BlueprintSettings = (props) => {
                     blueprint={activeBlueprint}
                     onModify={modifyConnection}
                     mode={activeBlueprint?.mode}
+                    loading={isFetchingBlueprint || isFetchingJIRA}
                   />
-                  {/* <Card
-                    elevation={Elevation.TWO}
-                    style={{ padding: 0, minWidth: '878px' }}
-                  >
-                    <div
-                      className='simplegrid'
-                      style={{
-                        display: 'flex',
-                        flex: 1,
-                        width: '100%',
-                        flexDirection: 'column',
-                        backgroundColor: !activeBlueprint?.enable ? '#f8f8f8' : 'inherit',
-                      }}
-                    >
-                      <div
-                        className='simplegrid-header'
-                        style={{
-                          display: 'flex',
-                          flex: 1,
-                          width: '100%',
-                          minHeight: '48px',
-                          lineHeight: 'auto',
-                          padding: '16px 20px',
-                          fontWeight: 'bold',
-                          borderBottom: '1px solid #BDCEFB',
-                          justfiyContent: 'space-evenly',
-                        }}
-                      >
-                        <div
-                          className='cell-header connections'
-                          style={{ flex: 1 }}
-                        >
-                          Data Connections
-                        </div>
-                        <div
-                          className='cell-header entities'
-                          style={{ flex: 1 }}
-                        >
-                          Data Entities
-                        </div>
-                        <div className='cell-header scope' style={{ flex: 1 }}>
-                          Data Scope
-                        </div>
-                        <div
-                          className='cell-header transformation'
-                          style={{ flex: 1 }}
-                        >
-                          Transformation
-                        </div>
-                        <div
-                          className='cell-header actions'
-                          style={{ minWidth: '100px' }}
-                        >
-                          &nbsp;
-                        </div>
-                      </div>
-
-                      {connections.map((c, cIdx) => (
-                        <div
-                          key={`connection-row-key-${cIdx}`}
-                          className='simplegrid-row'
-                          style={{
-                            display: 'flex',
-                            flex: 1,
-                            width: '100%',
-                            minHeight: '48px',
-                            lineHeight: 'auto',
-                            padding: '10px 20px',
-                            borderBottom: '1px solid #BDCEFB',
-                            justfiyContent: 'space-evenly',
-                          }}
-                        >
-                          <div className='cell connections' style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-                            <span style={{ marginBottom: '-5px', marginRight: '10px' }}>
-                              {c.icon}
-                            </span>
-                            <span>{c.name}</span>
-                          </div>
-                          <div className='cell entities' style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-                            <ul
-                              style={{
-                                listStyle: 'none',
-                                margin: 0,
-                                padding: 0,
-                              }}
-                            >
-                              {c.entities.map((entityLabel, eIdx) => (
-                                <li key={`list-item-key-${eIdx}`}>
-                                  {entityLabel}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div className='cell scope' style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
-                            {[Providers.GITLAB, Providers.GITHUB].includes(
-                              c.provider?.id
-                            ) && (
-                              <ul
-                                style={{
-                                  listStyle: 'none',
-                                  margin: 0,
-                                  padding: 0,
-                                }}
-                              >
-                                {c.projects.map((project, pIdx) => (
-                                  <li key={`list-item-key-${pIdx}`}>
-                                    {project}
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                            {[Providers.JIRA].includes(c.provider?.id) && (
-                              <ul
-                                style={{
-                                  listStyle: 'none',
-                                  margin: 0,
-                                  padding: 0,
-                                }}
-                              >
-                                {c.boards.map((board, bIdx) => (
-                                  <li key={`list-item-key-${bIdx}`}>{board}</li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                          <div
-                            className='cell transformation'
-                            style={{ display: 'flex', flex: 1, alignItems: 'center' }}
-                          >
-                            <ul
-                              style={{
-                                listStyle: 'none',
-                                margin: 0,
-                                padding: 0,
-                              }}
-                            >
-                              {c.transformationStates.map((state, sIdx) => (
-                                <li key={`list-item-key-${sIdx}`} style={{ minWidth: '80px' }}>
-                                  {state}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div
-                            className='cell actions'
-                            style={{
-                              display: 'flex',
-                              minWidth: '100px',
-                              textAlign: 'right',
-                              alignItems: 'center',
-                              justifyContent: 'flex-end',
-                            }}
-                          >
-                            <Button
-                              // disabled={c.providerId === Providers.JENKINS}
-                              icon='annotation'
-                              intent={c.providerId === Providers.JENKINS ? Intent.NONE : Intent.PRIMARY}
-                              size={12}
-                              small
-                              minimal
-                              onClick={() => modifyConnection(cIdx, c.connectionId, c.provider)}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </Card> */}
                 </div>
               )
 }
@@ -1413,7 +1262,7 @@ const BlueprintSettings = (props) => {
                 className='data-advanced'
                 style={{
                   width: '100%',
-                  maxWidth: '540px',
+                  maxWidth: '100%',
                   marginTop: '40px',
                   alignSelf: 'flex-start',
                 }}
@@ -1427,45 +1276,21 @@ const BlueprintSettings = (props) => {
                       icon='annotation'
                       text='Edit JSON'
                       intent={Intent.PRIMARY}
-                      size={12}
-                      small
-                      minimal
-                      onClick={() => modifyConnection()}
-                    />
-                  </div>
-                </div>
-                  <DataScopesGrid
-                    connections={connections}
-                    blueprint={activeBlueprint}
-                    onModify={modifyConnection}
-                    mode={activeBlueprint?.mode}
-                  />
-                {/* <Card className='workflow-card' elevation={Elevation.TWO}>
-                  <h4>
-                    <Button
-                      icon='annotation'
-                      intent={Intent.PRIMARY}
-                      size={12}
                       small
                       minimal
                       onClick={() => modifySetting('plan')}
-                      style={{ float: 'right' }}
+                      style={{ fontSize: '12px' }}
                     />
-                    Task Editor
-                  </h4>
-                  <p>Modify JSON Tasks or preload from a template</p>
-                  <code>
-                    <pre
-                      style={{
-                        padding: '10px',
-                        backgroundColor: '#f0f0f0',
-                        borderRadius: '4px',
-                      }}
-                    >
-                      {JSON.stringify(activeBlueprint?.plan, null, ' ')}
-                    </pre>
-                  </code>
-                </Card> */}
+                  </div>
+                </div>
+                <DataScopesGrid
+                  connections={connections}
+                  blueprint={activeBlueprint}
+                  onModify={() => modifySetting('plan')}
+                  mode={activeBlueprint?.mode}
+                  classNames={['advanced-mode-grid']}
+                  loading={isFetchingBlueprint || isFetchingJIRA}
+                />
               </div>
             )}
 
@@ -1494,6 +1319,7 @@ const BlueprintSettings = (props) => {
         isValid={validateActiveSetting()}
         onClose={handleBlueprintDialogClose}
         onCancel={handleBlueprintDialogClose}
+        errors={[...pipelineValidationErrors, ...blueprintValidationErrors]}
         content={(() => {
           let Settings = null
           switch (activeSetting?.id) {
@@ -1529,6 +1355,37 @@ const BlueprintSettings = (props) => {
                 />
               )
               break
+            case 'plan':
+              Settings = (
+                <AdvancedJSON
+                  // activeStep={activeStep}
+                  advancedMode={mode === BlueprintMode.ADVANCED}
+                  runTasksAdvanced={runTasksAdvanced}
+                  blueprintConnections={blueprintConnections}
+                  connectionsList={connectionsList}
+                  name={name}
+                  setBlueprintName={setBlueprintName}
+                  fieldHasError={fieldHasError}
+                  getFieldError={getFieldError}
+                  // onAdvancedMode={handleAdvancedMode}
+                  // @todo add multistage checker method
+                  isMultiStagePipeline={() => { }}
+                  rawConfiguration={rawConfiguration}
+                  setRawConfiguration={setRawConfiguration}
+                  isSaving={isSaving}
+                  // @todo re-enable validation
+                  isValidConfiguration={true}
+                  validationAdvancedError={null}
+                  validationErrors={pipelineValidationErrors}
+                  elevation={Elevation.ZERO}
+                  enableHeader={false}
+                  useBlueprintName={false}
+                  showTemplates={true}
+                  showModeNotice={false}
+                  cardStyle={{ padding: 0 }}
+                  descriptionText='Enter Advanced JSON Tasks'
+                />
+              )
           }
           return Settings
         })()}
@@ -1573,6 +1430,7 @@ const BlueprintSettings = (props) => {
         fieldHasError={fieldHasError}
         getFieldError={getFieldError}
         jiraProxyError={jiraProxyError}
+        errors={[...pipelineValidationErrors, ...blueprintValidationErrors]}
       />
 
       <CodeInspector
@@ -1580,9 +1438,15 @@ const BlueprintSettings = (props) => {
         titleIcon={activeProvider ? <Icon icon={activeProvider?.icon} size={16} /> : 'add'}
         subtitle='JSON CONFIGURATION'
         isOpen={showBlueprintInspector}
-        activePipeline={{
-          settings: blueprintSettings
-        }}
+        activePipeline={activeBlueprint?.mode === BlueprintMode.ADVANCED
+          ? {
+              name: activeBlueprint?.name,
+              plan: activeBlueprint?.plan
+            }
+          : {
+              name: activeBlueprint?.name,
+              settings: blueprintSettings
+            }}
         onClose={setShowBlueprintInspector}
         hasBackdrop={false}
       />

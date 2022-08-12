@@ -105,6 +105,7 @@ const BlueprintDataScopesDialog = (props) => {
     isTesting = false,
     isFetchingJIRA = false,
     jiraProxyError,
+    errors = [],
     content = null,
     backButtonProps = {
       // disabled:
@@ -118,7 +119,7 @@ const BlueprintDataScopesDialog = (props) => {
       intent: Intent.PRIMARY,
       text: 'Next Step',
       outlined: true,
-      loading: isFetchingJIRA || isSaving
+      loading: isFetchingJIRA || isSaving,
     },
     finalButtonProps = {
       disabled: !isValid,
@@ -186,6 +187,7 @@ const BlueprintDataScopesDialog = (props) => {
                 setProjects={setProjects}
                 setBoards={setBoards}
                 isSaving={isSaving}
+                isLoading={isFetchingJIRA}
                 validationErrors={[]}
                 enableConnectionTabs={false}
                 elevation={Elevation.ZERO}

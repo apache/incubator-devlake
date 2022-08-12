@@ -49,7 +49,8 @@ const BlueprintDialog = (props) => {
     isSaving = false,
     isValid = true,
     isTesting = false,
-    content = null
+    content = null,
+    errors = []
   } = props
 
   useEffect(() => {

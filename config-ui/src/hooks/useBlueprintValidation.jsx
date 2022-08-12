@@ -38,6 +38,9 @@ function useBlueprintValidation ({
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
 
+  const [isValidConfiguration, setIsValidConfiguration] = useState(false)
+  const [validationAdvancedError, setValidationAdvancedError] = useState()
+
   const clear = () => {
     setErrors([])
   }
@@ -52,6 +55,30 @@ function useBlueprintValidation ({
     }
     return isValid
   }, [])
+
+  const parseJSON = useCallback((jsonString = '') => {
+    try {
+      return JSON.parse(jsonString)
+    } catch (e) {
+      console.log('>> PARSE JSON ERROR!', e)
+      return false
+    }
+  }, [])
+
+  const isValidJSON = useCallback((rawConfiguration) => {
+    let isValid = false
+    try {
+      const parsedCode = parseJSON(rawConfiguration)
+      isValid = parsedCode !== false
+      // setValidationAdvancedError(null)
+    } catch (e) {
+      console.log('>> FORMAT CODE: Invalid Code Format!', e)
+      isValid = false
+      // setValidationAdvancedError(e.message)
+    }
+    // setIsValidConfiguration(isValid)
+    return isValid
+  }, [parseJSON])
 
   const validateNumericSet = useCallback((set = []) => {
     return Array.isArray(set) ? set.every(i => !isNaN(i)) : false
@@ -194,14 +221,19 @@ function useBlueprintValidation ({
     setErrors,
     isValid,
     validate,
+    validationAdvancedError,
     clear,
     fieldHasError,
     getFieldError,
     isValidCronExpression,
+    isValidJSON,
+    isValidConfiguration,
     validateNumericSet,
     validateRepositoryName,
     valiateNonEmptySet,
-    validateBlueprintName
+    validateBlueprintName,
+    setValidationAdvancedError,
+    setIsValidConfiguration
   }
 }
 

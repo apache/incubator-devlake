@@ -33,6 +33,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
   const [projects, setProjects] = useState({})
   const [entities, setEntities] = useState({})
   const [transformations, setTransformations] = useState({})
+  const [enabledProviders, setEnabledProviders] = useState([])
 
   // @disabled (memoized $activeTransformation is being used)
   // const [activeTransformation, setActiveTransformation] = useState()
@@ -381,6 +382,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     activeProjectTransformation,
     activeTransformation,
     scopeConnection,
+    enabledProviders,
     // setActiveTransformation,
     setConnections,
     setScopeConnection,
@@ -397,6 +399,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     createProviderConnections,
     createProviderScopes,
     modifyConnectionSettings,
+    setEnabledProviders
   }
 }
 

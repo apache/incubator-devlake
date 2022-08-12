@@ -36,10 +36,11 @@ const DataScopesGrid = (props) => {
     blueprint = NullBlueprint,
     mode = BlueprintMode.NORMAL,
     onModify = () => {},
-    className='simplegrid',
+    classNames = [],
     cardStyle = {
       padding: 0,
-      minWidth: '878px'
+      minWidth: '878px',
+      width: '100%'
     },
     gridStyle = {
       display: 'flex',
@@ -47,7 +48,8 @@ const DataScopesGrid = (props) => {
       width: '100%',
       flexDirection: 'column',
     },
-    elevation = Elevation.TWO
+    elevation = Elevation.TWO,
+    isLoading = false
   } = props
 
   return (
@@ -57,7 +59,7 @@ const DataScopesGrid = (props) => {
       style={{ ...cardStyle }}
     >
       <div
-        className={className}
+        className={`simplegrid ${classNames.join(' ')}`}
         style={{
           ...gridStyle,
           backgroundColor: !blueprint?.enable ? '#f8f8f8' : 'inherit',
@@ -94,7 +96,7 @@ const DataScopesGrid = (props) => {
           </div>
           <div
             className='cell-header transformation'
-            style={{ flex: 1 }}
+            style={{ flex: 1, marginLeft: '40px' }}
           >
             Transformation
           </div>
@@ -142,7 +144,7 @@ const DataScopesGrid = (props) => {
                 ))}
               </ul>
             </div>
-            <div className='cell scope' style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+            <div className='cell scope' style={{ display: 'flex', flex: 1, alignItems: 'center', whiteSpace: 'nowrap' }}>
               {[Providers.GITLAB, Providers.GITHUB].includes(
                 c.provider?.id
               ) && (
@@ -176,7 +178,7 @@ const DataScopesGrid = (props) => {
             </div>
             <div
               className='cell transformation'
-              style={{ display: 'flex', flex: 1, alignItems: 'center' }}
+              style={{ display: 'flex', flex: 1, alignItems: 'center', marginLeft: '40px' }}
             >
               <ul
                 style={{
@@ -210,6 +212,7 @@ const DataScopesGrid = (props) => {
                 small
                 minimal
                 onClick={() => onModify(cIdx, c.connectionId, c.provider)}
+                loading={isLoading}
               />
             </div>
           </div>
@@ -218,7 +221,6 @@ const DataScopesGrid = (props) => {
     </Card>
 
   )
-
 }
 
 export default DataScopesGrid
