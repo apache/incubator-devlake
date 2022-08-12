@@ -88,6 +88,7 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 				if err != nil {
 					return nil, err
 				}
+
 				return results, nil
 			} else {
 				var result json.RawMessage
