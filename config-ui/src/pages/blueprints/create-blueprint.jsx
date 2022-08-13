@@ -712,7 +712,14 @@ const CreateBlueprint = (props) => {
     ])
 
     testSelectedConnections(blueprintConnections)
-  }, [blueprintConnections, setProvider, testSelectedConnections])
+  }, [
+    blueprintConnections,
+    setProvider,
+    setBoards,
+    setDataEntities,
+    setProjects,
+    testSelectedConnections
+  ])
 
   useEffect(() => {
     console.log('>> CONFIGURING CONNECTION', configuredConnection)
@@ -804,7 +811,13 @@ const CreateBlueprint = (props) => {
         ...cT,
       }))
     }
-  }, [projects, boards, configuredConnection])
+  }, [
+    projects,
+    boards,
+    configuredConnection,
+    initializeTransformations,
+    setTransformations
+  ])
 
   useEffect(() => {
     console.log(
@@ -925,7 +938,7 @@ const CreateBlueprint = (props) => {
       status: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status
     })))
     setCanAdvanceNext(dataConnections.every(dC => dC.status === 200))
-  }, [dataConnections])
+  }, [dataConnections, setConnectionsList])
 
   return (
     <>

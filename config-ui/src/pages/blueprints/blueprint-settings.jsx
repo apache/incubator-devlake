@@ -233,6 +233,8 @@ const BlueprintSettings = (props) => {
     isValidConfiguration: isValidJSONConfiguration,
     validateAdvancedError,
     validateBlueprintName,
+    validateRepositoryName,
+    validateNumericSet,
   } = useBlueprintValidation({
     name: blueprintName,
     boards,
@@ -333,7 +335,7 @@ const BlueprintSettings = (props) => {
     // activeBoardTransformation,
     // configuredConnection,
     setScopeConnection,
-    scopeConnection
+    // scopeConnection
   ])
 
   const handleBlueprintScopesDialogOpening = useCallback(() => {
@@ -415,7 +417,7 @@ const BlueprintSettings = (props) => {
     setConfiguredConnection({ ...connection, transformations: connectionWithScope.transformations })
     setScopeConnection({ ...connection, ...connectionWithScope })
   }, [
-    activeProvider,
+    // activeProvider,
     connectionsList,
     connections,
     setScopeConnection
@@ -440,12 +442,15 @@ const BlueprintSettings = (props) => {
           switch (activeProvider?.id) {
             case Providers.GITHUB:
               isValid = Array.isArray(projects[configuredConnection?.id]) &&
+              validateRepositoryName(projects[configuredConnection?.id]) &&
               projects[configuredConnection?.id]?.length > 0 &&
               Array.isArray(entities[configuredConnection?.id]) &&
               entities[configuredConnection?.id]?.length > 0
               break
             case Providers.GITLAB:
-              isValid = entities[configuredConnection?.id]?.length > 0
+              isValid = Array.isArray(projects[configuredConnection?.id]) &&
+              validateNumericSet(projects[configuredConnection?.id]) &&
+              entities[configuredConnection?.id]?.length > 0
               break
             case Providers.JIRA:
               isValid = Array.isArray(boards[configuredConnection?.id]) &&
@@ -750,7 +755,9 @@ const BlueprintSettings = (props) => {
     // allJiraResources?.boards,
     allProviderConnections,
     isFetchingJIRA,
-    connectionsList
+    connectionsList,
+    getDefaultEntities,
+    setRawConfiguration
   ])
 
   useEffect(() => {
@@ -824,13 +831,13 @@ const BlueprintSettings = (props) => {
     )
   }, [activeSetting])
 
-  useEffect(() => {
-    validateBlueprint()
-  }, [
-    blueprintName,
-    // @todo: fix dependency warning with validateBlueprint
-    // validateBlueprint
-  ])
+  // useEffect(() => {
+  //   validateBlueprint()
+  // }, [
+  //   blueprintName,
+  //   // @todo: fix dependency warning with validateBlueprint
+  //   // validateBlueprint
+  // ])
 
   useEffect(() => {
     console.log('>>> DATA SCOPE CONNECTIONS...', connections)
@@ -903,7 +910,8 @@ const BlueprintSettings = (props) => {
     fetchAllResources,
     scopeConnection?.connectionId,
     scopeConnection?.providerId,
-    getJiraMappedBoards
+    getJiraMappedBoards,
+    setConnections
   ])
 
   useEffect(() => {
