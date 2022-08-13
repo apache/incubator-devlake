@@ -76,7 +76,7 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 					Id: prIdGen.Generate(data.Options.ConnectionId, pr.BitbucketId),
 				},
 				BaseRepoId:     repoIdGen.Generate(data.Options.ConnectionId, pr.BaseRepoId),
-				HeadRepoId: 	repoIdGen.Generate(data.Options.ConnectionId, pr.HeadRepoId),
+				HeadRepoId:     repoIdGen.Generate(data.Options.ConnectionId, pr.HeadRepoId),
 				Status:         pr.State,
 				Title:          pr.Title,
 				Url:            pr.Url,

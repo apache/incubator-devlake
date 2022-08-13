@@ -56,9 +56,9 @@ type BitbucketApiPullRequest struct {
 	}
 	ClosedBy           *BitbucketAccountResponse `json:"closed_by"`
 	Author             *BitbucketAccountResponse `json:"author"`
-	BitbucketCreatedAt time.Time `json:"created_on"`
-	BitbucketUpdatedAt time.Time `json:"updated_on"`
-	BaseRef *struct {
+	BitbucketCreatedAt time.Time                 `json:"created_on"`
+	BitbucketUpdatedAt time.Time                 `json:"updated_on"`
+	BaseRef            *struct {
 		Branch struct {
 			Name string
 		} `json:"branch"`
@@ -145,8 +145,8 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		ConnectionId:       connId,
 		BitbucketId:        pull.BitbucketId,
 		RepoId:             repoId,
-		BaseRepoId:			pull.BaseRef.Repo.FullName,
-		HeadRepoId: 		pull.HeadRef.Repo.FullName,
+		BaseRepoId:         pull.BaseRef.Repo.FullName,
+		HeadRepoId:         pull.HeadRef.Repo.FullName,
 		State:              pull.State,
 		Title:              pull.Title,
 		Description:        pull.Description,
@@ -154,10 +154,10 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		Type:               pull.Type,
 		BitbucketCreatedAt: pull.BitbucketCreatedAt,
 		BitbucketUpdatedAt: pull.BitbucketUpdatedAt,
-		BaseRef:			pull.BaseRef.Branch.Name,
-		BaseCommitSha: 		pull.BaseRef.Commit.Hash,
-		HeadRef:  			pull.HeadRef.Branch.Name,
-		HeadCommitSha:  	pull.HeadRef.Commit.Hash,
+		BaseRef:            pull.BaseRef.Branch.Name,
+		BaseCommitSha:      pull.BaseRef.Commit.Hash,
+		HeadRef:            pull.HeadRef.Branch.Name,
+		HeadCommitSha:      pull.HeadRef.Commit.Hash,
 	}
 	return bitbucketPull, nil
 }
