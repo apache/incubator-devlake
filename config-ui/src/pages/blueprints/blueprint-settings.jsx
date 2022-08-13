@@ -31,20 +31,13 @@ import {
   Elevation,
   Intent,
   Switch,
-  Card,
   Tag,
   Tooltip,
   Icon,
   Colors,
-  Divider,
   Spinner,
   Classes,
-  Position,
-  Menu,
-  MenuItem,
   Popover,
-  Collapse,
-  Dialog,
 } from '@blueprintjs/core'
 
 import { integrationsData } from '@/data/integrations'
@@ -52,11 +45,7 @@ import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
 import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import {
-  StageStatus,
   TaskStatus,
-  TaskStatusLabels,
-  StatusColors,
-  StatusBgColors,
 } from '@/data/Task'
 
 import Nav from '@/components/Nav'
@@ -67,7 +56,7 @@ import BlueprintNameCard from '@/components/blueprints/BlueprintNameCard'
 import DataSync from '@/components/blueprints/create-workflow/DataSync'
 import CodeInspector from '@/components/pipelines/CodeInspector'
 
-import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
+// import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
 import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 
 import useBlueprintManager from '@/hooks/useBlueprintManager'

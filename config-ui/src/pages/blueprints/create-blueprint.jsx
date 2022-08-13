@@ -26,13 +26,9 @@ import {
   BOARDS_ENDPOINT,
 } from '@/config/jiraApiProxy'
 import { integrationsData } from '@/data/integrations'
-import { Divider, Elevation, Card, Intent, Colors } from '@blueprintjs/core'
+import { Intent } from '@blueprintjs/core'
 import {
   Providers,
-  ProviderTypes,
-  ProviderIcons,
-  ConnectionStatus,
-  ConnectionStatusLabels,
 } from '@/data/Providers'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -40,16 +36,14 @@ import Sidebar from '@/components/Sidebar'
 import Content from '@/components/Content'
 import { ToastNotification } from '@/components/Toast'
 
-import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
-import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
+import { BlueprintMode } from '@/data/NullBlueprint'
 import { NullBlueprintConnection } from '@/data/NullBlueprintConnection'
 import { NullConnection } from '@/data/NullConnection'
 
 import {
   WorkflowSteps,
   WorkflowAdvancedSteps,
-  DEFAULT_DATA_ENTITIES,
-  DEFAULT_BOARDS,
+  DEFAULT_DATA_ENTITIES
 } from '@/data/BlueprintWorkflow'
 
 import useBlueprintManager from '@/hooks/useBlueprintManager'
@@ -72,7 +66,6 @@ import DataScopes from '@/components/blueprints/create-workflow/DataScopes'
 import DataTransformations from '@/components/blueprints/create-workflow/DataTransformations'
 import DataSync from '@/components/blueprints/create-workflow/DataSync'
 import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
-import AdvancedJSONValidation from '@/components/blueprints/create-workflow/AdvancedJSONValidation'
 
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
@@ -193,13 +186,13 @@ const CreateBlueprint = (props) => {
 
   const {
     pipelineName,
-    pipelines,
+    // pipelines,
     runPipeline,
-    cancelPipeline,
-    fetchPipeline,
-    fetchAllPipelines,
-    pipelineRun,
-    buildPipelineStages,
+    // cancelPipeline,
+    // fetchPipeline,
+    // fetchAllPipelines,
+    // pipelineRun,
+    // buildPipelineStages,
     isRunning,
     isFetchingAll: isFetchingAllPipelines,
     // eslint-disable-next-line no-unused-vars
