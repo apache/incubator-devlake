@@ -110,8 +110,6 @@ const CreateBlueprint = (props) => {
     NullBlueprintConnection
   )
 
-  // const [connectionsList, setConnectionsList] = useState([])
-
   const [dataEntitiesList, setDataEntitiesList] = useState([
     ...DEFAULT_DATA_ENTITIES,
   ])
@@ -119,54 +117,18 @@ const CreateBlueprint = (props) => {
 
   const [blueprintConnections, setBlueprintConnections] = useState([])
   const [configuredConnection, setConfiguredConnection] = useState()
-  // @moved to Data Scopes Manager
-  // const [dataEntities, setDataEntities] = useState({})
 
   const [activeConnectionTab, setActiveConnectionTab] = useState()
 
   const [onlineStatus, setOnlineStatus] = useState([])
   const [showBlueprintInspector, setShowBlueprintInspector] = useState(false)
-
   // const [dataScopes, setDataScopes] = useState([])
   const [dataConnections, setDataConnections] = useState([])
-  // @moved to Data Scopes Manager
-  // const [transformations, setTransformations] = useState({})
-
-  // @moved to Data Scopes Manager
-  // const [projects, setProjects] = useState({})
-  // const [boards, setBoards] = useState({})
-
   const [connectionId, setConnectionId] = useState('')
-  // const [connections, setConnections] = useState([])
-  // const [repositories, setRepositories] = useState([])
-  // const [selectedConnection, setSelectedConnection] = useState()
-
-  // @disabled Legacy V11 Pipeline Props
-  // const [projectId, setProjectId] = useState([])
-  // const [boardId, setBoardId] = useState([])
-  // const [repositoryName, setRepositoryName] = useState('')
-  // const [owner, setOwner] = useState('')
-  // const [gitExtractorUrl, setGitExtractorUrl] = useState('')
-  // const [gitExtractorRepoId, setGitExtractorRepoId] = useState('')
-  // const [selectedGithubRepo, setSelectedGithubRepo] = useState()
-  // const [refDiffRepoId, setRefDiffRepoId] = useState('')
-  // const [refDiffPairs, setRefDiffPairs] = useState([])
-  // const [refDiffTasks, setRefDiffTasks] = useState([
-  //   'calculateCommitsDiff',
-  //   'calculateIssuesDiff',
-  // ])
 
   const [canAdvanceNext, setCanAdvanceNext] = useState(true)
+  // eslint-disable-next-line no-unused-vars
   const [canAdvancePrev, setCanAdvancePrev] = useState(true)
-
-  // const [configuredProject, setConfiguredProject] = useState(
-  //   projects.length > 0 ? projects[0] : null
-  // )
-  // const [configuredBoard, setConfiguredBoard] = useState(
-  //   boards.length > 0 ? boards[0] : null
-  // )
-
-  // const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
 
   const {
     activeConnection,
@@ -190,6 +152,7 @@ const CreateBlueprint = (props) => {
     setCustomCronConfig,
     setTasks: setBlueprintTasks,
     setSettings: setBlueprintSettings,
+    // eslint-disable-next-line no-unused-vars
     setDetectedProviderTasks,
     setEnable: setEnableBlueprint,
     setMode: setBlueprintMode,
@@ -201,10 +164,12 @@ const CreateBlueprint = (props) => {
     createCronExpression: createCron,
     // eslint-disable-next-line no-unused-vars
     getCronSchedule: getSchedule,
+    // eslint-disable-next-line no-unused-vars
     getNextRunDate,
     getCronPreset,
     getCronPresetByConfig,
     saveBlueprint,
+    // eslint-disable-next-line no-unused-vars
     deleteBlueprint,
     isDeleting: isDeletingBlueprint,
     isManual: isManualBlueprint,
@@ -260,18 +225,9 @@ const CreateBlueprint = (props) => {
   } = usePipelineValidation({
     enabledProviders,
     pipelineName,
-    // projectId,
     projects,
-    // boardId,
     boards,
-    // owner,
-    // repositoryName,
     connectionId,
-    // gitExtractorUrl,
-    // gitExtractorRepoId,
-    // refDiffRepoId,
-    // refDiffTasks,
-    // refDiffPairs,
     tasks: runTasks,
     tasksAdvanced: runTasksAdvanced,
     advancedMode,
@@ -302,9 +258,12 @@ const CreateBlueprint = (props) => {
 
   const {
     testConnection,
+    // eslint-disable-next-line no-unused-vars
     testAllConnections,
     saveConnection,
+    // eslint-disable-next-line no-unused-vars
     fetchConnection,
+    // eslint-disable-next-line no-unused-vars
     allProviderConnections,
     connectionsList,
     errors: connectionErrors,
@@ -336,9 +295,9 @@ const CreateBlueprint = (props) => {
     setConnectionsList,
     setSaveComplete: setSaveConnectionComplete,
     fetchAllConnections,
-    connectionLimitReached,
     clearConnection: clearActiveConnection,
     testResponse,
+    // eslint-disable-next-line no-unused-vars
     testedConnections,
     allTestResponses,
     saveComplete: saveConnectionComplete
@@ -397,6 +356,7 @@ const CreateBlueprint = (props) => {
 
   const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
 
+  // eslint-disable-next-line no-unused-vars
   const isValidStep = useCallback((stepId) => { }, [])
 
   const nextStep = useCallback(() => {
@@ -540,68 +500,6 @@ const CreateBlueprint = (props) => {
     return items
   }, [dataEntitiesList, configuredConnection])
 
-  // const createProviderScopes = useCallback(
-  //   (
-  //     providerId,
-  //     connection,
-  //     connectionIdx,
-  //     entities = [],
-  //     boards = [],
-  //     projects = [],
-  //     transformations = [],
-  //     defaultScope = { transformation: {}, options: {}, entities: [] }
-  //   ) => {
-  //     console.log(
-  //       '>>> CREATING PROVIDER SCOPE FOR CONNECTION...',
-  //       connectionIdx,
-  //       connection
-  //     )
-  //     let newScope = {
-  //       ...defaultScope,
-  //       entities: entities[connection.id]?.map((entity) => entity.value) || [],
-  //     }
-  //     switch (providerId) {
-  //       case Providers.JIRA:
-  //         newScope = boards[connection.id]?.map((b) => ({
-  //           ...newScope,
-  //           options: {
-  //             boardId: Number(b.id),
-  //             // @todo: verify initial value of since date for jira provider
-  //             // since: new Date(),
-  //           },
-  //           transformation: { ...transformations[b.id] },
-  //         }))
-  //         break
-  //       case Providers.GITLAB:
-  //         newScope = projects[connection.id]?.map((p) => ({
-  //           ...newScope,
-  //           options: {
-  //             projectId: Number(p),
-  //           },
-  //           transformation: {},
-  //         }))
-  //         break
-  //       case Providers.JENKINS:
-  //         newScope = {
-  //           ...newScope,
-  //         }
-  //         break
-  //       case Providers.GITHUB:
-  //         newScope = projects[connection.id]?.map((p) => ({
-  //           ...newScope,
-  //           options: {
-  //             owner: p.split('/')[0],
-  //             repo: p.split('/')[1],
-  //           },
-  //           transformation: { ...transformations[p] },
-  //         }))
-  //         break
-  //     }
-  //     return Array.isArray(newScope) ? newScope.flat() : [newScope]
-  //   },
-  //   []
-  // )
-
   const manageConnection = useCallback(
     (connection) => {
       console.log('>> MANAGE CONNECTION...', connection)
@@ -610,7 +508,6 @@ const CreateBlueprint = (props) => {
           integrationsData.find((p) => p.id === connection.provider)
         )
         setProvider(integrationsData.find((p) => p.id === connection.provider))
-        // fetchConnection(true, false, connection.id)
         setManagedConnection(connection)
         setConnectionDialogIsOpen(true)
       }
@@ -715,25 +612,6 @@ const CreateBlueprint = (props) => {
     mode
   ])
 
-  // useEffect(() => {
-  //   console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)
-  //   setConnectionsList(
-  //     allProviderConnections?.map((c, cIdx) => ({
-  //       ...c,
-  //       id: cIdx,
-  //       name: c.name,
-  //       title: c.name,
-  //       value: c.id,
-  //       status:
-  //         ConnectionStatusLabels[c.status] ||
-  //         ConnectionStatusLabels[ConnectionStatus.OFFLINE],
-  //       statusResponse: null,
-  //       provider: c.provider,
-  //       plugin: c.provider,
-  //     }))
-  //   )
-  // }, [allProviderConnections])
-
   useEffect(() => {
     console.log(
       '>> PIPELINE RUN TASK SETTINGS FOR PIPELINE MANAGER ....',
@@ -813,6 +691,9 @@ const CreateBlueprint = (props) => {
           entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
           break
         case Providers.JENKINS:
+          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+          break
+        case Providers.TAPD:
           entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
           break
       }
@@ -911,49 +792,7 @@ const CreateBlueprint = (props) => {
   useEffect(() => {
     console.log('>> PROJECTS LIST', projects)
     console.log('>> BOARDS LIST', boards)
-    // @relocated to Data Scopes Manager
-    // const getDefaultTransformations = (providerId) => {
-    //   let transforms = {}
-    //   switch (providerId) {
-    //     case Providers.GITHUB:
-    //       transforms = {
-    //         prType: '',
-    //         prComponent: '',
-    //         issueSeverity: '',
-    //         issueComponent: '',
-    //         issuePriority: '',
-    //         issueTypeRequirement: '',
-    //         issueTypeBug: '',
-    //         issueTypeIncident: '',
-    //         refdiff: null,
-    //       }
-    //       break
-    //     case Providers.JIRA:
-    //       transforms = {
-    //         epicKeyField: '',
-    //         typeMappings: {},
-    //         storyPointField: '',
-    //         remotelinkCommitShaPattern: '',
-    //         bugTags: [],
-    //         incidentTags: [],
-    //         requirementTags: [],
-    //       }
-    //       break
-    //     case Providers.JENKINS:
-    //       // No Transform Settings...
-    //       break
-    //     case Providers.GITLAB:
-    //       // No Transform Settings...
-    //       break
-    //   }
-    //   return transforms
-    // }
 
-    // @relocated to Data Scopes Manager
-    // const initializeTransformations = (pV, cV) => ({
-    //   ...pV,
-    //   [cV]: getDefaultTransformations(configuredConnection?.provider),
-    // })
     const projectTransformation = projects[configuredConnection?.id]
     const boardTransformation = boards[configuredConnection?.id]?.map(
       (b) => b.id
@@ -967,7 +806,7 @@ const CreateBlueprint = (props) => {
     }
     if (boardTransformation) {
       setTransformations((cT) => ({
-        ...boardTransformation.reduce(initializeTransformations, {}), // @todo: FIXME
+        ...boardTransformation.reduce(initializeTransformations, {}),
         // Spread Current/Existing Transformations Settings
         ...cT,
       }))

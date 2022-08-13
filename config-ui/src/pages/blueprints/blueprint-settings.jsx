@@ -467,11 +467,13 @@ const BlueprintSettings = (props) => {
             case Providers.JENKINS:
               isValid = entities[configuredConnection?.id]?.length > 0
               break
+            case Providers.TAPD:
+              isValid = entities[configuredConnection?.id]?.length > 0
+              break
             default:
               isValid = true
           }
           break
-        // @todo: add tapd
       }
     } else if (activeBlueprint?.mode === BlueprintMode.ADVANCED) {
       isValid = isValidBlueprint && isValidPipeline
@@ -506,6 +508,9 @@ const BlueprintSettings = (props) => {
         entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
         break
       case Providers.JENKINS:
+        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+        break
+      case Providers.TAPD:
         entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
         break
     }
@@ -892,38 +897,17 @@ const BlueprintSettings = (props) => {
   }, [configuredConnection])
 
   useEffect(() => {
-    // console.log('>>> jiraApiBoards...', jiraApiBoards)
     if (
       scopeConnection?.providerId === Providers.JIRA &&
         scopeConnection?.connectionId &&
         activeBlueprint?.mode === BlueprintMode.NORMAL
     ) {
-      // const getJiraMappedBoards = (scope, boards = []) => {
-      //   return scope.map((s, sIdx) => {
-      //     const boardObject = boards.find(apiBoard => Number(apiBoard.id) === Number(s.options?.boardId))
-      //     return {
-      //       ...boardObject,
-      //       key: sIdx,
-      //       value: boardObject?.name,
-      //       title: boardObject?.name,
-      //     }
-      //   })
-      // }
       fetchAllResources(scopeConnection?.connectionId, (jiraResourcesResponse) => {
-        console.log('>>> HERE!!!!', jiraResourcesResponse)
         setConnections(Cs => Cs.map(c => ({
           ...c,
-          // c.scope.map((s) => jiraResourcesResponse?.boards?.find(apiBoard => apiBoard.id === s.options?.boardId))
           boardsList: getJiraMappedBoards(c.scope, jiraResourcesResponse?.boards)
         })))
       })
-      // setConnections(Cs => [
-      //   ...Cs.filter(c => c.providerId !== Providers.JIRA),
-      //   ...Cs.filter(c => c.providerId === Providers.JIRA).map(c => ({
-      //     ...c,
-      //     boardsList: c.scope.map((s) => jiraApiBoards.find(apiBoard => apiBoard.id === s.options?.boardId))
-      //   })),
-      // ])
     }
   }, [
     activeBlueprint?.mode,

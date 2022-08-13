@@ -98,7 +98,9 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
       case Providers.GITLAB:
         // No Transform Settings...
         break
-      // @todo: add tapd
+      case Providers.TAPD:
+        // No Transform Settings...
+        break
     }
     console.log('>>>>> DATA SCOPES MANAGER: Getting Default Transformation Values for PROVIDER Type ', providerId, transforms)
     return transforms
@@ -168,7 +170,14 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
             transformation: { ...transformations[p] },
           }))
           break
-        // @todo: add tapd
+        case Providers.TAPD:
+          newScope = {
+            ...newScope,
+            // options: {
+            // },
+            // transformation: {},
+          }
+          break
       }
       return Array.isArray(newScope) ? newScope.flat() : [newScope]
     },
@@ -235,24 +244,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: INITIALIZING TRANSFORMATION RULES...', selectedProjects)
-
-    // if (selectedProjects && Array.isArray(selectedProjects)) {
-    //   console.log('>>>>> DATA SCOPES MANAGER: SELECTED PROJECTS?', selectedProjects)
-    //   setTransformations((cT) => ({
-    //     ...selectedProjects.reduce(initializeTransformations, {}),
-    //     // Spread Current/Existing Transformations Settings
-    //     ...cT,
-    //   }))
-    // }
-
-    // if (selectedBoards && Array.isArray(selectedBoards)) {
-    //   console.log('>>>>> DATA SCOPES MANAGER: SELECTED BOARDS?', selectedBoards)
-    //   setTransformations((cT) => ({
-    //     ...selectedBoards.reduce(initializeTransformations, {}),
-    //     // Spread Current/Existing Transformations Settings
-    //     ...cT,
-    //   }))
-    // }
+    console.log('>>>>> DATA SCOPES MANAGER: INITIALIZING TRANSFORMATION RULES...', selectedBoards)
   }, [selectedProjects, selectedBoards, initializeTransformations])
 
   useEffect(() => {
@@ -262,13 +254,6 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
       case Providers.GITLAB:
         setProjects(p => ({ ...p, [connection?.id]: connection?.projects || [] }))
         setEntities(e => ({ ...e, [connection?.id]: connection?.entityList || [] }))
-        // @todo: re-enable initial properties
-        // setTransformations(existingTransforms => ({
-        //   ...connection?.projects.map(
-        //     (p, pIdx) => ({ [p]: connection.transformations[pIdx] })
-        //   ).reduce((pV, cV) => ({ ...cV, ...pV }), {}),
-        //   ...existingTransforms
-        // }))
         connection?.projects.forEach((p, pIdx) => setTransformationSettings(connection.transformations[pIdx], p))
         break
       case Providers.JIRA:
@@ -277,16 +262,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
         // fetchFields()
         setBoards(b => ({ ...b, [connection?.id]: connection?.boardsList || [] }))
         setEntities(e => ({ ...e, [connection?.id]: connection?.entityList || [] }))
-        // setTransformations(existingTransforms => ({
-        //   ...connection?.boardIds.map(
-        //     (bId, bIdx) => ({ [bId]: connection.transformations[bIdx] })
-        //   ).reduce((pV, cV) => ({ ...cV, ...pV }), {}),
-        //   ...existingTransforms
-        // }))
-        connection?.boardIds.forEach((bId, bIdx) => {
-          setTransformationSettings(connection.transformations[bIdx], bId)
-          console.log('>>> LOOK HERERE!!!', connection.transformations[bIdx])
-        })
+        connection?.boardIds.forEach((bId, bIdx) => setTransformationSettings(connection.transformations[bIdx], bId))
         break
       case Providers.JENKINS:
         setEntities(e => ({ ...e, [connection?.id]: connection?.entityList || [] }))
@@ -316,7 +292,8 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
         break
       case Providers.JENKINS:
         break
-      // @todo: add tapd
+      case Providers.TAPD:
+        break
     }
   }, [provider])
 
@@ -325,11 +302,11 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     const boardTransformations = boards[connection?.id]
     if (Array.isArray(boardTransformations) && boardTransformations?.length > 0) {
       // @todo: check & re-enable
-      // setTransformations((cT) => ({
-      //   ...boardTransformations.reduce(initializeTransformations, {}),
-      //   // Spread Current/Existing Transformations Settings
-      //   ...cT,
-      // }))
+      setTransformations((cT) => ({
+        ...boardTransformations.reduce(initializeTransformations, {}),
+        // Spread Current/Existing Transformations Settings
+        ...cT,
+      }))
     }
   }, [boards, connection?.id])
 
