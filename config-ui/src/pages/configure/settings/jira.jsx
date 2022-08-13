@@ -114,7 +114,9 @@ export default function JiraSettings (props) {
   // const [issueTypesList, setIssueTypesList] = useState(issueTypes)
 
   useEffect(() => {
-    onSettingsChange({ typeMappings: typeMappingAll }, configuredBoard?.id)
+    if (configuredBoard?.id) {
+      onSettingsChange({ typeMappings: typeMappingAll }, configuredBoard?.id)
+    }
   }, [
     typeMappingAll,
     onSettingsChange,

@@ -89,14 +89,14 @@ const DataTransformations = (props) => {
   } = props
 
   const boardsAndProjects = useMemo(() => [
-    ...(boards[configuredConnection?.id] ? boards[configuredConnection?.id] : []),
-    ...(projects[configuredConnection?.id] ? projects[configuredConnection?.id] : [])], [
+    ...(Array.isArray(boards[configuredConnection?.id]) ? boards[configuredConnection?.id] : []),
+    ...(Array.isArray(projects[configuredConnection?.id]) ? projects[configuredConnection?.id] : [])], [
     projects,
     boards,
     configuredConnection?.id
   ])
 
-  const [entityList, setEntityList] = useState(boardsAndProjects.map((e, eIdx) => ({
+  const [entityList, setEntityList] = useState(boardsAndProjects?.map((e, eIdx) => ({
     id: eIdx,
     value: e?.value || e,
     title: e?.title || e,
@@ -210,7 +210,7 @@ const DataTransformations = (props) => {
                         items={entityList}
                         activeItem={activeEntity}
                         itemPredicate={(query, item) =>
-                          item?.title?.toLowerCase().indexOf(query.toLowerCase()) >=
+                          item?.title?.toString().toLowerCase().indexOf(query.toLowerCase()) >=
                           0}
                         itemRenderer={(item, { handleClick, modifiers }) => (
                           <MenuItem

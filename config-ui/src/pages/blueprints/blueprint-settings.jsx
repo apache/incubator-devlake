@@ -567,17 +567,20 @@ const BlueprintSettings = (props) => {
     // ToastNotification.clear()
   }, [setConfiguredBoard])
 
-  const getJiraMappedBoards = useCallback((scope, boards = []) => {
-    return scope.map((s, sIdx) => {
-      const boardObject = boards.find(apiBoard => Number(apiBoard.id) === Number(s.options?.boardId))
+  const getJiraMappedBoards = useCallback((boardIds = [], boardListItems = []) => {
+    return boardIds.map((bId, sIdx) => {
+      const boardObject = boardListItems.find(apiBoard => Number(apiBoard.id) === Number(bId))
       return {
         ...boardObject,
+        id: boardObject?.id || sIdx+1,
         key: sIdx,
-        value: boardObject?.name,
-        title: boardObject?.name,
+        value: boardObject?.name || `Board ${bId}`,
+        title: boardObject?.name || `Board ${bId}`,
+        type: boardObject?.type || 'scrum',
+        self: `https://${scopeConnection?.endpoint}agile/1.0/board/${bId}`
       }
     })
-  }, [])
+  }, [scopeConnection?.endpoint])
 
   useEffect(() => {
     console.log('>>> ACTIVE PROVIDER!', activeProvider)
@@ -628,9 +631,6 @@ const BlueprintSettings = (props) => {
       : []
     // @todo: migrate to data scopes manager
     if (activeBlueprint?.mode === BlueprintMode.NORMAL) {
-      // fetchJIRAResources((jiraResourcesResponse) => {
-      //   console.log('>>> HERE!!!!', jiraResourcesResponse)
-      // })
       setConnections(
         activeBlueprint?.settings?.connections.map((c, cIdx) => ({
           ...c,
@@ -643,7 +643,6 @@ const BlueprintSettings = (props) => {
           providerId: c.plugin,
           plugin: c.plugin,
           icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
-          // name: `Connection ID #${c.connectionId}`,
           name: allProviderConnections.find(pC => pC.connectionId === c.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.connectionId}`,
           entities: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)?.title),
           entityList: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)),
@@ -656,12 +655,7 @@ const BlueprintSettings = (props) => {
           boardIds: [Providers.JIRA].includes(c.plugin)
             ? c.scope.map((s) => s.options?.boardId)
             : [],
-          boardsList: [],
-          // boardsList: c.providerId === Providers.JIRA ? c.scope.map((s) => jiraResourcesResponse?.boards?.find(apiBoard => apiBoard.id === s.options?.boardId)) : [],
-          // boardsList: c.plugin === Providers.JIRA ? c.scope.map((s) => jiraApiBoards.find(apiBoard => apiBoard.id === s.options?.boardId)) : [],
-          // boardsList: [Providers.JIRA].includes(c.plugin)
-          //   ? c.scope.map((s) => jiraApiBoards.find(apiBoard => apiBoard.id === s.options?.boardId))
-          //   : [],
+          boardsList: allJiraResources?.boards ? getJiraMappedBoards(c.scope.map((s) => s.options?.boardId), allJiraResources?.boards) : [],
           transformations: c.scope.map((s) => ({ ...s.transformation })),
           transformationStates: c.scope.map((s) =>
             Object.values(s.transformation).some((v) => Array.isArray(v) ? v.length > 0 : (v && typeof v === 'object' ? Object.keys(v)?.length > 0 : v?.toString().length > 0))
@@ -752,7 +746,7 @@ const BlueprintSettings = (props) => {
     setMode,
     setBlueprintSettings,
     // jiraApiBoards,
-    // allJiraResources?.boards,
+    allJiraResources?.boards,
     allProviderConnections,
     isFetchingJIRA,
     connectionsList,
@@ -901,7 +895,7 @@ const BlueprintSettings = (props) => {
       fetchAllResources(scopeConnection?.connectionId, (jiraResourcesResponse) => {
         setConnections(Cs => Cs.map(c => ({
           ...c,
-          boardsList: getJiraMappedBoards(c.scope, jiraResourcesResponse?.boards)
+          boardsList: jiraResourcesResponse?.boards ? getJiraMappedBoards(c.boardIds, jiraResourcesResponse?.boards) : []
         })))
       })
     }
