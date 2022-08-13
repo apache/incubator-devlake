@@ -35,9 +35,6 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
   const [transformations, setTransformations] = useState({})
   const [enabledProviders, setEnabledProviders] = useState([])
 
-  // @disabled (memoized $activeTransformation is being used)
-  // const [activeTransformation, setActiveTransformation] = useState()
-
   const [configuredProject, setConfiguredProject] = useState(null)
   const [configuredBoard, setConfiguredBoard] = useState(null)
 
@@ -53,16 +50,8 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
   const storedProjectTransformation = useMemo(() => connection?.transformations[connection?.projects?.findIndex(p => p === configuredProject)], [connection, configuredProject])
   const storedBoardTransformation = useMemo(() => connection?.transformations[connection?.boardIds?.findIndex(b => b === configuredBoard?.id)], [connection, configuredBoard?.id])
 
-  // @todo: re-enable
-  // const activeProjectTransformation = useMemo(() => transformations[configuredProject], [transformations, configuredProject])
-  // const activeBoardTransformation = useMemo(() => transformations[configuredBoard?.id], [transformations, configuredBoard?.id])
-
   const activeProjectTransformation = useMemo(() => transformations[activeProject], [transformations, activeProject])
   const activeBoardTransformation = useMemo(() => transformations[activeBoard?.id], [transformations, activeBoard?.id])
-
-  // const activeTransformation = useMemo(() => connection?.providerId === Providers.JIRA ? activeBoardTransformation : activeProjectTransformation, [connection?.providerId, transformations, activeProjectTransformation, activeBoardTransformation, configuredProject, configuredBoard?.id])
-  // const activeTransformation = useMemo(() => connection?.providerId === Providers.JIRA ? activeBoardTransformation : activeProjectTransformation, [activeBoardTransformation])
-
   const activeTransformation = useMemo(() => transformations[connection?.providerId === Providers.JIRA ? configuredBoard?.id : configuredProject], [transformations, configuredProject, configuredBoard?.id])
 
   const getDefaultTransformations = useCallback((providerId) => {
@@ -355,6 +344,8 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     transformations,
     configuredBoard,
     configuredProject,
+    storedProjectTransformation,
+    storedBoardTransformation,
     activeBoardTransformation,
     activeProjectTransformation,
     activeTransformation,
