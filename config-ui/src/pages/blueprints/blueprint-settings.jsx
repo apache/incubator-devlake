@@ -572,7 +572,7 @@ const BlueprintSettings = (props) => {
       const boardObject = boardListItems.find(apiBoard => Number(apiBoard.id) === Number(bId))
       return {
         ...boardObject,
-        id: boardObject?.id || sIdx+1,
+        id: boardObject?.id || bId || sIdx+1,
         key: sIdx,
         value: boardObject?.name || `Board ${bId}`,
         title: boardObject?.name || `Board ${bId}`,
