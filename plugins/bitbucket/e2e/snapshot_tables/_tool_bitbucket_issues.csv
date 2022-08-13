@@ -1,0 +1,1 @@
+connection_id,bitbucket_id,repo_id,number,state,title,body,priority,type,status,author_id,author_name,assignee_id,assignee_name,milestone_id,lead_time_minutes,url,closed_at,bitbucket_created_at,bitbucket_updated_at,severity,component,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark

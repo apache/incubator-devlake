@@ -1,0 +1,1 @@
+connection_id,bitbucket_id,repo_id,number,state,title,bitbucket_created_at,bitbucket_updated_at,closed_at,additions,deletions,comments,commits,review_comments,merged,merged_at,body,type,component,merge_commit_sha,head_ref,base_ref,base_commit_sha,head_commit_sha,url,author_name,author_id,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
