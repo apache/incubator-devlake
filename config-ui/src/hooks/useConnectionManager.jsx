@@ -314,6 +314,7 @@ function useConnectionManager (
           )
           const connectionData = f.data
           console.log('>> RAW CONNECTION DATA FROM API...', connectionData)
+          // @todo: cleanup legacy api pascal-case parameters
           setActiveConnection({
             ...connectionData,
             ID: connectionData.ID || connectionData.id,
@@ -353,6 +354,7 @@ function useConnectionManager (
         console.log('>> FETCHING ALL CONNECTION SOURCES')
         let c = null
         if (allSources) {
+          // @todo: build promises dynamically from $integrationsData
           const aC = await Promise.all([
             request.get(
               `${DEVLAKE_ENDPOINT}/plugins/${Providers.JIRA}/connections`
@@ -365,6 +367,9 @@ function useConnectionManager (
             ),
             request.get(
               `${DEVLAKE_ENDPOINT}/plugins/${Providers.GITHUB}/connections`
+            ),
+            request.get(
+              `${DEVLAKE_ENDPOINT}/plugins/${Providers.TAPD}/connections`
             ),
           ])
           const builtConnections = aC
@@ -617,6 +622,7 @@ function useConnectionManager (
       allProviderConnections?.map((c, cIdx) => ({
         ...c,
         id: cIdx,
+        key: cIdx,
         connectionId: c.id,
         name: c.name,
         title: c.name,

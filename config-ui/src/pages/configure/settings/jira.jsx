@@ -154,7 +154,7 @@ export default function JiraSettings (props) {
       setTypeMappingRequirement(requirementTags[configuredBoard?.id])
       onSettingsChange({ requirementTags: requirementTags[configuredBoard?.id] }, configuredBoard?.id)
     }
-  }, [requirementTags[configuredBoard?.id], configuredBoard?.id, onSettingsChange])
+  }, [requirementTags, configuredBoard?.id, onSettingsChange])
 
   useEffect(() => {
     if (configuredBoard?.id) {
