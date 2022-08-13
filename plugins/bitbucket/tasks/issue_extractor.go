@@ -43,8 +43,9 @@ type IssuesResponse struct {
 	Title     string `json:"title"`
 	Reporter  *BitbucketAccountResponse
 	Assignee  *BitbucketAccountResponse
-	State     string
-	Kind      string
+	State     string `json:"state"`
+	Kind      string `json:"kind"`
+	Priority  string `json:"priority"`
 	Milestone *struct {
 		Id int
 	} `json:"milestone"`

@@ -29,6 +29,7 @@ type BitbucketPullRequest struct {
 	Number             int    `gorm:"index"` // This number is used in GET requests to the API associated to reviewers / comments / etc.
 	State              string `gorm:"type:varchar(255)"`
 	Title              string
+	Description        string
 	BitbucketCreatedAt time.Time
 	BitbucketUpdatedAt time.Time `gorm:"index"`
 	ClosedAt           *time.Time
