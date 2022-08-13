@@ -50,13 +50,13 @@ func loadResources(configJson []byte, loggerConfig *core.LoggerConfig) (*viper.V
 
 func getWorkerLogger(log core.Logger, logConfig *core.LoggerConfig) (core.Logger, error) {
 	newLog := log.Nested(logConfig.Prefix)
-	newLogConfig := newLog.GetConfig()
-	newLogConfig.Path = logConfig.Path
-	newLogConfig.LoggerStream = logger.NewLogFileStream()
-	if writer, err := newLogConfig.GetStream(logConfig.Path); err != nil {
+	stream, err := logger.GetFileStream(logConfig.Path)
+	if err != nil {
 		return nil, err
-	} else {
-		newLog.SetStream(writer)
 	}
+	newLog.SetStream(&core.LoggerStreamConfig{
+		Path:   logConfig.Path,
+		Writer: stream,
+	})
 	return newLog, nil
 }

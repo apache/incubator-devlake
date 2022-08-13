@@ -32,6 +32,6 @@ func DummyLogger() *mocks.Logger {
 	logger.On("Info", mock.Anything, mock.Anything).Maybe()
 	logger.On("Warn", mock.Anything, mock.Anything).Maybe()
 	logger.On("Error", mock.Anything, mock.Anything).Maybe()
-	logger.On("Nested", mock.Anything, mock.Anything).Return(logger).Maybe()
+	logger.On("Nested", mock.Anything).Return(logger).Maybe()
 	return logger
 }

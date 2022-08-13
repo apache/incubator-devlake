@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/logger"
 	"time"
 
 	"github.com/apache/incubator-devlake/config"
@@ -333,10 +334,13 @@ func recordSubtask(logger core.Logger, db *gorm.DB, subtask *models.Subtask) {
 func getTaskLogger(parentLogger core.Logger, task *models.Task) (core.Logger, error) {
 	log := parentLogger.Nested(fmt.Sprintf("task #%d", task.ID))
 	loggingPath := models.GetTaskLoggerPath(log.GetConfig(), task)
-	if writer, err := log.GetConfig().GetStream(loggingPath); err != nil {
+	stream, err := logger.GetFileStream(loggingPath)
+	if err != nil {
 		return nil, err
-	} else {
-		log.SetStream(writer)
 	}
+	log.SetStream(&core.LoggerStreamConfig{
+		Path:   loggingPath,
+		Writer: stream,
+	})
 	return log, nil
 }

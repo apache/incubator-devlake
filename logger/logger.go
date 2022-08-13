@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/sirupsen/logrus"
-	"io"
 	"regexp"
 	"strings"
 )
@@ -33,10 +32,10 @@ type DefaultLogger struct {
 	config *core.LoggerConfig
 }
 
-func NewDefaultLogger(log *logrus.Logger, config *core.LoggerConfig) (core.Logger, error) {
+func NewDefaultLogger(log *logrus.Logger) (core.Logger, error) {
 	defaultLogger := &DefaultLogger{
 		log:    log,
-		config: config,
+		config: &core.LoggerConfig{},
 	}
 	return defaultLogger, nil
 }
@@ -78,18 +77,26 @@ func (l *DefaultLogger) Error(format string, a ...interface{}) {
 	l.Log(core.LOG_ERROR, format, a...)
 }
 
-func (l *DefaultLogger) SetStream(writer io.Writer) {
-	l.log.SetOutput(writer)
+func (l *DefaultLogger) SetStream(config *core.LoggerStreamConfig) {
+	if config.Path != "" {
+		l.config.Path = config.Path
+	}
+	if config.Writer != nil {
+		l.log.SetOutput(config.Writer)
+	}
 }
 
 func (l *DefaultLogger) GetConfig() *core.LoggerConfig {
-	return l.config
+	return &core.LoggerConfig{
+		Path:   l.config.Path,
+		Prefix: l.config.Prefix,
+	}
 }
 
 func (l *DefaultLogger) Nested(newPrefix string) core.Logger {
 	newTotalPrefix := newPrefix
 	if newPrefix != "" {
-		newTotalPrefix = l.sanitizePrefix(newPrefix)
+		newTotalPrefix = l.createPrefix(newPrefix)
 	}
 	newLogger, err := l.getLogger(newTotalPrefix)
 	if err != nil {
@@ -107,15 +114,14 @@ func (l *DefaultLogger) getLogger(prefix string) (core.Logger, error) {
 	newLogger := &DefaultLogger{
 		log: newLogrus,
 		config: &core.LoggerConfig{
-			LoggerStream: l.config.LoggerStream,
-			Path:         l.config.Path,
-			Prefix:       prefix,
+			Path:   l.config.Path,
+			Prefix: prefix,
 		},
 	}
 	return newLogger, nil
 }
 
-func (l *DefaultLogger) sanitizePrefix(newPrefix string) string {
+func (l *DefaultLogger) createPrefix(newPrefix string) string {
 	newPrefix = strings.TrimSpace(newPrefix)
 	alreadyInBrackets := alreadyInBracketsRegex.MatchString(newPrefix)
 	if alreadyInBrackets {

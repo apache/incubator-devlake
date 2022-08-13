@@ -18,20 +18,12 @@ limitations under the License.
 package logger
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core"
 	"io"
 	"os"
 	"path/filepath"
 )
 
-type LogFileStream struct {
-}
-
-func NewLogFileStream() core.LoggerStream {
-	return &LogFileStream{}
-}
-
-func (s *LogFileStream) GetStream(path string) (io.Writer, error) {
+func GetFileStream(path string) (io.Writer, error) {
 	if path == "" {
 		return os.Stdout, nil
 	}
@@ -45,5 +37,3 @@ func (s *LogFileStream) GetStream(path string) (io.Writer, error) {
 	}
 	return io.MultiWriter(os.Stdout, file), nil
 }
-
-var _ core.LoggerStream = (*LogFileStream)(nil)

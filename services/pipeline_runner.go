@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/runner"
@@ -65,11 +66,14 @@ func getPipelineLogger(pipeline *models.Pipeline) core.Logger {
 		fmt.Sprintf("pipeline #%d", pipeline.ID),
 	)
 	loggingPath := models.GetPipelineLoggerPath(pipelineLogger.GetConfig(), pipeline)
-	pipelineLogger.GetConfig().Path = loggingPath
-	if writer, err := pipelineLogger.GetConfig().GetStream(loggingPath); err != nil {
+	stream, err := logger.GetFileStream(loggingPath)
+	if err != nil {
 		globalPipelineLog.Error("unable to set stream for logging pipeline %d", pipeline.ID)
 	} else {
-		pipelineLogger.SetStream(writer)
+		pipelineLogger.SetStream(&core.LoggerStreamConfig{
+			Path:   loggingPath,
+			Writer: stream,
+		})
 	}
 	return pipelineLogger
 }

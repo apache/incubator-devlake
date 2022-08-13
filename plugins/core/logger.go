@@ -43,23 +43,24 @@ type Logger interface {
 	// Nested return a new logger instance. `name` is the extra prefix to be prepended to each message. Leaving it blank
 	// will add no additional prefix. The new Logger will inherit the properties of the original.
 	Nested(name string) Logger
-	// GetConfig Returns the LoggerConfig associated with this Logger. This is meant to be used by the framework.
+	// GetConfig Returns a copy of the LoggerConfig associated with this Logger. This is meant to be used by the framework.
 	GetConfig() *LoggerConfig
 	// SetStream sets the output of this Logger. This is meant to be used by the framework.
-	SetStream(writer io.Writer)
+	SetStream(config *LoggerStreamConfig)
+}
+
+// LoggerStreamConfig stream related config to set on a Logger
+type LoggerStreamConfig struct {
+	Path   string
+	Writer io.Writer
 }
 
 type InjectLogger interface {
 	SetLogger(logger Logger)
 }
 
-type LoggerStream interface {
-	GetStream(path string) (io.Writer, error)
-}
-
 // LoggerConfig config related to the Logger. This needs to be serializable, so it can be passed around over the wire.
 type LoggerConfig struct {
-	LoggerStream `json:"-"`
-	Path         string
-	Prefix       string
+	Path   string
+	Prefix string
 }

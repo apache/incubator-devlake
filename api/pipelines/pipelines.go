@@ -207,5 +207,4 @@ func DownloadLogs(c *gin.Context) {
 	}
 	defer os.Remove(archive)
 	c.FileAttachment(archive, filepath.Base(archive))
-	shared.ApiOutputSuccess(c, nil, http.StatusOK)
 }
