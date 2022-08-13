@@ -58,8 +58,7 @@ func GetQuery(reqData *helper.RequestData) (url.Values, error) {
 	query := url.Values{}
 	query.Set("state", "all")
 	query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-	query.Set("direction", "asc")
-	query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
+	query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
 
 	return query, nil
 }

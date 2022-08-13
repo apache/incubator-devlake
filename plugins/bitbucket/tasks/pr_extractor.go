@@ -38,12 +38,23 @@ type BitbucketApiPullRequest struct {
 	BitbucketId  int    `json:"id"`
 	CommentCount int    `json:"comment_count"`
 	TaskCount    int    `json:"task_count"`
+	Type         string `json:"type"`
 	State        string `json:"state"`
 	Title        string `json:"title"`
-	Links        struct {
+	Description  string `json:"description"`
+	MergeCommit  *struct {
+		Type  string
+		Hash  string `json:"hash"`
+		Links *struct {
+			Self struct{ Href string }
+			Html struct{ Href string }
+		}
+	} `json:"merge_commit"`
+	Links *struct {
 		Self struct{ Href string }
 		Html struct{ Href string }
 	}
+	ClosedBy           *BitbucketAccountResponse
 	Author             *BitbucketAccountResponse
 	BitbucketCreatedAt time.Time `json:"created_on"`
 	BitbucketUpdatedAt time.Time `json:"updated_on"`
@@ -91,7 +102,7 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 					return nil, err
 				}
 				results = append(results, bitbucketUser)
-				bitbucketPr.AuthorName = bitbucketUser.UserName
+				bitbucketPr.AuthorName = bitbucketUser.DisplayName
 				bitbucketPr.AuthorId = bitbucketUser.AccountId
 			}
 
@@ -114,7 +125,9 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		RepoId:             repoId,
 		State:              pull.State,
 		Title:              pull.Title,
+		Description:        pull.Description,
 		Url:                pull.Links.Html.Href,
+		Type:               pull.Type,
 		BitbucketCreatedAt: pull.BitbucketCreatedAt,
 		BitbucketUpdatedAt: pull.BitbucketUpdatedAt,
 	}

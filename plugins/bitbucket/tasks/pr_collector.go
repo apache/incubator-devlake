@@ -42,7 +42,7 @@ func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
-		PageSize:           100,
+		PageSize:           50,
 		Incremental:        false,
 		UrlTemplate:        "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pullrequests",
 		Query:              GetQuery,

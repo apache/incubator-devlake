@@ -89,8 +89,8 @@ func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {
 				if err != nil {
 					return nil, err
 				}
-				toolIssueComment.AuthorUserId = bitbucketUser.AccountId
-				toolIssueComment.AuthorUsername = bitbucketUser.UserName
+				toolIssueComment.AuthorId = bitbucketUser.AccountId
+				toolIssueComment.AuthorName = bitbucketUser.DisplayName
 				results = append(results, bitbucketUser)
 			}
 
@@ -110,9 +110,9 @@ func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {
 func convertIssueComment(issueComment *BitbucketIssueCommentsResponse) (*models.BitbucketIssueComment, error) {
 	bitbucketIssueComment := &models.BitbucketIssueComment{
 		BitbucketId:        issueComment.BitbucketId,
-		AuthorUserId:       issueComment.User.AccountId,
+		AuthorId:           issueComment.User.AccountId,
 		IssueId:            issueComment.Issue.Id,
-		AuthorUsername:     issueComment.User.DisplayName,
+		AuthorName:         issueComment.User.DisplayName,
 		BitbucketCreatedAt: issueComment.CreatedOn,
 		BitbucketUpdatedAt: issueComment.UpdatedOn,
 		Type:               issueComment.Type,

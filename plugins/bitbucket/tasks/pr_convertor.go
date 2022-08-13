@@ -81,7 +81,7 @@ func ConvertPullRequests(taskCtx core.SubTaskContext) error {
 				Url:            pr.Url,
 				AuthorId:       domainUserIdGen.Generate(data.Options.ConnectionId, pr.AuthorId),
 				AuthorName:     pr.AuthorName,
-				Description:    pr.Body,
+				Description:    pr.Description,
 				CreatedDate:    pr.BitbucketCreatedAt,
 				MergedDate:     pr.MergedAt,
 				ClosedDate:     pr.ClosedAt,
