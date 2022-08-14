@@ -32,7 +32,7 @@ type BitbucketIssueCommentsResponse struct {
 	UpdatedOn   *time.Time `json:"updated_on"`
 	Content     struct {
 		Type string
-		Raw  string
+		Raw  string `json:"raw"`
 	} `json:"content"`
 	User  *BitbucketAccountResponse
 	Issue struct {
@@ -116,6 +116,7 @@ func convertIssueComment(issueComment *BitbucketIssueCommentsResponse) (*models.
 		BitbucketCreatedAt: issueComment.CreatedOn,
 		BitbucketUpdatedAt: issueComment.UpdatedOn,
 		Type:               issueComment.Type,
+		Body:               issueComment.Content.Raw,
 	}
 	return bitbucketIssueComment, nil
 }

@@ -118,6 +118,7 @@ func convertPullRequestComment(prComment *BitbucketPrCommentsResponse) (*models.
 		BitbucketCreatedAt: prComment.CreatedOn,
 		BitbucketUpdatedAt: prComment.UpdatedOn,
 		Type:               prComment.Type,
+		Body:               prComment.Content.Raw,
 	}
 	return bitbucketPrComment, nil
 }

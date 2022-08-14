@@ -31,6 +31,7 @@ type BitbucketIssueComment struct {
 	BitbucketCreatedAt time.Time
 	BitbucketUpdatedAt *time.Time
 	Type               string
+	Body               string
 	common.NoPKModel
 }
 

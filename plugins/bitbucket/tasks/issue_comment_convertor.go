@@ -77,6 +77,7 @@ func ConvertIssueComments(taskCtx core.SubTaskContext) error {
 				IssueId:     issueIdGen.Generate(data.Options.ConnectionId, bitbucketIssueComment.IssueId),
 				UserId:      accountIdGen.Generate(data.Options.ConnectionId, bitbucketIssueComment.AuthorId),
 				CreatedDate: bitbucketIssueComment.CreatedAt,
+				Body:        bitbucketIssueComment.Body,
 			}
 			return []interface{}{
 				domainIssueComment,
