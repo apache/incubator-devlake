@@ -78,6 +78,8 @@ type BitbucketApiPullRequest struct {
 		} `json:"commit"`
 		Repo *BitbucketApiRepo `json:"repository"`
 	} `json:"source"`
+	Reviewers    []BitbucketAccountResponse `json:"reviewers"`
+	Participants []BitbucketAccountResponse `json:"participants"`
 }
 
 func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
@@ -111,7 +113,7 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 			if rawL.BitbucketId == 0 {
 				return nil, nil
 			}
-			//If this is a pr, ignore
+
 			bitbucketPr, err := convertBitbucketPullRequest(rawL, data.Options.ConnectionId, data.Repo.BitbucketId)
 			if err != nil {
 				return nil, err
@@ -152,6 +154,7 @@ func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, r
 		Description:        pull.Description,
 		Url:                pull.Links.Html.Href,
 		Type:               pull.Type,
+		CommentCount:       pull.CommentCount,
 		BitbucketCreatedAt: pull.BitbucketCreatedAt,
 		BitbucketUpdatedAt: pull.BitbucketUpdatedAt,
 		BaseRef:            pull.BaseRef.Branch.Name,

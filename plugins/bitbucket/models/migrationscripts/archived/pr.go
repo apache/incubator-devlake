@@ -24,7 +24,7 @@ import (
 
 type BitbucketPullRequest struct {
 	ConnectionId       uint64 `gorm:"primaryKey"`
-	BitbucketId        string `gorm:"primaryKey;type:varchar(255)"`
+	BitbucketId        int    `gorm:"primaryKey"`
 	RepoId             string `gorm:"index;type:varchar(255)"`
 	Number             int    `gorm:"index"` // This number is used in GET requests to the API associated to reviewers / comments / etc.
 	BaseRepoId         string
@@ -35,25 +35,20 @@ type BitbucketPullRequest struct {
 	BitbucketCreatedAt time.Time
 	BitbucketUpdatedAt time.Time `gorm:"index"`
 	ClosedAt           *time.Time
-	// In order to get the following fields, we need to collect PRs individually from Bitbucket
-	Additions      int
-	Deletions      int
-	Comments       int
-	Commits        int
-	ReviewComments int
-	Merged         bool
-	MergedAt       *time.Time
-	Body           string
-	Type           string `gorm:"type:varchar(255)"`
-	Component      string `gorm:"type:varchar(255)"`
-	MergeCommitSha string `gorm:"type:varchar(40)"`
-	HeadRef        string `gorm:"type:varchar(255)"`
-	BaseRef        string `gorm:"type:varchar(255)"`
-	BaseCommitSha  string `gorm:"type:varchar(255)"`
-	HeadCommitSha  string `gorm:"type:varchar(255)"`
-	Url            string `gorm:"type:varchar(255)"`
-	AuthorName     string `gorm:"type:varchar(255)"`
-	AuthorId       string `gorm:"type:varchar(255)"`
+	CommentCount       int
+	Commits            int
+	MergedAt           *time.Time
+	Body               string
+	Type               string `gorm:"type:varchar(255)"`
+	Component          string `gorm:"type:varchar(255)"`
+	MergeCommitSha     string `gorm:"type:varchar(40)"`
+	HeadRef            string `gorm:"type:varchar(255)"`
+	BaseRef            string `gorm:"type:varchar(255)"`
+	BaseCommitSha      string `gorm:"type:varchar(255)"`
+	HeadCommitSha      string `gorm:"type:varchar(255)"`
+	Url                string `gorm:"type:varchar(255)"`
+	AuthorName         string `gorm:"type:varchar(255)"`
+	AuthorId           string `gorm:"type:varchar(255)"`
 	archived.NoPKModel
 }
 
