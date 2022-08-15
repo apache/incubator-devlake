@@ -77,7 +77,6 @@ func TestIssueDataFlow(t *testing.T) {
 			"body",
 			"priority",
 			"type",
-			"status",
 			"author_id",
 			"author_name",
 			"assignee_id",
