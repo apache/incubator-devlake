@@ -157,6 +157,8 @@ func convertBitbucketIssue(issue *IssuesResponse, connectionId uint64, repositor
 		Type:               issue.Type,
 		Body:               issue.Content.Raw,
 		Url:                issue.Links.Self.Href,
+		Priority:           issue.Priority,
+		Component:          issue.Component,
 		BitbucketCreatedAt: issue.BitbucketCreatedAt,
 		BitbucketUpdatedAt: issue.BitbucketUpdatedAt,
 	}

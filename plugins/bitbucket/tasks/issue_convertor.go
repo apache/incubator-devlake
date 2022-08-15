@@ -80,6 +80,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 				Description:     issue.Body,
 				Priority:        issue.Priority,
 				Type:            issue.Type,
+				OriginalStatus:  issue.State,
 				LeadTimeMinutes: issue.LeadTimeMinutes,
 				Url:             issue.Url,
 				CreatedDate:     &issue.BitbucketCreatedAt,

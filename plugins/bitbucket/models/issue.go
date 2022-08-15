@@ -32,7 +32,6 @@ type BitbucketIssue struct {
 	Body               string
 	Priority           string `gorm:"type:varchar(255)"`
 	Type               string `gorm:"type:varchar(100)"`
-	Status             string `gorm:"type:varchar(255)"`
 	AuthorId           string `gorm:"type:varchar(255)"`
 	AuthorName         string `gorm:"type:varchar(255)"`
 	AssigneeId         string `gorm:"type:varchar(255)"`
