@@ -26,10 +26,10 @@ type BitbucketIssue struct {
 	ConnectionId       uint64 `gorm:"primaryKey"`
 	BitbucketId        int    `gorm:"primaryKey"`
 	RepoId             string `gorm:"index;type:varchar(255)"`
-	Number             int    `gorm:"index;comment:Used in API requests ex. api/repo/1/issue/<THIS_NUMBER>"`
+	Number             int    `gorm:"index;comment:Used in API requests ex. api/issues/<THIS_NUMBER>"`
 	State              string `gorm:"type:varchar(255)"`
 	Title              string `gorm:"type:varchar(255)"`
-	Body               string `gorm:"type:varchar(255)"`
+	Body               string
 	Priority           string `gorm:"type:varchar(255)"`
 	Type               string `gorm:"type:varchar(100)"`
 	Status             string `gorm:"type:varchar(255)"`

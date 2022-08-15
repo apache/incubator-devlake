@@ -30,7 +30,6 @@ import (
 type IssuesResponse struct {
 	Type        string `json:"type"`
 	BitbucketId int    `json:"id"`
-	Number      int
 	Repository  *BitbucketApiRepo
 	Links       struct {
 		Self struct {
@@ -40,7 +39,11 @@ type IssuesResponse struct {
 			Href string
 		} `json:"html"`
 	} `json:"links"`
-	Title     string `json:"title"`
+	Title   string `json:"title"`
+	Content struct {
+		Type string
+		Raw  string
+	} `json:"content"`
 	Reporter  *BitbucketAccountResponse
 	Assignee  *BitbucketAccountResponse
 	State     string `json:"state"`
@@ -148,9 +151,11 @@ func convertBitbucketIssue(issue *IssuesResponse, connectionId uint64, repositor
 		ConnectionId:       connectionId,
 		BitbucketId:        issue.BitbucketId,
 		RepoId:             repositoryId,
-		Number:             issue.Number,
+		Number:             issue.BitbucketId,
 		State:              issue.State,
 		Title:              issue.Title,
+		Type:               issue.Type,
+		Body:               issue.Content.Raw,
 		Url:                issue.Links.Self.Href,
 		BitbucketCreatedAt: issue.BitbucketCreatedAt,
 		BitbucketUpdatedAt: issue.BitbucketUpdatedAt,

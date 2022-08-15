@@ -20,7 +20,6 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/bitbucket/utils"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -64,12 +63,16 @@ func GetQuery(reqData *helper.RequestData) (url.Values, error) {
 }
 
 func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {
-	link := res.Header.Get("link")
-	pageInfo, err := utils.GetPagingFromLinkHeader(link)
+	body := &BitbucketPagination{}
+	err := helper.UnmarshalResponse(res, body)
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
-	return pageInfo.Last, nil
+	pages := body.Size / args.PageSize
+	if body.Size%args.PageSize > 0 {
+		pages++
+	}
+	return pages, nil
 }
 
 func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {

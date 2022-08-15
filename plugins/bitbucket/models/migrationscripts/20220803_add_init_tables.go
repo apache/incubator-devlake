@@ -32,7 +32,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.BitbucketUser{},
 		&archived.BitbucketRepo{},
 		&archived.BitbucketRepoCommit{},
-		&archived.BitbucketConnection{},
+		//&archived.BitbucketConnection{},
 		&archived.BitbucketAccount{},
 		&archived.BitbucketCommit{},
 		&archived.BitbucketPullRequest{},

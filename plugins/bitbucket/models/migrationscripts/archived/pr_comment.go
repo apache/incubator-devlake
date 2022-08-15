@@ -32,6 +32,7 @@ type BitbucketPrComment struct {
 	BitbucketCreatedAt time.Time
 	BitbucketUpdatedAt *time.Time
 	Type               string `gorm:"comment:if type=null, it is normal comment,if type=diffNote,it is diff comment"`
+	Body               string
 	archived.NoPKModel
 }
 
