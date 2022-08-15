@@ -238,7 +238,7 @@ const DataTransformations = (props) => {
                               ? `${activeEntity?.title || '- None Available -'}`
                               : '< Select Project / Board >'
                           }
-                          rightIcon='double-caret-vertical'
+                          rightIcon='caret-down'
                           fill
                           style={{
                             maxWidth: '100%',
