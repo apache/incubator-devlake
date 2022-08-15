@@ -480,6 +480,8 @@ const BlueprintSettings = (props) => {
     cronConfig,
     customCronConfig,
     validateBlueprintName,
+    validateNumericSet,
+    validateRepositoryName,
     isValidCronExpression,
     isValidBlueprint,
     isValidPipeline,
@@ -643,7 +645,7 @@ const BlueprintSettings = (props) => {
           providerId: c.plugin,
           plugin: c.plugin,
           icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
-          name: allProviderConnections.find(pC => pC.connectionId === c.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.connectionId || cIdx }`,
+          name: allProviderConnections.find(pC => pC.connectionId === c.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.connectionId || cIdx}`,
           entities: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)?.title),
           entityList: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)),
           projects: [Providers.GITLAB].includes(c.plugin)
@@ -694,8 +696,8 @@ const BlueprintSettings = (props) => {
           boardList: [],
           transformations: {},
           // transformationStates: ['-'],
-          transformationStates: typeof c.Options?.transformationRules === 'object'
-            && Object.values(c.Options?.transformationRules).some(v => Array.isArray(v) && v.length > 0 || v.toString().length > 0)
+          transformationStates: typeof c.Options?.transformationRules === 'object' &&
+            Object.values(c.Options?.transformationRules).some(v => (Array.isArray(v) && v.length > 0) || v.toString().length > 0)
             ? ['Added'] : ['-'],
           scope: c,
           task: c,
