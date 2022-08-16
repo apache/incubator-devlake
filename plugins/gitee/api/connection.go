@@ -162,3 +162,26 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err
 }
+
+// @Summary pipelines plan for gitee
+// @Description pipelines plan for gitee
+// @Tags plugins/gitee
+// @Accept application/json
+// @Param blueprint body GiteePipelinePlan true "json"
+// @Router /pipelines/gitee/pipeline-plan [post]
+func PostGiteePipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &GiteePipelinePlan{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type GiteePipelinePlan [][]struct {
+	Plugin   string   `json:"plugin"`
+	Subtasks []string `json:"subtasks"`
+	Options  struct {
+		ConnectionID   int    `json:"connectionId"`
+		Owner          string `json:"owner"`
+		Repo           string `json:"repo"`
+		Since          string
+		Transformation models.TransformationRules `json:"transformation"`
+	} `json:"options"`
+}

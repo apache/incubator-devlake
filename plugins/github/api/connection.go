@@ -20,17 +20,16 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/api/shared"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/plugins/github/models"
-
-	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
+	"github.com/apache/incubator-devlake/api/shared"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/mitchellh/mapstructure"
 )
 
 type GithubTestConnResponse struct {
@@ -208,4 +207,55 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 		return nil, err
 	}
 	return &core.ApiResourceOutput{Body: connection}, err
+}
+
+// @Summary blueprints setting for github
+// @Description blueprint setting for github
+// @Tags plugins/github
+// @Accept application/json
+// @Param blueprint body GithubBlueprintSetting true "json"
+// @Router /blueprints/github/blueprint-setting [post]
+func PostGithubBluePrint(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &GithubBlueprintSetting{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type GithubBlueprintSetting []struct {
+	Version     string `json:"version"`
+	Connections []struct {
+		Plugin       string `json:"plugin"`
+		ConnectionID int    `json:"connectionId"`
+		Scope        []struct {
+			Transformation models.TransformationRules `json:"transformation"`
+			Options        struct {
+				Owner string `json:"owner"`
+				Repo  string `json:"repo"`
+				Since string
+			} `json:"options"`
+			Entities []string `json:"entities"`
+		} `json:"scope"`
+	} `json:"connections"`
+}
+
+// @Summary pipelines plan for github
+// @Description pipelines plan for github
+// @Tags plugins/github
+// @Accept application/json
+// @Param blueprint body GithubPipelinePlan true "json"
+// @Router /pipelines/github/pipeline-plan [post]
+func PostGithubPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &GithubPipelinePlan{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type GithubPipelinePlan [][]struct {
+	Plugin   string   `json:"plugin"`
+	Subtasks []string `json:"subtasks"`
+	Options  struct {
+		ConnectionID   int    `json:"connectionId"`
+		Owner          string `json:"owner"`
+		Repo           string `json:"repo"`
+		Since          string
+		Transformation models.TransformationRules `json:"transformation"`
+	} `json:"options"`
 }
