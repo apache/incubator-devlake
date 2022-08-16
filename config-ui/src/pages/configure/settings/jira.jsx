@@ -57,15 +57,10 @@ export default function JiraSettings (props) {
     blueprint,
     entities = [],
     configuredBoard,
-    // eslint-disable-next-line no-unused-vars
-    configuredProject,
     transformation = {},
     transformations = {},
-    newTransformation = {},
     isSaving,
     onSettingsChange = () => {},
-    // eslint-disable-next-line no-unused-vars
-    apiVersion = 2,
     issueTypes = [],
     fields = [],
     // eslint-disable-next-line no-unused-vars
@@ -73,8 +68,6 @@ export default function JiraSettings (props) {
     jiraProxyError,
     isFetchingJIRA = false
   } = props
-
-  const [currentTransformation, setCurrentTransformation] = useState({})
 
   const [typeMappingBug, setTypeMappingBug] = useState([])
   const [typeMappingIncident, setTypeMappingIncident] = useState([])
@@ -84,27 +77,26 @@ export default function JiraSettings (props) {
   const [statusMappings, setStatusMappings] = useState()
   const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState('')
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState('')
-  // eslint-disable-next-line no-unused-vars
-  // const [remoteLinkCommitSha, setRemoteLinkCommitSha] = useState('')
+  const [remoteLinkCommitSha, setRemoteLinkCommitSha] = useState('')
 
-  // const savedTags = useMemo(() => transformation?.requirementTags, [transformation?.requirementTags, configuredBoard])
-  // const savedRequirementTags = useMemo(() => connection?.transformations[Object.keys(boards[connection?.id])[0]?.requirementTags], [connection?.id, connection?.transformations, configuredBoard?.id])
-  // const savedBugTags = useMemo(() => transformation?.bugTags, [transformation?.bugTags])
-  // const savedIncidentTags = useMemo(() => transformation?.incidentTags, [transformation?.incidentTags])
-  const savedRequirementTags = useMemo(() => transformation?.requirementTags || [], [transformation?.requirementTags, configuredBoard?.id])
-  const savedBugTags = useMemo(() => transformation?.bugTags || [], [transformation?.bugTags, configuredBoard?.id])
-  const savedIncidentTags = useMemo(() => transformation?.incidentTags || [], [transformation?.incidentTags, configuredBoard?.id])
+  // const savedRequirementTags = useMemo(() => transformation?.requirementTags || [], [transformation?.requirementTags, configuredBoard?.id])
+  // const savedBugTags = useMemo(() => transformation?.bugTags || [], [transformation?.bugTags, configuredBoard?.id])
+  // const savedIncidentTags = useMemo(() => transformation?.incidentTags || [], [transformation?.incidentTags, configuredBoard?.id])
 
-  // const [requirementTags, setRequirementTags] = useState(Array.isArray(transformation?.requirementTags) ? [...transformation?.requirementTags] : [])
-  // const [requirementTags, setRequirementTags] = useState(boards[connection?.id] ? boards[connection?.id].reduce((pV, cV) => ({ ...pV, [cV?.id]: [] }), {}) : {})
-  const [requirementTags, setRequirementTags] = useState({ [configuredBoard?.id]: savedRequirementTags })
+  // @todo: lift higher to dsm hook
+  const savedRequirementTags = useMemo(() => boards[connection?.id]
+    ? boards[connection?.id].reduce((pV, cV, iDx) => ({ ...pV, [cV?.id]: connection?.transformations ? connection?.transformations[iDx]?.requirementTags : transformation?.requirementTags, }), {})
+    : {}, [connection?.id, configuredBoard?.id, boards, transformations])
+  const savedBugTags = useMemo(() => boards[connection?.id]
+    ? boards[connection?.id].reduce((pV, cV, iDx) => ({ ...pV, [cV?.id]: connection?.transformations ? connection?.transformations[iDx]?.bugTags : transformation?.bugTags, }), {})
+    : {}, [connection?.id, configuredBoard?.id, boards, transformations])
+  const savedIncidentTags = useMemo(() => boards[connection?.id]
+    ? boards[connection?.id].reduce((pV, cV, iDx) => ({ ...pV, [cV?.id]: connection?.transformations ? connection?.transformations[iDx]?.incidentTags : transformation?.incidentTags, }), {})
+    : {}, [connection?.id, configuredBoard?.id, boards, transformations])
 
-  // const [bugTags, setBugTags] = useState(Array.isArray(transformation?.bugTags) ? [...transformation?.bugTags] : [])
-  // const [bugTags, setBugTags] = useState(boards[connection?.id] ? boards[connection?.id].reduce((pV, cV) => ({ ...pV, [cV?.id]: [] }), {}) : {})
-  const [bugTags, setBugTags] = useState({ [configuredBoard?.id]: Array.isArray(transformation?.bugTags) ? savedBugTags : [] })
-
-  // const [incidentTags, setIncidentTags] = useState(Array.isArray(transformation?.incidentTags) ? [...transformation?.incidentTags] : [])
-  const [incidentTags, setIncidentTags] = useState(boards[connection?.id] ? boards[connection?.id].reduce((pV, cV) => ({ ...pV, [cV?.id]: savedIncidentTags }), {}) : {})
+  const [requirementTags, setRequirementTags] = useState(savedRequirementTags)
+  const [bugTags, setBugTags] = useState(savedBugTags)
+  const [incidentTags, setIncidentTags] = useState(savedIncidentTags)
 
   const [requirementTagsList, setRequirementTagsList] = useState([])
   const [bugTagsList, setBugTagsList] = useState([])
@@ -193,6 +185,10 @@ export default function JiraSettings (props) {
   }, [fieldsList, transformation?.storyPointField])
 
   useEffect(() => {
+    setRemoteLinkCommitSha(transformation?.remotelinkCommitShaPattern || '')
+  }, [fieldsList, transformation?.remotelinkCommitShaPattern])
+
+  useEffect(() => {
     console.log('>>>> CONFIGURING BOARD....', configuredBoard)
   }, [configuredBoard])
 
@@ -241,7 +237,7 @@ export default function JiraSettings (props) {
                 items={requirementTagsList}
                 // selectedItems={savedTags}
                 // selectedItems={requirementTags[configuredBoard?.id]}
-                selectedItems={transformation?.requirementTags}
+                selectedItems={requirementTags[configuredBoard?.id]}
                 activeItem={null}
                 itemPredicate={(query, item) => item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
                 itemRenderer={(item, { handleClick, modifiers }) => (
@@ -290,7 +286,7 @@ export default function JiraSettings (props) {
               <Button
                 icon='eraser'
                 disabled={requirementTags?.length === 0 || isSaving}
-                intent={Intent.NONE} minimal={false} onClick={() => setRequirementTags([])}
+                intent={Intent.NONE} minimal={false} onClick={() => setRequirementTags(rT => ({ ...rT, [configuredBoard?.id]: [] }))}
                 style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, marginLeft: '-2px' }}
               />
             </div>
@@ -359,7 +355,7 @@ export default function JiraSettings (props) {
               <Button
                 icon='eraser'
                 disabled={bugTags.length === 0 || isSaving}
-                intent={Intent.NONE} minimal={false} onClick={() => setBugTags([])}
+                intent={Intent.NONE} minimal={false} onClick={() => setBugTags(bT => ({ ...bT, [configuredBoard?.id]: [] }))}
                 style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, marginLeft: '-2px' }}
               />
             </div>
@@ -428,7 +424,7 @@ export default function JiraSettings (props) {
               <Button
                 icon='eraser'
                 disabled={incidentTags.length === 0 || isSaving}
-                intent={Intent.NONE} minimal={false} onClick={() => setIncidentTags([])}
+                intent={Intent.NONE} minimal={false} onClick={() => setIncidentTags(iT => ({ ...iT, [configuredBoard?.id]: [] }))}
                 style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, marginLeft: '-2px' }}
               />
             </div>
@@ -602,7 +598,7 @@ export default function JiraSettings (props) {
                 id='jira-remotelink-sha'
                 fill={true}
                 placeholder='/commit/([0-9a-f]{40})$'
-                value={transformation?.remotelinkCommitShaPattern}
+                value={remoteLinkCommitSha}
                 onChange={(e) => onSettingsChange({ remotelinkCommitShaPattern: e.target.value }, configuredBoard?.id)}
                 disabled={isSaving}
                 className='input'
