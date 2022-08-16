@@ -205,7 +205,7 @@ const DataScopesGrid = (props) => {
               }}
             >
               <Button
-                // disabled={c.providerId === Providers.JENKINS}
+                disabled={c.providerId === Providers.JENKINS}
                 icon='annotation'
                 intent={c.providerId === Providers.JENKINS ? Intent.NONE : Intent.PRIMARY}
                 size={12}
