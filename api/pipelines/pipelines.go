@@ -41,14 +41,6 @@ POST /pipelines
 */
 // @Summary Create and run a new pipeline
 // @Description Create and run a new pipeline
-// @Description RETURN SAMPLE
-// @Description {
-// @Description 	"name": "name-of-pipeline",
-// @Description 	"tasks": [
-// @Description 		[ {"plugin": "gitlab", ...}, {"plugin": "jira"} ],
-// @Description 		[ {"plugin": "github", ...}],
-// @Description 	]
-// @Description }
 // @Tags framework/pipelines
 // @Accept application/json
 // @Param pipeline body models.NewPipeline true "json"

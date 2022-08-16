@@ -163,3 +163,46 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err
 }
+
+// @Summary blueprints setting for jenkins
+// @Description blueprint setting for jenkins
+// @Tags plugins/jenkins
+// @Accept application/json
+// @Param blueprint body JenkinsBlueprintSetting true "json"
+// @Router /blueprints/jenkins/blueprint-setting [post]
+func PostJenkinsBluePrint(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &JenkinsBlueprintSetting{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type JenkinsBlueprintSetting []struct {
+	Version     string `json:"version"`
+	Connections []struct {
+		Plugin       string `json:"plugin"`
+		ConnectionID int    `json:"connectionId"`
+		Scope        []struct {
+			Options struct {
+			} `json:"options"`
+			Entities []string `json:"entities"`
+		} `json:"scope"`
+	} `json:"connections"`
+}
+
+// @Summary pipelines plan for jenkins
+// @Description pipelines plan for jenkins
+// @Tags plugins/jenkins
+// @Accept application/json
+// @Param blueprint body JenkinsPipelinePlan true "json"
+// @Router /pipelines/jenkins/pipeline-plan [post]
+func PostJenkinsPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &JenkinsPipelinePlan{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type JenkinsPipelinePlan [][]struct {
+	Plugin   string   `json:"plugin"`
+	Subtasks []string `json:"subtasks"`
+	Options  struct {
+		ConnectionID int `json:"connectionId"`
+	} `json:"options"`
+}

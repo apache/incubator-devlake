@@ -31,7 +31,7 @@ import (
 // @Description post blueprints
 // @Tags framework/blueprints
 // @Accept application/json
-// @Param blueprint body string true "json"
+// @Param blueprint body models.Blueprint true "json"
 // @Success 200  {object} models.Blueprint
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
