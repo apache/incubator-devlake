@@ -94,31 +94,31 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return nil, fmt.Errorf("%s unexpected status code: %d", serverInfoFail, res.StatusCode)
 	}
 
-	// usersSearch checking
-	usersSearchFail := "You are suceess on test the serverInfo but failed to test on userSearch"
-	res, err = apiClient.Get("api/3/users/search", nil, nil)
+	// verify credential
+	getStatusFail := "an error occurred while making request to `/rest/api/2/status`"
+	res, err = apiClient.Get("api/2/status", nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf("%s %s", usersSearchFail, err)
+		return nil, fmt.Errorf("%s %s", getStatusFail, err)
 	}
-	usersSearchFail += ": [ " + res.Request.URL.String() + " ]"
+	getStatusFail += ": [ " + res.Request.URL.String() + " ]"
 
 	errMsg := ""
 	if res.StatusCode == http.StatusForbidden {
 		resErrBody := &models.JiraErrorInfo{}
 		err = helper.UnmarshalResponse(res, resErrBody)
 		if err != nil {
-			return nil, fmt.Errorf("%s Unexpected status code: %d,and UnmarshalResponse error %s", usersSearchFail, res.StatusCode, err)
+			return nil, fmt.Errorf("%s Unexpected status code: %d,and UnmarshalResponse error %s", getStatusFail, res.StatusCode, err)
 		}
 		for _, em := range resErrBody.ErrorMessages {
 			if em == "error.no-permission" {
-				return nil, fmt.Errorf("%s We get the error %s ,it might you use the right token(password) but with the wrong username.please check your password", usersSearchFail, em)
+				return nil, fmt.Errorf("%s We get the error %s ,it might you use the right token(password) but with the wrong username.please check your password", getStatusFail, em)
 			}
 			errMsg += em + " \r\n"
 		}
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("%s Unexpected [%s] status code: %d %s", usersSearchFail, res.Request.URL, res.StatusCode, errMsg)
+		return nil, fmt.Errorf("%s Unexpected [%s] status code: %d %s", getStatusFail, res.Request.URL, res.StatusCode, errMsg)
 	}
 
 	return nil, nil
