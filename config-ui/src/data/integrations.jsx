@@ -19,11 +19,11 @@ import React from 'react'
 import { Icon } from '@blueprintjs/core'
 import { Providers, ProviderLabels, ProviderTypes } from '@/data/Providers'
 
-import JiraSettings from '@/pages/configure/settings/jira'
-import GitlabSettings from '@/pages/configure/settings/gitlab'
-import JenkinsSettings from '@/pages/configure/settings/jenkins'
-import TapdSettings from '@/pages/configure/settings/tapd'
-import GithubSettings from '@/pages/configure/settings/github'
+// import JiraSettings from '@/pages/configure/settings/jira'
+// import GitlabSettings from '@/pages/configure/settings/gitlab'
+// import JenkinsSettings from '@/pages/configure/settings/jenkins'
+// import TapdSettings from '@/pages/configure/settings/tapd'
+// import GithubSettings from '@/pages/configure/settings/github'
 
 import { ReactComponent as GitlabProvider } from '@/images/integrations/gitlab.svg'
 import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins.svg'
@@ -44,15 +44,8 @@ const integrationsData = [
     name: ProviderLabels.GITLAB,
     icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitlabProvider className='providerIconSvg' width='40' height='40' />,
-    settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
-      <GitlabSettings
-        provider={activeProvider}
-        connection={activeConnection}
-        isSaving={isSaving}
-        isSavingConnection={isSavingConnection}
-        onSettingsChange={setSettings}
-      />
-    )
+    // @todo: relocated to ProviderTransformationSettings since v0.12.0
+    settings: {}
   },
   {
     id: Providers.JENKINS,
@@ -63,15 +56,8 @@ const integrationsData = [
     name: ProviderLabels.JENKINS,
     icon: <JenkinsProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <JenkinsProvider className='providerIconSvg' width='40' height='40' />,
-    settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
-      <JenkinsSettings
-        provider={activeProvider}
-        connection={activeConnection}
-        isSaving={isSaving}
-        isSavingConnection={isSavingConnection}
-        onSettingsChange={setSettings}
-      />
-    )
+    // @todo: relocated to ProviderTransformationSettings since v0.12.0
+    settings: {}
   },
   {
     id: Providers.TAPD,
@@ -82,15 +68,8 @@ const integrationsData = [
     name: ProviderLabels.TAPD,
     icon: <TapdProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <TapdProvider className='providerIconSvg' width='40' height='40' />,
-    settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
-      <TapdSettings
-        provider={activeProvider}
-        connection={activeConnection}
-        isSaving={isSaving}
-        isSavingConnection={isSavingConnection}
-        onSettingsChange={setSettings}
-      />
-    )
+    // relocated to ProviderTransformationSettings since v0.12.0
+    settings: {}
   },
   {
     id: Providers.JIRA,
@@ -101,15 +80,8 @@ const integrationsData = [
     name: ProviderLabels.JIRA,
     icon: <JiraProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <JiraProvider className='providerIconSvg' width='40' height='40' />,
-    settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
-      <JiraSettings
-        provider={activeProvider}
-        connection={activeConnection}
-        isSaving={isSaving}
-        isSavingConnection={isSavingConnection}
-        onSettingsChange={setSettings}
-      />
-    )
+    // relocated to ProviderTransformationSettings since v0.12.0
+    settings: {}
   },
   {
     id: Providers.GITHUB,
@@ -120,15 +92,8 @@ const integrationsData = [
     name: ProviderLabels.GITHUB,
     icon: <GitHubProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitHubProvider className='providerIconSvg' width='40' height='40' />,
-    settings: ({ activeProvider, activeConnection, isSaving, isSavingConnection, setSettings }) => (
-      <GithubSettings
-        provider={activeProvider}
-        connection={activeConnection}
-        isSaving={isSaving}
-        isSavingConnection={isSavingConnection}
-        onSettingsChange={setSettings}
-      />
-    )
+    // relocated to ProviderTransformationSettings since v0.12.0
+    settings: {}
   },
 ]
 
@@ -141,9 +106,8 @@ const pluginsData = [
     name: ProviderLabels.GITEXTRACTOR,
     icon: <Icon icon='box' size={30} />,
     iconDashboard: <Icon icon='box' size={32} />,
-    settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
-      null
-    )
+    // relocated to ProviderTransformationSettings since v0.12.0
+    settings: {}
   },
   {
     id: Providers.REFDIFF,
@@ -153,9 +117,8 @@ const pluginsData = [
     name: ProviderLabels.REFDIFF,
     icon: <Icon icon='box' size={30} />,
     iconDashboard: <Icon icon='box' size={32} />,
-    settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
-      null
-    )
+    // relocated to ProviderTransformationSettings since v0.12.0
+    settings: {}
   },
 ]
 

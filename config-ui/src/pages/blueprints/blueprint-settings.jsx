@@ -513,52 +513,6 @@ const BlueprintSettings = (props) => {
     return entities
   }, [])
 
-  // @todo: relocate or disable
-  // const loadBlueprint = useCallback(() => {
-  //   console.log('>>> HERE!!! LOAD BLUEPRINT PROPERTIES...')
-  //   setDataEntitiesList(deList => activeProvider ? getDefaultEntities(activeProvider?.id) : deList)
-  //   switch (scopeConnection?.provider?.id) {
-  //     case Providers.GITHUB:
-  //       // setActiveTransformation(scopeConnection?.transformation[scopeConnection?.projects?.findIndex(p => p === configuredProject)])
-  //       // setActiveTransformation(activeProjectTransformation)
-  //       setProjects(p => ({ ...p, [configuredConnection?.id]: scopeConnection?.projects }))
-  //       setEntities(e => ({ ...e, [configuredConnection?.id]: scopeConnection?.entityList }))
-  //       setTransformations(existingTransforms => ({
-  //         ...scopeConnection?.projects.map(
-  //           (p, pIdx) => ({ [p]: scopeConnection.transformations[pIdx] })
-  //         ).reduce((pV, cV) => ({ ...cV, ...pV }), {}),
-  //         ...existingTransforms
-  //       }))
-  //       break
-  //     case Providers.JIRA:
-  //       // setActiveTransformation(scopeConnection?.transformation[scopeConnection?.boards?.findIndex(b => b === `Board ${configuredBoard?.id}`)])
-  //       // setActiveTransformation(activeBoardTransformation)
-  //       setBoards(b => ({ ...b, [configuredConnection?.id]: scopeConnection?.boardsList }))
-  //       setEntities(e => ({ ...e, [configuredConnection?.id]: scopeConnection?.entityList }))
-  //       setTransformations(existingTransforms => ({
-  //         ...scopeConnection?.boardIds.map(
-  //           (bId, bIdx) => ({ [bId]: scopeConnection.transformations[bIdx] })
-  //         ).reduce((pV, cV) => ({ ...cV, ...pV }), {}),
-  //         ...existingTransforms
-  //       }))
-  //       break
-  //   }
-  // }, [
-  //   activeProvider,
-  //   // activeBoardTransformation,
-  //   // activeProjectTransformation,
-  //   scopeConnection,
-  //   configuredConnection?.id,
-  //   configuredProject,
-  //   configuredBoard?.id,
-  //   getDefaultEntities,
-  //   setBoards,
-  //   setEntities,
-  //   setProjects,
-  //   setTransformations
-
-  // ])
-
   const addProjectTransformation = useCallback((project) => {
     setConfiguredProject(project)
     // ToastNotification.clear()
@@ -569,6 +523,7 @@ const BlueprintSettings = (props) => {
     // ToastNotification.clear()
   }, [setConfiguredBoard])
 
+  // @todo: lift higher to dsm hook
   const getJiraMappedBoards = useCallback((boardIds = [], boardListItems = []) => {
     return boardIds.map((bId, sIdx) => {
       const boardObject = boardListItems.find(apiBoard => Number(apiBoard.id) === Number(bId))
@@ -1119,33 +1074,6 @@ const BlueprintSettings = (props) => {
             <BlueprintNavigationLinks
               blueprint={activeBlueprint}
             />
-            {/* <div
-              className='blueprint-navigation'
-              style={{
-                alignSelf: 'center',
-                display: 'flex',
-                margin: '20px auto',
-              }}
-            >
-              <div style={{ marginRight: '10px' }}>
-                <a
-                  href='#'
-                  className='blueprint-navigation-link'
-                  onClick={viewBlueprintStatus}
-                >
-                  Status
-                </a>
-              </div>
-              <div style={{ marginLeft: '10px' }}>
-                <a
-                  href='#'
-                  className='blueprint-navigation-link active'
-                  onClick={viewBlueprintSettings}
-                >
-                  Settings
-                </a>
-              </div>
-            </div> */}
 
             <div
               className='blueprint-main-settings'
