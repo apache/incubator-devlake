@@ -52,7 +52,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
 
   const activeProjectTransformation = useMemo(() => transformations[activeProject], [transformations, activeProject])
   const activeBoardTransformation = useMemo(() => transformations[activeBoard?.id], [transformations, activeBoard?.id])
-  const activeTransformation = useMemo(() => transformations[connection?.providerId === Providers.JIRA ? configuredBoard?.id : configuredProject], [transformations, configuredProject, configuredBoard?.id])
+  const activeTransformation = useMemo(() => transformations[connection?.providerId === Providers.JIRA ? configuredBoard?.id : configuredProject], [transformations, configuredProject, configuredBoard?.id, connection?.providerId])
 
   const getDefaultTransformations = useCallback((providerId) => {
     let transforms = {}
@@ -209,7 +209,8 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     projects,
     entities,
     transformations,
-    // blueprint?.settings?.connections,
+    blueprint?.settings?.connections,
+    setSettings,
     createProviderConnections
   ])
 
@@ -257,7 +258,10 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
         setEntities(e => ({ ...e, [connection?.id]: connection?.entityList || [] }))
         break
     }
-  }, [connection])
+  }, [
+    connection,
+    setTransformationSettings
+  ])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: Connection List...', connections)
@@ -267,7 +271,8 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     entities,
     projects,
     boards,
-    transformations
+    transformations,
+    modifyConnectionSettings
   ])
 
   useEffect(() => {
@@ -297,7 +302,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
         ...cT,
       }))
     }
-  }, [boards, connection?.id])
+  }, [boards, connection?.id, initializeTransformations])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: PROJECTS...', projects)
@@ -309,7 +314,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
         ...cT,
       }))
     }
-  }, [projects, connection?.id])
+  }, [projects, connection?.id, initializeTransformations])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: DATA ENTITIES...', entities)
