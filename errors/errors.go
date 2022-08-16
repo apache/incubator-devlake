@@ -18,39 +18,104 @@ limitations under the License.
 package errors
 
 import (
+	"fmt"
+	"github.com/joomcode/errorx"
 	"net/http"
 )
 
-type Error struct {
-	Status  int
-	Message string
-}
+// Supported error types
+var (
+	Default  = Type{code: 0, meta: "default"}
+	NotFound = Type{code: http.StatusNotFound, meta: "not-found"}
+	Internal = Type{code: http.StatusInternalServerError, meta: "internal"}
+)
 
-func (e *Error) Code() int {
-	return e.Status
-}
+var errorxNamespace = errorx.NewNamespace("lake")
+var errorxTypes = make(map[Type]*errorx.Type)
+
+var _ error = (*Error)(nil)
+var _ requiredSupertype = (*Error)(nil)
+
+type (
+	Type struct {
+		code int
+		meta string
+	}
+	Error struct {
+		err *errorx.Error
+		t   *Type
+	}
+	requiredSupertype interface {
+		Unwrap() error
+	}
+)
 
 func (e *Error) Error() string {
-	return e.Message
+	return fmt.Sprintf("%+v", e.err)
 }
 
-func NewError(status int, message string) *Error {
+func (e *Error) Message() string {
+	return e.err.Message()
+}
+
+func (e *Error) Messages() string {
+	return e.err.Error()
+}
+
+func (e *Error) Unwrap() error {
+	return e.err.Unwrap()
+}
+
+func (e *Error) GetType() Type {
+	return *e.t
+}
+
+func (e *Error) As(t Type) *Error {
+	err := e
+	for {
+		if *err.t == t {
+			return e
+		}
+		err = AsLakeErrorType(err.Unwrap())
+		if err == nil {
+			return nil
+		}
+	}
+}
+
+func (t *Type) New(message string) *Error {
 	return &Error{
-		status,
-		message,
+		err: t.getErrorxType().New(message),
+		t:   t,
 	}
 }
 
-func NewNotFound(message string) *Error {
-	return NewError(http.StatusNotFound, message)
+func (t *Type) Wrap(err error, message string) *Error {
+	errType := *t
+	if cast, ok := err.(*Error); ok {
+		err = cast.err
+		if *t == Default { // inherit wrapped error's type
+			errType = cast.GetType()
+		}
+	}
+	return &Error{
+		err: t.getErrorxType().Wrap(err, message),
+		t:   &errType,
+	}
 }
 
-func IsNotFound(err error) bool {
-	errCast, ok := err.(*Error)
+func (t *Type) getErrorxType() *errorx.Type {
+	val, ok := errorxTypes[*t]
 	if !ok {
-		return false
+		val = errorxNamespace.NewType(t.meta)
+		errorxTypes[*t] = val
 	}
-	return errCast.Status == http.StatusNotFound
+	return val
 }
 
-var InternalError = NewError(http.StatusInternalServerError, "Server Internal Error")
+func AsLakeErrorType(err error) *Error {
+	if cast, ok := err.(*Error); ok {
+		return cast
+	}
+	return nil
+}

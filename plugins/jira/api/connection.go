@@ -84,7 +84,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 			return nil, err
 		}
 		restUrl := endpointUrl.ResolveReference(refUrl)
-		return nil, errors.NewNotFound(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()))
+		return nil, errors.NotFound.New(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()))
 	}
 	resBody := &models.JiraServerInfo{}
 	err = helper.UnmarshalResponse(res, resBody)

@@ -156,7 +156,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, error) {
 	err = db.Save(&task).Error
 	if err != nil {
 		taskLog.Error("save task failed", err)
-		return nil, errors.InternalError
+		return nil, errors.Internal.Wrap(err, "save task failed")
 	}
 	return &task, nil
 }
@@ -202,7 +202,7 @@ func GetTask(taskId uint64) (*models.Task, error) {
 	err := db.First(task, taskId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.NewNotFound("task not found")
+			return nil, errors.NotFound.New("task not found")
 		}
 		return nil, err
 	}

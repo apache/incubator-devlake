@@ -112,7 +112,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	err := db.Create(&pipeline).Error
 	if err != nil {
 		globalPipelineLog.Error("create pipline failed: %w", err)
-		return nil, errors.InternalError
+		return nil, errors.Internal.Wrap(err, "create pipline failed")
 	}
 
 	// create tasks accordingly
@@ -136,7 +136,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	}
 	if err != nil {
 		globalPipelineLog.Error("save tasks for pipeline failed: %w", err)
-		return nil, errors.InternalError
+		return nil, errors.Internal.Wrap(err, "save tasks for pipeline failed")
 	}
 	if pipeline.TotalTasks == 0 {
 		return nil, fmt.Errorf("no task to run")
@@ -153,7 +153,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	}).Error
 	if err != nil {
 		globalPipelineLog.Error("update pipline state failed: %w", err)
-		return nil, errors.InternalError
+		return nil, errors.Internal.Wrap(err, "update pipline state failed")
 	}
 
 	return pipeline, nil
@@ -194,7 +194,7 @@ func GetPipeline(pipelineId uint64) (*models.Pipeline, error) {
 	err := db.First(pipeline, pipelineId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.NewNotFound("pipeline not found")
+			return nil, errors.NotFound.New("pipeline not found")
 		}
 		return nil, err
 	}

@@ -56,7 +56,7 @@ func CreateBlueprint(blueprint *models.Blueprint) error {
 	}
 	err = ReloadBlueprints(cronManager)
 	if err != nil {
-		return errors.InternalError
+		return errors.Internal.Wrap(err, "error reloading blueprints")
 	}
 	return nil
 }
@@ -91,7 +91,7 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
 	err := db.First(blueprint, blueprintId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.NewNotFound("blueprint not found")
+			return nil, errors.NotFound.New("blueprint not found")
 		}
 		return nil, err
 	}
@@ -161,13 +161,13 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	// save
 	err = db.Save(blueprint).Error
 	if err != nil {
-		return nil, errors.InternalError
+		return nil, errors.Internal.Wrap(err, "error saving blueprint")
 	}
 
 	// reload schedule
 	err = ReloadBlueprints(cronManager)
 	if err != nil {
-		return nil, errors.InternalError
+		return nil, errors.Internal.Wrap(err, "error reloading blueprints")
 	}
 	// done
 	return blueprint, nil
@@ -177,11 +177,11 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 func DeleteBlueprint(id uint64) error {
 	err := db.Delete(&models.Blueprint{}, "id = ?", id).Error
 	if err != nil {
-		return errors.InternalError
+		return errors.Internal.Wrap(err, fmt.Sprintf("error deleting blueprint %d", id))
 	}
 	err = ReloadBlueprints(cronManager)
 	if err != nil {
-		return errors.InternalError
+		return errors.Internal.Wrap(err, fmt.Sprintf("error reloading blueprints", id))
 	}
 	return nil
 }
