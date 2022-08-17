@@ -162,33 +162,6 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
-// @Summary blueprints setting for gitlab
-// @Description blueprint setting for gitlab
-// @Tags plugins/gitlab
-// @Accept application/json
-// @Param blueprint body GitlabBlueprintSetting true "json"
-// @Router /blueprints/gitlab/blueprint-setting [post]
-func PostGitlabBluePrint(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	blueprint := &GitlabBlueprintSetting{}
-	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
-}
-
-type GitlabBlueprintSetting []struct {
-	Version     string `json:"version"`
-	Connections []struct {
-		Plugin       string `json:"plugin"`
-		ConnectionID int    `json:"connectionId"`
-		Scope        []struct {
-			Transformation models.TransformationRules `json:"transformation"`
-			Options        struct {
-				ProjectId int `json:"projectId"`
-				Since     string
-			} `json:"options"`
-			Entities []string `json:"entities"`
-		} `json:"scope"`
-	} `json:"connections"`
-}
-
 // @Summary pipelines plan for gitlab
 // @Description pipelines plan for gitlab
 // @Tags plugins/gitlab

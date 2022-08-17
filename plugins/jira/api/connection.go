@@ -20,7 +20,6 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 	"net/http"
 	"net/url"
 	"strings"
@@ -212,52 +211,4 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	connection := &models.JiraConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err
-}
-
-// @Summary blueprints setting for jira
-// @Description blueprint setting for jira
-// @Tags plugins/jira
-// @Accept application/json
-// @Param blueprint-setting body JiraBlueprintSetting true "json"
-// @Router /blueprints/jira/blueprint-setting [post]
-func PostJiraBlueprintSetting(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	blueprint := &JiraBlueprintSetting{}
-	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
-}
-
-type JiraBlueprintSetting []struct {
-	Version     string `json:"version"`
-	Connections []struct {
-		Plugin       string `json:"plugin"`
-		ConnectionID int    `json:"connectionId"`
-		Scope        []struct {
-			Transformation tasks.TransformationRules `json:"transformation"`
-			Options        struct {
-				BoardId uint64 `json:"boardId"`
-				Since   string `json:"since"`
-			} `json:"options"`
-			Entities []string `json:"entities"`
-		} `json:"scope"`
-	} `json:"connections"`
-}
-
-// @Summary pipelines plan for jira
-// @Description pipelines plan for jira
-// @Tags plugins/jira
-// @Accept application/json
-// @Param pipeline-plan body JiraPipelinePlan true "json"
-// @Router /pipelines/jira/pipeline-plan [post]
-func PostJiraPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
-	blueprint := &JiraPipelinePlan{}
-	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
-}
-
-type JiraPipelinePlan [][]struct {
-	Plugin   string   `json:"plugin"`
-	Subtasks []string `json:"subtasks"`
-	Options  struct {
-		BoardID             int                       `json:"boardId"`
-		ConnectionID        int                       `json:"connectionId"`
-		TransformationRules tasks.TransformationRules `json:"transformationRules"`
-	} `json:"options"`
 }
