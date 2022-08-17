@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { ToastNotification } from '@/components/Toast'
@@ -30,7 +30,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
   const [isDeleting, setIsDeleting] = useState(false)
   const [blueprints, setBlueprints] = useState([])
   const [blueprintCount, setBlueprintCount] = useState(0)
-  const [blueprint, setBlueprint] = useState(null)
+  const [blueprint, setBlueprint] = useState(NullBlueprint)
   const [errors, setErrors] = useState([])
 
   const [name, setName] = useState('MY BLUEPRINT')
@@ -126,15 +126,16 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         const b = await request.get(`${DEVLAKE_ENDPOINT}/blueprints/${blueprintId}`)
         const blueprintData = b.data
         console.log('>> RAW BLUEPRINT DATA FROM API...', b)
-        setBlueprint(b => ({
-          ...b,
+        setBlueprint(B => (b?.status === 200 ? {
+          ...B,
           ...blueprintData,
           id: blueprintData.id,
           enable: blueprintData.enable,
           status: 0,
           nextRunAt: null, // @todo: calculate next run date
           interval: detectCronInterval(blueprintData.cronConfig)
-        }))
+        } : NullBlueprint ))
+        setErrors(b.status !== 200 ? [b.data] : [])
         setTimeout(() => {
           setIsFetching(false)
         }, 500)

@@ -148,6 +148,7 @@ const BlueprintSettings = (props) => {
     fetchAllBlueprints,
     saveBlueprint,
     saveComplete,
+    errors: blueprintErrors
   } = useBlueprintManager()
 
   const {
@@ -384,6 +385,10 @@ const BlueprintSettings = (props) => {
     history.push(`/blueprints/settings/${blueprintId}`)
   }, [history, blueprintId])
 
+  const viewBlueprints = useCallback(() => {
+    history.push(`/blueprints`)
+  }, [history])
+
   const modifySetting = useCallback(
     (settingId) => {
       let title = null
@@ -590,7 +595,7 @@ const BlueprintSettings = (props) => {
       ? [t.Options?.boardId]
       : []
     // @todo: migrate to data scopes manager
-    if (activeBlueprint?.mode === BlueprintMode.NORMAL) {
+    if (activeBlueprint?.id && activeBlueprint?.mode === BlueprintMode.NORMAL) {
       setConnections(
         activeBlueprint?.settings?.connections.map((c, cIdx) => ({
           ...c,
@@ -631,7 +636,7 @@ const BlueprintSettings = (props) => {
           totalStages: 1
         }))
       )
-    } else if (activeBlueprint?.mode === BlueprintMode.ADVANCED) {
+    } else if (activeBlueprint?.id && activeBlueprint?.mode === BlueprintMode.ADVANCED) {
       // Advanced Mode Data Scope Connections
       // @todo: handle multi-stage
       setConnections(
@@ -968,263 +973,282 @@ const BlueprintSettings = (props) => {
         <Sidebar />
         <Content>
           <main className='main'>
+          {activeBlueprint?.id !== null && blueprintErrors.length === 0 && (
             <div
-              className='blueprint-header'
-              style={{
-                display: 'flex',
-                width: '100%',
-                justifyContent: 'space-between',
-                marginBottom: '10px',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <div className='blueprint-name' style={{}}>
-                <h2
-                  style={{
-                    fontWeight: 'bold',
-                    display: 'flex',
-                    alignItems: 'center',
-                    color: !activeBlueprint?.enable
-                      ? Colors.GRAY1
-                      : 'inherit',
-                  }}
-                >
-                  {activeBlueprint?.name}
-                  <Tag
-                    minimal
-                    intent={
-                      activeBlueprint.mode === BlueprintMode.ADVANCED
-                        ? Intent.DANGER
-                        : Intent.PRIMARY
-                    }
-                    style={{ marginLeft: '10px' }}
-                  >
-                    {activeBlueprint?.mode?.toString().toUpperCase()}
-                  </Tag>
-                </h2>
-              </div>
-              <div
-                className='blueprint-info'
-                style={{ display: 'flex', alignItems: 'center' }}
+                className='blueprint-header'
+                style={{
+                  display: 'flex',
+                  width: '100%',
+                  justifyContent: 'space-between',
+                  marginBottom: '10px',
+                  whiteSpace: 'nowrap',
+                }}
               >
-                <div className='blueprint-schedule'>
-                  {activeBlueprint?.isManual ? (
-                    <strong>Manual Mode</strong>
-                  ) : (
-                    <span
-                      className='blueprint-schedule-interval'
-                      style={{ textTransform: 'capitalize', padding: '0 10px' }}
-                    >
-                      {activeBlueprint?.interval} (at{' '}
-                      {dayjs(
-                        getNextRunDate(activeBlueprint?.cronConfig)
-                      ).format(
-                        `hh:mm A ${
-                          activeBlueprint?.interval !== 'Hourly'
-                            ? ' MM/DD/YYYY'
-                            : ''
-                        }`
-                      )}
-                      )
-                    </span>
-                  )}
-                  &nbsp;{' '}
-                  <span className='blueprint-schedule-nextrun'>
-                    {!activeBlueprint?.isManual && (
-                      <>
-                        Next Run{' '}
-                        {dayjs(
-                          getNextRunDate(activeBlueprint?.cronConfig)
-                        ).fromNow()}
-                      </>
-                    )}
-                  </span>
-                </div>
-                <div
-                  className='blueprint-actions'
-                  style={{ padding: '0 10px' }}
-                >
-                  {/* <Button
-                    intent={Intent.PRIMARY}
-                    small
-                    text='Run Now'
-                    onClick={runBlueprint}
-                    disabled={!activeBlueprint?.enable || currentRun?.status === TaskStatus.RUNNING}
-                  /> */}
-                </div>
-                <div className='blueprint-enabled'>
-                  <Switch
-                    id='blueprint-enable'
-                    name='blueprint-enable'
-                    checked={activeBlueprint?.enable}
-                    label={
-                      activeBlueprint?.enable
-                        ? 'Blueprint Enabled'
-                        : 'Blueprint Disabled'
-                    }
-                    onChange={() => handleBlueprintActivation(activeBlueprint)}
-                    style={{
-                      marginBottom: 0,
-                      marginTop: 0,
-                      color: !activeBlueprint?.enable
-                        ? Colors.GRAY3
-                        : 'inherit',
-                    }}
-                    disabled={currentRun?.status === TaskStatus.RUNNING}
-                  />
-                </div>
-                <div style={{ padding: '0 10px' }}>
-                  <Button
-                    intent={Intent.PRIMARY}
-                    icon='trash'
-                    small
-                    minimal
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-
-            <BlueprintNavigationLinks
-              blueprint={activeBlueprint}
-            />
-
-            <div
-              className='blueprint-main-settings'
-              style={{
-                display: 'flex',
-                alignSelf: 'flex-start',
-                color: !activeBlueprint?.enable
-                  ? Colors.GRAY2
-                  : 'inherit'
-              }}
-            >
-              <div className='configure-settings-name'>
-                <h3>Name</h3>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <div className='blueprint-name'>{activeBlueprint?.name}</div>
-                  <Button
-                    icon='annotation'
-                    intent={Intent.PRIMARY}
-                    size={12}
-                    small
-                    minimal
-                    onClick={() => modifySetting('name')}
-                  />
-                </div>
-              </div>
-              <div
-                className='configure-settings-frequency'
-                style={{ marginLeft: '40px' }}
-              >
-                <h3>Sync Frequency</h3>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <div className='blueprint-frequency'>
-                    {activeBlueprint?.isManual ? (
-                      'Manual'
-                    ) : (
-                      <span>
-                        {activeBlueprint?.interval} (at{' '}
-                        {dayjs(
-                          getNextRunDate(activeBlueprint?.cronConfig)
-                        ).format('hh:mm A')}
-                        )
-                      </span>
-                    )}
-                  </div>
-                  <Button
-                    icon='annotation'
-                    intent={Intent.PRIMARY}
-                    size={12}
-                    small
-                    minimal
-                    onClick={() => modifySetting('cronConfig')}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {
-              activeBlueprint?.mode === BlueprintMode.NORMAL && (
-                <div
-                  className='data-scopes-grid'
-                  style={{
-                    width: '100%',
-                    marginTop: '40px',
-                    alignSelf: 'flex-start',
-
-                  }}
-                >
+                <div className='blueprint-name' style={{}}>
                   <h2
                     style={{
                       fontWeight: 'bold',
+                      display: 'flex',
+                      alignItems: 'center',
                       color: !activeBlueprint?.enable
                         ? Colors.GRAY1
-                        : 'inherit'
+                        : 'inherit',
                     }}
                   >
-                    Data Scope and Transformation
+                    {activeBlueprint?.name}
+                    <Tag
+                      minimal
+                      intent={
+                        activeBlueprint.mode === BlueprintMode.ADVANCED
+                          ? Intent.DANGER
+                          : Intent.PRIMARY
+                      }
+                      style={{ marginLeft: '10px' }}
+                    >
+                      {activeBlueprint?.mode?.toString().toUpperCase()}
+                    </Tag>
                   </h2>
-                  <DataScopesGrid
-                    connections={connections}
-                    blueprint={activeBlueprint}
-                    onModify={modifyConnection}
-                    mode={activeBlueprint?.mode}
-                    loading={isFetchingBlueprint || isFetchingJIRA}
-                  />
                 </div>
-              )
-}
-
-            {mode === BlueprintMode.ADVANCED && (
-              <div
-                className='data-advanced'
-                style={{
-                  width: '100%',
-                  maxWidth: '100%',
-                  marginTop: '40px',
-                  alignSelf: 'flex-start',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <h2 style={{ fontWeight: 'bold' }}>
-                    Data Scope and Transformation
-                  </h2>
-                  <div>
-                    <Button
-                      icon='annotation'
-                      text='Edit JSON'
+                <div
+                  className='blueprint-info'
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
+                  <div className='blueprint-schedule'>
+                    {activeBlueprint?.isManual ? (
+                      <strong>Manual Mode</strong>
+                    ) : (
+                      <span
+                        className='blueprint-schedule-interval'
+                        style={{ textTransform: 'capitalize', padding: '0 10px' }}
+                      >
+                        {activeBlueprint?.interval} (at{' '}
+                        {dayjs(
+                          getNextRunDate(activeBlueprint?.cronConfig)
+                        ).format(
+                          `hh:mm A ${
+                            activeBlueprint?.interval !== 'Hourly'
+                              ? ' MM/DD/YYYY'
+                              : ''
+                          }`
+                        )}
+                        )
+                      </span>
+                    )}
+                    &nbsp;{' '}
+                    <span className='blueprint-schedule-nextrun'>
+                      {!activeBlueprint?.isManual && (
+                        <>
+                          Next Run{' '}
+                          {dayjs(
+                            getNextRunDate(activeBlueprint?.cronConfig)
+                          ).fromNow()}
+                        </>
+                      )}
+                    </span>
+                  </div>
+                  <div
+                    className='blueprint-actions'
+                    style={{ padding: '0 10px' }}
+                  >
+                    {/* <Button
                       intent={Intent.PRIMARY}
                       small
+                      text='Run Now'
+                      onClick={runBlueprint}
+                      disabled={!activeBlueprint?.enable || currentRun?.status === TaskStatus.RUNNING}
+                    /> */}
+                  </div>
+                  <div className='blueprint-enabled'>
+                    <Switch
+                      id='blueprint-enable'
+                      name='blueprint-enable'
+                      checked={activeBlueprint?.enable}
+                      label={
+                        activeBlueprint?.enable
+                          ? 'Blueprint Enabled'
+                          : 'Blueprint Disabled'
+                      }
+                      onChange={() => handleBlueprintActivation(activeBlueprint)}
+                      style={{
+                        marginBottom: 0,
+                        marginTop: 0,
+                        color: !activeBlueprint?.enable
+                          ? Colors.GRAY3
+                          : 'inherit',
+                      }}
+                      disabled={currentRun?.status === TaskStatus.RUNNING}
+                    />
+                  </div>
+                  <div style={{ padding: '0 10px' }}>
+                    <Button
+                      intent={Intent.PRIMARY}
+                      icon='trash'
+                      small
                       minimal
-                      onClick={() => modifySetting('plan')}
-                      style={{ fontSize: '12px' }}
+                      disabled
                     />
                   </div>
                 </div>
-                <DataScopesGrid
-                  connections={connections}
-                  blueprint={activeBlueprint}
-                  onModify={() => modifySetting('plan')}
-                  mode={activeBlueprint?.mode}
-                  classNames={['advanced-mode-grid']}
-                  loading={isFetchingBlueprint || isFetchingJIRA}
-                />
               </div>
             )}
 
-            {ENVIRONMENT !== 'production' && (
-              <Button
-                // loading={isLoading}
-                intent={Intent.PRIMARY}
-                icon='code'
-                text='Inspect'
-                onClick={() => setShowBlueprintInspector(true)}
-                style={{ margin: '12px auto' }}
-                minimal
-                small
-              />
+            {blueprintErrors?.length > 0 && (
+              <div className='bp3-non-ideal-state blueprint-non-ideal-state'>
+                <div className='bp3-non-ideal-state-visual'>
+                  <Icon icon='warning-sign' size={32} color={Colors.RED5} />
+                </div>
+                <h4 className='bp3-heading'>Invalid Blueprint</h4>
+                <div>{blueprintErrors[0]}</div>
+                <button className='bp3-button bp3-intent-primary' onClick={viewBlueprints}>Continue</button>
+              </div>
             )}
+
+            {activeBlueprint?.id !== null && blueprintErrors.length === 0 && (
+              <>
+              <BlueprintNavigationLinks
+                blueprint={activeBlueprint}
+              />
+
+              <div
+                className='blueprint-main-settings'
+                style={{
+                  display: 'flex',
+                  alignSelf: 'flex-start',
+                  color: !activeBlueprint?.enable
+                    ? Colors.GRAY2
+                    : 'inherit'
+                }}
+              >
+                <div className='configure-settings-name'>
+                  <h3>Name</h3>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div className='blueprint-name'>{activeBlueprint?.name}</div>
+                    <Button
+                      icon='annotation'
+                      intent={Intent.PRIMARY}
+                      size={12}
+                      small
+                      minimal
+                      onClick={() => modifySetting('name')}
+                    />
+                  </div>
+                </div>
+                <div
+                  className='configure-settings-frequency'
+                  style={{ marginLeft: '40px' }}
+                >
+                  <h3>Sync Frequency</h3>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div className='blueprint-frequency'>
+                      {activeBlueprint?.isManual ? (
+                        'Manual'
+                      ) : (
+                        <span>
+                          {activeBlueprint?.interval} (at{' '}
+                          {dayjs(
+                            getNextRunDate(activeBlueprint?.cronConfig)
+                          ).format('hh:mm A')}
+                          )
+                        </span>
+                      )}
+                    </div>
+                    <Button
+                      icon='annotation'
+                      intent={Intent.PRIMARY}
+                      size={12}
+                      small
+                      minimal
+                      onClick={() => modifySetting('cronConfig')}
+                    />
+                  </div>
+                </div>
+              </div>
+
+
+              {
+                activeBlueprint?.id && activeBlueprint?.mode === BlueprintMode.NORMAL && (
+                  <div
+                    className='data-scopes-grid'
+                    style={{
+                      width: '100%',
+                      marginTop: '40px',
+                      alignSelf: 'flex-start',
+
+                    }}
+                  >
+                    <h2
+                      style={{
+                        fontWeight: 'bold',
+                        color: !activeBlueprint?.enable
+                          ? Colors.GRAY1
+                          : 'inherit'
+                      }}
+                    >
+                      Data Scope and Transformation
+                    </h2>
+                    <DataScopesGrid
+                      connections={connections}
+                      blueprint={activeBlueprint}
+                      onModify={modifyConnection}
+                      mode={activeBlueprint?.mode}
+                      loading={isFetchingBlueprint || isFetchingJIRA}
+                    />
+                  </div>
+                )
+              }
+
+              {activeBlueprint?.id &&  mode === BlueprintMode.ADVANCED && (
+                <div
+                  className='data-advanced'
+                  style={{
+                    width: '100%',
+                    maxWidth: '100%',
+                    marginTop: '40px',
+                    alignSelf: 'flex-start',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <h2 style={{ fontWeight: 'bold' }}>
+                      Data Scope and Transformation
+                    </h2>
+                    <div>
+                      <Button
+                        icon='annotation'
+                        text='Edit JSON'
+                        intent={Intent.PRIMARY}
+                        small
+                        minimal
+                        onClick={() => modifySetting('plan')}
+                        style={{ fontSize: '12px' }}
+                      />
+                    </div>
+                  </div>
+                  <DataScopesGrid
+                    connections={connections}
+                    blueprint={activeBlueprint}
+                    onModify={() => modifySetting('plan')}
+                    mode={activeBlueprint?.mode}
+                    classNames={['advanced-mode-grid']}
+                    loading={isFetchingBlueprint || isFetchingJIRA}
+                  />
+                </div>
+              )}
+
+              {ENVIRONMENT !== 'production' && (
+                <Button
+                  // loading={isLoading}
+                  intent={Intent.PRIMARY}
+                  icon='code'
+                  text='Inspect'
+                  onClick={() => setShowBlueprintInspector(true)}
+                  style={{ margin: '12px auto' }}
+                  minimal
+                  small
+                />
+              )}
+
+            </>
+          )}
           </main>
         </Content>
       </div>
