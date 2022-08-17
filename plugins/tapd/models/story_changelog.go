@@ -45,6 +45,8 @@ type TapdStoryChangelogItemRes struct {
 	Field             string          `json:"field" gorm:"primaryKey;type:varchar(255)"`
 	ValueBeforeParsed json.RawMessage `json:"value_before_parsed"`
 	ValueAfterParsed  json.RawMessage `json:"value_after_parsed"`
+	ValueBefore       json.RawMessage `json:"value_before"`
+	ValueAfter        json.RawMessage `json:"value_after"`
 	IterationIdFrom   uint64
 	IterationIdTo     uint64
 	common.NoPKModel
