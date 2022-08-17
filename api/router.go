@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/api/domainlayer"
 	"github.com/apache/incubator-devlake/api/ping"
 	"github.com/apache/incubator-devlake/api/pipelines"
+	"github.com/apache/incubator-devlake/api/plugininfo"
 	"github.com/apache/incubator-devlake/api/push"
 	"github.com/apache/incubator-devlake/api/shared"
 	"github.com/apache/incubator-devlake/api/task"
@@ -54,6 +55,8 @@ func RegisterRouter(r *gin.Engine) {
 	r.GET("/version", version.Get)
 	r.POST("/push/:tableName", push.Post)
 	r.GET("/domainlayer/repos", domainlayer.ReposIndex)
+
+	r.GET("/plugininfo", plugininfo.Get)
 
 	// mount all api resources for all plugins
 	pluginsApiResources, err := services.GetPluginsApiResources()
