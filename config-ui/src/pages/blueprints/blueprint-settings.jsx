@@ -586,6 +586,9 @@ const BlueprintSettings = (props) => {
     const getAdvancedGitlabProjects = (t, providerId) => [Providers.GITLAB].includes(providerId)
       ? [t.Options?.projectId]
       : []
+    const getAdvancedJiraBoards = (t, providerId) => [Providers.JIRA].includes(providerId)
+      ? [t.Options?.boardId]
+      : []
     // @todo: migrate to data scopes manager
     if (activeBlueprint?.mode === BlueprintMode.NORMAL) {
       setConnections(
@@ -624,7 +627,8 @@ const BlueprintSettings = (props) => {
           advancedEditable: false,
           isMultiStage: false,
           isSingleStage: true,
-          stages: 1
+          stage: 1,
+          totalStages: 1
         }))
       )
     } else if (activeBlueprint?.mode === BlueprintMode.ADVANCED) {
@@ -645,10 +649,18 @@ const BlueprintSettings = (props) => {
           projects: [Providers.GITLAB].includes(c.Plugin)
             ? getAdvancedGitlabProjects(c, c.Plugin)
             : getAdvancedGithubProjects(c, c.Plugin),
-          entities: [<Tag key={0} minimal small>Default Entities</Tag>],
+          // entities: DEFAULT_DATA_ENTITIES.map(e => e.title),
+          entities: ['-'],
           entitityList: getDefaultEntities(c.Plugin),
-          boards: [],
-          boardList: [],
+          boards: [Providers.JIRA].includes(c.Plugin)
+            ? getAdvancedJiraBoards(c, c.Plugin).map(bId => `Board ${bId}`)
+            : [],
+          boardIds: [Providers.JIRA].includes(c.Plugin)
+            ? getAdvancedJiraBoards(c, c.Plugin)
+            : [],
+          boardList: [Providers.JIRA].includes(c.Plugin)
+            ? getAdvancedJiraBoards(c, c.Plugin).map(bId => `Board ${bId}`)
+            : [],
           transformations: {},
           // transformationStates: ['-'],
           transformationStates: typeof c.Options?.transformationRules === 'object' &&
@@ -661,7 +673,8 @@ const BlueprintSettings = (props) => {
           plan: activeBlueprint?.plan,
           isMultiStage: Array.isArray(activeBlueprint?.plan) && activeBlueprint?.plan.length > 1,
           isSingleStage: Array.isArray(activeBlueprint?.plan) && activeBlueprint?.plan.length === 1,
-          stagesCount: activeBlueprint?.plan?.length,
+          stage: activeBlueprint?.plan.findIndex((s, sId) => s.find(t => JSON.stringify(t) === JSON.stringify(c))) + 1,
+          totalStages: activeBlueprint?.plan?.length,
         }))
       )
     }
@@ -708,6 +721,7 @@ const BlueprintSettings = (props) => {
     isFetchingJIRA,
     connectionsList,
     getDefaultEntities,
+    getJiraMappedBoards,
     setRawConfiguration
   ])
 

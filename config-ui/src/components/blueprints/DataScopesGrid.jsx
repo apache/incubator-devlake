@@ -21,11 +21,7 @@ import {
   Intent,
   Card,
   Elevation,
-  Colors,
-  Icon,
-  Classes,
-  Tabs,
-  Tab,
+  Tag,
 } from '@blueprintjs/core'
 import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
@@ -128,6 +124,9 @@ const DataScopesGrid = (props) => {
                 {c.icon}
               </span>
               <span>{c.name}</span>
+              {mode === BlueprintMode.ADVANCED && (
+                <Tag intent={Intent.PRIMARY} minimal style={{ marginLeft: '10px', fontSize: '10px' }}>STAGE {c.stage}</Tag>
+              )}
             </div>
             <div className='cell entities' style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
               <ul
@@ -205,7 +204,7 @@ const DataScopesGrid = (props) => {
               }}
             >
               <Button
-                disabled={c.providerId === Providers.JENKINS}
+                disabled={[Providers.JENKINS, Providers.TAPD].includes(c.providerId)}
                 icon='annotation'
                 intent={c.providerId === Providers.JENKINS ? Intent.NONE : Intent.PRIMARY}
                 size={12}
