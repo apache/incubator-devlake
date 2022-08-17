@@ -386,7 +386,7 @@ const BlueprintSettings = (props) => {
   }, [history, blueprintId])
 
   const viewBlueprints = useCallback(() => {
-    history.push(`/blueprints`)
+    history.push('/blueprints')
   }, [history])
 
   const modifySetting = useCallback(
@@ -973,123 +973,123 @@ const BlueprintSettings = (props) => {
         <Sidebar />
         <Content>
           <main className='main'>
-          {activeBlueprint?.id !== null && blueprintErrors.length === 0 && (
+            {activeBlueprint?.id !== null && blueprintErrors.length === 0 && (
             <div
-                className='blueprint-header'
-                style={{
-                  display: 'flex',
-                  width: '100%',
-                  justifyContent: 'space-between',
-                  marginBottom: '10px',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                <div className='blueprint-name' style={{}}>
-                  <h2
-                    style={{
-                      fontWeight: 'bold',
-                      display: 'flex',
-                      alignItems: 'center',
-                      color: !activeBlueprint?.enable
-                        ? Colors.GRAY1
-                        : 'inherit',
-                    }}
-                  >
-                    {activeBlueprint?.name}
-                    <Tag
-                      minimal
-                      intent={
+              className='blueprint-header'
+              style={{
+                display: 'flex',
+                width: '100%',
+                justifyContent: 'space-between',
+                marginBottom: '10px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <div className='blueprint-name' style={{}}>
+                <h2
+                  style={{
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: !activeBlueprint?.enable
+                      ? Colors.GRAY1
+                      : 'inherit',
+                  }}
+                >
+                  {activeBlueprint?.name}
+                  <Tag
+                    minimal
+                    intent={
                         activeBlueprint.mode === BlueprintMode.ADVANCED
                           ? Intent.DANGER
                           : Intent.PRIMARY
                       }
-                      style={{ marginLeft: '10px' }}
+                    style={{ marginLeft: '10px' }}
+                  >
+                    {activeBlueprint?.mode?.toString().toUpperCase()}
+                  </Tag>
+                </h2>
+              </div>
+              <div
+                className='blueprint-info'
+                style={{ display: 'flex', alignItems: 'center' }}
+              >
+                <div className='blueprint-schedule'>
+                  {activeBlueprint?.isManual ? (
+                    <strong>Manual Mode</strong>
+                  ) : (
+                    <span
+                      className='blueprint-schedule-interval'
+                      style={{ textTransform: 'capitalize', padding: '0 10px' }}
                     >
-                      {activeBlueprint?.mode?.toString().toUpperCase()}
-                    </Tag>
-                  </h2>
-                </div>
-                <div
-                  className='blueprint-info'
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
-                  <div className='blueprint-schedule'>
-                    {activeBlueprint?.isManual ? (
-                      <strong>Manual Mode</strong>
-                    ) : (
-                      <span
-                        className='blueprint-schedule-interval'
-                        style={{ textTransform: 'capitalize', padding: '0 10px' }}
-                      >
-                        {activeBlueprint?.interval} (at{' '}
-                        {dayjs(
-                          getNextRunDate(activeBlueprint?.cronConfig)
-                        ).format(
+                      {activeBlueprint?.interval} (at{' '}
+                      {dayjs(
+                        getNextRunDate(activeBlueprint?.cronConfig)
+                      ).format(
                           `hh:mm A ${
                             activeBlueprint?.interval !== 'Hourly'
                               ? ' MM/DD/YYYY'
                               : ''
                           }`
-                        )}
-                        )
-                      </span>
-                    )}
-                    &nbsp;{' '}
-                    <span className='blueprint-schedule-nextrun'>
-                      {!activeBlueprint?.isManual && (
-                        <>
-                          Next Run{' '}
-                          {dayjs(
-                            getNextRunDate(activeBlueprint?.cronConfig)
-                          ).fromNow()}
-                        </>
                       )}
+                      )
                     </span>
-                  </div>
-                  <div
-                    className='blueprint-actions'
-                    style={{ padding: '0 10px' }}
-                  >
-                    {/* <Button
+                  )}
+                  {' '}
+                  <span className='blueprint-schedule-nextrun'>
+                    {!activeBlueprint?.isManual && (
+                    <>
+                      Next Run{' '}
+                      {dayjs(
+                        getNextRunDate(activeBlueprint?.cronConfig)
+                      ).fromNow()}
+                    </>
+                    )}
+                  </span>
+                </div>
+                <div
+                  className='blueprint-actions'
+                  style={{ padding: '0 10px' }}
+                >
+                  {/* <Button
                       intent={Intent.PRIMARY}
                       small
                       text='Run Now'
                       onClick={runBlueprint}
                       disabled={!activeBlueprint?.enable || currentRun?.status === TaskStatus.RUNNING}
                     /> */}
-                  </div>
-                  <div className='blueprint-enabled'>
-                    <Switch
-                      id='blueprint-enable'
-                      name='blueprint-enable'
-                      checked={activeBlueprint?.enable}
-                      label={
+                </div>
+                <div className='blueprint-enabled'>
+                  <Switch
+                    id='blueprint-enable'
+                    name='blueprint-enable'
+                    checked={activeBlueprint?.enable}
+                    label={
                         activeBlueprint?.enable
                           ? 'Blueprint Enabled'
                           : 'Blueprint Disabled'
                       }
-                      onChange={() => handleBlueprintActivation(activeBlueprint)}
-                      style={{
-                        marginBottom: 0,
-                        marginTop: 0,
-                        color: !activeBlueprint?.enable
-                          ? Colors.GRAY3
-                          : 'inherit',
-                      }}
-                      disabled={currentRun?.status === TaskStatus.RUNNING}
-                    />
-                  </div>
-                  <div style={{ padding: '0 10px' }}>
-                    <Button
-                      intent={Intent.PRIMARY}
-                      icon='trash'
-                      small
-                      minimal
-                      disabled
-                    />
-                  </div>
+                    onChange={() => handleBlueprintActivation(activeBlueprint)}
+                    style={{
+                      marginBottom: 0,
+                      marginTop: 0,
+                      color: !activeBlueprint?.enable
+                        ? Colors.GRAY3
+                        : 'inherit',
+                    }}
+                    disabled={currentRun?.status === TaskStatus.RUNNING}
+                  />
+                </div>
+                <div style={{ padding: '0 10px' }}>
+                  <Button
+                    intent={Intent.PRIMARY}
+                    icon='trash'
+                    small
+                    minimal
+                    disabled
+                  />
                 </div>
               </div>
+            </div>
             )}
 
             {blueprintErrors?.length > 0 && (
@@ -1105,67 +1105,66 @@ const BlueprintSettings = (props) => {
 
             {activeBlueprint?.id !== null && blueprintErrors.length === 0 && (
               <>
-              <BlueprintNavigationLinks
-                blueprint={activeBlueprint}
-              />
+                <BlueprintNavigationLinks
+                  blueprint={activeBlueprint}
+                />
 
-              <div
-                className='blueprint-main-settings'
-                style={{
-                  display: 'flex',
-                  alignSelf: 'flex-start',
-                  color: !activeBlueprint?.enable
-                    ? Colors.GRAY2
-                    : 'inherit'
-                }}
-              >
-                <div className='configure-settings-name'>
-                  <h3>Name</h3>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className='blueprint-name'>{activeBlueprint?.name}</div>
-                    <Button
-                      icon='annotation'
-                      intent={Intent.PRIMARY}
-                      size={12}
-                      small
-                      minimal
-                      onClick={() => modifySetting('name')}
-                    />
-                  </div>
-                </div>
                 <div
-                  className='configure-settings-frequency'
-                  style={{ marginLeft: '40px' }}
+                  className='blueprint-main-settings'
+                  style={{
+                    display: 'flex',
+                    alignSelf: 'flex-start',
+                    color: !activeBlueprint?.enable
+                      ? Colors.GRAY2
+                      : 'inherit'
+                  }}
                 >
-                  <h3>Sync Frequency</h3>
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className='blueprint-frequency'>
-                      {activeBlueprint?.isManual ? (
-                        'Manual'
-                      ) : (
-                        <span>
-                          {activeBlueprint?.interval} (at{' '}
-                          {dayjs(
-                            getNextRunDate(activeBlueprint?.cronConfig)
-                          ).format('hh:mm A')}
-                          )
-                        </span>
-                      )}
+                  <div className='configure-settings-name'>
+                    <h3>Name</h3>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div className='blueprint-name'>{activeBlueprint?.name}</div>
+                      <Button
+                        icon='annotation'
+                        intent={Intent.PRIMARY}
+                        size={12}
+                        small
+                        minimal
+                        onClick={() => modifySetting('name')}
+                      />
                     </div>
-                    <Button
-                      icon='annotation'
-                      intent={Intent.PRIMARY}
-                      size={12}
-                      small
-                      minimal
-                      onClick={() => modifySetting('cronConfig')}
-                    />
+                  </div>
+                  <div
+                    className='configure-settings-frequency'
+                    style={{ marginLeft: '40px' }}
+                  >
+                    <h3>Sync Frequency</h3>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div className='blueprint-frequency'>
+                        {activeBlueprint?.isManual ? (
+                          'Manual'
+                        ) : (
+                          <span>
+                            {activeBlueprint?.interval} (at{' '}
+                            {dayjs(
+                              getNextRunDate(activeBlueprint?.cronConfig)
+                            ).format('hh:mm A')}
+                            )
+                          </span>
+                        )}
+                      </div>
+                      <Button
+                        icon='annotation'
+                        intent={Intent.PRIMARY}
+                        size={12}
+                        small
+                        minimal
+                        onClick={() => modifySetting('cronConfig')}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-
-              {
+                {
                 activeBlueprint?.id && activeBlueprint?.mode === BlueprintMode.NORMAL && (
                   <div
                     className='data-scopes-grid'
@@ -1197,7 +1196,7 @@ const BlueprintSettings = (props) => {
                 )
               }
 
-              {activeBlueprint?.id &&  mode === BlueprintMode.ADVANCED && (
+                {activeBlueprint?.id && mode === BlueprintMode.ADVANCED && (
                 <div
                   className='data-advanced'
                   style={{
@@ -1232,9 +1231,9 @@ const BlueprintSettings = (props) => {
                     loading={isFetchingBlueprint || isFetchingJIRA}
                   />
                 </div>
-              )}
+                )}
 
-              {ENVIRONMENT !== 'production' && (
+                {ENVIRONMENT !== 'production' && (
                 <Button
                   // loading={isLoading}
                   intent={Intent.PRIMARY}
@@ -1245,10 +1244,10 @@ const BlueprintSettings = (props) => {
                   minimal
                   small
                 />
-              )}
+                )}
 
-            </>
-          )}
+              </>
+            )}
           </main>
         </Content>
       </div>

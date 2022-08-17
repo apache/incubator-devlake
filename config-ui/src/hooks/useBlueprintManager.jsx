@@ -134,7 +134,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
           status: 0,
           nextRunAt: null, // @todo: calculate next run date
           interval: detectCronInterval(blueprintData.cronConfig)
-        } : NullBlueprint ))
+        } : NullBlueprint))
         setErrors(b.status !== 200 ? [b.data] : [])
         setTimeout(() => {
           setIsFetching(false)
