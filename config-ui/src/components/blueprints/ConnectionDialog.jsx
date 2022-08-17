@@ -264,7 +264,7 @@ const ConnectionDialog = (props) => {
                             ? `${datasource.title}`
                             : '< Select Datasource >'
                         }
-                        rightIcon='double-caret-vertical'
+                        rightIcon='caret-down'
                         fill
                         style={{
                           maxWidth: '260px',

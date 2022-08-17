@@ -46,6 +46,7 @@ import PipelineActivity from '@/pages/pipelines/activity'
 import Blueprints from '@/pages/blueprints/index'
 import CreateBlueprint from '@/pages/blueprints/create-blueprint'
 import BlueprintDetail from '@/pages/blueprints/blueprint-detail'
+import BlueprintSettings from '@/pages/blueprints/blueprint-settings'
 import Connections from '@/pages/connections/index'
 
 function App () {
@@ -90,6 +91,9 @@ function App () {
       </Route>
       <Route exact path='/blueprints/detail/:bId'>
         <BlueprintDetail />
+      </Route>
+      <Route exact path='/blueprints/settings/:bId'>
+        <BlueprintSettings />
       </Route>
       <Route exact path='/blueprints'>
         <Blueprints />

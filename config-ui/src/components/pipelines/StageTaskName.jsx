@@ -134,7 +134,7 @@ const StageTaskName = (props) => {
                   </div>
                   <div style={{ marginLeft: '20px' }}>
                     <label style={{ color: Colors.GRAY2 }}>Created</label><br />
-                    <span>{dayjs(task.CreatedAt).format('L LT')}</span>
+                    <span>{dayjs(task.createdAt).format('L LT')}</span>
                   </div>
                   {task.finishedAt && (
                     <div style={{ marginLeft: '20px' }}>

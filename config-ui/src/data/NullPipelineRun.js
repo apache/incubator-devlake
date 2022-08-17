@@ -17,19 +17,22 @@
  */
 const NullPipelineRun = {
   ID: null,
-  CreatedAt: null,
-  UpdatedAt: null,
+  id: null,
+  createdAt: null,
+  updatedAt: null,
   name: null,
-  tasks: [
+  blueprintId: 0,
+  plan: [
     []
   ],
   totalTasks: 0,
   finishedTasks: 0,
   beganAt: null,
   finishedAt: null,
-  status: null,
+  status: 'TASK_CREATED',
   message: '',
-  spentSeconds: 0
+  spentSeconds: 0,
+  stage: 1
 }
 
 export {

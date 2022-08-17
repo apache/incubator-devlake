@@ -378,3 +378,26 @@ h4 {
     }
   }
 }
+
+.blueprint-navigation {
+  a {
+    color: #292B3F;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
+
+    &.active {
+      text-decoration: none;
+      font-weight: bold;
+      color: #7497F7;
+      border-bottom: 2px solid #7497F7;
+    }
+  }
+}
+
+.bp3-active.bp3-dialog-step-viewed .bp3-dialog-step-icon {
+  background-color: #7497F7;
+}
+.bp3-active.bp3-dialog-step-viewed .bp3-dialog-step-title {
+  color: #7497F7;
+}

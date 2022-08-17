@@ -57,7 +57,7 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
     Providers.TAPD
   ])
 
-  const PIPELINES_ENDPOINT = useMemo(() => `${DEVLAKE_ENDPOINT}/pipelines`, [DEVLAKE_ENDPOINT])
+  const PIPELINES_ENDPOINT = useMemo(() => `${DEVLAKE_ENDPOINT}/pipelines`, [])
   const [logfile, setLogfile] = useState('logging.tar.gz')
 
   const runPipeline = useCallback((runSettings = null) => {

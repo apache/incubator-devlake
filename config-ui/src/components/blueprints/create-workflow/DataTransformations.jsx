@@ -15,17 +15,19 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useState, useCallback } from 'react'
+import React, { Fragment, useEffect, useState, useCallback, useMemo } from 'react'
 import {
   Button,
   Icon,
   Intent,
   InputGroup,
+  MenuItem,
   Divider,
   Elevation,
   Card,
   Colors,
 } from '@blueprintjs/core'
+import { Select } from '@blueprintjs/select'
 import { integrationsData } from '@/data/integrations'
 import {
   Providers,
@@ -48,12 +50,13 @@ import GithubSettings from '@/pages/configure/settings/github'
 const DataTransformations = (props) => {
   const {
     provider,
+    blueprint,
     activeStep,
     activeConnectionTab,
     blueprintConnections = [],
     dataEntities = {},
-    projects = [],
-    boards = [],
+    projects = {},
+    boards = {},
     issueTypes = [],
     fields = [],
     transformations = {},
@@ -76,68 +79,107 @@ const DataTransformations = (props) => {
     isSavingConnection = false,
     isRunning = false,
     jiraProxyError,
-    isFetchingJIRA = false
+    isFetchingJIRA = false,
+    enableConnectionTabs = true,
+    enableNoticeAlert = true,
+    useDropdownSelector = false,
+    enableGoBack = true,
+    elevation = Elevation.TWO,
+    cardStyle = {}
   } = props
 
-  const [newTransformation, setNewTransformation] = useState({})
+  const boardsAndProjects = useMemo(() => [
+    ...(Array.isArray(boards[configuredConnection?.id]) ? boards[configuredConnection?.id] : []),
+    ...(Array.isArray(projects[configuredConnection?.id]) ? projects[configuredConnection?.id] : [])], [
+    projects,
+    boards,
+    configuredConnection?.id
+  ])
 
-  const changeTransformation = useCallback((settings, entity) => {
-    console.log('>>>>> CHANGING TRANSFORMATION FOR ENTITY!', entity, settings)
-    setNewTransformation(currentTransforms => ({
-      ...currentTransforms,
-      [entity]: {
-        ...currentTransforms[entity],
-        ...settings
-      }
-    }))
-  }, [setNewTransformation])
+  const [entityList, setEntityList] = useState(boardsAndProjects?.map((e, eIdx) => ({
+    id: eIdx,
+    value: e?.value || e,
+    title: e?.title || e,
+    entity: e,
+    type: typeof e === 'object' ? 'board' : 'project'
+  })))
+  const [activeEntity, setActiveEntity] = useState()
+
+  const transformationHasProperties = useCallback((item) => {
+    const storedTransform = transformations[item] || transformations[item?.id]
+    return storedTransform && Object.values(storedTransform).some(v => v && v.length > 0)
+  }, [transformations])
+
+  useEffect(() => {
+    console.log('>>> PROJECT/BOARD SELECT LIST DATA...', entityList)
+    setActiveEntity(Array.isArray(entityList) ? entityList[0] : null)
+  }, [entityList])
+
+  useEffect(() => {
+    console.log('>>>>> PROJECT / BOARD ENTITY SELECTED!', activeEntity)
+    switch (activeEntity?.type) {
+      case 'board':
+        addBoardTransformation(activeEntity?.entity)
+        // addProjectTransformation(null)
+        break
+      case 'project':
+        addProjectTransformation(activeEntity?.entity)
+        // addBoardTransformation(null)
+        break
+    }
+  }, [activeEntity, addBoardTransformation, addProjectTransformation])
 
   return (
     <div className='workflow-step workflow-step-add-transformation' data-step={activeStep?.id}>
-      <p
-        className='alert neutral'
-      >
-        Set transformation rules for your selected data to view more complex
-        metrics in the dashboards.
-        <br />
-        <a
-          href='#'
-          className='more-link'
-          rel='noreferrer'
-          style={{
-            // color: '#7497F7',
-            marginTop: '5px',
-            display: 'inline-block',
-          }}
+      {enableNoticeAlert && (
+        <p
+          className='alert neutral'
         >
-          Find out more
-        </a>
-      </p>
+          Set transformation rules for your selected data to view more complex
+          metrics in the dashboards.
+          <br />
+          <a
+            href='#'
+            className='more-link'
+            rel='noreferrer'
+            style={{
+              // color: '#7497F7',
+              marginTop: '5px',
+              display: 'inline-block',
+            }}
+          >
+            Find out more
+          </a>
+        </p>
+      )}
       {blueprintConnections.length > 0 && (
         <div style={{ display: 'flex' }}>
-          <div
-            className='connection-tab-selector'
-            style={{ minWidth: '200px' }}
-          >
-            <Card
-              className='workflow-card connection-tabs-card'
-              elevation={Elevation.TWO}
-              style={{ padding: '10px' }}
+          {enableConnectionTabs && (
+            <div
+              className='connection-tab-selector'
+              style={{ minWidth: '200px' }}
             >
-              <ConnectionTabs
-                connections={blueprintConnections}
-                onChange={handleConnectionTabChange}
-                selectedTabId={activeConnectionTab}
-              />
-            </Card>
-          </div>
+              <Card
+                className='workflow-card connection-tabs-card'
+                elevation={Elevation.TWO}
+                style={{ padding: '10px' }}
+              >
+                <ConnectionTabs
+                  connections={blueprintConnections}
+                  onChange={handleConnectionTabChange}
+                  selectedTabId={activeConnectionTab}
+                />
+              </Card>
+            </div>
+          )}
           <div
             className='connection-transformation'
             style={{ marginLeft: '10px', width: '100%' }}
           >
             <Card
               className='workflow-card workflow-panel-card'
-              elevation={Elevation.TWO}
+              elevation={elevation}
+              style={{ ...cardStyle }}
             >
               {configuredConnection && (
                 <>
@@ -155,9 +197,62 @@ const DataTransformations = (props) => {
                   </h3>
                   <Divider className='section-divider' />
 
+                  {useDropdownSelector && entityList && [Providers.JIRA, Providers.GITHUB].includes(configuredConnection.provider) && (
+                    <div className='project-or-board-select' style={{ marginBottom: '20px' }}>
+                      <h4>{configuredConnection.provider === Providers.JIRA ? 'Board' : 'Project'}</h4>
+                      <Select
+                        disabled={configuredConnection.provider === Providers.JENKINS}
+                        popoverProps={{ usePortal: false }}
+                        className='selector-entity'
+                        id='selector-entity'
+                        inline={false}
+                        fill={true}
+                        items={entityList}
+                        activeItem={activeEntity}
+                        itemPredicate={(query, item) =>
+                          item?.title?.toString().toLowerCase().indexOf(query.toLowerCase()) >=
+                          0}
+                        itemRenderer={(item, { handleClick, modifiers }) => (
+                          <MenuItem
+                            active={modifiers.active}
+                            key={item.value}
+                            // label={item.value}
+                            onClick={handleClick}
+                            text={item.title}
+                          />
+                        )}
+                        noResults={
+                          <MenuItem disabled={true} text='No projects or boards.' />
+                        }
+                        onItemSelect={(item) => {
+                          setActiveEntity(item)
+                        }}
+                      >
+                        <Button
+                          disabled={configuredConnection.provider === Providers.JENKINS}
+                          className='btn-select-entity'
+                          intent={Intent.PRIMARY}
+                          outlined
+                          text={
+                            activeEntity
+                              ? `${activeEntity?.title || '- None Available -'}`
+                              : '< Select Project / Board >'
+                          }
+                          rightIcon='caret-down'
+                          fill
+                          style={{
+                            maxWidth: '100%',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                          }}
+                        />
+                      </Select>
+                    </div>
+                  )}
+
                   {[Providers.GITLAB, Providers.GITHUB].includes(
                     configuredConnection.provider
-                  ) && (!configuredProject) && (
+                  ) && !useDropdownSelector && (!configuredProject) && (
                     <>
                       <StandardStackedList
                         items={projects}
@@ -167,6 +262,7 @@ const DataTransformations = (props) => {
                         activeItem={configuredProject}
                         onAdd={addProjectTransformation}
                         onChange={addProjectTransformation}
+                        isEditing={transformationHasProperties}
                       />
                       {projects[configuredConnection.id].length === 0 && (
                         <NoData
@@ -181,7 +277,7 @@ const DataTransformations = (props) => {
 
                   {[Providers.JIRA].includes(
                     configuredConnection.provider
-                  ) && (!configuredBoard) && (
+                  ) && !useDropdownSelector && (!configuredBoard) && (
                     <>
                       <StandardStackedList
                         items={boards}
@@ -191,6 +287,7 @@ const DataTransformations = (props) => {
                         activeItem={configuredBoard}
                         onAdd={addBoardTransformation}
                         onChange={addBoardTransformation}
+                        isEditing={transformationHasProperties}
                       />
                       {boards[configuredConnection.id].length === 0 && (
                         <NoData
@@ -205,8 +302,12 @@ const DataTransformations = (props) => {
 
                   {(configuredProject || configuredBoard) && (
                     <div>
-                      <h4>Project</h4>
-                      <p style={{ color: '#292B3F' }}>{configuredProject || configuredBoard?.name || '< select a project >'}</p>
+                      {!useDropdownSelector && (
+                        <>
+                          <h4>Project</h4>
+                          <p style={{ color: '#292B3F' }}>{configuredProject || configuredBoard?.name || '< select a project >'}</p>
+                        </>
+                      )}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h4 style={{ margin: 0 }}>
                           Data Transformation Rules
@@ -234,24 +335,23 @@ const DataTransformations = (props) => {
                       ) && (
                         <ProviderTransformationSettings
                           provider={integrationsData.find(i => i.id === configuredConnection?.provider)}
+                          blueprint={blueprint}
                           connection={configuredConnection}
                           configuredProject={configuredProject}
                           configuredBoard={configuredBoard}
                           issueTypes={issueTypes}
                           fields={fields}
                           boards={boards}
+                          projects={projects}
                           entities={dataEntities}
                           transformation={activeTransformation}
-                          newTransformation={newTransformation}
-                          setNewTransformation={setNewTransformation}
-                          changeTransformation={changeTransformation}
+                          transformations={transformations}
                           onSettingsChange={setTransformationSettings}
-                          // onSettingsChange={changeTransformation}
                           entity={DataEntityTypes.TICKET}
                           isSaving={isSaving}
+                          isFetchingJIRA={isFetchingJIRA}
                           isSavingConnection={isSavingConnection}
                           jiraProxyError={jiraProxyError}
-                          isFetchingJIRA={isFetchingJIRA}
                         />
                       )}
 
@@ -271,15 +371,17 @@ const DataTransformations = (props) => {
                           disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
                           style={{ marginLeft: '5px' }}
                         /> */}
-                        <Button
-                          text='Go Back'
-                          intent={Intent.PRIMARY}
-                          small
-                          outlined
-                          onClick={() => onSave()}
-                          disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
-                          style={{ marginLeft: '5px' }}
-                        />
+                        {enableGoBack && (
+                          <Button
+                            text='Go Back'
+                            intent={Intent.PRIMARY}
+                            small
+                            outlined
+                            onClick={() => onSave()}
+                            // disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
+                            style={{ marginLeft: '5px' }}
+                          />
+                        )}
                       </div>
                     </div>
                   )}
