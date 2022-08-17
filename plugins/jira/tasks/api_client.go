@@ -36,12 +36,6 @@ func NewJiraApiClient(taskCtx core.TaskContext, connection *models.JiraConnectio
 	if err != nil {
 		return nil, err
 	}
-	apiClient.SetAfterFunction(func(res *http.Response) error {
-		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("authentication failed, please check your AccessToken")
-		}
-		return nil
-	})
 
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
