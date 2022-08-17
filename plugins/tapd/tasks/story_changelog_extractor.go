@@ -56,22 +56,39 @@ func ExtractStoryChangelog(taskCtx core.SubTaskContext) error {
 			for _, fc := range storyChangelog.FieldChanges {
 				var item models.TapdStoryChangelogItem
 				var valueAfterMap interface{}
-				if err = json.Unmarshal(fc.ValueAfterParsed, &valueAfterMap); err != nil {
-					return nil, err
+				var valueBeforeMap interface{}
+				if fc.ValueAfterParsed == nil {
+					if err = json.Unmarshal(fc.ValueAfter, &valueAfterMap); err != nil {
+						return nil, err
+					}
+				} else {
+					if err = json.Unmarshal(fc.ValueAfterParsed, &valueAfterMap); err != nil {
+						return nil, err
+					}
+				}
+				if fc.ValueBeforeParsed == nil {
+					if err = json.Unmarshal(fc.ValueBefore, &valueBeforeMap); err != nil {
+						return nil, err
+					}
+				} else {
+					if err = json.Unmarshal(fc.ValueBeforeParsed, &valueBeforeMap); err != nil {
+						return nil, err
+					}
 				}
 				switch valueAfterMap.(type) {
 				case map[string]interface{}:
-					valueBeforeMap := map[string]string{}
-					err = json.Unmarshal(fc.ValueBeforeParsed, &valueBeforeMap)
-					if err != nil {
-						return nil, err
-					}
 					for k, v := range valueAfterMap.(map[string]interface{}) {
 						item.ConnectionId = data.Options.ConnectionId
 						item.ChangelogId = storyChangelog.Id
 						item.Field = k
 						item.ValueAfterParsed = v.(string)
-						item.ValueBeforeParsed = valueBeforeMap[k]
+						switch valueBeforeMap.(type) {
+						case map[string]interface{}:
+							item.ValueBeforeParsed = valueBeforeMap.(map[string]interface{})[k].(string)
+						default:
+							item.ValueBeforeParsed = valueBeforeMap.(string)
+						}
+						results = append(results, &item)
 					}
 				default:
 					item.ConnectionId = data.Options.ConnectionId
