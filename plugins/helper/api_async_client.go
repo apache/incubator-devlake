@@ -239,6 +239,7 @@ type RateLimitedApiClient interface {
 	HasError() bool
 	NextTick(task func() error)
 	GetNumOfWorkers() int
+	GetAfterFunction() common.ApiClientAfterResponse
 	SetAfterFunction(callback common.ApiClientAfterResponse)
 	Release()
 }

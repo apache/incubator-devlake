@@ -109,22 +109,22 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	if args.ResponseParser == nil {
 		return nil, fmt.Errorf("ResponseParser is required")
 	}
-	apicllector := &ApiCollector{
+	apiCollector := &ApiCollector{
 		RawDataSubTask: rawDataSubTask,
 		args:           &args,
 		urlTemplate:    tpl,
 	}
 	if args.AfterResponse != nil {
-		apicllector.SetAfterResponse(args.AfterResponse)
-	} else {
-		apicllector.SetAfterResponse(func(res *http.Response) error {
+		apiCollector.SetAfterResponse(args.AfterResponse)
+	} else if apiCollector.GetAfterResponse() == nil {
+		apiCollector.SetAfterResponse(func(res *http.Response) error {
 			if res.StatusCode == http.StatusUnauthorized {
 				return fmt.Errorf("authentication failed, please check your AccessToken")
 			}
 			return nil
 		})
 	}
-	return apicllector, nil
+	return apiCollector, nil
 }
 
 // Execute will start collection
@@ -303,7 +303,12 @@ func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (str
 	return buf.String(), nil
 }
 
-// SetAfterResponse FIXME ...
+// GetAfterResponse return apiClient's afterResponseFunction
+func (collector *ApiCollector) GetAfterResponse() common.ApiClientAfterResponse {
+	return collector.args.ApiClient.GetAfterFunction()
+}
+
+// SetAfterResponse set apiClient's afterResponseFunction
 func (collector *ApiCollector) SetAfterResponse(f common.ApiClientAfterResponse) {
 	collector.args.ApiClient.SetAfterFunction(f)
 }
