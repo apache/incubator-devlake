@@ -264,10 +264,7 @@ func RunPluginSubTasks(
 		}
 		err = runSubtask(logger, db, taskID, subtaskNumber, subtaskCtx, subtaskMeta.EntryPoint)
 		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: subtaskMeta.Name,
-				Message:     err.Error(),
-			}
+			return errors.SubtaskErr.Wrap(err, fmt.Sprintf("subtask %s ended unexpectedly", subtaskMeta.Name))
 		}
 		taskCtx.IncProgress(1)
 	}
