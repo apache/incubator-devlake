@@ -45,6 +45,14 @@ func (plugin AE) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) erro
 	api.Init(config, logger, db)
 	return nil
 }
+func (plugin AE) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{
+		&models.AECommit{},
+		&models.AEProject{},
+		&models.AeConnection{},
+		&models.AeResponse{},
+	}
+}
 
 func (plugin AE) Description() string {
 	return "To collect and enrich data from AE"

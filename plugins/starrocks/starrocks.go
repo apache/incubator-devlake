@@ -40,6 +40,10 @@ func (s StarRocks) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	return &op, nil
 }
 
+func (plugin StarRocks) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
+}
+
 func (s StarRocks) Description() string {
 	return "Sync data from database to StarRocks"
 }

@@ -54,8 +54,8 @@ type AccessToken struct {
 
 // AppKey FIXME ...
 type AppKey struct {
-	AppId     string `mapstructure:"app_id" validate:"required" json:"app_id"`
-	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secret_key" encrypt:"yes"`
+	AppId     string `mapstructure:"app_id" validate:"required" json:"appId"`
+	SecretKey string `mapstructure:"secret_key" validate:"required" json:"secretKey" encrypt:"yes"`
 }
 
 // RestConnection FIXME ...
@@ -63,7 +63,7 @@ type RestConnection struct {
 	BaseConnection   `mapstructure:",squash"`
 	Endpoint         string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
 	Proxy            string `mapstructure:"proxy" json:"proxy"`
-	RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimit"`
+	RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimitPerHour"`
 }
 
 // ConnectionApiHelper is used to write the CURD of connection

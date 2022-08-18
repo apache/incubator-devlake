@@ -20,7 +20,8 @@ const defaultConfig = [
     {
       Plugin: 'gitlab',
       Options: {
-        projectId: 8967944
+        projectId: 8967944,
+        connectionId: 1
       }
     },
     {
@@ -32,13 +33,16 @@ const defaultConfig = [
     },
     {
       Plugin: 'jenkins',
-      Options: {}
+      Options: {
+        connectionId: 1
+      }
     },
     {
       Plugin: 'github',
       Options: {
         repo: 'lake',
-        owner: 'merico-dev'
+        owner: 'merico-dev',
+        connectionId: 1
       }
     }
   ]

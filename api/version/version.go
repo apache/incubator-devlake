@@ -26,7 +26,7 @@ import (
 
 // @Summary Get the version of lake
 // @Description return a object
-// @Tags version
+// @Tags framework/version
 // @Accept application/json
 // @Success 200  {string} json ""
 // @Failure 400  {string} errcode.Error "Bad Request"

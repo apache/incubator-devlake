@@ -40,7 +40,7 @@ const NullBlueprint = {
   ],
   // Normal mode uses settings
   settings: {
-    version: '1.0',
+    version: '1.0.0',
     connections: []
   },
   cronConfig: '0 0 * * *',

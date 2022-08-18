@@ -49,6 +49,48 @@ func (plugin Tapd) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 	return nil
 }
 
+func (plugin Tapd) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{
+		&models.TapdAccount{},
+		&models.TapdBug{},
+		&models.TapdBugChangelog{},
+		&models.TapdBugChangelogItem{},
+		&models.TapdBugCommit{},
+		&models.TapdBugCustomFields{},
+		&models.TapdBugLabel{},
+		&models.TapdBugStatus{},
+		&models.TapdConnection{},
+		&models.TapdConnectionDetail{},
+		&models.TapdIssue{},
+		&models.TapdIteration{},
+		&models.TapdIterationBug{},
+		&models.TapdIterationStory{},
+		&models.TapdIterationTask{},
+		&models.TapdStory{},
+		&models.TapdStoryBug{},
+		&models.TapdStoryCategory{},
+		&models.TapdStoryChangelog{},
+		&models.TapdStoryChangelogItem{},
+		&models.TapdStoryCommit{},
+		&models.TapdStoryCustomFields{},
+		&models.TapdStoryLabel{},
+		&models.TapdStoryStatus{},
+		&models.TapdSubWorkspace{},
+		&models.TapdTask{},
+		&models.TapdTaskChangelog{},
+		&models.TapdTaskChangelogItem{},
+		&models.TapdTaskCommit{},
+		&models.TapdTaskCustomFields{},
+		&models.TapdTaskLabel{},
+		&models.TapdWorkSpaceBug{},
+		&models.TapdWorkSpaceStory{},
+		&models.TapdWorkSpaceTask{},
+		&models.TapdWorklog{},
+		&models.TapdWorkspace{},
+		&models.TapdWorkspaceIteration{},
+	}
+}
+
 func (plugin Tapd) Description() string {
 	return "To collect and enrich data from Tapd"
 }

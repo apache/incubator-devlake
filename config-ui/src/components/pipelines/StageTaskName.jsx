@@ -92,6 +92,7 @@ const StageTaskName = (props) => {
                   {task.plugin === Providers.GITEXTRACTOR && (<>{ProviderLabels.GITEXTRACTOR}</>)}
                   {task.plugin === Providers.FEISHU && (<>{ProviderLabels.FEISHU}</>)}
                   {task.plugin === Providers.JENKINS && (<>{ProviderLabels.JENKINS}</>)}
+                  {task.plugin === Providers.TAPD && (<>{ProviderLabels.TAPD}</>)}
                   {task.plugin === Providers.JIRA && (<>Board ID {task.options.boardId}</>)}
                   {task.plugin === Providers.GITLAB && (<>Project ID {task.options.projectId}</>)}
                   {task.plugin === Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>@{task.options.owner}/{task.options.repo}</>)}
@@ -133,7 +134,7 @@ const StageTaskName = (props) => {
                   </div>
                   <div style={{ marginLeft: '20px' }}>
                     <label style={{ color: Colors.GRAY2 }}>Created</label><br />
-                    <span>{dayjs(task.CreatedAt).format('L LT')}</span>
+                    <span>{dayjs(task.createdAt).format('L LT')}</span>
                   </div>
                   {task.finishedAt && (
                     <div style={{ marginLeft: '20px' }}>

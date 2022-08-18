@@ -47,7 +47,7 @@ type ApiClient struct {
 	endpoint      string
 	headers       map[string]string
 	beforeRequest common.ApiClientBeforeRequest
-	afterReponse  common.ApiClientAfterResponse
+	afterResponse common.ApiClientAfterResponse
 	ctx           context.Context
 	logger        core.Logger
 }
@@ -146,14 +146,24 @@ func (apiClient *ApiClient) GetHeaders() map[string]string {
 	return apiClient.headers
 }
 
-// SetBeforeFunction FIXME ...
+// GetBeforeFunction return beforeResponseFunction
+func (apiClient *ApiClient) GetBeforeFunction() common.ApiClientBeforeRequest {
+	return apiClient.beforeRequest
+}
+
+// SetBeforeFunction will set beforeResponseFunction
 func (apiClient *ApiClient) SetBeforeFunction(callback common.ApiClientBeforeRequest) {
 	apiClient.beforeRequest = callback
 }
 
-// SetAfterFunction FIXME ...
+// GetAfterFunction return afterResponseFunction
+func (apiClient *ApiClient) GetAfterFunction() common.ApiClientAfterResponse {
+	return apiClient.afterResponse
+}
+
+// SetAfterFunction will set afterResponseFunction
 func (apiClient *ApiClient) SetAfterFunction(callback common.ApiClientAfterResponse) {
-	apiClient.afterReponse = callback
+	apiClient.afterResponse = callback
 }
 
 // SetContext FIXME ...
@@ -250,8 +260,8 @@ func (apiClient *ApiClient) Do(
 	}
 
 	// after receive
-	if apiClient.afterReponse != nil {
-		err = apiClient.afterReponse(res)
+	if apiClient.afterResponse != nil {
+		err = apiClient.afterResponse(res)
 		if err == ErrIgnoreAndContinue {
 			res.Body.Close()
 			return res, err

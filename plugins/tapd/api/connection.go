@@ -33,46 +33,45 @@ import (
 
 // @Summary test tapd connection
 // @Description Test Tapd Connection
-// @Tags plugins/Tapd
+// @Tags plugins/tapd
 // @Param body body models.TestConnectionRequest true "json body"
-// @Success 200
+// @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/test [POST]
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// process input
-	var params models.TestConnectionRequest
-	err := mapstructure.Decode(input.Body, &params)
+	var connection models.TestConnectionRequest
+	err := mapstructure.Decode(input.Body, &connection)
 	if err != nil {
 		return nil, err
 	}
-	err = vld.Struct(params)
+	err = vld.Struct(connection)
 	if err != nil {
 		return nil, err
 	}
 
 	// verify multiple token in parallel
 	// PLEASE NOTE: This works because GitHub API Client rotates tokens on each request
-	token := params.Auth
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
-		params.Endpoint,
+		connection.Endpoint,
 		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %s", token),
+			"Authorization": fmt.Sprintf("Basic %s", connection.GetEncodedToken()),
 		},
 		3*time.Second,
-		params.Proxy,
+		connection.Proxy,
 		basicRes,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("verify token failed for %s %w", token, err)
+		return nil, fmt.Errorf("verify token failed for %s %w", connection.Username, err)
 	}
 	res, err := apiClient.Get("/quickstart/testauth", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, fmt.Errorf("verify token failed for %s", token)
+		return nil, fmt.Errorf("verify token failed for %s", connection.Username)
 	}
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
@@ -83,9 +82,9 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 
 // @Summary create tapd connection
 // @Description Create Tapd connection
-// @Tags plugins/Tapd
+// @Tags plugins/tapd
 // @Param body body models.TapdConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.TapdConnection "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections [POST]
@@ -105,9 +104,9 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 
 // @Summary patch tapd connection
 // @Description Patch Tapd connection
-// @Tags plugins/Tapd
+// @Tags plugins/tapd
 // @Param body body models.TapdConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.TapdConnection "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections/{connectionId} [PATCH]
@@ -123,8 +122,8 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 
 // @Summary delete a tapd connection
 // @Description Delete a Tapd connection
-// @Tags plugins/Tapd
-// @Success 200
+// @Tags plugins/tapd
+// @Success 200  {object} models.TapdConnection "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections/{connectionId} [DELETE]
@@ -140,8 +139,8 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 
 // @Summary get all tapd connections
 // @Description Get all Tapd connections
-// @Tags plugins/Tapd
-// @Success 200
+// @Tags plugins/tapd
+// @Success 200  {object} models.TapdConnection "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections [GET]
@@ -157,8 +156,8 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 
 // @Summary get tapd connection detail
 // @Description Get Tapd connection detail
-// @Tags plugins/Tapd
-// @Success 200
+// @Tags plugins/tapd
+// @Success 200  {object} models.TapdConnection "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections/{connectionId} [GET]
@@ -166,4 +165,54 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	connection := &models.TapdConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err
+}
+
+// @Summary blueprints setting for tapd
+// @Description blueprint setting for tapd
+// @Tags plugins/tapd
+// @Accept application/json
+// @Param blueprint body TapdBlueprintSetting true "json"
+// @Router /blueprints/tapd/blueprint-setting [post]
+func PostTapdBlueprintSetting(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &TapdBlueprintSetting{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type TapdBlueprintSetting []struct {
+	Version     string `json:"version"`
+	Connections []struct {
+		Plugin       string `json:"plugin"`
+		ConnectionID int    `json:"connectionId"`
+		Scope        []struct {
+			Options struct {
+				WorkspaceId uint64   `mapstruct:"workspaceId"`
+				CompanyId   uint64   `mapstruct:"companyId"`
+				Tasks       []string `mapstruct:"tasks,omitempty"`
+				Since       string
+			} `json:"options"`
+			Entities []string `json:"entities"`
+		} `json:"scope"`
+	} `json:"connections"`
+}
+
+// @Summary pipelines plan for tapd
+// @Description pipelines plan for tapd
+// @Tags plugins/tapd
+// @Accept application/json
+// @Param blueprint body TapdPipelinePlan true "json"
+// @Router /pipelines/tapd/pipeline-plan [post]
+func PostTapdPipelinePlan(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &TapdPipelinePlan{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type TapdPipelinePlan [][]struct {
+	Plugin   string   `json:"plugin"`
+	Subtasks []string `json:"subtasks"`
+	Options  struct {
+		WorkspaceId uint64   `mapstruct:"workspaceId"`
+		CompanyId   uint64   `mapstruct:"companyId"`
+		Tasks       []string `mapstruct:"tasks,omitempty"`
+		Since       string
+	} `json:"options"`
 }

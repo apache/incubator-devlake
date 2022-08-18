@@ -33,7 +33,7 @@ import (
 // @Description Test gitlab Connection
 // @Tags plugins/gitlab
 // @Param body body models.TestConnectionRequest true "json body"
-// @Success 200
+// @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/gitlab/test [POST]
@@ -85,7 +85,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 // @Description Create gitlab connection
 // @Tags plugins/gitlab
 // @Param body body models.GitlabConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.GitlabConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/gitlab/connections [POST]
@@ -103,7 +103,7 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Description Patch gitlab connection
 // @Tags plugins/gitlab
 // @Param body body models.GitlabConnection true "json body"
-// @Success 200
+// @Success 200  {object} models.GitlabConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/gitlab/connections/{connectionId} [PATCH]
@@ -119,7 +119,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Summary delete a gitlab connection
 // @Description Delete a gitlab connection
 // @Tags plugins/gitlab
-// @Success 200
+// @Success 200  {object} models.GitlabConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/gitlab/connections/{connectionId} [DELETE]
@@ -136,7 +136,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 // @Summary get all gitlab connections
 // @Description Get all gitlab connections
 // @Tags plugins/gitlab
-// @Success 200
+// @Success 200  {object} []models.GitlabConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/gitlab/connections [GET]
@@ -152,7 +152,7 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Summary get gitlab connection detail
 // @Description Get gitlab connection detail
 // @Tags plugins/gitlab
-// @Success 200
+// @Success 200  {object} models.GitlabConnection
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/gitlab/connections/{connectionId} [GET]
@@ -160,4 +160,53 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 	connection := &models.GitlabConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err
+}
+
+// @Summary blueprints setting for gitlab
+// @Description blueprint setting for gitlab
+// @Tags plugins/gitlab
+// @Accept application/json
+// @Param blueprint body GitlabBlueprintSetting true "json"
+// @Router /blueprints/gitlab/blueprint-setting [post]
+func PostGitlabBluePrint(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &GitlabBlueprintSetting{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type GitlabBlueprintSetting []struct {
+	Version     string `json:"version"`
+	Connections []struct {
+		Plugin       string `json:"plugin"`
+		ConnectionID int    `json:"connectionId"`
+		Scope        []struct {
+			Transformation models.TransformationRules `json:"transformation"`
+			Options        struct {
+				ProjectId int `json:"projectId"`
+				Since     string
+			} `json:"options"`
+			Entities []string `json:"entities"`
+		} `json:"scope"`
+	} `json:"connections"`
+}
+
+// @Summary pipelines plan for gitlab
+// @Description pipelines plan for gitlab
+// @Tags plugins/gitlab
+// @Accept application/json
+// @Param blueprint body GitlabPipelinePlan true "json"
+// @Router /pipelines/gitlab/pipeline-plan [post]
+func PostGitlabPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &GitlabPipelinePlan{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type GitlabPipelinePlan [][]struct {
+	Plugin   string   `json:"plugin"`
+	Subtasks []string `json:"subtasks"`
+	Options  struct {
+		ConnectionID   int `json:"connectionId"`
+		ProjectId      int `json:"projectId"`
+		Since          string
+		Transformation models.TransformationRules `json:"transformation"`
+	} `json:"options"`
 }

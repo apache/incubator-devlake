@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { ToastNotification } from '@/components/Toast'
@@ -30,12 +30,13 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
   const [isDeleting, setIsDeleting] = useState(false)
   const [blueprints, setBlueprints] = useState([])
   const [blueprintCount, setBlueprintCount] = useState(0)
-  const [blueprint, setBlueprint] = useState(null)
+  const [blueprint, setBlueprint] = useState(NullBlueprint)
   const [errors, setErrors] = useState([])
 
   const [name, setName] = useState('MY BLUEPRINT')
   const [cronConfig, setCronConfig] = useState('0 0 * * *')
   const [customCronConfig, setCustomCronConfig] = useState('0 0 * * *')
+  const [interval, setInterval] = useState('daily')
   const [tasks, setTasks] = useState([])
   const [settings, setSettings] = useState({
     version: '1.0.0',
@@ -125,15 +126,16 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
         const b = await request.get(`${DEVLAKE_ENDPOINT}/blueprints/${blueprintId}`)
         const blueprintData = b.data
         console.log('>> RAW BLUEPRINT DATA FROM API...', b)
-        setBlueprint(b => ({
-          ...b,
+        setBlueprint(B => (b?.status === 200 ? {
+          ...B,
           ...blueprintData,
           id: blueprintData.id,
           enable: blueprintData.enable,
           status: 0,
           nextRunAt: null, // @todo: calculate next run date
           interval: detectCronInterval(blueprintData.cronConfig)
-        }))
+        } : NullBlueprint))
+        setErrors(b.status !== 200 ? [b.data] : [])
         setTimeout(() => {
           setIsFetching(false)
         }, 500)
@@ -257,6 +259,26 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     return newCron
   }
 
+  const patchBlueprint = useCallback(async (blueprint, settings = {}, callback = () => {}) => {
+    try {
+      setIsSaving(true)
+      setErrors([])
+      console.log('>> TRYING TO PATCH BLUEPRINT...', blueprint)
+      const p = await request.patch(`${DEVLAKE_ENDPOINT}/blueprints/${blueprint.id}`, settings)
+      console.log('>> BLUEPRINT PATCHED...', p)
+      setBlueprint(b => ({ ...b, ...p?.data, interval: detectCronInterval(p?.data?.cronConfig) }))
+      setIsSaving(false)
+      setSaveComplete({ status: p.status, data: p.data || null })
+      callback(p)
+    } catch (e) {
+      setIsSaving(false)
+      setSaveComplete(null)
+      setErrors([e.message])
+      callback(e)
+      console.log('>> FAILED TO PATCH BLUEPRINT', e)
+    }
+  }, [detectCronInterval])
+
   const getCronSchedule = useCallback((cronExpression, events = 5) => {
     let schedule = []
     try {
@@ -369,11 +391,13 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     detectedProviderTasks,
     enable,
     mode,
+    interval,
     rawConfiguration,
     saveBlueprint,
     deleteBlueprint,
     fetchAllBlueprints,
     fetchBlueprint,
+    patchBlueprint,
     saveComplete,
     deleteComplete,
     createCronExpression,
@@ -395,6 +419,7 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     setDetectedProviderTasks,
     setIsManual,
     setRawConfiguration,
+    setInterval,
     isFetching,
     isSaving,
     isDeleting,

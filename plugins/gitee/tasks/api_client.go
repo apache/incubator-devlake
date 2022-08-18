@@ -42,13 +42,6 @@ func NewGiteeApiClient(taskCtx core.TaskContext, connection *models.GiteeConnect
 		return nil
 	})
 
-	apiClient.SetAfterFunction(func(res *http.Response) error {
-		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("authentication failed, please check your Basic Auth Token")
-		}
-		return nil
-	})
-
 	rateLimiter := &helper.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
 		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {

@@ -19,8 +19,6 @@ package tasks
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -36,13 +34,6 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.JenkinsConnect
 	if err != nil {
 		return nil, err
 	}
-
-	apiClient.SetAfterFunction(func(res *http.Response) error {
-		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("authentication failed, please check your Username/Password")
-		}
-		return nil
-	})
 
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{

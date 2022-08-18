@@ -37,7 +37,7 @@ GET /repos
 */
 // @Summary Get all repos from database
 // @Description Get all repos from database
-// @Tags Domainlayer
+// @Tags framework/domainlayer
 // @Accept application/json
 // @Success 200  {object} gin.H "{"repos": repos, "count": count}"
 // @Failure 400  {string} errcode.Error "Bad Request"

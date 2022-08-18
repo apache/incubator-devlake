@@ -257,6 +257,7 @@ export default function GithubSettings (props) {
                 >
                   <NumericInput
                     id='refdiff-tags-limit'
+                    disabled={isSaving || isSavingConnection}
                     fill={true}
                     placeholder='10'
                     allowNumericCharactersOnly={true}

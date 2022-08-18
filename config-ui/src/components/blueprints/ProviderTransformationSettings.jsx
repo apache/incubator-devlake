@@ -27,17 +27,21 @@ import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
+import TapdSettings from '@/pages/configure/settings/tapd'
 import GithubSettings from '@/pages/configure/settings/github'
 
 const ProviderTransformationSettings = (props) => {
   const {
     provider,
+    blueprint,
     connection,
     configuredProject,
     configuredBoard,
+    transformations = {},
     transformation = {},
     newTransformation = {},
-    boards = [],
+    boards = {},
+    projects = {},
     entities = {},
     issueTypes = [],
     fields = [],
@@ -56,6 +60,7 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={connection}
           configuredProject={configuredProject}
+          projects={projects}
           transformation={transformation}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
@@ -69,6 +74,7 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={connection}
           configuredProject={configuredProject}
+          projects={projects}
           transformation={transformation}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
@@ -80,13 +86,14 @@ const ProviderTransformationSettings = (props) => {
       {provider?.id === Providers.JIRA && (
         <JiraSettings
           provider={provider}
+          blueprint={blueprint}
           connection={connection}
           configuredBoard={configuredBoard}
           boards={boards}
           issueTypes={issueTypes}
           fields={fields}
           transformation={transformation}
-          newTransformation={newTransformation}
+          transformations={transformations}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}
@@ -98,6 +105,17 @@ const ProviderTransformationSettings = (props) => {
 
       {provider?.id === Providers.JENKINS && (
         <JenkinsSettings
+          provider={provider}
+          connection={connection}
+          transformation={transformation}
+          onSettingsChange={onSettingsChange}
+          entities={entities[connection?.id]}
+          isSaving={isSaving}
+          isSavingConnection={isSavingConnection}
+        />
+      )}
+      {provider?.id === Providers.TAPD && (
+        <TapdSettings
           provider={provider}
           connection={connection}
           transformation={transformation}

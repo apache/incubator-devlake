@@ -57,36 +57,43 @@ const DataSync = (props) => {
     createCron = () => {},
     setCustomCronConfig = () => {},
     getCronPresetByConfig = () => {},
-    advancedMode = false
+    advancedMode = false,
+    enableHeader = true,
+    elevation = Elevation.TWO,
+    cardStyle = {}
   } = props
 
   return (
     <div className='workflow-step workflow-step-set-sync-frequency' data-step={activeStep?.id}>
-      <Card className='workflow-card' elevation={Elevation.TWO}>
-        <h3 style={{ marginBottom: '8px' }}>Set Sync Frequency</h3>
-        {getCronPresetByConfig(cronConfig)
-          ? (
-            <p
-              style={{
-                display: 'block',
-              }}
-            >
-              <strong>Automated</strong> &mdash;{' '}
-              {getCronPresetByConfig(cronConfig).description}
-            </p>
-            )
-          : (
-            <small
-              style={{
-                fontSize: '10px',
-                color: Colors.GRAY2,
-                textTransform: 'uppercase',
-              }}
-            >
-              {cronConfig}
-            </small>
-            )}
-        <Divider className='section-divider' />
+      <Card className='workflow-card' elevation={elevation} style={{ ...cardStyle }}>
+        {enableHeader && (
+          <>
+            <h3 style={{ marginBottom: '8px' }}>Set Sync Frequency</h3>
+            {getCronPresetByConfig(cronConfig)
+              ? (
+                <p
+                  style={{
+                    display: 'block',
+                  }}
+                >
+                  <strong>Automated</strong> &mdash;{' '}
+                  {getCronPresetByConfig(cronConfig).description}
+                </p>
+                )
+              : (
+                <small
+                  style={{
+                    fontSize: '10px',
+                    color: Colors.GRAY2,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {cronConfig}
+                </small>
+                )}
+            <Divider className='section-divider' />
+          </>
+        )}
 
         <h4>Frequency</h4>
         <p>Blueprints will run recurringly based on the sync frequency.</p>
@@ -264,21 +271,13 @@ const DataSync = (props) => {
           </div>
         </div>
 
-        {cronConfig !== 'manual' && (
+        {/* {cronConfig !== 'manual' && (
           <div>
             <Divider
               className='section-divider'
               style={{ marginTop: ' 20px' }}
             />
             <div>
-              {/* <Button */}
-              {/*   text='View Schedule' */}
-              {/*   icon='time' */}
-              {/*   intent={Intent.NONE} */}
-              {/*   small */}
-              {/*   style={{ float: 'right', fontSize: '11px' }} */}
-              {/* /> */}
-
               <h4 style={{ marginRight: 0, marginBottom: 0 }}>Next Run Date</h4>
             </div>
             <div style={{ fontSize: '14px', fontWeight: 800 }}>
@@ -303,7 +302,7 @@ const DataSync = (props) => {
               </span>
             </div>
           </div>
-        )}
+        )} */}
       </Card>
     </div>
   )

@@ -74,6 +74,7 @@ const DataConnections = (props) => {
         setBlueprintName={setBlueprintName}
         fieldHasError={fieldHasError}
         getFieldError={getFieldError}
+        isSaving={isSaving}
       />
       <Card
         className='workflow-card'

@@ -57,9 +57,12 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	queryKey := "accountId"
+	urlTemplate := "api/2/user"
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 		queryKey = "username"
+		urlTemplate = "api/2/user/search"
 	}
+
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -71,7 +74,7 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
-		UrlTemplate: "api/2/user",
+		UrlTemplate: urlTemplate,
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			user := reqData.Input.(*models.JiraAccount)
 			query := url.Values{}
@@ -79,12 +82,22 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			var result json.RawMessage
-			err := helper.UnmarshalResponse(res, &result)
-			if err != nil {
-				return nil, err
+			if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+				var results []json.RawMessage
+				err := helper.UnmarshalResponse(res, &results)
+				if err != nil {
+					return nil, err
+				}
+
+				return results, nil
+			} else {
+				var result json.RawMessage
+				err := helper.UnmarshalResponse(res, &result)
+				if err != nil {
+					return nil, err
+				}
+				return []json.RawMessage{result}, nil
 			}
-			return []json.RawMessage{result}, nil
 		},
 	})
 	if err != nil {

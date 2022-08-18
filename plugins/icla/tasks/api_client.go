@@ -19,8 +19,6 @@ package tasks
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/utils"
@@ -48,14 +46,6 @@ func NewIclaApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) 
 	// set token
 	apiClient.SetHeaders(map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %v", token),
-	})
-
-	// TODO add some check after request if necessary
-	apiClient.SetAfterFunction(func(res *http.Response) error {
-		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("authentication failed, please check your Bearer Auth Token")
-		}
-		return nil
 	})
 
 	// create async api client

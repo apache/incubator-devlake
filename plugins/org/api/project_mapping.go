@@ -30,7 +30,7 @@ import (
 // @Tags 		 plugins/org
 // @Produce      text/csv
 // @Param        fake_data    query     bool  false  "return fake data or not"
-// @Success      200
+// @Success      200 {object} core.ApiResourceOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router       /plugins/org/project_mapping.csv [get]

@@ -197,3 +197,8 @@ button, .bp3-button {
   color: #7497F7;
 }
 
+.bp3-card {
+  &.bp3-elevation-0 {
+    box-shadow: none;
+  }
+}

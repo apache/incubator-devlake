@@ -17,8 +17,9 @@
  */
 const NullPipelineTask = {
   ID: null,
-  CreatedAt: null,
-  UpdatedAt: null,
+  id: null,
+  createdAt: null,
+  updatedAt: null,
   plugin: null,
   options: {
   },
@@ -31,7 +32,6 @@ const NullPipelineTask = {
   beganAt: null,
   finishedAt: null,
   spentSeconds: 0
-
 }
 
 export {

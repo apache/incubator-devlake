@@ -37,26 +37,14 @@ const StandardStackedList = (props) => {
     addButtonText = 'Add Transformation',
     onAdd = () => {},
     onChange = () => {},
-    style = { padding: 0, marginTop: '10px' }
+    isEditing = () => {},
+    style = { padding: 0, marginTop: '10px' },
   } = props
-
-  const isEditing = useCallback((item) => {
-    const storedTransform = transformations[item] || transformations[item?.id]
-    return Object.values(storedTransform).some(v => v && v.length > 0)
-  }, [transformations])
-
-  // useEffect(() => {
-  //   console.log('>>> Selector List Transformations...', transformations, activeItem)
-  // }, [transformations, activeItem])
 
   return (
     <>
       {items[connection.id]?.length > 0 && (
-        <Card
-          className={className}
-          elevation={Elevation.ZERO}
-          style={style}
-        >
+        <Card className={className} elevation={Elevation.ZERO} style={style}>
           {items[connection.id]?.map((item, pIdx) => (
             <div
               className='item-entry'
@@ -71,14 +59,17 @@ const StandardStackedList = (props) => {
                 padding: '8px 12px',
                 borderBottom: '1px solid #f0f0f0',
                 backgroundColor:
-                  activeItem === item
-                    ? 'rgba(116, 151, 247, 0.2)'
-                    : '#fff',
+                  activeItem === item ? 'rgba(116, 151, 247, 0.2)' : '#fff',
               }}
             >
               <div>
                 <div className='item-name' style={{ fontWeight: 600 }}>
-                  <label onClick={() => onAdd(item)} style={{ cursor: 'pointer' }}>{item?.name || item}</label>
+                  <label
+                    onClick={() => onAdd(item)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {item?.name || item}
+                  </label>
                 </div>
               </div>
               <div
@@ -87,19 +78,11 @@ const StandardStackedList = (props) => {
                   alignContent: 'center',
                 }}
               >
-                <div
-                  className='item-actions'
-                  style={{ paddingLeft: '20px' }}
-                >
+                <div className='item-actions' style={{ paddingLeft: '20px' }}>
                   <Button
                     intent={Intent.PRIMARY}
                     className='item-action-transformation'
-                    icon={
-                      <Icon
-                        size={12}
-                        color={Colors.BLUE4}
-                      />
-                    }
+                    icon={<Icon size={12} color={Colors.BLUE4} />}
                     text={isEditing(item) ? editButtonText : addButtonText}
                     color={Colors.BLUE3}
                     small
