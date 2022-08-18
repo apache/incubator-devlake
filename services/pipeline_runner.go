@@ -112,11 +112,11 @@ func runPipeline(pipelineId uint64) error {
 		err = pipelineRun.runPipelineStandalone()
 	}
 	if err != nil {
-		return fmt.Errorf("error running pipeline %d: %v", pipelineId, err)
+		err = fmt.Errorf("error running pipeline %d: %v", pipelineId, err)
 	}
-	pipeline, err = GetPipeline(pipelineId)
-	if err != nil {
-		return err
+	pipeline, e := GetPipeline(pipelineId)
+	if e != nil {
+		return fmt.Errorf("unable to get pipeline %d: %v", pipelineId, err)
 	}
 	// finished, update database
 	finishedAt := time.Now()
