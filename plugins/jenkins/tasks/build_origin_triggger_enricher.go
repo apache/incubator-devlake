@@ -20,58 +20,55 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"strconv"
-	"strings"
+	"reflect"
 )
 
 // this struct should be moved to `gitub_api_common.go`
 
-var EnrichApiBuildsMeta = core.SubTaskMeta{
-	Name:             "enrichApiBuilds",
-	EntryPoint:       EnrichApiBuilds,
+var EnrichApiBuildOriginTriggerMeta = core.SubTaskMeta{
+	Name:             "enrichApiBuildOriginTrigger",
+	EntryPoint:       EnrichApiBuildOriginTrigger,
 	EnabledByDefault: true,
-	Description:      "Enrich  jenkins_builds",
+	Description:      "Enrich jenkins build with origin trigger",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func EnrichApiBuilds(taskCtx core.SubTaskContext) error {
+func EnrichApiBuildOriginTrigger(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
-		dal.Select("distinct build_name"),
-		dal.From(&models.JenkinsStage{}),
+		dal.From(&models.JenkinsBuild{}),
 		dal.Where("connection_id = ?", data.Options.ConnectionId),
-		dal.Groupby("build_name"),
 	}
 	cursor, err := db.Cursor(clauses...)
-	defer cursor.Close()
 	taskCtx.SetProgress(0, -1)
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.JenkinsBuild{}))
+	if err != nil {
+		return err
+	}
+	defer iterator.Close()
+	for iterator.HasNext() {
+		i, err := iterator.Fetch()
+		build := i.(*models.JenkinsBuild)
 
-	for cursor.Next() {
-		var buildName string
-		err = cursor.Scan(&buildName)
-		if err != nil {
-			return err
-		}
-		if buildName == "" {
+		if build.TriggeredBy == "" {
 			continue
 		}
-		build := &models.JenkinsBuild{}
-		build.ConnectionId = data.Options.ConnectionId
-		str := strings.Split(buildName, "#")
-		build.JobName = strings.TrimSpace(str[0])
-		number, err := strconv.Atoi(strings.TrimSpace(str[1]))
-		if err != nil {
-			return err
+		buildTmp := &models.JenkinsBuild{}
+		buildTmp.DisplayName = build.TriggeredBy
+		for {
+			err = db.First(buildTmp)
+			if err != nil {
+				return err
+			}
+			if buildTmp.TriggeredBy == "" {
+				break
+			}
+			buildTmp.DisplayName = buildTmp.TriggeredBy
 		}
-		build.Number = int64(number)
-		err = db.First(build)
-		if err != nil {
-			return err
-		}
-		build.HasStages = true
-
+		build.TriggeredBy = buildTmp.DisplayName
 		err = db.Update(build)
 		if err != nil {
 			return err

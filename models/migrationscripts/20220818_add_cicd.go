@@ -29,6 +29,7 @@ type addCICD struct{}
 
 func (*addCICD) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().AutoMigrate(
+		&CICDPipelineRepo{},
 		&CICDPipeline{},
 		&CICDTask{},
 	)
@@ -40,7 +41,7 @@ func (*addCICD) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*addCICD) Version() uint64 {
-	return 20220803232735
+	return 20220818232735
 }
 
 func (*addCICD) Name() string {
@@ -79,4 +80,15 @@ type CICDTask struct {
 
 func (CICDTask) TableName() string {
 	return "cicd_tasks"
+}
+
+type CICDPipelineRepo struct {
+	archived.DomainEntity
+	CommitSha string `gorm:"primaryKey;type:varchar(255)"`
+	Branch    string `gorm:"type:varchar(255)"`
+	RepoUrl   string `gorm:"type:varchar(255)"`
+}
+
+func (CICDPipelineRepo) TableName() string {
+	return "cicd_pipeline_repos"
 }

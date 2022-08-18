@@ -19,37 +19,16 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"reflect"
 	"time"
 
-	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
-
-type JenkinsBuildWithRepo struct {
-	// collected fields
-	ConnectionId      uint64    `gorm:"primaryKey"`
-	Duration          float64   // build time
-	DisplayName       string    `gorm:"type:varchar(255)"` // "#7"
-	EstimatedDuration float64   // EstimatedDuration
-	Number            int64     `gorm:"primaryKey"`
-	Result            string    // Result
-	Timestamp         int64     // start time
-	StartTime         time.Time // convered by timestamp
-	CommitSha         string    `gorm:"type:varchar(255)"`
-	Type              string    `gorm:"index;type:varchar(255)"`
-	Class             string    `gorm:"index;type:varchar(255)" `
-	TriggeredBy       string    `gorm:"type:varchar(255)"`
-	Building          bool
-	Branch            string `gorm:"type:varchar(255)"`
-	RepoUrl           string `gorm:"type:varchar(255)"`
-	HasStages         bool
-	common.NoPKModel
-}
 
 var ConvertBuildsToCICDMeta = core.SubTaskMeta{
 	Name:             "convertBuildsToCICD",
@@ -64,13 +43,8 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
 
 	clauses := []dal.Clause{
-		dal.Select(`tjb.connection_id, tjb.duration, tjb.display_name, tjb.estimated_duration, tjb.number,
-			tjb._raw_data_remark, tjb._raw_data_id, tjb._raw_data_table, tjb._raw_data_params,
-			tjb.result, tjb.timestamp, tjb.start_time, tjbr.commit_sha, tjb.type, tjb.class, 
-			tjb.triggered_by, tjb.building, tjbr.branch, tjbr.repo_url, tjb.has_stages`),
-		dal.From("_tool_jenkins_builds tjb"),
-		dal.Join("left join _tool_jenkins_build_repos tjbr on tjbr.build_name = tjb.display_name"),
-		dal.Where("tjb.connection_id = ?", data.Options.ConnectionId),
+		dal.From("_tool_jenkins_builds"),
+		dal.Where("_tool_jenkins_builds.connection_id = ?", data.Options.ConnectionId),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -79,7 +53,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(JenkinsBuildWithRepo{}),
+		InputRowType: reflect.TypeOf(models.JenkinsBuild{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
@@ -89,85 +63,69 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 			Table: RAW_BUILD_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			jenkinsBuildWithRepo := inputRow.(*JenkinsBuildWithRepo)
-			durationSec := int64(jenkinsBuildWithRepo.Duration / 1000)
+			jenkinsBuild := inputRow.(*models.JenkinsBuild)
+			durationSec := int64(jenkinsBuild.Duration / 1000)
 			jenkinsPipelineResult := ""
 			jenkinsPipelineStatus := ""
 			var jenkinsPipelineFinishedDate *time.Time
 			results := make([]interface{}, 0)
-			if jenkinsBuildWithRepo.Result == "SUCCESS" {
+			if jenkinsBuild.Result == "SUCCESS" {
 				jenkinsPipelineResult = devops.SUCCESS
-			} else if jenkinsBuildWithRepo.Result == "FAILURE" {
+			} else if jenkinsBuild.Result == "FAILURE" {
 				jenkinsPipelineResult = devops.FAILURE
 			} else {
 				jenkinsPipelineResult = devops.ABORT
 			}
 
-			if jenkinsBuildWithRepo.Building {
+			if jenkinsBuild.Building {
 				jenkinsPipelineStatus = devops.IN_PROGRESS
 			} else {
 				jenkinsPipelineStatus = devops.DONE
-				finishTime := jenkinsBuildWithRepo.StartTime.Add(time.Duration(durationSec * int64(time.Second)))
+				finishTime := jenkinsBuild.StartTime.Add(time.Duration(durationSec * int64(time.Second)))
 				jenkinsPipelineFinishedDate = &finishTime
 			}
-			if jenkinsBuildWithRepo.TriggeredBy == "" {
+			if jenkinsBuild.TriggeredBy == "" {
 				jenkinsPipeline := &devops.CICDPipeline{
 					DomainEntity: domainlayer.DomainEntity{
-						Id: fmt.Sprintf("%s:%s:%d:%s:%s", "jenkins", "JenkinsPipeline", jenkinsBuildWithRepo.ConnectionId,
-							jenkinsBuildWithRepo.CommitSha, jenkinsBuildWithRepo.DisplayName),
+						Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline", jenkinsBuild.ConnectionId,
+							jenkinsBuild.DisplayName),
 					},
-					Name:         jenkinsBuildWithRepo.DisplayName,
-					CommitSha:    jenkinsBuildWithRepo.CommitSha,
-					Branch:       jenkinsBuildWithRepo.Branch,
-					Repo:         jenkinsBuildWithRepo.RepoUrl,
+					Name:         jenkinsBuild.DisplayName,
 					Result:       jenkinsPipelineResult,
 					Status:       jenkinsPipelineStatus,
 					FinishedDate: jenkinsPipelineFinishedDate,
 					Type:         "CI/CD",
 					DurationSec:  uint64(durationSec),
-					CreatedDate:  jenkinsBuildWithRepo.StartTime,
+					CreatedDate:  jenkinsBuild.StartTime,
 				}
 				if jenkinsPipelineFinishedDate != nil {
 				}
-				jenkinsPipeline.RawDataOrigin = jenkinsBuildWithRepo.RawDataOrigin
+				jenkinsPipeline.RawDataOrigin = jenkinsBuild.RawDataOrigin
 				results = append(results, jenkinsPipeline)
 			}
 
-			if !jenkinsBuildWithRepo.HasStages {
+			if !jenkinsBuild.HasStages {
 				jenkinsTask := &devops.CICDTask{
 					DomainEntity: domainlayer.DomainEntity{
-						Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsTask", jenkinsBuildWithRepo.ConnectionId,
-							jenkinsBuildWithRepo.DisplayName),
+						Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsTask", jenkinsBuild.ConnectionId,
+							jenkinsBuild.DisplayName),
 					},
-					Name:         jenkinsBuildWithRepo.DisplayName,
+					Name:         jenkinsBuild.DisplayName,
 					Result:       jenkinsPipelineResult,
 					Status:       jenkinsPipelineStatus,
 					Type:         "CI/CD",
 					DurationSec:  uint64(durationSec),
-					StartedDate:  jenkinsBuildWithRepo.StartTime,
+					StartedDate:  jenkinsBuild.StartTime,
 					FinishedDate: jenkinsPipelineFinishedDate,
 				}
-				if jenkinsBuildWithRepo.TriggeredBy != "" {
-					tmp := make([]*JenkinsBuildWithRepo, 0)
-					clauses := []dal.Clause{
-						dal.Select(`tjb.display_name, tjb.result, tjb.timestamp, tjbr.commit_sha`),
-						dal.From("_tool_jenkins_builds tjb"),
-						dal.Join("left join _tool_jenkins_build_repos tjbr on tjbr.build_name = tjb.display_name"),
-						dal.Where("tjb.connection_id = ? and tjb.display_name = ?", data.Options.ConnectionId, jenkinsBuildWithRepo.TriggeredBy),
-					}
-					err = db.All(&tmp, clauses...)
-					if err != nil {
-						return nil, err
-					}
-					if len(tmp) > 0 {
-						jenkinsTask.PipelineId = fmt.Sprintf("%s:%s:%d:%s:%s", "jenkins", "JenkinsPipeline", jenkinsBuildWithRepo.ConnectionId,
-							tmp[0].CommitSha, tmp[0].DisplayName)
-					}
+				if jenkinsBuild.TriggeredBy != "" {
+					jenkinsTask.PipelineId = fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline",
+						jenkinsBuild.ConnectionId, jenkinsBuild.TriggeredBy)
 				} else {
-					jenkinsTask.PipelineId = fmt.Sprintf("%s:%s:%d:%s:%s", "jenkins", "JenkinsPipeline", jenkinsBuildWithRepo.ConnectionId,
-						jenkinsBuildWithRepo.CommitSha, jenkinsBuildWithRepo.DisplayName)
+					jenkinsTask.PipelineId = fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline",
+						jenkinsBuild.ConnectionId, jenkinsBuild.DisplayName)
 				}
-				jenkinsTask.RawDataOrigin = jenkinsBuildWithRepo.RawDataOrigin
+				jenkinsTask.RawDataOrigin = jenkinsBuild.RawDataOrigin
 				results = append(results, jenkinsTask)
 
 			}
