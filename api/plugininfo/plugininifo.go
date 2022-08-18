@@ -20,12 +20,14 @@ package plugininfo
 import (
 	"net/http"
 	"reflect"
+	"sync"
 
 	"github.com/apache/incubator-devlake/api/shared"
 	"github.com/apache/incubator-devlake/models/domainlayer/domaininfo"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm/schema"
 )
 
 type SubTaskMeta struct {
@@ -51,18 +53,38 @@ func CreateSubTaskMeta(subTaskMeta []core.SubTaskMeta) []SubTaskMeta {
 }
 
 type TableInfo struct {
-	Name string
-	Tags string
+	TableName string
+	Tags      string
 }
 
 type TableInfos struct {
 	Field map[string]*TableInfo
+	Error *string
 }
 
-func NewTableInfos() *TableInfos {
-	return &TableInfos{
+func NewTableInfos(table core.Tabler) *TableInfos {
+	tableInfos := &TableInfos{
 		Field: make(map[string]*TableInfo),
+		Error: nil,
 	}
+
+	fieldInfos := utils.WalkFields(reflect.TypeOf(table), nil)
+	schema, err := schema.Parse(table, &sync.Map{}, schema.NamingStrategy{})
+	if err != nil {
+		errstr := err.Error()
+		tableInfos.Error = &errstr
+	}
+	for _, field := range fieldInfos {
+		dbName := ""
+		if schema != nil {
+			if dbfield, ok := schema.FieldsByName[field.Name]; ok {
+				dbName = dbfield.DBName
+			}
+		}
+		tableInfos.Field[field.Name] = &TableInfo{TableName: dbName, Tags: string(field.Tag)}
+	}
+
+	return tableInfos
 }
 
 type PluginInfo struct {
@@ -104,12 +126,7 @@ func Get(c *gin.Context) {
 	domaininfo := domaininfo.GetDomainTablesInfo()
 	domaininfoTable := make(map[string]*TableInfos)
 	for _, table := range domaininfo {
-		infoTable := NewTableInfos()
-		fieldInfos := utils.WalkFields(reflect.TypeOf(table), nil)
-		for _, field := range fieldInfos {
-			infoTable.Field[field.Name] = &TableInfo{Name: field.Name, Tags: string(field.Tag)}
-		}
-		domaininfoTable[table.TableName()] = infoTable
+		domaininfoTable[table.TableName()] = NewTableInfos(table)
 	}
 	info.DomainInfos = domaininfoTable
 
@@ -132,12 +149,7 @@ func Get(c *gin.Context) {
 			tables := pm.GetTablesInfo()
 			infoPluginTable := make(map[string]*TableInfos)
 			for _, table := range tables {
-				infoTable := NewTableInfos()
-				fieldInfos := utils.WalkFields(reflect.TypeOf(table), nil)
-				for _, field := range fieldInfos {
-					infoTable.Field[field.Name] = &TableInfo{Name: field.Name, Tags: string(field.Tag)}
-				}
-				infoPluginTable[table.TableName()] = infoTable
+				infoPluginTable[table.TableName()] = NewTableInfos(table)
 			}
 			infoPlugin.Tables = infoPluginTable
 		}
