@@ -16,7 +16,18 @@
  *
  */
 import React, { useEffect, useState, useCallback } from 'react'
-import { FormGroup, Checkbox, InputGroup, NumericInput, Tag } from '@blueprintjs/core'
+import {
+  FormGroup,
+  Checkbox,
+  InputGroup,
+  NumericInput,
+  Tag,
+  TextArea,
+  Colors,
+  Icon,
+  Popover,
+  Position
+} from '@blueprintjs/core'
 import { DataEntityTypes } from '@/data/DataEntities'
 
 import '@/styles/integration.scss'
@@ -63,7 +74,7 @@ export default function GithubSettings (props) {
   return (
     <>
       {entities.some(e => e.value === DataEntityTypes.TICKET) && (
-        <><h5>Issue Tracking{' '} <Tag className='bp3-form-helper-text'>RegExp</Tag></h5>
+        <><h5>Issue Tracking{' '} <Tag className='bp3-form-helper-text' minimal>RegExp</Tag></h5>
           <p className=''>Map your issue labels with each category
             to view corresponding metrics in the
             dashboard.
@@ -196,7 +207,7 @@ export default function GithubSettings (props) {
       )}
 
       {entities.some(e => e.value === DataEntityTypes.CODE_REVIEW) && (
-        <><h5>Code Review{' '} <Tag className='bp3-form-helper-text'>RegExp</Tag></h5>
+        <><h5>Code Review{' '} <Tag className='bp3-form-helper-text' minimal>RegExp</Tag></h5>
           <p className=''>Map your pull requests labels with each category to view corresponding metrics in the dashboard.</p>
 
           <div style={{ }}>
@@ -240,6 +251,61 @@ export default function GithubSettings (props) {
                 />
               </FormGroup>
             </div>
+          </div>
+
+          <h5>PR-Issue Mapping{' '} <Tag className='bp3-form-helper-text' minimal>RegExp</Tag></h5>
+          <p>
+            Extract the issue numbers closed by pull requests. The issue numbers{' '}
+            are parsed from PR bodies that meet the following RegEx.
+          </p>
+
+          <div className='formContainer'>
+            <FormGroup
+              disabled={isSaving || isSavingConnection}
+              inline={true}
+              label={(
+                <>
+                  PR Body Pattern
+                  <Popover
+                    className='help-pr-body'
+                    popoverClassName='popover-pr-body-help'
+                    position={Position.TOP}
+                    autoFocus={false}
+                    enforceFocus={false}
+                    usePortal={false}
+                  >
+                    <Icon icon='help' size={12} color={Colors.GRAY3} style={{ marginLeft: '4px', marginBottom: '4px' }} />
+                    <div style={{ padding: '10px', width: '300px', maxWidth: '300px', fontSize: '10px' }}>
+                      <p style={{ margin: '0 0 10px 0', lineHeight: '110%' }}>
+                        <Icon icon='tick-circle' size={10} color={Colors.GREEN4} style={{ marginRight: '4px' }} />
+                        Example 1: PR #321 body contains "<strong>Closes #1234</strong>" (PR #321 and issue #1234 will be mapped by the following RegEx)
+                      </p>
+                      <p style={{ margin: 0, lineHeight: '110%' }}>
+                        <Icon icon='delete' size={10} color={Colors.RED4} style={{ marginRight: '4px' }} />
+                        Example 2: PR #321 body contains "<strong>Related to #1234</strong>" (PR #321 and issue #1234 will NOT be mapped by the following RegEx)
+                      </p>
+                    </div>
+                  </Popover>
+                </>
+              )}
+              labelFor='github-pr-body'
+              className='formGroup'
+              contentClassName='formGroupContent'
+              style={{ alignItems: 'center' }}
+            >
+              <TextArea
+                id='github-pr-body'
+                className='textarea'
+                placeholder='(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and )?(#|https:\/\/github.com\/%s\/%s\/issues\/)\d+[ ]*)+)'
+                onChange={(e) => onSettingsChange({ prBodyClosePattern: e.target.value }, configuredProject)}
+                disabled={isSaving || isSavingConnection}
+                fill
+                rows={2}
+                growVertically={false}
+                autoFocus
+              >{transformation?.prBodyClosePattern}
+              </TextArea>
+            </FormGroup>
           </div>
 
           <h5>Additional Settings</h5>
