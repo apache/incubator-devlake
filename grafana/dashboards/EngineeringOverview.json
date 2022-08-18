@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 17,
-  "iteration": 1658758283524,
+  "iteration": 1660821502959,
   "links": [],
   "panels": [
     {
@@ -1716,6 +1716,28 @@
       ],
       "title": "Work Done % [Selected Month]",
       "type": "piechart"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 75
+      },
+      "id": 34,
+      "options": {
+        "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/UserManuals/Dashboards/GrafanaUserGuide).",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "type": "text"
     }
   ],
   "refresh": "",
@@ -1868,5 +1890,5 @@
   "timezone": "",
   "title": "Engineering Overview",
   "uid": "ZF6abXX7z",
-  "version": 8
+  "version": 9
 }

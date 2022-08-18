@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 14,
-  "iteration": 1658758604733,
+  "iteration": 1660820788891,
   "links": [],
   "panels": [
     {
@@ -1079,14 +1079,14 @@
     {
       "datasource": null,
       "gridPos": {
-        "h": 3,
+        "h": 2,
         "w": 24,
         "x": 0,
         "y": 41
       },
       "id": 99,
       "options": {
-        "content": "### Dashboard Guide\n\n1. The dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema).\n2. A [guide](https://devlake.apache.org/docs/UserManuals/GRAFANA) of how to create/edit a dashboard.",
+        "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/UserManuals/Dashboards/GrafanaUserGuide).",
         "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
@@ -1143,5 +1143,5 @@
   "timezone": "",
   "title": "GitLab",
   "uid": "msSjEq97z",
-  "version": 4
+  "version": 6
 }

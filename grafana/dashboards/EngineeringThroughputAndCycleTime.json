@@ -16,14 +16,14 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 12,
-  "iteration": 1658758247771,
+  "iteration": 1660821538920,
   "links": [],
   "panels": [
     {
       "datasource": null,
       "gridPos": {
         "h": 3,
-        "w": 13,
+        "w": 24,
         "x": 0,
         "y": 0
       },
@@ -762,17 +762,121 @@
       "type": "timeseries"
     },
     {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 12,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 18
+      },
+      "id": 108,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean"
+          ],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  sum(case when id not in (SELECT pull_request_id FROM pull_request_comments) then 1 else 0 end) as \"PRs Merged w/o Review\"\nFROM \n  pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in ($repo_id)\n  and merged_date is not null\nGROUP BY 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ae_projects",
+          "timeColumn": "ae_create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "PRs Merged w/o Review",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 25
       },
       "id": 103,
       "panels": [],
-      "title": "2. Quality + Cycle Time",
+      "title": "2. Cycle Time",
       "type": "row"
     },
     {
@@ -860,7 +964,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 26
       },
       "id": 109,
       "options": {
@@ -964,7 +1068,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 26
+        "y": 33
       },
       "id": 104,
       "options": {
@@ -1099,7 +1203,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 26
+        "y": 33
       },
       "id": 105,
       "options": {
@@ -1234,7 +1338,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 26
+        "y": 33
       },
       "id": 107,
       "options": {
@@ -1285,108 +1389,26 @@
       "type": "timeseries"
     },
     {
-      "datasource": "mysql",
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "blue",
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 12,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
+      "datasource": null,
       "gridPos": {
-        "h": 7,
-        "w": 8,
+        "h": 2,
+        "w": 24,
         "x": 0,
-        "y": 33
+        "y": 40
       },
-      "id": 108,
+      "id": 113,
       "options": {
-        "legend": {
-          "calcs": [
-            "mean"
-          ],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
+        "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/UserManuals/Dashboards/GrafanaUserGuide).",
+        "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "format": "table",
-          "group": [],
-          "hide": false,
-          "metricColumn": "none",
-          "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(created_date), INTERVAL -$interval(date(created_date))+1 DAY) as time,\n  sum(case when id not in (SELECT pull_request_id FROM pull_request_comments) then 1 else 0 end) as \"PRs Merged w/o Review\"\nFROM \n  pull_requests\nWHERE\n  $__timeFilter(created_date)\n  and base_repo_id in ($repo_id)\n  and merged_date is not null\nGROUP BY 1\nORDER BY 1",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "id"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "table": "ae_projects",
-          "timeColumn": "ae_create_time",
-          "timeColumnType": "timestamp",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
+          "queryType": "randomWalk",
+          "refId": "A"
         }
       ],
-      "title": "PRs Merged w/o Review",
-      "type": "timeseries"
+      "type": "text"
     }
   ],
   "refresh": "",
@@ -1551,5 +1573,5 @@
   "timezone": "",
   "title": "Engineering Throughput and Cycle Time",
   "uid": "Jaaimc67k",
-  "version": 5
+  "version": 7
 }

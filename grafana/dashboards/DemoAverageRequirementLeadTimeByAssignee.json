@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 5,
+  "id": 3,
   "links": [
     {
       "asDropdown": false,
@@ -207,6 +207,28 @@
       "timeFrom": null,
       "timeShift": null,
       "type": "table"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 102,
+      "options": {
+        "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/UserManuals/Dashboards/GrafanaUserGuide).",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "type": "text"
     }
   ],
   "refresh": "",
@@ -224,5 +246,5 @@
   "timezone": "",
   "title": "Demo-Average Requirement Lead Time By Assignee",
   "uid": "q27fk7cnk",
-  "version": 1
+  "version": 2
 }
