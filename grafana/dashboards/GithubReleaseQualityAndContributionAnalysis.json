@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 13,
-  "iteration": 1658758698345,
+  "iteration": 1660822372857,
   "links": [],
   "panels": [
     {
@@ -2578,6 +2578,28 @@
       ],
       "title": "8.2 Top Contributors [Last 5 Tags]",
       "type": "barchart"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 79
+      },
+      "id": 59,
+      "options": {
+        "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/UserManuals/Dashboards/GrafanaUserGuide).",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "type": "text"
     }
   ],
   "refresh": "",
@@ -2624,5 +2646,5 @@
   "timezone": "",
   "title": "GitHub_Release_Quality_and_Contribution_Analysis",
   "uid": "2xuOaQUnk4",
-  "version": 2
+  "version": 3
 }

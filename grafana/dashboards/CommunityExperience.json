@@ -15,10 +15,33 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 19,
-  "iteration": 1659564067353,
+  "id": 18,
+  "iteration": 1660820599845,
   "links": [],
   "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 24,
+      "options": {
+        "content": "- Use Cases: This dashboard answers the question \"What makes a great developer experience? And how can we define and track that?\". This dashboard heavily focuses on actionability. All metrics can be deterministically improved as long as OSS maintainers invested time into them.\n- Data Source Required: GitHub",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Dashboard Introduction",
+      "type": "text"
+    },
     {
       "datasource": "mysql",
       "fieldConfig": {
@@ -48,7 +71,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 0
+        "y": 4
       },
       "id": 8,
       "options": {
@@ -132,7 +155,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 0
+        "y": 4
       },
       "id": 4,
       "options": {
@@ -214,7 +237,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 0
+        "y": 4
       },
       "id": 12,
       "options": {
@@ -240,7 +263,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    lake.issues i\n    join lake.board_issues bi on i.id = bi.issue_id\n    join lake.boards b on bi.board_id = b.id\n    left join lake.issue_comments ic on i.id = ic.issue_id\n  where\n    date(i.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and b.id in ($repo_id)\n)\n\nselect\n  100 * sum(case when (TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/60 < $iir_sla then 1 else null end) / count(*)\nfrom issue_comment_list\nwhere comment_rank = 1 or comment_rank is null",
+          "rawSql": "with issue_comment_list as(\n  select\n    i.id as issue_id,\n    i.url,\n    i.title,\n    i.created_date as issue_created_date,\n    ic.id as comment_id,\n    ic.created_date as comment_date,\n    ic.body,\n    case when ic.id is not null then rank() over (partition by i.id order by ic.created_date asc) else null end as comment_rank\n  from\n    lake.issues i\n    join lake.board_issues bi on i.id = bi.issue_id\n    join lake.boards b on bi.board_id = b.id\n    left join lake.issue_comments ic on i.id = ic.issue_id\n  where\n    date(i.created_date) BETWEEN\n      curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n      curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n    and b.id in ($repo_id)\n)\n\nselect\n  100 * sum(case when (TIMESTAMPDIFF(MINUTE, issue_created_date,comment_date))/60 < $iir_sla then 1 else null end) / count(*)\nfrom issue_comment_list\nwhere comment_rank = 1",
           "refId": "A",
           "select": [
             [
@@ -295,7 +318,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 0
+        "y": 4
       },
       "id": 10,
       "options": {
@@ -377,7 +400,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 8
+        "y": 12
       },
       "id": 16,
       "options": {
@@ -459,7 +482,7 @@
         "h": 8,
         "w": 6,
         "x": 6,
-        "y": 8
+        "y": 12
       },
       "id": 14,
       "options": {
@@ -541,7 +564,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 8
+        "y": 12
       },
       "id": 18,
       "options": {
@@ -567,7 +590,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  100 * sum(case when closed_date and TIMESTAMPDIFF(Minute, created_date, closed_date) / 1440 < $prrt_sla then 1 else 0 end) / count(*)\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand pr.base_repo_id in ($repo_id)\n",
+          "rawSql": "select\n  100 * sum(case when TIMESTAMPDIFF(Minute, created_date, closed_date) / 1440 < $prrt_sla then 1 else null end) / count(*)\nfrom \n\tpull_requests pr\nwhere \n  date(created_date) BETWEEN\n    curdate() - INTERVAL DAYOFMONTH(curdate())-1 DAY - INTERVAL 1 month and\n    curdate() - INTERVAL DAYOFMONTH(curdate()) DAY\n\tand status = 'closed'\n\tand pr.base_repo_id in ($repo_id)\n\n\n",
           "refId": "A",
           "select": [
             [
@@ -623,7 +646,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 8
+        "y": 12
       },
       "id": 20,
       "options": {
@@ -675,6 +698,28 @@
       ],
       "title": "PR Closed W/O Merging Ratio [Last Month]",
       "type": "stat"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 22,
+      "options": {
+        "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/UserManuals/Dashboards/GrafanaUserGuide).",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "type": "text"
     }
   ],
   "schemaVersion": 30,
@@ -685,13 +730,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "mysql",
         "definition": "select concat(name, '-', id) from lake.repos",
@@ -785,6 +826,6 @@
   "timepicker": {},
   "timezone": "",
   "title": "Community Experience",
-  "uid": "MpKr-LzVz",
-  "version": 2
+  "uid": "bwsP5Nz4z",
+  "version": 3
 }

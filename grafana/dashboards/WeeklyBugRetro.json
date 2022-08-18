@@ -16,14 +16,14 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 15,
-  "iteration": 1658757077334,
+  "iteration": 1660821861545,
   "links": [],
   "panels": [
     {
       "datasource": null,
       "gridPos": {
         "h": 3,
-        "w": 13,
+        "w": 24,
         "x": 0,
         "y": 0
       },
@@ -1472,6 +1472,28 @@
       ],
       "title": "Total Outstanding Bug Count by Week [Selected Time Range]",
       "type": "barchart"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 74
+      },
+      "id": 30,
+      "options": {
+        "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/UserManuals/Dashboards/GrafanaUserGuide).",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "type": "text"
     }
   ],
   "schemaVersion": 30,
@@ -1537,5 +1559,5 @@
   "timezone": "",
   "title": "Weekly Bug Retro",
   "uid": "-5EKA5w7k",
-  "version": 2
+  "version": 3
 }

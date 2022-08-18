@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 7,
-  "iteration": 1658757686977,
+  "iteration": 1660821779393,
   "links": [],
   "panels": [
     {
@@ -857,6 +857,28 @@
       ],
       "title": "4.1 Mean Build Duration in Minutes [Each Month]",
       "type": "barchart"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 60,
+      "options": {
+        "content": "<br/>\n\nThis dashboard is created based on this [data schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema). Want to add more metrics? Please follow the [guide](https://devlake.apache.org/docs/UserManuals/Dashboards/GrafanaUserGuide).",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "type": "text"
     }
   ],
   "schemaVersion": 30,
@@ -902,5 +924,5 @@
   "timezone": "",
   "title": "Jenkins",
   "uid": "W8AiDFQnk",
-  "version": 2
+  "version": 3
 }
