@@ -19,8 +19,6 @@ package tasks
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
 
@@ -63,13 +61,6 @@ func NewFeishuApiClient(taskCtx core.TaskContext, connection *models.FeishuConne
 	// set token
 	apiClient.SetHeaders(map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %v", tokenResBody.TenantAccessToken),
-	})
-
-	apiClient.SetAfterFunction(func(res *http.Response) error {
-		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("feishu authentication failed, please check your AccessToken")
-		}
-		return nil
 	})
 
 	// create async api client

@@ -74,6 +74,8 @@ function useConnectionManager (
   const [connectionCount, setConnectionCount] = useState(0)
   const [connectionLimitReached, setConnectionLimitReached] = useState(false)
 
+  const [connectionsList, setConnectionsList] = useState([])
+
   const [saveComplete, setSaveComplete] = useState(false)
   const [deleteComplete, setDeleteComplete] = useState(false)
   const connectionTestPayload = useMemo(() => ({ endpoint: endpointUrl, username, password, token, proxy }), [endpointUrl, password, proxy, token, username])
@@ -312,6 +314,7 @@ function useConnectionManager (
           )
           const connectionData = f.data
           console.log('>> RAW CONNECTION DATA FROM API...', connectionData)
+          // @todo: cleanup legacy api pascal-case parameters
           setActiveConnection({
             ...connectionData,
             ID: connectionData.ID || connectionData.id,
@@ -351,6 +354,7 @@ function useConnectionManager (
         console.log('>> FETCHING ALL CONNECTION SOURCES')
         let c = null
         if (allSources) {
+          // @todo: build promises dynamically from $integrationsData
           const aC = await Promise.all([
             request.get(
               `${DEVLAKE_ENDPOINT}/plugins/${Providers.JIRA}/connections`
@@ -363,6 +367,9 @@ function useConnectionManager (
             ),
             request.get(
               `${DEVLAKE_ENDPOINT}/plugins/${Providers.GITHUB}/connections`
+            ),
+            request.get(
+              `${DEVLAKE_ENDPOINT}/plugins/${Providers.TAPD}/connections`
             ),
           ])
           const builtConnections = aC
@@ -392,6 +399,7 @@ function useConnectionManager (
               ...conn,
               status: ConnectionStatus.OFFLINE,
               ID: conn.ID || conn.id,
+              id: conn.id,
               name: conn.name,
               endpoint: conn.endpoint,
               errors: [],
@@ -608,6 +616,28 @@ function useConnectionManager (
     setProvider(activeProvider)
   }, [activeProvider])
 
+  useEffect(() => {
+    console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)
+    setConnectionsList(
+      allProviderConnections?.map((c, cIdx) => ({
+        ...c,
+        id: cIdx,
+        key: cIdx,
+        connectionId: c.id,
+        name: c.name,
+        title: c.name,
+        value: c.id,
+        status:
+          ConnectionStatusLabels[c.status] ||
+          ConnectionStatusLabels[ConnectionStatus.OFFLINE],
+        statusResponse: null,
+        provider: c.provider,
+        providerId: c.provider,
+        plugin: c.provider,
+      }))
+    )
+  }, [allProviderConnections])
+
   return {
     activeConnection,
     fetchConnection,
@@ -650,9 +680,11 @@ function useConnectionManager (
     setTestResponse,
     setAllTestResponses,
     setConnectionLimits,
+    setConnectionsList,
     setSaveComplete,
     allConnections,
     allProviderConnections,
+    connectionsList,
     domainRepositories,
     testedConnections,
     sourceLimits,

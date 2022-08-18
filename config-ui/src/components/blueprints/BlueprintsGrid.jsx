@@ -48,6 +48,7 @@ const BlueprintsGrid = (props) => {
     createCron = () => {},
     handleBlueprintActivation = (b) => {},
     configureBlueprint = (b) => {},
+    configureBlueprintSettings = (b) => {},
     getNextRunDate = (b) => {},
     isDeleting = false,
     isLoading = false,
@@ -268,15 +269,26 @@ const BlueprintsGrid = (props) => {
                       </label>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', justifySelf: 'flex-end' }}>
-                      <Button small minimal style={{ marginLeft: 'auto', marginRight: '5px' }} onClick={() => configureBlueprint(b)}>
+                      <Button small minimal style={{ marginLeft: 'auto', marginRight: '10px' }} onClick={() => configureBlueprint(b)}>
                         <Tooltip
-                          content='Blueprint Detail'
+                          content='Blueprint Status'
                           interactionKind={PopoverInteractionKind.HOVER}
                           openOnTargetFocus={false}
                           enforceFocus={false}
                           autoFocus={false}
                         >
-                          <Icon icon='eye-open' size={16} color={Colors.GRAY3} />
+                          <Icon icon='pulse' size={16} color={Colors.GRAY3} />
+                        </Tooltip>
+                      </Button>
+                      <Button small minimal style={{ marginRight: '10px' }} onClick={() => configureBlueprintSettings(b)}>
+                        <Tooltip
+                          content='Blueprint Settings'
+                          interactionKind={PopoverInteractionKind.HOVER}
+                          openOnTargetFocus={false}
+                          enforceFocus={false}
+                          autoFocus={false}
+                        >
+                          <Icon icon='cog' size={16} color={Colors.GRAY3} />
                         </Tooltip>
                       </Button>
                       <Popover position={Position.LEFT} disabled>
@@ -376,7 +388,7 @@ const BlueprintsGrid = (props) => {
                             <div className='pipeline-created' style={{ minWidth: '180px', paddingRight: '15px' }}>
                               {dayjs(p.createdAt).format('L LTS')}
                             </div>
-                            <div className='pipeline-name' style={{ flex: 1, paddingRight: '15px' }}>
+                            {/* <div className='pipeline-name' style={{ flex: 1, paddingRight: '15px' }}>
                               <span
                                 style={{
                                   display: 'block',
@@ -387,7 +399,7 @@ const BlueprintsGrid = (props) => {
                                 }}
                               >{p.name}
                               </span>
-                            </div>
+                            </div> */}
                             <div style={{ paddingRight: '15px', color: Colors.GRAY2, whiteSpace: 'nowrap' }}>
                               {p.status === 'TASK_RUNNING'
                                 ? dayjs(p.createdAt).toNow(true)
@@ -416,14 +428,14 @@ const BlueprintsGrid = (props) => {
                     </div>
                     <div style={{ flex: 1 }}>
                       <label style={{ color: Colors.GRAY1 }}>Blueprint</label>
-                      <h3 style={{ marginTop: 0, fontSize: '18px', fontWeight: 800 }}>
+                      <h3 style={{ marginTop: 0, fontSize: '16px', fontWeight: 800 }}>
                         {b.name}
                       </h3>
                       <label style={{ color: Colors.GRAY1 }}>Crontab Configuration</label>
-                      <h3 style={{ margin: '0 0 20px 0', fontSize: '18px' }}>{b.cronConfig}</h3>
+                      <h3 style={{ margin: '0 0 20px 0', fontSize: '16px' }}>{b.cronConfig}</h3>
 
                       <label style={{ color: Colors.GRAY1 }}>Next Run</label>
-                      <h3 style={{ margin: '0 0 20px 0', fontSize: '18px' }}>
+                      <h3 style={{ margin: '0 0 20px 0', fontSize: '16px' }}>
                         {dayjs(getNextRunDate(b.cronConfig)).fromNow()}
                       </h3>
 

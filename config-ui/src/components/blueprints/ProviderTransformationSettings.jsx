@@ -33,12 +33,15 @@ import GithubSettings from '@/pages/configure/settings/github'
 const ProviderTransformationSettings = (props) => {
   const {
     provider,
+    blueprint,
     connection,
     configuredProject,
     configuredBoard,
+    transformations = {},
     transformation = {},
     newTransformation = {},
-    boards = [],
+    boards = {},
+    projects = {},
     entities = {},
     issueTypes = [],
     fields = [],
@@ -57,6 +60,7 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={connection}
           configuredProject={configuredProject}
+          projects={projects}
           transformation={transformation}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
@@ -70,6 +74,7 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={connection}
           configuredProject={configuredProject}
+          projects={projects}
           transformation={transformation}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
@@ -81,13 +86,14 @@ const ProviderTransformationSettings = (props) => {
       {provider?.id === Providers.JIRA && (
         <JiraSettings
           provider={provider}
+          blueprint={blueprint}
           connection={connection}
           configuredBoard={configuredBoard}
           boards={boards}
           issueTypes={issueTypes}
           fields={fields}
           transformation={transformation}
-          newTransformation={newTransformation}
+          transformations={transformations}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}

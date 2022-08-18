@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+import React from 'react'
 import { ProviderLabels } from '@/data/Providers'
 import { GRAFANA_URL } from '@/utils/config'
 
@@ -62,7 +63,7 @@ const MenuConfiguration = (activeRoute) => {
         },
         {
           id: 4,
-          label: ProviderLabels.TAPD,
+          label: `${ProviderLabels.TAPD} (beta)`,
           route: '/integrations/tapd',
           active: activeRoute.url.endsWith('/integrations/tapd') || activeRoute.url.endsWith('/tapd'),
           icon: 'layers',

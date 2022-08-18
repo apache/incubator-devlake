@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React from 'react'
+import React, { useEffect, useMemo } from 'react'
 import {
   Intent,
   MenuItem,
@@ -32,29 +32,30 @@ const BoardsSelector = (props) => {
     restrictedItems = [],
     activeItem = null,
     disabled = false,
+    isLoading = false,
     isSaving = false,
     onItemSelect = () => {},
     onRemove = () => {},
     onClear = () => {},
     itemRenderer = (item, { handleClick, modifiers }) => (
       <MenuItem
-        active={modifiers.active || selectedItems.find(i => i.id === item.id)}
+        active={modifiers.active}
         disabled={
-          selectedItems.find(i => i.id === item.id)
+          selectedItems.find(i => i?.id === item?.id)
         }
         key={item.value}
         // label=
         onClick={handleClick}
         text={
-          selectedItems.find(i => i.id === item.id)
+          selectedItems.find(i => i?.id === item?.id)
             ? (
               <>
-                <input type='checkbox' checked readOnly /> {item.title}
+                <input type='checkbox' checked readOnly /> {item?.title}
               </>
               )
             : (
               <span style={{ fontWeight: 700 }}>
-                <input type='checkbox' readOnly /> {item.title}
+                <input type='checkbox' readOnly /> {item?.title}
               </span>
               )
         }
@@ -64,8 +65,9 @@ const BoardsSelector = (props) => {
         }}
       />
     ),
-    tagRenderer = (item) => item.title,
+    tagRenderer = (item) => item?.title,
   } = props
+
   return (
     <>
       <div
@@ -77,7 +79,7 @@ const BoardsSelector = (props) => {
           style={{ minWidth: '200px', width: '100%' }}
         >
           <MultiSelect
-            disabled={disabled || isSaving}
+            disabled={disabled || isSaving || isLoading}
             // openOnKeyDown={true}
             resetOnSelect={true}
             placeholder={placeholder}
@@ -89,13 +91,13 @@ const BoardsSelector = (props) => {
             selectedItems={selectedItems}
             activeItem={activeItem}
             itemPredicate={(query, item) =>
-              item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+              item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0}
             itemRenderer={itemRenderer}
             tagRenderer={tagRenderer}
             tagInputProps={{
               tagProps: {
                 intent: Intent.PRIMARY,
-                minimal: true,
+                minimal: true
               },
             }}
             noResults={<MenuItem disabled={true} text='No Boards Available.' />}
@@ -104,7 +106,7 @@ const BoardsSelector = (props) => {
                 return {
                   ...rT,
                   [configuredConnection.id]: rT[configuredConnection.id].filter(
-                    (t) => t.id !== item.id
+                    (t) => t?.id !== item.id
                   ),
                 }
               })
@@ -124,6 +126,7 @@ const BoardsSelector = (props) => {
             }}
             style={{ borderRight: 0 }}
           />
+
         </div>
       </div>
     </>

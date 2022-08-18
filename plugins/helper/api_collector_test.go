@@ -72,6 +72,7 @@ func TestFetchPageUndetermined(t *testing.T) {
 	}).Twice()
 	mockApi.On("HasError").Return(false)
 	mockApi.On("WaitAsync").Return(nil)
+	mockApi.On("GetAfterFunction", mock.Anything).Return(nil)
 	mockApi.On("SetAfterFunction", mock.Anything).Return()
 	params := struct {
 		Name string

@@ -26,13 +26,9 @@ import {
   BOARDS_ENDPOINT,
 } from '@/config/jiraApiProxy'
 import { integrationsData } from '@/data/integrations'
-import { Divider, Elevation, Card, Intent, Colors } from '@blueprintjs/core'
+import { Intent } from '@blueprintjs/core'
 import {
   Providers,
-  ProviderTypes,
-  ProviderIcons,
-  ConnectionStatus,
-  ConnectionStatusLabels,
 } from '@/data/Providers'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -40,21 +36,20 @@ import Sidebar from '@/components/Sidebar'
 import Content from '@/components/Content'
 import { ToastNotification } from '@/components/Toast'
 
-import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
-import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
+import { BlueprintMode } from '@/data/NullBlueprint'
 import { NullBlueprintConnection } from '@/data/NullBlueprintConnection'
 import { NullConnection } from '@/data/NullConnection'
 
 import {
   WorkflowSteps,
   WorkflowAdvancedSteps,
-  DEFAULT_DATA_ENTITIES,
-  DEFAULT_BOARDS,
+  DEFAULT_DATA_ENTITIES
 } from '@/data/BlueprintWorkflow'
 
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import useConnectionManager from '@/hooks/useConnectionManager'
+import useDataScopesManager from '@/hooks/useDataScopesManager'
 import useBlueprintValidation from '@/hooks/useBlueprintValidation'
 import usePipelineValidation from '@/hooks/usePipelineValidation'
 import useConnectionValidation from '@/hooks/useConnectionValidation'
@@ -71,7 +66,6 @@ import DataScopes from '@/components/blueprints/create-workflow/DataScopes'
 import DataTransformations from '@/components/blueprints/create-workflow/DataTransformations'
 import DataSync from '@/components/blueprints/create-workflow/DataSync'
 import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
-import AdvancedJSONValidation from '@/components/blueprints/create-workflow/AdvancedJSONValidation'
 
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
@@ -109,8 +103,6 @@ const CreateBlueprint = (props) => {
     NullBlueprintConnection
   )
 
-  const [connectionsList, setConnectionsList] = useState([])
-
   const [dataEntitiesList, setDataEntitiesList] = useState([
     ...DEFAULT_DATA_ENTITIES,
   ])
@@ -118,47 +110,18 @@ const CreateBlueprint = (props) => {
 
   const [blueprintConnections, setBlueprintConnections] = useState([])
   const [configuredConnection, setConfiguredConnection] = useState()
-  const [dataEntities, setDataEntities] = useState({})
+
   const [activeConnectionTab, setActiveConnectionTab] = useState()
 
   const [onlineStatus, setOnlineStatus] = useState([])
   const [showBlueprintInspector, setShowBlueprintInspector] = useState(false)
-
-  const [dataScopes, setDataScopes] = useState([])
+  // const [dataScopes, setDataScopes] = useState([])
   const [dataConnections, setDataConnections] = useState([])
-  const [transformations, setTransformations] = useState({})
-
-  const [projectId, setProjectId] = useState([])
-  const [projects, setProjects] = useState({})
-  const [boards, setBoards] = useState({})
-  const [boardId, setBoardId] = useState([])
   const [connectionId, setConnectionId] = useState('')
-  const [connections, setConnections] = useState([])
-  const [repositories, setRepositories] = useState([])
-  const [selectedConnection, setSelectedConnection] = useState()
-  const [repositoryName, setRepositoryName] = useState('')
-  const [owner, setOwner] = useState('')
-  const [gitExtractorUrl, setGitExtractorUrl] = useState('')
-  const [gitExtractorRepoId, setGitExtractorRepoId] = useState('')
-  const [selectedGithubRepo, setSelectedGithubRepo] = useState()
-  const [refDiffRepoId, setRefDiffRepoId] = useState('')
-  const [refDiffPairs, setRefDiffPairs] = useState([])
-  const [refDiffTasks, setRefDiffTasks] = useState([
-    'calculateCommitsDiff',
-    'calculateIssuesDiff',
-  ])
 
   const [canAdvanceNext, setCanAdvanceNext] = useState(true)
+  // eslint-disable-next-line no-unused-vars
   const [canAdvancePrev, setCanAdvancePrev] = useState(true)
-
-  const [configuredProject, setConfiguredProject] = useState(
-    projects.length > 0 ? projects[0] : null
-  )
-  const [configuredBoard, setConfiguredBoard] = useState(
-    boards.length > 0 ? boards[0] : null
-  )
-
-  const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
 
   const {
     activeConnection,
@@ -182,6 +145,7 @@ const CreateBlueprint = (props) => {
     setCustomCronConfig,
     setTasks: setBlueprintTasks,
     setSettings: setBlueprintSettings,
+    // eslint-disable-next-line no-unused-vars
     setDetectedProviderTasks,
     setEnable: setEnableBlueprint,
     setMode: setBlueprintMode,
@@ -193,10 +157,12 @@ const CreateBlueprint = (props) => {
     createCronExpression: createCron,
     // eslint-disable-next-line no-unused-vars
     getCronSchedule: getSchedule,
+    // eslint-disable-next-line no-unused-vars
     getNextRunDate,
     getCronPreset,
     getCronPresetByConfig,
     saveBlueprint,
+    // eslint-disable-next-line no-unused-vars
     deleteBlueprint,
     isDeleting: isDeletingBlueprint,
     isManual: isManualBlueprint,
@@ -204,14 +170,29 @@ const CreateBlueprint = (props) => {
   } = useBlueprintManager()
 
   const {
+    boards,
+    projects,
+    entities: dataEntities,
+    transformations,
+    setBoards,
+    setProjects,
+    setEntities: setDataEntities,
+    setTransformations,
+    createProviderScopes,
+    createProviderConnections,
+    getDefaultTransformations,
+    initializeTransformations
+  } = useDataScopesManager({ connection: configuredConnection, settings: blueprintSettings })
+
+  const {
     pipelineName,
-    pipelines,
+    // pipelines,
     runPipeline,
-    cancelPipeline,
-    fetchPipeline,
-    fetchAllPipelines,
-    pipelineRun,
-    buildPipelineStages,
+    // cancelPipeline,
+    // fetchPipeline,
+    // fetchAllPipelines,
+    // pipelineRun,
+    // buildPipelineStages,
     isRunning,
     isFetchingAll: isFetchingAllPipelines,
     // eslint-disable-next-line no-unused-vars
@@ -237,18 +218,9 @@ const CreateBlueprint = (props) => {
   } = usePipelineValidation({
     enabledProviders,
     pipelineName,
-    projectId,
     projects,
-    boardId,
     boards,
-    owner,
-    repositoryName,
     connectionId,
-    gitExtractorUrl,
-    gitExtractorRepoId,
-    refDiffRepoId,
-    refDiffTasks,
-    refDiffPairs,
     tasks: runTasks,
     tasksAdvanced: runTasksAdvanced,
     advancedMode,
@@ -279,10 +251,14 @@ const CreateBlueprint = (props) => {
 
   const {
     testConnection,
+    // eslint-disable-next-line no-unused-vars
     testAllConnections,
     saveConnection,
+    // eslint-disable-next-line no-unused-vars
     fetchConnection,
+    // eslint-disable-next-line no-unused-vars
     allProviderConnections,
+    connectionsList,
     errors: connectionErrors,
     isSaving: isSavingConnection,
     isTesting: isTestingConnection,
@@ -309,11 +285,12 @@ const CreateBlueprint = (props) => {
     setTestStatus,
     setTestResponse,
     setAllTestResponses,
+    setConnectionsList,
     setSaveComplete: setSaveConnectionComplete,
     fetchAllConnections,
-    connectionLimitReached,
     clearConnection: clearActiveConnection,
     testResponse,
+    // eslint-disable-next-line no-unused-vars
     testedConnections,
     allTestResponses,
     saveComplete: saveConnectionComplete
@@ -361,6 +338,18 @@ const CreateBlueprint = (props) => {
     password,
   })
 
+  const [configuredProject, setConfiguredProject] = useState(
+    // projects.length > 0 ? projects[0] : null
+    null
+  )
+  const [configuredBoard, setConfiguredBoard] = useState(
+    // boards.length > 0 ? boards[0] : null
+    null
+  )
+
+  const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
+
+  // eslint-disable-next-line no-unused-vars
   const isValidStep = useCallback((stepId) => { }, [])
 
   const nextStep = useCallback(() => {
@@ -458,7 +447,7 @@ const CreateBlueprint = (props) => {
     setConfiguredProject(null)
     setConfiguredBoard(null)
     console.log('>> Cancel Modify - Transformation Settings')
-  }, [])
+  }, [setConfiguredProject, setConfiguredBoard])
 
   const handleTransformationClear = useCallback(() => {
     console.log(
@@ -494,7 +483,6 @@ const CreateBlueprint = (props) => {
     switch (configuredConnection.provider) {
       case Providers.GITLAB:
       case Providers.JIRA:
-      case Providers.TAPD:
       case Providers.GITHUB:
         items = dataEntitiesList.filter((d) => d.name !== 'ci-cd')
         break
@@ -505,73 +493,6 @@ const CreateBlueprint = (props) => {
     return items
   }, [dataEntitiesList, configuredConnection])
 
-  const createProviderScopes = useCallback(
-    (
-      providerId,
-      connection,
-      connectionIdx,
-      entities = [],
-      boards = [],
-      projects = [],
-      transformations = [],
-      defaultScope = { transformation: {}, options: {}, entities: [] }
-    ) => {
-      console.log(
-        '>>> CREATING PROVIDER SCOPE FOR CONNECTION...',
-        connectionIdx,
-        connection
-      )
-      let newScope = {
-        ...defaultScope,
-        entities: entities[connection.id]?.map((entity) => entity.value) || [],
-      }
-      switch (providerId) {
-        case Providers.JIRA:
-          newScope = boards[connection.id]?.map((b) => ({
-            ...newScope,
-            options: {
-              boardId: Number(b.id),
-              // @todo: verify initial value of since date for jira provider
-              // since: new Date(),
-            },
-            transformation: { ...transformations[b.id] },
-          }))
-          break
-        case Providers.GITLAB:
-          newScope = projects[connection.id]?.map((p) => ({
-            ...newScope,
-            options: {
-              projectId: Number(p),
-            },
-            transformation: {},
-          }))
-          break
-        case Providers.JENKINS:
-          newScope = {
-            ...newScope,
-          }
-          break
-        case Providers.TAPD:
-          newScope = {
-            ...newScope,
-          }
-          break
-        case Providers.GITHUB:
-          newScope = projects[connection.id]?.map((p) => ({
-            ...newScope,
-            options: {
-              owner: p.split('/')[0],
-              repo: p.split('/')[1],
-            },
-            transformation: { ...transformations[p] },
-          }))
-          break
-      }
-      return Array.isArray(newScope) ? newScope.flat() : [newScope]
-    },
-    []
-  )
-
   const manageConnection = useCallback(
     (connection) => {
       console.log('>> MANAGE CONNECTION...', connection)
@@ -580,7 +501,6 @@ const CreateBlueprint = (props) => {
           integrationsData.find((p) => p.id === connection.provider)
         )
         setProvider(integrationsData.find((p) => p.id === connection.provider))
-        // fetchConnection(true, false, connection.id)
         setManagedConnection(connection)
         setConnectionDialogIsOpen(true)
       }
@@ -591,12 +511,12 @@ const CreateBlueprint = (props) => {
   const addProjectTransformation = useCallback((project) => {
     setConfiguredProject(project)
     ToastNotification.clear()
-  }, [])
+  }, [setConfiguredProject])
 
   const addBoardTransformation = useCallback((board) => {
     setConfiguredBoard(board)
     ToastNotification.clear()
-  }, [])
+  }, [setConfiguredBoard])
 
   const addConnection = useCallback(() => {
     setManagedConnection(NullBlueprintConnection)
@@ -686,25 +606,6 @@ const CreateBlueprint = (props) => {
   ])
 
   useEffect(() => {
-    console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)
-    setConnectionsList(
-      allProviderConnections?.map((c, cIdx) => ({
-        ...c,
-        id: cIdx,
-        name: c.name,
-        title: c.name,
-        value: c.id,
-        status:
-          ConnectionStatusLabels[c.status] ||
-          ConnectionStatusLabels[ConnectionStatus.OFFLINE],
-        statusResponse: null,
-        provider: c.provider,
-        plugin: c.provider,
-      }))
-    )
-  }, [allProviderConnections])
-
-  useEffect(() => {
     console.log(
       '>> PIPELINE RUN TASK SETTINGS FOR PIPELINE MANAGER ....',
       runTasks
@@ -785,6 +686,9 @@ const CreateBlueprint = (props) => {
         case Providers.JENKINS:
           entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
           break
+        case Providers.TAPD:
+          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+          break
       }
       return entities
     }
@@ -808,7 +712,14 @@ const CreateBlueprint = (props) => {
     ])
 
     testSelectedConnections(blueprintConnections)
-  }, [blueprintConnections, setProvider, testSelectedConnections])
+  }, [
+    blueprintConnections,
+    setProvider,
+    setBoards,
+    setDataEntities,
+    setProjects,
+    testSelectedConnections
+  ])
 
   useEffect(() => {
     console.log('>> CONFIGURING CONNECTION', configuredConnection)
@@ -881,50 +792,7 @@ const CreateBlueprint = (props) => {
   useEffect(() => {
     console.log('>> PROJECTS LIST', projects)
     console.log('>> BOARDS LIST', boards)
-    const getDefaultTransformations = (providerId) => {
-      let transforms = {}
-      switch (providerId) {
-        case Providers.GITHUB:
-          transforms = {
-            prType: '',
-            prComponent: '',
-            issueSeverity: '',
-            issueComponent: '',
-            issuePriority: '',
-            issueTypeRequirement: '',
-            issueTypeBug: '',
-            issueTypeIncident: '',
-            refdiff: null,
-          }
-          break
-        case Providers.JIRA:
-          transforms = {
-            epicKeyField: '',
-            typeMappings: {},
-            storyPointField: '',
-            remotelinkCommitShaPattern: '',
-            bugTags: [],
-            incidentTags: [],
-            requirementTags: [],
-          }
-          break
-        case Providers.JENKINS:
-          // No Transform Settings...
-          break
-        case Providers.TAPD:
-          // No Transform Settings...
-          break
-        case Providers.GITLAB:
-          // No Transform Settings...
-          break
-      }
-      return transforms
-    }
 
-    const initializeTransformations = (pV, cV) => ({
-      ...pV,
-      [cV]: getDefaultTransformations(configuredConnection?.provider),
-    })
     const projectTransformation = projects[configuredConnection?.id]
     const boardTransformation = boards[configuredConnection?.id]?.map(
       (b) => b.id
@@ -938,12 +806,18 @@ const CreateBlueprint = (props) => {
     }
     if (boardTransformation) {
       setTransformations((cT) => ({
-        ...boardTransformation.reduce(initializeTransformations, {}), // @todo: FIXME
+        ...boardTransformation.reduce(initializeTransformations, {}),
         // Spread Current/Existing Transformations Settings
         ...cT,
       }))
     }
-  }, [projects, boards, configuredConnection])
+  }, [
+    projects,
+    boards,
+    configuredConnection,
+    initializeTransformations,
+    setTransformations
+  ])
 
   useEffect(() => {
     console.log(
@@ -1064,7 +938,7 @@ const CreateBlueprint = (props) => {
       status: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status
     })))
     setCanAdvanceNext(dataConnections.every(dC => dC.status === 200))
-  }, [dataConnections])
+  }, [dataConnections, setConnectionsList])
 
   return (
     <>

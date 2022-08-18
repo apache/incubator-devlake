@@ -194,7 +194,7 @@ export default function ManageIntegration () {
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
-                    {activeProvider.name} Integration
+                    {activeProvider.name} Integration {activeProvider.isBeta && <><sup>(beta)</sup></>}
                   </h1>
                   <p className='page-description'>Manage integration and connections.</p>
                 </div>
