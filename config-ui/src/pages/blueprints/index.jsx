@@ -134,6 +134,10 @@ const Blueprints = (props) => {
     history.push(`/blueprints/detail/${blueprint.id}`)
   }, [history])
 
+  const configureBlueprintSettings = useCallback((blueprint) => {
+    history.push(`/blueprints/settings/${blueprint.id}`)
+  }, [history])
+
   const createNewBlueprint = useCallback(() => {
     history.push('/blueprints/create')
   }, [history])
@@ -249,6 +253,9 @@ const Blueprints = (props) => {
         case 'monthly':
           setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
           break
+        case 'manual':
+          setFilteredBlueprints(blueprints.filter(b => b.isManual))
+          break
         case 'custom':
           setFilteredBlueprints(blueprints.filter(
             b => b.cronConfig !== getCronPreset('hourly').cronConfig &&
@@ -323,6 +330,7 @@ const Blueprints = (props) => {
                   getNextRunDate={getNextRunDate}
                   handleBlueprintActivation={handleBlueprintActivation}
                   configureBlueprint={configureBlueprint}
+                  configureBlueprintSettings={configureBlueprintSettings}
                   isDeleting={isDeleting}
                   isLoading={isFetchingAllPipelines}
                   expandDetails={expandDetails}
@@ -339,7 +347,7 @@ const Blueprints = (props) => {
                   title=''
                   description={(
                     <>
-                      <p style={{ color: '#292B3F', fontSize: '15px', padding: '0 14%', textAlign: 'center' }}>A blueprint is the plan that covers all the work, such as selecting and transforming the data you wish to collect, to get your raw data ready for query and metric computaion in the dashboards. Try adding your first blueprint!</p>
+                      <p style={{ color: '#292B3F', fontSize: '15px', padding: '0 14%', textAlign: 'center' }}>A blueprint is a plan that covers all the work, such as selecting and transforming the data you wish to collect, to get your raw data ready for query and metric computation in the dashboards. Try adding your first blueprint!</p>
                       <div style={{
                         display: 'flex',
                         alignSelf: 'center',

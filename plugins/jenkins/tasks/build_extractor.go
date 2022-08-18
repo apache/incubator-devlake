@@ -19,7 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -66,8 +68,9 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 
-			results := make([]interface{}, 0, 1)
-
+			results := make([]interface{}, 0)
+			strList := strings.Split(body.Class, ".")
+			class := strList[len(strList)-1]
 			build := &models.JenkinsBuild{
 				ConnectionId:      data.Options.ConnectionId,
 				JobName:           input.Name,
@@ -77,16 +80,43 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) error {
 				Number:            body.Number,
 				Result:            body.Result,
 				Timestamp:         body.Timestamp,
+				Class:             class,
 				StartTime:         time.Unix(body.Timestamp/1000, 0),
 			}
 			vcs := body.ChangeSet.Kind
 			if vcs == "git" || vcs == "hg" {
 				for _, a := range body.Actions {
+					sha := ""
+					branch := ""
 					if a.LastBuiltRevision.SHA1 != "" {
-						build.CommitSha = a.LastBuiltRevision.SHA1
+						sha = a.LastBuiltRevision.SHA1
 					}
 					if a.MercurialRevisionNumber != "" {
-						build.CommitSha = a.MercurialRevisionNumber
+						sha = a.MercurialRevisionNumber
+					}
+					build.CommitSha = sha
+					if len(a.LastBuiltRevision.Branches) > 0 {
+						branch = a.LastBuiltRevision.Branches[0].Name
+					}
+					for _, url := range a.RemoteUrls {
+						if url != "" {
+							buildCommitRemoteUrl := models.JenkinsBuildRepo{
+								ConnectionId: data.Options.ConnectionId,
+								BuildName:    build.DisplayName,
+								CommitSha:    sha,
+								RepoUrl:      url,
+								Branch:       branch,
+							}
+							results = append(results, &buildCommitRemoteUrl)
+						}
+					}
+					if len(a.Causes) > 0 {
+						for _, cause := range a.Causes {
+							if cause.UpstreamProject != "" {
+								triggeredByBuild := fmt.Sprintf("%s #%d", cause.UpstreamProject, cause.UpstreamBuild)
+								build.TriggeredBy = triggeredByBuild
+							}
+						}
 					}
 				}
 			} else if vcs == "svn" {

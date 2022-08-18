@@ -41,15 +41,7 @@ POST /pipelines
 */
 // @Summary Create and run a new pipeline
 // @Description Create and run a new pipeline
-// @Description RETURN SAMPLE
-// @Description {
-// @Description 	"name": "name-of-pipeline",
-// @Description 	"tasks": [
-// @Description 		[ {"plugin": "gitlab", ...}, {"plugin": "jira"} ],
-// @Description 		[ {"plugin": "github", ...}],
-// @Description 	]
-// @Description }
-// @Tags pipelines
+// @Tags framework/pipelines
 // @Accept application/json
 // @Param pipeline body models.NewPipeline true "json"
 // @Success 200  {object} models.Pipeline
@@ -87,19 +79,12 @@ GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
 
 // @Summary Get list of pipelines
 // @Description GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
-// @Description RETURN SAMPLE
-// @Description {
-// @Description 	"pipelines": [
-// @Description 		{"id": 1, "name": "test-pipeline", ...}
-// @Description 	],
-// @Description 	"count": 5
-// @Description }
-// @Tags pipelines
+// @Tags framework/pipelines
 // @Param status query string true "query"
 // @Param pending query int true "query"
 // @Param page query int true "query"
 // @Param pagesize query int true "query"
-// @Success 200  {object} models.Pipeline
+// @Success 200  {object} shared.ResponsePipelines
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /pipelines [get]
@@ -115,7 +100,7 @@ func Index(c *gin.Context) {
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
 	}
-	shared.ApiOutputSuccess(c, gin.H{"pipelines": pipelines, "count": count}, http.StatusOK)
+	shared.ApiOutputSuccess(c, shared.ResponsePipelines{Pipelines: pipelines, Count: count}, http.StatusOK)
 }
 
 /*
@@ -135,7 +120,7 @@ GET /pipelines/:pipelineId
 // @Description 	"name": "test-pipeline",
 // @Description 	...
 // @Description }
-// @Tags pipelines
+// @Tags framework/pipelines
 // @Param pipelineId path int true "query"
 // @Success 200  {object} models.Pipeline
 // @Failure 400  {string} errcode.Error "Bad Request"
@@ -162,7 +147,7 @@ DELETE /pipelines/:pipelineId
 */
 // @Cancel a pending pipeline
 // @Description Cancel a pending pipeline
-// @Tags pipelines
+// @Tags framework/pipelines
 // @Param pipelineId path int true "pipeline ID"
 // @Success 200
 // @Failure 400  {string} errcode.Error "Bad Request"

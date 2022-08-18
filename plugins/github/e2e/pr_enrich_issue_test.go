@@ -86,8 +86,8 @@ func TestPrEnrichIssueDataFlow(t *testing.T) {
 		[]string{
 			"pull_request_id",
 			"issue_id",
-			"pull_request_number",
-			"issue_number",
+			"pull_request_key",
+			"issue_key",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",

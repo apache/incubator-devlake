@@ -62,10 +62,10 @@ spec:
               service:
                 name: {{ include "devlake.fullname" . }}-grafana
                 port:
-                  number: {{ .Values.service.grafanaPort }}
+                  number: 3000
               {{- else }}
               serviceName: {{ include "devlake.fullname" . }}-grafana
-              servicePort: {{ .Values.service.grafanaPort }}
+              servicePort: 3000
               {{- end }}
           - path: /{{ include "devlake.uiEndpointPrefix" . }}(/?|$)(.*)
             {{- if semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion }}

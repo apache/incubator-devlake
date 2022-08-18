@@ -31,6 +31,14 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+// @Summary test jenkins connection
+// @Description Test Jenkins Connection
+// @Tags plugins/jenkins
+// @Param body body models.TestConnectionRequest true "json body"
+// @Success 200  {object} shared.ApiBody "Success"
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/jenkins/test [POST]
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// decode
 	var err error
@@ -71,15 +79,14 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	return nil, nil
 }
 
-/*
-POST /plugins/jenkins/connections
-{
-	"name": "jenkins data connection name",
-	"endpoint": "jenkins api endpoint, i.e. https://ci.jenkins.io/",
-	"username": "username, usually should be email address",
-	"password": "jenkins api access token"
-}
-*/
+// @Summary create jenkins connection
+// @Description Create Jenkins connection
+// @Tags plugins/jenkins
+// @Param body body models.JenkinsConnection true "json body"
+// @Success 200  {object} models.JenkinsConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/jenkins/connections [POST]
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// create a new connection
 	connection := &models.JenkinsConnection{}
@@ -92,16 +99,14 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-PATCH /plugins/jenkins/connections/connectionId
-{
-	"name": "jenkins data connection name",
-	"endpoint": "jenkins api endpoint, i.e. https://ci.jenkins.io/",
-	"username": "username, usually should be email address",
-	"password": "jenkins api access token"
-}
-*/
-
+// @Summary patch jenkins connection
+// @Description Patch Jenkins connection
+// @Tags plugins/jenkins
+// @Param body body models.JenkinsConnection true "json body"
+// @Success 200  {object} models.JenkinsConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/jenkins/connections/{connectionId} [PATCH]
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.JenkinsConnection{}
 	err := connectionHelper.Patch(connection, input)
@@ -112,9 +117,13 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection}, nil
 }
 
-/*
-DELETE /plugins/jenkins/connections/connectionId
-*/
+// @Summary delete a jenkins connection
+// @Description Delete a Jenkins connection
+// @Tags plugins/jenkins
+// @Success 200  {object} models.JenkinsConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/jenkins/connections/{connectionId} [DELETE]
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.JenkinsConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -125,9 +134,13 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
-/*
-GET /plugins/jenkins/connections
-*/
+// @Summary get all jenkins connections
+// @Description Get all Jenkins connections
+// @Tags plugins/jenkins
+// @Success 200  {object} []models.JenkinsConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/jenkins/connections [GET]
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var connections []models.JenkinsConnection
 	err := connectionHelper.List(&connections)
@@ -138,11 +151,58 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
-/*
-GET /plugins/jenkins/connections/connectionId
-*/
+// @Summary get jenkins connection detail
+// @Description Get Jenkins connection detail
+// @Tags plugins/jenkins
+// @Success 200  {object} models.JenkinsConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/jenkins/connections/{connectionId} [GET]
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.JenkinsConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err
+}
+
+// @Summary blueprints setting for jenkins
+// @Description blueprint setting for jenkins
+// @Tags plugins/jenkins
+// @Accept application/json
+// @Param blueprint body JenkinsBlueprintSetting true "json"
+// @Router /blueprints/jenkins/blueprint-setting [post]
+func PostJenkinsBluePrint(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &JenkinsBlueprintSetting{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type JenkinsBlueprintSetting []struct {
+	Version     string `json:"version"`
+	Connections []struct {
+		Plugin       string `json:"plugin"`
+		ConnectionID int    `json:"connectionId"`
+		Scope        []struct {
+			Options struct {
+			} `json:"options"`
+			Entities []string `json:"entities"`
+		} `json:"scope"`
+	} `json:"connections"`
+}
+
+// @Summary pipelines plan for jenkins
+// @Description pipelines plan for jenkins
+// @Tags plugins/jenkins
+// @Accept application/json
+// @Param blueprint body JenkinsPipelinePlan true "json"
+// @Router /pipelines/jenkins/pipeline-plan [post]
+func PostJenkinsPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &JenkinsPipelinePlan{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type JenkinsPipelinePlan [][]struct {
+	Plugin   string   `json:"plugin"`
+	Subtasks []string `json:"subtasks"`
+	Options  struct {
+		ConnectionID int `json:"connectionId"`
+	} `json:"options"`
 }

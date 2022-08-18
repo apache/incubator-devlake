@@ -20,12 +20,18 @@ package shared
 import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/models"
 	"github.com/gin-gonic/gin"
 )
 
 type ApiBody struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
+}
+
+type ResponsePipelines struct {
+	Count     int64              `json:"count"`
+	Pipelines []*models.Pipeline `json:"pipelines"`
 }
 
 func ApiOutputError(c *gin.Context, err error, status int) {

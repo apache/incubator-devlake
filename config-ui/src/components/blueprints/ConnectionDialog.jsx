@@ -75,6 +75,12 @@ const DATA_SOURCES_LIST = [
     title: ProviderLabels[Providers.JENKINS.toUpperCase()],
     value: Providers.JENKINS,
   },
+  {
+    id: 5,
+    name: Providers.TAPD,
+    title: ProviderLabels[Providers.TAPD.toUpperCase()],
+    value: Providers.TAPD,
+  },
 ]
 
 const ConnectionDialog = (props) => {
@@ -258,7 +264,7 @@ const ConnectionDialog = (props) => {
                             ? `${datasource.title}`
                             : '< Select Datasource >'
                         }
-                        rightIcon='double-caret-vertical'
+                        rightIcon='caret-down'
                         fill
                         style={{
                           maxWidth: '260px',

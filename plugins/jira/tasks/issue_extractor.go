@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -108,10 +109,18 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, ignoreBoard bool,
 		issue.LeadTimeMinutes = uint(issue.ResolutionDate.Unix()-issue.Created.Unix()) / 60
 	}
 	if data.Options.TransformationRules.StoryPointField != "" {
-		strStoryPoint, _ := apiIssue.Fields.AllFields[data.Options.TransformationRules.StoryPointField].(string)
-		if strStoryPoint != "" {
+		unknownStoryPoint := apiIssue.Fields.AllFields[data.Options.TransformationRules.StoryPointField]
+		switch unknownStoryPoint.(type) {
+		case string:
+			// string, try to parse
+			strStoryPoint, _ := unknownStoryPoint.(string)
 			issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
+		case nil:
+		default:
+			// not string, convert to float64, ignore it if failed
+			issue.StoryPoint, _ = unknownStoryPoint.(float64)
 		}
+
 	}
 	issue.Type = mappings.typeIdMappings[issue.Type]
 	issue.StdStoryPoint = int64(issue.StoryPoint)

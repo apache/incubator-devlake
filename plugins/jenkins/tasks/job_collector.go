@@ -69,7 +69,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			treeValue := fmt.Sprintf(
-				"jobs[name,class,url,color,base,jobs]{%d,%d}",
+				"jobs[name,class,url,color,base,jobs,upstreamProjects[name]]{%d,%d}",
 				reqData.Pager.Skip, reqData.Pager.Skip+reqData.Pager.Size)
 			query.Set("tree", treeValue)
 			return query, nil

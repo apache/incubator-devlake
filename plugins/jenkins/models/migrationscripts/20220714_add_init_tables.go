@@ -19,12 +19,12 @@ package migrationscripts
 
 import (
 	"context"
-
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"gorm.io/gorm/clause"
+
 	"github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts/archived"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type addInitTables struct{}

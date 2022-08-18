@@ -45,6 +45,20 @@ func (plugin Jenkins) Init(config *viper.Viper, logger core.Logger, db *gorm.DB)
 	return nil
 }
 
+func (plugin Jenkins) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{
+		&models.JenkinsBuild{},
+		&models.JenkinsBuildRepo{},
+		&models.JenkinsConnection{},
+		&models.JenkinsJob{},
+		&models.JenkinsJobDag{},
+		&models.JenkinsPipeline{},
+		&models.JenkinsResponse{},
+		&models.JenkinsStage{},
+		&models.JenkinsTask{},
+	}
+}
+
 func (plugin Jenkins) Description() string {
 	return "To collect and enrich data from Jenkins"
 }
@@ -55,6 +69,11 @@ func (plugin Jenkins) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractApiJobsMeta,
 		tasks.CollectApiBuildsMeta,
 		tasks.ExtractApiBuildsMeta,
+		tasks.CollectApiStagesMeta,
+		tasks.ExtractApiStagesMeta,
+		tasks.EnrichApiBuildsMeta,
+		tasks.ConvertBuildsToCICDMeta,
+		tasks.ConvertStagesMeta,
 		tasks.ConvertJobsMeta,
 		tasks.ConvertBuildsMeta,
 	}

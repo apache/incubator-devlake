@@ -26,7 +26,6 @@ import (
 // JenkinsBuild db entity for jenkins build
 type JenkinsBuild struct {
 	common.NoPKModel
-
 	// collected fields
 	ConnectionId      uint64    `gorm:"primaryKey"`
 	JobName           string    `gorm:"primaryKey;type:varchar(255)"`
@@ -38,6 +37,11 @@ type JenkinsBuild struct {
 	Timestamp         int64     // start time
 	StartTime         time.Time // convered by timestamp
 	CommitSha         string    `gorm:"type:varchar(255)"`
+	Type              string    `gorm:"index;type:varchar(255)"`
+	Class             string    `gorm:"index;type:varchar(255)" `
+	TriggeredBy       string    `gorm:"type:varchar(255)"`
+	Building          bool
+	HasStages         bool
 }
 
 func (JenkinsBuild) TableName() string {

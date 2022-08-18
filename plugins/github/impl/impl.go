@@ -46,6 +46,34 @@ func (plugin Github) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) 
 	return nil
 }
 
+func (plugin Github) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{
+		&models.GithubConnection{},
+		&models.GithubAccount{},
+		&models.GithubAccountOrg{},
+		&models.GithubCommit{},
+		&models.GithubCommitStat{},
+		&models.GithubIssue{},
+		&models.GithubIssueComment{},
+		&models.GithubIssueEvent{},
+		&models.GithubIssueLabel{},
+		&models.GithubJob{},
+		&models.GithubMilestone{},
+		&models.GithubPipeline{},
+		&models.GithubPrComment{},
+		&models.GithubPrCommit{},
+		&models.GithubPrIssue{},
+		&models.GithubPrLabel{},
+		&models.GithubPrReview{},
+		&models.GithubPullRequest{},
+		&models.GithubRepo{},
+		&models.GithubRepoAccount{},
+		&models.GithubRepoCommit{},
+		&models.GithubReviewer{},
+		&models.GithubRun{},
+	}
+}
+
 func (plugin Github) Description() string {
 	return "To collect and enrich data from GitHub"
 }
@@ -78,6 +106,13 @@ func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractAccountsMeta,
 		tasks.CollectAccountOrgMeta,
 		tasks.ExtractAccountOrgMeta,
+		tasks.CollectRunsMeta,
+		tasks.ExtractRunsMeta,
+		tasks.CollectJobsMeta,
+		tasks.ExtractJobsMeta,
+		tasks.EnrichPipelinesMeta,
+		tasks.ConvertPipelinesMeta,
+		tasks.ConvertTasksMeta,
 		tasks.EnrichPullRequestIssuesMeta,
 		tasks.ConvertRepoMeta,
 		tasks.ConvertIssuesMeta,

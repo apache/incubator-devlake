@@ -257,6 +257,7 @@ export default function GithubSettings (props) {
                 >
                   <NumericInput
                     id='refdiff-tags-limit'
+                    disabled={isSaving || isSavingConnection}
                     fill={true}
                     placeholder='10'
                     allowNumericCharactersOnly={true}
@@ -306,7 +307,7 @@ export default function GithubSettings (props) {
         </>
       )}
 
-      {(entities?.length === 0 || entities.some(e => e.value === DataEntityTypes.CROSSDOMAIN)) && (
+      {(entities?.length === 0 || entities.every(e => e.value === DataEntityTypes.CROSSDOMAIN)) && (
         <div className='headlineContainer'>
           <h5>No Data Entities</h5>
           <p className='description'>

@@ -25,5 +25,7 @@ import (
 func All() []migration.Script {
 	return []migration.Script{
 		new(addInitTables),
+		new(modifyGitlabCI),
+		new(addPipelineID),
 	}
 }

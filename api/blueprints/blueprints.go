@@ -22,7 +22,6 @@ import (
 	"strconv"
 
 	"github.com/apache/incubator-devlake/api/shared"
-
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/services"
 	"github.com/gin-gonic/gin"
@@ -30,9 +29,9 @@ import (
 
 // @Summary post blueprints
 // @Description post blueprints
-// @Tags Blueprints
+// @Tags framework/blueprints
 // @Accept application/json
-// @Param blueprint body string true "json"
+// @Param blueprint body models.Blueprint true "json"
 // @Success 200  {object} models.Blueprint
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
@@ -57,7 +56,7 @@ func Post(c *gin.Context) {
 
 // @Summary get blueprints
 // @Description get blueprints
-// @Tags Blueprints
+// @Tags framework/blueprints
 // @Accept application/json
 // @Success 200  {object} gin.H
 // @Failure 400  {string} errcode.Error "Bad Request"
@@ -80,7 +79,7 @@ func Index(c *gin.Context) {
 
 // @Summary get blueprints
 // @Description get blueprints
-// @Tags Blueprints
+// @Tags framework/blueprints
 // @Accept application/json
 // @Param blueprintId path int true "blueprint id"
 // @Success 200  {object} models.Blueprint
@@ -104,7 +103,7 @@ func Get(c *gin.Context) {
 
 // @Summary delete blueprints
 // @Description Delete BluePrints
-// @Tags Blueprints
+// @Tags framework/blueprints
 // @Param blueprintId path string true "blueprintId"
 // @Success 200
 // @Failure 400  {string} errcode.Error "Bad Request"
@@ -150,7 +149,7 @@ func Put(c *gin.Context) {
 
 // @Summary patch blueprints
 // @Description patch blueprints
-// @Tags Blueprints
+// @Tags framework/blueprints
 // @Accept application/json
 // @Param blueprintId path string true "blueprintId"
 // @Success 200  {object} models.Blueprint
@@ -180,7 +179,7 @@ func Patch(c *gin.Context) {
 
 // @Summary trigger blueprint
 // @Description trigger a blueprint immediately
-// @Tags Blueprints
+// @Tags framework/blueprints
 // @Accept application/json
 // @Param blueprintId path string true "blueprintId"
 // @Success 200  {object} models.Pipeline
@@ -200,4 +199,30 @@ func Trigger(c *gin.Context) {
 		return
 	}
 	shared.ApiOutputSuccess(c, pipeline, http.StatusOK)
+}
+
+// @Summary get pipelines by blueprint id
+// @Description get pipelines by blueprint id
+// @Tags framework/blueprints
+// @Accept application/json
+// @Param blueprintId path int true "blueprint id"
+// @Success 200  {object} shared.ResponsePipelines
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /blueprints/{blueprintId}/pipelines [get]
+func GetBlueprintPipelines(c *gin.Context) {
+	blueprintId := c.Param("blueprintId")
+	id, err := strconv.ParseUint(blueprintId, 10, 64)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	var query services.PipelineQuery
+	query.BlueprintId = id
+	pipelines, count, err := services.GetPipelines(&query)
+	if err != nil {
+		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		return
+	}
+	shared.ApiOutputSuccess(c, shared.ResponsePipelines{Pipelines: pipelines, Count: count}, http.StatusOK)
 }

@@ -22,21 +22,22 @@ import (
 
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"gorm.io/datatypes"
 )
 
-const BLUEPRINT_MODE_NORMAL = "NORMAL"
-const BLUEPRINT_MODE_ADVANCED = "ADVANCED"
+const (
+	BLUEPRINT_MODE_NORMAL   = "NORMAL"
+	BLUEPRINT_MODE_ADVANCED = "ADVANCED"
+)
 
 type Blueprint struct {
-	Name       string         `json:"name" validate:"required"`
-	Mode       string         `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Plan       datatypes.JSON `json:"plan"`
-	Enable     bool           `json:"enable"`
-	CronConfig string         `json:"cronConfig"`
-	IsManual   bool           `json:"isManual"`
-	Settings   datatypes.JSON `json:"settings"`
-	common.Model
+	Name         string          `json:"name" validate:"required"`
+	Mode         string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+	Plan         json.RawMessage `json:"plan"`
+	Enable       bool            `json:"enable"`
+	CronConfig   string          `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1; please check https://crontab.guru/ for detail"`
+	IsManual     bool            `json:"isManual"`
+	Settings     json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
+	common.Model `swaggerignore:"true"`
 }
 
 func (Blueprint) TableName() string {
@@ -46,14 +47,16 @@ func (Blueprint) TableName() string {
 type BlueprintSettings struct {
 	Version     string          `json:"version" validate:"required,semver,oneof=1.0.0"`
 	Connections json.RawMessage `json:"connections" validate:"required"`
+	BeforePlan  json.RawMessage `json:"before_plan"`
+	AfterPlan   json.RawMessage `json:"after_plan"`
 }
 
 // UnmarshalPlan unmarshals Plan in JSON to strong-typed core.PipelinePlan
 func (bp *Blueprint) UnmarshalPlan() (core.PipelinePlan, error) {
-		var plan core.PipelinePlan
-		err := json.Unmarshal(bp.Plan, &plan)
-		if err != nil {
-			return nil, err
-		}
-		return plan, nil
+	var plan core.PipelinePlan
+	err := json.Unmarshal(bp.Plan, &plan)
+	if err != nil {
+		return nil, err
+	}
+	return plan, nil
 }

@@ -21,16 +21,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/logger"
-	"github.com/apache/incubator-devlake/migration"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/spf13/cobra"
 	"io"
 	"os"
 	"os/signal"
 	"runtime"
 	"syscall"
+
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/spf13/cobra"
 )
 
 // RunCmd FIXME ...
@@ -64,6 +65,7 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 			panic(err)
 		}
 	}
+
 	err = core.RegisterPlugin(cmd.Use, pluginTask.(core.PluginMeta))
 	if err != nil {
 		panic(err)
@@ -79,11 +81,13 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 		panic(err)
 	}
 	ctx := createContext()
+	var parentTaskID uint64 = 0
 	err = RunPluginSubTasks(
 		ctx,
 		cfg,
 		log,
 		db,
+		parentTaskID,
 		cmd.Use,
 		tasks,
 		options,

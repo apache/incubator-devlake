@@ -38,6 +38,9 @@ function useBlueprintValidation ({
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
 
+  const [isValidConfiguration, setIsValidConfiguration] = useState(false)
+  const [validationAdvancedError, setValidationAdvancedError] = useState()
+
   const clear = () => {
     setErrors([])
   }
@@ -53,12 +56,36 @@ function useBlueprintValidation ({
     return isValid
   }, [])
 
+  const parseJSON = useCallback((jsonString = '') => {
+    try {
+      return JSON.parse(jsonString)
+    } catch (e) {
+      console.log('>> PARSE JSON ERROR!', e)
+      return false
+    }
+  }, [])
+
+  const isValidJSON = useCallback((rawConfiguration) => {
+    let isValid = false
+    try {
+      const parsedCode = parseJSON(rawConfiguration)
+      isValid = parsedCode !== false
+      // setValidationAdvancedError(null)
+    } catch (e) {
+      console.log('>> FORMAT CODE: Invalid Code Format!', e)
+      isValid = false
+      // setValidationAdvancedError(e.message)
+    }
+    // setIsValidConfiguration(isValid)
+    return isValid
+  }, [parseJSON])
+
   const validateNumericSet = useCallback((set = []) => {
     return Array.isArray(set) ? set.every(i => !isNaN(i)) : false
   }, [])
 
   const validateRepositoryName = useCallback((set = []) => {
-    const repoRegExp = /([a-z0-9_-]){2,}\/([a-z0-9_-]){2,}/gi
+    const repoRegExp = /([a-z0-9_-]){2,}\/([a-z0-9_-]){2,}$/gi
     return set.every(i => i.match(repoRegExp))
   }, [])
 
@@ -66,9 +93,12 @@ function useBlueprintValidation ({
     return set.length > 0
   }, [])
 
+  const validateBlueprintName = useCallback((name = '') => {
+    return name && name.length >= 2
+  }, [])
+
   const validate = useCallback(() => {
     const errs = []
-    // console.log('>> VALIDATING BLUEPRINT ', name)
 
     if (!name) {
       errs.push('Blueprint Name: Enter a valid Name')
@@ -164,7 +194,10 @@ function useBlueprintValidation ({
     projects,
     activeStep,
     activeProvider?.id,
-    activeConnection
+    activeConnection,
+    isValidCronExpression,
+    validateNumericSet,
+    validateRepositoryName
   ])
 
   const fieldHasError = useCallback((fieldId) => {
@@ -188,9 +221,19 @@ function useBlueprintValidation ({
     setErrors,
     isValid,
     validate,
+    validationAdvancedError,
     clear,
     fieldHasError,
-    getFieldError
+    getFieldError,
+    isValidCronExpression,
+    isValidJSON,
+    isValidConfiguration,
+    validateNumericSet,
+    validateRepositoryName,
+    valiateNonEmptySet,
+    validateBlueprintName,
+    setValidationAdvancedError,
+    setIsValidConfiguration
   }
 }
 

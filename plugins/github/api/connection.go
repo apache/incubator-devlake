@@ -20,37 +20,31 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/api/shared"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/plugins/github/models"
-
-	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
+	"github.com/apache/incubator-devlake/api/shared"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/mitchellh/mapstructure"
 )
 
-/*
-POST /plugins/github/test
-REQUEST BODY:
-{
-	"endpoint": "https://api.github.com/",
-	"token": "github api access token"
+type GithubTestConnResponse struct {
+	shared.ApiBody
+	Login string `json:"login"`
 }
-RESPONSE BODY:
-Success:
-{
-	"login": "xxx"
-}
-Failure:
-{
-	"success": false,
-	"message": "invalid token"
-}
-*/
+
+// @Summary test github connection
+// @Description Test github Connection
+// @Tags plugins/github
+// @Param body body models.TestConnectionRequest true "json body"
+// @Success 200  {object} GithubTestConnResponse
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/github/test [POST]
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// process input
 	var params models.TestConnectionRequest
@@ -124,19 +118,21 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return nil, fmt.Errorf(strings.Join(msgs, "\n"))
 	}
 
-	var githubApiResponse struct {
-		shared.ApiBody
-		Login string `json:"login"`
-	}
+	githubApiResponse := GithubTestConnResponse{}
 	githubApiResponse.Success = true
 	githubApiResponse.Message = "success"
 	githubApiResponse.Login = strings.Join(logins, `,`)
 	return &core.ApiResourceOutput{Body: githubApiResponse, Status: http.StatusOK}, nil
 }
 
-/*
-POST /plugins/github/connections
-*/
+// @Summary create github connection
+// @Description Create github connection
+// @Tags plugins/github
+// @Param body body models.GithubConnection true "json body"
+// @Success 200  {object} models.GithubConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/github/connections [POST]
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GithubConnection{}
 	err := connectionHelper.Create(connection, input)
@@ -146,9 +142,14 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-PATCH /plugins/github/connections/:connectionId
-*/
+// @Summary patch github connection
+// @Description Patch github connection
+// @Tags plugins/github
+// @Param body body models.GithubConnection true "json body"
+// @Success 200  {object} models.GithubConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/github/connections/{connectionId} [PATCH]
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GithubConnection{}
 	err := connectionHelper.Patch(connection, input)
@@ -158,9 +159,13 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-DELETE /plugins/github/connections/:connectionId
-*/
+// @Summary delete a github connection
+// @Description Delete a github connection
+// @Tags plugins/github
+// @Success 200  {object} models.GithubConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/github/connections/{connectionId} [DELETE]
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GithubConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -171,9 +176,13 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
-/*
-GET /plugins/github/connections
-*/
+// @Summary get all github connections
+// @Description Get all github connections
+// @Tags plugins/github
+// @Success 200  {object} []models.GithubConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/github/connections [GET]
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var connections []models.GithubConnection
 	err := connectionHelper.List(&connections)
@@ -184,9 +193,13 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connections}, nil
 }
 
-/*
-GET /plugins/github/connections/:connectionId
-*/
+// @Summary get github connection detail
+// @Description Get github connection detail
+// @Tags plugins/github
+// @Success 200  {object} models.GithubConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /plugins/github/connections/{connectionId} [GET]
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.GithubConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -194,4 +207,55 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 		return nil, err
 	}
 	return &core.ApiResourceOutput{Body: connection}, err
+}
+
+// @Summary blueprints setting for github
+// @Description blueprint setting for github
+// @Tags plugins/github
+// @Accept application/json
+// @Param blueprint body GithubBlueprintSetting true "json"
+// @Router /blueprints/github/blueprint-setting [post]
+func PostGithubBluePrint(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &GithubBlueprintSetting{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type GithubBlueprintSetting []struct {
+	Version     string `json:"version"`
+	Connections []struct {
+		Plugin       string `json:"plugin"`
+		ConnectionID int    `json:"connectionId"`
+		Scope        []struct {
+			Transformation models.TransformationRules `json:"transformation"`
+			Options        struct {
+				Owner string `json:"owner"`
+				Repo  string `json:"repo"`
+				Since string
+			} `json:"options"`
+			Entities []string `json:"entities"`
+		} `json:"scope"`
+	} `json:"connections"`
+}
+
+// @Summary pipelines plan for github
+// @Description pipelines plan for github
+// @Tags plugins/github
+// @Accept application/json
+// @Param blueprint body GithubPipelinePlan true "json"
+// @Router /pipelines/github/pipeline-plan [post]
+func PostGithubPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+	blueprint := &GithubPipelinePlan{}
+	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
+}
+
+type GithubPipelinePlan [][]struct {
+	Plugin   string   `json:"plugin"`
+	Subtasks []string `json:"subtasks"`
+	Options  struct {
+		ConnectionID   int    `json:"connectionId"`
+		Owner          string `json:"owner"`
+		Repo           string `json:"repo"`
+		Since          string
+		Transformation models.TransformationRules `json:"transformation"`
+	} `json:"options"`
 }

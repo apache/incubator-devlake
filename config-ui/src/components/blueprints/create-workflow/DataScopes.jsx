@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useState, useCallback } from 'react'
+import React, { Fragment, useEffect, useState, useCallback, useMemo } from 'react'
 import {
   Button,
   Icon,
@@ -56,38 +56,53 @@ const DataScopes = (props) => {
     setProjects = () => {},
     setBoards = () => {},
     prevStep = () => {},
+    fieldHasError = () => {},
+    getFieldError = () => {},
     isSaving = false,
     isRunning = false,
+    isFetching = false,
+    enableConnectionTabs = true,
+    elevation = Elevation.TWO,
+    cardStyle = {}
   } = props
+
+  const selectedBoards = useMemo(() => boards[configuredConnection.id], [boards, configuredConnection?.id])
+
+  useEffect(() => {
+    console.log('>> OVER HERE!!!', selectedBoards)
+  }, [selectedBoards])
 
   return (
     <div className='workflow-step workflow-step-data-scope' data-step={activeStep?.id}>
       {blueprintConnections.length > 0 && (
         <div style={{ display: 'flex' }}>
-          <div
-            className='connection-tab-selector'
-            style={{ minWidth: '200px' }}
-          >
-            <Card
-              className='workflow-card connection-tabs-card'
-              elevation={Elevation.TWO}
-              style={{ padding: '10px' }}
+          {enableConnectionTabs && (
+            <div
+              className='connection-tab-selector'
+              style={{ minWidth: '200px' }}
             >
-              <ConnectionTabs
-                connections={blueprintConnections}
-                onChange={handleConnectionTabChange}
-                selectedTabId={activeConnectionTab}
-                errors={validationErrors}
-              />
-            </Card>
-          </div>
+              <Card
+                className='workflow-card connection-tabs-card'
+                elevation={Elevation.TWO}
+                style={{ padding: '10px' }}
+              >
+                <ConnectionTabs
+                  connections={blueprintConnections}
+                  onChange={handleConnectionTabChange}
+                  selectedTabId={activeConnectionTab}
+                  errors={validationErrors}
+                />
+              </Card>
+            </div>
+          )}
           <div
             className='connection-scope'
             style={{ marginLeft: '10px', width: '100%' }}
           >
             <Card
               className='workflow-card worfklow-panel-card'
-              elevation={Elevation.TWO}
+              elevation={elevation}
+              style={{ ...cardStyle }}
             >
               {configuredConnection && (
                 <>
@@ -158,12 +173,13 @@ const DataScopes = (props) => {
                       <p>Select the boards you would like to sync.</p>
                       <BoardsSelector
                         items={boardsList}
-                        selectedItems={boards[configuredConnection.id] || []}
+                        selectedItems={selectedBoards}
                         onItemSelect={setBoards}
                         onClear={setBoards}
                         onRemove={setBoards}
                         disabled={isSaving}
                         configuredConnection={configuredConnection}
+                        isLoading={isFetching}
                       />
                     </>
                   )}
@@ -186,6 +202,8 @@ const DataScopes = (props) => {
                     // restrictedItems={getRestrictedDataEntities()}
                     onItemSelect={setDataEntities}
                     onClear={setDataEntities}
+                    fieldHasError={fieldHasError}
+                    getFieldError={getFieldError}
                     onRemove={setDataEntities}
                     disabled={isSaving}
                     configuredConnection={configuredConnection}

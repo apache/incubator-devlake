@@ -77,7 +77,7 @@ export default function Integration () {
                     {provider.iconDashboard}
                   </div>
                   <div className='providerName'>
-                    {provider.name}
+                    {provider.name} {provider.isBeta && <><sup>(beta)</sup></>}
                   </div>
                 </div>
               ))}

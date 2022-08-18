@@ -26,10 +26,9 @@ import (
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/go-playground/validator/v10"
-	"github.com/mitchellh/mapstructure"
 	"github.com/robfig/cron/v3"
-	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -40,8 +39,10 @@ type BlueprintQuery struct {
 	PageSize int   `form:"pageSize"`
 }
 
-var blueprintLog = logger.Global.Nested("blueprint")
-var vld = validator.New()
+var (
+	blueprintLog = logger.Global.Nested("blueprint")
+	vld          = validator.New()
+)
 
 // CreateBlueprint accepts a Blueprint instance and insert it to database
 func CreateBlueprint(blueprint *models.Blueprint) error {
@@ -139,7 +140,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 		return nil, err
 	}
 	originMode := blueprint.Mode
-	err = mapstructure.Decode(body, blueprint)
+	err = helper.DecodeMapStruct(body, blueprint)
 	if err != nil {
 		return nil, err
 	}
@@ -234,10 +235,11 @@ func createPipelineByBlueprint(blueprintId uint64, name string, plan core.Pipeli
 }
 
 // GeneratePlanJson generates pipeline plan by version
-func GeneratePlanJson(settings datatypes.JSON) (datatypes.JSON, error) {
+func GeneratePlanJson(settings json.RawMessage) (json.RawMessage, error) {
 	bpSettings := new(models.BlueprintSettings)
 	err := json.Unmarshal(settings, bpSettings)
 	if err != nil {
+		fmt.Println(string(settings))
 		return nil, err
 	}
 	var plan interface{}
@@ -278,7 +280,34 @@ func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan
 			return nil, fmt.Errorf("plugin %s does not support blueprint protocol version 1.0.0", connection.Plugin)
 		}
 	}
-	return MergePipelinePlans(plans...), nil
+
+	mergedPipelinePlan := MergePipelinePlans(plans...)
+	return FormatPipelinePlans(settings.BeforePlan, mergedPipelinePlan, settings.AfterPlan)
+}
+
+// FormatPipelinePlans merges multiple pipelines and append before and after pipeline
+func FormatPipelinePlans(beforePlanJson json.RawMessage, mainPlan core.PipelinePlan, afterPlanJson json.RawMessage) (core.PipelinePlan, error) {
+	newPipelinePlan := core.PipelinePlan{}
+	if beforePlanJson != nil {
+		beforePipelinePlan := core.PipelinePlan{}
+		err := json.Unmarshal(beforePlanJson, &beforePipelinePlan)
+		if err != nil {
+			return nil, err
+		}
+		newPipelinePlan = append(newPipelinePlan, beforePipelinePlan...)
+	}
+
+	newPipelinePlan = append(newPipelinePlan, mainPlan...)
+
+	if afterPlanJson != nil {
+		afterPipelinePlan := core.PipelinePlan{}
+		err := json.Unmarshal(afterPlanJson, &afterPipelinePlan)
+		if err != nil {
+			return nil, err
+		}
+		newPipelinePlan = append(newPipelinePlan, afterPipelinePlan...)
+	}
+	return newPipelinePlan, nil
 }
 
 // MergePipelinePlans merges multiple pipelines into one unified pipeline

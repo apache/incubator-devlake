@@ -142,6 +142,7 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 				Options: map[string]interface{}{
 					"url":    cloneUrl.String(),
 					"repoId": didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connectionId, apiRepo.GithubId),
+					"proxy":  connection.Proxy,
 				},
 			})
 		}

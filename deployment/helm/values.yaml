@@ -70,8 +70,8 @@ mysql:
 grafana:
   # image for grafana
   image:
-    repository: mericodev/grafana
-    tag: latest
+    repository: apache/devlake-dashboard
+    tag: v0.12.0-rc2
     pullPolicy: Always
   
   resources: {}
@@ -85,8 +85,8 @@ grafana:
 
 lake:
   image:
-    repository: mericodev/lake
-    tag: latest
+    repository: apache/devlake
+    tag: v0.12.0-rc2
     pullPolicy: Always
   # storage for config
   storage:
@@ -104,8 +104,8 @@ lake:
 
 ui:
   image:
-    repository: mericodev/config-ui
-    tag: latest
+    repository: apache/devlake-config-ui
+    tag: v0.12.0-rc2
     pullPolicy: Always
 
   resources: {}
@@ -125,13 +125,10 @@ alpine:
     pullPolicy: IfNotPresent
 
 service:
+  # service type: NodePort/ClusterIP
   type: NodePort
-  # service port for grafana
-  grafanaPort: 32000
   # service port for devlake-ui
   uiPort: 32001
-  # the external endpoint for grafana, only used when ingress not enabled
-  grafanaEndpoint: http://127.0.0.1:32000
 
 ingress:
   enabled: false

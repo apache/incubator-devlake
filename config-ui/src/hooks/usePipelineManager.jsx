@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
@@ -53,8 +53,12 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
     Providers.GITEXTRACTOR,
     Providers.FEISHU,
     Providers.AE,
-    Providers.DBT
+    Providers.DBT,
+    Providers.TAPD
   ])
+
+  const PIPELINES_ENDPOINT = useMemo(() => `${DEVLAKE_ENDPOINT}/pipelines`, [])
+  const [logfile, setLogfile] = useState('logging.tar.gz')
 
   const runPipeline = useCallback((runSettings = null) => {
     console.log('>> RUNNING PIPELINE....')
@@ -64,6 +68,7 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
       ToastNotification.clear()
       console.log('>> DISPATCHING PIPELINE REQUEST', runSettings || settings)
       const run = async () => {
+        // @todo: remove "ID" fallback key when no longer needed
         const p = await request.post(`${DEVLAKE_ENDPOINT}/pipelines`, runSettings || settings)
         const t = await request.get(`${DEVLAKE_ENDPOINT}/pipelines/${p.data?.ID || p.data?.id}/tasks`)
         console.log('>> RAW PIPELINE DATA FROM API...', p.data)
@@ -122,12 +127,11 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
         console.log('>> RAW PIPELINE TASKS DATA FROM API...', t.data)
         setActivePipeline({
           ...p.data,
-          ID: p.data.ID || p.data.id,
+          id: p.data.id,
           tasks: [...t.data.tasks]
         })
         setPipelineRun((pR) => refresh ? { ...p.data, ID: p.data.id, tasks: [...t.data.tasks] } : pR)
-        setLastRunId((lrId) => refresh ? p.data?.ID : lrId)
-        // ToastNotification.show({ message: `Fetched Pipeline ID - ${p.data?.ID}.`, intent: 'danger', icon: 'small-tick' })
+        setLastRunId((lrId) => refresh ? p.data?.id : lrId)
         setTimeout(() => {
           setIsFetching(false)
         }, 500)
@@ -167,10 +171,10 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
         const p = await request.get(`${DEVLAKE_ENDPOINT}/pipelines${queryParams}`)
         console.log('>> RAW PIPELINES RUN DATA FROM API...', p.data?.pipelines)
         let pipelines = p.data && p.data.pipelines ? [...p.data.pipelines] : []
-        pipelines = pipelines.map(p => ({ ...p, ID: p.ID || p.id }))
+        // @todo: remove "ID" fallback key when no longer needed
+        pipelines = pipelines.map(p => ({ ...p, ID: p.id }))
         setPipelines(pipelines)
         setPipelineCount(p.data ? p.data.count : 0)
-        // ToastNotification.show({ message: `Fetched All Pipelines`, intent: 'danger', icon: 'small-tick' })
         setTimeout(() => {
           setIsFetchingAll(false)
         }, fetchTimeout)
@@ -211,6 +215,10 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
 
   }, [pipelineName, initialTasks])
 
+  const getPipelineLogfile = useCallback((pipelineId = 0) => {
+    return `${PIPELINES_ENDPOINT}/${pipelineId}/${logfile}`
+  }, [PIPELINES_ENDPOINT, logfile])
+
   return {
     errors,
     isRunning,
@@ -226,6 +234,7 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
     pipelines,
     pipelineCount,
     lastRunId,
+    logfile,
     runPipeline,
     cancelPipeline,
     fetchPipeline,
@@ -234,7 +243,8 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
     buildPipelineStages,
     detectPipelineProviders,
     allowedProviders,
-    setAllowedProviders
+    setAllowedProviders,
+    getPipelineLogfile
   }
 }
 

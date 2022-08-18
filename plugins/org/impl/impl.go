@@ -42,6 +42,10 @@ func (plugin *Org) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 	return nil
 }
 
+func (plugin Org) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
+}
+
 func (plugin Org) Description() string {
 	return "collect data related to team and organization"
 }

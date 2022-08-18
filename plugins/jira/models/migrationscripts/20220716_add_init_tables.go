@@ -30,6 +30,15 @@ import (
 	"gorm.io/gorm"
 )
 
+type JiraConnectionTemp struct {
+	archived.RestConnection `mapstructure:",squash"`
+	archived.BasicAuth      `mapstructure:",squash"`
+}
+
+func (JiraConnectionTemp) TableName() string {
+	return "_tool_jira_connections_temp"
+}
+
 type JiraConnectionV011 struct {
 	ID                         uint64    `gorm:"primaryKey" json:"id"`
 	CreatedAt                  time.Time `json:"createdAt"`
@@ -84,66 +93,61 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	}
 
 	// get connection history data
+	err = db.Migrator().AutoMigrate(&JiraConnectionTemp{})
+	if err != nil {
+		return err
+	}
+	defer db.Migrator().DropTable(&JiraConnectionTemp{})
+
 	var result *gorm.DB
-	m := db.Migrator()
+	var jiraConns []JiraConnectionV011
+	result = db.Find(&jiraConns)
 
-	if m.HasTable(&JiraConnectionV011{}) {
-		var jiraConns []JiraConnectionV011
-		result = db.Find(&jiraConns)
+	if result.Error == nil {
+		for _, v := range jiraConns {
+			conn := &JiraConnectionTemp{}
+			conn.ID = v.ID
+			conn.Name = v.Name
+			conn.Endpoint = v.Endpoint
+			conn.Proxy = v.Proxy
+			conn.RateLimitPerHour = v.RateLimit
 
-		if result.Error == nil {
-			err := db.Migrator().DropTable(&JiraConnectionV011{})
+			c := config.GetConfig()
+			encKey := c.GetString(core.EncodeKeyEnvStr)
+			if encKey == "" {
+				return fmt.Errorf("jira v0.11 invalid encKey")
+			}
+			auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
 			if err != nil {
 				return err
 			}
-			err = db.Migrator().AutoMigrate(&archived.JiraConnection{})
+			pk, err := base64.StdEncoding.DecodeString(auth)
 			if err != nil {
 				return err
 			}
-
-			for _, v := range jiraConns {
-				conn := &archived.JiraConnection{}
-				conn.ID = v.ID
-				conn.Name = v.Name
-				conn.Endpoint = v.Endpoint
-				conn.Proxy = v.Proxy
-				conn.RateLimitPerHour = v.RateLimit
-
-				c := config.GetConfig()
-				encKey := c.GetString(core.EncodeKeyEnvStr)
-				if encKey == "" {
-					return fmt.Errorf("jira v0.11 invalid encKey")
-				}
-				auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
+			originInfo := strings.Split(string(pk), ":")
+			if len(originInfo) == 2 {
+				conn.Username = originInfo[0]
+				conn.Password, err = core.Encrypt(encKey, originInfo[1])
 				if err != nil {
 					return err
 				}
-				pk, err := base64.StdEncoding.DecodeString(auth)
-				if err != nil {
-					return err
-				}
-				originInfo := strings.Split(string(pk), ":")
-				if len(originInfo) == 2 {
-					conn.Username = originInfo[0]
-					conn.Password, err = core.Encrypt(encKey, originInfo[1])
-					if err != nil {
-						return err
-					}
-					// create
-					db.Create(&conn)
+				// create
+				err := db.Create(&conn)
+				if err.Error != nil {
+					return err.Error
 				}
 			}
 		}
-	} else {
-		c := config.GetConfig()
-		encKey := c.GetString("ENCODE_KEY")
-		if encKey == "" {
-			return fmt.Errorf("jira invalid encKey")
-		}
-		err := db.Migrator().AutoMigrate(&archived.JiraConnection{})
-		if err != nil {
-			return err
-		}
+	}
+
+	err = db.Migrator().DropTable(&JiraConnectionV011{})
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().RenameTable(JiraConnectionTemp{}, archived.JiraConnection{})
+	if err != nil {
+		return err
 	}
 
 	return db.Migrator().AutoMigrate(
