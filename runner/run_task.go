@@ -333,7 +333,7 @@ func recordSubtask(logger core.Logger, db *gorm.DB, subtask *models.Subtask) {
 
 func getTaskLogger(parentLogger core.Logger, task *models.Task) (core.Logger, error) {
 	log := parentLogger.Nested(fmt.Sprintf("task #%d", task.ID))
-	loggingPath := models.GetTaskLoggerPath(log.GetConfig(), task)
+	loggingPath := logger.GetTaskLoggerPath(log.GetConfig(), task)
 	stream, err := logger.GetFileStream(loggingPath)
 	if err != nil {
 		return nil, err

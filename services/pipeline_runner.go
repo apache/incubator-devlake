@@ -65,7 +65,7 @@ func getPipelineLogger(pipeline *models.Pipeline) core.Logger {
 	pipelineLogger := globalPipelineLog.Nested(
 		fmt.Sprintf("pipeline #%d", pipeline.ID),
 	)
-	loggingPath := models.GetPipelineLoggerPath(pipelineLogger.GetConfig(), pipeline)
+	loggingPath := logger.GetPipelineLoggerPath(pipelineLogger.GetConfig(), pipeline)
 	stream, err := logger.GetFileStream(loggingPath)
 	if err != nil {
 		globalPipelineLog.Error("unable to set stream for logging pipeline %d", pipeline.ID)

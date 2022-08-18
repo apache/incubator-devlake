@@ -15,16 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package logger
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"os"
 	"path/filepath"
 )
 
-func GetTaskLoggerPath(config *core.LoggerConfig, t *Task) string {
+func GetTaskLoggerPath(config *core.LoggerConfig, t *models.Task) string {
 	if config.Path == "" {
 		return ""
 	}
@@ -39,7 +40,7 @@ func GetTaskLoggerPath(config *core.LoggerConfig, t *Task) string {
 	return filepath.Join(basePath, fmt.Sprintf("task-%d-%d-%d-%s.log", t.ID, t.PipelineRow, t.PipelineCol, t.Plugin))
 }
 
-func GetPipelineLoggerPath(config *core.LoggerConfig, p *Pipeline) string {
+func GetPipelineLoggerPath(config *core.LoggerConfig, p *models.Pipeline) string {
 	if config.Path == "" {
 		return ""
 	}

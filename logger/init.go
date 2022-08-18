@@ -50,7 +50,9 @@ func init() {
 		FullTimestamp:   true,
 	})
 	basePath := cfg.GetString("LOGGING_DIR")
-	if basePath != "" {
+	if basePath == "" {
+		inner.Error("LOGGING_DIR is not set. Log files will not be generated.")
+	} else {
 		basePath = filepath.Join(basePath, "devlake.log")
 	}
 	var err error
