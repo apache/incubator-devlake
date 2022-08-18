@@ -61,6 +61,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
         transforms = {
           prType: '',
           prComponent: '',
+          prBodyClosePattern: '',
           issueSeverity: '',
           issueComponent: '',
           issuePriority: '',
