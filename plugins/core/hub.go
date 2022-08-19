@@ -45,6 +45,18 @@ func GetPlugin(name string) (PluginMeta, error) {
 	return nil, fmt.Errorf("Plugin `%s` doesn't exist", name)
 }
 
+type PluginCallBack func(name string, plugin PluginMeta) error
+
+func TraversalPlugin(handle PluginCallBack) error {
+	for name, plugin := range plugins {
+		err := handle(name, plugin)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func AllPlugins() map[string]PluginMeta {
 	return plugins
 }
