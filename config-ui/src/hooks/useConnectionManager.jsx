@@ -44,6 +44,7 @@ function useConnectionManager (
   const [name, setName] = useState()
   const [endpointUrl, setEndpointUrl] = useState()
   const [proxy, setProxy] = useState()
+  const [rateLimit, setRateLimit] = useState(0)
   const [token, setToken] = useState()
   const [initialTokenStore, setInitialTokenStore] = useState({
     0: '',
@@ -148,6 +149,7 @@ function useConnectionManager (
           username: username,
           password: password,
           proxy: proxy,
+          rateLimit: rateLimit,
           ...connectionPayload,
         }
         break
@@ -158,6 +160,7 @@ function useConnectionManager (
           username: username,
           password: password,
           proxy: proxy,
+          rateLimit: rateLimit,
           ...connectionPayload,
         }
         break
@@ -167,6 +170,7 @@ function useConnectionManager (
           endpoint: endpointUrl,
           token: token,
           proxy: proxy,
+          rateLimit: rateLimit,
           ...connectionPayload,
         }
         break
@@ -177,6 +181,7 @@ function useConnectionManager (
           endpoint: endpointUrl,
           username: username,
           password: password,
+          rateLimit: rateLimit,
           ...connectionPayload,
         }
         break
@@ -186,6 +191,7 @@ function useConnectionManager (
           endpoint: endpointUrl,
           token: token,
           proxy: proxy,
+          rateLimit: rateLimit,
           ...connectionPayload,
         }
         break
@@ -321,6 +327,7 @@ function useConnectionManager (
             name: connectionData.name || connectionData.Name,
             endpoint: connectionData.endpoint || connectionData.Endpoint,
             proxy: connectionData.proxy || connectionData.Proxy,
+            rateLimit: connectionData.rateLimit,
             username: connectionData.username || connectionData.Username,
             password: connectionData.password || connectionData.Password,
             token: connectionData.token || connectionData.auth
@@ -544,6 +551,7 @@ function useConnectionManager (
       2: ''
     })
     setProxy('')
+    setRateLimit(0)
   }, [])
 
   useEffect(() => {
@@ -555,21 +563,25 @@ function useConnectionManager (
         case Providers.JENKINS:
           setUsername(activeConnection.username)
           setPassword(activeConnection.password)
+          setRateLimit(activeConnection.rateLimit)
           break
         case Providers.GITLAB:
           setToken(activeConnection.basicAuthEncoded || activeConnection.token || activeConnection.auth)
           setProxy(activeConnection.Proxy || activeConnection.proxy)
+          setRateLimit(activeConnection.rateLimit)
           break
         case Providers.GITHUB:
           setToken(connectionToken)
           setInitialTokenStore(connectionToken?.split(',')?.reduce((tS, cT, id) => ({ ...tS, [id]: cT }), {}))
           setProxy(activeConnection.Proxy || activeConnection.proxy)
+          setRateLimit(activeConnection.rateLimit)
           break
         case Providers.JIRA:
         // setToken(activeConnection.basicAuthEncoded || activeConnection.token)
           setUsername(activeConnection.username)
           setPassword(activeConnection.password)
           setProxy(activeConnection.Proxy || activeConnection.proxy)
+          setRateLimit(activeConnection.rateLimit)
           break
       }
       ToastNotification.clear()
@@ -657,6 +669,7 @@ function useConnectionManager (
     name,
     endpointUrl,
     proxy,
+    rateLimit,
     username,
     password,
     token,
@@ -667,6 +680,7 @@ function useConnectionManager (
     setName,
     setEndpointUrl,
     setProxy,
+    setRateLimit,
     setToken,
     setInitialTokenStore,
     setUsername,

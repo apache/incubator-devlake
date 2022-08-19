@@ -95,6 +95,7 @@ const ConnectionDialog = (props) => {
     name,
     endpointUrl,
     proxy,
+    rateLimit = 0,
     token,
     initialTokenStore = {},
     username,
@@ -116,6 +117,7 @@ const ConnectionDialog = (props) => {
     onNameChange = () => {},
     onEndpointChange = () => {},
     onProxyChange = () => {},
+    onRateLimitChange = () => {},
     onTokenChange = () => {},
     onUsernameChange = () => {},
     onPasswordChange = () => {},
@@ -287,6 +289,7 @@ const ConnectionDialog = (props) => {
                     name={name}
                     endpointUrl={endpointUrl}
                     proxy={proxy}
+                    rateLimit={rateLimit}
                     token={token}
                     initialTokenStore={initialTokenStore}
                     username={username}
@@ -298,6 +301,7 @@ const ConnectionDialog = (props) => {
                     onNameChange={onNameChange}
                     onEndpointChange={onEndpointChange}
                     onProxyChange={onProxyChange}
+                    onRateLimitChange={onRateLimitChange}
                     onTokenChange={onTokenChange}
                     onUsernameChange={onUsernameChange}
                     onPasswordChange={onPasswordChange}

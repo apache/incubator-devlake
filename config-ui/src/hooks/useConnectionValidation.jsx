@@ -25,6 +25,7 @@ function useConnectionValidation ({
   name,
   endpointUrl,
   proxy,
+  rateLimit,
   token,
   username,
   password
@@ -48,6 +49,7 @@ function useConnectionValidation ({
       'NAME', name,
       'ENDPOINT URL', endpointUrl,
       'PROXY URL', proxy,
+      'RATE LIMIT', rateLimit,
       'TOKEN', token,
       'USERNAME', username,
       'PASSWORD', password
@@ -100,6 +102,7 @@ function useConnectionValidation ({
     name,
     endpointUrl,
     proxy,
+    rateLimit,
     token,
     username,
     password,
