@@ -134,7 +134,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 	offset := 0
 	starrocksTmpTable := starrocksTable + "_tmp"
 	// create tmp table in starrocks
-	_, execErr := starrocks.Exec(fmt.Sprintf("create table %s like %s", starrocksTmpTable, starrocksTable))
+	_, execErr := starrocks.Exec(fmt.Sprintf("drop table if exists %s; create table %s like %s", starrocksTmpTable, starrocksTmpTable, starrocksTable))
 	if execErr != nil {
 		return execErr
 	}
@@ -195,10 +195,10 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 			req.Header.Set(k, v)
 		}
 		resp, err := client.Do(req)
-		if err != nil && err != http.ErrUseLastResponse {
+		if err != nil {
 			return err
 		}
-		if err == http.ErrUseLastResponse {
+		if resp.StatusCode == 307 {
 			var location *url.URL
 			location, err = resp.Location()
 			req, err = http.NewRequest(http.MethodPut, location.String(), bytes.NewBuffer(jsonData))
