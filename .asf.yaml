@@ -16,7 +16,7 @@
 #  under the License.
 
 github:
-  description: "Apache DevLake is an open-source dev data platform to ingest, analyze, and visualize the fragmented data from DevOps tools，which can distill insights to improve engineering productivity."
+  description: "Apache DevLake is an open-source dev data platform to ingest, analyze, and visualize the fragmented data from DevOps tools, which can distill insights to improve engineering productivity."
   homepage: https://devlake.apache.org/
   features:
     issues: true
