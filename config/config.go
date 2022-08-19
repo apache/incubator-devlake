@@ -73,6 +73,7 @@ func setDefaultValue(v *viper.Viper) {
 	v.SetDefault("GITLAB_ENDPOINT", "https://gitlab.com/api/v4/")
 	v.SetDefault("GITHUB_ENDPOINT", "https://api.github.com/")
 	v.SetDefault("GITEE_ENDPOINT", "https://gitee.com/api/v5/")
+	v.SetDefault("LOGGING_DIR", "logs")
 }
 
 // replaceNewEnvItemInOldContent replace old config to new config in env file content
