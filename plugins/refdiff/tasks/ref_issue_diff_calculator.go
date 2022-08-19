@@ -64,10 +64,10 @@ func CalculateIssuesDiff(taskCtx core.SubTaskContext) error {
 		dal.Join("left join pull_request_issues on pull_request_issues.pull_request_id = _combine_pr.id"),
 		dal.Join("left join refs on refs.commit_sha = refs_commits_diffs.new_ref_commit_sha"),
 		dal.Orderby("refs_commits_diffs.new_ref_id ASC"),
-		dal.Where("refs.repo_id = ? and pull_request_issues.issue_number > 0 and (refs_commits_diffs.new_ref_id, refs_commits_diffs.old_ref_id) in ?",
+		dal.Where("refs.repo_id = ? and pull_request_issues.issue_key > 0 and (refs_commits_diffs.new_ref_id, refs_commits_diffs.old_ref_id) in ?",
 			repoId, pairList),
 		dal.Select(`refs_commits_diffs.new_ref_commit_sha as new_ref_commit_sha, refs_commits_diffs.old_ref_commit_sha as old_ref_commit_sha, 
-			pull_request_issues.issue_id as issue_id, pull_request_issues.issue_number as issue_number, 
+			pull_request_issues.issue_id as issue_id, pull_request_issues.issue_key as issue_key, 
 			refs_commits_diffs.new_ref_id as new_ref_id, refs_commits_diffs.old_ref_id as old_ref_id`),
 	)
 	if err != nil {
