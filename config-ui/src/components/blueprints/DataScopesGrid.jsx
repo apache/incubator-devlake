@@ -204,9 +204,9 @@ const DataScopesGrid = (props) => {
               }}
             >
               <Button
-                disabled={[Providers.JENKINS, Providers.TAPD].includes(c.providerId)}
+                disabled={mode === BlueprintMode.NORMAL && [Providers.JENKINS, Providers.TAPD].includes(c.providerId)}
                 icon='annotation'
-                intent={c.providerId === Providers.JENKINS ? Intent.NONE : Intent.PRIMARY}
+                intent={mode === BlueprintMode.NORMAL && c.providerId === Providers.JENKINS ? Intent.NONE : Intent.PRIMARY}
                 size={12}
                 small
                 minimal
