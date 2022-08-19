@@ -34,16 +34,24 @@ type (
 		// below are optional fields
 		httpCode int
 	}
+
+	// Option add customized properties to the Error
+	Option func(*options)
+
+	options struct {
+		userMsg   string
+		asUserMsg bool
+	}
 )
 
 // New constructs a new Error instance with this message
-func (t *Type) New(message string) Error {
-	return newCrdbError(t, nil, message)
+func (t *Type) New(message string, opts ...Option) Error {
+	return newCrdbError(t, nil, message, opts...)
 }
 
 // Wrap constructs a new Error instance with this message and wraps the passed in error
-func (t *Type) Wrap(err error, message string) Error {
-	return newCrdbError(t, err, message)
+func (t *Type) Wrap(err error, message string, opts ...Option) Error {
+	return newCrdbError(t, err, message, opts...)
 }
 
 // GetHttpCode gets the associated Http code with this Type, if explicitly set, otherwise http.StatusInternalServerError
@@ -52,4 +60,18 @@ func (t *Type) GetHttpCode() int {
 		return http.StatusInternalServerError
 	}
 	return t.httpCode
+}
+
+// UserMessage add a user-friendly message to the Error
+func UserMessage(msg string) Option {
+	return func(opts *options) {
+		opts.userMsg = msg
+	}
+}
+
+// AsUserMessage use the ordinary message as the user-friendly message of the Error
+func AsUserMessage() Option {
+	return func(opts *options) {
+		opts.asUserMsg = true
+	}
 }

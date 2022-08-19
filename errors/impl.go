@@ -17,13 +17,17 @@ limitations under the License.
 
 package errors
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 import cerror "github.com/cockroachdb/errors"
 
 type (
 	crdbErrorImpl struct {
 		wrappedRaw error
 		wrapped    *crdbErrorImpl
+		userMsg    string
 		msg        string
 		t          *Type
 	}
@@ -38,17 +42,7 @@ func (e *crdbErrorImpl) Message() string {
 }
 
 func (e *crdbErrorImpl) UserMessage() string {
-	messages := e.getUserMessages()
-	if len(messages) == 0 {
-		return ""
-	}
-	msgs := messages[0]
-	if len(messages) > 1 {
-		for _, msg := range messages[1:] {
-			msgs = fmt.Sprintf("%s\ncaused by: %s", msgs, msg)
-		}
-	}
-	return msgs
+	return strings.Join(e.getUserMessages(), "\ncaused by: ")
 }
 
 func (e *crdbErrorImpl) Unwrap() error {
@@ -81,21 +75,27 @@ func (e *crdbErrorImpl) getUserMessages() []string {
 	err := e
 	ok := false
 	for {
-		msgs = append(msgs, err.msg)
+		if err.userMsg != "" {
+			msgs = append(msgs, err.userMsg)
+		}
 		unwrapped := err.Unwrap()
 		if unwrapped == nil {
 			break
 		}
 		err, ok = unwrapped.(*crdbErrorImpl)
 		if !ok {
-			msgs = append(msgs, unwrapped.Error())
+			// don't append the message if the error is "external"
 			break
 		}
 	}
 	return msgs
 }
 
-func newCrdbError(t *Type, err error, message string) *crdbErrorImpl {
+func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbErrorImpl {
+	cfg := &options{}
+	for _, opt := range opts {
+		opt(cfg)
+	}
 	errType := *t
 	var wrappedErr *crdbErrorImpl
 	if cast, ok := err.(*crdbErrorImpl); ok {
@@ -105,12 +105,17 @@ func newCrdbError(t *Type, err error, message string) *crdbErrorImpl {
 			errType = cast.GetType()
 		}
 	}
-	return &crdbErrorImpl{
+	impl := &crdbErrorImpl{
 		wrappedRaw: cerror.WrapWithDepth(1, err, message),
 		wrapped:    wrappedErr,
 		msg:        message,
+		userMsg:    cfg.userMsg,
 		t:          &errType,
 	}
+	if cfg.asUserMsg {
+		impl.userMsg = impl.msg
+	}
+	return impl
 }
 
 var _ Error = (*crdbErrorImpl)(nil)
