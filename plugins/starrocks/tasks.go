@@ -21,8 +21,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 
@@ -96,7 +97,7 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 	if err != nil {
 		return err
 	}
-	var pks string
+	var pks []string
 	var columns []string
 	firstcm := ""
 	for _, cm := range columeMetas {
@@ -109,22 +110,19 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 		columns = append(columns, column)
 		isPrimaryKey, ok := cm.PrimaryKey()
 		if isPrimaryKey && ok {
-			if pks != "" {
-				pks += ","
-			}
-			pks += name
+			pks = append(pks, fmt.Sprintf("`%s`", name))
 		}
 		if firstcm == "" {
-			firstcm = name
+			firstcm = fmt.Sprintf("`%s`", name)
 		}
 	}
 
-	if pks == "" {
-		pks = firstcm
+	if len(pks) == 0 {
+		pks = append(pks, firstcm)
 	}
 
 	if extra == "" {
-		extra = fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "1")`, pks)
+		extra = fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "1")`, strings.Join(pks, ", "))
 	}
 	tableSql := fmt.Sprintf("create table if not exists `%s` ( %s ) %s", starrocksTable, strings.Join(columns, ","), extra)
 	c.GetLogger().Info(tableSql)
@@ -172,7 +170,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 			break
 		}
 		// insert data to tmp table
-		url := fmt.Sprintf("http://%s:%d/api/%s/%s/_stream_load", config.Host, config.BePort, config.Database, starrocksTmpTable)
+		loadURL := fmt.Sprintf("http://%s:%d/api/%s/%s/_stream_load", config.BeHost, config.BePort, config.Database, starrocksTmpTable)
 		headers := map[string]string{
 			"format":            "json",
 			"strip_outer_array": "true",
@@ -183,8 +181,12 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 		if err != nil {
 			return err
 		}
-		client := http.Client{}
-		req, err := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(jsonData))
+		client := http.Client{
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		}
+		req, err := http.NewRequest(http.MethodPut, loadURL, bytes.NewBuffer(jsonData))
 		if err != nil {
 			return err
 		}
@@ -193,10 +195,26 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 			req.Header.Set(k, v)
 		}
 		resp, err := client.Do(req)
+		if err != nil && err != http.ErrUseLastResponse {
+			return err
+		}
+		if err == http.ErrUseLastResponse {
+			var location *url.URL
+			location, err = resp.Location()
+			req, err = http.NewRequest(http.MethodPut, location.String(), bytes.NewBuffer(jsonData))
+			if err != nil {
+				return err
+			}
+			req.SetBasicAuth(config.User, config.Password)
+			for k, v := range headers {
+				req.Header.Set(k, v)
+			}
+			resp, err = client.Do(req)
+		}
 		if err != nil {
 			return err
 		}
-		b, err := ioutil.ReadAll(resp.Body)
+		b, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return err
 		}

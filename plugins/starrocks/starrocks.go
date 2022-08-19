@@ -6,7 +6,7 @@ The ASF licenses this file to You under the Apache License, Version 2.0
 (the "License"); you may not use this file except in compliance with
 the License.  You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,6 +37,9 @@ func (s StarRocks) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if err != nil {
 		return nil, err
 	}
+	if op.BeHost == "" {
+		op.BeHost = op.Host
+	}
 	return &op, nil
 }
 
@@ -61,6 +64,7 @@ func main() {
 	_ = cmd.MarkFlagRequired("port")
 	port := cmd.Flags().StringP("port", "p", "", "StarRocks port")
 	_ = cmd.MarkFlagRequired("port")
+	beHost := cmd.Flags().StringP("be_host", "BH", "", "StarRocks be host")
 	bePort := cmd.Flags().StringP("be_port", "BP", "", "StarRocks be port")
 	_ = cmd.MarkFlagRequired("user")
 	user := cmd.Flags().StringP("user", "u", "", "StarRocks user")
@@ -81,6 +85,7 @@ func main() {
 			"user":       user,
 			"password":   password,
 			"database":   database,
+			"be_host":    beHost,
 			"be_port":    bePort,
 			"tables":     tables,
 			"batch_size": batchSize,
