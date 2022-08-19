@@ -32,6 +32,7 @@ import {
 import usePipelineManager from '@/hooks/usePipelineManager'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import useBlueprintValidation from '@/hooks/useBlueprintValidation'
+import usePaginator from '@/hooks/usePaginator'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -88,6 +89,14 @@ const Blueprints = (props) => {
     // eslint-disable-next-line no-unused-vars
     detectPipelineProviders
   } = usePipelineManager()
+
+  const {
+    data,
+    pagedData,
+    filteredData,
+    setData,
+    controls: renderPagnationControls
+  } = usePaginator()
 
   const [expandDetails, setExpandDetails] = useState(false)
   const [activeBlueprint, setActiveBlueprint] = useState(null)
@@ -282,6 +291,10 @@ const Blueprints = (props) => {
     console.log('>>>> DETECTED PROVIDERS TASKS....', detectedProviderTasks)
   }, [detectedProviderTasks])
 
+  useEffect(() => {
+    setData(blueprints)
+  }, [blueprints])
+
   return (
     <>
       <div className='container'>
@@ -316,7 +329,8 @@ const Blueprints = (props) => {
             {(!isFetchingBlueprints) && blueprints.length > 0 && (
               <>
                 <BlueprintsGrid
-                  blueprints={blueprints}
+                  // blueprints={blueprints}
+                  blueprints={pagedData}
                   pipelines={relatedPipelines}
                   filteredBlueprints={filteredBlueprints}
                   activeFilterStatus={activeFilterStatus}
@@ -381,6 +395,7 @@ const Blueprints = (props) => {
                 />
               </Card>
             )}
+            <div style={{ alignSelf: 'flex-end', padding: '10px' }}>{renderPagnationControls()}</div>
           </main>
         </Content>
       </div>
