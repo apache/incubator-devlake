@@ -21,21 +21,23 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/sirupsen/logrus"
-	"io"
-	"os"
 	"regexp"
+	"strings"
 )
 
+var alreadyInBracketsRegex = regexp.MustCompile(`\[.*?]+`)
+
 type DefaultLogger struct {
-	prefix     string
-	log        *logrus.Logger
-	loggerPool map[string]*logrus.Logger
+	log    *logrus.Logger
+	config *core.LoggerConfig
 }
 
-func NewDefaultLogger(log *logrus.Logger, prefix string, loggerPool map[string]*logrus.Logger) *DefaultLogger {
-	newDefaultLogger := &DefaultLogger{prefix: prefix, log: log}
-	newDefaultLogger.loggerPool = loggerPool
-	return newDefaultLogger
+func NewDefaultLogger(log *logrus.Logger) (core.Logger, error) {
+	defaultLogger := &DefaultLogger{
+		log:    log,
+		config: &core.LoggerConfig{},
+	}
+	return defaultLogger, nil
 }
 
 func (l *DefaultLogger) IsLevelEnabled(level core.LogLevel) bool {
@@ -48,8 +50,8 @@ func (l *DefaultLogger) IsLevelEnabled(level core.LogLevel) bool {
 func (l *DefaultLogger) Log(level core.LogLevel, format string, a ...interface{}) {
 	if l.IsLevelEnabled(level) {
 		msg := fmt.Sprintf(format, a...)
-		if l.prefix != "" {
-			msg = fmt.Sprintf("%s %s", l.prefix, msg)
+		if l.config.Prefix != "" {
+			msg = fmt.Sprintf("%s %s", l.config.Prefix, msg)
 		}
 		l.log.Log(logrus.Level(level), msg)
 	}
@@ -75,32 +77,57 @@ func (l *DefaultLogger) Error(format string, a ...interface{}) {
 	l.Log(core.LOG_ERROR, format, a...)
 }
 
-// bind two writer to logger
-func (l *DefaultLogger) Nested(name string) core.Logger {
-	writerStd := os.Stdout
-	fileName := ""
-	loggerPrefixRegex := regexp.MustCompile(`(\[task #\d+]\s\[\w+])`)
-	groups := loggerPrefixRegex.FindStringSubmatch(fmt.Sprintf("%s [%s]", l.prefix, name))
-	if len(groups) > 1 {
-		fileName = groups[1]
+func (l *DefaultLogger) SetStream(config *core.LoggerStreamConfig) {
+	if config.Path != "" {
+		l.config.Path = config.Path
 	}
+	if config.Writer != nil {
+		l.log.SetOutput(config.Writer)
+	}
+}
 
-	if fileName == "" {
-		fileName = "devlake"
+func (l *DefaultLogger) GetConfig() *core.LoggerConfig {
+	return &core.LoggerConfig{
+		Path:   l.config.Path,
+		Prefix: l.config.Prefix,
 	}
+}
 
-	if l.loggerPool[fileName] != nil {
-		return NewDefaultLogger(l.loggerPool[fileName], fmt.Sprintf("%s [%s]", l.prefix, name), l.loggerPool)
+func (l *DefaultLogger) Nested(newPrefix string) core.Logger {
+	newTotalPrefix := newPrefix
+	if newPrefix != "" {
+		newTotalPrefix = l.createPrefix(newPrefix)
 	}
-	newLog := logrus.New()
-	newLog.SetLevel(l.log.Level)
-	newLog.SetFormatter(l.log.Formatter)
+	newLogger, err := l.getLogger(newTotalPrefix)
+	if err != nil {
+		l.Error("error getting a new logger: %v", newLogger)
+		return l
+	}
+	return newLogger
+}
 
-	if file, err := os.OpenFile(fmt.Sprintf("logs/%s.log", fileName), os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666); err == nil {
-		newLog.SetOutput(io.MultiWriter(writerStd, file))
+func (l *DefaultLogger) getLogger(prefix string) (core.Logger, error) {
+	newLogrus := logrus.New()
+	newLogrus.SetLevel(l.log.Level)
+	newLogrus.SetFormatter(l.log.Formatter)
+	newLogrus.SetOutput(l.log.Out)
+	newLogger := &DefaultLogger{
+		log: newLogrus,
+		config: &core.LoggerConfig{
+			Path:   l.config.Path,
+			Prefix: prefix,
+		},
 	}
-	l.loggerPool[fileName] = newLog
-	return NewDefaultLogger(newLog, fmt.Sprintf("%s [%s]", l.prefix, name), l.loggerPool)
+	return newLogger, nil
+}
+
+func (l *DefaultLogger) createPrefix(newPrefix string) string {
+	newPrefix = strings.TrimSpace(newPrefix)
+	alreadyInBrackets := alreadyInBracketsRegex.MatchString(newPrefix)
+	if alreadyInBrackets {
+		return fmt.Sprintf("%s %s", l.config.Prefix, newPrefix)
+	}
+	return fmt.Sprintf("%s [%s]", l.config.Prefix, newPrefix)
 }
 
 var _ core.Logger = (*DefaultLogger)(nil)

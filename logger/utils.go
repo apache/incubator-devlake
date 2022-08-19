@@ -15,37 +15,43 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package app
+package logger
 
 import (
-	"context"
-
+	"fmt"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/runner"
-	"go.temporal.io/sdk/activity"
+	"os"
+	"path/filepath"
 )
 
-// DevLakeTaskActivity FIXME ...
-func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64, loggerConfig *core.LoggerConfig) error {
-	cfg, log, db, err := loadResources(configJson, loggerConfig)
-	if err != nil {
-		return err
+func GetTaskLoggerPath(config *core.LoggerConfig, t *models.Task) string {
+	if config.Path == "" {
+		return ""
 	}
-	log.Info("received task #%d", taskId)
-	progressDetail := &models.TaskProgressDetail{}
-	progChan := make(chan core.RunningProgress)
-	defer close(progChan)
-	go func() {
-		for p := range progChan {
-			runner.UpdateProgressDetail(db, log, taskId, progressDetail, &p)
-			activity.RecordHeartbeat(ctx, progressDetail)
-		}
-	}()
-	err = runner.RunTask(ctx, cfg, log, db, progChan, taskId)
+	info, err := os.Stat(config.Path)
 	if err != nil {
-		log.Error("failed to execute task #%d: %w", taskId, err)
+		panic(err)
 	}
-	log.Info("finished task #%d", taskId)
-	return err
+	basePath := config.Path
+	if !info.IsDir() {
+		basePath = filepath.Dir(config.Path)
+	}
+	return filepath.Join(basePath, fmt.Sprintf("task-%d-%d-%d-%s.log", t.ID, t.PipelineRow, t.PipelineCol, t.Plugin))
+}
+
+func GetPipelineLoggerPath(config *core.LoggerConfig, p *models.Pipeline) string {
+	if config.Path == "" {
+		return ""
+	}
+	info, err := os.Stat(config.Path)
+	if err != nil {
+		panic(err)
+	}
+	basePath := config.Path
+	if !info.IsDir() {
+		basePath = filepath.Dir(config.Path)
+	}
+	formattedCreationTime := p.CreatedAt.UTC().Format("20060102-1504")
+	return filepath.Join(basePath, fmt.Sprintf("pipeline-%d-%s", p.ID, formattedCreationTime), "pipeline.log")
 }

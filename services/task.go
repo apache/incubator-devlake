@@ -219,13 +219,13 @@ func CancelTask(taskId uint64) error {
 	return nil
 }
 
-func runTasksStandalone(taskIds []uint64) error {
+func runTasksStandalone(parentLogger core.Logger, taskIds []uint64) error {
 	results := make(chan error)
 	for _, taskId := range taskIds {
 		taskId := taskId
 		go func() {
 			taskLog.Info("run task in background ", taskId)
-			results <- runTaskStandalone(taskId)
+			results <- runTaskStandalone(parentLogger, taskId)
 		}()
 	}
 	errs := make([]string, 0)
@@ -247,8 +247,8 @@ func runTasksStandalone(taskIds []uint64) error {
 	return err
 }
 
-func runTaskStandalone(taskId uint64) error {
-	// deferng cleaning up
+func runTaskStandalone(parentLog core.Logger, taskId uint64) error {
+	// deferring cleaning up
 	defer func() {
 		_, _ = runningTasks.Remove(taskId)
 	}()
@@ -264,7 +264,7 @@ func runTaskStandalone(taskId uint64) error {
 	err = runner.RunTask(
 		ctx,
 		cfg,
-		logger.Global.Nested(fmt.Sprintf("task #%d", taskId)),
+		parentLog,
 		db,
 		progress,
 		taskId,

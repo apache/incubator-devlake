@@ -15,42 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package errors
+package logger
 
 import (
-	"net/http"
+	"io"
+	"os"
+	"path/filepath"
 )
 
-type Error struct {
-	Status  int
-	Message string
-}
-
-func (e *Error) Code() int {
-	return e.Status
-}
-
-func (e *Error) Error() string {
-	return e.Message
-}
-
-func NewError(status int, message string) *Error {
-	return &Error{
-		status,
-		message,
+func GetFileStream(path string) (io.Writer, error) {
+	if path == "" {
+		return os.Stdout, nil
 	}
-}
-
-func NewNotFound(message string) *Error {
-	return NewError(http.StatusNotFound, message)
-}
-
-func IsNotFound(err error) bool {
-	errCast, ok := err.(*Error)
-	if !ok {
-		return false
+	err := os.MkdirAll(filepath.Dir(path), os.ModePerm)
+	if err != nil {
+		return nil, err
 	}
-	return errCast.Status == http.StatusNotFound
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
+	if err != nil {
+		return nil, err
+	}
+	return io.MultiWriter(os.Stdout, file), nil
 }
-
-var InternalError = NewError(http.StatusInternalServerError, "Server Internal Error")

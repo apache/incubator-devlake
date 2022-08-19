@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/logger"
 	"time"
 
 	"github.com/apache/incubator-devlake/config"
@@ -39,7 +40,7 @@ import (
 func RunTask(
 	ctx context.Context,
 	_ *viper.Viper,
-	logger core.Logger,
+	parentLogger core.Logger,
 	db *gorm.DB,
 	progress chan core.RunningProgress,
 	taskId uint64,
@@ -51,6 +52,10 @@ func RunTask(
 	}
 	if task.Status == models.TASK_COMPLETED {
 		return fmt.Errorf("invalid task status")
+	}
+	log, err := getTaskLogger(parentLogger, task)
+	if err != nil {
+		return err
 	}
 	beganAt := time.Now()
 	// make sure task status always correct even if it panicked
@@ -73,7 +78,7 @@ func RunTask(
 				"failed_sub_task": subTaskName,
 			}).Error
 			if dbe != nil {
-				logger.Error("failed to finalize task status into db: %w", err)
+				log.Error("failed to finalize task status into db: %w", err)
 			}
 		} else {
 			err = db.Model(task).Updates(map[string]interface{}{
@@ -86,7 +91,7 @@ func RunTask(
 	}()
 
 	// start execution
-	logger.Info("start executing task: %d", task.ID)
+	log.Info("start executing task: %d", task.ID)
 	err = db.Model(task).Updates(map[string]interface{}{
 		"status":   models.TASK_RUNNING,
 		"message":  "",
@@ -110,7 +115,7 @@ func RunTask(
 	err = RunPluginTask(
 		ctx,
 		config.GetConfig(),
-		logger.Nested(task.Plugin),
+		log.Nested(task.Plugin),
 		db,
 		task.ID,
 		task.Plugin,
@@ -141,7 +146,6 @@ func RunPluginTask(
 	if !ok {
 		return fmt.Errorf("plugin %s doesn't support PluginTask interface", name)
 	}
-
 	return RunPluginSubTasks(
 		ctx,
 		cfg,
@@ -325,4 +329,18 @@ func recordSubtask(logger core.Logger, db *gorm.DB, subtask *models.Subtask) {
 	if err := db.Create(&subtask).Error; err != nil {
 		logger.Error("error writing subtask %d status to DB: %v", subtask.ID, err)
 	}
+}
+
+func getTaskLogger(parentLogger core.Logger, task *models.Task) (core.Logger, error) {
+	log := parentLogger.Nested(fmt.Sprintf("task #%d", task.ID))
+	loggingPath := logger.GetTaskLoggerPath(log.GetConfig(), task)
+	stream, err := logger.GetFileStream(loggingPath)
+	if err != nil {
+		return nil, err
+	}
+	log.SetStream(&core.LoggerStreamConfig{
+		Path:   loggingPath,
+		Writer: stream,
+	})
+	return log, nil
 }

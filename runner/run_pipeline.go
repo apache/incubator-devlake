@@ -28,7 +28,7 @@ import (
 
 // RunPipeline FIXME ...
 func RunPipeline(
-	cfg *viper.Viper,
+	_ *viper.Viper,
 	log core.Logger,
 	db *gorm.DB,
 	pipelineId uint64,

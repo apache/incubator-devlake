@@ -18,12 +18,12 @@ limitations under the License.
 package logger
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
-	"os"
+	"io"
+	"path/filepath"
 	"strings"
 )
 
@@ -33,7 +33,8 @@ var Global core.Logger
 func init() {
 	inner = logrus.New()
 	logLevel := logrus.InfoLevel
-	switch strings.ToLower(config.GetConfig().GetString("LOGGING_LEVEL")) {
+	cfg := config.GetConfig()
+	switch strings.ToLower(cfg.GetString("LOGGING_LEVEL")) {
 	case "debug":
 		logLevel = logrus.DebugLevel
 	case "info":
@@ -48,10 +49,30 @@ func init() {
 		TimestampFormat: "2006-01-02 15:04:05",
 		FullTimestamp:   true,
 	})
-
-	if err := os.Mkdir("logs", 0777); err != nil {
-		inner.Info(fmt.Sprintf("failed to create dir logs: %s", err))
+	basePath := cfg.GetString("LOGGING_DIR")
+	if basePath == "" {
+		inner.Error("LOGGING_DIR is not set. Log files will not be generated.")
+	} else {
+		basePath = filepath.Join(basePath, "devlake.log")
 	}
-	loggerPool := make(map[string]*logrus.Logger)
-	Global = NewDefaultLogger(inner, "", loggerPool)
+	var err error
+	Global, err = NewDefaultLogger(inner)
+	Global.SetStream(&core.LoggerStreamConfig{
+		Path:   basePath,
+		Writer: createLogStream(basePath),
+	})
+	if err != nil {
+		panic(err)
+	}
+}
+
+func createLogStream(path string) io.Writer {
+	if path == "" {
+		return nil
+	}
+	stream, err := GetFileStream(path)
+	if err != nil {
+		panic(err)
+	}
+	return stream
 }

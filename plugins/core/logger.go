@@ -17,7 +17,10 @@ limitations under the License.
 
 package core
 
-import "github.com/sirupsen/logrus"
+import (
+	"github.com/sirupsen/logrus"
+	"io"
+)
 
 type LogLevel logrus.Level
 
@@ -28,7 +31,7 @@ const (
 	LOG_ERROR LogLevel = LogLevel(logrus.ErrorLevel)
 )
 
-// General logger interface, can be used any where
+// Logger General logger interface, can be used anywhere
 type Logger interface {
 	IsLevelEnabled(level LogLevel) bool
 	Printf(format string, a ...interface{})
@@ -37,10 +40,27 @@ type Logger interface {
 	Info(format string, a ...interface{})
 	Warn(format string, a ...interface{})
 	Error(format string, a ...interface{})
-	// return a new logger which output nested log
+	// Nested return a new logger instance. `name` is the extra prefix to be prepended to each message. Leaving it blank
+	// will add no additional prefix. The new Logger will inherit the properties of the original.
 	Nested(name string) Logger
+	// GetConfig Returns a copy of the LoggerConfig associated with this Logger. This is meant to be used by the framework.
+	GetConfig() *LoggerConfig
+	// SetStream sets the output of this Logger. This is meant to be used by the framework.
+	SetStream(config *LoggerStreamConfig)
+}
+
+// LoggerStreamConfig stream related config to set on a Logger
+type LoggerStreamConfig struct {
+	Path   string
+	Writer io.Writer
 }
 
 type InjectLogger interface {
 	SetLogger(logger Logger)
+}
+
+// LoggerConfig config related to the Logger. This needs to be serializable, so it can be passed around over the wire.
+type LoggerConfig struct {
+	Path   string
+	Prefix string
 }
