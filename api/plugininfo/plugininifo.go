@@ -31,11 +31,11 @@ import (
 )
 
 type SubTaskMeta struct {
-	Name             string
-	Required         bool
-	EnabledByDefault bool
-	Description      string
-	DomainTypes      []string
+	Name             string   `json:"name"`
+	Required         bool     `json:"required"`
+	EnabledByDefault bool     `json:"enabled_by_default"`
+	Description      string   `json:"description"`
+	DomainTypes      []string `json:"domain_types"`
 }
 
 func CreateSubTaskMeta(subTaskMeta []core.SubTaskMeta) []SubTaskMeta {
@@ -53,19 +53,23 @@ func CreateSubTaskMeta(subTaskMeta []core.SubTaskMeta) []SubTaskMeta {
 }
 
 type TableInfo struct {
-	TableName string
-	Tags      string
+	Name         string `json:"name"`
+	Tags         string `json:"tags"`
+	DbName       string `json:"db_name"`
+	DataType     string `json:"data_type"`
+	GORMDataType string `json:"gorm_data_type"`
 }
 
 type TableInfos struct {
-	Field map[string]*TableInfo
-	Error *string
+	TableName string       `json:"table_name"`
+	Field     []*TableInfo `json:"field"`
+	Error     *string      `json:"error"`
 }
 
 func NewTableInfos(table core.Tabler) *TableInfos {
 	tableInfos := &TableInfos{
-		Field: make(map[string]*TableInfo),
-		Error: nil,
+		TableName: table.TableName(),
+		Error:     nil,
 	}
 
 	fieldInfos := utils.WalkFields(reflect.TypeOf(table), nil)
@@ -74,41 +78,53 @@ func NewTableInfos(table core.Tabler) *TableInfos {
 		errstr := err.Error()
 		tableInfos.Error = &errstr
 	}
+
+	tableInfos.Field = make([]*TableInfo, 0, len(fieldInfos))
 	for _, field := range fieldInfos {
 		dbName := ""
+		dataType := ""
+		gormDataType := ""
 		if schema != nil {
 			if dbfield, ok := schema.FieldsByName[field.Name]; ok {
 				dbName = dbfield.DBName
+				dataType = string(dbfield.DataType)
+				gormDataType = string(dbfield.GORMDataType)
 			}
 		}
-		tableInfos.Field[field.Name] = &TableInfo{TableName: dbName, Tags: string(field.Tag)}
+		tableInfos.Field = append(tableInfos.Field, &TableInfo{
+			Name:         field.Name,
+			Tags:         string(field.Tag),
+			DbName:       dbName,
+			DataType:     dataType,
+			GORMDataType: gormDataType,
+		})
 	}
 
 	return tableInfos
 }
 
 type PluginInfo struct {
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Tables      map[string]*TableInfos `json:"tables"`
-	TaskMeta    []SubTaskMeta          `json:"task_mata"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Tables      []*TableInfos `json:"tables"`
+	TaskMeta    []SubTaskMeta `json:"task_mata"`
 }
 
 func NewPluginInfo() *PluginInfo {
 	return &PluginInfo{
-		Tables: make(map[string]*TableInfos),
+		Tables: make([]*TableInfos, 0),
 	}
 }
 
 type TotalInfo struct {
-	DomainInfos map[string]*TableInfos
-	PluginInfos map[string]*PluginInfo
+	DomainInfos []*TableInfos
+	PluginInfos []*PluginInfo
 }
 
 func NewTotalInfo() *TotalInfo {
 	return &TotalInfo{
-		DomainInfos: make(map[string]*TableInfos),
-		PluginInfos: make(map[string]*PluginInfo),
+		DomainInfos: make([]*TableInfos, 0),
+		PluginInfos: make([]*PluginInfo, 0),
 	}
 }
 
@@ -124,16 +140,15 @@ func Get(c *gin.Context) {
 
 	// set the domain layer tables info.
 	domaininfo := domaininfo.GetDomainTablesInfo()
-	domaininfoTable := make(map[string]*TableInfos)
 	for _, table := range domaininfo {
-		domaininfoTable[table.TableName()] = NewTableInfos(table)
+		tableInfo := NewTableInfos(table)
+		info.DomainInfos = append(info.DomainInfos, tableInfo)
 	}
-	info.DomainInfos = domaininfoTable
 
 	// plugin info
 	err := core.TraversalPlugin(func(name string, plugin core.PluginMeta) error {
 		infoPlugin := NewPluginInfo()
-		info.PluginInfos[name] = infoPlugin
+		info.PluginInfos = append(info.PluginInfos, infoPlugin)
 
 		// plugin name and description
 		infoPlugin.Name = name
@@ -147,11 +162,10 @@ func Get(c *gin.Context) {
 		// if this plugin has the plugin model info
 		if pm, ok := plugin.(core.PluginModel); ok {
 			tables := pm.GetTablesInfo()
-			infoPluginTable := make(map[string]*TableInfos)
 			for _, table := range tables {
-				infoPluginTable[table.TableName()] = NewTableInfos(table)
+				TableInfos := NewTableInfos(table)
+				infoPlugin.Tables = append(infoPlugin.Tables, TableInfos)
 			}
-			infoPlugin.Tables = infoPluginTable
 		}
 
 		return nil
