@@ -742,41 +742,41 @@ export default function ConnectionForm (props) {
               </FormGroup>
             </div>
             <div className='formContainer'>
-            <FormGroup
-              disabled={isTesting || isSaving || isLocked}
-              inline={true}
-              labelFor='connection-ratelimit'
-              className={formGroupClassName}
-              contentClassName='formGroupContent'
-            >
-              <Label>{labels ? labels.rateLimit : <>Rate&nbsp;Limit</>}</Label>
-              <NumericInput
-                id='connection-ratelimit'
-                ref={connectionRateLimitRef}
+              <FormGroup
                 disabled={isTesting || isSaving || isLocked}
-                min={0}
-                max={1000000000}
-                clampValueOnBlur={true}
-                className={`input input-ratelimit ${
+                inline={true}
+                labelFor='connection-ratelimit'
+                className={formGroupClassName}
+                contentClassName='formGroupContent'
+              >
+                <Label>{labels ? labels.rateLimit : <>Rate&nbsp;Limit</>}</Label>
+                <NumericInput
+                  id='connection-ratelimit'
+                  ref={connectionRateLimitRef}
+                  disabled={isTesting || isSaving || isLocked}
+                  min={0}
+                  max={1000000000}
+                  clampValueOnBlur={true}
+                  className={`input input-ratelimit ${
                   fieldHasError('RateLimit') ? 'invalid-field' : ''
                 }`}
-                fill={false}
-                placeholder={
+                  fill={false}
+                  placeholder={
                   placeholders.rateLimit
                     ? placeholders.rateLimit
                     : '1000'
                 }
-                allowNumericCharactersOnly={true}
-                onValueChange={(rateLimitPerHour) => {(e) => onRateLimitChange(rateLimitPerHour)}}
+                  allowNumericCharactersOnly={true}
+                  onValueChange={(rateLimitPerHour) => { onRateLimitChange(rateLimitPerHour) }}
                 // value={rateLimit}
-                defaultValue={rateLimit}
-                rightElement={
-                  <InputValidationError error={getFieldError('RateLimit')} />
+                  defaultValue={rateLimit}
+                  rightElement={
+                    <InputValidationError error={getFieldError('RateLimit')} />
                 }
-              />
-            </FormGroup>
-          </div>  
-        </>        
+                />
+              </FormGroup>
+            </div>
+          </>
         )}
         {enableActions && (
           <div
