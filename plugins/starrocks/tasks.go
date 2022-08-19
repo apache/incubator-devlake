@@ -176,6 +176,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 			"strip_outer_array": "true",
 			"Expect":            "100-continue",
 			"ignore_json_size":  "true",
+			"Connection":        "close",
 		}
 		jsonData, err := json.Marshal(data)
 		if err != nil {
