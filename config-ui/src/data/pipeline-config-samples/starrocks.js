@@ -25,6 +25,7 @@ const starRocksConfig = [
         user: 'root',
         password: '',
         database: 'lake',
+        be_host: '',
         be_port: 8040,
         tables: ['_tool_.*'], // support regexp
         batch_size: 10000,
