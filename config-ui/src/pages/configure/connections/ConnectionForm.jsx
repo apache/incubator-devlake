@@ -707,7 +707,7 @@ export default function ConnectionForm (props) {
             </div>
           </>
         )}
-        {[Providers.GITHUB, Providers.GITLAB, Providers.JIRA, Providers.TAPD].includes(
+        {[Providers.GITHUB, Providers.GITLAB, Providers.JIRA, Providers.JENKINS, Providers.TAPD].includes(
           activeProvider.id
         ) && (
           <>
