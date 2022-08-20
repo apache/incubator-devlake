@@ -27,25 +27,25 @@ import { ReactComponent as Logo } from '@/images/devlake-logo.svg'
 import { ReactComponent as LogoText } from '@/images/devlake-textmark.svg'
 
 class ErrorBoundary extends React.Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
-    this.state = { 
+    this.state = {
       hasError: false,
       error: null,
       errorInfo: null
     }
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError (error) {
     console.log('>>> DEVLAKE APP ERROR:', error)
     return { hasError: true, error: error }
   }
 
-  componentDidCatch(error, errorInfo) {
-    console.log('>>> DEVLAKE ERROR STACKTRACE:', errorInfo)
+  componentDidCatch (error, errorInfo) {
+    console.log('>>> DEVLAKE ERROR STACKTRACE:', errorInfo, error)
   }
 
-  render() {
+  render () {
     if (this.state.hasError) {
       return (
         <>
@@ -56,16 +56,16 @@ class ErrorBoundary extends React.Component {
                 <div className='headlineContainer'>
                   <div style={{ display: 'flex', justifyContent: 'center' }}>
                     <div>
-                      <div className='devlake-logo' style={{ margin: 0 }} >
+                      <div className='devlake-logo' style={{ margin: 0 }}>
                         <Logo width={48} height={48} className='logo' />
                         <LogoText width={100} height={13} className='logo-textmark' />
                       </div>
                       <h1 style={{ margin: 0, textAlign: 'center' }}>
-                          Application Error
+                        Application Error
                       </h1>
                       <Card elevation={Elevation.TWO} style={{ margin: '18px 0', maxWidth: '700px' }}>
                         <h2 style={{ margin: 0 }}>
-                          <span style={{display: 'inline-block', marginRight: '10px' }}>
+                          <span style={{ display: 'inline-block', marginRight: '10px' }}>
                             <Icon icon='error' color={Colors.RED5} size={16} />
                           </span>
                           {this.state.error?.toString() || 'Unknown Error'}
@@ -81,7 +81,8 @@ class ErrorBoundary extends React.Component {
                             className='bp3-button bp3-outlined'
                             target='_blank'
                             style={{ marginLeft: '10px' }}
-                            rel='noreferrer'>
+                            rel='noreferrer'
+                          >
                             Visit GitHub
                           </a>
                         </p>
@@ -96,8 +97,7 @@ class ErrorBoundary extends React.Component {
       )
     }
 
-    return this.props.children; 
+    return this.props.children
   }
 }
 export default withRouter(ErrorBoundary)
-
