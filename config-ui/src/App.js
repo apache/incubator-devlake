@@ -19,7 +19,7 @@
 import React from 'react'
 import {
   BrowserRouter as Router,
-  Route,
+  Route
 } from 'react-router-dom'
 
 import 'normalize.css'
@@ -32,6 +32,7 @@ import '@fontsource/inter/variable-full.css'
 // Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
 // import '@/styles/theme.scss'
 
+import ErrorBoundary from '@/components/ErrorBoundary'
 import Configure from './pages/configure/index'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
@@ -52,62 +53,59 @@ import Connections from '@/pages/connections/index'
 function App () {
   return (
     <Router>
-      {/* Admin */}
       <Route exact path='/'>
-        <Integration />
+        <ErrorBoundary>
+          <Integration />
+        </ErrorBoundary>
       </Route>
       <Route path='/integrations/:providerId'>
-        <ManageIntegration />
+        <ErrorBoundary>
+          <ManageIntegration />
+        </ErrorBoundary>
       </Route>
       <Route path='/connections/add/:providerId'>
-        <AddConnection />
-      </Route>
-      <Route path='/connections/edit/:providerId/:connectionId'>
-        <EditConnection />
+        <ErrorBoundary>
+          <AddConnection />
+        </ErrorBoundary>
       </Route>
       <Route path='/connections/configure/:providerId/:connectionId'>
-        <ConfigureConnection />
+        <ErrorBoundary>
+          <ConfigureConnection />
+        </ErrorBoundary>
       </Route>
       <Route exact path='/integrations'>
-        <Integration />
-      </Route>
-      <Route exact path='/triggers'>
-        <Triggers />
-      </Route>
-      <Route exact path='/pipelines/create'>
-        <CreatePipeline />
-      </Route>
-      <Route exact path='/pipelines'>
-        <Pipelines />
-      </Route>
-      <Route exact path='/pipelines/activity'>
-        <PipelineActivity />
-      </Route>
-      <Route exact path='/pipelines/activity/:pId'>
-        <PipelineActivity />
+        <ErrorBoundary>
+          <Integration />
+        </ErrorBoundary>
       </Route>
       <Route exact path='/blueprints/create'>
-        <CreateBlueprint />
+        <ErrorBoundary>
+          <CreateBlueprint />
+        </ErrorBoundary>
       </Route>
       <Route exact path='/blueprints/detail/:bId'>
-        <BlueprintDetail />
+        <ErrorBoundary>
+          <BlueprintDetail />
+        </ErrorBoundary>
       </Route>
       <Route exact path='/blueprints/settings/:bId'>
-        <BlueprintSettings />
+        <ErrorBoundary>
+          <BlueprintSettings />
+        </ErrorBoundary>
       </Route>
       <Route exact path='/blueprints'>
-        <Blueprints />
+        <ErrorBoundary>
+          <Blueprints />
+        </ErrorBoundary>
       </Route>
       <Route exact path='/connections'>
         <Connections />
-      </Route>
-      <Route exact path='/lake/api/configuration'>
-        <Configure />
       </Route>
       <Route exact path='/offline'>
         <Offline />
       </Route>
     </Router>
+
   )
 }
 

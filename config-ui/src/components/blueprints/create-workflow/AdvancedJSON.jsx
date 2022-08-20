@@ -99,7 +99,7 @@ const AdvancedJSON = (props) => {
         <Card
           className='code-editor-card'
           interactive={false}
-          elevation={elevation}
+          elevation={Elevation.ZERO}
           style={{ padding: '2px', minWidth: '320px', width: '100%', maxWidth: '100%', marginBottom: '20px', ...cardStyle }}
         >
           <TextArea

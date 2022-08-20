@@ -18,8 +18,8 @@
 const starRocksConfig = [
   [
     {
-      Plugin: 'starrocks',
-      Options: {
+      plugin: 'starrocks',
+      options: {
         host: '127.0.0.1',
         port: 9030,
         user: 'root',

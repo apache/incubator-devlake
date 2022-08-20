@@ -586,13 +586,13 @@ const BlueprintSettings = (props) => {
       : []
     // @todo: handle multi-stage
     const getAdvancedGithubProjects = (t, providerId) => [Providers.GITHUB].includes(providerId)
-      ? [`${t.Options.owner}/${t.Options?.repo}`]
+      ? [`${t.options?.owner}/${t.options?.repo}`]
       : []
     const getAdvancedGitlabProjects = (t, providerId) => [Providers.GITLAB].includes(providerId)
-      ? [t.Options?.projectId]
+      ? [t.options?.projectId]
       : []
     const getAdvancedJiraBoards = (t, providerId) => [Providers.JIRA].includes(providerId)
-      ? [t.Options?.boardId]
+      ? [t.options?.boardId]
       : []
     // @todo: migrate to data scopes manager
     if (activeBlueprint?.id && activeBlueprint?.mode === BlueprintMode.NORMAL) {
@@ -604,7 +604,7 @@ const BlueprintSettings = (props) => {
           connectionId: c.connectionId,
           value: c.connectionId,
           provider: integrationsData.find((i) => i.id === c.plugin),
-          providerLabel: ProviderLabels[c.plugin.toUpperCase()],
+          providerLabel: ProviderLabels[c.plugin?.toUpperCase()],
           providerId: c.plugin,
           plugin: c.plugin,
           icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
@@ -642,34 +642,34 @@ const BlueprintSettings = (props) => {
       setConnections(
         activeBlueprint?.plan?.flat().map((c, cIdx) => ({
           ...c,
-          id: connectionsList.find(lC => lC.value === c.Options.connectionId && lC.provider === c.Plugin)?.id,
-          connectionId: c.Options?.connectionId,
-          value: c.Options?.connectionId,
-          provider: integrationsData.find((i) => i.id === c.Plugin),
-          providerLabel: ProviderLabels[c.Plugin.toUpperCase()],
-          plugin: c.Plugin,
-          providerId: c.Plugin,
-          icon: ProviderIcons[c.Plugin] ? ProviderIcons[c.Plugin](18, 18) : null,
-          name: allProviderConnections.find(pC => pC.connectionId === c.Options.connectionId && pC.provider === c.Plugin)?.name || `Connection ID #${c.Options.connectionId || cIdx}`,
-          projects: [Providers.GITLAB].includes(c.Plugin)
-            ? getAdvancedGitlabProjects(c, c.Plugin)
-            : getAdvancedGithubProjects(c, c.Plugin),
+          id: connectionsList.find(lC => lC.value === c.options?.connectionId && lC.provider === c.plugin)?.id,
+          connectionId: c.options?.connectionId,
+          value: c.options?.connectionId,
+          provider: integrationsData.find((i) => i.id === c.plugin),
+          providerLabel: ProviderLabels[c.plugin?.toUpperCase()],
+          plugin: c.plugin,
+          providerId: c.plugin,
+          icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
+          name: allProviderConnections.find(pC => pC.connectionId === c.options?.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.options?.connectionId || cIdx}`,
+          projects: [Providers.GITLAB].includes(c.plugin)
+            ? getAdvancedGitlabProjects(c, c.plugin)
+            : getAdvancedGithubProjects(c, c.plugin),
           // entities: DEFAULT_DATA_ENTITIES.map(e => e.title),
           entities: ['-'],
-          entitityList: getDefaultEntities(c.Plugin),
-          boards: [Providers.JIRA].includes(c.Plugin)
-            ? getAdvancedJiraBoards(c, c.Plugin).map(bId => `Board ${bId}`)
+          entitityList: getDefaultEntities(c.plugin),
+          boards: [Providers.JIRA].includes(c.plugin)
+            ? getAdvancedJiraBoards(c, c.plugin).map(bId => `Board ${bId}`)
             : [],
-          boardIds: [Providers.JIRA].includes(c.Plugin)
-            ? getAdvancedJiraBoards(c, c.Plugin)
+          boardIds: [Providers.JIRA].includes(c.plugin)
+            ? getAdvancedJiraBoards(c, c.plugin)
             : [],
-          boardList: [Providers.JIRA].includes(c.Plugin)
-            ? getAdvancedJiraBoards(c, c.Plugin).map(bId => `Board ${bId}`)
+          boardList: [Providers.JIRA].includes(c.plugin)
+            ? getAdvancedJiraBoards(c, c.plugin).map(bId => `Board ${bId}`)
             : [],
           transformations: {},
           // transformationStates: ['-'],
-          transformationStates: typeof c.Options?.transformationRules === 'object' &&
-            Object.values(c.Options?.transformationRules).some(v => (Array.isArray(v) && v.length > 0) || v.toString().length > 0)
+          transformationStates: typeof c.options?.transformationRules === 'object' &&
+            Object.values(c.options?.transformationRules).some(v => (Array.isArray(v) && v.length > 0) || v.toString().length > 0)
             ? ['Added'] : ['-'],
           scope: c,
           task: c,
@@ -814,7 +814,7 @@ const BlueprintSettings = (props) => {
     setBlueprintConnections(
       connections.map(
         c => connectionsList.find(
-          cItem => cItem.connectionId === c.connectionId && cItem.provider === c.provider.id
+          cItem => cItem.connectionId === c.connectionId && cItem.provider === c.provider?.id
         )
       )
     )

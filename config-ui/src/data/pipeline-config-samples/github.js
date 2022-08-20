@@ -16,8 +16,8 @@
  *
  */
 const githubConfig = [[{
-  Plugin: 'github',
-  Options: {
+  plugin: 'github',
+  options: {
     repo: 'lake',
     owner: 'merico-dev',
     connectionId: 1

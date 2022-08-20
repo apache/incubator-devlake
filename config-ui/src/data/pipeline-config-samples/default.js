@@ -18,28 +18,28 @@
 const defaultConfig = [
   [
     {
-      Plugin: 'gitlab',
-      Options: {
+      plugin: 'gitlab',
+      options: {
         projectId: 8967944,
         connectionId: 1
       }
     },
     {
-      Plugin: 'jira',
-      Options: {
+      plugin: 'jira',
+      options: {
         boardId: 8,
         connectionId: 1
       }
     },
     {
-      Plugin: 'jenkins',
-      Options: {
+      plugin: 'jenkins',
+      options: {
         connectionId: 1
       }
     },
     {
-      Plugin: 'github',
-      Options: {
+      plugin: 'github',
+      options: {
         repo: 'lake',
         owner: 'merico-dev',
         connectionId: 1
