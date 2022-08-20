@@ -583,6 +583,12 @@ function useConnectionManager (
           setProxy(activeConnection.Proxy || activeConnection.proxy)
           setRateLimit(activeConnection.rateLimit)
           break
+        case Providers.TAPD:
+          setUsername(activeConnection.username)
+          setPassword(activeConnection.password)
+          setProxy(activeConnection.Proxy || activeConnection.proxy)
+          setRateLimit(activeConnection.rateLimit)
+        break
       }
       ToastNotification.clear()
       // ToastNotification.show({ message: `Fetched settings for ${activeConnection.name}.`, intent: 'success', icon: 'small-tick' })

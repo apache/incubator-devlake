@@ -768,8 +768,7 @@ export default function ConnectionForm (props) {
                 }
                   allowNumericCharactersOnly={true}
                   onValueChange={(rateLimitPerHour) => { onRateLimitChange(rateLimitPerHour) }}
-                // value={rateLimit}
-                  defaultValue={rateLimit}
+                  value={rateLimit}
                   rightElement={
                     <InputValidationError error={getFieldError('RateLimit')} />
                 }
