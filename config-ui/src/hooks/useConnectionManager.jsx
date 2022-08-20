@@ -149,7 +149,7 @@ function useConnectionManager (
           username: username,
           password: password,
           proxy: proxy,
-          rateLimit: rateLimit,
+          rateLimitPerHour: rateLimit,
           ...connectionPayload,
         }
         break
@@ -160,7 +160,7 @@ function useConnectionManager (
           username: username,
           password: password,
           proxy: proxy,
-          rateLimit: rateLimit,
+          rateLimitPerHour: rateLimit,
           ...connectionPayload,
         }
         break
@@ -170,7 +170,7 @@ function useConnectionManager (
           endpoint: endpointUrl,
           token: token,
           proxy: proxy,
-          rateLimit: rateLimit,
+          rateLimitPerHour: rateLimit,
           ...connectionPayload,
         }
         break
@@ -181,7 +181,7 @@ function useConnectionManager (
           endpoint: endpointUrl,
           username: username,
           password: password,
-          rateLimit: rateLimit,
+          rateLimitPerHour: rateLimit,
           ...connectionPayload,
         }
         break
@@ -191,7 +191,7 @@ function useConnectionManager (
           endpoint: endpointUrl,
           token: token,
           proxy: proxy,
-          rateLimit: rateLimit,
+          rateLimitPerHour: rateLimit,
           ...connectionPayload,
         }
         break
