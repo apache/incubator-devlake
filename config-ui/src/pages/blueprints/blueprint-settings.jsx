@@ -586,7 +586,7 @@ const BlueprintSettings = (props) => {
       : []
     // @todo: handle multi-stage
     const getAdvancedGithubProjects = (t, providerId) => [Providers.GITHUB].includes(providerId)
-      ? [`${t.options.owner}/${t.options?.repo}`]
+      ? [`${t.options?.owner}/${t.options?.repo}`]
       : []
     const getAdvancedGitlabProjects = (t, providerId) => [Providers.GITLAB].includes(providerId)
       ? [t.options?.projectId]
@@ -604,7 +604,7 @@ const BlueprintSettings = (props) => {
           connectionId: c.connectionId,
           value: c.connectionId,
           provider: integrationsData.find((i) => i.id === c.plugin),
-          providerLabel: ProviderLabels[c.plugin.toUpperCase()],
+          providerLabel: ProviderLabels[c.plugin?.toUpperCase()],
           providerId: c.plugin,
           plugin: c.plugin,
           icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
@@ -642,15 +642,15 @@ const BlueprintSettings = (props) => {
       setConnections(
         activeBlueprint?.plan?.flat().map((c, cIdx) => ({
           ...c,
-          id: connectionsList.find(lC => lC.value === c.options.connectionId && lC.provider === c.plugin)?.id,
+          id: connectionsList.find(lC => lC.value === c.options?.connectionId && lC.provider === c.plugin)?.id,
           connectionId: c.options?.connectionId,
           value: c.options?.connectionId,
           provider: integrationsData.find((i) => i.id === c.plugin),
-          providerLabel: ProviderLabels[c.plugin.toUpperCase()],
+          providerLabel: ProviderLabels[c.plugin?.toUpperCase()],
           plugin: c.plugin,
           providerId: c.plugin,
           icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
-          name: allProviderConnections.find(pC => pC.connectionId === c.options.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.options.connectionId || cIdx}`,
+          name: allProviderConnections.find(pC => pC.connectionId === c.options?.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.options?.connectionId || cIdx}`,
           projects: [Providers.GITLAB].includes(c.plugin)
             ? getAdvancedGitlabProjects(c, c.plugin)
             : getAdvancedGithubProjects(c, c.plugin),
@@ -814,7 +814,7 @@ const BlueprintSettings = (props) => {
     setBlueprintConnections(
       connections.map(
         c => connectionsList.find(
-          cItem => cItem.connectionId === c.connectionId && cItem.provider === c.provider.id
+          cItem => cItem.connectionId === c.connectionId && cItem.provider === c.provider?.id
         )
       )
     )
