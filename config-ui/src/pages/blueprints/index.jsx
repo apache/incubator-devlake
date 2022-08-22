@@ -95,7 +95,7 @@ const Blueprints = (props) => {
     pagedData,
     filteredData,
     setData,
-    controls: renderPagnationControls
+    renderControlsComponent: renderPagnationControls
   } = usePaginator()
 
   const [expandDetails, setExpandDetails] = useState(false)

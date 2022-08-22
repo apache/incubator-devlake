@@ -26,39 +26,17 @@ import {
 import { integrationsData } from '@/data/integrations'
 
 const PagingOptionsMenu = (props) => {
-  const { perPage = 10, setPerPage = () => {} } = props
+  const { pageOptions = [10, 25, 50, 75, 100], perPage = 10, setPerPage = (page) => undefined } = props
   return (
     <Menu>
-      <MenuItem
-        active={perPage === 10}
-        icon='key-option'
-        text='10 Records'
-        onClick={() => setPerPage(10)}
-      />
-      <MenuItem
-        active={perPage === 25}
-        icon='key-option'
-        text='25 Records'
-        onClick={() => setPerPage(25)}
-      />
-      <MenuItem
-        active={perPage === 50}
-        icon='key-option'
-        text='50 Records'
-        onClick={() => setPerPage(50)}
-      />
-      <MenuItem
-        active={perPage === 75}
-        icon='key-option'
-        text='75 Records'
-        onClick={() => setPerPage(75)}
-      />
-      <MenuItem
-        active={perPage === 100}
-        icon='key-option'
-        text='100 Records'
-        onClick={() => setPerPage(100)}
-      />
+      {pageOptions && pageOptions.map(pageOption => (
+        <MenuItem
+          key={pageOption}
+          active={perPage === pageOption}
+          icon='key-option'
+          text={`${pageOption} Records`}
+          onClick={() => setPerPage(pageOption)}
+        />))}
     </Menu>
   )
 }
@@ -99,11 +77,11 @@ const Controls = (props) => {
         small
         text='PREV'
         style={{ marginLeft: '5px', marginRight: '5px', whiteSpace: 'nowrap' }}
-        disabled={currentPage?.current === 1 || isLoading}
+        disabled={currentPage === 1 || isLoading}
       />
       <Button
         style={{ whiteSpace: 'nowrap' }}
-        disabled={currentPage?.current === maxPage || isLoading}
+        disabled={currentPage === maxPage || isLoading}
         onClick={onNextPage}
         className='pagination-btn btn-next-page'
         rightIcon='step-forward'
@@ -117,100 +95,108 @@ const Controls = (props) => {
 function usePaginator (initialLoadingState = false) {
   // const [integrations, setIntegrations] = useState(integrationsData)
 
-  const [data, setData] = useState([])
+  const [_data, _setData] = useState([])
 
   const [filteredData, setFilteredData] = useState([])
   const [pagedData, setPagedData] = useState([])
-  const [pageOptions, setPageOptions] = useState([10, 25, 50, 75, 100])
-  const currentPage = useRef(1)
+  const [pageOptions, setPageOptions] = useState([5, 25, 50, 75, 100])
+  const [currentPage, setCurrentPage] = useState(1)
   const [perPage, setPerPage] = useState(pageOptions[0])
-  const [maxPage, setMaxPage] = useState(
-    Math.max(1, Math.ceil(pagedData.length / perPage))
-  )
+  const [maxPage, setMaxPage] = useState(0)
 
   const [isLoading, setIsLoading] = useState(initialLoadingState || false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [refresh, setRefresh] = useState(false)
 
-  const nextPage = useCallback(() => {
-    console.log('>>> PAGINATOR: GO NEXT PAGE ...')
-    currentPage.current = Math.min(maxPage, currentPage.current + 1)
-    // setRefresh((r) => !r)
-    console.log('>>>> NEXT PAGE', currentPage.current)
-  }, [maxPage, currentPage.current, setRefresh])
+  const reCalMaxPage = useCallback(() => {
+    setMaxPage(Math.max(1, Math.ceil(_data.length / perPage)))
+    console.log('>> MAX PAGE = ', Math.max(1, Math.ceil(_data.length / perPage)))
+  }, [_data, perPage, setMaxPage])
 
-  const prevPage = useCallback(() => {
-    console.log('>>> PAGINATOR: GO PREV PAGE ...')
-    currentPage.current = Math.max(1, currentPage.current - 1)
+  const setData = useCallback((data) => {
+    console.log('>> SET ALL DATA...', _data)
+    _setData(data)
+    reCalMaxPage()
+  }, [_setData, setRefresh])
+
+  const goNextPage = useCallback(() => {
+    console.log('>>> PAGINATOR: GO NEXT PAGE ...')
+    setCurrentPage(currentPage => Math.min(maxPage, currentPage + 1))
     // setRefresh((r) => !r)
-    console.log('>>>> PREV PAGE', currentPage.current)
-  }, [maxPage, currentPage.current, setRefresh])
+    console.log('>>>> NEXT PAGE', currentPage)
+  }, [maxPage, currentPage, setRefresh])
+
+  const goPrevPage = useCallback(() => {
+    console.log('>>> PAGINATOR: GO PREV PAGE ...')
+    setCurrentPage(currentPage => Math.max(1, currentPage - 1))
+    // setRefresh((r) => !r)
+    console.log('>>>> PREV PAGE', currentPage)
+  }, [maxPage, currentPage, setRefresh])
+
+  const changePerPage = useCallback((perPage) => {
+    setPerPage(perPage)
+    setCurrentPage(1)
+    reCalMaxPage()
+  }, [setPerPage])
 
   const resetPage = useCallback(() => {
-    currentPage.current = 1
-  }, [currentPage.current])
+    setCurrentPage(1)
+  }, [currentPage])
 
   const paginateData = useCallback(() => {
-    console.log('>> PAGINATING DATA...', data)
-    const sliceOffset = currentPage.current >= 2 ? -1 : 0
-    const sliceBegin = currentPage.current === 1
-      ? 0
-      : (currentPage.current + sliceOffset) * perPage
-    const sliceEnd = currentPage.current === 1
-      ? perPage
-      : ((currentPage.current + sliceOffset) * perPage) + perPage
-    console.log('>> CURRENT PAGE = ', currentPage.current)
-    console.log('>> START RECORD INDEX ====', sliceBegin)
-    console.log('>> END RECORD INDEX ====', sliceEnd)
-    setPagedData(data.slice(sliceBegin, sliceEnd))
-  }, [data, perPage, currentPage?.current, setPagedData])
+    console.log('>> ALL DATA...', _data)
+    const sliceBegin = (currentPage - 1) * perPage
+    const sliceEnd = currentPage * perPage
+    setPagedData(_data.slice(sliceBegin, sliceEnd))
+    console.log('>> PAGED DATA = ', _data.slice(sliceBegin, sliceEnd))
+  }, [_data, perPage, currentPage, setPagedData])
 
   useEffect(() => {
     paginateData()
-  }, [refresh, perPage, data, currentPage?.current, paginateData])
+  }, [refresh, perPage, _data, currentPage, paginateData])
 
   useEffect(() => {
-    console.log('>> PAGINATOR: DATA ON PAGE...', pagedData)
-    setMaxPage(Math.max(1, Math.ceil(pagedData.length / perPage)))
-  }, [pagedData, perPage])
+    reCalMaxPage()
+  }, [refresh, reCalMaxPage, perPage, _data])
 
-  const controls = useCallback(() => {
+  const renderControlsComponent = useCallback(() => {
     return (
       <Controls
         currentPage={currentPage}
-        onNextPage={nextPage}
-        onPrevPage={prevPage}
+        onNextPage={goNextPage}
+        onPrevPage={goPrevPage}
         maxPage={maxPage}
         perPage={perPage}
         isLoading={isLoading}
         pagingOptionsMenu={
-          <PagingOptionsMenu perPage={perPage} setPerPage={setPerPage} />
+          <PagingOptionsMenu pageOptions={pageOptions} perPage={perPage} setPerPage={changePerPage} />
         }
       />
     )
-  }, [currentPage, maxPage, perPage, isLoading, nextPage, prevPage, setPerPage])
+  }, [currentPage, maxPage, perPage, isLoading, goNextPage, goPrevPage, changePerPage])
 
   useEffect(() => {
-    console.log('>>> PAGINATOR: DATA ...', data)
-  }, [data])
+    console.log('>>> PAGINATOR: DATA ...', _data)
+  }, [_data])
 
   return {
-    nextPage,
-    prevPage,
+    goNextPage,
+    goPrevPage,
     resetPage,
-    controls,
+    setPageOptions,
+    renderControlsComponent,
     isLoading,
     isProcessing,
-    data,
+    data: _data,
     pagedData,
-    filteredData,
+    // filteredData,
     perPage,
     maxPage,
     setIsLoading,
     setIsProcessing,
     setData,
     setPagedData,
-    setFilteredData,
+    // setFilteredData,
     setMaxPage
   }
 }
