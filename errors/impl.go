@@ -39,11 +39,15 @@ func (e *crdbErrorImpl) Error() string {
 }
 
 func (e *crdbErrorImpl) Message() string {
-	return e.wrappedRaw.Error()
+	return strings.Join(e.getMessages(func(err *crdbErrorImpl) string {
+		return err.msg
+	}), "\ncaused by: ")
 }
 
 func (e *crdbErrorImpl) UserMessage() string {
-	return strings.Join(e.getUserMessages(), "\ncaused by: ")
+	return strings.Join(e.getMessages(func(err *crdbErrorImpl) string {
+		return err.userMsg
+	}), "\ncaused by: ")
 }
 
 func (e *crdbErrorImpl) Unwrap() error {
@@ -71,13 +75,14 @@ func (e *crdbErrorImpl) As(t Type) Error {
 	}
 }
 
-func (e *crdbErrorImpl) getUserMessages() []string {
+func (e *crdbErrorImpl) getMessages(getMessage func(*crdbErrorImpl) string) []string {
 	msgs := []string{}
 	err := e
 	ok := false
 	for {
-		if err.userMsg != "" {
-			msgs = append(msgs, err.userMsg)
+		msg := getMessage(err)
+		if msg != "" {
+			msgs = append(msgs, msg)
 		}
 		unwrapped := err.Unwrap()
 		if unwrapped == nil {
