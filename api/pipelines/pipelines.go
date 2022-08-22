@@ -182,7 +182,7 @@ GET /pipelines/:pipelineId/logging.tar.gz
 // @Param pipelineId path int true "query"
 // @Success 200  "The archive file"
 // @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 404  {string} errcode.Error "Pipeline not found"
+// @Failure 404  {string} errcode.Error "Pipeline or Log files not found"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /pipelines/{pipelineId}/logging.tar.gz [get]
 func DownloadLogs(c *gin.Context) {
