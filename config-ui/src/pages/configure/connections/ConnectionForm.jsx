@@ -31,6 +31,7 @@ import {
   // PopoverInteractionKind,
   Intent,
   PopoverInteractionKind,
+  NumericInput
 } from '@blueprintjs/core'
 import { Providers } from '@/data/Providers'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
@@ -56,6 +57,7 @@ export default function ConnectionForm (props) {
     username,
     password,
     proxy = '',
+    rateLimit = 0,
     isSaving,
     isTesting,
     showError,
@@ -72,6 +74,7 @@ export default function ConnectionForm (props) {
     onUsernameChange = () => {},
     onPasswordChange = () => {},
     onProxyChange = () => {},
+    onRateLimitChange = () => {},
     onValidate = () => {},
     authType = 'token',
     sourceLimits = {},
@@ -89,6 +92,7 @@ export default function ConnectionForm (props) {
   const connectionUsernameRef = useRef()
   const connectionPasswordRef = useRef()
   const connectionProxyRef = useRef()
+  const connectionRateLimitRef = useRef()
 
   // const [isValidForm, setIsValidForm] = useState(true)
   const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
@@ -123,8 +127,9 @@ export default function ConnectionForm (props) {
       token,
       username,
       password,
+      rateLimit,
     })
-  }, [name, endpointUrl, token, username, password, onValidate])
+  }, [name, endpointUrl, token, username, password, rateLimit, onValidate])
   const fieldHasError = (fieldId) => {
     return validationErrors.some((e) => e.includes(fieldId))
   }
@@ -702,39 +707,75 @@ export default function ConnectionForm (props) {
             </div>
           </>
         )}
-        {[Providers.GITHUB, Providers.GITLAB, Providers.JIRA, Providers.TAPD].includes(
+        {[Providers.GITHUB, Providers.GITLAB, Providers.JIRA, Providers.JENKINS, Providers.TAPD].includes(
           activeProvider.id
         ) && (
-          <div className='formContainer'>
-            <FormGroup
-              disabled={isTesting || isSaving || isLocked}
-              inline={true}
-              labelFor='connection-proxy'
-              className={formGroupClassName}
-              contentClassName='formGroupContent'
-            >
-              <Label>{labels ? labels.proxy : <>Proxy&nbsp;URL</>}</Label>
-              <InputGroup
-                id='connection-proxy'
-                inputRef={connectionProxyRef}
-                tabIndex={3}
-                placeholder={
-                  placeholders.proxy
-                    ? placeholders.proxy
-                    : 'http://proxy.localhost:8080'
-                }
-                defaultValue={proxy}
-                onChange={(e) => onProxyChange(e.target.value)}
+          <>
+            <div className='formContainer'>
+              <FormGroup
                 disabled={isTesting || isSaving || isLocked}
-                className={`input input-proxy ${
-                  fieldHasError('Proxy') ? 'invalid-field' : ''
+                inline={true}
+                labelFor='connection-proxy'
+                className={formGroupClassName}
+                contentClassName='formGroupContent'
+              >
+                <Label>{labels ? labels.proxy : <>Proxy&nbsp;URL</>}</Label>
+                <InputGroup
+                  id='connection-proxy'
+                  inputRef={connectionProxyRef}
+                  tabIndex={3}
+                  placeholder={
+                    placeholders.proxy
+                      ? placeholders.proxy
+                      : 'http://proxy.localhost:8080'
+                  }
+                  defaultValue={proxy}
+                  onChange={(e) => onProxyChange(e.target.value)}
+                  disabled={isTesting || isSaving || isLocked}
+                  className={`input input-proxy ${
+                    fieldHasError('Proxy') ? 'invalid-field' : ''
+                  }`}
+                  rightElement={
+                    <InputValidationError error={getFieldError('Proxy')} />
+                  }
+                />
+              </FormGroup>
+            </div>
+            <div className='formContainer'>
+              <FormGroup
+                disabled={isTesting || isSaving || isLocked}
+                inline={true}
+                labelFor='connection-ratelimit'
+                className={formGroupClassName}
+                contentClassName='formGroupContent'
+              >
+                <Label>{labels ? labels.rateLimit : <>Rate&nbsp;Limit</>}</Label>
+                <NumericInput
+                  id='connection-ratelimit'
+                  ref={connectionRateLimitRef}
+                  disabled={isTesting || isSaving || isLocked}
+                  min={0}
+                  max={1000000000}
+                  clampValueOnBlur={true}
+                  className={`input input-ratelimit ${
+                  fieldHasError('RateLimit') ? 'invalid-field' : ''
                 }`}
-                rightElement={
-                  <InputValidationError error={getFieldError('Proxy')} />
+                  fill={false}
+                  placeholder={
+                  placeholders.rateLimit
+                    ? placeholders.rateLimit
+                    : '1000'
                 }
-              />
-            </FormGroup>
-          </div>
+                  allowNumericCharactersOnly={true}
+                  onValueChange={(rateLimitPerHour) => { onRateLimitChange(rateLimitPerHour) }}
+                  value={rateLimit}
+                  rightElement={
+                    <InputValidationError error={getFieldError('RateLimit')} />
+                }
+                />
+              </FormGroup>
+            </div>
+          </>
         )}
         {enableActions && (
           <div

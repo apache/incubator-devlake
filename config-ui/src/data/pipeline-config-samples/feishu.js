@@ -18,8 +18,8 @@
 const feishuConfig = [
   [
     {
-      Plugin: 'feishu',
-      Options: {}
+      plugin: 'feishu',
+      options: {}
     }
   ]
 ]

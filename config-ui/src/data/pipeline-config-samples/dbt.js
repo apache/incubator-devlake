@@ -18,8 +18,8 @@
 const dbtConfig = [
   [
     {
-      Plugin: 'dbt',
-      Options: {
+      plugin: 'dbt',
+      options: {
         projectPath: '/var/www/html/my-project',
         projectName: 'myproject',
         projectTarget: 'dev',
