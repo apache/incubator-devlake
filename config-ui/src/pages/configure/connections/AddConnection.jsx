@@ -57,6 +57,7 @@ export default function AddConnection () {
     name,
     endpointUrl,
     proxy,
+    rateLimit,
     token,
     initialTokenStore,
     username,
@@ -64,6 +65,7 @@ export default function AddConnection () {
     setName,
     setEndpointUrl,
     setProxy,
+    setRateLimit,
     setUsername,
     setPassword,
     setToken,
@@ -84,6 +86,7 @@ export default function AddConnection () {
     name,
     endpointUrl,
     proxy,
+    rateLimit,
     token,
     username,
     password
@@ -164,6 +167,7 @@ export default function AddConnection () {
                   name={name}
                   endpointUrl={endpointUrl}
                   proxy={proxy}
+                  rateLimit={rateLimit}
                   token={token}
                   initialTokenStore={initialTokenStore}
                   username={username}
@@ -175,6 +179,7 @@ export default function AddConnection () {
                   onNameChange={setName}
                   onEndpointChange={setEndpointUrl}
                   onProxyChange={setProxy}
+                  onRateLimitChange={setRateLimit}
                   onTokenChange={setToken}
                   onUsernameChange={setUsername}
                   onPasswordChange={setPassword}

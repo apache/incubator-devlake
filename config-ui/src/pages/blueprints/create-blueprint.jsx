@@ -268,6 +268,7 @@ const CreateBlueprint = (props) => {
     name: connectionName,
     endpointUrl,
     proxy,
+    rateLimit,
     token,
     initialTokenStore,
     username,
@@ -278,6 +279,7 @@ const CreateBlueprint = (props) => {
     setName,
     setEndpointUrl,
     setProxy,
+    setRateLimit,
     setUsername,
     setPassword,
     setToken,
@@ -333,6 +335,7 @@ const CreateBlueprint = (props) => {
     name: connectionName,
     endpointUrl,
     proxy,
+    rateLimit,
     token,
     username,
     password,
@@ -1129,6 +1132,7 @@ const CreateBlueprint = (props) => {
         endpointUrl={endpointUrl}
         name={connectionName}
         proxy={proxy}
+        rateLimit={rateLimit}
         token={token}
         initialTokenStore={initialTokenStore}
         username={username}
@@ -1145,6 +1149,7 @@ const CreateBlueprint = (props) => {
         onNameChange={setName}
         onEndpointChange={setEndpointUrl}
         onProxyChange={setProxy}
+        onRateLimitChange={setRateLimit}
         onTokenChange={setToken}
         onUsernameChange={setUsername}
         onPasswordChange={setPassword}

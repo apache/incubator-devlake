@@ -81,7 +81,8 @@ const ProviderFormLabels = {
     proxy: 'Proxy URL',
     token: 'Basic Auth Token',
     username: 'Username',
-    password: 'Password'
+    password: 'Password',
+    rateLimit: 'Rate Limit'
   },
   gitlab: {
     name: 'Connection Name',
@@ -89,7 +90,8 @@ const ProviderFormLabels = {
     proxy: 'Proxy URL',
     token: 'Access Token',
     username: 'Username',
-    password: 'Password'
+    password: 'Password',
+    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
   },
   jenkins: {
     name: 'Connection Name',
@@ -97,7 +99,8 @@ const ProviderFormLabels = {
     proxy: 'Proxy URL',
     token: 'Basic Auth Token',
     username: 'Username',
-    password: 'Password'
+    password: 'Password',
+    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
   },
   tapd: {
     name: 'Connection Name',
@@ -106,13 +109,14 @@ const ProviderFormLabels = {
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password',
+    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
   },
   jira: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
     token: 'Basic Auth Token',
     username: 'Username / E-mail',
-    // password; 'Password',
+    proxy: 'Proxy URL',
     password: (
       <>
         Password
@@ -134,17 +138,17 @@ const ProviderFormLabels = {
           />
         </Tooltip>
       </>),
+    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
   },
   github: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
     proxy: 'Proxy URL',
-    // token: 'Auth Token(s)',
     token: (
       <>
         Auth Token(s)
         <Tooltip
-          content={(<span>Due to Github’s rate limit, input more tokens, <br />comma separated, to accelerate data collection.</span>)}
+          content={(<span>Due to Github's rate limit, input more tokens, <br />comma separated, to accelerate data collection.</span>)}
           intent='primary'
         >
           <Icon
@@ -162,8 +166,9 @@ const ProviderFormLabels = {
         </Tooltip>
       </>),
     username: 'Username',
-    password: 'Password'
-  },
+    password: 'Password',
+    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
+  }
 }
 
 const ProviderFormPlaceholders = {
@@ -173,7 +178,8 @@ const ProviderFormPlaceholders = {
     proxy: 'eg. http://proxy.localhost:8080',
     token: 'eg. 3f5cda2a23ff410792e0',
     username: 'Enter Username / E-mail',
-    password: 'Enter Password'
+    password: 'Enter Password',
+    rateLimit: '1000'
   },
   gitlab: {
     name: 'eg. GitLab',
@@ -181,7 +187,8 @@ const ProviderFormPlaceholders = {
     proxy: 'eg. http://proxy.localhost:8080',
     token: 'eg. ff9d1ad0e5c04f1f98fa',
     username: 'Enter Username / E-mail',
-    password: 'Enter Password'
+    password: 'Enter Password',
+    rateLimit: '1000'
   },
   jenkins: {
     name: 'eg. Jenkins',
@@ -189,7 +196,8 @@ const ProviderFormPlaceholders = {
     proxy: 'eg. http://proxy.localhost:8080',
     token: 'eg. 6b057ffe68464c93a057',
     username: 'eg. admin',
-    password: 'eg. ************'
+    password: 'eg. ************',
+    rateLimit: '1000'
   },
   tapd: {
     name: 'eg. Tapd',
@@ -197,7 +205,8 @@ const ProviderFormPlaceholders = {
     proxy: 'eg. http://proxy.localhost:8080',
     token: 'eg. 6b057ffe68464c93a057',
     username: 'eg. admin',
-    password: 'eg. ************'
+    password: 'eg. ************',
+    rateLimit: '1000'
   },
   jira: {
     name: 'eg. JIRA',
@@ -205,7 +214,8 @@ const ProviderFormPlaceholders = {
     proxy: 'eg. http://proxy.localhost:8080',
     token: 'eg. 8c06a7cc50b746bfab30',
     username: 'eg. admin',
-    password: 'eg. ************'
+    password: 'eg. ************',
+    rateLimit: '1000'
   },
   github: {
     name: 'eg. GitHub',
@@ -213,7 +223,8 @@ const ProviderFormPlaceholders = {
     proxy: 'eg. http://proxy.localhost:8080',
     token: 'eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
     username: 'eg. admin',
-    password: 'eg. ************'
+    password: 'eg. ************',
+    rateLimit: '1000'
   }
 }
 
