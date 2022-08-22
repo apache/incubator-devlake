@@ -18,6 +18,7 @@ limitations under the License.
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -98,22 +99,40 @@ func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbError
 	}
 	errType := *t
 	var wrappedErr *crdbErrorImpl
-	if cast, ok := err.(*crdbErrorImpl); ok {
-		err = cast.wrappedRaw
-		wrappedErr = cast
-		if *t == Default { // inherit wrapped error's type
-			errType = cast.GetType()
+	var wrappedRaw error
+	rawMessage := message
+	if cfg.userMsg != "" {
+		rawMessage = fmt.Sprintf("%s [%s]", message, cfg.userMsg)
+	}
+	if err == nil {
+		if cfg.enableStacktrace {
+			wrappedRaw = cerror.NewWithDepth(2, rawMessage)
+		} else {
+			wrappedRaw = errors.New(message)
+		}
+	} else {
+		if cast, ok := err.(*crdbErrorImpl); ok {
+			err = cast.wrappedRaw
+			wrappedErr = cast
+			if *t == Default { // inherit wrapped error's type
+				errType = cast.GetType()
+			}
+		}
+		if cfg.enableStacktrace {
+			wrappedRaw = cerror.WrapWithDepth(2, err, rawMessage)
+		} else {
+			wrappedRaw = cerror.WithDetail(err, rawMessage)
 		}
 	}
 	impl := &crdbErrorImpl{
-		wrappedRaw: cerror.WrapWithDepth(1, err, message),
+		wrappedRaw: wrappedRaw,
 		wrapped:    wrappedErr,
-		msg:        message,
+		msg:        rawMessage,
 		userMsg:    cfg.userMsg,
 		t:          &errType,
 	}
 	if cfg.asUserMsg {
-		impl.userMsg = impl.msg
+		impl.userMsg = message // set to original
 	}
 	return impl
 }

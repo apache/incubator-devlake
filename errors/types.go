@@ -39,8 +39,9 @@ type (
 	Option func(*options)
 
 	options struct {
-		userMsg   string
-		asUserMsg bool
+		userMsg          string
+		asUserMsg        bool
+		enableStacktrace bool
 	}
 )
 
@@ -73,5 +74,12 @@ func UserMessage(msg string) Option {
 func AsUserMessage() Option {
 	return func(opts *options) {
 		opts.asUserMsg = true
+	}
+}
+
+// WithStackTrace turns stacktrace dumping on for this Error
+func WithStackTrace() Option {
+	return func(opts *options) {
+		opts.enableStacktrace = true
 	}
 }
