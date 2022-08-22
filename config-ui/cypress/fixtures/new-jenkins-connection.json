@@ -1,0 +1,14 @@
+{
+  "id": 63,
+  "createdAt": "2022-03-22T02:12:01.426Z",
+  "updatedAt": "2022-03-22T02:12:01.426Z",
+  "name": "TEST JENKINS INSTANCE",
+  "endpoint": "https://jenkins.com/api/",
+  "basicAuthEncoded": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "epicKeyField": "",
+  "storyPointField": "",
+  "remotelinkCommitShaPattern": "",
+  "proxy": "http://proxy.localhost:8800",
+  "rateLimit": 0,
+  "typeMappings": {}
+}

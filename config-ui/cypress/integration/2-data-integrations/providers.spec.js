@@ -55,7 +55,7 @@ context('Data Integration Providers', () => {
         .should('be.visible')
     })
 
-    it('can create a new jira connection', () => {
+    it('can create a new connection', () => {
       cy.fixture('new-jira-connection').as('JIRAConnectionConnectionJSON')
       cy.intercept('POST', '/api/plugins/jira/connections', { statusCode: 201, body: '@JIRAConnectionConnectionJSON' }).as('createJIRAConnection')
       cy.visit('/integrations/jira')
@@ -66,32 +66,17 @@ context('Data Integration Providers', () => {
 
       cy.get('input#connection-name').type('TEST JIRA INSTANCE')
       cy.get('input#connection-endpoint').type('https://test-46f2c29a-2955-4fa6-8de8-fffeaf8cf8e0.atlassian.net/rest/')
-      cy.get('input#connection-token').type('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+      cy.get('input#connection-username').type('some username')
+      cy.get('input#connection-password').type('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
       cy.get('input#connection-proxy').type('http://proxy.localhost:8800')
 
       cy.get('button#btn-save')
         .should('be.visible')
         .should('be.enabled')
         .click()
-      
+
       cy.wait('@createJIRAConnection').its('response.statusCode').should('eq', 201)
       cy.url().should('include', '/integrations/jira')
-    })
-
-    it('can perform test for online connection', () => {
-      cy.intercept('GET', '/api/plugins/jira/connections/*').as('fetchJIRAConnection')
-      cy.intercept('POST', '/api/plugins/jira/test').as('testJIRAConnection')  
-      cy.visit('/integrations/jira')
-      cy.get('.connections-table')
-      .find('tr.connection-online')
-      .first()
-      .click()
-
-      cy.wait('@fetchJIRAConnection')
-      cy.get('button#btn-test').click()
-      cy.wait('@testJIRAConnection').its('response.statusCode').should('eq', 200)
-      cy.wait(500)
-      cy.get('.bp3-toast').contains(/OK/i)
     })
   })
 
@@ -120,28 +105,28 @@ context('Data Integration Providers', () => {
         .should('be.visible')
         .find('tbody').should('have.length', 1)
     })
-    it('cannot add a new connection', () => {
+    it('can create a new connection', () => {
+      cy.fixture('new-gitlab-connection').as('GitlabConnectionConnectionJSON')
+      cy.intercept('POST', '/api/plugins/gitlab/connections', { statusCode: 201, body: '@GitlabConnectionConnectionJSON' }).as('createGitlabConnection')
       cy.visit('/integrations/gitlab')
-      cy.get('button.bp3-button').contains('Add Connection')
-        .parent()
-        .should('have.class', 'bp3-disabled')
-        .should('have.attr', 'disabled')
-    })
-    it('can perform test for online connection', () => {
-      cy.intercept('GET', '/api/plugins/gitlab/connections/*').as('fetchGitlabConnection')
-      cy.intercept('POST', '/api/plugins/gitlab/test').as('testGitlabConnection')  
-      cy.visit('/integrations/gitlab')
-      cy.get('.connections-table')
-      .find('tr.connection-online')
-      .first()
-      .click()
+      cy.get('button#btn-add-new-connection').click()
+      cy.get('button#btn-save')
+        .should('be.visible')
+        .should('be.disabled')
 
-      cy.wait('@fetchGitlabConnection')
-      cy.get('button#btn-test').click()
-      cy.wait('@testGitlabConnection').its('response.statusCode').should('eq', 200)
-      cy.wait(500)
-      cy.get('.bp3-toast').contains(/OK/i)
-    })  
+      cy.get('input#connection-name').type('TEST JIRA INSTANCE')
+      cy.get('input#connection-endpoint').type('https://gitlab.com/api/')
+      cy.get('input#connection-token').type('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+      cy.get('input#connection-proxy').type('http://proxy.localhost:8800')
+
+      cy.get('button#btn-save')
+        .should('be.visible')
+        .should('be.enabled')
+        .click()
+
+      cy.wait('@createGitlabConnection').its('response.statusCode').should('eq', 201)
+      cy.url().should('include', '/integrations/gitlab')
+    })
   })
 
   describe('GitHub Data Provider', () => {
@@ -169,28 +154,28 @@ context('Data Integration Providers', () => {
         .should('be.visible')
         .find('tbody').should('have.length', 1)
     })
-    it('cannot add a new connection', () => {
+    it('can create a new connection', () => {
+      cy.fixture('new-github-connection').as('GithubConnectionConnectionJSON')
+      cy.intercept('POST', '/api/plugins/github/connections', { statusCode: 201, body: '@GithubConnectionConnectionJSON' }).as('createGithubConnection')
       cy.visit('/integrations/github')
-      cy.get('button.bp3-button').contains('Add Connection')
-        .parent()
-        .should('have.class', 'bp3-disabled')
-        .should('have.attr', 'disabled')
-    })
-    it('can perform test for online connection', () => {
-      cy.intercept('GET', '/api/plugins/github/connections/*').as('fetchGithubConnection')
-      cy.intercept('POST', '/api/plugins/github/test').as('testGithubConnection')  
-      cy.visit('/integrations/github')
-      cy.get('.connections-table')
-      .find('tr.connection-online')
-      .first()
-      .click()
+      cy.get('button#btn-add-new-connection').click()
+      cy.get('button#btn-save')
+        .should('be.visible')
+        .should('be.disabled')
 
-      cy.wait('@fetchGithubConnection')
-      cy.get('button#btn-test').click()
-      cy.wait('@testGithubConnection').its('response.statusCode').should('eq', 200)
-      cy.wait(500)
-      cy.get('.bp3-toast').contains(/OK/i)
-    })   
+      cy.get('input#connection-name').type('TEST JIRA INSTANCE')
+      cy.get('input#connection-endpoint').type('https://github.com/api/')
+      cy.get('input#pat-id-0').type('xxxxx0')
+      cy.get('input#connection-proxy').type('http://proxy.localhost:8800')
+
+      cy.get('button#btn-save')
+        .should('be.visible')
+        .should('be.enabled')
+        .click()
+
+      cy.wait('@createGithubConnection').its('response.statusCode').should('eq', 201)
+      cy.url().should('include', '/integrations/github')
+    })
   })
 
   describe('Jenkins Data Provider', () => {
@@ -218,27 +203,27 @@ context('Data Integration Providers', () => {
         .should('be.visible')
         .find('tbody').should('have.length', 1)
     })
-    it('cannot add a new connection', () => {
+    it('can create a new connection', () => {
+      cy.fixture('new-jenkins-connection').as('JenkinsConnectionConnectionJSON')
+      cy.intercept('POST', '/api/plugins/jenkins/connections', { statusCode: 201, body: '@JenkinsConnectionConnectionJSON' }).as('createJenkinsConnection')
       cy.visit('/integrations/jenkins')
-      cy.get('button.bp3-button').contains('Add Connection')
-        .parent()
-        .should('have.class', 'bp3-disabled')
-        .should('have.attr', 'disabled')
-    })
-    it('can perform test for online connection', () => {
-      cy.intercept('GET', '/api/plugins/jenkins/connections/*').as('fetchJenkinsConnection')
-      cy.intercept('POST', '/api/plugins/jenkins/test').as('testJenkinsConnection')  
-      cy.visit('/integrations/jenkins')
-      cy.get('.connections-table')
-      .find('tr.connection-online')
-      .first()
-      .click()
+      cy.get('button#btn-add-new-connection').click()
+      cy.get('button#btn-save')
+        .should('be.visible')
+        .should('be.disabled')
 
-      cy.wait('@fetchJenkinsConnection')
-      cy.get('button#btn-test').click()
-      cy.wait('@testJenkinsConnection').its('response.statusCode').should('eq', 200)
-      cy.wait(500)
-      cy.get('.bp3-toast').contains(/OK/i)
-    })   
+      cy.get('input#connection-name').type('TEST JIRA INSTANCE')
+      cy.get('input#connection-endpoint').type('https://jenkins.com/api/')
+      cy.get('input#connection-username').type('username')
+      cy.get('input#connection-password').type('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+
+      cy.get('button#btn-save')
+        .should('be.visible')
+        .should('be.enabled')
+        .click()
+
+      cy.wait('@createJenkinsConnection').its('response.statusCode').should('eq', 201)
+      cy.url().should('include', '/integrations/jenkins')
+    })
   })
 })
