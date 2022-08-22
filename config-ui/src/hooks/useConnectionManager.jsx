@@ -327,7 +327,7 @@ function useConnectionManager (
             name: connectionData.name || connectionData.Name,
             endpoint: connectionData.endpoint || connectionData.Endpoint,
             proxy: connectionData.proxy || connectionData.Proxy,
-            rateLimit: connectionData.rateLimit,
+            rateLimit: connectionData.rateLimitPerHour,
             username: connectionData.username || connectionData.Username,
             password: connectionData.password || connectionData.Password,
             token: connectionData.token || connectionData.auth
@@ -563,31 +563,31 @@ function useConnectionManager (
         case Providers.JENKINS:
           setUsername(activeConnection.username)
           setPassword(activeConnection.password)
-          setRateLimit(activeConnection.rateLimit)
+          setRateLimit(activeConnection.rateLimitPerHour)
           break
         case Providers.GITLAB:
           setToken(activeConnection.basicAuthEncoded || activeConnection.token || activeConnection.auth)
           setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimit)
+          setRateLimit(activeConnection.rateLimitPerHour)
           break
         case Providers.GITHUB:
           setToken(connectionToken)
           setInitialTokenStore(connectionToken?.split(',')?.reduce((tS, cT, id) => ({ ...tS, [id]: cT }), {}))
           setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimit)
+          setRateLimit(activeConnection.rateLimitPerHour)
           break
         case Providers.JIRA:
         // setToken(activeConnection.basicAuthEncoded || activeConnection.token)
           setUsername(activeConnection.username)
           setPassword(activeConnection.password)
           setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimit)
+          setRateLimit(activeConnection.rateLimitPerHour)
           break
         case Providers.TAPD:
           setUsername(activeConnection.username)
           setPassword(activeConnection.password)
           setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimit)
+          setRateLimit(activeConnection.rateLimitPerHour)
         break
       }
       ToastNotification.clear()
