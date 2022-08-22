@@ -18,6 +18,7 @@ limitations under the License.
 package pipelines
 
 import (
+	goerror "errors"
 	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"os"
@@ -202,7 +203,11 @@ func DownloadLogs(c *gin.Context) {
 	}
 	archive, err := services.GetPipelineLogsArchivePath(pipeline)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusInternalServerError)
+		if goerror.Is(err, os.ErrNotExist) {
+			shared.ApiOutputError(c, err, http.StatusNotFound)
+		} else {
+			shared.ApiOutputError(c, err, http.StatusInternalServerError)
+		}
 		return
 	}
 	defer os.Remove(archive)
