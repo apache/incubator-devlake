@@ -91,9 +91,9 @@ const Blueprints = (props) => {
   } = usePipelineManager()
 
   const {
-    data,
     pagedData,
-    filteredData,
+    setFilterParams,
+    setFilterFunc,
     setData,
     renderControlsComponent: renderPagnationControls
   } = usePaginator()
@@ -107,7 +107,6 @@ const Blueprints = (props) => {
   const [pipelineTemplates, setPipelineTemplates] = useState([])
   const [selectedPipelineTemplate, setSelectedPipelineTemplate] = useState()
 
-  const [filteredBlueprints, setFilteredBlueprints] = useState([])
   const [activeFilterStatus, setActiveFilterStatus] = useState()
 
   const [relatedPipelines, setRelatedPipelines] = useState([])
@@ -248,37 +247,27 @@ const Blueprints = (props) => {
   }, [fetchAllPipelines])
 
   useEffect(() => {
-    if (activeFilterStatus) {
+    setFilterFunc(() => (activeFilterStatus, blueprint) => {
       switch (activeFilterStatus) {
         case 'hourly':
-          setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
-          break
         case 'daily':
-          setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
-          break
         case 'weekly':
-          setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
-          break
         case 'monthly':
-          setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
-          break
+          console.log(blueprint.cronConfig === getCronPreset(activeFilterStatus).cronConfig)
+          return blueprint.cronConfig === getCronPreset(activeFilterStatus).cronConfig
         case 'manual':
-          setFilteredBlueprints(blueprints.filter(b => b.isManual))
-          break
+          return blueprint.isManual
         case 'custom':
-          setFilteredBlueprints(blueprints.filter(
-            b => b.cronConfig !== getCronPreset('hourly').cronConfig &&
-            b.cronConfig !== getCronPreset('daily').cronConfig &&
-            b.cronConfig !== getCronPreset('weekly').cronConfig &&
-            b.cronConfig !== getCronPreset('monthly').cronConfig
-          ))
-          break
+          return blueprint.cronConfig !== getCronPreset('hourly').cronConfig &&
+            blueprint.cronConfig !== getCronPreset('daily').cronConfig &&
+            blueprint.cronConfig !== getCronPreset('weekly').cronConfig &&
+            blueprint.cronConfig !== getCronPreset('monthly').cronConfig
         default:
-        // NO FILTERS
-          break
+          return true
       }
-    }
-  }, [activeFilterStatus, blueprints, getCronPreset])
+    })
+    setFilterParams(activeFilterStatus)
+  }, [activeFilterStatus, setFilterParams, getCronPreset])
 
   // useEffect(() => {
   //   if (Array.isArray(tasks)) {
@@ -329,10 +318,8 @@ const Blueprints = (props) => {
             {(!isFetchingBlueprints) && blueprints.length > 0 && (
               <>
                 <BlueprintsGrid
-                  // blueprints={blueprints}
                   blueprints={pagedData}
                   pipelines={relatedPipelines}
-                  filteredBlueprints={filteredBlueprints}
                   activeFilterStatus={activeFilterStatus}
                   onFilter={setActiveFilterStatus}
                   activeBlueprint={activeBlueprint}

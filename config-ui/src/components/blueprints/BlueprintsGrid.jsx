@@ -37,7 +37,6 @@ import DeletePopover from '@/components/blueprints/DeletePopover'
 const BlueprintsGrid = (props) => {
   const {
     blueprints = [],
-    filteredBlueprints = [],
     pipelines = [],
     activeBlueprint,
     blueprintSchedule,
@@ -152,7 +151,7 @@ const BlueprintsGrid = (props) => {
             minWidth: '830px'
           }}
         >
-          {(activeFilterStatus ? filteredBlueprints : blueprints).map((b, bIdx) => (
+          {(blueprints).map((b, bIdx) => (
             <div key={`blueprint-row-key-${bIdx}`}>
               <div
                 style={{
@@ -481,7 +480,7 @@ const BlueprintsGrid = (props) => {
               </Collapse>
             </div>
           ))}
-          {(activeFilterStatus ? filteredBlueprints.length === 0 : blueprints.length === 0) && (
+          {(blueprints.length === 0) && (
             <div style={{ padding: '12px' }}>
               <h3 style={{
                 fontWeight: 800,

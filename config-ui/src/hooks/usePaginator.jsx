@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import {
   Popover,
   Menu,
@@ -97,25 +97,41 @@ function usePaginator (initialLoadingState = false) {
 
   const [_data, _setData] = useState([])
 
-  const [filteredData, setFilteredData] = useState([])
+  // filter related
+  const [filterParams, setFilterParams] = useState({})
+  const [filterFunc, setFilterFunc] = useState(() => (params, item) => true)
+  const filteredData = useMemo(() => {
+    console.log('>> SET FILTER DATA BY', filterParams, _data)
+    const filteredData = []
+    for (const item of _data) {
+      console.log(item)
+      if (filterFunc(filterParams, item)) {
+        filteredData.push(item)
+      }
+    }
+    return filteredData
+  }, [_data, filterParams, filterFunc])
+
+  // page related
   const [pagedData, setPagedData] = useState([])
   const [pageOptions, setPageOptions] = useState([5, 25, 50, 75, 100])
   const [currentPage, setCurrentPage] = useState(1)
-  const [perPage, setPerPage] = useState(pageOptions[0])
+  const [perPage, setPerPage] = useState(pageOptions[1])
   const [maxPage, setMaxPage] = useState(0)
 
+  // others
   const [isLoading, setIsLoading] = useState(initialLoadingState || false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [refresh, setRefresh] = useState(false)
 
   const reCalMaxPage = useCallback(() => {
-    setMaxPage(Math.max(1, Math.ceil(_data.length / perPage)))
-    console.log('>> MAX PAGE = ', Math.max(1, Math.ceil(_data.length / perPage)))
-  }, [_data, perPage, setMaxPage])
+    setMaxPage(Math.max(1, Math.ceil(filteredData.length / perPage)))
+    console.log('>> MAX PAGE = ', Math.max(1, Math.ceil(filteredData.length / perPage)))
+  }, [filteredData, perPage, setMaxPage])
 
   const setData = useCallback((data) => {
     console.log('>> SET ALL DATA...', _data)
-    _setData(data)
+    _setData(data || [])
     reCalMaxPage()
   }, [_setData, setRefresh])
 
@@ -144,20 +160,20 @@ function usePaginator (initialLoadingState = false) {
   }, [currentPage])
 
   const paginateData = useCallback(() => {
-    console.log('>> ALL DATA...', _data)
+    console.log('>> FILTERED DATA...', filteredData)
     const sliceBegin = (currentPage - 1) * perPage
     const sliceEnd = currentPage * perPage
-    setPagedData(_data.slice(sliceBegin, sliceEnd))
-    console.log('>> PAGED DATA = ', _data.slice(sliceBegin, sliceEnd))
-  }, [_data, perPage, currentPage, setPagedData])
+    setPagedData(filteredData.slice(sliceBegin, sliceEnd))
+    console.log('>> PAGED DATA = ', filteredData.slice(sliceBegin, sliceEnd))
+  }, [filteredData, perPage, currentPage, setPagedData])
 
   useEffect(() => {
     paginateData()
-  }, [refresh, perPage, _data, currentPage, paginateData])
+  }, [refresh, perPage, filteredData, currentPage, paginateData])
 
   useEffect(() => {
     reCalMaxPage()
-  }, [refresh, reCalMaxPage, perPage, _data])
+  }, [refresh, reCalMaxPage, perPage, filteredData])
 
   const renderControlsComponent = useCallback(() => {
     return (
@@ -175,10 +191,6 @@ function usePaginator (initialLoadingState = false) {
     )
   }, [currentPage, maxPage, perPage, isLoading, goNextPage, goPrevPage, changePerPage])
 
-  useEffect(() => {
-    console.log('>>> PAGINATOR: DATA ...', _data)
-  }, [_data])
-
   return {
     goNextPage,
     goPrevPage,
@@ -188,16 +200,17 @@ function usePaginator (initialLoadingState = false) {
     isLoading,
     isProcessing,
     data: _data,
+    filteredData,
     pagedData,
-    // filteredData,
     perPage,
     maxPage,
-    setIsLoading,
-    setIsProcessing,
     setData,
     setPagedData,
-    // setFilteredData,
-    setMaxPage
+    setFilterParams,
+    setFilterFunc,
+    // setMaxPage,
+    setIsLoading,
+    setIsProcessing,
   }
 }
 
