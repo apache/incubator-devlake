@@ -26,6 +26,9 @@ import {
   Elevation,
   Card,
   Colors,
+  Spinner,
+  Tooltip,
+  Position
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import { integrationsData } from '@/data/integrations'
@@ -380,6 +383,14 @@ const DataTransformations = (props) => {
                             onClick={() => onSave()}
                             // disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
                             style={{ marginLeft: '5px' }}
+                            icon={(
+                              <Tooltip
+                                position={Position.TOP}
+                                intent={Intent.PRIMARY}
+                                content={'Close Editor to Continue'}>
+                                  <Spinner size={12} />
+                              </Tooltip>
+                            )}
                           />
                         )}
                       </div>
