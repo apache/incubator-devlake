@@ -395,7 +395,7 @@ func getPipelineLogsPath(pipeline *models.Pipeline) (string, error) {
 		return filepath.Dir(path), nil
 	}
 	if os.IsNotExist(err) {
-		return "", fmt.Errorf("logs for pipeline #%d not found: %w", pipeline.ID, err)
+		return "", fmt.Errorf("logs for pipeline #%d not found. You may be missing the LOGGING_DIR setting: %w", pipeline.ID, err)
 	}
 	return "", fmt.Errorf("err validating logs path for pipeline #%d: %w", pipeline.ID, err)
 }
