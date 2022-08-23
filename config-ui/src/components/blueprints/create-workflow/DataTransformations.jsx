@@ -26,6 +26,9 @@ import {
   Elevation,
   Card,
   Colors,
+  Spinner,
+  Tooltip,
+  Position
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import { integrationsData } from '@/data/integrations'
@@ -116,18 +119,18 @@ const DataTransformations = (props) => {
   }, [entityList])
 
   useEffect(() => {
-    console.log('>>>>> PROJECT / BOARD ENTITY SELECTED!', activeEntity)
-    switch (activeEntity?.type) {
-      case 'board':
-        addBoardTransformation(activeEntity?.entity)
-        // addProjectTransformation(null)
-        break
-      case 'project':
-        addProjectTransformation(activeEntity?.entity)
-        // addBoardTransformation(null)
-        break
+    if (useDropdownSelector) {
+      console.log('>>>>> PROJECT / BOARD ENTITY SELECTED!', activeEntity)
+      switch (activeEntity?.type) {
+        case 'board':
+          addBoardTransformation(activeEntity?.entity)
+          break
+        case 'project':
+          addProjectTransformation(activeEntity?.entity)
+          break
+      }
     }
-  }, [activeEntity, addBoardTransformation, addProjectTransformation])
+  }, [activeEntity, addBoardTransformation, addProjectTransformation, useDropdownSelector])
 
   return (
     <div className='workflow-step workflow-step-add-transformation' data-step={activeStep?.id}>
@@ -380,6 +383,14 @@ const DataTransformations = (props) => {
                             onClick={() => onSave()}
                             // disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
                             style={{ marginLeft: '5px' }}
+                            icon={(
+                              <Tooltip
+                                position={Position.TOP}
+                                intent={Intent.PRIMARY}
+                                content={'Close Editor to Continue'}>
+                                  <Spinner size={12} />
+                              </Tooltip>
+                            )}
                           />
                         )}
                       </div>
