@@ -61,7 +61,6 @@ func TestIssueDataFlow(t *testing.T) {
 
 	// verify issue extraction
 	dataflowTester.FlushTabler(&models.BitbucketIssue{})
-	dataflowTester.FlushTabler(&models.BitbucketIssueLabel{})
 	dataflowTester.FlushTabler(&models.BitbucketAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -95,19 +94,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
-	dataflowTester.VerifyTable(
-		models.BitbucketIssueLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.BitbucketIssueLabel{}.TableName()),
-		[]string{
-			"connection_id",
-			"issue_id",
-			"label_name",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
+
 	dataflowTester.VerifyTable(
 		models.BitbucketAccount{},
 		"./snapshot_tables/_tool_bitbucket_accounts_in_issue.csv",

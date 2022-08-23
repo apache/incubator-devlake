@@ -37,7 +37,7 @@ type RefdiffPipelinePlan [][]struct {
 	Plugin  string `json:"plugin"`
 	Options struct {
 		RepoID string `json:"repoId"`
-		Pairs []struct {
+		Pairs  []struct {
 			NewRef string `json:"newRef"`
 			OldRef string `json:"oldRef"`
 		} `json:"pairs"`
