@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -131,6 +132,8 @@ func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 }
 
 func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+	logger := taskCtx.GetLogger()
+	logger.Debug("%v", options)
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -145,15 +148,28 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 		return nil, fmt.Errorf("unable to get github connection by the given connection ID: %v", err)
 	}
 
+	var since time.Time
+	if op.Since != "" {
+		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
+		if err != nil {
+			return nil, fmt.Errorf("invalid value for `since`: %w", err)
+		}
+	}
+
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, fmt.Errorf("unable to get github API client instance: %v", err)
 	}
-
-	return &tasks.GithubTaskData{
+	taskData := &tasks.GithubTaskData{
 		Options:   op,
 		ApiClient: apiClient,
-	}, nil
+	}
+
+	if !since.IsZero() {
+		taskData.Since = &since
+		logger.Debug("collect data updated since %s", since)
+	}
+	return taskData, nil
 }
 
 func (plugin Github) RootPkgPath() string {
