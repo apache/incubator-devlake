@@ -27,9 +27,9 @@ type GithubAccount struct {
 	Url          string `json:"url" gorm:"type:varchar(255)"`
 	HtmlUrl      string `json:"html_url" gorm:"type:varchar(255)"`
 	Type         string `json:"type" gorm:"type:varchar(255)"`
-	Name    string `json:"name" gorm:"type:varchar(255)"`
-	Company string `json:"company" gorm:"type:varchar(255)"`
-	Email   string `json:"Email" gorm:"type:varchar(255)"`
+	Name         string `json:"name" gorm:"type:varchar(255)"`
+	Company      string `json:"company" gorm:"type:varchar(255)"`
+	Email        string `json:"Email" gorm:"type:varchar(255)"`
 	archived.NoPKModel
 }
 

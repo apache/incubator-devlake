@@ -29,10 +29,9 @@ type addInitTables struct{}
 
 func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().DropTable(
-		&archived.BitbucketUser{},
 		&archived.BitbucketRepo{},
 		&archived.BitbucketRepoCommit{},
-		//&archived.BitbucketConnection{},
+		&archived.BitbucketConnection{},
 		&archived.BitbucketAccount{},
 		&archived.BitbucketCommit{},
 		&archived.BitbucketPullRequest{},
@@ -46,7 +45,6 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	}
 
 	err = db.Migrator().AutoMigrate(
-		&archived.BitbucketUser{},
 		&archived.BitbucketRepo{},
 		&archived.BitbucketRepoCommit{},
 		&archived.BitbucketConnection{},

@@ -61,7 +61,7 @@ type BitbucketApiRepo struct {
 	Type        string `json:"type"`
 	HasIssue    bool   `json:"has_issue"`
 	ForkPolicy  string `json:"fork_policy"`
-	Owner       models.BitbucketUser
+	Owner       models.BitbucketAccount
 	CreatedAt   time.Time  `json:"created_on"`
 	UpdatedAt   *time.Time `json:"updated_on"`
 }
