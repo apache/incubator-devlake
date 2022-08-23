@@ -55,7 +55,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 			return fmt.Errorf("regexp Compile prBodyClosePattern failed:[%s] stack:[%s]", err.Error(), debug.Stack())
 		}
 	}
-	charPattern := regexp.MustCompile(`[a-zA-Z\s,]+`)
+	charPattern := regexp.MustCompile(`[\/a-zA-Z\s,]+`)
 	cursor, err := db.Cursor(dal.From(&githubModels.GithubPullRequest{}), dal.Where("repo_id = ?", repoId))
 	if err != nil {
 		return err
