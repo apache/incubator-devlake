@@ -174,3 +174,15 @@ type TapdPipelinePlan [][]struct {
 		Since       string
 	} `json:"options"`
 }
+
+// @Summary pipelines plan for icla
+// @Description pipelines plan for icla
+// @Tags framework/pipelines
+// @Accept application/json
+// @Param pipeline body iclaPipelinePlan true "json"
+// @Router /pipelines/icla/pipeline-plan [post]
+func _() {}
+
+type iclaPipelinePlan [][]struct {
+	Plugin string `json:"plugin" example:"icla"`
+}

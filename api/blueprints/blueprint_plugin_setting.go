@@ -217,3 +217,18 @@ type GithubBlueprintSetting []struct {
 		} `json:"scope"`
 	} `json:"connections"`
 }
+
+// @Summary blueprints setting for icla
+// @Description blueprint setting for icla
+// @Tags framework/blueprints
+// @Accept application/json
+// @Param blueprint body iclaBlueprintSetting true "json"
+// @Router /blueprints/icla/blueprint-setting [post]
+func _() {}
+
+type iclaBlueprintSetting []struct {
+	Version     string `json:"version" example:"1.0.0"`
+	Connections []struct {
+		Plugin string `json:"plugin" example:"icla"`
+	} `json:"connections"`
+}
