@@ -25,16 +25,20 @@ context('Sidebar', () => {
   it('shows merico application logo', () => {
     cy.get('.sidebar-card')
       .should('have.class', 'bp3-card')
-      .find('img.logo')
-      .should('be.visible')
-      .and('have.attr', 'src', '/logo.svg')
+      .find('.devlake-logo')
+      .should($div => {
+        expect($div.find('svg')).to.be.length(2)
+      })
+      .and('be.visible')
   })
 
   it('shows grafana dashboards access button', () => {
     cy.get('.sidebar-card')
-      .find('.dashboardBtn')
-      .should('have.class', 'bp3-button bp3-outlined')
-      .contains('View Dashboards')
+      .should('have.class', 'bp3-card')
+      .find('.sidebarMenu')
+      .first()
+      .should('match', 'ul')
+      .contains('li', /Dashboard/i)
   })
 
   it('displays apache 2.0 license notice', () => {
@@ -42,7 +46,7 @@ context('Sidebar', () => {
       .should('have.class', 'bp3-card')
       .contains('Apache 2.0 License')
   })
-  
+
   describe('Navigation System', () => {
 
     it('displays primary navigation menu', () => {
@@ -63,47 +67,15 @@ context('Sidebar', () => {
         .should('be.visible')
     })
 
-    it('provides access to triggers', () => {
+    it('provides access to blueprints', () => {
       cy.get('.sidebar-card ')
         .should('have.class', 'bp3-card')
         .find('.sidebarMenu')
         .first()
         .should('match', 'ul')
-        .contains('li', /triggers/i)
+        .contains('li', /blueprints/i)
         .should('be.visible')
     })
-
-    it('provides access to pipelines', () => {
-      cy.get('.sidebar-card ')
-        .should('have.class', 'bp3-card')
-        .find('.sidebarMenu')
-        .first()
-        .should('match', 'ul')
-        .contains('li', /pipelines/i)
-        .should('be.visible')
-    })
-
-    it('provides external access to lake github documentation', () => {
-      cy.get('.sidebar-card ')
-        .should('have.class', 'bp3-card')
-        .find('.sidebarMenu')
-        .first()
-        .should('match', 'ul')
-        .contains('li', /documentation/i)
-        .should('be.visible')
-    })
-
-    it('provides external access to merico network links', () => {
-      cy.get('.sidebar-card ')
-        .should('have.class', 'bp3-card')
-        .find('.sidebarMenu')
-        .first()
-        .should('match', 'ul')
-        .contains('li', /merico network/i)
-        .should('be.visible')
-    })
-
-
   })
 
 })

@@ -64,7 +64,7 @@ context('Manage Pipelines & Runs', () => {
     cy.get('.btn-select-page-size').should('be.visible')
   })
 
-  it('has action to create new pipeline run', () => {
+  it.skip('has action to create new pipeline run', () => {
     cy.get('.bp3-button')
       .should('have.class', 'bp3-intent-primary')
       .contains(/create pipeline run/i)

@@ -17,7 +17,7 @@ limitations under the License.
 
 /// <reference types="cypress" />
 
-context('Create New Pipelines Interface', () => {
+context.skip('Create New Pipelines Interface', () => {
   beforeEach(() => {
     cy.visit('/pipelines/create')
   })
@@ -33,7 +33,7 @@ context('Create New Pipelines Interface', () => {
       .find('h1')
       .contains(/create pipeline run/i)
       .should('be.visible')
-  })  
+  })
 
   it('has form control for pipeline name', () => {
     cy.get('h2')
@@ -61,19 +61,19 @@ context('Create New Pipelines Interface', () => {
       .find('.data-provider-row.data-provider-jenkins')
       .should('be.visible')
   })
-  
+
   it('has plugin support for jira data provider', () => {
     cy.get('.data-providers')
       .find('.data-provider-row.data-provider-jira')
       .should('be.visible')
   })
-    
+
   it('has plugin support for refdiff plugin provider', () => {
     cy.get('.data-providers')
       .find('.data-provider-row.data-provider-refdiff')
       .should('be.visible')
   })
-  
+
   it('has plugin support for gitextractor plugin provider', () => {
     cy.get('.data-providers')
       .find('.data-provider-row.data-provider-gitextractor')
@@ -109,7 +109,7 @@ context('Create New Pipelines Interface', () => {
 
 })
 
-context('RUN / Trigger New Pipelines', () => {
+context.skip('RUN / Trigger New Pipelines', () => {
   beforeEach(() => {
     cy.visit('/pipelines/create')
   })
@@ -127,7 +127,7 @@ context('RUN / Trigger New Pipelines', () => {
     cy.get('.provider-toggle-switch.switch-jenkins')
       .should('be.visible')
       .click()
-    
+
     cy.get('button#btn-run-pipeline').click()
     cy.wait('@JenkinsPipeline')
     cy.wait('@JenkinsPipelineTasks')
@@ -149,9 +149,9 @@ context('RUN / Trigger New Pipelines', () => {
     cy.get('.provider-toggle-switch.switch-gitlab')
       .should('be.visible')
       .click()
-    
+
     cy.get('.input-project-id').find('input').type('278964{enter}')
-    
+
     cy.get('button#btn-run-pipeline').click()
     cy.wait('@GitlabPipeline')
     cy.wait('@GitlabPipelineTasks')
@@ -174,10 +174,10 @@ context('RUN / Trigger New Pipelines', () => {
       .should('be.visible')
       .click()
       .trigger('mouseleave')
-    
+
     cy.get('input#owner').click().type('merico-dev', {force: true})
     cy.get('input#repository-name').type('lake')
-    
+
     cy.get('button#btn-run-pipeline').click()
     cy.wait('@GithubPipeline')
     cy.wait('@GithubPipelineTasks')
@@ -200,10 +200,10 @@ context('RUN / Trigger New Pipelines', () => {
       .should('be.visible')
       .click()
       .trigger('mouseleave')
-    
+
     cy.get('input#gitextractor-url').click().type('https://github.com/apache/incubator-devlake.git')
     cy.get('input#gitextractor-repo-id').type('github:GithubRepo:384111310')
-    
+
     cy.get('button#btn-run-pipeline').click()
     cy.wait('@GitExtractorPipeline')
     cy.wait('@GitExtractorPipelineTasks')
@@ -226,7 +226,7 @@ context('RUN / Trigger New Pipelines', () => {
     cy.get('.provider-toggle-switch.switch-jira')
       .should('be.visible')
       .click()
-    
+
     cy.get('button.btn-connection-id-selector').click()
     cy.wait(500)
     cy.get('.bp3-select-popover.source-id-popover')
@@ -236,7 +236,7 @@ context('RUN / Trigger New Pipelines', () => {
     cy.wait(500)
     cy.get('.input-board-id').find('input').type('1{enter}')
 
-    
+
     cy.get('button#btn-run-pipeline').click()
     cy.wait('@JiraPipeline')
     cy.wait('@JiraPipelineTasks')
@@ -259,12 +259,12 @@ context('RUN / Trigger New Pipelines', () => {
       .should('be.visible')
       .click()
       .trigger('mouseleave')
-    
+
     cy.get('input#refdiff-repo-id').click().type('github:GithubRepo:384111310')
     cy.get('input#refdiff-pair-newref').type('refs/tags/v0.2.0')
     cy.get('input#refdiff-pair-oldref').type('refs/tags/v0.1.0')
     cy.get('button.btn-add-tagpair').click()
-    
+
     cy.get('button#btn-run-pipeline').click()
     cy.wait('@RefDiffPipeline')
     cy.wait('@RefDiffPipelineTasks')
