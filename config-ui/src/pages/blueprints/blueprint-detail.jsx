@@ -225,7 +225,7 @@ const BlueprintDetail = (props) => {
       const d = await request.get(getPipelineLogfile(pipeline?.id))
       downloadStatus = d?.status
     }
-    checkDownloadStatus()
+    checkDownloadStatus(pipeline)
     if (pipeline?.id && downloadStatus === 200) {
       saveAs(
         getPipelineLogfile(pipeline?.id),
