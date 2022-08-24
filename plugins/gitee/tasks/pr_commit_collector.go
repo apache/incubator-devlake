@@ -83,6 +83,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 
 			return query, nil
 		},
+		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var items []json.RawMessage
 			err := helper.UnmarshalResponse(res, &items)
