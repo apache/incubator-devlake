@@ -15,20 +15,9 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState } from 'react'
-import {
-  useParams,
-  Link,
-  useHistory
-} from 'react-router-dom'
-import {
-  Button, Card, Elevation, Colors,
-  Tooltip,
-  Position,
-  Spinner,
-  Intent,
-  Icon,
-} from '@blueprintjs/core'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Link, useHistory, useParams } from 'react-router-dom'
+import { Button, Callout, Card, Colors, Elevation, Icon, Intent, Position, Spinner, Tooltip, } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -48,8 +37,7 @@ export default function ManageIntegration () {
 
   const { providerId } = useParams()
 
-  const [integrations, setIntegrations] = useState(integrationsData)
-  const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
+  const activeProvider = useMemo(() => integrationsData.find(p => p.id === providerId), [providerId])
   const [isRunningDelete, setIsRunningDelete] = useState(false)
 
   const [deleteId, setDeleteId] = useState()
@@ -66,12 +54,8 @@ export default function ManageIntegration () {
     deleteComplete,
     testAllConnections,
   } = useConnectionManager({
-    activeProvider
+    provider: activeProvider
   })
-
-  useEffect(() => {
-
-  }, [activeProvider])
 
   const addConnection = () => {
     history.push(`/connections/add/${activeProvider.id}`)
@@ -89,14 +73,6 @@ export default function ManageIntegration () {
     history.push(`/connections/configure/${activeProvider.id}/${id || ID}`)
     console.log('>> editing/modifying connection: ', id, endpoint)
   }
-
-  // @todo: Implement
-  // const runCollection = (connection) => {
-  //   const { id, endpoint } = connection
-  //   ToastNotification.clear()
-  //   ToastNotification.show({ message: `Triggered Collection Process on ${connection.name}`, icon: 'info-sign' })
-  //   console.log('>> running connection: ', id, endpoint)
-  // }
 
   const runDeletion = (connection) => {
     setIsRunningDelete(true)
@@ -120,33 +96,22 @@ export default function ManageIntegration () {
   }
 
   const getConnectionStatus = (connection) => {
-    let s = null
     const connectionAfterTest = testedConnections.find(tC => tC.ID === connection.ID)
     switch (parseInt(connectionAfterTest?.status, 10)) {
       case 1:
-        s = <strong style={{ color: Colors.GREEN3 }}>Online</strong>
-        break
+        return <strong style={{ color: Colors.GREEN3 }}>Online</strong>
       case 2:
-        s = <strong style={{ color: Colors.RED3 }}>Disconnected</strong>
-        break
+        return <strong style={{ color: Colors.RED3 }}>Disconnected</strong>
       case 0:
       default:
-      // eslint-disable-next-line max-len
-        s = <strong style={{ color: Colors.GRAY4 }}><span style={{ float: 'right' }}><Spinner size={11} intent={Intent.NONE} /></span> Offline</strong>
-        break
+        // eslint-disable-next-line max-len
+        return <strong style={{ color: Colors.GRAY4 }}><span style={{ float: 'right' }}><Spinner size={11} intent={Intent.NONE} /></span> Offline</strong>
     }
-    return s
   }
 
   useEffect(() => {
     fetchAllConnections(false)
   }, [activeProvider, fetchAllConnections])
-
-  useEffect(() => {
-    console.log('>> ACTIVE PROVIDER = ', providerId)
-    setIntegrations(integrations)
-    setActiveProvider(integrations.find(p => p.id === providerId))
-  }, [])
 
   useEffect(() => {
     console.log('>> CONNECTION SOURCE LIMITS', sourceLimits)
@@ -321,7 +286,6 @@ export default function ManageIntegration () {
                                 href='#'
                                 data-provider={connection.id}
                                 className='table-action-link actions-link'
-                                // onClick={() => editConnection(connection)}
                                 onClick={(e) => configureConnection(connection, e)}
                               >
                                 <Icon icon='settings' size={12} />
@@ -341,24 +305,6 @@ export default function ManageIntegration () {
                                   <DeleteConfirmationMessage title={`DELETE "${connection.name}"`} />
                                 </DeleteAction>
                               )}
-                              {/* <a
-                                href='#'
-                                data-provider={connection.id}
-                                className='table-action-link actions-link'
-                                onClick={() => runCollection(connection)}
-                              >
-                                <Icon icon='refresh' size={12} />
-                                Collect
-                              </a> */}
-                              {/* <a
-                                href='#'
-                                data-provider={connection.id}
-                                className='table-action-link actions-link'
-                                onClick={() => testConnection(connection)}
-                              >
-                                <Icon icon='data-connection' size={12} />
-                                Test
-                              </a> */}
                             </td>
                           </tr>
                         ))}

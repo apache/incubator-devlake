@@ -28,26 +28,12 @@ import '@/styles/integration.scss'
 export default function Integration () {
   const history = useHistory()
 
-  const [activeProvider, setActiveProvider] = useState(integrationsData[0])
-
   const handleProviderClick = (providerId) => {
     const theProvider = integrationsData.find(p => p.id === providerId)
     if (theProvider) {
-      setActiveProvider(theProvider)
       history.push(`/integrations/${theProvider.id}`)
-    } else {
-      setActiveProvider(integrationsData[0])
     }
   }
-
-  useEffect(() => {
-    // Selected Provider
-    console.log(activeProvider)
-  }, [activeProvider, history])
-
-  useEffect(() => {
-
-  }, [])
 
   return (
     <>

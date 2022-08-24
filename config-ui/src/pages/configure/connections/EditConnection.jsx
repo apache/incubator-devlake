@@ -57,7 +57,7 @@ export default function EditConnection () {
     setPassword,
     setToken
   } = useConnectionManager({
-    activeProvider,
+    provider: activeProvider,
     connectionId,
   }, true)
 

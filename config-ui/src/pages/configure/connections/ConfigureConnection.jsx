@@ -83,7 +83,7 @@ export default function ConfigureConnection () {
     deleteConnection,
     deleteComplete
   } = useConnectionManager({
-    activeProvider,
+    provider: activeProvider,
     connectionId,
   }, true)
 

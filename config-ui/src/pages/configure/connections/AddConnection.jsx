@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import { Icon, } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
@@ -42,7 +42,7 @@ export default function AddConnection () {
   const history = useHistory()
   const { providerId } = useParams()
 
-  const [activeProvider, setActiveProvider] = useState(integrationsData.find(p => p.id === providerId))
+  const activeProvider = useMemo(() => integrationsData.find(p => p.id === providerId), [providerId])
 
   const {
     testConnection,
@@ -83,13 +83,6 @@ export default function AddConnection () {
     isValid: isValidForm
   } = useConnectionValidation({
     activeProvider,
-    name,
-    endpointUrl,
-    proxy,
-    rateLimit,
-    token,
-    username,
-    password
   })
 
   const cancel = () => {
@@ -108,25 +101,8 @@ export default function AddConnection () {
     // Selected Provider
     if (activeProvider?.id) {
       fetchAllConnections()
-      switch (activeProvider.id) {
-        case Providers.JENKINS:
-          // setName(ProviderLabels.JENKINS)
-          break
-        case Providers.GITHUB:
-        case Providers.GITLAB:
-        case Providers.JIRA:
-        case Providers.TAPD:
-        default:
-          setName('')
-          break
-      }
     }
   }, [activeProvider.id, fetchAllConnections, setName])
-
-  useEffect(() => {
-    console.log('>>>> DETECTED PROVIDER = ', providerId)
-    setActiveProvider(integrationsData.find(p => p.id === providerId))
-  }, [])
 
   return (
     <>

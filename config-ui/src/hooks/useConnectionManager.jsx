@@ -32,7 +32,7 @@ import useNetworkOfflineMode from '@/hooks/useNetworkOfflineMode'
 
 function useConnectionManager (
   {
-    activeProvider,
+    provider,
     connectionId,
   },
   updateMode = false
@@ -40,7 +40,6 @@ function useConnectionManager (
   const history = useHistory()
   const { handleOfflineMode } = useNetworkOfflineMode()
 
-  const [provider, setProvider] = useState(activeProvider)
   const [name, setName] = useState()
   const [endpointUrl, setEndpointUrl] = useState()
   const [proxy, setProxy] = useState()
@@ -280,7 +279,7 @@ function useConnectionManager (
           testConnection()
         }
         if (!updateMode) {
-          history.push(`/integrations/${provider.id}`)
+          history.replace(`/integrations/${provider.id}`)
         }
       } else {
         ToastNotification.show({
@@ -458,7 +457,7 @@ function useConnectionManager (
         console.log('>> CONNECTION DELETED...', d)
         setIsDeleting(false)
         setDeleteComplete({
-          provider: activeProvider,
+          provider,
           connection: d.data,
         })
       } catch (e) {
@@ -468,7 +467,7 @@ function useConnectionManager (
         console.log('>> FAILED TO DELETE CONNECTION', e)
       }
     },
-    [provider?.id, activeProvider]
+    [provider?.id]
   )
 
   const getConnectionName = useCallback((connectionId, connections) => {
@@ -628,11 +627,6 @@ function useConnectionManager (
   useEffect(() => {
     console.log('>> TESTED CONNECTION RESULTS...', testedConnections)
   }, [testedConnections])
-
-  useEffect(() => {
-    console.log('>> CONNECTION MANAGER, ACTIVE PROVIDER CHANGED ====>', activeProvider)
-    setProvider(activeProvider)
-  }, [activeProvider])
 
   useEffect(() => {
     console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)

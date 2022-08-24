@@ -234,7 +234,7 @@ const CreatePipeline = (props) => {
     // eslint-disable-next-line no-unused-vars
     getConnectionName
   } = useConnectionManager({
-    activeProvider: jiraIntegration
+    provider: jiraIntegration
   })
 
   useEffect(() => {
