@@ -21,16 +21,20 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 )
 
 // Allowing plugin to know each other
 
 var plugins map[string]PluginMeta
+var mutex sync.Mutex
 
 func RegisterPlugin(name string, plugin PluginMeta) error {
 	if plugins == nil {
 		plugins = make(map[string]PluginMeta)
 	}
+	mutex.Lock()
+	defer mutex.Unlock()
 	plugins[name] = plugin
 	return nil
 }
@@ -39,6 +43,8 @@ func GetPlugin(name string) (PluginMeta, error) {
 	if plugins == nil {
 		return nil, errors.New("RegisterPlugin have never been called.")
 	}
+	mutex.Lock()
+	defer mutex.Unlock()
 	if plugin, ok := plugins[name]; ok {
 		return plugin, nil
 	}

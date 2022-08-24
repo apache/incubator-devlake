@@ -118,3 +118,7 @@ type CloseablePluginTask interface {
 	PluginTask
 	Close(taskCtx TaskContext) error
 }
+
+type CredentialMasker interface {
+	Mask(input []byte) []byte
+}

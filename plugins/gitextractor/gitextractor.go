@@ -18,6 +18,8 @@ limitations under the License.
 package main
 
 import (
+	"encoding/json"
+	"net/url"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -28,8 +30,13 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+const (
+	credentialMaskString = "*****"
+)
+
 var _ core.PluginMeta = (*GitExtractor)(nil)
 var _ core.PluginTask = (*GitExtractor)(nil)
+var _ core.CredentialMasker = (*GitExtractor)(nil)
 
 type GitExtractor struct{}
 
@@ -80,6 +87,37 @@ func (plugin GitExtractor) Close(taskCtx core.TaskContext) error {
 
 func (plugin GitExtractor) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/gitextractor"
+}
+
+func (plugin GitExtractor) Mask(input []byte) []byte {
+	var op tasks.GitExtractorOptions
+	err := json.Unmarshal(input, &op)
+	if err != nil {
+		return input
+	}
+	if op.Password != "" {
+		op.Password = credentialMaskString
+	}
+	if op.Passphrase != "" {
+		op.Passphrase = credentialMaskString
+	}
+	if op.PrivateKey != "" {
+		op.PrivateKey = credentialMaskString
+	}
+	if u, err := url.Parse(op.Url); err == nil {
+		if u.User != nil {
+			_, hasPassword := u.User.Password()
+			if hasPassword {
+				u.User = url.UserPassword(u.User.Username(), credentialMaskString)
+				op.Url = u.String()
+			}
+		}
+	}
+	blob, err := json.Marshal(op)
+	if err != nil {
+		return input
+	}
+	return blob
 }
 
 func newGitRepo(logger core.Logger, storage models.Store, op tasks.GitExtractorOptions) (*parser.GitRepo, error) {

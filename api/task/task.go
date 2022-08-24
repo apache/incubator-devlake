@@ -18,6 +18,7 @@ limitations under the License.
 package task
 
 import (
+	"github.com/apache/incubator-devlake/plugins/core"
 	"net/http"
 	"strconv"
 
@@ -68,6 +69,14 @@ func Index(c *gin.Context) {
 	if err != nil {
 		shared.ApiOutputError(c, err, http.StatusBadRequest)
 		return
+	}
+	for i, task := range tasks {
+		plugin, err := core.GetPlugin(task.Plugin)
+		if err == nil {
+			if masker, ok := plugin.(core.CredentialMasker); ok {
+				tasks[i].Options = masker.Mask(task.Options)
+			}
+		}
 	}
 	shared.ApiOutputSuccess(c, gin.H{"tasks": tasks, "count": count}, http.StatusOK)
 }
