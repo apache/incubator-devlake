@@ -67,7 +67,7 @@ func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			results := make([]interface{}, 0, 2)
-			if !toolMrNote.IsSystem {
+			if !toolMrNote.IsSystem || toolMrNote.Body == "approved this merge request" {
 				toolMrComment := &models.GitlabMrComment{
 					GitlabId:        toolMrNote.GitlabId,
 					MergeRequestId:  toolMrNote.MergeRequestId,
@@ -79,6 +79,9 @@ func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 					Resolvable:      toolMrNote.Resolvable,
 					Type:            toolMrNote.Type,
 					ConnectionId:    data.Options.ConnectionId,
+				}
+				if toolMrNote.Body == "approved this merge request" {
+					toolMrComment.Type = "REVIEW"
 				}
 				results = append(results, toolMrComment)
 			}
