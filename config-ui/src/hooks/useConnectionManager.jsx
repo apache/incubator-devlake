@@ -645,8 +645,8 @@ function useConnectionManager (
   }, [allProviderConnections])
 
   return {
-    activeConnection,
-    fetchConnection,
+    // activeConnection,
+    // fetchConnection,
     fetchAllConnections,
     // fetchDomainLayerRepositories,
     testAllConnections,
