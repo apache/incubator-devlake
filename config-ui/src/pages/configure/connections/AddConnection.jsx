@@ -54,27 +54,15 @@ export default function AddConnection () {
     testStatus,
     testResponse,
     allTestResponses,
-    name,
-    endpointUrl,
-    proxy,
-    rateLimit,
-    token,
-    initialTokenStore,
-    username,
-    password,
-    setName,
-    setEndpointUrl,
-    setProxy,
-    setRateLimit,
-    setUsername,
-    setPassword,
-    setToken,
-    setInitialTokenStore,
     fetchAllConnections,
     connectionLimitReached,
     // Providers
+
+    editingConnection,
+    setConnectionColumn,
+    initialTokenStore,
   } = useConnectionManager({
-    activeProvider,
+    provider: activeProvider,
   })
 
   const {
@@ -89,20 +77,12 @@ export default function AddConnection () {
     history.push(`/integrations/${activeProvider.id}`)
   }
 
-  // const resetForm = () => {
-  //   setName(null)
-  //   setEndpointUrl(null)
-  //   setToken(null)
-  //   setUsername(null)
-  //   setPassword(null)
-  // }
-
   useEffect(() => {
     // Selected Provider
     if (activeProvider?.id) {
       fetchAllConnections()
     }
-  }, [activeProvider.id, fetchAllConnections, setName])
+  }, [activeProvider.id, fetchAllConnections])
 
   return (
     <>
@@ -140,25 +120,13 @@ export default function AddConnection () {
                   isValid={isValidForm}
                   validationErrors={validationErrors}
                   activeProvider={activeProvider}
-                  name={name}
-                  endpointUrl={endpointUrl}
-                  proxy={proxy}
-                  rateLimit={rateLimit}
-                  token={token}
+                  editingConnection={editingConnection}
+                  onConnectionColumnChange={setConnectionColumn}
                   initialTokenStore={initialTokenStore}
-                  username={username}
-                  password={password}
                   onSave={() => saveConnection({})}
                   onTest={testConnection}
                   onCancel={cancel}
                   onValidate={validate}
-                  onNameChange={setName}
-                  onEndpointChange={setEndpointUrl}
-                  onProxyChange={setProxy}
-                  onRateLimitChange={setRateLimit}
-                  onTokenChange={setToken}
-                  onUsernameChange={setUsername}
-                  onPasswordChange={setPassword}
                   isSaving={isSaving}
                   isTesting={isTesting}
                   testStatus={testStatus}

@@ -40,18 +40,11 @@ function useConnectionManager (
   const history = useHistory()
   const { handleOfflineMode } = useNetworkOfflineMode()
 
-  const [name, setName] = useState()
-  const [endpointUrl, setEndpointUrl] = useState()
-  const [proxy, setProxy] = useState()
-  const [rateLimit, setRateLimit] = useState(0)
-  const [token, setToken] = useState()
   const [initialTokenStore, setInitialTokenStore] = useState({
     0: '',
     1: '',
     2: ''
   })
-  const [username, setUsername] = useState()
-  const [password, setPassword] = useState()
 
   const [isSaving, setIsSaving] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
@@ -67,6 +60,7 @@ function useConnectionManager (
   const [sourceLimits, setConnectionLimits] = useState(ProviderConnectionLimits)
 
   const [activeConnection, setActiveConnection] = useState(NullConnection)
+  const [editingConnection, setEditingConnection] = useState(NullConnection)
   const [allConnections, setAllConnections] = useState([])
   const [allProviderConnections, setAllProviderConnections] = useState([])
   const [domainRepositories, setDomainRepositories] = useState([])
@@ -78,7 +72,13 @@ function useConnectionManager (
 
   const [saveComplete, setSaveComplete] = useState(false)
   const [deleteComplete, setDeleteComplete] = useState(false)
-  const connectionTestPayload = useMemo(() => ({ endpoint: endpointUrl, username, password, token, proxy }), [endpointUrl, password, proxy, token, username])
+  const connectionTestPayload = useMemo(() => ({
+    endpoint: editingConnection.endpoint,
+    username: editingConnection.username,
+    password: editingConnection.password,
+    token: editingConnection.token,
+    proxy: editingConnection.proxy,
+  }), [editingConnection])
 
   const testConnection = useCallback(
     (
@@ -137,60 +137,58 @@ function useConnectionManager (
     [provider?.id, connectionTestPayload]
   )
 
+  const setConnectionColumn = useCallback((columnName, value) => {
+    console.log('>> SET EDITING CONNECTION COLUMN', columnName, value)
+    setEditingConnection({
+      ...editingConnection,
+      [columnName]: value,
+    })
+  }, [editingConnection])
+
   const saveConnection = (configurationSettings = {}) => {
     setIsSaving(true)
-    let connectionPayload = { ...configurationSettings }
+    let connectionPayload = {
+      name: editingConnection.name,
+      endpoint: editingConnection.endpoint,
+      rateLimitPerHour: editingConnection.rateLimitPerHour,
+      ...configurationSettings,
+    }
     switch (provider.id) {
       case Providers.JIRA:
         connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          username: username,
-          password: password,
-          proxy: proxy,
-          rateLimitPerHour: rateLimit,
+          username: editingConnection.username,
+          password: editingConnection.password,
+          proxy: editingConnection.proxy,
           ...connectionPayload,
         }
         break
       case Providers.TAPD:
         connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          username: username,
-          password: password,
-          proxy: proxy,
-          rateLimitPerHour: rateLimit,
+          username: editingConnection.username,
+          password: editingConnection.password,
+          proxy: editingConnection.proxy,
           ...connectionPayload,
         }
         break
       case Providers.GITHUB:
         connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          token: token,
-          proxy: proxy,
-          rateLimitPerHour: rateLimit,
+          token: editingConnection.token,
+          proxy: editingConnection.proxy,
           ...connectionPayload,
         }
         break
       case Providers.JENKINS:
       // eslint-disable-next-line max-len
         connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          username: username,
-          password: password,
-          rateLimitPerHour: rateLimit,
+          username: editingConnection.username,
+          password: editingConnection.password,
           ...connectionPayload,
         }
         break
       case Providers.GITLAB:
         connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          token: token,
-          proxy: proxy,
-          rateLimitPerHour: rateLimit,
+          token: editingConnection.token,
+          proxy: editingConnection.proxy,
           ...connectionPayload,
         }
         break
@@ -273,8 +271,8 @@ function useConnectionManager (
         setSaveComplete(saveResponse.connection)
         if (
           [Providers.GITHUB, Providers.JIRA, Providers.GITLAB].includes(provider.id) &&
-          token !== '' &&
-          token?.toString().split(',').length > 1
+          editingConnection.token !== '' &&
+          editingConnection.token?.toString().split(',').length > 1
         ) {
           testConnection()
         }
@@ -539,55 +537,48 @@ function useConnectionManager (
   }, [])
 
   const clearConnection = useCallback(() => {
-    setName('')
-    setEndpointUrl('')
-    setUsername('')
-    setPassword('')
-    setToken('')
+    setEditingConnection(NullConnection)
     setInitialTokenStore({
       0: '',
       1: '',
       2: ''
     })
-    setProxy('')
-    setRateLimit(0)
   }, [])
 
   useEffect(() => {
     if (activeConnection && activeConnection.id !== null) {
       const connectionToken = activeConnection.auth || activeConnection.token || activeConnection.basicAuthEncoded
-      setName(activeConnection.name)
-      setEndpointUrl(activeConnection.endpoint)
+      setEditingConnection(activeConnection)
       switch (provider.id) {
-        case Providers.JENKINS:
-          setUsername(activeConnection.username)
-          setPassword(activeConnection.password)
-          setRateLimit(activeConnection.rateLimitPerHour)
-          break
-        case Providers.GITLAB:
-          setToken(activeConnection.basicAuthEncoded || activeConnection.token || activeConnection.auth)
-          setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimitPerHour)
-          break
+        // case Providers.JENKINS:
+        //   setUsername(activeConnection.username)
+        //   setPassword(activeConnection.password)
+        //   setRateLimit(activeConnection.rateLimitPerHour)
+        //   break
+        // case Providers.GITLAB:
+        //   setToken(activeConnection.basicAuthEncoded || activeConnection.token || activeConnection.auth)
+        //   setProxy(activeConnection.Proxy || activeConnection.proxy)
+        //   setRateLimit(activeConnection.rateLimitPerHour)
+        //   break
         case Providers.GITHUB:
-          setToken(connectionToken)
+          // setToken(connectionToken)
           setInitialTokenStore(connectionToken?.split(',')?.reduce((tS, cT, id) => ({ ...tS, [id]: cT }), {}))
-          setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimitPerHour)
+          // setProxy(activeConnection.Proxy || activeConnection.proxy)
+          // setRateLimit(activeConnection.rateLimitPerHour)
           break
-        case Providers.JIRA:
-        // setToken(activeConnection.basicAuthEncoded || activeConnection.token)
-          setUsername(activeConnection.username)
-          setPassword(activeConnection.password)
-          setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimitPerHour)
-          break
-        case Providers.TAPD:
-          setUsername(activeConnection.username)
-          setPassword(activeConnection.password)
-          setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimitPerHour)
-          break
+        // case Providers.JIRA:
+        // // setToken(activeConnection.basicAuthEncoded || activeConnection.token)
+        //   setUsername(activeConnection.username)
+        //   setPassword(activeConnection.password)
+        //   setProxy(activeConnection.Proxy || activeConnection.proxy)
+        //   setRateLimit(activeConnection.rateLimitPerHour)
+        //   break
+        // case Providers.TAPD:
+        //   setUsername(activeConnection.username)
+        //   setPassword(activeConnection.password)
+        //   setProxy(activeConnection.Proxy || activeConnection.proxy)
+        //   setRateLimit(activeConnection.rateLimitPerHour)
+        //   break
       }
       ToastNotification.clear()
       // ToastNotification.show({ message: `Fetched settings for ${activeConnection.name}.`, intent: 'success', icon: 'small-tick' })
@@ -651,67 +642,58 @@ function useConnectionManager (
   }, [allProviderConnections])
 
   return {
-    activeConnection,
-    fetchConnection,
+    // activeConnection,
+    // fetchConnection,
     fetchAllConnections,
-    fetchDomainLayerRepositories,
+    // fetchDomainLayerRepositories,
     testAllConnections,
     testConnection,
     saveConnection,
     deleteConnection,
-    runCollection,
+    // runCollection,
     isSaving,
     isTesting,
     isFetching,
+    isDeleting,
     errors,
     showError,
     testStatus,
-    name,
-    endpointUrl,
-    proxy,
-    rateLimit,
-    username,
-    password,
-    token,
+    // provider,
+    // setActiveConnection,
+    // setProvider,
+
+    editingConnection,
+    setConnectionColumn,
     initialTokenStore,
-    provider,
-    setActiveConnection,
-    setProvider,
-    setName,
-    setEndpointUrl,
-    setProxy,
-    setRateLimit,
-    setToken,
     setInitialTokenStore,
-    setUsername,
-    setPassword,
-    setIsSaving,
-    setIsTesting,
-    setIsFetching,
-    setErrors,
-    setShowError,
-    setTestStatus,
-    setTestResponse,
-    setAllTestResponses,
-    setConnectionLimits,
-    setConnectionsList,
-    setSaveComplete,
+
+    // setIsSaving,
+    // setIsTesting,
+    // setIsFetching,
+    // setErrors,
+    // setShowError,
+    // setTestStatus,
+    // setTestResponse,
+    // setAllTestResponses,
+    // setConnectionLimits,
+    // setConnectionsList,
+    // setSaveComplete,
     allConnections,
-    allProviderConnections,
-    connectionsList,
-    domainRepositories,
+    // allProviderConnections,
+    // connectionsList,
+    // domainRepositories,
     testedConnections,
     sourceLimits,
-    connectionCount,
+    // connectionCount,
     connectionLimitReached,
-    connectionTestPayload,
+    // connectionTestPayload,
     Providers,
-    saveComplete,
+    // saveComplete,
     deleteComplete,
-    getConnectionName,
-    clearConnection,
-    testResponse,
-    allTestResponses
+    // getConnectionName,
+    // clearConnection,
+    testResponse, // ???
+    allTestResponses // ???
   }
 }
 
