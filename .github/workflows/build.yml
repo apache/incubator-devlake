@@ -101,5 +101,5 @@ jobs:
           docker tag ${{ env.IMAGE_GRAFANA }}:latest ${{ env.IMAGE_GRAFANA }}:${{ github.ref_name }}
           docker push ${{ env.IMAGE_GRAFANA }}:${{ github.ref_name }}
           if printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
-            docker push ${{ env.IMAGE_DASHBOARD }}:latest
+            docker push ${{ env.IMAGE_GRAFANA }}:latest
           fi
