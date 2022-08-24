@@ -18,6 +18,7 @@ limitations under the License.
 package pipelines
 
 import (
+	goerror "errors"
 	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"os"
@@ -181,7 +182,7 @@ GET /pipelines/:pipelineId/logging.tar.gz
 // @Param pipelineId path int true "query"
 // @Success 200  "The archive file"
 // @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 404  {string} errcode.Error "Pipeline not found"
+// @Failure 404  {string} errcode.Error "Pipeline or Log files not found"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /pipelines/{pipelineId}/logging.tar.gz [get]
 func DownloadLogs(c *gin.Context) {
@@ -202,7 +203,11 @@ func DownloadLogs(c *gin.Context) {
 	}
 	archive, err := services.GetPipelineLogsArchivePath(pipeline)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusInternalServerError)
+		if goerror.Is(err, os.ErrNotExist) {
+			shared.ApiOutputError(c, err, http.StatusNotFound)
+		} else {
+			shared.ApiOutputError(c, err, http.StatusInternalServerError)
+		}
 		return
 	}
 	defer os.Remove(archive)

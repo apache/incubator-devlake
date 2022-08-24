@@ -71,6 +71,9 @@ services:
     restart: always
     volumes:
       - ./.env:/app/.env
+      - ./logs:/app/logs
+    environment:
+      LOGGING_DIR: /app/logs
     depends_on:
       - mysql
 

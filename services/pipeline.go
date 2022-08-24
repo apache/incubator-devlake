@@ -389,13 +389,13 @@ func CancelPipeline(pipelineId uint64) error {
 // getPipelineLogsPath gets the logs directory of this pipeline
 func getPipelineLogsPath(pipeline *models.Pipeline) (string, error) {
 	pipelineLog := getPipelineLogger(pipeline)
-	path := filepath.Dir(pipelineLog.GetConfig().Path)
+	path := pipelineLog.GetConfig().Path
 	_, err := os.Stat(path)
 	if err == nil {
-		return path, nil
+		return filepath.Dir(path), nil
 	}
 	if os.IsNotExist(err) {
-		return "", fmt.Errorf("logs for pipeline #%d not found: %v", pipeline.ID, err)
+		return "", fmt.Errorf("logs for pipeline #%d not found. You may be missing the LOGGING_DIR setting: %w", pipeline.ID, err)
 	}
-	return "", fmt.Errorf("err validating logs path for pipeline #%d: %v", pipeline.ID, err)
+	return "", fmt.Errorf("err validating logs path for pipeline #%d: %w", pipeline.ID, err)
 }
