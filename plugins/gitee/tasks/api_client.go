@@ -68,3 +68,13 @@ func NewGiteeApiClient(taskCtx core.TaskContext, connection *models.GiteeConnect
 	}
 	return asyncApiClient, nil
 }
+
+func ignoreHTTPStatus404(res *http.Response) error {
+	if res.StatusCode == http.StatusUnauthorized {
+		return fmt.Errorf("authentication failed, please check your AccessToken")
+	}
+	if res.StatusCode == http.StatusNotFound {
+		return helper.ErrIgnoreAndContinue
+	}
+	return nil
+}
