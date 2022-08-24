@@ -91,6 +91,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 			}
 			return items, nil
 		},
+		AfterResponse: ignoreHTTPStatus404,
 	})
 
 	if err != nil {
