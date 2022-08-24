@@ -77,8 +77,9 @@ func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
 				Body:          gitlabComments.Body,
 				UserId:        accountIdGen.Generate(data.Options.ConnectionId, gitlabComments.AuthorUserId),
 				CreatedDate:   gitlabComments.GitlabCreatedAt,
-				Type:          gitlabComments.Type,
 			}
+
+			domainComment.Type = getStdCommentType(gitlabComments.Type)
 			return []interface{}{
 				domainComment,
 			}, nil
@@ -89,4 +90,14 @@ func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
 	}
 
 	return converter.Execute()
+}
+
+func getStdCommentType(originType string) string {
+	if originType == "DiffNote" {
+		return code.DIFF_COMMENT
+	}
+	if originType == "REVIEW" {
+		return code.REVIEW
+	}
+	return code.NORMAL_COMMENT
 }
