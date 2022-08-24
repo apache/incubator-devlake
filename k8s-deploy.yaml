@@ -108,7 +108,7 @@ spec:
     spec:
       containers:
         - name: grafana
-          image: mericodev/devlake-dashboard:latest
+          image: apache/devlake-dashboard:latest
           ports:
             - containerPort: 3000
           envFrom:
@@ -151,7 +151,7 @@ spec:
     spec:
       containers:
         - name: config-ui
-          image: mericodev/devlake-config-ui:latest
+          image: apache/devlake-config-ui:latest
           ports:
             - containerPort: 4000
           envFrom:
@@ -194,7 +194,7 @@ spec:
     spec:
       containers:
         - name: devlake
-          image: mericodev/devlake:latest
+          image: apache/devlake:latest
           ports:
             - containerPort: 8080
           envFrom:
