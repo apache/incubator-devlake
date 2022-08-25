@@ -18,6 +18,8 @@ limitations under the License.
 package utils
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
 	"fmt"
 	"github.com/viant/afs"
@@ -29,10 +31,25 @@ import (
 // fs abstract filesystem interface singleton instance
 var fs = afs.New()
 
-// CreateZipArchive creates a zip archive and writes the files/directories associated with the `targetPaths` to it.
+// CreateZipArchive creates a zip archive and writes the files/directories associated with the `sourcePaths` to it.
 // If a sourcePath directory ends with /*, then its contents are copied over, but not the directory itself
 func CreateZipArchive(archivePath string, sourcePaths ...string) error {
 	return createArchive("zip", archivePath, sourcePaths...)
+}
+
+// CreateGZipArchive creates a tar archive, compresses it with gzip and writes the files/directories associated with the `sourcePaths` to it.
+// If a sourcePath directory ends with /*, then its contents are copied over, but not the directory itself
+func CreateGZipArchive(archivePath string, sourcePaths ...string) error {
+	err := createArchive("tar", archivePath, sourcePaths...)
+	if err != nil {
+		return err
+	}
+	// now gzip it
+	err = toGzip(archivePath)
+	if err != nil {
+		return fmt.Errorf("error compressing archive to gzip: %w", err)
+	}
+	return nil
 }
 
 func createArchive(archiveType string, archivePath string, sourcePaths ...string) error {
@@ -44,15 +61,15 @@ func createArchive(archiveType string, archivePath string, sourcePaths ...string
 		}
 		srcPathAbs, err := filepath.Abs(sourcePath)
 		if err != nil {
-			return fmt.Errorf("error getting absolute path of %s: %v", sourcePaths, err)
+			return fmt.Errorf("error getting absolute path of %s: %w", sourcePaths, err)
 		}
 		archivePathAbs, err := filepath.Abs(archivePath)
 		if err != nil {
-			return fmt.Errorf("error getting absolute path of %s: %v", archivePath, err)
+			return fmt.Errorf("error getting absolute path of %s: %w", archivePath, err)
 		}
 		srcInfo, err := os.Stat(srcPathAbs)
 		if err != nil {
-			return fmt.Errorf("error getting stats of path %s: %v", srcPathAbs, err)
+			return fmt.Errorf("error getting stats of path %s: %w", srcPathAbs, err)
 		}
 		if relativeCopy && srcInfo.IsDir() {
 			err = copyContentsToArchive(archiveType, srcPathAbs, archivePathAbs)
@@ -64,7 +81,7 @@ func createArchive(archiveType string, archivePath string, sourcePaths ...string
 			err = copyToArchive(archiveType, srcPathAbs, archivePathAbs, sourcePath)
 		}
 		if err != nil {
-			return fmt.Errorf("error trying to copy data to archive: %v", err)
+			return fmt.Errorf("error trying to copy data to archive: %w", err)
 		}
 	}
 	return nil
@@ -91,4 +108,20 @@ func copyToArchive(archiveType string, absSourcePath string, absArchivePath stri
 	src := fmt.Sprintf("file://%s", absSourcePath)
 	dst := fmt.Sprintf("file:%s/%s:///%s", absArchivePath, archiveType, archiveDest)
 	return fs.Copy(context.Background(), src, dst)
+}
+
+func toGzip(archivePath string) error {
+	info, _ := os.Stat(archivePath)
+	b, err := os.ReadFile(archivePath)
+	if err != nil {
+		return err
+	}
+	var buf bytes.Buffer
+	w := gzip.NewWriter(&buf)
+	_, err = w.Write(b)
+	_ = w.Close()
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(archivePath, buf.Bytes(), info.Mode().Perm())
 }

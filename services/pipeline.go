@@ -208,7 +208,7 @@ func GetPipelineLogsArchivePath(pipeline *models.Pipeline) (string, error) {
 		return "", err
 	}
 	archive := fmt.Sprintf("%s/%s/logging.tar.gz", os.TempDir(), uuid.New())
-	if err = utils.CreateZipArchive(archive, fmt.Sprintf("%s/*", logPath)); err != nil {
+	if err = utils.CreateGZipArchive(archive, fmt.Sprintf("%s/*", logPath)); err != nil {
 		return "", err
 	}
 	return archive, err
