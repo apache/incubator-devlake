@@ -221,24 +221,24 @@ const BlueprintDetail = (props) => {
     setIsDownloading(true)
     ToastNotification.clear()
     let downloadStatus = 404
-    const checkDownloadStatus = async (pipeline) => {
+    const checkStatusAndDownload = async (pipeline) => {
       const d = await request.get(getPipelineLogfile(pipeline?.id))
       downloadStatus = d?.status
+      if (pipeline?.id && downloadStatus === 200) {
+        saveAs(
+          getPipelineLogfile(pipeline?.id),
+          pipelineLogFilename
+        )
+        setIsDownloading(false)
+      } else if (pipeline?.id && downloadStatus === 404) {
+        ToastNotification.show({ message: d?.message || 'Logfile not available', intent: 'danger', icon: 'error' })
+        setIsDownloading(false)
+      } else {
+        ToastNotification.show({ message: 'Pipeline Invalid or Missing', intent: 'danger', icon: 'error' })
+        setIsDownloading(false)
+      }
     }
-    checkDownloadStatus()
-    if (pipeline?.id && downloadStatus === 200) {
-      saveAs(
-        getPipelineLogfile(pipeline?.id),
-        pipelineLogFilename
-      )
-      setIsDownloading(false)
-    } else if (pipeline?.id && downloadStatus === 404) {
-      ToastNotification.show({ message: 'Logfile not available', intent: 'danger', icon: 'error' })
-      setIsDownloading(false)
-    } else {
-      ToastNotification.show({ message: 'Pipeline Invalid or Missing', intent: 'danger', icon: 'error' })
-      setIsDownloading(false)
-    }
+    checkStatusAndDownload(pipeline)
   }, [getPipelineLogfile, pipelineLogFilename])
 
   useEffect(() => {
