@@ -37,7 +37,7 @@ var ConvertRepoMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertRepo,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table bitbucket_repos into  domain layer table repos and boards",
-	DomainTypes:      core.DOMAIN_TYPES,
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 func ConvertRepo(taskCtx core.SubTaskContext) error {

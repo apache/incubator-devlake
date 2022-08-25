@@ -30,7 +30,7 @@ var CollectApiPrCommentsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Required:         true,
 	Description:      "Collect pull requests comments data from bitbucket api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func CollectApiPullRequestsComments(taskCtx core.SubTaskContext) error {

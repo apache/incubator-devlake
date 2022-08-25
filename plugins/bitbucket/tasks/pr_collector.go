@@ -33,7 +33,7 @@ var CollectApiPullRequestsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Required:         true,
 	Description:      "Collect PullRequests data from Bitbucket api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func CollectApiPullRequests(taskCtx core.SubTaskContext) error {

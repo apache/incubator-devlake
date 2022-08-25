@@ -62,7 +62,7 @@ var ExtractApiIssueCommentsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Required:         true,
 	Description:      "Extract raw issue comments data into tool layer table BitbucketIssueComments",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {

@@ -30,7 +30,7 @@ var CollectApiIssueCommentsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Required:         true,
 	Description:      "Collect issue comments data from bitbucket api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func CollectApiIssueComments(taskCtx core.SubTaskContext) error {

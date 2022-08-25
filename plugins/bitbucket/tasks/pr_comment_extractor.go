@@ -31,7 +31,7 @@ var ExtractApiPrCommentsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Required:         true,
 	Description:      "Extract raw pull requests comments data into tool layer table BitbucketPrComments",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 type BitbucketPrCommentsResponse struct {
