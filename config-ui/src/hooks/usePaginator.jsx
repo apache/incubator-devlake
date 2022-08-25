@@ -95,45 +95,38 @@ const Controls = (props) => {
 function usePaginator (initialLoadingState = false) {
   // const [integrations, setIntegrations] = useState(integrationsData)
 
-  const [_data, _setData] = useState([])
+  const [data, setData] = useState([])
 
   // filter related
   const [filterParams, setFilterParams] = useState({})
   const [filterFunc, setFilterFunc] = useState(() => (params, item) => true)
   const filteredData = useMemo(() => {
-    console.log('>> SET FILTER DATA BY', filterParams, _data)
+    console.log('>> SET FILTER DATA BY', filterParams, data)
     const filteredData = []
-    for (const item of _data) {
-      console.log(item)
+    for (const item of data) {
       if (filterFunc(filterParams, item)) {
         filteredData.push(item)
       }
     }
     return filteredData
-  }, [_data, filterParams, filterFunc])
+  }, [data, filterParams, filterFunc])
 
   // page related
   const [pagedData, setPagedData] = useState([])
   const [pageOptions, setPageOptions] = useState([5, 25, 50, 75, 100])
   const [currentPage, setCurrentPage] = useState(1)
   const [perPage, setPerPage] = useState(pageOptions[1])
-  const [maxPage, setMaxPage] = useState(0)
+  const maxPage = useMemo(() => Math.max(1, Math.ceil(filteredData.length / perPage)), [filteredData, perPage])
 
   // others
   const [isLoading, setIsLoading] = useState(initialLoadingState || false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [refresh, setRefresh] = useState(false)
 
-  const reCalMaxPage = useCallback(() => {
-    setMaxPage(Math.max(1, Math.ceil(filteredData.length / perPage)))
-    console.log('>> MAX PAGE = ', Math.max(1, Math.ceil(filteredData.length / perPage)))
-  }, [filteredData, perPage, setMaxPage])
-
-  const setData = useCallback((data) => {
-    console.log('>> SET ALL DATA...', _data)
-    _setData(data || [])
-    reCalMaxPage()
-  }, [_setData, setRefresh])
+  const setDataWithDefault = useCallback((data) => {
+    console.log('>> SET ALL DATA...', data)
+    setData(data || [])
+  }, [setData, setRefresh])
 
   const goNextPage = useCallback(() => {
     console.log('>>> PAGINATOR: GO NEXT PAGE ...')
@@ -152,7 +145,6 @@ function usePaginator (initialLoadingState = false) {
   const changePerPage = useCallback((perPage) => {
     setPerPage(perPage)
     setCurrentPage(1)
-    reCalMaxPage()
   }, [setPerPage])
 
   const resetPage = useCallback(() => {
@@ -172,8 +164,8 @@ function usePaginator (initialLoadingState = false) {
   }, [refresh, perPage, filteredData, currentPage, paginateData])
 
   useEffect(() => {
-    reCalMaxPage()
-  }, [refresh, reCalMaxPage, perPage, filteredData])
+    setCurrentPage(currentPage => Math.min(maxPage, currentPage))
+  }, [maxPage, setCurrentPage])
 
   const renderControlsComponent = useCallback(() => {
     return (
@@ -199,12 +191,12 @@ function usePaginator (initialLoadingState = false) {
     renderControlsComponent,
     isLoading,
     isProcessing,
-    data: _data,
+    data,
     filteredData,
     pagedData,
     perPage,
     maxPage,
-    setData,
+    setData: setDataWithDefault,
     setPagedData,
     setFilterParams,
     setFilterFunc,
