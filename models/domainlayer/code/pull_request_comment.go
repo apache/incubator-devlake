@@ -38,3 +38,9 @@ type PullRequestComment struct {
 func (PullRequestComment) TableName() string {
 	return "pull_request_comments"
 }
+
+const (
+	NORMAL_COMMENT = "NORMAL"
+	DIFF_COMMENT   = "DIFF"
+	REVIEW         = "REVIEW"
+)

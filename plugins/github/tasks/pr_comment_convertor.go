@@ -80,9 +80,9 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 				UserId:        accountIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.AuthorUserId),
 				CreatedDate:   githubPullRequestComment.GithubCreatedAt,
 				CommitSha:     githubPullRequestComment.CommitSha,
-				Type:          githubPullRequestComment.Type,
 				ReviewId:      prReviewIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.ReviewId),
 			}
+			domainPrComment.Type = getStdCommentType(githubPullRequestComment.Type)
 			return []interface{}{
 				domainPrComment,
 			}, nil
@@ -93,4 +93,17 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 	}
 
 	return converter.Execute()
+}
+
+func getStdCommentType(originType string) string {
+	if originType == "DIFF" {
+		return code.DIFF_COMMENT
+	}
+	if originType == "REVIEW" {
+		return code.REVIEW
+	}
+	if originType == "NORMAL" {
+		return code.NORMAL_COMMENT
+	}
+	return ""
 }
