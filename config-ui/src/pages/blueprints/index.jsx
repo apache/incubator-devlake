@@ -94,7 +94,7 @@ const Blueprints = (props) => {
     pagedData,
     setFilterParams,
     setFilterFunc,
-    setData,
+    setData: setPaginatorData,
     renderControlsComponent: renderPagnationControls
   } = usePaginator()
 
@@ -281,7 +281,7 @@ const Blueprints = (props) => {
   }, [detectedProviderTasks])
 
   useEffect(() => {
-    setData(blueprints)
+    setPaginatorData(blueprints)
   }, [blueprints])
 
   return (
