@@ -102,6 +102,8 @@ lake:
 
   affinity: {}
 
+  loggingDir: "/app/logs"
+
 ui:
   image:
     repository: apache/devlake-config-ui
