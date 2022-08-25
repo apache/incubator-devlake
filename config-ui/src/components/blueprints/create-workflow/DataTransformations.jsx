@@ -387,8 +387,9 @@ const DataTransformations = (props) => {
                               <Tooltip
                                 position={Position.TOP}
                                 intent={Intent.PRIMARY}
-                                content={'Close Editor to Continue'}>
-                                  <Spinner size={12} />
+                                content='Close Editor to Continue'
+                              >
+                                <Spinner size={12} />
                               </Tooltip>
                             )}
                           />

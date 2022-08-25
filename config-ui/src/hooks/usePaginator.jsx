@@ -126,21 +126,21 @@ function usePaginator (initialLoadingState = false) {
   const setDataWithDefault = useCallback((data) => {
     console.log('>> SET ALL DATA...', data)
     setData(data || [])
-  }, [setData, setRefresh])
+  }, [setData])
 
   const goNextPage = useCallback(() => {
     console.log('>>> PAGINATOR: GO NEXT PAGE ...')
     setCurrentPage(currentPage => Math.min(maxPage, currentPage + 1))
     // setRefresh((r) => !r)
     console.log('>>>> NEXT PAGE', currentPage)
-  }, [maxPage, currentPage, setRefresh])
+  }, [maxPage, currentPage])
 
   const goPrevPage = useCallback(() => {
     console.log('>>> PAGINATOR: GO PREV PAGE ...')
     setCurrentPage(currentPage => Math.max(1, currentPage - 1))
     // setRefresh((r) => !r)
     console.log('>>>> PREV PAGE', currentPage)
-  }, [maxPage, currentPage, setRefresh])
+  }, [currentPage])
 
   const changePerPage = useCallback((perPage) => {
     setPerPage(perPage)
@@ -149,7 +149,7 @@ function usePaginator (initialLoadingState = false) {
 
   const resetPage = useCallback(() => {
     setCurrentPage(1)
-  }, [currentPage])
+  }, [setCurrentPage])
 
   const paginateData = useCallback(() => {
     console.log('>> FILTERED DATA...', filteredData)
@@ -161,7 +161,7 @@ function usePaginator (initialLoadingState = false) {
 
   useEffect(() => {
     paginateData()
-  }, [refresh, perPage, filteredData, currentPage, paginateData])
+  }, [/* refresh, */perPage, filteredData, currentPage, paginateData])
 
   useEffect(() => {
     setCurrentPage(currentPage => Math.min(maxPage, currentPage))
@@ -181,7 +181,7 @@ function usePaginator (initialLoadingState = false) {
         }
       />
     )
-  }, [currentPage, maxPage, perPage, isLoading, goNextPage, goPrevPage, changePerPage])
+  }, [currentPage, maxPage, perPage, pageOptions, isLoading, goNextPage, goPrevPage, changePerPage])
 
   return {
     goNextPage,
