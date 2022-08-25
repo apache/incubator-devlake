@@ -766,7 +766,7 @@ const BlueprintDetail = (props) => {
                           </Tooltip>
                           <Tooltip
                             intent={Intent.PRIMARY}
-                            content='View Full Log'
+                            content='Download Full Log'
                           >
                             <Button
                               intent={Intent.NONE}
