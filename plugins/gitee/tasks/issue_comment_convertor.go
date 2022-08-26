@@ -69,7 +69,7 @@ func ConvertIssueComments(taskCtx core.SubTaskContext) error {
 				},
 				IssueId:     issueIdGen.Generate(data.Options.ConnectionId, giteeIssueComment.IssueId),
 				Body:        giteeIssueComment.Body,
-				UserId:      accountIdGen.Generate(data.Options.ConnectionId, giteeIssueComment.AuthorUserId),
+				AccountId:   accountIdGen.Generate(data.Options.ConnectionId, giteeIssueComment.AuthorUserId),
 				CreatedDate: giteeIssueComment.GiteeCreatedAt,
 			}
 			return []interface{}{

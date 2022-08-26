@@ -77,7 +77,7 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 				},
 				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.PullRequestId),
 				Body:          githubPullRequestComment.Body,
-				UserId:        accountIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.AuthorUserId),
+				AccountId:     accountIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.AuthorUserId),
 				CreatedDate:   githubPullRequestComment.GithubCreatedAt,
 				CommitSha:     githubPullRequestComment.CommitSha,
 				ReviewId:      prReviewIdGen.Generate(data.Options.ConnectionId, githubPullRequestComment.ReviewId),

@@ -77,7 +77,7 @@ func ConvertPullRequestReviews(taskCtx core.SubTaskContext) error {
 				},
 				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, githubPullRequestReview.PullRequestId),
 				Body:          githubPullRequestReview.Body,
-				UserId:        accountIdGen.Generate(data.Options.ConnectionId, githubPullRequestReview.AuthorUserId),
+				AccountId:     accountIdGen.Generate(data.Options.ConnectionId, githubPullRequestReview.AuthorUserId),
 				CommitSha:     githubPullRequestReview.CommitSha,
 				Type:          "REVIEW",
 				Status:        githubPullRequestReview.State,

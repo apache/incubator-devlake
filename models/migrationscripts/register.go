@@ -36,6 +36,7 @@ func All() []migration.Script {
 		new(addNoPKModelToCommitParent),
 		new(addSubtasksTable),
 		new(addCICD),
+		new(renameColumnsOfPrCommentIssueComment),
 		new(modifyTablesForDora),
 	}
 }

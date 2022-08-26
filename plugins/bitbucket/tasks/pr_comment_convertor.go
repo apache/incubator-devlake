@@ -76,7 +76,7 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 					Id: domainIdGeneratorComment.Generate(data.Options.ConnectionId, bitbucketPullRequestComment.BitbucketId),
 				},
 				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, bitbucketPullRequestComment.PullRequestId),
-				UserId:        accountIdGen.Generate(data.Options.ConnectionId, bitbucketPullRequestComment.AuthorId),
+				AccountId:     accountIdGen.Generate(data.Options.ConnectionId, bitbucketPullRequestComment.AuthorId),
 				CreatedDate:   bitbucketPullRequestComment.CreatedAt,
 				Body:          bitbucketPullRequestComment.Body,
 				Type:          bitbucketPullRequestComment.Type,

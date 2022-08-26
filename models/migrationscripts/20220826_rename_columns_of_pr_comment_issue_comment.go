@@ -15,21 +15,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package ticket
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer"
-	"time"
+	"context"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
-type IssueComment struct {
-	domainlayer.DomainEntity
-	IssueId     string `gorm:"index"`
-	Body        string
-	AccountId   string `gorm:"type:varchar(255)"`
-	CreatedDate time.Time
+type renameColumnsOfPrCommentIssueComment struct{}
+
+func (*renameColumnsOfPrCommentIssueComment) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().RenameColumn(&archived.PullRequestComment{}, "user_id", "account_id")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().RenameColumn(&archived.IssueComment{}, "user_id", "account_id")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (IssueComment) TableName() string {
-	return "issue_comments"
+func (*renameColumnsOfPrCommentIssueComment) Version() uint64 {
+	return 20220826120824
+}
+
+func (*renameColumnsOfPrCommentIssueComment) Name() string {
+	return "rename user_id to account_id in pull_request_comments and issue_comments"
 }
