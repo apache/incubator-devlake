@@ -21,6 +21,9 @@ import {
   BrowserRouter as Router,
   Route
 } from 'react-router-dom'
+import {
+  Intent
+} from '@blueprintjs/core'
 
 import 'normalize.css'
 import '@/styles/app.scss'
@@ -32,7 +35,11 @@ import '@fontsource/inter/variable-full.css'
 // Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
 // import '@/styles/theme.scss'
 
+import { DEVLAKE_ENDPOINT } from '@/utils/config'
+import request from '@/utils/request'
+
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { ToastNotification } from '@/components/Toast'
 import Configure from './pages/configure/index'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
@@ -51,12 +58,40 @@ import BlueprintSettings from '@/pages/blueprints/blueprint-settings'
 import Connections from '@/pages/connections/index'
 import MigrationAlertDialog from '@/components/MigrationAlertDialog'
 
+// @todo: lift to configuration level or data const
+const DEVLAKE__MIGRATION_WARNING = 'DEVLAKE__MIGRATION_WARNING'
+
 function App (props) {
-  const migrationWarning = localStorage.getItem('DEVLAKE__MIGRATION_WARNING')
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  const [migrationWarning, setMigrationWarning] = useState(localStorage.getItem(DEVLAKE__MIGRATION_WARNING))
   const [migrationAlertOpened, setMigrationAlertOpened] = useState(false)
+  const [wasMigrationSuccessful, setWasMigrationSuccessful] = useState(false)
+  const [hasMigrationFailed, setHasMigrationFailed] = useState(false)
 
-  const handleDatabaseMigration = useCallback(() => {
+  const handleConfirmMigration = useCallback(() => {
+    // @todo: lift db migration endpoint to configuration level
+    setIsProcessing(true)
+    const m = request.get(`${DEVLAKE_ENDPOINT}/proceed-db-migration`)
+    setWasMigrationSuccessful(m?.status === 200 && m?.success === true)
+    setTimeout(() => {
+      setIsProcessing(false)
+      setHasMigrationFailed(m?.status !== 200)
+    }, 3000)
+  }, [])
 
+  const handleCancelMigration = useCallback(() => {
+    setIsProcessing(true)
+    localStorage.removeItem(DEVLAKE__MIGRATION_WARNING)
+    setMigrationAlertOpened(false)
+    setIsProcessing(false)
+    ToastNotification.clear()
+    ToastNotification.show({
+      // eslint-disable-next-line max-len
+      message: 'Migration Halted - Please downgrade manually, you will continue to receive a warning unless you proceed migration or rollback.',
+      intent: Intent.NONE,
+      icon: 'warning-sign'
+    })
   }, [])
 
   const handleMigrationDialogClose = useCallback(() => {
@@ -66,6 +101,32 @@ function App (props) {
   useEffect(() => {
     setMigrationAlertOpened(migrationWarning !== null)
   }, [migrationWarning, setMigrationAlertOpened])
+
+  useEffect(() => {
+    if (wasMigrationSuccessful) {
+      localStorage.removeItem(DEVLAKE__MIGRATION_WARNING)
+    }
+  }, [wasMigrationSuccessful])
+
+  useEffect(() => {
+    if (hasMigrationFailed) {
+      const migrationFailureMessage = 'Database Migration Failed! (Check Network Console)'
+      ToastNotification.clear()
+      ToastNotification.show({
+        // eslint-disable-next-line max-len
+        message: migrationFailureMessage,
+        intent: Intent.DANGER,
+        icon: 'error'
+      })
+    }
+  }, [hasMigrationFailed])
+
+  useEffect(() => {
+    if (migrationWarning) {
+      // eslint-disable-next-line max-len
+      console.log(`>>> MIGRATION WARNING DETECTED !! Local Storage Key = [${DEVLAKE__MIGRATION_WARNING}]:`, migrationWarning)
+    }
+  }, [migrationWarning])
 
   return (
     <Router>
@@ -123,7 +184,11 @@ function App (props) {
       <MigrationAlertDialog
         isOpen={migrationAlertOpened}
         onClose={handleMigrationDialogClose}
-        onConfirm={handleDatabaseMigration}
+        onCancel={handleCancelMigration}
+        onConfirm={handleConfirmMigration}
+        isMigrating={isProcessing}
+        wasSuccesful={wasMigrationSuccessful}
+        hasFailed={hasMigrationFailed}
       />
     </Router>
 

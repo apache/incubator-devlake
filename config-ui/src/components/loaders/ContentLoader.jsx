@@ -29,7 +29,9 @@ const ContentLoader = (props) => {
     spinnerSize = 24,
     spinnerIntent = Intent.PRIMARY,
     elevation = Elevation.TWO,
-    cardStyle = { width: '100%', marginBottom: '20px', boxShadow: elevation === Elevation.ZERO ? 'none' : 'initial' }
+    cardStyle = { width: '100%', marginBottom: '20px', boxShadow: elevation === Elevation.ZERO ? 'none' : 'initial' },
+    cardStyleOverrides = {},
+    messageClasses = ['bp3-ui-text', 'bp3-text-large']
   } = props
 
   useEffect(() => {
@@ -37,7 +39,7 @@ const ContentLoader = (props) => {
   }, [title, message, spinnerSize])
 
   return (
-    <Card interactive={false} elevation={elevation} style={cardStyle}>
+    <Card interactive={false} elevation={elevation} style={{...cardStyle, ...cardStyleOverrides}}>
       <div style={{}}>
         <div style={{ display: 'flex' }}>
           <Spinner intent={spinnerIntent} size={spinnerSize} />
@@ -45,7 +47,7 @@ const ContentLoader = (props) => {
             <h4 className='bp3-heading' style={{ margin: '0 0 2px 0' }}>
               {title}
             </h4>
-            <p className='bp3-ui-text bp3-text-large' style={{ margin: 0 }}>
+            <p className={messageClasses.join(' ')} style={{ margin: 0 }}>
               {message}
             </p>
           </div>

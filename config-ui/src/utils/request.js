@@ -32,12 +32,11 @@ const handleErrorResponse = (e, cb = () => {}) => {
   }
   localStorage.removeItem(migrationWarningId)
   if (e.response?.status === 428) {
+    console.log('>>> DATABASE MIGRATION REQUESTED! Setting Warning Identifier in Browser Storage...')
     localStorage.setItem(migrationWarningId, JSON.stringify({
       migration: true,
       message: e.response?.data?.message
     }))
-  } else {
-    localStorage.removeItem(migrationWarningId)
   }
   cb(e)
   return errorResponse
