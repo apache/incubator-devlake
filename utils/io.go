@@ -18,56 +18,85 @@ limitations under the License.
 package utils
 
 import (
+	"bytes"
+	"compress/gzip"
 	"context"
 	"fmt"
 	"github.com/viant/afs"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // fs abstract filesystem interface singleton instance
 var fs = afs.New()
 
-// CreateArchive creates a tar archive and writes the files/directories associated with the `targetPaths` to it.
-// 'relativeCopy' = true will copy the contents inside each sourcePath (directory) over. If the sourcePath is a file, it is directly copied over.
-func CreateArchive(archivePath string, relativeCopy bool, sourcePaths ...string) error {
+// CreateZipArchive creates a zip archive and writes the files/directories associated with the `sourcePaths` to it.
+// If a sourcePath directory ends with /*, then its contents are copied over, but not the directory itself
+func CreateZipArchive(archivePath string, sourcePaths ...string) error {
+	return createArchive("zip", archivePath, sourcePaths...)
+}
+
+// CreateGZipArchive creates a tar archive, compresses it with gzip and writes the files/directories associated with the `sourcePaths` to it.
+// If a sourcePath directory ends with /*, then its contents are copied over, but not the directory itself
+func CreateGZipArchive(archivePath string, sourcePaths ...string) error {
+	err := createArchive("tar", archivePath, sourcePaths...)
+	if err != nil {
+		return err
+	}
+	// now gzip it
+	err = toGzip(archivePath)
+	if err != nil {
+		return fmt.Errorf("error compressing archive to gzip: %w", err)
+	}
+	return nil
+}
+
+func createArchive(archiveType string, archivePath string, sourcePaths ...string) error {
 	for _, sourcePath := range sourcePaths {
+		relativeCopy := false
+		if strings.HasSuffix(sourcePath, "/*") {
+			sourcePath = sourcePath[0 : len(sourcePath)-2]
+			relativeCopy = true
+		}
 		srcPathAbs, err := filepath.Abs(sourcePath)
 		if err != nil {
-			return fmt.Errorf("error getting absolute path of %s: %v", sourcePaths, err)
+			return fmt.Errorf("error getting absolute path of %s: %w", sourcePaths, err)
 		}
 		archivePathAbs, err := filepath.Abs(archivePath)
 		if err != nil {
-			return fmt.Errorf("error getting absolute path of %s: %v", archivePath, err)
+			return fmt.Errorf("error getting absolute path of %s: %w", archivePath, err)
 		}
 		srcInfo, err := os.Stat(srcPathAbs)
 		if err != nil {
-			return fmt.Errorf("error getting stats of path %s: %v", srcPathAbs, err)
+			return fmt.Errorf("error getting stats of path %s: %w", srcPathAbs, err)
 		}
-		if relativeCopy {
-			if srcInfo.IsDir() {
-				err = copyContentsToArchive(srcPathAbs, archivePathAbs)
-			} else {
-				err = copyToArchive(srcPathAbs, archivePathAbs, srcInfo.Name())
-			}
+		if relativeCopy && srcInfo.IsDir() {
+			err = copyContentsToArchive(archiveType, srcPathAbs, archivePathAbs)
 		} else {
-			err = copyToArchive(srcPathAbs, archivePathAbs, sourcePath)
+			if relativeCopy {
+				sourcePath = srcInfo.Name()
+			}
+			// directly copies over the src path as the dest path in the archive (can be improved later if needed to guard against abs paths)
+			err = copyToArchive(archiveType, srcPathAbs, archivePathAbs, sourcePath)
 		}
 		if err != nil {
-			return fmt.Errorf("error trying to copy data to archive: %v", err)
+			return fmt.Errorf("error trying to copy data to archive: %w", err)
 		}
 	}
 	return nil
 }
 
-func copyContentsToArchive(absSourcePath string, absArchivePath string) error {
+func copyContentsToArchive(archiveType string, absSourcePath string, absArchivePath string) error {
 	var files []os.DirEntry
 	files, err := os.ReadDir(absSourcePath)
 	if err != nil {
 		return err
 	}
-	for _, file := range files {
-		err = fs.Copy(context.Background(), fmt.Sprintf("file://%s/%s", absSourcePath, file.Name()), fmt.Sprintf("file:%s/tar:///%s", absArchivePath, file.Name()))
+	for _, desPath := range files {
+		archiveDest := desPath.Name()
+		src := fmt.Sprintf("%s/%s", absSourcePath, archiveDest)
+		err = copyToArchive(archiveType, src, absArchivePath, archiveDest)
 		if err != nil {
 			return err
 		}
@@ -75,6 +104,24 @@ func copyContentsToArchive(absSourcePath string, absArchivePath string) error {
 	return nil
 }
 
-func copyToArchive(absSourcePath string, absArchivePath string, filename string) error {
-	return fs.Copy(context.Background(), fmt.Sprintf("file://%s", absSourcePath), fmt.Sprintf("file:%s/tar:///%s", absArchivePath, filename))
+func copyToArchive(archiveType string, absSourcePath string, absArchivePath string, archiveDest string) error {
+	src := fmt.Sprintf("file://%s", absSourcePath)
+	dst := fmt.Sprintf("file:%s/%s:///%s", absArchivePath, archiveType, archiveDest)
+	return fs.Copy(context.Background(), src, dst)
+}
+
+func toGzip(archivePath string) error {
+	info, _ := os.Stat(archivePath)
+	b, err := os.ReadFile(archivePath)
+	if err != nil {
+		return err
+	}
+	var buf bytes.Buffer
+	w := gzip.NewWriter(&buf)
+	_, err = w.Write(b)
+	_ = w.Close()
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(archivePath, buf.Bytes(), info.Mode().Perm())
 }
