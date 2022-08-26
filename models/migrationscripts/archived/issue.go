@@ -88,7 +88,7 @@ type IssueComment struct {
 	DomainEntity
 	IssueId     string `gorm:"index"`
 	Body        string
-	AccountId   string `gorm:"type:varchar(255)"`
+	UserId   string `gorm:"type:varchar(255)"`
 	CreatedDate time.Time
 }
 

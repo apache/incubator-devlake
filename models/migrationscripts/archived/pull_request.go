@@ -77,7 +77,7 @@ type PullRequestComment struct {
 	DomainEntity
 	PullRequestId string `gorm:"index"`
 	Body          string
-	AccountId     string `gorm:"type:varchar(255)"`
+	UserId     string `gorm:"type:varchar(255)"`
 	CreatedDate   time.Time
 	CommitSha     string `gorm:"type:varchar(255)"`
 	Position      int
