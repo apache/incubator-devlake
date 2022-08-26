@@ -18,6 +18,6 @@
 import { Position, Toaster } from '@blueprintjs/core'
 
 export const ToastNotification = Toaster.create({
-  className: 'recipe-toaster',
+  className: 'default-toaster',
   position: Position.BOTTOM,
 })

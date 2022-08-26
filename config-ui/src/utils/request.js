@@ -16,13 +16,12 @@
  *
  */
 import axios from 'axios'
-import { ToastNotification } from '@/components/Toast'
 
 const headers = {}
-let warned428 = false
 
-const handleErrorResponse = (e) => {
+const handleErrorResponse = (e, cb = () => {}) => {
   let errorResponse = { success: false, message: e.message, data: null, status: 504 }
+  const migrationWarningId = 'DEVLAKE__MIGRATION_WARNING'
   if (e.response) {
     errorResponse = {
       ...errorResponse,
@@ -31,30 +30,36 @@ const handleErrorResponse = (e) => {
       status: e.response ? e.response.status : 504,
     }
   }
-  if (!warned428 && e.response?.status === 428) {
-    warned428 = true
-    ToastNotification.show({ message: e.response.data.message, intent: 'danger', icon: 'error', timeout: -1 })
+  localStorage.removeItem(migrationWarningId)
+  if (e.response?.status === 428) {
+    localStorage.setItem(migrationWarningId, JSON.stringify({
+      migration: true,
+      message: e.response?.data?.message
+    }))
+  } else {
+    localStorage.removeItem(migrationWarningId)
   }
+  cb(e)
   return errorResponse
 }
 
 export default {
-  post: async (url, body) => {
+  post: async (url, body, cb = () => {}) => {
     return await axios.post(
       url,
       body,
       {
         headers
       }
-    ).catch(e => handleErrorResponse(e))
+    ).catch(e => handleErrorResponse(e, cb))
   },
-  get: async (url) => {
+  get: async (url, cb = () => {}) => {
     return await axios.get(
       url,
       {
         headers
       }
-    ).catch(e => handleErrorResponse(e))
+    ).catch(e => handleErrorResponse(e, cb))
   },
   put: async (url, body) => {
     return await axios.put(

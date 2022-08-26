@@ -16,7 +16,7 @@
  *
  */
 
-import React from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import {
   BrowserRouter as Router,
   Route
@@ -49,8 +49,24 @@ import CreateBlueprint from '@/pages/blueprints/create-blueprint'
 import BlueprintDetail from '@/pages/blueprints/blueprint-detail'
 import BlueprintSettings from '@/pages/blueprints/blueprint-settings'
 import Connections from '@/pages/connections/index'
+import MigrationAlertDialog from '@/components/MigrationAlertDialog'
 
-function App () {
+function App (props) {
+  const migrationWarning = localStorage.getItem('DEVLAKE__MIGRATION_WARNING')
+  const [migrationAlertOpened, setMigrationAlertOpened] = useState(false)
+
+  const handleDatabaseMigration = useCallback(() => {
+
+  }, [])
+
+  const handleMigrationDialogClose = useCallback(() => {
+    setMigrationAlertOpened(false)
+  }, [setMigrationAlertOpened])
+
+  useEffect(() => {
+    setMigrationAlertOpened(migrationWarning !== null)
+  }, [migrationWarning, setMigrationAlertOpened])
+
   return (
     <Router>
       <Route exact path='/'>
@@ -104,6 +120,11 @@ function App () {
       <Route exact path='/offline'>
         <Offline />
       </Route>
+      <MigrationAlertDialog
+        isOpen={migrationAlertOpened}
+        onClose={handleMigrationDialogClose}
+        onConfirm={handleDatabaseMigration}
+      />
     </Router>
 
   )
