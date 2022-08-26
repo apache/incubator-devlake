@@ -99,6 +99,8 @@ body:
         Which version of Apache DevLake are you running? We only accept bugs report from the LTS projects.
       options:
         - main
+        - v0.13.0
+        - v0.12.0
         - v0.11.0
         - v0.10.1
         - v0.10.0
