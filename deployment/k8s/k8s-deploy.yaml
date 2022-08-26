@@ -39,6 +39,7 @@ data:
   GRAFANA_ENDPOINT: grafana.devlake.svc.cluster.local:3000
   # ADMIN_USER: devlake
   # ADMIN_PASS: merico
+  LOGGING_DIR: /app/logs
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -157,7 +158,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: devlake-config
-          env:
 ---
 apiVersion: v1
 kind: Service
