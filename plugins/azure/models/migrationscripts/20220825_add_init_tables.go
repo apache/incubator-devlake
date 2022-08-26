@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/plugins/azure/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
@@ -33,7 +34,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		}
 	}
 	err := db.Migrator().AutoMigrate(
-		//&archived.AzureRepo{},
+		&archived.AzureRepo{},
 		&archived.AzureBuildDefinition{},
 	)
 	if err != nil {
@@ -44,7 +45,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20220727231237
+	return 20220825231237
 }
 
 func (*addInitTables) Name() string {
