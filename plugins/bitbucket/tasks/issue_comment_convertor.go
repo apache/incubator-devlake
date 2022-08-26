@@ -34,7 +34,7 @@ var ConvertIssueCommentsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertIssueComments,
 	EnabledByDefault: true,
 	Description:      "ConvertIssueComments data from Bitbucket api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 func ConvertIssueComments(taskCtx core.SubTaskContext) error {

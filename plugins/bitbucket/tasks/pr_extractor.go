@@ -31,7 +31,7 @@ var ExtractApiPullRequestsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Required:         true,
 	Description:      "Extract raw PullRequests data into tool layer table bitbucket_pull_requests",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 type BitbucketApiPullRequest struct {

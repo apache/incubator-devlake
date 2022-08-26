@@ -36,7 +36,7 @@ var ConvertPullRequestsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Required:         true,
 	Description:      "ConvertPullRequests data from Bitbucket api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ConvertPullRequests(taskCtx core.SubTaskContext) error {
