@@ -21,10 +21,13 @@ SHA = $(shell git show -s --format=%h)
 TAG = $(shell git tag --points-at HEAD)
 VERSION = $(TAG)@$(SHA)
 
+dep:
+	go install github.com/vektra/mockery/v2@latest
+	go install github.com/swaggo/swag/cmd/swag@v1.8.4
+
 swag:
-	echo "you need to install swag by `go install github.com/swaggo/swag/cmd/swag@latest` first"
 	swag init --parseDependency --parseInternal -o ./api/docs -g ./api/api.go -g plugins/*/api/*.go
-	echo "visit the swagger document on http://localhost:8080/swagger/index.html"
+	@echo "visit the swagger document on http://localhost:8080/swagger/index.html"
 
 build-plugin:
 	@sh scripts/compile-plugins.sh
