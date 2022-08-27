@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/logger"
 	"net/http"
 	"time"
 
@@ -42,6 +43,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.AeConnection) 
 		nonceStr := core.RandLetterBytes(8)
 		timestamp := fmt.Sprintf("%v", time.Now().Unix())
 		sign := models.GetSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
+		logger.Global.Debug("appId: %s\ntimestamp: %s\nnonceStr:%s\nsign:%s\n", appId, timestamp, nonceStr, sign)
 		req.Header.Set("x-ae-app-id", appId)
 		req.Header.Set("x-ae-timestamp", timestamp)
 		req.Header.Set("x-ae-nonce-str", nonceStr)
