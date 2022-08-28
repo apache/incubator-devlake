@@ -41,21 +41,13 @@ export default function EditConnection () {
     saveConnection,
     fetchConnection,
     activeConnection,
-    name,
-    endpointUrl,
-    username,
-    password,
-    token,
+    editingConnection,
+    setConnectionColumn,
     errors,
     isSaving,
     isTesting,
     showError,
     testStatus,
-    setName,
-    setEndpointUrl,
-    setUsername,
-    setPassword,
-    setToken
   } = useConnectionManager({
     provider: activeProvider,
     connectionId,
@@ -70,30 +62,6 @@ export default function EditConnection () {
       fetchConnection()
     }
   }, [activeProvider, providerId, connectionId, fetchConnection])
-
-  useEffect(() => {
-    setName(activeConnection.name)
-    setEndpointUrl(activeConnection.endpoint)
-    switch (activeProvider.id) {
-      case Providers.JENKINS:
-      case Providers.TAPD:
-      case Providers.JIRA:
-        setUsername(activeConnection.username)
-        setPassword(activeConnection.password)
-        break
-      case Providers.GITLAB:
-        setToken(activeConnection.token)
-        break
-    }
-  }, [
-    activeConnection,
-    activeProvider.id,
-    setEndpointUrl,
-    setName,
-    setPassword,
-    setToken,
-    setUsername
-  ])
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER = ', providerId)
@@ -138,19 +106,11 @@ export default function EditConnection () {
               <div className='editConnection' style={{ display: 'flex' }}>
                 <ConnectionForm
                   activeProvider={activeProvider}
-                  name={name}
-                  endpointUrl={endpointUrl}
-                  token={token}
-                  username={username}
-                  password={password}
+                  editingConnection={editingConnection}
+                  onConnectionColumnChange={setConnectionColumn}
                   onSave={saveConnection}
                   onTest={testConnection}
                   onCancel={cancel}
-                  onNameChange={setName}
-                  onEndpointChange={setEndpointUrl}
-                  onTokenChange={setToken}
-                  onUsernameChange={setUsername}
-                  onPasswordChange={setPassword}
                   isSaving={isSaving}
                   isTesting={isTesting}
                   testStatus={testStatus}
