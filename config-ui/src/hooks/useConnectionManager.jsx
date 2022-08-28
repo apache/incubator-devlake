@@ -151,6 +151,7 @@ function useConnectionManager (
       name: editingConnection.name,
       endpoint: editingConnection.endpoint,
       rateLimitPerHour: editingConnection.rateLimitPerHour,
+      proxy: editingConnection.proxy,
       ...configurationSettings,
     }
     switch (provider.id) {
@@ -158,7 +159,6 @@ function useConnectionManager (
         connectionPayload = {
           username: editingConnection.username,
           password: editingConnection.password,
-          proxy: editingConnection.proxy,
           ...connectionPayload,
         }
         break
@@ -166,14 +166,12 @@ function useConnectionManager (
         connectionPayload = {
           username: editingConnection.username,
           password: editingConnection.password,
-          proxy: editingConnection.proxy,
           ...connectionPayload,
         }
         break
       case Providers.GITHUB:
         connectionPayload = {
           token: editingConnection.token,
-          proxy: editingConnection.proxy,
           ...connectionPayload,
         }
         break
@@ -188,7 +186,6 @@ function useConnectionManager (
       case Providers.GITLAB:
         connectionPayload = {
           token: editingConnection.token,
-          proxy: editingConnection.proxy,
           ...connectionPayload,
         }
         break
