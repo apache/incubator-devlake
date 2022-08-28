@@ -17,7 +17,7 @@
  */
 import React from 'react'
 import { Icon } from '@blueprintjs/core'
-import { Providers, ProviderLabels, ProviderTypes } from '@/data/Providers'
+import { Providers, ProviderConfigMap, ProviderLabels, ProviderTypes } from '@/data/Providers'
 
 // import JiraSettings from '@/pages/configure/settings/jira'
 // import GitlabSettings from '@/pages/configure/settings/gitlab'
@@ -41,7 +41,7 @@ const integrationsData = [
     enabled: true,
     multiConnection: true,
     isBeta: false,
-    name: ProviderLabels.GITLAB,
+    name: ProviderConfigMap[Providers.GITLAB].label,
     icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitlabProvider className='providerIconSvg' width='40' height='40' />,
     // @todo: relocated to ProviderTransformationSettings since v0.12.0
@@ -53,7 +53,7 @@ const integrationsData = [
     enabled: true,
     multiConnection: true,
     isBeta: false,
-    name: ProviderLabels.JENKINS,
+    name: ProviderConfigMap[Providers.JENKINS].label,
     icon: <JenkinsProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <JenkinsProvider className='providerIconSvg' width='40' height='40' />,
     // @todo: relocated to ProviderTransformationSettings since v0.12.0
@@ -65,7 +65,7 @@ const integrationsData = [
     enabled: true,
     multiConnection: true,
     isBeta: true,
-    name: ProviderLabels.TAPD,
+    name: ProviderConfigMap[Providers.TAPD].label,
     icon: <TapdProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <TapdProvider className='providerIconSvg' width='40' height='40' />,
     // relocated to ProviderTransformationSettings since v0.12.0
@@ -77,7 +77,7 @@ const integrationsData = [
     enabled: true,
     multiConnection: true,
     isBeta: false,
-    name: ProviderLabels.JIRA,
+    name: ProviderConfigMap[Providers.JIRA].label,
     icon: <JiraProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <JiraProvider className='providerIconSvg' width='40' height='40' />,
     // relocated to ProviderTransformationSettings since v0.12.0
@@ -89,7 +89,7 @@ const integrationsData = [
     enabled: true,
     multiConnection: true,
     isBeta: false,
-    name: ProviderLabels.GITHUB,
+    name: ProviderConfigMap[Providers.GITHUB].label,
     icon: <GitHubProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
     iconDashboard: <GitHubProvider className='providerIconSvg' width='40' height='40' />,
     // relocated to ProviderTransformationSettings since v0.12.0

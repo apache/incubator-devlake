@@ -43,6 +43,130 @@ const Providers = {
   TAPD: 'tapd',
 }
 
+const DefaultProviderConfig = {
+  label: 'NullProvider',
+  limit: null,
+  icon: (w, h) => <Icon icon='box' size={w || 24} />,
+  columns: {
+    name: { label: 'Connection Name', placeholder: 'eg. Enter Instance Name', },
+    endpoint: { label: 'Endpoint URL', placeholder: 'eg. https://null-api.localhost', },
+    proxy: { label: 'Proxy URL', placeholder: 'eg. http://proxy.localhost:8080', },
+    token: { label: 'Basic Auth Token', placeholder: 'eg. 3f5cda2a23ff410792e0', },
+    username: { label: 'Username', placeholder: 'Enter Username / E-mail', },
+    password: { label: 'Password', placeholder: 'Enter Password', },
+    rateLimit: { label: 'Rate Limit', placeholder: '1000', },
+  },
+}
+
+const ProviderConfigMap = {
+  [Providers.NULL]: DefaultProviderConfig,
+  [Providers.GITLAB]: {
+    label: 'GitLab',
+    icon: (w, h) => <GitlabProviderIcon width={w || 24} height={h || 24} />,
+    columns: {
+      name: { label: 'Connection Name', placeholder: 'eg. GitLab', },
+      endpoint: { label: 'Endpoint URL', placeholder: 'eg. https://gitlab.com/api/v4/', },
+      proxy: { label: 'Proxy URL', placeholder: 'eg. http://proxy.localhost:8080', },
+      token: { label: 'Access Token', placeholder: 'eg. ff9d1ad0e5c04f1f98fa', },
+      rateLimit: { label: <>Rate Limit <sup>(per hour)</sup></>, placeholder: '1000', },
+    },
+  },
+  [Providers.JENKINS]: {
+    label: 'Jenkins',
+    icon: (w, h) => <JenkinsProviderIcon width={w || 24} height={h || 24} />,
+    columns: {
+      name: { label: 'Connection Name', placeholder: 'eg. Jenkins', },
+      endpoint: { label: 'Endpoint URL', placeholder: 'URL eg. https://api.jenkins.io/', },
+      proxy: { label: 'Proxy URL', placeholder: 'eg. http://proxy.localhost:8080', },
+      username: { label: 'Username', placeholder: 'eg. admin', },
+      password: { label: 'Password', placeholder: 'eg. ************', },
+      rateLimit: { label: <>Rate Limit <sup>(per hour)</sup></>, placeholder: '1000', },
+    },
+  },
+  [Providers.JIRA]: {
+    label: 'JIRA',
+    icon: (w, h) => <JiraProviderIcon width={w || 24} height={h || 24} />,
+    columns: {
+      name: { label: 'Connection Name', placeholder: 'eg. JIRA', },
+      endpoint: { label: 'Endpoint URL', placeholder: 'eg. https://your-domain.atlassian.net/rest/', },
+      proxy: { label: 'Proxy URL', placeholder: 'eg. http://proxy.localhost:8080', },
+      username: { label: 'Username / E-mail', placeholder: 'eg. admin', },
+      password: {
+        label: (
+          <>
+            Password
+            <Tooltip
+              content={(
+                <span>If you are using JIRA Cloud or JIRA Server, <br />your API Token should be used as password.</span>)}
+              intent='primary'
+            >
+              <Icon
+                icon='info-sign'
+                size={12}
+                style={{
+                  float: 'left',
+                  display: 'inline-block',
+                  alignContent: 'center',
+                  marginBottom: '4px',
+                  marginLeft: '8px',
+                  color: '#999'
+                }}
+              />
+            </Tooltip>
+          </>),
+        placeholder: 'eg. ************',
+      },
+      rateLimit: { label: <>Rate Limit <sup>(per hour)</sup></>, placeholder: '1000', },
+    },
+  },
+  [Providers.GITHUB]: {
+    label: 'GitHub',
+    icon: (w, h) => <GitHubProviderIcon width={w || 24} height={h || 24} />,
+    columns: {
+      name: { label: 'Connection Name', placeholder: 'eg. GitHub', },
+      endpoint: { label: 'Endpoint URL', placeholder: 'eg. https://api.github.com/', },
+      proxy: { label: 'Proxy URL', placeholder: 'eg. http://proxy.localhost:8080', },
+      token: {
+        label: (
+          <>
+            Auth Token(s)
+            <Tooltip
+              content={(
+                <span>Due to Github's rate limit, input more tokens, <br />comma separated, to accelerate data collection.</span>)}
+              intent='primary'
+            >
+              <Icon
+                icon='info-sign'
+                size={12}
+                style={{
+                  float: 'left',
+                  display: 'inline-block',
+                  alignContent: 'center',
+                  marginBottom: '4px',
+                  marginLeft: '8px',
+                  color: '#999'
+                }}
+              />
+            </Tooltip>
+          </>),
+        placeholder: 'eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
+      },
+      rateLimit: { label: <>Rate Limit <sup>(per hour)</sup></>, placeholder: '1000', },
+    },
+  },
+  [Providers.TAPD]: {
+    label: 'TAPD',
+    icon: (w, h) => <TapdProviderIcon width={w || 24} height={h || 24} />,
+    columns: {
+      name: { label: 'Connection Name', placeholder: 'eg. Tapd', },
+      endpoint: { label: 'Endpoint URL', placeholder: 'URL eg. https://api.tapd.cn/', },
+      proxy: { label: 'Proxy URL', placeholder: 'eg. http://proxy.localhost:8080', },
+      token: { label: 'Basic Auth Token', placeholder: 'eg. 6b057ffe68464c93a057', },
+      rateLimit: { label: <>Rate Limit <sup>(per hour)</sup></>, placeholder: '1000', },
+    },
+  },
+}
+
 const ProviderTypes = {
   PLUGIN: 'plugin',
   INTEGRATION: 'integration',
@@ -51,17 +175,12 @@ const ProviderTypes = {
 
 const ProviderLabels = {
   NULL: 'NullProvider',
-  GITLAB: 'GitLab',
-  JENKINS: 'Jenkins',
-  JIRA: 'JIRA',
-  GITHUB: 'GitHub',
   REFDIFF: 'RefDiff',
   GITEXTRACTOR: 'GitExtractor',
   FEISHU: 'Feishu',
   AE: 'Analysis Engine (AE)',
   DBT: 'Data Build Tool (DBT)',
   STARROCKS: 'StarRocks',
-  TAPD: 'TAPD',
 }
 
 const ProviderConnectionLimits = {
@@ -181,59 +300,9 @@ const ProviderFormPlaceholders = {
     password: 'Enter Password',
     rateLimit: '1000'
   },
-  gitlab: {
-    name: 'eg. GitLab',
-    endpoint: 'eg. https://gitlab.com/api/v4/',
-    proxy: 'eg. http://proxy.localhost:8080',
-    token: 'eg. ff9d1ad0e5c04f1f98fa',
-    username: 'Enter Username / E-mail',
-    password: 'Enter Password',
-    rateLimit: '1000'
-  },
-  jenkins: {
-    name: 'eg. Jenkins',
-    endpoint: 'URL eg. https://api.jenkins.io/',
-    proxy: 'eg. http://proxy.localhost:8080',
-    token: 'eg. 6b057ffe68464c93a057',
-    username: 'eg. admin',
-    password: 'eg. ************',
-    rateLimit: '1000'
-  },
-  tapd: {
-    name: 'eg. Tapd',
-    endpoint: 'URL eg. https://api.tapd.cn/',
-    proxy: 'eg. http://proxy.localhost:8080',
-    token: 'eg. 6b057ffe68464c93a057',
-    username: 'eg. admin',
-    password: 'eg. ************',
-    rateLimit: '1000'
-  },
-  jira: {
-    name: 'eg. JIRA',
-    endpoint: 'eg. https://your-domain.atlassian.net/rest/',
-    proxy: 'eg. http://proxy.localhost:8080',
-    token: 'eg. 8c06a7cc50b746bfab30',
-    username: 'eg. admin',
-    password: 'eg. ************',
-    rateLimit: '1000'
-  },
-  github: {
-    name: 'eg. GitHub',
-    endpoint: 'eg. https://api.github.com/',
-    proxy: 'eg. http://proxy.localhost:8080',
-    token: 'eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
-    username: 'eg. admin',
-    password: 'eg. ************',
-    rateLimit: '1000'
-  }
 }
 
 const ProviderIcons = {
-  [Providers.GITLAB]: (w, h) => <GitlabProviderIcon width={w || 24} height={h || 24} />,
-  [Providers.JENKINS]: (w, h) => <JenkinsProviderIcon width={w || 24} height={h || 24} />,
-  [Providers.TAPD]: (w, h) => <TapdProviderIcon width={w || 24} height={h || 24} />,
-  [Providers.JIRA]: (w, h) => <JiraProviderIcon width={w || 24} height={h || 24} />,
-  [Providers.GITHUB]: (w, h) => <GitHubProviderIcon width={w || 24} height={h || 24} />,
   [Providers.REFDIFF]: (w, h) => <Icon icon='box' size={w || 24} />,
   [Providers.GITEXTRACTOR]: (w, h) => <Icon icon='box' size={w || 24} />,
   [Providers.FEISHU]: (w, h) => <img src={FeishuIcon} width={w || 24} height={h || 24} />,
@@ -257,6 +326,8 @@ const ConnectionStatusLabels = {
 
 export {
   Providers,
+  DefaultProviderConfig,
+  ProviderConfigMap,
   ProviderTypes,
   ProviderIcons,
   ProviderLabels,

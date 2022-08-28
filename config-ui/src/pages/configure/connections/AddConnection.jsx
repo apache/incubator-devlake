@@ -25,6 +25,7 @@ import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/data/integrations'
 import {
+  ProviderConfigMap,
   ProviderConnectionLimits,
   ProviderFormLabels,
   ProviderFormPlaceholders,
@@ -134,10 +135,7 @@ export default function AddConnection () {
                   allTestResponses={allTestResponses}
                   errors={errors}
                   showError={showError}
-                  authType={[Providers.JENKINS, Providers.JIRA, Providers.TAPD].includes(activeProvider.id) ? 'plain' : 'token'}
-                  sourceLimits={ProviderConnectionLimits}
-                  labels={ProviderFormLabels[activeProvider.id]}
-                  placeholders={ProviderFormPlaceholders[activeProvider.id]}
+                  activeProviderConfig={ProviderConfigMap[activeProvider.id]}
                 />
               </div>
               {/* {validationErrors.length > 0 && (

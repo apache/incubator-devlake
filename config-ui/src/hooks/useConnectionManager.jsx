@@ -139,10 +139,12 @@ function useConnectionManager (
 
   const setConnectionColumn = useCallback((columnName, value) => {
     console.log('>> SET EDITING CONNECTION COLUMN', columnName, value)
-    setEditingConnection({
-      ...editingConnection,
-      [columnName]: value,
-    })
+    if (editingConnection[columnName] !== value) {
+      setEditingConnection({
+        ...editingConnection,
+        [columnName]: value,
+      })
+    }
   }, [editingConnection])
 
   const saveConnection = (configurationSettings = {}) => {

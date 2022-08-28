@@ -33,7 +33,7 @@ import {
   PopoverInteractionKind,
   NumericInput
 } from '@blueprintjs/core'
-import { Providers } from '@/data/Providers'
+import { DefaultProviderConfig, Providers } from '@/data/Providers'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import InputValidationError from '@/components/validation/InputValidationError'
 
@@ -66,10 +66,8 @@ export default function ConnectionForm (props) {
     onTest = () => {},
     onValidate = () => {},
     authType = 'token',
-    sourceLimits = {},
     showLimitWarning = true,
-    labels,
-    placeholders,
+    activeProviderConfig = DefaultProviderConfig,
     enableActions = true,
     formGroupClassName = 'formGroup',
     showHeadline = true,
@@ -294,6 +292,7 @@ export default function ConnectionForm (props) {
           </Card>
         )}
 
+        {activeProviderConfig.columns.name &&
         <div className='formContainer'>
           <FormGroup
             disabled={isTesting || isSaving || isLocked}
@@ -304,7 +303,7 @@ export default function ConnectionForm (props) {
             contentClassName='formGroupContent'
           >
             <Label>
-              {labels ? labels.name : <>Connection&nbsp;Name</>}
+              {activeProviderConfig.columns.name?.label || <>Connection&nbsp;Name</>}
               <span className='requiredStar'>*</span>
             </Label>
             <InputGroup
@@ -314,9 +313,7 @@ export default function ConnectionForm (props) {
               inputRef={connectionNameRef}
               disabled={isTesting || isSaving || isLocked}
               // readOnly={[Providers.JENKINS].includes(activeProvider.id)}
-              placeholder={
-                placeholders ? placeholders.name : 'Enter Instance Name'
-              }
+              placeholder={activeProviderConfig.columns.name?.placeholder || 'Enter Instance Name'}
               value={editingConnection.name}
               onChange={(e) => onConnectionColumnChange('name', e.target.value)}
               className={`input connection-name-input ${
@@ -336,8 +333,9 @@ export default function ConnectionForm (props) {
               // fill
             />
           </FormGroup>
-        </div>
+        </div>}
 
+        {activeProviderConfig.columns.endpoint &&
         <div className='formContainer'>
           <FormGroup
             disabled={isTesting || isSaving || isLocked}
@@ -348,7 +346,7 @@ export default function ConnectionForm (props) {
             contentClassName='formGroupContent'
           >
             <Label>
-              {labels ? labels.endpoint : <>Endpoint&nbsp;URL</>}
+              {activeProviderConfig.columns.endpoint?.label || <>Endpoint&nbsp;URL</>}
               <span className='requiredStar'>*</span>
             </Label>
             <InputGroup
@@ -356,9 +354,7 @@ export default function ConnectionForm (props) {
               autoComplete='false'
               inputRef={connectionEndpointRef}
               disabled={isTesting || isSaving || isLocked}
-              placeholder={
-                placeholders ? placeholders.endpoint : 'Enter Endpoint URL'
-              }
+              placeholder={activeProviderConfig.columns.endpoint?.placeholder || 'Enter Endpoint URL'}
               value={editingConnection.endpoint}
               onChange={(e) => onConnectionColumnChange('endpoint', e.target.value)}
               className={`input endpoint-url-input ${
@@ -377,388 +373,341 @@ export default function ConnectionForm (props) {
             />
             {/* <a href='#' style={{ margin: '5px 0 5px 5px' }}><Icon icon='info-sign' size='16' /></a> */}
           </FormGroup>
-        </div>
+        </div>}
 
-        {authType === 'token' && (
-          <div className='formContainer'>
-            <FormGroup
-              disabled={isTesting || isSaving || isLocked}
-              label=''
-              inline={true}
-              labelFor='connection-token'
-              className={formGroupClassName}
-              contentClassName='formGroupContent'
-            >
-              <Label>
-                {labels ? labels.token : <>Basic&nbsp;Auth&nbsp;Token</>}
-                <span className='requiredStar'>*</span>
-              </Label>
-              {[Providers.GITHUB].includes(activeProvider.id) ? (
-                <>
-                  {/* TEXTAREA Multi-line Token Input (Disabled) */}
-                  {/* <div
-                    className='bp3-input-group connection-token-group' style={{
-                      boxSizing: 'border-box',
-                      width: '99%',
-                      position: 'relative',
-                      display: 'flex'
-                    }}
-                  >
-                    <TextArea
-                      id='connection-token'
-                      className={`input auth-input ${stateErrored === 'connection-token' ? 'invalid-field' : ''}`}
-                      inputRef={connectionTokenRef}
-                      disabled={isTesting || isSaving || isLocked}
-                      placeholder={placeholders ? placeholders.token : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'}
-                      growVertically={true}
-                      large={true}
-                      // intent={Intent.PRIMARY}
-                      onChange={(e) => onTokenChange(e.target.value)}
-                      value={token}
-                      required
-                      fill
-                      style={{ maxWidth: '99%' }}
-                    />
-                    <span style={{ marginLeft: '-23px', zIndex: 1 }}>
-                      <InputValidationError
-                        error={getFieldError('Auth')}
-                        elementRef={connectionTokenRef}
-                        onError={activateErrorStates}
-                        onSuccess={() => setStateErrored(null)}
-                        validateOnFocus
-                      />
-                    </span>
-                  </div> */}
-                  <div className='connection-tokens-personal-group'>
-                    <p>
-                      Add one or more personal token(s) for authentication from
-                      you and your organization members. Multiple tokens can
-                      help speed up the data collection process.{' '}
-                    </p>
-                    <p>
-                      <a
-                        // eslint-disable-next-line max-len
-                        href='https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token'
-                        target='_blank'
-                        rel='noreferrer'
-                      >
-                        Learn about how to create a personal access token
-                      </a>
-                    </p>
-                    <label className='normal'>Personal Access Token(s)</label>
-                    <div
-                      className='personal-access-tokens'
-                      style={{ margin: '5px 0' }}
-                    >
-                      <div
-                        className='pats-inputgroup'
-                        style={{ display: 'flex', flexDirection: 'column' }}
-                      >
-                        {Object.values(tokenStore).map((pat, patIdx) => (
-                          <div
-                            className='pat-input'
-                            key={`pat-input-key-${patIdx}`}
-                            style={{
-                              display: 'flex',
-                              flex: 1,
-                              marginBottom: '8px',
-                            }}
-                          >
-                            <div
-                              className='token-input'
-                              style={{ flex: 1, maxWidth: '55%' }}
-                            >
-                              <InputGroup
-                                id={`pat-id-${patIdx}`}
-                                type='password'
-                                placeholder='Token'
-                                value={pat}
-                                onChange={(e) =>
-                                  setPersonalToken(patIdx, e.target.value)}
-                                className='input personal-token-input'
-                                fill
-                                autoComplete='false'
-                              />
-                            </div>
-                            {tokenTests[patIdx] && (
-                              <div
-                                className='token-info-status'
-                                style={{ display: 'flex', padding: '0 10px' }}
-                              >
-                                {(tokenTests[patIdx]?.success && pat !== '') ? (
-                                  <>
-                                    <span style={{ color: Colors.GRAY4, marginRight: '10px' }}>From: {tokenTests[patIdx]?.username}</span>
-                                    <span
-                                      className='token-validation-status'
-                                      style={{ color: Colors.GREEN4 }}
-                                    >
-                                      {tokenTests[patIdx].status}
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <span
-                                      className='token-validation-status'
-                                      style={{ color: Colors.RED4 }}
-                                    >
-                                      {pat === '' ? '' : 'Invalid'}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                            )}
-                            <div
-                              className='token-removal'
-                              style={{
-                                marginLeft: 'auto',
-                                justifyContent: 'flex-end',
-                              }}
-                            >
-                              <Button
-                                icon='small-cross'
-                                intent={Intent.PRIMARY}
-                                minimal
-                                small
-                                onClick={() => removePersonalToken(patIdx)}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <div
-                        className='pats-actions'
-                        style={{ marginTop: '5px' }}
-                      >
-                        <Button
-                          disabled={isSaving || isTesting}
-                          text='Another Token'
-                          icon='plus'
-                          intent={Intent.PRIMARY}
-                          small
-                          outlined
-                          onClick={() =>
-                            addAnotherAccessToken(personalAccessTokens.length)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <InputGroup
+        {activeProviderConfig.columns.token &&
+        <div className='formContainer'>
+          <FormGroup
+            disabled={isTesting || isSaving || isLocked}
+            label=''
+            inline={true}
+            labelFor='connection-token'
+            className={formGroupClassName}
+            contentClassName='formGroupContent'
+          >
+            <Label>
+              {activeProviderConfig.columns.token?.label || <>Basic&nbsp;Auth&nbsp;Token</>}
+              <span className='requiredStar'>*</span>
+            </Label>
+            {[Providers.GITHUB].includes(activeProvider.id) ? (
+              <>
+                {/* TEXTAREA Multi-line Token Input (Disabled) */}
+                {/* <div
+                  className='bp3-input-group connection-token-group' style={{
+                    boxSizing: 'border-box',
+                    width: '99%',
+                    position: 'relative',
+                    display: 'flex'
+                  }}
+                >
+                  <TextArea
                     id='connection-token'
-                    type='password'
-                    autoComplete='false'
+                    className={`input auth-input ${stateErrored === 'connection-token' ? 'invalid-field' : ''}`}
                     inputRef={connectionTokenRef}
                     disabled={isTesting || isSaving || isLocked}
-                    placeholder={
-                      placeholders
-                        ? placeholders.token
-                        : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'
-                    }
-                    value={editingConnection.token}
-                    onChange={(e) => onConnectionColumnChange('token', e.target.value)}
-                    className={`input auth-input ${
-                      stateErrored === 'connection-token' ? 'invalid-field' : ''
-                    }`}
-                    fill
+                    placeholder={placeholders ? placeholders.token : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'}
+                    growVertically={true}
+                    large={true}
+                    // intent={Intent.PRIMARY}
+                    onChange={(e) => onTokenChange(e.target.value)}
+                    value={token}
                     required
-                    rightElement={
-                      <InputValidationError
-                        error={getFieldError('Auth')}
-                        elementRef={connectionTokenRef}
-                        onError={activateErrorStates}
-                        onSuccess={() => setStateErrored(null)}
-                        validateOnFocus
-                      />
-                    }
+                    fill
+                    style={{ maxWidth: '99%' }}
                   />
-                </>
-              )}
-              {/* activeProvider.id === Providers.JIRA &&
-                  <Popover
-                    className='popover-generate-token'
-                    position={Position.RIGHT}
-                    autoFocus={false}
-                    enforceFocus={false}
-                    isOpen={showTokenCreator}
-                    onInteraction={handleTokenInteraction}
-                    onClosed={() => setShowTokenCreator(false)}
-                    usePortal={false}
-                  >
-                    <Button
-                      disabled={isTesting || isSaving || isLocked}
-                      type='button' icon='key' intent={Intent.PRIMARY} style={{ marginLeft: '5px' }}
-                    />
-                    <>
-                      <div style={{ padding: '15px 20px 15px 15px' }}>
-                        <GenerateTokenForm
-                          isTesting={isTesting}
-                          isSaving={isSaving}
-                          isLocked={isLocked}
-                          onTokenChange={onTokenChange}
-                          setShowTokenCreator={setShowTokenCreator}
-                        />
-                      </div>
-                    </>
-                  </Popover> */}
-              {/* <a href='#' style={{ margin: '5px 0 5px 5px' }}><Icon icon='info-sign' size='16' /></a> */}
-            </FormGroup>
-          </div>
-        )}
-        {authType === 'plain' && (
-          <>
-            {/* <div style={{ marginTop: '20px', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0 }}>Username & Password</h3>
-              <span className='description' style={{ margin: 0, color: Colors.GRAY2 }}>
-                If this connection uses login credentials to generate a token or uses PLAIN Auth, specify it here.
-              </span>
-            </div> */}
-            <div className='formContainer'>
-              <FormGroup
-                label=''
-                disabled={isTesting || isSaving || isLocked}
-                inline={true}
-                labelFor='connection-username'
-                className={formGroupClassName}
-                contentClassName='formGroupContent'
-              >
-                <Label>
-                  {labels ? labels.username : <>Username</>}
-                  <span className='requiredStar'>*</span>
-                </Label>
-                <InputGroup
-                  id='connection-username'
-                  tabIndex={0}
-                  autoComplete='false'
-                  inputRef={connectionUsernameRef}
-                  disabled={isTesting || isSaving || isLocked}
-                  placeholder='Enter Username'
-                  defaultValue={editingConnection.username}
-                  onChange={(e) => onConnectionColumnChange('username', e.target.value)}
-                  className={`input username-input ${
-                    stateErrored === 'Username' ? 'invalid-field' : ''
-                  }`}
-                  // style={{ maxWidth: '300px' }}
-                  rightElement={
+                  <span style={{ marginLeft: '-23px', zIndex: 1 }}>
                     <InputValidationError
-                      error={getFieldError('Username')}
-                      elementRef={connectionUsernameRef}
+                      error={getFieldError('Auth')}
+                      elementRef={connectionTokenRef}
                       onError={activateErrorStates}
                       onSuccess={() => setStateErrored(null)}
                       validateOnFocus
                     />
-                  }
-                />
-              </FormGroup>
-            </div>
-            <div className='formContainer'>
-              <FormGroup
-                disabled={isTesting || isSaving || isLocked}
-                label=''
-                inline={true}
-                labelFor='connection-password'
-                className={formGroupClassName}
-                contentClassName='formGroupContent'
-              >
-                <Label>
-                  {labels ? labels.password : <>Password</>}
-                  <span className='requiredStar'>*</span>
-                </Label>
+                  </span>
+                </div> */}
+                <div className='connection-tokens-personal-group'>
+                  <p>
+                    Add one or more personal token(s) for authentication from
+                    you and your organization members. Multiple tokens can
+                    help speed up the data collection process.{' '}
+                  </p>
+                  <p>
+                    <a
+                      // eslint-disable-next-line max-len
+                      href='https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token'
+                      target='_blank'
+                      rel='noreferrer'
+                    >
+                      Learn about how to create a personal access token
+                    </a>
+                  </p>
+                  <label className='normal'>Personal Access Token(s)</label>
+                  <div
+                    className='personal-access-tokens'
+                    style={{ margin: '5px 0' }}
+                  >
+                    <div
+                      className='pats-inputgroup'
+                      style={{ display: 'flex', flexDirection: 'column' }}
+                    >
+                      {Object.values(tokenStore).map((pat, patIdx) => (
+                        <div
+                          className='pat-input'
+                          key={`pat-input-key-${patIdx}`}
+                          style={{
+                            display: 'flex',
+                            flex: 1,
+                            marginBottom: '8px',
+                          }}
+                        >
+                          <div
+                            className='token-input'
+                            style={{ flex: 1, maxWidth: '55%' }}
+                          >
+                            <InputGroup
+                              id={`pat-id-${patIdx}`}
+                              type='password'
+                              placeholder='Token'
+                              value={pat}
+                              onChange={(e) =>
+                                setPersonalToken(patIdx, e.target.value)}
+                              className='input personal-token-input'
+                              fill
+                              autoComplete='false'
+                            />
+                          </div>
+                          {tokenTests[patIdx] && (
+                            <div
+                              className='token-info-status'
+                              style={{ display: 'flex', padding: '0 10px' }}
+                            >
+                              {(tokenTests[patIdx]?.success && pat !== '') ? (
+                                <>
+                                  <span style={{ color: Colors.GRAY4, marginRight: '10px' }}>From: {tokenTests[patIdx]?.username}</span>
+                                  <span
+                                    className='token-validation-status'
+                                    style={{ color: Colors.GREEN4 }}
+                                  >
+                                    {tokenTests[patIdx].status}
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <span
+                                    className='token-validation-status'
+                                    style={{ color: Colors.RED4 }}
+                                  >
+                                    {pat === '' ? '' : 'Invalid'}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          )}
+                          <div
+                            className='token-removal'
+                            style={{
+                              marginLeft: 'auto',
+                              justifyContent: 'flex-end',
+                            }}
+                          >
+                            <Button
+                              icon='small-cross'
+                              intent={Intent.PRIMARY}
+                              minimal
+                              small
+                              onClick={() => removePersonalToken(patIdx)}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div
+                      className='pats-actions'
+                      style={{ marginTop: '5px' }}
+                    >
+                      <Button
+                        disabled={isSaving || isTesting}
+                        text='Another Token'
+                        icon='plus'
+                        intent={Intent.PRIMARY}
+                        small
+                        outlined
+                        onClick={() =>
+                          addAnotherAccessToken(personalAccessTokens.length)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
                 <InputGroup
-                  id='connection-password'
-                  tabIndex={1}
+                  id='connection-token'
                   type='password'
                   autoComplete='false'
-                  inputRef={connectionPasswordRef}
+                  inputRef={connectionTokenRef}
                   disabled={isTesting || isSaving || isLocked}
-                  placeholder='Enter Password'
-                  defaultValue={editingConnection.password}
-                  onChange={(e) => onConnectionColumnChange('password', e.target.value)}
-                  className={`input password-input ${
-                    stateErrored === 'Password' ? 'invalid-field' : ''
+                  placeholder={activeProviderConfig.columns.token?.placeholder || 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'}
+                  value={editingConnection.token}
+                  onChange={(e) => onConnectionColumnChange('token', e.target.value)}
+                  className={`input auth-input ${
+                    stateErrored === 'connection-token' ? 'invalid-field' : ''
                   }`}
-                  // style={{ maxWidth: '300px' }}
+                  fill
+                  required
                   rightElement={
                     <InputValidationError
-                      error={getFieldError('Password')}
-                      elementRef={connectionPasswordRef}
+                      error={getFieldError('Auth')}
+                      elementRef={connectionTokenRef}
                       onError={activateErrorStates}
                       onSuccess={() => setStateErrored(null)}
                       validateOnFocus
                     />
                   }
                 />
-              </FormGroup>
-            </div>
-          </>
-        )}
-        {[Providers.GITHUB, Providers.GITLAB, Providers.JIRA, Providers.JENKINS, Providers.TAPD].includes(
-          activeProvider.id
-        ) && (
-          <>
-            <div className='formContainer'>
-              <FormGroup
-                disabled={isTesting || isSaving || isLocked}
-                inline={true}
-                labelFor='connection-proxy'
-                className={formGroupClassName}
-                contentClassName='formGroupContent'
-              >
-                <Label>{labels ? labels.proxy : <>Proxy&nbsp;URL</>}</Label>
-                <InputGroup
-                  id='connection-proxy'
-                  inputRef={connectionProxyRef}
-                  tabIndex={3}
-                  placeholder={
-                    placeholders.proxy
-                      ? placeholders.proxy
-                      : 'http://proxy.localhost:8080'
-                  }
-                  defaultValue={editingConnection.proxy}
-                  onChange={(e) => onConnectionColumnChange('proxy', e.target.value)}
-                  disabled={isTesting || isSaving || isLocked}
-                  className={`input input-proxy ${
-                    fieldHasError('Proxy') ? 'invalid-field' : ''
-                  }`}
-                  rightElement={
-                    <InputValidationError error={getFieldError('Proxy')} />
-                  }
+              </>
+            )}
+          </FormGroup>
+        </div>}
+
+        {activeProviderConfig.columns.username &&
+        <div className='formContainer'>
+          <FormGroup
+            label=''
+            disabled={isTesting || isSaving || isLocked}
+            inline={true}
+            labelFor='connection-username'
+            className={formGroupClassName}
+            contentClassName='formGroupContent'
+          >
+            <Label>
+              {activeProviderConfig.columns.username?.label || <>Username</>}
+              <span className='requiredStar'>*</span>
+            </Label>
+            <InputGroup
+              id='connection-username'
+              tabIndex={0}
+              autoComplete='false'
+              inputRef={connectionUsernameRef}
+              disabled={isTesting || isSaving || isLocked}
+              placeholder={activeProviderConfig.columns.username?.placeholder || 'Enter Username'}
+              defaultValue={editingConnection.username}
+              onChange={(e) => onConnectionColumnChange('username', e.target.value)}
+              className={`input username-input ${
+                stateErrored === 'Username' ? 'invalid-field' : ''
+              }`}
+              // style={{ maxWidth: '300px' }}
+              rightElement={
+                <InputValidationError
+                  error={getFieldError('Username')}
+                  elementRef={connectionUsernameRef}
+                  onError={activateErrorStates}
+                  onSuccess={() => setStateErrored(null)}
+                  validateOnFocus
                 />
-              </FormGroup>
-            </div>
-            <div className='formContainer'>
-              <FormGroup
-                disabled={isTesting || isSaving || isLocked}
-                inline={true}
-                labelFor='connection-ratelimit'
-                className={formGroupClassName}
-                contentClassName='formGroupContent'
-              >
-                <Label>{labels ? labels.rateLimit : <>Rate&nbsp;Limit</>}</Label>
-                <NumericInput
-                  id='connection-ratelimit'
-                  ref={connectionRateLimitRef}
-                  disabled={isTesting || isSaving || isLocked}
-                  min={0}
-                  max={1000000000}
-                  clampValueOnBlur={true}
-                  className={`input input-ratelimit ${
-                  fieldHasError('RateLimit') ? 'invalid-field' : ''
-                }`}
-                  fill={false}
-                  placeholder={placeholders.rateLimit || '1000'}
-                  allowNumericCharactersOnly={true}
-                  onValueChange={(rateLimitPerHour) => { onConnectionColumnChange('rateLimitPerHour', rateLimitPerHour) }}
-                  value={editingConnection.rateLimitPerHour}
-                  rightElement={
-                    <InputValidationError error={getFieldError('RateLimit')} />
-                }
+              }
+            />
+          </FormGroup>
+        </div>}
+        {activeProviderConfig.columns.password &&
+        <div className='formContainer'>
+          <FormGroup
+            disabled={isTesting || isSaving || isLocked}
+            label=''
+            inline={true}
+            labelFor='connection-password'
+            className={formGroupClassName}
+            contentClassName='formGroupContent'
+          >
+            <Label>
+              {activeProviderConfig.columns.password?.label || <>Password</>}
+              <span className='requiredStar'>*</span>
+            </Label>
+            <InputGroup
+              id='connection-password'
+              tabIndex={1}
+              type='password'
+              autoComplete='false'
+              inputRef={connectionPasswordRef}
+              disabled={isTesting || isSaving || isLocked}
+              placeholder={activeProviderConfig.columns.password?.placeholder || 'Enter Password'}
+              defaultValue={editingConnection.password}
+              onChange={(e) => onConnectionColumnChange('password', e.target.value)}
+              className={`input password-input ${
+                stateErrored === 'Password' ? 'invalid-field' : ''
+              }`}
+              // style={{ maxWidth: '300px' }}
+              rightElement={
+                <InputValidationError
+                  error={getFieldError('Password')}
+                  elementRef={connectionPasswordRef}
+                  onError={activateErrorStates}
+                  onSuccess={() => setStateErrored(null)}
+                  validateOnFocus
                 />
-              </FormGroup>
-            </div>
-          </>
-        )}
+              }
+            />
+          </FormGroup>
+        </div>}
+
+        {activeProviderConfig.columns.proxy &&
+        <div className='formContainer'>
+          <FormGroup
+            disabled={isTesting || isSaving || isLocked}
+            inline={true}
+            labelFor='connection-proxy'
+            className={formGroupClassName}
+            contentClassName='formGroupContent'
+          >
+            <Label>{activeProviderConfig.columns.proxy?.label || <>Proxy&nbsp;URL</>}</Label>
+            <InputGroup
+              id='connection-proxy'
+              inputRef={connectionProxyRef}
+              tabIndex={3}
+              placeholder={activeProviderConfig.columns.proxy?.placeholder || 'http://proxy.localhost:8080'}
+              defaultValue={editingConnection.proxy}
+              onChange={(e) => onConnectionColumnChange('proxy', e.target.value)}
+              disabled={isTesting || isSaving || isLocked}
+              className={`input input-proxy ${
+                fieldHasError('Proxy') ? 'invalid-field' : ''
+              }`}
+              rightElement={
+                <InputValidationError error={getFieldError('Proxy')} />
+              }
+            />
+          </FormGroup>
+        </div>}
+        {activeProviderConfig.columns.rateLimit &&
+        <div className='formContainer'>
+          <FormGroup
+            disabled={isTesting || isSaving || isLocked}
+            inline={true}
+            labelFor='connection-ratelimit'
+            className={formGroupClassName}
+            contentClassName='formGroupContent'
+          >
+            <Label>{activeProviderConfig.columns.rateLimit?.label || <>Rate&nbsp;Limit</>}</Label>
+            <NumericInput
+              id='connection-ratelimit'
+              ref={connectionRateLimitRef}
+              disabled={isTesting || isSaving || isLocked}
+              min={0}
+              max={1000000000}
+              clampValueOnBlur={true}
+              className={`input input-ratelimit ${
+              fieldHasError('RateLimit') ? 'invalid-field' : ''
+            }`}
+              fill={false}
+              placeholder={activeProviderConfig.columns.rateLimit?.placeholder || '1000'}
+              allowNumericCharactersOnly={true}
+              onValueChange={(rateLimitPerHour) => { onConnectionColumnChange('rateLimitPerHour', rateLimitPerHour) }}
+              value={editingConnection.rateLimitPerHour}
+              rightElement={
+                <InputValidationError error={getFieldError('RateLimit')} />
+            }
+            />
+          </FormGroup>
+        </div>}
         {enableActions && (
           <div
             className='form-actions-block'
