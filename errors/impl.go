@@ -20,6 +20,8 @@ package errors
 import (
 	"errors"
 	"fmt"
+	"os"
+	"strconv"
 	"strings"
 )
 import cerror "github.com/cockroachdb/errors"
@@ -33,6 +35,16 @@ type (
 		t          *Type
 	}
 )
+
+var enableStacktraces = false
+
+func init() {
+	enable, exists := os.LookupEnv("ENABLE_STACKTRACE")
+	if !exists {
+		return
+	}
+	enableStacktraces, _ = strconv.ParseBool(enable)
+}
 
 func (e *crdbErrorImpl) Error() string {
 	return fmt.Sprintf("%+v", e.wrappedRaw)
@@ -110,7 +122,7 @@ func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbError
 		rawMessage = fmt.Sprintf("%s [%s]", message, cfg.userMsg)
 	}
 	if err == nil {
-		if cfg.enableStacktrace {
+		if enableStacktraces {
 			wrappedRaw = cerror.NewWithDepth(2, rawMessage)
 		} else {
 			wrappedRaw = errors.New(message)
@@ -123,7 +135,7 @@ func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbError
 				errType = cast.GetType()
 			}
 		}
-		if cfg.enableStacktrace {
+		if enableStacktraces {
 			wrappedRaw = cerror.WrapWithDepth(2, err, rawMessage)
 		} else {
 			wrappedRaw = cerror.WithDetail(err, rawMessage)
