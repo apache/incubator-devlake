@@ -48,9 +48,9 @@ const MigrationAlertDialog = (props) => {
       outlined: true
     },
     confirmButtonOpts = {
-      text: MigrationOptions.AlertDialog.confirmBtnText,
-      intent: hasFailed ? Intent.WARNING : Intent.PRIMARY,
-      icon: hasFailed ? 'error' : null
+      text: props.hasFailed ? MigrationOptions.AlertDialog.confirmRetryBtnText : MigrationOptions.AlertDialog.confirmBtnText,
+      intent: props.hasFailed ? Intent.WARNING : Intent.PRIMARY,
+      icon: props.hasFailed ? 'error' : null
     },
     continueButtonOpts = {
       icon: 'small-tick',

@@ -28,6 +28,7 @@ const MigrationOptions = {
     title: 'New Migration Scripts Detected',
     cancelBtnText: 'Cancel',
     confirmBtnText: 'Proceed to Database Migration',
+    confirmRetryBtnText: 'Retry Database Migration',
     continueBtnText: 'Continue'
   }
 }
