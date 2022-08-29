@@ -46,6 +46,11 @@ type PullRequest struct {
 	BaseRef        string `gorm:"type:varchar(255)"`
 	BaseCommitSha  string `gorm:"type:varchar(40)"`
 	HeadCommitSha  string `gorm:"type:varchar(40)"`
+	CodingTimespan int64
+	ReviewLag      int64
+	ReviewTimespan int64
+	DeployTimespan int64
+	ChangeTimespan int64
 }
 
 func (PullRequest) TableName() string {
