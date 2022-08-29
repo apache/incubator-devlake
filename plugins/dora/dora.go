@@ -15,28 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package core
+package main
 
-// Minimal features a plugin should comply, should be implemented by all plugins
-type PluginMeta interface {
-	Description() string
-	// PkgPath information lost when compiled as plugin(.so)
-	RootPkgPath() string
-}
+import (
+	"github.com/apache/incubator-devlake/plugins/Dora/impl"
+	"github.com/apache/incubator-devlake/runner"
+	"github.com/spf13/cobra"
+)
 
-type GrafanaDashboard struct {
-	ID                   string
-	Title                string
-	Description          string
-	GrafanaDashboardJson string
-}
+// Export a variable named PluginEntry for Framework to search and load
+var PluginEntry impl.Dora //nolint
 
-// PluginDashboard return it's dashboard which should be display at grafana
-type PluginDashboard interface {
-	Dashboards() []GrafanaDashboard
-}
+// standalone mode for debugging
+func main() {
+	cmd := &cobra.Command{Use: "dora"}
 
-// PluginIcon return it's icon (.svg text)
-type PluginIcon interface {
-	SvgIcon() string
+	// TODO add your cmd flag if necessary
+	// yourFlag := cmd.Flags().IntP("yourFlag", "y", 8, "TODO add description here")
+	// _ = cmd.MarkFlagRequired("yourFlag")
+
+	cmd.Run = func(cmd *cobra.Command, args []string) {
+		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
+			// TODO add more custom params here
+		})
+	}
+	runner.RunCmd(cmd)
 }

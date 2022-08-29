@@ -15,28 +15,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package core
+package tasks
 
-// Minimal features a plugin should comply, should be implemented by all plugins
-type PluginMeta interface {
-	Description() string
-	// PkgPath information lost when compiled as plugin(.so)
-	RootPkgPath() string
+import (
+	"github.com/mitchellh/mapstructure"
+)
+
+type DoraApiParams struct {
 }
 
-type GrafanaDashboard struct {
-	ID                   string
-	Title                string
-	Description          string
-	GrafanaDashboardJson string
+type DoraOptions struct {
+	Tasks []string `json:"tasks,omitempty"`
+	Since string
 }
 
-// PluginDashboard return it's dashboard which should be display at grafana
-type PluginDashboard interface {
-	Dashboards() []GrafanaDashboard
+type DoraTaskData struct {
+	Options *DoraOptions
 }
 
-// PluginIcon return it's icon (.svg text)
-type PluginIcon interface {
-	SvgIcon() string
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions, error) {
+	var op DoraOptions
+	err := mapstructure.Decode(options, &op)
+	if err != nil {
+		return nil, err
+	}
+
+	return &op, nil
 }
