@@ -20,7 +20,7 @@ const MigrationOptions = {
   apiProceedEndpoint: `${DEVLAKE_ENDPOINT}/proceed-db-migration`, // API Get Endpoint
   // NO Api.Get action required for cancel at this time
   apiCancelEndpoint: null,
-  apiStatusCode: 400, // API Response Code for Migration Required
+  apiStatusCode: 428, // API Response Code for Migration Required
   warningId: 'DEVLAKE__MIGRATION_WARNING', // Local Storage Warning ID Key
   cancelToastMessage: 'Migration Halted - Please downgrade manually, you will continue to receive a warning unless you proceed with migration or rollback.',
   failedToastMessage: 'Database Migration Failed! (Check Network Console)',
