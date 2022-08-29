@@ -49,7 +49,7 @@ const MigrationAlertDialog = (props) => {
     },
     confirmButtonOpts = {
       text: MigrationOptions.AlertDialog.confirmBtnText,
-      intent: Intent.PRIMARY,
+      intent: hasFailed ? Intent.WARNING : Intent.PRIMARY,
       icon: hasFailed ? 'error' : null
     },
     continueButtonOpts = {
