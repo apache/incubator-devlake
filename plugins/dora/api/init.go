@@ -15,28 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package core
+package api
 
-// Minimal features a plugin should comply, should be implemented by all plugins
-type PluginMeta interface {
-	Description() string
-	// PkgPath information lost when compiled as plugin(.so)
-	RootPkgPath() string
-}
+import (
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
+)
 
-type GrafanaDashboard struct {
-	ID                   string
-	Title                string
-	Description          string
-	GrafanaDashboardJson string
-}
+var vld *validator.Validate
+var connectionHelper *helper.ConnectionApiHelper
+var basicRes core.BasicRes
 
-// PluginDashboard return it's dashboard which should be display at grafana
-type PluginDashboard interface {
-	Dashboards() []GrafanaDashboard
-}
-
-// PluginIcon return it's icon (.svg text)
-type PluginIcon interface {
-	SvgIcon() string
+func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
+	basicRes = helper.NewDefaultBasicRes(config, logger, database)
+	vld = validator.New()
+	connectionHelper = helper.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
 }

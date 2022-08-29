@@ -15,28 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package core
+package migrationscripts
 
-// Minimal features a plugin should comply, should be implemented by all plugins
-type PluginMeta interface {
-	Description() string
-	// PkgPath information lost when compiled as plugin(.so)
-	RootPkgPath() string
-}
+import "github.com/apache/incubator-devlake/migration"
 
-type GrafanaDashboard struct {
-	ID                   string
-	Title                string
-	Description          string
-	GrafanaDashboardJson string
-}
-
-// PluginDashboard return it's dashboard which should be display at grafana
-type PluginDashboard interface {
-	Dashboards() []GrafanaDashboard
-}
-
-// PluginIcon return it's icon (.svg text)
-type PluginIcon interface {
-	SvgIcon() string
+// All return all the migration scripts
+func All() []migration.Script {
+	return []migration.Script{
+		new(addInitTables),
+	}
 }

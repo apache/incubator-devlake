@@ -15,28 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package core
+package migrationscripts
 
-// Minimal features a plugin should comply, should be implemented by all plugins
-type PluginMeta interface {
-	Description() string
-	// PkgPath information lost when compiled as plugin(.so)
-	RootPkgPath() string
+import (
+	"context"
+	"gorm.io/gorm"
+)
+
+type addInitTables struct {}
+
+func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
+	return db.Migrator().AutoMigrate(
+		// TODO add you models
+	)
 }
 
-type GrafanaDashboard struct {
-	ID                   string
-	Title                string
-	Description          string
-	GrafanaDashboardJson string
+func (*addInitTables) Version() uint64 {
+	return 20220829000001
 }
 
-// PluginDashboard return it's dashboard which should be display at grafana
-type PluginDashboard interface {
-	Dashboards() []GrafanaDashboard
-}
-
-// PluginIcon return it's icon (.svg text)
-type PluginIcon interface {
-	SvgIcon() string
+func (*addInitTables) Name() string {
+	return "dora init schemas"
 }
