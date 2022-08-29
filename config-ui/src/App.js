@@ -35,22 +35,22 @@ import '@fontsource/inter/variable-full.css'
 // Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
 // import '@/styles/theme.scss'
 
-import { DEVLAKE_ENDPOINT } from '@/utils/config'
+import { MigrationOptions } from '@/config/migration'
 import request from '@/utils/request'
 
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { ToastNotification } from '@/components/Toast'
-import Configure from './pages/configure/index'
+// import Configure from './pages/configure/index'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
 import AddConnection from '@/pages/configure/connections/AddConnection'
-import EditConnection from '@/pages/configure/connections/EditConnection'
+// import EditConnection from '@/pages/configure/connections/EditConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
-import Triggers from '@/pages/triggers/index'
+// import Triggers from '@/pages/triggers/index'
 import Offline from '@/pages/offline/index'
-import Pipelines from '@/pages/pipelines/index'
-import CreatePipeline from '@/pages/pipelines/create'
-import PipelineActivity from '@/pages/pipelines/activity'
+// import Pipelines from '@/pages/pipelines/index'
+// import CreatePipeline from '@/pages/pipelines/create'
+// import PipelineActivity from '@/pages/pipelines/activity'
 import Blueprints from '@/pages/blueprints/index'
 import CreateBlueprint from '@/pages/blueprints/create-blueprint'
 import BlueprintDetail from '@/pages/blueprints/blueprint-detail'
@@ -58,21 +58,17 @@ import BlueprintSettings from '@/pages/blueprints/blueprint-settings'
 import Connections from '@/pages/connections/index'
 import MigrationAlertDialog from '@/components/MigrationAlertDialog'
 
-// @todo: lift to configuration level or data const
-const DEVLAKE__MIGRATION_WARNING = 'DEVLAKE__MIGRATION_WARNING'
-
 function App (props) {
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const [migrationWarning, setMigrationWarning] = useState(localStorage.getItem(DEVLAKE__MIGRATION_WARNING))
+  const [migrationWarning, setMigrationWarning] = useState(localStorage.getItem(MigrationOptions.warningId))
   const [migrationAlertOpened, setMigrationAlertOpened] = useState(false)
   const [wasMigrationSuccessful, setWasMigrationSuccessful] = useState(false)
   const [hasMigrationFailed, setHasMigrationFailed] = useState(false)
 
   const handleConfirmMigration = useCallback(() => {
-    // @todo: lift db migration endpoint to configuration level
     setIsProcessing(true)
-    const m = request.get(`${DEVLAKE_ENDPOINT}/proceed-db-migration`)
+    const m = request.get(MigrationOptions.apiProceedEndpoint)
     setWasMigrationSuccessful(m?.status === 200 && m?.success === true)
     setTimeout(() => {
       setIsProcessing(false)
@@ -82,13 +78,13 @@ function App (props) {
 
   const handleCancelMigration = useCallback(() => {
     setIsProcessing(true)
-    localStorage.removeItem(DEVLAKE__MIGRATION_WARNING)
+    localStorage.removeItem(MigrationOptions.warningId)
     setMigrationAlertOpened(false)
     setIsProcessing(false)
     ToastNotification.clear()
     ToastNotification.show({
       // eslint-disable-next-line max-len
-      message: 'Migration Halted - Please downgrade manually, you will continue to receive a warning unless you proceed migration or rollback.',
+      message: MigrationOptions.cancelToastMessage,
       intent: Intent.NONE,
       icon: 'warning-sign'
     })
@@ -104,17 +100,16 @@ function App (props) {
 
   useEffect(() => {
     if (wasMigrationSuccessful) {
-      localStorage.removeItem(DEVLAKE__MIGRATION_WARNING)
+      localStorage.removeItem(MigrationOptions.warningId)
     }
   }, [wasMigrationSuccessful])
 
   useEffect(() => {
     if (hasMigrationFailed) {
-      const migrationFailureMessage = 'Database Migration Failed! (Check Network Console)'
       ToastNotification.clear()
       ToastNotification.show({
         // eslint-disable-next-line max-len
-        message: migrationFailureMessage,
+        message: MigrationOptions.failedToastMessage,
         intent: Intent.DANGER,
         icon: 'error'
       })
@@ -124,7 +119,7 @@ function App (props) {
   useEffect(() => {
     if (migrationWarning) {
       // eslint-disable-next-line max-len
-      console.log(`>>> MIGRATION WARNING DETECTED !! Local Storage Key = [${DEVLAKE__MIGRATION_WARNING}]:`, migrationWarning)
+      console.log(`>>> MIGRATION WARNING DETECTED !! Local Storage Key = [${MigrationOptions.warningId}]:`, migrationWarning)
     }
   }, [migrationWarning])
 

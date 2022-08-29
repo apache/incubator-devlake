@@ -16,12 +16,12 @@
  *
  */
 import axios from 'axios'
+import { MigrationOptions } from '@/config/migration'
 
 const headers = {}
 
 const handleErrorResponse = (e, cb = () => {}) => {
   let errorResponse = { success: false, message: e.message, data: null, status: 504 }
-  const migrationWarningId = 'DEVLAKE__MIGRATION_WARNING'
   if (e.response) {
     errorResponse = {
       ...errorResponse,
@@ -30,10 +30,10 @@ const handleErrorResponse = (e, cb = () => {}) => {
       status: e.response ? e.response.status : 504,
     }
   }
-  localStorage.removeItem(migrationWarningId)
-  if (e.response?.status === 428) {
+  localStorage.removeItem(MigrationOptions.warningId)
+  if (e.response?.status === MigrationOptions.apiStatusCode) {
     console.log('>>> DATABASE MIGRATION REQUESTED! Setting Warning Identifier in Browser Storage...')
-    localStorage.setItem(migrationWarningId, JSON.stringify({
+    localStorage.setItem(MigrationOptions.warningId, JSON.stringify({
       migration: true,
       message: e.response?.data?.message
     }))

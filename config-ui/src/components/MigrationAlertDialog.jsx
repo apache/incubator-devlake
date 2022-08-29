@@ -15,7 +15,8 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState } from 'react'
+import React from 'react'
+import { MigrationOptions } from '@/config/migration'
 import {
   Button,
   Classes,
@@ -29,8 +30,8 @@ import ContentLoader from '@/components/loaders/ContentLoader'
 const MigrationAlertDialog = (props) => {
   const {
     isOpen = false,
-    icon = 'outdated',
-    title = 'New Migration Scripts Detected',
+    icon = props.hasFailed ? 'warning-sign' : 'outdated',
+    title = MigrationOptions.AlertDialog.title,
     onClose = () => {},
     onClosed = () => {},
     onCancel = () => {},
@@ -41,6 +42,21 @@ const MigrationAlertDialog = (props) => {
     isMigrating = false,
     wasSuccessful = false,
     hasFailed = false,
+    cancelButtonOpts = {
+      text: MigrationOptions.AlertDialog.cancelBtnText,
+      intent: Intent.PRIMARY,
+      outlined: true
+    },
+    confirmButtonOpts = {
+      text: MigrationOptions.AlertDialog.confirmBtnText,
+      intent: Intent.PRIMARY,
+      icon: hasFailed ? 'error' : null
+    },
+    continueButtonOpts = {
+      icon: 'small-tick',
+      text: MigrationOptions.AlertDialog.continueBtnText,
+      intent: Intent.SUCCESS
+    },
   } = props
 
   return (
@@ -57,6 +73,17 @@ const MigrationAlertDialog = (props) => {
         isCloseButtonShown={isCloseButtonShown}
       >
         <div className={Classes.DIALOG_BODY}>
+        {!isMigrating && hasFailed && (
+          <>
+              <p style={{ margin: 0, padding: 0, color: Colors.RED4 }}>
+                <strong>Database Migration Failed!</strong>
+              </p>
+              <p style={{ margin: 0, padding: 0 }}>
+                There was a problem running migrations, please check server logs for details.{' '}
+                You may also try again, if the problem persists please file an issue on <strong>GitHub</strong>.
+              </p>
+          </>
+        )}
           {!isMigrating && wasSuccessful ? (
             <>
               <p style={{ margin: 0, padding: 0, color: Colors.GREEN4 }}>
@@ -85,7 +112,7 @@ const MigrationAlertDialog = (props) => {
                   />
                 </>
               ) : (
-                <>
+                !hasFailed && <>
                   <p style={{ margin: 0, padding: 0, color: Colors.RED4 }}>
                     WARNING: Performing migration may wipe collected data for
                     consistency and re-collecting data may be required.
@@ -114,27 +141,22 @@ const MigrationAlertDialog = (props) => {
             {wasSuccessful ? (
               <>
                 <Button
-                  icon='small-tick'
-                  text='Continue'
-                  intent={Intent.SUCCESS}
                   onClick={onClose}
+                  {...continueButtonOpts}
                 />
               </>
             ) : (
               <>
                 <Button
                   disabled={isMigrating}
-                  text='Downgrade'
-                  intent={Intent.PRIMARY}
                   onClick={onCancel}
-                  outlined
+                  {...cancelButtonOpts}
                 />
                 <Button
                   disabled={isMigrating}
                   loading={isMigrating}
-                  text='Proceed to Database Migration'
-                  intent={Intent.PRIMARY}
                   onClick={onConfirm}
+                  {...confirmButtonOpts}
                 />
               </>
             )}
