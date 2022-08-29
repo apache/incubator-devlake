@@ -39,7 +39,7 @@ const ContentLoader = (props) => {
   }, [title, message, spinnerSize])
 
   return (
-    <Card interactive={false} elevation={elevation} style={{...cardStyle, ...cardStyleOverrides}}>
+    <Card interactive={false} elevation={elevation} style={{ ...cardStyle, ...cardStyleOverrides }}>
       <div style={{}}>
         <div style={{ display: 'flex' }}>
           <Spinner intent={spinnerIntent} size={spinnerSize} />

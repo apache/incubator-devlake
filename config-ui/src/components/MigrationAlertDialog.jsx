@@ -73,17 +73,17 @@ const MigrationAlertDialog = (props) => {
         isCloseButtonShown={isCloseButtonShown}
       >
         <div className={Classes.DIALOG_BODY}>
-        {!isMigrating && hasFailed && (
+          {!isMigrating && hasFailed && (
           <>
-              <p style={{ margin: 0, padding: 0, color: Colors.RED4 }}>
-                <strong>Database Migration Failed!</strong>
-              </p>
-              <p style={{ margin: 0, padding: 0 }}>
-                There was a problem running migrations, please check server logs for details.{' '}
-                You may also try again, if the problem persists please file an issue on <strong>GitHub</strong>.
-              </p>
+            <p style={{ margin: 0, padding: 0, color: Colors.RED4 }}>
+              <strong>Database Migration Failed!</strong>
+            </p>
+            <p style={{ margin: 0, padding: 0 }}>
+              There was a problem running migrations, please check server logs for details.{' '}
+              You may also try again, if the problem persists please file an issue on <strong>GitHub</strong>.
+            </p>
           </>
-        )}
+          )}
           {!isMigrating && wasSuccessful ? (
             <>
               <p style={{ margin: 0, padding: 0, color: Colors.GREEN4 }}>
@@ -112,26 +112,28 @@ const MigrationAlertDialog = (props) => {
                   />
                 </>
               ) : (
-                !hasFailed && <>
-                  <p style={{ margin: 0, padding: 0, color: Colors.RED4 }}>
-                    WARNING: Performing migration may wipe collected data for
-                    consistency and re-collecting data may be required.
-                  </p>
-                  <p style={{ margin: 0, padding: 0 }}>
-                    A Database migration is required to launch{' '}
-                    <strong>DevLake</strong>, to proceed, please send a request
-                    to{' '}
-                    <code style={{ backgroundColor: '#eeeeee' }}>
-                      &lt;config-ui-endpoint&gt;/api/proceed-db-migration
-                    </code>{' '}
-                    ( or{' '}
-                    <code style={{ backgroundColor: '#eeeeee' }}>
-                      &lt;devlake-endpoint&gt;/proceed-db-migration
-                    </code>
-                    ) Alternatively, you may downgrade back to the previous
-                    DevLake version.
-                  </p>
-                </>
+                !hasFailed && (
+                  <>
+                    <p style={{ margin: 0, padding: 0, color: Colors.RED4 }}>
+                      WARNING: Performing migration may wipe collected data for
+                      consistency and re-collecting data may be required.
+                    </p>
+                    <p style={{ margin: 0, padding: 0 }}>
+                      A Database migration is required to launch{' '}
+                      <strong>DevLake</strong>, to proceed, please send a request
+                      to{' '}
+                      <code style={{ backgroundColor: '#eeeeee' }}>
+                        &lt;config-ui-endpoint&gt;/api/proceed-db-migration
+                      </code>{' '}
+                      ( or{' '}
+                      <code style={{ backgroundColor: '#eeeeee' }}>
+                        &lt;devlake-endpoint&gt;/proceed-db-migration
+                      </code>
+                      ) Alternatively, you may downgrade back to the previous
+                      DevLake version.
+                    </p>
+                  </>
+                )
               )}
             </>
           )}
