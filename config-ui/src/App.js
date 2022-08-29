@@ -38,6 +38,8 @@ import '@fontsource/inter/variable-full.css'
 import { MigrationOptions } from '@/config/migration'
 import request from '@/utils/request'
 
+import useDatabaseMigrations from '@/hooks/useDatabaseMigrations'
+
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { ToastNotification } from '@/components/Toast'
 // import Configure from './pages/configure/index'
@@ -59,69 +61,84 @@ import Connections from '@/pages/connections/index'
 import MigrationAlertDialog from '@/components/MigrationAlertDialog'
 
 function App (props) {
-  const [isProcessing, setIsProcessing] = useState(false)
+  // const [isProcessing, setIsProcessing] = useState(false)
 
-  const [migrationWarning, setMigrationWarning] = useState(localStorage.getItem(MigrationOptions.warningId))
-  const [migrationAlertOpened, setMigrationAlertOpened] = useState(false)
-  const [wasMigrationSuccessful, setWasMigrationSuccessful] = useState(false)
-  const [hasMigrationFailed, setHasMigrationFailed] = useState(false)
+  // const [migrationWarning, setMigrationWarning] = useState(localStorage.getItem(MigrationOptions.warningId))
+  // const [migrationAlertOpened, setMigrationAlertOpened] = useState(false)
+  // const [wasMigrationSuccessful, setWasMigrationSuccessful] = useState(false)
+  // const [hasMigrationFailed, setHasMigrationFailed] = useState(false)
 
-  const handleConfirmMigration = useCallback(() => {
-    setIsProcessing(true)
-    const m = request.get(MigrationOptions.apiProceedEndpoint)
-    setWasMigrationSuccessful(m?.status === 200 && m?.success === true)
-    setTimeout(() => {
-      setIsProcessing(false)
-      setHasMigrationFailed(m?.status !== 200)
-    }, 3000)
-  }, [])
+  const {
+    isProcessing,
+    migrationWarning,
+    migrationAlertOpened,
+    wasMigrationSuccessful,
+    hasMigrationFailed,
+    setMigrationWarning,
+    setMigrationAlertOpened,
+    setWasMigrationSuccessful,
+    setHasMigrationFailed,
+    handleConfirmMigration,
+    handleCancelMigration,
+    handleMigrationDialogClose
+  } = useDatabaseMigrations()
 
-  const handleCancelMigration = useCallback(() => {
-    setIsProcessing(true)
-    localStorage.removeItem(MigrationOptions.warningId)
-    setMigrationAlertOpened(false)
-    setIsProcessing(false)
-    ToastNotification.clear()
-    ToastNotification.show({
-      // eslint-disable-next-line max-len
-      message: MigrationOptions.cancelToastMessage,
-      intent: Intent.NONE,
-      icon: 'warning-sign'
-    })
-  }, [])
+  // const handleConfirmMigration = useCallback(() => {
+  //   setIsProcessing(true)
+  //   const m = request.get(MigrationOptions.apiProceedEndpoint)
+  //   setWasMigrationSuccessful(m?.status === 200 && m?.success === true)
+  //   setTimeout(() => {
+  //     setIsProcessing(false)
+  //     setHasMigrationFailed(m?.status !== 200)
+  //   }, 3000)
+  // }, [])
 
-  const handleMigrationDialogClose = useCallback(() => {
-    setMigrationAlertOpened(false)
-  }, [setMigrationAlertOpened])
+  // const handleCancelMigration = useCallback(() => {
+  //   setIsProcessing(true)
+  //   localStorage.removeItem(MigrationOptions.warningId)
+  //   setMigrationAlertOpened(false)
+  //   setIsProcessing(false)
+  //   ToastNotification.clear()
+  //   ToastNotification.show({
+  //     // eslint-disable-next-line max-len
+  //     message: MigrationOptions.cancelToastMessage,
+  //     intent: Intent.NONE,
+  //     icon: 'warning-sign'
+  //   })
+  // }, [])
 
-  useEffect(() => {
-    setMigrationAlertOpened(migrationWarning !== null)
-  }, [migrationWarning, setMigrationAlertOpened])
+  // const handleMigrationDialogClose = useCallback(() => {
+  //   setMigrationAlertOpened(false)
+  // }, [setMigrationAlertOpened])
 
-  useEffect(() => {
-    if (wasMigrationSuccessful) {
-      localStorage.removeItem(MigrationOptions.warningId)
-    }
-  }, [wasMigrationSuccessful])
+  // useEffect(() => {
+  //   setMigrationAlertOpened(migrationWarning !== null)
+  // }, [migrationWarning, setMigrationAlertOpened])
 
-  useEffect(() => {
-    if (hasMigrationFailed) {
-      ToastNotification.clear()
-      ToastNotification.show({
-        // eslint-disable-next-line max-len
-        message: MigrationOptions.failedToastMessage,
-        intent: Intent.DANGER,
-        icon: 'error'
-      })
-    }
-  }, [hasMigrationFailed])
+  // useEffect(() => {
+  //   if (wasMigrationSuccessful) {
+  //     localStorage.removeItem(MigrationOptions.warningId)
+  //   }
+  // }, [wasMigrationSuccessful])
 
-  useEffect(() => {
-    if (migrationWarning) {
-      // eslint-disable-next-line max-len
-      console.log(`>>> MIGRATION WARNING DETECTED !! Local Storage Key = [${MigrationOptions.warningId}]:`, migrationWarning)
-    }
-  }, [migrationWarning])
+  // useEffect(() => {
+  //   if (hasMigrationFailed) {
+  //     ToastNotification.clear()
+  //     ToastNotification.show({
+  //       // eslint-disable-next-line max-len
+  //       message: MigrationOptions.failedToastMessage,
+  //       intent: Intent.DANGER,
+  //       icon: 'error'
+  //     })
+  //   }
+  // }, [hasMigrationFailed])
+
+  // useEffect(() => {
+  //   if (migrationWarning) {
+  //     // eslint-disable-next-line max-len
+  //     console.log(`>>> MIGRATION WARNING DETECTED !! Local Storage Key = [${MigrationOptions.warningId}]:`, migrationWarning)
+  //   }
+  // }, [migrationWarning])
 
   return (
     <Router>
