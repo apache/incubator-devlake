@@ -1,0 +1,1 @@
+connection_id,gitlab_id,project_id,pipeline_id,status,stage,name,ref,tag,allow_failure,duration,web_url,gitlab_created_at,started_at,finished_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
