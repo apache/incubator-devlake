@@ -44,7 +44,7 @@ const MigrationAlertDialog = (props) => {
     hasFailed = false,
     cancelButtonOpts = {
       text: MigrationOptions.AlertDialog.cancelBtnText,
-      intent: Intent.PRIMARY,
+      intent: hasFailed ? Intent.WARNING : Intent.PRIMARY,
       outlined: true
     },
     confirmButtonOpts = {
