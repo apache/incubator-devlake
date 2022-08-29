@@ -32,6 +32,7 @@ import {
 import usePipelineManager from '@/hooks/usePipelineManager'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import useBlueprintValidation from '@/hooks/useBlueprintValidation'
+import usePaginator from '@/hooks/usePaginator'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -89,6 +90,14 @@ const Blueprints = (props) => {
     detectPipelineProviders
   } = usePipelineManager()
 
+  const {
+    pagedData,
+    setFilterParams,
+    setFilterFunc,
+    setData: setPaginatorData,
+    renderControlsComponent: renderPagnationControls
+  } = usePaginator()
+
   const [expandDetails, setExpandDetails] = useState(false)
   const [activeBlueprint, setActiveBlueprint] = useState(null)
   const [draftBlueprint, setDraftBlueprint] = useState(null)
@@ -98,7 +107,6 @@ const Blueprints = (props) => {
   const [pipelineTemplates, setPipelineTemplates] = useState([])
   const [selectedPipelineTemplate, setSelectedPipelineTemplate] = useState()
 
-  const [filteredBlueprints, setFilteredBlueprints] = useState([])
   const [activeFilterStatus, setActiveFilterStatus] = useState()
 
   const [relatedPipelines, setRelatedPipelines] = useState([])
@@ -239,37 +247,27 @@ const Blueprints = (props) => {
   }, [fetchAllPipelines])
 
   useEffect(() => {
-    if (activeFilterStatus) {
+    setFilterFunc(() => (activeFilterStatus, blueprint) => {
       switch (activeFilterStatus) {
         case 'hourly':
-          setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
-          break
         case 'daily':
-          setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
-          break
         case 'weekly':
-          setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
-          break
         case 'monthly':
-          setFilteredBlueprints(blueprints.filter(b => b.cronConfig === getCronPreset(activeFilterStatus).cronConfig))
-          break
+          console.log(blueprint.cronConfig === getCronPreset(activeFilterStatus).cronConfig)
+          return blueprint.cronConfig === getCronPreset(activeFilterStatus).cronConfig
         case 'manual':
-          setFilteredBlueprints(blueprints.filter(b => b.isManual))
-          break
+          return blueprint.isManual
         case 'custom':
-          setFilteredBlueprints(blueprints.filter(
-            b => b.cronConfig !== getCronPreset('hourly').cronConfig &&
-            b.cronConfig !== getCronPreset('daily').cronConfig &&
-            b.cronConfig !== getCronPreset('weekly').cronConfig &&
-            b.cronConfig !== getCronPreset('monthly').cronConfig
-          ))
-          break
+          return blueprint.cronConfig !== getCronPreset('hourly').cronConfig &&
+            blueprint.cronConfig !== getCronPreset('daily').cronConfig &&
+            blueprint.cronConfig !== getCronPreset('weekly').cronConfig &&
+            blueprint.cronConfig !== getCronPreset('monthly').cronConfig
         default:
-        // NO FILTERS
-          break
+          return true
       }
-    }
-  }, [activeFilterStatus, blueprints, getCronPreset])
+    })
+    setFilterParams(activeFilterStatus)
+  }, [activeFilterStatus, setFilterParams, getCronPreset])
 
   // useEffect(() => {
   //   if (Array.isArray(tasks)) {
@@ -281,6 +279,10 @@ const Blueprints = (props) => {
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDERS TASKS....', detectedProviderTasks)
   }, [detectedProviderTasks])
+
+  useEffect(() => {
+    setPaginatorData(blueprints)
+  }, [blueprints])
 
   return (
     <>
@@ -316,9 +318,8 @@ const Blueprints = (props) => {
             {(!isFetchingBlueprints) && blueprints.length > 0 && (
               <>
                 <BlueprintsGrid
-                  blueprints={blueprints}
+                  blueprints={pagedData}
                   pipelines={relatedPipelines}
-                  filteredBlueprints={filteredBlueprints}
                   activeFilterStatus={activeFilterStatus}
                   onFilter={setActiveFilterStatus}
                   activeBlueprint={activeBlueprint}
@@ -381,6 +382,7 @@ const Blueprints = (props) => {
                 />
               </Card>
             )}
+            <div style={{ alignSelf: 'flex-end', padding: '10px' }}>{renderPagnationControls()}</div>
           </main>
         </Content>
       </div>

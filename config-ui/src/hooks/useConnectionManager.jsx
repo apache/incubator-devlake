@@ -588,7 +588,7 @@ function useConnectionManager (
           setPassword(activeConnection.password)
           setProxy(activeConnection.Proxy || activeConnection.proxy)
           setRateLimit(activeConnection.rateLimitPerHour)
-        break
+          break
       }
       ToastNotification.clear()
       // ToastNotification.show({ message: `Fetched settings for ${activeConnection.name}.`, intent: 'success', icon: 'small-tick' })
