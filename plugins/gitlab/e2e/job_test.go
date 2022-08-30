@@ -35,7 +35,7 @@ func TestGitlabJobDataFlow(t *testing.T) {
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
 			ConnectionId: 1,
-			ProjectId:    12345678,
+			ProjectId:    44,
 		},
 	}
 	// import raw data table
