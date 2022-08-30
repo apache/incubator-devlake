@@ -611,7 +611,7 @@ function useConnectionManager (
   }, [testedConnections])
 
   return {
-    // activeConnection,
+    activeConnection,
     // fetchConnection,
     fetchAllConnections,
     // fetchDomainLayerRepositories,

@@ -99,24 +99,6 @@ export default function ConfigureConnection () {
     history.push(`/integrations/${activeProvider.id}`)
   }
 
-  const renderProviderSettings = useCallback((providerId, activeProvider) => {
-    console.log('>>> RENDERING PROVIDER SETTINGS...')
-    let settingsComponent = null
-    if (activeProvider && activeProvider.settings) {
-      settingsComponent = activeProvider.settings({
-        activeProvider,
-        activeConnection,
-        isSaving,
-        isSavingConnection,
-        setSettings
-      })
-    } else {
-      // @todo create & display "fallback/empty settings" view
-      console.log('>> WARNING: NO PROVIDER SETTINGS RENDERED, PROVIDER = ', activeProvider)
-    }
-    return settingsComponent
-  }, [activeConnection, isSaving, isSavingConnection])
-
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER ID = ', providerId)
     console.log('>>>> DETECTED CONNECTION ID = ', connectionId)
@@ -246,7 +228,6 @@ export default function ConfigureConnection () {
                             allTestResponses={allTestResponses}
                             errors={errors}
                             showError={showConnectionError}
-                            authType={[Providers.JENKINS, Providers.JIRA, Providers.TAPD].includes(activeProvider.id) ? 'plain' : 'token'}
                             showLimitWarning={false}
                             activeProviderConfig={ProviderConfigMap[activeProvider.id]}
                           />

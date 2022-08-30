@@ -41,7 +41,7 @@ const Modes = {
 
 const DATA_SOURCES_LIST = Object
   .keys(ProviderConfigMap)
-  .filter(v => v !== Providers.NULL)
+  .filter(v => ProviderConfigMap[v].useConnection)
   .map((providerName, index) => ({
     id: index,
     name: providerName,
@@ -177,7 +177,6 @@ const ConnectionDialog = (props) => {
                       <>Data Source</>
                       <span className='requiredStar'>*</span>
                     </Label>
-                    {console.log(dataSourcesList)}
                     <Select
                       popoverProps={{ usePortal: false }}
                       className='selector-datasource'
@@ -251,13 +250,6 @@ const ConnectionDialog = (props) => {
                     allTestResponses={allTestResponses}
                     errors={errors}
                     showError={showConnectionError}
-                    authType={
-                      [Providers.JENKINS, Providers.JIRA].includes(
-                        activeProvider?.id
-                      )
-                        ? 'plain'
-                        : 'token'
-                    }
                     showLimitWarning={false}
                     activeProviderConfig={ProviderConfigMap[activeProvider?.id]}
                     enableActions={false}

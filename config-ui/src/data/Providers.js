@@ -46,6 +46,10 @@ const Providers = {
 const DefaultProviderConfig = {
   label: 'NullProvider',
   limit: null,
+  enabled: false,
+  useConnection: false,
+  multiConnection: false,
+  isBeta: false,
   icon: (w, h) => <Icon icon='box' size={w || 24} />,
   columns: {
     name: { label: 'Connection Name', placeholder: 'eg. Enter Instance Name', },
@@ -62,6 +66,10 @@ const ProviderConfigMap = {
   [Providers.NULL]: DefaultProviderConfig,
   [Providers.GITLAB]: {
     label: 'GitLab',
+    enabled: true,
+    useConnection: true,
+    multiConnection: true,
+    isBeta: false,
     icon: (w, h) => <GitlabProviderIcon width={w || 24} height={h || 24} />,
     columns: {
       name: { label: 'Connection Name', placeholder: 'eg. GitLab', },
@@ -73,6 +81,10 @@ const ProviderConfigMap = {
   },
   [Providers.JENKINS]: {
     label: 'Jenkins',
+    enabled: true,
+    useConnection: true,
+    multiConnection: true,
+    isBeta: false,
     icon: (w, h) => <JenkinsProviderIcon width={w || 24} height={h || 24} />,
     columns: {
       name: { label: 'Connection Name', placeholder: 'eg. Jenkins', },
@@ -85,6 +97,10 @@ const ProviderConfigMap = {
   },
   [Providers.JIRA]: {
     label: 'JIRA',
+    enabled: true,
+    useConnection: true,
+    multiConnection: true,
+    isBeta: false,
     icon: (w, h) => <JiraProviderIcon width={w || 24} height={h || 24} />,
     columns: {
       name: { label: 'Connection Name', placeholder: 'eg. JIRA', },
@@ -121,6 +137,10 @@ const ProviderConfigMap = {
   },
   [Providers.GITHUB]: {
     label: 'GitHub',
+    enabled: true,
+    useConnection: true,
+    multiConnection: true,
+    isBeta: false,
     icon: (w, h) => <GitHubProviderIcon width={w || 24} height={h || 24} />,
     columns: {
       name: { label: 'Connection Name', placeholder: 'eg. GitHub', },
@@ -156,6 +176,10 @@ const ProviderConfigMap = {
   },
   [Providers.TAPD]: {
     label: 'TAPD',
+    enabled: true,
+    useConnection: true,
+    multiConnection: true,
+    isBeta: true,
     icon: (w, h) => <TapdProviderIcon width={w || 24} height={h || 24} />,
     columns: {
       name: { label: 'Connection Name', placeholder: 'eg. Tapd', },
@@ -167,10 +191,14 @@ const ProviderConfigMap = {
   },
   [Providers.REFDIFF]: {
     label: 'RefDiff',
+    enabled: true,
+    multiConnection: false,
     icon: (w, h) => <Icon icon='box' size={w || 24} />
   },
   [Providers.GITEXTRACTOR]: {
     label: 'GitExtractor',
+    enabled: true,
+    multiConnection: false,
     icon: (w, h) => <Icon icon='box' size={w || 24} />
   },
   [Providers.FEISHU]: {

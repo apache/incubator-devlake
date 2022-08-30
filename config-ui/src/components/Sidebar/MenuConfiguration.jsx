@@ -31,7 +31,7 @@ const MenuConfiguration = (activeRoute) => {
       children:
         Object
           .keys(ProviderConfigMap)
-          .filter(v => v !== Providers.NULL)
+          .filter(v => ProviderConfigMap[v].useConnection)
           .map((providerName, index) => ({
             id: index,
             label: ProviderConfigMap[providerName].isBeta

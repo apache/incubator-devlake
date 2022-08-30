@@ -98,7 +98,6 @@ const StageTaskName = (props) => {
                 {Number(task.status === 'TASK_COMPLETED' ? 100 : (task.progress / 1) * 100).toFixed(0)}%
               </div>
               <div style={{ padding: '0 0 10px 20px' }}>
-                {task.plugin?.toLowerCase()}
                 {ProviderConfigMap[task.plugin?.toLowerCase()] ? ProviderConfigMap[task.plugin?.toLowerCase()].icon(24, 24) : null}
               </div>
             </div>
