@@ -25,8 +25,9 @@ type DoraApiParams struct {
 }
 
 type DoraOptions struct {
-	Tasks []string `json:"tasks,omitempty"`
-	Since string
+	Tasks        []string `json:"tasks,omitempty"`
+	ConnectionId uint64
+	Since        string
 }
 
 type DoraTaskData struct {
