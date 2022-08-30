@@ -15,8 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState, useRef, useCallback } from 'react'
-// import dayjs from '@/utils/time'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
   Button,
   Classes,
@@ -30,17 +29,8 @@ import {
   MenuItem,
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
-import {
-  Providers,
-  // ProviderTypes,
-  ProviderLabels,
-  ProviderFormLabels,
-  ProviderFormPlaceholders,
-  ProviderConnectionLimits,
-  // ProviderIcons,
-} from '@/data/Providers'
+import { ProviderConfigMap, Providers, } from '@/data/Providers'
 import { NullBlueprintConnection } from '@/data/NullBlueprintConnection'
-import InputValidationError from '@/components/validation/InputValidationError'
 import ContentLoader from '@/components/loaders/ContentLoader'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 
@@ -49,39 +39,15 @@ const Modes = {
   EDIT: 'edit',
 }
 
-// @todo: lift data sources list to configuration level, requires expansion when more providers are added..
-const DATA_SOURCES_LIST = [
-  {
-    id: 1,
-    name: Providers.JIRA,
-    title: ProviderLabels[Providers.JIRA.toUpperCase()],
-    value: Providers.JIRA,
-  },
-  {
-    id: 2,
-    name: Providers.GITHUB,
-    title: ProviderLabels[Providers.GITHUB.toUpperCase()],
-    value: Providers.GITHUB,
-  },
-  {
-    id: 3,
-    name: Providers.GITLAB,
-    title: ProviderLabels[Providers.GITLAB.toUpperCase()],
-    value: Providers.GITLAB,
-  },
-  {
-    id: 4,
-    name: Providers.JENKINS,
-    title: ProviderLabels[Providers.JENKINS.toUpperCase()],
-    value: Providers.JENKINS,
-  },
-  {
-    id: 5,
-    name: Providers.TAPD,
-    title: ProviderLabels[Providers.TAPD.toUpperCase()],
-    value: Providers.TAPD,
-  },
-]
+const DATA_SOURCES_LIST = Object
+  .keys(ProviderConfigMap)
+  .filter(v => v !== Providers.NULL)
+  .map((providerName, index) => ({
+    id: index,
+    name: providerName,
+    title: ProviderConfigMap[providerName].label,
+    value: providerName,
+  }))
 
 const ConnectionDialog = (props) => {
   const {
@@ -92,14 +58,9 @@ const ConnectionDialog = (props) => {
     setTestStatus = () => {},
     setTestResponse = () => {},
     connection = NullBlueprintConnection,
-    name,
-    endpointUrl,
-    proxy,
-    rateLimit = 0,
-    token,
+    editingConnection,
+    setConnectionColumn,
     initialTokenStore = {},
-    username,
-    password,
     isLocked = false,
     isLoading = false,
     isTesting = false,
@@ -107,20 +68,11 @@ const ConnectionDialog = (props) => {
     isValid = false,
     // editMode = false,
     dataSourcesList = DATA_SOURCES_LIST,
-    labels = ProviderLabels[connection.provider],
-    placeholders = ProviderFormPlaceholders[connection.provider],
     onTest = () => {},
     onSave = () => {},
     onClose = () => {},
     onCancel = () => {},
     onValidate = () => {},
-    onNameChange = () => {},
-    onEndpointChange = () => {},
-    onProxyChange = () => {},
-    onRateLimitChange = () => {},
-    onTokenChange = () => {},
-    onUsernameChange = () => {},
-    onPasswordChange = () => {},
     showConnectionError = false,
     testStatus,
     testResponse,
@@ -128,8 +80,6 @@ const ConnectionDialog = (props) => {
     errors = [],
     validationErrors = [],
     canOutsideClickClose = false,
-    // authType,
-    // showLimitWarning = false
   } = props
 
   const [datasource, setDatasource] = useState(
@@ -224,9 +174,10 @@ const ConnectionDialog = (props) => {
                     contentClassName='formGroupContent'
                   >
                     <Label style={{ display: 'inline', marginRight: 0 }}>
-                      {labels ? labels.datasource : <>Data Source</>}
+                      <>Data Source</>
                       <span className='requiredStar'>*</span>
                     </Label>
+                    {console.log(dataSourcesList)}
                     <Select
                       popoverProps={{ usePortal: false }}
                       className='selector-datasource'
@@ -286,25 +237,13 @@ const ConnectionDialog = (props) => {
                     isValid={isValid}
                     validationErrors={validationErrors}
                     activeProvider={activeProvider}
-                    name={name}
-                    endpointUrl={endpointUrl}
-                    proxy={proxy}
-                    rateLimit={rateLimit}
-                    token={token}
+                    editingConnection={editingConnection}
+                    onConnectionColumnChange={setConnectionColumn}
                     initialTokenStore={initialTokenStore}
-                    username={username}
-                    password={password}
                     onSave={onSave}
                     onTest={onTest}
                     onCancel={onCancel}
                     onValidate={onValidate}
-                    onNameChange={onNameChange}
-                    onEndpointChange={onEndpointChange}
-                    onProxyChange={onProxyChange}
-                    onRateLimitChange={onRateLimitChange}
-                    onTokenChange={onTokenChange}
-                    onUsernameChange={onUsernameChange}
-                    onPasswordChange={onPasswordChange}
                     isSaving={isSaving}
                     isTesting={isTesting}
                     testStatus={testStatus}
@@ -320,9 +259,7 @@ const ConnectionDialog = (props) => {
                         : 'token'
                     }
                     showLimitWarning={false}
-                    sourceLimits={ProviderConnectionLimits}
-                    labels={ProviderFormLabels[activeProvider?.id]}
-                    placeholders={ProviderFormPlaceholders[activeProvider?.id]}
+                    activeProviderConfig={ProviderConfigMap[activeProvider?.id]}
                     enableActions={false}
                     // formGroupClassName='formGroup-inline'
                     showHeadline={false}

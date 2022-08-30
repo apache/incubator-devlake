@@ -32,7 +32,13 @@ import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMe
 
 import { integrationsData } from '@/data/integrations'
 import { NullSettings } from '@/data/NullSettings'
-import { ProviderConnectionLimits, ProviderFormLabels, ProviderFormPlaceholders, Providers } from '@/data/Providers'
+import {
+  ProviderConfigMap,
+  ProviderConnectionLimits,
+  ProviderFormLabels,
+  ProviderFormPlaceholders,
+  Providers
+} from '@/data/Providers'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -248,9 +254,7 @@ export default function ConfigureConnection () {
                             showError={showConnectionError}
                             authType={[Providers.JENKINS, Providers.JIRA, Providers.TAPD].includes(activeProvider.id) ? 'plain' : 'token'}
                             showLimitWarning={false}
-                            sourceLimits={ProviderConnectionLimits}
-                            labels={ProviderFormLabels[activeProvider.id]}
-                            placeholders={ProviderFormPlaceholders[activeProvider.id]}
+                            activeProviderConfig={ProviderConfigMap[activeProvider.id]}
                           />
                         </div>
                         )

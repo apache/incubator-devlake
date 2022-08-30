@@ -17,33 +17,20 @@
  */
 
 import React from 'react'
-import {
-  BrowserRouter as Router,
-  Route
-} from 'react-router-dom'
-
+import { BrowserRouter as Router, Route } from 'react-router-dom'
 import 'normalize.css'
 import '@/styles/app.scss'
-// import 'typeface-montserrat'
-// import 'jetbrains-mono'
 import '@fontsource/inter/400.css'
 import '@fontsource/inter/600.css'
 import '@fontsource/inter/variable-full.css'
 // Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
 // import '@/styles/theme.scss'
-
 import ErrorBoundary from '@/components/ErrorBoundary'
-import Configure from './pages/configure/index'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
 import AddConnection from '@/pages/configure/connections/AddConnection'
-import EditConnection from '@/pages/configure/connections/EditConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
-import Triggers from '@/pages/triggers/index'
 import Offline from '@/pages/offline/index'
-import Pipelines from '@/pages/pipelines/index'
-import CreatePipeline from '@/pages/pipelines/create'
-import PipelineActivity from '@/pages/pipelines/activity'
 import Blueprints from '@/pages/blueprints/index'
 import CreateBlueprint from '@/pages/blueprints/create-blueprint'
 import BlueprintDetail from '@/pages/blueprints/blueprint-detail'

@@ -32,7 +32,7 @@ import useNetworkOfflineMode from '@/hooks/useNetworkOfflineMode'
 
 function useConnectionManager (
   {
-    provider,
+    provider: activeProvider,
     connectionId,
   },
   updateMode = false
@@ -40,6 +40,7 @@ function useConnectionManager (
   const history = useHistory()
   const { handleOfflineMode } = useNetworkOfflineMode()
 
+  const [provider, setProvider] = useState(activeProvider)
   const [initialTokenStore, setInitialTokenStore] = useState({
     0: '',
     1: '',
@@ -67,8 +68,6 @@ function useConnectionManager (
   const [testedConnections, setTestedConnections] = useState([])
   const [connectionCount, setConnectionCount] = useState(0)
   const [connectionLimitReached, setConnectionLimitReached] = useState(false)
-
-  const [connectionsList, setConnectionsList] = useState([])
 
   const [saveComplete, setSaveComplete] = useState(false)
   const [deleteComplete, setDeleteComplete] = useState(false)
@@ -359,7 +358,6 @@ function useConnectionManager (
         setErrors([])
         ToastNotification.clear()
         console.log('>> FETCHING ALL CONNECTION SOURCES')
-        let c = null
         if (allSources) {
           // @todo: build promises dynamically from $integrationsData
           const aC = await Promise.all([
@@ -393,25 +391,31 @@ function useConnectionManager (
           )
           console.log('>> ALL SOURCE CONNECTIONS: ', aC)
         } else {
-          c = await request.get(
+          const c = await request.get(
             `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections`
           )
-        }
 
-        console.log('>> RAW ALL CONNECTIONS DATA FROM API...', c?.data)
-        const providerConnections = []
-          .concat(Array.isArray(c?.data) ? c?.data : [])
-          .map((conn, idx) => {
-            return {
-              ...conn,
-              status: ConnectionStatus.OFFLINE,
-              ID: conn.ID || conn.id,
-              id: conn.id,
-              name: conn.name,
-              endpoint: conn.endpoint,
-              errors: [],
-            }
-          })
+          console.log('>> RAW ALL CONNECTIONS DATA FROM API...', c?.data)
+          const providerConnections = []
+            .concat(Array.isArray(c?.data) ? c?.data : [])
+            .map((conn, idx) => {
+              return {
+                ...conn,
+                status: ConnectionStatus.OFFLINE,
+                ID: conn.ID || conn.id,
+                id: conn.id,
+                name: conn.name,
+                endpoint: conn.endpoint,
+                errors: [],
+              }
+            })
+          setAllConnections(providerConnections)
+          setConnectionCount(c?.data?.length)
+          setConnectionLimitReached(
+            sourceLimits[provider.id] &&
+            c.data?.length >= sourceLimits[provider.id]
+          )
+        }
         if (notify) {
           ToastNotification.show({
             message: 'Loaded all connections.',
@@ -419,12 +423,6 @@ function useConnectionManager (
             icon: 'small-tick',
           })
         }
-        setAllConnections(providerConnections)
-        setConnectionCount(c?.data?.length)
-        setConnectionLimitReached(
-          sourceLimits[provider.id] &&
-            c.data?.length >= sourceLimits[provider.id]
-        )
         setIsFetching(false)
       } catch (e) {
         console.log('>> FAILED TO FETCH ALL CONNECTIONS', e)
@@ -622,28 +620,6 @@ function useConnectionManager (
     console.log('>> TESTED CONNECTION RESULTS...', testedConnections)
   }, [testedConnections])
 
-  useEffect(() => {
-    console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)
-    setConnectionsList(
-      allProviderConnections?.map((c, cIdx) => ({
-        ...c,
-        id: cIdx,
-        key: cIdx,
-        connectionId: c.id,
-        name: c.name,
-        title: c.name,
-        value: c.id,
-        status:
-          ConnectionStatusLabels[c.status] ||
-          ConnectionStatusLabels[ConnectionStatus.OFFLINE],
-        statusResponse: null,
-        provider: c.provider,
-        providerId: c.provider,
-        plugin: c.provider,
-      }))
-    )
-  }, [allProviderConnections])
-
   return {
     // activeConnection,
     // fetchConnection,
@@ -663,7 +639,7 @@ function useConnectionManager (
     testStatus,
     // provider,
     // setActiveConnection,
-    // setProvider,
+    setProvider,
 
     editingConnection,
     setConnectionColumn,
@@ -679,11 +655,9 @@ function useConnectionManager (
     // setTestResponse,
     // setAllTestResponses,
     // setConnectionLimits,
-    // setConnectionsList,
-    // setSaveComplete,
+    setSaveComplete,
     allConnections,
-    // allProviderConnections,
-    // connectionsList,
+    allProviderConnections,
     // domainRepositories,
     testedConnections,
     sourceLimits,

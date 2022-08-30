@@ -28,6 +28,8 @@ import {
 import { integrationsData } from '@/data/integrations'
 import { Intent } from '@blueprintjs/core'
 import {
+  ConnectionStatus,
+  ConnectionStatusLabels,
   Providers,
 } from '@/data/Providers'
 import Nav from '@/components/Nav'
@@ -251,38 +253,19 @@ const CreateBlueprint = (props) => {
 
   const {
     testConnection,
-    // eslint-disable-next-line no-unused-vars
-    testAllConnections,
     saveConnection,
-    // eslint-disable-next-line no-unused-vars
-    fetchConnection,
-    // eslint-disable-next-line no-unused-vars
     allProviderConnections,
-    connectionsList,
+    editingConnection,
+    setConnectionColumn,
     errors: connectionErrors,
     isSaving: isSavingConnection,
     isTesting: isTestingConnection,
     isFetching: isFetchingConnection,
-    showError,
     testStatus,
-    name: connectionName,
-    endpointUrl,
-    proxy,
-    rateLimit,
-    token,
     initialTokenStore,
-    username,
-    password,
     provider,
     setActiveConnection,
     setProvider,
-    setName,
-    setEndpointUrl,
-    setProxy,
-    setRateLimit,
-    setUsername,
-    setPassword,
-    setToken,
     setInitialTokenStore,
     setTestStatus,
     setTestResponse,
@@ -332,13 +315,6 @@ const CreateBlueprint = (props) => {
     isValid: isValidConnection,
   } = useConnectionValidation({
     activeProvider,
-    name: connectionName,
-    endpointUrl,
-    proxy,
-    rateLimit,
-    token,
-    username,
-    password,
   })
 
   const [configuredProject, setConfiguredProject] = useState(
@@ -937,14 +913,26 @@ const CreateBlueprint = (props) => {
     })))
   }, [onlineStatus, blueprintConnections])
 
-  useEffect(() => {
-    setConnectionsList(cList => cList.map((c, cIdx) => ({
+  const connectionsList = useMemo(() => {
+    console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)
+    return allProviderConnections?.map((c, cIdx) => ({
       ...c,
+      id: cIdx,
+      key: cIdx,
+      connectionId: c.id,
+      name: c.name,
+      title: c.name,
+      value: c.id,
+      status:
+        dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status ||
+        ConnectionStatusLabels[c.status] ||
+        ConnectionStatusLabels[ConnectionStatus.OFFLINE],
       statusResponse: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider),
-      status: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status
-    })))
-    setCanAdvanceNext(dataConnections.every(dC => dC.status === 200))
-  }, [dataConnections, setConnectionsList])
+      provider: c.provider,
+      providerId: c.provider,
+      plugin: c.provider,
+    }))
+  }, [dataConnections, allProviderConnections])
 
   return (
     <>
@@ -1126,20 +1114,15 @@ const CreateBlueprint = (props) => {
       <ConnectionDialog
         integrations={integrationsData}
         activeProvider={activeProvider}
+        editingConnection={editingConnection}
+        setConnectionColumn={setConnectionColumn}
         setProvider={setActiveProvider}
         setTestStatus={setTestStatus}
         setTestResponse={setTestResponse}
         connection={managedConnection}
         errors={connectionErrors}
         validationErrors={connectionValidationErrors}
-        endpointUrl={endpointUrl}
-        name={connectionName}
-        proxy={proxy}
-        rateLimit={rateLimit}
-        token={token}
         initialTokenStore={initialTokenStore}
-        username={username}
-        password={password}
         isOpen={connectionDialogIsOpen}
         isTesting={isTestingConnection}
         isSaving={isSavingConnection}
@@ -1149,13 +1132,6 @@ const CreateBlueprint = (props) => {
         onTest={testConnection}
         onSave={saveConnection}
         onValidate={validateConnection}
-        onNameChange={setName}
-        onEndpointChange={setEndpointUrl}
-        onProxyChange={setProxy}
-        onRateLimitChange={setRateLimit}
-        onTokenChange={setToken}
-        onUsernameChange={setUsername}
-        onPasswordChange={setPassword}
         testStatus={testStatus}
         testResponse={testResponse}
         allTestResponses={allTestResponses}
