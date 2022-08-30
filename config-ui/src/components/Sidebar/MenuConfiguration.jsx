@@ -16,7 +16,7 @@
  *
  */
 import React from 'react'
-import { ProviderLabels } from '@/data/Providers'
+import { ProviderConfigMap, ProviderLabels, Providers } from '@/data/Providers'
 import { GRAFANA_URL } from '@/utils/config'
 
 const MenuConfiguration = (activeRoute) => {
@@ -28,48 +28,20 @@ const MenuConfiguration = (activeRoute) => {
       active: activeRoute.url.startsWith('/integrations') || activeRoute.url === '/',
       icon: 'data-connection',
       classNames: [],
-      children: [
-        {
-          id: 0,
-          label: ProviderLabels.JIRA,
-          route: '/integrations/jira',
-          active: activeRoute.url.endsWith('/integrations/jira') || activeRoute.url.endsWith('/jira'),
-          icon: 'layers',
-          classNames: [],
-        },
-        {
-          id: 1,
-          label: ProviderLabels.GITHUB,
-          route: '/integrations/github',
-          active: activeRoute.url.endsWith('/integrations/github') || activeRoute.url.endsWith('/github'),
-          icon: 'layers',
-          classNames: [],
-        },
-        {
-          id: 2,
-          label: ProviderLabels.GITLAB,
-          route: '/integrations/gitlab',
-          active: activeRoute.url.endsWith('/integrations/gitlab') || activeRoute.url.endsWith('/gitlab'),
-          icon: 'layers',
-          classNames: [],
-        },
-        {
-          id: 3,
-          label: ProviderLabels.JENKINS,
-          route: '/integrations/jenkins',
-          active: activeRoute.url.endsWith('/integrations/jenkins') || activeRoute.url.endsWith('/jenkins'),
-          icon: 'layers',
-          classNames: [],
-        },
-        {
-          id: 4,
-          label: `${ProviderLabels.TAPD} (beta)`,
-          route: '/integrations/tapd',
-          active: activeRoute.url.endsWith('/integrations/tapd') || activeRoute.url.endsWith('/tapd'),
-          icon: 'layers',
-          classNames: [],
-        }
-      ]
+      children:
+        Object
+          .keys(ProviderConfigMap)
+          .filter(v => v !== Providers.NULL)
+          .map((providerName, index) => ({
+            id: index,
+            label: ProviderConfigMap[providerName].isBeta
+              ? `${ProviderConfigMap[providerName].label} (beta)`
+              : ProviderConfigMap[providerName].label,
+            route: `/integrations/${providerName}`,
+            active: activeRoute.url.endsWith(`/integrations/${providerName}`) || activeRoute.url.endsWith(`/${providerName}`),
+            icon: 'layers',
+            classNames: [],
+          }))
     },
     {
       id: 1,

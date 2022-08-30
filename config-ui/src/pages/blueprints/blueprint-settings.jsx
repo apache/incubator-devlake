@@ -43,7 +43,7 @@ import {
 import { integrationsData } from '@/data/integrations'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+import { Providers, ProviderLabels, ProviderIcons, ConnectionStatusLabels, ConnectionStatus } from '@/data/Providers'
 import {
   TaskStatus,
 } from '@/data/Task'
@@ -186,18 +186,36 @@ const BlueprintSettings = (props) => {
   })
 
   const {
-    fetchConnection,
     allProviderConnections,
-    connectionsList,
-    isFetching: isFetchingConnection,
     fetchAllConnections,
+    setProvider,
   } = useConnectionManager(
     {
-      activeProvider,
+      provider: activeProvider,
       connectionId: configuredConnection?.connectionId,
     },
     configuredConnection && configuredConnection?.id !== null
   )
+
+  const connectionsList = useMemo(() => {
+    console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)
+    return allProviderConnections?.map((c, cIdx) => ({
+      ...c,
+      id: cIdx,
+      key: cIdx,
+      connectionId: c.id,
+      name: c.name,
+      title: c.name,
+      value: c.id,
+      status:
+        ConnectionStatusLabels[c.status] ||
+        ConnectionStatusLabels[ConnectionStatus.OFFLINE],
+      statusResponse: null,
+      provider: c.provider,
+      providerId: c.provider,
+      plugin: c.provider,
+    }))
+  }, [allProviderConnections])
 
   const {
     // eslint-disable-next-line no-unused-vars
@@ -551,6 +569,13 @@ const BlueprintSettings = (props) => {
     activeProvider,
     getDefaultEntities,
     setDataEntitiesList,
+  ])
+
+  useEffect(() => {
+    console.log('>>> SET ACTIVE PROVIDER FOR MANAGER!', activeProvider)
+    setProvider(activeProvider)
+  }, [
+    activeProvider,
   ])
 
   useEffect(() => {

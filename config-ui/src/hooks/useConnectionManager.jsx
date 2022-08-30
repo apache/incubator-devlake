@@ -25,7 +25,7 @@ import {
   Providers,
   ProviderConnectionLimits,
   ConnectionStatus,
-  ConnectionStatusLabels
+  ConnectionStatusLabels, ProviderConfigMap
 } from '@/data/Providers'
 
 import useNetworkOfflineMode from '@/hooks/useNetworkOfflineMode'
@@ -58,7 +58,6 @@ function useConnectionManager (
   const [testStatus, setTestStatus] = useState(0) //  0=Pending, 1=Success, 2=Failed
   const [testResponse, setTestResponse] = useState()
   const [allTestResponses, setAllTestResponses] = useState({})
-  const [sourceLimits, setConnectionLimits] = useState(ProviderConnectionLimits)
 
   const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [editingConnection, setEditingConnection] = useState(NullConnection)
@@ -66,8 +65,11 @@ function useConnectionManager (
   const [allProviderConnections, setAllProviderConnections] = useState([])
   const [domainRepositories, setDomainRepositories] = useState([])
   const [testedConnections, setTestedConnections] = useState([])
-  const [connectionCount, setConnectionCount] = useState(0)
-  const [connectionLimitReached, setConnectionLimitReached] = useState(false)
+  const connectionCount = useMemo(() => allConnections.length, [allConnections])
+  const connectionLimitReached = useMemo(() =>
+    ProviderConfigMap[provider?.id]?.limit && connectionCount >= ProviderConfigMap[provider.id].limit,
+  [connectionCount],
+  )
 
   const [saveComplete, setSaveComplete] = useState(false)
   const [deleteComplete, setDeleteComplete] = useState(false)
@@ -410,11 +412,6 @@ function useConnectionManager (
               }
             })
           setAllConnections(providerConnections)
-          setConnectionCount(c?.data?.length)
-          setConnectionLimitReached(
-            sourceLimits[provider.id] &&
-            c.data?.length >= sourceLimits[provider.id]
-          )
         }
         if (notify) {
           ToastNotification.show({
@@ -433,13 +430,11 @@ function useConnectionManager (
         })
         setIsFetching(false)
         setAllConnections([])
-        setConnectionCount(0)
-        setConnectionLimitReached(false)
         setErrors([e.message])
         handleOfflineMode(e.response?.status, e.response)
       }
     },
-    [provider?.id, sourceLimits, handleOfflineMode]
+    [provider?.id, handleOfflineMode]
   )
 
   const deleteConnection = useCallback(
@@ -654,13 +649,11 @@ function useConnectionManager (
     // setTestStatus,
     // setTestResponse,
     // setAllTestResponses,
-    // setConnectionLimits,
     setSaveComplete,
     allConnections,
     allProviderConnections,
     // domainRepositories,
     testedConnections,
-    sourceLimits,
     // connectionCount,
     connectionLimitReached,
     // connectionTestPayload,

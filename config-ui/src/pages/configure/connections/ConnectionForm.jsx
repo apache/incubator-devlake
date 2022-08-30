@@ -65,7 +65,6 @@ export default function ConnectionForm (props) {
     onCancel = () => {},
     onTest = () => {},
     onValidate = () => {},
-    authType = 'token',
     showLimitWarning = true,
     activeProviderConfig = DefaultProviderConfig,
     enableActions = true,
@@ -82,7 +81,6 @@ export default function ConnectionForm (props) {
   const connectionRateLimitRef = useRef()
 
   // const [isValidForm, setIsValidForm] = useState(true)
-  const [allowedAuthTypes, setAllowedAuthTypes] = useState(['token', 'plain'])
   const [stateErrored, setStateErrored] = useState(false)
   const [tokenStore, setTokenStore] = useState(initialTokenStore)
   const [personalAccessTokens, setPersonalAccessTokens] = useState([])
@@ -169,16 +167,6 @@ export default function ConnectionForm (props) {
     onConnectionColumnChange,
     onTest
   ])
-
-  useEffect(() => {
-    if (!allowedAuthTypes.includes(authType)) {
-      console.log('INVALID AUTH TYPE!')
-    }
-  }, [authType, allowedAuthTypes])
-
-  useEffect(() => {
-    setAllowedAuthTypes(['token', 'plain'])
-  }, [])
 
   useEffect(() => {
     onValidate({
