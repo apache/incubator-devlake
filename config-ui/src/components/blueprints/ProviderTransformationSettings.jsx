@@ -18,10 +18,6 @@
 import React, { Fragment, useEffect, useState, useCallback } from 'react'
 import {
   Providers,
-  ProviderTypes,
-  ProviderIcons,
-  ConnectionStatus,
-  ConnectionStatusLabels,
 } from '@/data/Providers'
 import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
 import JiraSettings from '@/pages/configure/settings/jira'

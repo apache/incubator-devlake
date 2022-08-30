@@ -15,38 +15,29 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useHistory, useParams } from 'react-router-dom'
 import { ENVIRONMENT } from '@/config/environment'
 import dayjs from '@/utils/time'
 import {
   API_PROXY_ENDPOINT,
-  ISSUE_TYPES_ENDPOINT,
-  ISSUE_FIELDS_ENDPOINT,
   BOARDS_ENDPOINT,
+  ISSUE_FIELDS_ENDPOINT,
+  ISSUE_TYPES_ENDPOINT,
 } from '@/config/jiraApiProxy'
-import request from '@/utils/request'
-import {
-  Button,
-  Elevation,
-  Intent,
-  Switch,
-  Tag,
-  Tooltip,
-  Icon,
-  Colors,
-  Spinner,
-  Classes,
-  Popover,
-} from '@blueprintjs/core'
+import { Button, Colors, Elevation, Icon, Intent, Switch, Tag, } from '@blueprintjs/core'
 
 import { integrationsData } from '@/data/integrations'
-import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
+import { BlueprintMode, NullBlueprint } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
-import { Providers, ProviderLabels, ProviderIcons, ConnectionStatusLabels, ConnectionStatus } from '@/data/Providers'
 import {
-  TaskStatus,
-} from '@/data/Task'
+  ConnectionStatus,
+  ConnectionStatusLabels,
+  ProviderConfigMap,
+  ProviderLabels,
+  Providers
+} from '@/data/Providers'
+import { TaskStatus, } from '@/data/Task'
 
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -79,6 +70,7 @@ const BlueprintSettings = (props) => {
   const { bId } = useParams()
 
   const [activeProvider, setActiveProvider] = useState(integrationsData[0])
+  const activeProviderConfig = useMemo(() => ProviderConfigMap[activeProvider?.id], [activeProvider?.id])
   // @disabled Provided By Data Scopes Manager
   // const [activeTransformation, setActiveTransformation] = useState()
 
@@ -632,7 +624,7 @@ const BlueprintSettings = (props) => {
           providerLabel: ProviderLabels[c.plugin?.toUpperCase()],
           providerId: c.plugin,
           plugin: c.plugin,
-          icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
+          icon: activeProviderConfig ? activeProviderConfig.icon(18, 18) : null,
           name: allProviderConnections.find(pC => pC.connectionId === c.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.connectionId || cIdx}`,
           entities: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)?.title),
           entityList: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)),
@@ -674,7 +666,7 @@ const BlueprintSettings = (props) => {
           providerLabel: ProviderLabels[c.plugin?.toUpperCase()],
           plugin: c.plugin,
           providerId: c.plugin,
-          icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
+          icon: activeProviderConfig ? activeProviderConfig.icon(18, 18) : null,
           name: allProviderConnections.find(pC => pC.connectionId === c.options?.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.options?.connectionId || cIdx}`,
           projects: [Providers.GITLAB].includes(c.plugin)
             ? getAdvancedGitlabProjects(c, c.plugin)

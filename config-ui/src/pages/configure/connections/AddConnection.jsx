@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import { Icon, } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
@@ -24,14 +24,7 @@ import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/data/integrations'
-import {
-  ProviderConfigMap,
-  ProviderConnectionLimits,
-  ProviderFormLabels,
-  ProviderFormPlaceholders,
-  ProviderLabels,
-  Providers
-} from '@/data/Providers'
+import { ProviderConfigMap } from '@/data/Providers'
 
 import useConnectionManager from '@/hooks/useConnectionManager'
 import useConnectionValidation from '@/hooks/useConnectionValidation'

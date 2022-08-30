@@ -15,40 +15,18 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useState, useCallback, useMemo } from 'react'
-import {
-  Button,
-  Icon,
-  Intent,
-  InputGroup,
-  MenuItem,
-  Divider,
-  Elevation,
-  Card,
-  Colors,
-  Spinner,
-  Tooltip,
-  Position
-} from '@blueprintjs/core'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Button, Card, Divider, Elevation, Icon, Intent, MenuItem, Position, Spinner, Tooltip } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import { integrationsData } from '@/data/integrations'
-import {
-  Providers,
-  ProviderTypes,
-  ProviderIcons,
-  ConnectionStatus,
-  ConnectionStatusLabels,
-} from '@/data/Providers'
-import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
-import {
-  DEFAULT_DATA_ENTITIES
-} from '@/data/BlueprintWorkflow'
+import { ProviderConfigMap, Providers, } from '@/data/Providers'
+import { DataEntityTypes } from '@/data/DataEntities'
+import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 
 import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import NoData from '@/components/NoData'
 import StandardStackedList from '@/components/blueprints/StandardStackedList'
 import ProviderTransformationSettings from '@/components/blueprints/ProviderTransformationSettings'
-import GithubSettings from '@/pages/configure/settings/github'
 
 const DataTransformations = (props) => {
   const {
@@ -188,13 +166,9 @@ const DataTransformations = (props) => {
                 <>
                   <h3>
                     <span style={{ float: 'left', marginRight: '8px' }}>
-                      {ProviderIcons[configuredConnection.provider]
-                        ? (
-                            ProviderIcons[configuredConnection.provider](24, 24)
-                          )
-                        : (
-                          <></>
-                          )}
+                      {ProviderConfigMap[configuredConnection.provider]
+                        ? ProviderConfigMap[configuredConnection.provider].icon(24, 24)
+                        : <></>}
                     </span>{' '}
                     {configuredConnection.title}
                   </h3>

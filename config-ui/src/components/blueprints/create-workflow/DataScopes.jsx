@@ -15,24 +15,9 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useState, useCallback, useMemo } from 'react'
-import {
-  Button,
-  Icon,
-  Intent,
-  TagInput,
-  Divider,
-  Elevation,
-  Card,
-  Colors,
-} from '@blueprintjs/core'
-import {
-  Providers,
-  ProviderTypes,
-  ProviderIcons,
-  ConnectionStatus,
-  ConnectionStatusLabels,
-} from '@/data/Providers'
+import React, { useEffect, useMemo } from 'react'
+import { Button, Card, Divider, Elevation, Intent, TagInput, } from '@blueprintjs/core'
+import { ProviderConfigMap, Providers, } from '@/data/Providers'
 
 import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import BoardsSelector from '@/components/blueprints/BoardsSelector'
@@ -108,13 +93,9 @@ const DataScopes = (props) => {
                 <>
                   <h3>
                     <span style={{ float: 'left', marginRight: '8px' }}>
-                      {ProviderIcons[configuredConnection.provider]
-                        ? (
-                            ProviderIcons[configuredConnection.provider](24, 24)
-                          )
-                        : (
-                          <></>
-                          )}
+                      {ProviderConfigMap[configuredConnection.provider]
+                        ? ProviderConfigMap[configuredConnection.provider].icon(24, 24)
+                        : <></>}
                     </span>{' '}
                     {configuredConnection.title}
                   </h3>

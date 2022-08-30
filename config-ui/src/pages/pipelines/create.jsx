@@ -15,31 +15,28 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useCallback, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { CSSTransition } from 'react-transition-group'
-import {
-  useHistory,
-  useLocation,
-  Link,
-} from 'react-router-dom'
+import { Link, useHistory, useLocation, } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
 import {
-  Button, Icon, Intent, Switch,
-  FormGroup, ButtonGroup, InputGroup,
-  Elevation,
-  TextArea,
+  Button,
+  ButtonGroup,
   Card,
-  Popover,
-  Tooltip,
-  Position,
   Colors,
-  Tag
+  Elevation,
+  FormGroup,
+  Icon,
+  InputGroup,
+  Intent,
+  Popover,
+  Position,
+  Switch,
+  Tag,
+  TextArea,
+  Tooltip
 } from '@blueprintjs/core'
-import {
-  Providers,
-  ProviderTypes,
-  ProviderIcons
-} from '@/data/Providers'
+import { ProviderConfigMap, Providers, ProviderTypes } from '@/data/Providers'
 import { integrationsData, pluginsData } from '@/data/integrations'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
@@ -1017,7 +1014,7 @@ const CreatePipeline = (props) => {
                           </div>
                           {detectedProviders.map((provider, pIdx) => (
                             <div className='detected-provider-icon' key={`provider-icon-key-${pIdx}`} style={{ margin: '5px 18px' }}>
-                              {ProviderIcons[provider] ? ProviderIcons[provider](20, 20) : <></>}
+                              {ProviderConfigMap[provider] ? ProviderConfigMap[provider].icon(20, 20) : <></>}
                             </div>
                           ))}
                           {detectedProviders.length === 0 && (<span style={{ color: Colors.GRAY4 }}>&lt; None Configured &gt;</span>)}

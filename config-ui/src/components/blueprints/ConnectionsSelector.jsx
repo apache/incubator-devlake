@@ -18,7 +18,7 @@
 import React from 'react'
 import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import { MultiSelect } from '@blueprintjs/select'
-import { ProviderIcons } from '@/data/Providers'
+import { ProviderConfigMap } from '@/data/Providers'
 
 const ConnectionsSelector = (props) => {
   const {
@@ -50,13 +50,9 @@ const ConnectionsSelector = (props) => {
                 height: '14px',
               }}
             >
-              {ProviderIcons[item.provider]
-                ? (
-                    ProviderIcons[item.provider](14, 14)
-                  )
-                : (
-                  <></>
-                  )}
+              {ProviderConfigMap[item.provider]
+                ? ProviderConfigMap[item.provider].icon(14, 14)
+                : <></>}
             </span>
           </span>
         }

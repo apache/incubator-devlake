@@ -32,13 +32,7 @@ import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMe
 
 import { integrationsData } from '@/data/integrations'
 import { NullSettings } from '@/data/NullSettings'
-import {
-  ProviderConfigMap,
-  ProviderConnectionLimits,
-  ProviderFormLabels,
-  ProviderFormPlaceholders,
-  Providers
-} from '@/data/Providers'
+import { ProviderConfigMap, Providers } from '@/data/Providers'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'

@@ -23,7 +23,7 @@ import {
   Intent,
   Colors,
 } from '@blueprintjs/core'
-import { ProviderLabels, ProviderIcons } from '@/data/Providers'
+import { ProviderLabels, ProviderConfigMap } from '@/data/Providers'
 const PipelineTasks = (props) => {
   const {
     tasks = []
@@ -43,7 +43,7 @@ const PipelineTasks = (props) => {
           }}
         >
           <span className='detected-provider-icon' style={{ margin: '2px 3px 0 0px', float: 'left' }}>
-            {ProviderIcons[provider] ? ProviderIcons[provider](20, 20) : <></>}
+            {ProviderConfigMap[provider] ? ProviderConfigMap[provider].icon(20, 20) : <></>}
           </span>
           <span style={{ display: 'flex', marginTop: '3px', fontWeight: 800 }}>
             {ProviderLabels[provider?.toUpperCase()] ? ProviderLabels[provider?.toUpperCase()] : 'Data Provider'}

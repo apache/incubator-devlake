@@ -15,20 +15,10 @@
  * limitations under the License.
  *
  */
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 // import { CSSTransition } from 'react-transition-group'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
-import {
-  Icon,
-  Spinner,
-  Colors,
-  Tooltip,
-  Position,
-  Button,
-  Collapse,
-  Intent,
-  Popover
-} from '@blueprintjs/core'
+import { ProviderConfigMap, ProviderLabels, Providers } from '@/data/Providers'
+import { Button, Collapse, Colors, Icon, Intent, Popover, Position, Spinner, Tooltip } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
 import StageLane from '@/components/pipelines/StageLane'
 
@@ -289,7 +279,7 @@ const TaskActivity = (props) => {
                       />
                     </span>
                     <span style={{ display: 'inline-block', margin: '0 5px', float: 'left' }}>
-                      {activeTask && ProviderIcons[activeTask?.plugin.toLowerCase()](16, 16)}
+                      {activeTask && ProviderConfigMap[activeTask?.plugin.toLowerCase()].icon(16, 16)}
                     </span>
                     TASK DETAILS <span style={{ color: Colors.GRAY3 }}>({ProviderLabels[activeTask?.plugin.toUpperCase()]})</span>
                   </h2>

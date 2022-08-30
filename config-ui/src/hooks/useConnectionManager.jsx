@@ -15,18 +15,13 @@
  * limitations under the License.
  *
  */
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { ToastNotification } from '@/components/Toast'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullConnection } from '@/data/NullConnection'
-import {
-  Providers,
-  ProviderConnectionLimits,
-  ConnectionStatus,
-  ConnectionStatusLabels, ProviderConfigMap
-} from '@/data/Providers'
+import { ConnectionStatus, ProviderConfigMap, Providers } from '@/data/Providers'
 
 import useNetworkOfflineMode from '@/hooks/useNetworkOfflineMode'
 

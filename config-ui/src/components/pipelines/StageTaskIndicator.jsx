@@ -16,15 +16,7 @@
  *
  */
 import React from 'react'
-import {
-  Icon,
-  Spinner,
-  Colors,
-  Tooltip,
-  Position,
-  Intent,
-} from '@blueprintjs/core'
-import { ProviderIcons } from '@/data/Providers'
+import { ProviderConfigMap } from '@/data/Providers'
 
 const StageTaskIndicator = (props) => {
   const { task } = props
@@ -42,7 +34,7 @@ const StageTaskIndicator = (props) => {
       }}
     >
       <span>
-        {ProviderIcons[task?.plugin] && ProviderIcons[task?.plugin](14, 14)}
+        {ProviderConfigMap[task?.plugin] && ProviderConfigMap[task?.plugin].icon(14, 14)}
       </span>
       {/* {task.status === 'TASK_COMPLETED' && (
         <Tooltip content={`Task Complete [STAGE ${task.pipelineRow}]`} position={Position.TOP} intent={Intent.SUCCESS}>

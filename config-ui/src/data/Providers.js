@@ -183,125 +183,6 @@ const ProviderLabels = {
   STARROCKS: 'StarRocks',
 }
 
-const ProviderConnectionLimits = {
-  // (All providers are mult-connection, no source limits defined)
-  // jenkins: null,
-  // jira: null,
-  // github: null
-  // gitlab: null
-}
-
-// NOTE: Not all fields may be referenced/displayed for a provider,
-// ie. JIRA prefers $token over $username and $password
-const ProviderFormLabels = {
-  null: {
-    name: 'Connection Name',
-    endpoint: 'Endpoint URL',
-    proxy: 'Proxy URL',
-    token: 'Basic Auth Token',
-    username: 'Username',
-    password: 'Password',
-    rateLimit: 'Rate Limit'
-  },
-  gitlab: {
-    name: 'Connection Name',
-    endpoint: 'Endpoint URL',
-    proxy: 'Proxy URL',
-    token: 'Access Token',
-    username: 'Username',
-    password: 'Password',
-    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
-  },
-  jenkins: {
-    name: 'Connection Name',
-    endpoint: 'Endpoint URL',
-    proxy: 'Proxy URL',
-    token: 'Basic Auth Token',
-    username: 'Username',
-    password: 'Password',
-    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
-  },
-  tapd: {
-    name: 'Connection Name',
-    endpoint: 'Endpoint URL',
-    proxy: 'Proxy URL',
-    token: 'Basic Auth Token',
-    username: 'Username',
-    password: 'Password',
-    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
-  },
-  jira: {
-    name: 'Connection Name',
-    endpoint: 'Endpoint URL',
-    token: 'Basic Auth Token',
-    username: 'Username / E-mail',
-    proxy: 'Proxy URL',
-    password: (
-      <>
-        Password
-        <Tooltip
-          content={(<span>If you are using JIRA Cloud or JIRA Server, <br />your API Token should be used as password.</span>)}
-          intent='primary'
-        >
-          <Icon
-            icon='info-sign'
-            size={12}
-            style={{
-              float: 'left',
-              display: 'inline-block',
-              alignContent: 'center',
-              marginBottom: '4px',
-              marginLeft: '8px',
-              color: '#999'
-            }}
-          />
-        </Tooltip>
-      </>),
-    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
-  },
-  github: {
-    name: 'Connection Name',
-    endpoint: 'Endpoint URL',
-    proxy: 'Proxy URL',
-    token: (
-      <>
-        Auth Token(s)
-        <Tooltip
-          content={(<span>Due to Github's rate limit, input more tokens, <br />comma separated, to accelerate data collection.</span>)}
-          intent='primary'
-        >
-          <Icon
-            icon='info-sign'
-            size={12}
-            style={{
-              float: 'left',
-              display: 'inline-block',
-              alignContent: 'center',
-              marginBottom: '4px',
-              marginLeft: '8px',
-              color: '#999'
-            }}
-          />
-        </Tooltip>
-      </>),
-    username: 'Username',
-    password: 'Password',
-    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
-  }
-}
-
-const ProviderFormPlaceholders = {
-  null: {
-    name: 'eg. Enter Instance Name',
-    endpoint: 'eg. https://null-api.localhost',
-    proxy: 'eg. http://proxy.localhost:8080',
-    token: 'eg. 3f5cda2a23ff410792e0',
-    username: 'Enter Username / E-mail',
-    password: 'Enter Password',
-    rateLimit: '1000'
-  },
-}
-
 const ProviderIcons = {
   [Providers.REFDIFF]: (w, h) => <Icon icon='box' size={w || 24} />,
   [Providers.GITEXTRACTOR]: (w, h) => <Icon icon='box' size={w || 24} />,
@@ -329,11 +210,7 @@ export {
   DefaultProviderConfig,
   ProviderConfigMap,
   ProviderTypes,
-  ProviderIcons,
   ProviderLabels,
-  ProviderConnectionLimits,
-  ProviderFormLabels,
-  ProviderFormPlaceholders,
   ConnectionStatus,
   ConnectionStatusLabels
 }

@@ -41,7 +41,7 @@ import {
 } from '@blueprintjs/core'
 import { NullBlueprint } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+import { ProviderLabels } from '@/data/Providers'
 import { StageStatus, TaskStatus, TaskStatusLabels, StatusColors, StatusBgColors } from '@/data/Task'
 
 import Nav from '@/components/Nav'

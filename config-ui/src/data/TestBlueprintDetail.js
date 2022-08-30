@@ -16,16 +16,11 @@
  *
  */
 import React from 'react'
-import {
-  Intent,
-  Icon,
-  Colors,
-  Spinner
-} from '@blueprintjs/core'
+import { Colors, Icon, Intent, Spinner } from '@blueprintjs/core'
 
 import { NullBlueprint } from '@/data/NullBlueprint'
-import { Providers, ProviderIcons } from '@/data/Providers'
-import { StageStatus, TaskStatus, TaskStatusLabels, StatusColors, StatusBgColors } from '@/data/Task'
+import { ProviderConfigMap, Providers } from '@/data/Providers'
+import { StageStatus, StatusColors, TaskStatus, TaskStatusLabels } from '@/data/Task'
 
 const EMPTY_RUN = {
   id: null,
@@ -193,7 +188,7 @@ const TEST_STAGES = [
       {
         id: 0,
         provider: 'jira',
-        icon: ProviderIcons[Providers.JIRA](14, 14),
+        icon: ProviderConfigMap[Providers.JIRA].icon(14, 14),
         title: 'JIRA',
         caption: 'STREAM Board',
         duration: '4 min',
@@ -205,7 +200,7 @@ const TEST_STAGES = [
       {
         id: 0,
         provider: 'jira',
-        icon: ProviderIcons[Providers.JIRA](14, 14),
+        icon: ProviderConfigMap[Providers.JIRA].icon(14, 14),
         title: 'JIRA',
         caption: 'LAKE Board',
         duration: '4 min',
@@ -227,7 +222,7 @@ const TEST_STAGES = [
       {
         id: 0,
         provider: 'jira',
-        icon: ProviderIcons[Providers.JIRA](14, 14),
+        icon: ProviderConfigMap[Providers.JIRA].icon(14, 14),
         title: 'JIRA',
         caption: 'EE Board',
         duration: '5 min',
@@ -239,7 +234,7 @@ const TEST_STAGES = [
       {
         id: 0,
         provider: 'jira',
-        icon: ProviderIcons[Providers.JIRA](14, 14),
+        icon: ProviderConfigMap[Providers.JIRA].icon(14, 14),
         title: 'JIRA',
         caption: 'EE Bugs Board',
         duration: '0 min',
@@ -261,7 +256,7 @@ const TEST_STAGES = [
       {
         id: 0,
         provider: 'github',
-        icon: ProviderIcons[Providers.GITHUB](14, 14),
+        icon: ProviderConfigMap[Providers.GITHUB].icon(14, 14),
         title: 'GITHUB',
         caption: 'merico-dev/lake',
         duration: null,
@@ -283,7 +278,7 @@ const TEST_STAGES = [
       {
         id: 0,
         providr: 'github',
-        icon: ProviderIcons[Providers.GITHUB](14, 14),
+        icon: ProviderConfigMap[Providers.GITHUB].icon(14, 14),
         title: 'GITHUB',
         caption: 'merico-dev/lake',
         duration: null,
