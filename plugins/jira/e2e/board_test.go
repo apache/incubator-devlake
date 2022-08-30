@@ -73,6 +73,7 @@ func TestBoardDataFlow(t *testing.T) {
 			"description",
 			"url",
 			"created_date",
+			"type",
 		},
 	)
 }

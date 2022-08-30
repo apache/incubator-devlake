@@ -87,45 +87,45 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectBoardMeta,
 		tasks.ExtractBoardMeta,
 
-		//tasks.CollectIssueTypesMeta,
-		//tasks.ExtractIssueTypesMeta,
+		tasks.CollectIssueTypesMeta,
+		tasks.ExtractIssueTypesMeta,
 
-		//tasks.CollectIssuesMeta,
-		//tasks.ExtractIssuesMeta,
+		tasks.CollectIssuesMeta,
+		tasks.ExtractIssuesMeta,
 
-		//tasks.CollectIssueChangelogsMeta,
-		//tasks.ExtractIssueChangelogsMeta,
+		tasks.CollectIssueChangelogsMeta,
+		tasks.ExtractIssueChangelogsMeta,
 
-		//tasks.CollectAccountsMeta,
+		tasks.CollectAccountsMeta,
 
-		//tasks.CollectWorklogsMeta,
-		//tasks.ExtractWorklogsMeta,
+		tasks.CollectWorklogsMeta,
+		tasks.ExtractWorklogsMeta,
 
-		//tasks.CollectRemotelinksMeta,
-		//tasks.ExtractRemotelinksMeta,
+		tasks.CollectRemotelinksMeta,
+		tasks.ExtractRemotelinksMeta,
 
-		//tasks.CollectSprintsMeta,
-		//tasks.ExtractSprintsMeta,
+		tasks.CollectSprintsMeta,
+		tasks.ExtractSprintsMeta,
 
 		tasks.ConvertBoardMeta,
 
-		//tasks.ConvertIssuesMeta,
+		tasks.ConvertIssuesMeta,
 
-		//tasks.ConvertWorklogsMeta,
+		tasks.ConvertWorklogsMeta,
 
-		//tasks.ConvertIssueChangelogsMeta,
+		tasks.ConvertIssueChangelogsMeta,
 
-		//tasks.ConvertSprintsMeta,
-		//tasks.ConvertSprintIssuesMeta,
+		tasks.ConvertSprintsMeta,
+		tasks.ConvertSprintIssuesMeta,
 
-		//tasks.ConvertIssueCommitsMeta,
-		//tasks.ConvertIssueRepoCommitsMeta,
+		tasks.ConvertIssueCommitsMeta,
+		tasks.ConvertIssueRepoCommitsMeta,
 
-		//tasks.ExtractAccountsMeta,
-		//tasks.ConvertAccountsMeta,
+		tasks.ExtractAccountsMeta,
+		tasks.ConvertAccountsMeta,
 
-		//tasks.CollectEpicsMeta,
-		//tasks.ExtractEpicsMeta,
+		tasks.CollectEpicsMeta,
+		tasks.ExtractEpicsMeta,
 	}
 }
 

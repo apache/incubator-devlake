@@ -24,16 +24,16 @@ import (
 	"time"
 )
 
-type AddFieldTask20220830 struct {
+type addFieldTask20220830 struct {
 	archived.DomainEntity
 	Name        string `gorm:"type:varchar(255)"`
 	Description string
 	Url         string `gorm:"type:varchar(255)"`
 	CreatedDate *time.Time
-	Type string
+	Type        string `gorm:"type:varchar(255)"`
 }
 
-func (AddFieldTask20220830) TableName() string {
+func (addFieldTask20220830) TableName() string {
 	return "boards"
 }
 
@@ -41,7 +41,7 @@ type addTypeFieldInBoard struct{}
 
 func (*addTypeFieldInBoard) Up(ctx context.Context, db *gorm.DB) error {
 
-	err := db.Migrator().AddColumn(AddFieldTask20220830{}, "type")
+	err := db.Migrator().AddColumn(addFieldTask20220830{}, "type")
 	if err != nil {
 		return err
 	}
