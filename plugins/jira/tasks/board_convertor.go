@@ -70,6 +70,7 @@ func ConvertBoard(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{Id: idGen.Generate(data.Options.ConnectionId, data.Options.BoardId)},
 				Name:         board.Name,
 				Url:          board.Self,
+				Type:         board.Type,
 			}
 			return []interface{}{
 				domainBoard,

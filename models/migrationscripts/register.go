@@ -37,5 +37,6 @@ func All() []migration.Script {
 		new(addSubtasksTable),
 		new(addCICD),
 		new(modifyTablesForDora),
+		new(addTypeFieldInBoard),
 	}
 }
