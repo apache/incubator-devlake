@@ -34,7 +34,6 @@ import {
   ConnectionStatus,
   ConnectionStatusLabels,
   ProviderConfigMap,
-  ProviderLabels,
   Providers
 } from '@/data/Providers'
 import { TaskStatus, } from '@/data/Task'
@@ -621,7 +620,7 @@ const BlueprintSettings = (props) => {
           connectionId: c.connectionId,
           value: c.connectionId,
           provider: integrationsData.find((i) => i.id === c.plugin),
-          providerLabel: ProviderLabels[c.plugin?.toUpperCase()],
+          providerLabel: ProviderConfigMap[c.plugin]?.label,
           providerId: c.plugin,
           plugin: c.plugin,
           icon: activeProviderConfig ? activeProviderConfig.icon(18, 18) : null,
@@ -663,7 +662,7 @@ const BlueprintSettings = (props) => {
           connectionId: c.options?.connectionId,
           value: c.options?.connectionId,
           provider: integrationsData.find((i) => i.id === c.plugin),
-          providerLabel: ProviderLabels[c.plugin?.toUpperCase()],
+          providerLabel: ProviderConfigMap[c.plugin]?.label,
           plugin: c.plugin,
           providerId: c.plugin,
           icon: activeProviderConfig ? activeProviderConfig.icon(18, 18) : null,

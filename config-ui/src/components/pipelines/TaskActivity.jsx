@@ -17,7 +17,7 @@
  */
 import React, { useEffect, useState } from 'react'
 // import { CSSTransition } from 'react-transition-group'
-import { ProviderConfigMap, ProviderLabels, Providers } from '@/data/Providers'
+import { ProviderConfigMap, Providers } from '@/data/Providers'
 import { Button, Collapse, Colors, Icon, Intent, Popover, Position, Spinner, Tooltip } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
 import StageLane from '@/components/pipelines/StageLane'
@@ -281,7 +281,7 @@ const TaskActivity = (props) => {
                     <span style={{ display: 'inline-block', margin: '0 5px', float: 'left' }}>
                       {activeTask && ProviderConfigMap[activeTask?.plugin.toLowerCase()].icon(16, 16)}
                     </span>
-                    TASK DETAILS <span style={{ color: Colors.GRAY3 }}>({ProviderLabels[activeTask?.plugin.toUpperCase()]})</span>
+                    TASK DETAILS <span style={{ color: Colors.GRAY3 }}>({ProviderConfigMap[activeTask?.plugin.toLowerCase()]?.label})</span>
                   </h2>
                   <table className='bp3-html-table striped bordered' style={{ width: '100%' }}>
                     <thead>

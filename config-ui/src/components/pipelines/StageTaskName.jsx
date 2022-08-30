@@ -16,21 +16,8 @@
  *
  */
 import React, { useEffect, useRef } from 'react'
-import {
-  Providers,
-  ProviderLabels,
-  ProviderConfigMap
-} from '@/data/Providers'
-import {
-  Icon,
-  Colors,
-  Position,
-  Popover,
-  TextArea,
-  Button,
-  H3,
-  Classes
-} from '@blueprintjs/core'
+import { ProviderConfigMap, Providers } from '@/data/Providers'
+import { Button, Classes, Colors, H3, Icon, Popover, Position } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
 
 const StageTaskName = (props) => {
@@ -62,7 +49,7 @@ const StageTaskName = (props) => {
         // disabled
       >
         <span className='task-plugin-text' ref={popoverTriggerRef} style={{ display: 'block', margin: '5px 0 5px 0' }}>
-          <strong>Task ID {task.id}</strong> {' '} {ProviderLabels[task?.plugin?.toUpperCase()]}{' '}
+          <strong>Task ID {task.id}</strong> {' '} {ProviderConfigMap[task?.plugin]?.label}{' '}
           {task.plugin === Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>@{task.options.owner}/{task.options.repo}</>)}
           {task.plugin === Providers.JIRA && (<>Board ID {task.options.boardId}</>)}
           {task.plugin === Providers.GITLAB && (<>Project ID {task.options.projectId}</>)}
@@ -88,17 +75,13 @@ const StageTaskName = (props) => {
                   whiteSpace: 'nowrap',
                 }}
                 >
-                  {task.plugin === Providers.REFDIFF && (<>{ProviderLabels.REFDIFF}</>)}
-                  {task.plugin === Providers.GITEXTRACTOR && (<>{ProviderLabels.GITEXTRACTOR}</>)}
-                  {task.plugin === Providers.FEISHU && (<>{ProviderLabels.FEISHU}</>)}
-                  {task.plugin === Providers.JENKINS && (<>{ProviderLabels.JENKINS}</>)}
-                  {task.plugin === Providers.TAPD && (<>{ProviderLabels.TAPD}</>)}
+                  {ProviderConfigMap[task.plugin]?.label}
                   {task.plugin === Providers.JIRA && (<>Board ID {task.options.boardId}</>)}
                   {task.plugin === Providers.GITLAB && (<>Project ID {task.options.projectId}</>)}
                   {task.plugin === Providers.GITHUB && task.plugin !== Providers.JENKINS && (<>@{task.options.owner}/{task.options.repo}</>)}
                 </H3>
                 {![Providers.JENKINS, Providers.REFDIFF, Providers.GITEXTRACTOR].includes(task.plugin) && (
-                  <>{ProviderLabels[task.plugin?.toUpperCase()] || 'System Task'}<br /></>
+                  <>{ProviderConfigMap[task.plugin]?.label || 'System Task'}<br /></>
                 )}
               </div>
               <div style={{
@@ -115,6 +98,7 @@ const StageTaskName = (props) => {
                 {Number(task.status === 'TASK_COMPLETED' ? 100 : (task.progress / 1) * 100).toFixed(0)}%
               </div>
               <div style={{ padding: '0 0 10px 20px' }}>
+                {task.plugin?.toLowerCase()}
                 {ProviderConfigMap[task.plugin?.toLowerCase()] ? ProviderConfigMap[task.plugin?.toLowerCase()].icon(24, 24) : null}
               </div>
             </div>

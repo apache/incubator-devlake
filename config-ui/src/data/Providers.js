@@ -165,30 +165,36 @@ const ProviderConfigMap = {
       rateLimit: { label: <>Rate Limit <sup>(per hour)</sup></>, placeholder: '1000', },
     },
   },
+  [Providers.REFDIFF]: {
+    label: 'RefDiff',
+    icon: (w, h) => <Icon icon='box' size={w || 24} />
+  },
+  [Providers.GITEXTRACTOR]: {
+    label: 'GitExtractor',
+    icon: (w, h) => <Icon icon='box' size={w || 24} />
+  },
+  [Providers.FEISHU]: {
+    label: 'Feishu',
+    icon: (w, h) => <img src={FeishuIcon} width={w || 24} height={h || 24} />
+  },
+  [Providers.AE]: {
+    label: 'Analysis Engine (AE)',
+    icon: (w, h) => <Icon icon='box' size={w || 24} />
+  },
+  [Providers.DBT]: {
+    label: 'Data Build Tool (DBT)',
+    icon: (w, h) => <Icon icon='box' size={w || 24} />
+  },
+  [Providers.STARROCKS]: {
+    label: 'STARROCKS',
+    icon: (w, h) => <Icon icon='box' size={w || 24} />
+  },
 }
 
 const ProviderTypes = {
   PLUGIN: 'plugin',
   INTEGRATION: 'integration',
   PIPELINE: 'pipeline'
-}
-
-const ProviderLabels = {
-  NULL: 'NullProvider',
-  REFDIFF: 'RefDiff',
-  GITEXTRACTOR: 'GitExtractor',
-  FEISHU: 'Feishu',
-  AE: 'Analysis Engine (AE)',
-  DBT: 'Data Build Tool (DBT)',
-  STARROCKS: 'StarRocks',
-}
-
-const ProviderIcons = {
-  [Providers.REFDIFF]: (w, h) => <Icon icon='box' size={w || 24} />,
-  [Providers.GITEXTRACTOR]: (w, h) => <Icon icon='box' size={w || 24} />,
-  [Providers.FEISHU]: (w, h) => <img src={FeishuIcon} width={w || 24} height={h || 24} />,
-  [Providers.AE]: (w, h) => <Icon icon='box' size={w || 24} />,
-  [Providers.DBT]: (w, h) => <Icon icon='box' size={w || 24} />,
 }
 
 const ConnectionStatus = {
@@ -210,7 +216,6 @@ export {
   DefaultProviderConfig,
   ProviderConfigMap,
   ProviderTypes,
-  ProviderLabels,
   ConnectionStatus,
   ConnectionStatusLabels
 }

@@ -16,14 +16,9 @@
  *
  */
 import React from 'react'
-import {
-  Popover,
-  Tag,
-  Icon,
-  Intent,
-  Colors,
-} from '@blueprintjs/core'
-import { ProviderLabels, ProviderConfigMap } from '@/data/Providers'
+import { Colors, Icon, Intent, Popover, Tag, } from '@blueprintjs/core'
+import { ProviderConfigMap } from '@/data/Providers'
+
 const PipelineTasks = (props) => {
   const {
     tasks = []
@@ -46,12 +41,12 @@ const PipelineTasks = (props) => {
             {ProviderConfigMap[provider] ? ProviderConfigMap[provider].icon(20, 20) : <></>}
           </span>
           <span style={{ display: 'flex', marginTop: '3px', fontWeight: 800 }}>
-            {ProviderLabels[provider?.toUpperCase()] ? ProviderLabels[provider?.toUpperCase()] : 'Data Provider'}
+            {ProviderConfigMap[provider] ? ProviderConfigMap[provider].label : 'Data Provider'}
           </span>
         </Tag>
         <div style={{ padding: '10px', maxWidth: '340px', overflow: 'hidden', overflowX: 'auto' }}>
           <div style={{ marginBottom: '10px', fontWeight: 700, fontSize: '14px' }}>
-            <Icon icon='layers' size={16} /> {ProviderLabels[provider?.toUpperCase()] ? ProviderLabels[provider?.toUpperCase()] : 'Plugin'}
+            <Icon icon='layers' size={16} /> {ProviderConfigMap[provider] ? ProviderConfigMap[provider].label : 'Plugin'}
           </div>
           <code>
             {JSON.stringify(tasks.flat().find(t => t.Plugin === provider || t.plugin === provider))}

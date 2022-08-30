@@ -17,7 +17,7 @@
  */
 import React from 'react'
 import { Icon } from '@blueprintjs/core'
-import { Providers, ProviderConfigMap, ProviderLabels, ProviderTypes } from '@/data/Providers'
+import { Providers, ProviderConfigMap, ProviderTypes } from '@/data/Providers'
 
 // import JiraSettings from '@/pages/configure/settings/jira'
 // import GitlabSettings from '@/pages/configure/settings/gitlab'
@@ -103,7 +103,7 @@ const pluginsData = [
     type: ProviderTypes.PIPELINE,
     enabled: true,
     multiConnection: false,
-    name: ProviderLabels.GITEXTRACTOR,
+    name: ProviderConfigMap[Providers.GITEXTRACTOR].label,
     icon: <Icon icon='box' size={30} />,
     iconDashboard: <Icon icon='box' size={32} />,
     // relocated to ProviderTransformationSettings since v0.12.0
@@ -114,7 +114,7 @@ const pluginsData = [
     type: ProviderTypes.PIPELINE,
     enabled: true,
     multiConnection: false,
-    name: ProviderLabels.REFDIFF,
+    name: ProviderConfigMap[Providers.REFDIFF].label,
     icon: <Icon icon='box' size={30} />,
     iconDashboard: <Icon icon='box' size={32} />,
     // relocated to ProviderTransformationSettings since v0.12.0

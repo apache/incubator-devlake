@@ -16,7 +16,7 @@
  *
  */
 import React from 'react'
-import { ProviderConfigMap, ProviderLabels, Providers } from '@/data/Providers'
+import { ProviderConfigMap, Providers } from '@/data/Providers'
 import { GRAFANA_URL } from '@/utils/config'
 
 const MenuConfiguration = (activeRoute) => {

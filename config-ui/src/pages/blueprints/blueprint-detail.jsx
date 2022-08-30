@@ -41,8 +41,8 @@ import {
 } from '@blueprintjs/core'
 import { NullBlueprint } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
-import { ProviderLabels } from '@/data/Providers'
-import { StageStatus, TaskStatus, TaskStatusLabels, StatusColors, StatusBgColors } from '@/data/Task'
+import { ProviderConfigMap } from '@/data/Providers'
+import { TaskStatus, TaskStatusLabels } from '@/data/Task'
 
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -266,9 +266,7 @@ const BlueprintDetail = (props) => {
         blueprint?.settings?.connections.map((connection, cIdx) => ({
           id: cIdx,
           provider: connection?.plugin,
-          name: `${
-            ProviderLabels[connection?.plugin.toUpperCase()]
-          } Connection (ID #${connection?.connectionId})`,
+          name: `${ProviderConfigMap[connection?.plugin]?.label} Connection (ID #${connection?.connectionId})`,
           dataScope: connection?.scope
             .map((s) => [`${s.options?.owner}/${s?.options?.repo}`])
             .join(', '),

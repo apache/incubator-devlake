@@ -33,7 +33,7 @@ import {
   Spinner,
   Tag
 } from '@blueprintjs/core'
-import { ProviderLabels, Providers } from '@/data/Providers'
+import { ProviderConfigMap, Providers } from '@/data/Providers'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -501,7 +501,7 @@ const PipelineActivity = (props) => {
                               fontSize: '16px',
                               fontWeight: 800
                             }}
-                            >{ProviderLabels.JENKINS}
+                            >{ProviderConfigMap[Providers.JENKINS]?.label}
                             </strong><br />Auto-configured
                           </label>
                           <span style={{ color: Colors.GRAY3 }}>(No Settings)</span>
@@ -519,7 +519,7 @@ const PipelineActivity = (props) => {
                               fontSize: '16px',
                               fontWeight: 800
                             }}
-                            >{ProviderLabels.TAPD}
+                            >{ProviderConfigMap[Providers.TAPD]?.label}
                             </strong><br />Auto-configured
                           </label>
                           <span style={{ color: Colors.GRAY3 }}>(No Settings)</span>
@@ -537,7 +537,7 @@ const PipelineActivity = (props) => {
                               fontSize: '16px',
                               fontWeight: 800
                             }}
-                            >{ProviderLabels.JIRA}
+                            >{ProviderConfigMap[Providers.JIRA]?.label}
                             </strong><br />Board IDs
                           </label>
                           {activePipeline.tasks.filter(t => t.plugin === Providers.JIRA).map((t, tIdx) => (
@@ -562,7 +562,7 @@ const PipelineActivity = (props) => {
                               fontSize: '16px',
                               fontWeight: 800
                             }}
-                            >{ProviderLabels.GITLAB}
+                            >{ProviderConfigMap[Providers.GITLAB]?.label}
                             </strong><br />Project ID
                           </label>
                           {activePipeline.tasks.filter(t => t.plugin === 'gitlab').map((t, tIdx) => (
@@ -587,7 +587,7 @@ const PipelineActivity = (props) => {
                               fontSize: '16px',
                               fontWeight: 800
                             }}
-                            >{ProviderLabels.GITHUB}
+                            >{ProviderConfigMap[Providers.GITHUB]?.label}
                             </strong><br />Repositories
                           </label>
                           {activePipeline.tasks.filter(t => t.plugin === Providers.GITHUB).map((t, tIdx) => (
