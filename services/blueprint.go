@@ -107,6 +107,7 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 	if strings.ToLower(blueprint.CronConfig) == "manual" {
 		blueprint.IsManual = true
 	}
+
 	if !blueprint.IsManual {
 		_, err = cron.ParseStandard(blueprint.CronConfig)
 		if err != nil {
@@ -116,6 +117,7 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 	if blueprint.Mode == models.BLUEPRINT_MODE_ADVANCED {
 		plan := make(core.PipelinePlan, 0)
 		err = json.Unmarshal(blueprint.Plan, &plan)
+
 		if err != nil {
 			return fmt.Errorf("invalid plan: %w", err)
 		}
@@ -129,6 +131,7 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 			return fmt.Errorf("invalid plan: %w", err)
 		}
 	}
+
 	return nil
 }
 
@@ -141,6 +144,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	}
 	originMode := blueprint.Mode
 	err = helper.DecodeMapStruct(body, blueprint)
+
 	if err != nil {
 		return nil, err
 	}
@@ -153,11 +157,13 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	if err != nil {
 		return nil, err
 	}
+
 	// save
 	err = db.Save(blueprint).Error
 	if err != nil {
 		return nil, errors.InternalError
 	}
+
 	// reload schedule
 	err = ReloadBlueprints(cronManager)
 	if err != nil {
@@ -238,9 +244,9 @@ func createPipelineByBlueprint(blueprintId uint64, name string, plan core.Pipeli
 func GeneratePlanJson(settings json.RawMessage) (json.RawMessage, error) {
 	bpSettings := new(models.BlueprintSettings)
 	err := json.Unmarshal(settings, bpSettings)
+
 	if err != nil {
-		fmt.Println(string(settings))
-		return nil, err
+		return nil, fmt.Errorf("settings:%s:%s", string(settings), err.Error())
 	}
 	var plan interface{}
 	switch bpSettings.Version {
@@ -262,6 +268,7 @@ func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan
 	if err != nil {
 		return nil, err
 	}
+
 	plans := make([]core.PipelinePlan, len(connections))
 	for i, connection := range connections {
 		if len(connection.Scope) == 0 {

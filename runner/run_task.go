@@ -21,8 +21,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/logger"
 	"time"
+
+	"github.com/apache/incubator-devlake/logger"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
