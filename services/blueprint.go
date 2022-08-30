@@ -91,9 +91,9 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
 	err := db.First(blueprint, blueprintId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.NotFound.New("blueprint not found")
+			return nil, errors.NotFound.New("blueprint not found", errors.AsUserMessage())
 		}
-		return nil, err
+		return nil, errors.Internal.Wrap(err, "error getting the task from database", errors.AsUserMessage())
 	}
 	return blueprint, nil
 }
