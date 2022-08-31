@@ -184,6 +184,7 @@ function useConnectionManager (
           endpoint: endpointUrl,
           username: username,
           password: password,
+          proxy: proxy,
           rateLimitPerHour: rateLimit,
           ...connectionPayload,
         }
@@ -563,6 +564,7 @@ function useConnectionManager (
         case Providers.JENKINS:
           setUsername(activeConnection.username)
           setPassword(activeConnection.password)
+          setProxy(activeConnection.Proxy || activeConnection.proxy)
           setRateLimit(activeConnection.rateLimitPerHour)
           break
         case Providers.GITLAB:
