@@ -256,13 +256,16 @@ function useConnectionManager (
       }
     }
 
+    let savePromise
     if (updateMode && activeConnection?.id !== null) {
       modifyConfiguration(connectionPayload)
+      savePromise = modifyConfiguration(connectionPayload)
     } else {
       saveConfiguration(connectionPayload)
+      savePromise = saveConfiguration(connectionPayload)
     }
 
-    setTimeout(() => {
+    savePromise.then(() => {
       if (saveResponse.success && errors.length === 0) {
         ToastNotification.show({
           message: 'Connection saved successfully.',
@@ -282,7 +285,11 @@ function useConnectionManager (
         if (!updateMode) {
           history.push(`/integrations/${provider.id}`)
         }
-      } else {
+      }
+    })
+
+    setTimeout(() => {
+      if (!saveResponse.success || errors.length !== 0) {
         ToastNotification.show({
           message: 'Connection failed to save, please try again.',
           intent: 'danger',
@@ -312,7 +319,6 @@ function useConnectionManager (
       try {
         setIsFetching(!silent)
         setErrors([])
-        ToastNotification.clear()
         console.log('>> FETCHING CONNECTION SOURCE')
         const fetch = async () => {
           const f = await request.get(
@@ -341,6 +347,7 @@ function useConnectionManager (
         setIsFetching(false)
         setActiveConnection(NullConnection)
         setErrors([e.message])
+        ToastNotification.clear()
         ToastNotification.show({
           message: `${e}`,
           intent: 'danger',
