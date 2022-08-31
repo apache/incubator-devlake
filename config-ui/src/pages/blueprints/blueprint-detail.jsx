@@ -55,6 +55,7 @@ import BlueprintNavigationLinks from '@/components/blueprints/BlueprintNavigatio
 
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
+import usePaginator from '@/hooks/usePaginator'
 
 const BlueprintDetail = (props) => {
   // eslint-disable-next-line no-unused-vars
@@ -72,7 +73,6 @@ const BlueprintDetail = (props) => {
   const [showCurrentRunTasks, setShowCurrentRunTasks] = useState(true)
   const [showInspector, setShowInspector] = useState(false)
   const [currentStages, setCurrentStages] = useState([])
-  const [historicalRuns, setHistoricalRuns] = useState([])
 
   const pollTimer = 5000
   const pollInterval = useRef()
@@ -134,6 +134,13 @@ const BlueprintDetail = (props) => {
     logfile: pipelineLogFilename,
     getPipelineLogfile
   } = usePipelineManager()
+
+  const {
+    data: historicalRuns,
+    pagedData: pagedHistoricalRuns,
+    setData: setHistoricalRuns,
+    renderControlsComponent: renderPagnationControls
+  } = usePaginator()
 
   const buildPipelineStages = useCallback((tasks = []) => {
     let stages = {}
@@ -701,7 +708,7 @@ const BlueprintDetail = (props) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {historicalRuns.map((run, runIdx) => (
+                    {pagedHistoricalRuns.map((run, runIdx) => (
                       <tr key={`historical-run-key-${runIdx}`}>
                         <td
                           style={{
@@ -794,6 +801,7 @@ const BlueprintDetail = (props) => {
                         </td>
                       </tr>
                     ))}
+                    {historicalRuns.length > 0 && <div style={{ alignSelf: 'flex-end', padding: '10px' }}>{renderPagnationControls()}</div>}
                     {historicalRuns.length === 0 && (
                       <tr>
                         <td colSpan={5}>
