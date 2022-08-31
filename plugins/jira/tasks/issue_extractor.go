@@ -44,7 +44,7 @@ var ExtractIssuesMeta = core.SubTaskMeta{
 type typeMappings struct {
 	typeIdMappings         map[string]string
 	stdTypeMappings        map[string]string
-	standardStatusMappings map[string]*StatusMappings
+	standardStatusMappings map[string]StatusMappings
 }
 
 func ExtractIssues(taskCtx core.SubTaskContext) error {
@@ -130,10 +130,8 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, ignoreBoard bool,
 		issue.StdType = strings.ToUpper(issue.Type)
 	}
 	issue.StdStatus = getStdStatus(issue.StatusKey)
-	if mappings.standardStatusMappings[issue.Type] != nil {
-		if value, ok := (*mappings.standardStatusMappings[issue.Type])[issue.StatusKey]; ok {
-			issue.StdStatus = value.StandardStatus
-		}
+	if value, ok := mappings.standardStatusMappings[issue.Type][issue.StatusKey]; ok {
+		issue.StdStatus = value.StandardStatus
 	}
 	results = append(results, issue)
 	for _, worklog := range worklogs {
@@ -190,7 +188,7 @@ func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, error) {
 		typeIdMapping[issueType.Id] = issueType.UntranslatedName
 	}
 	stdTypeMappings := make(map[string]string)
-	standardStatusMappings := make(map[string]*StatusMappings)
+	standardStatusMappings := make(map[string]StatusMappings)
 	for userType, stdType := range data.Options.TransformationRules.TypeMappings {
 		stdTypeMappings[userType] = strings.ToUpper(stdType.StandardType)
 		standardStatusMappings[userType] = stdType.StatusMappings

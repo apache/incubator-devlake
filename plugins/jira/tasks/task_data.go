@@ -35,8 +35,8 @@ type TransformationRules struct {
 	StoryPointField            string `json:"storyPointField"`
 	RemotelinkCommitShaPattern string `json:"remotelinkCommitShaPattern"`
 	TypeMappings               map[string]struct {
-		StandardType   string          `json:"standardType"`
-		StatusMappings *StatusMappings `json:"statusMappings"`
+		StandardType   string         `json:"standardType"`
+		StatusMappings StatusMappings `json:"statusMappings"`
 	} `json:"typeMappings"`
 }
 
