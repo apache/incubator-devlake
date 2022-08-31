@@ -92,14 +92,9 @@ const ConnectionDialog = (props) => {
     setTestStatus = () => {},
     setTestResponse = () => {},
     connection = NullBlueprintConnection,
-    name,
-    endpointUrl,
-    proxy,
-    rateLimit = 0,
-    token,
+    editingConnection,
+    setConnectionColumn,
     initialTokenStore = {},
-    username,
-    password,
     isLocked = false,
     isLoading = false,
     isTesting = false,
@@ -114,13 +109,6 @@ const ConnectionDialog = (props) => {
     onClose = () => {},
     onCancel = () => {},
     onValidate = () => {},
-    onNameChange = () => {},
-    onEndpointChange = () => {},
-    onProxyChange = () => {},
-    onRateLimitChange = () => {},
-    onTokenChange = () => {},
-    onUsernameChange = () => {},
-    onPasswordChange = () => {},
     showConnectionError = false,
     testStatus,
     testResponse,
@@ -286,25 +274,13 @@ const ConnectionDialog = (props) => {
                     isValid={isValid}
                     validationErrors={validationErrors}
                     activeProvider={activeProvider}
-                    name={name}
-                    endpointUrl={endpointUrl}
-                    proxy={proxy}
-                    rateLimit={rateLimit}
-                    token={token}
+                    editingConnection={editingConnection}
+                    onConnectionColumnChange={setConnectionColumn}
                     initialTokenStore={initialTokenStore}
-                    username={username}
-                    password={password}
                     onSave={onSave}
                     onTest={onTest}
                     onCancel={onCancel}
                     onValidate={onValidate}
-                    onNameChange={onNameChange}
-                    onEndpointChange={onEndpointChange}
-                    onProxyChange={onProxyChange}
-                    onRateLimitChange={onRateLimitChange}
-                    onTokenChange={onTokenChange}
-                    onUsernameChange={onUsernameChange}
-                    onPasswordChange={onPasswordChange}
                     isSaving={isSaving}
                     isTesting={isTesting}
                     testStatus={testStatus}

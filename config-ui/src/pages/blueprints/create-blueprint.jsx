@@ -265,24 +265,12 @@ const CreateBlueprint = (props) => {
     isFetching: isFetchingConnection,
     showError,
     testStatus,
-    name: connectionName,
-    endpointUrl,
-    proxy,
-    rateLimit,
-    token,
+    editingConnection,
+    setConnectionColumn,
     initialTokenStore,
-    username,
-    password,
     provider,
     setActiveConnection,
     setProvider,
-    setName,
-    setEndpointUrl,
-    setProxy,
-    setRateLimit,
-    setUsername,
-    setPassword,
-    setToken,
     setInitialTokenStore,
     setTestStatus,
     setTestResponse,
@@ -332,13 +320,6 @@ const CreateBlueprint = (props) => {
     isValid: isValidConnection,
   } = useConnectionValidation({
     activeProvider,
-    name: connectionName,
-    endpointUrl,
-    proxy,
-    rateLimit,
-    token,
-    username,
-    password,
   })
 
   const [configuredProject, setConfiguredProject] = useState(
@@ -1132,14 +1113,9 @@ const CreateBlueprint = (props) => {
         connection={managedConnection}
         errors={connectionErrors}
         validationErrors={connectionValidationErrors}
-        endpointUrl={endpointUrl}
-        name={connectionName}
-        proxy={proxy}
-        rateLimit={rateLimit}
-        token={token}
+        editingConnection={editingConnection}
+        setConnectionColumn={setConnectionColumn}
         initialTokenStore={initialTokenStore}
-        username={username}
-        password={password}
         isOpen={connectionDialogIsOpen}
         isTesting={isTestingConnection}
         isSaving={isSavingConnection}
@@ -1149,13 +1125,6 @@ const CreateBlueprint = (props) => {
         onTest={testConnection}
         onSave={saveConnection}
         onValidate={validateConnection}
-        onNameChange={setName}
-        onEndpointChange={setEndpointUrl}
-        onProxyChange={setProxy}
-        onRateLimitChange={setRateLimit}
-        onTokenChange={setToken}
-        onUsernameChange={setUsername}
-        onPasswordChange={setPassword}
         testStatus={testStatus}
         testResponse={testResponse}
         allTestResponses={allTestResponses}

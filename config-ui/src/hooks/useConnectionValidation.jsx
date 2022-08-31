@@ -22,13 +22,6 @@ import {
 
 function useConnectionValidation ({
   activeProvider,
-  name,
-  endpointUrl,
-  proxy,
-  rateLimit,
-  token,
-  username,
-  password
 }) {
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
@@ -41,7 +34,15 @@ function useConnectionValidation ({
     setErrors([])
   }
 
-  const validate = useCallback(() => {
+  const validate = useCallback(({
+    name,
+    endpointUrl,
+    proxy,
+    rateLimit,
+    token,
+    username,
+    password
+  }) => {
     const errs = []
     console.log('>> VALIDATING PROVIDER ID: ', activeProvider?.id)
     console.log('>> RUNNING FORM VALIDATIONS AGAINST FIELD VALUES...')
@@ -99,13 +100,6 @@ function useConnectionValidation ({
 
     setErrors(errs)
   }, [
-    name,
-    endpointUrl,
-    proxy,
-    rateLimit,
-    token,
-    username,
-    password,
     activeProvider,
     validURIs
   ])

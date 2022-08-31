@@ -54,13 +54,8 @@ export default function ConfigureConnection () {
     saveConnection,
     // fetchConnection,
     activeConnection,
-    name,
-    endpointUrl,
-    proxy,
-    rateLimit = 0,
-    username,
-    password,
-    token,
+    editingConnection,
+    setConnectionColumn,
     initialTokenStore,
     errors,
     testStatus,
@@ -69,14 +64,6 @@ export default function ConfigureConnection () {
     isSaving: isSavingConnection,
     isTesting: isTestingConnection,
     isFetching: isLoadingConnection,
-    setName,
-    setEndpointUrl,
-    setProxy,
-    setRateLimit,
-    setUsername,
-    setPassword,
-    setToken,
-    setInitialTokenStore,
     // saveComplete: saveConnectionComplete,
     showError: showConnectionError,
     isDeleting: isDeletingConnection,
@@ -105,13 +92,6 @@ export default function ConfigureConnection () {
     isValid: isValidForm
   } = useConnectionValidation({
     activeProvider,
-    name,
-    endpointUrl,
-    proxy,
-    rateLimit,
-    token,
-    username,
-    password
   })
 
   const cancel = () => {
@@ -250,26 +230,14 @@ export default function ConfigureConnection () {
                             isValid={isValidForm}
                             validationErrors={validationErrors}
                             activeProvider={activeProvider}
-                            name={name}
-                            endpointUrl={endpointUrl}
-                            proxy={proxy}
-                            rateLimit={rateLimit}
-                            token={token}
+                            editingConnection={editingConnection}
+                            onConnectionColumnChange={setConnectionColumn}
                             initialTokenStore={initialTokenStore}
-                            username={username}
-                            password={password}
                             // JIRA and GITLAB are multi-connection plugins, for now we intentially won't include additional settings during save...
                             onSave={() => saveConnection(![Providers.GITLAB, Providers.JIRA, Providers.TAPD].includes(activeProvider.id) ? settings : {})}
                             onTest={testConnection}
                             onCancel={cancel}
                             onValidate={validate}
-                            onNameChange={setName}
-                            onEndpointChange={setEndpointUrl}
-                            onProxyChange={setProxy}
-                            onRateLimitChange={setRateLimit}
-                            onTokenChange={setToken}
-                            onUsernameChange={setUsername}
-                            onPasswordChange={setPassword}
                             isSaving={isSavingConnection}
                             isTesting={isTestingConnection}
                             testStatus={testStatus}

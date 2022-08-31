@@ -46,18 +46,13 @@ export default function ConnectionForm (props) {
     isValid = true,
     validationErrors = [],
     activeProvider,
-    name,
-    endpointUrl,
-    token,
+    editingConnection = NullConnection,
+    onConnectionColumnChange,
     initialTokenStore = {
       0: '',
       1: '',
       2: '',
     },
-    username,
-    password,
-    proxy = '',
-    rateLimit = 0,
     isSaving,
     isTesting,
     showError,
@@ -68,13 +63,6 @@ export default function ConnectionForm (props) {
     onSave = () => {},
     onCancel = () => {},
     onTest = () => {},
-    onNameChange = () => {},
-    onEndpointChange = () => {},
-    onTokenChange = () => {},
-    onUsernameChange = () => {},
-    onPasswordChange = () => {},
-    onProxyChange = () => {},
-    onRateLimitChange = () => {},
     onValidate = () => {},
     authType = 'token',
     sourceLimits = {},
@@ -101,7 +89,7 @@ export default function ConnectionForm (props) {
   const [personalAccessTokens, setPersonalAccessTokens] = useState([])
   const [tokenTests, setTokenTests] = useState([])
 
-  const patTestPayload = useMemo(() => ({ endpoint: endpointUrl, proxy }), [endpointUrl, proxy])
+  const patTestPayload = useMemo(() => ({ endpoint: editingConnection.endpoint, proxy: editingConnection.proxy }), [editingConnection])
 
   const getConnectionStatusIcon = () => {
     let statusIcon = <Icon icon='full-circle' size='10' color={Colors.RED3} />
@@ -120,16 +108,6 @@ export default function ConnectionForm (props) {
     return statusIcon
   }
 
-  const validate = useCallback(() => {
-    onValidate({
-      name,
-      endpointUrl,
-      token,
-      username,
-      password,
-      rateLimit,
-    })
-  }, [name, endpointUrl, token, username, password, rateLimit, onValidate])
   const fieldHasError = (fieldId) => {
     return validationErrors.some((e) => e.includes(fieldId))
   }
@@ -174,7 +152,7 @@ export default function ConnectionForm (props) {
   }
 
   const syncPersonalAcessTokens = useCallback(() => {
-    onTokenChange(personalAccessTokens.join(',').trim())
+    onConnectionColumnChange('token', personalAccessTokens.join(',').trim())
     // eslint-disable-next-line no-unused-vars
     const tokenTestResponses = personalAccessTokens.filter(t => t !== '').map((t, tIdx) => {
       const withAlert = false
@@ -189,7 +167,7 @@ export default function ConnectionForm (props) {
     })
   }, [
     personalAccessTokens,
-    onTokenChange,
+    onConnectionColumnChange,
     onTest
   ])
 
@@ -204,8 +182,15 @@ export default function ConnectionForm (props) {
   }, [])
 
   useEffect(() => {
-    validate()
-  }, [name, endpointUrl, token, username, password, validate])
+    onValidate({
+      name: editingConnection.name,
+      endpointUrl: editingConnection.endpoint,
+      token: editingConnection.token,
+      username: editingConnection.username,
+      password: editingConnection.password,
+      rateLimit: editingConnection.rateLimitPerHour,
+    })
+  }, [editingConnection, onValidate])
 
   useEffect(() => {
     console.log('>> CONNECTION FORM VALIDATION STATUS CHANGED...', isValid)
@@ -294,7 +279,7 @@ export default function ConnectionForm (props) {
                 style={{ marginRight: '5px' }}
               />
               <strong>
-                UNABLE TO SAVE CONNECTION ({name !== '' ? name : 'BLANK'})
+                UNABLE TO SAVE CONNECTION ({editingConnection.name !== '' ? editingConnection.name : 'BLANK'})
               </strong>
               <br />
             </p>
@@ -331,8 +316,8 @@ export default function ConnectionForm (props) {
               placeholder={
                 placeholders ? placeholders.name : 'Enter Instance Name'
               }
-              value={name}
-              onChange={(e) => onNameChange(e.target.value)}
+              value={editingConnection.name}
+              onChange={(e) => onConnectionColumnChange('name', e.target.value)}
               className={`input connection-name-input ${
                 stateErrored === 'connection-name' ? 'invalid-field' : ''
               }`}
@@ -373,8 +358,8 @@ export default function ConnectionForm (props) {
               placeholder={
                 placeholders ? placeholders.endpoint : 'Enter Endpoint URL'
               }
-              value={endpointUrl}
-              onChange={(e) => onEndpointChange(e.target.value)}
+              value={editingConnection.endpoint}
+              onChange={(e) => onConnectionColumnChange('endpoint', e.target.value)}
               className={`input endpoint-url-input ${
                 stateErrored === 'connection-endpoint' ? 'invalid-field' : ''
               }`}
@@ -570,8 +555,8 @@ export default function ConnectionForm (props) {
                         ? placeholders.token
                         : 'Enter Auth Token eg. EJrLG8DNeXADQcGOaaaX4B47'
                     }
-                    value={token}
-                    onChange={(e) => onTokenChange(e.target.value)}
+                    value={editingConnection.token}
+                    onChange={(e) => onConnectionColumnChange('token', e.target.value)}
                     className={`input auth-input ${
                       stateErrored === 'connection-token' ? 'invalid-field' : ''
                     }`}
@@ -648,8 +633,8 @@ export default function ConnectionForm (props) {
                   inputRef={connectionUsernameRef}
                   disabled={isTesting || isSaving || isLocked}
                   placeholder='Enter Username'
-                  defaultValue={username}
-                  onChange={(e) => onUsernameChange(e.target.value)}
+                  defaultValue={editingConnection.username}
+                  onChange={(e) => onConnectionColumnChange('username', e.target.value)}
                   className={`input username-input ${
                     stateErrored === 'Username' ? 'invalid-field' : ''
                   }`}
@@ -687,8 +672,8 @@ export default function ConnectionForm (props) {
                   inputRef={connectionPasswordRef}
                   disabled={isTesting || isSaving || isLocked}
                   placeholder='Enter Password'
-                  defaultValue={password}
-                  onChange={(e) => onPasswordChange(e.target.value)}
+                  defaultValue={editingConnection.password}
+                  onChange={(e) => onConnectionColumnChange('password', e.target.value)}
                   className={`input password-input ${
                     stateErrored === 'Password' ? 'invalid-field' : ''
                   }`}
@@ -729,8 +714,8 @@ export default function ConnectionForm (props) {
                       ? placeholders.proxy
                       : 'http://proxy.localhost:8080'
                   }
-                  defaultValue={proxy}
-                  onChange={(e) => onProxyChange(e.target.value)}
+                  defaultValue={editingConnection.proxy}
+                  onChange={(e) => onConnectionColumnChange('proxy', e.target.value)}
                   disabled={isTesting || isSaving || isLocked}
                   className={`input input-proxy ${
                     fieldHasError('Proxy') ? 'invalid-field' : ''
@@ -767,8 +752,8 @@ export default function ConnectionForm (props) {
                     : '1000'
                 }
                   allowNumericCharactersOnly={true}
-                  onValueChange={(rateLimitPerHour) => { onRateLimitChange(rateLimitPerHour) }}
-                  value={rateLimit}
+                  value={editingConnection.rateLimitPerHour}
+                  onValueChange={(rateLimitPerHour) => { onConnectionColumnChange('rateLimitPerHour', rateLimitPerHour) }}
                   rightElement={
                     <InputValidationError error={getFieldError('RateLimit')} />
                 }

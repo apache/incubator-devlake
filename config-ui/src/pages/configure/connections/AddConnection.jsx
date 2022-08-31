@@ -54,22 +54,9 @@ export default function AddConnection () {
     testStatus,
     testResponse,
     allTestResponses,
-    name,
-    endpointUrl,
-    proxy,
-    rateLimit,
-    token,
+    editingConnection,
+    setConnectionColumn,
     initialTokenStore,
-    username,
-    password,
-    setName,
-    setEndpointUrl,
-    setProxy,
-    setRateLimit,
-    setUsername,
-    setPassword,
-    setToken,
-    setInitialTokenStore,
     fetchAllConnections,
     connectionLimitReached,
     // Providers
@@ -83,45 +70,18 @@ export default function AddConnection () {
     isValid: isValidForm
   } = useConnectionValidation({
     activeProvider,
-    name,
-    endpointUrl,
-    proxy,
-    rateLimit,
-    token,
-    username,
-    password
   })
 
   const cancel = () => {
     history.push(`/integrations/${activeProvider.id}`)
   }
 
-  // const resetForm = () => {
-  //   setName(null)
-  //   setEndpointUrl(null)
-  //   setToken(null)
-  //   setUsername(null)
-  //   setPassword(null)
-  // }
-
   useEffect(() => {
     // Selected Provider
     if (activeProvider?.id) {
       fetchAllConnections()
-      switch (activeProvider.id) {
-        case Providers.JENKINS:
-          // setName(ProviderLabels.JENKINS)
-          break
-        case Providers.GITHUB:
-        case Providers.GITLAB:
-        case Providers.JIRA:
-        case Providers.TAPD:
-        default:
-          setName('')
-          break
-      }
     }
-  }, [activeProvider.id, fetchAllConnections, setName])
+  }, [activeProvider.id, fetchAllConnections])
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER = ', providerId)
@@ -164,25 +124,13 @@ export default function AddConnection () {
                   isValid={isValidForm}
                   validationErrors={validationErrors}
                   activeProvider={activeProvider}
-                  name={name}
-                  endpointUrl={endpointUrl}
-                  proxy={proxy}
-                  rateLimit={rateLimit}
-                  token={token}
+                  editingConnection={editingConnection}
+                  onConnectionColumnChange={setConnectionColumn}
                   initialTokenStore={initialTokenStore}
-                  username={username}
-                  password={password}
                   onSave={() => saveConnection({})}
                   onTest={testConnection}
                   onCancel={cancel}
                   onValidate={validate}
-                  onNameChange={setName}
-                  onEndpointChange={setEndpointUrl}
-                  onProxyChange={setProxy}
-                  onRateLimitChange={setRateLimit}
-                  onTokenChange={setToken}
-                  onUsernameChange={setUsername}
-                  onPasswordChange={setPassword}
                   isSaving={isSaving}
                   isTesting={isTesting}
                   testStatus={testStatus}

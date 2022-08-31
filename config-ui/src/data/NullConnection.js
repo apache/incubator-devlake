@@ -21,7 +21,7 @@ const NullConnection = {
   name: null,
   endpoint: null,
   proxy: null,
-  rateLimit: 0,
+  rateLimitPerHour: 0,
   token: null,
   username: null,
   password: null,
