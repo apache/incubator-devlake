@@ -801,7 +801,6 @@ const BlueprintDetail = (props) => {
                         </td>
                       </tr>
                     ))}
-                    {historicalRuns.length > 0 && <div style={{ alignSelf: 'flex-end', padding: '10px' }}>{renderPagnationControls()}</div>}
                     {historicalRuns.length === 0 && (
                       <tr>
                         <td colSpan={5}>
@@ -814,6 +813,7 @@ const BlueprintDetail = (props) => {
                 </table>
               </Card>
             </div>
+            {historicalRuns.length > 0 && <div style={{ alignSelf: 'flex-end', padding: '10px' }}>{renderPagnationControls()}</div>}
           </main>
         </Content>
       </div>
