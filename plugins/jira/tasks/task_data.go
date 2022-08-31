@@ -26,12 +26,17 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+type StatusMappings map[string]struct {
+	StandardStatus string `json:"standardStatus"`
+}
+
 type TransformationRules struct {
 	EpicKeyField               string `json:"epicKeyField"`
 	StoryPointField            string `json:"storyPointField"`
 	RemotelinkCommitShaPattern string `json:"remotelinkCommitShaPattern"`
 	TypeMappings               map[string]struct {
-		StandardType string `json:"standardType"`
+		StandardType   string         `json:"standardType"`
+		StatusMappings StatusMappings `json:"statusMappings"`
 	} `json:"typeMappings"`
 }
 

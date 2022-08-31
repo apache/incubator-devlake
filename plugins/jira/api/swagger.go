@@ -17,6 +17,8 @@ limitations under the License.
 
 package api
 
+import "github.com/apache/incubator-devlake/plugins/jira/tasks"
+
 // @Summary blueprints setting for jira
 // @Description blueprint setting for jira
 // @Tags plugins/jira
@@ -31,7 +33,7 @@ type JiraBlueprintSetting []struct {
 		Plugin       string `json:"plugin"`
 		ConnectionID int    `json:"connectionId"`
 		Scope        []struct {
-			Transformation TicketTransformationRules `json:"transformation"`
+			Transformation tasks.TransformationRules `json:"transformation"`
 			Options        struct {
 				BoardId uint64 `json:"boardId"`
 				Since   string `json:"since"`
@@ -39,15 +41,6 @@ type JiraBlueprintSetting []struct {
 			Entities []string `json:"entities"`
 		} `json:"scope"`
 	} `json:"connections"`
-}
-
-type TicketTransformationRules struct {
-	EpicKeyField               string `json:"epicKeyField"`
-	StoryPointField            string `json:"storyPointField"`
-	RemotelinkCommitShaPattern string `json:"remotelinkCommitShaPattern"`
-	TypeMappings               map[string]struct {
-		StandardType string `json:"standardType"`
-	} `json:"typeMappings"`
 }
 
 // @Summary pipelines plan for jira
@@ -64,6 +57,6 @@ type JiraPipelinePlan [][]struct {
 	Options  struct {
 		BoardID             int                       `json:"boardId"`
 		ConnectionID        int                       `json:"connectionId"`
-		TransformationRules TicketTransformationRules `json:"transformationRules"`
+		TransformationRules tasks.TransformationRules `json:"transformationRules"`
 	} `json:"options"`
 }
