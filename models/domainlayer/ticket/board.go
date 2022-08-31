@@ -30,7 +30,7 @@ type Board struct {
 	Description string
 	Url         string `gorm:"type:varchar(255)"`
 	CreatedDate *time.Time
-	Type        string
+	Type        string `gorm:"type:varchar(255)"`
 }
 
 func (Board) TableName() string {
