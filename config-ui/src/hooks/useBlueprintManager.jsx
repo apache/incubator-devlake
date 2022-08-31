@@ -310,23 +310,22 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       setErrors([])
       ToastNotification.clear()
       const blueprintPayload = {
-        // id: blueprint.id,
         name: blueprint.name,
-        // cronConfig: blueprint.cronConfig,
-        // tasks: blueprint.tasks || [],
         enable: true
       }
       console.log('>> DISPATCHING BLUEPRINT ACTIVATION REQUEST', blueprintPayload)
       const run = async () => {
         // eslint-disable-next-line max-len
-        // const b = await request.post(`${DEVLAKE_ENDPOINT}/blueprints`, blueprintPayload)
         const activateB = await request.patch(`${DEVLAKE_ENDPOINT}/blueprints/${blueprint.id}`, blueprintPayload)
         console.log('>> RAW BLUEPRINT DATA FROM API...', activateB.data)
         // eslint-disable-next-line no-unused-vars
         const updatedBlueprint = activateB.data
-        setBlueprint(b => ({ ...b, ...updatedBlueprint }))
-        // setSaveComplete(b.data)
-        ToastNotification.show({ message: `Activated Blueprint - ${blueprint.name}.`, intent: Intent.SUCCESS, icon: 'small-tick' })
+        if (activateB.status === 200) {
+          setBlueprint(b => ({ ...b, ...updatedBlueprint }))
+          ToastNotification.show({ message: `Activated Blueprint - ${blueprint.name}.`, intent: Intent.SUCCESS, icon: 'small-tick' })
+        } else {
+          ToastNotification.show({ message: `Activation Failed ${activateB?.message || ''}`, intent: 'danger', icon: 'error' })
+        }
         setTimeout(() => {
           setIsSaving(false)
           fetchAllBlueprints()
@@ -336,7 +335,6 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     } catch (e) {
       setIsSaving(false)
       setErrors([e.message])
-      // setSaveComplete(false)
       console.log('>> FAILED TO ACTIVATE BLUEPRINT!!', e)
     }
   }, [fetchAllBlueprints])
@@ -348,22 +346,21 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
       setErrors([])
       ToastNotification.clear()
       const blueprintPayload = {
-        // id: blueprint.id,
-        // cronConfig: blueprint.cronConfig,
-        // tasks: tasks,
         enable: false
       }
       console.log('>> DISPATCHING BLUEPRINT ACTIVATION REQUEST', blueprintPayload)
       const run = async () => {
         // eslint-disable-next-line max-len
-        // const b = await request.post(`${DEVLAKE_ENDPOINT}/blueprints`, blueprintPayload)
         const deactivateB = await request.patch(`${DEVLAKE_ENDPOINT}/blueprints/${blueprint.id}`, blueprintPayload)
         console.log('>> RAW BLUEPRINT DATA FROM API...', deactivateB.data)
         // eslint-disable-next-line no-unused-vars
         const updatedBlueprint = deactivateB.data
-        setBlueprint(b => ({ ...b, ...updatedBlueprint }))
-        // setSaveComplete(b.data)
-        ToastNotification.show({ message: `Deactivated Blueprint - ${blueprint.name}.`, intent: Intent.SUCCESS, icon: 'small-tick' })
+        if (deactivateB.status === 200) {
+          setBlueprint(b => ({ ...b, ...updatedBlueprint }))
+          ToastNotification.show({ message: `Deactivated Blueprint - ${blueprint.name}.`, intent: Intent.SUCCESS, icon: 'small-tick' })
+        } else {
+          ToastNotification.show({ message: `Deactivation Failed ${deactivateB?.message || ''}`, intent: 'danger', icon: 'error' })
+        }
         setTimeout(() => {
           setIsSaving(false)
           fetchAllBlueprints()
@@ -373,7 +370,6 @@ function useBlueprintManager (blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`, 
     } catch (e) {
       setIsSaving(false)
       setErrors([e.message])
-      // setSaveComplete(false)
       console.log('>> FAILED TO DEACTIVATE BLUEPRINT!!', e)
     }
   }, [fetchAllBlueprints])
