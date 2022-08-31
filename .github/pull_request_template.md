@@ -18,7 +18,7 @@ Please fill out as many sections below as possible.
 -->
 
 ### Does this close any open issues?
-Please mention the issues here.
+Closes xx
 
 ### Screenshots
 Include any relevant screenshots here.
