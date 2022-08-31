@@ -26,16 +26,23 @@ import '@fontsource/inter/variable-full.css'
 // Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
 // import '@/styles/theme.scss'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import Configure from './pages/configure/index'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
 import AddConnection from '@/pages/configure/connections/AddConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
+import Triggers from '@/pages/triggers/index'
 import Offline from '@/pages/offline/index'
+import Pipelines from '@/pages/pipelines/index'
+import CreatePipeline from '@/pages/pipelines/create'
+import PipelineActivity from '@/pages/pipelines/activity'
 import Blueprints from '@/pages/blueprints/index'
 import CreateBlueprint from '@/pages/blueprints/create-blueprint'
 import BlueprintDetail from '@/pages/blueprints/blueprint-detail'
 import BlueprintSettings from '@/pages/blueprints/blueprint-settings'
 import Connections from '@/pages/connections/index'
+
+// FIXME don't remove unuse import here, because it also import css here……
 
 function App () {
   return (
