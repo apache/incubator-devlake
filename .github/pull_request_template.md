@@ -2,11 +2,12 @@
 
 > Please complete _ALL_ items in this checklist, and remove before submitting
 
-- [ ] I have read through the [Contributing](https://devlake.apache.org/community/) Documentation & [PR Template](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue)
-- [ ] This PR is using a `label` (bug, feature etc.)
-- [ ] My code is has necessary documentation (if appropriate)
-- [ ] I have added any relevant tests
-- [ ] This section (**⚠️ &nbsp;&nbsp;Pre Checklist**) will be removed when submitting PR
+- [ ] I have read through the [Contributing Documentation](https://devlake.apache.org/community/).
+- [ ] I have added relevant tests.
+- [ ] I have added relevant documentation.
+- [ ] I will add labels to the PR, such as `pr-type/bug-fix`, `pr-type/feature-development`, etc.
+
+
 
 # Summary
 
