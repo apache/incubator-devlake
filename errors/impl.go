@@ -69,14 +69,14 @@ func (e *crdbErrorImpl) Unwrap() error {
 	return cerror.Cause(e.wrappedRaw)
 }
 
-func (e *crdbErrorImpl) GetType() Type {
-	return *e.t
+func (e *crdbErrorImpl) GetType() *Type {
+	return e.t
 }
 
-func (e *crdbErrorImpl) As(t Type) Error {
+func (e *crdbErrorImpl) As(t *Type) Error {
 	err := e
 	for {
-		if *err.t == t {
+		if err.t == t {
 			return e
 		}
 		lakeErr := AsLakeErrorType(err.Unwrap())
@@ -114,7 +114,7 @@ func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbError
 	for _, opt := range opts {
 		opt(cfg)
 	}
-	errType := *t
+	errType := t
 	var wrappedErr *crdbErrorImpl
 	var wrappedRaw error
 	rawMessage := message
@@ -131,7 +131,7 @@ func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbError
 		if cast, ok := err.(*crdbErrorImpl); ok {
 			err = cast.wrappedRaw
 			wrappedErr = cast
-			if *t == Default { // inherit wrapped error's type
+			if t == Default { // inherit wrapped error's type
 				errType = cast.GetType()
 			}
 		}
@@ -146,7 +146,7 @@ func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbError
 		wrapped:    wrappedErr,
 		msg:        rawMessage,
 		userMsg:    cfg.userMsg,
-		t:          &errType,
+		t:          errType,
 	}
 	if cfg.asUserMsg {
 		impl.userMsg = message // set to original

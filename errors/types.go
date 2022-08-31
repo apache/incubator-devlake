@@ -21,10 +21,17 @@ import "net/http"
 
 // Supported error types
 var (
-	Default    = Type{meta: "default"}
-	SubtaskErr = Type{meta: "subtask"}
-	NotFound   = Type{httpCode: http.StatusNotFound, meta: "not-found"}
-	Internal   = Type{httpCode: http.StatusInternalServerError, meta: "internal"}
+	Default      = register(nil)
+	SubtaskErr   = register(&Type{meta: "subtask"})
+	NotFound     = register(&Type{httpCode: http.StatusNotFound, meta: "not-found"})
+	BadInput     = register(&Type{httpCode: http.StatusBadRequest, meta: "bad-input"})
+	Unauthorized = register(&Type{httpCode: http.StatusUnauthorized, meta: "unauthorized"})
+	Forbidden    = register(&Type{httpCode: http.StatusForbidden, meta: "forbidden"})
+	Internal     = register(&Type{httpCode: http.StatusInternalServerError, meta: "internal"})
+	Timeout      = register(&Type{httpCode: http.StatusGatewayTimeout, meta: "timeout"})
+
+	//cached values
+	typesByHttpCode = map[int]*Type{}
 )
 
 type (
@@ -43,6 +50,14 @@ type (
 		asUserMsg bool
 	}
 )
+
+func HttpStatus(code int) *Type {
+	t, ok := typesByHttpCode[code]
+	if !ok {
+		t = Internal
+	}
+	return t
+}
 
 // New constructs a new Error instance with this message
 func (t *Type) New(message string, opts ...Option) Error {
@@ -86,4 +101,14 @@ func AsUserMessage() Option {
 	return func(opts *options) {
 		opts.asUserMsg = true
 	}
+}
+
+func register(t *Type) *Type {
+	if t == nil {
+		t = &Type{meta: "default"}
+		typesByHttpCode[t.httpCode] = t
+	} else if t.httpCode != 0 {
+		typesByHttpCode[t.httpCode] = t
+	}
+	return t
 }

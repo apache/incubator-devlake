@@ -30,9 +30,9 @@ type (
 		// UserMessage the message associated with this Error appropriated for end users.
 		UserMessage() string
 		// GetType gets the Type of this error
-		GetType() Type
+		GetType() *Type
 		// As Attempts to cast this Error to the requested Type, and returns nil if it can't.
-		As(Type) Error
+		As(*Type) Error
 	}
 )
 
