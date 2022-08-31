@@ -362,6 +362,7 @@ function useConnectionManager (
         setErrors([])
         ToastNotification.clear()
         console.log('>> FETCHING ALL CONNECTION SOURCES')
+        let c = null
         if (allSources) {
           // @todo: build promises dynamically from $integrationsData
           const aC = await Promise.all([
@@ -395,7 +396,7 @@ function useConnectionManager (
           )
           console.log('>> ALL SOURCE CONNECTIONS: ', aC)
         } else {
-          const c = await request.get(
+          c = await request.get(
             `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections`
           )
           console.log('>> RAW ALL CONNECTIONS DATA FROM API...', c?.data)
