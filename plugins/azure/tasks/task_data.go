@@ -18,7 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/azure/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/mitchellh/mapstructure"
@@ -51,7 +51,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*AzureOptions
 	}
 	// find the needed Azure now
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("connectionId is invalid")
+		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
 	}
 	return &op, nil
 }

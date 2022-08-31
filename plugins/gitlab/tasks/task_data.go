@@ -18,7 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/mitchellh/mapstructure"
 	"time"
 
@@ -45,10 +45,10 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOption
 	var op GitlabOptions
 	err := mapstructure.Decode(options, &op)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.WrapRaw(err)
 	}
 	if op.ProjectId == 0 {
-		return nil, fmt.Errorf("ProjectId is required for Gitlab execution")
+		return nil, errors.BadInput.New("ProjectId is required for Gitlab execution", errors.AsUserMessage())
 	}
 	if op.PrType == "" {
 		op.PrType = "type/(.*)$"
@@ -80,7 +80,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOption
 
 	// find the needed GitHub now
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("connectionId is invalid")
+		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
 	}
 	return &op, nil
 }

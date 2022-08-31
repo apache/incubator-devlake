@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -54,18 +55,18 @@ func CreateAsyncApiClient(
 	// load retry/timeout from configuration
 	retry, err := utils.StrToIntOr(taskCtx.GetConfig("API_RETRY"), 3)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse API_RETRY: %w", err)
+		return nil, errors.BadInput.Wrap(err, "failed to parse API_RETRY", errors.AsUserMessage())
 	}
 	timeout, err := utils.StrToDurationOr(taskCtx.GetConfig("API_TIMEOUT"), 10*time.Second)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse API_TIMEOUT: %w", err)
+		return nil, errors.BadInput.Wrap(err, "failed to parse API_TIMEOUT", errors.AsUserMessage())
 	}
 	apiClient.SetTimeout(timeout)
 	apiClient.SetLogger(taskCtx.GetLogger())
 
 	globalRateLimitPerHour, err := utils.StrToIntOr(taskCtx.GetConfig("API_REQUESTS_PER_HOUR"), 18000)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse API_REQUESTS_PER_HOUR: %w", err)
+		return nil, errors.Default.Wrap(err, "failed to parse API_REQUESTS_PER_HOUR")
 	}
 	if rateLimiter == nil {
 		rateLimiter = &ApiRateLimitCalculator{}
@@ -76,7 +77,7 @@ func CreateAsyncApiClient(
 	// ok, calculate api rate limit based on response (normally from headers)
 	requests, duration, err := rateLimiter.Calculate(apiClient)
 	if err != nil {
-		return nil, fmt.Errorf("failed to calculate rateLimit for api: %w", err)
+		return nil, errors.Default.Wrap(err, "failed to calculate rateLimit for api")
 	}
 
 	// it is hard to tell how many workers would be sufficient, it depends on how slow the server responds.
@@ -104,7 +105,7 @@ func CreateAsyncApiClient(
 		logger,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create scheduler: %w", err)
+		return nil, errors.Default.Wrap(err, "failed to create scheduler")
 	}
 
 	// finally, wrap around api client with async sematic
@@ -168,7 +169,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 			needRetry = true
 		} else if res.StatusCode >= HttpMinStatusRetryCode {
 			needRetry = true
-			err = fmt.Errorf("http code error[%d]:[%s]", res.StatusCode, body)
+			err = errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("Http DoAsync error: %s", body))
 		}
 
 		//  if it need retry, check and try to retry

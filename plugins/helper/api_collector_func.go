@@ -20,6 +20,7 @@ package helper
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io/ioutil"
 	"net/http"
 )
@@ -39,17 +40,17 @@ func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, erro
 	rawMessages := []json.RawMessage{}
 
 	if res == nil {
-		return nil, fmt.Errorf("res is nil")
+		return nil, errors.Default.New("res is nil")
 	}
 	defer res.Body.Close()
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("%w %s", err, res.Request.URL.String())
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response body of %s", res.Request.URL.String()))
 	}
 
 	err = json.Unmarshal(resBody, &rawMessages)
 	if err != nil {
-		return nil, fmt.Errorf("%w %s %s", err, res.Request.URL.String(), string(resBody))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error decoding response of %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}
 
 	return rawMessages, nil

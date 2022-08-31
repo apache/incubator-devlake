@@ -20,6 +20,7 @@ package helper
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -248,7 +249,7 @@ func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext
 		return nil, nil
 	}
 	// invalid subtask name
-	return nil, fmt.Errorf("subtask %s doesn't exist", subtask)
+	return nil, errors.Default.New(fmt.Sprintf("subtask %s doesn't exist", subtask))
 }
 
 // NewStandaloneSubTaskContext returns a stand-alone core.SubTaskContext,

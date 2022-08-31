@@ -32,6 +32,7 @@ type (
 		wrapped    *crdbErrorImpl
 		userMsg    string
 		msg        string
+		data       any
 		t          *Type
 	}
 )
@@ -71,6 +72,10 @@ func (e *crdbErrorImpl) Unwrap() error {
 
 func (e *crdbErrorImpl) GetType() *Type {
 	return e.t
+}
+
+func (e *crdbErrorImpl) GetData() any {
+	return e.data
 }
 
 func (e *crdbErrorImpl) As(t *Type) Error {
@@ -146,6 +151,7 @@ func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbError
 		wrapped:    wrappedErr,
 		msg:        rawMessage,
 		userMsg:    cfg.userMsg,
+		data:       cfg.data,
 		t:          errType,
 	}
 	if cfg.asUserMsg {

@@ -18,6 +18,7 @@ limitations under the License.
 package plugininfo
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"reflect"
 	"sync"
@@ -172,7 +173,7 @@ func Get(c *gin.Context) {
 	})
 
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting plugin info of plugins", errors.AsUserMessage()))
 	}
 
 	shared.ApiOutputSuccess(c, info, http.StatusOK)

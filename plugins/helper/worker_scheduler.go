@@ -19,13 +19,13 @@ package helper
 
 import (
 	"context"
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	ants "github.com/panjf2000/ants/v2"
+	"github.com/panjf2000/ants/v2"
 )
 
 // WorkerScheduler runs asynchronous tasks in parallel with throttling support
@@ -52,10 +52,10 @@ func NewWorkerScheduler(
 	logger core.Logger,
 ) (*WorkerScheduler, error) {
 	if maxWork <= 0 {
-		return nil, fmt.Errorf("maxWork less than 1")
+		return nil, errors.Default.New("maxWork less than 1")
 	}
 	if maxWorkDuration <= 0 {
-		return nil, fmt.Errorf("maxWorkDuration less than 1")
+		return nil, errors.Default.New("maxWorkDuration less than 1")
 	}
 	s := &WorkerScheduler{
 		ctx:    ctx,
@@ -152,7 +152,7 @@ func (s *WorkerScheduler) NextTick(task func() error) {
 func (s *WorkerScheduler) Wait() error {
 	s.waitGroup.Wait()
 	if len(s.workerErrors) > 0 {
-		return fmt.Errorf("%s", s.workerErrors)
+		return errors.Default.Combine(s.workerErrors, "worker scheduler captured these errors")
 	}
 	return nil
 }

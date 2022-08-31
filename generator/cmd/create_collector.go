@@ -18,8 +18,8 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/generator/util"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -37,11 +37,11 @@ func init() {
 func collectorNameNotExistValidateHoc(pluginName string) func(input string) error {
 	collectorNameValidate := func(input string) error {
 		if input == `` {
-			return errors.New("please input which data would you will collect (snake_format)")
+			return errors.Default.New("please input which data would you will collect (snake_format)")
 		}
 		snakeNameReg := regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`)
 		if !snakeNameReg.MatchString(input) {
-			return errors.New("collector name invalid (start with a-z and consist with a-z0-9_)")
+			return errors.Default.New("collector name invalid (start with a-z and consist with a-z0-9_)")
 		}
 		_, err := os.Stat(filepath.Join(`plugins`, pluginName, `tasks`, input+`_collector.go`))
 		if os.IsNotExist(err) {
@@ -50,7 +50,7 @@ func collectorNameNotExistValidateHoc(pluginName string) func(input string) erro
 		if err != nil {
 			return err
 		}
-		return errors.New("collector exists")
+		return errors.Default.New("collector exists")
 	}
 	return collectorNameValidate
 }
@@ -58,7 +58,7 @@ func collectorNameNotExistValidateHoc(pluginName string) func(input string) erro
 func collectorNameExistValidateHoc(pluginName string) func(input string) error {
 	collectorNameValidate := func(input string) error {
 		if input == `` {
-			return errors.New("please input which data would you will collect (snake_format)")
+			return errors.Default.New("please input which data would you will collect (snake_format)")
 		}
 		_, err := os.Stat(filepath.Join(`plugins`, pluginName, `tasks`, input+`_collector.go`))
 		return err
@@ -105,10 +105,10 @@ Type in what the name of collector is, then generator will create a new collecto
 			Label: "http_path",
 			Validate: func(input string) error {
 				if input == `` {
-					return errors.New("http_path require")
+					return errors.BadInput.New("http_path required", errors.AsUserMessage())
 				}
 				if strings.HasPrefix(input, `/`) {
-					return errors.New("http_path shouldn't start with '/'")
+					return errors.BadInput.New("http_path shouldn't start with '/'", errors.AsUserMessage())
 				}
 				return nil
 			},

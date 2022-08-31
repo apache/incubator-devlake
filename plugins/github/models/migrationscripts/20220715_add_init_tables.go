@@ -19,7 +19,6 @@ package migrationscripts
 
 import (
 	"context"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 

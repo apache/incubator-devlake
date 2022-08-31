@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
@@ -59,7 +60,7 @@ func CollectApiCommits(taskCtx core.SubTaskContext) error {
 			dal.Limit(1),
 		)
 		if err != nil {
-			return fmt.Errorf("failed to get latest github commit record: %w", err)
+			return errors.Default.Wrap(err, "failed to get latest github commit record")
 		}
 		if latestUpdated.Sha != "" {
 			since = &latestUpdated.CommittedDate

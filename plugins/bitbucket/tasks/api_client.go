@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"net/http"
 	"strconv"
@@ -43,7 +44,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.BitbucketConne
 	})
 	apiClient.SetAfterFunction(func(res *http.Response) error {
 		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("authentication failed, please check your Basic Auth configuration")
+			return errors.Unauthorized.New("authentication failed, please check your Basic Auth configuration")
 		}
 		return nil
 	})
@@ -60,7 +61,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.BitbucketConne
 			}
 			rateLimit, err := strconv.Atoi(rateLimitHeader)
 			if err != nil {
-				return 0, 0, fmt.Errorf("failed to parse X-Request-Count header: %w", err)
+				return 0, 0, errors.Default.Wrap(err, "failed to parse X-Request-Count header")
 			}
 
 			return rateLimit, 1 * time.Minute, nil

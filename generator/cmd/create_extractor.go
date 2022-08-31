@@ -18,8 +18,8 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/generator/util"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -37,11 +37,11 @@ func init() {
 func extractorNameNotExistValidateHoc(pluginName string) func(input string) error {
 	extractorNameValidate := func(input string) error {
 		if input == `` {
-			return errors.New("please input which data would you will extract (snake_format)")
+			return errors.Default.New("please input which data would you will extract (snake_format)")
 		}
 		snakeNameReg := regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`)
 		if !snakeNameReg.MatchString(input) {
-			return errors.New("extractor name invalid (start with a-z and consist with a-z0-9_)")
+			return errors.Default.New("extractor name invalid (start with a-z and consist with a-z0-9_)")
 		}
 		_, err := os.Stat(filepath.Join(`plugins`, pluginName, `tasks`, input+`_extractor.go`))
 		if os.IsNotExist(err) {
@@ -50,7 +50,7 @@ func extractorNameNotExistValidateHoc(pluginName string) func(input string) erro
 		if err != nil {
 			return err
 		}
-		return errors.New("extractor exists")
+		return errors.Default.New("extractor exists")
 	}
 	return extractorNameValidate
 }

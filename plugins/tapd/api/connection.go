@@ -20,6 +20,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"time"
 
@@ -64,17 +65,17 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		basicRes,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("verify token failed for %s %w", connection.Username, err)
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("verify token failed for %s", connection.Username))
 	}
 	res, err := apiClient.Get("/quickstart/testauth", nil, nil)
 	if err != nil {
 		return nil, err
 	}
 	if res.StatusCode == http.StatusUnauthorized {
-		return nil, fmt.Errorf("verify token failed for %s", connection.Username)
+		return nil, errors.Unauthorized.New(fmt.Sprintf("verify token failed for %s", connection.Username))
 	}
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
+		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
 	}
 	// output
 	return nil, nil

@@ -22,6 +22,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"os"
 	"strconv"
 	"strings"
@@ -57,13 +58,13 @@ import (
 // Recommended Usage:
 
 // DataFlowTester use `N`
-//   1. Create a folder under your plugin root folder. i.e. `plugins/gitlab/e2e/ to host all your e2e-tests`
-//   2. Create a folder named `tables` to hold all data in `csv` format
-//   3. Create e2e test-cases to cover all possible data-flow routes
+//  1. Create a folder under your plugin root folder. i.e. `plugins/gitlab/e2e/ to host all your e2e-tests`
+//  2. Create a folder named `tables` to hold all data in `csv` format
+//  3. Create e2e test-cases to cover all possible data-flow routes
 //
 // Example code:
 //
-//   See [Gitlab Project Data Flow Test](plugins/gitlab/e2e/project_test.go) for detail
+//	See [Gitlab Project Data Flow Test](plugins/gitlab/e2e/project_test.go) for detail
 type DataFlowTester struct {
 	Cfg    *viper.Viper
 	Db     *gorm.DB
@@ -96,7 +97,7 @@ func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMe
 	cfg := config.GetConfig()
 	e2eDbUrl := cfg.GetString(`E2E_DB_URL`)
 	if e2eDbUrl == `` {
-		panic(fmt.Errorf(`e2e can only run with E2E_DB_URL, please set it in .env`))
+		panic(errors.Default.New(`e2e can only run with E2E_DB_URL, please set it in .env`))
 	}
 	cfg.Set(`DB_URL`, cfg.GetString(`E2E_DB_URL`))
 	db, err := runner.NewGormDb(cfg, logger.Global)
@@ -228,12 +229,12 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 		dal.Orderby(strings.Join(pkColumnNames, `,`)),
 	)
 	if err != nil {
-		panic(fmt.Errorf("unable to run select query on table %s: %v", dst.TableName(), err))
+		panic(errors.Default.Wrap(err, fmt.Sprintf("unable to run select query on table %s", dst.TableName())))
 	}
 
 	columns, err := dbCursor.Columns()
 	if err != nil {
-		panic(fmt.Errorf("unable to get columns from table %s: %v", dst.TableName(), err))
+		panic(errors.Default.Wrap(err, fmt.Sprintf("unable to get columns from table %s", dst.TableName())))
 	}
 	csvWriter := pluginhelper.NewCsvFileWriter(opts.CSVRelPath, columns)
 	defer csvWriter.Close()
@@ -256,7 +257,7 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 	for dbCursor.Next() {
 		err = dbCursor.Scan(forScanValues...)
 		if err != nil {
-			panic(fmt.Errorf("unable to scan row on table %s: %v", dst.TableName(), err))
+			panic(errors.Default.Wrap(err, fmt.Sprintf("unable to scan row on table %s: %v", dst.TableName(), err)))
 		}
 		values := make([]string, len(allFields))
 		for i := range forScanValues {

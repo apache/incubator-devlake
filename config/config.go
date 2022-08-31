@@ -18,11 +18,10 @@ limitations under the License.
 package config
 
 import (
-	"errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
+	goerror "github.com/cockroachdb/errors"
 	"os"
-	"runtime/debug"
-
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -80,7 +79,7 @@ func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (strin
 	// prepare reg exp
 	encodeEnvNameReg := regexp.MustCompile(`[^a-zA-Z0-9]`)
 	if encodeEnvNameReg == nil {
-		return ``, fmt.Errorf("encodeEnvNameReg err")
+		return ``, errors.Default.New("encodeEnvNameReg err")
 	}
 
 	for _, key := range v.AllKeys() {
@@ -91,7 +90,7 @@ func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (strin
 		})
 		envItemReg, err := regexp.Compile(fmt.Sprintf(`(?im)^\s*%v\s*\=.*$`, encodeEnvName))
 		if err != nil {
-			return ``, fmt.Errorf("regexp Compile failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return ``, errors.Default.Wrap(err, "regexp Compile failed")
 		}
 		envFileContent = envItemReg.ReplaceAllStringFunc(envFileContent, func(s string) string {
 			switch ret := val.(type) {
@@ -142,7 +141,7 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 	flags := os.O_CREATE | os.O_TRUNC | os.O_WRONLY
 	configPermissions := os.FileMode(0644)
 	file, err := afero.ReadFile(aferoFile, filename)
-	if err != nil && !errors.Is(err, os.ErrNotExist) {
+	if err != nil && !goerror.Is(err, os.ErrNotExist) {
 		return err
 	}
 

@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
@@ -51,7 +52,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 			dal.Limit(1),
 		)
 		if err != nil {
-			return fmt.Errorf("failed to get latest github issue record: %w", err)
+			return errors.Default.Wrap(err, "failed to get latest github issue record")
 		}
 		var latestUpdatedPrComt models.GithubPrComment
 		err = db.All(
@@ -62,7 +63,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 			dal.Limit(1),
 		)
 		if err != nil {
-			return fmt.Errorf("failed to get latest github issue record: %w", err)
+			return errors.Default.Wrap(err, "failed to get latest github issue record")
 		}
 		if latestUpdatedIssueComt.GithubId > 0 && latestUpdatedPrComt.GithubId > 0 {
 			if latestUpdatedIssueComt.GithubUpdatedAt.Before(latestUpdatedPrComt.GithubUpdatedAt) {

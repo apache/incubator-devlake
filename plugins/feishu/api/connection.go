@@ -19,7 +19,7 @@ package api
 
 import (
 	"context"
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
@@ -70,7 +70,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return nil, err
 	}
 	if tokenResBody.AppAccessToken == "" && tokenResBody.TenantAccessToken == "" {
-		return nil, fmt.Errorf("failed to request access token")
+		return nil, errors.Default.New("failed to request access token")
 	}
 
 	// output

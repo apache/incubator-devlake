@@ -18,7 +18,7 @@ limitations under the License.
 package main
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/dbt/tasks"
@@ -53,16 +53,16 @@ func (plugin Dbt) PrepareTaskData(taskCtx core.TaskContext, options map[string]i
 		return nil, err
 	}
 	if op.ProjectPath == "" {
-		return nil, fmt.Errorf("projectPath is required for dbt plugin")
+		return nil, errors.Default.New("projectPath is required for dbt plugin")
 	}
 	if op.ProjectName == "" {
-		return nil, fmt.Errorf("projectName is required for dbt plugin")
+		return nil, errors.Default.New("projectName is required for dbt plugin")
 	}
 	if op.ProjectTarget == "" {
 		op.ProjectTarget = "dev"
 	}
 	if op.SelectedModels == nil {
-		return nil, fmt.Errorf("selectedModels is required for dbt plugin")
+		return nil, errors.Default.New("selectedModels is required for dbt plugin")
 	}
 
 	return &tasks.DbtTaskData{

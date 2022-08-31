@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/core"

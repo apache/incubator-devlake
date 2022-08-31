@@ -19,7 +19,7 @@ package migrationscripts
 
 import (
 	"context"
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
@@ -50,7 +50,7 @@ func (u *addGithubPipelineTable) Up(ctx context.Context, db *gorm.DB) error {
 	// create table
 	err := db.Migrator().CreateTable(GithubPipeline20220803{})
 	if err != nil {
-		return fmt.Errorf("create table _tool_github_pipelines error")
+		return errors.Default.Wrap(err, "create table _tool_github_pipelines error")
 	}
 	return nil
 

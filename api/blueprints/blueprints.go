@@ -18,6 +18,7 @@ limitations under the License.
 package blueprints
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strconv"
 
@@ -41,13 +42,13 @@ func Post(c *gin.Context) {
 
 	err := c.ShouldBind(blueprint)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request body format", errors.AsUserMessage()))
 		return
 	}
 
 	err = services.CreateBlueprint(blueprint)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating blueprint", errors.AsUserMessage()))
 		return
 	}
 
@@ -66,12 +67,12 @@ func Index(c *gin.Context) {
 	var query services.BlueprintQuery
 	err := c.ShouldBindQuery(&query)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request body format", errors.AsUserMessage()))
 		return
 	}
 	blueprints, count, err := services.GetBlueprints(&query)
 	if err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, err)
+		shared.ApiOutputAbort(c, errors.Default.Wrap(err, "error getting blueprints", errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, gin.H{"blueprints": blueprints, "count": count}, http.StatusOK)
@@ -90,12 +91,12 @@ func Get(c *gin.Context) {
 	blueprintId := c.Param("blueprintId")
 	id, err := strconv.ParseUint(blueprintId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad blueprintId format supplied", errors.AsUserMessage()))
 		return
 	}
 	blueprint, err := services.GetBlueprint(id)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting blueprint", errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, blueprint, http.StatusOK)
@@ -113,12 +114,12 @@ func Delete(c *gin.Context) {
 	pipelineId := c.Param("blueprintId")
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad blueprintID format supplied", errors.AsUserMessage()))
 		return
 	}
 	err = services.DeleteBlueprint(id)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error deleting blueprint", errors.AsUserMessage()))
 	}
 }
 
@@ -160,18 +161,18 @@ func Patch(c *gin.Context) {
 	blueprintId := c.Param("blueprintId")
 	id, err := strconv.ParseUint(blueprintId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipeline ID format supplied", errors.AsUserMessage()))
 		return
 	}
 	var body map[string]interface{}
 	err = c.ShouldBind(&body)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request body format", errors.AsUserMessage()))
 		return
 	}
 	blueprint, err := services.PatchBlueprint(id, body)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error patching the blueprint", errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, blueprint, http.StatusOK)
@@ -190,12 +191,12 @@ func Trigger(c *gin.Context) {
 	blueprintId := c.Param("blueprintId")
 	id, err := strconv.ParseUint(blueprintId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad blueprintID format supplied", errors.AsUserMessage()))
 		return
 	}
 	pipeline, err := services.TriggerBlueprint(id)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error triggering blueprint", errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, pipeline, http.StatusOK)
@@ -214,14 +215,14 @@ func GetBlueprintPipelines(c *gin.Context) {
 	blueprintId := c.Param("blueprintId")
 	id, err := strconv.ParseUint(blueprintId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad blueprintID at supplied", errors.AsUserMessage()))
 		return
 	}
 	var query services.PipelineQuery
 	query.BlueprintId = id
 	pipelines, count, err := services.GetPipelines(&query)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipelines", errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, shared.ResponsePipelines{Pipelines: pipelines, Count: count}, http.StatusOK)

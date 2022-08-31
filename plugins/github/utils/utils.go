@@ -18,7 +18,8 @@ limitations under the License.
 package utils
 
 import (
-	"errors"
+	//"errors"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -48,7 +49,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 			return rateLimitInfo, err
 		}
 	} else {
-		return rateLimitInfo, errors.New("rate limit date was an empty string")
+		return rateLimitInfo, errors.Default.New("rate limit date was an empty string")
 	}
 	if resetTime != "" {
 		resetInt, err := strconv.ParseInt(resetTime, 10, 64)
@@ -57,7 +58,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 		}
 		rateLimitInfo.ResetTime = time.Unix(resetInt, 0)
 	} else {
-		return rateLimitInfo, errors.New("rate limit reset time was an empty string")
+		return rateLimitInfo, errors.Default.New("rate limit reset time was an empty string")
 	}
 	if remaining != "" {
 		rateLimitInfo.Remaining, err = strconv.Atoi(remaining)
@@ -65,7 +66,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 			return rateLimitInfo, err
 		}
 	} else {
-		return rateLimitInfo, errors.New("rate remaining was an empty string")
+		return rateLimitInfo, errors.Default.New("rate remaining was an empty string")
 	}
 	return rateLimitInfo, nil
 }
@@ -93,7 +94,7 @@ func GetPagingFromLinkHeader(link string) (PagingInfo, error) {
 	pattern1 := regexp.MustCompile(`page=*[0-9]+`)
 	pattern2 := regexp.MustCompile(`rel="*[a-z]+`)
 	if len(linksArray) < 2 {
-		return result, errors.New("the link string provided is invalid. There is likely no next page of data to fetch")
+		return result, errors.Default.New("the link string provided is invalid. There is likely no next page of data to fetch")
 	}
 	for i := 0; i < len(linksArray); i++ {
 		content := []byte(linksArray[i])
@@ -120,7 +121,7 @@ func GetPagingFromLinkHeader(link string) (PagingInfo, error) {
 				result.Prev = pageNumberInt
 			}
 		} else {
-			return result, errors.New("parsed string values aren't long enough")
+			return result, errors.Default.New("parsed string values aren't long enough")
 		}
 	}
 	return result, nil
@@ -130,7 +131,7 @@ func GetIssueIdByIssueUrl(s string) (int, error) {
 	regex := regexp.MustCompile(`.*/issues/(\d+)`)
 	groups := regex.FindStringSubmatch(s)
 	if len(groups) == 0 {
-		return 0, errors.New("invalid issue url")
+		return 0, errors.Default.New("invalid issue url")
 	}
 	return strconv.Atoi(groups[1])
 }

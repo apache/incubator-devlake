@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
 
@@ -51,7 +52,7 @@ func NewFeishuApiClient(taskCtx core.TaskContext, connection *models.FeishuConne
 		return nil, err
 	}
 	if tokenResBody.AppAccessToken == "" && tokenResBody.TenantAccessToken == "" {
-		return nil, fmt.Errorf("failed to request access token")
+		return nil, errors.Default.New("failed to request access token")
 	}
 	// real request apiClient
 	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), ENDPOINT, nil, 0, connection.Proxy, taskCtx)

@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -118,10 +119,8 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			}
 			defer res.Body.Close()
 			if res.StatusCode != http.StatusOK {
-				return nil, fmt.Errorf(
-					"unexpected status code when requesting repo detail %d %s",
-					res.StatusCode, res.Request.URL.String(),
-				)
+				return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf(
+					"unexpected status code when requesting repo detail from %s", res.Request.URL.String()))
 			}
 			body, err := ioutil.ReadAll(res.Body)
 			if err != nil {

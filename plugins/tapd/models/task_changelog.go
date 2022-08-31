@@ -19,7 +19,6 @@ package models
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )

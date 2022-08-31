@@ -18,6 +18,7 @@ limitations under the License.
 package domainlayer
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/api/shared"
@@ -46,7 +47,7 @@ GET /repos
 func ReposIndex(c *gin.Context) {
 	repos, count, err := services.GetRepos()
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting repositories", errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, gin.H{"repos": repos, "count": count}, http.StatusOK)

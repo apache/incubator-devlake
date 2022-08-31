@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"

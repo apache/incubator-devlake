@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -111,7 +112,7 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 		return nil, err
 	}
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("connectionId is invalid")
+		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
 	}
 	connection := &models.GitlabConnection{}
 	connectionHelper := helper.NewConnectionHelper(
@@ -172,7 +173,7 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 func (plugin Gitlab) Close(taskCtx core.TaskContext) error {
 	data, ok := taskCtx.GetData().(*tasks.GitlabTaskData)
 	if !ok {
-		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	data.ApiClient.Release()
 	return nil

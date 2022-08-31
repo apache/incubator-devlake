@@ -21,12 +21,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
 
-	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -54,7 +54,7 @@ func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
 	if _, ok := rt.tasks[taskId]; ok {
-		return fmt.Errorf("task with id %v already running", taskId)
+		return errors.Default.New(fmt.Sprintf("task with id %d already running", taskId))
 	}
 	rt.tasks[taskId] = &RunningTaskData{
 		Cancel:         cancel,
@@ -112,7 +112,7 @@ func (rt *RunningTask) Remove(taskId uint64) (context.CancelFunc, error) {
 		delete(rt.tasks, taskId)
 		return d.Cancel, nil
 	}
-	return nil, fmt.Errorf("task with id %v not found", taskId)
+	return nil, errors.NotFound.New(fmt.Sprintf("task with id %d not found", taskId))
 }
 
 var runningTasks RunningTask
@@ -242,7 +242,7 @@ func runTasksStandalone(parentLogger core.Logger, taskIds []uint64) error {
 		}
 	}
 	if len(errs) > 0 {
-		err = fmt.Errorf(strings.Join(errs, "\n"))
+		err = errors.Default.New(strings.Join(errs, "\n"))
 	}
 	return err
 }
@@ -287,7 +287,7 @@ func updateTaskProgress(taskId uint64, progress chan core.RunningProgress) {
 func getTaskIdFromActivityId(activityId string) (uint64, error) {
 	submatches := activityPattern.FindStringSubmatch(activityId)
 	if len(submatches) < 2 {
-		return 0, fmt.Errorf("activityId does not match")
+		return 0, errors.Default.New("activityId does not match")
 	}
 	return strconv.ParseUint(submatches[1], 10, 64)
 }

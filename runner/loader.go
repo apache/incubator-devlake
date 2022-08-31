@@ -19,6 +19,7 @@ package runner
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io/fs"
 	"path/filepath"
 	"plugin"
@@ -48,7 +49,7 @@ func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db 
 			}
 			pluginMeta, ok := symPluginEntry.(core.PluginMeta)
 			if !ok {
-				return fmt.Errorf("%v PluginEntry must implement PluginMeta interface", pluginName)
+				return errors.Default.New(fmt.Sprintf("%s PluginEntry must implement PluginMeta interface", pluginName))
 			}
 			if plugin, ok := symPluginEntry.(core.PluginInit); ok {
 				err = plugin.Init(config, logger, db)

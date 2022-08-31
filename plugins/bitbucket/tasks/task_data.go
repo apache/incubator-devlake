@@ -18,7 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
@@ -49,10 +49,10 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOpt
 		return nil, err
 	}
 	if op.Owner == "" {
-		return nil, fmt.Errorf("owner is required for Bitbucket execution")
+		return nil, errors.Default.New("owner is required for Bitbucket execution")
 	}
 	if op.Repo == "" {
-		return nil, fmt.Errorf("repo is required for Bitbucket execution")
+		return nil, errors.Default.New("repo is required for Bitbucket execution")
 	}
 	if op.PrType == "" {
 		op.PrType = "type/(.*)$"
@@ -84,7 +84,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOpt
 
 	// find the needed Bitbucket now
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("connectionId is invalid")
+		return nil, errors.Default.New("connectionId is invalid")
 	}
 	return &op, nil
 }

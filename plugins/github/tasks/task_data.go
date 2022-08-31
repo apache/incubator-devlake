@@ -18,7 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -50,10 +50,10 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOption
 		return nil, err
 	}
 	if op.Owner == "" {
-		return nil, fmt.Errorf("owner is required for GitHub execution")
+		return nil, errors.BadInput.New("owner is required for GitHub execution", errors.AsUserMessage())
 	}
 	if op.Repo == "" {
-		return nil, fmt.Errorf("repo is required for GitHub execution")
+		return nil, errors.BadInput.New("repo is required for GitHub execution", errors.AsUserMessage())
 	}
 	if op.PrType == "" {
 		op.PrType = "type/(.*)$"
@@ -85,7 +85,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOption
 
 	// find the needed GitHub now
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("connectionId is invalid")
+		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
 	}
 	return &op, nil
 }

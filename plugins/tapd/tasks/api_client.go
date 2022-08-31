@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -40,7 +41,7 @@ func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnectio
 	}
 	apiClient.SetAfterFunction(func(res *http.Response) error {
 		if res.StatusCode == http.StatusUnprocessableEntity {
-			return fmt.Errorf("authentication failed, please check your AccessToken")
+			return errors.HttpStatus(res.StatusCode).New("authentication failed, please check your AccessToken")
 		}
 		return nil
 	})

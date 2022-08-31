@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/ae/api"
@@ -75,7 +76,7 @@ func (plugin AE) PrepareTaskData(taskCtx core.TaskContext, options map[string]in
 		return nil, err
 	}
 	if op.ProjectId <= 0 {
-		return nil, fmt.Errorf("projectId is required")
+		return nil, errors.Default.New("projectId is required")
 	}
 
 	connection := &models.AeConnection{}
@@ -131,7 +132,7 @@ func (plugin AE) ApiResources() map[string]map[string]core.ApiResourceHandler {
 func (plugin AE) Close(taskCtx core.TaskContext) error {
 	data, ok := taskCtx.GetData().(*tasks.AeTaskData)
 	if !ok {
-		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	data.ApiClient.Release()
 	return nil

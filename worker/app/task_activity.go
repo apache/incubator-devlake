@@ -19,7 +19,6 @@ package app
 
 import (
 	"context"
-
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/runner"

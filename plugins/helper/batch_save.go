@@ -19,6 +19,7 @@ package helper
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strings"
 
@@ -44,13 +45,13 @@ type BatchSave struct {
 // NewBatchSave creates a new BatchSave instance
 func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchSave, error) {
 	if slotType.Kind() != reflect.Ptr {
-		return nil, fmt.Errorf("slotType must be a pointer")
+		return nil, errors.Default.New("slotType must be a pointer")
 	}
 	db := basicRes.GetDal()
 	primaryKey := db.GetPrimaryKeyFields(slotType)
 	// check if it have primaryKey
 	if len(primaryKey) == 0 {
-		return nil, fmt.Errorf("%s no primary key", slotType.String())
+		return nil, errors.Default.New(fmt.Sprintf("%s no primary key", slotType.String()))
 	}
 
 	log := basicRes.GetLogger().Nested(slotType.String())
@@ -70,10 +71,10 @@ func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*Bat
 func (c *BatchSave) Add(slot interface{}) error {
 	// type checking
 	if reflect.TypeOf(slot) != c.slotType {
-		return fmt.Errorf("sub cache type mismatched")
+		return errors.Default.New("sub cache type mismatched")
 	}
 	if reflect.ValueOf(slot).Kind() != reflect.Ptr {
-		return fmt.Errorf("slot is not a pointer")
+		return errors.Default.New("slot is not a pointer")
 	}
 	// deduplication
 	key := getKeyValue(slot, c.primaryKey)

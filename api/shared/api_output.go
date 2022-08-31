@@ -18,10 +18,12 @@ limitations under the License.
 package shared
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type ApiBody struct {
@@ -34,15 +36,16 @@ type ResponsePipelines struct {
 	Pipelines []*models.Pipeline `json:"pipelines"`
 }
 
-func ApiOutputError(c *gin.Context, err error, status int) {
-	if e, ok := err.(*errors.Error); ok {
-		c.JSON(e.Status, &ApiBody{
+// ApiOutputError writes a JSON error message to the HTTP response body
+func ApiOutputError(c *gin.Context, err error) {
+	if e, ok := err.(errors.Error); ok {
+		c.JSON(e.GetType().GetHttpCode(), &ApiBody{
 			Success: false,
-			Message: err.Error(),
+			Message: e.UserMessage(),
 		})
 	} else {
 		logger.Global.Error("Server Internal Error: %s", err.Error())
-		c.JSON(status, &ApiBody{
+		c.JSON(http.StatusInternalServerError, &ApiBody{
 			Success: false,
 			Message: err.Error(),
 		})
@@ -50,6 +53,7 @@ func ApiOutputError(c *gin.Context, err error, status int) {
 	c.Writer.Header().Set("Content-Type", "application/json")
 }
 
+// ApiOutputSuccess writes a JSON success message to the HTTP response body
 func ApiOutputSuccess(c *gin.Context, body interface{}, status int) {
 	if body == nil {
 		body = &ApiBody{
@@ -58,4 +62,13 @@ func ApiOutputSuccess(c *gin.Context, body interface{}, status int) {
 		}
 	}
 	c.JSON(status, body)
+}
+
+// ApiOutputAbort writes the HTTP response code header and saves the error internally, but doesn't push it to the response
+func ApiOutputAbort(c *gin.Context, err error) {
+	if e, ok := err.(errors.Error); ok {
+		_ = c.AbortWithError(e.GetType().GetHttpCode(), fmt.Errorf(e.UserMessage()))
+	} else {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+	}
 }

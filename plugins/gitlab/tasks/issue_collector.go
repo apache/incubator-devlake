@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
 	"net/http"
 	"net/url"
@@ -54,7 +55,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 		}
 		err := db.First(&latestUpdated, clause...)
 		if err != nil && err != gorm.ErrRecordNotFound {
-			return fmt.Errorf("failed to get latest gitlab issue record: %w", err)
+			return errors.Default.Wrap(err, "failed to get latest gitlab issue record")
 		}
 		if latestUpdated.GitlabId > 0 {
 			since = &latestUpdated.GitlabUpdatedAt

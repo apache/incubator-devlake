@@ -18,7 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -51,7 +51,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptio
 	}
 	// find the needed Jenkins now
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("connectionId is invalid")
+		return nil, errors.Default.New("connectionId is invalid")
 	}
 	return &op, nil
 }

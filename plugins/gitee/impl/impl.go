@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -114,11 +115,11 @@ func (plugin Gitee) PrepareTaskData(taskCtx core.TaskContext, options map[string
 	}
 
 	if op.Owner == "" {
-		return nil, fmt.Errorf("owner is required for Gitee execution")
+		return nil, errors.Default.New("owner is required for Gitee execution")
 	}
 
 	if op.Repo == "" {
-		return nil, fmt.Errorf("repo is required for Gitee execution")
+		return nil, errors.Default.New("repo is required for Gitee execution")
 	}
 
 	if op.PrType == "" {
@@ -154,7 +155,7 @@ func (plugin Gitee) PrepareTaskData(taskCtx core.TaskContext, options map[string
 	}
 
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("connectionId is invalid")
+		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
 	}
 
 	connection := &models.GiteeConnection{}
@@ -212,7 +213,7 @@ func (plugin Gitee) ApiResources() map[string]map[string]core.ApiResourceHandler
 func (plugin Gitee) Close(taskCtx core.TaskContext) error {
 	data, ok := taskCtx.GetData().(*tasks.GiteeTaskData)
 	if !ok {
-		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	data.ApiClient.Release()
 	return nil

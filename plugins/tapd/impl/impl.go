@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -165,7 +166,7 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		return nil, err
 	}
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("connectionId is invalid")
+		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
 	}
 	connection := &models.TapdConnection{}
 	connectionHelper := helper.NewConnectionHelper(
@@ -181,7 +182,7 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if op.Since != "" {
 		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
 		if err != nil {
-			return nil, fmt.Errorf("invalid value for `since`: %w", err)
+			return nil, errors.BadInput.Wrap(err, "invalid value for `since`", errors.AsUserMessage())
 		}
 	}
 	if connection.RateLimitPerHour == 0 {
@@ -189,7 +190,7 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	}
 	tapdApiClient, err := tasks.NewTapdApiClient(taskCtx, connection)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create tapd api client: %w", err)
+		return nil, errors.Default.Wrap(err, "failed to create tapd api client")
 	}
 	taskData := &tasks.TapdTaskData{
 		Options:    &op,
@@ -234,7 +235,7 @@ func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler 
 func (plugin Tapd) Close(taskCtx core.TaskContext) error {
 	data, ok := taskCtx.GetData().(*tasks.TapdTaskData)
 	if !ok {
-		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	data.ApiClient.Release()
 	return nil

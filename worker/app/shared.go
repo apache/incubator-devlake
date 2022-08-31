@@ -19,7 +19,6 @@ package app
 
 import (
 	"bytes"
-
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/runner"

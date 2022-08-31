@@ -19,8 +19,8 @@ package tasks
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -73,17 +73,17 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 	var rawMessages []json.RawMessage
 
 	if res == nil {
-		return nil, fmt.Errorf("res is nil")
+		return nil, errors.Default.New("res is nil")
 	}
 	defer res.Body.Close()
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("%w %s", err, res.Request.URL.String())
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
 	}
 
 	err = json.Unmarshal(resBody, &rawMessages)
 	if err != nil {
-		return nil, fmt.Errorf("%w %s %s", err, res.Request.URL.String(), string(resBody))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}
 
 	return rawMessages, nil
@@ -112,7 +112,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 			return rateLimitInfo, err
 		}
 	} else {
-		return rateLimitInfo, errors.New("rate limit date was an empty string")
+		return rateLimitInfo, errors.Default.New("rate limit date was an empty string")
 	}
 	if resetTime != "" {
 		resetInt, err := strconv.ParseInt(resetTime, 10, 64)
@@ -121,7 +121,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 		}
 		rateLimitInfo.ResetTime = time.Unix(resetInt, 0)
 	} else {
-		return rateLimitInfo, errors.New("rate limit reset time was an empty string")
+		return rateLimitInfo, errors.Default.New("rate limit reset time was an empty string")
 	}
 	if remaining != "" {
 		rateLimitInfo.Remaining, err = strconv.Atoi(remaining)
@@ -129,7 +129,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 			return rateLimitInfo, err
 		}
 	} else {
-		return rateLimitInfo, errors.New("rate remaining was an empty string")
+		return rateLimitInfo, errors.Default.New("rate remaining was an empty string")
 	}
 	return rateLimitInfo, nil
 }
@@ -185,11 +185,11 @@ func GetPagingFromLinkHeader(link string) (PagingInfo, error) {
 					result.Prev = pageNumberInt
 				}
 			} else {
-				return result, errors.New("parsed string values aren't long enough")
+				return result, errors.Default.New("parsed string values aren't long enough")
 			}
 		}
 		return result, nil
 	} else {
-		return result, errors.New("the link string provided is invalid. There is likely no next page of data to fetch")
+		return result, errors.Default.New("the link string provided is invalid. There is likely no next page of data to fetch")
 	}
 }

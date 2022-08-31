@@ -19,6 +19,7 @@ package didgen
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/impl/dalgorm"
@@ -55,7 +56,7 @@ func NewDomainIdGenerator(entityPtr interface{}) *DomainIdGenerator {
 	pk := dal.GetPrimaryKeyFields(t)
 
 	if len(pk) == 0 {
-		panic(fmt.Errorf("no primary key found for %s:%s", pluginName, structName))
+		panic(errors.Default.New(fmt.Sprintf("no primary key found for %s:%s", pluginName, structName)))
 	}
 
 	return &DomainIdGenerator{
@@ -74,11 +75,11 @@ func (g *DomainIdGenerator) Generate(pkValues ...interface{}) string {
 		if pkValueType == wildcardType {
 			break
 		} else if pkValueType != g.pk[i].Type {
-			panic(fmt.Errorf("primary key type does not match: %s is %s type, and it should be %s type",
+			panic(errors.Default.New(fmt.Sprintf("primary key type does not match: %s is %s type, and it should be %s type",
 				g.pk[i].Name,
 				pkValueType.Name(),
 				g.pk[i].Type.Name(),
-			))
+			)))
 		}
 	}
 	return id

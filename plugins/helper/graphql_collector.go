@@ -19,7 +19,7 @@ package helper
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -85,13 +85,13 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, error) {
 		return nil, err
 	}
 	if err != nil {
-		return nil, fmt.Errorf("Failed to compile UrlTemplate: %w", err)
+		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate")
 	}
 	if args.GraphqlClient == nil {
-		return nil, fmt.Errorf("ApiClient is required")
+		return nil, errors.Default.New("ApiClient is required")
 	}
 	if args.ResponseParser == nil {
-		return nil, fmt.Errorf("ResponseParser is required")
+		return nil, errors.Default.New("ResponseParser is required")
 	}
 	apicllector := &GraphqlCollector{
 		RawDataSubTask: rawDataSubTask,
@@ -108,7 +108,7 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, error) {
 	//} else {
 	//	apicllector.SetAfterResponse(func(res *http.Response) error {
 	//		if res.StatusCode == http.StatusUnauthorized {
-	//			return fmt.Errorf("authentication failed, please check your AccessToken")
+	//			return errors.Default.New("authentication failed, please check your AccessToken")
 	//		}
 	//		return nil
 	//	})
@@ -203,7 +203,7 @@ func (collector *GraphqlCollector) fetchOneByOne(divider *BatchSaveDivider, reqD
 	fetchNextPage = func(query interface{}) error {
 		pageInfo, err := collector.args.GetPageInfo(query, collector.args)
 		if err != nil {
-			return fmt.Errorf("fetchPagesDetermined get totalPages faileds: %s", err.Error())
+			return errors.Default.Wrap(err, "fetchPagesDetermined get totalPages failed")
 		}
 		if pageInfo.HasNextPage {
 			collector.args.GraphqlClient.NextTick(func() error {

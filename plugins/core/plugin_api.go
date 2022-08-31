@@ -47,15 +47,16 @@ type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, error
 
 // Implement this interface if plugin offered API
 // Code sample to register a api on `sources/:connectionId`:
-// func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler {
-// 	return map[string]map[string]core.ApiResourceHandler{
-// 		"connections/:connectionId": {
-// 			"PUT":    api.PutConnection,
-// 			"DELETE": api.DeleteConnection,
-// 			"GET":    api.GetConnection,
-// 		},
-// 	}
-// }
+//
+//	func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler {
+//		return map[string]map[string]core.ApiResourceHandler{
+//			"connections/:connectionId": {
+//				"PUT":    api.PutConnection,
+//				"DELETE": api.DeleteConnection,
+//				"GET":    api.GetConnection,
+//			},
+//		}
+//	}
 type PluginApi interface {
 	ApiResources() map[string]map[string]ApiResourceHandler
 }

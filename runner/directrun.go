@@ -19,7 +19,7 @@ package runner
 
 import (
 	"context"
-	"errors"
+	goerror "errors"
 	"fmt"
 	"io"
 	"os"
@@ -112,7 +112,7 @@ func createContext() context.Context {
 
 		n, err := fmt.Scan(&buf)
 		if err != nil {
-			if errors.Is(err, io.EOF) {
+			if goerror.Is(err, io.EOF) {
 				return
 			}
 			panic(err)

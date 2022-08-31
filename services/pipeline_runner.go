@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -112,11 +113,11 @@ func runPipeline(pipelineId uint64) error {
 		err = pipelineRun.runPipelineStandalone()
 	}
 	if err != nil {
-		err = fmt.Errorf("error running pipeline %d: %v", pipelineId, err)
+		err = errors.Default.Wrap(err, fmt.Sprintf("error running pipeline %d", pipelineId))
 	}
 	pipeline, e := GetPipeline(pipelineId)
 	if e != nil {
-		return fmt.Errorf("unable to get pipeline %d: %v", pipelineId, err)
+		return errors.Default.Wrap(err, fmt.Sprintf("unable to get pipeline %d", pipelineId))
 	}
 	// finished, update database
 	finishedAt := time.Now()

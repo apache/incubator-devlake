@@ -19,13 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
-	"regexp"
-	"runtime/debug"
-
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"regexp"
 )
 
 type MergeRequestRes struct {
@@ -86,14 +84,14 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 	if len(prType) > 0 {
 		labelTypeRegex, err = regexp.Compile(prType)
 		if err != nil {
-			return fmt.Errorf("regexp Compile prType failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile prType failed")
 		}
 	}
 	var prComponent = config.PrComponent
 	if len(prComponent) > 0 {
 		labelComponentRegex, err = regexp.Compile(prComponent)
 		if err != nil {
-			return fmt.Errorf("regexp Compile prComponent failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile prComponent failed")
 		}
 	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{

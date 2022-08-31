@@ -17,7 +17,11 @@ limitations under the License.
 
 package errors
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+	"strings"
+)
 
 // Supported error types
 var (
@@ -48,6 +52,7 @@ type (
 	options struct {
 		userMsg   string
 		asUserMsg bool
+		data      any
 	}
 )
 
@@ -81,6 +86,23 @@ func (t *Type) WrapRaw(err error) Error {
 	return newCrdbError(t, err, msg)
 }
 
+// Combine constructs a new Error from combining multiple errors. Stacktrace info for each of the errors will not be present in the result.
+func (t *Type) Combine(errs []error, msg string, opts ...Option) Error {
+	msgs := []string{}
+	for _, e := range errs {
+		if le := AsLakeErrorType(e); le != nil {
+			if msg0 := le.Message(); msg0 != "" {
+				msgs = append(msgs, le.Message())
+			}
+		} else {
+			msgs = append(msgs, e.Error())
+		}
+	}
+	effectiveMsg := strings.Join(msgs, "\n=====================\n")
+	effectiveMsg = "\t" + strings.ReplaceAll(effectiveMsg, "\n", "\n\t")
+	return newCrdbError(t, nil, fmt.Sprintf("%s\ncombined messages: \n{\n%s\n}", msg, effectiveMsg), opts...)
+}
+
 // GetHttpCode gets the associated Http code with this Type, if explicitly set, otherwise http.StatusInternalServerError
 func (t *Type) GetHttpCode() int {
 	if t.httpCode == 0 {
@@ -100,6 +122,13 @@ func UserMessage(msg string) Option {
 func AsUserMessage() Option {
 	return func(opts *options) {
 		opts.asUserMsg = true
+	}
+}
+
+// WithData associate data with this Error
+func WithData(data any) Option {
+	return func(opts *options) {
+		opts.data = data
 	}
 }
 

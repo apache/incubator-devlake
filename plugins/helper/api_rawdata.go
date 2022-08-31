@@ -20,6 +20,7 @@ package helper
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -57,10 +58,10 @@ type RawDataSubTask struct {
 
 func newRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, error) {
 	if args.Ctx == nil {
-		return nil, fmt.Errorf("Ctx is required for RawDataSubTask")
+		return nil, errors.Default.New("Ctx is required for RawDataSubTask")
 	}
 	if args.Table == "" {
-		return nil, fmt.Errorf("Table is required for RawDataSubTask")
+		return nil, errors.Default.New("Table is required for RawDataSubTask")
 	}
 	paramsString := ""
 	if args.Params == nil {

@@ -19,6 +19,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"strings"
 	"time"
@@ -76,7 +77,7 @@ func runTasks(ctx workflow.Context, configJson []byte, taskIds []uint64, logger 
 	}
 	cleanExit = true
 	if len(errs) > 0 {
-		return fmt.Errorf(strings.Join(errs, "\n"))
+		return errors.Default.New(strings.Join(errs, "\n"))
 	}
 	return nil
 }

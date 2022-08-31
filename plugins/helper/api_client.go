@@ -22,8 +22,8 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -39,7 +39,7 @@ import (
 )
 
 // ErrIgnoreAndContinue is a error which should be ignored
-var ErrIgnoreAndContinue = errors.New("ignore and continue")
+var ErrIgnoreAndContinue = errors.Default.New("ignore and continue")
 
 // ApiClient is designed for simple api requests
 type ApiClient struct {
@@ -64,22 +64,22 @@ func NewApiClient(
 
 	parsedUrl, err := url.Parse(endpoint)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid URL: %w", err)
+		return nil, errors.Default.Wrap(err, "Invalid URL")
 	}
 	if parsedUrl.Scheme == "" {
-		return nil, fmt.Errorf("Invalid schema")
+		return nil, errors.Default.New("Invalid schema")
 	}
 	err = utils.CheckDNS(parsedUrl.Hostname())
 	if err != nil {
-		return nil, fmt.Errorf("Failed to resolve DNS: %w", err)
+		return nil, errors.Default.Wrap(err, "Failed to resolve DNS")
 	}
 	port, err := utils.ResolvePort(parsedUrl.Port(), parsedUrl.Scheme)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to resolve Port: %w", err)
+		return nil, errors.Default.New("Failed to resolve Port")
 	}
 	err = utils.CheckNetwork(parsedUrl.Hostname(), port, time.Duration(2)*time.Second)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to connect: %w", err)
+		return nil, errors.Default.Wrap(err, "Failed to connect")
 	}
 	apiClient := &ApiClient{}
 	apiClient.Setup(
@@ -93,7 +93,7 @@ func NewApiClient(
 	// set insecureSkipVerify
 	insecureSkipVerify, err := utils.StrToBoolOr(br.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
 	if err != nil {
-		return nil, fmt.Errorf("failt to parse IN_SECURE_SKIP_VERIFY: %w", err)
+		return nil, errors.Default.Wrap(err, "failed to parse IN_SECURE_SKIP_VERIFY")
 	}
 	if insecureSkipVerify {
 		apiClient.client.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
@@ -299,11 +299,11 @@ func UnmarshalResponse(res *http.Response, v interface{}) error {
 	defer res.Body.Close()
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return fmt.Errorf("%w %s", err, res.Request.URL.String())
+		return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
 	}
 	err = json.Unmarshal(resBody, &v)
 	if err != nil {
-		return fmt.Errorf("%w %s %s", err, res.Request.URL.String(), string(resBody))
+		return errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}
 	return nil
 }

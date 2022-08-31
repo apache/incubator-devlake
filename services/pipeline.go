@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/google/uuid"
 	"os"
@@ -28,7 +29,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	v11 "go.temporal.io/api/enums/v1"
@@ -84,7 +84,7 @@ func pipelineServiceInit() {
 
 	var pipelineMaxParallel = cfg.GetInt64("PIPELINE_MAX_PARALLEL")
 	if pipelineMaxParallel < 0 {
-		panic(fmt.Errorf(`PIPELINE_MAX_PARALLEL should be a positive integer`))
+		panic(errors.BadInput.New(`PIPELINE_MAX_PARALLEL should be a positive integer`, errors.AsUserMessage()))
 	}
 	if pipelineMaxParallel == 0 {
 		globalPipelineLog.Warn(`pipelineMaxParallel=0 means pipeline will be run No Limit`)
@@ -139,7 +139,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 		return nil, errors.Internal.Wrap(err, "save tasks for pipeline failed")
 	}
 	if pipeline.TotalTasks == 0 {
-		return nil, fmt.Errorf("no task to run")
+		return nil, errors.Default.New("no task to run")
 	}
 
 	// update tasks state
@@ -395,7 +395,7 @@ func getPipelineLogsPath(pipeline *models.Pipeline) (string, error) {
 		return filepath.Dir(path), nil
 	}
 	if os.IsNotExist(err) {
-		return "", fmt.Errorf("logs for pipeline #%d not found. You may be missing the LOGGING_DIR setting: %w", pipeline.ID, err)
+		return "", errors.NotFound.Wrap(err, fmt.Sprintf("logs for pipeline #%d not found. You may be missing the LOGGING_DIR setting", pipeline.ID))
 	}
-	return "", fmt.Errorf("err validating logs path for pipeline #%d: %w", pipeline.ID, err)
+	return "", errors.Default.Wrap(err, fmt.Sprintf("err validating logs path for pipeline #%d", pipeline.ID))
 }

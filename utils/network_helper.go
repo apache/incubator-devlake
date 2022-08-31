@@ -19,6 +19,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net"
 	"time"
 )
@@ -32,7 +33,7 @@ func CheckDNS(domain string) error {
 	if len(ips) > 0 {
 		return nil
 	}
-	return fmt.Errorf("failed to resolve host: %s", domain)
+	return errors.Default.New(fmt.Sprintf("failed to resolve host: %s", domain))
 }
 
 // CheckNetwork FIXME ...
@@ -57,9 +58,9 @@ func ResolvePort(port string, schema string) (string, error) {
 	if schema != "" {
 		port, ok := defaultPorts[schema]
 		if !ok {
-			return "", fmt.Errorf("schema %s not found", schema)
+			return "", errors.Default.New(fmt.Sprintf("schema %s not found", schema))
 		}
 		return port, nil
 	}
-	return "", fmt.Errorf("you should provide at least one of port or schema")
+	return "", errors.Default.New("you should provide at least one of port or schema")
 }

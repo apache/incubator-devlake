@@ -22,6 +22,7 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/viant/afs"
 	"os"
 	"path/filepath"
@@ -47,7 +48,7 @@ func CreateGZipArchive(archivePath string, sourcePaths ...string) error {
 	// now gzip it
 	err = toGzip(archivePath)
 	if err != nil {
-		return fmt.Errorf("error compressing archive to gzip: %w", err)
+		return errors.Default.Wrap(err, "error compressing archive to gzip")
 	}
 	return nil
 }
@@ -61,15 +62,15 @@ func createArchive(archiveType string, archivePath string, sourcePaths ...string
 		}
 		srcPathAbs, err := filepath.Abs(sourcePath)
 		if err != nil {
-			return fmt.Errorf("error getting absolute path of %s: %w", sourcePaths, err)
+			return errors.Default.Wrap(err, fmt.Sprintf("error getting absolute path of %s", sourcePath))
 		}
 		archivePathAbs, err := filepath.Abs(archivePath)
 		if err != nil {
-			return fmt.Errorf("error getting absolute path of %s: %w", archivePath, err)
+			return errors.Default.Wrap(err, fmt.Sprintf("error getting absolute path of %s", archivePath))
 		}
 		srcInfo, err := os.Stat(srcPathAbs)
 		if err != nil {
-			return fmt.Errorf("error getting stats of path %s: %w", srcPathAbs, err)
+			return errors.Default.Wrap(err, fmt.Sprintf("error getting stats of path %s", srcPathAbs))
 		}
 		if relativeCopy && srcInfo.IsDir() {
 			err = copyContentsToArchive(archiveType, srcPathAbs, archivePathAbs)
@@ -81,7 +82,7 @@ func createArchive(archiveType string, archivePath string, sourcePaths ...string
 			err = copyToArchive(archiveType, srcPathAbs, archivePathAbs, sourcePath)
 		}
 		if err != nil {
-			return fmt.Errorf("error trying to copy data to archive: %w", err)
+			return errors.Default.Wrap(err, "error trying to copy data to archive")
 		}
 	}
 	return nil

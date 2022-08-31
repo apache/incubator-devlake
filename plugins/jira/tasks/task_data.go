@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -61,10 +62,10 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JiraOptions,
 		return nil, err
 	}
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("invalid connectionId:%d", op.ConnectionId)
+		return nil, errors.BadInput.New(fmt.Sprintf("invalid connectionId:%d", op.ConnectionId), errors.AsUserMessage())
 	}
 	if op.BoardId == 0 {
-		return nil, fmt.Errorf("invalid boardId:%d", op.BoardId)
+		return nil, errors.BadInput.New(fmt.Sprintf("invalid boardId:%d", op.BoardId), errors.AsUserMessage())
 	}
 	return &op, nil
 }

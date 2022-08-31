@@ -18,8 +18,8 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/generator/util"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -36,14 +36,14 @@ func init() {
 
 func pluginNameNotExistValidate(input string) error {
 	if input == `` {
-		return errors.New("plugin name require")
+		return errors.Default.New("plugin name require")
 	}
 	snakeNameReg := regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`)
 	if !snakeNameReg.MatchString(input) {
-		return errors.New("plugin name invalid (start with a-z and consist with a-z0-9_)")
+		return errors.Default.New("plugin name invalid (start with a-z and consist with a-z0-9_)")
 	}
 	if strings.ToLower(input) == `framework` || strings.ToLower(input) == `core` || strings.ToLower(input) == `helper` {
-		return errors.New("plugin name cannot be `framework` or `core` or `helper`")
+		return errors.Default.New("plugin name cannot be `framework` or `core` or `helper`")
 	}
 	_, err := os.Stat(`plugins/` + input)
 	if os.IsNotExist(err) {
@@ -52,12 +52,12 @@ func pluginNameNotExistValidate(input string) error {
 	if err != nil {
 		return err
 	}
-	return errors.New("plugin exists")
+	return errors.Default.New("plugin exists")
 }
 
 func pluginNameExistValidate(input string) error {
 	if input == `` {
-		return errors.New("plugin name require")
+		return errors.Default.New("plugin name require")
 	}
 	_, err := os.Stat(`plugins/` + input)
 	return err

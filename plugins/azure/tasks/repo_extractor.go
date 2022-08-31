@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/azure/models"
@@ -83,7 +84,7 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			if body.ID == "" {
-				return nil, fmt.Errorf("repo %s not found", data.Options.Project)
+				return nil, errors.Default.New(fmt.Sprintf("repo %s not found", data.Options.Project))
 			}
 			results := make([]interface{}, 0, 1)
 			azureRepository := &models.AzureRepo{

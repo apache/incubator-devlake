@@ -20,7 +20,7 @@ package helper
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -97,17 +97,17 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	}
 	// TODO: check if args.Table is valid
 	if args.UrlTemplate == "" {
-		return nil, fmt.Errorf("UrlTemplate is required")
+		return nil, errors.Default.New("UrlTemplate is required")
 	}
 	tpl, err := template.New(args.Table).Parse(args.UrlTemplate)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to compile UrlTemplate: %w", err)
+		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate")
 	}
 	if args.ApiClient == nil {
-		return nil, fmt.Errorf("ApiClient is required")
+		return nil, errors.Default.New("ApiClient is required")
 	}
 	if args.ResponseParser == nil {
-		return nil, fmt.Errorf("ResponseParser is required")
+		return nil, errors.Default.New("ResponseParser is required")
 	}
 	apiCollector := &ApiCollector{
 		RawDataSubTask: rawDataSubTask,
@@ -119,7 +119,7 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	} else if apiCollector.GetAfterResponse() == nil {
 		apiCollector.SetAfterResponse(func(res *http.Response) error {
 			if res.StatusCode == http.StatusUnauthorized {
-				return fmt.Errorf("authentication failed, please check your AccessToken")
+				return errors.Unauthorized.New("authentication failed, please check your AccessToken")
 			}
 			return nil
 		})
@@ -154,7 +154,7 @@ func (collector *ApiCollector) Execute() error {
 		defer iterator.Close()
 		apiClient := collector.args.ApiClient
 		if apiClient == nil {
-			return fmt.Errorf("api_collector can not Execute with nil apiClient")
+			return errors.Default.New("api_collector can not Execute with nil apiClient")
 		}
 
 		for {
@@ -216,7 +216,7 @@ func (collector *ApiCollector) fetchPagesDetermined(reqData *RequestData) {
 	collector.fetchAsync(reqData, func(count int, body []byte, res *http.Response) error {
 		totalPages, err := collector.args.GetTotalPages(res, collector.args)
 		if err != nil {
-			return fmt.Errorf("fetchPagesDetermined get totalPages faileds: %s", err.Error())
+			return errors.Default.Wrap(err, "fetchPagesDetermined get totalPages failed")
 		}
 		// spawn a none blocking go routine to fetch other pages
 		collector.args.ApiClient.NextTick(func() error {

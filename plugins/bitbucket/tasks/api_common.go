@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -80,17 +81,17 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 		Values []json.RawMessage `json:"values"`
 	}
 	if res == nil {
-		return nil, fmt.Errorf("res is nil")
+		return nil, errors.Default.New("res is nil")
 	}
 	defer res.Body.Close()
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, fmt.Errorf("%w %s", err, res.Request.URL.String())
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
 	}
 
 	err = json.Unmarshal(resBody, &rawMessages)
 	if err != nil {
-		return nil, fmt.Errorf("%w %s %s", err, res.Request.URL.String(), string(resBody))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}
 
 	return rawMessages.Values, nil

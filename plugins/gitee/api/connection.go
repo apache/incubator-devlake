@@ -19,7 +19,7 @@ package api
 
 import (
 	"context"
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"time"
@@ -77,7 +77,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
+		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code when testing connection")
 	}
 	return nil, nil
 }

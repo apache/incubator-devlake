@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -65,7 +66,7 @@ func GetJiraServerInfo(client *helper.ApiAsyncClient) (*models.JiraServerInfo, i
 		return nil, 0, err
 	}
 	if res.StatusCode >= 300 || res.StatusCode < 200 {
-		return nil, res.StatusCode, fmt.Errorf("request failed with status code: %d", res.StatusCode)
+		return nil, res.StatusCode, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("request failed with status code: %d", res.StatusCode))
 	}
 	serverInfo := &models.JiraServerInfo{}
 	err = helper.UnmarshalResponse(res, serverInfo)
@@ -77,7 +78,7 @@ func GetJiraServerInfo(client *helper.ApiAsyncClient) (*models.JiraServerInfo, i
 
 func ignoreHTTPStatus404(res *http.Response) error {
 	if res.StatusCode == http.StatusUnauthorized {
-		return fmt.Errorf("authentication failed, please check your AccessToken")
+		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
 	}
 	if res.StatusCode == http.StatusNotFound {
 		return helper.ErrIgnoreAndContinue

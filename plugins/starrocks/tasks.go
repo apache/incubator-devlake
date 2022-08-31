@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -69,7 +70,7 @@ func LoadData(c core.SubTaskContext) error {
 	if config.DomainLayer != "" {
 		starrocksTables = getTablesByDomainLayer(config.DomainLayer)
 		if starrocksTables == nil {
-			return fmt.Errorf("no table found by domain layer: %s", config.DomainLayer)
+			return errors.NotFound.New(fmt.Sprintf("no table found by domain layer: %s", config.DomainLayer))
 		}
 	} else {
 		tables := config.Tables
@@ -127,7 +128,7 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 		name := cm.Name()
 		starrocksDatatype, ok := cm.ColumnType()
 		if !ok {
-			return fmt.Errorf("Get [%s] ColumeType Failed", name)
+			return errors.Default.New(fmt.Sprintf("Get [%s] ColumeType Failed", name))
 		}
 		column := fmt.Sprintf("`%s` %s", name, getDataType(starrocksDatatype))
 		columns = append(columns, column)

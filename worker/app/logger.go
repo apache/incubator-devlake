@@ -19,7 +19,6 @@ package app
 
 import (
 	"fmt"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"go.temporal.io/sdk/log"
 )

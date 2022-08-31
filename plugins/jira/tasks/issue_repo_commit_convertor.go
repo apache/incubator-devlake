@@ -18,12 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"regexp"
-	"runtime/debug"
-
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -54,7 +52,7 @@ func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 	commitRepoUrlPattern := `(.*)\-\/commit`
 	commitRepoUrlRegex, err = regexp.Compile(commitRepoUrlPattern)
 	if err != nil {
-		return fmt.Errorf("regexp Compile commitRepoUrlPattern failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		return errors.Default.Wrap(err, "regexp Compile commitRepoUrlPattern failed")
 	}
 
 	clause := []dal.Clause{

@@ -29,12 +29,13 @@ type DataConvertHandler func(row interface{}) ([]interface{}, error)
 
 // DataConverterArgs includes the arguments about DataConverter.
 // This will be used in Creating a DataConverter.
-// DataConverterArgs {
-//			InputRowType: 		type of inputRow ,
-//			Input:        		dal cursor,
-//			RawDataSubTaskArgs: args about raw data task
-//			Convert: 			main function including conversion logic
-//			BatchSize: 			batch size
+//
+//	DataConverterArgs {
+//				InputRowType: 		type of inputRow ,
+//				Input:        		dal cursor,
+//				RawDataSubTaskArgs: args about raw data task
+//				Convert: 			main function including conversion logic
+//				BatchSize: 			batch size
 type DataConverterArgs struct {
 	RawDataSubTaskArgs
 	// Domain layer entity Id prefix, i.e. `jira:JiraIssue:1`, `github:GithubIssue`
@@ -130,5 +131,5 @@ func (converter *DataConverter) Execute() error {
 	return divider.Close()
 }
 
-//Check if DataConverter implements SubTask interface
+// Check if DataConverter implements SubTask interface
 var _ core.SubTask = (*DataConverter)(nil)

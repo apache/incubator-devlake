@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"time"
 
@@ -136,10 +137,10 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	logger.Debug("%v", options)
 	err = mapstructure.Decode(options, &op)
 	if err != nil {
-		return nil, fmt.Errorf("could not decode Jira options: %v", err)
+		return nil, errors.Default.Wrap(err, "could not decode Jira options", errors.AsUserMessage())
 	}
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("jira connectionId is invalid")
+		return nil, errors.BadInput.New("jira connectionId is invalid", errors.AsUserMessage())
 	}
 	connection := &models.JiraConnection{}
 	connectionHelper := helper.NewConnectionHelper(
@@ -147,27 +148,27 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		nil,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("could not get connection API instance for Jira: %v", err)
+		return nil, errors.BadInput.Wrap(err, "could not get connection API instance for Jira", errors.AsUserMessage())
 	}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get Jira connection: %v", err)
+		return nil, errors.Default.Wrap(err, "unable to get Jira connection", errors.AsUserMessage())
 	}
 
 	var since time.Time
 	if op.Since != "" {
 		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
 		if err != nil {
-			return nil, fmt.Errorf("invalid value for `since`: %w", err)
+			return nil, errors.BadInput.Wrap(err, "invalid value for `since`", errors.AsUserMessage())
 		}
 	}
 	jiraApiClient, err := tasks.NewJiraApiClient(taskCtx, connection)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create jira api client: %w", err)
+		return nil, errors.Default.Wrap(err, "failed to create jira api client", errors.AsUserMessage())
 	}
 	info, code, err := tasks.GetJiraServerInfo(jiraApiClient)
 	if err != nil || code != http.StatusOK || info == nil {
-		return nil, fmt.Errorf("fail to get server info: error:[%s] code:[%d]", err, code)
+		return nil, errors.HttpStatus(code).Wrap(err, "fail to get Jira server info", errors.AsUserMessage())
 	}
 	taskData := &tasks.JiraTaskData{
 		Options:        &op,
@@ -221,7 +222,7 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 func (plugin Jira) Close(taskCtx core.TaskContext) error {
 	data, ok := taskCtx.GetData().(*tasks.JiraTaskData)
 	if !ok {
-		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	data.ApiClient.Release()
 	return nil

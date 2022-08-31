@@ -20,12 +20,13 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	models "github.com/apache/incubator-devlake/plugins/jenkins/models"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
 const RAW_JOB_TABLE = "jenkins_api_jobs"
@@ -83,7 +84,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 					},
 				}, nil
 			} else {
-				return nil, fmt.Errorf("empty FolderInput")
+				return nil, errors.Default.New("empty FolderInput")
 			}
 		},
 

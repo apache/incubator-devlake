@@ -18,7 +18,7 @@ limitations under the License.
 package impl
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/api"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
@@ -81,12 +81,12 @@ func (plugin Bitbucket) PrepareTaskData(taskCtx core.TaskContext, options map[st
 	connection := &models.BitbucketConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get bitbucket connection by the given connection ID: %v", err)
+		return nil, errors.Default.Wrap(err, "unable to get bitbucket connection by the given connection ID")
 	}
 
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get bitbucket API client instance: %v", err)
+		return nil, errors.Default.Wrap(err, "unable to get bitbucket API client instance")
 	}
 
 	return &tasks.BitbucketTaskData{

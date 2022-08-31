@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
@@ -60,7 +61,7 @@ func CollectApiPullRequests(taskCtx core.SubTaskContext) error {
 			dal.Limit(1),
 		)
 		if err != nil {
-			return fmt.Errorf("failed to get latest github issue record: %w", err)
+			return errors.Default.Wrap(err, "failed to get latest github issue record")
 		}
 		if latestUpdated.GithubId > 0 {
 			since = &latestUpdated.GithubUpdatedAt

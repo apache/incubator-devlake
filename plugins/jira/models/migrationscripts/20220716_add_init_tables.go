@@ -20,7 +20,7 @@ package migrationscripts
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"strings"
 	"time"
 
@@ -115,7 +115,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 			c := config.GetConfig()
 			encKey := c.GetString(core.EncodeKeyEnvStr)
 			if encKey == "" {
-				return fmt.Errorf("jira v0.11 invalid encKey")
+				return errors.BadInput.New("jira v0.11 invalid encKey", errors.AsUserMessage())
 			}
 			auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
 			if err != nil {
@@ -133,9 +133,9 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 					return err
 				}
 				// create
-				err := db.Create(&conn)
-				if err.Error != nil {
-					return err.Error
+				tx := db.Create(&conn)
+				if tx.Error != nil {
+					return errors.Default.Wrap(tx.Error, "error adding connection to DB")
 				}
 			}
 		}

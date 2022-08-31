@@ -20,6 +20,7 @@ package helper
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strconv"
 
@@ -118,11 +119,11 @@ func (c *ConnectionApiHelper) Patch(connection interface{}, input *core.ApiResou
 func (c *ConnectionApiHelper) First(connection interface{}, params map[string]string) error {
 	connectionId := params["connectionId"]
 	if connectionId == "" {
-		return fmt.Errorf("missing connectionId")
+		return errors.BadInput.New("missing connectionId", errors.AsUserMessage())
 	}
 	id, err := strconv.ParseUint(connectionId, 10, 64)
 	if err != nil || id < 1 {
-		return fmt.Errorf("invalid connectionId")
+		return errors.BadInput.New("invalid connectionId", errors.AsUserMessage())
 	}
 	return c.FirstById(connection, id)
 }
@@ -204,11 +205,11 @@ func (c *ConnectionApiHelper) encrypt(connection interface{}) {
 func UpdateEncryptFields(val interface{}, update func(in string) (string, error)) error {
 	v := reflect.ValueOf(val)
 	if v.Kind() != reflect.Ptr {
-		panic(fmt.Errorf("val is not a pointer: %v", val))
+		panic(errors.Default.New(fmt.Sprintf("val is not a pointer: %v", val)))
 	}
 	e := v.Elem()
 	if e.Kind() != reflect.Struct {
-		panic(fmt.Errorf("*val is not a struct: %v", val))
+		panic(errors.Default.New(fmt.Sprintf("*val is not a struct: %v", val)))
 	}
 	t := e.Type()
 	for i := 0; i < t.NumField(); i++ {

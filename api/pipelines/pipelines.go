@@ -18,7 +18,6 @@ limitations under the License.
 package pipelines
 
 import (
-	goerror "errors"
 	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"os"
@@ -57,14 +56,14 @@ func Post(c *gin.Context) {
 
 	err := c.MustBindWith(newPipeline, binding.JSON)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad JSON request body format", errors.AsUserMessage()))
 		return
 	}
 
 	pipeline, err := services.CreatePipeline(newPipeline)
 	// Return all created tasks to the User
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating pipeline", errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, pipeline, http.StatusCreated)
@@ -96,12 +95,12 @@ func Index(c *gin.Context) {
 	var query services.PipelineQuery
 	err := c.ShouldBindQuery(&query)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request body format", errors.AsUserMessage()))
 		return
 	}
 	pipelines, count, err := services.GetPipelines(&query)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipelines", errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, shared.ResponsePipelines{Pipelines: pipelines, Count: count}, http.StatusOK)
@@ -134,12 +133,12 @@ func Get(c *gin.Context) {
 	pipelineId := c.Param("pipelineId")
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipelineID format supplied", errors.AsUserMessage()))
 		return
 	}
 	pipeline, err := services.GetPipeline(id)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipeline", errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, pipeline, http.StatusOK)
@@ -161,12 +160,12 @@ func Delete(c *gin.Context) {
 	pipelineId := c.Param("pipelineId")
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipelineID format supplied", errors.AsUserMessage()))
 		return
 	}
 	err = services.CancelPipeline(id)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error cancelling pipeline", errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, nil, http.StatusOK)
@@ -189,25 +188,17 @@ func DownloadLogs(c *gin.Context) {
 	pipelineId := c.Param("pipelineId")
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipeline ID format supplied", errors.AsUserMessage()))
 		return
 	}
 	pipeline, err := services.GetPipeline(id)
 	if err != nil {
-		if errors.IsNotFound(err) {
-			shared.ApiOutputError(c, err, http.StatusNotFound)
-		} else {
-			shared.ApiOutputError(c, err, http.StatusInternalServerError)
-		}
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipeline", errors.AsUserMessage()))
 		return
 	}
 	archive, err := services.GetPipelineLogsArchivePath(pipeline)
 	if err != nil {
-		if goerror.Is(err, os.ErrNotExist) {
-			shared.ApiOutputError(c, err, http.StatusNotFound)
-		} else {
-			shared.ApiOutputError(c, err, http.StatusInternalServerError)
-		}
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting logs for pipeline", errors.AsUserMessage()))
 		return
 	}
 	defer os.Remove(archive)
