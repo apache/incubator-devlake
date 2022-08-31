@@ -54,6 +54,18 @@ func (t *Type) Wrap(err error, message string, opts ...Option) Error {
 	return newCrdbError(t, err, message, opts...)
 }
 
+// WrapRaw constructs a new Error instance that directly wraps this error with no additional context
+func (t *Type) WrapRaw(err error) Error {
+	msg := ""
+	lakeErr := AsLakeErrorType(err)
+	if lakeErr != nil {
+		msg = "" // there's nothing new to add
+	} else {
+		msg = err.Error()
+	}
+	return newCrdbError(t, err, msg)
+}
+
 // GetHttpCode gets the associated Http code with this Type, if explicitly set, otherwise http.StatusInternalServerError
 func (t *Type) GetHttpCode() int {
 	if t.httpCode == 0 {
