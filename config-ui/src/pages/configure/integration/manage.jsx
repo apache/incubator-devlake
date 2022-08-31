@@ -55,7 +55,7 @@ export default function ManageIntegration () {
   const [deleteId, setDeleteId] = useState()
 
   const {
-    sourceLimits,
+    connectionLimitReached,
     allConnections: connections,
     testedConnections,
     isFetching: isLoading,
@@ -68,10 +68,6 @@ export default function ManageIntegration () {
   } = useConnectionManager({
     activeProvider
   })
-
-  useEffect(() => {
-
-  }, [activeProvider])
 
   const addConnection = () => {
     history.push(`/connections/add/${activeProvider.id}`)
@@ -90,14 +86,6 @@ export default function ManageIntegration () {
     console.log('>> editing/modifying connection: ', id, endpoint)
   }
 
-  // @todo: Implement
-  // const runCollection = (connection) => {
-  //   const { id, endpoint } = connection
-  //   ToastNotification.clear()
-  //   ToastNotification.show({ message: `Triggered Collection Process on ${connection.name}`, icon: 'info-sign' })
-  //   console.log('>> running connection: ', id, endpoint)
-  // }
-
   const runDeletion = (connection) => {
     setIsRunningDelete(true)
     try {
@@ -109,10 +97,6 @@ export default function ManageIntegration () {
 
   const refreshConnections = () => {
     fetchAllConnections(false)
-  }
-
-  const maxConnectionsExceeded = (limit, totalConnections) => {
-    return totalConnections > 0 && totalConnections >= limit
   }
 
   const getTestedConnection = (connection) => {
@@ -147,10 +131,6 @@ export default function ManageIntegration () {
     setIntegrations(integrations)
     setActiveProvider(integrations.find(p => p.id === providerId))
   }, [])
-
-  useEffect(() => {
-    console.log('>> CONNECTION SOURCE LIMITS', sourceLimits)
-  }, [connections, sourceLimits])
 
   useEffect(() => {
     let flushTimeout
@@ -250,7 +230,7 @@ export default function ManageIntegration () {
                     <Button
                       id='btn-add-new-connection'
                       className='add-new-connection'
-                      disabled={maxConnectionsExceeded(sourceLimits[activeProvider.id], connections.length)}
+                      disabled={connectionLimitReached}
                       onClick={addConnection}
                       rightIcon='add'
                       intent='primary'
@@ -263,7 +243,7 @@ export default function ManageIntegration () {
                     <table className='bp3-html-table bp3-html-table-bordered connections-table' style={{ width: '100%' }}>
                       <thead>
                         <tr>
-                          {!sourceLimits[activeProvider.id] && (<th>ID</th>)}
+                          {!connectionLimitReached && (<th>ID</th>)}
                           <th>Connection Name</th>
                           <th>Endpoint</th>
                           <th>Status</th>
@@ -277,7 +257,7 @@ export default function ManageIntegration () {
                             // eslint-disable-next-line max-len
                             className={getTestedConnection(connection) && getTestedConnection(connection).status !== 1 ? 'connection-offline' : 'connection-online'}
                           >
-                            {!sourceLimits[activeProvider.id] && (
+                            {!connectionLimitReached && (
                               <td
                                 style={{ cursor: 'pointer' }}
                                 className='cell-name'
@@ -364,7 +344,7 @@ export default function ManageIntegration () {
                         ))}
                       </tbody>
                     </table>
-                    {maxConnectionsExceeded(sourceLimits[activeProvider.id], connections.length) && (
+                    {connectionLimitReached && (
                       <p style={{ margin: 0, padding: '10px', backgroundColor: '#f0f0f0', borderTop: '1px solid #cccccc' }}>
                         <Icon icon='warning-sign' size='16' color={Colors.GRAY1} style={{ marginRight: '5px' }} />
                         You have reached the maximum number of allowed connections for this provider.

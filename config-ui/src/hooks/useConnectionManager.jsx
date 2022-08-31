@@ -286,7 +286,7 @@ function useConnectionManager (
           testConnection()
         }
         if (!updateMode) {
-          history.push(`/integrations/${provider.id}`)
+          history.replace(`/integrations/${provider.id}`)
         }
       }
     })
