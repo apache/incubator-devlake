@@ -72,8 +72,11 @@ function useConnectionManager (
   const [allProviderConnections, setAllProviderConnections] = useState([])
   const [domainRepositories, setDomainRepositories] = useState([])
   const [testedConnections, setTestedConnections] = useState([])
-  const [connectionCount, setConnectionCount] = useState(0)
-  const [connectionLimitReached, setConnectionLimitReached] = useState(false)
+  const connectionCount = useMemo(() => allConnections.length, [allConnections])
+  const connectionLimitReached = useMemo(() =>
+    sourceLimits[provider?.id] && connectionCount >= sourceLimits[provider.id],
+  [/*provider?.id, */sourceLimits, connectionCount],
+  )
 
   const [connectionsList, setConnectionsList] = useState([])
 
@@ -359,7 +362,6 @@ function useConnectionManager (
         setErrors([])
         ToastNotification.clear()
         console.log('>> FETCHING ALL CONNECTION SOURCES')
-        let c = null
         if (allSources) {
           // @todo: build promises dynamically from $integrationsData
           const aC = await Promise.all([
@@ -393,25 +395,25 @@ function useConnectionManager (
           )
           console.log('>> ALL SOURCE CONNECTIONS: ', aC)
         } else {
-          c = await request.get(
+          const c = await request.get(
             `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections`
           )
+          console.log('>> RAW ALL CONNECTIONS DATA FROM API...', c?.data)
+          const providerConnections = []
+            .concat(Array.isArray(c?.data) ? c?.data : [])
+            .map((conn, idx) => {
+              return {
+                ...conn,
+                status: ConnectionStatus.OFFLINE,
+                ID: conn.ID || conn.id,
+                id: conn.id,
+                name: conn.name,
+                endpoint: conn.endpoint,
+                errors: [],
+              }
+            })
+          setAllConnections(providerConnections)
         }
-
-        console.log('>> RAW ALL CONNECTIONS DATA FROM API...', c?.data)
-        const providerConnections = []
-          .concat(Array.isArray(c?.data) ? c?.data : [])
-          .map((conn, idx) => {
-            return {
-              ...conn,
-              status: ConnectionStatus.OFFLINE,
-              ID: conn.ID || conn.id,
-              id: conn.id,
-              name: conn.name,
-              endpoint: conn.endpoint,
-              errors: [],
-            }
-          })
         if (notify) {
           ToastNotification.show({
             message: 'Loaded all connections.',
@@ -419,12 +421,6 @@ function useConnectionManager (
             icon: 'small-tick',
           })
         }
-        setAllConnections(providerConnections)
-        setConnectionCount(c?.data?.length)
-        setConnectionLimitReached(
-          sourceLimits[provider.id] &&
-            c.data?.length >= sourceLimits[provider.id]
-        )
         setIsFetching(false)
       } catch (e) {
         console.log('>> FAILED TO FETCH ALL CONNECTIONS', e)
@@ -435,8 +431,6 @@ function useConnectionManager (
         })
         setIsFetching(false)
         setAllConnections([])
-        setConnectionCount(0)
-        setConnectionLimitReached(false)
         setErrors([e.message])
         handleOfflineMode(e.response?.status, e.response)
       }
