@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"net/http"
 )
 
@@ -40,6 +41,11 @@ func CollectIssueTypes(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issue_types")
+
+	urlTemplate := "api/3/issuetype"
+	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
+		urlTemplate = "api/2/issuetype"
+	}
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -51,7 +57,7 @@ func CollectIssueTypes(taskCtx core.SubTaskContext) error {
 		},
 		ApiClient:   data.ApiClient,
 		Concurrency: 1,
-		UrlTemplate: "api/3/issuetype",
+		UrlTemplate: urlTemplate,
 
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data []json.RawMessage
