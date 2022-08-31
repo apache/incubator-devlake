@@ -78,8 +78,6 @@ function useConnectionManager (
   [/*provider?.id, */sourceLimits, connectionCount],
   )
 
-  const [connectionsList, setConnectionsList] = useState([])
-
   const [saveComplete, setSaveComplete] = useState(false)
   const [deleteComplete, setDeleteComplete] = useState(false)
   const connectionTestPayload = useMemo(() => ({ endpoint: endpointUrl, username, password, token, proxy }), [endpointUrl, password, proxy, token, username])
@@ -636,28 +634,6 @@ function useConnectionManager (
     setProvider(activeProvider)
   }, [activeProvider])
 
-  useEffect(() => {
-    console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)
-    setConnectionsList(
-      allProviderConnections?.map((c, cIdx) => ({
-        ...c,
-        id: cIdx,
-        key: cIdx,
-        connectionId: c.id,
-        name: c.name,
-        title: c.name,
-        value: c.id,
-        status:
-          ConnectionStatusLabels[c.status] ||
-          ConnectionStatusLabels[ConnectionStatus.OFFLINE],
-        statusResponse: null,
-        provider: c.provider,
-        providerId: c.provider,
-        plugin: c.provider,
-      }))
-    )
-  }, [allProviderConnections])
-
   return {
     activeConnection,
     fetchConnection,
@@ -702,11 +678,9 @@ function useConnectionManager (
     setTestResponse,
     setAllTestResponses,
     setConnectionLimits,
-    setConnectionsList,
     setSaveComplete,
     allConnections,
     allProviderConnections,
-    connectionsList,
     domainRepositories,
     testedConnections,
     sourceLimits,

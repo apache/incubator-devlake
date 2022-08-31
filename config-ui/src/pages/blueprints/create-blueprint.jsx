@@ -28,6 +28,8 @@ import {
 import { integrationsData } from '@/data/integrations'
 import { Intent } from '@blueprintjs/core'
 import {
+  ConnectionStatus,
+  ConnectionStatusLabels,
   Providers,
 } from '@/data/Providers'
 import Nav from '@/components/Nav'
@@ -256,9 +258,7 @@ const CreateBlueprint = (props) => {
     saveConnection,
     // eslint-disable-next-line no-unused-vars
     fetchConnection,
-    // eslint-disable-next-line no-unused-vars
     allProviderConnections,
-    connectionsList,
     errors: connectionErrors,
     isSaving: isSavingConnection,
     isTesting: isTestingConnection,
@@ -287,7 +287,6 @@ const CreateBlueprint = (props) => {
     setTestStatus,
     setTestResponse,
     setAllTestResponses,
-    setConnectionsList,
     setSaveComplete: setSaveConnectionComplete,
     fetchAllConnections,
     clearConnection: clearActiveConnection,
@@ -655,7 +654,7 @@ const CreateBlueprint = (props) => {
     cronConfig,
     customCronConfig,
     blueprintTasks,
-    connectionsList,
+    allProviderConnections,
     enable,
     validateBlueprint,
   ])
@@ -937,14 +936,30 @@ const CreateBlueprint = (props) => {
     })))
   }, [onlineStatus, blueprintConnections])
 
-  useEffect(() => {
-    setConnectionsList(cList => cList.map((c, cIdx) => ({
+  const connectionsList = useMemo(() => {
+    console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)
+    return allProviderConnections?.map((c, cIdx) => ({
       ...c,
+      id: cIdx,
+      key: cIdx,
+      connectionId: c.id,
+      name: c.name,
+      title: c.name,
+      value: c.id,
+      status:
+        dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status ||
+        ConnectionStatusLabels[c.status] ||
+        ConnectionStatusLabels[ConnectionStatus.OFFLINE],
       statusResponse: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider),
-      status: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status
-    })))
+      provider: c.provider,
+      providerId: c.provider,
+      plugin: c.provider,
+    }))
+  }, [dataConnections, allProviderConnections])
+
+  useEffect(() => {
     setCanAdvanceNext(dataConnections.every(dC => dC.status === 200))
-  }, [dataConnections, setConnectionsList])
+  }, [dataConnections])
 
   return (
     <>
