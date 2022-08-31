@@ -51,7 +51,7 @@ func CollectIssueTypes(taskCtx core.SubTaskContext) error {
 		},
 		ApiClient:   data.ApiClient,
 		Concurrency: 1,
-		UrlTemplate: "api/3/issuetype",
+		UrlTemplate: "api/2/issuetype",
 
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data []json.RawMessage
