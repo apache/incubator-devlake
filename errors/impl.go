@@ -53,7 +53,11 @@ func (e *crdbErrorImpl) Error() string {
 
 func (e *crdbErrorImpl) Message() string {
 	return strings.Join(e.getMessages(func(err *crdbErrorImpl) string {
-		return err.msg
+		code := ""
+		if err.t.httpCode != 0 {
+			code = fmt.Sprintf("(%d)", err.t.httpCode)
+		}
+		return err.msg + " " + code
 	}), "\ncaused by: ")
 }
 
