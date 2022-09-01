@@ -55,6 +55,8 @@ var PluginEntry StarRocks
 
 func main() {
 	cmd := &cobra.Command{Use: "StarRocks"}
+	sourceType := cmd.Flags().StringP("source_type", "sp", "", "Source type")
+	sourceDsn := cmd.Flags().StringP("source_dsn", "sd", "", "Source dsn")
 	_ = cmd.MarkFlagRequired("host")
 	host := cmd.Flags().StringP("host", "h", "", "StarRocks host")
 	_ = cmd.MarkFlagRequired("port")
@@ -76,16 +78,18 @@ func main() {
 	extra := cmd.Flags().StringP("extra", "e", "", "StarRocks create table sql extra")
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"host":       host,
-			"port":       port,
-			"user":       user,
-			"password":   password,
-			"database":   database,
-			"be_host":    beHost,
-			"be_port":    bePort,
-			"tables":     tables,
-			"batch_size": batchSize,
-			"extra":      extra,
+			"source_type": sourceType,
+			"source_dsn":  sourceDsn,
+			"host":        host,
+			"port":        port,
+			"user":        user,
+			"password":    password,
+			"database":    database,
+			"be_host":     beHost,
+			"be_port":     bePort,
+			"tables":      tables,
+			"batch_size":  batchSize,
+			"extra":       extra,
 		})
 	}
 	runner.RunCmd(cmd)

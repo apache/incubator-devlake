@@ -99,6 +99,8 @@ func getDataType(dataType string) string {
 		starrocksDatatype = "double"
 	} else if stringIn(dataType, "json", "jsonb") {
 		starrocksDatatype = "json"
+	} else if dataType == "uuid" {
+		starrocksDatatype = "char(36)"
 	}
 	return starrocksDatatype
 }

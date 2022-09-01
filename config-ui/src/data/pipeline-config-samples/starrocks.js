@@ -18,8 +18,10 @@
 const starRocksConfig = [
   [
     {
-      Plugin: 'starrocks',
-      Options: {
+      plugin: 'starrocks',
+      options: {
+        source_type: '', // mysql or postgres
+        source_dsn: '', // gorm dsn
         host: '127.0.0.1',
         port: 9030,
         user: 'root',
