@@ -36,6 +36,8 @@ func PostStarRocksPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 type StarRocksPipelinePlan [][]struct {
 	Plugin  string `json:"plugin"`
 	Options struct {
+		SourceType  string   `json:"source_type"`
+		SourceDsn   string   `json:"source_dsn"`
 		Host        string   `json:"host"`
 		Port        int      `json:"port"`
 		User        string   `json:"user"`

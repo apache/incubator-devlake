@@ -17,6 +17,8 @@ limitations under the License.
 package main
 
 type StarRocksConfig struct {
+	SourceType  string `mapstructure:"source_type"`
+	SourceDsn   string `mapstructure:"source_dsn"`
 	Host        string
 	Port        int
 	User        string
