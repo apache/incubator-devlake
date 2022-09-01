@@ -172,9 +172,9 @@ func (apiClient *ApiAsyncClient) DoAsync(
 			err = errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("Http DoAsync error: %s", body))
 		}
 
-		//  if it need retry, check and try to retry
+		//  if it needs retry, check and retry
 		if needRetry {
-			// check weather we still have retry times and not error from handler and canceled error
+			// check whether we still have retry times and not error from handler and canceled error
 			if retry < apiClient.maxRetry && err != context.Canceled {
 				apiClient.logger.Warn(err, "retry #%d calling %s", retry, path)
 				retry++
@@ -187,7 +187,8 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		}
 
 		if err != nil {
-			apiClient.logger.Error(err, "retry exceeded times: %d", retry)
+			err = errors.Default.Wrap(err, fmt.Sprintf("retry exceeded %d times calling %s", retry, path), errors.UserMessage("Async API call retries exhausted"))
+			apiClient.logger.Error(err, "")
 			return err
 		}
 

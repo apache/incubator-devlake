@@ -115,11 +115,11 @@ func (plugin Gitee) PrepareTaskData(taskCtx core.TaskContext, options map[string
 	}
 
 	if op.Owner == "" {
-		return nil, errors.Default.New("owner is required for Gitee execution")
+		return nil, errors.BadInput.New("owner is required for Gitee execution", errors.AsUserMessage())
 	}
 
 	if op.Repo == "" {
-		return nil, errors.Default.New("repo is required for Gitee execution")
+		return nil, errors.BadInput.New("repo is required for Gitee execution", errors.AsUserMessage())
 	}
 
 	if op.PrType == "" {

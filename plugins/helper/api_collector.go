@@ -93,21 +93,21 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	// process args
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "Couldn't resolve raw subtask args", errors.UserMessage("Internal Collector setup error"))
 	}
 	// TODO: check if args.Table is valid
 	if args.UrlTemplate == "" {
-		return nil, errors.Default.New("UrlTemplate is required")
+		return nil, errors.Default.New("UrlTemplate is required", errors.UserMessage("Internal Collector setup error"))
 	}
 	tpl, err := template.New(args.Table).Parse(args.UrlTemplate)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate")
+		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate", errors.UserMessage("Internal Collector setup error"))
 	}
 	if args.ApiClient == nil {
-		return nil, errors.Default.New("ApiClient is required")
+		return nil, errors.Default.New("ApiClient is required", errors.UserMessage("Internal Collector setup error"))
 	}
 	if args.ResponseParser == nil {
-		return nil, errors.Default.New("ResponseParser is required")
+		return nil, errors.Default.New("ResponseParser is required", errors.UserMessage("Internal Collector setup error"))
 	}
 	apiCollector := &ApiCollector{
 		RawDataSubTask: rawDataSubTask,
@@ -119,7 +119,7 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	} else if apiCollector.GetAfterResponse() == nil {
 		apiCollector.SetAfterResponse(func(res *http.Response) error {
 			if res.StatusCode == http.StatusUnauthorized {
-				return errors.Unauthorized.New("authentication failed, please check your AccessToken")
+				return errors.Unauthorized.New("authentication failed, please check your AccessToken", errors.AsUserMessage())
 			}
 			return nil
 		})
@@ -136,27 +136,25 @@ func (collector *ApiCollector) Execute() error {
 	db := collector.args.Ctx.GetDal()
 	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error auto-migrating collector", errors.UserMessage("Internal Collector execution error"))
 	}
 
 	// flush data if not incremental collection
 	if !collector.args.Incremental {
 		err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error deleting data from collector", errors.UserMessage("Internal Collector execution error"))
 		}
 	}
 
 	collector.args.Ctx.SetProgress(0, -1)
 	if collector.args.Input != nil {
-
 		iterator := collector.args.Input
 		defer iterator.Close()
 		apiClient := collector.args.ApiClient
 		if apiClient == nil {
-			return errors.Default.New("api_collector can not Execute with nil apiClient")
+			return errors.Default.New("api_collector can not Execute with nil apiClient", errors.UserMessage("Internal Collector execution error"))
 		}
-
 		for {
 			if !iterator.HasNext() || apiClient.HasError() {
 				collector.args.ApiClient.WaitAsync()
@@ -176,12 +174,13 @@ func (collector *ApiCollector) Execute() error {
 	}
 
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error executing collector", errors.UserMessage("Internal Collector execution error"))
 	}
 	logger.Debug("wait for all async api to be finished")
 	err = collector.args.ApiClient.WaitAsync()
 	if err != nil {
-		logger.Info("end api collection error: %w", err)
+		logger.Error(err, "end api collection error")
+		err = errors.Default.Wrap(err, "Error waiting for async Collector execution", errors.AsUserMessage())
 	} else {
 		logger.Info("end api collection without error")
 	}

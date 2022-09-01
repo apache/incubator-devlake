@@ -82,16 +82,16 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, error) {
 	// process args
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "error processing raw subtask args", errors.UserMessage("Internal GraphQL Collector error"))
 	}
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate")
+		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate", errors.UserMessage("Internal GraphQL Collector error"))
 	}
 	if args.GraphqlClient == nil {
-		return nil, errors.Default.New("ApiClient is required")
+		return nil, errors.Default.New("ApiClient is required", errors.UserMessage("Internal GraphQL Collector error"))
 	}
 	if args.ResponseParser == nil {
-		return nil, errors.Default.New("ResponseParser is required")
+		return nil, errors.Default.New("ResponseParser is required", errors.UserMessage("Internal GraphQL Collector error"))
 	}
 	apicllector := &GraphqlCollector{
 		RawDataSubTask: rawDataSubTask,
@@ -125,13 +125,13 @@ func (collector *GraphqlCollector) Execute() error {
 	db := collector.args.Ctx.GetDal()
 	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error running auto-migrate", errors.UserMessage("Internal GraphQL Collector execution error"))
 	}
 
 	// flush data if not incremental collection
 	err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting from collector table", errors.UserMessage("Internal GraphQL Collector execution error"))
 	}
 	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.table, collector.params)
 
@@ -168,9 +168,11 @@ func (collector *GraphqlCollector) Execute() error {
 
 	err = collector.args.GraphqlClient.Wait()
 	if err != nil {
-		logger.Info("end api collection error: %w", err)
+		err = errors.Default.Wrap(err, "ended API collector execution with error", errors.UserMessage("Internal GraphQL Collector execution error"))
+		logger.Error(err, "")
+
 	} else {
-		logger.Info("end api collection without error")
+		logger.Info("ended api collection without error")
 	}
 	err = divider.Close()
 

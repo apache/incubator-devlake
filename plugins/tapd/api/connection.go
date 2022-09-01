@@ -45,11 +45,11 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	var connection models.TestConnectionRequest
 	err := mapstructure.Decode(input.Body, &connection)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
 	}
 	err = vld.Struct(connection)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
 	}
 
 	// verify multiple token in parallel

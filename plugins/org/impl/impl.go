@@ -18,6 +18,7 @@ limitations under the License.
 package impl
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -60,7 +61,7 @@ func (plugin Org) PrepareTaskData(taskCtx core.TaskContext, options map[string]i
 	var op tasks.Options
 	err := mapstructure.Decode(options, &op)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "could not decode options", errors.AsUserMessage())
 	}
 	taskData := &tasks.TaskData{
 		Options: &op,

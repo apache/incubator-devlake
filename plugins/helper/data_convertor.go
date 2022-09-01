@@ -19,6 +19,7 @@ package helper
 
 import (
 	"database/sql"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -99,19 +100,19 @@ func (converter *DataConverter) Execute() error {
 		inputRow := reflect.New(converter.args.InputRowType).Interface()
 		err := db.Fetch(cursor, inputRow)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error fetching rows", errors.UserMessage("Internal Converter execution error"))
 		}
 
 		results, err := converter.args.Convert(inputRow)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error calling Converter plugin implementation", errors.UserMessage("Internal Converter execution error"))
 		}
 
 		for _, result := range results {
 			// get the batch operator for the specific type
 			batch, err := divider.ForType(reflect.TypeOf(result))
 			if err != nil {
-				return err
+				return errors.Default.Wrap(err, "error getting batch from result", errors.UserMessage("Internal Converter execution error"))
 			}
 			// set raw data origin field
 			origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
@@ -121,7 +122,7 @@ func (converter *DataConverter) Execute() error {
 			// records get saved into db when slots were max outed
 			err = batch.Add(result)
 			if err != nil {
-				return err
+				return errors.Default.Wrap(err, "error adding result to batch", errors.UserMessage("Internal Converter execution error"))
 			}
 		}
 		converter.args.Ctx.IncProgress(1)
