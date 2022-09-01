@@ -94,7 +94,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	// check version
 	if resBody.DeploymentType == models.DeploymentServer {
 		// only support 8.x.x or higher
-		if versions := resBody.VersionNumbers; len(versions) == 3 && versions[0] < 8 {
+		if versions := resBody.VersionNumbers; len(versions) == 3 && versions[0] < 7 {
 			return nil, fmt.Errorf("%s Support JIRA Server 8+ only", serverInfoFail)
 		}
 	}
