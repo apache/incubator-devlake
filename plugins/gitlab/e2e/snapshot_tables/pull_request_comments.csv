@@ -1,4 +1,4 @@
-id,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark,pull_request_id,body,user_id,created_date,commit_sha,position
+id,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark,pull_request_id,body,account_id,created_date,commit_sha,position
 gitlab:GitlabMrComment:1:135100359,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,71,,gitlab:GitlabMergeRequest:1:1149942101,approved this merge request,gitlab:GitlabAccount:1:3393147,2019-01-25T16:46:23.996+00:00,,0
 gitlab:GitlabMrComment:1:135223089,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,126,,gitlab:GitlabMergeRequest:1:135772105,approved this merge request,gitlab:GitlabAccount:1:3393147,2019-01-26T11:41:34.158+00:00,,0
 gitlab:GitlabMrComment:1:135848627,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_merge_request_notes,169,,gitlab:GitlabMergeRequest:1:15869219,approved this merge request,gitlab:GitlabAccount:1:2436773,2019-01-29T00:40:37.158+00:00,,0

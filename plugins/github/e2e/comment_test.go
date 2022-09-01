@@ -130,7 +130,7 @@ func TestCommentDataFlow(t *testing.T) {
 			"id",
 			"issue_id",
 			"body",
-			"user_id",
+			"account_id",
 			"created_date",
 		},
 	)
@@ -149,7 +149,7 @@ func TestCommentDataFlow(t *testing.T) {
 			"_raw_data_remark",
 			"pull_request_id",
 			"body",
-			"user_id",
+			"account_id",
 			"created_date",
 			"commit_sha",
 			"position",

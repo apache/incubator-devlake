@@ -144,7 +144,7 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 			"id",
 			"pull_request_id",
 			"body",
-			"user_id",
+			"account_id",
 			"created_date",
 			"commit_sha",
 			"position",

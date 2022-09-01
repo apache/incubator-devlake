@@ -19,21 +19,30 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
-type addInitTables struct{}
+type renameColumnsOfPrCommentIssueComment struct{}
 
-func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(
-	// TODO add you models
-	)
+func (*renameColumnsOfPrCommentIssueComment) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().RenameColumn(&archived.PullRequestComment{}, "user_id", "account_id")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().RenameColumn(&archived.IssueComment{}, "user_id", "account_id")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20220829000001
+func (*renameColumnsOfPrCommentIssueComment) Version() uint64 {
+	return 20220826120824
 }
 
-func (*addInitTables) Name() string {
-	return "dora init schemas"
+func (*renameColumnsOfPrCommentIssueComment) Name() string {
+	return "rename user_id to account_id in pull_request_comments and issue_comments"
 }
