@@ -52,7 +52,7 @@ type (
 	options struct {
 		userMsg   string
 		asUserMsg bool
-		data      any
+		data      interface{}
 	}
 )
 
@@ -126,7 +126,7 @@ func AsUserMessage() Option {
 }
 
 // WithData associate data with this Error
-func WithData(data any) Option {
+func WithData(data interface{}) Option {
 	return func(opts *options) {
 		opts.data = data
 	}

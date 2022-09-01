@@ -32,7 +32,7 @@ type (
 		wrapped    *crdbErrorImpl
 		userMsg    string
 		msg        string
-		data       any
+		data       interface{}
 		t          *Type
 	}
 )
@@ -78,7 +78,7 @@ func (e *crdbErrorImpl) GetType() *Type {
 	return e.t
 }
 
-func (e *crdbErrorImpl) GetData() any {
+func (e *crdbErrorImpl) GetData() interface{} {
 	return e.data
 }
 

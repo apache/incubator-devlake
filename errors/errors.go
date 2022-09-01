@@ -34,7 +34,7 @@ type (
 		// As Attempts to cast this Error to the requested Type, and returns nil if it can't.
 		As(*Type) Error
 		// GetData returns the data associated with this Error (may be nil)
-		GetData() any
+		GetData() interface{}
 	}
 )
 
