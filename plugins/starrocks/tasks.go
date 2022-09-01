@@ -21,14 +21,17 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/impl/dalgorm"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"io"
 	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
-
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 type Table struct {
@@ -40,8 +43,28 @@ func (t *Table) TableName() string {
 }
 
 func LoadData(c core.SubTaskContext) error {
+	var db dal.Dal
 	config := c.GetData().(*StarRocksConfig)
-	db := c.GetDal()
+	if config.SourceDsn != "" && config.SourceType != "" {
+		var o *gorm.DB
+		var err error
+		if config.SourceType == "mysql" {
+			o, err = gorm.Open(mysql.Open(config.SourceDsn))
+			if err != nil {
+				return err
+			}
+		} else if config.SourceType == "postgres" {
+			o, err = gorm.Open(postgres.Open(config.SourceDsn))
+			if err != nil {
+				return err
+			}
+		} else {
+			return fmt.Errorf("unsupported source type %s", config.SourceType)
+		}
+		db = dalgorm.NewDalgorm(o)
+	} else {
+		db = c.GetDal()
+	}
 	var starrocksTables []string
 	if config.DomainLayer != "" {
 		starrocksTables = getTablesByDomainLayer(config.DomainLayer)
