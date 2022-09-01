@@ -59,7 +59,7 @@ var PluginEntry StarRocks
 
 func main() {
 	cmd := &cobra.Command{Use: "StarRocks"}
-	sourceType := cmd.Flags().StringP("source_type", "sp", "", "Source type")
+	sourceType := cmd.Flags().StringP("source_type", "st", "", "Source type")
 	sourceDsn := cmd.Flags().StringP("source_dsn", "sd", "", "Source dsn")
 	_ = cmd.MarkFlagRequired("host")
 	host := cmd.Flags().StringP("host", "h", "", "StarRocks host")
