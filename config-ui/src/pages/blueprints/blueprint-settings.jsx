@@ -20,7 +20,7 @@ import { useParams, useHistory } from 'react-router-dom'
 import { ENVIRONMENT } from '@/config/environment'
 import dayjs from '@/utils/time'
 import {
-  API_PROXY_ENDPOINT,
+  JIRA_API_PROXY_ENDPOINT,
   ISSUE_TYPES_ENDPOINT,
   ISSUE_FIELDS_ENDPOINT,
   BOARDS_ENDPOINT,
@@ -288,7 +288,7 @@ const BlueprintSettings = (props) => {
     error: jiraProxyError,
   } = useJIRA(
     {
-      apiProxyPath: API_PROXY_ENDPOINT,
+      apiProxyPath: JIRA_API_PROXY_ENDPOINT,
       issuesEndpoint: ISSUE_TYPES_ENDPOINT,
       fieldsEndpoint: ISSUE_FIELDS_ENDPOINT,
       boardsEndpoint: BOARDS_ENDPOINT,

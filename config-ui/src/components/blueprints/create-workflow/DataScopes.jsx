@@ -15,29 +15,14 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useState, useCallback, useMemo } from 'react'
-import {
-  Button,
-  Icon,
-  Intent,
-  TagInput,
-  Divider,
-  Elevation,
-  Card,
-  Colors,
-} from '@blueprintjs/core'
-import {
-  Providers,
-  ProviderTypes,
-  ProviderIcons,
-  ConnectionStatus,
-  ConnectionStatusLabels,
-} from '@/data/Providers'
-
+import React, { useEffect, useMemo } from 'react'
+import { Button, Card, Divider, Elevation, Intent, TagInput, } from '@blueprintjs/core'
+import { ProviderIcons, Providers, } from '@/data/Providers'
 import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import BoardsSelector from '@/components/blueprints/BoardsSelector'
 import DataEntitiesSelector from '@/components/blueprints/DataEntitiesSelector'
 import NoData from '@/components/NoData'
+import GitlabProjectsSelector from '@/components/blueprints/GitlabProjectsSelector'
 
 const DataScopes = (props) => {
   const {
@@ -46,6 +31,9 @@ const DataScopes = (props) => {
     blueprintConnections = [],
     dataEntitiesList = [],
     boardsList = [],
+    fetchGitlabProjects = () => [],
+    isFetchingGitlab = false,
+    gitlabProjects = [],
     dataEntities = [],
     projects = [],
     boards = [],
@@ -67,10 +55,15 @@ const DataScopes = (props) => {
   } = props
 
   const selectedBoards = useMemo(() => boards[configuredConnection.id], [boards, configuredConnection?.id])
+  const selectedProjects = useMemo(() => projects[configuredConnection.id], [projects, configuredConnection?.id])
 
   useEffect(() => {
     console.log('>> OVER HERE!!!', selectedBoards)
   }, [selectedBoards])
+
+  useEffect(() => {
+    console.log('>> OVER HERE FOR Projects!!!', selectedProjects)
+  }, [selectedProjects])
 
   return (
     <div className='workflow-step workflow-step-data-scope' data-step={activeStep?.id}>
@@ -126,15 +119,10 @@ const DataScopes = (props) => {
                     <>
                       <h4>Projects *</h4>
                       {configuredConnection.provider === Providers.GITHUB && (<p>Enter the project names you would like to sync.</p>)}
-                      {configuredConnection.provider === Providers.GITLAB && (<p>Enter the project ids you would like to sync.</p>)}
                       <TagInput
                         id='project-id'
                         disabled={isRunning}
-                        placeholder={
-                          configuredConnection.provider === Providers.GITHUB
-                            ? 'username/repo, username/another-repo'
-                            : '1000000, 200000'
-                        }
+                        placeholder='username/repo, username/another-repo'
                         values={projects[configuredConnection.id] || []}
                         fill={true}
                         onChange={(values) =>
@@ -177,6 +165,25 @@ const DataScopes = (props) => {
                         onItemSelect={setBoards}
                         onClear={setBoards}
                         onRemove={setBoards}
+                        disabled={isSaving}
+                        configuredConnection={configuredConnection}
+                        isLoading={isFetching}
+                      />
+                    </>
+                  )}
+
+                  {[Providers.GITLAB].includes(configuredConnection.provider) && (
+                    <>
+                      <h4>Projects *</h4>
+                      <p>Select the project you would like to sync.</p>
+                      <GitlabProjectsSelector
+                        fetchGitlabProjects={fetchGitlabProjects}
+                        isFetchingGitlab={isFetchingGitlab}
+                        items={gitlabProjects}
+                        selectedItems={selectedProjects}
+                        onItemSelect={setProjects}
+                        onClear={setProjects}
+                        onRemove={setProjects}
                         disabled={isSaving}
                         configuredConnection={configuredConnection}
                         isLoading={isFetching}

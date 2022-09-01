@@ -20,7 +20,7 @@ import { CSSTransition } from 'react-transition-group'
 import { useHistory, useLocation, Link } from 'react-router-dom'
 import dayjs from '@/utils/time'
 import {
-  API_PROXY_ENDPOINT,
+  JIRA_API_PROXY_ENDPOINT,
   ISSUE_TYPES_ENDPOINT,
   ISSUE_FIELDS_ENDPOINT,
   BOARDS_ENDPOINT,
@@ -69,6 +69,8 @@ import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
 
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
+import useGitlab from '@/hooks/useGitlab'
+import { PROJECTS_ENDPOINT } from '@/config/gitlabApiProxy'
 
 // import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 
@@ -241,10 +243,23 @@ const CreateBlueprint = (props) => {
     error: jiraProxyError,
   } = useJIRA(
     {
-      apiProxyPath: API_PROXY_ENDPOINT,
+      apiProxyPath: JIRA_API_PROXY_ENDPOINT,
       issuesEndpoint: ISSUE_TYPES_ENDPOINT,
       fieldsEndpoint: ISSUE_FIELDS_ENDPOINT,
       boardsEndpoint: BOARDS_ENDPOINT,
+    },
+    configuredConnection
+  )
+
+  const {
+    fetchProjects: fetchGitlabProjects,
+    projects: gitlabProjects,
+    isFetching: isFetchingGitlab,
+    error: gitlabProxyError,
+  } = useGitlab(
+    {
+      apiProxyPath: JIRA_API_PROXY_ENDPOINT,
+      projectsEndpoint: PROJECTS_ENDPOINT,
     },
     configuredConnection
   )
@@ -1034,6 +1049,9 @@ const CreateBlueprint = (props) => {
                       blueprintConnections={blueprintConnections}
                       dataEntitiesList={dataEntitiesList}
                       boardsList={boardsList}
+                      fetchGitlabProjects={fetchGitlabProjects}
+                      isFetchingGitlab={isFetchingGitlab}
+                      gitlabProjects={gitlabProjects}
                       boards={boards}
                       dataEntities={dataEntities}
                       projects={projects}
@@ -1046,6 +1064,7 @@ const CreateBlueprint = (props) => {
                       isSaving={isSaving}
                       isRunning={isRunning}
                       validationErrors={[...validationErrors, ...blueprintValidationErrors]}
+                      isFetching={isFetchingJIRA || isFetchingGitlab || isFetchingConnection}
                     />
                   )}
 
@@ -1058,7 +1077,6 @@ const CreateBlueprint = (props) => {
                       blueprintConnections={blueprintConnections}
                       dataEntities={dataEntities}
                       projects={projects}
-                      boardsList={boardsList}
                       boards={boards}
                       issueTypes={jiraApiIssueTypes}
                       fields={jiraApiFields}
@@ -1115,7 +1133,7 @@ const CreateBlueprint = (props) => {
               onPrev={prevStep}
               onSave={handleBlueprintSave}
               onSaveAndRun={handleBlueprintSaveAndRun}
-              isLoading={isSaving || isFetchingJIRA || isFetchingConnection || isTestingConnection}
+              isLoading={isSaving || isFetchingJIRA || isFetchingGitlab || isFetchingConnection || isTestingConnection}
               isValid={advancedMode ? isValidBlueprint && isValidPipeline : isValidBlueprint}
               canGoNext={canAdvanceNext}
             />
