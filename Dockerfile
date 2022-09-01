@@ -37,7 +37,7 @@ ENV GOBIN=/app/bin
 
 RUN make clean && make all
 
-FROM --platform=linux/amd64 mericodev/alpine-dbt-mysql:0.0.1
+FROM --platform=linux/amd64 mericodev/alpine-dbt:0.0.1
 
 EXPOSE 8080
 

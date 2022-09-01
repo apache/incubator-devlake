@@ -33,6 +33,7 @@ import (
 )
 
 func DbtConverter(taskCtx core.SubTaskContext) error {
+	log := taskCtx.GetLogger()
 	taskCtx.SetProgress(0, -1)
 	data := taskCtx.GetData().(*DbtTaskData)
 	models := data.Options.SelectedModels
@@ -101,6 +102,15 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 		return err
 	}
 
+	_, err = os.Stat("packages.yml")
+	if err == nil {
+		cmd := exec.Command("dbt", "deps")
+		err = cmd.Start()
+		if err != nil {
+			return err
+		}
+	}
+
 	dbtExecParams := []string{"dbt", "run", "--profiles-dir", projectPath}
 	if projectVars != nil {
 		jsonProjectVars, err := json.Marshal(projectVars)
@@ -113,24 +123,27 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	dbtExecParams = append(dbtExecParams, "--select")
 	dbtExecParams = append(dbtExecParams, models...)
 	cmd := exec.Command(dbtExecParams[0], (dbtExecParams[1:])...)
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		return err
-	}
+	log.Info("dbt run script: ", cmd)
+	stdout, _ := cmd.StdoutPipe()
 	err = cmd.Start()
 	if err != nil {
 		return err
 	}
-
 	scanner := bufio.NewScanner(stdout)
 	for scanner.Scan() {
 		line := scanner.Text()
+		log.Info(line)
 		if strings.Contains(line, "of") && strings.Contains(line, "OK") {
 			taskCtx.IncProgress(1)
 		}
 	}
 	if err := scanner.Err(); err != nil {
 		return err
+	}
+
+	cmd.Wait()
+	if !cmd.ProcessState.Success() {
+		log.Error("dbt run task error, please check!!!")
 	}
 
 	return nil
