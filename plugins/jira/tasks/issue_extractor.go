@@ -185,7 +185,11 @@ func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, error) {
 		return nil, err
 	}
 	for _, issueType := range issueTypes {
-		typeIdMapping[issueType.Id] = issueType.UntranslatedName
+		if issueType.UntranslatedName == "" {
+			typeIdMapping[issueType.Id] = issueType.Name
+		} else {
+			typeIdMapping[issueType.Id] = issueType.UntranslatedName
+		}
 	}
 	stdTypeMappings := make(map[string]string)
 	standardStatusMappings := make(map[string]StatusMappings)
