@@ -22,11 +22,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type addInitTables struct {}
+type addInitTables struct{}
 
 func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	return db.Migrator().AutoMigrate(
-		// TODO add you models
+	// TODO add you models
 	)
 }
 
