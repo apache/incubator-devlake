@@ -59,7 +59,11 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 		return err
 	}
 	for _, issueType := range issueTypes {
-		typeIdMapping[issueType.Id] = issueType.UntranslatedName
+		if issueType.UntranslatedName == "" {
+			typeIdMapping[issueType.Id] = issueType.Name
+		} else {
+			typeIdMapping[issueType.Id] = issueType.UntranslatedName
+		}
 	}
 
 	stdTypeMappings := make(map[string]string)
