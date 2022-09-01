@@ -176,7 +176,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		if needRetry {
 			// check weather we still have retry times and not error from handler and canceled error
 			if retry < apiClient.maxRetry && err != context.Canceled {
-				apiClient.logger.Warn("retry #%d for %s", retry, err.Error())
+				apiClient.logger.Warn(err, "retry #%d calling %s", retry, path)
 				retry++
 				apiClient.scheduler.NextTick(func() error {
 					apiClient.scheduler.SubmitBlocking(request)
@@ -187,7 +187,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		}
 
 		if err != nil {
-			apiClient.logger.Error("retry exceeded times: %d, err: %s", retry, err.Error())
+			apiClient.logger.Error(err, "retry exceeded times: %d", retry)
 			return err
 		}
 

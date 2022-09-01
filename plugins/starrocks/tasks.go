@@ -105,12 +105,12 @@ func LoadData(c core.SubTaskContext) error {
 		starrocksTable := strings.TrimLeft(table, "_")
 		err = createTable(starrocks, db, starrocksTable, table, c, config.Extra)
 		if err != nil {
-			c.GetLogger().Error("create table %s in starrocks error: %s", table, err)
+			c.GetLogger().Error(err, "create table %s in starrocks error", table)
 			return err
 		}
 		err = loadData(starrocks, c, starrocksTable, table, db, config)
 		if err != nil {
-			c.GetLogger().Error("load data %s error: %s", table, err)
+			c.GetLogger().Error(err, "load data %s error", table)
 			return err
 		}
 	}
@@ -190,7 +190,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 			data = append(data, row)
 		}
 		if len(data) == 0 {
-			c.GetLogger().Warn("no data found in table %s already, limit: %d, offset: %d, so break", table, config.BatchSize, offset)
+			c.GetLogger().Warn(nil, "no data found in table %s already, limit: %d, offset: %d, so break", table, config.BatchSize, offset)
 			break
 		}
 		// insert data to tmp table
@@ -249,10 +249,10 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 			return err
 		}
 		if resp.StatusCode != http.StatusOK {
-			c.GetLogger().Error("%s %s", resp.StatusCode, b)
+			c.GetLogger().Error(nil, "[%s]: %s", resp.StatusCode, string(b))
 		}
 		if result["Status"] != "Success" {
-			c.GetLogger().Error("load %s failed: %s", table, b)
+			c.GetLogger().Error(nil, "load %s failed: %s", table, string(b))
 		} else {
 			c.GetLogger().Info("load %s success: %s, limit: %d, offset: %d", table, b, config.BatchSize, offset)
 		}

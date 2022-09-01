@@ -78,7 +78,7 @@ func CollectStorys(taskCtx core.SubTaskContext) error {
 		ResponseParser: GetRawMessageArrayFromResponse,
 	})
 	if err != nil {
-		logger.Error("collect story error:", err)
+		logger.Error(err, "collect story error")
 		return err
 	}
 	return collector.Execute()

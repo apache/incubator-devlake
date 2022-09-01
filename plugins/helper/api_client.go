@@ -194,9 +194,9 @@ func (apiClient *ApiClient) logDebug(format string, a ...interface{}) {
 	}
 }
 
-func (apiClient *ApiClient) logError(format string, a ...interface{}) {
+func (apiClient *ApiClient) logError(err error, format string, a ...interface{}) {
 	if apiClient.logger != nil {
-		apiClient.logger.Error(format, a...)
+		apiClient.logger.Error(err, format, a...)
 	}
 }
 
@@ -255,7 +255,7 @@ func (apiClient *ApiClient) Do(
 	apiClient.logDebug("[api-client] %v %v", method, *uri)
 	res, err = apiClient.client.Do(req)
 	if err != nil {
-		apiClient.logError("[api-client] failed to request %s with error:\n%s", req.URL.String(), err.Error())
+		apiClient.logError(err, "[api-client] failed to request %s with error", req.URL.String())
 		return nil, err
 	}
 

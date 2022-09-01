@@ -65,9 +65,9 @@ func newRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, error) {
 	}
 	paramsString := ""
 	if args.Params == nil {
-		args.Ctx.GetLogger().Warn("Missing `Params` for raw data subtask %s", args.Ctx.GetName())
+		args.Ctx.GetLogger().Warn(nil, "Missing `Params` for raw data subtask %s", args.Ctx.GetName())
 	} else {
-		// TODO: maybe sort it to make it consisitence
+		// TODO: maybe sort it to make it consistent
 		paramsBytes, err := json.Marshal(args.Params)
 		if err != nil {
 			return nil, err

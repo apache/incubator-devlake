@@ -240,7 +240,7 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	err = collector.args.GraphqlClient.Query(query, variables)
 	if err != nil {
 		if collector.args.IgnoreQueryErr {
-			logger.Error("fetchAsync fail and got:", err)
+			logger.Error(err, "fetchAsync failed")
 			return
 		} else {
 			panic(err)

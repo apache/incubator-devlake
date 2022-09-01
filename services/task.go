@@ -155,7 +155,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, error) {
 	}
 	err = db.Save(&task).Error
 	if err != nil {
-		taskLog.Error("save task failed", err)
+		taskLog.Error(err, "save task failed")
 		return nil, errors.Internal.Wrap(err, "save task failed")
 	}
 	return &task, nil
@@ -233,7 +233,7 @@ func runTasksStandalone(parentLogger core.Logger, taskIds []uint64) error {
 	finished := 0
 	for err = range results {
 		if err != nil {
-			taskLog.Error("task failed", err)
+			taskLog.Error(err, "task failed")
 			errs = append(errs, err.Error())
 		}
 		finished++

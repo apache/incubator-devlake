@@ -56,7 +56,7 @@ func CollectCompanies(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		logger.Error("collect company error:", err)
+		logger.Error(err, "collect company error")
 		return err
 	}
 	return collector.Execute()

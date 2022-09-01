@@ -85,7 +85,7 @@ func CollectIterations(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		logger.Error("collect iteration error:", err)
+		logger.Error(err, "collect iteration error")
 		return err
 	}
 	return collector.Execute()

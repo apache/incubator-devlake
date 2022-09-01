@@ -80,7 +80,7 @@ func CollectBugs(taskCtx core.SubTaskContext) error {
 		ResponseParser: GetRawMessageArrayFromResponse,
 	})
 	if err != nil {
-		logger.Error("collect bug error:", err)
+		logger.Error(err, "collect bug error")
 		return err
 	}
 	return collector.Execute()

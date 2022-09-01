@@ -54,7 +54,7 @@ func CollectStoryCategories(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		logger.Error("collect story_category error:", err)
+		logger.Error(err, "collect story_category error")
 		return err
 	}
 	return collector.Execute()

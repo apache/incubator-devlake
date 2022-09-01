@@ -81,7 +81,7 @@ func CollectTasks(taskCtx core.SubTaskContext) error {
 		ResponseParser: GetRawMessageArrayFromResponse,
 	})
 	if err != nil {
-		logger.Error("collect task error:", err)
+		logger.Error(err, "collect task error")
 		return err
 	}
 	return collector.Execute()

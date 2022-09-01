@@ -112,7 +112,7 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		logger.Error("collect issueCommit error:", err)
+		logger.Error(err, "collect issueCommit error")
 		return err
 	}
 	return collector.Execute()

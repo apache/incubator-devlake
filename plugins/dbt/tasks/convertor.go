@@ -143,7 +143,7 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 
 	cmd.Wait()
 	if !cmd.ProcessState.Success() {
-		log.Error("dbt run task error, please check!!!")
+		log.Error(nil, "dbt run task error, please check!!!")
 	}
 
 	return nil

@@ -66,7 +66,7 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) error {
 		ResponseParser: GetRawMessageArrayFromResponse,
 	})
 	if err != nil {
-		logger.Error("collect storyBug error:", err)
+		logger.Error(err, "collect storyBug error")
 		return err
 	}
 	return collector.Execute()

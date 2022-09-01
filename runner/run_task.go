@@ -83,7 +83,7 @@ func RunTask(
 				"failed_sub_task": subTaskName,
 			}).Error
 			if dbe != nil {
-				log.Error("failed to finalize task status into db: %w", err)
+				log.Error(err, "failed to finalize task status into db")
 			}
 		} else {
 			err = db.Model(task).Updates(map[string]interface{}{
@@ -290,7 +290,7 @@ func UpdateProgressDetail(db *gorm.DB, logger core.Logger, taskId uint64, progre
 		pct := float32(p.Current) / float32(p.Total)
 		err := db.Model(task).Update("progress", pct).Error
 		if err != nil {
-			logger.Error("failed to update progress: %w", err)
+			logger.Error(err, "failed to update progress: %w")
 		}
 	case core.SubTaskSetProgress:
 		progressDetail.TotalRecords = p.Total
@@ -329,7 +329,7 @@ func runSubtask(
 
 func recordSubtask(logger core.Logger, db *gorm.DB, subtask *models.Subtask) {
 	if err := db.Create(&subtask).Error; err != nil {
-		logger.Error("error writing subtask %d status to DB: %v", subtask.ID, err)
+		logger.Error(err, "error writing subtask %d status to DB: %v", subtask.ID)
 	}
 }
 

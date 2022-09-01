@@ -65,7 +65,7 @@ func CollectBoard(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		logger.Error("collect board error:", err)
+		logger.Error(err, "collect board error")
 		return err
 	}
 

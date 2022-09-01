@@ -67,7 +67,7 @@ func CollectProjects(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		logger.Error("collect project error:", err)
+		logger.Error(err, "collect project error")
 		return err
 	}
 	return collector.Execute()

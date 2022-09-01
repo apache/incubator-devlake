@@ -43,7 +43,7 @@ func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64, 
 	}()
 	err = runner.RunTask(ctx, cfg, log, db, progChan, taskId)
 	if err != nil {
-		log.Error("failed to execute task #%d: %w", taskId, err)
+		log.Error(err, "failed to execute task #%d", taskId)
 	}
 	log.Info("finished task #%d", taskId)
 	return err

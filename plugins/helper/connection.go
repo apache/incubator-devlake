@@ -188,7 +188,7 @@ func (c *ConnectionApiHelper) decrypt(connection interface{}) {
 		return core.Decrypt(c.encKey, encrypted)
 	})
 	if err != nil {
-		c.log.Error("failed to decrypt: %w", err)
+		c.log.Error(err, "failed to decrypt")
 	}
 }
 
@@ -197,7 +197,7 @@ func (c *ConnectionApiHelper) encrypt(connection interface{}) {
 		return core.Encrypt(c.encKey, plaintext)
 	})
 	if err != nil {
-		c.log.Error("failed to encrypt: %w", err)
+		c.log.Error(err, "failed to encrypt")
 	}
 }
 

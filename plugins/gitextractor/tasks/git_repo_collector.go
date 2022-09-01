@@ -55,7 +55,7 @@ func (o GitExtractorOptions) Valid() error {
 func CollectGitCommits(subTaskCtx core.SubTaskContext) error {
 	repo := getGitRepo(subTaskCtx)
 	if count, err := repo.CountCommits(subTaskCtx.GetContext()); err != nil {
-		subTaskCtx.GetLogger().Error("unable to get commit count: %v", err)
+		subTaskCtx.GetLogger().Error(err, "unable to get commit count")
 		subTaskCtx.SetProgress(0, -1)
 	} else {
 		subTaskCtx.SetProgress(0, count)
@@ -66,7 +66,7 @@ func CollectGitCommits(subTaskCtx core.SubTaskContext) error {
 func CollectGitBranches(subTaskCtx core.SubTaskContext) error {
 	repo := getGitRepo(subTaskCtx)
 	if count, err := repo.CountBranches(subTaskCtx.GetContext()); err != nil {
-		subTaskCtx.GetLogger().Error("unable to get branch count: %v", err)
+		subTaskCtx.GetLogger().Error(err, "unable to get branch count")
 		subTaskCtx.SetProgress(0, -1)
 	} else {
 		subTaskCtx.SetProgress(0, count)
@@ -77,7 +77,7 @@ func CollectGitBranches(subTaskCtx core.SubTaskContext) error {
 func CollectGitTags(subTaskCtx core.SubTaskContext) error {
 	repo := getGitRepo(subTaskCtx)
 	if count, err := repo.CountTags(); err != nil {
-		subTaskCtx.GetLogger().Error("unable to get tag count: %v", err)
+		subTaskCtx.GetLogger().Error(err, "unable to get tag count")
 		subTaskCtx.SetProgress(0, -1)
 	} else {
 		subTaskCtx.SetProgress(0, count)

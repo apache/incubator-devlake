@@ -87,7 +87,7 @@ func pipelineServiceInit() {
 		panic(errors.BadInput.New(`PIPELINE_MAX_PARALLEL should be a positive integer`, errors.AsUserMessage()))
 	}
 	if pipelineMaxParallel == 0 {
-		globalPipelineLog.Warn(`pipelineMaxParallel=0 means pipeline will be run No Limit`)
+		globalPipelineLog.Warn(nil, `pipelineMaxParallel=0 means pipeline will be run No Limit`)
 		pipelineMaxParallel = 10000
 	}
 	// run pipeline with independent goroutine
@@ -111,7 +111,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 	// save pipeline to database
 	err := db.Create(&pipeline).Error
 	if err != nil {
-		globalPipelineLog.Error("create pipline failed: %w", err)
+		globalPipelineLog.Error(err, "create pipline failed")
 		return nil, errors.Internal.Wrap(err, "create pipline failed")
 	}
 
@@ -127,7 +127,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 			}
 			_, err := CreateTask(newTask)
 			if err != nil {
-				globalPipelineLog.Error("create task for pipeline failed: %w", err)
+				globalPipelineLog.Error(err, "create task for pipeline failed")
 				return nil, err
 			}
 			// sync task state back to pipeline
@@ -135,7 +135,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 		}
 	}
 	if err != nil {
-		globalPipelineLog.Error("save tasks for pipeline failed: %w", err)
+		globalPipelineLog.Error(err, "save tasks for pipeline failed")
 		return nil, errors.Internal.Wrap(err, "save tasks for pipeline failed")
 	}
 	if pipeline.TotalTasks == 0 {
@@ -152,7 +152,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 		"plan":        pipeline.Plan,
 	}).Error
 	if err != nil {
-		globalPipelineLog.Error("update pipline state failed: %w", err)
+		globalPipelineLog.Error(err, "update pipline state failed")
 		return nil, errors.Internal.Wrap(err, "update pipline state failed")
 	}
 
@@ -243,7 +243,7 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 			globalPipelineLog.Info("run pipeline, %d", pipeline.ID)
 			err = runPipeline(pipeline.ID)
 			if err != nil {
-				globalPipelineLog.Error("failed to run pipeline, %d: %v", pipeline.ID, err)
+				globalPipelineLog.Error(err, "failed to run pipeline %d", pipeline.ID)
 			}
 		}()
 	}
@@ -271,7 +271,7 @@ func watchTemporalPipelines() {
 					"",
 				)
 				if err != nil {
-					globalPipelineLog.Error("failed to query workflow execution: %w", err)
+					globalPipelineLog.Error(err, "failed to query workflow execution")
 					continue
 				}
 				// workflow is terminated by outsider
@@ -291,7 +291,7 @@ func watchTemporalPipelines() {
 						for hisIter.HasNext() {
 							his, err := hisIter.Next()
 							if err != nil {
-								globalPipelineLog.Error("failed to get next from workflow history iterator: %w", err)
+								globalPipelineLog.Error(err, "failed to get next from workflow history iterator")
 								continue
 							}
 							rp.Message = fmt.Sprintf("temporal event type: %v", his.GetEventType())
@@ -304,7 +304,7 @@ func watchTemporalPipelines() {
 						"finished_at": rp.FinishedAt,
 					}).Error
 					if err != nil {
-						globalPipelineLog.Error("failed to update db: %w", err)
+						globalPipelineLog.Error(err, "failed to update db")
 					}
 					continue
 				}
@@ -313,7 +313,7 @@ func watchTemporalPipelines() {
 				for _, activity := range desc.PendingActivities {
 					taskId, err := getTaskIdFromActivityId(activity.ActivityId)
 					if err != nil {
-						globalPipelineLog.Error("unable to extract task id from activity id `%s`", activity.ActivityId)
+						globalPipelineLog.Error(err, "unable to extract task id from activity id `%s`", activity.ActivityId)
 						continue
 					}
 					progressDetail := &models.TaskProgressDetail{}
@@ -329,7 +329,7 @@ func watchTemporalPipelines() {
 					lastPayload := payloads[len(payloads)-1]
 					err = dc.FromPayload(lastPayload, progressDetail)
 					if err != nil {
-						globalPipelineLog.Error("failed to unmarshal heartbeat payload: %w", err)
+						globalPipelineLog.Error(err, "failed to unmarshal heartbeat payload")
 						continue
 					}
 				}
@@ -362,7 +362,7 @@ func NotifyExternal(pipelineId uint64) error {
 		Status:     pipeline.Status,
 	})
 	if err != nil {
-		globalPipelineLog.Error("failed to send notification: %w", err)
+		globalPipelineLog.Error(err, "failed to send notification")
 		return err
 	}
 	return nil

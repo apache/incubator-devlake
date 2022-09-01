@@ -69,12 +69,12 @@ func (l *DefaultLogger) Info(format string, a ...interface{}) {
 	l.Log(core.LOG_INFO, format, a...)
 }
 
-func (l *DefaultLogger) Warn(format string, a ...interface{}) {
-	l.Log(core.LOG_WARN, format, a...)
+func (l *DefaultLogger) Warn(err error, format string, a ...interface{}) {
+	l.Log(core.LOG_WARN, formatMessage(err, format, a...))
 }
 
-func (l *DefaultLogger) Error(format string, a ...interface{}) {
-	l.Log(core.LOG_ERROR, format, a...)
+func (l *DefaultLogger) Error(err error, format string, a ...interface{}) {
+	l.Log(core.LOG_ERROR, formatMessage(err, format, a...))
 }
 
 func (l *DefaultLogger) SetStream(config *core.LoggerStreamConfig) {
@@ -100,7 +100,7 @@ func (l *DefaultLogger) Nested(newPrefix string) core.Logger {
 	}
 	newLogger, err := l.getLogger(newTotalPrefix)
 	if err != nil {
-		l.Error("error getting a new logger: %v", newLogger)
+		l.Error(err, "error getting a new logger")
 		return l
 	}
 	return newLogger
@@ -128,6 +128,17 @@ func (l *DefaultLogger) createPrefix(newPrefix string) string {
 		return fmt.Sprintf("%s %s", l.config.Prefix, newPrefix)
 	}
 	return fmt.Sprintf("%s [%s]", l.config.Prefix, newPrefix)
+}
+
+func formatMessage(err error, msg string, args ...interface{}) string {
+	if err == nil {
+		return fmt.Sprintf(msg, args...)
+	}
+	formattedErr := strings.ReplaceAll(err.Error(), "\n", "\n\t")
+	if msg == "" {
+		return formattedErr
+	}
+	return fmt.Sprintf("%s\n%s", fmt.Sprintf(msg, args...), formattedErr)
 }
 
 var _ core.Logger = (*DefaultLogger)(nil)

@@ -77,7 +77,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 		ResponseParser: GetRawMessageArrayFromResponse,
 	})
 	if err != nil {
-		logger.Error("collect worklog error:", err)
+		logger.Error(err, "collect worklog error")
 		return err
 	}
 	return collector.Execute()

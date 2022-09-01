@@ -39,12 +39,13 @@ type ResponsePipelines struct {
 // ApiOutputError writes a JSON error message to the HTTP response body
 func ApiOutputError(c *gin.Context, err error) {
 	if e, ok := err.(errors.Error); ok {
+		logger.Global.Error(err, "HTTP %d error", e.GetType().GetHttpCode())
 		c.JSON(e.GetType().GetHttpCode(), &ApiBody{
 			Success: false,
 			Message: e.UserMessage(),
 		})
 	} else {
-		logger.Global.Error("Server Internal Error: %s", err.Error())
+		logger.Global.Error(err, "HTTP %d error (native)", http.StatusInternalServerError)
 		c.JSON(http.StatusInternalServerError, &ApiBody{
 			Success: false,
 			Message: err.Error(),
@@ -67,8 +68,10 @@ func ApiOutputSuccess(c *gin.Context, body interface{}, status int) {
 // ApiOutputAbort writes the HTTP response code header and saves the error internally, but doesn't push it to the response
 func ApiOutputAbort(c *gin.Context, err error) {
 	if e, ok := err.(errors.Error); ok {
+		logger.Global.Error(err, "HTTP %d abort-error", e.GetType().GetHttpCode())
 		_ = c.AbortWithError(e.GetType().GetHttpCode(), fmt.Errorf(e.UserMessage()))
 	} else {
+		logger.Global.Error(err, "HTTP %d abort-error (native)", http.StatusInternalServerError)
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 	}
 }
