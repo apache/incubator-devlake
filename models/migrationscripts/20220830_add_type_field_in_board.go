@@ -15,17 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package ticket
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"context"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"gorm.io/gorm"
 	"time"
-
-	"github.com/apache/incubator-devlake/models/domainlayer"
 )
 
-type Board struct {
-	domainlayer.DomainEntity
+type addFieldTask20220830 struct {
+	archived.DomainEntity
 	Name        string `gorm:"type:varchar(255)"`
 	Description string
 	Url         string `gorm:"type:varchar(255)"`
@@ -33,16 +33,26 @@ type Board struct {
 	Type        string `gorm:"type:varchar(255)"`
 }
 
-func (Board) TableName() string {
+func (addFieldTask20220830) TableName() string {
 	return "boards"
 }
 
-type BoardSprint struct {
-	common.NoPKModel
-	BoardId  string `gorm:"primaryKey;type:varchar(255)"`
-	SprintId string `gorm:"primaryKey;type:varchar(255)"`
+type addTypeFieldInBoard struct{}
+
+func (*addTypeFieldInBoard) Up(ctx context.Context, db *gorm.DB) error {
+
+	err := db.Migrator().AddColumn(addFieldTask20220830{}, "type")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (BoardSprint) TableName() string {
-	return "board_sprints"
+func (*addTypeFieldInBoard) Version() uint64 {
+	return 20220830142321
+}
+
+func (*addTypeFieldInBoard) Name() string {
+	return "add column `type` at boards"
 }

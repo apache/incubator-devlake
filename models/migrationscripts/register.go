@@ -38,5 +38,6 @@ func All() []migration.Script {
 		new(addCICD),
 		new(renameColumnsOfPrCommentIssueComment),
 		new(modifyTablesForDora),
+		new(addTypeFieldInBoard),
 	}
 }
