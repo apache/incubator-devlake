@@ -261,10 +261,8 @@ function useConnectionManager (
 
     let savePromise
     if (updateMode && activeConnection?.id !== null) {
-      modifyConfiguration(connectionPayload)
       savePromise = modifyConfiguration(connectionPayload)
     } else {
-      saveConfiguration(connectionPayload)
       savePromise = saveConfiguration(connectionPayload)
     }
 
