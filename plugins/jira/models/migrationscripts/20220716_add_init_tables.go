@@ -93,7 +93,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	}
 
 	// get connection history data
-	err = db.Migrator().AutoMigrate(&JiraConnectionTemp{})
+	err = db.Migrator().CreateTable(&JiraConnectionTemp{})
 	if err != nil {
 		return err
 	}
@@ -145,6 +145,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
+
 	err = db.Migrator().RenameTable(JiraConnectionTemp{}, archived.JiraConnection{})
 	if err != nil {
 		return err
