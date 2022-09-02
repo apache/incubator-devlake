@@ -258,8 +258,7 @@ export default function ConfigureConnection () {
                             initialTokenStore={initialTokenStore}
                             username={username}
                             password={password}
-                            // JIRA and GITLAB are multi-connection plugins, for now we intentially won't include additional settings during save...
-                            onSave={() => saveConnection(![Providers.GITLAB, Providers.JIRA, Providers.TAPD].includes(activeProvider.id) ? settings : {})}
+                            onSave={() => saveConnection()}
                             onTest={testConnection}
                             onCancel={cancel}
                             onValidate={validate}
