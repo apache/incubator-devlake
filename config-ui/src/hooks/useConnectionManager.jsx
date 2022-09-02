@@ -43,6 +43,7 @@ function useConnectionManager (
 
   const [provider, setProvider] = useState(activeProvider)
   const [name, setName] = useState()
+  // @todo: refactor to endpoint and setEndpoint
   const [endpointUrl, setEndpointUrl] = useState()
   const [proxy, setProxy] = useState()
   const [rateLimitPerHour, setRateLimitPerHour] = useState(0)
@@ -86,6 +87,15 @@ function useConnectionManager (
     token,
     proxy
   }), [endpointUrl, password, proxy, token, username])
+  const connectionSavePayload = useMemo(() => ({
+    name,
+    endpoint: endpointUrl,
+    username,
+    password,
+    token,
+    proxy,
+    rateLimitPerHour,
+  }), [name, endpointUrl, username, password, token, proxy, rateLimitPerHour])
 
   const testConnection = useCallback(
     (
@@ -160,70 +170,13 @@ function useConnectionManager (
     })
   }, [])
 
-  const saveConnection = (configurationSettings = {}) => {
+  const saveConnection = useCallback((configurationSettings = {}) => {
     setIsSaving(true)
-    let connectionPayload = { ...configurationSettings }
-    // @todo: build dynamically with memo
-    switch (provider.id) {
-      case Providers.JIRA:
-        connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          username: username,
-          password: password,
-          proxy: proxy,
-          rateLimitPerHour: rateLimitPerHour,
-          ...connectionPayload,
-        }
-        break
-      case Providers.TAPD:
-        connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          username: username,
-          password: password,
-          proxy: proxy,
-          rateLimitPerHour: rateLimitPerHour,
-          ...connectionPayload,
-        }
-        break
-      case Providers.GITHUB:
-        connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          token: token,
-          proxy: proxy,
-          rateLimitPerHour: rateLimitPerHour,
-          ...connectionPayload,
-        }
-        break
-      case Providers.JENKINS:
-      // eslint-disable-next-line max-len
-        connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          username: username,
-          password: password,
-          rateLimitPerHour: rateLimitPerHour,
-          ...connectionPayload,
-        }
-        break
-      case Providers.GITLAB:
-        connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          token: token,
-          proxy: proxy,
-          rateLimitPerHour: rateLimitPerHour,
-          ...connectionPayload,
-        }
-        break
-    }
 
     let saveResponse = {
       success: false,
       connection: {
-        ...connectionPayload,
+        ...connectionSavePayload,
       },
       errors: [],
     }
@@ -292,11 +245,18 @@ function useConnectionManager (
     }
 
     if (updateMode && activeConnection?.id !== null) {
-      modifyConfiguration(connectionPayload)
+      modifyConfiguration(connectionSavePayload)
     } else {
-      saveConfiguration(connectionPayload)
+      saveConfiguration(connectionSavePayload)
     }
-  }
+  }, [
+    activeConnection?.id,
+    connectionSavePayload,
+    fetchConnection,
+    notifyConnectionSaveFailure,
+    provider?.id,
+    updateMode
+  ])
 
   const runCollection = (options = {}) => {
     setIsRunning(true)
