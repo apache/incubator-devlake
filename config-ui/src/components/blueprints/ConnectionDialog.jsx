@@ -95,7 +95,7 @@ const ConnectionDialog = (props) => {
     name,
     endpointUrl,
     proxy,
-    rateLimit = 0,
+    rateLimitPerHour = 0,
     token,
     initialTokenStore = {},
     username,
@@ -289,7 +289,7 @@ const ConnectionDialog = (props) => {
                     name={name}
                     endpointUrl={endpointUrl}
                     proxy={proxy}
-                    rateLimit={rateLimit}
+                    rateLimitPerHour={rateLimitPerHour}
                     token={token}
                     initialTokenStore={initialTokenStore}
                     username={username}

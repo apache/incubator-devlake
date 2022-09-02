@@ -137,7 +137,7 @@ export default function JiraSettings (props) {
 
   useEffect(() => {
     console.log('>> CONN SETTINGS OBJECT ', connection)
-    if (connection && connection.ID) {
+    if (connection && connection.id) {
       // Parse Type Mappings (V2)
       // setStatusMappings([])
     }

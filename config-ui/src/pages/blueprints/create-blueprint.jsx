@@ -38,7 +38,7 @@ import { ToastNotification } from '@/components/Toast'
 
 import { BlueprintMode } from '@/data/NullBlueprint'
 import { NullBlueprintConnection } from '@/data/NullBlueprintConnection'
-import { NullConnection } from '@/data/NullConnection'
+import { Connection } from '@/models/Connection'
 
 import {
   WorkflowSteps,
@@ -283,7 +283,7 @@ const CreateBlueprint = (props) => {
     name: connectionName,
     endpointUrl,
     proxy,
-    rateLimit,
+    rateLimitPerHour,
     token,
     initialTokenStore,
     username,
@@ -294,7 +294,7 @@ const CreateBlueprint = (props) => {
     setName,
     setEndpointUrl,
     setProxy,
-    setRateLimit,
+    setRateLimitPerHour,
     setUsername,
     setPassword,
     setToken,
@@ -350,7 +350,7 @@ const CreateBlueprint = (props) => {
     name: connectionName,
     endpointUrl,
     proxy,
-    rateLimit,
+    rateLimitPerHour,
     token,
     username,
     password,
@@ -446,7 +446,7 @@ const CreateBlueprint = (props) => {
     setAllTestResponses({})
     setInitialTokenStore({})
     clearActiveConnection()
-    setActiveConnection(NullConnection)
+    setActiveConnection(new Connection())
     // setSaveConnectionComplete(null)
   }, [
     blueprintConnections,
@@ -1151,7 +1151,7 @@ const CreateBlueprint = (props) => {
         endpointUrl={endpointUrl}
         name={connectionName}
         proxy={proxy}
-        rateLimit={rateLimit}
+        rateLimitPerHour={rateLimitPerHour}
         token={token}
         initialTokenStore={initialTokenStore}
         username={username}
@@ -1168,7 +1168,7 @@ const CreateBlueprint = (props) => {
         onNameChange={setName}
         onEndpointChange={setEndpointUrl}
         onProxyChange={setProxy}
-        onRateLimitChange={setRateLimit}
+        onRateLimitChange={setRateLimitPerHour}
         onTokenChange={setToken}
         onUsernameChange={setUsername}
         onPasswordChange={setPassword}

@@ -45,7 +45,7 @@ export default function ConfigureConnection () {
   const [activeProvider, setActiveProvider] = useState(integrationsData.find(p => p.id === providerId))
   // const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [showConnectionSettings, setShowConnectionSettings] = useState(true)
-  const [deleteId, setDeleteId] = useState(false)
+  const [deleteId, setDeleteId] = useState(null)
 
   const [settings, setSettings] = useState(NullSettings)
 
@@ -57,7 +57,7 @@ export default function ConfigureConnection () {
     name,
     endpointUrl,
     proxy,
-    rateLimit = 0,
+    rateLimitPerHour = 0,
     username,
     password,
     token,
@@ -72,7 +72,7 @@ export default function ConfigureConnection () {
     setName,
     setEndpointUrl,
     setProxy,
-    setRateLimit,
+    setRateLimitPerHour,
     setUsername,
     setPassword,
     setToken,
@@ -108,7 +108,7 @@ export default function ConfigureConnection () {
     name,
     endpointUrl,
     proxy,
-    rateLimit,
+    rateLimitPerHour,
     token,
     username,
     password
@@ -174,7 +174,7 @@ export default function ConfigureConnection () {
                 { href: '/integrations', icon: false, text: 'Integrations' },
                 { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}` },
                 {
-                  href: `/connections/configure/${activeProvider.id}/${activeConnection && activeConnection.ID}`,
+                  href: `/connections/configure/${activeProvider.id}/${activeConnection?.id}`,
                   icon: false,
                   text: `${activeConnection ? activeConnection.name : 'Configure'} Settings`,
                   current: true
@@ -206,7 +206,7 @@ export default function ConfigureConnection () {
                             id={deleteId}
                             connection={activeConnection}
                             text='Delete'
-                            showConfirmation={() => setDeleteId(activeConnection.ID)}
+                            showConfirmation={() => setDeleteId(activeConnection.id)}
                             onConfirm={deleteConnection}
                             onCancel={(e) => setDeleteId(null)}
                             isDisabled={isDeletingConnection}
@@ -220,7 +220,7 @@ export default function ConfigureConnection () {
                     {activeConnection && (
                       <>
                         {[Providers.GITLAB, Providers.JIRA, Providers.TAPD].includes(activeProvider.id) &&
-                        (<h2 style={{ margin: 0 }}>#{activeConnection.ID} {activeConnection.name}</h2>)}
+                        (<h2 style={{ margin: 0 }}>#{activeConnection?.id} {activeConnection.name}</h2>)}
                         <p className='page-description'>Manage settings and options for this connection.</p>
                       </>
                     )}
@@ -253,7 +253,7 @@ export default function ConfigureConnection () {
                             name={name}
                             endpointUrl={endpointUrl}
                             proxy={proxy}
-                            rateLimit={rateLimit}
+                            rateLimitPerHour={rateLimitPerHour}
                             token={token}
                             initialTokenStore={initialTokenStore}
                             username={username}
@@ -266,7 +266,7 @@ export default function ConfigureConnection () {
                             onNameChange={setName}
                             onEndpointChange={setEndpointUrl}
                             onProxyChange={setProxy}
-                            onRateLimitChange={setRateLimit}
+                            onRateLimitChange={setRateLimitPerHour}
                             onTokenChange={setToken}
                             onUsernameChange={setUsername}
                             onPasswordChange={setPassword}

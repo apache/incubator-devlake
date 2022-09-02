@@ -82,7 +82,7 @@ const ProviderFormLabels = {
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password',
-    rateLimit: 'Rate Limit'
+    rateLimitPerHour: 'Rate Limit'
   },
   gitlab: {
     name: 'Connection Name',
@@ -91,7 +91,7 @@ const ProviderFormLabels = {
     token: 'Access Token',
     username: 'Username',
     password: 'Password',
-    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
+    rateLimitPerHour: <>Rate Limit <sup>(per hour)</sup></>
   },
   jenkins: {
     name: 'Connection Name',
@@ -100,7 +100,7 @@ const ProviderFormLabels = {
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password',
-    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
+    rateLimitPerHour: <>Rate Limit <sup>(per hour)</sup></>
   },
   tapd: {
     name: 'Connection Name',
@@ -109,7 +109,7 @@ const ProviderFormLabels = {
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password',
-    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
+    rateLimitPerHour: <>Rate Limit <sup>(per hour)</sup></>
   },
   jira: {
     name: 'Connection Name',
@@ -138,7 +138,7 @@ const ProviderFormLabels = {
           />
         </Tooltip>
       </>),
-    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
+    rateLimitPerHour: <>Rate Limit <sup>(per hour)</sup></>
   },
   github: {
     name: 'Connection Name',
@@ -167,7 +167,7 @@ const ProviderFormLabels = {
       </>),
     username: 'Username',
     password: 'Password',
-    rateLimit: <>Rate Limit <sup>(per hour)</sup></>
+    rateLimitPerHour: <>Rate Limit <sup>(per hour)</sup></>
   }
 }
 
@@ -179,7 +179,7 @@ const ProviderFormPlaceholders = {
     token: 'eg. 3f5cda2a23ff410792e0',
     username: 'Enter Username / E-mail',
     password: 'Enter Password',
-    rateLimit: '1000'
+    rateLimitPerHour: '1000'
   },
   gitlab: {
     name: 'eg. GitLab',
@@ -188,7 +188,7 @@ const ProviderFormPlaceholders = {
     token: 'eg. ff9d1ad0e5c04f1f98fa',
     username: 'Enter Username / E-mail',
     password: 'Enter Password',
-    rateLimit: '1000'
+    rateLimitPerHour: '1000'
   },
   jenkins: {
     name: 'eg. Jenkins',
@@ -197,7 +197,7 @@ const ProviderFormPlaceholders = {
     token: 'eg. 6b057ffe68464c93a057',
     username: 'eg. admin',
     password: 'eg. ************',
-    rateLimit: '1000'
+    rateLimitPerHour: '1000'
   },
   tapd: {
     name: 'eg. Tapd',
@@ -206,7 +206,7 @@ const ProviderFormPlaceholders = {
     token: 'eg. 6b057ffe68464c93a057',
     username: 'eg. admin',
     password: 'eg. ************',
-    rateLimit: '1000'
+    rateLimitPerHour: '1000'
   },
   jira: {
     name: 'eg. JIRA',
@@ -215,7 +215,7 @@ const ProviderFormPlaceholders = {
     token: 'eg. 8c06a7cc50b746bfab30',
     username: 'eg. admin',
     password: 'eg. ************',
-    rateLimit: '1000'
+    rateLimitPerHour: '1000'
   },
   github: {
     name: 'eg. GitHub',
@@ -224,7 +224,7 @@ const ProviderFormPlaceholders = {
     token: 'eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
     username: 'eg. admin',
     password: 'eg. ************',
-    rateLimit: '1000'
+    rateLimitPerHour: '1000'
   }
 }
 
