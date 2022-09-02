@@ -16,7 +16,7 @@
  *
  */
 
-import React from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import {
   BrowserRouter as Router,
   Route
@@ -32,25 +32,43 @@ import '@fontsource/inter/variable-full.css'
 // Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
 // import '@/styles/theme.scss'
 
+import useDatabaseMigrations from '@/hooks/useDatabaseMigrations'
+
 import ErrorBoundary from '@/components/ErrorBoundary'
-import Configure from './pages/configure/index'
+// import Configure from './pages/configure/index'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
 import AddConnection from '@/pages/configure/connections/AddConnection'
-import EditConnection from '@/pages/configure/connections/EditConnection'
+// import EditConnection from '@/pages/configure/connections/EditConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
-import Triggers from '@/pages/triggers/index'
+// import Triggers from '@/pages/triggers/index'
 import Offline from '@/pages/offline/index'
-import Pipelines from '@/pages/pipelines/index'
-import CreatePipeline from '@/pages/pipelines/create'
-import PipelineActivity from '@/pages/pipelines/activity'
+// import Pipelines from '@/pages/pipelines/index'
+// import CreatePipeline from '@/pages/pipelines/create'
+// import PipelineActivity from '@/pages/pipelines/activity'
 import Blueprints from '@/pages/blueprints/index'
 import CreateBlueprint from '@/pages/blueprints/create-blueprint'
 import BlueprintDetail from '@/pages/blueprints/blueprint-detail'
 import BlueprintSettings from '@/pages/blueprints/blueprint-settings'
 import Connections from '@/pages/connections/index'
+import MigrationAlertDialog from '@/components/MigrationAlertDialog'
 
-function App () {
+function App (props) {
+  const {
+    isProcessing,
+    migrationWarning,
+    migrationAlertOpened,
+    wasMigrationSuccessful,
+    hasMigrationFailed,
+    setMigrationWarning,
+    setMigrationAlertOpened,
+    setWasMigrationSuccessful,
+    setHasMigrationFailed,
+    handleConfirmMigration,
+    handleCancelMigration,
+    handleMigrationDialogClose
+  } = useDatabaseMigrations()
+
   return (
     <Router>
       <Route exact path='/'>
@@ -104,6 +122,15 @@ function App () {
       <Route exact path='/offline'>
         <Offline />
       </Route>
+      <MigrationAlertDialog
+        isOpen={migrationAlertOpened}
+        onClose={handleMigrationDialogClose}
+        onCancel={handleCancelMigration}
+        onConfirm={handleConfirmMigration}
+        isMigrating={isProcessing}
+        wasSuccesful={wasMigrationSuccessful}
+        hasFailed={hasMigrationFailed}
+      />
     </Router>
 
   )

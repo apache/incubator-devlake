@@ -580,10 +580,10 @@ const CreateBlueprint = (props) => {
       const getAllSources = true
       fetchAllConnections(enableNotifications, getAllSources)
     }
-    if (mode === BlueprintMode.NORMAL
-        && ([2, 3].includes(activeStep?.id))
-        && enabledProviders.includes(Providers.JIRA)
-      ) {
+    if (mode === BlueprintMode.NORMAL &&
+        ([2, 3].includes(activeStep?.id)) &&
+        enabledProviders.includes(Providers.JIRA)
+    ) {
       fetchBoards()
       fetchIssueTypes()
       fetchFields()
