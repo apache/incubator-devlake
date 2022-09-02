@@ -33,7 +33,7 @@
  * @property {object?} plugin
  * @property {<Array<DataEntity>>} entities
  * @property {boolean} multiConnection
- * @property {string?} status
+ * @property {number|string?} status
  * @property {<Array<string>>?} errors
  */
 class Connection {

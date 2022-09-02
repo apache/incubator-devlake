@@ -438,7 +438,7 @@ function useConnectionManager (
           setTestedConnections((testedConnections) => [
             ...new Set([
               ...testedConnections.filter((oC) => oC.id !== c.id),
-              { ...c, status: ConnectionStatus.ONLINE },
+              new Connection({ ...c, status: ConnectionStatus.ONLINE }),
             ]),
           ])
         }
@@ -446,7 +446,7 @@ function useConnectionManager (
           setTestedConnections((testedConnections) => [
             ...new Set([
               ...testedConnections.filter((oC) => oC.id !== c.id),
-              { ...c, status: ConnectionStatus.DISCONNECTED },
+              new Connection({ ...c, status: ConnectionStatus.DISCONNECTED }),
             ]),
           ])
         }
