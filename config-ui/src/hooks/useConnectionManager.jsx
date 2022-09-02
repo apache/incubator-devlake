@@ -466,6 +466,7 @@ function useConnectionManager (
       const fetch = async () => {
         const r = await request.get(`${DEVLAKE_ENDPOINT}/domainlayer/repos`)
         console.log('>> RAW REPOSITORY DATA FROM API...', r.data?.repos)
+        // @todo: create data model for DomainRepository
         setDomainRepositories(r.data?.repos || [])
         setTimeout(() => {
           setIsFetching(false)
@@ -562,8 +563,8 @@ function useConnectionManager (
     setConnectionsList(
       allProviderConnections?.map((c, cIdx) => new ProviderListConnection({
         ...c,
-        id: cIdx,
-        key: cIdx,
+        id: cIdx + 1,
+        key: cIdx + 1,
         connectionId: c.id,
         name: c.name,
         title: c.name,

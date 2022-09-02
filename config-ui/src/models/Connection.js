@@ -19,8 +19,10 @@
 /**
  * @typedef {object} Connection
  * @property {number?} id
+ * @property {number?} connectionId
  * @property {string?} name
  * @property {string?} endpoint
+ * @property {string?} endpointUrl
  * @property {string?} proxy
  * @property {string?} token
  * @property {object?} initialTokenStore
@@ -30,7 +32,7 @@
  * @property {Date?} createdAt
  * @property {Date?} updatedAt
  * @property {plain|token?} authentication
- * @property {object?} plugin
+ * @property {string|object?} plugin
  * @property {string|object?} provider
  * @property {<Array<DataEntity>>} entities
  * @property {boolean} multiConnection
@@ -39,9 +41,12 @@
  */
 class Connection {
   constructor (data = {}) {
-    this.id = data?.id || null
+    this.id = parseInt(data?.id, 10) || null
+    this.connectionId = parseInt(data?.connectionId, 10) || this.id
     this.name = data?.name || ''
     this.endpoint = data?.endpoint || ''
+    // @todo: will be refactored and replaced by $this.endpoint!
+    this.endpointUrl = data?.endpointUrl || this.endpoint
     this.proxy = data?.proxy || ''
     this.token = data?.token || ''
     this.initialTokenStore = data?.initialTokensTore || { 0: '', 1: '', 2: '' }
