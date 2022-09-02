@@ -410,7 +410,7 @@ export default function ConnectionForm (props) {
                 {labels ? labels.token : <>Basic&nbsp;Auth&nbsp;Token</>}
                 <span className='requiredStar'>*</span>
               </Label>
-              {[Providers.GITHUB].includes(activeProvider.id) ? (
+              {[Providers.GITHUB].includes(activeProvider?.id) ? (
                 <>
                   {/* TEXTAREA Multi-line Token Input (Disabled) */}
                   {/* <div
@@ -711,7 +711,7 @@ export default function ConnectionForm (props) {
           </>
         )}
         {[Providers.GITHUB, Providers.GITLAB, Providers.JIRA, Providers.JENKINS, Providers.TAPD].includes(
-          activeProvider.id
+          activeProvider?.id
         ) && (
           <>
             <div className='formContainer'>
