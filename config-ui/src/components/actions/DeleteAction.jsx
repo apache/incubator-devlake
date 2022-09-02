@@ -46,7 +46,7 @@ const DeleteAction = (props) => {
       position={Position.RIGHT}
       autoFocus={false}
       enforceFocus={false}
-      isOpen={id === connection.id}
+      isOpen={id !== null && id === connection.id}
       usePortal={false}
     >
       <a

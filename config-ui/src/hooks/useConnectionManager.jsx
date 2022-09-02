@@ -245,6 +245,7 @@ function useConnectionManager (
         }
         setIsSaving(false)
         setSaveComplete(saveResponse.success ? s.data : false)
+        if (!saveResponse.success) { notifyConnectionSaveFailure(s.data || s.message) }
       } catch (e) {
         saveResponse.errors.push(e.message)
         setErrors(saveResponse.errors)
@@ -278,6 +279,7 @@ function useConnectionManager (
         fetchConnection(silentRefetch)
         setIsSaving(false)
         setSaveComplete(saveResponse.success ? s.data : false)
+        if (!saveResponse.success) { notifyConnectionSaveFailure(s.data || s.message) }
       } catch (e) {
         saveResponse.errors.push(e.message)
         setErrors(saveResponse.errors)
