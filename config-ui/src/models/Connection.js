@@ -31,6 +31,7 @@
  * @property {Date?} updatedAt
  * @property {plain|token?} authentication
  * @property {object?} plugin
+ * @property {string|object?} provider
  * @property {<Array<DataEntity>>} entities
  * @property {boolean} multiConnection
  * @property {number|string?} status
