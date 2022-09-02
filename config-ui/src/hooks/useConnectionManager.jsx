@@ -170,6 +170,43 @@ function useConnectionManager (
     })
   }, [])
 
+  const fetchConnection = useCallback(
+    (silent = false, notify = false, cId = null) => {
+      console.log(`>> FETCHING CONNECTION [PROVIDER = ${provider.id}]....`)
+      try {
+        setIsFetching(!silent)
+        setErrors([])
+        console.log('>> FETCHING CONNECTION SOURCE')
+        const fetch = async () => {
+          const f = await request.get(
+            `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections/${cId || connectionId}`
+          )
+          const connectionData = f.data
+          console.log('>> RAW CONNECTION DATA FROM API...', connectionData)
+          setActiveConnection(new Connection({
+            ...connectionData
+          }))
+          setTimeout(() => {
+            setIsFetching(false)
+          }, 500)
+        }
+        fetch()
+      } catch (e) {
+        setIsFetching(false)
+        setActiveConnection(new Connection())
+        setErrors([e.message])
+        ToastNotification.clear()
+        ToastNotification.show({
+          message: `${e}`,
+          intent: 'danger',
+          icon: 'error',
+        })
+        console.log('>> FAILED TO FETCH CONNECTION', e)
+      }
+    },
+    [provider?.id, connectionId]
+  )
+
   const saveConnection = useCallback((configurationSettings = {}) => {
     setIsSaving(true)
 
@@ -268,43 +305,6 @@ function useConnectionManager (
     console.log('>> RUNNING COLLECTION PROCESS', isRunning)
     // Run Collection Tasks...
   }
-
-  const fetchConnection = useCallback(
-    (silent = false, notify = false, cId = null) => {
-      console.log(`>> FETCHING CONNECTION [PROVIDER = ${provider.id}]....`)
-      try {
-        setIsFetching(!silent)
-        setErrors([])
-        console.log('>> FETCHING CONNECTION SOURCE')
-        const fetch = async () => {
-          const f = await request.get(
-            `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections/${cId || connectionId}`
-          )
-          const connectionData = f.data
-          console.log('>> RAW CONNECTION DATA FROM API...', connectionData)
-          setActiveConnection(new Connection({
-            ...connectionData
-          }))
-          setTimeout(() => {
-            setIsFetching(false)
-          }, 500)
-        }
-        fetch()
-      } catch (e) {
-        setIsFetching(false)
-        setActiveConnection(new Connection())
-        setErrors([e.message])
-        ToastNotification.clear()
-        ToastNotification.show({
-          message: `${e}`,
-          intent: 'danger',
-          icon: 'error',
-        })
-        console.log('>> FAILED TO FETCH CONNECTION', e)
-      }
-    },
-    [provider?.id, connectionId]
-  )
 
   const fetchAllConnections = useCallback(
     async (notify = false, allSources = false) => {
