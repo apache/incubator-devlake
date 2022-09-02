@@ -38,7 +38,8 @@ import { ToastNotification } from '@/components/Toast'
 
 import { BlueprintMode } from '@/data/NullBlueprint'
 import { NullBlueprintConnection } from '@/data/NullBlueprintConnection'
-import { Connection } from '@/models/Connection'
+import Connection from '@/models/Connection'
+import ProviderListConnection from '@/models/ProviderListConnection'
 
 import {
   WorkflowSteps,
@@ -523,7 +524,7 @@ const CreateBlueprint = (props) => {
         setConnectionDialogIsOpen(true)
       }
     },
-    [setProvider]
+    [setProvider, setActiveProvider, setManagedConnection, setConnectionDialogIsOpen]
   )
 
   const addProjectTransformation = useCallback((project) => {
@@ -623,6 +624,7 @@ const CreateBlueprint = (props) => {
     fetchBoards,
     fetchFields,
     fetchIssueTypes,
+    enabledProviders,
     mode
   ])
 
@@ -951,7 +953,7 @@ const CreateBlueprint = (props) => {
   }, [onlineStatus, blueprintConnections])
 
   useEffect(() => {
-    setConnectionsList(cList => cList.map((c, cIdx) => ({
+    setConnectionsList(cList => cList.map((c, cIdx) => new ProviderListConnection({
       ...c,
       statusResponse: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider),
       status: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status

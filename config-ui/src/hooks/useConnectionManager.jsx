@@ -172,14 +172,14 @@ function useConnectionManager (
 
   const fetchConnection = useCallback(
     (silent = false, notify = false, cId = null) => {
-      console.log(`>> FETCHING CONNECTION [PROVIDER = ${provider.id}]....`)
+      console.log(`>> FETCHING CONNECTION [PROVIDER = ${provider?.id}]....`)
       try {
         setIsFetching(!silent)
         setErrors([])
         console.log('>> FETCHING CONNECTION SOURCE')
         const fetch = async () => {
           const f = await request.get(
-            `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections/${cId || connectionId}`
+            `${DEVLAKE_ENDPOINT}/plugins/${provider?.id}/connections/${cId || connectionId}`
           )
           const connectionData = f.data
           console.log('>> RAW CONNECTION DATA FROM API...', connectionData)
@@ -224,7 +224,7 @@ function useConnectionManager (
         setErrors([])
         ToastNotification.clear()
         const s = await request.post(
-          `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections`,
+          `${DEVLAKE_ENDPOINT}/plugins/${provider?.id}/connections`,
           configPayload
         )
         console.log('>> CONFIGURATION SAVED SUCCESSFULLY', configPayload, s)
@@ -254,7 +254,7 @@ function useConnectionManager (
         ToastNotification.clear()
         // eslint-disable-next-line max-len
         const s = await request.patch(
-          `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections/${
+          `${DEVLAKE_ENDPOINT}/plugins/${provider?.id}/connections/${
             activeConnection.id
           }`,
           configPayload
@@ -337,8 +337,9 @@ function useConnectionManager (
             .map((providerResponse) => [].concat(providerResponse.data || []).map(c => new Connection({
               ...c,
               connectionId: c.id,
+              plugin: providerResponse.config?.url?.split('/')[3],
               provider: providerResponse.config?.url?.split('/')[3],
-              // @todo: inject realtime connection status...
+              // @note: realtime connection status will be later injected by hook callees (non-blocking)
               status: ConnectionStatus.ONLINE
             })))
           setAllProviderConnections(builtConnections.flat())
@@ -348,7 +349,7 @@ function useConnectionManager (
           console.log('>> ALL SOURCE CONNECTIONS: ', aC)
         } else {
           c = await request.get(
-            `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections`
+            `${DEVLAKE_ENDPOINT}/plugins/${provider?.id}/connections`
           )
           console.log('>> RAW ALL CONNECTIONS DATA FROM API...', c?.data)
           const providerConnections = []
@@ -396,7 +397,7 @@ function useConnectionManager (
         setErrors([])
         console.log('>> TRYING TO DELETE CONNECTION...', connection)
         const d = await request.delete(
-          `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections/${
+          `${DEVLAKE_ENDPOINT}/plugins/${provider?.id}/connections/${
             connection.id
           }`
         )
@@ -522,7 +523,7 @@ function useConnectionManager (
         })
       )
       if (!updateMode) {
-        history.replace(`/integrations/${provider.id}`)
+        history.replace(`/integrations/${provider?.id}`)
         notifyConnectionSaveSuccess()
       } else {
         notifyConnectionSaveSuccess()

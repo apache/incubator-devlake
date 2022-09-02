@@ -44,9 +44,9 @@
  */
 class ProviderListConnection {
   constructor (data = {}) {
-    this.id = data?.id || Number(Math.random() * 999).toFixed(0)
-    this.key = data?.key || Number(Math.random() * 999).toFixed(0)
-    this.connectionId = data?.connectionId || null
+    this.id = parseInt(data?.id, 10) || null
+    this.key = parseInt(data?.key, 10) || null
+    this.connectionId = parseInt(data?.connectionId, 10) || null
     this.name = data?.name || ''
     this.title = data?.title || 'Default Connection'
     this.value = data?.value || null
@@ -64,7 +64,7 @@ class ProviderListConnection {
     this.entities = data?.entities || []
     this.multiConnection = data?.multiConnection || true
 
-    this.status = data?.status || null
+    this.status = data?.status || 0
     this.statusResponse = data?.statusResponse || null
     this.provider = data?.provider || null
     this.providerId = data?.providerId || null

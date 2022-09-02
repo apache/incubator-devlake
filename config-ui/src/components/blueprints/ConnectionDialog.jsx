@@ -180,7 +180,7 @@ const ConnectionDialog = (props) => {
 
   useEffect(() => {
     console.log('>>> DATASOURCE CHANGED....', datasource)
-    setProvider(integrations.find((p) => p.id === datasource.value))
+    setProvider(integrations.find((p) => p.id === datasource?.value))
     setTestStatus(0)
     setTestResponse(null)
   }, [datasource, integrations, setProvider, setTestResponse, setTestStatus])
@@ -263,7 +263,7 @@ const ConnectionDialog = (props) => {
                         intent={Intent.NONE}
                         text={
                           datasource
-                            ? `${datasource.title}`
+                            ? `${datasource?.title}`
                             : '< Select Datasource >'
                         }
                         rightIcon='caret-down'

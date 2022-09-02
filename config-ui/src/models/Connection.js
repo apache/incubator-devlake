@@ -52,6 +52,8 @@ class Connection {
 
     this.authentication = data?.authentication || 'plain'
     this.plugin = data?.plugin || null
+    // @todo: will be replaced out by $this.plugin
+    this.provider = data?.provider || null
     this.entities = data?.entities || []
     this.multiConnection = data?.multiConnection || true
     this.status = data?.status || null
