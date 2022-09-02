@@ -18,7 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -52,7 +52,7 @@ func NewGiteeApiClient(taskCtx core.TaskContext, connection *models.GiteeConnect
 			}
 			rateLimit, err := strconv.Atoi(rateLimitHeader)
 			if err != nil {
-				return 0, 0, fmt.Errorf("failed to parse RateLimit-Limit header: %w", err)
+				return 0, 0, errors.Default.Wrap(err, "failed to parse RateLimit-Limit header")
 			}
 			// seems like gitlab rate limit is on minute basis
 			return rateLimit, 1 * time.Minute, nil
@@ -71,7 +71,7 @@ func NewGiteeApiClient(taskCtx core.TaskContext, connection *models.GiteeConnect
 
 func ignoreHTTPStatus404(res *http.Response) error {
 	if res.StatusCode == http.StatusUnauthorized {
-		return fmt.Errorf("authentication failed, please check your AccessToken")
+		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
 	}
 	if res.StatusCode == http.StatusNotFound {
 		return helper.ErrIgnoreAndContinue

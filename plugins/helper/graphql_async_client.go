@@ -19,7 +19,7 @@ package helper
 
 import (
 	"context"
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/merico-dev/graphql"
 	"sync"
@@ -114,7 +114,7 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 	default:
 		err := apiClient.client.Query(apiClient.ctx, q, variables)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error making GraphQL call", errors.UserMessage("Internal async GraphQL call error"))
 		}
 		cost := 1
 		if apiClient.getRateCost != nil {
@@ -147,7 +147,7 @@ func (apiClient *GraphqlAsyncClient) NextTick(task func() error) {
 func (apiClient *GraphqlAsyncClient) Wait() error {
 	apiClient.waitGroup.Wait()
 	if len(apiClient.workerErrors) > 0 {
-		return fmt.Errorf("%s", apiClient.workerErrors)
+		return errors.Default.Combine(apiClient.workerErrors, "graphql workers encountered error(s)")
 	}
 	return nil
 }

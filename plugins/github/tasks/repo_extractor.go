@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -75,7 +76,7 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			if body.GithubId == 0 {
-				return nil, fmt.Errorf("repo %s/%s not found", data.Options.Owner, data.Options.Repo)
+				return nil, errors.NotFound.New(fmt.Sprintf("repo %s/%s not found", data.Options.Owner, data.Options.Repo))
 			}
 			results := make([]interface{}, 0, 1)
 			githubRepository := &models.GithubRepo{

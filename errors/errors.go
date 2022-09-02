@@ -17,40 +17,34 @@ limitations under the License.
 
 package errors
 
-import (
-	"net/http"
+type (
+	requiredSupertype interface {
+		error
+		Unwrap() error
+	}
+	// Error The interface that all internally managed errors should adhere to.
+	Error interface {
+		requiredSupertype
+		// Message the message associated with this Error.
+		Message() string
+		// UserMessage the message associated with this Error appropriated for end users.
+		UserMessage() string
+		// GetType gets the Type of this error
+		GetType() *Type
+		// As Attempts to cast this Error to the requested Type, and returns nil if it can't.
+		As(*Type) Error
+		// GetData returns the data associated with this Error (may be nil)
+		GetData() interface{}
+	}
 )
 
-type Error struct {
-	Status  int
-	Message string
-}
-
-func (e *Error) Code() int {
-	return e.Status
-}
-
-func (e *Error) Error() string {
-	return e.Message
-}
-
-func NewError(status int, message string) *Error {
-	return &Error{
-		status,
-		message,
+// AsLakeErrorType attempts to cast err to Error, otherwise returns nil
+func AsLakeErrorType(err error) Error {
+	if cast, ok := err.(Error); ok {
+		return cast
 	}
+	return nil
 }
 
-func NewNotFound(message string) *Error {
-	return NewError(http.StatusNotFound, message)
-}
-
-func IsNotFound(err error) bool {
-	errCast, ok := err.(*Error)
-	if !ok {
-		return false
-	}
-	return errCast.Status == http.StatusNotFound
-}
-
-var InternalError = NewError(http.StatusInternalServerError, "Server Internal Error")
+var _ error = (Error)(nil)
+var _ requiredSupertype = (Error)(nil)

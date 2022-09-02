@@ -21,12 +21,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/logger"
 	"time"
 
-	"github.com/apache/incubator-devlake/logger"
-
 	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/mitchellh/mapstructure"
@@ -52,7 +51,7 @@ func RunTask(
 		return err
 	}
 	if task.Status == models.TASK_COMPLETED {
-		return fmt.Errorf("invalid task status")
+		return errors.Default.New("invalid task status")
 	}
 	log, err := getTaskLogger(parentLogger, task)
 	if err != nil {
@@ -62,14 +61,19 @@ func RunTask(
 	// make sure task status always correct even if it panicked
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("run task failed with panic (%s): %v", utils.GatherCallFrames(0), r)
+			err = errors.Default.Wrap(r.(error), fmt.Sprintf("run task failed with panic (%s)", utils.GatherCallFrames(0)))
 		}
 		finishedAt := time.Now()
 		spentSeconds := finishedAt.Unix() - beganAt.Unix()
 		if err != nil {
-			subTaskName := ""
-			if pluginErr, ok := err.(*errors.SubTaskError); ok {
-				subTaskName = pluginErr.GetSubTaskName()
+			lakeErr := errors.AsLakeErrorType(err)
+			subTaskName := "unknown"
+			if lakeErr == nil {
+				//skip
+			} else if lakeErr = lakeErr.As(errors.SubtaskErr); lakeErr != nil {
+				if meta, ok := lakeErr.GetData().(*core.SubTaskMeta); ok {
+					subTaskName = meta.Name
+				}
 			}
 			dbe := db.Model(task).Updates(map[string]interface{}{
 				"status":          models.TASK_FAILED,
@@ -79,7 +83,7 @@ func RunTask(
 				"failed_sub_task": subTaskName,
 			}).Error
 			if dbe != nil {
-				log.Error("failed to finalize task status into db: %w", err)
+				log.Error(err, "failed to finalize task status into db")
 			}
 		} else {
 			err = db.Model(task).Updates(map[string]interface{}{
@@ -138,14 +142,14 @@ func RunPluginTask(
 	subtasks []string,
 	options map[string]interface{},
 	progress chan core.RunningProgress,
-) error {
+) errors.Error {
 	pluginMeta, err := core.GetPlugin(name)
 	if err != nil {
-		return err
+		return errors.Default.WrapRaw(err)
 	}
 	pluginTask, ok := pluginMeta.(core.PluginTask)
 	if !ok {
-		return fmt.Errorf("plugin %s doesn't support PluginTask interface", name)
+		return errors.Default.New(fmt.Sprintf("plugin %s doesn't support PluginTask interface", name))
 	}
 	return RunPluginSubTasks(
 		ctx,
@@ -173,7 +177,7 @@ func RunPluginSubTasks(
 	options map[string]interface{},
 	pluginTask core.PluginTask,
 	progress chan core.RunningProgress,
-) error {
+) errors.Error {
 	logger.Info("start plugin")
 	// find out all possible subtasks this plugin can offer
 	subtaskMetas := pluginTask.SubTaskMetas()
@@ -195,7 +199,7 @@ func RunPluginSubTasks(
 		var specifiedTasks []string
 		err := mapstructure.Decode(subtaskNames, &specifiedTasks)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "subtasks could not be decoded")
 		}
 		if len(specifiedTasks) > 0 {
 			// first, disable all subtasks
@@ -207,7 +211,7 @@ func RunPluginSubTasks(
 				if _, ok := subtasksFlag[task]; ok {
 					subtasksFlag[task] = true
 				} else {
-					return fmt.Errorf("subtask %s does not exist", task)
+					return errors.Default.New(fmt.Sprintf("subtask %s does not exist", task))
 				}
 			}
 		}
@@ -234,7 +238,7 @@ func RunPluginSubTasks(
 	}
 	taskData, err := pluginTask.PrepareTaskData(taskCtx, options)
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, fmt.Sprintf("error preparing task data for %s", name))
 	}
 	taskCtx.SetData(taskData)
 
@@ -245,7 +249,7 @@ func RunPluginSubTasks(
 		subtaskCtx, err := taskCtx.SubTaskContext(subtaskMeta.Name)
 		if err != nil {
 			// sth went wrong
-			return err
+			return errors.Default.Wrap(err, fmt.Sprintf("error getting context subtask %s", subtaskMeta.Name))
 		}
 		if subtaskCtx == nil {
 			// subtask was disabled
@@ -264,10 +268,7 @@ func RunPluginSubTasks(
 		}
 		err = runSubtask(logger, db, taskID, subtaskNumber, subtaskCtx, subtaskMeta.EntryPoint)
 		if err != nil {
-			return &errors.SubTaskError{
-				SubTaskName: subtaskMeta.Name,
-				Message:     err.Error(),
-			}
+			return errors.SubtaskErr.Wrap(err, fmt.Sprintf("subtask %s ended unexpectedly", subtaskMeta.Name), errors.WithData(&subtaskMeta))
 		}
 		taskCtx.IncProgress(1)
 	}
@@ -289,7 +290,7 @@ func UpdateProgressDetail(db *gorm.DB, logger core.Logger, taskId uint64, progre
 		pct := float32(p.Current) / float32(p.Total)
 		err := db.Model(task).Update("progress", pct).Error
 		if err != nil {
-			logger.Error("failed to update progress: %w", err)
+			logger.Error(err, "failed to update progress: %w")
 		}
 	case core.SubTaskSetProgress:
 		progressDetail.TotalRecords = p.Total
@@ -328,7 +329,7 @@ func runSubtask(
 
 func recordSubtask(logger core.Logger, db *gorm.DB, subtask *models.Subtask) {
 	if err := db.Create(&subtask).Error; err != nil {
-		logger.Error("error writing subtask %d status to DB: %v", subtask.ID, err)
+		logger.Error(err, "error writing subtask %d status to DB: %v", subtask.ID)
 	}
 }
 

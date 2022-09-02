@@ -18,8 +18,8 @@ limitations under the License.
 package core
 
 import (
-	"errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"strings"
 )
 
@@ -37,12 +37,12 @@ func RegisterPlugin(name string, plugin PluginMeta) error {
 
 func GetPlugin(name string) (PluginMeta, error) {
 	if plugins == nil {
-		return nil, errors.New("RegisterPlugin have never been called.")
+		return nil, errors.Default.New("RegisterPlugin have never been called.")
 	}
 	if plugin, ok := plugins[name]; ok {
 		return plugin, nil
 	}
-	return nil, fmt.Errorf("Plugin `%s` doesn't exist", name)
+	return nil, errors.Default.New(fmt.Sprintf("Plugin `%s` doesn't exist", name))
 }
 
 type PluginCallBack func(name string, plugin PluginMeta) error
@@ -67,5 +67,5 @@ func FindPluginNameBySubPkgPath(subPkgPath string) (string, error) {
 			return name, nil
 		}
 	}
-	return "", fmt.Errorf("Unable to find plugin for subPkgPath %s", subPkgPath)
+	return "", errors.Default.New(fmt.Sprintf("Unable to find plugin for subPkgPath %s", subPkgPath))
 }

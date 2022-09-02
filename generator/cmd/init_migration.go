@@ -18,8 +18,8 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"os"
 	"path/filepath"
 	"time"
@@ -59,7 +59,7 @@ Type in which plugin do you want init migrations in, then generator will create 
 		migrationPath := filepath.Join(`plugins`, pluginName, `models`, `migrationscripts`)
 		_, err := os.Stat(migrationPath)
 		if !os.IsNotExist(err) {
-			cobra.CheckErr(errors.New(`migrationscripts inited or path read file`))
+			cobra.CheckErr(errors.Default.New(`migrationscripts inited or path read file`))
 		}
 
 		// create vars

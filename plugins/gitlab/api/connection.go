@@ -20,6 +20,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"time"
 
@@ -43,12 +44,12 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	var connection models.TestConnectionRequest
 	err = mapstructure.Decode(input.Body, &connection)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
 	}
 	// validate
 	err = vld.Struct(connection)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
 	}
 	// test connection
 	apiClient, err := helper.NewApiClient(
@@ -76,7 +77,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
+		return nil, errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")
 	}
 	return nil, nil
 }

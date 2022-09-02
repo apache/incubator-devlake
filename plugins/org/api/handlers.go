@@ -19,7 +19,7 @@ package api
 
 import (
 	"encoding/csv"
-	"errors"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -39,7 +39,7 @@ func NewHandlers(db dal.Dal, basicRes core.BasicRes) *Handlers {
 
 func (h *Handlers) unmarshal(r *http.Request, items interface{}) error {
 	if r == nil {
-		return errors.New("request is nil")
+		return errors.Default.New("request is nil")
 	}
 	if r.MultipartForm == nil {
 		if err := r.ParseMultipartForm(maxMemory); err != nil {

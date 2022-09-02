@@ -75,13 +75,13 @@ func RunPipeline(
 			"stage":  i + 1,
 		}).Error
 		if err != nil {
-			log.Error("update pipeline state failed: %w", err)
+			log.Error(err, "update pipeline state failed")
 			break
 		}
 		// run tasks in parallel
 		err = runTasks(row)
 		if err != nil {
-			log.Error("run tasks failed: %w", err)
+			log.Error(err, "run tasks failed")
 			return err
 		}
 		// Deprecated
@@ -91,7 +91,7 @@ func RunPipeline(
 			"finished_tasks": finishedTasks,
 		}).Error
 		if err != nil {
-			log.Error("update pipeline state failed: %w", err)
+			log.Error(err, "update pipeline state failed")
 			return err
 		}
 	}

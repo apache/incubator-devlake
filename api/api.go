@@ -18,7 +18,7 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"time"
 
@@ -56,12 +56,12 @@ func CreateApiService() {
 	// Wait for user confirmation if db migration is needed
 	router.GET("/proceed-db-migration", func(ctx *gin.Context) {
 		if !services.MigrationRequireConfirmation() {
-			shared.ApiOutputError(ctx, fmt.Errorf("no pending migration"), http.StatusBadRequest)
+			shared.ApiOutputError(ctx, errors.BadInput.New("no pending migration", errors.AsUserMessage()))
 			return
 		}
 		err := services.ExecuteMigration()
 		if err != nil {
-			shared.ApiOutputError(ctx, err, http.StatusBadRequest)
+			shared.ApiOutputError(ctx, errors.Default.Wrap(err, "error executing migration", errors.AsUserMessage()))
 			return
 		}
 		shared.ApiOutputSuccess(ctx, nil, http.StatusOK)
@@ -72,11 +72,9 @@ func CreateApiService() {
 		}
 		shared.ApiOutputError(
 			ctx,
-			fmt.Errorf(DB_MIGRATION_REQUIRED),
-			http.StatusPreconditionRequired,
+			errors.HttpStatus(http.StatusPreconditionRequired).New(DB_MIGRATION_REQUIRED, errors.AsUserMessage()),
 		)
 		ctx.Abort()
-		return
 	})
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

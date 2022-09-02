@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
 	"net/http"
 	"net/url"
@@ -57,7 +58,7 @@ func CollectBugCommits(taskCtx core.SubTaskContext) error {
 		}
 		err := db.First(&latestUpdated, clauses...)
 		if err != nil && err != gorm.ErrRecordNotFound {
-			return fmt.Errorf("failed to get latest tapd changelog record: %w", err)
+			return errors.NotFound.Wrap(err, "failed to get latest tapd changelog record")
 		}
 		if latestUpdated.Id > 0 {
 			since = (*time.Time)(latestUpdated.Created)
@@ -111,7 +112,7 @@ func CollectBugCommits(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		logger.Error("collect issueCommit error:", err)
+		logger.Error(err, "collect issueCommit error")
 		return err
 	}
 	return collector.Execute()

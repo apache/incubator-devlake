@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -67,7 +68,7 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 		}
 		err := db.First(&latestUpdated, clauses...)
 		if err != nil && err != gorm.ErrRecordNotFound {
-			return fmt.Errorf("failed to get latest jira issue record: %w", err)
+			return errors.NotFound.Wrap(err, "failed to get latest jira issue record: %w")
 		}
 		if latestUpdated.IssueId > 0 {
 			since = &latestUpdated.Updated

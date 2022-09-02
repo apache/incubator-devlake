@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -55,21 +56,21 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.GithubConnecti
 			/* calculate by number of remaining requests
 			remaining, err := strconv.Atoi(res.Header.Get("X-RateLimit-Remaining"))
 			if err != nil {
-				return 0,0, fmt.Errorf("failed to parse X-RateLimit-Remaining header: %w", err)
+				return 0,0, errors.Default.New("failed to parse X-RateLimit-Remaining header: %w", err)
 			}
 			reset, err := strconv.Atoi(res.Header.Get("X-RateLimit-Reset"))
 			if err != nil {
-				return 0, 0, fmt.Errorf("failed to parse X-RateLimit-Reset header: %w", err)
+				return 0, 0, errors.Default.New("failed to parse X-RateLimit-Reset header: %w", err)
 			}
 			date, err := http.ParseTime(res.Header.Get("Date"))
 			if err != nil {
-				return 0, 0, fmt.Errorf("failed to parse Date header: %w", err)
+				return 0, 0, errors.Default.New("failed to parse Date header: %w", err)
 			}
 			return remaining * len(tokens), time.Unix(int64(reset), 0).Sub(date), nil
 			*/
 			rateLimit, err := strconv.Atoi(res.Header.Get("X-RateLimit-Limit"))
 			if err != nil {
-				return 0, 0, fmt.Errorf("failed to parse X-RateLimit-Limit header: %w", err)
+				return 0, 0, errors.Default.Wrap(err, "failed to parse X-RateLimit-Limit header")
 			}
 			// even though different token could have different rate limit, but it is hard to support it
 			// so, we calculate the rate limit of a single token, and presume all tokens are the same, to

@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/dora/api"
@@ -101,7 +102,7 @@ func (plugin Dora) ApiResources() map[string]map[string]core.ApiResourceHandler 
 func (plugin Dora) Close(taskCtx core.TaskContext) error {
 	data, ok := taskCtx.GetData().(*tasks.DoraTaskData)
 	if !ok {
-		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	// TODO
 	println(data)

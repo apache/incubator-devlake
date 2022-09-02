@@ -19,7 +19,7 @@ package helper
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -82,16 +82,16 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, error) {
 	// process args
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "error processing raw subtask args", errors.UserMessage("Internal GraphQL Collector error"))
 	}
 	if err != nil {
-		return nil, fmt.Errorf("Failed to compile UrlTemplate: %w", err)
+		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate", errors.UserMessage("Internal GraphQL Collector error"))
 	}
 	if args.GraphqlClient == nil {
-		return nil, fmt.Errorf("ApiClient is required")
+		return nil, errors.Default.New("ApiClient is required", errors.UserMessage("Internal GraphQL Collector error"))
 	}
 	if args.ResponseParser == nil {
-		return nil, fmt.Errorf("ResponseParser is required")
+		return nil, errors.Default.New("ResponseParser is required", errors.UserMessage("Internal GraphQL Collector error"))
 	}
 	apicllector := &GraphqlCollector{
 		RawDataSubTask: rawDataSubTask,
@@ -108,7 +108,7 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, error) {
 	//} else {
 	//	apicllector.SetAfterResponse(func(res *http.Response) error {
 	//		if res.StatusCode == http.StatusUnauthorized {
-	//			return fmt.Errorf("authentication failed, please check your AccessToken")
+	//			return errors.Default.New("authentication failed, please check your AccessToken")
 	//		}
 	//		return nil
 	//	})
@@ -125,13 +125,13 @@ func (collector *GraphqlCollector) Execute() error {
 	db := collector.args.Ctx.GetDal()
 	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error running auto-migrate", errors.UserMessage("Internal GraphQL Collector execution error"))
 	}
 
 	// flush data if not incremental collection
 	err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting from collector table", errors.UserMessage("Internal GraphQL Collector execution error"))
 	}
 	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.table, collector.params)
 
@@ -168,9 +168,11 @@ func (collector *GraphqlCollector) Execute() error {
 
 	err = collector.args.GraphqlClient.Wait()
 	if err != nil {
-		logger.Info("end api collection error: %w", err)
+		err = errors.Default.Wrap(err, "ended API collector execution with error", errors.UserMessage("Internal GraphQL Collector execution error"))
+		logger.Error(err, "")
+
 	} else {
-		logger.Info("end api collection without error")
+		logger.Info("ended api collection without error")
 	}
 	err = divider.Close()
 
@@ -203,7 +205,7 @@ func (collector *GraphqlCollector) fetchOneByOne(divider *BatchSaveDivider, reqD
 	fetchNextPage = func(query interface{}) error {
 		pageInfo, err := collector.args.GetPageInfo(query, collector.args)
 		if err != nil {
-			return fmt.Errorf("fetchPagesDetermined get totalPages faileds: %s", err.Error())
+			return errors.Default.Wrap(err, "fetchPagesDetermined get totalPages failed")
 		}
 		if pageInfo.HasNextPage {
 			collector.args.GraphqlClient.NextTick(func() error {
@@ -240,7 +242,7 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	err = collector.args.GraphqlClient.Query(query, variables)
 	if err != nil {
 		if collector.args.IgnoreQueryErr {
-			logger.Error("fetchAsync fail and got:", err)
+			logger.Error(err, "fetchAsync failed")
 			return
 		} else {
 			panic(err)

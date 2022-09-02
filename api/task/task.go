@@ -18,6 +18,7 @@ limitations under the License.
 package task
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strconv"
 
@@ -56,17 +57,17 @@ func Index(c *gin.Context) {
 	var query services.TaskQuery
 	err := c.ShouldBindQuery(&query)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request body format", errors.AsUserMessage()))
 		return
 	}
 	err = c.ShouldBindUri(&query)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request URI format", errors.AsUserMessage()))
 		return
 	}
 	tasks, count, err := services.GetTasks(&query)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting tasks", errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, gin.H{"tasks": tasks, "count": count}, http.StatusOK)
@@ -76,12 +77,12 @@ func Delete(c *gin.Context) {
 	taskId := c.Param("taskId")
 	id, err := strconv.ParseUint(taskId, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, "invalid task id")
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "invalid task ID format", errors.AsUserMessage()))
 		return
 	}
 	err = services.CancelTask(id)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error cancelling task", errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, nil, http.StatusOK)

@@ -81,7 +81,7 @@ func ConvertIssueChangelogs(taskCtx core.SubTaskContext) error {
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
-		logger.Error(err.Error())
+		logger.Error(err, "")
 		return err
 	}
 	defer cursor.Close()

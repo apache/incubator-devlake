@@ -54,7 +54,7 @@ func CollectTaskCustomFields(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		logger.Error("collect task_custom_fields error:", err)
+		logger.Error(err, "collect task_custom_fields error")
 		return err
 	}
 	return collector.Execute()

@@ -19,11 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
-	"regexp"
-	"runtime/debug"
-
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+	"regexp"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 
@@ -143,42 +141,42 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	if len(issueSeverity) > 0 {
 		issueSeverityRegex, err = regexp.Compile(issueSeverity)
 		if err != nil {
-			return fmt.Errorf("regexp Compile issueSeverity failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile issueSeverity failed")
 		}
 	}
 	var issueComponent = config.IssueComponent
 	if len(issueComponent) > 0 {
 		issueComponentRegex, err = regexp.Compile(issueComponent)
 		if err != nil {
-			return fmt.Errorf("regexp Compile issueComponent failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile issueComponent failed")
 		}
 	}
 	var issuePriority = config.IssuePriority
 	if len(issuePriority) > 0 {
 		issuePriorityRegex, err = regexp.Compile(issuePriority)
 		if err != nil {
-			return fmt.Errorf("regexp Compile issuePriority failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile issuePriority failed")
 		}
 	}
 	var issueTypeBug = config.IssueTypeBug
 	if len(issueTypeBug) > 0 {
 		issueTypeBugRegex, err = regexp.Compile(issueTypeBug)
 		if err != nil {
-			return fmt.Errorf("regexp Compile issueTypeBug failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile issueTypeBug failed")
 		}
 	}
 	var issueTypeRequirement = config.IssueTypeRequirement
 	if len(issueTypeRequirement) > 0 {
 		issueTypeRequirementRegex, err = regexp.Compile(issueTypeRequirement)
 		if err != nil {
-			return fmt.Errorf("regexp Compile issueTypeRequirement failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile issueTypeRequirement failed")
 		}
 	}
 	var issueTypeIncident = config.IssueTypeIncident
 	if len(issueTypeIncident) > 0 {
 		issueTypeIncidentRegex, err = regexp.Compile(issueTypeIncident)
 		if err != nil {
-			return fmt.Errorf("regexp Compile issueTypeIncident failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile issueTypeIncident failed")
 		}
 	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{

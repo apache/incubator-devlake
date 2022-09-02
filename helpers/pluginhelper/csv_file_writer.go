@@ -26,9 +26,8 @@ import (
 //
 // Example CSV format (exported by dbeaver):
 //
-//   "id","name","json","created_at"
-//   123,"foobar","{""url"": ""https://example.com""}","2022-05-05 09:56:43.438000000"
-//
+//	"id","name","json","created_at"
+//	123,"foobar","{""url"": ""https://example.com""}","2022-05-05 09:56:43.438000000"
 type CsvFileWriter struct {
 	file   *os.File
 	writer *csv.Writer

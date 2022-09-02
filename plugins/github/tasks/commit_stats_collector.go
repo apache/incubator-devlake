@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
 	"io/ioutil"
 	"net/http"
@@ -55,7 +56,7 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 		dal.Limit(1),
 	)
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return fmt.Errorf("failed to get latest github commit record: %w", err)
+		return errors.Default.Wrap(err, "failed to get latest github commit record")
 	}
 
 	cursor, err := db.Cursor(

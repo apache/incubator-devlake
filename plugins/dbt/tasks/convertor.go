@@ -20,7 +20,7 @@ package tasks
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net"
 	"net/url"
 	"os"
@@ -67,7 +67,7 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 		}
 		if value, ok := mapQuery["search_path"]; ok {
 			if len(value) < 1 {
-				return fmt.Errorf("DB_URL search_path parses error")
+				return errors.Default.New("DB_URL search_path parses error")
 			}
 			dbSchema = value[0]
 		} else {
@@ -115,7 +115,7 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	if projectVars != nil {
 		jsonProjectVars, err := json.Marshal(projectVars)
 		if err != nil {
-			return fmt.Errorf("parameters vars json marshal error")
+			return errors.Default.New("parameters vars json marshal error")
 		}
 		dbtExecParams = append(dbtExecParams, "--vars")
 		dbtExecParams = append(dbtExecParams, string(jsonProjectVars))
@@ -143,7 +143,7 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 
 	cmd.Wait()
 	if !cmd.ProcessState.Success() {
-		log.Error("dbt run task error, please check!!!")
+		log.Error(nil, "dbt run task error, please check!!!")
 	}
 
 	return nil

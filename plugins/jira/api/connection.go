@@ -20,12 +20,12 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
-	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -46,12 +46,12 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	var connection models.TestConnectionRequest
 	err = mapstructure.Decode(input.Body, &connection)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
 	}
 	// validate
 	err = vld.Struct(connection)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
 	}
 	// test connection
 	apiClient, err := helper.NewApiClient(
@@ -72,7 +72,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-	serverInfoFail := "You are failed on test the serverInfo: [ " + res.Request.URL.String() + " ]"
+	serverInfoFail := "Failed testing the serverInfo: [ " + res.Request.URL.String() + " ]"
 	// check if `/rest/` was missing
 	if res.StatusCode == http.StatusNotFound && !strings.HasSuffix(connection.Endpoint, "/rest/") {
 		endpointUrl, err := url.Parse(connection.Endpoint)
@@ -84,7 +84,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 			return nil, err
 		}
 		restUrl := endpointUrl.ResolveReference(refUrl)
-		return nil, errors.NewNotFound(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()))
+		return nil, errors.NotFound.New(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()), errors.AsUserMessage())
 	}
 	resBody := &models.JiraServerInfo{}
 	err = helper.UnmarshalResponse(res, resBody)
@@ -95,18 +95,18 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if resBody.DeploymentType == models.DeploymentServer {
 		// only support 8.x.x or higher
 		if versions := resBody.VersionNumbers; len(versions) == 3 && versions[0] < 7 {
-			return nil, fmt.Errorf("%s Support JIRA Server 8+ only", serverInfoFail)
+			return nil, errors.Default.New(fmt.Sprintf("%s Support JIRA Server 8+ only", serverInfoFail))
 		}
 	}
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("%s unexpected status code: %d", serverInfoFail, res.StatusCode)
+		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("%s unexpected status code: %d", serverInfoFail, res.StatusCode))
 	}
 
 	// verify credential
 	getStatusFail := "an error occurred while making request to `/rest/api/2/status`"
 	res, err = apiClient.Get("api/2/status", nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf("%s %s", getStatusFail, err)
+		return nil, errors.Default.Wrap(err, getStatusFail)
 	}
 	getStatusFail += ": [ " + res.Request.URL.String() + " ]"
 
@@ -115,18 +115,18 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		resErrBody := &models.JiraErrorInfo{}
 		err = helper.UnmarshalResponse(res, resErrBody)
 		if err != nil {
-			return nil, fmt.Errorf("%s Unexpected status code: %d,and UnmarshalResponse error %s", getStatusFail, res.StatusCode, err)
+			return nil, errors.HttpStatus(res.StatusCode).Wrap(err, getStatusFail)
 		}
 		for _, em := range resErrBody.ErrorMessages {
 			if em == "error.no-permission" {
-				return nil, fmt.Errorf("%s We get the error %s ,it might you use the right token(password) but with the wrong username.please check your password", getStatusFail, em)
+				return nil, errors.Default.New(fmt.Sprintf("%s We get the error %s ,it might you use the right token(password) but with the wrong username.please check your password", getStatusFail, em))
 			}
 			errMsg += em + " \r\n"
 		}
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("%s Unexpected [%s] status code: %d %s", getStatusFail, res.Request.URL, res.StatusCode, errMsg)
+		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("%s Unexpected [%s] status code: %d %s", getStatusFail, res.Request.URL, res.StatusCode, errMsg))
 	}
 
 	return nil, nil

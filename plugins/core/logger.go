@@ -25,10 +25,10 @@ import (
 type LogLevel logrus.Level
 
 const (
-	LOG_DEBUG LogLevel = LogLevel(logrus.DebugLevel)
-	LOG_INFO  LogLevel = LogLevel(logrus.InfoLevel)
-	LOG_WARN  LogLevel = LogLevel(logrus.WarnLevel)
-	LOG_ERROR LogLevel = LogLevel(logrus.ErrorLevel)
+	LOG_DEBUG = LogLevel(logrus.DebugLevel)
+	LOG_INFO  = LogLevel(logrus.InfoLevel)
+	LOG_WARN  = LogLevel(logrus.WarnLevel)
+	LOG_ERROR = LogLevel(logrus.ErrorLevel)
 )
 
 // Logger General logger interface, can be used anywhere
@@ -38,8 +38,10 @@ type Logger interface {
 	Log(level LogLevel, format string, a ...interface{})
 	Debug(format string, a ...interface{})
 	Info(format string, a ...interface{})
-	Warn(format string, a ...interface{})
-	Error(format string, a ...interface{})
+	// Warn logs a message. The err field can be left `nil`, otherwise the logger will format it into the message.
+	Warn(err error, format string, a ...interface{})
+	// Error logs an error. The err field can be left `nil`, otherwise the logger will format it into the message.
+	Error(err error, format string, a ...interface{})
 	// Nested return a new logger instance. `name` is the extra prefix to be prepended to each message. Leaving it blank
 	// will add no additional prefix. The new Logger will inherit the properties of the original.
 	Nested(name string) Logger

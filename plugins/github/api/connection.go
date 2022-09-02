@@ -20,6 +20,7 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strings"
 	"time"
@@ -50,11 +51,11 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	var params models.TestConnectionRequest
 	err := mapstructure.Decode(input.Body, &params)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
 	}
 	err = vld.Struct(params)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
 	}
 	tokens := strings.Split(params.Token, ",")
 
@@ -79,21 +80,21 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 				basicRes,
 			)
 			if err != nil {
-				results <- VerifyResult{err: fmt.Errorf("verify token failed for #%v %s %w", j, token, err)}
+				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token), errors.AsUserMessage())}
 				return
 			}
 			res, err := apiClient.Get("user", nil, nil)
 			if err != nil {
-				results <- VerifyResult{err: fmt.Errorf("verify token failed for #%v %s %w", j, token, err)}
+				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token), errors.AsUserMessage())}
 				return
 			}
 			githubUserOfToken := &models.GithubUserOfToken{}
 			err = helper.UnmarshalResponse(res, githubUserOfToken)
 			if err != nil {
-				results <- VerifyResult{err: fmt.Errorf("verify token failed for #%v %s %w", j, token, err)}
+				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%v %s", j, token), errors.AsUserMessage())}
 				return
 			} else if githubUserOfToken.Login == "" {
-				results <- VerifyResult{err: fmt.Errorf("invalid token for #%v %s", j, token)}
+				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("invalid token for #%v %s", j, token), errors.AsUserMessage())}
 				return
 			}
 			results <- VerifyResult{login: githubUserOfToken.Login}
@@ -115,7 +116,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		}
 	}
 	if len(msgs) > 0 {
-		return nil, fmt.Errorf(strings.Join(msgs, "\n"))
+		return nil, errors.Default.New(strings.Join(msgs, "\n"))
 	}
 
 	githubApiResponse := GithubTestConnResponse{}

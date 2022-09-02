@@ -18,7 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/url"
 	"strconv"
 
@@ -56,7 +56,7 @@ func CollectApiCommits(taskCtx core.SubTaskContext) error {
 		)
 
 		if err != nil {
-			return fmt.Errorf("failed to get latest gitee commit record: %w", err)
+			return errors.Default.Wrap(err, "failed to get latest gitee commit record: %w")
 		}
 		if latestUpdated.Sha != "" {
 			since = &latestUpdated.CommittedDate

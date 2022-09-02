@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
@@ -125,7 +126,7 @@ func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (helper.
 				i.epic_key != ''
 		`, data.Options.ConnectionId, data.Options.BoardId)
 	if err != nil {
-		return nil, fmt.Errorf("unable to query for external epics: %v", err)
+		return nil, errors.Default.Wrap(err, "unable to query for external epics")
 	}
 	iter, err := helper.NewBatchedDalCursorIterator(db, cursor, reflect.TypeOf(""), batchSize)
 	if err != nil {

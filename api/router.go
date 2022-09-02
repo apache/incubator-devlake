@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strings"
 
@@ -68,50 +69,53 @@ func RegisterRouter(r *gin.Engine) {
 	for pluginName, apiResources := range pluginsApiResources {
 		for resourcePath, resourceHandlers := range apiResources {
 			for method, h := range resourceHandlers {
-				handler := h // block scoping
 				r.Handle(
 					method,
 					fmt.Sprintf("/plugins/%s/%s", pluginName, resourcePath),
-					func(c *gin.Context) {
-						// connect http request to plugin interface
-						input := &core.ApiResourceInput{}
-						if len(c.Params) > 0 {
-							input.Params = make(map[string]string)
-							for _, param := range c.Params {
-								input.Params[param.Key] = param.Value
-							}
-						}
-						input.Query = c.Request.URL.Query()
-						if c.Request.Body != nil {
-							if strings.HasPrefix(c.Request.Header.Get("Content-Type"), "multipart/form-data;") {
-								input.Request = c.Request
-							} else {
-								err = c.ShouldBindJSON(&input.Body)
-								if err != nil && err.Error() != "EOF" {
-									shared.ApiOutputError(c, err, http.StatusBadRequest)
-									return
-								}
-							}
-						}
-						output, err := handler(input)
-						if err != nil {
-							shared.ApiOutputError(c, err, http.StatusBadRequest)
-						} else if output != nil {
-							status := output.Status
-							if status < http.StatusContinue {
-								status = http.StatusOK
-							}
-							if output.File != nil {
-								c.Data(status, output.File.ContentType, output.File.Data)
-								return
-							}
-							shared.ApiOutputSuccess(c, output.Body, status)
-						} else {
-							shared.ApiOutputSuccess(c, nil, http.StatusOK)
-						}
-					},
+					handlePluginCall(pluginName, h),
 				)
 			}
+		}
+	}
+}
+
+func handlePluginCall(pluginName string, handler core.ApiResourceHandler) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		var err error
+		input := &core.ApiResourceInput{}
+		if len(c.Params) > 0 {
+			input.Params = make(map[string]string)
+			for _, param := range c.Params {
+				input.Params[param.Key] = param.Value
+			}
+		}
+		input.Query = c.Request.URL.Query()
+		if c.Request.Body != nil {
+			if strings.HasPrefix(c.Request.Header.Get("Content-Type"), "multipart/form-data;") {
+				input.Request = c.Request
+			} else {
+				err = c.ShouldBindJSON(&input.Body)
+				if err != nil && err.Error() != "EOF" {
+					shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("could not bind input of plugin %s to JSON", pluginName), errors.AsUserMessage()))
+					return
+				}
+			}
+		}
+		output, err := handler(input)
+		if err != nil {
+			shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("error executing the requested resource for plugin %s", pluginName), errors.AsUserMessage()))
+		} else if output != nil {
+			status := output.Status
+			if status < http.StatusContinue {
+				status = http.StatusOK
+			}
+			if output.File != nil {
+				c.Data(status, output.File.ContentType, output.File.Data)
+				return
+			}
+			shared.ApiOutputSuccess(c, output.Body, status)
+		} else {
+			shared.ApiOutputSuccess(c, nil, http.StatusOK)
 		}
 	}
 }

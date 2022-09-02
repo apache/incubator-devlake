@@ -19,6 +19,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"strings"
 	"time"
@@ -44,7 +45,7 @@ func DevLakePipelineWorkflow(ctx workflow.Context, configJson []byte, pipelineId
 		},
 	)
 	if err != nil {
-		log.Error("failed to execute pipeline #%d: %w", pipelineId, err)
+		log.Error(err, "failed to execute pipeline #%d", pipelineId)
 	}
 	log.Info("finished pipeline #%d", pipelineId)
 	return err
@@ -54,7 +55,7 @@ func runTasks(ctx workflow.Context, configJson []byte, taskIds []uint64, logger 
 	cleanExit := false
 	defer func() {
 		if !cleanExit {
-			logger.Error("fatal error while executing task Ids: %v", taskIds)
+			logger.Error(nil, "fatal error while executing task Ids: %v", taskIds)
 		}
 	}()
 	futures := make([]workflow.Future, len(taskIds))
@@ -76,7 +77,7 @@ func runTasks(ctx workflow.Context, configJson []byte, taskIds []uint64, logger 
 	}
 	cleanExit = true
 	if len(errs) > 0 {
-		return fmt.Errorf(strings.Join(errs, "\n"))
+		return errors.Default.New(strings.Join(errs, "\n"))
 	}
 	return nil
 }

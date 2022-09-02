@@ -320,7 +320,7 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 		if commitFile != nil {
 			err = r.store.CommitFiles(commitFile)
 			if err != nil {
-				r.logger.Error("CommitFiles error:", err)
+				r.logger.Error(err, "CommitFiles error")
 				return nil, err
 			}
 		}
@@ -357,13 +357,13 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 	if commitFileComponent != nil {
 		err = r.store.CommitFileComponents(commitFileComponent)
 		if err != nil {
-			r.logger.Error("CommitFileComponents error:", err)
+			r.logger.Error(err, "CommitFileComponents error")
 		}
 	}
 	if commitFile != nil {
 		err = r.store.CommitFiles(commitFile)
 		if err != nil {
-			r.logger.Error("CommitFiles error:", err)
+			r.logger.Error(err, "CommitFiles error")
 		}
 	}
 	return err

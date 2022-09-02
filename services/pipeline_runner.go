@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -67,7 +68,7 @@ func (p *pipelineRunner) runPipelineViaTemporal() error {
 		p.logger.GetConfig(),
 	)
 	if err != nil {
-		p.logger.Error("failed to enqueue pipeline #%d into temporal", p.pipeline.ID)
+		p.logger.Error(err, "failed to enqueue pipeline #%d into temporal", p.pipeline.ID)
 		return err
 	}
 	err = workflow.Get(context.Background(), nil)
@@ -85,7 +86,7 @@ func getPipelineLogger(pipeline *models.Pipeline) core.Logger {
 	loggingPath := logger.GetPipelineLoggerPath(pipelineLogger.GetConfig(), pipeline)
 	stream, err := logger.GetFileStream(loggingPath)
 	if err != nil {
-		globalPipelineLog.Error("unable to set stream for logging pipeline %d", pipeline.ID)
+		globalPipelineLog.Error(nil, "unable to set stream for logging pipeline %d", pipeline.ID)
 	} else {
 		pipelineLogger.SetStream(&core.LoggerStreamConfig{
 			Path:   loggingPath,
@@ -112,11 +113,11 @@ func runPipeline(pipelineId uint64) error {
 		err = pipelineRun.runPipelineStandalone()
 	}
 	if err != nil {
-		err = fmt.Errorf("error running pipeline %d: %v", pipelineId, err)
+		err = errors.Default.Wrap(err, fmt.Sprintf("error running pipeline %d", pipelineId))
 	}
 	pipeline, e := GetPipeline(pipelineId)
 	if e != nil {
-		return fmt.Errorf("unable to get pipeline %d: %v", pipelineId, err)
+		return errors.Default.Wrap(err, fmt.Sprintf("unable to get pipeline %d", pipelineId))
 	}
 	// finished, update database
 	finishedAt := time.Now()
@@ -131,7 +132,7 @@ func runPipeline(pipelineId uint64) error {
 	}
 	dbe := db.Model(pipeline).Select("finished_at", "spent_seconds", "status", "message").Updates(pipeline).Error
 	if dbe != nil {
-		globalPipelineLog.Error("update pipeline state failed: %w", dbe)
+		globalPipelineLog.Error(dbe, "update pipeline state failed")
 		return dbe
 	}
 	// notify external webhook

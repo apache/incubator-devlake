@@ -62,7 +62,7 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
-		logger.Error("collect remotelink error:%v", err)
+		logger.Error(err, "collect remotelink error")
 		return err
 	}
 

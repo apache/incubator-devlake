@@ -18,6 +18,7 @@ limitations under the License.
 package helper
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/common"
@@ -74,11 +75,11 @@ func (extractor *ApiExtractor) Execute() error {
 
 	count, err := db.Count(clauses...)
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error getting count of clauses", errors.UserMessage("Internal Extractor execution error"))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error running DB query", errors.UserMessage("Internal Extractor execution error"))
 	}
 	log.Info("get data from %s where params=%s and got %d", extractor.table, extractor.params, count)
 	defer cursor.Close()
@@ -100,19 +101,19 @@ func (extractor *ApiExtractor) Execute() error {
 		}
 		err = db.Fetch(cursor, row)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error fetching row", errors.UserMessage("Internal Extractor execution error"))
 		}
 
 		results, err := extractor.args.Extract(row)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error calling plugin Extract implementation", errors.UserMessage("Internal Extractor execution error"))
 		}
 
 		for _, result := range results {
 			// get the batch operator for the specific type
 			batch, err := divider.ForType(reflect.TypeOf(result))
 			if err != nil {
-				return err
+				return errors.Default.Wrap(err, "error getting batch from result", errors.UserMessage("Internal Extractor execution error"))
 			}
 			// set raw data origin field
 			origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
@@ -126,7 +127,7 @@ func (extractor *ApiExtractor) Execute() error {
 			// records get saved into db when slots were max outed
 			err = batch.Add(result)
 			if err != nil {
-				return err
+				return errors.Default.Wrap(err, "error adding result to batch", errors.UserMessage("Internal Extractor execution error"))
 			}
 			extractor.args.Ctx.IncProgress(1)
 		}

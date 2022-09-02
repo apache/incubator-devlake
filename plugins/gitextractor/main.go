@@ -20,7 +20,6 @@ package main
 import (
 	"context"
 	"flag"
-
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"

@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
@@ -92,7 +93,7 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			if body.FullName == "" {
-				return nil, fmt.Errorf("repo %s/%s not found", data.Options.Owner, data.Options.Repo)
+				return nil, errors.NotFound.New(fmt.Sprintf("repo %s/%s not found", data.Options.Owner, data.Options.Repo))
 			}
 			results := make([]interface{}, 0, 1)
 			bitbucketRepository := &models.BitbucketRepo{

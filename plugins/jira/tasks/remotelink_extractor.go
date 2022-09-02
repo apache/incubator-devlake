@@ -19,15 +19,13 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
-	"regexp"
-	"runtime/debug"
-
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
+	"regexp"
 )
 
 var ExtractRemotelinksMeta = core.SubTaskMeta{
@@ -50,7 +48,7 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 	if pattern := data.Options.TransformationRules.RemotelinkCommitShaPattern; pattern != "" {
 		commitShaRegex, err = regexp.Compile(pattern)
 		if err != nil {
-			return fmt.Errorf("regexp Compile pattern failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile pattern failed")
 		}
 	}
 

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -60,7 +61,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 		}
 		err = db.Fetch(cursor, commitParent)
 		if err != nil {
-			return fmt.Errorf("failed to read commit from database: %v", err)
+			return errors.Default.Wrap(err, "failed to read commit from database")
 		}
 		commitNodeGraph.AddParent(commitParent.CommitSha, commitParent.ParentCommitSha)
 	}

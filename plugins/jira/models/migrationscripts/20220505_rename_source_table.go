@@ -17,7 +17,6 @@ package migrationscripts
 
 import (
 	"context"
-
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 	"gorm.io/gorm"

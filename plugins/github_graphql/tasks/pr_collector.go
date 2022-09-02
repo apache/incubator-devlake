@@ -18,14 +18,13 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/merico-dev/graphql"
 	"regexp"
-	"runtime/debug"
 	"time"
 )
 
@@ -133,14 +132,14 @@ func CollectPr(taskCtx core.SubTaskContext) error {
 	if len(prType) > 0 {
 		labelTypeRegex, err = regexp.Compile(prType)
 		if err != nil {
-			return fmt.Errorf("regexp Compile prType failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile prType failed")
 		}
 	}
 	var prComponent = config.PrComponent
 	if len(prComponent) > 0 {
 		labelComponentRegex, err = regexp.Compile(prComponent)
 		if err != nil {
-			return fmt.Errorf("regexp Compile prComponent failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile prComponent failed")
 		}
 	}
 

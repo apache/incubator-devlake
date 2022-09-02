@@ -18,8 +18,8 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -71,7 +71,7 @@ If framework passed, generator will create a new migration in models/migrationsc
 		}
 		_, err = os.Stat(migrationPath)
 		if os.IsNotExist(err) {
-			cobra.CheckErr(errors.New(`migrationscripts not init. please run init-migration first`))
+			cobra.CheckErr(errors.Default.New(`migrationscripts not init. please run init-migration first`))
 		}
 		cobra.CheckErr(err)
 
@@ -122,11 +122,11 @@ If framework passed, generator will create a new migration in models/migrationsc
 
 func purposeNotExistValidate(input string) error {
 	if input == `` {
-		return errors.New("purpose require")
+		return errors.Default.New("purpose require")
 	}
 	camelNameReg := regexp.MustCompile(`^[a-z][A-Za-z0-9]*$`)
 	if !camelNameReg.MatchString(input) {
-		return errors.New("purpose invalid (please use camelCase format, start with a-z and consist with a-zA-Z0-9)")
+		return errors.Default.New("purpose invalid (please use camelCase format, start with a-z and consist with a-zA-Z0-9)")
 	}
 
 	return nil

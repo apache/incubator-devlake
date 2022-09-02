@@ -48,7 +48,7 @@ func CollectStoryStatus(taskCtx core.SubTaskContext) error {
 		ResponseParser: GetRawMessageDirectFromResponse,
 	})
 	if err != nil {
-		logger.Error("collect bugStatus error:", err)
+		logger.Error(err, "collect bugStatus error")
 		return err
 	}
 	return collector.Execute()

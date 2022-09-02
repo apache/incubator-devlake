@@ -18,9 +18,8 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"regexp"
-	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -51,7 +50,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 	if len(prTitlePattern) > 0 {
 		prTitleRegex, err = regexp.Compile(prTitlePattern)
 		if err != nil {
-			return fmt.Errorf("regexp Compile prTitlePattern failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile prTitlePattern failed")
 		}
 	}
 

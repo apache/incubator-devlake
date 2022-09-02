@@ -19,6 +19,7 @@ package runner
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/url"
 	"strings"
 	"time"
@@ -67,7 +68,7 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 	}
 	dbUrl := config.GetString("DB_URL")
 	if dbUrl == "" {
-		return nil, fmt.Errorf("DB_URL is required")
+		return nil, errors.BadInput.New("DB_URL is required", errors.AsUserMessage())
 	}
 	u, err := url.Parse(dbUrl)
 	if err != nil {
@@ -76,12 +77,12 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 	var db *gorm.DB
 	switch strings.ToLower(u.Scheme) {
 	case "mysql":
-		dbUrl = fmt.Sprintf(("%s@tcp(%s)%s?%s"), u.User.String(), u.Host, u.Path, u.RawQuery)
+		dbUrl = fmt.Sprintf("%s@tcp(%s)%s?%s", u.User.String(), u.Host, u.Path, u.RawQuery)
 		db, err = gorm.Open(mysql.Open(dbUrl), dbConfig)
 	case "postgresql", "postgres", "pg":
 		db, err = gorm.Open(postgres.Open(dbUrl), dbConfig)
 	default:
-		return nil, fmt.Errorf("invalid DB_URL:%s", dbUrl)
+		return nil, errors.BadInput.New(fmt.Sprintf("invalid DB_URL:%s", dbUrl), errors.AsUserMessage())
 	}
 	if err != nil {
 		return nil, err

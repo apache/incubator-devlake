@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/azure/models"
 	"net/http"
 
@@ -39,7 +40,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.AzureConnectio
 
 	apiClient.SetAfterFunction(func(res *http.Response) error {
 		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("authentication failed, please check your Username/Password")
+			return errors.Unauthorized.New("authentication failed, please check your Username/Password")
 		}
 		return nil
 	})

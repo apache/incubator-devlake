@@ -18,10 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"regexp"
-	"runtime/debug"
 	"strconv"
 	"strings"
 
@@ -53,7 +52,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 	if len(prBodyClosePattern) > 0 {
 		prBodyCloseRegex, err = regexp.Compile(prBodyClosePattern)
 		if err != nil {
-			return fmt.Errorf("regexp Compile prBodyClosePattern failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile prBodyClosePattern failed")
 		}
 	}
 	charPattern := regexp.MustCompile(`[a-zA-Z\s,]+`)

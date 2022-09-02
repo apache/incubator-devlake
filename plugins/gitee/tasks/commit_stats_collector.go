@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -58,7 +59,7 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("failed to get latest gitee commit record: %w", err)
+		return errors.Default.Wrap(err, "failed to get latest gitee commit record")
 	}
 
 	cursor, err := db.Cursor(

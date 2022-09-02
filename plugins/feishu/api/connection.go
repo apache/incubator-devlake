@@ -19,7 +19,7 @@ package api
 
 import (
 	"context"
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
@@ -43,11 +43,11 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	var params models.TestConnectionRequest
 	err := mapstructure.Decode(input.Body, &params)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
 	}
 	err = vld.Struct(params)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
 	}
 
 	authApiClient, err := helper.NewApiClient(context.TODO(), params.Endpoint, nil, 0, params.Proxy, basicRes)
@@ -70,7 +70,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return nil, err
 	}
 	if tokenResBody.AppAccessToken == "" && tokenResBody.TenantAccessToken == "" {
-		return nil, fmt.Errorf("failed to request access token")
+		return nil, errors.Default.New("failed to request access token")
 	}
 
 	// output

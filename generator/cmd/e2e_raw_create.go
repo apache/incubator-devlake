@@ -18,7 +18,7 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -64,10 +64,10 @@ Type in what the raw_table is, then generator will export and save in plugins/$p
 				Default: `_raw_`,
 				Validate: func(input string) error {
 					if input == `` {
-						return errors.New("raw_table_name require")
+						return errors.Default.New("raw_table_name require")
 					}
 					if !strings.HasPrefix(input, `_raw_`) {
-						return errors.New("raw_table_name should start with `_raw_`")
+						return errors.Default.New("raw_table_name should start with `_raw_`")
 					}
 					return nil
 				},
@@ -82,10 +82,10 @@ Type in what the raw_table is, then generator will export and save in plugins/$p
 			Default: rawTableName + `.csv`,
 			Validate: func(input string) error {
 				if input == `` {
-					return errors.New("csv_file_name require")
+					return errors.Default.New("csv_file_name require")
 				}
 				if !strings.HasSuffix(input, `.csv`) {
-					return errors.New("csv_file_name should end with `.csv`")
+					return errors.Default.New("csv_file_name should end with `.csv`")
 				}
 				return nil
 			},

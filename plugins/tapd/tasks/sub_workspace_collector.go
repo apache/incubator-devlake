@@ -56,7 +56,7 @@ func CollectSubWorkspaces(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		logger.Error("collect workspace error:", err)
+		logger.Error(err, "collect workspace error")
 		return err
 	}
 	return collector.Execute()

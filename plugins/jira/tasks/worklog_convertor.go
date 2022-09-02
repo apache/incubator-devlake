@@ -54,7 +54,7 @@ func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
-		logger.Error("convert worklog error:", err)
+		logger.Error(err, "convert worklog error")
 		return err
 	}
 	defer cursor.Close()

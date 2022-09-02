@@ -20,9 +20,9 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"strings"
 
-	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -56,7 +56,7 @@ func CreateBlueprint(blueprint *models.Blueprint) error {
 	}
 	err = ReloadBlueprints(cronManager)
 	if err != nil {
-		return errors.InternalError
+		return errors.Internal.Wrap(err, "error reloading blueprints")
 	}
 	return nil
 }
@@ -91,9 +91,9 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
 	err := db.First(blueprint, blueprintId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.NewNotFound("blueprint not found")
+			return nil, errors.NotFound.New("blueprint not found", errors.AsUserMessage())
 		}
-		return nil, err
+		return nil, errors.Internal.Wrap(err, "error getting the task from database", errors.AsUserMessage())
 	}
 	return blueprint, nil
 }
@@ -111,7 +111,7 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 	if !blueprint.IsManual {
 		_, err = cron.ParseStandard(blueprint.CronConfig)
 		if err != nil {
-			return fmt.Errorf("invalid cronConfig: %w", err)
+			return errors.Default.Wrap(err, "invalid cronConfig")
 		}
 	}
 	if blueprint.Mode == models.BLUEPRINT_MODE_ADVANCED {
@@ -119,16 +119,16 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 		err = json.Unmarshal(blueprint.Plan, &plan)
 
 		if err != nil {
-			return fmt.Errorf("invalid plan: %w", err)
+			return errors.Default.Wrap(err, "invalid plan")
 		}
 		// tasks should not be empty
 		if len(plan) == 0 || len(plan[0]) == 0 {
-			return fmt.Errorf("empty plan")
+			return errors.Default.New("empty plan")
 		}
 	} else if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
 		blueprint.Plan, err = GeneratePlanJson(blueprint.Settings)
 		if err != nil {
-			return fmt.Errorf("invalid plan: %w", err)
+			return errors.Default.Wrap(err, "invalid plan")
 		}
 	}
 
@@ -150,7 +150,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	}
 	// make sure mode is not being update
 	if originMode != blueprint.Mode {
-		return nil, fmt.Errorf("mode is not updatable")
+		return nil, errors.Default.New("mode is not updatable")
 	}
 	// validation
 	err = validateBlueprint(blueprint)
@@ -161,13 +161,13 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	// save
 	err = db.Save(blueprint).Error
 	if err != nil {
-		return nil, errors.InternalError
+		return nil, errors.Internal.Wrap(err, "error saving blueprint")
 	}
 
 	// reload schedule
 	err = ReloadBlueprints(cronManager)
 	if err != nil {
-		return nil, errors.InternalError
+		return nil, errors.Internal.Wrap(err, "error reloading blueprints")
 	}
 	// done
 	return blueprint, nil
@@ -177,11 +177,11 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 func DeleteBlueprint(id uint64) error {
 	err := db.Delete(&models.Blueprint{}, "id = ?", id).Error
 	if err != nil {
-		return errors.InternalError
+		return errors.Internal.Wrap(err, fmt.Sprintf("error deleting blueprint %d", id))
 	}
 	err = ReloadBlueprints(cronManager)
 	if err != nil {
-		return errors.InternalError
+		return errors.Internal.Wrap(err, "error reloading blueprints")
 	}
 	return nil
 }
@@ -203,19 +203,19 @@ func ReloadBlueprints(c *cron.Cron) error {
 		blueprint := pp
 		plan, err := pp.UnmarshalPlan()
 		if err != nil {
-			blueprintLog.Error("created cron job failed: %s", err)
+			blueprintLog.Error(err, "created cron job failed")
 			return err
 		}
 		_, err = c.AddFunc(pp.CronConfig, func() {
 			pipeline, err := createPipelineByBlueprint(blueprint.ID, blueprint.Name, plan)
 			if err != nil {
-				blueprintLog.Error("run cron job failed: %s", err)
+				blueprintLog.Error(err, "run cron job failed")
 			} else {
 				blueprintLog.Info("Run new cron job successfully, pipeline id: %d", pipeline.ID)
 			}
 		})
 		if err != nil {
-			blueprintLog.Error("created cron job failed: %s", err)
+			blueprintLog.Error(err, "created cron job failed")
 			return err
 		}
 	}
@@ -234,7 +234,7 @@ func createPipelineByBlueprint(blueprintId uint64, name string, plan core.Pipeli
 	pipeline, err := CreatePipeline(&newPipeline)
 	// Return all created tasks to the User
 	if err != nil {
-		blueprintLog.Error("created cron job failed: %s", err)
+		blueprintLog.Error(err, "created cron job failed")
 		return nil, err
 	}
 	return pipeline, err
@@ -253,7 +253,7 @@ func GeneratePlanJson(settings json.RawMessage) (json.RawMessage, error) {
 	case "1.0.0":
 		plan, err = GeneratePlanJsonV100(bpSettings)
 	default:
-		return nil, fmt.Errorf("unknown version of blueprint settings: %s", bpSettings.Version)
+		return nil, errors.Default.New(fmt.Sprintf("unknown version of blueprint settings: %s", bpSettings.Version))
 	}
 	if err != nil {
 		return nil, err
@@ -272,7 +272,7 @@ func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan
 	plans := make([]core.PipelinePlan, len(connections))
 	for i, connection := range connections {
 		if len(connection.Scope) == 0 {
-			return nil, fmt.Errorf("connections[%d].scope is empty", i)
+			return nil, errors.Default.New(fmt.Sprintf("connections[%d].scope is empty", i))
 		}
 		plugin, err := core.GetPlugin(connection.Plugin)
 		if err != nil {
@@ -284,7 +284,7 @@ func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan
 				return nil, err
 			}
 		} else {
-			return nil, fmt.Errorf("plugin %s does not support blueprint protocol version 1.0.0", connection.Plugin)
+			return nil, errors.Default.New(fmt.Sprintf("plugin %s does not support blueprint protocol version 1.0.0", connection.Plugin))
 		}
 	}
 

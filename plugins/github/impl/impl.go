@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/migration"
@@ -145,20 +146,20 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	connection := &models.GithubConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get github connection by the given connection ID: %v", err)
+		return nil, errors.Default.Wrap(err, "unable to get github connection by the given connection ID", errors.AsUserMessage())
 	}
 
 	var since time.Time
 	if op.Since != "" {
 		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
 		if err != nil {
-			return nil, fmt.Errorf("invalid value for `since`: %w", err)
+			return nil, errors.BadInput.Wrap(err, "invalid value for `since`", errors.AsUserMessage())
 		}
 	}
 
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get github API client instance: %v", err)
+		return nil, errors.Default.Wrap(err, "unable to get github API client instance", errors.AsUserMessage())
 	}
 	taskData := &tasks.GithubTaskData{
 		Options:   op,
@@ -204,7 +205,7 @@ func (plugin Github) MakePipelinePlan(connectionId uint64, scope []*core.Bluepri
 func (plugin Github) Close(taskCtx core.TaskContext) error {
 	data, ok := taskCtx.GetData().(*tasks.GithubTaskData)
 	if !ok {
-		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	data.ApiClient.Release()
 	return nil

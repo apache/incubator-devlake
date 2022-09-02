@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
@@ -149,7 +150,7 @@ func (plugin Feishu) ApiResources() map[string]map[string]core.ApiResourceHandle
 func (plugin Feishu) Close(taskCtx core.TaskContext) error {
 	data, ok := taskCtx.GetData().(*tasks.FeishuTaskData)
 	if !ok {
-		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	data.ApiClient.Release()
 	return nil

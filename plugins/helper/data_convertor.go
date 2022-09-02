@@ -19,6 +19,7 @@ package helper
 
 import (
 	"database/sql"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -29,12 +30,13 @@ type DataConvertHandler func(row interface{}) ([]interface{}, error)
 
 // DataConverterArgs includes the arguments about DataConverter.
 // This will be used in Creating a DataConverter.
-// DataConverterArgs {
-//			InputRowType: 		type of inputRow ,
-//			Input:        		dal cursor,
-//			RawDataSubTaskArgs: args about raw data task
-//			Convert: 			main function including conversion logic
-//			BatchSize: 			batch size
+//
+//	DataConverterArgs {
+//				InputRowType: 		type of inputRow ,
+//				Input:        		dal cursor,
+//				RawDataSubTaskArgs: args about raw data task
+//				Convert: 			main function including conversion logic
+//				BatchSize: 			batch size
 type DataConverterArgs struct {
 	RawDataSubTaskArgs
 	// Domain layer entity Id prefix, i.e. `jira:JiraIssue:1`, `github:GithubIssue`
@@ -98,19 +100,19 @@ func (converter *DataConverter) Execute() error {
 		inputRow := reflect.New(converter.args.InputRowType).Interface()
 		err := db.Fetch(cursor, inputRow)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error fetching rows", errors.UserMessage("Internal Converter execution error"))
 		}
 
 		results, err := converter.args.Convert(inputRow)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error calling Converter plugin implementation", errors.UserMessage("Internal Converter execution error"))
 		}
 
 		for _, result := range results {
 			// get the batch operator for the specific type
 			batch, err := divider.ForType(reflect.TypeOf(result))
 			if err != nil {
-				return err
+				return errors.Default.Wrap(err, "error getting batch from result", errors.UserMessage("Internal Converter execution error"))
 			}
 			// set raw data origin field
 			origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
@@ -120,7 +122,7 @@ func (converter *DataConverter) Execute() error {
 			// records get saved into db when slots were max outed
 			err = batch.Add(result)
 			if err != nil {
-				return err
+				return errors.Default.Wrap(err, "error adding result to batch", errors.UserMessage("Internal Converter execution error"))
 			}
 		}
 		converter.args.Ctx.IncProgress(1)
@@ -130,5 +132,5 @@ func (converter *DataConverter) Execute() error {
 	return divider.Close()
 }
 
-//Check if DataConverter implements SubTask interface
+// Check if DataConverter implements SubTask interface
 var _ core.SubTask = (*DataConverter)(nil)

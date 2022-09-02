@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
 	"regexp"
 	"sort"
@@ -155,7 +156,7 @@ func CaculateTagPattern(db dal.Dal, tagsPattern string, tagsLimit int, tagsOrder
 	defer rows.Next()
 	r, err := regexp.Compile(tagsPattern)
 	if err != nil {
-		return rs, fmt.Errorf("unable to parse: %s\r\n%s", tagsPattern, err.Error())
+		return rs, errors.Default.Wrap(err, fmt.Sprintf("unable to parse: %s", tagsPattern))
 	}
 	for rows.Next() {
 		var ref code.Ref
@@ -199,12 +200,12 @@ func CalculateCommitPairs(db dal.Dal, repoId string, pairs []RefPair, rs Refs) (
 	ref2sha := func(refName string) (string, error) {
 		ref := &code.Ref{}
 		if refName == "" {
-			return "", fmt.Errorf("ref name is empty")
+			return "", errors.Default.New("ref name is empty")
 		}
 		ref.Id = fmt.Sprintf("%s:%s", repoId, refName)
 		err := db.First(ref)
 		if err != nil && err != gorm.ErrRecordNotFound {
-			return "", fmt.Errorf("faild to load Ref info for repoId:%s, refName:%s", repoId, refName)
+			return "", errors.NotFound.Wrap(err, fmt.Sprintf("faild to load Ref info for repoId:%s, refName:%s", repoId, refName))
 		}
 		return ref.CommitSha, nil
 	}
@@ -213,12 +214,12 @@ func CalculateCommitPairs(db dal.Dal, repoId string, pairs []RefPair, rs Refs) (
 		// get new ref's commit sha
 		newCommit, err := ref2sha(refPair.NewRef)
 		if err != nil {
-			return RefCommitPairs{}, fmt.Errorf("failed to load commit sha for NewRef on pair #%d: %w", i, err)
+			return RefCommitPairs{}, errors.Default.Wrap(err, fmt.Sprintf("failed to load commit sha for NewRef on pair #%d", i))
 		}
 		// get old ref's commit sha
 		oldCommit, err := ref2sha(refPair.OldRef)
 		if err != nil {
-			return RefCommitPairs{}, fmt.Errorf("failed to load commit sha for OleRef on pair #%d: %w", i, err)
+			return RefCommitPairs{}, errors.Default.Wrap(err, fmt.Sprintf("failed to load commit sha for OleRef on pair #%d", i))
 		}
 
 		have := false

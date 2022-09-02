@@ -20,7 +20,6 @@ package models
 import (
 	"encoding/base64"
 	"fmt"
-
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 

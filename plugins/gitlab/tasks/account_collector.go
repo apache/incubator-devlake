@@ -65,7 +65,7 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 	})
 
 	if err != nil {
-		logger.Error("collect user error:", err)
+		logger.Error(err, "collect user error")
 		return err
 	}
 

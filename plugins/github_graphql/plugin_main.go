@@ -19,7 +19,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
@@ -90,10 +90,10 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 		return nil, err
 	}
 	if op.Owner == "" {
-		return nil, fmt.Errorf("owner is required for GitHub execution")
+		return nil, errors.Default.New("owner is required for GitHub execution")
 	}
 	if op.Repo == "" {
-		return nil, fmt.Errorf("repo is required for GitHub execution")
+		return nil, errors.Default.New("repo is required for GitHub execution")
 	}
 
 	connectionHelper := helper.NewConnectionHelper(
@@ -103,7 +103,7 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 	connection := &models.GithubConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get github connection by the given connection ID: %v", err)
+		return nil, errors.Default.Wrap(err, "unable to get github connection by the given connection ID: %v")
 	}
 
 	tokens := strings.Split(connection.Token, ",")
@@ -131,7 +131,7 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 
 	apiClient, err := githubTasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get github API client instance: %v", err)
+		return nil, errors.Default.Wrap(err, "unable to get github API client instance")
 	}
 
 	return &githubTasks.GithubTaskData{

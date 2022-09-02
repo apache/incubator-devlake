@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -53,7 +54,7 @@ func CollectPrReviewComments(taskCtx core.SubTaskContext) error {
 			dal.Limit(1),
 		)
 		if err != nil {
-			return fmt.Errorf("failed to get latest github issue record: %w", err)
+			return errors.Default.Wrap(err, "failed to get latest github issue record")
 		}
 		if latestUpdatedPrReviewComt.GithubId > 0 {
 			since = &latestUpdatedPrReviewComt.GithubUpdatedAt

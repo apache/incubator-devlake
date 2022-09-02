@@ -19,6 +19,7 @@ package helper
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/utils"
@@ -33,7 +34,7 @@ func MakePipelinePlanSubtasks(subtaskMetas []core.SubTaskMeta, entities []string
 	wanted := make(map[string]bool, len(entities))
 	for _, entity := range entities {
 		if !utils.StringsContains(core.DOMAIN_TYPES, entity) {
-			return nil, fmt.Errorf("invalid entity(domain type): %s", entity)
+			return nil, errors.Default.New(fmt.Sprintf("invalid entity(domain type): %s", entity))
 		}
 		wanted[entity] = true
 	}

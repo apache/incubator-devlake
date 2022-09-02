@@ -18,6 +18,8 @@ limitations under the License.
 package push
 
 import (
+	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/api/shared"
@@ -50,12 +52,12 @@ func Post(c *gin.Context) {
 	var rowsToInsert []map[string]interface{}
 	err = c.ShouldBindJSON(&rowsToInsert)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request body format", errors.AsUserMessage()))
 		return
 	}
 	rowsAffected, err := services.InsertRow(tableName, rowsToInsert)
 	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
+		shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("error inserting request body into table %s", tableName), errors.AsUserMessage()))
 		return
 	}
 	shared.ApiOutputSuccess(c, gin.H{"rowsAffected": rowsAffected}, http.StatusOK)

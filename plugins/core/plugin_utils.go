@@ -24,6 +24,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"math/rand"
 	"time"
 )
@@ -48,12 +49,12 @@ func Encrypt(encKey, plainText string) (string, error) {
 	return base64.StdEncoding.EncodeToString(output), nil
 }
 
-//  Base64 + AES decryption using ENCODE_KEY in .env as key
+// Base64 + AES decryption using ENCODE_KEY in .env as key
 func Decrypt(encKey, encryptedText string) (string, error) {
 	// when encryption key is not set
 	if encKey == "" {
 		// return error message
-		return encryptedText, fmt.Errorf("encKey is required")
+		return encryptedText, errors.Default.New("encKey is required")
 	}
 
 	// Decode Base64
@@ -78,7 +79,7 @@ func Decrypt(encKey, encryptedText string) (string, error) {
 			return string(output), nil
 		}
 	}
-	return "", fmt.Errorf("invalid encKey")
+	return "", errors.Default.New("invalid encKey")
 }
 
 // PKCS7 padding
@@ -101,7 +102,7 @@ func PKCS7UnPadding(origData []byte) []byte {
 	return origData[:(length - unpadding)]
 }
 
-//AES encryption, CBC
+// AES encryption, CBC
 func AesEncrypt(origData, key []byte) ([]byte, error) {
 	// data alignment fill and encryption
 	sha256Key := sha256.Sum256(key)
@@ -119,7 +120,7 @@ func AesEncrypt(origData, key []byte) ([]byte, error) {
 	return crypted, nil
 }
 
-//AES decryption
+// AES decryption
 func AesDecrypt(crypted, key []byte) ([]byte, error) {
 	// Uniformly use sha256 to process as 32-bit Byte (256-bit bit)
 	sha256Key := sha256.Sum256(key)
@@ -131,7 +132,7 @@ func AesDecrypt(crypted, key []byte) ([]byte, error) {
 	// Get the block size and check whether the ciphertext length is legal
 	blockSize := block.BlockSize()
 	if len(crypted)%blockSize != 0 {
-		return nil, fmt.Errorf("The length of the data to be decrypted is [%d], so cannot match the required block size [%d]", len(crypted), blockSize)
+		return nil, errors.Default.New(fmt.Sprintf("The length of the data to be decrypted is [%d], so cannot match the required block size [%d]", len(crypted), blockSize))
 	}
 
 	// Decrypt and unalign data

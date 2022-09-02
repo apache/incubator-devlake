@@ -19,6 +19,7 @@ package helper
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/utils"
@@ -49,7 +50,7 @@ func DecodeStruct(output *viper.Viper, input interface{}, data map[string]interf
 
 	vf := reflect.ValueOf(input)
 	if vf.Kind() != reflect.Ptr {
-		return fmt.Errorf("input %v is not a pointer", input)
+		return errors.Default.New(fmt.Sprintf("input %v is not a pointer", input))
 	}
 
 	for _, f := range utils.WalkFields(reflect.Indirect(vf).Type(), nil) {
@@ -108,7 +109,7 @@ func DecodeStruct(output *viper.Viper, input interface{}, data map[string]interf
 func EncodeStruct(input *viper.Viper, output interface{}, tag string) error {
 	vf := reflect.ValueOf(output)
 	if vf.Kind() != reflect.Ptr {
-		return fmt.Errorf("output %v is not a pointer", output)
+		return errors.Default.New(fmt.Sprintf("output %v is not a pointer", output))
 	}
 
 	for _, f := range utils.WalkFields(reflect.Indirect(vf).Type(), nil) {

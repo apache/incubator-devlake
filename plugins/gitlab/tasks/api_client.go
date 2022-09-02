@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -50,7 +51,7 @@ func NewGitlabApiClient(taskCtx core.TaskContext, connection *models.GitlabConne
 			}
 			rateLimit, err := strconv.Atoi(rateLimitHeader)
 			if err != nil {
-				return 0, 0, fmt.Errorf("failed to parse RateLimit-Limit header: %w", err)
+				return 0, 0, errors.Default.Wrap(err, "failed to parse RateLimit-Limit header")
 			}
 			// seems like gitlab rate limit is on minute basis
 			return rateLimit, 1 * time.Minute, nil

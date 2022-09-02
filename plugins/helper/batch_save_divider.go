@@ -19,6 +19,7 @@ package helper
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/common"
@@ -71,7 +72,7 @@ func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, error) {
 		// check if rowType had RawDataOrigin embeded
 		field, hasField := rowElemType.FieldByName("RawDataOrigin")
 		if !hasField || field.Type != reflect.TypeOf(common.RawDataOrigin{}) {
-			return nil, fmt.Errorf("type %s must have RawDataOrigin embeded", rowElemType.Name())
+			return nil, errors.Default.New(fmt.Sprintf("type %s must have RawDataOrigin embeded", rowElemType.Name()))
 		}
 		// all good, delete outdated records before we insertion
 		d.log.Debug("deleting outdate records for %s", rowElemType.Name())

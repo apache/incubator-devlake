@@ -18,7 +18,7 @@ limitations under the License.
 package utils
 
 import (
-	"errors"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/http"
 	"regexp"
@@ -58,7 +58,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 			return rateLimitInfo, err
 		}
 	} else {
-		return rateLimitInfo, errors.New("rate limit date was an empty string")
+		return rateLimitInfo, errors.Default.New("rate limit date was an empty string")
 	}
 	if resetTime != "" {
 		resetInt, err := strconv.ParseInt(resetTime, 10, 64)
@@ -67,7 +67,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 		}
 		rateLimitInfo.ResetTime = time.Unix(resetInt, 0)
 	} else {
-		return rateLimitInfo, errors.New("rate limit reset time was an empty string")
+		return rateLimitInfo, errors.Default.New("rate limit reset time was an empty string")
 	}
 	if remaining != "" {
 		rateLimitInfo.Remaining, err = strconv.Atoi(remaining)
@@ -75,7 +75,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 			return rateLimitInfo, err
 		}
 	} else {
-		return rateLimitInfo, errors.New("rate remaining was an empty string")
+		return rateLimitInfo, errors.Default.New("rate remaining was an empty string")
 	}
 	return rateLimitInfo, nil
 }
@@ -132,12 +132,12 @@ func GetPagingFromLinkHeader(link string) (PagingInfo, error) {
 				}
 
 			} else {
-				return result, errors.New("parsed string values aren't long enough")
+				return result, errors.Default.New("parsed string values aren't long enough")
 			}
 		}
 		return result, nil
 	} else {
-		return result, errors.New("the link string provided is invalid. There is likely no next page of data to fetch")
+		return result, errors.Default.New("the link string provided is invalid. There is likely no next page of data to fetch")
 	}
 }
 
@@ -147,6 +147,6 @@ func GetIssueIdByIssueUrl(s string) (int, error) {
 	if len(groups) > 0 {
 		return strconv.Atoi(groups[1])
 	} else {
-		return 0, errors.New("invalid issue url")
+		return 0, errors.Default.New("invalid issue url")
 	}
 }

@@ -19,6 +19,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/icla/models"
@@ -98,7 +99,7 @@ func (plugin Icla) ApiResources() map[string]map[string]core.ApiResourceHandler 
 func (plugin Icla) Close(taskCtx core.TaskContext) error {
 	data, ok := taskCtx.GetData().(*tasks.IclaTaskData)
 	if !ok {
-		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	data.ApiClient.Release()
 	return nil
