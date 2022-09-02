@@ -21,6 +21,7 @@ import { ToastNotification } from '@/components/Toast'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import Connection from '@/models/Connection'
+import ProviderListConnection from '@/models/ProviderListConnection'
 import {
   Providers,
   ProviderConnectionLimits,
@@ -373,7 +374,7 @@ function useConnectionManager (
             ),
           ])
           const builtConnections = aC
-            .map((providerResponse) => [].concat(providerResponse.data || []).map(c => ({
+            .map((providerResponse) => [].concat(providerResponse.data || []).map(c => new Connection({
               ...c,
               connectionId: c.id,
               provider: providerResponse.config?.url?.split('/')[3],
@@ -392,16 +393,16 @@ function useConnectionManager (
           console.log('>> RAW ALL CONNECTIONS DATA FROM API...', c?.data)
           const providerConnections = []
             .concat(Array.isArray(c?.data) ? c?.data : [])
-            .map((conn, idx) => {
-              return {
+            .map((conn, idx) =>
+              new Connection({
                 ...conn,
                 status: ConnectionStatus.OFFLINE,
                 id: conn.id,
                 name: conn.name,
                 endpoint: conn.endpoint,
                 errors: [],
-              }
-            })
+              })
+            )
           setAllConnections(providerConnections)
         }
         if (notify) {
@@ -598,7 +599,7 @@ function useConnectionManager (
   useEffect(() => {
     console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)
     setConnectionsList(
-      allProviderConnections?.map((c, cIdx) => ({
+      allProviderConnections?.map((c, cIdx) => new ProviderListConnection({
         ...c,
         id: cIdx,
         key: cIdx,

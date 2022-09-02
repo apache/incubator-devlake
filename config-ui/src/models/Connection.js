@@ -33,6 +33,8 @@
  * @property {object?} plugin
  * @property {<Array<DataEntity>>} entities
  * @property {boolean} multiConnection
+ * @property {string?} status
+ * @property {<Array<string>>?} errors
  */
 class Connection {
   constructor (data = {}) {
@@ -52,6 +54,9 @@ class Connection {
     this.plugin = data?.plugin || null
     this.entities = data?.entities || []
     this.multiConnection = data?.multiConnection || true
+    this.status = data?.status || null
+
+    this.errors = data?.errors || []
 
     this.determineAuthentication()
   }
