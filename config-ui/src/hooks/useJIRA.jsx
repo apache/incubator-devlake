@@ -132,7 +132,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
   }, [issueTypesResponse])
 
   useEffect(() => {
-    setFields(fieldsResponse ? createListData(fieldsResponse, 'name', 'key') : [])
+    setFields(fieldsResponse ? createListData(fieldsResponse, 'name', 'id') : [])
   }, [fieldsResponse])
 
   useEffect(() => {
