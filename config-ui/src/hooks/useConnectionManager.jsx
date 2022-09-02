@@ -235,7 +235,7 @@ function useConnectionManager (
           errors: s.isAxiosError ? [s.message] : [],
         }
         setIsSaving(false)
-        setSaveComplete(saveResponse.success ? s.data : false)
+        setSaveComplete(saveResponse.success ? new Connection(s.data) : false)
         if (!saveResponse.success) { notifyConnectionSaveFailure(s.data || s.message) }
       } catch (e) {
         saveResponse.errors.push(e.message)
@@ -269,7 +269,7 @@ function useConnectionManager (
         }
         fetchConnection(silentRefetch)
         setIsSaving(false)
-        setSaveComplete(saveResponse.success ? s.data : false)
+        setSaveComplete(saveResponse.success ? new Connection(s.data) : false)
         if (!saveResponse.success) { notifyConnectionSaveFailure(s.data || s.message) }
       } catch (e) {
         saveResponse.errors.push(e.message)
