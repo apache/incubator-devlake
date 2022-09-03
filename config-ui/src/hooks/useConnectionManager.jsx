@@ -457,6 +457,7 @@ function useConnectionManager (
     [testConnection]
   )
 
+  // @note: not in use since V12
   const fetchDomainLayerRepositories = useCallback(() => {
     console.log('>> FETCHING DOMAIN LAYER REPOS....')
     try {
