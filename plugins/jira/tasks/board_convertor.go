@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -37,7 +38,7 @@ var ConvertBoardMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertBoard(taskCtx core.SubTaskContext) error {
+func ConvertBoard(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
@@ -64,7 +65,7 @@ func ConvertBoard(taskCtx core.SubTaskContext) error {
 		},
 		InputRowType: reflect.TypeOf(models.JiraBoard{}),
 		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			board := inputRow.(*models.JiraBoard)
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{Id: idGen.Generate(data.Options.ConnectionId, data.Options.BoardId)},

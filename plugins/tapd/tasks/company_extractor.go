@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -35,15 +36,15 @@ var ExtractCompanyMeta = core.SubTaskMeta{
 	DomainTypes: []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractCompanies(taskCtx core.SubTaskContext) error {
+func ExtractCompanies(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMPANY_TABLE, true)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var workspaceRes struct {
 				Workspace models.TapdWorkspace
 			}
-			err := json.Unmarshal(row.Data, &workspaceRes)
+			err := errors.Convert(json.Unmarshal(row.Data, &workspaceRes))
 			if err != nil {
 				return nil, err
 			}

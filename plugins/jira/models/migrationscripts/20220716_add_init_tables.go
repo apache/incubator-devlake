@@ -61,9 +61,9 @@ func (JiraConnectionV011Old) TableName() string {
 
 type addInitTables struct{}
 
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) (err error) {
-
-	err = db.Migrator().DropTable(
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	var err error
+	if err = db.Migrator().DropTable(
 		// history table
 		"_raw_jira_api_users",
 		"_raw_jira_api_boards",
@@ -89,9 +89,8 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) (err error) {
 		&archived.JiraBoardSprint{},
 		&archived.JiraSprintIssue{},
 		&archived.JiraWorklog{},
-	)
-	if err != nil {
-		return err
+	); err != nil {
+		return errors.Convert(err)
 	}
 
 	// In order to avoid postgres reporting "cached plan must not change result type",
@@ -103,17 +102,15 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) (err error) {
 	// step4: rename _tool_jira_connections_new to _tool_jira_connections
 
 	// step1
-	err = db.Migrator().CreateTable(&JiraConnectionNew{})
-	if err != nil {
-		return err
+	if err = db.Migrator().CreateTable(&JiraConnectionNew{}); err != nil {
+		return errors.Convert(err)
 	}
 	//nolint:errcheck
 	defer db.Migrator().DropTable(&JiraConnectionNew{})
 
 	// step2
-	err = db.Migrator().RenameTable("_tool_jira_connections", "_tool_jira_connections_old")
-	if err != nil {
-		return err
+	if err = db.Migrator().RenameTable("_tool_jira_connections", "_tool_jira_connections_old"); err != nil {
+		return errors.Convert(err)
 	}
 	defer func() {
 		if err != nil {
@@ -128,7 +125,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) (err error) {
 	var jiraConns []JiraConnectionV011Old
 	result = db.Find(&jiraConns)
 	if result.Error != nil {
-		return result.Error
+		return errors.Convert(result.Error)
 	}
 
 	for _, v := range jiraConns {
@@ -144,20 +141,21 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) (err error) {
 		if encKey == "" {
 			return errors.BadInput.New("jira v0.11 invalid encKey", errors.AsUserMessage())
 		}
-		auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
-		if err != nil {
-			return err
+		var auth string
+		if auth, err = core.Decrypt(encKey, v.BasicAuthEncoded); err != nil {
+			return errors.Convert(err)
 		}
-		pk, err := base64.StdEncoding.DecodeString(auth)
+		var pk []byte
+		pk, err = base64.StdEncoding.DecodeString(auth)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 		originInfo := strings.Split(string(pk), ":")
 		if len(originInfo) == 2 {
 			conn.Username = originInfo[0]
 			conn.Password, err = core.Encrypt(encKey, originInfo[1])
 			if err != nil {
-				return err
+				return errors.Convert(err)
 			}
 			// create
 			tx := db.Create(&conn)
@@ -170,10 +168,10 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) (err error) {
 	// step4
 	err = db.Migrator().RenameTable("_tool_jira_connections_new", "_tool_jira_connections")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
-	return db.Migrator().AutoMigrate(
+	return errors.Convert(db.Migrator().AutoMigrate(
 		&archived.JiraAccount{},
 		&archived.JiraBoardIssue{},
 		&archived.JiraBoard{},
@@ -191,7 +189,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) (err error) {
 		&archived.JiraStatus{},
 		&archived.JiraWorklog{},
 		&archived.JiraIssueType{},
-	)
+	))
 }
 
 func (*addInitTables) Version() uint64 {

@@ -40,7 +40,7 @@ var ConvertIssueRepoCommitsMeta = core.SubTaskMeta{
 
 // ConvertIssueRepoCommits is to extract issue_repo_commits from jira_issue_commits, nothing difference with
 // issue_commits but added a RepoUrl. This task is needed by EE group.
-func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
+func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()
 	connectionId := data.Options.ConnectionId
@@ -67,7 +67,7 @@ func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 	}
 	cursor, err := db.Cursor(clause...)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	defer cursor.Close()
 
@@ -83,7 +83,7 @@ func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 		},
 		InputRowType: reflect.TypeOf(models.JiraIssueCommit{}),
 		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			var result []interface{}
 			issueCommit := inputRow.(*models.JiraIssueCommit)
 			item := &crossdomain.IssueRepoCommit{
@@ -101,7 +101,7 @@ func ConvertIssueRepoCommits(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return converter.Execute()

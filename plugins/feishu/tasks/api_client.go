@@ -30,7 +30,7 @@ import (
 const AUTH_ENDPOINT = "https://open.feishu.cn"
 const ENDPOINT = "https://open.feishu.cn/open-apis/vc/v1"
 
-func NewFeishuApiClient(taskCtx core.TaskContext, connection *models.FeishuConnection) (*helper.ApiAsyncClient, error) {
+func NewFeishuApiClient(taskCtx core.TaskContext, connection *models.FeishuConnection) (*helper.ApiAsyncClient, errors.Error) {
 
 	authApiClient, err := helper.NewApiClient(taskCtx.GetContext(), AUTH_ENDPOINT, nil, 0, connection.Proxy, taskCtx)
 	if err != nil {

@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 
@@ -43,16 +42,15 @@ var _ core.CloseablePluginTask = (*Feishu)(nil)
 
 type Feishu struct{}
 
-func (plugin Feishu) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Feishu) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 
 	// FIXME after config-ui support feishu plugin
 	// save env to db where name=feishu
 	connection := &models.FeishuConnection{}
 	if db.Migrator().HasTable(connection) {
-		err := db.Find(connection, map[string]string{"name": "Feishu"}).Error
-		if err != nil {
-			return err
+		if err := db.Find(connection, map[string]string{"name": "Feishu"}).Error; err != nil {
+			return errors.Convert(err)
 		}
 		if connection.ID != 0 {
 			encodeKey := config.GetString(core.EncodeKeyEnvStr)
@@ -60,14 +58,14 @@ func (plugin Feishu) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) 
 			connection.AppId = config.GetString(`FEISHU_APPID`)
 			connection.SecretKey = config.GetString(`FEISHU_APPSCRECT`)
 			if connection.Endpoint != `` && connection.AppId != `` && connection.SecretKey != `` && encodeKey != `` {
-				err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
+				err := helper.UpdateEncryptFields(connection, func(plaintext string) (string, errors.Error) {
 					return core.Encrypt(encodeKey, plaintext)
 				})
 				if err != nil {
 					return err
 				}
 				// update from .env and save to db
-				err = db.Updates(connection).Error
+				err = errors.Convert(db.Updates(connection).Error)
 				if err != nil {
 					return err
 				}
@@ -95,10 +93,9 @@ func (plugin Feishu) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Feishu) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Feishu) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.FeishuOptions
-	err := mapstructure.Decode(options, &op)
-	if err != nil {
+	if err := helper.Decode(options, &op, nil); err != nil {
 		return nil, err
 	}
 
@@ -107,7 +104,7 @@ func (plugin Feishu) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 		nil,
 	)
 	connection := &models.FeishuConnection{}
-	err = connectionHelper.FirstById(connection, op.ConnectionId)
+	err := connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +144,7 @@ func (plugin Feishu) ApiResources() map[string]map[string]core.ApiResourceHandle
 	}
 }
 
-func (plugin Feishu) Close(taskCtx core.TaskContext) error {
+func (plugin Feishu) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.FeishuTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

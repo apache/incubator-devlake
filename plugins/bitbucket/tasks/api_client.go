@@ -26,7 +26,7 @@ import (
 	"net/http"
 )
 
-func CreateApiClient(taskCtx core.TaskContext, connection *models.BitbucketConnection) (*helper.ApiAsyncClient, error) {
+func CreateApiClient(taskCtx core.TaskContext, connection *models.BitbucketConnection) (*helper.ApiAsyncClient, errors.Error) {
 	// load configuration
 	token := connection.GetEncodedToken()
 	// create synchronize api client so we can calculate api rate limit dynamically
@@ -35,11 +35,11 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.BitbucketConne
 		return nil, err
 	}
 	// Rotates token on each request.
-	apiClient.SetBeforeFunction(func(req *http.Request) error {
+	apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
 		req.Header.Set("Authorization", fmt.Sprintf("Basic %v", token))
 		return nil
 	})
-	apiClient.SetAfterFunction(func(res *http.Response) error {
+	apiClient.SetAfterFunction(func(res *http.Response) errors.Error {
 		if res.StatusCode == http.StatusUnauthorized {
 			return errors.Unauthorized.New("authentication failed, please check your Basic Auth configuration")
 		}

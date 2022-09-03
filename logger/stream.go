@@ -18,22 +18,23 @@ limitations under the License.
 package logger
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"os"
 	"path/filepath"
 )
 
-func GetFileStream(path string) (io.Writer, error) {
+func GetFileStream(path string) (io.Writer, errors.Error) {
 	if path == "" {
 		return os.Stdout, nil
 	}
 	err := os.MkdirAll(filepath.Dir(path), os.ModePerm)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0777)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	return io.MultiWriter(os.Stdout, file), nil
 }

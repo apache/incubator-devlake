@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -37,7 +38,7 @@ var ConvertCommitsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertCommits(taskCtx core.SubTaskContext) error {
+func ConvertCommits(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 	db := taskCtx.GetDal()
 	repoId := data.Repo.GiteeId
@@ -65,7 +66,7 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 		InputRowType:       reflect.TypeOf(models.GiteeCommit{}),
 		Input:              cursor,
 
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			giteeCommit := inputRow.(*models.GiteeCommit)
 
 			// convert commit

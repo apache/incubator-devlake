@@ -19,6 +19,8 @@ package tasks
 
 import (
 	"encoding/json"
+	goerror "errors"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"gorm.io/gorm"
 
@@ -50,7 +52,7 @@ type ApiSingleCommitResponse struct {
 	}
 }
 
-func ExtractApiCommitStats(taskCtx core.SubTaskContext) error {
+func ExtractApiCommitStats(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -70,9 +72,9 @@ func ExtractApiCommitStats(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_COMMIT_STATS_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &ApiSingleCommitResponse{}
-			err := json.Unmarshal(row.Data, body)
+			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {
 				return nil, err
 			}
@@ -83,7 +85,7 @@ func ExtractApiCommitStats(taskCtx core.SubTaskContext) error {
 			db := taskCtx.GetDal()
 			commit := &models.GithubCommit{}
 			err = db.First(commit, dal.Where("sha = ?", body.Sha), dal.Limit(1))
-			if err != nil && err != gorm.ErrRecordNotFound {
+			if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 				return nil, err
 			}
 

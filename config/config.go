@@ -75,7 +75,7 @@ func setDefaultValue(v *viper.Viper) {
 }
 
 // replaceNewEnvItemInOldContent replace old config to new config in env file content
-func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (string, error) {
+func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (string, errors.Error) {
 	// prepare reg exp
 	encodeEnvNameReg := regexp.MustCompile(`[^a-zA-Z0-9]`)
 	if encodeEnvNameReg == nil {
@@ -112,7 +112,7 @@ func replaceNewEnvItemInOldContent(v *viper.Viper, envFileContent string) (strin
 }
 
 // WriteConfig save viper to .env file
-func WriteConfig(v *viper.Viper) error {
+func WriteConfig(v *viper.Viper) errors.Error {
 	envPath := getEnvPath()
 	fileName := getConfigName()
 
@@ -124,7 +124,7 @@ func WriteConfig(v *viper.Viper) error {
 }
 
 // WriteConfigAs save viper to custom filename
-func WriteConfigAs(v *viper.Viper, filename string) error {
+func WriteConfigAs(v *viper.Viper, filename string) errors.Error {
 	aferoFile := afero.NewOsFs()
 	fmt.Println("Attempting to write configuration to .env file.")
 	var configType string
@@ -134,7 +134,7 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 		configType = ext[1:]
 	}
 	if configType != "env" && configType != "dotenv" {
-		return v.WriteConfigAs(filename)
+		return errors.Convert(v.WriteConfigAs(filename))
 	}
 
 	// FIXME viper just have setter and have no getter so create new configPermissions and file
@@ -142,13 +142,13 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 	configPermissions := os.FileMode(0644)
 	file, err := afero.ReadFile(aferoFile, filename)
 	if err != nil && !goerror.Is(err, os.ErrNotExist) {
-		return err
+		return errors.Convert(err)
 	}
 
 	envFileContent := string(file)
 	f, err := aferoFile.OpenFile(filename, flags, configPermissions)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	defer f.Close()
 
@@ -160,12 +160,12 @@ func WriteConfigAs(v *viper.Viper, filename string) error {
 	}
 	envFileContent, err = replaceNewEnvItemInOldContent(v, envFileContent)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	if _, err := f.WriteString(envFileContent); err != nil {
-		return err
+		return errors.Convert(err)
 	}
-	return f.Sync()
+	return errors.Convert(f.Sync())
 }
 
 func init() {

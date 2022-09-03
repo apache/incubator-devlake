@@ -229,7 +229,7 @@ func NewDefaultTaskContext(
 }
 
 // SubTaskContext FIXME ...
-func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext, error) {
+func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext, errors.Error) {
 	// no need to lock at this point because subtasks is written only once
 	if run, ok := c.subtasks[subtask]; ok {
 		if run {

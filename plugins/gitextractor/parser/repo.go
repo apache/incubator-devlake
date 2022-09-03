@@ -20,6 +20,7 @@ package parser
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -37,7 +38,7 @@ type GitRepo struct {
 	cleanup func()
 }
 
-func (r *GitRepo) CollectAll(subtaskCtx core.SubTaskContext) error {
+func (r *GitRepo) CollectAll(subtaskCtx core.SubTaskContext) errors.Error {
 	subtaskCtx.SetProgress(0, -1)
 	err := r.CollectTags(subtaskCtx)
 	if err != nil {
@@ -50,7 +51,7 @@ func (r *GitRepo) CollectAll(subtaskCtx core.SubTaskContext) error {
 	return r.CollectCommits(subtaskCtx)
 }
 
-func (r *GitRepo) Close() error {
+func (r *GitRepo) Close() errors.Error {
 	defer func() {
 		if r.cleanup != nil {
 			r.cleanup()
@@ -59,19 +60,19 @@ func (r *GitRepo) Close() error {
 	return r.store.Close()
 }
 
-func (r *GitRepo) CountTags() (int, error) {
+func (r *GitRepo) CountTags() (int, errors.Error) {
 	tags, err := r.repo.Tags.List()
 	if err != nil {
-		return 0, err
+		return 0, errors.Convert(err)
 	}
 	return len(tags), nil
 }
 
-func (r *GitRepo) CountBranches(ctx context.Context) (int, error) {
+func (r *GitRepo) CountBranches(ctx context.Context) (int, errors.Error) {
 	var branchIter *git.BranchIterator
 	branchIter, err := r.repo.NewBranchIterator(git.BranchAll)
 	if err != nil {
-		return 0, err
+		return 0, errors.Convert(err)
 	}
 	count := 0
 	err = branchIter.ForEach(func(branch *git.Branch, branchType git.BranchType) error {
@@ -85,13 +86,13 @@ func (r *GitRepo) CountBranches(ctx context.Context) (int, error) {
 		}
 		return nil
 	})
-	return count, err
+	return count, errors.Convert(err)
 }
 
-func (r *GitRepo) CountCommits(ctx context.Context) (int, error) {
+func (r *GitRepo) CountCommits(ctx context.Context) (int, errors.Error) {
 	odb, err := r.repo.Odb()
 	if err != nil {
-		return 0, err
+		return 0, errors.Convert(err)
 	}
 	count := 0
 	err = odb.ForEach(func(id *git.Oid) error {
@@ -106,11 +107,11 @@ func (r *GitRepo) CountCommits(ctx context.Context) (int, error) {
 		}
 		return nil
 	})
-	return count, err
+	return count, errors.Convert(err)
 }
 
-func (r *GitRepo) CollectTags(subtaskCtx core.SubTaskContext) error {
-	return r.repo.Tags.Foreach(func(name string, id *git.Oid) error {
+func (r *GitRepo) CollectTags(subtaskCtx core.SubTaskContext) errors.Error {
+	return errors.Convert(r.repo.Tags.Foreach(func(name string, id *git.Oid) error {
 		select {
 		case <-subtaskCtx.GetContext().Done():
 			return subtaskCtx.GetContext().Err()
@@ -141,16 +142,16 @@ func (r *GitRepo) CollectTags(subtaskCtx core.SubTaskContext) error {
 			subtaskCtx.IncProgress(1)
 		}
 		return nil
-	})
+	}))
 }
 
-func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) error {
+func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) errors.Error {
 	var repoInter *git.BranchIterator
 	repoInter, err := r.repo.NewBranchIterator(git.BranchAll)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
-	return repoInter.ForEach(func(branch *git.Branch, branchType git.BranchType) error {
+	return errors.Convert(repoInter.ForEach(func(branch *git.Branch, branchType git.BranchType) error {
 		select {
 		case <-subtaskCtx.GetContext().Done():
 			return subtaskCtx.GetContext().Err()
@@ -181,10 +182,10 @@ func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) error {
 			return nil
 		}
 		return nil
-	})
+	}))
 }
 
-func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) error {
+func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) errors.Error {
 	opts, err := getDiffOpts()
 
 	if err != nil {
@@ -200,12 +201,12 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) error {
 	for _, component := range components {
 		componentMap[component.Name] = regexp.MustCompile(component.PathRegex)
 	}
-	odb, err := r.repo.Odb()
+	odb, err := errors.Convert01(r.repo.Odb())
 	if err != nil {
 		return err
 	}
 
-	return odb.ForEach(func(id *git.Oid) error {
+	return errors.Convert(odb.ForEach(func(id *git.Oid) error {
 		select {
 		case <-subtaskCtx.GetContext().Done():
 			return subtaskCtx.GetContext().Err()
@@ -264,10 +265,10 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) error {
 		}
 		subtaskCtx.IncProgress(1)
 		return nil
-	})
+	}))
 }
 
-func (r *GitRepo) storeParentCommits(commitSha string, commit *git.Commit) error {
+func (r *GitRepo) storeParentCommits(commitSha string, commit *git.Commit) errors.Error {
 	var commitParents []*code.CommitParent
 	for i := uint(0); i < commit.ParentCount(); i++ {
 		parent := commit.Parent(i)
@@ -283,35 +284,35 @@ func (r *GitRepo) storeParentCommits(commitSha string, commit *git.Commit) error
 	return r.store.CommitParents(commitParents)
 }
 
-func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, parent *git.Commit, opts *git.DiffOptions, componentMap map[string]*regexp.Regexp) (*git.DiffStats, error) {
+func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, parent *git.Commit, opts *git.DiffOptions, componentMap map[string]*regexp.Regexp) (*git.DiffStats, errors.Error) {
 	var err error
 	var parentTree, tree *git.Tree
 	parentTree, err = parent.Tree()
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	tree, err = commit.Tree()
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	var diff *git.Diff
 	diff, err = r.repo.DiffTreeToTree(parentTree, tree, opts)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	err = r.storeCommitFilesFromDiff(commitSha, diff, componentMap)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	var stats *git.DiffStats
 	stats, err = diff.Stats()
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	return stats, nil
 }
 
-func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, componentMap map[string]*regexp.Regexp) error {
+func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, componentMap map[string]*regexp.Regexp) errors.Error {
 	var commitFile *code.CommitFile
 	var commitFileComponent *code.CommitFileComponent
 	var err error
@@ -366,13 +367,13 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 			r.logger.Error(err, "CommitFiles error")
 		}
 	}
-	return err
+	return errors.Convert(err)
 }
 
-func getDiffOpts() (*git.DiffOptions, error) {
+func getDiffOpts() (*git.DiffOptions, errors.Error) {
 	opts, err := git.DefaultDiffOptions()
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	opts.NotifyCallback = func(diffSoFar *git.Diff, delta git.DiffDelta, matchedPathSpec string) error {
 		return nil

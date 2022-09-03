@@ -29,13 +29,13 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-func NewGiteeApiClient(taskCtx core.TaskContext, connection *models.GiteeConnection) (*helper.ApiAsyncClient, error) {
+func NewGiteeApiClient(taskCtx core.TaskContext, connection *models.GiteeConnection) (*helper.ApiAsyncClient, errors.Error) {
 	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, nil, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}
 
-	apiClient.SetBeforeFunction(func(req *http.Request) error {
+	apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
 		query := req.URL.Query()
 		query.Set("access_token", connection.Token)
 		req.URL.RawQuery = query.Encode()
@@ -44,7 +44,7 @@ func NewGiteeApiClient(taskCtx core.TaskContext, connection *models.GiteeConnect
 
 	rateLimiter := &helper.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
-		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
+		DynamicRateLimit: func(res *http.Response) (int, time.Duration, errors.Error) {
 			rateLimitHeader := res.Header.Get("RateLimit-Limit")
 			if rateLimitHeader == "" {
 				// use default
@@ -69,7 +69,7 @@ func NewGiteeApiClient(taskCtx core.TaskContext, connection *models.GiteeConnect
 	return asyncApiClient, nil
 }
 
-func ignoreHTTPStatus404(res *http.Response) error {
+func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	if res.StatusCode == http.StatusUnauthorized {
 		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
 	}

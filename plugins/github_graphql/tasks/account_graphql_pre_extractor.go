@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
@@ -35,7 +36,7 @@ type GraphqlInlineAccountQuery struct {
 	GithubAccountEdge `graphql:"... on User"`
 }
 
-func convertGraphqlPreAccount(res GraphqlInlineAccountQuery, repoId int, connId uint64) (*models.GithubRepoAccount, error) {
+func convertGraphqlPreAccount(res GraphqlInlineAccountQuery, repoId int, connId uint64) (*models.GithubRepoAccount, errors.Error) {
 	githubAccount := &models.GithubRepoAccount{
 		ConnectionId: connId,
 		RepoGithubId: repoId,

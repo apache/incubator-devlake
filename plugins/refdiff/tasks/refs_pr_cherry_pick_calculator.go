@@ -39,7 +39,7 @@ type cherryPick struct {
 	CreatedDate          time.Time
 }
 
-func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
+func CalculatePrCherryPick(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
 	ctx := taskCtx.GetContext()
@@ -60,7 +60,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		dal.Where("repos.id = ?", repoId),
 	)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	defer cursor.Close()
@@ -73,13 +73,13 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return errors.Convert(ctx.Err())
 		default:
 		}
 
 		err = db.Fetch(cursor, pr)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 
 		parentPrKey := ""
@@ -100,7 +100,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 			dal.From("pull_requests"),
 		)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 		if len(parentPrId) == 0 {
 			continue
@@ -109,7 +109,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 
 		err = db.Update(pr)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 		taskCtx.IncProgress(1)
 	}
@@ -134,7 +134,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 					  pr1.base_ref ASC
 			`)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	defer cursor2.Close()
 
@@ -147,7 +147,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 		var item cherryPick
 		err = db.Fetch(cursor2, &item)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 		if item.ParentPrId == lastParentPrId && item.CreatedDate == lastCreatedDate {
 			cherrypickBaseBranches = append(cherrypickBaseBranches, item.CherrypickBaseBranch)
@@ -158,7 +158,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 				refsPrCherryPick.CherrypickPrKeys = strings.Join(cherrypickPrKeys, ",")
 				err = db.CreateOrUpdate(refsPrCherryPick)
 				if err != nil {
-					return err
+					return errors.Convert(err)
 				}
 			}
 			lastParentPrId = item.ParentPrId
@@ -177,7 +177,7 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) error {
 	if refsPrCherryPick != nil {
 		err = db.CreateOrUpdate(refsPrCherryPick)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 	}
 

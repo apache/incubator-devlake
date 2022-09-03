@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -44,18 +45,18 @@ func (blueprintNormalMode_Pipeline) TableName() string {
 // migration script
 type renameTasksToPlan struct{}
 
-func (*renameTasksToPlan) Up(ctx context.Context, db *gorm.DB) error {
+func (*renameTasksToPlan) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().AddColumn(blueprintNormalMode_Blueprint{}, "settings")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	err = db.Migrator().RenameColumn(&blueprintNormalMode_Blueprint{}, "tasks", "plan")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	err = db.Migrator().RenameColumn(&blueprintNormalMode_Pipeline{}, "tasks", "plan")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	return nil
 }

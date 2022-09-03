@@ -40,14 +40,14 @@ func (GitlabJob20220906) TableName() string {
 	return "_tool_gitlab_jobs"
 }
 
-func (*fixDurationToFloat8) Up(ctx context.Context, db *gorm.DB) error {
+func (*fixDurationToFloat8) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().AddColumn(&GitlabJob20220906{}, `duration2`)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	cursor, err := db.Model(&GitlabJob20220906{}).Select([]string{"connection_id", "gitlab_id", "duration"}).Rows()
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	batch, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&GitlabJob20220906{}), 500)
 	if err != nil {
@@ -58,22 +58,22 @@ func (*fixDurationToFloat8) Up(ctx context.Context, db *gorm.DB) error {
 		job := GitlabJob20220906{}
 		err = db.ScanRows(cursor, &job)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 		job.Duration2 = job.Duration
 		err = batch.Add(&job)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 	}
 
 	err = db.Migrator().DropColumn(&GitlabJob20220906{}, `duration`)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	err = db.Migrator().RenameColumn(&GitlabJob20220906{}, `duration2`, `duration`)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	return nil
 }

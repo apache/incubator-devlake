@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"regexp"
 	"time"
 
@@ -76,7 +77,7 @@ var ExtractApiIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractApiIssues(taskCtx core.SubTaskContext) error {
+func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*BitbucketTaskData)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -96,9 +97,9 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_ISSUE_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &IssuesResponse{}
-			err := json.Unmarshal(row.Data, body)
+			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {
 				return nil, err
 			}
@@ -146,7 +147,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertBitbucketIssue(issue *IssuesResponse, connectionId uint64, repositoryId string) (*models.BitbucketIssue, error) {
+func convertBitbucketIssue(issue *IssuesResponse, connectionId uint64, repositoryId string) (*models.BitbucketIssue, errors.Error) {
 	bitbucketIssue := &models.BitbucketIssue{
 		ConnectionId:       connectionId,
 		BitbucketId:        issue.BitbucketId,

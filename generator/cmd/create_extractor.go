@@ -34,7 +34,7 @@ func init() {
 	rootCmd.AddCommand(createExtractorCmd)
 }
 
-func extractorNameNotExistValidateHoc(pluginName string) func(input string) error {
+func extractorNameNotExistValidateHoc(pluginName string) promptui.ValidateFunc {
 	extractorNameValidate := func(input string) error {
 		if input == `` {
 			return errors.Default.New("please input which data would you will extract (snake_format)")
@@ -71,7 +71,7 @@ Type in what the name of extractor is, then generator will create a new extracto
 		}
 		prompt := promptui.Prompt{
 			Label:    "plugin_name",
-			Validate: pluginNameExistValidate,
+			Validate: pluginNameExistValidate(),
 			Default:  pluginName,
 		}
 		pluginName, err = prompt.Run()

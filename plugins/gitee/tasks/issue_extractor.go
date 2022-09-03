@@ -95,7 +95,7 @@ type IssuesResponse struct {
 	}
 }
 
-func ExtractApiIssues(taskCtx core.SubTaskContext) error {
+func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
 	config := data.Options.TransformationRules
 	var issueSeverityRegex *regexp.Regexp
@@ -150,9 +150,9 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &IssuesResponse{}
-			err := json.Unmarshal(row.Data, body)
+			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {
 				return nil, err
 			}
@@ -221,12 +221,12 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	})
 
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "GitTee extraction initiation error")
 	}
 
 	return extractor.Execute()
 }
-func convertGiteeIssue(issue *IssuesResponse, connectionId uint64, repositoryId int) (*models.GiteeIssue, error) {
+func convertGiteeIssue(issue *IssuesResponse, connectionId uint64, repositoryId int) (*models.GiteeIssue, errors.Error) {
 	giteeIssue := &models.GiteeIssue{
 		ConnectionId:   connectionId,
 		GiteeId:        issue.GiteeId,

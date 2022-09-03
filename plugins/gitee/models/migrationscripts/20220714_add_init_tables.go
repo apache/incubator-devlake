@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/config"
 	"gorm.io/gorm/clause"
@@ -32,7 +33,7 @@ import (
 
 type addInitTables struct{}
 
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	rawTableList := []string{
 		"_raw_gitee_api_commit",
 		"_raw_gitee_api_issues",
@@ -47,7 +48,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	for _, v := range rawTableList {
 		err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE", v)).Error
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 	}
 
@@ -70,7 +71,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	)
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	err = db.Migrator().AutoMigrate(
@@ -92,7 +93,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	)
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	conn := &archived.GiteeConnection{}
@@ -104,7 +105,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	conn.Endpoint = v.GetString("GITEE_ENDPOINT")
 	conn.Token, err = core.Encrypt(encKey, v.GetString("GITEE_AUTH"))
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	conn.Proxy = v.GetString("GITEE_PROXY")
 	conn.RateLimitPerHour = v.GetInt("GITEE_API_REQUESTS_PER_HOUR")
@@ -112,7 +113,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	return nil
 }

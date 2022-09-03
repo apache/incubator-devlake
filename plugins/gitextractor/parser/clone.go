@@ -20,6 +20,7 @@ package parser
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net"
 	"os"
 
@@ -31,10 +32,10 @@ import (
 
 const DefaultUser = "git"
 
-func cloneOverSSH(url, dir, passphrase string, pk []byte) error {
+func cloneOverSSH(url, dir, passphrase string, pk []byte) errors.Error {
 	key, err := ssh.NewPublicKeys(DefaultUser, pk, passphrase)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	key.HostKeyCallbackHelper = ssh.HostKeyCallbackHelper{
 		HostKeyCallback: func(hostname string, remote net.Addr, key ssh2.PublicKey) error {
@@ -46,12 +47,12 @@ func cloneOverSSH(url, dir, passphrase string, pk []byte) error {
 		Auth: key,
 	})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	return nil
 }
 
-func (l *GitRepoCreator) CloneOverHTTP(repoId, url, user, password, proxy string) (*GitRepo, error) {
+func (l *GitRepoCreator) CloneOverHTTP(repoId, url, user, password, proxy string) (*GitRepo, errors.Error) {
 	return withTempDirectory(func(dir string) (*GitRepo, error) {
 		cloneOptions := &git.CloneOptions{Bare: true}
 		if proxy != "" {
@@ -70,7 +71,7 @@ func (l *GitRepoCreator) CloneOverHTTP(repoId, url, user, password, proxy string
 	})
 }
 
-func (l *GitRepoCreator) CloneOverSSH(repoId, url, privateKey, passphrase string) (*GitRepo, error) {
+func (l *GitRepoCreator) CloneOverSSH(repoId, url, privateKey, passphrase string) (*GitRepo, errors.Error) {
 	return withTempDirectory(func(dir string) (*GitRepo, error) {
 		pk, err := base64.StdEncoding.DecodeString(privateKey)
 		if err != nil {
@@ -84,10 +85,10 @@ func (l *GitRepoCreator) CloneOverSSH(repoId, url, privateKey, passphrase string
 	})
 }
 
-func withTempDirectory(f func(tempDir string) (*GitRepo, error)) (*GitRepo, error) {
+func withTempDirectory(f func(tempDir string) (*GitRepo, error)) (*GitRepo, errors.Error) {
 	dir, err := os.MkdirTemp("", "gitextractor")
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	cleanup := func() {
 		_ = os.RemoveAll(dir)
@@ -99,8 +100,8 @@ func withTempDirectory(f func(tempDir string) (*GitRepo, error)) (*GitRepo, erro
 	}()
 	repo, err := f(dir)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	repo.cleanup = cleanup
-	return repo, err
+	return repo, errors.Convert(err)
 }

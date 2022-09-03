@@ -26,7 +26,7 @@ import (
 )
 
 // MakePipelinePlanSubtasks generates subtasks list based on sub-task meta information and entities wanted by user
-func MakePipelinePlanSubtasks(subtaskMetas []core.SubTaskMeta, entities []string) ([]string, error) {
+func MakePipelinePlanSubtasks(subtaskMetas []core.SubTaskMeta, entities []string) ([]string, errors.Error) {
 	subtasks := make([]string, 0)
 	if len(entities) == 0 {
 		return subtasks, nil

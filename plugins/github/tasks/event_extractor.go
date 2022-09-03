@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -42,7 +43,7 @@ type IssueEvent struct {
 	GithubCreatedAt helper.Iso8601Time `json:"created_at"`
 }
 
-func ExtractApiEvents(taskCtx core.SubTaskContext) error {
+func ExtractApiEvents(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -55,9 +56,9 @@ func ExtractApiEvents(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_EVENTS_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &IssueEvent{}
-			err := json.Unmarshal(row.Data, body)
+			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {
 				return nil, err
 			}
@@ -87,7 +88,7 @@ func ExtractApiEvents(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertGithubEvent(event *IssueEvent, connId uint64) (*models.GithubIssueEvent, error) {
+func convertGithubEvent(event *IssueEvent, connId uint64) (*models.GithubIssueEvent, errors.Error) {
 	githubEvent := &models.GithubIssueEvent{
 		ConnectionId:    connId,
 		GithubId:        event.GithubId,

@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
@@ -31,7 +32,7 @@ const RAW_SUB_WORKSPACE_TABLE = "tapd_api_sub_workspaces"
 
 var _ core.SubTaskEntryPoint = CollectSubWorkspaces
 
-func CollectSubWorkspaces(taskCtx core.SubTaskContext) error {
+func CollectSubWorkspaces(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_SUB_WORKSPACE_TABLE, false)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect workspaces")
@@ -40,14 +41,14 @@ func CollectSubWorkspaces(taskCtx core.SubTaskContext) error {
 		ApiClient:          data.ApiClient,
 		//PageSize:    100,
 		UrlTemplate: "workspaces/sub_workspaces",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			//query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			//query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Workspaces []json.RawMessage `json:"data"`
 			}

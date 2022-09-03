@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"time"
 
@@ -38,7 +39,7 @@ var ConvertPipelineMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertPipelines(taskCtx core.SubTaskContext) error {
+func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 
@@ -61,7 +62,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_PIPELINE_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabPipeline := inputRow.(*gitlabModels.GitlabPipeline)
 
 			createdAt := time.Now()

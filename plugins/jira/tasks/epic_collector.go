@@ -44,7 +44,7 @@ var CollectEpicsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CROSS},
 }
 
-func CollectEpics(taskCtx core.SubTaskContext) error {
+func CollectEpics(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
 	epicIterator, err := GetEpicKeysIterator(db, data, 100)
@@ -70,7 +70,7 @@ func CollectEpics(taskCtx core.SubTaskContext) error {
 		PageSize:    100,
 		Incremental: false,
 		UrlTemplate: "api/2/search",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			epicKeys := []string{}
 			for _, e := range reqData.Input.([]interface{}) {
@@ -86,17 +86,17 @@ func CollectEpics(taskCtx core.SubTaskContext) error {
 		Input:         epicIterator,
 		GetTotalPages: GetTotalPagesFromResponse,
 		Concurrency:   10,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Issues []json.RawMessage `json:"issues"`
 			}
 			blob, err := io.ReadAll(res.Body)
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			err = json.Unmarshal(blob, &data)
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			return data.Issues, nil
 		},
@@ -107,7 +107,7 @@ func CollectEpics(taskCtx core.SubTaskContext) error {
 	return collector.Execute()
 }
 
-func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (helper.Iterator, error) {
+func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (helper.Iterator, errors.Error) {
 	cursor, err := db.RawCursor(`
 			SELECT
 				DISTINCT epic_key

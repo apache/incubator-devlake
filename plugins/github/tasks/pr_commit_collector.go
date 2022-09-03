@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -49,7 +50,7 @@ type SimplePr struct {
 	GithubId int
 }
 
-func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
+func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
@@ -92,7 +93,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/commits",
 
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -118,7 +119,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 			For api endpoint that returns number of total pages, ApiCollector can collect pages in parallel with ease,
 			or other techniques are required if this information was missing.
 		*/
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var items []json.RawMessage
 			err := helper.UnmarshalResponse(res, &items)
 			if err != nil {

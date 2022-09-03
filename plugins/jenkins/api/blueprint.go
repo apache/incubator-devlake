@@ -19,18 +19,19 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
 )
 
-func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
-	var err error
+func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
+	var err errors.Error
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
 		taskOptions := make(map[string]interface{})
-		err = json.Unmarshal(scopeElem.Options, &taskOptions)
+		err = errors.Convert(json.Unmarshal(scopeElem.Options, &taskOptions))
 		if err != nil {
 			return nil, err
 		}

@@ -32,7 +32,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func DbtConverter(taskCtx core.SubTaskContext) error {
+func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	log := taskCtx.GetLogger()
 	taskCtx.SetProgress(0, -1)
 	data := taskCtx.GetData().(*DbtTaskData)
@@ -41,27 +41,24 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	projectName := data.Options.ProjectName
 	projectTarget := data.Options.ProjectTarget
 	projectVars := data.Options.ProjectVars
-
 	dbUrl := taskCtx.GetConfig("DB_URL")
-	u, err := url.Parse(dbUrl)
+	u, err := errors.Convert01(url.Parse(dbUrl))
 	if err != nil {
 		return err
 	}
-
 	dbType := u.Scheme
 	dbUsername := u.User.Username()
 	dbPassword, _ := u.User.Password()
 	dbServer, dbPort, _ := net.SplitHostPort(u.Host)
 	dbDataBase := u.Path[1:]
 	var dbSchema string
-
 	flag := strings.Compare(dbType, "mysql")
 	if flag == 0 {
 		// mysql database
 		dbSchema = dbDataBase
 	} else {
 		// other database
-		mapQuery, err := url.ParseQuery(u.RawQuery)
+		mapQuery, err := errors.Convert01(url.ParseQuery(u.RawQuery))
 		if err != nil {
 			return err
 		}
@@ -74,15 +71,13 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 			dbSchema = "public"
 		}
 	}
-
-	err = os.Chdir(projectPath)
+	err = errors.Convert(os.Chdir(projectPath))
 	if err != nil {
 		return err
 	}
 	config := viper.New()
 	config.Set(projectName+".target", projectTarget)
 	config.Set(projectName+".outputs."+projectTarget+".type", dbType)
-
 	dbPortInt, _ := strconv.Atoi(dbPort)
 	config.Set(projectName+".outputs."+projectTarget+".port", dbPortInt)
 	config.Set(projectName+".outputs."+projectTarget+".password", dbPassword)
@@ -96,21 +91,18 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 		config.Set(projectName+".outputs."+projectTarget+".user", dbUsername)
 		config.Set(projectName+".outputs."+projectTarget+".dbname", dbDataBase)
 	}
-
-	err = config.WriteConfigAs("profiles.yml")
+	err = errors.Convert(config.WriteConfigAs("profiles.yml"))
 	if err != nil {
 		return err
 	}
-
-	_, err = os.Stat("packages.yml")
+	_, err = errors.Convert01(os.Stat("packages.yml"))
 	if err == nil {
 		cmd := exec.Command("dbt", "deps")
-		err = cmd.Start()
+		err = errors.Convert(cmd.Start())
 		if err != nil {
 			return err
 		}
 	}
-
 	dbtExecParams := []string{"dbt", "run", "--profiles-dir", projectPath}
 	if projectVars != nil {
 		jsonProjectVars, err := json.Marshal(projectVars)
@@ -122,10 +114,10 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 	}
 	dbtExecParams = append(dbtExecParams, "--select")
 	dbtExecParams = append(dbtExecParams, models...)
-	cmd := exec.Command(dbtExecParams[0], (dbtExecParams[1:])...)
+	cmd := exec.Command(dbtExecParams[0], dbtExecParams[1:]...)
 	log.Info("dbt run script: ", cmd)
 	stdout, _ := cmd.StdoutPipe()
-	err = cmd.Start()
+	err = errors.Convert(cmd.Start())
 	if err != nil {
 		return err
 	}
@@ -137,11 +129,10 @@ func DbtConverter(taskCtx core.SubTaskContext) error {
 			taskCtx.IncProgress(1)
 		}
 	}
-	if err := scanner.Err(); err != nil {
+	if err := errors.Convert(scanner.Err()); err != nil {
 		return err
 	}
-
-	err = cmd.Wait()
+	err = errors.Convert(cmd.Wait())
 	if err != nil {
 		return err
 	}

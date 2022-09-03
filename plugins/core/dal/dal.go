@@ -19,6 +19,7 @@ package dal
 
 import (
 	"database/sql"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"gorm.io/gorm/schema"
@@ -48,49 +49,49 @@ type ColumnMeta interface {
 // Dal aims to facilitate an isolation between DBS and our System by defining a set of operations should a DBS provide
 type Dal interface {
 	// AutoMigrate runs auto migration for given entity
-	AutoMigrate(entity interface{}, clauses ...Clause) error
+	AutoMigrate(entity interface{}, clauses ...Clause) errors.Error
 	// AddColumn add column for the table
-	AddColumn(table, columnName, columnType string) error
+	AddColumn(table, columnName, columnType string) errors.Error
 	// DropColumn drop column from the table
-	DropColumn(table, columnName string) error
+	DropColumn(table, columnName string) errors.Error
 	// Exec executes raw sql query
-	Exec(query string, params ...interface{}) error
+	Exec(query string, params ...interface{}) errors.Error
 	// RawCursor executes raw sql query and returns a database cursor
-	RawCursor(query string, params ...interface{}) (*sql.Rows, error)
+	RawCursor(query string, params ...interface{}) (*sql.Rows, errors.Error)
 	// Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
-	Cursor(clauses ...Clause) (*sql.Rows, error)
+	Cursor(clauses ...Clause) (*sql.Rows, errors.Error)
 	// Fetch loads row data from `cursor` into `dst`
-	Fetch(cursor *sql.Rows, dst interface{}) error
+	Fetch(cursor *sql.Rows, dst interface{}) errors.Error
 	// All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
-	All(dst interface{}, clauses ...Clause) error
+	All(dst interface{}, clauses ...Clause) errors.Error
 	// First loads first matched row from database to `dst`, error will be returned if no records were found
-	First(dst interface{}, clauses ...Clause) error
+	First(dst interface{}, clauses ...Clause) errors.Error
 	// All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
-	Count(clauses ...Clause) (int64, error)
+	Count(clauses ...Clause) (int64, errors.Error)
 	// Pluck used to query single column
-	Pluck(column string, dest interface{}, clauses ...Clause) error
+	Pluck(column string, dest interface{}, clauses ...Clause) errors.Error
 	// Create insert record to database
-	Create(entity interface{}, clauses ...Clause) error
+	Create(entity interface{}, clauses ...Clause) errors.Error
 	// Update updates record
-	Update(entity interface{}, clauses ...Clause) error
+	Update(entity interface{}, clauses ...Clause) errors.Error
 	// UpdateColumns batch records in database
-	UpdateColumns(entity interface{}, clauses ...Clause) error
+	UpdateColumns(entity interface{}, clauses ...Clause) errors.Error
 	// CreateOrUpdate tries to create the record, or fallback to update all if failed
-	CreateOrUpdate(entity interface{}, clauses ...Clause) error
+	CreateOrUpdate(entity interface{}, clauses ...Clause) errors.Error
 	// CreateIfNotExist tries to create the record if not exist
-	CreateIfNotExist(entity interface{}, clauses ...Clause) error
+	CreateIfNotExist(entity interface{}, clauses ...Clause) errors.Error
 	// Delete records from database
-	Delete(entity interface{}, clauses ...Clause) error
+	Delete(entity interface{}, clauses ...Clause) errors.Error
 	// AllTables returns all tables in database
-	AllTables() ([]string, error)
+	AllTables() ([]string, errors.Error)
 	// GetColumns returns table columns in database
-	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err error)
+	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
 	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
 	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
 }
 
 // GetColumnNames returns table Column Names in database
-func GetColumnNames(d Dal, dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (names []string, err error) {
+func GetColumnNames(d Dal, dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (names []string, err errors.Error) {
 	columns, err := d.GetColumns(dst, filter)
 	if err != nil {
 		return
@@ -102,7 +103,7 @@ func GetColumnNames(d Dal, dst schema.Tabler, filter func(columnMeta ColumnMeta)
 }
 
 // GetPrimarykeyColumns get returns PrimaryKey table Meta in database
-func GetPrimarykeyColumns(d Dal, dst schema.Tabler) ([]ColumnMeta, error) {
+func GetPrimarykeyColumns(d Dal, dst schema.Tabler) ([]ColumnMeta, errors.Error) {
 	return d.GetColumns(dst, func(columnMeta ColumnMeta) bool {
 		isPrimaryKey, ok := columnMeta.PrimaryKey()
 		return isPrimaryKey && ok
@@ -110,7 +111,7 @@ func GetPrimarykeyColumns(d Dal, dst schema.Tabler) ([]ColumnMeta, error) {
 }
 
 // GetPrimarykeyColumnNames get returns PrimaryKey Column Names in database
-func GetPrimarykeyColumnNames(d Dal, dst schema.Tabler) (names []string, err error) {
+func GetPrimarykeyColumnNames(d Dal, dst schema.Tabler) (names []string, err errors.Error) {
 	pkColumns, err := GetPrimarykeyColumns(d, dst)
 	if err != nil {
 		return

@@ -18,6 +18,7 @@ limitations under the License.
 package runner
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/models"
@@ -32,20 +33,20 @@ func RunPipeline(
 	log core.Logger,
 	db *gorm.DB,
 	pipelineId uint64,
-	runTasks func([]uint64) error,
-) error {
+	runTasks func([]uint64) errors.Error,
+) errors.Error {
 	startTime := time.Now()
 	// load pipeline from db
 	dbPipeline := &models.DbPipeline{}
 	err := db.Find(dbPipeline, pipelineId).Error
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	// load tasks for pipeline
 	var tasks []*models.Task
 	err = db.Where("pipeline_id = ?", dbPipeline.ID).Order("pipeline_row, pipeline_col").Find(&tasks).Error
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	// convert to 2d array
 	taskIds := make([][]uint64, 0)
@@ -63,7 +64,7 @@ func RunPipeline(
 		"began_at": beganAt,
 	}).Error
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	// This double for loop executes each set of tasks sequentially while
 	// executing the set of tasks concurrently.
@@ -82,7 +83,7 @@ func RunPipeline(
 		err = runTasks(row)
 		if err != nil {
 			log.Error(err, "run tasks failed")
-			return err
+			return errors.Convert(err)
 		}
 		// Deprecated
 		// update finishedTasks
@@ -92,10 +93,10 @@ func RunPipeline(
 		}).Error
 		if err != nil {
 			log.Error(err, "update pipeline state failed")
-			return err
+			return errors.Convert(err)
 		}
 	}
 	endTime := time.Now()
 	log.Info("pipeline finished in %d ms: %w", endTime.UnixMilli()-startTime.UnixMilli(), err)
-	return err
+	return errors.Convert(err)
 }

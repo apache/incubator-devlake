@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitee/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/gitee/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -42,7 +41,7 @@ var _ core.CloseablePluginTask = (*Gitee)(nil)
 
 type Gitee string
 
-func (plugin Gitee) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Gitee) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -106,10 +105,10 @@ func (plugin Gitee) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Gitee) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Gitee) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.GiteeOptions
-	var err error
-	err = mapstructure.Decode(options, &op)
+	var err errors.Error
+	err = helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -210,7 +209,7 @@ func (plugin Gitee) ApiResources() map[string]map[string]core.ApiResourceHandler
 	}
 }
 
-func (plugin Gitee) Close(taskCtx core.TaskContext) error {
+func (plugin Gitee) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.GiteeTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

@@ -31,7 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -45,7 +44,7 @@ var _ core.CloseablePluginTask = (*Tapd)(nil)
 
 type Tapd struct{}
 
-func (plugin Tapd) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Tapd) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -159,9 +158,9 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.TapdOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +179,7 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 
 	var since time.Time
 	if op.Since != "" {
-		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
+		since, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.Since))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `since`", errors.AsUserMessage())
 		}
@@ -232,7 +231,7 @@ func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler 
 	}
 }
 
-func (plugin Tapd) Close(taskCtx core.TaskContext) error {
+func (plugin Tapd) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.TapdTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

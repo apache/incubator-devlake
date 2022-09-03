@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strconv"
 
@@ -38,7 +39,7 @@ var ConvertPullRequestIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
+func ConvertPullRequestIssues(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
 	repoId := data.Repo.GiteeId
@@ -61,7 +62,7 @@ func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
 		InputRowType:       reflect.TypeOf(models.GiteePullRequestIssue{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			giteePrIssue := inputRow.(*models.GiteePullRequestIssue)
 			issueNum, _ := strconv.Atoi(giteePrIssue.IssueNumber)
 			pullRequestIssue := &crossdomain.PullRequestIssue{

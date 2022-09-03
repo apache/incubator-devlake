@@ -41,7 +41,7 @@ var _ core.CloseablePluginTask = (*Jenkins)(nil)
 
 type Jenkins struct{}
 
-func (plugin Jenkins) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Jenkins) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -79,7 +79,7 @@ func (plugin Jenkins) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertJobsMeta,
 	}
 }
-func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -120,7 +120,7 @@ func (plugin Jenkins) MigrationScripts() []migration.Script {
 	return migrationscripts.All()
 }
 
-func (plugin Jenkins) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+func (plugin Jenkins) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
@@ -141,7 +141,7 @@ func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandl
 	}
 }
 
-func (plugin Jenkins) Close(taskCtx core.TaskContext) error {
+func (plugin Jenkins) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.JenkinsTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

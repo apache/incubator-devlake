@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"net/http"
 	"reflect"
@@ -37,7 +38,7 @@ type SimpleAccount struct {
 	Login string
 }
 
-func CollectAccounts(taskCtx core.SubTaskContext) error {
+func CollectAccounts(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
@@ -66,15 +67,15 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
 		UrlTemplate: "/users/{{ .Input.Login }}",
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			res.Body.Close()
 			return []json.RawMessage{body}, nil
 		},
-		AfterResponse: func(res *http.Response) error {
+		AfterResponse: func(res *http.Response) errors.Error {
 			if res.StatusCode == http.StatusNotFound {
 				return helper.ErrIgnoreAndContinue
 			}

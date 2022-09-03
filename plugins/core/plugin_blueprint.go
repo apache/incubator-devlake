@@ -17,7 +17,10 @@ limitations under the License.
 
 package core
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
+)
 
 // PluginBlueprint is used to support Blueprint Normal model
 type PluginBlueprintV100 interface {
@@ -25,7 +28,7 @@ type PluginBlueprintV100 interface {
 	//
 	// `version` semver from `blueprint.settings.version`
 	// `scope` arbitrary json.RawMessage, depends on `version`, for v0.0.1, it is an Array of Objects
-	MakePipelinePlan(connectionId uint64, scope []*BlueprintScopeV100) (PipelinePlan, error)
+	MakePipelinePlan(connectionId uint64, scope []*BlueprintScopeV100) (PipelinePlan, errors.Error)
 }
 
 // BlueprintConnectionV100 is the connection definition for protocol v1.0.0

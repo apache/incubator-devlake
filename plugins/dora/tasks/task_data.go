@@ -18,7 +18,8 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/mitchellh/mapstructure"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type DoraApiParams struct {
@@ -40,11 +41,11 @@ type DoraTaskData struct {
 	Options *DoraOptions
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions, error) {
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions, errors.Error) {
 	var op DoraOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "error decoding DORA task options", errors.AsUserMessage())
 	}
 
 	return &op, nil

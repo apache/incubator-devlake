@@ -29,25 +29,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/utils"
-	"github.com/mitchellh/mapstructure"
 )
 
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// decode
-	var err error
 	var connection models.TestConnectionRequest
-	err = mapstructure.Decode(input.Body, &connection)
-	if err != nil {
+	if err := helper.Decode(input.Body, &connection, vld); err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
-	}
-	// validate
-	err = vld.Struct(connection)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
 	}
 	// test connection
 	encodedToken := utils.GetEncodedToken(connection.Username, connection.Password)
-
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
 		connection.Endpoint,
@@ -82,7 +73,7 @@ POST /plugins/zaure/connections
 		"password": "zaure api access token"
 	}
 */
-func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// create a new connection
 	connection := &models.AzureConnection{}
 
@@ -104,7 +95,7 @@ PATCH /plugins/zaure/connections/connectionId
 }
 */
 
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.AzureConnection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
@@ -117,7 +108,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 /*
 DELETE /plugins/zaure/connections/connectionId
 */
-func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.AzureConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -130,7 +121,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 /*
 GET /plugins/zaure/connections
 */
-func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var connections []models.AzureConnection
 	err := connectionHelper.List(&connections)
 	if err != nil {
@@ -143,7 +134,7 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 /*
 GET /plugins/zaure/connections/connectionId
 */
-func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.AzureConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err

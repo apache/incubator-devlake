@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"io"
 	"net/http"
@@ -36,7 +37,7 @@ var CollectApiRepoMeta = core.SubTaskMeta{
 	DomainTypes: []string{core.DOMAIN_TYPE_CODE},
 }
 
-func CollectApiRepositories(taskCtx core.SubTaskContext) error {
+func CollectApiRepositories(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_REPOSITORIES_TABLE)
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
@@ -45,11 +46,11 @@ func CollectApiRepositories(taskCtx core.SubTaskContext) error {
 
 		UrlTemplate: "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}",
 		Query:       GetQuery,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			res.Body.Close()
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			return []json.RawMessage{body}, nil
 		},

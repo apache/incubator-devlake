@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"time"
 
@@ -27,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-func CreateApiClient(taskCtx core.TaskContext, connection *models.AeConnection) (*helper.ApiAsyncClient, error) {
+func CreateApiClient(taskCtx core.TaskContext, connection *models.AeConnection) (*helper.ApiAsyncClient, errors.Error) {
 	// load and process cconfiguration
 	endpoint := connection.Endpoint
 	appId := connection.AppId
@@ -38,7 +39,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.AeConnection) 
 	if err != nil {
 		return nil, err
 	}
-	apiClient.SetBeforeFunction(func(req *http.Request) error {
+	apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
 		nonceStr := core.RandLetterBytes(8)
 		timestamp := fmt.Sprintf("%v", time.Now().Unix())
 		sign := models.GetSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)

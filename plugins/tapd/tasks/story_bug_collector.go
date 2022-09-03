@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/url"
 	"reflect"
 
@@ -32,7 +33,7 @@ const RAW_STORY_BUG_TABLE = "tapd_api_story_bugs"
 
 var _ core.SubTaskEntryPoint = CollectStoryBugs
 
-func CollectStoryBugs(taskCtx core.SubTaskContext) error {
+func CollectStoryBugs(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_BUG_TABLE, false)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
@@ -56,7 +57,7 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) error {
 		ApiClient:          data.ApiClient,
 		Input:              iterator,
 		UrlTemplate:        "stories/get_related_bugs",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			input := reqData.Input.(*SimpleStory)
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))

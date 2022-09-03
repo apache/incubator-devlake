@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -65,21 +66,21 @@ type PullRequestCommit struct {
 	CommentCount int `json:"comment_count"`
 }
 
-func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
+func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMIT_TABLE)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			apiPullRequestCommit := &PrCommitsResponse{}
 			if strings.HasPrefix(string(row.Data), "{\"message\": \"Not Found\"") {
 				return nil, nil
 			}
-			err := json.Unmarshal(row.Data, apiPullRequestCommit)
+			err := errors.Convert(json.Unmarshal(row.Data, apiPullRequestCommit))
 			if err != nil {
 				return nil, err
 			}
 			pull := &SimplePr{}
-			err = json.Unmarshal(row.Input, pull)
+			err = errors.Convert(json.Unmarshal(row.Input, pull))
 			if err != nil {
 				return nil, err
 			}
@@ -112,7 +113,7 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertPullRequestCommit(prCommit *PrCommitsResponse) (*models.GiteeCommit, error) {
+func convertPullRequestCommit(prCommit *PrCommitsResponse) (*models.GiteeCommit, errors.Error) {
 	giteeCommit := &models.GiteeCommit{
 		Sha:            prCommit.Sha,
 		Message:        prCommit.Commit.Message,

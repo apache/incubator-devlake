@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
@@ -38,7 +39,7 @@ var CollectProjectsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func CollectProjects(taskCtx core.SubTaskContext) error {
+func CollectProjects(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect projects")
@@ -54,13 +55,13 @@ func CollectProjects(taskCtx core.SubTaskContext) error {
 		},
 		ApiClient:   data.ApiClient,
 		UrlTemplate: "api/2/project",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("jql", jql)
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var result []json.RawMessage
 			err := helper.UnmarshalResponse(res, &result)
 			return result, err

@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/ae/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
 )
 
 type ApiMeResponse struct {
@@ -42,20 +41,13 @@ type ApiMeResponse struct {
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/ae/test [POST]
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// decode
-	var err error
+	var err errors.Error
 	var connection models.TestConnectionRequest
-	err = mapstructure.Decode(input.Body, &connection)
-	if err != nil {
+	if err := helper.Decode(input.Body, &connection, vld); err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
 	}
-	// validate
-	err = vld.Struct(connection)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
-	}
-
 	// load and process cconfiguration
 	endpoint := connection.Endpoint
 	appId := connection.AppId
@@ -66,7 +58,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-	apiClient.SetBeforeFunction(func(req *http.Request) error {
+	apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
 		nonceStr := core.RandLetterBytes(8)
 		timestamp := fmt.Sprintf("%v", time.Now().Unix())
 		sign := models.GetSign(req.URL.Query(), appId, secretKey, nonceStr, timestamp)
@@ -98,7 +90,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/ae/connections [POST]
-func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.AeConnection{}
 	err := connectionHelper.Create(connection, input)
 	if err != nil {
@@ -114,7 +106,7 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/ae/connections [GET]
-func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var connections []models.AeConnection
 	err := connectionHelper.List(&connections)
 	if err != nil {
@@ -130,7 +122,7 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/ae/connections/{connectionId} [GET]
-func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.AeConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err
@@ -144,7 +136,7 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/ae/connections/{connectionId} [PATCH]
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.AeConnection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
@@ -160,7 +152,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/ae/connections/{connectionId} [DELETE]
-func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.AeConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -36,7 +37,7 @@ var ExtractSprintsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractSprints(taskCtx core.SubTaskContext) error {
+func ExtractSprints(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -47,9 +48,9 @@ func ExtractSprints(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_SPRINT_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var sprint apiv2models.Sprint
-			err := json.Unmarshal(row.Data, &sprint)
+			err := errors.Convert(json.Unmarshal(row.Data, &sprint))
 			if err != nil {
 				return nil, err
 			}

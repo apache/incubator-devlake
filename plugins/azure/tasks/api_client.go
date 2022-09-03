@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-func CreateApiClient(taskCtx core.TaskContext, connection *models.AzureConnection) (*helper.ApiAsyncClient, error) {
+func CreateApiClient(taskCtx core.TaskContext, connection *models.AzureConnection) (*helper.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
@@ -38,7 +38,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.AzureConnectio
 		return nil, err
 	}
 
-	apiClient.SetAfterFunction(func(res *http.Response) error {
+	apiClient.SetAfterFunction(func(res *http.Response) errors.Error {
 		if res.StatusCode == http.StatusUnauthorized {
 			return errors.Unauthorized.New("authentication failed, please check your Username/Password")
 		}

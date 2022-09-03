@@ -50,7 +50,7 @@ type RunningTask struct {
 }
 
 // Add FIXME ...
-func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) error {
+func (rt *RunningTask) Add(taskId uint64, cancel context.CancelFunc) errors.Error {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
 	if _, ok := rt.tasks[taskId]; ok {
@@ -105,7 +105,7 @@ func (rt *RunningTask) GetProgressDetail(taskId uint64) *models.TaskProgressDeta
 }
 
 // Remove FIXME ...
-func (rt *RunningTask) Remove(taskId uint64) (context.CancelFunc, error) {
+func (rt *RunningTask) Remove(taskId uint64) (context.CancelFunc, errors.Error) {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
 	if d, ok := rt.tasks[taskId]; ok {
@@ -133,14 +133,14 @@ func init() {
 }
 
 // CreateTask FIXME ...
-func CreateTask(newTask *models.NewTask) (*models.Task, error) {
+func CreateTask(newTask *models.NewTask) (*models.Task, errors.Error) {
 	b, err := json.Marshal(newTask.Options)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	s, err := json.Marshal(newTask.Subtasks)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 
 	task := models.Task{
@@ -162,7 +162,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, error) {
 }
 
 // GetTasks FIXME ...
-func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
+func GetTasks(query *TaskQuery) ([]models.Task, int64, errors.Error) {
 	db := db.Model(&models.Task{}).Order("id DESC")
 	if query.Status != "" {
 		db = db.Where("status = ?", query.Status)
@@ -179,7 +179,7 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 	var count int64
 	err := db.Count(&count).Error
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Convert(err)
 	}
 	if query.Page > 0 && query.PageSize > 0 {
 		offset := query.PageSize * (query.Page - 1)
@@ -188,7 +188,7 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 	tasks := make([]models.Task, 0)
 	err = db.Find(&tasks).Error
 	if err != nil {
-		return nil, count, err
+		return nil, count, errors.Convert(err)
 	}
 
 	runningTasks.FillProgressDetailToTasks(tasks)
@@ -197,7 +197,7 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, error) {
 }
 
 // GetTask FIXME ...
-func GetTask(taskId uint64) (*models.Task, error) {
+func GetTask(taskId uint64) (*models.Task, errors.Error) {
 	task := &models.Task{}
 	err := db.First(task, taskId).Error
 	if err != nil {
@@ -210,7 +210,7 @@ func GetTask(taskId uint64) (*models.Task, error) {
 }
 
 // CancelTask FIXME ...
-func CancelTask(taskId uint64) error {
+func CancelTask(taskId uint64) errors.Error {
 	cancel, err := runningTasks.Remove(taskId)
 	if err != nil {
 		return err
@@ -219,7 +219,7 @@ func CancelTask(taskId uint64) error {
 	return nil
 }
 
-func runTasksStandalone(parentLogger core.Logger, taskIds []uint64) error {
+func runTasksStandalone(parentLogger core.Logger, taskIds []uint64) errors.Error {
 	results := make(chan error)
 	for _, taskId := range taskIds {
 		taskId := taskId
@@ -244,10 +244,10 @@ func runTasksStandalone(parentLogger core.Logger, taskIds []uint64) error {
 	if len(errs) > 0 {
 		err = errors.Default.New(strings.Join(errs, "\n"))
 	}
-	return err
+	return errors.Convert(err)
 }
 
-func runTaskStandalone(parentLog core.Logger, taskId uint64) error {
+func runTaskStandalone(parentLog core.Logger, taskId uint64) errors.Error {
 	// deferring cleaning up
 	defer func() {
 		_, _ = runningTasks.Remove(taskId)
@@ -284,10 +284,10 @@ func updateTaskProgress(taskId uint64, progress chan core.RunningProgress) {
 	}
 }
 
-func getTaskIdFromActivityId(activityId string) (uint64, error) {
+func getTaskIdFromActivityId(activityId string) (uint64, errors.Error) {
 	submatches := activityPattern.FindStringSubmatch(activityId)
 	if len(submatches) < 2 {
 		return 0, errors.Default.New("activityId does not match")
 	}
-	return strconv.ParseUint(submatches[1], 10, 64)
+	return errors.Convert01(strconv.ParseUint(submatches[1], 10, 64))
 }

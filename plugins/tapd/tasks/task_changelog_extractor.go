@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -36,17 +37,17 @@ var ExtractTaskChangelogMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractTaskChangelog(taskCtx core.SubTaskContext) error {
+func ExtractTaskChangelog(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CHANGELOG_TABLE, false)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var taskChangelogBody struct {
 				WorkitemChange models.TapdTaskChangelog
 			}
 			results := make([]interface{}, 0, 2)
 
-			err := json.Unmarshal(row.Data, &taskChangelogBody)
+			err := errors.Convert(json.Unmarshal(row.Data, &taskChangelogBody))
 			if err != nil {
 				return nil, err
 			}
@@ -58,20 +59,20 @@ func ExtractTaskChangelog(taskCtx core.SubTaskContext) error {
 				var valueAfterMap interface{}
 				var valueBeforeMap interface{}
 				if fc.ValueAfterParsed == nil {
-					if err = json.Unmarshal(fc.ValueAfter, &valueAfterMap); err != nil {
+					if err = errors.Convert(json.Unmarshal(fc.ValueAfter, &valueAfterMap)); err != nil {
 						return nil, err
 					}
 				} else {
-					if err = json.Unmarshal(fc.ValueAfterParsed, &valueAfterMap); err != nil {
+					if err = errors.Convert(json.Unmarshal(fc.ValueAfterParsed, &valueAfterMap)); err != nil {
 						return nil, err
 					}
 				}
 				if fc.ValueBeforeParsed == nil {
-					if err = json.Unmarshal(fc.ValueBefore, &valueBeforeMap); err != nil {
+					if err = errors.Convert(json.Unmarshal(fc.ValueBefore, &valueBeforeMap)); err != nil {
 						return nil, err
 					}
 				} else {
-					if err = json.Unmarshal(fc.ValueBeforeParsed, &valueBeforeMap); err != nil {
+					if err = errors.Convert(json.Unmarshal(fc.ValueBeforeParsed, &valueBeforeMap)); err != nil {
 						return nil, err
 					}
 				}

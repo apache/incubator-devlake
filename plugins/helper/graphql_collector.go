@@ -82,7 +82,7 @@ type GraphqlCollector struct {
 // NewGraphqlCollector allocates a new GraphqlCollector with the given args.
 // GraphqlCollector can help us collect data from api with ease, pass in a AsyncGraphqlClient and tell it which part
 // of response we want to save, GraphqlCollector will collect them from remote server and store them into database.
-func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, error) {
+func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, errors.Error) {
 	// process args
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
@@ -121,7 +121,7 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, error) {
 }
 
 // Execute api collection
-func (collector *GraphqlCollector) Execute() error {
+func (collector *GraphqlCollector) Execute() errors.Error {
 	logger := collector.args.Ctx.GetLogger()
 	logger.Info("start graphql collection")
 
@@ -204,14 +204,14 @@ func (collector *GraphqlCollector) exec(divider *BatchSaveDivider, input interfa
 // fetchPagesDetermined fetches data of all pages for APIs that return paging information
 func (collector *GraphqlCollector) fetchOneByOne(divider *BatchSaveDivider, reqData *GraphqlRequestData) {
 	// fetch first page
-	var fetchNextPage func(query interface{}) error
-	fetchNextPage = func(query interface{}) error {
+	var fetchNextPage func(query interface{}) errors.Error
+	fetchNextPage = func(query interface{}) errors.Error {
 		pageInfo, err := collector.args.GetPageInfo(query, collector.args)
 		if err != nil {
 			return errors.Default.Wrap(err, "fetchPagesDetermined get totalPages failed")
 		}
 		if pageInfo.HasNextPage {
-			collector.args.GraphqlClient.NextTick(func() error {
+			collector.args.GraphqlClient.NextTick(func() errors.Error {
 				reqDataTemp := &GraphqlRequestData{
 					Pager: &CursorPager{
 						SkipCursor: &pageInfo.EndCursor,
@@ -229,7 +229,7 @@ func (collector *GraphqlCollector) fetchOneByOne(divider *BatchSaveDivider, reqD
 	collector.fetchAsync(divider, reqData, fetchNextPage)
 }
 
-func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData *GraphqlRequestData, handler func(query interface{}) error) {
+func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData *GraphqlRequestData, handler func(query interface{}) errors.Error) {
 	if reqData.Pager == nil {
 		reqData.Pager = &CursorPager{
 			SkipCursor: nil,

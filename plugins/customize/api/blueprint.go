@@ -19,20 +19,21 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 )
 
-func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
 	var err error
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
 		taskOptions := make(map[string]interface{})
 		err = json.Unmarshal(scopeElem.Options, &taskOptions)
 		if err != nil {
-			return nil, err
+			return nil, errors.Convert(err)
 		}
 		_, err := tasks.DecodeAndValidateTaskOptions(taskOptions)
 		if err != nil {

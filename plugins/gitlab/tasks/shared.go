@@ -42,19 +42,19 @@ type GitlabInput struct {
 	Iid      int
 }
 
-func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {
+func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
 	total := res.Header.Get("X-Total-Pages")
 	if total == "" {
 		return 0, nil
 	}
 	totalInt, err := strconv.Atoi(total)
 	if err != nil {
-		return 0, err
+		return 0, errors.Convert(err)
 	}
 	return totalInt, nil
 }
 
-func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
+func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
 	rawMessages := []json.RawMessage{}
 
 	if res == nil {
@@ -66,7 +66,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
 	}
 
-	err = json.Unmarshal(resBody, &rawMessages)
+	err = errors.Convert(json.Unmarshal(resBody, &rawMessages))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s. raw response was: %s", res.Request.URL.String(), string(resBody)))
 	}
@@ -74,7 +74,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 	return rawMessages, nil
 }
 
-func GetQuery(reqData *helper.RequestData) (url.Values, error) {
+func GetQuery(reqData *helper.RequestData) (url.Values, errors.Error) {
 	query := url.Values{}
 	query.Set("with_stats", "true")
 	query.Set("sort", "asc")
@@ -96,7 +96,7 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helpe
 	return RawDataSubTaskArgs, data
 }
 
-func GetMergeRequestsIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, error) {
+func GetMergeRequestsIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 	clauses := []dal.Clause{

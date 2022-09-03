@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
 	"gorm.io/gorm"
 )
@@ -35,13 +36,8 @@ func (commitParent) TableName() string {
 
 type addNoPKModelToCommitParent struct{}
 
-func (*addNoPKModelToCommitParent) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().AutoMigrate(&commitParent{})
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (*addNoPKModelToCommitParent) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	return errors.Convert(db.Migrator().AutoMigrate(&commitParent{}))
 }
 
 func (*addNoPKModelToCommitParent) Version() uint64 {

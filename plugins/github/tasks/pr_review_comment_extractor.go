@@ -40,7 +40,7 @@ var ExtractApiPrReviewCommentsMeta = core.SubTaskMeta{
 	DomainTypes: []string{core.DOMAIN_TYPE_CODE},
 }
 
-func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) error {
+func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	db := taskCtx.GetDal()
 	prUrlPattern := fmt.Sprintf(`https\:\/\/api\.github\.com\/repos\/%s\/%s\/pulls\/(\d+)`, data.Options.Owner, data.Options.Repo)
@@ -55,7 +55,7 @@ func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_PR_REVIEW_COMMENTS_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var prReviewComment struct {
 				GithubId        int `json:"id"`
 				Body            json.RawMessage
@@ -66,7 +66,7 @@ func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) error {
 				CommitId        string             `json:"commit_id"`
 				PrReviewId      int                `json:"pull_request_review_id"`
 			}
-			err := json.Unmarshal(row.Data, &prReviewComment)
+			err := errors.Convert(json.Unmarshal(row.Data, &prReviewComment))
 			if err != nil {
 				return nil, err
 			}
@@ -85,7 +85,7 @@ func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) error {
 				Type:            "DIFF",
 			}
 
-			prUrlRegex, err := regexp.Compile(prUrlPattern)
+			prUrlRegex, err := errors.Convert01(regexp.Compile(prUrlPattern))
 			if err != nil {
 				return nil, errors.Default.Wrap(err, "regexp Compile prUrlPattern failed")
 			}
@@ -113,7 +113,7 @@ func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func enrichGithubPrComment(data *GithubTaskData, db dal.Dal, prUrlRegex *regexp.Regexp, prUrl string) (int, error) {
+func enrichGithubPrComment(data *GithubTaskData, db dal.Dal, prUrlRegex *regexp.Regexp, prUrl string) (int, errors.Error) {
 	groups := prUrlRegex.FindStringSubmatch(prUrl)
 	if len(groups) > 0 {
 		prNumber, err := strconv.Atoi(groups[1])
@@ -123,7 +123,7 @@ func enrichGithubPrComment(data *GithubTaskData, db dal.Dal, prUrlRegex *regexp.
 		pr := &models.GithubPullRequest{}
 		err = db.First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, prNumber, data.Repo.GithubId))
 		if err != nil && err != gorm.ErrRecordNotFound {
-			return 0, err
+			return 0, errors.NotFound.Wrap(err, "github pull request not found in DB")
 		}
 		return pr.GithubId, nil
 	}

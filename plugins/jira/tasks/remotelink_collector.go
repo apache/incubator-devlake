@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"reflect"
 
@@ -40,7 +41,7 @@ var CollectRemotelinksMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func CollectRemotelinks(taskCtx core.SubTaskContext) error {
+func CollectRemotelinks(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
@@ -85,7 +86,7 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) error {
 		Input:       iterator,
 		Incremental: since == nil,
 		UrlTemplate: "api/2/issue/{{ .Input.IssueId }}/remotelink",
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			if res.StatusCode == http.StatusNotFound {
 				return nil, nil
 			}

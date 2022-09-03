@@ -19,6 +19,7 @@ package core
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"gorm.io/gorm"
 )
@@ -49,7 +50,7 @@ type BasicRes interface {
 	GetDal() dal.Dal
 }
 
-// This interface define all resources that needed for task/subtask execution
+// ExecContext This interface define all resources that needed for task/subtask execution
 type ExecContext interface {
 	BasicRes
 	GetName() string
@@ -59,26 +60,26 @@ type ExecContext interface {
 	IncProgress(quantity int)
 }
 
-// This interface define all resources that needed for subtask execution
+// SubTaskContext This interface define all resources that needed for subtask execution
 type SubTaskContext interface {
 	ExecContext
 	TaskContext() TaskContext
 }
 
-// This interface define all resources that needed for task execution
+// TaskContext This interface define all resources that needed for task execution
 type TaskContext interface {
 	ExecContext
 	SetData(data interface{})
-	SubTaskContext(subtask string) (SubTaskContext, error)
+	SubTaskContext(subtask string) (SubTaskContext, errors.Error)
 }
 
 type SubTask interface {
 	// Execute FIXME ...
-	Execute() error
+	Execute() errors.Error
 }
 
-// All subtasks from plugins should comply to this prototype, so they could be orchestrated by framework
-type SubTaskEntryPoint func(c SubTaskContext) error
+// SubTaskEntryPoint All subtasks from plugins should comply to this prototype, so they could be orchestrated by framework
+type SubTaskEntryPoint func(c SubTaskContext) errors.Error
 
 const DOMAIN_TYPE_CODE = "CODE"
 const DOMAIN_TYPE_TICKET = "TICKET"
@@ -94,7 +95,7 @@ var DOMAIN_TYPES = []string{
 	DOMAIN_TYPE_CICD,
 }
 
-// Meta data of a subtask
+// SubTaskMeta Metadata of a subtask
 type SubTaskMeta struct {
 	Name       string
 	EntryPoint SubTaskEntryPoint
@@ -105,16 +106,16 @@ type SubTaskMeta struct {
 	DomainTypes      []string
 }
 
-// Implement this interface to let framework run tasks for you
+// PluginTask Implement this interface to let framework run tasks for you
 type PluginTask interface {
-	// return all available subtasks, framework will run them for you in order
+	// SubTaskMetas return all available subtasks, framework will run them for you in order
 	SubTaskMetas() []SubTaskMeta
-	// based on task context and user input options, return data that shared among all subtasks
-	PrepareTaskData(taskCtx TaskContext, options map[string]interface{}) (interface{}, error)
+	// PrepareTaskData based on task context and user input options, return data that shared among all subtasks
+	PrepareTaskData(taskCtx TaskContext, options map[string]interface{}) (interface{}, errors.Error)
 }
 
-// Extends PluginTask, and invokes a Close method after all subtasks are done
+// CloseablePluginTask Extends PluginTask, and invokes a Close method after all subtasks are done
 type CloseablePluginTask interface {
 	PluginTask
-	Close(taskCtx TaskContext) error
+	Close(taskCtx TaskContext) errors.Error
 }

@@ -36,19 +36,19 @@ type pipelineRunner struct {
 	pipeline *models.Pipeline
 }
 
-func (p *pipelineRunner) runPipelineStandalone() error {
+func (p *pipelineRunner) runPipelineStandalone() errors.Error {
 	return runner.RunPipeline(
 		cfg,
 		p.logger,
 		db,
 		p.pipeline.ID,
-		func(taskIds []uint64) error {
+		func(taskIds []uint64) errors.Error {
 			return runTasksStandalone(p.logger, taskIds)
 		},
 	)
 }
 
-func (p *pipelineRunner) runPipelineViaTemporal() error {
+func (p *pipelineRunner) runPipelineViaTemporal() errors.Error {
 	workflowOpts := client.StartWorkflowOptions{
 		ID:        getTemporalWorkflowId(p.pipeline.ID),
 		TaskQueue: cfg.GetString("TEMPORAL_TASK_QUEUE"),
@@ -56,7 +56,7 @@ func (p *pipelineRunner) runPipelineViaTemporal() error {
 	// send only the very basis data
 	configJson, err := json.Marshal(cfg.AllSettings())
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	p.logger.Info("enqueue pipeline #%d into temporal task queue", p.pipeline.ID)
 	workflow, err := temporalClient.ExecuteWorkflow(
@@ -69,14 +69,14 @@ func (p *pipelineRunner) runPipelineViaTemporal() error {
 	)
 	if err != nil {
 		p.logger.Error(err, "failed to enqueue pipeline #%d into temporal", p.pipeline.ID)
-		return err
+		return errors.Convert(err)
 	}
 	err = workflow.Get(context.Background(), nil)
 	if err != nil {
 		p.logger.Info("failed to execute pipeline #%d via temporal: %w", p.pipeline.ID, err)
 	}
 	p.logger.Info("pipeline #%d finished by temporal", p.pipeline.ID)
-	return err
+	return errors.Convert(err)
 }
 
 func getPipelineLogger(pipeline *models.Pipeline) core.Logger {
@@ -97,7 +97,7 @@ func getPipelineLogger(pipeline *models.Pipeline) core.Logger {
 }
 
 // runPipeline start a pipeline actually
-func runPipeline(pipelineId uint64) error {
+func runPipeline(pipelineId uint64) errors.Error {
 	pipeline, err := GetPipeline(pipelineId)
 	if err != nil {
 		return err
@@ -134,7 +134,7 @@ func runPipeline(pipelineId uint64) error {
 	dbe := db.Model(dbPipeline).Select("finished_at", "spent_seconds", "status", "message").Updates(dbPipeline).Error
 	if dbe != nil {
 		globalPipelineLog.Error(dbe, "update pipeline state failed")
-		return dbe
+		return errors.Convert(dbe)
 	}
 	// notify external webhook
 	return NotifyExternal(pipelineId)

@@ -19,6 +19,7 @@ package helper
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/common"
@@ -53,10 +54,10 @@ func NewBatchSaveDivider(basicRes core.BasicRes, batchSize int, table string, pa
 }
 
 // ForType returns a `BatchSave` instance for specific type
-func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, error) {
+func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, errors.Error) {
 	// get the cache for the specific type
 	batch := d.batches[rowType]
-	var err error
+	var err errors.Error
 	// create one if not exists
 	if batch == nil {
 		batch, err = NewBatchSave(d.basicRes, rowType, d.batchSize)
@@ -71,7 +72,7 @@ func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, error) {
 		// check if rowType had RawDataOrigin embeded
 		field, hasField := rowElemType.FieldByName("RawDataOrigin")
 		if !hasField || field.Type != reflect.TypeOf(common.RawDataOrigin{}) {
-			return nil, fmt.Errorf("type %s must have RawDataOrigin embeded", rowElemType.Name())
+			return nil, errors.Default.New(fmt.Sprintf("type %s must have RawDataOrigin embeded", rowElemType.Name()))
 		}
 		// all good, delete outdated records before we insertion
 		d.log.Debug("deleting outdate records for %s", rowElemType.Name())
@@ -87,7 +88,7 @@ func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, error) {
 }
 
 // Close all batches so the rest records get saved into db
-func (d *BatchSaveDivider) Close() error {
+func (d *BatchSaveDivider) Close() errors.Error {
 	for _, batch := range d.batches {
 		err := batch.Close()
 		if err != nil {

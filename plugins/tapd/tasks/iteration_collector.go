@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
@@ -36,7 +37,7 @@ const RAW_ITERATION_TABLE = "tapd_api_iterations"
 
 var _ core.SubTaskEntryPoint = CollectIterations
 
-func CollectIterations(taskCtx core.SubTaskContext) error {
+func CollectIterations(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ITERATION_TABLE, false)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
@@ -51,7 +52,7 @@ func CollectIterations(taskCtx core.SubTaskContext) error {
 			dal.Orderby("created DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
-		if err != nil && err != gorm.ErrRecordNotFound {
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 			return errors.NotFound.Wrap(err, "failed to get latest tapd changelog record")
 		}
 		if latestUpdated.Id > 0 {
@@ -65,7 +66,7 @@ func CollectIterations(taskCtx core.SubTaskContext) error {
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
 		UrlTemplate:        "iterations",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -76,7 +77,7 @@ func CollectIterations(taskCtx core.SubTaskContext) error {
 			}
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Iterations []json.RawMessage `json:"data"`
 			}

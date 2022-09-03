@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
@@ -36,7 +37,7 @@ var ConvertMrLabelsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func ConvertMrLabels(taskCtx core.SubTaskContext) error {
+func ConvertMrLabels(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
 	projectId := data.Options.ProjectId
@@ -63,7 +64,7 @@ func ConvertMrLabels(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(gitlabModels.GitlabMrLabel{}),
 		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			mrLabel := inputRow.(*gitlabModels.GitlabMrLabel)
 			domainIssueLabel := &code.PullRequestLabel{
 				PullRequestId: mrIdGen.Generate(data.Options.ConnectionId, mrLabel.MrId),

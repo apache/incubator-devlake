@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/ae/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -34,7 +35,7 @@ func (u *addInitTables) SetConfigGetter(config core.ConfigGetter) {
 	u.config = config
 }
 
-func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
+func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().DropTable(
 		&archived.AECommit{},
 		&archived.AEProject{},
@@ -42,7 +43,7 @@ func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		"_raw_ae_commits",
 	)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	err = db.Migrator().AutoMigrate(
@@ -51,7 +52,7 @@ func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.AeConnection{},
 	)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	encodeKey := u.config.GetString(core.EncodeKeyEnvStr)
@@ -62,11 +63,11 @@ func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	connection.AppId = u.config.GetString("AE_APP_ID")
 	connection.Name = "AE"
 	if connection.Endpoint != "" && connection.AppId != "" && connection.SecretKey != "" && encodeKey != "" {
-		err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
+		err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, errors.Error) {
 			return core.Encrypt(encodeKey, plaintext)
 		})
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error encrypting fields")
 		}
 		// update from .env and save to db
 		db.Create(connection)

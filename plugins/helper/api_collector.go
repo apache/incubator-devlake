@@ -20,6 +20,7 @@ package helper
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"net/http"
@@ -57,9 +58,9 @@ type ApiCollectorArgs struct {
 	// For detail of what variables can be used, please check `RequestData`
 	UrlTemplate string `comment:"GoTemplate for API url"`
 	// Query would be sent out as part of the request URL
-	Query func(reqData *RequestData) (url.Values, error) ``
+	Query func(reqData *RequestData) (url.Values, errors.Error) ``
 	// Header would be sent out along with request
-	Header func(reqData *RequestData) (http.Header, error)
+	Header func(reqData *RequestData) (http.Header, errors.Error)
 	// PageSize tells ApiCollector the page size
 	PageSize int
 	// Incremental indicate if this is a incremental collection, the existing data won't get deleted if it was true
@@ -71,11 +72,11 @@ type ApiCollectorArgs struct {
 	Input Iterator
 	// GetTotalPages is to tell `ApiCollector` total number of pages based on response of the first page.
 	// so `ApiCollector` could collect those pages in parallel for us
-	GetTotalPages func(res *http.Response, args *ApiCollectorArgs) (int, error)
+	GetTotalPages func(res *http.Response, args *ApiCollectorArgs) (int, errors.Error)
 	// Concurrency specify qps for api that doesn't return total number of pages/records
 	// NORMALLY, DO NOT SPECIFY THIS PARAMETER, unless you know what it means
 	Concurrency    int
-	ResponseParser func(res *http.Response) ([]json.RawMessage, error)
+	ResponseParser func(res *http.Response) ([]json.RawMessage, errors.Error)
 	AfterResponse  common.ApiClientAfterResponse
 }
 
@@ -89,7 +90,7 @@ type ApiCollector struct {
 // NewApiCollector allocates a new ApiCollector with the given args.
 // ApiCollector can help us collecting data from api with ease, pass in a AsyncApiClient and tell it which part
 // of response we want to save, ApiCollector will collect them from remote server and store them into database.
-func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
+func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 	// process args
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
@@ -99,7 +100,7 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	if args.UrlTemplate == "" {
 		return nil, errors.Default.New("UrlTemplate is required", errors.UserMessage("Internal Collector setup error"))
 	}
-	tpl, err := template.New(args.Table).Parse(args.UrlTemplate)
+	tpl, err := errors.Convert01(template.New(args.Table).Parse(args.UrlTemplate))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate", errors.UserMessage("Internal Collector setup error"))
 	}
@@ -117,7 +118,7 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 	if args.AfterResponse != nil {
 		apiCollector.SetAfterResponse(args.AfterResponse)
 	} else if apiCollector.GetAfterResponse() == nil {
-		apiCollector.SetAfterResponse(func(res *http.Response) error {
+		apiCollector.SetAfterResponse(func(res *http.Response) errors.Error {
 			if res.StatusCode == http.StatusUnauthorized {
 				return errors.Unauthorized.New("authentication failed, please check your AccessToken", errors.AsUserMessage())
 			}
@@ -128,7 +129,7 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, error) {
 }
 
 // Execute will start collection
-func (collector *ApiCollector) Execute() error {
+func (collector *ApiCollector) Execute() errors.Error {
 	logger := collector.args.Ctx.GetLogger()
 	logger.Info("start api collection")
 
@@ -215,13 +216,13 @@ func (collector *ApiCollector) exec(input interface{}) {
 // fetchPagesDetermined fetches data of all pages for APIs that return paging information
 func (collector *ApiCollector) fetchPagesDetermined(reqData *RequestData) {
 	// fetch first page
-	collector.fetchAsync(reqData, func(count int, body []byte, res *http.Response) error {
+	collector.fetchAsync(reqData, func(count int, body []byte, res *http.Response) errors.Error {
 		totalPages, err := collector.args.GetTotalPages(res, collector.args)
 		if err != nil {
 			return errors.Default.Wrap(err, "fetchPagesDetermined get totalPages failed")
 		}
 		// spawn a none blocking go routine to fetch other pages
-		collector.args.ApiClient.NextTick(func() error {
+		collector.args.ApiClient.NextTick(func() errors.Error {
 			for page := 2; page <= totalPages; page++ {
 				reqDataTemp := &RequestData{
 					Pager: &Pager{
@@ -273,13 +274,13 @@ func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData) {
 			Input:     reqData.Input,
 			InputJSON: reqData.InputJSON,
 		}
-		var collect func() error
-		collect = func() error {
-			collector.fetchAsync(&reqDataCopy, func(count int, body []byte, res *http.Response) error {
+		var collect func() errors.Error
+		collect = func() errors.Error {
+			collector.fetchAsync(&reqDataCopy, func(count int, body []byte, res *http.Response) errors.Error {
 				if count < collector.args.PageSize {
 					return nil
 				}
-				apiClient.NextTick(func() error {
+				apiClient.NextTick(func() errors.Error {
 					reqDataCopy.Pager.Skip += collector.args.PageSize
 					reqDataCopy.Pager.Page += concurrency
 					return collect()
@@ -292,7 +293,7 @@ func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData) {
 	}
 }
 
-func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (string, error) {
+func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (string, errors.Error) {
 	var buf bytes.Buffer
 	err := collector.urlTemplate.Execute(&buf, &RequestData{
 		Pager:  pager,
@@ -300,7 +301,7 @@ func (collector *ApiCollector) generateUrl(pager *Pager, input interface{}) (str
 		Input:  input,
 	})
 	if err != nil {
-		return "", err
+		return "", errors.Convert(err)
 	}
 	return buf.String(), nil
 }
@@ -315,7 +316,7 @@ func (collector *ApiCollector) SetAfterResponse(f common.ApiClientAfterResponse)
 	collector.args.ApiClient.SetAfterFunction(f)
 }
 
-func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int, []byte, *http.Response) error) {
+func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int, []byte, *http.Response) errors.Error) {
 	if reqData.Pager == nil {
 		reqData.Pager = &Pager{
 			Page: 1,
@@ -344,20 +345,20 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 	}
 	logger := collector.args.Ctx.GetLogger()
 	logger.Debug("fetchAsync <<< enqueueing for %s %v", apiUrl, apiQuery)
-	collector.args.ApiClient.DoGetAsync(apiUrl, apiQuery, apiHeader, func(res *http.Response) error {
+	collector.args.ApiClient.DoGetAsync(apiUrl, apiQuery, apiHeader, func(res *http.Response) errors.Error {
 		defer logger.Debug("fetchAsync >>> done for %s %v", apiUrl, apiQuery)
 		logger := collector.args.Ctx.GetLogger()
 		// read body to buffer
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", apiUrl), errors.AsUserMessage())
 		}
 		res.Body.Close()
 		res.Body = io.NopCloser(bytes.NewBuffer(body))
 		// convert body to array of RawJSON
 		items, err := collector.args.ResponseParser(res)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, fmt.Sprintf("error parsing response from %s", apiUrl), errors.AsUserMessage())
 		}
 		// save to db
 		count := len(items)
@@ -378,7 +379,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 		}
 		err = db.Create(rows, dal.From(collector.table))
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, fmt.Sprintf("error inserting raw rows into %s", collector.table), errors.UserMessage(fmt.Sprintf("internal error processing response from %s", url)))
 		}
 		logger.Debug("fetchAsync === total %d rows were saved into database", count)
 		// increase progress only when it was not nested

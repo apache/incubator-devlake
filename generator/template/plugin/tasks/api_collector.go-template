@@ -24,6 +24,7 @@ import (
 	"strconv"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -31,7 +32,7 @@ const RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE = "{{ .plugin_name }}_{{ .collector_d
 
 var _ core.SubTaskEntryPoint = Collect{{ .CollectorDataName }}
 
-func Collect{{ .CollectorDataName }}(taskCtx core.SubTaskContext) error {
+func Collect{{ .CollectorDataName }}(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*{{ .PluginName }}TaskData)
 	iterator, err := helper.NewDateIterator(365)
 	if err != nil {
@@ -50,14 +51,14 @@ func Collect{{ .CollectorDataName }}(taskCtx core.SubTaskContext) error {
 		Input:       iterator,
 		// TODO write which api would you want request
 		UrlTemplate: "{{ .HttpPath }}",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			input := reqData.Input.(*helper.DatePair)
 			query.Set("start_time", strconv.FormatInt(input.PairStartTime.Unix(), 10))
 			query.Set("end_time", strconv.FormatInt(input.PairEndTime.Unix(), 10))
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			// TODO decode result from api request
 			return []json.RawMessage{}, nil
 		},

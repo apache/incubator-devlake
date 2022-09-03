@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"strconv"
 	"strings"
 	"time"
@@ -47,7 +48,7 @@ type typeMappings struct {
 	standardStatusMappings map[string]StatusMappings
 }
 
-func ExtractIssues(taskCtx core.SubTaskContext) error {
+func ExtractIssues(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()
 	connectionId := data.Options.ConnectionId
@@ -74,7 +75,7 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_ISSUE_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			return extractIssues(data, mappings, false, row)
 		},
 	})
@@ -84,9 +85,9 @@ func ExtractIssues(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func extractIssues(data *JiraTaskData, mappings *typeMappings, ignoreBoard bool, row *helper.RawData) ([]interface{}, error) {
+func extractIssues(data *JiraTaskData, mappings *typeMappings, ignoreBoard bool, row *helper.RawData) ([]interface{}, errors.Error) {
 	var apiIssue apiv2models.Issue
-	err := json.Unmarshal(row.Data, &apiIssue)
+	err := errors.Convert(json.Unmarshal(row.Data, &apiIssue))
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +173,7 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, ignoreBoard bool,
 	return results, nil
 }
 
-func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, error) {
+func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, errors.Error) {
 	typeIdMapping := make(map[string]string)
 	issueTypes := make([]models.JiraIssueType, 0)
 	clauses := []dal.Clause{

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strings"
 	"time"
@@ -32,7 +33,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-func ConvertIteration(taskCtx core.SubTaskContext) error {
+func ConvertIteration(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ITERATION_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
@@ -55,7 +56,7 @@ func ConvertIteration(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdIteration{}),
 		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			iter := inputRow.(*models.TapdIteration)
 			domainIter := &ticket.Sprint{
 				DomainEntity:    domainlayer.DomainEntity{Id: iterIdGen.Generate(data.Options.ConnectionId, iter.Id)},

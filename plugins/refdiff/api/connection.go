@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"net/http"
 )
@@ -28,7 +29,7 @@ import (
 // @Accept application/json
 // @Param blueprint body RefdiffPipelinePlan true "json"
 // @Router /pipelines/refdiff/pipeline-plan [post]
-func PostRefdiffPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostRefdiffPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	blueprint := &RefdiffPipelinePlan{}
 	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
 }

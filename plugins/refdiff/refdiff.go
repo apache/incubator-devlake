@@ -18,9 +18,10 @@ limitations under the License.
 package main
 
 import (
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/refdiff/tasks"
 	"github.com/apache/incubator-devlake/runner"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -47,7 +48,7 @@ func (plugin RefDiff) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{}
 }
 
-func (plugin RefDiff) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin RefDiff) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	return nil
 }
 
@@ -59,9 +60,9 @@ func (plugin RefDiff) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin RefDiff) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin RefDiff) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.RefdiffOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +72,7 @@ func (plugin RefDiff) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 	tagsLimit := op.TagsLimit
 	tagsOrder := op.TagsOrder
 
-	rs, err := tasks.CaculateTagPattern(db, tagsPattern, tagsLimit, tagsOrder)
+	rs, err := tasks.CalculateTagPattern(db, tagsPattern, tagsLimit, tagsOrder)
 	if err != nil {
 		return nil, err
 	}

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -37,7 +38,7 @@ var ConvertPullRequestIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
+func ConvertPullRequestIssues(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
@@ -67,7 +68,7 @@ func ConvertPullRequestIssues(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubPrIssue := inputRow.(*githubModels.GithubPrIssue)
 			pullRequestIssue := &crossdomain.PullRequestIssue{
 				PullRequestId:  prIdGen.Generate(data.Options.ConnectionId, githubPrIssue.PullRequestId),

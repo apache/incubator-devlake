@@ -19,6 +19,7 @@ package dalgorm
 
 import (
 	"database/sql"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strings"
 
@@ -69,23 +70,23 @@ func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 var _ dal.Dal = (*Dalgorm)(nil)
 
 // RawCursor executes raw sql query and returns a database cursor
-func (d *Dalgorm) RawCursor(query string, params ...interface{}) (*sql.Rows, error) {
-	return d.db.Raw(query, params...).Rows()
+func (d *Dalgorm) RawCursor(query string, params ...interface{}) (*sql.Rows, errors.Error) {
+	return errors.Convert01(d.db.Raw(query, params...).Rows())
 }
 
 // Exec executes raw sql query
-func (d *Dalgorm) Exec(query string, params ...interface{}) error {
-	return d.db.Exec(query, params...).Error
+func (d *Dalgorm) Exec(query string, params ...interface{}) errors.Error {
+	return errors.Convert(d.db.Exec(query, params...).Error)
 }
 
 // AutoMigrate runs auto migration for given models
-func (d *Dalgorm) AutoMigrate(entity interface{}, clauses ...dal.Clause) error {
-	return buildTx(d.db, clauses).AutoMigrate(entity)
+func (d *Dalgorm) AutoMigrate(entity interface{}, clauses ...dal.Clause) errors.Error {
+	return errors.Convert(buildTx(d.db, clauses).AutoMigrate(entity))
 }
 
 // Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
-func (d *Dalgorm) Cursor(clauses ...dal.Clause) (*sql.Rows, error) {
-	return buildTx(d.db, clauses).Rows()
+func (d *Dalgorm) Cursor(clauses ...dal.Clause) (*sql.Rows, errors.Error) {
+	return errors.Convert01(buildTx(d.db, clauses).Rows())
 }
 
 // CursorTx FIXME ...
@@ -94,68 +95,67 @@ func (d *Dalgorm) CursorTx(clauses ...dal.Clause) *gorm.DB {
 }
 
 // Fetch loads row data from `cursor` into `dst`
-func (d *Dalgorm) Fetch(cursor *sql.Rows, dst interface{}) error {
-	return d.db.ScanRows(cursor, dst)
+func (d *Dalgorm) Fetch(cursor *sql.Rows, dst interface{}) errors.Error {
+	return errors.Convert(d.db.ScanRows(cursor, dst))
 }
 
 // All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
-func (d *Dalgorm) All(dst interface{}, clauses ...dal.Clause) error {
-	return buildTx(d.db, clauses).Find(dst).Error
+func (d *Dalgorm) All(dst interface{}, clauses ...dal.Clause) errors.Error {
+	return errors.Convert(buildTx(d.db, clauses).Find(dst).Error)
 }
 
 // First loads first matched row from database to `dst`, error will be returned if no records were found
-func (d *Dalgorm) First(dst interface{}, clauses ...dal.Clause) error {
-	err := buildTx(d.db, clauses).First(dst).Error
-	return err
+func (d *Dalgorm) First(dst interface{}, clauses ...dal.Clause) errors.Error {
+	return errors.Convert(buildTx(d.db, clauses).First(dst).Error)
 }
 
 // Count total records
-func (d *Dalgorm) Count(clauses ...dal.Clause) (int64, error) {
+func (d *Dalgorm) Count(clauses ...dal.Clause) (int64, errors.Error) {
 	var count int64
 	err := buildTx(d.db, clauses).Count(&count).Error
-	return count, err
+	return errors.Convert01(count, err)
 }
 
 // Pluck used to query single column
-func (d *Dalgorm) Pluck(column string, dest interface{}, clauses ...dal.Clause) error {
-	return buildTx(d.db, clauses).Pluck(column, dest).Error
+func (d *Dalgorm) Pluck(column string, dest interface{}, clauses ...dal.Clause) errors.Error {
+	return errors.Convert(buildTx(d.db, clauses).Pluck(column, dest).Error)
 }
 
 // Create insert record to database
-func (d *Dalgorm) Create(entity interface{}, clauses ...dal.Clause) error {
-	return buildTx(d.db, clauses).Create(entity).Error
+func (d *Dalgorm) Create(entity interface{}, clauses ...dal.Clause) errors.Error {
+	return errors.Convert(buildTx(d.db, clauses).Create(entity).Error)
 }
 
 // Update updates record
-func (d *Dalgorm) Update(entity interface{}, clauses ...dal.Clause) error {
-	return buildTx(d.db, clauses).Save(entity).Error
+func (d *Dalgorm) Update(entity interface{}, clauses ...dal.Clause) errors.Error {
+	return errors.Convert(buildTx(d.db, clauses).Save(entity).Error)
 }
 
 // CreateOrUpdate tries to create the record, or fallback to update all if failed
-func (d *Dalgorm) CreateOrUpdate(entity interface{}, clauses ...dal.Clause) error {
-	return buildTx(d.db, clauses).Clauses(clause.OnConflict{UpdateAll: true}).Create(entity).Error
+func (d *Dalgorm) CreateOrUpdate(entity interface{}, clauses ...dal.Clause) errors.Error {
+	return errors.Convert(buildTx(d.db, clauses).Clauses(clause.OnConflict{UpdateAll: true}).Create(entity).Error)
 }
 
 // CreateIfNotExist tries to create the record if not exist
-func (d *Dalgorm) CreateIfNotExist(entity interface{}, clauses ...dal.Clause) error {
-	return buildTx(d.db, clauses).Clauses(clause.OnConflict{DoNothing: true}).Create(entity).Error
+func (d *Dalgorm) CreateIfNotExist(entity interface{}, clauses ...dal.Clause) errors.Error {
+	return errors.Convert(buildTx(d.db, clauses).Clauses(clause.OnConflict{DoNothing: true}).Create(entity).Error)
 }
 
 // Delete records from database
-func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) error {
-	return buildTx(d.db, clauses).Delete(entity).Error
+func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) errors.Error {
+	return errors.Convert(buildTx(d.db, clauses).Delete(entity).Error)
 }
 
 // UpdateColumns batch records in database
-func (d *Dalgorm) UpdateColumns(entity interface{}, clauses ...dal.Clause) error {
-	return buildTx(d.db, clauses).UpdateColumns(entity).Error
+func (d *Dalgorm) UpdateColumns(entity interface{}, clauses ...dal.Clause) errors.Error {
+	return errors.Convert(buildTx(d.db, clauses).UpdateColumns(entity).Error)
 }
 
 // GetColumns FIXME ...
-func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, err error) {
+func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, _ errors.Error) {
 	columnTypes, err := d.db.Migrator().ColumnTypes(dst.TableName())
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	for _, columnType := range columnTypes {
 		if filter == nil {
@@ -164,11 +164,11 @@ func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.Colum
 			cms = append(cms, columnType)
 		}
 	}
-	return cms, nil
+	return errors.Convert01(cms, nil)
 }
 
 // AddColumn add one column for the table
-func (d *Dalgorm) AddColumn(table, columnName, columnType string) error {
+func (d *Dalgorm) AddColumn(table, columnName, columnType string) errors.Error {
 	// work around the error `cached plan must not change result type` for postgres
 	// wrap in func(){} to make the linter happy
 	defer func() {
@@ -178,7 +178,7 @@ func (d *Dalgorm) AddColumn(table, columnName, columnType string) error {
 }
 
 // DropColumn drop one column from the table
-func (d *Dalgorm) DropColumn(table, columnName string) error {
+func (d *Dalgorm) DropColumn(table, columnName string) errors.Error {
 	// work around the error `cached plan must not change result type` for postgres
 	// wrap in func(){} to make the linter happy
 	defer func() {
@@ -195,7 +195,7 @@ func (d *Dalgorm) GetPrimaryKeyFields(t reflect.Type) []reflect.StructField {
 }
 
 // AllTables returns all tables in the database
-func (d *Dalgorm) AllTables() ([]string, error) {
+func (d *Dalgorm) AllTables() ([]string, errors.Error) {
 	var tableSql string
 	if d.db.Dialector.Name() == "mysql" {
 		tableSql = "show tables"
@@ -205,7 +205,7 @@ func (d *Dalgorm) AllTables() ([]string, error) {
 	var tables []string
 	err := d.db.Raw(tableSql).Scan(&tables).Error
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	var filteredTables []string
 	for _, table := range tables {

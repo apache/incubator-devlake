@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
@@ -36,7 +37,7 @@ var ConvertIssueCommitsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertIssueCommits(taskCtx core.SubTaskContext) error {
+func ConvertIssueCommits(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()
 	connectionId := data.Options.ConnectionId
@@ -72,7 +73,7 @@ func ConvertIssueCommits(taskCtx core.SubTaskContext) error {
 		},
 		InputRowType: reflect.TypeOf(models.JiraIssueCommit{}),
 		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			var result []interface{}
 			issueCommit := inputRow.(*models.JiraIssueCommit)
 			item := &crossdomain.IssueCommit{

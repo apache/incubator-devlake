@@ -20,6 +20,7 @@ package helper
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -51,7 +52,7 @@ func TestDecodeMapStructJsonRawMessage(t *testing.T) {
 	assert.Nil(t, decoded.Plan)
 	assert.NotNil(t, decoded.Settings)
 	settings := make(map[string]string)
-	err = json.Unmarshal(decoded.Settings, &settings)
+	err = errors.Convert(json.Unmarshal(decoded.Settings, &settings))
 	assert.Nil(t, err)
 	assert.Equal(t, settings["version"], "1.0.0")
 	assert.Equal(t, decoded.Existing, json.RawMessage(`{"hello", "world"}`))

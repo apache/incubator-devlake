@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"time"
 
@@ -55,7 +56,7 @@ type TaskChangelogItemResult struct {
 	common.NoPKModel
 }
 
-func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
+func ConvertTaskChangelog(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CHANGELOG_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
@@ -80,7 +81,7 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(TaskChangelogItemResult{}),
 		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			cl := inputRow.(*TaskChangelogItemResult)
 			domainCl := &ticket.IssueChangelogs{
 				DomainEntity: domainlayer.DomainEntity{

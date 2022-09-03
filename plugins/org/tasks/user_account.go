@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
@@ -34,7 +35,7 @@ var ConnectUserAccountsExactMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConnectUserAccountsExact(taskCtx core.SubTaskContext) error {
+func ConnectUserAccountsExact(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*TaskData)
 	var users []crossdomain.User
@@ -74,7 +75,7 @@ func ConnectUserAccountsExact(taskCtx core.SubTaskContext) error {
 			Table: "users",
 		},
 
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			account := inputRow.(*crossdomain.Account)
 			if userId, ok := emails[account.Email]; account.Email != "" && ok {
 				return []interface{}{

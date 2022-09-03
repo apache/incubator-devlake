@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
@@ -136,8 +137,8 @@ func (rs RefsReverseSemver) Swap(i, j int) {
 	rs[i], rs[j] = rs[j], rs[i]
 }
 
-// CaculateTagPattern Calculate the TagPattern order by tagsOrder and return the Refs
-func CaculateTagPattern(db dal.Dal, tagsPattern string, tagsLimit int, tagsOrder string) (Refs, error) {
+// CalculateTagPattern Calculate the TagPattern order by tagsOrder and return the Refs
+func CalculateTagPattern(db dal.Dal, tagsPattern string, tagsLimit int, tagsOrder string) (Refs, errors.Error) {
 	rs := Refs{}
 
 	// caculate Pattern part
@@ -154,7 +155,7 @@ func CaculateTagPattern(db dal.Dal, tagsPattern string, tagsLimit int, tagsOrder
 		return rs, err
 	}
 	defer rows.Next()
-	r, err := regexp.Compile(tagsPattern)
+	r, err := errors.Convert01(regexp.Compile(tagsPattern))
 	if err != nil {
 		return rs, errors.Default.Wrap(err, fmt.Sprintf("unable to parse: %s", tagsPattern))
 	}
@@ -189,7 +190,7 @@ func CaculateTagPattern(db dal.Dal, tagsPattern string, tagsLimit int, tagsOrder
 }
 
 // CalculateCommitPairs Calculate the commits pairs both from Options.Pairs and TagPattern
-func CalculateCommitPairs(db dal.Dal, repoId string, pairs []RefPair, rs Refs) (RefCommitPairs, error) {
+func CalculateCommitPairs(db dal.Dal, repoId string, pairs []RefPair, rs Refs) (RefCommitPairs, errors.Error) {
 	commitPairs := make(RefCommitPairs, 0, len(rs)+len(pairs))
 	for i := 1; i < len(rs); i++ {
 		commitPairs = append(commitPairs, [4]string{rs[i-1].CommitSha, rs[i].CommitSha, rs[i-1].Name, rs[i].Name})
@@ -204,7 +205,7 @@ func CalculateCommitPairs(db dal.Dal, repoId string, pairs []RefPair, rs Refs) (
 		}
 		ref.Id = fmt.Sprintf("%s:%s", repoId, refName)
 		err := db.First(ref)
-		if err != nil && err != gorm.ErrRecordNotFound {
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 			return "", errors.NotFound.Wrap(err, fmt.Sprintf("faild to load Ref info for repoId:%s, refName:%s", repoId, refName))
 		}
 		return ref.CommitSha, nil

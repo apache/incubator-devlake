@@ -34,7 +34,7 @@ type Foo struct {
 }
 
 foo := &Foo{}
-err := json.Unmarshal("{\"created\": \"2021-02-19T01:53:35.340+0800\"}", foo)
+err := errors.ConvertError(json.Unmarshal("{\"created\": \"2021-02-19T01:53:35.340+0800\"}", foo))
 var time time.Time
 time = foo.Created.ToTime()
 */

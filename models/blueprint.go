@@ -19,6 +19,7 @@ package models
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -50,11 +51,11 @@ type BlueprintSettings struct {
 }
 
 // UnmarshalPlan unmarshals Plan in JSON to strong-typed core.PipelinePlan
-func (bp *Blueprint) UnmarshalPlan() (core.PipelinePlan, error) {
+func (bp *Blueprint) UnmarshalPlan() (core.PipelinePlan, errors.Error) {
 	var plan core.PipelinePlan
-	err := json.Unmarshal(bp.Plan, &plan)
+	err := errors.Convert(json.Unmarshal(bp.Plan, &plan))
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	return plan, nil
 }

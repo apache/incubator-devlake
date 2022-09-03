@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -37,7 +38,7 @@ var ConvertPullRequestCommitsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
+func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
@@ -67,7 +68,7 @@ func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
 			},
 			Table: RAW_PR_COMMIT_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubPullRequestCommit := inputRow.(*githubModels.GithubPrCommit)
 			domainPrCommit := &code.PullRequestCommit{
 				CommitSha:     githubPullRequestCommit.CommitSha,

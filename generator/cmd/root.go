@@ -18,8 +18,9 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
+	goerrors "github.com/go-errors/errors"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -38,8 +39,8 @@ var (
 )
 
 // Execute executes the root command.
-func Execute() error {
-	return rootCmd.Execute()
+func Execute() errors.Error {
+	return errors.Default.WrapRaw(rootCmd.Execute())
 }
 
 func init() {
@@ -66,9 +67,9 @@ func initConfig() {
 
 	notFound := &viper.ConfigFileNotFoundError{}
 	switch {
-	case err != nil && !errors.As(err, notFound):
+	case err != nil && !goerrors.As(err, notFound):
 		cobra.CheckErr(err)
-	case err != nil && errors.As(err, notFound):
+	case err != nil && goerrors.As(err, notFound):
 		// The config file is optional, we shouldn't exit when the config is not found
 	default:
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())

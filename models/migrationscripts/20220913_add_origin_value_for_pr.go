@@ -19,17 +19,18 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
 )
 
 type addOriginChangeValueForPr struct{}
 
-func (*addOriginChangeValueForPr) Up(ctx context.Context, db *gorm.DB) error {
+func (*addOriginChangeValueForPr) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().AutoMigrate(
 		&PullRequest0913{},
 	)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	return nil
 }

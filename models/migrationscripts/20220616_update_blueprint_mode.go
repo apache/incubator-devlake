@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 
 	"gorm.io/gorm"
 )
@@ -34,10 +35,10 @@ func (Blueprint20220616) TableName() string {
 
 type updateBlueprintMode struct{}
 
-func (*updateBlueprintMode) Up(ctx context.Context, db *gorm.DB) error {
+func (*updateBlueprintMode) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().AutoMigrate(&Blueprint20220616{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	db.Model(&Blueprint20220616{}).Where("mode is null").Update("mode", "ADVANCED")
 	db.Model(&Blueprint20220616{}).Where("is_manual is null").Update("is_manual", false)

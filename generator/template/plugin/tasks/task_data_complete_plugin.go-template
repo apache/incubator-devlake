@@ -19,7 +19,7 @@ package tasks
 
 import (
 	"fmt"
-    "github.com/mitchellh/mapstructure"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -41,15 +41,13 @@ type {{ .PluginName }}TaskData struct {
 	ApiClient *helper.ApiAsyncClient
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*{{ .PluginName }}Options, error) {
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*{{ .PluginName }}Options, errors.Error) {
 	var op {{ .PluginName }}Options
-	err := mapstructure.Decode(options, &op)
-	if err != nil {
+	if err := helper.Decode(options, &op, nil); err != nil {
 		return nil, err
 	}
-
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("connectionId is invalid")
+		return nil, errors.Default.New("connectionId is invalid")
 	}
 	return &op, nil
 }

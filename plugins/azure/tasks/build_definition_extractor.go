@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/azure/models"
@@ -84,7 +85,7 @@ var ExtractApiBuildDefinitionMeta = core.SubTaskMeta{
 	DomainTypes: []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ExtractApiBuildDefinition(taskCtx core.SubTaskContext) error {
+func ExtractApiBuildDefinition(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*AzureTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -102,9 +103,9 @@ func ExtractApiBuildDefinition(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_BUILD_DEFINITION_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &AzureApiBuildDefinition{}
-			err := json.Unmarshal(row.Data, body)
+			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {
 				return nil, err
 			}

@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/utils"
-	"github.com/mitchellh/mapstructure"
 )
 
 // @Summary test jenkins connection
@@ -40,16 +39,11 @@ import (
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jenkins/test [POST]
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// decode
-	var err error
+	var err errors.Error
 	var connection models.TestConnectionRequest
-	err = mapstructure.Decode(input.Body, &connection)
-	if err != nil {
-		return nil, err
-	}
-	// validate
-	err = vld.Struct(connection)
+	err = helper.Decode(input.Body, &connection, vld)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +82,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jenkins/connections [POST]
-func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// create a new connection
 	connection := &models.JenkinsConnection{}
 
@@ -108,7 +102,7 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jenkins/connections/{connectionId} [PATCH]
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.JenkinsConnection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
@@ -125,7 +119,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jenkins/connections/{connectionId} [DELETE]
-func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.JenkinsConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -142,7 +136,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jenkins/connections [GET]
-func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var connections []models.JenkinsConnection
 	err := connectionHelper.List(&connections)
 	if err != nil {
@@ -159,7 +153,7 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jenkins/connections/{connectionId} [GET]
-func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.JenkinsConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -174,7 +168,7 @@ func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error
 // @Accept application/json
 // @Param blueprint body JenkinsBlueprintSetting true "json"
 // @Router /blueprints/jenkins/blueprint-setting [post]
-func PostJenkinsBluePrint(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostJenkinsBluePrint(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	blueprint := &JenkinsBlueprintSetting{}
 	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
 }
@@ -198,7 +192,7 @@ type JenkinsBlueprintSetting []struct {
 // @Accept application/json
 // @Param blueprint body JenkinsPipelinePlan true "json"
 // @Router /pipelines/jenkins/pipeline-plan [post]
-func PostJenkinsPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostJenkinsPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	blueprint := &JenkinsPipelinePlan{}
 	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
 }

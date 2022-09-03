@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
@@ -41,7 +42,7 @@ type SimpleBug struct {
 	Id uint64
 }
 
-func CollectBugCommits(taskCtx core.SubTaskContext) error {
+func CollectBugCommits(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_COMMIT_TABLE, false)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
@@ -57,7 +58,7 @@ func CollectBugCommits(taskCtx core.SubTaskContext) error {
 			dal.Orderby("created DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
-		if err != nil && err != gorm.ErrRecordNotFound {
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 			return errors.NotFound.Wrap(err, "failed to get latest tapd changelog record")
 		}
 		if latestUpdated.Id > 0 {
@@ -89,7 +90,7 @@ func CollectBugCommits(taskCtx core.SubTaskContext) error {
 		//PageSize:    100,
 		Input:       iterator,
 		UrlTemplate: "code_commit_infos",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			input := reqData.Input.(*SimpleBug)
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
@@ -98,7 +99,7 @@ func CollectBugCommits(taskCtx core.SubTaskContext) error {
 			query.Set("order", "created asc")
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Stories []json.RawMessage `json:"data"`
 			}

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -32,7 +33,7 @@ var ExtractIssueTypesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractIssueType(taskCtx core.SubTaskContext) error {
+func ExtractIssueType(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
@@ -47,9 +48,9 @@ func ExtractIssueType(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_ISSUE_TYPE_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			issueType := &models.JiraIssueType{}
-			err := json.Unmarshal(row.Data, issueType)
+			err := errors.Convert(json.Unmarshal(row.Data, issueType))
 			if err != nil {
 				return nil, err
 			}

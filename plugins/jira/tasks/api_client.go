@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
-func NewJiraApiClient(taskCtx core.TaskContext, connection *models.JiraConnection) (*helper.ApiAsyncClient, error) {
+func NewJiraApiClient(taskCtx core.TaskContext, connection *models.JiraConnection) (*helper.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
@@ -60,7 +60,7 @@ type JiraPagination struct {
 	Total      int `json:"total"`
 }
 
-func GetJiraServerInfo(client *helper.ApiAsyncClient) (*models.JiraServerInfo, int, error) {
+func GetJiraServerInfo(client *helper.ApiAsyncClient) (*models.JiraServerInfo, int, errors.Error) {
 	res, err := client.Get("api/2/serverInfo", nil, nil)
 	if err != nil {
 		return nil, 0, err
@@ -76,7 +76,7 @@ func GetJiraServerInfo(client *helper.ApiAsyncClient) (*models.JiraServerInfo, i
 	return serverInfo, res.StatusCode, nil
 }
 
-func ignoreHTTPStatus404(res *http.Response) error {
+func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	if res.StatusCode == http.StatusUnauthorized {
 		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
 	}
@@ -86,7 +86,7 @@ func ignoreHTTPStatus404(res *http.Response) error {
 	return nil
 }
 
-func ignoreHTTPStatus400(res *http.Response) error {
+func ignoreHTTPStatus400(res *http.Response) errors.Error {
 	if res.StatusCode == http.StatusBadRequest {
 		return helper.ErrIgnoreAndContinue
 	}

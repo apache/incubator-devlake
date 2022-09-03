@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
@@ -28,7 +29,7 @@ import (
 )
 
 // CaculatePairList Calculate the pair list both from Options.Pairs and TagPattern
-func CaculatePairList(taskCtx core.SubTaskContext) (RefPairLists, error) {
+func CaculatePairList(taskCtx core.SubTaskContext) (RefPairLists, errors.Error) {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
 	pairs := data.Options.AllPairs
@@ -42,7 +43,7 @@ func CaculatePairList(taskCtx core.SubTaskContext) (RefPairLists, error) {
 	return pairList, nil
 }
 
-func CalculateIssuesDiff(taskCtx core.SubTaskContext) error {
+func CalculateIssuesDiff(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
 	db := taskCtx.GetDal()
@@ -82,7 +83,7 @@ func CalculateIssuesDiff(taskCtx core.SubTaskContext) error {
 			Ctx:   taskCtx,
 			Table: "refs_commits_diffs",
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			refPairIssue := inputRow.(*crossdomain.RefsIssuesDiffs)
 			return []interface{}{
 				refPairIssue,

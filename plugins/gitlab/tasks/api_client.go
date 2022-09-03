@@ -30,7 +30,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-func NewGitlabApiClient(taskCtx core.TaskContext, connection *models.GitlabConnection) (*helper.ApiAsyncClient, error) {
+func NewGitlabApiClient(taskCtx core.TaskContext, connection *models.GitlabConnection) (*helper.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
@@ -43,7 +43,7 @@ func NewGitlabApiClient(taskCtx core.TaskContext, connection *models.GitlabConne
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
-		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
+		DynamicRateLimit: func(res *http.Response) (int, time.Duration, errors.Error) {
 			rateLimitHeader := res.Header.Get("RateLimit-Limit")
 			if rateLimitHeader == "" {
 				// use default
@@ -68,7 +68,7 @@ func NewGitlabApiClient(taskCtx core.TaskContext, connection *models.GitlabConne
 	return asyncApiClient, nil
 }
 
-func ignoreHTTPStatus403(res *http.Response) error {
+func ignoreHTTPStatus403(res *http.Response) errors.Error {
 	if res.StatusCode == http.StatusForbidden {
 		return helper.ErrIgnoreAndContinue
 	}

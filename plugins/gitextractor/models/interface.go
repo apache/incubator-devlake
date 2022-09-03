@@ -18,15 +18,16 @@ limitations under the License.
 package models
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 )
 
 type Store interface {
-	RepoCommits(repoCommit *code.RepoCommit) error
-	Commits(commit *code.Commit) error
-	Refs(ref *code.Ref) error
-	CommitFiles(file *code.CommitFile) error
-	CommitParents(pp []*code.CommitParent) error
-	CommitFileComponents(commitFileComponent *code.CommitFileComponent) error
-	Close() error
+	RepoCommits(repoCommit *code.RepoCommit) errors.Error
+	Commits(commit *code.Commit) errors.Error
+	Refs(ref *code.Ref) errors.Error
+	CommitFiles(file *code.CommitFile) errors.Error
+	CommitParents(pp []*code.CommitParent) errors.Error
+	CommitFileComponents(commitFileComponent *code.CommitFileComponent) errors.Error
+	Close() errors.Error
 }

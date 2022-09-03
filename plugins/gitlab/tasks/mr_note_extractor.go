@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -49,14 +50,14 @@ var ExtractApiMrNotesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
+func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_NOTES_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			mrNote := &MergeRequestNote{}
-			err := json.Unmarshal(row.Data, mrNote)
+			err := errors.Convert(json.Unmarshal(row.Data, mrNote))
 			if err != nil {
 				return nil, err
 			}
@@ -98,7 +99,7 @@ func ExtractApiMergeRequestsNotes(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMrNote, error) {
+func convertMergeRequestNote(mrNote *MergeRequestNote) (*models.GitlabMrNote, errors.Error) {
 	GitlabMrNote := &models.GitlabMrNote{
 		GitlabId:        mrNote.GitlabId,
 		AuthorUserId:    mrNote.Author.Id,

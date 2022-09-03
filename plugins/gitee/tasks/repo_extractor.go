@@ -47,13 +47,13 @@ type GiteeApiRepoResponse struct {
 	UpdatedAt   *helper.Iso8601Time   `json:"updated_at"`
 }
 
-func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
+func ExtractApiRepositories(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_REPOSITORIES_TABLE)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			repo := &GiteeApiRepoResponse{}
-			err := json.Unmarshal(row.Data, repo)
+			err := errors.Convert(json.Unmarshal(row.Data, repo))
 			if err != nil {
 				return nil, err
 			}

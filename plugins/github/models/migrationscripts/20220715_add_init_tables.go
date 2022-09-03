@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 
@@ -34,7 +35,7 @@ func (u *addInitTables) SetConfigGetter(config core.ConfigGetter) {
 	u.config = config
 }
 
-func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
+func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().DropTable(
 		&archived.GithubRepo{},
 		&archived.GithubConnection{},
@@ -72,12 +73,12 @@ func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 
 	// create connection
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	err = db.Migrator().CreateTable(archived.GithubConnection{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	encodeKey := u.config.GetString(core.EncodeKeyEnvStr)
 	connection := &archived.GithubConnection{}
@@ -86,18 +87,18 @@ func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	connection.Token = u.config.GetString(`GITHUB_AUTH`)
 	connection.Name = `GitHub`
 	if connection.Endpoint != `` && connection.Token != `` && encodeKey != `` {
-		err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
+		err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, errors.Error) {
 			return core.Encrypt(encodeKey, plaintext)
 		})
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 		// update from .env and save to db
 		db.Create(connection)
 	}
 
 	// create other table with connection id
-	return db.Migrator().AutoMigrate(
+	err = db.Migrator().AutoMigrate(
 		&archived.GithubRepo{},
 		&archived.GithubCommit{},
 		&archived.GithubRepoCommit{},
@@ -119,6 +120,7 @@ func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.GithubAccountOrg{},
 		&archived.GithubAccount{},
 	)
+	return errors.Convert(err)
 }
 
 func (*addInitTables) Version() uint64 {

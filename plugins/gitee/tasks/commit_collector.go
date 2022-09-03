@@ -39,7 +39,7 @@ var CollectCommitsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_CROSS},
 }
 
-func CollectApiCommits(taskCtx core.SubTaskContext) error {
+func CollectApiCommits(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 	since := data.Since
@@ -70,7 +70,7 @@ func CollectApiCommits(taskCtx core.SubTaskContext) error {
 		PageSize:           100,
 		Incremental:        incremental,
 		UrlTemplate:        "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/commits",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			if since != nil {
 				query.Set("since", since.String())

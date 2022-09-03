@@ -31,7 +31,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-func CreateApiClient(taskCtx core.TaskContext, connection *models.GithubConnection) (*helper.ApiAsyncClient, error) {
+func CreateApiClient(taskCtx core.TaskContext, connection *models.GithubConnection) (*helper.ApiAsyncClient, errors.Error) {
 	// load configuration
 	tokens := strings.Split(connection.Token, ",")
 	tokenIndex := 0
@@ -41,7 +41,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.GithubConnecti
 		return nil, err
 	}
 	// Rotates token on each request.
-	apiClient.SetBeforeFunction(func(req *http.Request) error {
+	apiClient.SetBeforeFunction(func(req *http.Request) errors.Error {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokens[tokenIndex]))
 		// Set next token index
 		tokenIndex = (tokenIndex + 1) % len(tokens)
@@ -52,7 +52,7 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.GithubConnecti
 	rateLimiter := &helper.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
 		Method:               http.MethodGet,
-		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
+		DynamicRateLimit: func(res *http.Response) (int, time.Duration, errors.Error) {
 			/* calculate by number of remaining requests
 			remaining, err := strconv.Atoi(res.Header.Get("X-RateLimit-Remaining"))
 			if err != nil {

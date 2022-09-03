@@ -18,13 +18,15 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 var _ core.SubTaskEntryPoint = Extract{{ .ExtractorDataName }}
 
-func Extract{{ .ExtractorDataName }}(taskCtx core.SubTaskContext) error {
+func Extract{{ .ExtractorDataName }}(taskCtx core.SubTaskContext) errors.Error {
     extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -32,7 +34,7 @@ func Extract{{ .ExtractorDataName }}(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_{{ .COLLECTOR_DATA_NAME }}_TABLE,
 		},
-		Extract: func(resData *helper.RawData) ([]interface{}, error) {
+		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
 			extractedModels := make([]interface{}, 0)
 			println(resData.Data)
 			println(resData.Input)

@@ -76,7 +76,7 @@ type GiteeApiPullResponse struct {
 	}
 }
 
-func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
+func ExtractApiPullRequests(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
 	config := data.Options.TransformationRules
 	var labelTypeRegex *regexp.Regexp
@@ -99,9 +99,9 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			pullResponse := &GiteeApiPullResponse{}
-			err := json.Unmarshal(row.Data, pullResponse)
+			err := errors.Convert(json.Unmarshal(row.Data, pullResponse))
 			if err != nil {
 				return nil, err
 			}
@@ -144,12 +144,12 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 	})
 
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "GitTee PR extraction error")
 	}
 
 	return extractor.Execute()
 }
-func convertGiteePullRequest(pull *GiteeApiPullResponse, connId uint64, repoId int) (*models.GiteePullRequest, error) {
+func convertGiteePullRequest(pull *GiteeApiPullResponse, connId uint64, repoId int) (*models.GiteePullRequest, errors.Error) {
 	giteePull := &models.GiteePullRequest{
 		ConnectionId:   connId,
 		GiteeId:        pull.GiteeId,

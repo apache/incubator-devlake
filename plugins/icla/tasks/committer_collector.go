@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/http"
@@ -29,7 +30,7 @@ const RAW_COMMITTER_TABLE = "icla_committer"
 
 var _ core.SubTaskEntryPoint = CollectCommitter
 
-func CollectCommitter(taskCtx core.SubTaskContext) error {
+func CollectCommitter(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*IclaTaskData)
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
@@ -41,11 +42,11 @@ func CollectCommitter(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		Incremental: false,
 		UrlTemplate: "public/icla-info.json",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body := &struct {
 				LastUpdated string          `json:"last_updated"`
 				Committers  json.RawMessage `json:"committers"`

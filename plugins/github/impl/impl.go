@@ -43,7 +43,7 @@ var _ core.CloseablePluginTask = (*Github)(nil)
 
 type Github struct{}
 
-func (plugin Github) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Github) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -130,7 +130,7 @@ func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	logger := taskCtx.GetLogger()
 	logger.Debug("%v", options)
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
@@ -149,7 +149,7 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 
 	var since time.Time
 	if op.Since != "" {
-		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
+		since, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.Since))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `since`", errors.AsUserMessage())
 		}
@@ -196,11 +196,11 @@ func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandle
 	}
 }
 
-func (plugin Github) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+func (plugin Github) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
-func (plugin Github) Close(taskCtx core.TaskContext) error {
+func (plugin Github) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.GithubTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

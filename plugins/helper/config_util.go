@@ -24,26 +24,15 @@ import (
 
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/go-playground/validator/v10"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 )
 
 // DecodeStruct validates `input` struct with `validator` and set it into viper
 // `tag` represent the fields when setting config, and the fields with `tag` shall prevail.
 // `input` must be a pointer
-func DecodeStruct(output *viper.Viper, input interface{}, data map[string]interface{}, tag string) error {
+func DecodeStruct(output *viper.Viper, input interface{}, data map[string]interface{}, tag string) errors.Error {
 	// update fields from request body
-	err := mapstructure.Decode(data, input)
-	if err != nil {
-		return err
-	}
-	// validate fields with `validate` tag
-	vld := validator.New()
-	err = vld.Struct(input)
-	if err != nil {
-		return err
-	}
-	err = validator.New().Struct(input)
+	err := Decode(data, input, validator.New())
 	if err != nil {
 		return err
 	}
@@ -106,7 +95,7 @@ func DecodeStruct(output *viper.Viper, input interface{}, data map[string]interf
 // EncodeStruct encodes struct from viper
 // `tag` represent the fields when setting config, and the fields with `tag` shall prevail.
 // `object` must be a pointer
-func EncodeStruct(input *viper.Viper, output interface{}, tag string) error {
+func EncodeStruct(input *viper.Viper, output interface{}, tag string) errors.Error {
 	vf := reflect.ValueOf(output)
 	if vf.Kind() != reflect.Ptr {
 		return errors.Default.New(fmt.Sprintf("output %v is not a pointer", output))

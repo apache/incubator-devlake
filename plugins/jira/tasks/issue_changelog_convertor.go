@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strconv"
 	"strings"
@@ -49,7 +50,7 @@ type IssueChangelogItemResult struct {
 	Created           time.Time
 }
 
-func ConvertIssueChangelogs(taskCtx core.SubTaskContext) error {
+func ConvertIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
@@ -100,7 +101,7 @@ func ConvertIssueChangelogs(taskCtx core.SubTaskContext) error {
 		},
 		InputRowType: reflect.TypeOf(IssueChangelogItemResult{}),
 		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			row := inputRow.(*IssueChangelogItemResult)
 			changelog := &ticket.IssueChangelogs{
 				DomainEntity: domainlayer.DomainEntity{Id: changelogIdGenerator.Generate(
@@ -154,7 +155,7 @@ func ConvertIssueChangelogs(taskCtx core.SubTaskContext) error {
 	return converter.Execute()
 }
 
-func convertIds(ids string, connectionId uint64, sprintIdGenerator *didgen.DomainIdGenerator) (string, error) {
+func convertIds(ids string, connectionId uint64, sprintIdGenerator *didgen.DomainIdGenerator) (string, errors.Error) {
 	ss := strings.Split(ids, ",")
 	var resultSlice []string
 	for _, item := range ss {
@@ -162,7 +163,7 @@ func convertIds(ids string, connectionId uint64, sprintIdGenerator *didgen.Domai
 		if item != "" {
 			id, err := strconv.ParseUint(item, 10, 64)
 			if err != nil {
-				return "", err
+				return "", errors.Convert(err)
 			}
 			resultSlice = append(resultSlice, sprintIdGenerator.Generate(connectionId, id))
 		}

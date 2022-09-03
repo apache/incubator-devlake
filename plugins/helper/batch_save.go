@@ -19,6 +19,7 @@ package helper
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strings"
 
@@ -42,15 +43,15 @@ type BatchSave struct {
 }
 
 // NewBatchSave creates a new BatchSave instance
-func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchSave, error) {
+func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchSave, errors.Error) {
 	if slotType.Kind() != reflect.Ptr {
-		return nil, fmt.Errorf("slotType must be a pointer")
+		return nil, errors.Default.New("slotType must be a pointer")
 	}
 	db := basicRes.GetDal()
 	primaryKey := db.GetPrimaryKeyFields(slotType)
 	// check if it have primaryKey
 	if len(primaryKey) == 0 {
-		return nil, fmt.Errorf("%s no primary key", slotType.String())
+		return nil, errors.Default.New(fmt.Sprintf("%s no primary key", slotType.String()))
 	}
 
 	log := basicRes.GetLogger().Nested(slotType.String())
@@ -67,13 +68,13 @@ func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*Bat
 }
 
 // Add record to cache. BatchSave would flush them into Database when cache is max out
-func (c *BatchSave) Add(slot interface{}) error {
+func (c *BatchSave) Add(slot interface{}) errors.Error {
 	// type checking
 	if reflect.TypeOf(slot) != c.slotType {
-		return fmt.Errorf("sub cache type mismatched")
+		return errors.Default.New("sub cache type mismatched")
 	}
 	if reflect.ValueOf(slot).Kind() != reflect.Ptr {
-		return fmt.Errorf("slot is not a pointer")
+		return errors.Default.New("slot is not a pointer")
 	}
 	// deduplication
 	key := getKeyValue(slot, c.primaryKey)
@@ -98,7 +99,7 @@ func (c *BatchSave) Add(slot interface{}) error {
 }
 
 // Flush save cached records into database
-func (c *BatchSave) Flush() error {
+func (c *BatchSave) Flush() errors.Error {
 	err := c.db.CreateOrUpdate(c.slots.Slice(0, c.current).Interface())
 	if err != nil {
 		return err
@@ -110,7 +111,7 @@ func (c *BatchSave) Flush() error {
 }
 
 // Close would flash the cache and release resources
-func (c *BatchSave) Close() error {
+func (c *BatchSave) Close() errors.Error {
 	if c.current > 0 {
 		return c.Flush()
 	}

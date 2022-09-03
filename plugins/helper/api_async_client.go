@@ -52,7 +52,7 @@ func CreateAsyncApiClient(
 	taskCtx core.TaskContext,
 	apiClient *ApiClient,
 	rateLimiter *ApiRateLimitCalculator,
-) (*ApiAsyncClient, error) {
+) (*ApiAsyncClient, errors.Error) {
 	// load retry/timeout from configuration
 	retry, err := utils.StrToIntOr(taskCtx.GetConfig("API_RETRY"), 3)
 	if err != nil {
@@ -149,8 +149,8 @@ func (apiClient *ApiAsyncClient) DoAsync(
 	handler common.ApiAsyncCallback,
 	retry int,
 ) {
-	var request func() error
-	request = func() error {
+	var request func() errors.Error
+	request = func() errors.Error {
 		var err error
 		var res *http.Response
 		var body []byte
@@ -188,7 +188,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 			if retry < apiClient.maxRetry && err != context.Canceled {
 				apiClient.logger.Warn(err, "retry #%d calling %s", retry, path)
 				retry++
-				apiClient.scheduler.NextTick(func() error {
+				apiClient.scheduler.NextTick(func() errors.Error {
 					apiClient.scheduler.SubmitBlocking(request)
 					return nil
 				})
@@ -199,7 +199,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		if err != nil {
 			err = errors.Default.Wrap(err, fmt.Sprintf("retry exceeded %d times calling %s", retry, path), errors.UserMessage("Async API call retries exhausted"))
 			apiClient.logger.Error(err, "")
-			return err
+			return errors.Convert(err)
 		}
 
 		// it is important to let handler have a chance to handle error, or it can hang indefinitely
@@ -220,7 +220,7 @@ func (apiClient *ApiAsyncClient) DoGetAsync(
 }
 
 // WaitAsync blocks until all async requests were done
-func (apiClient *ApiAsyncClient) WaitAsync() error {
+func (apiClient *ApiAsyncClient) WaitAsync() errors.Error {
 	return apiClient.scheduler.Wait()
 }
 
@@ -230,7 +230,7 @@ func (apiClient *ApiAsyncClient) HasError() bool {
 }
 
 // NextTick to return the NextTick of scheduler
-func (apiClient *ApiAsyncClient) NextTick(task func() error) {
+func (apiClient *ApiAsyncClient) NextTick(task func() errors.Error) {
 	apiClient.scheduler.NextTick(task)
 }
 
@@ -247,9 +247,9 @@ func (apiClient *ApiAsyncClient) Release() {
 // RateLimitedApiClient FIXME ...
 type RateLimitedApiClient interface {
 	DoGetAsync(path string, query url.Values, header http.Header, handler common.ApiAsyncCallback)
-	WaitAsync() error
+	WaitAsync() errors.Error
 	HasError() bool
-	NextTick(task func() error)
+	NextTick(task func() errors.Error)
 	GetNumOfWorkers() int
 	GetAfterFunction() common.ApiClientAfterResponse
 	SetAfterFunction(callback common.ApiClientAfterResponse)

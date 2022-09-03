@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
@@ -35,10 +36,10 @@ import (
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router       /plugins/org/users.csv [get]
-func (h *Handlers) GetUser(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func (h *Handlers) GetUser(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var users []user
 	var u *user
-	var err error
+	var err errors.Error
 	if input.Query.Get("fake_data") == "true" {
 		users = u.fakeData()
 	} else {
@@ -47,7 +48,7 @@ func (h *Handlers) GetUser(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 			return nil, err
 		}
 	}
-	blob, err := gocsv.MarshalBytes(users)
+	blob, err := errors.Convert01(gocsv.MarshalBytes(users))
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +73,7 @@ func (h *Handlers) GetUser(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router       /plugins/org/users.csv [put]
-func (h *Handlers) CreateUser(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func (h *Handlers) CreateUser(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var uu []user
 	err := h.unmarshal(input.Request, &uu)
 	if err != nil {

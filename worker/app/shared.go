@@ -19,6 +19,7 @@ package app
 
 import (
 	"bytes"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/runner"
@@ -26,28 +27,28 @@ import (
 	"gorm.io/gorm"
 )
 
-func loadResources(configJson []byte, loggerConfig *core.LoggerConfig) (*viper.Viper, core.Logger, *gorm.DB, error) {
+func loadResources(configJson []byte, loggerConfig *core.LoggerConfig) (*viper.Viper, core.Logger, *gorm.DB, errors.Error) {
 	// prepare
 	cfg := viper.New()
 	cfg.SetConfigType("json")
 	err := cfg.ReadConfig(bytes.NewBuffer(configJson))
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, errors.Convert(err)
 	}
 	// TODO: should be redirected to server
 	globalLogger := logger.Global.Nested("worker")
 	db, err := runner.NewGormDb(cfg, globalLogger)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, errors.Convert(err)
 	}
 	log, err := getWorkerLogger(globalLogger, loggerConfig)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, errors.Convert(err)
 	}
-	return cfg, log, db, err
+	return cfg, log, db, errors.Convert(err)
 }
 
-func getWorkerLogger(log core.Logger, logConfig *core.LoggerConfig) (core.Logger, error) {
+func getWorkerLogger(log core.Logger, logConfig *core.LoggerConfig) (core.Logger, errors.Error) {
 	newLog := log.Nested(logConfig.Prefix)
 	stream, err := logger.GetFileStream(logConfig.Path)
 	if err != nil {

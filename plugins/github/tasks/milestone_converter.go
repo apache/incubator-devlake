@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -43,7 +44,7 @@ type MilestoneConverterModel struct {
 	GithubId int
 }
 
-func ConvertMilestones(taskCtx core.SubTaskContext) error {
+func ConvertMilestones(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 	connectionId := data.Options.ConnectionId
@@ -77,7 +78,7 @@ func ConvertMilestones(taskCtx core.SubTaskContext) error {
 		},
 		InputRowType: reflect.TypeOf(MilestoneConverterModel{}),
 		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			response := inputRow.(*MilestoneConverterModel)
 			domainSprintId := sprintIdGen.Generate(connectionId, response.GithubMilestone.MilestoneId)
 			domainIssueId := issueIdGen.Generate(connectionId, response.GithubId)

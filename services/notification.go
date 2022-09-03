@@ -22,6 +22,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"math/rand"
 	"net/http"
@@ -60,14 +61,14 @@ type PipelineNotification struct {
 }
 
 // PipelineStatusChanged FIXME ...
-func (n *NotificationService) PipelineStatusChanged(params PipelineNotification) error {
+func (n *NotificationService) PipelineStatusChanged(params PipelineNotification) errors.Error {
 	return n.sendNotification(models.NotificationPipelineStatusChanged, params)
 }
 
-func (n *NotificationService) sendNotification(notificationType models.NotificationType, data interface{}) error {
+func (n *NotificationService) sendNotification(notificationType models.NotificationType, data interface{}) errors.Error {
 	var dataJson, err = json.Marshal(data)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	var notification models.Notification
@@ -79,7 +80,7 @@ func (n *NotificationService) sendNotification(notificationType models.Notificat
 
 	err = db.Save(&notification).Error
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	sign := n.signature(notification.Data, fmt.Sprintf("%d-%s", notification.ID, nonce))
@@ -87,16 +88,16 @@ func (n *NotificationService) sendNotification(notificationType models.Notificat
 
 	resp, err := http.Post(url, "application/json", strings.NewReader(notification.Data))
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	notification.ResponseCode = resp.StatusCode
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	notification.Response = string(respBody)
-	return db.Save(&notification).Error
+	return errors.Convert(db.Save(&notification).Error)
 }
 
 func (n *NotificationService) signature(input, nouce string) string {

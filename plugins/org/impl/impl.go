@@ -24,7 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/org/api"
 	"github.com/apache/incubator-devlake/plugins/org/tasks"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -37,7 +36,7 @@ type Org struct {
 	handlers *api.Handlers
 }
 
-func (plugin *Org) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin *Org) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	basicRes := helper.NewDefaultBasicRes(config, logger, db)
 	plugin.handlers = api.NewHandlers(dalgorm.NewDalgorm(db), basicRes)
 	return nil
@@ -57,9 +56,9 @@ func (plugin Org) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Org) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Org) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.Options
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode options", errors.AsUserMessage())
 	}

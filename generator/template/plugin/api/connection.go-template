@@ -20,27 +20,21 @@ package api
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models"
-	"github.com/mitchellh/mapstructure"
 )
 
 //TODO Please modify the following code to fit your needs
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// decode
-	var err error
+	var err errors.Error
 	var connection models.TestConnectionRequest
-	err = mapstructure.Decode(input.Body, &connection)
-	if err != nil {
-		return nil, err
-	}
-	// validate
-	err = vld.Struct(connection)
-	if err != nil {
+	if err = helper.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
 	}
 	// test connection
@@ -69,7 +63,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", res.StatusCode)
+		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
 	}
 	return nil, nil
 }
@@ -84,7 +78,7 @@ POST /plugins/{{ .PluginName }}/connections
 	"password": "{{ .PluginName }} api access token"
 }
 */
-func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
 	connection := &models.{{ .PluginName }}Connection{}
 	err := connectionHelper.Create(connection, input)
@@ -104,7 +98,7 @@ PATCH /plugins/{{ .PluginName }}/connections/:connectionId
 	"password": "{{ .PluginName }} api access token"
 }
 */
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.{{ .PluginName }}Connection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
@@ -116,7 +110,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 /*
 DELETE /plugins/{{ .PluginName }}/connections/:connectionId
 */
-func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.{{ .PluginName }}Connection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -129,7 +123,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 /*
 GET /plugins/{{ .PluginName }}/connections
 */
-func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var connections []models.{{ .PluginName }}Connection
 	err := connectionHelper.List(&connections)
 	if err != nil {
@@ -148,7 +142,7 @@ GET /plugins/{{ .PluginName }}/connections/:connectionId
 	"password": "{{ .PluginName }} api access token"
 }
 */
-func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.{{ .PluginName }}Connection{}
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err

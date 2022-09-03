@@ -26,7 +26,7 @@ import (
 )
 
 // DataConvertHandler Accept row from source cursor, return list of entities that need to be stored
-type DataConvertHandler func(row interface{}) ([]interface{}, error)
+type DataConvertHandler func(row interface{}) ([]interface{}, errors.Error)
 
 // DataConverterArgs includes the arguments about DataConverter.
 // This will be used in Creating a DataConverter.
@@ -58,7 +58,7 @@ type DataConverter struct {
 
 // NewDataConverter function helps you create a DataConverter using DataConverterArgs.
 // You can see the usage in plugins/github/tasks/pr_issue_convertor.go or other convertor file.
-func NewDataConverter(args DataConverterArgs) (*DataConverter, error) {
+func NewDataConverter(args DataConverterArgs) (*DataConverter, errors.Error) {
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func NewDataConverter(args DataConverterArgs) (*DataConverter, error) {
 // Execute function implements Subtask interface.
 // It loads data from Tool Layer Tables using `Ctx.GetDal()`, convert Data using `converter.args.Convert` handler
 // Then save data to Domain Layer Tables using BatchSaveDivider
-func (converter *DataConverter) Execute() error {
+func (converter *DataConverter) Execute() errors.Error {
 	// load data from database
 	db := converter.args.Ctx.GetDal()
 
@@ -94,7 +94,7 @@ func (converter *DataConverter) Execute() error {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return errors.Convert(ctx.Err())
 		default:
 		}
 		inputRow := reflect.New(converter.args.InputRowType).Interface()

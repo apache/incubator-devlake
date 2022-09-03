@@ -19,6 +19,7 @@ package helper
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"testing"
 	"time"
 
@@ -41,7 +42,7 @@ func TestCSTTime(t *testing.T) {
 
 	for input, expected := range pairs {
 		var record CSTTimeRecord
-		err := json.Unmarshal([]byte(input), &record)
+		err := errors.Convert(json.Unmarshal([]byte(input), &record))
 		assert.Nil(t, err)
 		assert.Equal(t, expected, time.Time(record.Created).UTC())
 	}

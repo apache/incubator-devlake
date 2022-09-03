@@ -19,6 +19,7 @@ package helper
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"testing"
 	"time"
 
@@ -95,7 +96,7 @@ func TestUpdateEncryptFields(t *testing.T) {
 		Age:   7,
 		Since: &sinc,
 	}
-	err := UpdateEncryptFields(v, func(in string) (string, error) {
+	err := UpdateEncryptFields(v, func(in string) (string, errors.Error) {
 		return fmt.Sprintf("%s-asdf", in), nil
 	})
 	assert.Nil(t, err)

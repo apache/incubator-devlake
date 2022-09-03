@@ -56,7 +56,7 @@ type RawDataSubTask struct {
 	params string
 }
 
-func newRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, error) {
+func newRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, errors.Error) {
 	if args.Ctx == nil {
 		return nil, errors.Default.New("Ctx is required for RawDataSubTask")
 	}
@@ -70,7 +70,7 @@ func newRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, error) {
 		// TODO: maybe sort it to make it consistent
 		paramsBytes, err := json.Marshal(args.Params)
 		if err != nil {
-			return nil, err
+			return nil, errors.Default.Wrap(err, "unable to serialize subtask parameters")
 		}
 		paramsString = string(paramsBytes)
 	}

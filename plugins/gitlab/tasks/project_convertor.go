@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"reflect"
 
@@ -40,7 +41,7 @@ var ConvertProjectMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertApiProjects(taskCtx core.SubTaskContext) error {
+func ConvertApiProjects(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
@@ -58,7 +59,7 @@ func ConvertApiProjects(taskCtx core.SubTaskContext) error {
 		InputRowType:       reflect.TypeOf(models.GitlabProject{}),
 		Input:              cursor,
 
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabProject := inputRow.(*models.GitlabProject)
 
 			domainRepository := convertToRepositoryModel(gitlabProject)

@@ -127,7 +127,7 @@ type IssuesResponse struct {
 	}
 }
 
-func ExtractApiIssues(taskCtx core.SubTaskContext) error {
+func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
 	config := data.Options.TransformationRules
 	var issueSeverityRegex *regexp.Regexp
@@ -181,9 +181,9 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &IssuesResponse{}
-			err := json.Unmarshal(row.Data, body)
+			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {
 				return nil, err
 			}
@@ -270,13 +270,13 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	})
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return extractor.Execute()
 }
 
-func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIssue, error) {
+func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIssue, errors.Error) {
 	gitlabIssue := &models.GitlabIssue{
 		GitlabId:        issue.Id,
 		ProjectId:       projectId,
@@ -309,7 +309,7 @@ func convertGitlabIssue(issue *IssuesResponse, projectId int) (*models.GitlabIss
 	return gitlabIssue, nil
 }
 
-func convertGitlabAuthor(issue *IssuesResponse, connectionId uint64) (*models.GitlabAccount, error) {
+func convertGitlabAuthor(issue *IssuesResponse, connectionId uint64) (*models.GitlabAccount, errors.Error) {
 	gitlabAuthor := &models.GitlabAccount{
 		ConnectionId: connectionId,
 		GitlabId:     issue.Author.Id,

@@ -19,6 +19,8 @@ package tasks
 
 import (
 	"encoding/json"
+	goerror "errors"
+	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -47,7 +49,7 @@ type IssueComment struct {
 	GithubUpdatedAt helper.Iso8601Time `json:"updated_at"`
 }
 
-func ExtractApiComments(taskCtx core.SubTaskContext) error {
+func ExtractApiComments(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -60,9 +62,9 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_COMMENTS_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			apiComment := &IssueComment{}
-			err := json.Unmarshal(row.Data, apiComment)
+			err := errors.Convert(json.Unmarshal(row.Data, apiComment))
 			if err != nil {
 				return nil, err
 			}
@@ -72,20 +74,20 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 				return nil, nil
 			}
 			//If this is a pr, ignore
-			issueINumber, err := githubUtils.GetIssueIdByIssueUrl(apiComment.IssueUrl)
+			issueINumber, err := errors.Convert01(githubUtils.GetIssueIdByIssueUrl(apiComment.IssueUrl))
 			if err != nil {
 				return nil, err
 			}
 			issue := &models.GithubIssue{}
 			err = taskCtx.GetDal().All(issue, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Repo.GithubId))
-			if err != nil && err != gorm.ErrRecordNotFound {
+			if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 				return nil, err
 			}
 			//if we can not find issues with issue number above, move the comments to github_pull_request_comments
 			if issue.GithubId == 0 {
 				pr := &models.GithubPullRequest{}
 				err = taskCtx.GetDal().First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Repo.GithubId))
-				if err != nil && err != gorm.ErrRecordNotFound {
+				if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 					return nil, err
 				}
 				githubPrComment := &models.GithubPrComment{

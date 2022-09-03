@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnection) (*helper.ApiAsyncClient, error) {
+func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnection) (*helper.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", connection.Username, connection.Password)))
 	headers := map[string]string{
@@ -39,7 +39,7 @@ func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnectio
 	if err != nil {
 		return nil, err
 	}
-	apiClient.SetAfterFunction(func(res *http.Response) error {
+	apiClient.SetAfterFunction(func(res *http.Response) errors.Error {
 		if res.StatusCode == http.StatusUnprocessableEntity {
 			return errors.HttpStatus(res.StatusCode).New("authentication failed, please check your AccessToken")
 		}

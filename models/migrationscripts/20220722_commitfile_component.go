@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
@@ -59,14 +60,14 @@ func (CommitFileComponent) TableName() string {
 
 type commitfileComponent struct{}
 
-func (*commitfileComponent) Up(ctx context.Context, db *gorm.DB) error {
+func (*commitfileComponent) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().DropTable(&archived.CommitFile{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	err = db.Migrator().AutoMigrate(Component{}, CommitFile{}, CommitFileComponent{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	return nil
 

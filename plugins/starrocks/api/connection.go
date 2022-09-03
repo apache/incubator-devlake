@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"net/http"
 )
@@ -28,7 +29,7 @@ import (
 // @Accept application/json
 // @Param blueprint body StarRocksPipelinePlan true "json"
 // @Router /pipelines/starrocks/pipeline-plan [post]
-func PostStarRocksPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostStarRocksPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	blueprint := &StarRocksPipelinePlan{}
 	return &core.ApiResourceOutput{Body: blueprint, Status: http.StatusOK}, nil
 }

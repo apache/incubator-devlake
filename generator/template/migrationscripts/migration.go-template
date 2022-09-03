@@ -19,12 +19,13 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
 )
 
 type {{ .Purpose }} struct{}
 
-func (*{{ .Purpose }}) Up(ctx context.Context, db *gorm.DB) error {
+func (*{{ .Purpose }}) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	// TODO db.Migrator()...
 	return nil
 }

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"reflect"
 	"time"
@@ -38,7 +39,7 @@ var ConvertBuildsToCICDMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
+func ConvertBuildsToCICD(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 
@@ -62,7 +63,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jenkinsBuild := inputRow.(*models.JenkinsBuild)
 			durationSec := int64(jenkinsBuild.Duration / 1000)
 			jenkinsPipelineResult := ""

@@ -18,7 +18,9 @@ limitations under the License.
 package main
 
 import (
+    "github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/tasks"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/mitchellh/mapstructure"
@@ -42,7 +44,7 @@ func (plugin {{ .PluginName }}) Description() string {
 	return "collect some {{ .PluginName }} data"
 }
 
-func (plugin {{ .PluginName }}) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin {{ .PluginName }}) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	// AutoSchemas is a **develop** script to auto migrate models easily.
 	// FIXME Don't submit it as a open source plugin
 	return db.Migrator().AutoMigrate(
@@ -56,13 +58,11 @@ func (plugin {{ .PluginName }}) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.{{ .PluginName }}Options
-	err := mapstructure.Decode(options, &op)
-	if err != nil {
+	if err := helper.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
 	}
-
 	return &tasks.{{ .PluginName }}TaskData{
 		Options: &op,
 	}, nil

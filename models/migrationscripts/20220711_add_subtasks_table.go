@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	commonArchived "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 	"time"
@@ -42,9 +43,8 @@ func (s Subtask20220711) TableName() string {
 	return "_devlake_subtasks"
 }
 
-func (u addSubtasksTable) Up(_ context.Context, db *gorm.DB) error {
-	err := db.Migrator().AutoMigrate(&Subtask20220711{})
-	return err
+func (u addSubtasksTable) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	return errors.Convert(db.Migrator().AutoMigrate(&Subtask20220711{}))
 }
 
 func (u addSubtasksTable) Version() uint64 {

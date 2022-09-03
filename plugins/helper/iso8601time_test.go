@@ -19,6 +19,7 @@ package helper
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"testing"
 	"time"
 
@@ -57,12 +58,12 @@ func TestIso8601Time(t *testing.T) {
 
 	for input, expected := range pairs {
 		var record Iso8601TimeRecord
-		err := json.Unmarshal([]byte(input), &record)
+		err := errors.Convert(json.Unmarshal([]byte(input), &record))
 		assert.Nil(t, err)
 		assert.Equal(t, expected, record.Created.ToTime().UTC())
 
 		var ms map[string]interface{}
-		err = json.Unmarshal([]byte(input), &ms)
+		err = errors.Convert(json.Unmarshal([]byte(input), &ms))
 		assert.Nil(t, err)
 
 		var record2 Iso8601TimeRecord

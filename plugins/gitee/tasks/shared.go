@@ -57,19 +57,19 @@ type GiteeInput struct {
 	Iid   int
 }
 
-func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {
+func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
 	total := res.Header.Get("X-Total-Pages")
 	if total == "" {
 		return 0, nil
 	}
 	totalInt, err := strconv.Atoi(total)
 	if err != nil {
-		return 0, err
+		return 0, errors.Convert(err)
 	}
 	return totalInt, nil
 }
 
-func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
+func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
 	var rawMessages []json.RawMessage
 
 	if res == nil {
@@ -81,7 +81,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
 	}
 
-	err = json.Unmarshal(resBody, &rawMessages)
+	err = errors.Convert(json.Unmarshal(resBody, &rawMessages))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}
@@ -103,11 +103,11 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helpe
 	return RawDataSubTaskArgs, data
 }
 
-func ConvertRateLimitInfo(date string, resetTime string, remaining string) (RateLimitInfo, error) {
+func ConvertRateLimitInfo(date string, resetTime string, remaining string) (RateLimitInfo, errors.Error) {
 	var rateLimitInfo RateLimitInfo
-	var err error
+	var err errors.Error
 	if date != "" {
-		rateLimitInfo.Date, err = http.ParseTime(date)
+		rateLimitInfo.Date, err = errors.Convert01(http.ParseTime(date))
 		if err != nil {
 			return rateLimitInfo, err
 		}
@@ -115,7 +115,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 		return rateLimitInfo, errors.Default.New("rate limit date was an empty string")
 	}
 	if resetTime != "" {
-		resetInt, err := strconv.ParseInt(resetTime, 10, 64)
+		resetInt, err := errors.Convert01(strconv.ParseInt(resetTime, 10, 64))
 		if err != nil {
 			return rateLimitInfo, err
 		}
@@ -124,7 +124,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 		return rateLimitInfo, errors.Default.New("rate limit reset time was an empty string")
 	}
 	if remaining != "" {
-		rateLimitInfo.Remaining, err = strconv.Atoi(remaining)
+		rateLimitInfo.Remaining, err = ConvertStringToInt(remaining)
 		if err != nil {
 			return rateLimitInfo, err
 		}
@@ -143,10 +143,10 @@ func GetRateLimitPerSecond(info RateLimitInfo) int {
 	adjustedRemaining := float64(info.Remaining) * multiplier
 	return int(adjustedRemaining / float64(timeBetweenNowAndReset)) //* multiplier
 }
-func ConvertStringToInt(input string) (int, error) {
-	return strconv.Atoi(input)
+func ConvertStringToInt(input string) (int, errors.Error) {
+	return errors.Convert01(strconv.Atoi(input))
 }
-func GetPagingFromLinkHeader(link string) (PagingInfo, error) {
+func GetPagingFromLinkHeader(link string) (PagingInfo, errors.Error) {
 	result := PagingInfo{
 		Next:  1,
 		Last:  1,

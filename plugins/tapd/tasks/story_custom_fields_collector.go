@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
@@ -31,7 +32,7 @@ const RAW_STORY_CUSTOM_FIELDS_TABLE = "tapd_api_story_custom_fields"
 
 var _ core.SubTaskEntryPoint = CollectStoryCustomFields
 
-func CollectStoryCustomFields(taskCtx core.SubTaskContext) error {
+func CollectStoryCustomFields(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CUSTOM_FIELDS_TABLE, false)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect story_custom_fields")
@@ -40,12 +41,12 @@ func CollectStoryCustomFields(taskCtx core.SubTaskContext) error {
 		ApiClient:          data.ApiClient,
 		//PageSize:    100,
 		UrlTemplate: "stories/custom_fields_settings",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				StoryCustomFields []json.RawMessage `json:"data"`
 			}

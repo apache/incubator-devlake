@@ -18,6 +18,7 @@ limitations under the License.
 package helper
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"time"
 )
@@ -29,11 +30,11 @@ type ApiRateLimitCalculator struct {
 	MaxRetry               int
 	Method                 string
 	ApiPath                string
-	DynamicRateLimit       func(res *http.Response) (int, time.Duration, error)
+	DynamicRateLimit       func(res *http.Response) (int, time.Duration, errors.Error)
 }
 
 // Calculate FIXME ...
-func (c *ApiRateLimitCalculator) Calculate(apiClient *ApiClient) (int, time.Duration, error) {
+func (c *ApiRateLimitCalculator) Calculate(apiClient *ApiClient) (int, time.Duration, errors.Error) {
 	// user specified rate limit has the highest priority
 	if c.UserRateLimitPerHour > 0 {
 		return c.UserRateLimitPerHour, 1 * time.Hour, nil
@@ -45,7 +46,7 @@ func (c *ApiRateLimitCalculator) Calculate(apiClient *ApiClient) (int, time.Dura
 			method = http.MethodOptions
 		}
 
-		var err error
+		var err errors.Error
 		var res *http.Response
 		for i := 0; i < c.MaxRetry; i++ {
 			res, err = apiClient.Do(method, c.ApiPath, nil, nil, nil)

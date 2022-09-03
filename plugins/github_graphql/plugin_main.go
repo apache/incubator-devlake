@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/merico-dev/graphql"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
@@ -52,7 +51,7 @@ func (plugin GithubGraphql) Description() string {
 	return "collect some GithubGraphql data"
 }
 
-func (plugin GithubGraphql) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin GithubGraphql) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	return nil
 }
 
@@ -83,9 +82,9 @@ type GraphQueryRateLimit struct {
 	}
 }
 
-func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op githubTasks.GithubOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -113,9 +112,9 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 	httpClient := oauth2.NewClient(taskCtx.GetContext(), src)
 	client := graphql.NewClient(connection.Endpoint+`graphql`, httpClient)
 	graphqlClient := helper.CreateAsyncGraphqlClient(taskCtx.GetContext(), client, taskCtx.GetLogger(),
-		func(ctx context.Context, client *graphql.Client, logger core.Logger) (rateRemaining int, resetAt *time.Time, err error) {
+		func(ctx context.Context, client *graphql.Client, logger core.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error) {
 			var query GraphQueryRateLimit
-			err = client.Query(taskCtx.GetContext(), &query, nil)
+			err = errors.Convert(client.Query(taskCtx.GetContext(), &query, nil))
 			if err != nil {
 				return 0, nil, err
 			}

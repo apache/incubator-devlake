@@ -29,10 +29,10 @@ import (
 )
 
 // DevLakePipelineWorkflow FIXME ...
-func DevLakePipelineWorkflow(ctx workflow.Context, configJson []byte, pipelineId uint64, loggerConfig *core.LoggerConfig) error {
+func DevLakePipelineWorkflow(ctx workflow.Context, configJson []byte, pipelineId uint64, loggerConfig *core.LoggerConfig) errors.Error {
 	cfg, log, db, err := loadResources(configJson, loggerConfig)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	log.Info("received pipeline #%d", pipelineId)
 	err = runner.RunPipeline(
@@ -40,7 +40,7 @@ func DevLakePipelineWorkflow(ctx workflow.Context, configJson []byte, pipelineId
 		log,
 		db,
 		pipelineId,
-		func(taskIds []uint64) error {
+		func(taskIds []uint64) errors.Error {
 			return runTasks(ctx, configJson, taskIds, log)
 		},
 	)
@@ -51,7 +51,7 @@ func DevLakePipelineWorkflow(ctx workflow.Context, configJson []byte, pipelineId
 	return err
 }
 
-func runTasks(ctx workflow.Context, configJson []byte, taskIds []uint64, logger core.Logger) error {
+func runTasks(ctx workflow.Context, configJson []byte, taskIds []uint64, logger core.Logger) errors.Error {
 	cleanExit := false
 	defer func() {
 		if !cleanExit {

@@ -57,8 +57,9 @@ If framework passed, generator will create a new migration in models/migrationsc
 				Label: "plugin_name",
 				Items: pluginItems,
 			}
-			_, pluginName, err = prompt.Run()
-			cobra.CheckErr(err)
+			var rawErr error
+			_, pluginName, rawErr = prompt.Run()
+			cobra.CheckErr(rawErr)
 		}
 
 		// check if migrationscripts inited
@@ -76,7 +77,7 @@ If framework passed, generator will create a new migration in models/migrationsc
 
 		prompt := promptui.Prompt{
 			Label:    "purpose",
-			Validate: purposeNotExistValidate,
+			Validate: purposeNotExistValidate(),
 		}
 		purpose, err = prompt.Run()
 		cobra.CheckErr(err)
@@ -119,14 +120,16 @@ If framework passed, generator will create a new migration in models/migrationsc
 	},
 }
 
-func purposeNotExistValidate(input string) error {
-	if input == `` {
-		return errors.Default.New("purpose require")
-	}
-	camelNameReg := regexp.MustCompile(`^[a-z][A-Za-z0-9]*$`)
-	if !camelNameReg.MatchString(input) {
-		return errors.Default.New("purpose invalid (please use camelCase format, start with a-z and consist with a-zA-Z0-9)")
-	}
+func purposeNotExistValidate() promptui.ValidateFunc {
+	return func(input string) error {
+		if input == `` {
+			return errors.Default.New("purpose require")
+		}
+		camelNameReg := regexp.MustCompile(`^[a-z][A-Za-z0-9]*$`)
+		if !camelNameReg.MatchString(input) {
+			return errors.Default.New("purpose invalid (please use camelCase format, start with a-z and consist with a-zA-Z0-9)")
+		}
 
-	return nil
+		return nil
+	}
 }

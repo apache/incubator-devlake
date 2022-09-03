@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"time"
 
@@ -51,7 +52,7 @@ type BugChangelogItemResult struct {
 	common.NoPKModel
 }
 
-func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
+func ConvertBugChangelog(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
@@ -77,7 +78,7 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(BugChangelogItemResult{}),
 		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			cl := inputRow.(*BugChangelogItemResult)
 			domainCl := &ticket.IssueChangelogs{
 				DomainEntity: domainlayer.DomainEntity{

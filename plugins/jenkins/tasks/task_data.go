@@ -23,7 +23,6 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"github.com/mitchellh/mapstructure"
 )
 
 type JenkinsApiParams struct {
@@ -43,9 +42,9 @@ type JenkinsTaskData struct {
 	Since      *time.Time
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptions, error) {
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptions, errors.Error) {
 	var op JenkinsOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
 	}

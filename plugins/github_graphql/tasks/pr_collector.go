@@ -122,7 +122,7 @@ var CollectPrMeta = core.SubTaskMeta{
 
 var _ core.SubTaskEntryPoint = CollectPr
 
-func CollectPr(taskCtx core.SubTaskContext) error {
+func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 	config := data.Options.TransformationRules
 	var labelTypeRegex *regexp.Regexp
@@ -278,13 +278,13 @@ func CollectPr(taskCtx core.SubTaskContext) error {
 	})
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return collector.Execute()
 }
 
-func convertGithubPullRequest(pull GraphqlQueryPr, connId uint64, repoId int) (*models.GithubPullRequest, error) {
+func convertGithubPullRequest(pull GraphqlQueryPr, connId uint64, repoId int) (*models.GithubPullRequest, errors.Error) {
 	githubPull := &models.GithubPullRequest{
 		ConnectionId:    connId,
 		GithubId:        pull.DatabaseId,
@@ -313,7 +313,7 @@ func convertGithubPullRequest(pull GraphqlQueryPr, connId uint64, repoId int) (*
 	return githubPull, nil
 }
 
-func convertPullRequestCommit(prCommit GraphqlQueryCommit) (*models.GithubCommit, error) {
+func convertPullRequestCommit(prCommit GraphqlQueryCommit) (*models.GithubCommit, errors.Error) {
 	githubCommit := &models.GithubCommit{
 		Sha:            prCommit.Commit.Oid,
 		Message:        prCommit.Commit.Message,

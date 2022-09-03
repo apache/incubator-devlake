@@ -54,7 +54,7 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helpe
 	return RawDataSubTaskArgs, data
 }
 
-func GetQuery(reqData *helper.RequestData) (url.Values, error) {
+func GetQuery(reqData *helper.RequestData) (url.Values, errors.Error) {
 	query := url.Values{}
 	query.Set("state", "all")
 	query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -63,7 +63,7 @@ func GetQuery(reqData *helper.RequestData) (url.Values, error) {
 	return query, nil
 }
 
-func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {
+func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
 	body := &BitbucketPagination{}
 	err := helper.UnmarshalResponse(res, body)
 	if err != nil {
@@ -76,7 +76,7 @@ func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs
 	return pages, nil
 }
 
-func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
+func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
 	var rawMessages struct {
 		Values []json.RawMessage `json:"values"`
 	}
@@ -89,7 +89,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
 	}
 
-	err = json.Unmarshal(resBody, &rawMessages)
+	err = errors.Convert(json.Unmarshal(resBody, &rawMessages))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}
@@ -97,7 +97,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 	return rawMessages.Values, nil
 }
 
-func GetPullRequestsIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, error) {
+func GetPullRequestsIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	clauses := []dal.Clause{
@@ -117,7 +117,7 @@ func GetPullRequestsIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIter
 	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketInput{}))
 }
 
-func GetIssuesIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, error) {
+func GetIssuesIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	clauses := []dal.Clause{

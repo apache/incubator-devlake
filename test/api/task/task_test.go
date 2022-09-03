@@ -19,6 +19,7 @@ package task
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -60,7 +61,7 @@ func TestNewTask(t *testing.T) {
 	assert.Equal(t, w.Code, http.StatusCreated)
 	resp := w.Body.String()
 	var pipeline models.Pipeline
-	err := json.Unmarshal([]byte(resp), &pipeline)
+	err := errors.Convert(json.Unmarshal([]byte(resp), &pipeline))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,7 +69,7 @@ func TestNewTask(t *testing.T) {
 	assert.Equal(t, pipeline.Name, "hello")
 
 	var tasks [][]*models.NewTask
-	err = json.Unmarshal(pipeline.Plan, &tasks)
+	err = errors.Convert(json.Unmarshal(pipeline.Plan, &tasks))
 	if err != nil {
 		t.Fatal(err)
 	}

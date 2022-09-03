@@ -19,20 +19,21 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type InitSchemas struct{}
 
-func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) error {
+func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	m := db.Migrator()
 	if m.HasTable(&archived.JiraConnection{}) {
 		return nil
 	}
-	return db.Migrator().AutoMigrate(
+	return errors.Convert(db.Migrator().AutoMigrate(
 		&archived.JiraSource{},
-	)
+	))
 }
 
 func (*InitSchemas) Version() uint64 {

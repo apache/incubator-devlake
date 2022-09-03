@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
@@ -38,7 +39,7 @@ var CollectApiRepoMeta = core.SubTaskMeta{
 	DomainTypes: []string{core.DOMAIN_TYPE_CODE},
 }
 
-func CollectApiRepositories(taskCtx core.SubTaskContext) error {
+func CollectApiRepositories(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*AzureTaskData)
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
@@ -53,7 +54,7 @@ func CollectApiRepositories(taskCtx core.SubTaskContext) error {
 		ApiClient: data.ApiClient,
 
 		UrlTemplate: "{{ .Params.Project }}/_apis/git/repositories?api-version=7.1-preview.1",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -62,7 +63,7 @@ func CollectApiRepositories(taskCtx core.SubTaskContext) error {
 
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Repos []json.RawMessage `json:"value"`
 			}

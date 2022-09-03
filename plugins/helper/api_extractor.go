@@ -31,7 +31,7 @@ import (
 type ApiExtractorArgs struct {
 	RawDataSubTaskArgs
 	Params    interface{}
-	Extract   func(row *RawData) ([]interface{}, error)
+	Extract   func(row *RawData) ([]interface{}, errors.Error)
 	BatchSize int
 }
 
@@ -46,7 +46,7 @@ type ApiExtractor struct {
 }
 
 // NewApiExtractor creates a new ApiExtractor
-func NewApiExtractor(args ApiExtractorArgs) (*ApiExtractor, error) {
+func NewApiExtractor(args ApiExtractorArgs) (*ApiExtractor, errors.Error) {
 	// process args
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
@@ -62,7 +62,7 @@ func NewApiExtractor(args ApiExtractorArgs) (*ApiExtractor, error) {
 }
 
 // Execute sub-task
-func (extractor *ApiExtractor) Execute() error {
+func (extractor *ApiExtractor) Execute() errors.Error {
 	// load data from database
 	db := extractor.args.Ctx.GetDal()
 	log := extractor.args.Ctx.GetLogger()
@@ -96,7 +96,7 @@ func (extractor *ApiExtractor) Execute() error {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return errors.Convert(ctx.Err())
 		default:
 		}
 		err = db.Fetch(cursor, row)

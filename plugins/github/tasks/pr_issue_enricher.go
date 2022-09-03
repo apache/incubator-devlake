@@ -38,7 +38,7 @@ var EnrichPullRequestIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
+func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
@@ -49,7 +49,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Owner, 1)
 	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Repo, 1)
 	if len(prBodyClosePattern) > 0 {
-		prBodyCloseRegex, err = regexp.Compile(prBodyClosePattern)
+		prBodyCloseRegex, err = errors.Convert01(regexp.Compile(prBodyClosePattern))
 		if err != nil {
 			return errors.Default.Wrap(err, "regexp Compile prBodyClosePattern failed")
 		}
@@ -74,7 +74,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 			},
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubPullRequst := inputRow.(*githubModels.GithubPullRequest)
 			results := make([]interface{}, 0, 1)
 

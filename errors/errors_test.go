@@ -81,6 +81,21 @@ func TestCrdbErrorImpl(t *testing.T) {
 		require.Nil(t, e)
 		require.False(t, errors.Is(lakeErr, os.ErrNotExist))
 	})
+	t.Run("error convert", func(t *testing.T) {
+		rawErr := errors.New("test error")
+		err := Convert(rawErr)
+		require.Equal(t, rawErr, err.Unwrap())
+		require.Equal(t, Internal.GetHttpCode(), err.GetType().GetHttpCode())
+		baseErr := BadInput.Wrap(rawErr, "wrapped")
+		err2 := Convert(baseErr)
+		require.Same(t, baseErr, err2)
+		require.Equal(t, "wrapped (400)", err2.Message())
+		require.Same(t, rawErr, err2.Unwrap())
+		err3 := Default.WrapRaw(baseErr)
+		require.NotSame(t, baseErr, err3)
+		require.Equal(t, "wrapped (400)", err3.Message())
+		require.Same(t, baseErr, err3.Unwrap())
+	})
 }
 
 func f1() error {

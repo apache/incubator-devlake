@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"strings"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -39,7 +40,7 @@ var ExtractStoryMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractStories(taskCtx core.SubTaskContext) error {
+func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
 	db := taskCtx.GetDal()
 	statusList := make([]*models.TapdStoryStatus, 0)
@@ -67,11 +68,11 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var storyBody struct {
 				Story models.TapdStory
 			}
-			err := json.Unmarshal(row.Data, &storyBody)
+			err := errors.Convert(json.Unmarshal(row.Data, &storyBody))
 			if err != nil {
 				return nil, err
 			}

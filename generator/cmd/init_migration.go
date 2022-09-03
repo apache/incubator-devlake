@@ -53,7 +53,7 @@ Type in which plugin do you want init migrations in, then generator will create 
 				Label: "plugin_name",
 				Items: pluginItems,
 			}
-			_, pluginName, err = prompt.Run()
+			_, pluginName, err = errors.Convert001(prompt.Run())
 			cobra.CheckErr(err)
 		}
 		migrationPath := filepath.Join(`plugins`, pluginName, `models`, `migrationscripts`)

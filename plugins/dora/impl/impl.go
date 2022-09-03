@@ -51,7 +51,7 @@ func (plugin Dora) SvgIcon() string {
 </svg>`
 }
 
-func (plugin Dora) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Dora) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	return nil
 }
 
@@ -64,12 +64,11 @@ func (plugin Dora) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Dora) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Dora) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
 	}
-
 	return &tasks.DoraTaskData{
 		Options: op,
 	}, nil
@@ -84,7 +83,7 @@ func (plugin Dora) MigrationScripts() []migration.Script {
 	return migrationscripts.All()
 }
 
-func (plugin Dora) Close(taskCtx core.TaskContext) error {
+func (plugin Dora) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.DoraTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

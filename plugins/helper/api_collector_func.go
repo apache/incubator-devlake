@@ -26,17 +26,17 @@ import (
 )
 
 // GetRawMessageDirectFromResponse FIXME ...
-func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, error) {
+func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
 	body, err := io.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	return []json.RawMessage{body}, nil
 }
 
 // GetRawMessageArrayFromResponse FIXME ...
-func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, error) {
+func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
 	rawMessages := []json.RawMessage{}
 
 	if res == nil {
@@ -48,7 +48,7 @@ func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, erro
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response body of %s", res.Request.URL.String()))
 	}
 
-	err = json.Unmarshal(resBody, &rawMessages)
+	err = errors.Convert(json.Unmarshal(resBody, &rawMessages))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error decoding response of %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}

@@ -36,14 +36,14 @@ import (
 	"github.com/apache/incubator-devlake/utils"
 )
 
-func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
-	var err error
+func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
+	var err errors.Error
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
 		transformationRules := make(map[string]interface{})
 		if len(scopeElem.Transformation) > 0 {
-			err = json.Unmarshal(scopeElem.Transformation, &transformationRules)
+			err = errors.Convert(json.Unmarshal(scopeElem.Transformation, &transformationRules))
 			if err != nil {
 				return nil, err
 			}
@@ -66,7 +66,7 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		}
 		// construct task options for github
 		options := make(map[string]interface{})
-		err = json.Unmarshal(scopeElem.Options, &options)
+		err = errors.Convert(json.Unmarshal(scopeElem.Options, &options))
 		if err != nil {
 			return nil, err
 		}
@@ -121,16 +121,16 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			if res.StatusCode != http.StatusOK {
 				return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code when requesting repo detail from %s", res.Request.URL.String()))
 			}
-			body, err := io.ReadAll(res.Body)
+			body, err := errors.Convert01(io.ReadAll(res.Body))
 			if err != nil {
 				return nil, err
 			}
 			apiRepo := new(tasks.GitlabApiProject)
-			err = json.Unmarshal(body, apiRepo)
+			err = errors.Convert(json.Unmarshal(body, apiRepo))
 			if err != nil {
 				return nil, err
 			}
-			cloneUrl, err := url.Parse(apiRepo.HttpUrlToRepo)
+			cloneUrl, err := errors.Convert01(url.Parse(apiRepo.HttpUrlToRepo))
 			if err != nil {
 				return nil, err
 			}

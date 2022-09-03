@@ -25,10 +25,10 @@ import (
 )
 
 // CheckDNS FIXME ...
-func CheckDNS(domain string) error {
+func CheckDNS(domain string) errors.Error {
 	ips, err := net.LookupIP(domain)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	if len(ips) > 0 {
 		return nil
@@ -37,17 +37,17 @@ func CheckDNS(domain string) error {
 }
 
 // CheckNetwork FIXME ...
-func CheckNetwork(host, port string, timeout time.Duration) error {
+func CheckNetwork(host, port string, timeout time.Duration) errors.Error {
 	var target = fmt.Sprintf("%s:%s", host, port)
 	_, err := net.DialTimeout("tcp", target, timeout)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	return nil
 }
 
 // ResolvePort FIXME ...
-func ResolvePort(port string, schema string) (string, error) {
+func ResolvePort(port string, schema string) (string, errors.Error) {
 	var defaultPorts = map[string]string{
 		"http":  "80",
 		"https": "443",

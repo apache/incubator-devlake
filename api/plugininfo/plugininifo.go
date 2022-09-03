@@ -147,7 +147,7 @@ func Get(c *gin.Context) {
 	}
 
 	// plugin info
-	err := core.TraversalPlugin(func(name string, plugin core.PluginMeta) error {
+	err := core.TraversalPlugin(func(name string, plugin core.PluginMeta) errors.Error {
 		infoPlugin := NewPluginInfo()
 		info.PluginInfos = append(info.PluginInfos, infoPlugin)
 

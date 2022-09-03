@@ -59,7 +59,7 @@ func NewApiClient(
 	timeout time.Duration,
 	proxy string,
 	br core.BasicRes,
-) (*ApiClient, error) {
+) (*ApiClient, errors.Error) {
 	parsedUrl, err := url.Parse(endpoint)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("Invalid URL: %s", endpoint), errors.AsUserMessage())
@@ -100,7 +100,7 @@ func NewApiClient(
 	if proxy != "" {
 		err = apiClient.SetProxy(proxy)
 		if err != nil {
-			return nil, err
+			return nil, errors.Convert(err)
 		}
 	}
 	apiClient.SetContext(ctx)
@@ -175,10 +175,10 @@ func (apiClient *ApiClient) SetContext(ctx context.Context) {
 }
 
 // SetProxy FIXME ...
-func (apiClient *ApiClient) SetProxy(proxyUrl string) error {
+func (apiClient *ApiClient) SetProxy(proxyUrl string) errors.Error {
 	pu, err := url.Parse(proxyUrl)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	if pu.Scheme == "http" || pu.Scheme == "socks5" {
 		apiClient.client.Transport.(*http.Transport).Proxy = http.ProxyURL(pu)
@@ -210,7 +210,7 @@ func (apiClient *ApiClient) Do(
 	query url.Values,
 	body interface{},
 	headers http.Header,
-) (*http.Response, error) {
+) (*http.Response, errors.Error) {
 	uri, err := GetURIStringPointer(apiClient.endpoint, path, query)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("Unable to construct URI from %s, %s, %s", apiClient.endpoint, path, query), errors.UserMessage("Unable to construct URI"))
@@ -226,9 +226,9 @@ func (apiClient *ApiClient) Do(
 	}
 	var req *http.Request
 	if apiClient.ctx != nil {
-		req, err = http.NewRequestWithContext(apiClient.ctx, method, *uri, reqBody)
+		req, err = errors.Convert01(http.NewRequestWithContext(apiClient.ctx, method, *uri, reqBody))
 	} else {
-		req, err = http.NewRequest(method, *uri, reqBody)
+		req, err = errors.Convert01(http.NewRequest(method, *uri, reqBody))
 	}
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("unable to create API request for %s", *uri), errors.UserMessage("unable to create API request"))
@@ -256,7 +256,7 @@ func (apiClient *ApiClient) Do(
 		}
 	}
 	apiClient.logDebug("[api-client] %v %v", method, *uri)
-	res, err = apiClient.client.Do(req)
+	res, err = errors.Convert01(apiClient.client.Do(req))
 	if err != nil {
 		apiClient.logError(err, "[api-client] failed to request %s with error", req.URL.String())
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error running beforeRequest for %s", req.URL.String()), errors.UserMessage("error before making API call"))
@@ -281,7 +281,7 @@ func (apiClient *ApiClient) Get(
 	path string,
 	query url.Values,
 	headers http.Header,
-) (*http.Response, error) {
+) (*http.Response, errors.Error) {
 	return apiClient.Do(http.MethodGet, path, query, nil, headers)
 }
 
@@ -291,18 +291,18 @@ func (apiClient *ApiClient) Post(
 	query url.Values,
 	body interface{},
 	headers http.Header,
-) (*http.Response, error) {
+) (*http.Response, errors.Error) {
 	return apiClient.Do(http.MethodPost, path, query, body, headers)
 }
 
 // UnmarshalResponse FIXME ...
-func UnmarshalResponse(res *http.Response, v interface{}) error {
+func UnmarshalResponse(res *http.Response, v interface{}) errors.Error {
 	defer res.Body.Close()
 	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()), errors.AsUserMessage())
 	}
-	err = json.Unmarshal(resBody, &v)
+	err = errors.Convert(json.Unmarshal(resBody, &v))
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)), errors.AsUserMessage())
 	}
@@ -310,19 +310,19 @@ func UnmarshalResponse(res *http.Response, v interface{}) error {
 }
 
 // GetURIStringPointer FIXME ...
-func GetURIStringPointer(baseUrl string, relativePath string, query url.Values) (*string, error) {
+func GetURIStringPointer(baseUrl string, relativePath string, query url.Values) (*string, errors.Error) {
 	// If the base URL doesn't end with a slash, and has a relative path attached
 	// the values will be removed by the Go package, therefore we need to add a missing slash.
 	AddMissingSlashToURL(&baseUrl)
 	base, err := url.Parse(baseUrl)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	// If the relative path starts with a '/', we need to remove it or the values will be removed by the Go package.
 	relativePath = RemoveStartingSlashFromPath(relativePath)
 	u, err := url.Parse(relativePath)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	if query != nil {
 		queryString := u.Query()

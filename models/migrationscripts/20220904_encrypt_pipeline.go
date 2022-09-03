@@ -68,10 +68,10 @@ func (PipelineOldVersion) TableName() string {
 
 type encryptPipeline struct{}
 
-func (*encryptPipeline) Up(ctx context.Context, db *gorm.DB) error {
+func (*encryptPipeline) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().CreateTable(&Pipeline0904Temp{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	//nolint:errcheck
 	defer db.Migrator().DropTable(&Pipeline0904Temp{})
@@ -81,7 +81,7 @@ func (*encryptPipeline) Up(ctx context.Context, db *gorm.DB) error {
 	result = db.Find(&pipelineList)
 
 	if result.Error != nil {
-		return result.Error
+		return errors.Convert(result.Error)
 	}
 
 	// Encrypt all pipelines.plan which had been stored before v0.14
@@ -107,7 +107,7 @@ func (*encryptPipeline) Up(ctx context.Context, db *gorm.DB) error {
 			Stage:         v.Stage,
 			Plan:          encryptedPlan,
 		}
-		err = db.Create(newPipeline).Error
+		err = errors.Convert(db.Create(newPipeline).Error)
 		if err != nil {
 			return err
 		}
@@ -115,12 +115,12 @@ func (*encryptPipeline) Up(ctx context.Context, db *gorm.DB) error {
 
 	err = db.Migrator().DropTable(&PipelineOldVersion{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	err = db.Migrator().RenameTable(Pipeline0904Temp{}, PipelineOldVersion{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return nil

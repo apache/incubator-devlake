@@ -20,12 +20,12 @@ package main
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/icla/models"
 	"github.com/apache/incubator-devlake/plugins/icla/tasks"
 	"github.com/apache/incubator-devlake/runner"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -53,13 +53,13 @@ func (plugin Icla) Description() string {
 	return "collect some Icla data"
 }
 
-func (plugin Icla) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Icla) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	// AutoSchemas is a **develop** script to auto migrate models easily.
 	// FIXME Don't submit it as a open source plugin
-	return db.Migrator().AutoMigrate(
+	return errors.Convert(db.Migrator().AutoMigrate(
 		// TODO add your models in here
 		&models.IclaCommitter{},
-	)
+	))
 }
 
 func (plugin Icla) SubTaskMetas() []core.SubTaskMeta {
@@ -69,14 +69,14 @@ func (plugin Icla) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Icla) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Icla) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.IclaOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	apiClient, err := tasks.NewIclaApiClient(taskCtx)
+	apiClient, err := errors.Convert01(tasks.NewIclaApiClient(taskCtx))
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (plugin Icla) ApiResources() map[string]map[string]core.ApiResourceHandler 
 	return nil
 }
 
-func (plugin Icla) Close(taskCtx core.TaskContext) error {
+func (plugin Icla) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.IclaTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

@@ -19,6 +19,7 @@ package helper
 
 import (
 	"bytes"
+	"github.com/apache/incubator-devlake/errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -67,7 +68,7 @@ func TestFetchPageUndetermined(t *testing.T) {
 		handler(res)
 	}).Twice()
 	mockApi.On("NextTick", mock.Anything).Run(func(args mock.Arguments) {
-		handler := args.Get(0).(func() error)
+		handler := args.Get(0).(func() errors.Error)
 		assert.Nil(t, handler())
 	}).Twice()
 	mockApi.On("HasError").Return(false)

@@ -68,7 +68,7 @@ type IssueRegexes struct {
 	TypeIncidentRegex    *regexp.Regexp
 }
 
-func ExtractApiIssues(taskCtx core.SubTaskContext) error {
+func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	config := data.Options.TransformationRules
@@ -93,9 +93,9 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_ISSUE_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &IssuesResponse{}
-			err := json.Unmarshal(row.Data, body)
+			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {
 				return nil, err
 			}
@@ -147,7 +147,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId int) (*models.GithubIssue, error) {
+func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId int) (*models.GithubIssue, errors.Error) {
 	githubIssue := &models.GithubIssue{
 		ConnectionId:    connectionId,
 		GithubId:        issue.GithubId,
@@ -178,7 +178,7 @@ func convertGithubIssue(issue *IssuesResponse, connectionId uint64, repositoryId
 	return githubIssue, nil
 }
 
-func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, githubIssue *models.GithubIssue) ([]interface{}, error) {
+func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, githubIssue *models.GithubIssue) ([]interface{}, errors.Error) {
 	var results []interface{}
 	for _, label := range issue.Labels {
 		results = append(results, &models.GithubIssueLabel{
@@ -223,7 +223,7 @@ func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, gith
 	return results, nil
 }
 
-func NewIssueRegexes(config models.TransformationRules) (*IssueRegexes, error) {
+func NewIssueRegexes(config models.TransformationRules) (*IssueRegexes, errors.Error) {
 	var issueRegexes IssueRegexes
 	var issueSeverity = config.IssueSeverity
 	var err error

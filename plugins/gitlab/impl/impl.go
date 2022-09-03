@@ -43,7 +43,7 @@ var _ core.CloseablePluginTask = (*Gitlab)(nil)
 
 type Gitlab string
 
-func (plugin Gitlab) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Gitlab) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -108,7 +108,7 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -148,7 +148,7 @@ func (plugin Gitlab) MigrationScripts() []migration.Script {
 	return migrationscripts.All()
 }
 
-func (plugin Gitlab) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+func (plugin Gitlab) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
@@ -172,7 +172,7 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 	}
 }
 
-func (plugin Gitlab) Close(taskCtx core.TaskContext) error {
+func (plugin Gitlab) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.GitlabTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

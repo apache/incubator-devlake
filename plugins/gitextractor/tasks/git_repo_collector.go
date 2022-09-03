@@ -35,7 +35,7 @@ type GitExtractorOptions struct {
 	Proxy      string `json:"proxy"`
 }
 
-func (o GitExtractorOptions) Valid() error {
+func (o GitExtractorOptions) Valid() errors.Error {
 	if o.RepoId == "" {
 		return errors.BadInput.New("empty repoId", errors.AsUserMessage())
 	}
@@ -52,7 +52,7 @@ func (o GitExtractorOptions) Valid() error {
 	return nil
 }
 
-func CollectGitCommits(subTaskCtx core.SubTaskContext) error {
+func CollectGitCommits(subTaskCtx core.SubTaskContext) errors.Error {
 	repo := getGitRepo(subTaskCtx)
 	if count, err := repo.CountCommits(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get commit count")
@@ -63,7 +63,7 @@ func CollectGitCommits(subTaskCtx core.SubTaskContext) error {
 	return repo.CollectCommits(subTaskCtx)
 }
 
-func CollectGitBranches(subTaskCtx core.SubTaskContext) error {
+func CollectGitBranches(subTaskCtx core.SubTaskContext) errors.Error {
 	repo := getGitRepo(subTaskCtx)
 	if count, err := repo.CountBranches(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get branch count")
@@ -74,7 +74,7 @@ func CollectGitBranches(subTaskCtx core.SubTaskContext) error {
 	return repo.CollectBranches(subTaskCtx)
 }
 
-func CollectGitTags(subTaskCtx core.SubTaskContext) error {
+func CollectGitTags(subTaskCtx core.SubTaskContext) errors.Error {
 	repo := getGitRepo(subTaskCtx)
 	if count, err := repo.CountTags(); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get tag count")

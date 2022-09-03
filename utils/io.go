@@ -34,13 +34,13 @@ var fs = afs.New()
 
 // CreateZipArchive creates a zip archive and writes the files/directories associated with the `sourcePaths` to it.
 // If a sourcePath directory ends with /*, then its contents are copied over, but not the directory itself
-func CreateZipArchive(archivePath string, sourcePaths ...string) error {
+func CreateZipArchive(archivePath string, sourcePaths ...string) errors.Error {
 	return createArchive("zip", archivePath, sourcePaths...)
 }
 
 // CreateGZipArchive creates a tar archive, compresses it with gzip and writes the files/directories associated with the `sourcePaths` to it.
 // If a sourcePath directory ends with /*, then its contents are copied over, but not the directory itself
-func CreateGZipArchive(archivePath string, sourcePaths ...string) error {
+func CreateGZipArchive(archivePath string, sourcePaths ...string) errors.Error {
 	err := createArchive("tar", archivePath, sourcePaths...)
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func CreateGZipArchive(archivePath string, sourcePaths ...string) error {
 	return nil
 }
 
-func createArchive(archiveType string, archivePath string, sourcePaths ...string) error {
+func createArchive(archiveType string, archivePath string, sourcePaths ...string) errors.Error {
 	for _, sourcePath := range sourcePaths {
 		relativeCopy := false
 		if strings.HasSuffix(sourcePath, "/*") {
@@ -88,41 +88,41 @@ func createArchive(archiveType string, archivePath string, sourcePaths ...string
 	return nil
 }
 
-func copyContentsToArchive(archiveType string, absSourcePath string, absArchivePath string) error {
+func copyContentsToArchive(archiveType string, absSourcePath string, absArchivePath string) errors.Error {
 	var files []os.DirEntry
 	files, err := os.ReadDir(absSourcePath)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	for _, desPath := range files {
 		archiveDest := desPath.Name()
 		src := fmt.Sprintf("%s/%s", absSourcePath, archiveDest)
 		err = copyToArchive(archiveType, src, absArchivePath, archiveDest)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 	}
 	return nil
 }
 
-func copyToArchive(archiveType string, absSourcePath string, absArchivePath string, archiveDest string) error {
+func copyToArchive(archiveType string, absSourcePath string, absArchivePath string, archiveDest string) errors.Error {
 	src := fmt.Sprintf("file://%s", absSourcePath)
 	dst := fmt.Sprintf("file:%s/%s:///%s", absArchivePath, archiveType, archiveDest)
-	return fs.Copy(context.Background(), src, dst)
+	return errors.Convert(fs.Copy(context.Background(), src, dst))
 }
 
-func toGzip(archivePath string) error {
+func toGzip(archivePath string) errors.Error {
 	info, _ := os.Stat(archivePath)
 	b, err := os.ReadFile(archivePath)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	var buf bytes.Buffer
 	w := gzip.NewWriter(&buf)
 	_, err = w.Write(b)
 	_ = w.Close()
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
-	return os.WriteFile(archivePath, buf.Bytes(), info.Mode().Perm())
+	return errors.Convert(os.WriteFile(archivePath, buf.Bytes(), info.Mode().Perm()))
 }

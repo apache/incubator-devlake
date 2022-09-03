@@ -19,6 +19,7 @@ package store
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -45,7 +46,7 @@ func NewDatabase(basicRes core.BasicRes, repoUrl string) *Database {
 	return database
 }
 
-func (d *Database) RepoCommits(repoCommit *code.RepoCommit) error {
+func (d *Database) RepoCommits(repoCommit *code.RepoCommit) errors.Error {
 	batch, err := d.driver.ForType(reflect.TypeOf(repoCommit))
 	if err != nil {
 		return err
@@ -53,7 +54,7 @@ func (d *Database) RepoCommits(repoCommit *code.RepoCommit) error {
 	return batch.Add(repoCommit)
 }
 
-func (d *Database) Commits(commit *code.Commit) error {
+func (d *Database) Commits(commit *code.Commit) errors.Error {
 	account := &crossdomain.Account{
 		DomainEntity: domainlayer.DomainEntity{Id: commit.AuthorEmail},
 		Email:        commit.AuthorEmail,
@@ -75,7 +76,7 @@ func (d *Database) Commits(commit *code.Commit) error {
 	return commitBatch.Add(commit)
 }
 
-func (d *Database) Refs(ref *code.Ref) error {
+func (d *Database) Refs(ref *code.Ref) errors.Error {
 	batch, err := d.driver.ForType(reflect.TypeOf(ref))
 	if err != nil {
 		return err
@@ -83,7 +84,7 @@ func (d *Database) Refs(ref *code.Ref) error {
 	return batch.Add(ref)
 }
 
-func (d *Database) CommitFiles(file *code.CommitFile) error {
+func (d *Database) CommitFiles(file *code.CommitFile) errors.Error {
 	batch, err := d.driver.ForType(reflect.TypeOf(file))
 	if err != nil {
 		return err
@@ -91,7 +92,7 @@ func (d *Database) CommitFiles(file *code.CommitFile) error {
 	return batch.Add(file)
 }
 
-func (d *Database) CommitFileComponents(commitFileComponent *code.CommitFileComponent) error {
+func (d *Database) CommitFileComponents(commitFileComponent *code.CommitFileComponent) errors.Error {
 	batch, err := d.driver.ForType(reflect.TypeOf(commitFileComponent))
 	if err != nil {
 		return err
@@ -99,7 +100,7 @@ func (d *Database) CommitFileComponents(commitFileComponent *code.CommitFileComp
 	return batch.Add(commitFileComponent)
 }
 
-func (d *Database) CommitParents(pp []*code.CommitParent) error {
+func (d *Database) CommitParents(pp []*code.CommitParent) errors.Error {
 	if len(pp) == 0 {
 		return nil
 	}
@@ -116,6 +117,6 @@ func (d *Database) CommitParents(pp []*code.CommitParent) error {
 	return nil
 }
 
-func (d *Database) Close() error {
+func (d *Database) Close() errors.Error {
 	return d.driver.Close()
 }

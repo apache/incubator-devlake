@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -39,7 +40,7 @@ var CollectApiRepoMeta = core.SubTaskMeta{
 	DomainTypes: []string{core.DOMAIN_TYPE_CODE},
 }
 
-func CollectApiRepositories(taskCtx core.SubTaskContext) error {
+func CollectApiRepositories(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
@@ -55,7 +56,7 @@ func CollectApiRepositories(taskCtx core.SubTaskContext) error {
 		ApiClient: data.ApiClient,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -64,11 +65,11 @@ func CollectApiRepositories(taskCtx core.SubTaskContext) error {
 
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			res.Body.Close()
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			return []json.RawMessage{body}, nil
 		},

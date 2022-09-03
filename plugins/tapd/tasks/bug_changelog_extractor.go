@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
@@ -34,16 +35,16 @@ var ExtractBugChangelogMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractBugChangelog(taskCtx core.SubTaskContext) error {
+func ExtractBugChangelog(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE, false)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			results := make([]interface{}, 0, 2)
 			var bugChangelogBody struct {
 				BugChange models.TapdBugChangelog
 			}
-			err := json.Unmarshal(row.Data, &bugChangelogBody)
+			err := errors.Convert(json.Unmarshal(row.Data, &bugChangelogBody))
 			if err != nil {
 				return nil, err
 			}

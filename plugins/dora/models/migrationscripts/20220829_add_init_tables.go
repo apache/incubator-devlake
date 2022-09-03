@@ -19,15 +19,17 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
 )
 
 type addInitTables struct{}
 
-func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(
+func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	err := db.Migrator().AutoMigrate(
 	// TODO add you models
 	)
+	return errors.Convert(err)
 }
 
 func (*addInitTables) Version() uint64 {

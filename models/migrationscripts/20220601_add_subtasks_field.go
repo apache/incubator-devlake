@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/common"
@@ -49,14 +50,8 @@ func (Task20220601) TableName() string {
 
 type addSubtasksField struct{}
 
-func (*addSubtasksField) Up(ctx context.Context, db *gorm.DB) error {
-
-	err := db.Migrator().AddColumn(Task20220601{}, "subtasks")
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (*addSubtasksField) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	return errors.Convert(db.Migrator().AddColumn(Task20220601{}, "subtasks"))
 }
 
 func (*addSubtasksField) Version() uint64 {

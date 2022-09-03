@@ -19,16 +19,17 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 
 	"gorm.io/gorm"
 )
 
 type modifyCICDTasks struct{}
 
-func (*modifyCICDTasks) Up(ctx context.Context, db *gorm.DB) error {
+func (*modifyCICDTasks) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().AutoMigrate(CICDTask0905{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	return nil
 }

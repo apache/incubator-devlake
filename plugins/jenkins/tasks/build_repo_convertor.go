@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -37,7 +38,7 @@ var ConvertBuildReposMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ConvertBuildRepos(taskCtx core.SubTaskContext) error {
+func ConvertBuildRepos(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 
@@ -62,7 +63,7 @@ func ConvertBuildRepos(taskCtx core.SubTaskContext) error {
 			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jenkinsBuildRepo := inputRow.(*models.JenkinsBuildRepo)
 			build := &devops.CiCDPipelineRepo{
 				DomainEntity: domainlayer.DomainEntity{

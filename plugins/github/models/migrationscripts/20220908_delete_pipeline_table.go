@@ -32,7 +32,7 @@ func (GithubPipeline20220908) TableName() string {
 
 type deleteGithubPipelineTable struct{}
 
-func (u *deleteGithubPipelineTable) Up(ctx context.Context, db *gorm.DB) error {
+func (u *deleteGithubPipelineTable) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	// create table
 	err := db.Migrator().DropTable(GithubPipeline20220908{})
 	if err != nil {

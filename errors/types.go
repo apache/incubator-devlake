@@ -25,7 +25,9 @@ import (
 
 // Supported error types
 var (
-	Default      = register(nil)
+	// Default special error type. If it's wrapping another error, then it will take the type of that error if it's an Error. Otherwise, it equates to Internal.
+	Default = register(nil)
+
 	SubtaskErr   = register(&Type{meta: "subtask"})
 	NotFound     = register(&Type{httpCode: http.StatusNotFound, meta: "not-found"})
 	BadInput     = register(&Type{httpCode: http.StatusBadRequest, meta: "bad-input"})
@@ -50,9 +52,10 @@ type (
 	Option func(*options)
 
 	options struct {
-		userMsg   string
-		asUserMsg bool
-		data      interface{}
+		userMsg     string
+		asUserMsg   bool
+		data        interface{}
+		stackOffset uint
 	}
 )
 
@@ -69,21 +72,40 @@ func (t *Type) New(message string, opts ...Option) Error {
 	return newCrdbError(t, nil, message, opts...)
 }
 
-// Wrap constructs a new Error instance with this message and wraps the passed in error
+// Wrap constructs a new Error instance with this message and wraps the passed in error. A nil 'err' will return a nil Error.
 func (t *Type) Wrap(err error, message string, opts ...Option) Error {
+	if err == nil {
+		return nil
+	}
 	return newCrdbError(t, err, message, opts...)
 }
 
-// WrapRaw constructs a new Error instance that directly wraps this error with no additional context
+// WrapRaw constructs a new Error instance that directly wraps this error with no additional context. A nil 'err' will return a nil Error.
+// This additional wrapping will create an additional nested stacktrace on this line if the setting is enabled.
 func (t *Type) WrapRaw(err error) Error {
+	return t.wrapRaw(err, true, withStackOffset(1))
+}
+
+func (t *Type) wrapRaw(err error, forceWrap bool, opts ...Option) Error {
+	if err == nil {
+		return nil
+	}
+	if !forceWrap {
+		if lakeErr, ok := err.(Error); ok {
+			return lakeErr
+		}
+	}
 	msg := ""
 	lakeErr := AsLakeErrorType(err)
 	if lakeErr != nil {
+		if !forceWrap {
+			return lakeErr
+		}
 		msg = "" // there's nothing new to add
 	} else {
 		msg = err.Error()
 	}
-	return newCrdbError(t, err, msg)
+	return newCrdbError(t, err, msg, opts...)
 }
 
 // Combine constructs a new Error from combining multiple errors. Stacktrace info for each of the errors will not be present in the result.
@@ -129,6 +151,14 @@ func AsUserMessage() Option {
 func WithData(data interface{}) Option {
 	return func(opts *options) {
 		opts.data = data
+	}
+}
+
+// withStackOffset the number of indirections in function calls before the 'new' error function is called (e.g. newCrdbError).
+// this must remain internal to the errors package
+func withStackOffset(offset uint) Option {
+	return func(opts *options) {
+		opts.stackOffset = offset
 	}
 }
 

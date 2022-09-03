@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"reflect"
 
@@ -38,7 +39,7 @@ var CollectWorklogsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func CollectWorklogs(taskCtx core.SubTaskContext) error {
+func CollectWorklogs(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
 	since := data.Since
@@ -85,7 +86,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) error {
 		PageSize:      50,
 		Incremental:   since == nil,
 		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Worklogs []json.RawMessage `json:"worklogs"`
 			}

@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/mitchellh/mapstructure"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -41,11 +40,11 @@ type GitlabTaskData struct {
 	Since         *time.Time
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOptions, error) {
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOptions, errors.Error) {
 	var op GitlabOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
-		return nil, errors.Default.WrapRaw(err)
+		return nil, err
 	}
 	if op.ProjectId == 0 {
 		return nil, errors.BadInput.New("ProjectId is required for Gitlab execution", errors.AsUserMessage())

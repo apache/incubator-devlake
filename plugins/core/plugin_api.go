@@ -18,6 +18,7 @@ limitations under the License.
 package core
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 )
@@ -43,7 +44,7 @@ type ApiResourceOutput struct {
 	File   *OutputFile
 }
 
-type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, error)
+type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, errors.Error)
 
 // Implement this interface if plugin offered API
 // Code sample to register a api on `sources/:connectionId`:

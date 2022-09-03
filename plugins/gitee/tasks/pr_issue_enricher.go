@@ -39,18 +39,19 @@ var EnrichPullRequestIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
+func EnrichPullRequestIssues(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
 	repoId := data.Repo.GiteeId
 
 	var prBodyCloseRegex *regexp.Regexp
+	var err errors.Error
 	prBodyClosePattern := data.Options.PrBodyClosePattern
 	//the pattern before the issue number, sometimes, the issue number is #1098, sometimes it is https://xxx/#1098
 	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Owner, 1)
 	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Repo, 1)
 	if len(prBodyClosePattern) > 0 {
-		prBodyCloseRegex, err = regexp.Compile(prBodyClosePattern)
+		prBodyCloseRegex, err = errors.Convert01(regexp.Compile(prBodyClosePattern))
 		if err != nil {
 			return errors.Default.Wrap(err, "regexp Compile prBodyClosePattern failed")
 		}
@@ -67,7 +68,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err error) {
 		InputRowType:       reflect.TypeOf(models.GiteePullRequest{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			giteePullRequst := inputRow.(*models.GiteePullRequest)
 			results := make([]interface{}, 0, 1)
 

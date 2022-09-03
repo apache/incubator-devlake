@@ -23,7 +23,6 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
 )
 
 type GithubOptions struct {
@@ -43,9 +42,9 @@ type GithubTaskData struct {
 	Repo          *models.GithubRepo
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOptions, error) {
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOptions, errors.Error) {
 	var op GithubOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, err
 	}

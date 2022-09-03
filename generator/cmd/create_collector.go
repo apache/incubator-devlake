@@ -34,7 +34,7 @@ func init() {
 	rootCmd.AddCommand(createCollectorCmd)
 }
 
-func collectorNameNotExistValidateHoc(pluginName string) func(input string) error {
+func collectorNameNotExistValidateHoc(pluginName string) promptui.ValidateFunc {
 	collectorNameValidate := func(input string) error {
 		if input == `` {
 			return errors.Default.New("please input which data would you will collect (snake_format)")
@@ -48,20 +48,20 @@ func collectorNameNotExistValidateHoc(pluginName string) func(input string) erro
 			return nil
 		}
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error getting collector src file")
 		}
 		return errors.Default.New("collector exists")
 	}
 	return collectorNameValidate
 }
 
-func collectorNameExistValidateHoc(pluginName string) func(input string) error {
+func collectorNameExistValidateHoc(pluginName string) promptui.ValidateFunc {
 	collectorNameValidate := func(input string) error {
 		if input == `` {
 			return errors.Default.New("please input which data would you will collect (snake_format)")
 		}
 		_, err := os.Stat(filepath.Join(`plugins`, pluginName, `tasks`, input+`_collector.go`))
-		return err
+		return errors.Default.Wrap(err, "error getting collector src file")
 	}
 	return collectorNameValidate
 }
@@ -82,7 +82,7 @@ Type in what the name of collector is, then generator will create a new collecto
 		}
 		prompt := promptui.Prompt{
 			Label:    "plugin_name",
-			Validate: pluginNameExistValidate,
+			Validate: pluginNameExistValidate(),
 			Default:  pluginName,
 		}
 		pluginName, err = prompt.Run()

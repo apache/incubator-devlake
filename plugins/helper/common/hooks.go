@@ -17,13 +17,16 @@ limitations under the License.
 
 package common
 
-import "net/http"
+import (
+	"github.com/apache/incubator-devlake/errors"
+	"net/http"
+)
 
 // ApiAsyncCallback FIXME ...
-type ApiAsyncCallback func(*http.Response) error
+type ApiAsyncCallback func(*http.Response) errors.Error
 
 // ApiClientBeforeRequest FIXME ...
-type ApiClientBeforeRequest func(req *http.Request) error
+type ApiClientBeforeRequest func(req *http.Request) errors.Error
 
 // ApiClientAfterResponse FIXME ...
-type ApiClientAfterResponse func(res *http.Response) error
+type ApiClientAfterResponse func(res *http.Response) errors.Error

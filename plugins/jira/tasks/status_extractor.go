@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -33,7 +34,7 @@ var ExtractStatusMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractStatus(taskCtx core.SubTaskContext) error {
+func ExtractStatus(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
@@ -48,9 +49,9 @@ func ExtractStatus(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_STATUS_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var apiStatus apiv2models.Status
-			err := json.Unmarshal(row.Data, &apiStatus)
+			err := errors.Convert(json.Unmarshal(row.Data, &apiStatus))
 			if err != nil {
 				return nil, err
 			}

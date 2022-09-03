@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -35,7 +36,7 @@ var EnrichApiBuildWithStagesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func EnrichApiBuildWithStages(taskCtx core.SubTaskContext) error {
+func EnrichApiBuildWithStages(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
@@ -53,7 +54,7 @@ func EnrichApiBuildWithStages(taskCtx core.SubTaskContext) error {
 
 	for cursor.Next() {
 		var buildName string
-		err = cursor.Scan(&buildName)
+		err = errors.Convert(cursor.Scan(&buildName))
 		if err != nil {
 			return err
 		}
@@ -64,20 +65,21 @@ func EnrichApiBuildWithStages(taskCtx core.SubTaskContext) error {
 		build.ConnectionId = data.Options.ConnectionId
 		str := strings.Split(buildName, "#")
 		build.JobName = strings.TrimSpace(str[0])
-		number, err := strconv.Atoi(strings.TrimSpace(str[1]))
+		var number int
+		number, err = errors.Convert01(strconv.Atoi(strings.TrimSpace(str[1])))
 		if err != nil {
 			return err
 		}
 		build.Number = int64(number)
 		err = db.First(build)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 		build.HasStages = true
 
 		err = db.Update(build)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 		taskCtx.IncProgress(1)
 	}

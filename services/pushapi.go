@@ -17,11 +17,13 @@ limitations under the License.
 
 package services
 
+import "github.com/apache/incubator-devlake/errors"
+
 // InsertRow FIXME ...
-func InsertRow(table string, rows []map[string]interface{}) (int64, error) {
+func InsertRow(table string, rows []map[string]interface{}) (int64, errors.Error) {
 	tx := db.Table(table).Create(rows)
 	if tx.Error != nil {
-		return 0, tx.Error
+		return 0, errors.Convert(tx.Error)
 	}
 	return tx.RowsAffected, nil
 }

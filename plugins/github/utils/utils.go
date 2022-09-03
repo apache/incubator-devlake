@@ -40,11 +40,11 @@ type RateLimitInfo struct {
 	Remaining int
 }
 
-func ConvertRateLimitInfo(date string, resetTime string, remaining string) (RateLimitInfo, error) {
+func ConvertRateLimitInfo(date string, resetTime string, remaining string) (RateLimitInfo, errors.Error) {
 	var rateLimitInfo RateLimitInfo
-	var err error
+	var err errors.Error
 	if date != "" {
-		rateLimitInfo.Date, err = http.ParseTime(date)
+		rateLimitInfo.Date, err = errors.Convert01(http.ParseTime(date))
 		if err != nil {
 			return rateLimitInfo, err
 		}
@@ -52,7 +52,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 		return rateLimitInfo, errors.Default.New("rate limit date was an empty string")
 	}
 	if resetTime != "" {
-		resetInt, err := strconv.ParseInt(resetTime, 10, 64)
+		resetInt, err := errors.Convert01(strconv.ParseInt(resetTime, 10, 64))
 		if err != nil {
 			return rateLimitInfo, err
 		}
@@ -61,7 +61,7 @@ func ConvertRateLimitInfo(date string, resetTime string, remaining string) (Rate
 		return rateLimitInfo, errors.Default.New("rate limit reset time was an empty string")
 	}
 	if remaining != "" {
-		rateLimitInfo.Remaining, err = strconv.Atoi(remaining)
+		rateLimitInfo.Remaining, err = ConvertStringToInt(remaining)
 		if err != nil {
 			return rateLimitInfo, err
 		}
@@ -80,10 +80,10 @@ func GetRateLimitPerSecond(info RateLimitInfo) int {
 	adjustedRemaining := float64(info.Remaining) * multiplier
 	return int(adjustedRemaining / float64(timeBetweenNowAndReset)) //* multiplier
 }
-func ConvertStringToInt(input string) (int, error) {
-	return strconv.Atoi(input)
+func ConvertStringToInt(input string) (int, errors.Error) {
+	return errors.Convert01(strconv.Atoi(input))
 }
-func GetPagingFromLinkHeader(link string) (PagingInfo, error) {
+func GetPagingFromLinkHeader(link string) (PagingInfo, errors.Error) {
 	result := PagingInfo{
 		Next:  1,
 		Last:  1,
@@ -127,11 +127,11 @@ func GetPagingFromLinkHeader(link string) (PagingInfo, error) {
 	return result, nil
 }
 
-func GetIssueIdByIssueUrl(s string) (int, error) {
+func GetIssueIdByIssueUrl(s string) (int, errors.Error) {
 	regex := regexp.MustCompile(`.*/issues/(\d+)`)
 	groups := regex.FindStringSubmatch(s)
 	if len(groups) == 0 {
 		return 0, errors.Default.New("invalid issue url")
 	}
-	return strconv.Atoi(groups[1])
+	return ConvertStringToInt(groups[1])
 }

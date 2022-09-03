@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"context"
 	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
 	"gorm.io/gorm"
@@ -28,7 +29,7 @@ import (
 
 type addInitTables struct{}
 
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().DropTable(
 		&archived.GitlabProject{},
 		&archived.GitlabMergeRequest{},
@@ -60,7 +61,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	)
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	err = db.Migrator().AutoMigrate(
@@ -82,7 +83,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	)
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	v := config.GetConfig()
@@ -99,7 +100,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	conn.Endpoint = endPoint
 	conn.Token, err = core.Encrypt(encKey, gitlabAuth)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	conn.Proxy = v.GetString("GITLAB_PROXY")
 	conn.RateLimitPerHour = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
@@ -107,7 +108,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return nil
