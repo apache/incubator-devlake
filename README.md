@@ -85,6 +85,11 @@ Please read the [contribution guidelines](https://devlake.apache.org/community) 
 - [Write a Blog](https://devlake.apache.org/community/make-contribution/BlogSubmission): Write a blog to share your use cases about Apache DevLake
 - [Contribute a Plugin](https://devlake.apache.org/docs/DeveloperManuals/PluginImplementation): [Add a plugin](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+label%3Aadd-a-plugin+) to integrate Apache DevLake with more data sources for the community
 
+## 📄 Contributing to Documentation:
+  
+- Apache DevLake's documentation is hosted at [devlake.apache.org](https://devlake.apache.org/)
+- **We have a separate GitHub repository for Apache DevLake's documentation:** [github.com/apache/incubator-devlake-website](https://github.com/apache/incubator-devlake-website)
+
 ## ⌚ Project Roadmap
 
 - <a href="https://devlake.apache.org/docs/Overview/Roadmap" target="_blank">Roadmap 2022</a>: Detailed project roadmaps for 2022.
