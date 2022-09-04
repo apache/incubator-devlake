@@ -19,12 +19,14 @@
 /**
  * @typedef {object} JiraBoard
  * @property {number?} id
+ * @property {number?} key
  * @property {string?} self
  * @property {string?} name
  * @property {number|string?} value
  * @property {number|string?} title
  * @property {kanban|scrum?} type
  * @property {object?} location
+ * @property {boolean?} useApi
  */
 class JiraBoard {
   constructor (data = {}) {
@@ -44,6 +46,8 @@ class JiraBoard {
       avatarURI: null,
       name: null
     }
+
+    this.useApi = data?.useApi || true
   }
 
   get (property) {
@@ -53,6 +57,10 @@ class JiraBoard {
   set (property, value) {
     this[property] = value
     return this.property
+  }
+
+  getEntityId () {
+    return this.id
   }
 }
 

@@ -197,9 +197,9 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
     }
   }, [error])
 
-  useEffect(() => {
-    console.log('>>> JIRA PROXY ACTIVE CONNECTION...', activeConnection)
-  }, [activeConnection])
+  // useEffect(() => {
+  //   console.log('>>> JIRA PROXY ACTIVE CONNECTION...', activeConnection)
+  // }, [activeConnection])
 
   return {
     isFetching,

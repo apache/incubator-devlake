@@ -37,6 +37,7 @@
  * @property {<Array<DataEntity>>} entities
  * @property {boolean} multiConnection
  * @property {number|string?} status
+ * @property {<Array<object>>?} transformations
  * @property {<Array<string>>?} errors
  */
 class Connection {
@@ -63,6 +64,8 @@ class Connection {
     this.entities = data?.entities || []
     this.multiConnection = data?.multiConnection || true
     this.status = data?.status || null
+
+    this.transformations = data?.transformations || []
 
     this.errors = data?.errors || []
 
