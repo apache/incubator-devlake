@@ -27,6 +27,7 @@
  * @property {kanban|scrum?} type
  * @property {object?} location
  * @property {boolean?} useApi
+ * @property {project|board?} variant
  */
 class JiraBoard {
   constructor (data = {}) {
@@ -48,6 +49,7 @@ class JiraBoard {
     }
 
     this.useApi = data?.useApi || true
+    this.variant = data?.variant || 'board'
   }
 
   get (property) {
@@ -59,7 +61,7 @@ class JiraBoard {
     return this.property
   }
 
-  getEntityId () {
+  getConfiguredEntityId () {
     return this.id
   }
 }

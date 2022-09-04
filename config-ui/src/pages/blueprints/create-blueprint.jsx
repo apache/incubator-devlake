@@ -181,6 +181,7 @@ const CreateBlueprint = (props) => {
     setProjects,
     setEntities: setDataEntities,
     setTransformations,
+    setTransformationSettings,
     createProviderScopes,
     createProviderConnections,
     getDefaultTransformations,
@@ -542,23 +543,24 @@ const CreateBlueprint = (props) => {
     setConnectionDialogIsOpen(true)
   }, [])
 
-  const setTransformationSettings = useCallback(
-    (settings, configuredEntity) => {
-      console.log(
-        '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
-        configuredEntity,
-        settings
-      )
-      setTransformations((existingTransformations) => ({
-        ...existingTransformations,
-        [configuredEntity]: {
-          ...existingTransformations[configuredEntity],
-          ...settings,
-        },
-      }))
-    },
-    [setTransformations]
-  )
+  // @note: replaced by definition in dsm hook!
+  // const setTransformationSettings = useCallback(
+  //   (settings, configuredEntity) => {
+  //     console.log(
+  //       '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
+  //       configuredEntity,
+  //       settings
+  //     )
+  //     setTransformations((existingTransformations) => ({
+  //       ...existingTransformations,
+  //       [configuredEntity]: {
+  //         ...existingTransformations[configuredEntity],
+  //         ...settings,
+  //       },
+  //     }))
+  //   },
+  //   [setTransformations]
+  // )
 
   const handleTransformationSave = useCallback((settings, entity) => {
     console.log('>> SAVING / CLOSING Transformation Settings')

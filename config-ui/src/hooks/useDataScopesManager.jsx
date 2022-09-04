@@ -22,6 +22,7 @@ import request from '@/utils/request'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
 import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 import { integrationsData } from '@/data/integrations'
+import TransformationSettings from '@/models/TransformationSettings'
 import JiraBoard from '@/models/JiraBoard'
 import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 
@@ -101,7 +102,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
 
   const initializeTransformations = useCallback((pV, cV, iDx) => ({
     ...pV,
-    [cV]: getDefaultTransformations(connection?.providerId, iDx),
+    [cV]: new TransformationSettings(getDefaultTransformations(connection?.providerId, iDx)),
   }), [connection, getDefaultTransformations])
 
   // @todo: generate scopes dynamically from $integrationsData (in future Integrations Hook [plugin registry])
@@ -230,10 +231,10 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
       )
       setTransformations((existingTransformations) => ({
         ...existingTransformations,
-        [configuredEntity]: {
+        [configuredEntity]: new TransformationSettings({
           ...existingTransformations[configuredEntity],
           ...settings,
-        },
+        }),
       }))
     },
     [setTransformations]
@@ -335,7 +336,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
       stage: 1,
       totalStages: 1
     }
-  ), [getGithubProjects, getGitlabProjects, ProviderLabels])
+  ), [getGithubProjects, getGitlabProjects])
 
   const createAdvancedConnection = useCallback((blueprint, c, cIdx, DEFAULT_DATA_ENTITIES, connections = [], connectionsList = [], boardsList = []) => (
     {
@@ -379,7 +380,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
       stage: blueprint?.plan.findIndex((s, sId) => s.find(t => JSON.stringify(t) === JSON.stringify(c))) + 1,
       totalStages: blueprint?.plan?.length,
     }
-  ), [getAdvancedGithubProjects, getAdvancedGitlabProjects, getAdvancedJiraBoards])
+  ), [getAdvancedGithubProjects, getAdvancedGitlabProjects, getAdvancedJiraBoards, getDefaultEntities])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: INITIALIZING TRANSFORMATION RULES...', selectedProjects)
