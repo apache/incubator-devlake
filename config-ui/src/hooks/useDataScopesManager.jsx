@@ -126,7 +126,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
           newScope = boards[connection.id]?.map((b) => ({
             ...newScope,
             options: {
-              boardId: Number(b?.id),
+              boardId: Number(b?.value),
               title: b.title
               // @todo: verify initial value of since date for jira provider
               // since: new Date(),

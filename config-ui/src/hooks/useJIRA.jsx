@@ -153,7 +153,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
     activeConnection,
     apiProxyPath])
 
-  const createListData = (data = [], titleProperty = 'name', valueProperty = 'name') => {
+  const createListData = (data = [], titleProperty = 'name', valueProperty = 'id') => {
     return data.map((d, dIdx) => ({
       id: d[valueProperty],
       key: d[valueProperty],
@@ -174,7 +174,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
   }, [fieldsResponse])
 
   useEffect(() => {
-    setBoards(boardsResponse ? createListData(boardsResponse, 'name', 'name') : [])
+    setBoards(boardsResponse ? createListData(boardsResponse, 'name', 'id') : [])
   }, [boardsResponse])
 
   useEffect(() => {
