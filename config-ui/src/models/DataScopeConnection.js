@@ -29,14 +29,14 @@
  * @property {object?} plugin
  * @property {object?} provider
  * @property {object|string?} icon
- * @property {Array} entities
- * @property {Array} entityList
- * @property {Array} projects
- * @property {Array} boards
- * @property {Array} boardIds
- * @property {Array} boardList
- * @property {Array} transformations
- * @property {Array} transformationStates
+ * @property {Array?} entities
+ * @property {Array?} entityList
+ * @property {Array?} projects
+ * @property {Array?} boards
+ * @property {Array?} boardIds
+ * @property {Array?} boardsList
+ * @property {Array?} transformations
+ * @property {Array?} transformationStates
  * @property {object?} scope
  * @property {boolean} editable
  * @property {boolean} advancedEditable
@@ -62,7 +62,7 @@ class DataScopeConnection {
     this.projects = data?.projects || []
     this.boards = data?.boards || []
     this.boardIds = data?.boardIds || []
-    this.boardList = data?.boardList || []
+    this.boardsList = data?.boardsList || []
     this.transformations = data?.transformations || []
     this.transformationStates = data?.transformationStates || []
     this.scope = data?.scope || null

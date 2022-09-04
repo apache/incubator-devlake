@@ -20,7 +20,10 @@ import { ToastNotification } from '@/components/Toast'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
-import { Providers } from '@/data/Providers'
+import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
+import { integrationsData } from '@/data/integrations'
+import JiraBoard from '@/models/JiraBoard'
+import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 
 function useDataScopesManager ({ provider, blueprint, /* connection, */ settings = {}, setSettings = () => {} }) {
   const [connections, setConnections] = useState([])
@@ -101,6 +104,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     [cV]: getDefaultTransformations(connection?.providerId, iDx),
   }), [connection, getDefaultTransformations])
 
+  // @todo: generate scopes dynamically from $integrationsData (in future Integrations Hook [plugin registry])
   const createProviderScopes = useCallback(
     (
       providerId,
@@ -234,6 +238,148 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     },
     [setTransformations]
   )
+
+  const getGithubProjects = useCallback((c) => [Providers.GITHUB].includes(c.plugin)
+    ? c.scope.map((s) => `${s.options.owner}/${s.options?.repo}`)
+    : [], [])
+
+  const getGitlabProjects = useCallback((c) => [Providers.GITLAB].includes(c.plugin)
+    ? c.scope.map((s) => s.options?.projectId)
+    : [], [])
+
+  const getAdvancedGithubProjects = useCallback((t, providerId) => [Providers.GITHUB].includes(providerId)
+    ? [`${t.options?.owner}/${t.options?.repo}`]
+    : [], [])
+
+  const getAdvancedGitlabProjects = useCallback((t, providerId) => [Providers.GITLAB].includes(providerId)
+    ? [t.options?.projectId]
+    : [], [])
+
+  const getAdvancedJiraBoards = useCallback((t, providerId) => [Providers.JIRA].includes(providerId)
+    ? [t.options?.boardId]
+    : [], [])
+
+  const getJiraMappedBoards = useCallback((boardIds = [], boardListItems = []) => {
+    return boardIds.map((bId, sIdx) => {
+      const boardObject = boardListItems.find(apiBoard => Number(apiBoard.id) === Number(bId))
+      return new JiraBoard({
+        ...boardObject,
+        id: boardObject?.id || bId || sIdx + 1,
+        key: sIdx,
+        value: boardObject?.name || `Board ${bId}`,
+        title: boardObject?.name || `Board ${bId}`,
+        type: boardObject?.type || 'scrum',
+        // self: `https://${scopeConnection?.endpoint}agile/1.0/board/${bId}`,
+        location: { ...boardObject?.location }
+      })
+    })
+  }, [/* scopeConnection?.endpoint */])
+
+  const getDefaultEntities = useCallback((providerId) => {
+    let entities = []
+    switch (providerId) {
+      case Providers.GITHUB:
+      case Providers.GITLAB:
+        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
+        break
+      case Providers.JIRA:
+        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
+        break
+      case Providers.JENKINS:
+        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+        break
+      case Providers.TAPD:
+        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+        break
+    }
+    return entities
+  }, [])
+
+  const createNormalConnection = useCallback((blueprint, c, cIdx, DEFAULT_DATA_ENTITIES, connections = [], connectionsList = [], boardsList = []) => (
+    {
+      ...c,
+      mode: BlueprintMode.NORMAL,
+      // @IMPORTANT: Preserve Original LIST INDEX ID!
+      id: connectionsList.find(lC => lC.value === c.connectionId && lC.provider === c.plugin)?.id,
+      connectionId: c.connectionId,
+      value: c.connectionId,
+      provider: integrationsData.find((i) => i.id === c.plugin),
+      providerLabel: ProviderLabels[c.plugin?.toUpperCase()],
+      providerId: c.plugin,
+      plugin: c.plugin,
+      icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
+      name: connections.find(pC => pC.connectionId === c.connectionId && pC.plugin === c.plugin)?.name || `${ProviderLabels[c.plugin?.toUpperCase()]} #${c.connectionId || cIdx}`,
+      entities: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)?.title),
+      entityList: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)),
+      projects: [Providers.GITLAB].includes(c.plugin)
+        ? getGitlabProjects(c)
+        : getGithubProjects(c),
+      boards: [Providers.JIRA].includes(c.plugin)
+        ? c.scope.map((s) => `Board ${s.options?.boardId}`)
+        : [],
+      boardIds: [Providers.JIRA].includes(c.plugin)
+        ? c.scope.map((s) => s.options?.boardId)
+        : [],
+      boardsList: boardsList,
+      transformations: c.scope.map((s) => ({ ...s.transformation })),
+      transformationStates: c.scope.map((s) =>
+        Object.values(s.transformation).some((v) => Array.isArray(v) ? v.length > 0 : (v && typeof v === 'object' ? Object.keys(v)?.length > 0 : v?.toString().length > 0))
+          ? 'Added'
+          : '-'
+      ),
+      scope: c.scope,
+      editable: ![Providers.JENKINS].includes(c.plugin),
+      advancedEditable: false,
+      isMultiStage: false,
+      isSingleStage: true,
+      stage: 1,
+      totalStages: 1
+    }
+  ), [getGithubProjects, getGitlabProjects, ProviderLabels])
+
+  const createAdvancedConnection = useCallback((blueprint, c, cIdx, DEFAULT_DATA_ENTITIES, connections = [], connectionsList = [], boardsList = []) => (
+    {
+      ...c,
+      mode: BlueprintMode.ADVANCED,
+      // @IMPORTANT: Preserve Original LIST INDEX ID!
+      id: connectionsList.find(lC => lC.value === c.options?.connectionId && lC.provider === c.plugin)?.id,
+      connectionId: c.options?.connectionId,
+      value: c.options?.connectionId,
+      provider: integrationsData.find((i) => i.id === c.plugin),
+      providerLabel: ProviderLabels[c.plugin?.toUpperCase()],
+      plugin: c.plugin,
+      providerId: c.plugin,
+      icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
+      name: connections.find(pC => pC.connectionId === c.options?.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.options?.connectionId || cIdx}`,
+      projects: [Providers.GITLAB].includes(c.plugin)
+        ? getAdvancedGitlabProjects(c, c.plugin)
+        : getAdvancedGithubProjects(c, c.plugin),
+      entities: ['-'],
+      entitityList: getDefaultEntities(c.plugin),
+      boards: [Providers.JIRA].includes(c.plugin)
+        ? getAdvancedJiraBoards(c, c.plugin).map(bId => `Board ${bId}`)
+        : [],
+      boardIds: [Providers.JIRA].includes(c.plugin)
+        ? getAdvancedJiraBoards(c, c.plugin)
+        : [],
+      boardsList: [Providers.JIRA].includes(c.plugin)
+        ? getAdvancedJiraBoards(c, c.plugin).map(bId => `Board ${bId}`)
+        : [],
+      transformations: {},
+      transformationStates: typeof c.options?.transformationRules === 'object' &&
+        Object.values(c.options?.transformationRules || {}).some(v => (Array.isArray(v) && v.length > 0) || v.toString().length > 0)
+        ? ['Added'] : ['-'],
+      scope: c,
+      task: c,
+      editable: false,
+      advancedEditable: true,
+      plan: blueprint?.plan,
+      isMultiStage: Array.isArray(blueprint?.plan) && blueprint?.plan.length > 1,
+      isSingleStage: Array.isArray(blueprint?.plan) && blueprint?.plan.length === 1,
+      stage: blueprint?.plan.findIndex((s, sId) => s.find(t => JSON.stringify(t) === JSON.stringify(c))) + 1,
+      totalStages: blueprint?.plan?.length,
+    }
+  ), [getAdvancedGithubProjects, getAdvancedGitlabProjects, getAdvancedJiraBoards])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: INITIALIZING TRANSFORMATION RULES...', selectedProjects)
@@ -374,6 +520,10 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     getDefaultTransformations,
     createProviderConnections,
     createProviderScopes,
+    getJiraMappedBoards,
+    getDefaultEntities,
+    createNormalConnection,
+    createAdvancedConnection,
     modifyConnectionSettings,
     setEnabledProviders
   }
