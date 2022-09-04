@@ -15,12 +15,10 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useMemo, useState } from 'react'
-import {
-  Intent,
-  MenuItem,
-} from '@blueprintjs/core'
-import { MultiSelect, Select } from '@blueprintjs/select'
+import React, { useEffect, useState } from 'react'
+import { Checkbox, Intent, MenuItem, } from '@blueprintjs/core'
+import { MultiSelect } from '@blueprintjs/select'
+
 const GitlabProjectsSelector = (props) => {
   const {
     fetchGitlabProjects = () => [],
@@ -67,14 +65,27 @@ const GitlabProjectsSelector = (props) => {
   } = props
 
   const [query, setQuery] = useState('')
+  const [onlyQueryMemberRepo, setOnlyQueryMemberRepo] = useState(true)
 
   useEffect(() => {
+    if (query.length <= 2) {
+      // only search when type more than 2 char or empty
+      return
+    }
     // prevent request too frequently
     const timer = setTimeout(() => {
-      fetchGitlabProjects(query)
+      fetchGitlabProjects(query, onlyQueryMemberRepo)
     }, 200)
     return () => clearTimeout(timer)
   }, [fetchGitlabProjects, query])
+
+  useEffect(() => {
+    if (query.length <= 2) {
+      // only search when type more than 2 char or empty
+      return
+    }
+    fetchGitlabProjects(query, onlyQueryMemberRepo)
+  }, [fetchGitlabProjects, onlyQueryMemberRepo])
 
   return (
     <div
@@ -107,9 +118,9 @@ const GitlabProjectsSelector = (props) => {
             },
           }}
           noResults={
-            isFetchingGitlab
-              ? <MenuItem disabled={true} text='Fetching' />
-              : <MenuItem disabled={true} text='No Projects Available.' />
+            (query.length <= 2 && <MenuItem disabled={true} text='Please type more than 2 char to search.' />) ||
+            (isFetchingGitlab && <MenuItem disabled={true} text='Fetching...' />) ||
+            <MenuItem disabled={true} text='No Projects Available.' />
           }
           onRemove={(item) => {
             onRemove((rT) => {
@@ -135,6 +146,11 @@ const GitlabProjectsSelector = (props) => {
             })
           }}
           style={{ borderRight: 0 }}
+        />
+
+        <Checkbox
+          label='only search repos joined' checked={onlyQueryMemberRepo}
+          onChange={e => setOnlyQueryMemberRepo(!onlyQueryMemberRepo)}
         />
       </div>
     </div>

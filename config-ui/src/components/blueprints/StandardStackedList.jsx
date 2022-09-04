@@ -68,7 +68,7 @@ const StandardStackedList = (props) => {
                     onClick={() => onAdd(item)}
                     style={{ cursor: 'pointer' }}
                   >
-                    {item?.name || item}
+                    {item.title}
                   </label>
                 </div>
               </div>

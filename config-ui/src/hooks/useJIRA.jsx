@@ -155,9 +155,8 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
 
   const createListData = (data = [], titleProperty = 'name', valueProperty = 'name') => {
     return data.map((d, dIdx) => ({
-      ...d,
-      id: d.id || dIdx,
-      key: d.key ? d.key : dIdx,
+      id: d[valueProperty],
+      key: d[valueProperty],
       title: d[titleProperty],
       value: d[valueProperty],
       type: d.schema?.type || 'string'

@@ -113,22 +113,28 @@ const DataScopes = (props) => {
                   </h3>
                   <Divider className='section-divider' />
 
-                  {[Providers.GITLAB, Providers.GITHUB].includes(
+                  {[Providers.GITHUB].includes(
                     configuredConnection.provider
                   ) && (
                     <>
                       <h4>Projects *</h4>
-                      {configuredConnection.provider === Providers.GITHUB && (<p>Enter the project names you would like to sync.</p>)}
+                      <p>Enter the project names you would like to sync.</p>
                       <TagInput
                         id='project-id'
                         disabled={isRunning}
                         placeholder='username/repo, username/another-repo'
-                        values={projects[configuredConnection.id] || []}
+                        values={projects[configuredConnection.id]?.map(p => p.value) || []}
                         fill={true}
                         onChange={(values) =>
                           setProjects((p) => ({
                             ...p,
-                            [configuredConnection.id]: [...new Set(values)],
+                            [configuredConnection.id]: [...values.map((v, vIdx) => ({
+                              id: v,
+                              key: v,
+                              title: v,
+                              value: v,
+                              type: 'string'
+                            }))],
                           }))}
                         addOnPaste={true}
                         addOnBlur={true}

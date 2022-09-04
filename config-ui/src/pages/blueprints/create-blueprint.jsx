@@ -365,7 +365,7 @@ const CreateBlueprint = (props) => {
     null
   )
 
-  const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
+  const activeTransformation = useMemo(() => transformations[configuredProject?.id || configuredBoard?.id], [transformations, configuredProject?.id, configuredBoard?.id])
 
   // eslint-disable-next-line no-unused-vars
   const isValidStep = useCallback((stepId) => { }, [])
@@ -477,7 +477,7 @@ const CreateBlueprint = (props) => {
     )
     setTransformations((existingTransformations) => ({
       ...existingTransformations,
-      [configuredProject]: {},
+      [configuredProject?.id]: {},
       [configuredBoard?.id]: {},
     }))
     setConfiguredProject(null)
@@ -814,10 +814,8 @@ const CreateBlueprint = (props) => {
     console.log('>> PROJECTS LIST', projects)
     console.log('>> BOARDS LIST', boards)
 
-    const projectTransformation = projects[configuredConnection?.id]
-    const boardTransformation = boards[configuredConnection?.id]?.map(
-      (b) => b.id
-    )
+    const projectTransformation = projects[configuredConnection?.id]?.map(p => p.id)
+    const boardTransformation = boards[configuredConnection?.id]?.map(b => b.id)
     if (projectTransformation) {
       setTransformations((cT) => ({
         ...projectTransformation.reduce(initializeTransformations, {}),

@@ -24,7 +24,7 @@ const useGitlab = ({ apiProxyPath, projectsEndpoint }, activeConnection = null) 
   const [projects, setProjects] = useState([])
   const [error, setError] = useState()
 
-  const fetchProjects = useCallback(async (search = '') => {
+  const fetchProjects = useCallback(async (search = '', onlyQueryMemberRepo = true) => {
     try {
       if (apiProxyPath.includes('null')) {
         throw new Error('Connection ID is Null')
@@ -34,6 +34,7 @@ const useGitlab = ({ apiProxyPath, projectsEndpoint }, activeConnection = null) 
       const endpoint = projectsEndpoint
         .replace('[:connectionId:]', activeConnection?.connectionId)
         .replace('[:search:]', search)
+        .replace('[:membership:]', onlyQueryMemberRepo ? 1 : 0)
       const projectsResponse = await request.get(endpoint)
       if (projectsResponse && projectsResponse.status === 200 && projectsResponse.data) {
         setProjects(createListData(projectsResponse.data))
@@ -48,10 +49,10 @@ const useGitlab = ({ apiProxyPath, projectsEndpoint }, activeConnection = null) 
     }
   }, [projectsEndpoint, activeConnection, apiProxyPath])
 
-  const createListData = (data = [], titleProperty = 'name_with_namespace', valueProperty = 'name') => {
+  const createListData = (data = [], titleProperty = 'name_with_namespace', valueProperty = 'id') => {
     return data.map((d, dIdx) => ({
-      id: d.id || dIdx,
-      key: d.key ? d.key : dIdx,
+      id: d[valueProperty],
+      key: d[valueProperty],
       title: d[titleProperty],
       value: d[valueProperty],
       type: 'string'
