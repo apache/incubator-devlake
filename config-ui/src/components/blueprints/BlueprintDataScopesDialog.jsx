@@ -72,6 +72,8 @@ const BlueprintDataScopesDialog = (props) => {
     issueTypesList = [],
     fieldsList = [],
     boards = {},
+    gitlabProjects = [],
+    fetchGitlabProjects = () => [],
     entities = {},
     projects = {},
     mode = Modes.EDIT,
@@ -105,6 +107,8 @@ const BlueprintDataScopesDialog = (props) => {
     isTesting = false,
     isFetchingJIRA = false,
     jiraProxyError,
+    isFetchingGitlab,
+    gitlabProxyError,
     errors = [],
     content = null,
     backButtonProps = {
@@ -112,28 +116,28 @@ const BlueprintDataScopesDialog = (props) => {
       intent: Intent.PRIMARY,
       text: 'Previous Step',
       outlined: true,
-      loading: isFetchingJIRA || isSaving
+      loading: isFetchingJIRA || isFetchingGitlab || isSaving
     },
     nextButtonProps = {
       disabled: !isValid,
       intent: Intent.PRIMARY,
       text: 'Next Step',
       outlined: true,
-      loading: isFetchingJIRA || isSaving,
+      loading: isFetchingJIRA || isFetchingGitlab || isSaving,
     },
     finalButtonProps = {
       disabled: !isValid,
       intent: Intent.PRIMARY,
       onClick: onSave,
       text: 'Save Changes',
-      loading: isFetchingJIRA || isSaving
+      loading: isFetchingJIRA || isFetchingGitlab || isSaving
     },
     closeButtonProps = {
       // disabled:
       intent: Intent.PRIMARY,
       text: 'Cancel',
       outlined: true,
-      loading: isFetchingJIRA || isSaving
+      loading: isFetchingJIRA || isFetchingGitlab || isSaving
     }
   } = props
 
@@ -180,6 +184,10 @@ const BlueprintDataScopesDialog = (props) => {
                 dataEntitiesList={dataEntitiesList}
                 boardsList={boardsList}
                 boards={boards}
+                fetchGitlabProjects={fetchGitlabProjects}
+                gitlabProjects={gitlabProjects}
+                isFetchingGitlab={isFetchingGitlab}
+                gitlabProxyError={gitlabProxyError}
                 dataEntities={entities}
                 projects={projects}
                 configuredConnection={configuredConnection}

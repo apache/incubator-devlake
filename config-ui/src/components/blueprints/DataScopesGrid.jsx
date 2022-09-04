@@ -156,7 +156,7 @@ const DataScopesGrid = (props) => {
                 >
                   {c.projects.map((project, pIdx) => (
                     <li key={`list-item-key-${pIdx}`}>
-                      {project}
+                      {project.title}
                     </li>
                   ))}
                 </ul>
@@ -169,8 +169,8 @@ const DataScopesGrid = (props) => {
                     padding: 0,
                   }}
                 >
-                  {c.boards.map((board, bIdx) => (
-                    <li key={`list-item-key-${bIdx}`}>{board}</li>
+                  {c.boardsList.map((board, bIdx) => (
+                    <li key={`list-item-key-${bIdx}`}>{board.title}</li>
                   ))}
                 </ul>
               )}

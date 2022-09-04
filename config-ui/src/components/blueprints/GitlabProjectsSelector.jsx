@@ -151,6 +151,7 @@ const GitlabProjectsSelector = (props) => {
         <Checkbox
           label='only search repos joined' checked={onlyQueryMemberRepo}
           onChange={e => setOnlyQueryMemberRepo(!onlyQueryMemberRepo)}
+          style={{ margin: '10px 0 0 6px' }}
         />
       </div>
     </div>
