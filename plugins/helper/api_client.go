@@ -135,6 +135,11 @@ func (apiClient *ApiClient) SetTimeout(timeout time.Duration) {
 	apiClient.client.Timeout = timeout
 }
 
+// GetTimeout FIXME ...
+func (apiClient *ApiClient) GetTimeout() time.Duration {
+	return apiClient.client.Timeout
+}
+
 // SetHeaders FIXME ...
 func (apiClient *ApiClient) SetHeaders(headers map[string]string) {
 	apiClient.headers = headers

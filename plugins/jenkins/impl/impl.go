@@ -72,13 +72,10 @@ func (plugin Jenkins) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractApiBuildsMeta,
 		tasks.CollectApiStagesMeta,
 		tasks.ExtractApiStagesMeta,
-		tasks.EnrichApiBuildOriginTriggerMeta,
-		tasks.EnrichApiBuildWithStagesMeta,
 		tasks.ConvertBuildsToCICDMeta,
 		tasks.ConvertStagesMeta,
 		tasks.ConvertBuildReposMeta,
 		tasks.ConvertJobsMeta,
-		tasks.ConvertBuildsMeta,
 	}
 }
 func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {

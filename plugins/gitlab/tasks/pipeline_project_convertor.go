@@ -18,71 +18,66 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
+	"reflect"
 )
 
-var ConvertBuildsMeta = core.SubTaskMeta{
-	Name:             "convertBuilds",
-	EntryPoint:       ConvertBuilds,
+var ConvertPipelineProjectMeta = core.SubTaskMeta{
+	Name:             "convertPipelineProjects",
+	EntryPoint:       ConvertPipelineProjects,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table jenkins_builds into  domain layer table builds",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
+	Description:      "Convert tool layer table gitlab_pipeline_project into domain layer table pipeline",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertBuilds(taskCtx core.SubTaskContext) error {
+func ConvertPipelineProjects(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*JenkinsTaskData)
+	data := taskCtx.GetData().(*GitlabTaskData)
 
-	clauses := []dal.Clause{
-		dal.Select("*"),
-		dal.From("_tool_jenkins_builds"),
-		dal.Where("connection_id = ?", data.Options.ConnectionId),
-	}
-	cursor, err := db.Cursor(clauses...)
+	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabPipelineProject{}))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	jobIdGen := didgen.NewDomainIdGenerator(&models.JenkinsJob{})
-	buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
+	pipelineIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabPipeline{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.JenkinsBuild{}),
+		InputRowType: reflect.TypeOf(gitlabModels.GitlabPipelineProject{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Params: JenkinsApiParams{
+			Ctx: taskCtx,
+			Params: GitlabApiParams{
 				ConnectionId: data.Options.ConnectionId,
+				ProjectId:    data.Options.ProjectId,
 			},
-			Ctx:   taskCtx,
-			Table: RAW_BUILD_TABLE,
+			Table: RAW_PIPELINE_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			jenkinsBuild := inputRow.(*models.JenkinsBuild)
-			build := &devops.Build{
+			gitlabPipelineProject := inputRow.(*gitlabModels.GitlabPipelineProject)
+
+			domainPipelineRepo := &devops.CiCDPipelineRepo{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.JobName, jenkinsBuild.Number),
+					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipelineProject.PipelineId),
 				},
-				JobId:       jobIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.JobName),
-				Name:        jenkinsBuild.DisplayName,
-				DurationSec: uint64(jenkinsBuild.Duration / 1000),
-				Status:      jenkinsBuild.Result,
-				StartedDate: jenkinsBuild.StartTime,
-				CommitSha:   jenkinsBuild.CommitSha,
+				CommitSha: gitlabPipelineProject.Sha,
+				Branch:    gitlabPipelineProject.Ref,
+				Repo: didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{}).
+					Generate(gitlabPipelineProject.ConnectionId, gitlabPipelineProject.PipelineId),
 			}
+
 			return []interface{}{
-				build,
+				domainPipelineRepo,
 			}, nil
 		},
 	})
+
 	if err != nil {
 		return err
 	}

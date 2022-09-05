@@ -60,7 +60,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_USER_TABLE,
+			Table: RAW_PIPELINE_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			gitlabPipeline := inputRow.(*gitlabModels.GitlabPipeline)
@@ -74,11 +74,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
 				},
-
-				Name:      fmt.Sprintf("%d", gitlabPipeline.GitlabId),
-				CommitSha: gitlabPipeline.Sha,
-				Branch:    gitlabPipeline.Ref,
-				Repo:      fmt.Sprintf("%d", gitlabPipeline.ProjectId),
+				Name: fmt.Sprintf("%d", gitlabPipeline.GitlabId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"failed"},
 					Abort:   []string{"canceled", "skipped"},
@@ -88,8 +84,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "manual", "scheduled"},
 					Default:    devops.DONE,
 				}, gitlabPipeline.Status),
-				Type: "CI/CD",
-
+				Type:         "CI/CD",
 				CreatedDate:  createdAt,
 				FinishedDate: gitlabPipeline.GitlabUpdatedAt,
 			}

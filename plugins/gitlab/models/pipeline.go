@@ -46,3 +46,16 @@ type GitlabPipeline struct {
 func (GitlabPipeline) TableName() string {
 	return "_tool_gitlab_pipelines"
 }
+
+type GitlabPipelineProject struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	PipelineId   int    `gorm:"primaryKey"`
+	ProjectId    int    `gorm:"primaryKey;type:varchar(255)"`
+	Ref          string `gorm:"type:varchar(255)"`
+	Sha          string `gorm:"type:varchar(255)"`
+	common.NoPKModel
+}
+
+func (GitlabPipelineProject) TableName() string {
+	return "_tool_gitlab_pipeline_projects"
+}

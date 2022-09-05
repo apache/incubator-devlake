@@ -46,6 +46,8 @@ type ApiAsyncClient struct {
 	numOfWorkers int
 }
 
+const DEFAULT_TIMEOUT = 10 * time.Second
+
 // CreateAsyncApiClient creates a new ApiAsyncClient
 func CreateAsyncApiClient(
 	taskCtx core.TaskContext,
@@ -57,11 +59,20 @@ func CreateAsyncApiClient(
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "failed to parse API_RETRY", errors.AsUserMessage())
 	}
-	timeout, err := utils.StrToDurationOr(taskCtx.GetConfig("API_TIMEOUT"), 10*time.Second)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "failed to parse API_TIMEOUT", errors.AsUserMessage())
+
+	timeoutConf := taskCtx.GetConfig("API_TIMEOUT")
+	if timeoutConf != "" {
+		// override timeout value if API_TIMEOUT is provided
+		timeout, err := time.ParseDuration(timeoutConf)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "failed to parse API_TIMEOUT", errors.AsUserMessage())
+		}
+		apiClient.SetTimeout(timeout)
+	} else if apiClient.GetTimeout() == 0 {
+		// Use DEFAULT_TIMEOUT when API_TIMEOUT is empty and ApiClient has no timeout set
+		apiClient.SetTimeout(DEFAULT_TIMEOUT)
 	}
-	apiClient.SetTimeout(timeout)
+
 	apiClient.SetLogger(taskCtx.GetLogger())
 
 	globalRateLimitPerHour, err := utils.StrToIntOr(taskCtx.GetConfig("API_REQUESTS_PER_HOUR"), 18000)
