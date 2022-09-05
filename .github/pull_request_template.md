@@ -1,4 +1,4 @@
-### ⚠️ &nbsp;&nbsp;Pre Checklist
+### ⚠️ Pre Checklist
 
 > Please complete _ALL_ items in this checklist, and remove before submitting
 
