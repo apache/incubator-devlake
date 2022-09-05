@@ -72,8 +72,8 @@ import BlueprintDataScopesDialog from '@/components/blueprints/BlueprintDataScop
 import BlueprintNavigationLinks from '@/components/blueprints/BlueprintNavigationLinks'
 import DataScopesGrid from '@/components/blueprints/DataScopesGrid'
 import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
-import useGitlab from "@/hooks/useGitlab";
-import { PROJECTS_ENDPOINT } from "@/config/gitlabApiProxy";
+import useGitlab from '@/hooks/useGitlab'
+import { PROJECTS_ENDPOINT } from '@/config/gitlabApiProxy'
 
 const BlueprintSettings = (props) => {
   // eslint-disable-next-line no-unused-vars
@@ -607,13 +607,28 @@ const BlueprintSettings = (props) => {
       : []
     // @todo: handle multi-stage
     const getAdvancedGithubProjects = (t, providerId) => [Providers.GITHUB].includes(providerId)
-      ? [`${t.options?.owner}/${t.options?.repo}`]
+      ? [{
+          id: `${t.options.owner}/${t.options?.repo}`,
+          key: `${t.options.owner}/${t.options?.repo}`,
+          value: `${t.options.owner}/${t.options?.repo}`,
+          title: `${t.options.owner}/${t.options?.repo}`,
+        }]
       : []
     const getAdvancedGitlabProjects = (t, providerId) => [Providers.GITLAB].includes(providerId)
-      ? [t.options?.projectId]
+      ? [{
+          id: t.options?.projectId,
+          key: t.options?.projectId,
+          value: t.options?.projectId,
+          title: t.options?.title || `Project ${t.options?.projectId}`,
+        }]
       : []
     const getAdvancedJiraBoards = (t, providerId) => [Providers.JIRA].includes(providerId)
-      ? [t.options?.boardId]
+      ? [{
+          id: t.options?.boardId,
+          key: t.options?.boardId,
+          value: t.options?.boardId,
+          title: t.options?.title || `Board ${t.options?.boardId}`,
+        }]
       : []
     // @todo: migrate to data scopes manager
     if (activeBlueprint?.id && activeBlueprint?.mode === BlueprintMode.NORMAL) {
@@ -684,8 +699,8 @@ const BlueprintSettings = (props) => {
           boardIds: [Providers.JIRA].includes(c.plugin)
             ? getAdvancedJiraBoards(c, c.plugin)
             : [],
-          boardList: [Providers.JIRA].includes(c.plugin)
-            ? getAdvancedJiraBoards(c, c.plugin).map(bId => `Board ${bId}`)
+          boardsList: [Providers.JIRA].includes(c.plugin)
+            ? getAdvancedJiraBoards(c, c.plugin)
             : [],
           transformations: {},
           // transformationStates: ['-'],
