@@ -75,16 +75,31 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
 
 			duration := int(gitlabApiPipeline.UpdatedAt.ToTime().Sub(gitlabApiPipeline.CreatedAt.ToTime()).Seconds())
 			gitlabApiPipeline.Duration = duration
-			gitlabPipeline, err := convertPipeline(gitlabApiPipeline, data.Options.ProjectId)
+			gitlabPipeline := &models.GitlabPipeline{
+				GitlabId:        gitlabApiPipeline.Id,
+				WebUrl:          gitlabApiPipeline.WebUrl,
+				Status:          gitlabApiPipeline.Status,
+				GitlabCreatedAt: helper.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),
+				GitlabUpdatedAt: helper.Iso8601TimeToTime(gitlabApiPipeline.UpdatedAt),
+				StartedAt:       helper.Iso8601TimeToTime(gitlabApiPipeline.StartedAt),
+				FinishedAt:      helper.Iso8601TimeToTime(gitlabApiPipeline.FinishedAt),
+				Duration:        gitlabApiPipeline.Duration,
+				ConnectionId:    data.Options.ConnectionId,
+			}
 			if err != nil {
 				return nil, err
 			}
 
-			// use data.Options.ProjectId to set the value of ProjectId for it
-			gitlabPipeline.ProjectId = data.Options.ProjectId
-			gitlabPipeline.ConnectionId = data.Options.ConnectionId
-			results := make([]interface{}, 0, 1)
-			results = append(results, gitlabPipeline)
+			pipelineProject := &models.GitlabPipelineProject{
+				ConnectionId: data.Options.ConnectionId,
+				PipelineId:   gitlabPipeline.GitlabId,
+				ProjectId:    data.Options.ProjectId,
+				Ref:          gitlabApiPipeline.Ref,
+				Sha:          gitlabApiPipeline.Sha,
+			}
+
+			results := make([]interface{}, 0, 2)
+			results = append(results, gitlabPipeline, pipelineProject)
 
 			return results, nil
 		},
@@ -95,21 +110,4 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
 	}
 
 	return extractor.Execute()
-}
-
-func convertPipeline(pipeline *ApiPipeline, projectId int) (*models.GitlabPipeline, error) {
-	gitlabPipeline := &models.GitlabPipeline{
-		GitlabId:        pipeline.Id,
-		ProjectId:       projectId,
-		Ref:             pipeline.Ref,
-		Sha:             pipeline.Sha,
-		WebUrl:          pipeline.WebUrl,
-		Status:          pipeline.Status,
-		GitlabCreatedAt: helper.Iso8601TimeToTime(pipeline.CreatedAt),
-		GitlabUpdatedAt: helper.Iso8601TimeToTime(pipeline.UpdatedAt),
-		StartedAt:       helper.Iso8601TimeToTime(pipeline.StartedAt),
-		FinishedAt:      helper.Iso8601TimeToTime(pipeline.FinishedAt),
-		Duration:        pipeline.Duration,
-	}
-	return gitlabPipeline, nil
 }

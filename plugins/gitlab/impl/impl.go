@@ -62,6 +62,7 @@ func (plugin Gitlab) GetTablesInfo() []core.Tabler {
 		&models.GitlabMrLabel{},
 		&models.GitlabMrNote{},
 		&models.GitlabPipeline{},
+		&models.GitlabPipelineProject{},
 		&models.GitlabProject{},
 		&models.GitlabProjectCommit{},
 		&models.GitlabReviewer{},
@@ -102,6 +103,7 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertMrLabelsMeta,
 		tasks.ConvertCommitsMeta,
 		tasks.ConvertPipelineMeta,
+		tasks.ConvertPipelineProjectMeta,
 		tasks.ConvertJobMeta,
 	}
 }

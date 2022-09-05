@@ -44,6 +44,7 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabPipeline{})
+	dataflowTester.FlushTabler(&models.GitlabPipelineProject{})
 	dataflowTester.Subtask(tasks.ExtractApiPipelinesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabPipeline{},
@@ -51,11 +52,8 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 		[]string{
 			"connection_id",
 			"gitlab_id",
-			"project_id",
 			"gitlab_created_at",
 			"status",
-			"ref",
-			"sha",
 			"web_url",
 			"duration",
 			"started_at",
