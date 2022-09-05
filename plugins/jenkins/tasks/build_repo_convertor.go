@@ -71,7 +71,7 @@ func ConvertBuildRepos(taskCtx core.SubTaskContext) error {
 				},
 				CommitSha: jenkinsBuildRepo.CommitSha,
 				Branch:    jenkinsBuildRepo.Branch,
-				RepoUrl:   jenkinsBuildRepo.RepoUrl,
+				Repo:      jenkinsBuildRepo.RepoUrl,
 			}
 			return []interface{}{
 				build,

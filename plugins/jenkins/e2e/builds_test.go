@@ -21,8 +21,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/devops"
-
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -67,27 +65,6 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"timestamp",
 			"start_time",
 			"commit_sha",
-		},
-	)
-
-	// verify conversion
-	dataflowTester.FlushTabler(&devops.Build{})
-	dataflowTester.Subtask(tasks.ConvertBuildsMeta, taskData)
-	dataflowTester.VerifyTable(
-		devops.Build{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", devops.Build{}.TableName()),
-		[]string{
-			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-			"job_id",
-			"name",
-			"commit_sha",
-			"duration_sec",
-			"status",
-			"started_date",
 		},
 	)
 }
