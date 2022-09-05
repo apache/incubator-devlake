@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
@@ -38,6 +39,10 @@ func (*modifyPipeline) Up(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 	err = db.Migrator().RenameColumn(CICDPipelineRepo0905{}, "repo_url", "repo")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().AutoMigrate(CICDPipelineRelationship0905{})
 	if err != nil {
 		return err
 	}
@@ -68,4 +73,14 @@ type CICDPipelineRepo0905 struct {
 
 func (CICDPipelineRepo0905) TableName() string {
 	return "cicd_pipeline_repos"
+}
+
+type CICDPipelineRelationship0905 struct {
+	ParentPipelineId string `gorm:"primary;type:varchar(255)"`
+	ChildPipelineId  string `gorm:"primary;type:varchar(255)"`
+	archived.NoPKModel
+}
+
+func (CICDPipelineRelationship0905) TableName() string {
+	return "cicd_pipeline_relationships"
 }
