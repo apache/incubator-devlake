@@ -20,26 +20,28 @@ package migrationscripts
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
-type JiraConnectionTemp struct {
+type JiraConnectionNew struct {
 	archived.RestConnection `mapstructure:",squash"`
 	archived.BasicAuth      `mapstructure:",squash"`
 }
 
-func (JiraConnectionTemp) TableName() string {
-	return "_tool_jira_connections_temp"
+func (JiraConnectionNew) TableName() string {
+	return "_tool_jira_connections_new"
 }
 
-type JiraConnectionV011 struct {
+const JiraConnectionV011 = "_tool_jira_connections"
+
+type JiraConnectionV011Old struct {
 	ID                         uint64    `gorm:"primaryKey" json:"id"`
 	CreatedAt                  time.Time `json:"createdAt"`
 	UpdatedAt                  time.Time `json:"updatedAt"`
@@ -53,15 +55,15 @@ type JiraConnectionV011 struct {
 	RateLimit                  int       `comment:"api request rate limt per hour" json:"rateLimit"`
 }
 
-func (JiraConnectionV011) TableName() string {
-	return "_tool_jira_connections"
+func (JiraConnectionV011Old) TableName() string {
+	return "_tool_jira_connections_old"
 }
 
 type addInitTables struct{}
 
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) (err error) {
 
-	err := db.Migrator().DropTable(
+	err = db.Migrator().DropTable(
 		// history table
 		"_raw_jira_api_users",
 		"_raw_jira_api_boards",
@@ -92,61 +94,80 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		return err
 	}
 
-	// get connection history data
-	err = db.Migrator().CreateTable(&JiraConnectionTemp{})
+	// In order to avoid postgres reporting "cached plan must not change result type",
+	// we have to avoid loading the _tool_jira_connections table before our migration. The trick is to rename it before loading.
+	// so need to use JiraConnectionOld, JiraConnectionNew and JiraConnection to operate.
+	// step1: create _tool_jira_connections_new table
+	// step2: rename _tool_jira_connections to _tool_jira_connections_old
+	// step3: select data from _tool_jira_connections_old and insert date to _tool_jira_connections_new
+	// step4: rename _tool_jira_connections_new to _tool_jira_connections
+
+	// step1
+	err = db.Migrator().CreateTable(&JiraConnectionNew{})
 	if err != nil {
 		return err
 	}
-	defer db.Migrator().DropTable(&JiraConnectionTemp{})
+	defer db.Migrator().DropTable(&JiraConnectionNew{})
 
+	// step2
+	err = db.Migrator().RenameTable("_tool_jira_connections", "_tool_jira_connections_old")
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			err = db.Migrator().RenameTable("_tool_jira_connections_old", "_tool_jira_connections")
+		} else {
+			err = db.Migrator().DropTable(&JiraConnectionV011Old{})
+		}
+	}()
+
+	// step3
 	var result *gorm.DB
-	var jiraConns []JiraConnectionV011
+	var jiraConns []JiraConnectionV011Old
 	result = db.Find(&jiraConns)
+	if result.Error != nil {
+		return result.Error
+	}
 
-	if result.Error == nil {
-		for _, v := range jiraConns {
-			conn := &JiraConnectionTemp{}
-			conn.ID = v.ID
-			conn.Name = v.Name
-			conn.Endpoint = v.Endpoint
-			conn.Proxy = v.Proxy
-			conn.RateLimitPerHour = v.RateLimit
+	for _, v := range jiraConns {
+		conn := &JiraConnectionNew{}
+		conn.ID = v.ID
+		conn.Name = v.Name
+		conn.Endpoint = v.Endpoint
+		conn.Proxy = v.Proxy
+		conn.RateLimitPerHour = v.RateLimit
 
-			c := config.GetConfig()
-			encKey := c.GetString(core.EncodeKeyEnvStr)
-			if encKey == "" {
-				return fmt.Errorf("jira v0.11 invalid encKey")
-			}
-			auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
+		c := config.GetConfig()
+		encKey := c.GetString(core.EncodeKeyEnvStr)
+		if encKey == "" {
+			return errors.BadInput.New("jira v0.11 invalid encKey", errors.AsUserMessage())
+		}
+		auth, err := core.Decrypt(encKey, v.BasicAuthEncoded)
+		if err != nil {
+			return err
+		}
+		pk, err := base64.StdEncoding.DecodeString(auth)
+		if err != nil {
+			return err
+		}
+		originInfo := strings.Split(string(pk), ":")
+		if len(originInfo) == 2 {
+			conn.Username = originInfo[0]
+			conn.Password, err = core.Encrypt(encKey, originInfo[1])
 			if err != nil {
 				return err
 			}
-			pk, err := base64.StdEncoding.DecodeString(auth)
-			if err != nil {
-				return err
-			}
-			originInfo := strings.Split(string(pk), ":")
-			if len(originInfo) == 2 {
-				conn.Username = originInfo[0]
-				conn.Password, err = core.Encrypt(encKey, originInfo[1])
-				if err != nil {
-					return err
-				}
-				// create
-				err := db.Create(&conn)
-				if err.Error != nil {
-					return err.Error
-				}
+			// create
+			tx := db.Create(&conn)
+			if tx.Error != nil {
+				return errors.Default.Wrap(tx.Error, "error adding connection to DB")
 			}
 		}
 	}
 
-	err = db.Migrator().DropTable(&JiraConnectionV011{})
-	if err != nil {
-		return err
-	}
-
-	err = db.Migrator().RenameTable(JiraConnectionTemp{}, archived.JiraConnection{})
+	// step4
+	err = db.Migrator().RenameTable("_tool_jira_connections_new", "_tool_jira_connections")
 	if err != nil {
 		return err
 	}
