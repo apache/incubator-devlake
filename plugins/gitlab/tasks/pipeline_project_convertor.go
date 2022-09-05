@@ -18,10 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
-	"reflect"
-	"time"
-
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -29,21 +25,22 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"reflect"
 )
 
-var ConvertPipelineMeta = core.SubTaskMeta{
-	Name:             "convertPipelines",
-	EntryPoint:       ConvertPipelines,
+var ConvertPipelineProjectMeta = core.SubTaskMeta{
+	Name:             "convertPipelineProjects",
+	EntryPoint:       ConvertPipelineProjects,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table gitlab_pipeline into domain layer table pipeline",
+	Description:      "Convert tool layer table gitlab_pipeline_project into domain layer table pipeline",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertPipelines(taskCtx core.SubTaskContext) error {
+func ConvertPipelineProjects(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 
-	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabPipeline{}))
+	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabPipelineProject{}))
 	if err != nil {
 		return err
 	}
@@ -52,7 +49,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 	pipelineIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabPipeline{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(gitlabModels.GitlabPipeline{}),
+		InputRowType: reflect.TypeOf(gitlabModels.GitlabPipelineProject{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -63,45 +60,20 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 			Table: RAW_PIPELINE_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			gitlabPipeline := inputRow.(*gitlabModels.GitlabPipeline)
+			gitlabPipelineProject := inputRow.(*gitlabModels.GitlabPipelineProject)
 
-			createdAt := time.Now()
-			if gitlabPipeline.GitlabCreatedAt != nil {
-				createdAt = *gitlabPipeline.GitlabCreatedAt
-			}
-
-			domainPipeline := &devops.CICDPipeline{
+			domainPipelineRepo := &devops.CiCDPipelineRepo{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
+					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipelineProject.PipelineId),
 				},
-				Name: fmt.Sprintf("%d", gitlabPipeline.GitlabId),
-				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"failed"},
-					Abort:   []string{"canceled", "skipped"},
-					Default: devops.SUCCESS,
-				}, gitlabPipeline.Status),
-				Status: devops.GetStatus(&devops.StatusRule{
-					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "manual", "scheduled"},
-					Default:    devops.DONE,
-				}, gitlabPipeline.Status),
-				Type:         "CI/CD",
-				CreatedDate:  createdAt,
-				FinishedDate: gitlabPipeline.GitlabUpdatedAt,
+				CommitSha: gitlabPipelineProject.Sha,
+				Branch:    gitlabPipelineProject.Ref,
+				Repo: didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{}).
+					Generate(gitlabPipelineProject.ConnectionId, gitlabPipelineProject.PipelineId),
 			}
-
-			// rebuild the FinishedDate and DurationSec by Status
-			finishedAt := time.Now()
-			if domainPipeline.Status != devops.DONE {
-				domainPipeline.FinishedDate = nil
-			} else if gitlabPipeline.GitlabUpdatedAt != nil {
-				finishedAt = *gitlabPipeline.GitlabUpdatedAt
-			}
-			durationTime := finishedAt.Sub(createdAt)
-
-			domainPipeline.DurationSec = uint64(durationTime.Seconds())
 
 			return []interface{}{
-				domainPipeline,
+				domainPipelineRepo,
 			}, nil
 		},
 	})
