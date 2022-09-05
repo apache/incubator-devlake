@@ -84,51 +84,23 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 				finishTime := jenkinsBuild.StartTime.Add(time.Duration(durationSec * int64(time.Second)))
 				jenkinsPipelineFinishedDate = &finishTime
 			}
-			if jenkinsBuild.TriggeredBy == "" {
-				jenkinsPipeline := &devops.CICDPipeline{
-					DomainEntity: domainlayer.DomainEntity{
-						Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline", jenkinsBuild.ConnectionId,
-							jenkinsBuild.DisplayName),
-					},
-					Name:         jenkinsBuild.DisplayName,
-					Result:       jenkinsPipelineResult,
-					Status:       jenkinsPipelineStatus,
-					FinishedDate: jenkinsPipelineFinishedDate,
-					Type:         "CI/CD",
-					DurationSec:  uint64(durationSec),
-					CreatedDate:  jenkinsBuild.StartTime,
-				}
-				if jenkinsPipelineFinishedDate != nil {
-				}
-				jenkinsPipeline.RawDataOrigin = jenkinsBuild.RawDataOrigin
-				results = append(results, jenkinsPipeline)
+			jenkinsPipeline := &devops.CICDPipeline{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline", jenkinsBuild.ConnectionId,
+						jenkinsBuild.DisplayName),
+				},
+				Name:         jenkinsBuild.DisplayName,
+				Result:       jenkinsPipelineResult,
+				Status:       jenkinsPipelineStatus,
+				FinishedDate: jenkinsPipelineFinishedDate,
+				Type:         "CI/CD",
+				DurationSec:  uint64(durationSec),
+				CreatedDate:  jenkinsBuild.StartTime,
 			}
-
-			if !jenkinsBuild.HasStages {
-				jenkinsTask := &devops.CICDTask{
-					DomainEntity: domainlayer.DomainEntity{
-						Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsTask", jenkinsBuild.ConnectionId,
-							jenkinsBuild.DisplayName),
-					},
-					Name:         jenkinsBuild.DisplayName,
-					Result:       jenkinsPipelineResult,
-					Status:       jenkinsPipelineStatus,
-					Type:         "CI/CD",
-					DurationSec:  uint64(durationSec),
-					StartedDate:  jenkinsBuild.StartTime,
-					FinishedDate: jenkinsPipelineFinishedDate,
-				}
-				if jenkinsBuild.TriggeredBy != "" {
-					jenkinsTask.PipelineId = fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline",
-						jenkinsBuild.ConnectionId, jenkinsBuild.TriggeredBy)
-				} else {
-					jenkinsTask.PipelineId = fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline",
-						jenkinsBuild.ConnectionId, jenkinsBuild.DisplayName)
-				}
-				jenkinsTask.RawDataOrigin = jenkinsBuild.RawDataOrigin
-				results = append(results, jenkinsTask)
-
+			if jenkinsPipelineFinishedDate != nil {
 			}
+			jenkinsPipeline.RawDataOrigin = jenkinsBuild.RawDataOrigin
+			results = append(results, jenkinsPipeline)
 
 			return results, nil
 		},

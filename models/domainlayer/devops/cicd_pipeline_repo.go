@@ -6,7 +6,7 @@ type CiCDPipelineRepo struct {
 	domainlayer.DomainEntity
 	CommitSha string `gorm:"primaryKey;type:varchar(255)"`
 	Branch    string `gorm:"type:varchar(255)"`
-	RepoUrl   string `gorm:"type:varchar(255)"`
+	Repo      string `gorm:"type:varchar(255)"`
 }
 
 func (CiCDPipelineRepo) TableName() string {
