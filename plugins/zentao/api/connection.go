@@ -21,7 +21,6 @@ import (
 	"context"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/mitchellh/mapstructure"
@@ -47,20 +46,20 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	}
 
 	// request for access token
-	tokenReqBody := &apimodels.ApiAccessTokenRequest{
-		AppId:     params.Username,
-		AppSecret: params.Password,
+	tokenReqBody := &models.ApiAccessTokenRequest{
+		Account:  params.Username,
+		Password: params.Password,
 	}
 	tokenRes, err := authApiClient.Post("/tokens", nil, tokenReqBody, nil)
 	if err != nil {
 		return nil, err
 	}
-	tokenResBody := &apimodels.ApiAccessTokenResponse{}
+	tokenResBody := &models.ApiAccessTokenResponse{}
 	err = helper.UnmarshalResponse(tokenRes, tokenResBody)
 	if err != nil {
 		return nil, err
 	}
-	if tokenResBody.AppAccessToken == "" && tokenResBody.TenantAccessToken == "" {
+	if tokenResBody.Token == "" {
 		return nil, errors.Default.New("failed to request access token")
 	}
 
