@@ -43,7 +43,7 @@ jobs:
     - name: Setup Golang env
       uses: actions/setup-go@v3
       with:
-        go-version: ${{ matrix.go }}
+        go-version-file: 'go.mod'
     - name: Cache unit-test
       id: cache-unit-test
       uses: actions/cache@v3
