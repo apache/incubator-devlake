@@ -10,9 +10,6 @@ import (
 type CICDPipeline struct {
 	domainlayer.DomainEntity
 	Name         string `gorm:"type:varchar(255)"`
-	CommitSha    string `gorm:"type:varchar(255);index"`
-	Branch       string `gorm:"type:varchar(255);index"`
-	Repo         string `gorm:"type:varchar(255);index"`
 	Result       string `gorm:"type:varchar(100)"`
 	Status       string `gorm:"type:varchar(100)"`
 	Type         string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
