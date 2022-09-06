@@ -49,6 +49,21 @@ type NewPipeline struct {
 	BlueprintId uint64
 }
 
-func (Pipeline) TableName() string {
+type DbPipeline struct {
+	common.Model
+	Name          string     `json:"name" gorm:"index"`
+	BlueprintId   uint64     `json:"blueprintId"`
+	Plan          string     `json:"plan" encrypt:"yes"`
+	TotalTasks    int        `json:"totalTasks"`
+	FinishedTasks int        `json:"finishedTasks"`
+	BeganAt       *time.Time `json:"beganAt"`
+	FinishedAt    *time.Time `json:"finishedAt" gorm:"index"`
+	Status        string     `json:"status"`
+	Message       string     `json:"message"`
+	SpentSeconds  int        `json:"spentSeconds"`
+	Stage         int        `json:"stage"`
+}
+
+func (DbPipeline) TableName() string {
 	return "_devlake_pipelines"
 }

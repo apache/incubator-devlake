@@ -42,10 +42,6 @@ type Blueprint struct {
 	common.Model `swaggerignore:"true"`
 }
 
-func (Blueprint) TableName() string {
-	return "_devlake_blueprints"
-}
-
 type BlueprintSettings struct {
 	Version     string          `json:"version" validate:"required,semver,oneof=1.0.0"`
 	Connections json.RawMessage `json:"connections" validate:"required"`
@@ -61,4 +57,21 @@ func (bp *Blueprint) UnmarshalPlan() (core.PipelinePlan, error) {
 		return nil, err
 	}
 	return plan, nil
+}
+
+// @Description CronConfig
+type DbBlueprint struct {
+	Name   string `json:"name" validate:"required"`
+	Mode   string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+	Plan   string `json:"plan" encrypt:"yes"`
+	Enable bool   `json:"enable"`
+	//please check this https://crontab.guru/ for detail
+	CronConfig   string `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
+	IsManual     bool   `json:"isManual"`
+	Settings     string `json:"settings" encrypt:"yes" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
+	common.Model `swaggerignore:"true"`
+}
+
+func (DbBlueprint) TableName() string {
+	return "_devlake_blueprints"
 }

@@ -130,7 +130,8 @@ func runPipeline(pipelineId uint64) error {
 		pipeline.Status = models.TASK_COMPLETED
 		pipeline.Message = ""
 	}
-	dbe := db.Model(pipeline).Select("finished_at", "spent_seconds", "status", "message").Updates(pipeline).Error
+	dbPipeline := parseDbPipeline(pipeline)
+	dbe := db.Model(dbPipeline).Select("finished_at", "spent_seconds", "status", "message").Updates(dbPipeline).Error
 	if dbe != nil {
 		globalPipelineLog.Error(dbe, "update pipeline state failed")
 		return dbe
