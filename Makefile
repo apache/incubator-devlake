@@ -18,7 +18,8 @@
 # https://tutorialedge.net/golang/makefiles-for-go-developers/
 
 SHA = $(shell git show -s --format=%h)
-TAG = $(shell git tag --points-at HEAD)
+TAG ?= $(shell git tag --points-at HEAD)
+IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
 
 dep:
@@ -44,6 +45,29 @@ build-server: swag
 build: build-plugin build-server
 
 all: build build-worker
+
+build-server-image:
+	docker build -t $(IMAGE_REPO)/devlake:$(TAG) --file ./Dockerfile .
+
+build-config-ui-image:
+	cd config-ui; docker build -t $(IMAGE_REPO)/devlake-config-ui:$(TAG) --file ./Dockerfile .
+
+build-grafana-image:
+	cd grafana; docker build -t $(IMAGE_REPO)/devlake-grafana:$(TAG) --file ./Dockerfile .
+
+build-images: build-server-image build-config-ui-image build-grafana-image
+
+
+push-server-image: build-server-image
+	docker push $(IMAGE_REPO)/devlake:$(TAG)
+
+push-config-ui-image: build-config-ui-image
+	docker push $(IMAGE_REPO)/devlake-config-ui:$(TAG)
+
+push-grafana-image: build-grafana-image
+        docker push $(IMAGE_REPO)/devlake-grafana:$(TAG)
+
+push-images: push-server-image push-config-ui-image push-grafana-image
 
 run:
 	go run main.go
