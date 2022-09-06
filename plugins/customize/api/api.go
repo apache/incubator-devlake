@@ -25,6 +25,7 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/customize/models"
 	"gorm.io/gorm/clause"
 )
 
@@ -33,16 +34,8 @@ type field struct {
 	ColumnType string `json:"columnType"`
 }
 
-type table struct {
-	name string
-}
-
-func (t *table) TableName() string {
-	return t.name
-}
-
 func getFields(d dal.Dal, tbl string) ([]field, error) {
-	columns, err := d.GetColumns(&table{tbl}, func(columnMeta dal.ColumnMeta) bool {
+	columns, err := d.GetColumns(&models.Table{tbl}, func(columnMeta dal.ColumnMeta) bool {
 		return strings.HasPrefix(columnMeta.Name(), "x_")
 	})
 	if err != nil {
@@ -73,7 +66,7 @@ func checkField(d dal.Dal, table, field string) (bool, error) {
 	return false, nil
 }
 
-func createField(d dal.Dal, table, field string) error {
+func CreateField(d dal.Dal, table, field string) error {
 	exists, err := checkField(d, table, field)
 	if err != nil {
 		return err
@@ -137,7 +130,7 @@ func (h *Handlers) CreateFields(input *core.ApiResourceInput) (*core.ApiResource
 	if !ok {
 		return &core.ApiResourceOutput{Status: http.StatusBadRequest}, fmt.Errorf("the name is not string")
 	}
-	err := createField(h.dal, table, fld)
+	err := CreateField(h.dal, table, fld)
 	if err != nil {
 		return nil, err
 	}

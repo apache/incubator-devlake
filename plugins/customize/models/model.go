@@ -15,28 +15,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main // must be main for plugin entry point
+package models
 
-import (
-	"github.com/apache/incubator-devlake/plugins/customize/impl"
-	"github.com/apache/incubator-devlake/plugins/customize/tasks"
-	"github.com/apache/incubator-devlake/runner"
-	"github.com/spf13/cobra"
-)
+type Table struct {
+	Name string
+}
 
-var PluginEntry impl.Customize //nolint
-
-// standalone mode for debugging
-func main() {
-	cmd := &cobra.Command{Use: "customize"}
-	cmd.Run = func(c *cobra.Command, args []string) {
-		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{"issues": []tasks.MappingRules{
-			{
-				RawDataTable:  "_raw_jira_api_issues",
-				RawDataParams: "{\"ConnectionId\":1,\"BoardId\":8}",
-				Mapping:       map[string]string{"x_test": "fields.created"},
-			},
-		}})
-	}
-	runner.RunCmd(cmd)
+func (t *Table) TableName() string {
+	return t.Name
 }

@@ -18,9 +18,13 @@ limitations under the License.
 package impl
 
 import (
+	"fmt"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/customize/api"
+	"github.com/apache/incubator-devlake/plugins/customize/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -37,6 +41,30 @@ func (plugin *Customize) Init(config *viper.Viper, logger core.Logger, db *gorm.
 	basicRes := helper.NewDefaultBasicRes(config, logger, db)
 	plugin.handlers = api.NewHandlers(basicRes.GetDal())
 	return nil
+}
+
+func (plugin Customize) SubTaskMetas() []core.SubTaskMeta {
+	return []core.SubTaskMeta{
+		tasks.ExtractCustomizedFieldsMeta,
+	}
+}
+
+func (plugin Customize) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
+}
+func (plugin Customize) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+	var op tasks.Options
+	var err error
+	logger := taskCtx.GetLogger()
+	logger.Debug("%v", options)
+	err = mapstructure.Decode(options, &op)
+	if err != nil {
+		return nil, fmt.Errorf("could not decode Jira options: %v", err)
+	}
+	taskData := &tasks.TaskData{
+		Options: &op,
+	}
+	return taskData, nil
 }
 
 func (plugin Customize) Description() string {

@@ -15,28 +15,49 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main // must be main for plugin entry point
+package e2e
 
 import (
+	"testing"
+
+	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+	"github.com/apache/incubator-devlake/plugins/customize/api"
 	"github.com/apache/incubator-devlake/plugins/customize/impl"
 	"github.com/apache/incubator-devlake/plugins/customize/tasks"
-	"github.com/apache/incubator-devlake/runner"
-	"github.com/spf13/cobra"
 )
 
-var PluginEntry impl.Customize //nolint
+func TestBoardDataFlow(t *testing.T) {
+	var plugin impl.Customize
+	dataflowTester := e2ehelper.NewDataFlowTester(t, "customize", plugin)
 
-// standalone mode for debugging
-func main() {
-	cmd := &cobra.Command{Use: "customize"}
-	cmd.Run = func(c *cobra.Command, args []string) {
-		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{"issues": []tasks.MappingRules{
+	taskData := &tasks.TaskData{
+		Options: &tasks.Options{"issues": []tasks.MappingRules{
 			{
 				RawDataTable:  "_raw_jira_api_issues",
 				RawDataParams: "{\"ConnectionId\":1,\"BoardId\":8}",
 				Mapping:       map[string]string{"x_test": "fields.created"},
 			},
-		}})
+		}}}
+
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issues.csv", "_raw_jira_api_issues")
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/issues.csv", &ticket.Issue{})
+	err := api.CreateField(dataflowTester.Dal, "issues", "x_test")
+	if err != nil {
+		t.Fatal(err)
 	}
-	runner.RunCmd(cmd)
+	// verify extension fields extraction
+	dataflowTester.Subtask(tasks.ExtractCustomizedFieldsMeta, taskData)
+	dataflowTester.VerifyTable(
+		ticket.Issue{},
+		"./snapshot_tables/issues.csv",
+		[]string{
+			"id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"x_test",
+		},
+	)
 }
