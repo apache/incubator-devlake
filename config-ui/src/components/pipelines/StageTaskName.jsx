@@ -165,7 +165,7 @@ const StageTaskName = (props) => {
                 )}
                 <div style={{ marginTop: '6px' }}>
                   <label style={{ color: Colors.GRAY2 }}>Updated</label><br />
-                  <span>{dayjs(task.UpdatedAt).format('L LT')}</span>
+                  <span>{task.updatedAt ? dayjs(task.updatedAt).format('L LT') : '-'}</span>
                 </div>
               </div>
             )}
