@@ -18,9 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"reflect"
-	"strconv"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -73,7 +71,8 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 			line := inputRow.(*githubModels.GithubPipeline)
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{Id: pipelineIdGen.Generate(data.Options.ConnectionId, repoId, line.Branch, line.Commit)},
-				Name:         fmt.Sprintf("%d", line.RepoId),
+				Name: didgen.NewDomainIdGenerator(&githubModels.GithubRepo{}).
+					Generate(line.ConnectionId, line.RepoId),
 				Type:         line.Type,
 				DurationSec:  uint64(line.Duration),
 				CreatedDate:  *line.StartedDate,
@@ -97,7 +96,8 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{Id: pipelineIdGen.Generate(data.Options.ConnectionId, repoId, line.Branch, line.Commit)},
 				CommitSha:    line.Commit,
 				Branch:       line.Branch,
-				Repo:         strconv.Itoa(repoId),
+				Repo: didgen.NewDomainIdGenerator(&githubModels.GithubRepo{}).
+					Generate(line.ConnectionId, line.RepoId),
 			}
 
 			return []interface{}{
