@@ -19,23 +19,20 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/utils"
-	"github.com/google/uuid"
-	"os"
-	"path/filepath"
-	"strings"
-	"time"
-
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/utils"
+	"github.com/google/uuid"
 	v11 "go.temporal.io/api/enums/v1"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/converter"
 	"golang.org/x/sync/semaphore"
-	"gorm.io/gorm"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
 )
 
 var notificationService *NotificationService
@@ -73,7 +70,7 @@ func pipelineServiceInit() {
 		watchTemporalPipelines()
 	} else {
 		// standalone mode: reset pipeline status
-		db.Model(&models.Pipeline{}).Where("status <> ?", models.TASK_COMPLETED).Update("status", models.TASK_FAILED)
+		db.Model(&models.DbPipeline{}).Where("status <> ?", models.TASK_COMPLETED).Update("status", models.TASK_FAILED)
 		db.Model(&models.Task{}).Where("status <> ?", models.TASK_COMPLETED).Update("status", models.TASK_FAILED)
 	}
 
@@ -96,108 +93,48 @@ func pipelineServiceInit() {
 
 // CreatePipeline and return the model
 func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
-	// create pipeline object from posted data
-	pipeline := &models.Pipeline{
-		Name:          newPipeline.Name,
-		FinishedTasks: 0,
-		Status:        models.TASK_CREATED,
-		Message:       "",
-		SpentSeconds:  0,
-	}
-	if newPipeline.BlueprintId != 0 {
-		pipeline.BlueprintId = newPipeline.BlueprintId
-	}
-
-	// save pipeline to database
-	err := db.Create(&pipeline).Error
-	if err != nil {
-		globalPipelineLog.Error(err, "create pipline failed")
-		return nil, errors.Internal.Wrap(err, "create pipline failed")
-	}
-
-	// create tasks accordingly
-	for i := range newPipeline.Plan {
-		for j := range newPipeline.Plan[i] {
-			pipelineTask := newPipeline.Plan[i][j]
-			newTask := &models.NewTask{
-				PipelineTask: pipelineTask,
-				PipelineId:   pipeline.ID,
-				PipelineRow:  i + 1,
-				PipelineCol:  j + 1,
-			}
-			_, err := CreateTask(newTask)
-			if err != nil {
-				globalPipelineLog.Error(err, "create task for pipeline failed")
-				return nil, err
-			}
-			// sync task state back to pipeline
-			pipeline.TotalTasks += 1
-		}
-	}
-	if err != nil {
-		globalPipelineLog.Error(err, "save tasks for pipeline failed")
-		return nil, errors.Internal.Wrap(err, "save tasks for pipeline failed")
-	}
-	if pipeline.TotalTasks == 0 {
-		return nil, errors.Default.New("no task to run")
-	}
-
-	// update tasks state
-	pipeline.Plan, err = json.Marshal(newPipeline.Plan)
+	dbPipeline, err := CreateDbPipeline(newPipeline)
 	if err != nil {
 		return nil, err
 	}
-	err = db.Model(pipeline).Updates(map[string]interface{}{
-		"total_tasks": pipeline.TotalTasks,
-		"plan":        pipeline.Plan,
-	}).Error
+	dbPipeline, err = decryptDbPipeline(dbPipeline)
 	if err != nil {
-		globalPipelineLog.Error(err, "update pipline state failed")
-		return nil, errors.Internal.Wrap(err, "update pipline state failed")
+		return nil, err
 	}
-
+	pipeline := parsePipeline(dbPipeline)
 	return pipeline, nil
 }
 
 // GetPipelines by query
 func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
-	pipelines := make([]*models.Pipeline, 0)
-	db := db.Model(pipelines).Order("id DESC")
-	if query.BlueprintId != 0 {
-		db = db.Where("blueprint_id = ?", query.BlueprintId)
-	}
-	if query.Status != "" {
-		db = db.Where("status = ?", query.Status)
-	}
-	if query.Pending > 0 {
-		db = db.Where("finished_at is null")
-	}
-	var count int64
-	err := db.Count(&count).Error
+	dbPipelines, i, err := GetDbPipelines(query)
 	if err != nil {
 		return nil, 0, err
 	}
-	if query.Page > 0 && query.PageSize > 0 {
-		offset := query.PageSize * (query.Page - 1)
-		db = db.Limit(query.PageSize).Offset(offset)
+	pipelines := make([]*models.Pipeline, 0)
+	for _, dbPipeline := range dbPipelines {
+		dbPipeline, err = decryptDbPipeline(dbPipeline)
+		if err != nil {
+			return nil, 0, err
+		}
+		dbPipeline := parsePipeline(dbPipeline)
+		pipelines = append(pipelines, dbPipeline)
 	}
-	err = db.Find(&pipelines).Error
-	if err != nil {
-		return nil, count, err
-	}
-	return pipelines, count, nil
+
+	return pipelines, i, nil
 }
 
 // GetPipeline by id
 func GetPipeline(pipelineId uint64) (*models.Pipeline, error) {
-	pipeline := &models.Pipeline{}
-	err := db.First(pipeline, pipelineId).Error
+	dbPipeline, err := GetDbPipeline(pipelineId)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.NotFound.New("pipeline not found", errors.AsUserMessage())
-		}
-		return nil, errors.Internal.Wrap(err, "error getting the pipeline from database", errors.AsUserMessage())
+		return nil, err
 	}
+	dbPipeline, err = decryptDbPipeline(dbPipeline)
+	if err != nil {
+		return nil, err
+	}
+	pipeline := parsePipeline(dbPipeline)
 	return pipeline, nil
 }
 
@@ -227,23 +164,23 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 			panic(err)
 		}
 		globalPipelineLog.Info("get lock and wait pipeline")
-		pipeline := &models.Pipeline{}
+		dbPipeline := &models.DbPipeline{}
 		for {
 			db.Where("status = ?", models.TASK_CREATED).
 				Not(startedPipelineIds).
-				Order("id ASC").Limit(1).Find(pipeline)
-			if pipeline.ID != 0 {
+				Order("id ASC").Limit(1).Find(dbPipeline)
+			if dbPipeline.ID != 0 {
 				break
 			}
 			time.Sleep(time.Second)
 		}
-		startedPipelineIds = append(startedPipelineIds, pipeline.ID)
+		startedPipelineIds = append(startedPipelineIds, dbPipeline.ID)
 		go func() {
 			defer sema.Release(1)
-			globalPipelineLog.Info("run pipeline, %d", pipeline.ID)
-			err = runPipeline(pipeline.ID)
+			globalPipelineLog.Info("run pipeline, %d", dbPipeline.ID)
+			err = runPipeline(dbPipeline.ID)
 			if err != nil {
-				globalPipelineLog.Error(err, "failed to run pipeline %d", pipeline.ID)
+				globalPipelineLog.Error(err, "failed to run pipeline %d", dbPipeline.ID)
 			}
 		}()
 	}
@@ -256,14 +193,14 @@ func watchTemporalPipelines() {
 		// run forever
 		for range ticker.C {
 			// load all running pipeline from database
-			runningPipelines := make([]models.Pipeline, 0)
-			err := db.Find(&runningPipelines, "status = ?", models.TASK_RUNNING).Error
+			runningDbPipelines := make([]models.DbPipeline, 0)
+			err := db.Find(&runningDbPipelines, "status = ?", models.TASK_RUNNING).Error
 			if err != nil {
 				panic(err)
 			}
 			progressDetails := make(map[uint64]*models.TaskProgressDetail)
 			// check their status against temporal
-			for _, rp := range runningPipelines {
+			for _, rp := range runningDbPipelines {
 				workflowId := getTemporalWorkflowId(rp.ID)
 				desc, err := temporalClient.DescribeWorkflowExecution(
 					context.Background(),
@@ -271,7 +208,7 @@ func watchTemporalPipelines() {
 					"",
 				)
 				if err != nil {
-					globalPipelineLog.Error(err, "failed to query workflow execution")
+					globalPipelineLog.Error(err, "failed to query workflow execution: %w", err)
 					continue
 				}
 				// workflow is terminated by outsider
@@ -291,7 +228,7 @@ func watchTemporalPipelines() {
 						for hisIter.HasNext() {
 							his, err := hisIter.Next()
 							if err != nil {
-								globalPipelineLog.Error(err, "failed to get next from workflow history iterator")
+								globalPipelineLog.Error(err, "failed to get next from workflow history iterator: %w", err)
 								continue
 							}
 							rp.Message = fmt.Sprintf("temporal event type: %v", his.GetEventType())
@@ -304,7 +241,7 @@ func watchTemporalPipelines() {
 						"finished_at": rp.FinishedAt,
 					}).Error
 					if err != nil {
-						globalPipelineLog.Error(err, "failed to update db")
+						globalPipelineLog.Error(err, "failed to update db: %w", err)
 					}
 					continue
 				}
@@ -329,7 +266,7 @@ func watchTemporalPipelines() {
 					lastPayload := payloads[len(payloads)-1]
 					err = dc.FromPayload(lastPayload, progressDetail)
 					if err != nil {
-						globalPipelineLog.Error(err, "failed to unmarshal heartbeat payload")
+						globalPipelineLog.Error(err, "failed to unmarshal heartbeat payload: %w", err)
 						continue
 					}
 				}
@@ -362,7 +299,7 @@ func NotifyExternal(pipelineId uint64) error {
 		Status:     pipeline.Status,
 	})
 	if err != nil {
-		globalPipelineLog.Error(err, "failed to send notification")
+		globalPipelineLog.Error(err, "failed to send notification: %w", err)
 		return err
 	}
 	return nil
@@ -389,13 +326,13 @@ func CancelPipeline(pipelineId uint64) error {
 // getPipelineLogsPath gets the logs directory of this pipeline
 func getPipelineLogsPath(pipeline *models.Pipeline) (string, error) {
 	pipelineLog := getPipelineLogger(pipeline)
-	path := pipelineLog.GetConfig().Path
+	path := filepath.Dir(pipelineLog.GetConfig().Path)
 	_, err := os.Stat(path)
 	if err == nil {
-		return filepath.Dir(path), nil
+		return path, nil
 	}
 	if os.IsNotExist(err) {
-		return "", errors.NotFound.Wrap(err, fmt.Sprintf("logs for pipeline #%d not found. You may be missing the LOGGING_DIR setting", pipeline.ID))
+		return "", fmt.Errorf("logs for pipeline #%d not found: %v", pipeline.ID, err)
 	}
-	return "", errors.Default.Wrap(err, fmt.Sprintf("err validating logs path for pipeline #%d", pipeline.ID))
+	return "", fmt.Errorf("err validating logs path for pipeline #%d: %v", pipeline.ID, err)
 }

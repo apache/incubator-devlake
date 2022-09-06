@@ -50,10 +50,16 @@ func CreateBlueprint(blueprint *models.Blueprint) error {
 	if err != nil {
 		return err
 	}
-	err = db.Create(&blueprint).Error
+	dbBlueprint := parseDbBlueprint(blueprint)
+	dbBlueprint, err = encryptDbBlueprint(dbBlueprint)
 	if err != nil {
 		return err
 	}
+	err = CreateDbBlueprint(dbBlueprint)
+	if err != nil {
+		return err
+	}
+	blueprint.Model = dbBlueprint.Model
 	err = ReloadBlueprints(cronManager)
 	if err != nil {
 		return errors.Internal.Wrap(err, "error reloading blueprints")
@@ -63,38 +69,36 @@ func CreateBlueprint(blueprint *models.Blueprint) error {
 
 // GetBlueprints returns a paginated list of Blueprints based on `query`
 func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, error) {
+	dbBlueprints, count, err := GetDbBlueprints(query)
+	if err != nil {
+		return nil, 0, err
+	}
 	blueprints := make([]*models.Blueprint, 0)
-	db := db.Model(blueprints).Order("id DESC")
-	if query.Enable != nil {
-		db = db.Where("enable = ?", *query.Enable)
-	}
-
-	var count int64
-	err := db.Count(&count).Error
-	if err != nil {
-		return nil, 0, err
-	}
-	if query.Page > 0 && query.PageSize > 0 {
-		offset := query.PageSize * (query.Page - 1)
-		db = db.Limit(query.PageSize).Offset(offset)
-	}
-	err = db.Find(&blueprints).Error
-	if err != nil {
-		return nil, 0, err
+	for _, dbBlueprint := range dbBlueprints {
+		dbBlueprint, err = decryptDbBlueprint(dbBlueprint)
+		if err != nil {
+			return nil, 0, err
+		}
+		blueprint := parseBlueprint(dbBlueprint)
+		blueprints = append(blueprints, blueprint)
 	}
 	return blueprints, count, nil
 }
 
 // GetBlueprint returns the detail of a given Blueprint ID
 func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
-	blueprint := &models.Blueprint{}
-	err := db.First(blueprint, blueprintId).Error
+	dbBlueprint, err := GetDbBlueprint(blueprintId)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.NotFound.New("blueprint not found", errors.AsUserMessage())
 		}
 		return nil, errors.Internal.Wrap(err, "error getting the task from database", errors.AsUserMessage())
 	}
+	dbBlueprint, err = decryptDbBlueprint(dbBlueprint)
+	if err != nil {
+		return nil, err
+	}
+	blueprint := parseBlueprint(dbBlueprint)
 	return blueprint, nil
 }
 
@@ -142,9 +146,9 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	if err != nil {
 		return nil, err
 	}
+
 	originMode := blueprint.Mode
 	err = helper.DecodeMapStruct(body, blueprint)
-
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +163,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	}
 
 	// save
-	err = db.Save(blueprint).Error
+	err = save(blueprint)
 	if err != nil {
 		return nil, errors.Internal.Wrap(err, "error saving blueprint")
 	}
@@ -175,7 +179,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 
 // DeleteBlueprint FIXME ...
 func DeleteBlueprint(id uint64) error {
-	err := db.Delete(&models.Blueprint{}, "id = ?", id).Error
+	err := DeleteDbBlueprint(id)
 	if err != nil {
 		return errors.Internal.Wrap(err, fmt.Sprintf("error deleting blueprint %d", id))
 	}
@@ -188,10 +192,10 @@ func DeleteBlueprint(id uint64) error {
 
 // ReloadBlueprints FIXME ...
 func ReloadBlueprints(c *cron.Cron) error {
-	blueprints := make([]*models.Blueprint, 0)
-	err := db.Model(&models.Blueprint{}).
+	dbBlueprints := make([]*models.DbBlueprint, 0)
+	err := db.Model(&models.DbBlueprint{}).
 		Where("enable = ? AND is_manual = ?", true, false).
-		Find(&blueprints).Error
+		Find(&dbBlueprints).Error
 	if err != nil {
 		panic(err)
 	}
@@ -199,14 +203,18 @@ func ReloadBlueprints(c *cron.Cron) error {
 		c.Remove(e.ID)
 	}
 	c.Stop()
-	for _, pp := range blueprints {
-		blueprint := pp
-		plan, err := pp.UnmarshalPlan()
+	for _, pp := range dbBlueprints {
+		pp, err = decryptDbBlueprint(pp)
+		if err != nil {
+			return err
+		}
+		blueprint := parseBlueprint(pp)
+		plan, err := blueprint.UnmarshalPlan()
 		if err != nil {
 			blueprintLog.Error(err, "created cron job failed")
 			return err
 		}
-		_, err = c.AddFunc(pp.CronConfig, func() {
+		_, err = c.AddFunc(blueprint.CronConfig, func() {
 			pipeline, err := createPipelineByBlueprint(blueprint.ID, blueprint.Name, plan)
 			if err != nil {
 				blueprintLog.Error(err, "run cron job failed")
@@ -219,10 +227,10 @@ func ReloadBlueprints(c *cron.Cron) error {
 			return err
 		}
 	}
-	if len(blueprints) > 0 {
+	if len(dbBlueprints) > 0 {
 		c.Start()
 	}
-	log.Info("total %d blueprints were scheduled", len(blueprints))
+	log.Info("total %d blueprints were scheduled", len(dbBlueprints))
 	return nil
 }
 
@@ -348,4 +356,12 @@ func TriggerBlueprint(id uint64) (*models.Pipeline, error) {
 	pipeline, err := createPipelineByBlueprint(blueprint.ID, blueprint.Name, plan)
 	// done
 	return pipeline, err
+}
+func save(blueprint *models.Blueprint) error {
+	dbBlueprint := parseDbBlueprint(blueprint)
+	dbBlueprint, err := encryptDbBlueprint(dbBlueprint)
+	if err != nil {
+		return err
+	}
+	return db.Save(dbBlueprint).Error
 }
