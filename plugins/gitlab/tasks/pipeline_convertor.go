@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"reflect"
 	"time"
 
@@ -74,7 +73,8 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
 				},
-				Name: fmt.Sprintf("%d", gitlabPipeline.GitlabId),
+				Name: didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{}).
+					Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"failed"},
 					Abort:   []string{"canceled", "skipped"},
