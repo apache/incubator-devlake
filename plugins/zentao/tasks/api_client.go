@@ -20,7 +20,6 @@ package tasks
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 	"net/http"
 	"strconv"
 	"time"
@@ -37,20 +36,20 @@ func NewZentaoApiClient(taskCtx core.TaskContext, connection *models.ZentaoConne
 	}
 
 	// request for access token
-	tokenReqBody := &apimodels.ApiAccessTokenRequest{
-		AppId:     connection.Username,
-		AppSecret: connection.Password,
+	tokenReqBody := &models.ApiAccessTokenRequest{
+		Account:  connection.Username,
+		Password: connection.Password,
 	}
 	tokenRes, err := authApiClient.Post("/tokens", nil, tokenReqBody, nil)
 	if err != nil {
 		return nil, err
 	}
-	tokenResBody := &apimodels.ApiAccessTokenResponse{}
+	tokenResBody := &models.ApiAccessTokenResponse{}
 	err = helper.UnmarshalResponse(tokenRes, tokenResBody)
 	if err != nil {
 		return nil, err
 	}
-	if tokenResBody.AppAccessToken == "" && tokenResBody.TenantAccessToken == "" {
+	if tokenResBody.Token == "" {
 		return nil, errors.Default.New("failed to request access token")
 	}
 	// real request apiClient
@@ -60,7 +59,7 @@ func NewZentaoApiClient(taskCtx core.TaskContext, connection *models.ZentaoConne
 	}
 	// set token
 	apiClient.SetHeaders(map[string]string{
-		"Token": fmt.Sprintf("%v", tokenResBody.TenantAccessToken),
+		"Token": fmt.Sprintf("%v", tokenResBody.Token),
 	})
 
 	// create rate limit calculator
