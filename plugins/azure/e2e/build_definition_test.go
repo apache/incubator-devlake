@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -47,7 +46,7 @@ func TestAzureBuildDefinitionDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiBuildDefinitionMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.AzureBuildDefinition{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.AzureBuildDefinition{}.TableName()),
+		"./snapshot_tables/_tool_azure_build_definitions.csv",
 		[]string{
 			"connection_id",
 			"project_id",
