@@ -37,7 +37,7 @@ var (
 	Timeout      = register(&Type{httpCode: http.StatusGatewayTimeout, meta: "timeout"})
 
 	//cached values
-	typesByHttpCode = map[int]*Type{}
+	typesByHttpCode = newSyncMap[int, *Type]()
 )
 
 type (
@@ -58,9 +58,10 @@ type (
 )
 
 func HttpStatus(code int) *Type {
-	t, ok := typesByHttpCode[code]
-	if !ok {
-		t = Internal
+	t, ok := typesByHttpCode.Load(code)
+	if !ok { // lazily cache any missing codes
+		t = &Type{httpCode: code, meta: fmt.Sprintf("type_http_%d", code)}
+		typesByHttpCode.Store(code, t)
 	}
 	return t
 }
@@ -149,9 +150,9 @@ func withStackOffset(offset uint) Option {
 func register(t *Type) *Type {
 	if t == nil {
 		t = &Type{meta: "default"}
-		typesByHttpCode[t.httpCode] = t
+		typesByHttpCode.Store(t.httpCode, t)
 	} else if t.httpCode != 0 {
-		typesByHttpCode[t.httpCode] = t
+		typesByHttpCode.Store(t.httpCode, t)
 	}
 	return t
 }
