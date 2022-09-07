@@ -18,7 +18,7 @@ limitations under the License.
 package tasks
 
 type MappingRules struct {
-	Table         string            `json:"table"`
+	Table         string            `json:"table" example:"issues"`
 	RawDataTable  string            `json:"_raw_data_table" example:"_raw_jira_api_issues"`
 	RawDataParams string            `json:"_raw_data_params" example:"{\"ConnectionId\":1,\"BoardId\":8}"`
 	Mapping       map[string]string `json:"mapping" example:"x_text:fields.created"`

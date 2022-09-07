@@ -32,9 +32,7 @@ type blueprintSetting []struct {
 	Connections []struct {
 		Plugin string `json:"plugin" example:"customize"`
 		Scope  []struct {
-			Options struct {
-				Issues []tasks.MappingRules `json:"issues"`
-			} `json:"options"`
+			Options tasks.Options `json:"options"`
 		} `json:"scope"`
 	} `json:"connections"`
 }
@@ -48,9 +46,7 @@ type blueprintSetting []struct {
 func _() {}
 
 type pipelinePlan [][]struct {
-	Plugin   string   `json:"plugin"`
-	Subtasks []string `json:"subtasks"`
-	Options  struct {
-		Issues []tasks.MappingRules `json:"issues"`
-	} `json:"options"`
+	Plugin   string        `json:"plugin"`
+	Subtasks []string      `json:"subtasks"`
+	Options  tasks.Options `json:"options"`
 }
