@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
@@ -26,23 +27,23 @@ import (
 type modifyPipeline struct{}
 
 func (*modifyPipeline) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().DropColumn(CICDPipeline0905{}, "commit_sha")
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().DropColumn(CICDPipeline0905{}, "branch")
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().DropColumn(CICDPipeline0905{}, "repo")
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().RenameColumn(CICDPipelineRepo0905{}, "repo_url", "repo")
-	if err != nil {
-		return err
-	}
-	err = db.Migrator().AutoMigrate(CICDPipelineRelationship0905{})
+	// err := db.Migrator().DropColumn(CICDPipeline0905{}, "commit_sha")
+	// if err != nil {
+	// 	return err
+	// }
+	// err = db.Migrator().DropColumn(CICDPipeline0905{}, "branch")
+	// if err != nil {
+	// 	return err
+	// }
+	// err = db.Migrator().DropColumn(CICDPipeline0905{}, "repo")
+	// if err != nil {
+	// 	return err
+	// }
+	// err = db.Migrator().RenameColumn(CICDPipelineRepo0905{}, "repo_url", "repo")
+	// if err != nil {
+	// 	return err
+	// }
+	err := db.Migrator().AutoMigrate(CICDPipelineRelationship0905{})
 	if err != nil {
 		return err
 	}
@@ -76,8 +77,8 @@ func (CICDPipelineRepo0905) TableName() string {
 }
 
 type CICDPipelineRelationship0905 struct {
-	ParentPipelineId string `gorm:"primary;type:varchar(255)"`
-	ChildPipelineId  string `gorm:"primary;type:varchar(255)"`
+	ParentPipelineId string `gorm:"primaryKey;type:varchar(255)"`
+	ChildPipelineId  string `gorm:"primaryKey;type:varchar(255)"`
 	archived.NoPKModel
 }
 

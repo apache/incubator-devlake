@@ -24,8 +24,8 @@ func (CICDPipeline) TableName() string {
 }
 
 type CICDPipelineRelationship struct {
-	ParentPipelineId string `gorm:"primary;type:varchar(255)"`
-	ChildPipelineId  string `gorm:"primary;type:varchar(255)"`
+	ParentPipelineId string `gorm:"primaryKey;type:varchar(255)"`
+	ChildPipelineId  string `gorm:"primaryKey;type:varchar(255)"`
 	common.NoPKModel
 }
 
