@@ -27,23 +27,23 @@ import (
 type modifyPipeline struct{}
 
 func (*modifyPipeline) Up(ctx context.Context, db *gorm.DB) error {
-	// err := db.Migrator().DropColumn(CICDPipeline0905{}, "commit_sha")
-	// if err != nil {
-	// 	return err
-	// }
-	// err = db.Migrator().DropColumn(CICDPipeline0905{}, "branch")
-	// if err != nil {
-	// 	return err
-	// }
-	// err = db.Migrator().DropColumn(CICDPipeline0905{}, "repo")
-	// if err != nil {
-	// 	return err
-	// }
-	// err = db.Migrator().RenameColumn(CICDPipelineRepo0905{}, "repo_url", "repo")
-	// if err != nil {
-	// 	return err
-	// }
-	err := db.Migrator().AutoMigrate(CICDPipelineRelationship0905{})
+	err := db.Migrator().DropColumn(CICDPipeline0905{}, "commit_sha")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().DropColumn(CICDPipeline0905{}, "branch")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().DropColumn(CICDPipeline0905{}, "repo")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().RenameColumn(CICDPipelineRepo0905{}, "repo_url", "repo")
+	if err != nil {
+		return err
+	}
+	err = db.Migrator().AutoMigrate(CICDPipelineRelationship0905{})
 	if err != nil {
 		return err
 	}
