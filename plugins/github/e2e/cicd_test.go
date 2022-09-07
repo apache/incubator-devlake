@@ -201,6 +201,7 @@ func TestGithubRunsDataFlow(t *testing.T) {
 			"status",
 			"type",
 			"duration_sec",
+			"environment",
 			"created_date",
 			"finished_date",
 		},
