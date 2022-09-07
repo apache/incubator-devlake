@@ -28,5 +28,6 @@ func All() []migration.Script {
 		new(modifyGitlabCI),
 		new(addPipelineID),
 		new(addPipelineProjects),
+		new(fixDurationToFloat8),
 	}
 }
