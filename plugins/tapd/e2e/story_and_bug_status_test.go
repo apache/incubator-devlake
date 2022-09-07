@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -49,7 +48,7 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractStoryStatusMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdStoryStatus{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStoryStatus{}.TableName()),
+		"./snapshot_tables/_tool_tapd_story_statuses.csv",
 		[]string{
 			"connection_id",
 			"workspace_id",
@@ -73,7 +72,7 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractBugStatusMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdBugStatus{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugStatus{}.TableName()),
+		"./snapshot_tables/_tool_tapd_bug_statuses.csv",
 		[]string{
 			"connection_id",
 			"workspace_id",

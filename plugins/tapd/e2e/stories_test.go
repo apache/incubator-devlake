@@ -18,9 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/tapd/impl"
@@ -48,7 +48,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractStoryStatusMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdStoryStatus{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStoryStatus{}.TableName()),
+		"./snapshot_tables/_tool_tapd_story_statuses.csv",
 		[]string{
 			"connection_id",
 			"workspace_id",
@@ -74,7 +74,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractStoryMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdStory{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStory{}.TableName()),
+		"./snapshot_tables/_tool_tapd_stories.csv",
 		[]string{
 			"connection_id",
 			"id",
@@ -187,7 +187,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.TapdWorkSpaceStory{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdWorkSpaceStory{}.TableName()),
+		"./snapshot_tables/_tool_tapd_workspace_stories.csv",
 		[]string{
 			"connection_id",
 			"workspace_id",
@@ -200,7 +200,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.TapdIterationStory{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdIterationStory{}.TableName()),
+		"./snapshot_tables/_tool_tapd_iteration_stories.csv",
 		[]string{
 			"connection_id",
 			"workspace_id",
@@ -216,7 +216,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.TapdStoryLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStoryLabel{}.TableName()),
+		"./snapshot_tables/_tool_tapd_story_labels.csv",
 		[]string{
 			"label_name",
 			"story_id",
@@ -234,7 +234,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertStoryMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
-		fmt.Sprintf("./snapshot_tables/%s_story.csv", ticket.Issue{}.TableName()),
+		"./snapshot_tables/issues_story.csv",
 		[]string{
 			"id",
 			"_raw_data_params",
@@ -270,7 +270,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		ticket.BoardIssue{},
-		fmt.Sprintf("./snapshot_tables/%s_story.csv", ticket.BoardIssue{}.TableName()),
+		"./snapshot_tables/board_issues_story.csv",
 		[]string{
 			"board_id",
 			"issue_id",
@@ -282,7 +282,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		ticket.SprintIssue{},
-		fmt.Sprintf("./snapshot_tables/%s_story.csv", ticket.SprintIssue{}.TableName()),
+		"./snapshot_tables/sprint_issues_story.csv",
 		[]string{
 			"issue_id",
 			"sprint_id",
@@ -295,7 +295,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertStoryLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueLabel{},
-		fmt.Sprintf("./snapshot_tables/%s_story.csv", ticket.IssueLabel{}.TableName()),
+		"./snapshot_tables/issue_labels_story.csv",
 		[]string{
 			"issue_id",
 			"label_name",
@@ -305,5 +305,4 @@ func TestTapdStoryDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
-
 }

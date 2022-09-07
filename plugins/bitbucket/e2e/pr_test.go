@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -59,7 +58,7 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BitbucketPullRequest{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.BitbucketPullRequest{}.TableName()),
+		"./snapshot_tables/_tool_bitbucket_pull_requests.csv",
 		[]string{
 			"connection_id",
 			"bitbucket_id",
@@ -116,7 +115,7 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.PullRequest{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequest{}.TableName()),
+		"./snapshot_tables/pull_requests.csv",
 		[]string{
 			"id",
 			"_raw_data_params",

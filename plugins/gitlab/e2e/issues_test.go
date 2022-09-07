@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -51,7 +50,7 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabIssue{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabIssue{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_issues.csv",
 		[]string{
 			"connection_id",
 			"gitlab_id",
@@ -85,7 +84,7 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 
 	dataflowTester.VerifyTable(
 		models.GitlabIssueLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabIssueLabel{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_issue_labels.csv",
 		[]string{
 			"connection_id",
 			"issue_id",
@@ -103,7 +102,7 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Issue{}.TableName()),
+		"./snapshot_tables/issues.csv",
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
@@ -140,7 +139,7 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 
 	dataflowTester.VerifyTable(
 		&ticket.BoardIssue{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.BoardIssue{}.TableName()),
+		"./snapshot_tables/board_issues.csv",
 		[]string{
 			"board_id",
 			"issue_id",
@@ -155,7 +154,7 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertIssueLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.IssueLabel{}.TableName()),
+		"./snapshot_tables/issue_labels.csv",
 		[]string{
 			"issue_id",
 			"label_name",

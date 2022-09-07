@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -40,15 +39,14 @@ func TestTapdCompanyDataFlow(t *testing.T) {
 		},
 	}
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_companies.csv",
-		"_raw_tapd_api_companies")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_companies.csv", "_raw_tapd_api_companies")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.TapdWorkspace{})
 	dataflowTester.Subtask(tasks.ExtractCompanyMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdWorkspace{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdWorkspace{}.TableName()),
+		"./snapshot_tables/_tool_tapd_workspaces.csv",
 		[]string{
 			"connection_id",
 			"id",

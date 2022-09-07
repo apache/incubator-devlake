@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -65,7 +64,7 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BitbucketIssue{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.BitbucketIssue{}.TableName()),
+		"./snapshot_tables/_tool_bitbucket_issues.csv",
 		[]string{
 			"connection_id",
 			"bitbucket_id",
@@ -121,7 +120,7 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Issue{}.TableName()),
+		"./snapshot_tables/issues.csv",
 		[]string{
 			"id",
 			"_raw_data_params",
@@ -157,7 +156,7 @@ func TestIssueDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		ticket.BoardIssue{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.BoardIssue{}.TableName()),
+		"./snapshot_tables/board_issues.csv",
 		[]string{"board_id", "issue_id"},
 	)
 

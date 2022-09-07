@@ -18,9 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/tapd/impl"
@@ -50,7 +50,7 @@ func TestTapdIterationDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractIterationMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdIteration{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdIteration{}.TableName()),
+		"./snapshot_tables/_tool_tapd_iterations.csv",
 		[]string{
 			"connection_id",
 			"id",
@@ -77,7 +77,7 @@ func TestTapdIterationDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.TapdWorkspaceIteration{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdWorkspaceIteration{}.TableName()),
+		"./snapshot_tables/_tool_tapd_workspace_iterations.csv",
 		[]string{
 			"connection_id",
 			"workspace_id",
@@ -93,7 +93,7 @@ func TestTapdIterationDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertIterationMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Sprint{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Sprint{}.TableName()),
+		"./snapshot_tables/sprints.csv",
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",
@@ -111,7 +111,7 @@ func TestTapdIterationDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		ticket.BoardSprint{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.BoardSprint{}.TableName()),
+		"./snapshot_tables/board_sprints.csv",
 		[]string{
 			"board_id",
 			"sprint_id",
@@ -121,5 +121,4 @@ func TestTapdIterationDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
-
 }

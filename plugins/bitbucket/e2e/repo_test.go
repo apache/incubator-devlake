@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -59,7 +58,7 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiRepoMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BitbucketRepo{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.BitbucketRepo{}.TableName()),
+		"./snapshot_tables/_tool_bitbucket_repos.csv",
 		[]string{
 			"connection_id",
 			"bitbucket_id",
@@ -78,7 +77,7 @@ func TestRepoDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.BitbucketAccount{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.BitbucketAccount{}.TableName()),
+		"./snapshot_tables/_tool_bitbucket_accounts.csv",
 		[]string{
 			"connection_id",
 			"user_name",
@@ -102,7 +101,7 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertRepoMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Repo{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.Repo{}.TableName()),
+		"./snapshot_tables/repos.csv",
 		[]string{
 			"id",
 			"_raw_data_params",
@@ -122,7 +121,7 @@ func TestRepoDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		ticket.Board{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.Board{}.TableName()),
+		"./snapshot_tables/boards.csv",
 		[]string{
 			"id",
 			"_raw_data_params",

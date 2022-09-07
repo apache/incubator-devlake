@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -48,7 +47,7 @@ func TestTapdBugCustomFieldDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractBugCustomFieldsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdBugCustomFields{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugCustomFields{}.TableName()),
+		"./snapshot_tables/_tool_tapd_bug_custom_fields.csv",
 		[]string{
 			"connection_id",
 			"id",

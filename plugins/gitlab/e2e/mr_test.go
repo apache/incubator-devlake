@@ -18,9 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
@@ -49,7 +49,7 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabMergeRequest{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMergeRequest{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_merge_requests.csv",
 		[]string{
 			"connection_id",
 			"gitlab_id",
@@ -83,7 +83,7 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.GitlabMrLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMrLabel{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_mr_labels.csv",
 		[]string{
 			"connection_id",
 			"mr_id",
@@ -100,7 +100,7 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertApiMergeRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.PullRequest{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequest{}.TableName()),
+		"./snapshot_tables/pull_requests.csv",
 		[]string{
 			"id",
 			"_raw_data_params",
@@ -135,7 +135,7 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertMrLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.PullRequestLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestLabel{}.TableName()),
+		"./snapshot_tables/pull_request_labels.csv",
 		[]string{
 			"pull_request_id",
 			"label_name",
