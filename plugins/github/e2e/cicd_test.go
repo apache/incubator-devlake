@@ -21,13 +21,13 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
 func TestGithubJobsDataFlow(t *testing.T) {
-
 	var github impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", github)
 
@@ -48,6 +48,7 @@ func TestGithubJobsDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubJob{})
+	dataflowTester.FlushTabler(&devops.CICDTask{})
 
 	dataflowTester.Subtask(tasks.ExtractJobsMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -81,6 +82,22 @@ func TestGithubJobsDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
+
+	dataflowTester.Subtask(tasks.ConvertTasksMeta, taskData)
+	dataflowTester.VerifyTable(
+		devops.CICDTask{},
+		"./snapshot_tables/cicd_tasks.csv",
+		[]string{
+			"name",
+			"pipeline_id",
+			"result",
+			"status",
+			"type",
+			"duration_sec",
+			"started_date",
+			"finished_date",
+		},
+	)
 }
 
 func TestGithubRunsDataFlow(t *testing.T) {
@@ -105,6 +122,9 @@ func TestGithubRunsDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubRun{})
+	dataflowTester.FlushTabler(&models.GithubPipeline{})
+	dataflowTester.FlushTabler(&devops.CICDPipeline{})
+	dataflowTester.FlushTabler(&devops.CiCDPipelineRepo{})
 
 	dataflowTester.Subtask(tasks.ExtractRunsMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -148,4 +168,51 @@ func TestGithubRunsDataFlow(t *testing.T) {
 		},
 	)
 
+	dataflowTester.Subtask(tasks.EnrichPipelinesMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.GithubPipeline{},
+		"./snapshot_tables/_tool_github_pipelines.csv",
+		[]string{
+			"connection_id",
+			"repo_id",
+			"branch",
+			"commit",
+			"started_date",
+			"finished_date",
+			"duration",
+			"status",
+			"result",
+			"type",
+
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
+	dataflowTester.Subtask(tasks.ConvertPipelinesMeta, taskData)
+	dataflowTester.VerifyTable(
+		&devops.CICDPipeline{},
+		"./snapshot_tables/cicd_pipelines.csv",
+		[]string{
+			"name",
+			"result",
+			"status",
+			"type",
+			"duration_sec",
+			"created_date",
+			"finished_date",
+		},
+	)
+
+	dataflowTester.VerifyTable(
+		&devops.CiCDPipelineRepo{},
+		"./snapshot_tables/cicd_pipeline_repos.csv",
+		[]string{
+			"commit_sha",
+			"branch",
+			"repo",
+		},
+	)
 }
