@@ -61,7 +61,7 @@ const GitlabProjectsSelector = (props) => {
         }}
       />
     ),
-    tagRenderer = (item) => item?.title,
+    tagRenderer = (item) => item.shortTitle || item.title
   } = props
 
   const [query, setQuery] = useState('')

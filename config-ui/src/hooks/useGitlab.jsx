@@ -54,12 +54,19 @@ const useGitlab = ({ apiProxyPath, projectsEndpoint }, activeConnection = null) 
     }
   }, [projectsEndpoint, activeConnection, apiProxyPath])
 
-  const createListData = (data = [], titleProperty = 'name_with_namespace', valueProperty = 'id') => {
+  const createListData = (
+    data = [],
+    titleProperty = 'name_with_namespace',
+    valueProperty = 'id',
+    iconProperty = 'avatar_url',
+  ) => {
     return data.map((d, dIdx) => ({
       id: d[valueProperty],
       key: d[valueProperty],
       title: d[titleProperty],
+      shortTitle: d.name,
       value: d[valueProperty],
+      icon: d[iconProperty],
       type: 'string'
     }))
   }

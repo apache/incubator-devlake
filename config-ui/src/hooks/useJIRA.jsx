@@ -159,6 +159,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
       key: d[valueProperty],
       title: d[titleProperty],
       value: d[valueProperty],
+      icon: d?.location?.avatarURI,
       type: d.schema?.type || 'string'
     }))
   }
