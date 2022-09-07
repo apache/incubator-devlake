@@ -70,7 +70,7 @@ import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import useGitlab from '@/hooks/useGitlab'
-import { PROJECTS_ENDPOINT } from '@/config/gitlabApiProxy'
+import { GITLAB_API_PROXY_ENDPOINT, PROJECTS_ENDPOINT } from '@/config/gitlabApiProxy'
 
 // import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 
@@ -258,7 +258,7 @@ const CreateBlueprint = (props) => {
     error: gitlabProxyError,
   } = useGitlab(
     {
-      apiProxyPath: JIRA_API_PROXY_ENDPOINT,
+      apiProxyPath: GITLAB_API_PROXY_ENDPOINT,
       projectsEndpoint: PROJECTS_ENDPOINT,
     },
     configuredConnection

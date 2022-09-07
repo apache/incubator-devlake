@@ -21,8 +21,8 @@ import { MultiSelect } from '@blueprintjs/select'
 
 const GitlabProjectsSelector = (props) => {
   const {
-    fetchGitlabProjects = () => [],
-    isFetchingGitlab = false,
+    fetchGitlabProjects: onFetch = () => [],
+    isFetchingGitlab: isFetching = false,
     configuredConnection,
     placeholder = 'Select Projects',
     items = [],
@@ -68,24 +68,12 @@ const GitlabProjectsSelector = (props) => {
   const [onlyQueryMemberRepo, setOnlyQueryMemberRepo] = useState(true)
 
   useEffect(() => {
-    if (query.length <= 2) {
-      // only search when type more than 2 char or empty
-      return
-    }
     // prevent request too frequently
     const timer = setTimeout(() => {
-      fetchGitlabProjects(query, onlyQueryMemberRepo)
+      onFetch(query, onlyQueryMemberRepo)
     }, 200)
     return () => clearTimeout(timer)
-  }, [fetchGitlabProjects, query])
-
-  useEffect(() => {
-    if (query.length <= 2) {
-      // only search when type more than 2 char or empty
-      return
-    }
-    fetchGitlabProjects(query, onlyQueryMemberRepo)
-  }, [fetchGitlabProjects, onlyQueryMemberRepo])
+  }, [onFetch, query, onlyQueryMemberRepo])
 
   return (
     <div
@@ -118,8 +106,8 @@ const GitlabProjectsSelector = (props) => {
             },
           }}
           noResults={
-            (query.length <= 2 && <MenuItem disabled={true} text='Please type more than 2 char to search.' />) ||
-            (isFetchingGitlab && <MenuItem disabled={true} text='Fetching...' />) ||
+            (query.length <= 2 && <MenuItem disabled={true} text='Please type more than 2 characters to search.' />) ||
+            (isFetching && <MenuItem disabled={true} text='Fetching...' />) ||
             <MenuItem disabled={true} text='No Projects Available.' />
           }
           onRemove={(item) => {
@@ -149,7 +137,7 @@ const GitlabProjectsSelector = (props) => {
         />
 
         <Checkbox
-          label='only search repos joined' checked={onlyQueryMemberRepo}
+          label='Only search my repositories' checked={onlyQueryMemberRepo}
           onChange={e => setOnlyQueryMemberRepo(!onlyQueryMemberRepo)}
           style={{ margin: '10px 0 0 6px' }}
         />

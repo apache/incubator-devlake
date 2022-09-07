@@ -73,7 +73,7 @@ import BlueprintNavigationLinks from '@/components/blueprints/BlueprintNavigatio
 import DataScopesGrid from '@/components/blueprints/DataScopesGrid'
 import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
 import useGitlab from '@/hooks/useGitlab'
-import { PROJECTS_ENDPOINT } from '@/config/gitlabApiProxy'
+import { GITLAB_API_PROXY_ENDPOINT, PROJECTS_ENDPOINT } from '@/config/gitlabApiProxy'
 
 const BlueprintSettings = (props) => {
   // eslint-disable-next-line no-unused-vars
@@ -305,7 +305,7 @@ const BlueprintSettings = (props) => {
     error: gitlabProxyError,
   } = useGitlab(
     {
-      apiProxyPath: JIRA_API_PROXY_ENDPOINT,
+      apiProxyPath: GITLAB_API_PROXY_ENDPOINT,
       projectsEndpoint: PROJECTS_ENDPOINT,
     },
     configuredConnection
@@ -608,10 +608,10 @@ const BlueprintSettings = (props) => {
     // @todo: handle multi-stage
     const getAdvancedGithubProjects = (t, providerId) => [Providers.GITHUB].includes(providerId)
       ? [{
-          id: `${t.options.owner}/${t.options?.repo}`,
-          key: `${t.options.owner}/${t.options?.repo}`,
-          value: `${t.options.owner}/${t.options?.repo}`,
-          title: `${t.options.owner}/${t.options?.repo}`,
+          id: `${t.options?.owner}/${t.options?.repo}`,
+          key: `${t.options?.owner}/${t.options?.repo}`,
+          value: `${t.options?.owner}/${t.options?.repo}`,
+          title: `${t.options?.owner}/${t.options?.repo}`,
         }]
       : []
     const getAdvancedGitlabProjects = (t, providerId) => [Providers.GITLAB].includes(providerId)

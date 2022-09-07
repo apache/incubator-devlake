@@ -31,15 +31,20 @@ const useGitlab = ({ apiProxyPath, projectsEndpoint }, activeConnection = null) 
       }
       setError(null)
       setIsFetching(true)
-      const endpoint = projectsEndpoint
-        .replace('[:connectionId:]', activeConnection?.connectionId)
-        .replace('[:search:]', search)
-        .replace('[:membership:]', onlyQueryMemberRepo ? 1 : 0)
-      const projectsResponse = await request.get(endpoint)
-      if (projectsResponse && projectsResponse.status === 200 && projectsResponse.data) {
-        setProjects(createListData(projectsResponse.data))
+      if (search.length > 2) {
+        // only search when type more than 2 chars
+        const endpoint = projectsEndpoint
+          .replace('[:connectionId:]', activeConnection?.connectionId)
+          .replace('[:search:]', search)
+          .replace('[:membership:]', onlyQueryMemberRepo ? 1 : 0)
+        const projectsResponse = await request.get(endpoint)
+        if (projectsResponse && projectsResponse.status === 200 && projectsResponse.data) {
+          setProjects(createListData(projectsResponse.data))
+        } else {
+          throw new Error('request projects fail')
+        }
       } else {
-        throw new Error('request projects fail')
+        setProjects([])
       }
     } catch (e) {
       setError(e)
