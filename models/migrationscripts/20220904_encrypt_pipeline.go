@@ -66,9 +66,9 @@ func (PipelineOldVersion) TableName() string {
 	return "_devlake_pipelines"
 }
 
-type modifyPipeline0904 struct{}
+type encryptPipeline struct{}
 
-func (*modifyPipeline0904) Up(ctx context.Context, db *gorm.DB) error {
+func (*encryptPipeline) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().CreateTable(&Pipeline0904Temp{})
 	if err != nil {
 		return err
@@ -83,6 +83,7 @@ func (*modifyPipeline0904) Up(ctx context.Context, db *gorm.DB) error {
 		return result.Error
 	}
 
+	// Encrypt all pipelines.plan which had been stored before v0.14
 	for _, v := range pipelineList {
 		c := config.GetConfig()
 		encKey := c.GetString(core.EncodeKeyEnvStr)
@@ -121,10 +122,10 @@ func (*modifyPipeline0904) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*modifyPipeline0904) Version() uint64 {
+func (*encryptPipeline) Version() uint64 {
 	return 20220904162121
 }
 
-func (*modifyPipeline0904) Name() string {
-	return "modifyPipeline0904"
+func (*encryptPipeline) Name() string {
+	return "encrypt Pipeline"
 }

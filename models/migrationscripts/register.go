@@ -40,7 +40,7 @@ func All() []migration.Script {
 		new(modifyTablesForDora),
 		new(addTypeFieldInBoard),
 		new(modifyPipeline),
-		new(modifyBLueprint),
-		new(modifyPipeline0904),
+		new(encryptBLueprint),
+		new(encryptPipeline),
 	}
 }
