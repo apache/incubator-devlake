@@ -25,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/customize/models"
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/tidwall/gjson"
 )
 
@@ -59,13 +58,17 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 	if err != nil {
 		return err
 	}
-	fields := []string{"_raw_data_id"}
+	rawDataField := fmt.Sprintf("%s.data", rawTable)
+	// `fields` only include `_raw_data_id` and primary keys coming from the domain layer table, and `data` coming from the raw layer
+	fields := []string{fmt.Sprintf("%s.%s", table, "_raw_data_id")}
+	fields = append(fields, rawDataField)
 	for _, field := range pkFields {
-		fields = append(fields, field.Name())
+		fields = append(fields, fmt.Sprintf("%s.%s", table, field.Name()))
 	}
 	clauses := []dal.Clause{
 		dal.Select(strings.Join(fields, ", ")),
 		dal.From(table),
+		dal.Join(fmt.Sprintf(" LEFT JOIN %s ON %s._raw_data_id = %s.id", rawTable, table, rawTable)),
 		dal.Where("_raw_data_table = ? AND _raw_data_params = ?", rawTable, rawDataParams),
 	}
 	rows, err := d.Cursor(clauses...)
@@ -73,34 +76,37 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 		return err
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
 		}
-		data := make(map[string]interface{})
+		row := make(map[string]interface{})
 		updates := make(map[string]string)
-		err = d.Fetch(rows, &data)
+		err = d.Fetch(rows, &row)
 		if err != nil {
 			return err
 		}
-		var raw helper.RawData
-		cls := []dal.Clause{
-			dal.Select("*"),
-			dal.From(rawTable),
-			dal.Where("id = ?", data["_raw_data_id"]),
+		switch blob := row["data"].(type) {
+		case []byte:
+			for field, path := range extractor {
+				updates[field] = gjson.GetBytes(blob, path).String()
+			}
+		case string:
+			for field, path := range extractor {
+				updates[field] = gjson.Get(blob, path).String()
+			}
+		default:
+			return nil
 		}
-		err = d.First(&raw, cls...)
-		if err != nil {
-			return err
-		}
-		for field, path := range extractor {
-			updates[field] = gjson.GetBytes(raw.Data, path).String()
-		}
+
 		if len(updates) > 0 {
-			delete(data, "_raw_data_id")
-			query, params := mkUpdate(table, updates, data)
+			// remove columns that are not primary key
+			delete(row, "_raw_data_id")
+			delete(row, "data")
+			query, params := mkUpdate(table, updates, row)
 			err = d.Exec(query, params...)
 			if err != nil {
 				return err
