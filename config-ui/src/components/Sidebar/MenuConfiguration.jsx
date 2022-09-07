@@ -68,6 +68,14 @@ const MenuConfiguration = (activeRoute) => {
           active: activeRoute.url.endsWith('/integrations/tapd') || activeRoute.url.endsWith('/tapd'),
           icon: 'layers',
           classNames: [],
+        },
+        {
+          id: 5,
+          label: 'Webhook',
+          route: '/connections/webhook',
+          active: activeRoute.url.endsWith('/connections/webhook') || activeRoute.url.endsWith('/webhook'),
+          icon: 'layers',
+          classNames: [],
         }
       ]
     },

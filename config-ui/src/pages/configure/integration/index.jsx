@@ -22,16 +22,17 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import { integrationsData } from '@/data/integrations'
+import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/webhook.svg'
 
 import '@/styles/integration.scss'
 
-export default function Integration () {
+export default function Integration() {
   const history = useHistory()
 
   const [activeProvider, setActiveProvider] = useState(integrationsData[0])
 
   const handleProviderClick = (providerId) => {
-    const theProvider = integrationsData.find(p => p.id === providerId)
+    const theProvider = integrationsData.find((p) => p.id === providerId)
     if (theProvider) {
       setActiveProvider(theProvider)
       history.push(`/integrations/${theProvider.id}`)
@@ -45,9 +46,7 @@ export default function Integration () {
     console.log(activeProvider)
   }, [activeProvider, history])
 
-  useEffect(() => {
-
-  }, [])
+  useEffect(() => {}, [])
 
   return (
     <>
@@ -59,7 +58,7 @@ export default function Integration () {
             <AppCrumbs
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
-                { href: '/integrations', icon: false, text: 'Integrations', current: true }
+                { href: '/integrations', icon: false, text: 'Integrations', current: true },
               ]}
             />
             <div className='headlineContainer'>
@@ -81,6 +80,21 @@ export default function Integration () {
                   </div>
                 </div>
               ))}
+            </div>
+            <div className='headlineContainer'>
+              <h1>Webhooks</h1>
+              <p className='page-description'>
+                You can use Webhooks to define Issues and Deployments to be used in calculating DORA metrics. Please note: Webhooks cannot
+                be created or managed in Blueprints.
+              </p>
+            </div>
+            <div className='integrationProviders'>
+              <div className='iProvider' style={{ width: 130 }} onClick={() => history.push('/connections/webhook')}>
+                <div className='providerIcon'>
+                  <WebHookProviderIcon className='providerIconSvg' width='40' height='40' />
+                </div>
+                <div className='providerName'>Issue/Deployment Webhook</div>
+              </div>
             </div>
           </main>
         </Content>
