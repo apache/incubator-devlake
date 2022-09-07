@@ -19,52 +19,38 @@ package migrationscripts
 
 import (
 	"context"
-	"time"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
-type addPipelineID struct{}
+type addPipelineProjects struct{}
 
-type GitlabJob20220804 struct {
+type GitlabPipelineProjects20220907 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
-
-	GitlabId     int     `gorm:"primaryKey"`
-	ProjectId    int     `gorm:"index"`
-	PipelineId   int     `gorm:"index"`
-	Status       string  `gorm:"type:varchar(255)"`
-	Stage        string  `gorm:"type:varchar(255)"`
-	Name         string  `gorm:"type:varchar(255)"`
-	Ref          string  `gorm:"type:varchar(255)"`
-	Tag          bool    `gorm:"type:boolean"`
-	AllowFailure bool    `json:"allow_failure"`
-	Duration     float64 `gorm:"type:text"`
-	WebUrl       string  `gorm:"type:varchar(255)"`
-
-	GitlabCreatedAt *time.Time
-	StartedAt       *time.Time
-	FinishedAt      *time.Time
-
+	PipelineId   int    `gorm:"primaryKey"`
+	ProjectId    int    `gorm:"primaryKey;type:varchar(255)"`
+	Ref          string `gorm:"type:varchar(255)"`
+	Sha          string `gorm:"type:varchar(255)"`
 	archived.NoPKModel
 }
 
-func (GitlabJob20220804) TableName() string {
-	return "_tool_gitlab_jobs"
+func (GitlabPipelineProjects20220907) TableName() string {
+	return "_tool_gitlab_pipeline_projects"
 }
 
-func (*addPipelineID) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().AddColumn(&GitlabJob20220804{}, "pipeline_id")
+func (*addPipelineProjects) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().CreateTable(&GitlabPipelineProjects20220907{})
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (*addPipelineID) Version() uint64 {
-	return 20220804230912
+func (*addPipelineProjects) Version() uint64 {
+	return 20220907230912
 }
 
-func (*addPipelineID) Name() string {
-	return "add pipeline id to job"
+func (*addPipelineProjects) Name() string {
+	return "gitlab add _tool_gitlab_pipeline_projects table"
 }

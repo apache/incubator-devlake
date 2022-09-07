@@ -21,7 +21,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
@@ -44,7 +44,7 @@ type GitlabPipeline20220729 struct {
 	FinishedAt      *time.Time
 	Coverage        string
 
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GitlabPipeline20220729) TableName() string {
@@ -69,7 +69,7 @@ type GitlabJob20220729 struct {
 	StartedAt       *time.Time
 	FinishedAt      *time.Time
 
-	common.NoPKModel
+	archived.NoPKModel
 }
 
 func (GitlabJob20220729) TableName() string {
