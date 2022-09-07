@@ -651,7 +651,7 @@ const BlueprintSettings = (props) => {
             ? getGitlabProjects(c)
             : getGithubProjects(c),
           boards: [Providers.JIRA].includes(c.plugin)
-            ? c.scope.map((s) => `Board ${s.options?.boardId}`)
+            ? c.scope.map((s) => s.options?.title || `Board ${s.options?.boardId}`)
             : [],
           boardIds: [Providers.JIRA].includes(c.plugin)
             ? c.scope.map((s) => s.options?.boardId)
@@ -694,7 +694,7 @@ const BlueprintSettings = (props) => {
           entities: ['-'],
           entitityList: getDefaultEntities(c.plugin),
           boards: [Providers.JIRA].includes(c.plugin)
-            ? getAdvancedJiraBoards(c, c.plugin).map(bId => `Board ${bId}`)
+            ? getAdvancedJiraBoards(c, c.plugin).map(board => board.title)
             : [],
           boardIds: [Providers.JIRA].includes(c.plugin)
             ? getAdvancedJiraBoards(c, c.plugin)
