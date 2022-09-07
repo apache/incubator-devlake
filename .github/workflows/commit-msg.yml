@@ -36,4 +36,4 @@ jobs:
         run: |
           ! git log --oneline ${{ github.event.pull_request.base.sha }}... \
             | grep -vP '^\w{8} Merge ' \
-            | grep -vP '^\w{8} (feat|fix|build|chore|docs|style|refactor|perf|test|ci)(\(\w+\))?: \w'
+            | grep -vP '^\w{8} (feat|fix|build|chore|docs|style|refactor|perf|test|ci)(\(\w+(-\w+)?\))?:(\s*).*'
