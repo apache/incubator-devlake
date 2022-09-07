@@ -21,8 +21,8 @@ import { MultiSelect } from '@blueprintjs/select'
 
 const GitlabProjectsSelector = (props) => {
   const {
-    fetchGitlabProjects: onFetch = () => [],
-    isFetchingGitlab: isFetching = false,
+    onFetch = () => [],
+    isFetching = false,
     configuredConnection,
     placeholder = 'Select Projects',
     items = [],

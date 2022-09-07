@@ -183,8 +183,8 @@ const DataScopes = (props) => {
                       <h4>Projects *</h4>
                       <p>Select the project you would like to sync.</p>
                       <GitlabProjectsSelector
-                        fetchGitlabProjects={fetchGitlabProjects}
-                        isFetchingGitlab={isFetchingGitlab}
+                        onFetch={fetchGitlabProjects}
+                        isFetching={isFetchingGitlab}
                         items={gitlabProjects}
                         selectedItems={selectedProjects}
                         onItemSelect={setProjects}
