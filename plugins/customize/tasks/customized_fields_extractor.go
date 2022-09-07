@@ -45,12 +45,10 @@ func ExtractCustomizedFields(taskCtx core.SubTaskContext) error {
 	}
 	d := taskCtx.GetDal()
 	var err error
-	for table, rules := range *data.Options {
-		for _, rule := range rules {
-			err = extractCustomizedFields(taskCtx.GetContext(), d, table, rule.RawDataTable, rule.RawDataParams, rule.Mapping)
-			if err != nil {
-				return err
-			}
+	for _, rule := range data.Options.TransformationRules {
+		err = extractCustomizedFields(taskCtx.GetContext(), d, rule.Table, rule.RawDataTable, rule.RawDataParams, rule.Mapping)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -98,10 +96,7 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 			return err
 		}
 		for field, path := range extractor {
-			value := gjson.GetBytes(raw.Data, path).String()
-			if value != "" {
-				updates[field] = value
-			}
+			updates[field] = gjson.GetBytes(raw.Data, path).String()
 		}
 		if len(updates) > 0 {
 			delete(data, "_raw_data_id")

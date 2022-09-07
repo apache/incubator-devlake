@@ -17,34 +17,17 @@ limitations under the License.
 
 package tasks
 
-import (
-	"github.com/mitchellh/mapstructure"
-)
-
 type MappingRules struct {
+	Table         string            `json:"table"`
 	RawDataTable  string            `json:"_raw_data_table" example:"_raw_jira_api_issues"`
 	RawDataParams string            `json:"_raw_data_params" example:"{\"ConnectionId\":1,\"BoardId\":8}"`
 	Mapping       map[string]string `json:"mapping" example:"x_text:fields.created"`
 }
 
-type Options map[string][]MappingRules
+type Options struct {
+	TransformationRules []MappingRules `json:"transformationRules"`
+}
 
 type TaskData struct {
 	Options *Options
-}
-
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*Options, error) {
-	op := Options{"issues": []MappingRules{
-		{
-			RawDataTable:  "_raw_jira_api_issues",
-			RawDataParams: "{\"ConnectionId\":1,\"BoardId\":8}",
-			Mapping:       map[string]string{"x_test": "fields.created"},
-		},
-	}}
-	err := mapstructure.Decode(options, &op)
-	if err != nil {
-		return nil, err
-	}
-
-	return &op, nil
 }

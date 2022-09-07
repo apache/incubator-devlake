@@ -30,13 +30,13 @@ var PluginEntry impl.Customize //nolint
 func main() {
 	cmd := &cobra.Command{Use: "customize"}
 	cmd.Run = func(c *cobra.Command, args []string) {
-		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{"issues": []tasks.MappingRules{
-			{
-				RawDataTable:  "_raw_jira_api_issues",
-				RawDataParams: "{\"ConnectionId\":1,\"BoardId\":8}",
-				Mapping:       map[string]string{"x_test": "fields.created"},
-			},
-		}})
+		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{"transformationRules": []tasks.MappingRules{{
+			Table:         "issues",
+			RawDataTable:  "_raw_jira_api_issues",
+			RawDataParams: "{\"ConnectionId\":1,\"BoardId\":8}",
+			Mapping:       map[string]string{"x_test": "fields.timespent"},
+		}},
+		})
 	}
 	runner.RunCmd(cmd)
 }
