@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
@@ -76,8 +77,8 @@ func (CICDPipelineRepo0905) TableName() string {
 }
 
 type CICDPipelineRelationship0905 struct {
-	ParentPipelineId string `gorm:"primary;type:varchar(255)"`
-	ChildPipelineId  string `gorm:"primary;type:varchar(255)"`
+	ParentPipelineId string `gorm:"primaryKey;type:varchar(255)"`
+	ChildPipelineId  string `gorm:"primaryKey;type:varchar(255)"`
 	archived.NoPKModel
 }
 
