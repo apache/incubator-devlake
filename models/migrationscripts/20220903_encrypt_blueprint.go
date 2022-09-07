@@ -59,9 +59,9 @@ func (BlueprintOldVersion) TableName() string {
 	return "_devlake_blueprints"
 }
 
-type modifyBLueprint struct{}
+type encryptBLueprint struct{}
 
-func (*modifyBLueprint) Up(ctx context.Context, db *gorm.DB) error {
+func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().CreateTable(&Blueprint0903Temp{})
 	if err != nil {
 		return err
@@ -76,6 +76,7 @@ func (*modifyBLueprint) Up(ctx context.Context, db *gorm.DB) error {
 		return result.Error
 	}
 
+	// Encrypt all blueprints.plan&settings which had been stored before v0.14
 	for _, v := range blueprintList {
 		c := config.GetConfig()
 		encKey := c.GetString(core.EncodeKeyEnvStr)
@@ -116,10 +117,10 @@ func (*modifyBLueprint) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*modifyBLueprint) Version() uint64 {
+func (*encryptBLueprint) Version() uint64 {
 	return 20220904142321
 }
 
-func (*modifyBLueprint) Name() string {
-	return "modifyBlueprint"
+func (*encryptBLueprint) Name() string {
+	return "encrypt Blueprint"
 }
