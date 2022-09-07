@@ -32,13 +32,12 @@ func TestBoardDataFlow(t *testing.T) {
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "customize", plugin)
 
 	taskData := &tasks.TaskData{
-		Options: &tasks.Options{"issues": []tasks.MappingRules{
-			{
-				RawDataTable:  "_raw_jira_api_issues",
-				RawDataParams: "{\"ConnectionId\":1,\"BoardId\":8}",
-				Mapping:       map[string]string{"x_test": "fields.created"},
-			},
-		}}}
+		Options: &tasks.Options{[]tasks.MappingRules{{
+			Table:         "issues",
+			RawDataTable:  "_raw_jira_api_issues",
+			RawDataParams: "{\"ConnectionId\":1,\"BoardId\":8}",
+			Mapping:       map[string]string{"x_test": "fields.created"},
+		}}}}
 
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_issues.csv", "_raw_jira_api_issues")
