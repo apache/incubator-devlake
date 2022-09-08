@@ -54,33 +54,6 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOpt
 	if op.Repo == "" {
 		return nil, errors.Default.New("repo is required for Bitbucket execution")
 	}
-	if op.PrType == "" {
-		op.PrType = "type/(.*)$"
-	}
-	if op.PrComponent == "" {
-		op.PrComponent = "component/(.*)$"
-	}
-	if op.PrBodyClosePattern == "" {
-		op.PrBodyClosePattern = "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/api.bitbucket.org\\/2.0\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)"
-	}
-	if op.IssueSeverity == "" {
-		op.IssueSeverity = "severity/(.*)$"
-	}
-	if op.IssuePriority == "" {
-		op.IssuePriority = "^(highest|high|medium|low)$"
-	}
-	if op.IssueComponent == "" {
-		op.IssueComponent = "component/(.*)$"
-	}
-	if op.IssueTypeBug == "" {
-		op.IssueTypeBug = "^(bug|failure|error)$"
-	}
-	if op.IssueTypeIncident == "" {
-		op.IssueTypeIncident = ""
-	}
-	if op.IssueTypeRequirement == "" {
-		op.IssueTypeRequirement = "^(feat|feature|proposal|requirement)$"
-	}
 
 	// find the needed Bitbucket now
 	if op.ConnectionId == 0 {
