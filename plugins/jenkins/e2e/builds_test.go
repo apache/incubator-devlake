@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
@@ -38,22 +39,18 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
+	// SELECT * FROM _raw_jenkins_api_builds INTO OUTFILE "/tmp/_raw_jenkins_api_builds.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jenkins_api_builds.csv", "_raw_jenkins_api_builds")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.JenkinsBuild{})
+	dataflowTester.FlushTabler(&models.JenkinsBuildRepo{})
+
 	dataflowTester.Subtask(tasks.ExtractApiBuildsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.JenkinsBuild{},
 		"./snapshot_tables/_tool_jenkins_builds.csv",
 		[]string{
-			"connection_id",
-			"job_name",
-			"number",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"connection_id",
 			"job_name",
 			"duration",
@@ -64,6 +61,74 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"timestamp",
 			"start_time",
 			"commit_sha",
+
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
+	dataflowTester.VerifyTable(
+		models.JenkinsBuildRepo{},
+		"./snapshot_tables/_tool_jenkins_build_repos.csv",
+		[]string{
+			"connection_id",
+			"build_name",
+			"commit_sha",
+			"branch",
+			"repo_url",
+
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
+	dataflowTester.FlushTabler(&devops.CICDTask{})
+	dataflowTester.FlushTabler(&devops.CICDPipeline{})
+	dataflowTester.FlushTabler(&devops.CICDPipelineRelationship{})
+
+	dataflowTester.Subtask(tasks.ConvertBuildsToCICDMeta, taskData)
+
+	dataflowTester.VerifyTable(
+		devops.CICDTask{},
+		"./snapshot_tables/cicd_tasks.csv",
+		[]string{
+			"name",
+			"pipeline_id",
+			"result",
+			"status",
+			"type",
+			"environment",
+			"duration_sec",
+			"started_date",
+			"finished_date",
+		},
+	)
+
+	dataflowTester.VerifyTable(
+		devops.CICDPipeline{},
+		"./snapshot_tables/cicd_pipelines.csv",
+		[]string{
+			"name",
+			"result",
+			"status",
+			"type",
+			"duration_sec",
+			"environment",
+			"created_date",
+			"finished_date",
+		},
+	)
+
+	dataflowTester.VerifyTable(
+		devops.CICDPipelineRelationship{},
+		"./snapshot_tables/cicd_pipeline_relationships.csv",
+		[]string{
+			"parent_pipeline_id",
+			"child_pipeline_id",
 		},
 	)
 }

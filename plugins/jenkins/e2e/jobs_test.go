@@ -40,6 +40,7 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
+	// SELECT * FROM _raw_jenkins_api_jobs INTO OUTFILE "/tmp/_raw_jenkins_api_jobs.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jenkins_api_jobs.csv", "_raw_jenkins_api_jobs")
 
 	// verify extraction
