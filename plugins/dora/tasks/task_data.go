@@ -22,16 +22,18 @@ import (
 )
 
 type DoraApiParams struct {
+	RepoId string `json:"repoId"`
 }
 
 type TransformationRules struct {
-	EnvironmentPattern string `mapstructure:"environmentPattern" json:"environmentPattern"`
+	Environment      string `mapstructure:"environment" json:"environment"`
+	EnvironmentRegex string `mapstructure:"environmentRegex" json:"environmentRegex"`
 }
 
 type DoraOptions struct {
 	Tasks               []string `json:"tasks,omitempty"`
 	Since               string
-	TransformationRules string `mapstructure:"transformationRules" json:"transformationRules"`
+	TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type DoraTaskData struct {

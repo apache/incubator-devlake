@@ -42,22 +42,20 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
 
-	var environmentRegex *regexp.Regexp
-	environmentPattern := data.Options.TransformationRules
+	var envReg *regexp.Regexp
+	environmentPattern := data.Options.EnvironmentRegex
 	if len(environmentPattern) > 0 {
-		environmentRegex, err = regexp.Compile(environmentPattern)
+		envReg, err = regexp.Compile(environmentPattern)
 		if err != nil {
-			return fmt.Errorf("regexp Compile environmentRegex failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return fmt.Errorf("regexp Compile envReg failed:[%s] stack:[%s]", err.Error(), debug.Stack())
 		}
 	} else {
-		fmt.Println("NO SETTING")
 		environmentPattern = "deploy" // default
-		environmentRegex, err = regexp.Compile("deploy")
+		envReg, err = regexp.Compile("deploy")
 		if err != nil {
-			return fmt.Errorf("regexp Compile environmentRegex failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return fmt.Errorf("regexp Compile envReg failed:[%s] stack:[%s]", err.Error(), debug.Stack())
 		}
 	}
-	fmt.Println(environmentRegex)
 
 	cursor, err := db.Cursor(
 		dal.From(&devops.CICDTask{}),
@@ -80,11 +78,12 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err error) {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			cicdTask := inputRow.(*devops.CICDTask)
 			results := make([]interface{}, 0, 1)
-			if deployTask := environmentRegex.FindString(cicdTask.Name); deployTask == "" {
+			if deployTask := envReg.FindString(cicdTask.Name); deployTask == "" {
 				return nil, nil
 			}
 			cicdPipelineFilter := &devops.CICDTask{
 				DomainEntity: cicdTask.DomainEntity,
+				PipelineId:   cicdTask.PipelineId,
 				Name:         cicdTask.Name,
 				Result:       cicdTask.Result,
 				Status:       cicdTask.Status,
@@ -92,7 +91,7 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err error) {
 				DurationSec:  cicdTask.DurationSec,
 				StartedDate:  cicdTask.StartedDate,
 				FinishedDate: cicdTask.FinishedDate,
-				Environment:  environmentPattern,
+				Environment:  data.Options.Environment,
 			}
 			results = append(results, cicdPipelineFilter)
 			return results, nil
