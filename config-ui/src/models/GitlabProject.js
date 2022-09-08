@@ -70,7 +70,7 @@ class GitlabProject {
     this.topcs = data?.topics || null
     this.ssh_url_to_repo = data?.ssh_url_to_repo || null
     this.http_url_to_repo = data?.http_url_to_repo || null
-    this.web_url = data?.web_url || ull
+    this.web_url = data?.web_url || null
     this.readme_url = data?.readme_url || null
     this.avatar_url = data?.avatar_url || null
     this.forks_count = data?.forks_count || null

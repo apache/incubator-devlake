@@ -24,6 +24,8 @@ import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 import { integrationsData } from '@/data/integrations'
 import TransformationSettings from '@/models/TransformationSettings'
 import JiraBoard from '@/models/JiraBoard'
+import GitHubProject from '@/models/GithubProject'
+import GitlabProject from '@/models/GitlabProject'
 import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 
 function useDataScopesManager ({ provider, blueprint, /* connection, */ settings = {}, setSettings = () => {} }) {
@@ -241,7 +243,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
   )
 
   const getGithubProjects = useCallback((c) => [Providers.GITHUB].includes(c.plugin)
-    ? c.scope.map((s) => ({
+    ? c.scope.map((s) => new GitHubProject({
       id: `${s.options.owner}/${s.options?.repo}`,
       key: `${s.options.owner}/${s.options?.repo}`,
       value: `${s.options.owner}/${s.options?.repo}`,
@@ -250,7 +252,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     : [], [])
 
   const getGitlabProjects = useCallback((c) => [Providers.GITLAB].includes(c.plugin)
-    ? c.scope.map((s) => ({
+    ? c.scope.map((s) => new GitlabProject({
       id: s.options?.projectId,
       key: s.options?.projectId,
       value: s.options?.projectId,
@@ -259,30 +261,30 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     : [], [])
 
   const getAdvancedGithubProjects = useCallback((t, providerId) => [Providers.GITHUB].includes(providerId)
-    ? [{
+    ? [new GitHubProject({
       id: `${t.options?.owner}/${t.options?.repo}`,
       key: `${t.options?.owner}/${t.options?.repo}`,
       value: `${t.options?.owner}/${t.options?.repo}`,
       title: `${t.options?.owner}/${t.options?.repo}`,
-    }]
+    })]
     : [], [])
 
   const getAdvancedGitlabProjects = useCallback((t, providerId) => [Providers.GITLAB].includes(providerId)
-    ? [{
+    ? [new GitlabProject({
       id: t.options?.projectId,
       key: t.options?.projectId,
       value: t.options?.projectId,
       title: t.options?.title || `Project ${t.options?.projectId}`,
-    }]
+    })]
     : [], [])
 
   const getAdvancedJiraBoards = useCallback((t, providerId) => [Providers.JIRA].includes(providerId)
-    ? [{
+    ? [new JiraBoard({
       id: t.options?.boardId,
       key: t.options?.boardId,
       value: t.options?.boardId,
       title: t.options?.title || `Board ${t.options?.boardId}`,
-    }]
+    })]
     : [], [])
 
 
