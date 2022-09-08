@@ -262,31 +262,30 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
 
   const getAdvancedGithubProjects = useCallback((t, providerId) => [Providers.GITHUB].includes(providerId)
     ? [new GitHubProject({
-      id: `${t.options?.owner}/${t.options?.repo}`,
-      key: `${t.options?.owner}/${t.options?.repo}`,
-      value: `${t.options?.owner}/${t.options?.repo}`,
-      title: `${t.options?.owner}/${t.options?.repo}`,
-    })]
+        id: `${t.options?.owner}/${t.options?.repo}`,
+        key: `${t.options?.owner}/${t.options?.repo}`,
+        value: `${t.options?.owner}/${t.options?.repo}`,
+        title: `${t.options?.owner}/${t.options?.repo}`,
+      })]
     : [], [])
 
   const getAdvancedGitlabProjects = useCallback((t, providerId) => [Providers.GITLAB].includes(providerId)
     ? [new GitlabProject({
-      id: t.options?.projectId,
-      key: t.options?.projectId,
-      value: t.options?.projectId,
-      title: t.options?.title || `Project ${t.options?.projectId}`,
-    })]
+        id: t.options?.projectId,
+        key: t.options?.projectId,
+        value: t.options?.projectId,
+        title: t.options?.title || `Project ${t.options?.projectId}`,
+      })]
     : [], [])
 
   const getAdvancedJiraBoards = useCallback((t, providerId) => [Providers.JIRA].includes(providerId)
     ? [new JiraBoard({
-      id: t.options?.boardId,
-      key: t.options?.boardId,
-      value: t.options?.boardId,
-      title: t.options?.title || `Board ${t.options?.boardId}`,
-    })]
+        id: t.options?.boardId,
+        key: t.options?.boardId,
+        value: t.options?.boardId,
+        title: t.options?.title || `Board ${t.options?.boardId}`,
+      })]
     : [], [])
-
 
   // (altered version from PR No. 2926)
   // const getJiraMappedBoards = useCallback((options = []) => {

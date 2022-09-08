@@ -597,34 +597,34 @@ const BlueprintSettings = (props) => {
     if (activeBlueprint?.id && activeBlueprint?.mode === BlueprintMode.NORMAL) {
       setConnections(
         activeBlueprint?.settings?.connections.map((c, cIdx) =>
-           new DataScopeConnection(
-             createNormalConnection(
-               activeBlueprint,
-               c,
-               cIdx,
-               DEFAULT_DATA_ENTITIES,
-               allProviderConnections,
-               connectionsList,
-               [Providers.JIRA].includes(c.plugin) ? getJiraMappedBoards(c.scope.map((s) => s.options?.boardId), allJiraResources?.boards) : []
-             )
-           )
-         )
+          new DataScopeConnection(
+            createNormalConnection(
+              activeBlueprint,
+              c,
+              cIdx,
+              DEFAULT_DATA_ENTITIES,
+              allProviderConnections,
+              connectionsList,
+              [Providers.JIRA].includes(c.plugin) ? getJiraMappedBoards(c.scope.map((s) => s.options?.boardId), allJiraResources?.boards) : []
+            )
+          )
+        )
       )
     } else if (activeBlueprint?.id && activeBlueprint?.mode === BlueprintMode.ADVANCED) {
       setConnections(
         activeBlueprint?.plan?.flat().map((c, cIdx) =>
-           new DataScopeConnection(
-             createAdvancedConnection(
-               activeBlueprint,
-               c,
-               cIdx,
-               DEFAULT_DATA_ENTITIES,
-               allProviderConnections,
-               connectionsList,
-               [Providers.JIRA].includes(c.plugin) ? getJiraMappedBoards(c.scope?.map((s) => s.options?.boardId), allJiraResources?.boards) : []
-             )
-           )
-         )
+          new DataScopeConnection(
+            createAdvancedConnection(
+              activeBlueprint,
+              c,
+              cIdx,
+              DEFAULT_DATA_ENTITIES,
+              allProviderConnections,
+              connectionsList,
+              [Providers.JIRA].includes(c.plugin) ? getJiraMappedBoards(c.scope?.map((s) => s.options?.boardId), allJiraResources?.boards) : []
+            )
+          )
+        )
       )
     }
     setBlueprintName(activeBlueprint?.name)
