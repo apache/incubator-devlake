@@ -122,7 +122,6 @@ func TestGithubRunsDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubRun{})
-	dataflowTester.FlushTabler(&models.GithubPipeline{})
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
 	dataflowTester.FlushTabler(&devops.CiCDPipelineRepo{})
 
@@ -168,30 +167,8 @@ func TestGithubRunsDataFlow(t *testing.T) {
 		},
 	)
 
-	dataflowTester.Subtask(tasks.EnrichPipelinesMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.GithubPipeline{},
-		"./snapshot_tables/_tool_github_pipelines.csv",
-		[]string{
-			"connection_id",
-			"repo_id",
-			"branch",
-			"commit",
-			"started_date",
-			"finished_date",
-			"duration",
-			"status",
-			"result",
-			"type",
-
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-
 	dataflowTester.Subtask(tasks.ConvertPipelinesMeta, taskData)
+
 	dataflowTester.VerifyTable(
 		&devops.CICDPipeline{},
 		"./snapshot_tables/cicd_pipelines.csv",
