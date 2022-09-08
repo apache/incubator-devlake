@@ -101,8 +101,8 @@ const DataTransformations = (props) => {
 
   const [entityList, setEntityList] = useState(boardsAndProjects?.map((e, eIdx) => ({
     id: eIdx,
-    value: e?.value || e,
-    title: e?.title || e,
+    value: e?.value,
+    title: e?.title,
     entity: e,
     type: typeof e === 'object' ? 'board' : 'project'
   })))
@@ -308,7 +308,7 @@ const DataTransformations = (props) => {
                       {!useDropdownSelector && (
                         <>
                           <h4>Project</h4>
-                          <p style={{ color: '#292B3F' }}>{configuredProject || configuredBoard?.name || '< select a project >'}</p>
+                          <p style={{ color: '#292B3F' }}>{configuredProject?.title || configuredBoard?.title || '< select a project >'}</p>
                         </>
                       )}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

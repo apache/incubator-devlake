@@ -20,7 +20,7 @@ import { useParams, useHistory } from 'react-router-dom'
 import { ENVIRONMENT } from '@/config/environment'
 import dayjs from '@/utils/time'
 import {
-  API_PROXY_ENDPOINT,
+  JIRA_API_PROXY_ENDPOINT,
   ISSUE_TYPES_ENDPOINT,
   ISSUE_FIELDS_ENDPOINT,
   BOARDS_ENDPOINT,
@@ -72,6 +72,8 @@ import BlueprintDataScopesDialog from '@/components/blueprints/BlueprintDataScop
 import BlueprintNavigationLinks from '@/components/blueprints/BlueprintNavigationLinks'
 import DataScopesGrid from '@/components/blueprints/DataScopesGrid'
 import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
+import useGitlab from '@/hooks/useGitlab'
+import { GITLAB_API_PROXY_ENDPOINT, PROJECTS_ENDPOINT } from '@/config/gitlabApiProxy'
 
 const BlueprintSettings = (props) => {
   // eslint-disable-next-line no-unused-vars
@@ -288,10 +290,23 @@ const BlueprintSettings = (props) => {
     error: jiraProxyError,
   } = useJIRA(
     {
-      apiProxyPath: API_PROXY_ENDPOINT,
+      apiProxyPath: JIRA_API_PROXY_ENDPOINT,
       issuesEndpoint: ISSUE_TYPES_ENDPOINT,
       fieldsEndpoint: ISSUE_FIELDS_ENDPOINT,
       boardsEndpoint: BOARDS_ENDPOINT,
+    },
+    configuredConnection
+  )
+
+  const {
+    fetchProjects: fetchGitlabProjects,
+    projects: gitlabProjects,
+    isFetching: isFetchingGitlab,
+    error: gitlabProxyError,
+  } = useGitlab(
+    {
+      apiProxyPath: GITLAB_API_PROXY_ENDPOINT,
+      projectsEndpoint: PROJECTS_ENDPOINT,
     },
     configuredConnection
   )
@@ -454,7 +469,7 @@ const BlueprintSettings = (props) => {
               break
             case Providers.GITLAB:
               isValid = Array.isArray(projects[configuredConnection?.id]) &&
-              validateNumericSet(projects[configuredConnection?.id]) &&
+                projects[configuredConnection?.id]?.length > 0 &&
               entities[configuredConnection?.id]?.length > 0
               break
             case Providers.JIRA:
@@ -529,17 +544,13 @@ const BlueprintSettings = (props) => {
   }, [setConfiguredBoard])
 
   // @todo: lift higher to dsm hook
-  const getJiraMappedBoards = useCallback((boardIds = [], boardListItems = []) => {
-    return boardIds.map((bId, sIdx) => {
-      const boardObject = boardListItems.find(apiBoard => Number(apiBoard.id) === Number(bId))
+  const getJiraMappedBoards = useCallback((options = []) => {
+    return options.map(({ boardId, title }, sIdx) => {
       return {
-        ...boardObject,
-        id: boardObject?.id || bId || sIdx + 1,
-        key: sIdx,
-        value: boardObject?.name || `Board ${bId}`,
-        title: boardObject?.name || `Board ${bId}`,
-        type: boardObject?.type || 'scrum',
-        self: `https://${scopeConnection?.endpoint}agile/1.0/board/${bId}`
+        id: boardId,
+        key: boardId,
+        value: boardId,
+        title: title || `Board ${boardId}`,
       }
     })
   }, [scopeConnection?.endpoint])
@@ -579,20 +590,45 @@ const BlueprintSettings = (props) => {
   useEffect(() => {
     console.log('>>> ACTIVE BLUEPRINT ....', activeBlueprint)
     const getGithubProjects = (c) => [Providers.GITHUB].includes(c.plugin)
-      ? c.scope.map((s) => `${s.options.owner}/${s.options?.repo}`)
+      ? c.scope.map((s) => ({
+        id: `${s.options.owner}/${s.options?.repo}`,
+        key: `${s.options.owner}/${s.options?.repo}`,
+        value: `${s.options.owner}/${s.options?.repo}`,
+        title: `${s.options.owner}/${s.options?.repo}`,
+      }))
       : []
     const getGitlabProjects = (c) => [Providers.GITLAB].includes(c.plugin)
-      ? c.scope.map((s) => s.options?.projectId)
+      ? c.scope.map((s) => ({
+        id: s.options?.projectId,
+        key: s.options?.projectId,
+        value: s.options?.projectId,
+        title: s.options?.title || `Project ${s.options?.projectId}`,
+      }))
       : []
     // @todo: handle multi-stage
     const getAdvancedGithubProjects = (t, providerId) => [Providers.GITHUB].includes(providerId)
-      ? [`${t.options?.owner}/${t.options?.repo}`]
+      ? [{
+          id: `${t.options?.owner}/${t.options?.repo}`,
+          key: `${t.options?.owner}/${t.options?.repo}`,
+          value: `${t.options?.owner}/${t.options?.repo}`,
+          title: `${t.options?.owner}/${t.options?.repo}`,
+        }]
       : []
     const getAdvancedGitlabProjects = (t, providerId) => [Providers.GITLAB].includes(providerId)
-      ? [t.options?.projectId]
+      ? [{
+          id: t.options?.projectId,
+          key: t.options?.projectId,
+          value: t.options?.projectId,
+          title: t.options?.title || `Project ${t.options?.projectId}`,
+        }]
       : []
     const getAdvancedJiraBoards = (t, providerId) => [Providers.JIRA].includes(providerId)
-      ? [t.options?.boardId]
+      ? [{
+          id: t.options?.boardId,
+          key: t.options?.boardId,
+          value: t.options?.boardId,
+          title: t.options?.title || `Board ${t.options?.boardId}`,
+        }]
       : []
     // @todo: migrate to data scopes manager
     if (activeBlueprint?.id && activeBlueprint?.mode === BlueprintMode.NORMAL) {
@@ -615,12 +651,12 @@ const BlueprintSettings = (props) => {
             ? getGitlabProjects(c)
             : getGithubProjects(c),
           boards: [Providers.JIRA].includes(c.plugin)
-            ? c.scope.map((s) => `Board ${s.options?.boardId}`)
+            ? c.scope.map((s) => s.options?.title || `Board ${s.options?.boardId}`)
             : [],
           boardIds: [Providers.JIRA].includes(c.plugin)
             ? c.scope.map((s) => s.options?.boardId)
             : [],
-          boardsList: allJiraResources?.boards ? getJiraMappedBoards(c.scope.map((s) => s.options?.boardId), allJiraResources?.boards) : [],
+          boardsList: getJiraMappedBoards(c.scope.map((s) => s.options)),
           transformations: c.scope.map((s) => ({ ...s.transformation })),
           transformationStates: c.scope.map((s) =>
             Object.values(s.transformation).some((v) => Array.isArray(v) ? v.length > 0 : (v && typeof v === 'object' ? Object.keys(v)?.length > 0 : v?.toString().length > 0))
@@ -658,13 +694,13 @@ const BlueprintSettings = (props) => {
           entities: ['-'],
           entitityList: getDefaultEntities(c.plugin),
           boards: [Providers.JIRA].includes(c.plugin)
-            ? getAdvancedJiraBoards(c, c.plugin).map(bId => `Board ${bId}`)
+            ? getAdvancedJiraBoards(c, c.plugin).map(board => board.title)
             : [],
           boardIds: [Providers.JIRA].includes(c.plugin)
             ? getAdvancedJiraBoards(c, c.plugin)
             : [],
-          boardList: [Providers.JIRA].includes(c.plugin)
-            ? getAdvancedJiraBoards(c, c.plugin).map(bId => `Board ${bId}`)
+          boardsList: [Providers.JIRA].includes(c.plugin)
+            ? getAdvancedJiraBoards(c, c.plugin)
             : [],
           transformations: {},
           // transformationStates: ['-'],
@@ -1190,7 +1226,7 @@ const BlueprintSettings = (props) => {
                       blueprint={activeBlueprint}
                       onModify={modifyConnection}
                       mode={activeBlueprint?.mode}
-                      loading={isFetchingBlueprint || isFetchingJIRA}
+                      loading={isFetchingBlueprint || isFetchingJIRA || isFetchingGitlab}
                     />
                   </div>
                 )
@@ -1228,7 +1264,7 @@ const BlueprintSettings = (props) => {
                     onModify={() => modifySetting('plan')}
                     mode={activeBlueprint?.mode}
                     classNames={['advanced-mode-grid']}
-                    loading={isFetchingBlueprint || isFetchingJIRA}
+                    loading={isFetchingBlueprint || isFetchingJIRA || isFetchingGitlab}
                   />
                 </div>
                 )}
@@ -1355,6 +1391,10 @@ const BlueprintSettings = (props) => {
         fieldsList={jiraApiFields}
         isFetching={isFetchingBlueprint}
         isFetchingJIRA={isFetchingJIRA}
+        fetchGitlabProjects={fetchGitlabProjects}
+        gitlabProjects={gitlabProjects}
+        isFetchingGitlab={isFetchingGitlab}
+        gitlabProxyError={gitlabProxyError}
         setConfiguredProject={setConfiguredProject}
         setConfiguredBoard={setConfiguredBoard}
         setBoards={setBoards}

@@ -15,17 +15,11 @@
  * limitations under the License.
  *
  */
-const JIRA_API_VERSION = 2
 // @todo: add string replacer for [:connectionId] or refactor this const
-const JIRA_API_PROXY_ENDPOINT = '/api/plugins/jira/connections/[:connectionId:]/proxy/rest'
-const ISSUE_TYPES_ENDPOINT = `${JIRA_API_PROXY_ENDPOINT}/api/${JIRA_API_VERSION}/issuetype`
-const ISSUE_FIELDS_ENDPOINT = `${JIRA_API_PROXY_ENDPOINT}/api/${JIRA_API_VERSION}/field`
-const BOARDS_ENDPOINT = `${JIRA_API_PROXY_ENDPOINT}/agile/1.0/board`
+const GITLAB_API_PROXY_ENDPOINT = '/api/plugins/gitlab/connections/[:connectionId:]/proxy/rest'
+const PROJECTS_ENDPOINT = `${GITLAB_API_PROXY_ENDPOINT}/projects?search=[:search:]&membership=[:membership:]`
 
 export {
-  JIRA_API_VERSION,
-  JIRA_API_PROXY_ENDPOINT,
-  ISSUE_TYPES_ENDPOINT,
-  ISSUE_FIELDS_ENDPOINT,
-  BOARDS_ENDPOINT,
+  GITLAB_API_PROXY_ENDPOINT,
+  PROJECTS_ENDPOINT,
 }

@@ -126,7 +126,8 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
           newScope = boards[connection.id]?.map((b) => ({
             ...newScope,
             options: {
-              boardId: Number(b?.id),
+              boardId: Number(b?.value),
+              title: b.title
               // @todo: verify initial value of since date for jira provider
               // since: new Date(),
             },
@@ -137,7 +138,8 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
           newScope = projects[connection.id]?.map((p) => ({
             ...newScope,
             options: {
-              projectId: Number(p),
+              projectId: Number(p.value),
+              title: p.title
             },
             transformation: {},
           }))
@@ -154,8 +156,8 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
           newScope = projects[connection.id]?.map((p) => ({
             ...newScope,
             options: {
-              owner: p.split('/')[0],
-              repo: p.split('/')[1],
+              owner: p.value.split('/')[0],
+              repo: p.value.split('/')[1],
             },
             transformation: { ...transformations[p] },
           }))

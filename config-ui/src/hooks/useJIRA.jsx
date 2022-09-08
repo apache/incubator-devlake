@@ -153,13 +153,13 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
     activeConnection,
     apiProxyPath])
 
-  const createListData = (data = [], titleProperty = 'name', valueProperty = 'name') => {
+  const createListData = (data = [], titleProperty = 'name', valueProperty = 'id') => {
     return data.map((d, dIdx) => ({
-      ...d,
-      id: d.id || dIdx,
-      key: d.key ? d.key : dIdx,
+      id: d[valueProperty],
+      key: d[valueProperty],
       title: d[titleProperty],
       value: d[valueProperty],
+      icon: d?.location?.avatarURI,
       type: d.schema?.type || 'string'
     }))
   }
@@ -175,7 +175,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
   }, [fieldsResponse])
 
   useEffect(() => {
-    setBoards(boardsResponse ? createListData(boardsResponse, 'name', 'name') : [])
+    setBoards(boardsResponse ? createListData(boardsResponse, 'name', 'id') : [])
   }, [boardsResponse])
 
   useEffect(() => {

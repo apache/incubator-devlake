@@ -155,8 +155,8 @@ const DataScopesGrid = (props) => {
                   }}
                 >
                   {c.projects.map((project, pIdx) => (
-                    <li key={`list-item-key-${pIdx}`}>
-                      {project}
+                    <li key={`list-item-key-${pIdx}`} style={{ whiteSpace: 'break-spaces' }}>
+                      {project.title}
                     </li>
                   ))}
                 </ul>
