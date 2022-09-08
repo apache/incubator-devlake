@@ -17,31 +17,34 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"context"
 
-// All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(addFrameTables),
-		new(renameStepToStage),
-		new(addSubtasksField),
-		new(updateBlueprintMode),
-		new(renameTasksToPlan),
-		new(addDomainTables),
-		new(addTypeField),
-		new(commitfileComponent),
-		new(removeNotes),
-		new(addProjectMapping),
-		new(renameColumnsOfPullRequestIssue),
-		new(addNoPKModelToCommitParent),
-		new(addSubtasksTable),
-		new(addCICD),
-		new(renameColumnsOfPrCommentIssueComment),
-		new(modifyTablesForDora),
-		new(addTypeFieldInBoard),
-		new(modifyPipeline),
-		new(encryptBLueprint),
-		new(encryptPipeline),
-		new(modifyCICDTasks),
+	"gorm.io/gorm"
+)
+
+type modifyCICDTasks struct{}
+
+func (*modifyCICDTasks) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().AutoMigrate(CICDTask0905{})
+	if err != nil {
+		return err
 	}
+	return nil
+}
+
+func (*modifyCICDTasks) Version() uint64 {
+	return 20220909232735
+}
+
+func (*modifyCICDTasks) Name() string {
+	return "modify cicd tasks"
+}
+
+type CICDTask0905 struct {
+	Environment string `gorm:"type:varchar(255)"`
+}
+
+func (CICDTask0905) TableName() string {
+	return "cicd_tasks"
 }
