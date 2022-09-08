@@ -18,6 +18,7 @@ limitations under the License.
 package task
 
 import (
+	"github.com/apache/incubator-devlake/api"
 	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strconv"
@@ -57,7 +58,7 @@ func Index(c *gin.Context) {
 	var query services.TaskQuery
 	err := c.ShouldBindQuery(&query)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request body format", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, api.BadRequestBody, errors.AsUserMessage()))
 		return
 	}
 	err = c.ShouldBindUri(&query)

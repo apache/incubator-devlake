@@ -38,6 +38,8 @@ var cronManager *cron.Cron
 var log core.Logger
 var migrationRequireConfirmation bool
 
+const failToCreateCronJob = "created cron job failed"
+
 // Init the services module
 func Init() {
 	var err error

@@ -18,6 +18,7 @@ limitations under the License.
 package pipelines
 
 import (
+	"github.com/apache/incubator-devlake/api"
 	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"os"
@@ -95,7 +96,7 @@ func Index(c *gin.Context) {
 	var query services.PipelineQuery
 	err := c.ShouldBindQuery(&query)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request body format", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, api.BadRequestBody, errors.AsUserMessage()))
 		return
 	}
 	pipelines, count, err := services.GetPipelines(&query)
