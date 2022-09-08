@@ -18,14 +18,13 @@ limitations under the License.
 package pipelines
 
 import (
-	"github.com/apache/incubator-devlake/api"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 
 	"github.com/apache/incubator-devlake/api/shared"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/services"
 	"github.com/gin-gonic/gin"
@@ -96,7 +95,7 @@ func Index(c *gin.Context) {
 	var query services.PipelineQuery
 	err := c.ShouldBindQuery(&query)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, api.BadRequestBody, errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody, errors.AsUserMessage()))
 		return
 	}
 	pipelines, count, err := services.GetPipelines(&query)
