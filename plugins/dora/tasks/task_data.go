@@ -24,9 +24,14 @@ import (
 type DoraApiParams struct {
 }
 
+type TransformationRules struct {
+	EnvironmentPattern string `mapstructure:"environmentPattern" json:"environmentPattern"`
+}
+
 type DoraOptions struct {
-	Tasks []string `json:"tasks,omitempty"`
-	Since string
+	Tasks               []string `json:"tasks,omitempty"`
+	Since               string
+	TransformationRules string `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type DoraTaskData struct {

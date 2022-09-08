@@ -1,8 +1,9 @@
 package devops
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/common"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 )
