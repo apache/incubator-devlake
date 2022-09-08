@@ -75,7 +75,7 @@ const StandardStackedList = (props) => {
                           className='docs-popover-portal-example-popover'
                           interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
                           content={
-                            <div style={{ padding: '5px', 'justifyContent': 'center', display: 'flex' }}>
+                            <div style={{ padding: '5px', justifyContent: 'center', display: 'flex' }}>
                               {item.icon && <img src={item.icon} style={{ maxWidth: '100%', overflow: 'hidden', width: '14px', height: '14px', borderRadius: '50%', marginRight: '2px' }} />}
                               {item.title}
                             </div>
