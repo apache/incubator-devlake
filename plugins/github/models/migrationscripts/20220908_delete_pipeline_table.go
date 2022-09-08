@@ -18,16 +18,34 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/migration"
+	"context"
+
+	"github.com/apache/incubator-devlake/errors"
+	"gorm.io/gorm"
 )
 
-// All return all the migration scripts
-func All() []migration.Script {
-	return []migration.Script{
-		new(addInitTables),
-		new(addGithubRunsTable),
-		new(addGithubJobsTable),
-		new(addGithubPipelineTable),
-		new(deleteGithubPipelineTable),
+type GithubPipeline20220908 struct{}
+
+func (GithubPipeline20220908) TableName() string {
+	return "_tool_github_pipelines"
+}
+
+type deleteGithubPipelineTable struct{}
+
+func (u *deleteGithubPipelineTable) Up(ctx context.Context, db *gorm.DB) error {
+	// create table
+	err := db.Migrator().DropTable(GithubPipeline20220908{})
+	if err != nil {
+		return errors.Default.Wrap(err, "delete table _tool_github_pipelines error")
 	}
+	return nil
+
+}
+
+func (*deleteGithubPipelineTable) Version() uint64 {
+	return 20220908000001
+}
+
+func (*deleteGithubPipelineTable) Name() string {
+	return "Github delete github_pipelines table"
 }
