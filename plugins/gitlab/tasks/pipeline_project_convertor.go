@@ -69,7 +69,7 @@ func ConvertPipelineProjects(taskCtx core.SubTaskContext) error {
 				CommitSha: gitlabPipelineProject.Sha,
 				Branch:    gitlabPipelineProject.Ref,
 				Repo: didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{}).
-					Generate(gitlabPipelineProject.ConnectionId, gitlabPipelineProject.PipelineId),
+					Generate(gitlabPipelineProject.ConnectionId, gitlabPipelineProject.ProjectId),
 			}
 
 			return []interface{}{

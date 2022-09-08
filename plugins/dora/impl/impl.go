@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -60,7 +59,7 @@ func (plugin Dora) SubTaskMetas() []core.SubTaskMeta {
 	// TODO add your sub task here
 	return []core.SubTaskMeta{
 		tasks.EnrichTaskEnvMeta,
-		//tasks.ConvertChangeLeadTimeMeta,
+		tasks.CalculateChangeLeadTimeMeta,
 		tasks.ConnectIssueDeployMeta,
 	}
 }

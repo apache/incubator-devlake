@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -48,7 +47,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) error {
 	defer cursor.Close()
 
 	jobIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabJob{})
-
+	pipelineIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabPipeline{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(gitlabModels.GitlabJob{}),
 		Input:        cursor,
@@ -73,18 +72,19 @@ func ConvertJobs(taskCtx core.SubTaskContext) error {
 					Id: jobIdGen.Generate(data.Options.ConnectionId, gitlabJob.GitlabId),
 				},
 
-				Name:       fmt.Sprintf("%d", gitlabJob.GitlabId),
-				PipelineId: jobIdGen.Generate(data.Options.ConnectionId, gitlabJob.PipelineId),
+				Name:       gitlabJob.Name,
+				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabJob.PipelineId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"failed"},
 					Abort:   []string{"canceled", "skipped"},
+					Manual:  []string{"manual"},
 					Default: devops.SUCCESS,
 				}, gitlabJob.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
-					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "manual", "scheduled"},
+					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "scheduled"},
+					Manual:     []string{"manual"},
 					Default:    devops.DONE,
 				}, gitlabJob.Status),
-				Type: "CI/CD",
 
 				DurationSec:  uint64(gitlabJob.Duration),
 				StartedDate:  *startedAt,

@@ -58,7 +58,7 @@ func ConnectIssueDeploy(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	enricher, err := helper.NewDataEnricher(helper.DataEnricherArgs{
+	enricher, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx:    taskCtx,
 			Params: DoraApiParams{
@@ -68,13 +68,13 @@ func ConnectIssueDeploy(taskCtx core.SubTaskContext) error {
 		},
 		InputRowType: reflect.TypeOf(ticket.Issue{}),
 		Input:        cursor,
-		Enrich: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			issueToBeUpdate := inputRow.(*ticket.Issue)
 			cicdTask := &devops.CICDTask{}
 			cicdTakClauses := []dal.Clause{
 				dal.From(cicdTask),
 				dal.Join(`left join cicd_pipelines 
-			on cicd_pipelines.id = cicd_tasks.pipeline_id`),
+					on cicd_pipelines.id = cicd_tasks.pipeline_id`),
 				dal.Join("left join cicd_pipeline_repos on cicd_pipelines.id = cicd_pipeline_repos.id"),
 				dal.Where(
 					`cicd_pipeline_repos.repo = ? and cicd_tasks.finished_date < ? 
