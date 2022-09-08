@@ -100,3 +100,5 @@ func CreateApiService() {
 		panic(err)
 	}
 }
+
+const BadRequestBody = "bad request body format"

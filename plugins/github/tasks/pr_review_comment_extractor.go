@@ -42,6 +42,7 @@ var ExtractApiPrReviewCommentsMeta = core.SubTaskMeta{
 
 func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
+	db := taskCtx.GetDal()
 	prUrlPattern := fmt.Sprintf(`https\:\/\/api\.github\.com\/repos\/%s\/%s\/pulls\/(\d+)`, data.Options.Owner, data.Options.Repo)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -88,20 +89,12 @@ func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) error {
 			if err != nil {
 				return nil, errors.Default.Wrap(err, "regexp Compile prUrlPattern failed")
 			}
-			if prUrlRegex != nil {
-				groups := prUrlRegex.FindStringSubmatch(prReviewComment.PrUrl)
-				if len(groups) > 0 {
-					prNumber, err := strconv.Atoi(groups[1])
-					if err != nil {
-						return nil, errors.Default.Wrap(err, "parse prId failed")
-					}
-					pr := &models.GithubPullRequest{}
-					err = taskCtx.GetDal().First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, prNumber, data.Repo.GithubId))
-					if err != nil && err != gorm.ErrRecordNotFound {
-						return nil, err
-					}
-					githubPrComment.PullRequestId = pr.GithubId
-				}
+			prId, err := enrichGithubPrComment(data, db, prUrlRegex, prReviewComment.PrUrl)
+			if err != nil {
+				return nil, errors.Default.Wrap(err, "parse prId failed")
+			}
+			if prId != 0 {
+				githubPrComment.PullRequestId = prId
 			}
 			results = append(results, githubPrComment)
 			githubAccount, err := convertAccount(prReviewComment.User, data.Repo.GithubId, data.Options.ConnectionId)
@@ -118,4 +111,21 @@ func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) error {
 	}
 
 	return extractor.Execute()
+}
+
+func enrichGithubPrComment(data *GithubTaskData, db dal.Dal, prUrlRegex *regexp.Regexp, prUrl string) (int, error) {
+	groups := prUrlRegex.FindStringSubmatch(prUrl)
+	if len(groups) > 0 {
+		prNumber, err := strconv.Atoi(groups[1])
+		if err != nil {
+			return 0, errors.Default.Wrap(err, "parse prId failed")
+		}
+		pr := &models.GithubPullRequest{}
+		err = db.First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, prNumber, data.Repo.GithubId))
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return 0, err
+		}
+		return pr.GithubId, nil
+	}
+	return 0, nil
 }

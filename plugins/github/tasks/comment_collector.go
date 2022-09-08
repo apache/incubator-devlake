@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -40,45 +41,9 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 
 	since := data.Since
 	incremental := false
+	var err error
 	if since == nil {
-		var latestUpdatedIssueComt models.GithubIssueComment
-		err := db.All(
-			&latestUpdatedIssueComt,
-			dal.Join("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id"),
-			dal.Where(
-				"_tool_github_issues.repo_id = ? AND _tool_github_issues.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId,
-			),
-			dal.Orderby("github_updated_at DESC"),
-			dal.Limit(1),
-		)
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to get latest github issue record")
-		}
-		var latestUpdatedPrComt models.GithubPrComment
-		err = db.All(
-			&latestUpdatedPrComt,
-			dal.Join("left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id"),
-			dal.Where("_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
-			dal.Orderby("github_updated_at DESC"),
-			dal.Limit(1),
-		)
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to get latest github issue record")
-		}
-		if latestUpdatedIssueComt.GithubId > 0 && latestUpdatedPrComt.GithubId > 0 {
-			if latestUpdatedIssueComt.GithubUpdatedAt.Before(latestUpdatedPrComt.GithubUpdatedAt) {
-				since = &latestUpdatedPrComt.GithubUpdatedAt
-			} else {
-				since = &latestUpdatedIssueComt.GithubUpdatedAt
-			}
-			incremental = true
-		} else if latestUpdatedIssueComt.GithubId > 0 {
-			since = &latestUpdatedIssueComt.GithubUpdatedAt
-			incremental = true
-		} else if latestUpdatedPrComt.GithubId > 0 {
-			since = &latestUpdatedPrComt.GithubUpdatedAt
-			incremental = true
-		}
+		since, incremental, err = calculateSince(data, db)
 	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
@@ -132,4 +97,48 @@ var CollectApiCommentsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect comments data from Github api",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_TICKET},
+}
+
+func calculateSince(data *GithubTaskData, db dal.Dal) (*time.Time, bool, error) {
+	since := &time.Time{}
+	incremental := false
+	var latestUpdatedIssueComt models.GithubIssueComment
+	err := db.All(
+		&latestUpdatedIssueComt,
+		dal.Join("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id"),
+		dal.Where(
+			"_tool_github_issues.repo_id = ? AND _tool_github_issues.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId,
+		),
+		dal.Orderby("github_updated_at DESC"),
+		dal.Limit(1),
+	)
+	if err != nil {
+		return nil, false, errors.Default.Wrap(err, "failed to get latest github issue record")
+	}
+	var latestUpdatedPrComt models.GithubPrComment
+	err = db.All(
+		&latestUpdatedPrComt,
+		dal.Join("left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id"),
+		dal.Where("_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
+		dal.Orderby("github_updated_at DESC"),
+		dal.Limit(1),
+	)
+	if err != nil {
+		return nil, false, errors.Default.Wrap(err, "failed to get latest github issue record")
+	}
+	if latestUpdatedIssueComt.GithubId > 0 && latestUpdatedPrComt.GithubId > 0 {
+		if latestUpdatedIssueComt.GithubUpdatedAt.Before(latestUpdatedPrComt.GithubUpdatedAt) {
+			since = &latestUpdatedPrComt.GithubUpdatedAt
+		} else {
+			since = &latestUpdatedIssueComt.GithubUpdatedAt
+		}
+		incremental = true
+	} else if latestUpdatedIssueComt.GithubId > 0 {
+		since = &latestUpdatedIssueComt.GithubUpdatedAt
+		incremental = true
+	} else if latestUpdatedPrComt.GithubId > 0 {
+		since = &latestUpdatedPrComt.GithubUpdatedAt
+		incremental = true
+	}
+	return since, incremental, nil
 }
