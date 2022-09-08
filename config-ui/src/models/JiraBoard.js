@@ -24,6 +24,8 @@
  * @property {string?} name
  * @property {number|string?} value
  * @property {number|string?} title
+ * @property {string?} shortTitle
+ * @property {string?} icon
  * @property {kanban|scrum?} type
  * @property {object?} location
  * @property {boolean?} useApi
@@ -37,6 +39,8 @@ class JiraBoard {
     this.name = data?.name || `Board ${this.id}` || null
     this.value = data?.value || this.name || `Board ${this.id}` || null
     this.title = data?.title || this.title || `Board ${this.id}` || null
+    this.shortTitle = data?.shortTitle || null
+    this.icon = data?.icon || null
     this.type = data?.type || 'kanban'
     this.location = data?.location ? { ...data?.location } : {
       projectId: null,

@@ -24,6 +24,8 @@
  * @property {string|number?} name
  * @property {string|number?} value
  * @property {string|number?} title
+ * @property {string?} shortTitle
+ * @property {string?} icon
  * @property {private|public?} visibility
  * @property {object?} owner
  * @property {number?} creator_id
@@ -55,6 +57,8 @@ class GitlabProject {
     this.value = data?.value || this.id || this.projectId || null
     this.name = data?.name || this.projectId || this.value || null
     this.title = data?.title || this.name || this.id || null
+    this.shortTitle = data?.shortTitle || null
+    this.icon = data?.icon || null
 
     // @todo: GitLab API props to camelCase
     this.visibility = data?.visibility || 'private'

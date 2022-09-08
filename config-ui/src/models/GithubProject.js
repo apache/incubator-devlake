@@ -23,6 +23,8 @@
  * @property {string|number?} value
  * @property {string|number?} name
  * @property {string|number?} title
+ * @property {string?} shortTitle
+ * @property {string?} icon
  * @property {string?} owner
  * @property {string?} repo
  * @property {boolean?} useApi
@@ -37,6 +39,8 @@ class GitHubProject {
     this.name = data?.owner && data?.repo ? `${data?.owner}/${data?.repo}` : null
     this.value = data?.value || this.name || this.id || null
     this.title = data?.title || this.name || this.id || null
+    this.shortTitle = data?.shortTitle || null
+    this.icon = data?.icon || null
 
     // @todo: add github api specfic props
 
