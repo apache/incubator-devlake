@@ -33,24 +33,28 @@ type PullRequest struct {
 	Url         string `gorm:"type:varchar(255)"`
 	AuthorName  string `gorm:"type:varchar(100)"`
 	//User		   domainUser.User `gorm:"foreignKey:AuthorId"`
-	AuthorId       string `gorm:"type:varchar(100)"`
-	ParentPrId     string `gorm:"index;type:varchar(100)"`
-	PullRequestKey int
-	CreatedDate    time.Time
-	MergedDate     *time.Time
-	ClosedDate     *time.Time
-	Type           string `gorm:"type:varchar(100)"`
-	Component      string `gorm:"type:varchar(100)"`
-	MergeCommitSha string `gorm:"type:varchar(40)"`
-	HeadRef        string `gorm:"type:varchar(255)"`
-	BaseRef        string `gorm:"type:varchar(255)"`
-	BaseCommitSha  string `gorm:"type:varchar(40)"`
-	HeadCommitSha  string `gorm:"type:varchar(40)"`
-	CodingTimespan int64
-	ReviewLag      int64
-	ReviewTimespan int64
-	DeployTimespan int64
-	ChangeTimespan int64
+	AuthorId           string `gorm:"type:varchar(100)"`
+	ParentPrId         string `gorm:"index;type:varchar(100)"`
+	PullRequestKey     int
+	CreatedDate        time.Time
+	MergedDate         *time.Time
+	ClosedDate         *time.Time
+	Type               string `gorm:"type:varchar(100)"`
+	Component          string `gorm:"type:varchar(100)"`
+	MergeCommitSha     string `gorm:"type:varchar(40)"`
+	HeadRef            string `gorm:"type:varchar(255)"`
+	BaseRef            string `gorm:"type:varchar(255)"`
+	BaseCommitSha      string `gorm:"type:varchar(40)"`
+	HeadCommitSha      string `gorm:"type:varchar(40)"`
+	CodingTimespan     *int64
+	ReviewLag          *int64
+	ReviewTimespan     *int64
+	DeployTimespan     *int64
+	ChangeTimespan     *int64
+	OrigCodingTimespan int64
+	OrigReviewLag      int64
+	OrigReviewTimespan int64
+	OrigDeployTimespan int64
 }
 
 func (PullRequest) TableName() string {

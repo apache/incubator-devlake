@@ -22,13 +22,11 @@ import (
 	"gorm.io/gorm"
 )
 
-type modifyTablesForDora struct{}
+type addOriginChangeValueForPr struct{}
 
-func (*modifyTablesForDora) Up(ctx context.Context, db *gorm.DB) error {
+func (*addOriginChangeValueForPr) Up(ctx context.Context, db *gorm.DB) error {
 	err := db.Migrator().AutoMigrate(
-		&CICDPipeline0829{},
-		&PullRequest0829{},
-		&Issue0829{},
+		&PullRequest0913{},
 	)
 	if err != nil {
 		return err
@@ -36,38 +34,21 @@ func (*modifyTablesForDora) Up(ctx context.Context, db *gorm.DB) error {
 	return nil
 }
 
-func (*modifyTablesForDora) Version() uint64 {
-	return 20220829232735
+func (*addOriginChangeValueForPr) Version() uint64 {
+	return 20220913235535
 }
 
-func (*modifyTablesForDora) Name() string {
-	return "modify tables for dora"
+func (*addOriginChangeValueForPr) Name() string {
+	return "add origin change lead time for pr"
 }
 
-type PullRequest0829 struct {
-	CodingTimespan int64
-	ReviewLag      int64
-	ReviewTimespan int64
-	DeployTimespan int64
-	ChangeTimespan int64
+type PullRequest0913 struct {
+	OrigCodingTimespan int64
+	OrigReviewLag      int64
+	OrigReviewTimespan int64
+	OrigDeployTimespan int64
 }
 
-func (PullRequest0829) TableName() string {
+func (PullRequest0913) TableName() string {
 	return "pull_requests"
-}
-
-type Issue0829 struct {
-	DeploymentId string `gorm:"type:varchar(255)"`
-}
-
-func (Issue0829) TableName() string {
-	return "issues"
-}
-
-type CICDPipeline0829 struct {
-	Environment string `gorm:"type:varchar(255)"`
-}
-
-func (CICDPipeline0829) TableName() string {
-	return "cicd_pipelines"
 }

@@ -57,17 +57,20 @@ const (
 	ABORT       = "ABORT"
 	IN_PROGRESS = "IN_PROGRESS"
 	DONE        = "DONE"
+	MANUAL      = "MANUAL"
 )
 
 type ResultRule struct {
 	Success []string
 	Failed  []string
 	Abort   []string
+	Manual  []string
 	Default string
 }
 type StatusRule struct {
 	InProgress []string
 	Done       []string
+	Manual     []string
 	Default    string
 }
 
@@ -88,6 +91,11 @@ func GetResult(rule *ResultRule, input interface{}) string {
 			return ABORT
 		}
 	}
+	for _, abort := range rule.Manual {
+		if abort == input {
+			return MANUAL
+		}
+	}
 	return rule.Default
 }
 
@@ -101,6 +109,11 @@ func GetStatus(rule *StatusRule, input interface{}) string {
 	for _, done := range rule.Done {
 		if done == input {
 			return FAILURE
+		}
+	}
+	for _, abort := range rule.Manual {
+		if abort == input {
+			return MANUAL
 		}
 	}
 	return rule.Default

@@ -33,17 +33,9 @@ func main() {
 	repoId := cmd.Flags().StringP("repoId", "r", "", "repo id")
 	_ = cmd.MarkFlagRequired("repoId")
 
-	// environment := cmd.Flags().StringP("environment", "e", "", "environment")
-	// _ = cmd.MarkFlagRequired("environment")
-
-	// environmentRegex := cmd.Flags().StringP("environmentRegex", "z", "", "environmentRegex")
-	// _ = cmd.MarkFlagRequired("environmentRegex")
-
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"repoId": *repoId,
-			// "environment":      *environment,
-			// "environmentRegex": *environmentRegex,
 		})
 	}
 	runner.RunCmd(cmd)

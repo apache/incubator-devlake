@@ -19,7 +19,6 @@ package helper
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strings"
 
@@ -27,8 +26,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
-// BatchShared is the base of BatchSave&BatchUpdate
-type BatchShared struct {
+// BatchSave performs mulitple records persistence of a specific type in one sql query to improve the performance
+type BatchSave struct {
 	basicRes core.BasicRes
 	log      core.Logger
 	db       dal.Dal
@@ -42,30 +41,20 @@ type BatchShared struct {
 	primaryKey []reflect.StructField
 }
 
-// BatchSave performs mulitple records persistence of a specific type in one sql query to improve the performance
-type BatchSave struct {
-	*BatchShared
-}
-
-// BatchUpdate will update records by batch
-type BatchUpdate struct {
-	*BatchShared
-}
-
-// NewBatchShared creates a new NewBatchShared instance to used in BatchSave&BatchUpdate
-func NewBatchShared(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchShared, error) {
+// NewBatchSave creates a new BatchSave instance
+func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchSave, error) {
 	if slotType.Kind() != reflect.Ptr {
-		return nil, errors.Default.New("slotType must be a pointer")
+		return nil, fmt.Errorf("slotType must be a pointer")
 	}
 	db := basicRes.GetDal()
 	primaryKey := db.GetPrimaryKeyFields(slotType)
 	// check if it have primaryKey
 	if len(primaryKey) == 0 {
-		return nil, errors.Default.New(fmt.Sprintf("%s no primary key", slotType.String()))
+		return nil, fmt.Errorf("%s no primary key", slotType.String())
 	}
 
 	log := basicRes.GetLogger().Nested(slotType.String())
-	batchShared := &BatchShared{
+	return &BatchSave{
 		basicRes:   basicRes,
 		log:        log,
 		db:         db,
@@ -74,65 +63,17 @@ func NewBatchShared(basicRes core.BasicRes, slotType reflect.Type, size int) (*B
 		size:       size,
 		valueIndex: make(map[string]int),
 		primaryKey: primaryKey,
-	}
-	return batchShared, nil
-}
-
-// NewBatchSave creates a new BatchSave instance
-func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchSave, error) {
-	batchShared, err := NewBatchShared(basicRes, slotType, size)
-	if err != nil {
-		return nil, err
-	}
-	return &BatchSave{batchShared}, nil
-}
-
-// NewBatchUpdate creates a new BatchUpdate instance
-func NewBatchUpdate(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchUpdate, error) {
-	batchShared, err := NewBatchShared(basicRes, slotType, size)
-	if err != nil {
-		return nil, err
-	}
-	return &BatchUpdate{batchShared}, nil
+	}, nil
 }
 
 // Add record to cache. BatchSave would flush them into Database when cache is max out
 func (c *BatchSave) Add(slot interface{}) error {
-	err := c.prepareForFlush(slot)
-	if err != nil {
-		return err
-	}
-	// flush out into database if max outed
-	if c.current == c.size {
-		return c.Flush()
-	} else if c.current%100 == 0 {
-		c.log.Debug("batch save current: %d", c.current)
-	}
-	return nil
-}
-
-// Add record to cache. BatchUpdate would flush them into Database when cache is max out
-func (c *BatchUpdate) Add(slot interface{}) error {
-	err := c.prepareForFlush(slot)
-	if err != nil {
-		return err
-	}
-	// flush out into database if max outed
-	if c.current == c.size {
-		return c.Flush()
-	} else if c.current%100 == 0 {
-		c.log.Debug("batch save current: %d", c.current)
-	}
-	return nil
-}
-
-func (c *BatchShared) prepareForFlush(slot interface{}) error {
 	// type checking
 	if reflect.TypeOf(slot) != c.slotType {
-		return errors.Default.New("sub cache type mismatched")
+		return fmt.Errorf("sub cache type mismatched")
 	}
 	if reflect.ValueOf(slot).Kind() != reflect.Ptr {
-		return errors.Default.New("slot is not a pointer")
+		return fmt.Errorf("slot is not a pointer")
 	}
 	// deduplication
 	key := getKeyValue(slot, c.primaryKey)
@@ -147,6 +88,12 @@ func (c *BatchShared) prepareForFlush(slot interface{}) error {
 	}
 	c.slots.Index(c.current).Set(reflect.ValueOf(slot))
 	c.current++
+	// flush out into database if max outed
+	if c.current == c.size {
+		return c.Flush()
+	} else if c.current%100 == 0 {
+		c.log.Debug("batch save current: %d", c.current)
+	}
 	return nil
 }
 
@@ -162,28 +109,8 @@ func (c *BatchSave) Flush() error {
 	return nil
 }
 
-// Flush update cached records into database
-func (c *BatchUpdate) Flush() error {
-	err := c.db.UpdateColumns(c.slots.Slice(0, c.current).Interface())
-	if err != nil {
-		return err
-	}
-	c.log.Debug("batch save flush total %d records to database", c.current)
-	c.current = 0
-	c.valueIndex = make(map[string]int)
-	return nil
-}
-
 // Close would flash the cache and release resources
 func (c *BatchSave) Close() error {
-	if c.current > 0 {
-		return c.Flush()
-	}
-	return nil
-}
-
-// Close would flash the cache and release resources
-func (c *BatchUpdate) Close() error {
 	if c.current > 0 {
 		return c.Flush()
 	}

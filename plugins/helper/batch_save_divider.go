@@ -19,7 +19,6 @@ package helper
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/common"
@@ -27,65 +26,30 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
-// BatchDivider is base struct of BatchSaveDivider&BatchUpdateDivider
-type BatchDivider struct {
+// BatchSaveDivider creates and caches BatchSave, this is helpful when dealing with massive amount of data records
+// with arbitrary types.
+type BatchSaveDivider struct {
 	basicRes  core.BasicRes
+	log       core.Logger
 	db        dal.Dal
+	batches   map[reflect.Type]*BatchSave
 	batchSize int
 	table     string
 	params    string
 }
 
-// BatchSaveDivider creates and caches BatchSave, this is helpful when dealing with massive amount of data records
-// with arbitrary types.
-type BatchSaveDivider struct {
-	*BatchDivider
-	log     core.Logger
-	batches map[reflect.Type]*BatchSave
-}
-
-// BatchUpdateDivider creates and caches BatchUpdate, this is helpful when dealing with massive amount of data records
-// with arbitrary types.
-type BatchUpdateDivider struct {
-	*BatchDivider
-	log     core.Logger
-	batches map[reflect.Type]*BatchUpdate
-}
-
 // NewBatchSaveDivider create a new BatchInsertDivider instance
 func NewBatchSaveDivider(basicRes core.BasicRes, batchSize int, table string, params string) *BatchSaveDivider {
 	log := basicRes.GetLogger().Nested("batch divider")
-	batchDivider := &BatchDivider{
+	return &BatchSaveDivider{
 		basicRes:  basicRes,
+		log:       log,
 		db:        basicRes.GetDal(),
+		batches:   make(map[reflect.Type]*BatchSave),
 		batchSize: batchSize,
 		table:     table,
 		params:    params,
 	}
-	batchSaveDivider := &BatchSaveDivider{
-		log:     log,
-		batches: make(map[reflect.Type]*BatchSave),
-	}
-	batchSaveDivider.BatchDivider = batchDivider
-	return batchSaveDivider
-}
-
-// NewBatchUpdateDivider create a new BatchInsertDivider instance
-func NewBatchUpdateDivider(basicRes core.BasicRes, batchSize int, table string, params string) *BatchUpdateDivider {
-	log := basicRes.GetLogger().Nested("batch update divider")
-	batchDivider := &BatchDivider{
-		basicRes:  basicRes,
-		db:        basicRes.GetDal(),
-		batchSize: batchSize,
-		table:     table,
-		params:    params,
-	}
-	batchUpdateDivider := &BatchUpdateDivider{
-		log:     log,
-		batches: make(map[reflect.Type]*BatchUpdate),
-	}
-	batchUpdateDivider.BatchDivider = batchDivider
-	return batchUpdateDivider
 }
 
 // ForType returns a `BatchSave` instance for specific type
@@ -107,7 +71,7 @@ func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, error) {
 		// check if rowType had RawDataOrigin embeded
 		field, hasField := rowElemType.FieldByName("RawDataOrigin")
 		if !hasField || field.Type != reflect.TypeOf(common.RawDataOrigin{}) {
-			return nil, errors.Default.New(fmt.Sprintf("type %s must have RawDataOrigin embeded", rowElemType.Name()))
+			return nil, fmt.Errorf("type %s must have RawDataOrigin embeded", rowElemType.Name())
 		}
 		// all good, delete outdated records before we insertion
 		d.log.Debug("deleting outdate records for %s", rowElemType.Name())
@@ -124,33 +88,6 @@ func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, error) {
 
 // Close all batches so the rest records get saved into db
 func (d *BatchSaveDivider) Close() error {
-	for _, batch := range d.batches {
-		err := batch.Close()
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// ForType returns a `BatchUpdate` instance for specific type
-func (d *BatchUpdateDivider) ForType(rowType reflect.Type) (*BatchUpdate, error) {
-	// get the cache for the specific type
-	batch := d.batches[rowType]
-	var err error
-	// create one if not exists
-	if batch == nil {
-		batch, err = NewBatchUpdate(d.basicRes, rowType, d.batchSize)
-		if err != nil {
-			return nil, err
-		}
-		d.batches[rowType] = batch
-	}
-	return batch, nil
-}
-
-// Close all batches so the rest records get saved into db
-func (d *BatchUpdateDivider) Close() error {
 	for _, batch := range d.batches {
 		err := batch.Close()
 		if err != nil {

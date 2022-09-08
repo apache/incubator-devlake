@@ -44,5 +44,6 @@ func All() []migration.Script {
 		new(encryptPipeline),
 		new(modifyCICDTasks),
 		new(modifyBoardRepos),
+		new(addOriginChangeValueForPr),
 	}
 }
