@@ -13,6 +13,7 @@ type CICDTask struct {
 	Result       string `gorm:"type:varchar(100)"`
 	Status       string `gorm:"type:varchar(100)"`
 	Type         string `gorm:"type:varchar(100);comment: to indicate this is CI or CD"`
+	Environment  string `gorm:"type:varchar(255)"`
 	DurationSec  uint64
 	StartedDate  time.Time
 	FinishedDate *time.Time
