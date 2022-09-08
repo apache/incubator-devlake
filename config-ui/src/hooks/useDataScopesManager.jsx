@@ -241,24 +241,62 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
   )
 
   const getGithubProjects = useCallback((c) => [Providers.GITHUB].includes(c.plugin)
-    ? c.scope.map((s) => `${s.options.owner}/${s.options?.repo}`)
+    ? c.scope.map((s) => ({
+      id: `${s.options.owner}/${s.options?.repo}`,
+      key: `${s.options.owner}/${s.options?.repo}`,
+      value: `${s.options.owner}/${s.options?.repo}`,
+      title: `${s.options.owner}/${s.options?.repo}`,
+    }))
     : [], [])
 
   const getGitlabProjects = useCallback((c) => [Providers.GITLAB].includes(c.plugin)
-    ? c.scope.map((s) => s.options?.projectId)
+    ? c.scope.map((s) => ({
+      id: s.options?.projectId,
+      key: s.options?.projectId,
+      value: s.options?.projectId,
+      title: s.options?.title || `Project ${s.options?.projectId}`,
+    }))
     : [], [])
 
   const getAdvancedGithubProjects = useCallback((t, providerId) => [Providers.GITHUB].includes(providerId)
-    ? [`${t.options?.owner}/${t.options?.repo}`]
+    ? [{
+      id: `${t.options?.owner}/${t.options?.repo}`,
+      key: `${t.options?.owner}/${t.options?.repo}`,
+      value: `${t.options?.owner}/${t.options?.repo}`,
+      title: `${t.options?.owner}/${t.options?.repo}`,
+    }]
     : [], [])
 
   const getAdvancedGitlabProjects = useCallback((t, providerId) => [Providers.GITLAB].includes(providerId)
-    ? [t.options?.projectId]
+    ? [{
+      id: t.options?.projectId,
+      key: t.options?.projectId,
+      value: t.options?.projectId,
+      title: t.options?.title || `Project ${t.options?.projectId}`,
+    }]
     : [], [])
 
   const getAdvancedJiraBoards = useCallback((t, providerId) => [Providers.JIRA].includes(providerId)
-    ? [t.options?.boardId]
+    ? [{
+      id: t.options?.boardId,
+      key: t.options?.boardId,
+      value: t.options?.boardId,
+      title: t.options?.title || `Board ${t.options?.boardId}`,
+    }]
     : [], [])
+
+
+  // (altered version from PR No. 2926)
+  // const getJiraMappedBoards = useCallback((options = []) => {
+  //   return options.map(({ boardId, title }, sIdx) => {
+  //     return {
+  //       id: boardId,
+  //       key: boardId,
+  //       value: boardId,
+  //       title: title || `Board ${boardId}`,
+  //     }
+  //   })
+  // }, [])
 
   const getJiraMappedBoards = useCallback((boardIds = [], boardListItems = []) => {
     return boardIds.map((bId, sIdx) => {
