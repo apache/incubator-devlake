@@ -47,7 +47,6 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
   const activeProject = useMemo(() => configuredProject, [configuredProject])
   const activeBoard = useMemo(() => configuredBoard, [configuredBoard])
 
-  // @todo: fix check why these are empty
   const selectedProjects = useMemo(() => projects[connection?.id] || [], [projects, connection?.id])
   const selectedBoards = useMemo(() => boards[connection?.id]?.map(
     (b) => b && b?.id
@@ -309,11 +308,10 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
         value: boardObject?.name || `Board ${bId}`,
         title: boardObject?.name || `Board ${bId}`,
         type: boardObject?.type || 'scrum',
-        // self: `https://${scopeConnection?.endpoint}agile/1.0/board/${bId}`,
         location: { ...boardObject?.location }
       })
     })
-  }, [/* scopeConnection?.endpoint */])
+  }, [])
 
   const getDefaultEntities = useCallback((providerId) => {
     let entities = []
@@ -484,7 +482,6 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     console.log('>>>>> DATA SCOPES MANAGER: BOARDS...', boards)
     const boardTransformations = boards[connection?.id]
     if (Array.isArray(boardTransformations) && boardTransformations?.length > 0) {
-      // @todo: check & re-enable
       setTransformations((cT) => ({
         ...boardTransformations.reduce(initializeTransformations, {}),
         // Spread Current/Existing Transformations Settings
