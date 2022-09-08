@@ -18,9 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/tapd/impl"
@@ -50,7 +50,7 @@ func TestTapdTaskCommitDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractTaskCommitMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdTaskCommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdTaskCommit{}.TableName()),
+		"./snapshot_tables/_tool_tapd_task_commits.csv",
 		[]string{
 			"connection_id",
 			"id",
@@ -80,7 +80,7 @@ func TestTapdTaskCommitDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertTaskCommitMeta, taskData)
 	dataflowTester.VerifyTable(
 		crossdomain.IssueCommit{},
-		fmt.Sprintf("./snapshot_tables/%s_task.csv", crossdomain.IssueCommit{}.TableName()),
+		"./snapshot_tables/issue_commits_task.csv",
 		[]string{
 			"issue_id",
 			"commit_sha",
