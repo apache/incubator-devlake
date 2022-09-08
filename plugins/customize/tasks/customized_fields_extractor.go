@@ -20,6 +20,7 @@ package tasks
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -109,7 +110,7 @@ func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, ra
 			query, params := mkUpdate(table, updates, row)
 			err = d.Exec(query, params...)
 			if err != nil {
-				return err
+				return errors.Default.Wrap(err, "Exec SQL error")
 			}
 		}
 	}

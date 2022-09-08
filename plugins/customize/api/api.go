@@ -18,15 +18,14 @@ limitations under the License.
 package api
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/customize/models"
-	"gorm.io/gorm/clause"
 )
 
 type field struct {
@@ -39,7 +38,7 @@ func getFields(d dal.Dal, tbl string) ([]field, error) {
 		return strings.HasPrefix(columnMeta.Name(), "x_")
 	})
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "GetColumns error")
 	}
 	var result []field
 	for _, col := range columns {
@@ -52,7 +51,7 @@ func getFields(d dal.Dal, tbl string) ([]field, error) {
 }
 func checkField(d dal.Dal, table, field string) (bool, error) {
 	if !strings.HasPrefix(field, "x_") {
-		return false, errors.New("column name should start with `x_`")
+		return false, errors.Default.New("column name should start with `x_`")
 	}
 	fields, err := getFields(d, table)
 	if err != nil {
@@ -74,7 +73,11 @@ func CreateField(d dal.Dal, table, field string) error {
 	if exists {
 		return nil
 	}
-	return d.Exec("ALTER TABLE ? ADD ? VARCHAR(255)", clause.Table{Name: table}, clause.Column{Name: field})
+	err = d.AddColumn(table, field, "VARCHAR(255)")
+	if err != nil {
+		return errors.Default.Wrap(err, "AddColumn error")
+	}
+	return nil
 }
 
 func deleteField(d dal.Dal, table, field string) error {
@@ -85,7 +88,11 @@ func deleteField(d dal.Dal, table, field string) error {
 	if !exists {
 		return nil
 	}
-	return d.Exec("ALTER TABLE ? DROP COLUMN ?", clause.Table{Name: table}, clause.Column{Name: field})
+	err = d.DropColumn(table, field)
+	if err != nil {
+		return errors.Default.Wrap(err, "DropColumn error")
+	}
+	return nil
 }
 
 type input struct {
@@ -110,7 +117,7 @@ func NewHandlers(dal dal.Dal) *Handlers {
 func (h *Handlers) ListFields(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	fields, err := getFields(h.dal, input.Params["table"])
 	if err != nil {
-		return &core.ApiResourceOutput{Status: http.StatusBadRequest}, err
+		return &core.ApiResourceOutput{Status: http.StatusBadRequest}, errors.Default.Wrap(err, "getFields error")
 	}
 	return &core.ApiResourceOutput{Body: fields, Status: http.StatusOK}, nil
 }
@@ -132,7 +139,7 @@ func (h *Handlers) CreateFields(input *core.ApiResourceInput) (*core.ApiResource
 	}
 	err := CreateField(h.dal, table, fld)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "CreateField error")
 	}
 	return &core.ApiResourceOutput{Body: field{fld, "varchar(255)"}, Status: http.StatusOK}, nil
 }
@@ -150,7 +157,7 @@ func (h *Handlers) DeleteField(input *core.ApiResourceInput) (*core.ApiResourceO
 	fld := input.Params["field"]
 	err := deleteField(h.dal, table, fld)
 	if err != nil {
-		return &core.ApiResourceOutput{Status: http.StatusBadRequest}, err
+		return &core.ApiResourceOutput{Status: http.StatusBadRequest}, errors.Default.Wrap(err, "deleteField error")
 	}
 	return &core.ApiResourceOutput{Status: http.StatusOK}, nil
 }
