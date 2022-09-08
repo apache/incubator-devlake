@@ -405,7 +405,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
       boardsList: [Providers.JIRA].includes(c.plugin)
         ? getAdvancedJiraBoards(c, c.plugin).map(bId => `Board ${bId}`)
         : [],
-      transformations: {},
+      transformations: [],
       transformationStates: typeof c.options?.transformationRules === 'object' &&
         Object.values(c.options?.transformationRules || {}).some(v => (Array.isArray(v) && v.length > 0) || v.toString().length > 0)
         ? ['Added'] : ['-'],

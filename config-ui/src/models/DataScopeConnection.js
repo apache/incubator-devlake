@@ -29,14 +29,14 @@
  * @property {object?} plugin
  * @property {object?} provider
  * @property {object|string?} icon
- * @property {Array?} entities
- * @property {Array?} entityList
- * @property {Array?} projects
- * @property {Array?} boards
- * @property {Array?} boardIds
- * @property {Array?} boardsList
- * @property {Array?} transformations
- * @property {Array?} transformationStates
+ * @property {<Array<object>>?} entities
+ * @property {<Array<object>>?} entityList
+ * @property {<Array<object>>?} projects
+ * @property {<Array<string|object>>?} boards
+ * @property {<Array<number>>?} boardIds
+ * @property {<Array<object>>?} boardsList
+ * @property {<Array<object>>?} transformations
+ * @property {<Array<object>>?} transformationStates
  * @property {object?} scope
  * @property {boolean} editable
  * @property {boolean} advancedEditable
