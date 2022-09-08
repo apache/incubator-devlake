@@ -35,7 +35,7 @@ type GitlabJob struct {
 	Ref          string  `gorm:"type:varchar(255)"`
 	Tag          bool    `gorm:"type:boolean"`
 	AllowFailure bool    `json:"allow_failure"`
-	Duration     float64 `gorm:"type:text"`
+	Duration     float64 `gorm:"type:float8"`
 	WebUrl       string  `gorm:"type:varchar(255)"`
 
 	GitlabCreatedAt *time.Time

@@ -18,9 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/tapd/impl"
@@ -43,14 +43,13 @@ func TestTapdStoryCommitDataFlow(t *testing.T) {
 
 	// story status
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_commits.csv",
-		"_raw_tapd_api_story_commits")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_commits.csv", "_raw_tapd_api_story_commits")
 	// verify extraction
 	dataflowTester.FlushTabler(&models.TapdStoryCommit{})
 	dataflowTester.Subtask(tasks.ExtractStoryCommitMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdStoryCommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdStoryCommit{}.TableName()),
+		"./snapshot_tables/_tool_tapd_story_commits.csv",
 		[]string{
 			"connection_id",
 			"id",
@@ -80,7 +79,7 @@ func TestTapdStoryCommitDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertStoryCommitMeta, taskData)
 	dataflowTester.VerifyTable(
 		crossdomain.IssueCommit{},
-		fmt.Sprintf("./snapshot_tables/%s_story.csv", crossdomain.IssueCommit{}.TableName()),
+		"./snapshot_tables/issue_commits_story.csv",
 		[]string{
 			"issue_id",
 			"commit_sha",

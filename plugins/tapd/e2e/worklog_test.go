@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -50,7 +49,7 @@ func TestTapdWorklogDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractWorklogMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdWorklog{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdWorklog{}.TableName()),
+		"./snapshot_tables/_tool_tapd_worklogs.csv",
 		[]string{
 			"connection_id",
 			"id",
@@ -73,7 +72,7 @@ func TestTapdWorklogDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertWorklogMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueWorklog{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.IssueWorklog{}.TableName()),
+		"./snapshot_tables/issue_worklogs.csv",
 		[]string{
 			"id",
 			"_raw_data_params",
