@@ -18,12 +18,11 @@ limitations under the License.
 package blueprints
 
 import (
-	"github.com/apache/incubator-devlake/api"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strconv"
 
 	"github.com/apache/incubator-devlake/api/shared"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/services"
 	"github.com/gin-gonic/gin"
@@ -43,7 +42,7 @@ func Post(c *gin.Context) {
 
 	err := c.ShouldBind(blueprint)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, api.BadRequestBody, errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody, errors.AsUserMessage()))
 		return
 	}
 
@@ -68,7 +67,7 @@ func Index(c *gin.Context) {
 	var query services.BlueprintQuery
 	err := c.ShouldBindQuery(&query)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, api.BadRequestBody, errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody, errors.AsUserMessage()))
 		return
 	}
 	blueprints, count, err := services.GetBlueprints(&query)
@@ -168,7 +167,7 @@ func Patch(c *gin.Context) {
 	var body map[string]interface{}
 	err = c.ShouldBind(&body)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, api.BadRequestBody, errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody, errors.AsUserMessage()))
 		return
 	}
 	blueprint, err := services.PatchBlueprint(id, body)
