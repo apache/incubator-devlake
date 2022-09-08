@@ -118,6 +118,10 @@ ui:
 
   affinity: {}
 
+  basicAuth:
+    enabled: false
+    user: admin
+    password: admin
 
 # alpine image for some init containers
 alpine:

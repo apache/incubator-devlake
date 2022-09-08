@@ -97,6 +97,9 @@ Some useful parameters for the chart, you could also check them in values.yaml
 | ui.image.repository  | repository for ui's image | mericodev/config-ui  |
 | ui.image.tag  | image tag for ui's image | latest  |
 | ui.image.pullPolicy  | pullPolicy for ui's image | Always  |
+| ui.basicAuth.enabled  | If the basic auth in ui is enabled | false  |
+| ui.basicAuth.user  | The user name for the basic auth | "admin"  |
+| ui.basicAuth.password  | The password for the basic auth | "admin"  |
 | service.type  | Service type for exposed service | NodePort  |
 | service.uiPort  | Service port for config ui | 32001  |
 | service.ingress.enabled  | If enable ingress  |  false  |
