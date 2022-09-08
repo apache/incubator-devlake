@@ -70,17 +70,20 @@ const StandardStackedList = (props) => {
                     style={{ cursor: 'pointer' }}
                   >
                     {item.shortTitle || item.icon
-                      ? <Popover
+                      ? (
+                        <Popover
                           className='docs-popover-portal-example-popover'
                           interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
-                        // content={<div style={{ padding: '5px' }}>{item.title}</div>}
-                          content={<div style={{ padding: '5px', 'justify-content': 'center', display: 'flex' }}>
-                            {item.icon && <img src={item.icon} style={{ maxWidth: '100%', overflow: 'hidden', width: '14px', height: '14px', borderRadius: '50%', marginRight: '2px' }}/>}
-                            {item.title}
-                          </div>}
+                          content={
+                            <div style={{ padding: '5px', 'justify-content': 'center', display: 'flex' }}>
+                              {item.icon && <img src={item.icon} style={{ maxWidth: '100%', overflow: 'hidden', width: '14px', height: '14px', borderRadius: '50%', marginRight: '2px' }}/>}
+                              {item.title}
+                            </div>
+                          }
                         >
                           {item.shortTitle || item.title}
                         </Popover>
+                        )
                       : item.title}
                   </label>
                 </div>
