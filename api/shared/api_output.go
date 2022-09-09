@@ -29,8 +29,9 @@ import (
 const BadRequestBody = "bad request body format"
 
 type ApiBody struct {
-	Success bool   `json:"success"`
-	Message string `json:"message"`
+	Success bool     `json:"success"`
+	Message string   `json:"message"`
+	Causes  []string `json:"causes"`
 }
 
 type ResponsePipelines struct {
@@ -42,9 +43,11 @@ type ResponsePipelines struct {
 func ApiOutputError(c *gin.Context, err error) {
 	if e, ok := err.(errors.Error); ok {
 		logger.Global.Error(err, "HTTP %d error", e.GetType().GetHttpCode())
+		messages := e.Messages()
 		c.JSON(e.GetType().GetHttpCode(), &ApiBody{
 			Success: false,
-			Message: e.Message(),
+			Message: messages.Get(errors.UserMessageType),
+			Causes:  messages.Causes(errors.UserMessageType),
 		})
 	} else {
 		logger.Global.Error(err, "HTTP %d error (native)", http.StatusInternalServerError)
@@ -71,7 +74,7 @@ func ApiOutputSuccess(c *gin.Context, body interface{}, status int) {
 func ApiOutputAbort(c *gin.Context, err error) {
 	if e, ok := err.(errors.Error); ok {
 		logger.Global.Error(err, "HTTP %d abort-error", e.GetType().GetHttpCode())
-		_ = c.AbortWithError(e.GetType().GetHttpCode(), fmt.Errorf(e.Message()))
+		_ = c.AbortWithError(e.GetType().GetHttpCode(), fmt.Errorf(e.Messages().Format(errors.UserMessageType)))
 	} else {
 		logger.Global.Error(err, "HTTP %d abort-error (native)", http.StatusInternalServerError)
 		_ = c.AbortWithError(http.StatusInternalServerError, err)

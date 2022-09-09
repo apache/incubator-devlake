@@ -152,7 +152,7 @@ func (s *WorkerScheduler) NextTick(task func() errors.Error) {
 func (s *WorkerScheduler) Wait() errors.Error {
 	s.waitGroup.Wait()
 	if len(s.workerErrors) > 0 {
-		return errors.Default.Combine(s.workerErrors, "worker scheduler captured these errors")
+		return errors.Default.Combine(s.workerErrors)
 	}
 	return nil
 }

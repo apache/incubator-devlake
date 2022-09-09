@@ -35,7 +35,7 @@ func TestCrdbErrorImpl(t *testing.T) {
 		require.Equal(t, err.Error(), lakeErr.Error())
 	})
 	t.Run("raw_message", func(t *testing.T) {
-		msg := lakeErr.Message()
+		msg := lakeErr.Messages().Format(RawMessageType)
 		require.NotEqual(t, err.Error(), msg)
 		fmt.Printf("======================Raw Message=======================: \n%s\n\n\n", msg)
 		msgParts := strings.Split(msg, "\ncaused by: ")
@@ -59,7 +59,7 @@ func TestCrdbErrorImpl(t *testing.T) {
 		require.True(t, errors.Is(lakeErr, os.ErrNotExist))
 	})
 	t.Run("combine_errors_type", func(t *testing.T) {
-		err = Unauthorized.Combine([]error{err, err}, "combined")
+		err = Unauthorized.Combine([]error{err, err})
 		lakeErr = AsLakeErrorType(err)
 		require.NotNil(t, lakeErr)
 		e := lakeErr.As(Unauthorized)
@@ -78,31 +78,32 @@ func TestCrdbErrorImpl(t *testing.T) {
 		baseErr := BadInput.Wrap(rawErr, "wrapped")
 		err2 := Convert(baseErr)
 		require.Same(t, baseErr, err2)
-		require.Equal(t, "wrapped (400)", err2.Message())
+		require.Equal(t, "wrapped (400)", err2.Messages().Get(RawMessageType))
 		require.Same(t, rawErr, err2.Unwrap())
 		err3 := Default.WrapRaw(baseErr)
 		require.NotSame(t, baseErr, err3)
-		require.Equal(t, "wrapped (400)", err3.Message())
+		require.Equal(t, "wrapped (400)", err3.Messages().Get(RawMessageType))
+		require.Equal(t, "wrapped (400)", err3.Messages().Get(UserMessageType))
 		require.Same(t, baseErr, err3.Unwrap())
 	})
 }
 
-func f1() error {
+func f1() Error {
 	err := f2()
 	return Default.Wrap(err, "f1 error")
 }
 
-func f2() error {
+func f2() Error {
 	err := f3()
 	return NotFound.Wrap(err, "f2 error")
 }
 
-func f3() error {
+func f3() Error {
 	err := f4()
 	return Default.Wrap(err, "f3 error")
 }
 
-func f4() error {
+func f4() Error {
 	err := f5()
 	return BadInput.WrapRaw(err)
 }

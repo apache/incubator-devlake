@@ -20,7 +20,6 @@ package errors
 import (
 	"fmt"
 	"net/http"
-	"strings"
 )
 
 // Supported error types
@@ -68,15 +67,12 @@ func HttpStatus(code int) *Type {
 
 // New constructs a new Error instance with this message
 func (t *Type) New(message string, opts ...Option) Error {
-	return newCrdbError(t, nil, message, opts...)
+	return newSingleCrdbError(t, nil, message, opts...)
 }
 
 // Wrap constructs a new Error instance with this message and wraps the passed in error. A nil 'err' will return a nil Error.
 func (t *Type) Wrap(err error, message string, opts ...Option) Error {
-	if err == nil {
-		return nil
-	}
-	return newCrdbError(t, err, message, opts...)
+	return newSingleCrdbError(t, err, message, opts...)
 }
 
 // WrapRaw constructs a new Error instance that directly wraps this error with no additional context. A nil 'err' will return a nil Error.
@@ -104,24 +100,13 @@ func (t *Type) wrapRaw(err error, forceWrap bool, opts ...Option) Error {
 	} else {
 		msg = err.Error()
 	}
-	return newCrdbError(t, err, msg, opts...)
+	return newSingleCrdbError(t, err, msg)
 }
 
-// Combine constructs a new Error from combining multiple errors. Stacktrace info for each of the errors will not be present in the result.
-func (t *Type) Combine(errs []error, msg string, opts ...Option) Error {
-	msgs := []string{}
-	for _, e := range errs {
-		if le := AsLakeErrorType(e); le != nil {
-			if msg0 := le.Message(); msg0 != "" {
-				msgs = append(msgs, le.Message())
-			}
-		} else {
-			msgs = append(msgs, e.Error())
-		}
-	}
-	effectiveMsg := strings.Join(msgs, "\n=====================\n")
-	effectiveMsg = "\t" + strings.ReplaceAll(effectiveMsg, "\n", "\n\t")
-	return newCrdbError(t, nil, fmt.Sprintf("%s\ncombined messages: \n{\n%s\n}", msg, effectiveMsg), opts...)
+// Combine constructs a new Error from combining multiple errors. Stacktrace info for each of the errors will not be present in the result, so it's
+// best to log the errors before combining them.
+func (t *Type) Combine(errs []error) Error {
+	return newCombinedCrdbError(t, errs)
 }
 
 // GetHttpCode gets the associated Http code with this Type, if explicitly set, otherwise http.StatusInternalServerError

@@ -25,8 +25,8 @@ type (
 	// Error The interface that all internally managed errors should adhere to.
 	Error interface {
 		requiredSupertype
-		// Message the message associated with this Error.
-		Message() string
+		// Messages the message associated with this Error.
+		Messages() Messages
 		// GetType gets the Type of this error
 		GetType() *Type
 		// As Attempts to cast this Error to the requested Type, and returns nil if it can't.
