@@ -22,16 +22,17 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"io"
 	"reflect"
 	"strings"
 
 	"encoding/json"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 )
 
+// RAW_EPIC_TABLE raw table for jira epics
 const RAW_EPIC_TABLE = "jira_api_epics"
 
 var _ core.SubTaskEntryPoint = CollectEpics
@@ -90,7 +91,7 @@ func CollectEpics(taskCtx core.SubTaskContext) error {
 			var data struct {
 				Issues []json.RawMessage `json:"issues"`
 			}
-			blob, err := ioutil.ReadAll(res.Body)
+			blob, err := io.ReadAll(res.Body)
 			if err != nil {
 				return nil, err
 			}

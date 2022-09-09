@@ -18,7 +18,6 @@ limitations under the License.
 package store
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -28,7 +27,7 @@ import (
 )
 
 func Test_csvWriter_Write(t *testing.T) {
-	f, err := ioutil.TempFile("", "gitextractor")
+	f, err := io.TempFile("", "gitextractor")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +62,7 @@ func Test_csvWriter_Write(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dir, err := ioutil.TempDir("", "gitextractor")
+			dir, err := io.TempDir("", "gitextractor")
 			if err != nil {
 				t.Error(err)
 			}

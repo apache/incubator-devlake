@@ -42,13 +42,16 @@ type GraphqlRequestData struct {
 	InputJSON []byte
 }
 
+// GraphqlQueryPageInfo FIXME
 type GraphqlQueryPageInfo struct {
 	EndCursor   string `json:"endCursor"`
 	HasNextPage bool   `json:"hasNextPage"`
 }
 
+// GraphqlAsyncResponseHandler FIXME
 type GraphqlAsyncResponseHandler func(res *http.Response) error
 
+// GraphqlCollectorArgs FIXME
 type GraphqlCollectorArgs struct {
 	RawDataSubTaskArgs
 	// BuildQuery would be sent out as part of the request URL
@@ -70,6 +73,7 @@ type GraphqlCollectorArgs struct {
 	ResponseParser func(query interface{}, variables map[string]interface{}) ([]interface{}, error)
 }
 
+// GraphqlCollector FIXME
 type GraphqlCollector struct {
 	*RawDataSubTask
 	args *GraphqlCollectorArgs
@@ -116,7 +120,7 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, error) {
 	return apicllector, nil
 }
 
-// Start collection
+// Execute Start collection
 func (collector *GraphqlCollector) Execute() error {
 	logger := collector.args.Ctx.GetLogger()
 	logger.Info("start graphql collection")
@@ -163,9 +167,7 @@ func (collector *GraphqlCollector) Execute() error {
 		// or we just did it once
 		collector.exec(divider, nil)
 	}
-
 	logger.Debug("wait for all async api to finished")
-
 	err = collector.args.GraphqlClient.Wait()
 	if err != nil {
 		err = errors.Default.Wrap(err, "ended API collector execution with error", errors.UserMessage("Internal GraphQL Collector execution error"))
@@ -175,7 +177,6 @@ func (collector *GraphqlCollector) Execute() error {
 		logger.Info("ended api collection without error")
 	}
 	err = divider.Close()
-
 	return err
 }
 

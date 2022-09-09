@@ -22,12 +22,14 @@ import (
 	"sync/atomic"
 )
 
+// QueueNode FIXME
 type QueueNode interface {
 	Next() interface{}
 	SetNext(next interface{})
 	Data() interface{}
 }
 
+// Queue FIXME
 type Queue struct {
 	count int64
 	head  QueueNode
@@ -73,7 +75,7 @@ func (q *Queue) PushWithoutLock(node QueueNode) {
 
 // PullWithOutLock is no lock mode of Pull
 func (q *Queue) PullWithOutLock() QueueNode {
-	var node QueueNode = nil
+	var node QueueNode
 
 	if q.head != nil {
 		node = q.head
@@ -127,11 +129,13 @@ func NewQueue() *Queue {
 	}
 }
 
+// QueueIteratorNode FIXME
 type QueueIteratorNode struct {
 	next QueueNode
 	data interface{}
 }
 
+// Next FIXME
 func (q *QueueIteratorNode) Next() interface{} {
 	if q.next == nil {
 		return nil
@@ -139,6 +143,7 @@ func (q *QueueIteratorNode) Next() interface{} {
 	return q.next
 }
 
+// SetNext FIXME
 func (q *QueueIteratorNode) SetNext(next interface{}) {
 	if next == nil {
 		q.next = nil
@@ -147,10 +152,12 @@ func (q *QueueIteratorNode) SetNext(next interface{}) {
 	}
 }
 
+// Data FIXME
 func (q *QueueIteratorNode) Data() interface{} {
 	return q.data
 }
 
+// NewQueueIteratorNode FIXME
 func NewQueueIteratorNode(data interface{}) *QueueIteratorNode {
 	return &QueueIteratorNode{
 		data: data,

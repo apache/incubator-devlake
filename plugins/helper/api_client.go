@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -295,7 +294,7 @@ func (apiClient *ApiClient) Post(
 // UnmarshalResponse FIXME ...
 func UnmarshalResponse(res *http.Response, v interface{}) error {
 	defer res.Body.Close()
-	resBody, err := ioutil.ReadAll(res.Body)
+	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()), errors.AsUserMessage())
 	}

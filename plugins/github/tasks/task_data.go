@@ -55,32 +55,32 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOption
 	if op.Repo == "" {
 		return nil, errors.BadInput.New("repo is required for GitHub execution", errors.AsUserMessage())
 	}
-	if op.PrType == "" {
-		op.PrType = "type/(.*)$"
+	if op.TransformationRules.PrType == "" {
+		op.TransformationRules.PrType = "type/(.*)$"
 	}
-	if op.PrComponent == "" {
-		op.PrComponent = "component/(.*)$"
+	if op.TransformationRules.PrComponent == "" {
+		op.TransformationRules.PrComponent = "component/(.*)$"
 	}
-	if op.PrBodyClosePattern == "" {
-		op.PrBodyClosePattern = "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)"
+	if op.TransformationRules.PrBodyClosePattern == "" {
+		op.TransformationRules.PrBodyClosePattern = "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)"
 	}
-	if op.IssueSeverity == "" {
-		op.IssueSeverity = "severity/(.*)$"
+	if op.TransformationRules.IssueSeverity == "" {
+		op.TransformationRules.IssueSeverity = "severity/(.*)$"
 	}
-	if op.IssuePriority == "" {
-		op.IssuePriority = "^(highest|high|medium|low)$"
+	if op.TransformationRules.IssuePriority == "" {
+		op.TransformationRules.IssuePriority = "^(highest|high|medium|low)$"
 	}
-	if op.IssueComponent == "" {
-		op.IssueComponent = "component/(.*)$"
+	if op.TransformationRules.IssueComponent == "" {
+		op.TransformationRules.IssueComponent = "component/(.*)$"
 	}
-	if op.IssueTypeBug == "" {
-		op.IssueTypeBug = "^(bug|failure|error)$"
+	if op.TransformationRules.IssueTypeBug == "" {
+		op.TransformationRules.IssueTypeBug = "^(bug|failure|error)$"
 	}
-	if op.IssueTypeIncident == "" {
-		op.IssueTypeIncident = ""
+	if op.TransformationRules.IssueTypeIncident == "" {
+		op.TransformationRules.IssueTypeIncident = ""
 	}
-	if op.IssueTypeRequirement == "" {
-		op.IssueTypeRequirement = "^(feat|feature|proposal|requirement)$"
+	if op.TransformationRules.IssueTypeRequirement == "" {
+		op.TransformationRules.IssueTypeRequirement = "^(feat|feature|prop.TransformationRulesosal|requirement)$"
 	}
 
 	// find the needed GitHub now

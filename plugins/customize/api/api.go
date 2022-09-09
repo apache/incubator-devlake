@@ -34,7 +34,7 @@ type field struct {
 }
 
 func getFields(d dal.Dal, tbl string) ([]field, error) {
-	columns, err := d.GetColumns(&models.Table{tbl}, func(columnMeta dal.ColumnMeta) bool {
+	columns, err := d.GetColumns(&models.Table{Name: tbl}, func(columnMeta dal.ColumnMeta) bool {
 		return strings.HasPrefix(columnMeta.Name(), "x_")
 	})
 	if err != nil {
@@ -95,6 +95,7 @@ func deleteField(d dal.Dal, table, field string) error {
 	return nil
 }
 
+//nolint:all
 type input struct {
 	Name string `json:"name" example:"x_new_column"`
 }

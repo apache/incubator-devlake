@@ -75,6 +75,7 @@ func Init() {
 	log.Info("Db migration confirmation needed: %v", migrationRequireConfirmation)
 }
 
+// ExecuteMigration executes DB migrations and initializes the pipeline service
 func ExecuteMigration() error {
 	err := migration.Execute(context.Background())
 	if err != nil {
@@ -86,6 +87,7 @@ func ExecuteMigration() error {
 	return nil
 }
 
+// MigrationRequireConfirmation true if migration requires confirmation (migration hasn't been executed yet)
 func MigrationRequireConfirmation() bool {
 	return migrationRequireConfirmation
 }

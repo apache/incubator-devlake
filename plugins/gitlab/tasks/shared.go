@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -61,7 +61,7 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {
 		return nil, errors.Default.New("res is nil")
 	}
 	defer res.Body.Close()
-	resBody, err := ioutil.ReadAll(res.Body)
+	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
 	}

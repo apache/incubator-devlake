@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/stoewer/go-strcase"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -40,7 +39,7 @@ func GenerateAllFormatVar(values map[string]string, baseVarName, baseValue strin
 
 // ReadTemplate read a file to string
 func ReadTemplate(templateFile string) string {
-	f, err := ioutil.ReadFile(templateFile)
+	f, err := io.ReadFile(templateFile)
 	cobra.CheckErr(err)
 	return string(f)
 }
@@ -52,7 +51,7 @@ func WriteTemplates(path string, templates map[string]string) {
 	for name, template := range templates {
 		err := os.MkdirAll(filepath.Dir(filepath.Join(path, name)), 0755)
 		cobra.CheckErr(err)
-		err = ioutil.WriteFile(filepath.Join(path, name), []byte(template), 0600)
+		err = io.WriteFile(filepath.Join(path, name), []byte(template), 0600)
 		cobra.CheckErr(err)
 		println(filepath.Join(path, name), ` generated`)
 	}
@@ -60,11 +59,11 @@ func WriteTemplates(path string, templates map[string]string) {
 
 // ReplaceVarInFile replacte var into file without reading
 func ReplaceVarInFile(filename string, reg *regexp.Regexp, new string) {
-	f, err := ioutil.ReadFile(filename)
+	f, err := io.ReadFile(filename)
 	cobra.CheckErr(err)
 	f = reg.ReplaceAll(f, []byte(new))
 
-	err = ioutil.WriteFile(filename, f, 0777)
+	err = io.WriteFile(filename, f, 0777)
 	cobra.CheckErr(err)
 	println(filename, ` updated`)
 }

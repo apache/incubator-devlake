@@ -20,7 +20,6 @@ package cmd
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -93,7 +92,7 @@ If framework passed, generator will create a new migration in models/migrationsc
 		values := map[string]string{}
 		values[`Date`] = time.Now().Format(`20060102`)
 		values[`Purpose`] = strcase.LowerCamelCase(purpose)
-		existMigrations, err := ioutil.ReadDir(migrationPath)
+		existMigrations, err := os.ReadDir(migrationPath)
 		cobra.CheckErr(err)
 		values[`Count`] = fmt.Sprintf(`%06d`, len(existMigrations))
 

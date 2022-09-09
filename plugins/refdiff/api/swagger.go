@@ -23,6 +23,8 @@ package api
 // @Accept application/json
 // @Param blueprint body RefdiffBlueprintPlan true "json"
 // @Router /blueprints/refdiff/blueprint-plan [post]
+//
+//nolint:all
 func _func() {}
 
 type RefdiffBlueprintPlan [][]struct {

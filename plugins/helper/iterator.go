@@ -144,27 +144,33 @@ func NewDateIterator(days int) (*DateIterator, error) {
 	}, nil
 }
 
+// QueueIterator FIXME ...
 type QueueIterator struct {
 	queue *Queue
 }
 
+// HasNext FIXME ...
 func (q *QueueIterator) HasNext() bool {
 	return q.queue.GetCount() > 0
 }
 
+// Fetch FIXME ...
 func (q *QueueIterator) Fetch() (interface{}, error) {
 	return q.queue.PullWithOutLock(), nil
 }
 
+// Push FIXME ...
 func (q *QueueIterator) Push(data QueueNode) {
 	q.queue.PushWithoutLock(data)
 }
 
+// Close FIXME ...
 func (q *QueueIterator) Close() error {
 	q.queue.CleanWithOutLock()
 	return nil
 }
 
+// NewQueueIterator creates a new instance of QueueIterator
 func NewQueueIterator() *QueueIterator {
 	return &QueueIterator{
 		queue: NewQueue(),

@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gorm.io/gorm"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -93,7 +93,7 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 	return iterationFrom.Id, iterationTo.Id, nil
 }
 func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, error) {
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
 		return nil, err

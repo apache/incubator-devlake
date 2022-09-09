@@ -20,7 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -51,7 +51,7 @@ func CollectCommits(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			body, err := ioutil.ReadAll(res.Body)
+			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				return nil, err
 			}

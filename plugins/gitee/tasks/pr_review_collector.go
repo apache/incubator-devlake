@@ -32,7 +32,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
 )
 
-//gitee
+// gitee
 const RAW_PULL_REQUEST_REVIEW_TABLE = "gitee_api_pull_request_reviews"
 
 var CollectApiPullRequestReviewsMeta = core.SubTaskMeta{

@@ -19,7 +19,7 @@ package helper
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"testing"
@@ -61,7 +61,7 @@ func TestFetchPageUndetermined(t *testing.T) {
 			Request: &http.Request{
 				URL: &url.URL{},
 			},
-			Body: ioutil.NopCloser(bytes.NewBufferString(body)),
+			Body: io.NopCloser(bytes.NewBufferString(body)),
 		}
 		handler := args.Get(3).(common.ApiAsyncCallback)
 		handler(res)

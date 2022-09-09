@@ -27,7 +27,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// CreatePipeline and return the model
+// CreateDbPipeline and return the model
 func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, error) {
 	// create pipeline object from posted data
 	dbPipeline := &models.DbPipeline{
@@ -100,7 +100,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	return dbPipeline, nil
 }
 
-// GetPipelines by query
+// GetDbPipelines by query
 func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, error) {
 	dbPipelines := make([]*models.DbPipeline, 0)
 	db := db.Model(dbPipelines).Order("id DESC")
@@ -129,7 +129,7 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, error) {
 	return dbPipelines, count, nil
 }
 
-// GetPipeline by id
+// GetDbPipeline by id
 func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, error) {
 	dbPipeline := &models.DbPipeline{}
 	err := db.First(dbPipeline, pipelineId).Error
