@@ -49,6 +49,10 @@ type ColumnMeta interface {
 type Dal interface {
 	// AutoMigrate runs auto migration for given entity
 	AutoMigrate(entity interface{}, clauses ...Clause) error
+	// AddColumn add column for the table
+	AddColumn(table, columnName, columnType string) error
+	// DropColumn drop column from the table
+	DropColumn(table, columnName string) error
 	// Exec executes raw sql query
 	Exec(query string, params ...interface{}) error
 	// RawCursor executes raw sql query and returns a database cursor
