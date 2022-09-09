@@ -27,6 +27,7 @@ import "github.com/apache/incubator-devlake/plugins/customize/tasks"
 // @Router /blueprints/customize/blueprint-setting [post]
 func _() {}
 
+//nolint:unused
 type blueprintSetting []struct {
 	Version     string `json:"version" example:"1.0.0"`
 	Connections []struct {
@@ -45,6 +46,7 @@ type blueprintSetting []struct {
 // @Router /pipelines/customize/pipeline-plan [post]
 func _() {}
 
+//nolint:unused
 type pipelinePlan [][]struct {
 	Plugin   string        `json:"plugin"`
 	Subtasks []string      `json:"subtasks"`
