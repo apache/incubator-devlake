@@ -28,7 +28,6 @@ import (
 )
 
 func TestJenkinsStagesDataFlow(t *testing.T) {
-
 	var jenkins impl.Jenkins
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "jenkins", jenkins)
 
@@ -62,9 +61,8 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 			"start_time_millis",
 			"duration_millis",
 			"pause_duration_millis",
-			"type",
 			"build_name",
-
+			"type",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -72,21 +70,26 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 		},
 	)
 
+	dataflowTester.FlushTabler(&devops.CICDTask{})
 	dataflowTester.Subtask(tasks.ConvertStagesMeta, taskData)
-
 	dataflowTester.VerifyTable(
 		devops.CICDTask{},
 		"./snapshot_tables/cicd_tasks_after_stages.csv",
 		[]string{
+			"id",
 			"name",
 			"pipeline_id",
 			"result",
 			"status",
 			"type",
-			"environment",
 			"duration_sec",
 			"started_date",
 			"finished_date",
+			"environment",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 }
