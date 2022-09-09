@@ -264,7 +264,11 @@ func (apiClient *ApiClient) Do(
 	// after receive
 	if apiClient.afterResponse != nil {
 		err = apiClient.afterResponse(res)
-		if err != nil && err != ErrIgnoreAndContinue {
+		if err == ErrIgnoreAndContinue {
+			res.Body.Close()
+			return res, err
+		}
+		if err != nil {
 			res.Body.Close()
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("error running afterRequest for %s", req.URL.String()), errors.UserMessage("error after making API call"))
 		}
