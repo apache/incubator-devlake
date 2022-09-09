@@ -40,7 +40,7 @@ type iclaBlueprintSetting []struct {
 // @Router /pipelines/icla/pipeline-plan [post]
 func _() {}
 
-//nolint:unused
+//nolint:unused,deadcode
 type iclaPipelinePlan [][]struct {
 	Plugin string `json:"plugin" example:"icla"`
 }

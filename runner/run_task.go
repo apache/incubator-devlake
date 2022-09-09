@@ -275,7 +275,7 @@ func RunPluginSubTasks(
 }
 
 // UpdateProgressDetail FIXME ...
-func UpdateProgressDetail(db *gorm.DB, logger core.Logger, taskId uint64, progressDetail *models.TaskProgressDetail, p *core.RunningProgress) {
+func UpdateProgressDetail(db *gorm.DB, log core.Logger, taskId uint64, progressDetail *models.TaskProgressDetail, p *core.RunningProgress) {
 	task := &models.Task{}
 	task.ID = taskId
 	switch p.Type {
@@ -288,7 +288,7 @@ func UpdateProgressDetail(db *gorm.DB, logger core.Logger, taskId uint64, progre
 		pct := float32(p.Current) / float32(p.Total)
 		err := db.Model(task).Update("progress", pct).Error
 		if err != nil {
-			logger.Error(err, "failed to update progress: %w")
+			log.Error(err, "failed to update progress: %w")
 		}
 	case core.SubTaskSetProgress:
 		progressDetail.TotalRecords = p.Total
