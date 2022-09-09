@@ -78,7 +78,6 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"commit_sha",
 			"branch",
 			"repo_url",
-
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -88,8 +87,9 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 
 	dataflowTester.FlushTabler(&devops.CICDTask{})
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
+	dataflowTester.FlushTabler(&devops.CiCDPipelineRepo{})
 	dataflowTester.FlushTabler(&devops.CICDPipelineRelationship{})
-
+	dataflowTester.Subtask(tasks.EnrichApiBuildWithStagesMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertBuildsToCICDMeta, taskData)
 
 	dataflowTester.VerifyTable(
@@ -129,6 +129,17 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 		[]string{
 			"parent_pipeline_id",
 			"child_pipeline_id",
+		},
+	)
+
+	dataflowTester.VerifyTable(
+		devops.CiCDPipelineRepo{},
+		"./snapshot_tables/cicd_pipeline_repos.csv",
+		[]string{
+			"id",
+			"repo",
+			"branch",
+			"commit_sha",
 		},
 	)
 }
