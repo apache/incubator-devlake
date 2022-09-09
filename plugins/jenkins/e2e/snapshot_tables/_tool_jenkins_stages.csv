@@ -1,0 +1,4 @@
+connection_id,id,build_name,name,exec_node,status,start_time_millis,duration_millis,pause_duration_millis,type,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+1,6,pipeline-test2 #1,Hello,,SUCCESS,1662651617917,258,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,5,
+1,6,pipeline-test2 #2,Hello,,SUCCESS,1662651634424,79,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,6,
+1,6,pipeline-test2 #3,Hello,,SUCCESS,1662651649629,122,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,3,
