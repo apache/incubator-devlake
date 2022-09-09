@@ -157,7 +157,10 @@ func (collector *ApiCollector) Execute() error {
 		}
 		for {
 			if !iterator.HasNext() || apiClient.HasError() {
-				collector.args.ApiClient.WaitAsync()
+				err = collector.args.ApiClient.WaitAsync()
+				if err != nil {
+					return err
+				}
 				if !iterator.HasNext() || apiClient.HasError() {
 					break
 				}

@@ -143,7 +143,7 @@ func (apiClient *GraphqlAsyncClient) NextTick(task func() error) {
 	}()
 }
 
-// WaitAsync blocks until all async requests were done
+// Wait blocks until all async requests were done
 func (apiClient *GraphqlAsyncClient) Wait() error {
 	apiClient.waitGroup.Wait()
 	if len(apiClient.workerErrors) > 0 {

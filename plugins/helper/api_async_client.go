@@ -46,7 +46,7 @@ type ApiAsyncClient struct {
 	numOfWorkers int
 }
 
-const DEFAULT_TIMEOUT = 10 * time.Second
+const defaultTimeout = 10 * time.Second
 
 // CreateAsyncApiClient creates a new ApiAsyncClient
 func CreateAsyncApiClient(
@@ -70,7 +70,7 @@ func CreateAsyncApiClient(
 		apiClient.SetTimeout(timeout)
 	} else if apiClient.GetTimeout() == 0 {
 		// Use DEFAULT_TIMEOUT when API_TIMEOUT is empty and ApiClient has no timeout set
-		apiClient.SetTimeout(DEFAULT_TIMEOUT)
+		apiClient.SetTimeout(defaultTimeout)
 	}
 
 	apiClient.SetLogger(taskCtx.GetLogger())
