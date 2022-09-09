@@ -52,7 +52,7 @@ export default function ManageIntegration () {
   const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
   const [isRunningDelete, setIsRunningDelete] = useState(false)
 
-  const [deleteId, setDeleteId] = useState()
+  const [deleteId, setDeleteId] = useState(null)
 
   const {
     connectionLimitReached,
@@ -100,12 +100,12 @@ export default function ManageIntegration () {
   }
 
   const getTestedConnection = (connection) => {
-    return testedConnections.find(tC => tC.ID === connection.ID)
+    return testedConnections.find(tC => tC.id === connection.id)
   }
 
   const getConnectionStatus = (connection) => {
     let s = null
-    const connectionAfterTest = testedConnections.find(tC => tC.ID === connection.ID)
+    const connectionAfterTest = testedConnections.find(tC => tC.id === connection.id)
     switch (parseInt(connectionAfterTest?.status, 10)) {
       case 1:
         s = <strong style={{ color: Colors.GREEN3 }}>Online</strong>
@@ -264,7 +264,7 @@ export default function ManageIntegration () {
                               >
                                 <Tooltip content='Use this ConnectionID for Triggers' position={Position.TOP}>
                                   <span style={{ color: Colors.BLUE3, fontWeight: 'bold' }}>
-                                    {connection.ID}
+                                    {connection.id}
                                   </span>
                                 </Tooltip>
                               </td>
@@ -312,7 +312,7 @@ export default function ManageIntegration () {
                                   id={deleteId}
                                   connection={connection}
                                   text='Delete'
-                                  showConfirmation={() => setDeleteId(connection.ID)}
+                                  showConfirmation={() => setDeleteId(connection.id)}
                                   onConfirm={runDeletion}
                                   onCancel={(e) => setDeleteId(false)}
                                   isDisabled={isRunningDelete || isDeletingConnection}

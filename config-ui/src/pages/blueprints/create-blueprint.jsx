@@ -38,7 +38,8 @@ import { ToastNotification } from '@/components/Toast'
 
 import { BlueprintMode } from '@/data/NullBlueprint'
 import { NullBlueprintConnection } from '@/data/NullBlueprintConnection'
-import { NullConnection } from '@/data/NullConnection'
+import Connection from '@/models/Connection'
+import ProviderListConnection from '@/models/ProviderListConnection'
 
 import {
   WorkflowSteps,
@@ -180,6 +181,7 @@ const CreateBlueprint = (props) => {
     setProjects,
     setEntities: setDataEntities,
     setTransformations,
+    setTransformationSettings,
     createProviderScopes,
     createProviderConnections,
     getDefaultTransformations,
@@ -283,7 +285,7 @@ const CreateBlueprint = (props) => {
     name: connectionName,
     endpointUrl,
     proxy,
-    rateLimit,
+    rateLimitPerHour,
     token,
     initialTokenStore,
     username,
@@ -294,7 +296,7 @@ const CreateBlueprint = (props) => {
     setName,
     setEndpointUrl,
     setProxy,
-    setRateLimit,
+    setRateLimitPerHour,
     setUsername,
     setPassword,
     setToken,
@@ -350,7 +352,7 @@ const CreateBlueprint = (props) => {
     name: connectionName,
     endpointUrl,
     proxy,
-    rateLimit,
+    rateLimitPerHour,
     token,
     username,
     password,
@@ -446,7 +448,7 @@ const CreateBlueprint = (props) => {
     setAllTestResponses({})
     setInitialTokenStore({})
     clearActiveConnection()
-    setActiveConnection(NullConnection)
+    setActiveConnection(new Connection())
     // setSaveConnectionComplete(null)
   }, [
     blueprintConnections,
@@ -523,7 +525,7 @@ const CreateBlueprint = (props) => {
         setConnectionDialogIsOpen(true)
       }
     },
-    [setProvider]
+    [setProvider, setActiveProvider, setManagedConnection, setConnectionDialogIsOpen]
   )
 
   const addProjectTransformation = useCallback((project) => {
@@ -541,23 +543,24 @@ const CreateBlueprint = (props) => {
     setConnectionDialogIsOpen(true)
   }, [])
 
-  const setTransformationSettings = useCallback(
-    (settings, configuredEntity) => {
-      console.log(
-        '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
-        configuredEntity,
-        settings
-      )
-      setTransformations((existingTransformations) => ({
-        ...existingTransformations,
-        [configuredEntity]: {
-          ...existingTransformations[configuredEntity],
-          ...settings,
-        },
-      }))
-    },
-    [setTransformations]
-  )
+  // @note: replaced by definition in dsm hook!
+  // const setTransformationSettings = useCallback(
+  //   (settings, configuredEntity) => {
+  //     console.log(
+  //       '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
+  //       configuredEntity,
+  //       settings
+  //     )
+  //     setTransformations((existingTransformations) => ({
+  //       ...existingTransformations,
+  //       [configuredEntity]: {
+  //         ...existingTransformations[configuredEntity],
+  //         ...settings,
+  //       },
+  //     }))
+  //   },
+  //   [setTransformations]
+  // )
 
   const handleTransformationSave = useCallback((settings, entity) => {
     console.log('>> SAVING / CLOSING Transformation Settings')
@@ -623,6 +626,7 @@ const CreateBlueprint = (props) => {
     fetchBoards,
     fetchFields,
     fetchIssueTypes,
+    enabledProviders,
     mode
   ])
 
@@ -951,7 +955,7 @@ const CreateBlueprint = (props) => {
   }, [onlineStatus, blueprintConnections])
 
   useEffect(() => {
-    setConnectionsList(cList => cList.map((c, cIdx) => ({
+    setConnectionsList(cList => cList.map((c, cIdx) => new ProviderListConnection({
       ...c,
       statusResponse: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider),
       status: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status
@@ -1151,7 +1155,7 @@ const CreateBlueprint = (props) => {
         endpointUrl={endpointUrl}
         name={connectionName}
         proxy={proxy}
-        rateLimit={rateLimit}
+        rateLimitPerHour={rateLimitPerHour}
         token={token}
         initialTokenStore={initialTokenStore}
         username={username}
@@ -1168,7 +1172,7 @@ const CreateBlueprint = (props) => {
         onNameChange={setName}
         onEndpointChange={setEndpointUrl}
         onProxyChange={setProxy}
-        onRateLimitChange={setRateLimit}
+        onRateLimitChange={setRateLimitPerHour}
         onTokenChange={setToken}
         onUsernameChange={setUsername}
         onPasswordChange={setPassword}

@@ -314,7 +314,7 @@ const BlueprintDetail = (props) => {
             : (p.beganAt ? dayjs(p.beganAt).toNow(true) : ' - '),
       }))
     )
-  }, [blueprintPipelines])
+  }, [blueprintPipelines, setHistoricalRuns])
 
   useEffect(() => {
     if (lastPipeline?.id && [TaskStatus.CREATED, TaskStatus.RUNNING, TaskStatus.COMPLETE, TaskStatus.FAILED].includes(lastPipeline.status)) {

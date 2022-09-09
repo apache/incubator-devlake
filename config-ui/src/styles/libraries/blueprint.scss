@@ -202,3 +202,9 @@ button, .bp3-button {
     box-shadow: none;
   }
 }
+
+.bp3-button {
+  .bp3-popover-wrapper {
+    width: auto;
+  }
+}

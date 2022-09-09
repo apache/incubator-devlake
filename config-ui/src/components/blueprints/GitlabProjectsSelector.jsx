@@ -16,7 +16,7 @@
  *
  */
 import React, { useEffect, useState } from 'react'
-import { Checkbox, Intent, MenuItem, } from '@blueprintjs/core'
+import { Checkbox, Intent, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import { MultiSelect } from '@blueprintjs/select'
 
 const GitlabProjectsSelector = (props) => {
@@ -61,7 +61,8 @@ const GitlabProjectsSelector = (props) => {
         }}
       />
     ),
-    tagRenderer = (item) => item.shortTitle || item.title
+    // eslint-disable-next-line max-len
+    tagRenderer = (item) => <Tooltip intent={Intent.PRIMARY} content={item?.title} position={Position.TOP}>{item.shortTitle || item.title}</Tooltip>
   } = props
 
   const [query, setQuery] = useState('')
