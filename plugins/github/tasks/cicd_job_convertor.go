@@ -94,7 +94,7 @@ func ConvertTasks(taskCtx core.SubTaskContext) error {
 				FinishedDate: line.CompletedAt,
 			}
 			if len(tmp) > 0 {
-				domainjob.PipelineId = fmt.Sprintf("%s:%s:%d:%d:%s:%s", "github", "GithubPipeline", data.Options.ConnectionId, repoId, tmp[0].HeadBranch, line.HeadSha)
+				domainjob.PipelineId = fmt.Sprintf("%s:%s:%d:%d:%d", "github", "GithubRun", data.Options.ConnectionId, repoId, line.RunID)
 			}
 
 			if line.Conclusion == "success" {

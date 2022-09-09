@@ -46,7 +46,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 
 	pipeline := &githubModels.GithubRun{}
 	cursor, err := db.Cursor(
-		dal.Select("name, head_sha, head_branch, status, conclusion, github_created_at, github_updated_at"),
+		dal.Select("id, name, head_sha, head_branch, status, conclusion, github_created_at, github_updated_at"),
 		dal.From(pipeline),
 		dal.Where("repo_id = ? and connection_id=?", repoId, data.Options.ConnectionId),
 	)
@@ -55,7 +55,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	pipelineIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPipeline{})
+	runIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubRun{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -71,7 +71,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			line := inputRow.(*githubModels.GithubRun)
 			domainPipeline := &devops.CICDPipeline{
-				DomainEntity: domainlayer.DomainEntity{Id: pipelineIdGen.Generate(data.Options.ConnectionId, repoId, line.HeadBranch, line.HeadSha)},
+				DomainEntity: domainlayer.DomainEntity{Id: runIdGen.Generate(data.Options.ConnectionId, repoId, line.ID)},
 				Name:         line.Name,
 				Type:         "CI/CD",
 				CreatedDate:  *line.GithubCreatedAt,
@@ -93,7 +93,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 			}
 
 			domainPipelineProject := &devops.CiCDPipelineRepo{
-				DomainEntity: domainlayer.DomainEntity{Id: pipelineIdGen.Generate(data.Options.ConnectionId, repoId, line.HeadBranch, line.HeadSha)},
+				DomainEntity: domainlayer.DomainEntity{Id: runIdGen.Generate(data.Options.ConnectionId, repoId, line.ID)},
 				CommitSha:    line.HeadSha,
 				Branch:       line.HeadBranch,
 				Repo:         didgen.NewDomainIdGenerator(&githubModels.GithubRepo{}).Generate(data.Options.ConnectionId, repoId),
