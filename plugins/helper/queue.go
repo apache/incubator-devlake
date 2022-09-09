@@ -75,9 +75,8 @@ func (q *Queue) PushWithoutLock(node QueueNode) {
 
 // PullWithOutLock is no lock mode of Pull
 func (q *Queue) PullWithOutLock() QueueNode {
-	var node QueueNode = nil
+	var node QueueNode
 
-	//nolint:revive
 	if q.head != nil {
 		node = q.head
 		q.head, _ = node.Next().(QueueNode)

@@ -144,27 +144,33 @@ func NewDateIterator(days int) (*DateIterator, error) {
 	}, nil
 }
 
+// QueueIterator implements Iterator based on Queue
 type QueueIterator struct {
 	queue *Queue
 }
 
+// HasNext increments the row curser. If we're at the end, it'll return false.
 func (q *QueueIterator) HasNext() bool {
 	return q.queue.GetCount() > 0
 }
 
+// Fetch current item
 func (q *QueueIterator) Fetch() (interface{}, error) {
 	return q.queue.PullWithOutLock(), nil
 }
 
+// Push a data into queue
 func (q *QueueIterator) Push(data QueueNode) {
 	q.queue.PushWithoutLock(data)
 }
 
+// Close releases resources
 func (q *QueueIterator) Close() error {
 	q.queue.CleanWithOutLock()
 	return nil
 }
 
+// NewQueueIterator creates a new QueueIterator
 func NewQueueIterator() *QueueIterator {
 	return &QueueIterator{
 		queue: NewQueue(),

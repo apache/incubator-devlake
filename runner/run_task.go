@@ -68,9 +68,7 @@ func RunTask(
 		if err != nil {
 			lakeErr := errors.AsLakeErrorType(err)
 			subTaskName := "unknown"
-			if lakeErr == nil {
-				//skip
-			} else if lakeErr = lakeErr.As(errors.SubtaskErr); lakeErr != nil {
+			if lakeErr = lakeErr.As(errors.SubtaskErr); lakeErr != nil {
 				if meta, ok := lakeErr.GetData().(*core.SubTaskMeta); ok {
 					subTaskName = meta.Name
 				}
@@ -135,7 +133,7 @@ func RunTask(
 func RunPluginTask(
 	ctx context.Context,
 	cfg *viper.Viper,
-	logger core.Logger,
+	log core.Logger,
 	db *gorm.DB,
 	taskID uint64,
 	name string,
@@ -154,7 +152,7 @@ func RunPluginTask(
 	return RunPluginSubTasks(
 		ctx,
 		cfg,
-		logger,
+		log,
 		db,
 		taskID,
 		name,

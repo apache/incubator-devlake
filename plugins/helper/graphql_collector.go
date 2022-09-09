@@ -120,7 +120,7 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, error) {
 	return apicllector, nil
 }
 
-// Start collection
+// Execute api collection
 func (collector *GraphqlCollector) Execute() error {
 	logger := collector.args.Ctx.GetLogger()
 	logger.Info("start graphql collection")
