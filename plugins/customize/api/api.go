@@ -95,6 +95,10 @@ func deleteField(d dal.Dal, table, field string) error {
 	return nil
 }
 
+//nolint:unused
+type input struct {
+	Name string `json:"name" example:"x_new_column"`
+}
 type Handlers struct {
 	dal dal.Dal
 }
