@@ -73,6 +73,8 @@ type Dal interface {
 	Create(entity interface{}, clauses ...Clause) error
 	// Update updates record
 	Update(entity interface{}, clauses ...Clause) error
+	// UpdateColumns batch records in database
+	UpdateColumns(entity interface{}, clauses ...Clause) error
 	// CreateOrUpdate tries to create the record, or fallback to update all if failed
 	CreateOrUpdate(entity interface{}, clauses ...Clause) error
 	// CreateIfNotExist tries to create the record if not exist
