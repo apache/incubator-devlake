@@ -146,6 +146,11 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) error {
 	return buildTx(d.db, clauses).Delete(entity).Error
 }
 
+// UpdateColumns batch records in database
+func (d *Dalgorm) UpdateColumns(entity interface{}, clauses ...dal.Clause) error {
+	return buildTx(d.db, clauses).UpdateColumns(entity).Error
+}
+
 // GetColumns FIXME ...
 func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, err error) {
 	columnTypes, err := d.db.Migrator().ColumnTypes(dst.TableName())

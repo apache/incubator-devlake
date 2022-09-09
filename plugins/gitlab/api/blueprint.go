@@ -108,7 +108,7 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 				},
 				10*time.Second,
 				connection.Proxy,
-				basicRes,
+				BasicRes,
 			)
 			if err != nil {
 				return nil, err

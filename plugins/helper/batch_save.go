@@ -42,6 +42,11 @@ type BatchSave struct {
 	primaryKey []reflect.StructField
 }
 
+// BatchUpdate will update records by batch
+type BatchUpdate struct {
+	*BatchSave
+}
+
 // NewBatchSave creates a new BatchSave instance
 func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchSave, error) {
 	if slotType.Kind() != reflect.Ptr {
@@ -67,8 +72,49 @@ func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*Bat
 	}, nil
 }
 
+// NewBatchUpdate creates a new BatchUpdate instance
+func NewBatchUpdate(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchUpdate, error) {
+	batchSave, err := NewBatchSave(basicRes, slotType, size)
+	if err != nil {
+		return nil, err
+	}
+	batchUpdate := BatchUpdate{
+		BatchSave: batchSave,
+	}
+	return &batchUpdate, nil
+}
+
 // Add record to cache. BatchSave would flush them into Database when cache is max out
 func (c *BatchSave) Add(slot interface{}) error {
+	err := c.prepareForFlush(slot)
+	if err != nil {
+		return err
+	}
+	// flush out into database if max outed
+	if c.current == c.size {
+		return c.Flush()
+	} else if c.current%100 == 0 {
+		c.log.Debug("batch save current: %d", c.current)
+	}
+	return nil
+}
+
+// Update record to cache. BatchSave would flush them into Database when cache is max out
+func (c *BatchUpdate) Update(slot interface{}) error {
+	err := c.prepareForFlush(slot)
+	if err != nil {
+		return err
+	}
+	// flush out into database if max outed
+	if c.current == c.size {
+		return c.FlushUpdate()
+	} else if c.current%100 == 0 {
+		c.log.Debug("batch save current: %d", c.current)
+	}
+	return nil
+}
+
+func (c *BatchSave) prepareForFlush(slot interface{}) error {
 	// type checking
 	if reflect.TypeOf(slot) != c.slotType {
 		return errors.Default.New("sub cache type mismatched")
@@ -89,12 +135,6 @@ func (c *BatchSave) Add(slot interface{}) error {
 	}
 	c.slots.Index(c.current).Set(reflect.ValueOf(slot))
 	c.current++
-	// flush out into database if max outed
-	if c.current == c.size {
-		return c.Flush()
-	} else if c.current%100 == 0 {
-		c.log.Debug("batch save current: %d", c.current)
-	}
 	return nil
 }
 
@@ -110,10 +150,30 @@ func (c *BatchSave) Flush() error {
 	return nil
 }
 
+// FlushUpdate update cached records into database
+func (c *BatchUpdate) FlushUpdate() error {
+	err := c.db.UpdateColumns(c.slots.Slice(0, c.current).Interface())
+	if err != nil {
+		return err
+	}
+	c.log.Debug("batch save flush total %d records to database", c.current)
+	c.current = 0
+	c.valueIndex = make(map[string]int)
+	return nil
+}
+
 // Close would flash the cache and release resources
 func (c *BatchSave) Close() error {
 	if c.current > 0 {
 		return c.Flush()
+	}
+	return nil
+}
+
+// Close would flash the cache and release resources
+func (c *BatchUpdate) Close() error {
+	if c.current > 0 {
+		return c.FlushUpdate()
 	}
 	return nil
 }
