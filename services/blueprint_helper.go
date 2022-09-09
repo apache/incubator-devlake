@@ -24,7 +24,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// CreateBlueprint accepts a Blueprint instance and insert it to database
+// CreateDbBlueprint accepts a Blueprint instance and insert it to database
 func CreateDbBlueprint(dbBlueprint *models.DbBlueprint) error {
 	err := db.Create(&dbBlueprint).Error
 	if err != nil {
