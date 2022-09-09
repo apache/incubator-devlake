@@ -113,7 +113,7 @@ export default function EditConnection () {
                 { href: '/integrations', icon: false, text: 'Integrations' },
                 { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}` },
                 {
-                  href: `/connections/edit/${activeProvider.id}/${activeConnection.ID}`,
+                  href: `/connections/edit/${activeProvider.id}/${activeConnection.id}`,
                   icon: false,
                   text: 'Edit Connection',
                   current: true

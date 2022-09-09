@@ -57,7 +57,7 @@ export default function ConnectionForm (props) {
     username,
     password,
     proxy = '',
-    rateLimit = 0,
+    rateLimitPerHour = 0,
     isSaving,
     isTesting,
     showError,
@@ -127,9 +127,9 @@ export default function ConnectionForm (props) {
       token,
       username,
       password,
-      rateLimit,
+      rateLimitPerHour,
     })
-  }, [name, endpointUrl, token, username, password, rateLimit, onValidate])
+  }, [name, endpointUrl, token, username, password, rateLimitPerHour, onValidate])
   const fieldHasError = (fieldId) => {
     return validationErrors.some((e) => e.includes(fieldId))
   }
@@ -189,6 +189,8 @@ export default function ConnectionForm (props) {
     })
   }, [
     personalAccessTokens,
+    patTestPayload,
+
     onTokenChange,
     onTest
   ])
@@ -223,6 +225,7 @@ export default function ConnectionForm (props) {
     }
   }, [
     activeProvider?.id,
+    personalAccessTokens,
     syncPersonalAcessTokens
   ])
 
@@ -407,7 +410,7 @@ export default function ConnectionForm (props) {
                 {labels ? labels.token : <>Basic&nbsp;Auth&nbsp;Token</>}
                 <span className='requiredStar'>*</span>
               </Label>
-              {[Providers.GITHUB].includes(activeProvider.id) ? (
+              {[Providers.GITHUB].includes(activeProvider?.id) ? (
                 <>
                   {/* TEXTAREA Multi-line Token Input (Disabled) */}
                   {/* <div
@@ -708,7 +711,7 @@ export default function ConnectionForm (props) {
           </>
         )}
         {[Providers.GITHUB, Providers.GITLAB, Providers.JIRA, Providers.JENKINS, Providers.TAPD].includes(
-          activeProvider.id
+          activeProvider?.id
         ) && (
           <>
             <div className='formContainer'>
@@ -749,7 +752,7 @@ export default function ConnectionForm (props) {
                 className={formGroupClassName}
                 contentClassName='formGroupContent'
               >
-                <Label>{labels ? labels.rateLimit : <>Rate&nbsp;Limit</>}</Label>
+                <Label>{labels ? labels.rateLimitPerHour : <>Rate&nbsp;Limit</>}</Label>
                 <NumericInput
                   id='connection-ratelimit'
                   ref={connectionRateLimitRef}
@@ -762,13 +765,13 @@ export default function ConnectionForm (props) {
                 }`}
                   fill={false}
                   placeholder={
-                  placeholders.rateLimit
-                    ? placeholders.rateLimit
+                  placeholders.rateLimitPerHour
+                    ? placeholders.rateLimitPerHour
                     : '1000'
                 }
                   allowNumericCharactersOnly={true}
                   onValueChange={(rateLimitPerHour) => { onRateLimitChange(rateLimitPerHour) }}
-                  value={rateLimit}
+                  value={rateLimitPerHour}
                   rightElement={
                     <InputValidationError error={getFieldError('RateLimit')} />
                 }

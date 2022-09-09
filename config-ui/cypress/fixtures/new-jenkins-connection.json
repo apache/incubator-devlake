@@ -9,6 +9,6 @@
   "storyPointField": "",
   "remotelinkCommitShaPattern": "",
   "proxy": "http://proxy.localhost:8800",
-  "rateLimit": 0,
+  "rateLimitPerHour": 0,
   "typeMappings": {}
 }

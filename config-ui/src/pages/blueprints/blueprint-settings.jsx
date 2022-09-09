@@ -41,6 +41,8 @@ import {
 } from '@blueprintjs/core'
 
 import { integrationsData } from '@/data/integrations'
+import JiraBoard from '@/models/JiraBoard'
+import DataScopeConnection from '@/models/DataScopeConnection'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
 import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
@@ -179,6 +181,10 @@ const BlueprintSettings = (props) => {
     setEnabledProviders,
     createProviderConnections,
     createProviderScopes,
+    createNormalConnection,
+    createAdvancedConnection,
+    getJiraMappedBoards,
+    getDefaultEntities
   } = useDataScopesManager({
     blueprint: activeBlueprint,
     provider: activeProvider,
@@ -433,7 +439,6 @@ const BlueprintSettings = (props) => {
     console.log('>>> MODIFYING DATA CONNECTION SCOPE...', connectionWithScope)
     setActiveProvider(aP => connection ? integrationsData.find(i => i.id === connection?.provider) : aP)
     setActiveSetting((aS) => ({ ...aS, id: 'scopes', title: 'Change Data Scope' }))
-    // setConfiguredConnection(connection)
     setConfiguredConnection({ ...connection, transformations: connectionWithScope.transformations })
     setScopeConnection({ ...connection, ...connectionWithScope })
   }, [
@@ -513,25 +518,25 @@ const BlueprintSettings = (props) => {
     activeBlueprint?.mode
   ])
 
-  const getDefaultEntities = useCallback((providerId) => {
-    let entities = []
-    switch (providerId) {
-      case Providers.GITHUB:
-      case Providers.GITLAB:
-        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
-        break
-      case Providers.JIRA:
-        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
-        break
-      case Providers.JENKINS:
-        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-        break
-      case Providers.TAPD:
-        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-        break
-    }
-    return entities
-  }, [])
+  // const getDefaultEntities = useCallback((providerId) => {
+  //   let entities = []
+  //   switch (providerId) {
+  //     case Providers.GITHUB:
+  //     case Providers.GITLAB:
+  //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
+  //       break
+  //     case Providers.JIRA:
+  //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
+  //       break
+  //     case Providers.JENKINS:
+  //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+  //       break
+  //     case Providers.TAPD:
+  //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+  //       break
+  //   }
+  //   return entities
+  // }, [])
 
   const addProjectTransformation = useCallback((project) => {
     setConfiguredProject(project)
@@ -544,16 +549,16 @@ const BlueprintSettings = (props) => {
   }, [setConfiguredBoard])
 
   // @todo: lift higher to dsm hook
-  const getJiraMappedBoards = useCallback((options = []) => {
-    return options.map(({ boardId, title }, sIdx) => {
-      return {
-        id: boardId,
-        key: boardId,
-        value: boardId,
-        title: title || `Board ${boardId}`,
-      }
-    })
-  }, [scopeConnection?.endpoint])
+  // const getJiraMappedBoards = useCallback((options = []) => {
+  //   return options.map(({ boardId, title }, sIdx) => {
+  //     return {
+  //       id: boardId,
+  //       key: boardId,
+  //       value: boardId,
+  //       title: title || `Board ${boardId}`,
+  //     }
+  //   })
+  // }, [scopeConnection?.endpoint])
 
   useEffect(() => {
     console.log('>>> ACTIVE PROVIDER!', activeProvider)
@@ -589,134 +594,37 @@ const BlueprintSettings = (props) => {
 
   useEffect(() => {
     console.log('>>> ACTIVE BLUEPRINT ....', activeBlueprint)
-    const getGithubProjects = (c) => [Providers.GITHUB].includes(c.plugin)
-      ? c.scope.map((s) => ({
-        id: `${s.options.owner}/${s.options?.repo}`,
-        key: `${s.options.owner}/${s.options?.repo}`,
-        value: `${s.options.owner}/${s.options?.repo}`,
-        title: `${s.options.owner}/${s.options?.repo}`,
-      }))
-      : []
-    const getGitlabProjects = (c) => [Providers.GITLAB].includes(c.plugin)
-      ? c.scope.map((s) => ({
-        id: s.options?.projectId,
-        key: s.options?.projectId,
-        value: s.options?.projectId,
-        title: s.options?.title || `Project ${s.options?.projectId}`,
-      }))
-      : []
-    // @todo: handle multi-stage
-    const getAdvancedGithubProjects = (t, providerId) => [Providers.GITHUB].includes(providerId)
-      ? [{
-          id: `${t.options?.owner}/${t.options?.repo}`,
-          key: `${t.options?.owner}/${t.options?.repo}`,
-          value: `${t.options?.owner}/${t.options?.repo}`,
-          title: `${t.options?.owner}/${t.options?.repo}`,
-        }]
-      : []
-    const getAdvancedGitlabProjects = (t, providerId) => [Providers.GITLAB].includes(providerId)
-      ? [{
-          id: t.options?.projectId,
-          key: t.options?.projectId,
-          value: t.options?.projectId,
-          title: t.options?.title || `Project ${t.options?.projectId}`,
-        }]
-      : []
-    const getAdvancedJiraBoards = (t, providerId) => [Providers.JIRA].includes(providerId)
-      ? [{
-          id: t.options?.boardId,
-          key: t.options?.boardId,
-          value: t.options?.boardId,
-          title: t.options?.title || `Board ${t.options?.boardId}`,
-        }]
-      : []
-    // @todo: migrate to data scopes manager
     if (activeBlueprint?.id && activeBlueprint?.mode === BlueprintMode.NORMAL) {
       setConnections(
-        activeBlueprint?.settings?.connections.map((c, cIdx) => ({
-          ...c,
-          // Preserve Original **LIST INDEX** ID!
-          id: connectionsList.find(lC => lC.value === c.connectionId && lC.provider === c.plugin)?.id,
-          connectionId: c.connectionId,
-          value: c.connectionId,
-          provider: integrationsData.find((i) => i.id === c.plugin),
-          providerLabel: ProviderLabels[c.plugin?.toUpperCase()],
-          providerId: c.plugin,
-          plugin: c.plugin,
-          icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
-          name: allProviderConnections.find(pC => pC.connectionId === c.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.connectionId || cIdx}`,
-          entities: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)?.title),
-          entityList: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)),
-          projects: [Providers.GITLAB].includes(c.plugin)
-            ? getGitlabProjects(c)
-            : getGithubProjects(c),
-          boards: [Providers.JIRA].includes(c.plugin)
-            ? c.scope.map((s) => s.options?.title || `Board ${s.options?.boardId}`)
-            : [],
-          boardIds: [Providers.JIRA].includes(c.plugin)
-            ? c.scope.map((s) => s.options?.boardId)
-            : [],
-          boardsList: getJiraMappedBoards(c.scope.map((s) => s.options)),
-          transformations: c.scope.map((s) => ({ ...s.transformation })),
-          transformationStates: c.scope.map((s) =>
-            Object.values(s.transformation).some((v) => Array.isArray(v) ? v.length > 0 : (v && typeof v === 'object' ? Object.keys(v)?.length > 0 : v?.toString().length > 0))
-              ? 'Added'
-              : '-'
-          ),
-          scope: c.scope,
-          editable: ![Providers.JENKINS].includes(c.plugin),
-          advancedEditable: false,
-          isMultiStage: false,
-          isSingleStage: true,
-          stage: 1,
-          totalStages: 1
-        }))
+        activeBlueprint?.settings?.connections.map((c, cIdx) =>
+          new DataScopeConnection(
+            createNormalConnection(
+              activeBlueprint,
+              c,
+              cIdx,
+              DEFAULT_DATA_ENTITIES,
+              allProviderConnections,
+              connectionsList,
+              [Providers.JIRA].includes(c.plugin) ? getJiraMappedBoards(c.scope.map((s) => s.options?.boardId), allJiraResources?.boards) : []
+            )
+          )
+        )
       )
     } else if (activeBlueprint?.id && activeBlueprint?.mode === BlueprintMode.ADVANCED) {
-      // Advanced Mode Data Scope Connections
-      // @todo: handle multi-stage
       setConnections(
-        activeBlueprint?.plan?.flat().map((c, cIdx) => ({
-          ...c,
-          id: connectionsList.find(lC => lC.value === c.options?.connectionId && lC.provider === c.plugin)?.id,
-          connectionId: c.options?.connectionId,
-          value: c.options?.connectionId,
-          provider: integrationsData.find((i) => i.id === c.plugin),
-          providerLabel: ProviderLabels[c.plugin?.toUpperCase()],
-          plugin: c.plugin,
-          providerId: c.plugin,
-          icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
-          name: allProviderConnections.find(pC => pC.connectionId === c.options?.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.options?.connectionId || cIdx}`,
-          projects: [Providers.GITLAB].includes(c.plugin)
-            ? getAdvancedGitlabProjects(c, c.plugin)
-            : getAdvancedGithubProjects(c, c.plugin),
-          // entities: DEFAULT_DATA_ENTITIES.map(e => e.title),
-          entities: ['-'],
-          entitityList: getDefaultEntities(c.plugin),
-          boards: [Providers.JIRA].includes(c.plugin)
-            ? getAdvancedJiraBoards(c, c.plugin).map(board => board.title)
-            : [],
-          boardIds: [Providers.JIRA].includes(c.plugin)
-            ? getAdvancedJiraBoards(c, c.plugin)
-            : [],
-          boardsList: [Providers.JIRA].includes(c.plugin)
-            ? getAdvancedJiraBoards(c, c.plugin)
-            : [],
-          transformations: {},
-          // transformationStates: ['-'],
-          transformationStates: typeof c.options?.transformationRules === 'object' &&
-            Object.values(c.options?.transformationRules).some(v => (Array.isArray(v) && v.length > 0) || v.toString().length > 0)
-            ? ['Added'] : ['-'],
-          scope: c,
-          task: c,
-          editable: false,
-          advancedEditable: true,
-          plan: activeBlueprint?.plan,
-          isMultiStage: Array.isArray(activeBlueprint?.plan) && activeBlueprint?.plan.length > 1,
-          isSingleStage: Array.isArray(activeBlueprint?.plan) && activeBlueprint?.plan.length === 1,
-          stage: activeBlueprint?.plan.findIndex((s, sId) => s.find(t => JSON.stringify(t) === JSON.stringify(c))) + 1,
-          totalStages: activeBlueprint?.plan?.length,
-        }))
+        activeBlueprint?.plan?.flat().map((c, cIdx) =>
+          new DataScopeConnection(
+            createAdvancedConnection(
+              activeBlueprint,
+              c,
+              cIdx,
+              DEFAULT_DATA_ENTITIES,
+              allProviderConnections,
+              connectionsList,
+              [Providers.JIRA].includes(c.plugin) ? getJiraMappedBoards(c.scope?.map((s) => s.options?.boardId), allJiraResources?.boards) : []
+            )
+          )
+        )
       )
     }
     setBlueprintName(activeBlueprint?.name)
@@ -763,7 +671,9 @@ const BlueprintSettings = (props) => {
     connectionsList,
     getDefaultEntities,
     getJiraMappedBoards,
-    setRawConfiguration
+    setRawConfiguration,
+    createAdvancedConnection,
+    createNormalConnection
   ])
 
   useEffect(() => {
@@ -883,20 +793,20 @@ const BlueprintSettings = (props) => {
     // configuredProject, configuredBoard
   ])
 
-  useEffect(() => {
-    if (allJiraResources?.boards?.length > 0) {
-      // setBlueprintScopesDialogIsOpen(true)
-    }
-  }, [allJiraResources])
+  // useEffect(() => {
+  //   if (allJiraResources?.boards?.length > 0) {
+  //     // setBlueprintScopesDialogIsOpen(true)
+  //   }
+  // }, [allJiraResources])
 
-  useEffect(() => {
-    console.log('>>> CONFIGURING / MODIFYING CONNECTION', configuredConnection)
-    if (configuredConnection?.id) {
-      // setBoards({ [configuredConnection?.id]: [] })
-      // setProjects({ [configuredConnection?.id]: [] })
-      // setEntities({ [configuredConnection?.id]: [] })
-    }
-  }, [configuredConnection])
+  // useEffect(() => {
+  //   console.log('>>> CONFIGURING / MODIFYING CONNECTION', configuredConnection)
+  //   if (configuredConnection?.id) {
+  //     // setBoards({ [configuredConnection?.id]: [] })
+  //     // setProjects({ [configuredConnection?.id]: [] })
+  //     // setEntities({ [configuredConnection?.id]: [] })
+  //   }
+  // }, [configuredConnection])
 
   useEffect(() => {
     if (
@@ -905,7 +815,7 @@ const BlueprintSettings = (props) => {
         activeBlueprint?.mode === BlueprintMode.NORMAL
     ) {
       fetchAllResources(scopeConnection?.connectionId, (jiraResourcesResponse) => {
-        setConnections(Cs => Cs.map(c => ({
+        setConnections(Cs => Cs.map(c => new DataScopeConnection({
           ...c,
           boardsList: jiraResourcesResponse?.boards ? getJiraMappedBoards(c.boardIds, jiraResourcesResponse?.boards) : []
         })))

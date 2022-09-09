@@ -39,7 +39,7 @@ function useDatabaseMigrations (Configuration = MigrationOptions) {
       setIsProcessing(false)
       setHasMigrationFailed(m?.status !== 200)
     }, 3000)
-  }, [])
+  }, [Configuration.apiProceedEndpoint])
 
   const handleCancelMigration = useCallback(() => {
     setIsProcessing(true)
@@ -53,7 +53,7 @@ function useDatabaseMigrations (Configuration = MigrationOptions) {
       intent: Intent.NONE,
       icon: 'warning-sign'
     })
-  }, [])
+  }, [Configuration.cancelToastMessage, Configuration.warningId])
 
   const handleMigrationDialogClose = useCallback(() => {
     setMigrationAlertOpened(false)

@@ -15,19 +15,25 @@
  * limitations under the License.
  *
  */
-const NullConnection = {
-  id: null,
-  name: null,
-  endpoint: null,
-  proxy: null,
-  rateLimitPerHour: 0,
-  token: null,
-  username: null,
-  password: null,
-  createdAt: null,
-  updatedAt: null,
+
+/**
+ * @typedef {object} TransformationSettings
+ */
+class TransformationSettings {
+  constructor (data = {}) {
+    for (const [key, value] of Object.entries(data)) {
+      this[[key]] = value
+    }
+  }
+
+  get (property) {
+    return this[property]
+  }
+
+  set (property, value) {
+    this[property] = value
+    return this.property
+  }
 }
 
-export {
-  NullConnection
-}
+export default TransformationSettings
