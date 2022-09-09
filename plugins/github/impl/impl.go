@@ -61,7 +61,6 @@ func (plugin Github) GetTablesInfo() []core.Tabler {
 		&models.GithubIssueLabel{},
 		&models.GithubJob{},
 		&models.GithubMilestone{},
-		&models.GithubPipeline{},
 		&models.GithubPrComment{},
 		&models.GithubPrCommit{},
 		&models.GithubPrIssue{},
