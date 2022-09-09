@@ -41,24 +41,26 @@ var EnrichTaskEnvMeta = core.SubTaskMeta{
 func EnrichTasksEnv(taskCtx core.SubTaskContext) (err error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
+	repoId := data.Options.RepoId
 
-	var envReg *regexp.Regexp
-	environmentPattern := data.Options.EnvironmentRegex
-	if len(environmentPattern) > 0 {
-		envReg, err = regexp.Compile(environmentPattern)
+	var taskNameReg *regexp.Regexp
+	taskNamePattern := data.Options.EnvironmentRegex
+	if len(taskNamePattern) > 0 {
+		taskNameReg, err = regexp.Compile(taskNamePattern)
 		if err != nil {
-			return fmt.Errorf("regexp Compile envReg failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return fmt.Errorf("regexp Compile taskNameReg failed:[%s] stack:[%s]", err.Error(), debug.Stack())
 		}
 	} else {
-		environmentPattern = "deploy" // default
-		envReg, err = regexp.Compile("deploy")
+		taskNamePattern = "deploy" // default
+		taskNameReg, err = regexp.Compile("deploy")
 		if err != nil {
-			return fmt.Errorf("regexp Compile envReg failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return fmt.Errorf("regexp Compile taskNameReg failed:[%s] stack:[%s]", err.Error(), debug.Stack())
 		}
 	}
 
 	cursor, err := db.Cursor(
 		dal.From(&devops.CICDTask{}),
+		dal.Join("left join cicd_pipeline_repos cpr on cpr.repo=? and pipeline_id = cpr.id ", repoId),
 		dal.Where("status=?", devops.DONE))
 	if err != nil {
 		return err
@@ -78,7 +80,7 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err error) {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			cicdTask := inputRow.(*devops.CICDTask)
 			results := make([]interface{}, 0, 1)
-			if deployTask := envReg.FindString(cicdTask.Name); deployTask == "" {
+			if deployTask := taskNameReg.FindString(cicdTask.Name); deployTask == "" {
 				return nil, nil
 			}
 			cicdPipelineFilter := &devops.CICDTask{

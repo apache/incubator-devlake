@@ -22,7 +22,6 @@ import (
 )
 
 type DoraApiParams struct {
-	RepoId string `json:"repoId"`
 }
 
 type TransformationRules struct {
@@ -33,6 +32,7 @@ type TransformationRules struct {
 type DoraOptions struct {
 	Tasks               []string `json:"tasks,omitempty"`
 	Since               string
+	RepoId              string `json:"repoId"`
 	TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
