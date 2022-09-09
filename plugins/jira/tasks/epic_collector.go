@@ -27,7 +27,7 @@ import (
 
 	"encoding/json"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -90,7 +90,7 @@ func CollectEpics(taskCtx core.SubTaskContext) error {
 			var data struct {
 				Issues []json.RawMessage `json:"issues"`
 			}
-			blob, err := ioutil.ReadAll(res.Body)
+			blob, err := io.ReadAll(res.Body)
 			if err != nil {
 				return nil, err
 			}

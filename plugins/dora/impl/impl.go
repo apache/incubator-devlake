@@ -22,7 +22,6 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/dora/api"
 	"github.com/apache/incubator-devlake/plugins/dora/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/dora/tasks"
 	"github.com/spf13/viper"
@@ -33,7 +32,6 @@ import (
 var _ core.PluginMeta = (*Dora)(nil)
 var _ core.PluginInit = (*Dora)(nil)
 var _ core.PluginTask = (*Dora)(nil)
-var _ core.PluginApi = (*Dora)(nil)
 var _ core.CloseablePluginTask = (*Dora)(nil)
 
 type Dora struct{}
@@ -54,7 +52,6 @@ func (plugin Dora) SvgIcon() string {
 }
 
 func (plugin Dora) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
-	api.Init(config, logger, db)
 	return nil
 }
 
@@ -83,20 +80,6 @@ func (plugin Dora) RootPkgPath() string {
 
 func (plugin Dora) MigrationScripts() []migration.Script {
 	return migrationscripts.All()
-}
-
-func (plugin Dora) ApiResources() map[string]map[string]core.ApiResourceHandler {
-	return map[string]map[string]core.ApiResourceHandler{
-		"deployments": {
-			"POST": api.PostDeployments,
-		},
-		"issues": {
-			"POST": api.PostIssues,
-		},
-		"issues/:id/close": {
-			"POST": api.CloseIssues,
-		},
-	}
 }
 
 func (plugin Dora) Close(taskCtx core.TaskContext) error {

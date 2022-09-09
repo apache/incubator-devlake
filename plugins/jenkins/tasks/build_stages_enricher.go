@@ -45,6 +45,9 @@ func EnrichApiBuildWithStages(taskCtx core.SubTaskContext) error {
 		dal.Groupby("build_name"),
 	}
 	cursor, err := db.Cursor(clauses...)
+	if err != nil {
+		return err
+	}
 	defer cursor.Close()
 	taskCtx.SetProgress(0, -1)
 

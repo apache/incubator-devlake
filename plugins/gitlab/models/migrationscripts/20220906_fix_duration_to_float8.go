@@ -43,6 +43,9 @@ func (*fixDurationToFloat8) Up(ctx context.Context, db *gorm.DB) error {
 	}
 
 	cursor, err := db.Model(&GitlabJob20220906{}).Select([]string{"connection_id", "gitlab_id", "duration"}).Rows()
+	if err != nil {
+		return err
+	}
 	for cursor.Next() {
 		job := GitlabJob20220906{}
 		err = db.ScanRows(cursor, &job)

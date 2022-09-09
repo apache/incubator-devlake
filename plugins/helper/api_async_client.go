@@ -23,7 +23,6 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
@@ -46,7 +45,7 @@ type ApiAsyncClient struct {
 	numOfWorkers int
 }
 
-const DEFAULT_TIMEOUT = 10 * time.Second
+const defaultTimeout = 10 * time.Second
 
 // CreateAsyncApiClient creates a new ApiAsyncClient
 func CreateAsyncApiClient(
@@ -70,7 +69,7 @@ func CreateAsyncApiClient(
 		apiClient.SetTimeout(timeout)
 	} else if apiClient.GetTimeout() == 0 {
 		// Use DEFAULT_TIMEOUT when API_TIMEOUT is empty and ApiClient has no timeout set
-		apiClient.SetTimeout(DEFAULT_TIMEOUT)
+		apiClient.SetTimeout(defaultTimeout)
 	}
 
 	apiClient.SetLogger(taskCtx.GetLogger())
@@ -163,14 +162,14 @@ func (apiClient *ApiAsyncClient) DoAsync(
 			// make sure response.Body stream will be closed to avoid running out of file handle
 			defer func(body io.ReadCloser) { body.Close() }(res.Body)
 			// replace NetworkStream with MemoryBuffer
-			body, err = ioutil.ReadAll(res.Body)
+			body, err = io.ReadAll(res.Body)
 			if err == nil {
 				res.Body = io.NopCloser(bytes.NewBuffer(body))
 			}
 		}
 		if err == ErrIgnoreAndContinue {
 			// make sure defer func got be executed
-			err = nil
+			err = nil //nolint:all
 			return nil
 		}
 

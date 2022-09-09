@@ -55,7 +55,7 @@ func ExtractCustomizedFields(taskCtx core.SubTaskContext) error {
 }
 
 func extractCustomizedFields(ctx context.Context, d dal.Dal, table, rawTable, rawDataParams string, extractor map[string]string) error {
-	pkFields, err := dal.GetPrimarykeyColumns(d, &models.Table{table})
+	pkFields, err := dal.GetPrimarykeyColumns(d, &models.Table{Name: table})
 	if err != nil {
 		return err
 	}

@@ -24,7 +24,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// CreateBlueprint accepts a Blueprint instance and insert it to database
+// CreateDbBlueprint accepts a Blueprint instance and insert it to database
 func CreateDbBlueprint(dbBlueprint *models.DbBlueprint) error {
 	err := db.Create(&dbBlueprint).Error
 	if err != nil {
@@ -33,7 +33,7 @@ func CreateDbBlueprint(dbBlueprint *models.DbBlueprint) error {
 	return nil
 }
 
-// GetBlueprints returns a paginated list of Blueprints based on `query`
+// GetDbBlueprints returns a paginated list of Blueprints based on `query`
 func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, error) {
 	dbBlueprints := make([]*models.DbBlueprint, 0)
 	db := db.Model(dbBlueprints).Order("id DESC")
@@ -58,7 +58,7 @@ func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, error
 	return dbBlueprints, count, nil
 }
 
-// GetBlueprint returns the detail of a given Blueprint ID
+// GetDbBlueprint returns the detail of a given Blueprint ID
 func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, error) {
 	dbBlueprint := &models.DbBlueprint{}
 	err := db.First(dbBlueprint, dbBlueprintId).Error
@@ -71,7 +71,7 @@ func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, error) {
 	return dbBlueprint, nil
 }
 
-// DeleteBlueprint FIXME ...
+// DeleteDbBlueprint deletes blueprint by id
 func DeleteDbBlueprint(id uint64) error {
 	err := db.Delete(&models.DbBlueprint{}, "id = ?", id).Error
 	if err != nil {
