@@ -44,7 +44,7 @@ func (s StarRocks) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	return &op, nil
 }
 
-func (plugin StarRocks) GetTablesInfo() []core.Tabler {
+func (s StarRocks) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{}
 }
 

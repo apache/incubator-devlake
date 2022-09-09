@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
@@ -38,11 +37,6 @@ var ConnectUserAccountsExactMeta = core.SubTaskMeta{
 func ConnectUserAccountsExact(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*TaskData)
-	type input struct {
-		UserId    string
-		AccountId string
-		common.NoPKModel
-	}
 	var users []crossdomain.User
 	err := db.All(&users)
 	if err != nil {

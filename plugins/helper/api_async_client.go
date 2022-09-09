@@ -23,7 +23,6 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"time"
@@ -163,14 +162,14 @@ func (apiClient *ApiAsyncClient) DoAsync(
 			// make sure response.Body stream will be closed to avoid running out of file handle
 			defer func(body io.ReadCloser) { body.Close() }(res.Body)
 			// replace NetworkStream with MemoryBuffer
-			body, err = ioutil.ReadAll(res.Body)
+			body, err = io.ReadAll(res.Body)
 			if err == nil {
 				res.Body = io.NopCloser(bytes.NewBuffer(body))
 			}
 		}
 		if err == ErrIgnoreAndContinue {
 			// make sure defer func got be executed
-			err = nil
+			err = nil //nolint:all
 			return nil
 		}
 

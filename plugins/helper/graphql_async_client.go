@@ -78,7 +78,7 @@ func (apiClient *GraphqlAsyncClient) updateRateRemaining(rateRemaining int, rese
 	go func() {
 		nextDuring := 3 * time.Minute
 		if resetAt != nil && resetAt.After(time.Now()) {
-			nextDuring = resetAt.Sub(time.Now())
+			nextDuring = time.Until(*resetAt)
 		}
 		<-time.After(nextDuring)
 		newRateRemaining, newResetAt, err := apiClient.getRateRemaining(apiClient.ctx, apiClient.client, apiClient.logger)

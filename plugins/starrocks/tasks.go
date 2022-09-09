@@ -227,6 +227,9 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 		if resp.StatusCode == 307 {
 			var location *url.URL
 			location, err = resp.Location()
+			if err != nil {
+				return err
+			}
 			req, err = http.NewRequest(http.MethodPut, location.String(), bytes.NewBuffer(jsonData))
 			if err != nil {
 				return err

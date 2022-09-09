@@ -39,7 +39,7 @@ var _ core.PluginTask = (*Azure)(nil)
 var _ core.PluginApi = (*Azure)(nil)
 var _ core.CloseablePluginTask = (*Azure)(nil)
 
-// Export a variable named PluginEntry for Framework to search and load
+// PluginEntry exports for Framework to search and load
 var PluginEntry Azure //nolint
 
 type Azure struct{}
