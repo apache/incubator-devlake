@@ -20,7 +20,8 @@ import { useHistory } from 'react-router-dom'
 import { ToastNotification } from '@/components/Toast'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
-import { NullConnection } from '@/data/NullConnection'
+import Connection from '@/models/Connection'
+import ProviderListConnection from '@/models/ProviderListConnection'
 import {
   Providers,
   ProviderConnectionLimits,
@@ -42,15 +43,13 @@ function useConnectionManager (
 
   const [provider, setProvider] = useState(activeProvider)
   const [name, setName] = useState()
+  // @todo: refactor to endpoint and setEndpoint
   const [endpointUrl, setEndpointUrl] = useState()
   const [proxy, setProxy] = useState()
-  const [rateLimit, setRateLimit] = useState(0)
+  const [rateLimitPerHour, setRateLimitPerHour] = useState(0)
   const [token, setToken] = useState()
-  const [initialTokenStore, setInitialTokenStore] = useState({
-    0: '',
-    1: '',
-    2: ''
-  })
+  const defaultTokenStore = useMemo(() => ({ 0: '', 1: '', 2: '' }), [])
+  const [initialTokenStore, setInitialTokenStore] = useState(defaultTokenStore)
   const [username, setUsername] = useState()
   const [password, setPassword] = useState()
 
@@ -67,22 +66,36 @@ function useConnectionManager (
   const [allTestResponses, setAllTestResponses] = useState({})
   const [sourceLimits, setConnectionLimits] = useState(ProviderConnectionLimits)
 
-  const [activeConnection, setActiveConnection] = useState(NullConnection)
+  const [activeConnection, setActiveConnection] = useState(new Connection())
   const [allConnections, setAllConnections] = useState([])
   const [allProviderConnections, setAllProviderConnections] = useState([])
   const [domainRepositories, setDomainRepositories] = useState([])
   const [testedConnections, setTestedConnections] = useState([])
   const connectionCount = useMemo(() => allConnections.length, [allConnections])
   const connectionLimitReached = useMemo(() =>
-    sourceLimits[provider?.id] && connectionCount >= sourceLimits[provider.id],
-  [/*provider?.id, */sourceLimits, connectionCount],
+    sourceLimits[provider?.id] && connectionCount >= sourceLimits[provider?.id],
+  [provider?.id, sourceLimits, connectionCount],
   )
-
   const [connectionsList, setConnectionsList] = useState([])
 
   const [saveComplete, setSaveComplete] = useState(false)
   const [deleteComplete, setDeleteComplete] = useState(false)
-  const connectionTestPayload = useMemo(() => ({ endpoint: endpointUrl, username, password, token, proxy }), [endpointUrl, password, proxy, token, username])
+  const connectionTestPayload = useMemo(() => ({
+    endpoint: endpointUrl,
+    username,
+    password,
+    token,
+    proxy
+  }), [endpointUrl, password, proxy, token, username])
+  const connectionSavePayload = useMemo(() => ({
+    name,
+    endpoint: endpointUrl,
+    username,
+    password,
+    token,
+    proxy,
+    rateLimitPerHour,
+  }), [name, endpointUrl, username, password, token, proxy, rateLimitPerHour])
 
   const testConnection = useCallback(
     (
@@ -93,7 +106,7 @@ function useConnectionManager (
     ) => {
       setIsTesting(true)
       setShowError(false)
-      ToastNotification.clear()
+      // ToastNotification.clear()
       setTestResponse(null)
 
       const runTest = async () => {
@@ -141,205 +154,38 @@ function useConnectionManager (
     [provider?.id, connectionTestPayload]
   )
 
-  const saveConnection = (configurationSettings = {}) => {
-    setIsSaving(true)
-    let connectionPayload = { ...configurationSettings }
-    switch (provider.id) {
-      case Providers.JIRA:
-        connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          username: username,
-          password: password,
-          proxy: proxy,
-          rateLimitPerHour: rateLimit,
-          ...connectionPayload,
-        }
-        break
-      case Providers.TAPD:
-        connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          username: username,
-          password: password,
-          proxy: proxy,
-          rateLimitPerHour: rateLimit,
-          ...connectionPayload,
-        }
-        break
-      case Providers.GITHUB:
-        connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          token: token,
-          proxy: proxy,
-          rateLimitPerHour: rateLimit,
-          ...connectionPayload,
-        }
-        break
-      case Providers.JENKINS:
-      // eslint-disable-next-line max-len
-        connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          username: username,
-          password: password,
-          proxy: proxy,
-          rateLimitPerHour: rateLimit,
-          ...connectionPayload,
-        }
-        break
-      case Providers.GITLAB:
-        connectionPayload = {
-          name: name,
-          endpoint: endpointUrl,
-          token: token,
-          proxy: proxy,
-          rateLimitPerHour: rateLimit,
-          ...connectionPayload,
-        }
-        break
-    }
-
-    let saveResponse = {
-      success: false,
-      connection: {
-        ...connectionPayload,
-      },
-      errors: [],
-    }
-
-    const saveConfiguration = async (configPayload) => {
-      try {
-        setShowError(false)
-        setErrors([])
-        ToastNotification.clear()
-        const s = await request.post(
-          `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections`,
-          configPayload
-        )
-        console.log('>> CONFIGURATION SAVED SUCCESSFULLY', configPayload, s)
-        saveResponse = {
-          ...saveResponse,
-          success: [200, 201].includes(s.status),
-          connection: { ...s.data },
-          errors: s.isAxiosError ? [s.message] : [],
-        }
-      } catch (e) {
-        saveResponse.errors.push(e.message)
-        setErrors(saveResponse.errors)
-        console.log('>> CONFIGURATION FAILED TO SAVE', configPayload, e)
-      }
-    }
-
-    const modifyConfiguration = async (configPayload) => {
-      try {
-        setShowError(false)
-        setErrors([])
-        ToastNotification.clear()
-        // eslint-disable-next-line max-len
-        const s = await request.patch(
-          `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections/${
-            activeConnection.id || activeConnection.ID
-          }`,
-          configPayload
-        )
-        const silentRefetch = true
-        console.log('>> CONFIGURATION MODIFIED SUCCESSFULLY', configPayload, s)
-        saveResponse = {
-          ...saveResponse,
-          success: [200, 201].includes(s.status),
-          connection: { ...s.data },
-          errors: s.isAxiosError ? [s.message] : [],
-        }
-        fetchConnection(silentRefetch)
-      } catch (e) {
-        saveResponse.errors.push(e.message)
-        setErrors(saveResponse.errors)
-        console.log('>> CONFIGURATION FAILED TO UPDATE', configPayload, e)
-      }
-    }
-
-    let savePromise
-    if (updateMode && activeConnection?.id !== null) {
-      savePromise = modifyConfiguration(connectionPayload)
-    } else {
-      savePromise = saveConfiguration(connectionPayload)
-    }
-
-    savePromise.then(() => {
-      if (saveResponse.success && errors.length === 0) {
-        ToastNotification.show({
-          message: 'Connection saved successfully.',
-          intent: 'success',
-          icon: 'small-tick',
-        })
-        setShowError(false)
-        setIsSaving(false)
-        setSaveComplete(saveResponse.connection)
-        if (
-          [Providers.GITHUB, Providers.JIRA, Providers.GITLAB].includes(provider.id) &&
-          token !== '' &&
-          token?.toString().split(',').length > 1
-        ) {
-          testConnection()
-        }
-        if (!updateMode) {
-          history.replace(`/integrations/${provider.id}`)
-        }
-      }
-    })
-
-    setTimeout(() => {
-      if (!saveResponse.success || errors.length !== 0) {
-        ToastNotification.show({
-          message: 'Connection failed to save, please try again.',
-          intent: 'danger',
-          icon: 'error',
-        })
-        setShowError(true)
-        setIsSaving(false)
-        setSaveComplete(false)
-      }
-    }, 2000)
-  }
-
-  const runCollection = (options = {}) => {
-    setIsRunning(true)
+  const notifyConnectionSaveSuccess = useCallback((message = 'Connection saved successfully.') => {
     ToastNotification.show({
-      message: 'Triggered Collection Process',
-      intent: 'info',
-      icon: 'info',
+      message: message,
+      intent: 'success',
+      icon: 'small-tick',
     })
-    console.log('>> RUNNING COLLECTION PROCESS', isRunning)
-    // Run Collection Tasks...
-  }
+  }, [])
+
+  const notifyConnectionSaveFailure = useCallback((message = 'Connection failed to save, please try again.') => {
+    ToastNotification.show({
+      message: message,
+      intent: 'danger',
+      icon: 'error',
+    })
+  }, [])
 
   const fetchConnection = useCallback(
     (silent = false, notify = false, cId = null) => {
-      console.log(`>> FETCHING CONNECTION [PROVIDER = ${provider.id}]....`)
+      console.log(`>> FETCHING CONNECTION [PROVIDER = ${provider?.id}]....`)
       try {
         setIsFetching(!silent)
         setErrors([])
         console.log('>> FETCHING CONNECTION SOURCE')
         const fetch = async () => {
           const f = await request.get(
-            `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections/${cId || connectionId}`
+            `${DEVLAKE_ENDPOINT}/plugins/${provider?.id}/connections/${cId || connectionId}`
           )
           const connectionData = f.data
           console.log('>> RAW CONNECTION DATA FROM API...', connectionData)
-          // @todo: cleanup legacy api pascal-case parameters
-          setActiveConnection({
-            ...connectionData,
-            ID: connectionData.ID || connectionData.id,
-            name: connectionData.name || connectionData.Name,
-            endpoint: connectionData.endpoint || connectionData.Endpoint,
-            proxy: connectionData.proxy || connectionData.Proxy,
-            rateLimit: connectionData.rateLimitPerHour,
-            username: connectionData.username || connectionData.Username,
-            password: connectionData.password || connectionData.Password,
-            token: connectionData.token || connectionData.auth
-          })
+          setActiveConnection(new Connection({
+            ...connectionData
+          }))
           setTimeout(() => {
             setIsFetching(false)
           }, 500)
@@ -347,7 +193,7 @@ function useConnectionManager (
         fetch()
       } catch (e) {
         setIsFetching(false)
-        setActiveConnection(NullConnection)
+        setActiveConnection(new Connection())
         setErrors([e.message])
         ToastNotification.clear()
         ToastNotification.show({
@@ -361,12 +207,111 @@ function useConnectionManager (
     [provider?.id, connectionId]
   )
 
+  const saveConnection = useCallback((configurationSettings = {}) => {
+    setIsSaving(true)
+
+    let saveResponse = {
+      success: false,
+      connection: {
+        ...connectionSavePayload,
+      },
+      errors: [],
+    }
+
+    const saveConfiguration = async (configPayload) => {
+      try {
+        setShowError(false)
+        setErrors([])
+        ToastNotification.clear()
+        const s = await request.post(
+          `${DEVLAKE_ENDPOINT}/plugins/${provider?.id}/connections`,
+          configPayload
+        )
+        console.log('>> CONFIGURATION SAVED SUCCESSFULLY', configPayload, s)
+        saveResponse = {
+          ...saveResponse,
+          success: [200, 201].includes(s.status),
+          connection: { ...s.data },
+          errors: s.isAxiosError ? [s.message] : [],
+        }
+        setIsSaving(false)
+        setSaveComplete(saveResponse.success ? new Connection(s.data) : false)
+        if (!saveResponse.success) { notifyConnectionSaveFailure(s.data || s.message) }
+      } catch (e) {
+        saveResponse.errors.push(e.message)
+        setErrors(saveResponse.errors)
+        setIsSaving(false)
+        setSaveComplete(false)
+        notifyConnectionSaveFailure(e.message)
+        console.log('>> CONFIGURATION FAILED TO SAVE', configPayload, e)
+      }
+    }
+
+    const modifyConfiguration = async (configPayload) => {
+      try {
+        setShowError(false)
+        setErrors([])
+        ToastNotification.clear()
+        // eslint-disable-next-line max-len
+        const s = await request.patch(
+          `${DEVLAKE_ENDPOINT}/plugins/${provider?.id}/connections/${
+            activeConnection.id
+          }`,
+          configPayload
+        )
+        const silentRefetch = true
+        console.log('>> CONFIGURATION MODIFIED SUCCESSFULLY', configPayload, s)
+        saveResponse = {
+          ...saveResponse,
+          success: [200, 201].includes(s.status),
+          connection: { ...s.data },
+          errors: s.isAxiosError ? [s.message] : [],
+        }
+        fetchConnection(silentRefetch)
+        setIsSaving(false)
+        setSaveComplete(saveResponse.success ? new Connection(s.data) : false)
+        if (!saveResponse.success) { notifyConnectionSaveFailure(s.data || s.message) }
+      } catch (e) {
+        saveResponse.errors.push(e.message)
+        setErrors(saveResponse.errors)
+        setIsSaving(false)
+        setSaveComplete(false)
+        notifyConnectionSaveFailure(e.message)
+        console.log('>> CONFIGURATION FAILED TO UPDATE', configPayload, e)
+      }
+    }
+
+    if (updateMode && activeConnection?.id !== null) {
+      modifyConfiguration(connectionSavePayload)
+    } else {
+      saveConfiguration(connectionSavePayload)
+    }
+  }, [
+    activeConnection?.id,
+    connectionSavePayload,
+    fetchConnection,
+    notifyConnectionSaveFailure,
+    provider?.id,
+    updateMode
+  ])
+
+  const runCollection = (options = {}) => {
+    setIsRunning(true)
+    ToastNotification.show({
+      message: 'Triggered Collection Process',
+      intent: 'info',
+      icon: 'info',
+    })
+    console.log('>> RUNNING COLLECTION PROCESS', isRunning)
+    // Run Collection Tasks...
+  }
+
   const fetchAllConnections = useCallback(
     async (notify = false, allSources = false) => {
       try {
         setIsFetching(true)
         setErrors([])
-        ToastNotification.clear()
+        // ToastNotification.clear()
         console.log('>> FETCHING ALL CONNECTION SOURCES')
         let c = null
         if (allSources) {
@@ -389,11 +334,12 @@ function useConnectionManager (
             ),
           ])
           const builtConnections = aC
-            .map((providerResponse) => [].concat(providerResponse.data || []).map(c => ({
+            .map((providerResponse) => [].concat(providerResponse.data || []).map(c => new Connection({
               ...c,
               connectionId: c.id,
+              plugin: providerResponse.config?.url?.split('/')[3],
               provider: providerResponse.config?.url?.split('/')[3],
-              // @todo: inject realtime connection status...
+              // @note: realtime connection status will be later injected by hook callees (non-blocking)
               status: ConnectionStatus.ONLINE
             })))
           setAllProviderConnections(builtConnections.flat())
@@ -403,22 +349,21 @@ function useConnectionManager (
           console.log('>> ALL SOURCE CONNECTIONS: ', aC)
         } else {
           c = await request.get(
-            `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections`
+            `${DEVLAKE_ENDPOINT}/plugins/${provider?.id}/connections`
           )
           console.log('>> RAW ALL CONNECTIONS DATA FROM API...', c?.data)
           const providerConnections = []
             .concat(Array.isArray(c?.data) ? c?.data : [])
-            .map((conn, idx) => {
-              return {
+            .map((conn, idx) =>
+              new Connection({
                 ...conn,
                 status: ConnectionStatus.OFFLINE,
-                ID: conn.ID || conn.id,
                 id: conn.id,
                 name: conn.name,
                 endpoint: conn.endpoint,
                 errors: [],
-              }
-            })
+              })
+            )
           setAllConnections(providerConnections)
         }
         if (notify) {
@@ -442,7 +387,7 @@ function useConnectionManager (
         handleOfflineMode(e.response?.status, e.response)
       }
     },
-    [provider?.id, sourceLimits, handleOfflineMode]
+    [provider?.id, handleOfflineMode]
   )
 
   const deleteConnection = useCallback(
@@ -452,8 +397,8 @@ function useConnectionManager (
         setErrors([])
         console.log('>> TRYING TO DELETE CONNECTION...', connection)
         const d = await request.delete(
-          `${DEVLAKE_ENDPOINT}/plugins/${provider.id}/connections/${
-            connection.ID || connection.id
+          `${DEVLAKE_ENDPOINT}/plugins/${provider?.id}/connections/${
+            connection.id
           }`
         )
         console.log('>> CONNECTION DELETED...', d)
@@ -494,15 +439,15 @@ function useConnectionManager (
           setTestedConnections((testedConnections) => [
             ...new Set([
               ...testedConnections.filter((oC) => oC.id !== c.id),
-              { ...c, status: ConnectionStatus.ONLINE },
+              new Connection({ ...c, status: ConnectionStatus.ONLINE }),
             ]),
           ])
         }
         const onFail = (res) => {
           setTestedConnections((testedConnections) => [
             ...new Set([
-              ...testedConnections.filter((oC) => oC.ID !== c.ID),
-              { ...c, status: ConnectionStatus.DISCONNECTED },
+              ...testedConnections.filter((oC) => oC.id !== c.id),
+              new Connection({ ...c, status: ConnectionStatus.DISCONNECTED }),
             ]),
           ])
         }
@@ -512,6 +457,7 @@ function useConnectionManager (
     [testConnection]
   )
 
+  // @note: not in use since V12
   const fetchDomainLayerRepositories = useCallback(() => {
     console.log('>> FETCHING DOMAIN LAYER REPOS....')
     try {
@@ -521,6 +467,7 @@ function useConnectionManager (
       const fetch = async () => {
         const r = await request.get(`${DEVLAKE_ENDPOINT}/domainlayer/repos`)
         console.log('>> RAW REPOSITORY DATA FROM API...', r.data?.repos)
+        // @todo: create data model for DomainRepository
         setDomainRepositories(r.data?.repos || [])
         setTimeout(() => {
           setIsFetching(false)
@@ -546,69 +493,45 @@ function useConnectionManager (
     setUsername('')
     setPassword('')
     setToken('')
-    setInitialTokenStore({
-      0: '',
-      1: '',
-      2: ''
-    })
+    setInitialTokenStore(defaultTokenStore)
     setProxy('')
-    setRateLimit(0)
-  }, [])
+    setRateLimitPerHour(0)
+  }, [defaultTokenStore])
 
   useEffect(() => {
     if (activeConnection && activeConnection.id !== null) {
-      const connectionToken = activeConnection.auth || activeConnection.token || activeConnection.basicAuthEncoded
-      setName(activeConnection.name)
-      setEndpointUrl(activeConnection.endpoint)
-      switch (provider.id) {
-        case Providers.JENKINS:
-          setUsername(activeConnection.username)
-          setPassword(activeConnection.password)
-          setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimitPerHour)
-          break
-        case Providers.GITLAB:
-          setToken(activeConnection.basicAuthEncoded || activeConnection.token || activeConnection.auth)
-          setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimitPerHour)
-          break
-        case Providers.GITHUB:
-          setToken(connectionToken)
-          setInitialTokenStore(connectionToken?.split(',')?.reduce((tS, cT, id) => ({ ...tS, [id]: cT }), {}))
-          setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimitPerHour)
-          break
-        case Providers.JIRA:
-        // setToken(activeConnection.basicAuthEncoded || activeConnection.token)
-          setUsername(activeConnection.username)
-          setPassword(activeConnection.password)
-          setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimitPerHour)
-          break
-        case Providers.TAPD:
-          setUsername(activeConnection.username)
-          setPassword(activeConnection.password)
-          setProxy(activeConnection.Proxy || activeConnection.proxy)
-          setRateLimit(activeConnection.rateLimitPerHour)
-          break
-      }
-      ToastNotification.clear()
-      // ToastNotification.show({ message: `Fetched settings for ${activeConnection.name}.`, intent: 'success', icon: 'small-tick' })
+      setName(activeConnection?.name)
+      setEndpointUrl(activeConnection?.endpoint)
+      setRateLimitPerHour(activeConnection?.rateLimitPerHour)
+      setProxy(activeConnection?.proxy)
+      setUsername(activeConnection?.username)
+      setPassword(activeConnection?.password)
+      setToken(activeConnection?.token)
+      setInitialTokenStore(activeConnection?.token
+        ? activeConnection?.token?.split(',')?.reduce((tS, cT, id) => ({ ...tS, [id]: cT }), {})
+        : defaultTokenStore
+      )
       console.log('>> FETCHED CONNECTION FOR MODIFY', activeConnection)
     }
-  }, [activeConnection, provider?.id])
+  }, [activeConnection, defaultTokenStore])
 
   useEffect(() => {
-    if (saveComplete && saveComplete.ID) {
-      console.log('>>> CONNECTION MANAGER - SAVE COMPLETE EFFECT RUNNING...')
-      setActiveConnection((ac) => {
-        return {
+    if (saveComplete?.id) {
+      console.log('>>> CONNECTION MANAGER - SAVE COMPLETE EFFECT RUNNING...', saveComplete)
+      setActiveConnection((ac) =>
+        new Connection({
           ...ac,
-          ...saveComplete,
-        }
-      })
+          ...saveComplete
+        })
+      )
+      if (!updateMode) {
+        history.replace(`/integrations/${provider?.id}`)
+        notifyConnectionSaveSuccess()
+      } else {
+        notifyConnectionSaveSuccess()
+      }
     }
-  }, [saveComplete])
+  }, [saveComplete, updateMode, history, provider?.id, notifyConnectionSaveSuccess])
 
   useEffect(() => {
     console.log(
@@ -639,10 +562,10 @@ function useConnectionManager (
   useEffect(() => {
     console.log('>>> ALL DATA PROVIDER CONNECTIONS...', allProviderConnections)
     setConnectionsList(
-      allProviderConnections?.map((c, cIdx) => ({
+      allProviderConnections?.map((c, cIdx) => new ProviderListConnection({
         ...c,
-        id: cIdx,
-        key: cIdx,
+        id: cIdx + 1,
+        key: cIdx + 1,
         connectionId: c.id,
         name: c.name,
         title: c.name,
@@ -677,7 +600,7 @@ function useConnectionManager (
     name,
     endpointUrl,
     proxy,
-    rateLimit,
+    rateLimitPerHour,
     username,
     password,
     token,
@@ -688,7 +611,7 @@ function useConnectionManager (
     setName,
     setEndpointUrl,
     setProxy,
-    setRateLimit,
+    setRateLimitPerHour,
     setToken,
     setInitialTokenStore,
     setUsername,

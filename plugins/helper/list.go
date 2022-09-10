@@ -22,11 +22,13 @@ type ListBaseNode struct {
 	next QueueNode
 }
 
+// Data returns data of the node
 func (l *ListBaseNode) Data() interface{} {
 	// default implementation
 	return nil
 }
 
+// Next return the next node
 func (l *ListBaseNode) Next() interface{} {
 	if l.next == nil {
 		return nil
@@ -34,6 +36,7 @@ func (l *ListBaseNode) Next() interface{} {
 	return l.next
 }
 
+// SetNext updates the next pointer of the node
 func (l *ListBaseNode) SetNext(next interface{}) {
 	if next == nil {
 		l.next = nil

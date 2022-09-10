@@ -50,7 +50,7 @@ func CollectTaskChangelogs(taskCtx core.SubTaskContext) error {
 		}
 		err := db.First(&latestUpdated, clauses...)
 		if err != nil && err != gorm.ErrRecordNotFound {
-			return errors.NotFound.Wrap(err, fmt.Sprintf("failed to get latest tapd changelog record"))
+			return errors.NotFound.Wrap(err, "failed to get latest tapd changelog record")
 		}
 		if latestUpdated.Id > 0 {
 			since = (*time.Time)(latestUpdated.Created)

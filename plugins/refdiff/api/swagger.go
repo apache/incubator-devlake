@@ -23,8 +23,9 @@ package api
 // @Accept application/json
 // @Param blueprint body RefdiffBlueprintPlan true "json"
 // @Router /blueprints/refdiff/blueprint-plan [post]
-func _func() {}
+func _() {}
 
+//nolint:unused
 type RefdiffBlueprintPlan [][]struct {
 	Plugin  string `json:"plugin"`
 	Options struct {

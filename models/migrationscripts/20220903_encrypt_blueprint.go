@@ -66,6 +66,7 @@ func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
+	//nolint:errcheck
 	defer db.Migrator().DropTable(&Blueprint0903Temp{})
 
 	var result *gorm.DB
@@ -102,6 +103,9 @@ func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) error {
 			Settings:   encryptedSettings,
 		}
 		err = db.Create(newBlueprint).Error
+		if err != nil {
+			return err
+		}
 	}
 
 	err = db.Migrator().DropTable(&BlueprintOldVersion{})

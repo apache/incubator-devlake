@@ -27,7 +27,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// CreatePipeline and return the model
+// CreateDbPipeline returns a NewPipeline
 func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, error) {
 	// create pipeline object from posted data
 	dbPipeline := &models.DbPipeline{
@@ -100,7 +100,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	return dbPipeline, nil
 }
 
-// GetPipelines by query
+// GetDbPipelines by query
 func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, error) {
 	dbPipelines := make([]*models.DbPipeline, 0)
 	db := db.Model(dbPipelines).Order("id DESC")
@@ -129,7 +129,7 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, error) {
 	return dbPipelines, count, nil
 }
 
-// GetPipeline by id
+// GetDbPipeline by id
 func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, error) {
 	dbPipeline := &models.DbPipeline{}
 	err := db.First(dbPipeline, pipelineId).Error
@@ -142,7 +142,7 @@ func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, error) {
 	return dbPipeline, nil
 }
 
-// parsePipeline
+// parsePipeline converts DbPipeline to Pipeline
 func parsePipeline(dbPipeline *models.DbPipeline) *models.Pipeline {
 	pipeline := models.Pipeline{
 		Model:         dbPipeline.Model,
@@ -161,7 +161,7 @@ func parsePipeline(dbPipeline *models.DbPipeline) *models.Pipeline {
 	return &pipeline
 }
 
-// parseDbPipeline
+// parseDbPipeline converts Pipeline to DbPipeline
 func parseDbPipeline(pipeline *models.Pipeline) *models.DbPipeline {
 	dbPipeline := models.DbPipeline{
 		Model:         pipeline.Model,
@@ -180,7 +180,7 @@ func parseDbPipeline(pipeline *models.Pipeline) *models.DbPipeline {
 	return &dbPipeline
 }
 
-// encryptDbPipeline
+// encryptDbPipeline encrypts dbPipeline.Plan
 func encryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, error) {
 	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
 	planEncrypt, err := core.Encrypt(encKey, dbPipeline.Plan)
@@ -191,7 +191,7 @@ func encryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, error
 	return dbPipeline, nil
 }
 
-// encryptDbPipeline
+// encryptDbPipeline decrypts dbPipeline.Plan
 func decryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, error) {
 	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
 	plan, err := core.Decrypt(encKey, dbPipeline.Plan)

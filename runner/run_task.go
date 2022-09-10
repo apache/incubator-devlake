@@ -68,9 +68,7 @@ func RunTask(
 		if err != nil {
 			lakeErr := errors.AsLakeErrorType(err)
 			subTaskName := "unknown"
-			if lakeErr == nil {
-				//skip
-			} else if lakeErr = lakeErr.As(errors.SubtaskErr); lakeErr != nil {
+			if lakeErr = lakeErr.As(errors.SubtaskErr); lakeErr != nil {
 				if meta, ok := lakeErr.GetData().(*core.SubTaskMeta); ok {
 					subTaskName = meta.Name
 				}
@@ -135,7 +133,7 @@ func RunTask(
 func RunPluginTask(
 	ctx context.Context,
 	cfg *viper.Viper,
-	logger core.Logger,
+	log core.Logger,
 	db *gorm.DB,
 	taskID uint64,
 	name string,
@@ -154,7 +152,7 @@ func RunPluginTask(
 	return RunPluginSubTasks(
 		ctx,
 		cfg,
-		logger,
+		log,
 		db,
 		taskID,
 		name,
@@ -169,7 +167,7 @@ func RunPluginTask(
 func RunPluginSubTasks(
 	ctx context.Context,
 	cfg *viper.Viper,
-	logger core.Logger,
+	log core.Logger,
 	db *gorm.DB,
 	taskID uint64,
 	name string,
@@ -178,7 +176,7 @@ func RunPluginSubTasks(
 	pluginTask core.PluginTask,
 	progress chan core.RunningProgress,
 ) errors.Error {
-	logger.Info("start plugin")
+	log.Info("start plugin")
 	// find out all possible subtasks this plugin can offer
 	subtaskMetas := pluginTask.SubTaskMetas()
 	subtasksFlag := make(map[string]bool)
@@ -232,7 +230,7 @@ func RunPluginSubTasks(
 		}
 	}
 
-	taskCtx := helper.NewDefaultTaskContext(ctx, cfg, logger, db, name, subtasksFlag, progress)
+	taskCtx := helper.NewDefaultTaskContext(ctx, cfg, log, db, name, subtasksFlag, progress)
 	if closeablePlugin, ok := pluginTask.(core.CloseablePluginTask); ok {
 		defer closeablePlugin.Close(taskCtx)
 	}
@@ -257,7 +255,7 @@ func RunPluginSubTasks(
 		}
 
 		// run subtask
-		logger.Info("executing subtask %s", subtaskMeta.Name)
+		log.Info("executing subtask %s", subtaskMeta.Name)
 		subtaskNumber++
 		if progress != nil {
 			progress <- core.RunningProgress{
@@ -266,7 +264,7 @@ func RunPluginSubTasks(
 				SubTaskNumber: subtaskNumber,
 			}
 		}
-		err = runSubtask(logger, db, taskID, subtaskNumber, subtaskCtx, subtaskMeta.EntryPoint)
+		err = runSubtask(log, db, taskID, subtaskNumber, subtaskCtx, subtaskMeta.EntryPoint)
 		if err != nil {
 			return errors.SubtaskErr.Wrap(err, fmt.Sprintf("subtask %s ended unexpectedly", subtaskMeta.Name), errors.WithData(&subtaskMeta))
 		}
@@ -277,7 +275,7 @@ func RunPluginSubTasks(
 }
 
 // UpdateProgressDetail FIXME ...
-func UpdateProgressDetail(db *gorm.DB, logger core.Logger, taskId uint64, progressDetail *models.TaskProgressDetail, p *core.RunningProgress) {
+func UpdateProgressDetail(db *gorm.DB, log core.Logger, taskId uint64, progressDetail *models.TaskProgressDetail, p *core.RunningProgress) {
 	task := &models.Task{}
 	task.ID = taskId
 	switch p.Type {
@@ -290,7 +288,7 @@ func UpdateProgressDetail(db *gorm.DB, logger core.Logger, taskId uint64, progre
 		pct := float32(p.Current) / float32(p.Total)
 		err := db.Model(task).Update("progress", pct).Error
 		if err != nil {
-			logger.Error(err, "failed to update progress: %w")
+			log.Error(err, "failed to update progress: %w")
 		}
 	case core.SubTaskSetProgress:
 		progressDetail.TotalRecords = p.Total
@@ -304,7 +302,7 @@ func UpdateProgressDetail(db *gorm.DB, logger core.Logger, taskId uint64, progre
 }
 
 func runSubtask(
-	logger core.Logger,
+	log core.Logger,
 	db *gorm.DB,
 	parentID uint64,
 	subtaskNumber int,
@@ -322,14 +320,14 @@ func runSubtask(
 		finishedAt := time.Now()
 		subtask.FinishedAt = &finishedAt
 		subtask.SpentSeconds = finishedAt.Unix() - beginAt.Unix()
-		recordSubtask(logger, db, subtask)
+		recordSubtask(log, db, subtask)
 	}()
 	return entryPoint(ctx)
 }
 
-func recordSubtask(logger core.Logger, db *gorm.DB, subtask *models.Subtask) {
+func recordSubtask(log core.Logger, db *gorm.DB, subtask *models.Subtask) {
 	if err := db.Create(&subtask).Error; err != nil {
-		logger.Error(err, "error writing subtask %d status to DB: %v", subtask.ID)
+		log.Error(err, "error writing subtask %d status to DB: %v", subtask.ID)
 	}
 }
 

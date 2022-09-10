@@ -44,6 +44,9 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 	var err error
 	if since == nil {
 		since, incremental, err = calculateSince(data, db)
+		if err != nil {
+			return err
+		}
 	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{

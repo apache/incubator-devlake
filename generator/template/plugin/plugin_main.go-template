@@ -33,7 +33,7 @@ var _ core.PluginInit = (*{{ .PluginName }})(nil)
 var _ core.PluginTask = (*{{ .PluginName }})(nil)
 var _ core.PluginApi = (*{{ .PluginName }})(nil)
 
-// Export a variable named PluginEntry for Framework to search and load
+// PluginEntry exports a symbol for Framework to load
 var PluginEntry {{ .PluginName }} //nolint
 
 type {{ .PluginName }} struct{}

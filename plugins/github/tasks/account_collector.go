@@ -19,7 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"reflect"
 
@@ -67,7 +67,7 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 		Input:       iterator,
 		UrlTemplate: "/users/{{ .Input.Login }}",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			body, err := ioutil.ReadAll(res.Body)
+			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				return nil, err
 			}

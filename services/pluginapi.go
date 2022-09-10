@@ -31,6 +31,7 @@ GetPluginsApiResources return value
 	}
 }
 */
+// GetPluginsApiResources returns all APIs of all plugins
 func GetPluginsApiResources() (map[string]map[string]map[string]core.ApiResourceHandler, error) {
 	res := make(map[string]map[string]map[string]core.ApiResourceHandler)
 	for pluginName, pluginEntry := range core.AllPlugins() {

@@ -55,6 +55,9 @@ func ExtractAccountOrg(taskCtx core.SubTaskContext) error {
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
 			apiAccountOrgs := &[]GithubAccountOrgsResponse{}
 			err := json.Unmarshal(row.Data, apiAccountOrgs)
+			if err != nil {
+				return nil, err
+			}
 			simpleAccount := &SimpleAccountWithId{}
 			err = json.Unmarshal(row.Input, simpleAccount)
 			if err != nil {
