@@ -32,11 +32,6 @@ var _ core.SubTaskEntryPoint = CollectProject
 
 func CollectProject(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-	iterator, err := helper.NewDateIterator(365)
-	if err != nil {
-		return err
-	}
-
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx:    taskCtx,
@@ -45,7 +40,6 @@ func CollectProject(taskCtx core.SubTaskContext) error {
 		},
 		ApiClient:   data.ApiClient,
 		Incremental: false,
-		Input:       iterator,
 		PageSize:    100,
 		// TODO write which api would you want request
 		UrlTemplate: "projects",
@@ -55,11 +49,12 @@ func CollectProject(taskCtx core.SubTaskContext) error {
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
+		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			var data struct {
-				Projects []json.RawMessage `json:"data"`
+				Projects []json.RawMessage `json:"projects"`
 			}
-			err = helper.UnmarshalResponse(res, &data)
+			err := helper.UnmarshalResponse(res, &data)
 			return data.Projects, err
 		},
 	})
