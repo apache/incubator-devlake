@@ -16,9 +16,9 @@ helm install devlake deployment/helm
 And visit your devlake from the node port (32001 by default).
 
 http://YOUR-NODE-IP:32001
-```
+
 Note : You must provide the connection to the port through the Inbound rules of the cluster. You may found it in the cluster security group or the cluster firewall.
-```
+
 
 ## Some example deployments
 
