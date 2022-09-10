@@ -89,3 +89,7 @@ func NewZentaoApiClient(taskCtx core.TaskContext, connection *models.ZentaoConne
 	}
 	return asyncApiClient, nil
 }
+
+type ZentaoPagination struct {
+	Page int `json:"page"`
+}
