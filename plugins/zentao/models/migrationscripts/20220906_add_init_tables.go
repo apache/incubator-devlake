@@ -19,19 +19,20 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/plugins/zentao/models/archived"
 	"gorm.io/gorm"
 )
 
-type addInitTables struct {}
+type addInitTables struct{}
 
 func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	return db.Migrator().AutoMigrate(
-		// TODO add you models
+		archived.ZentaoConnection{},
 	)
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20220906000001
+	return 20220910000001
 }
 
 func (*addInitTables) Name() string {
