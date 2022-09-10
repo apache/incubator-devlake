@@ -18,9 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
@@ -49,7 +49,7 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabMergeRequest{},
-		fmt.Sprintf("./snapshot_tables/%s_for_mr_notes_test.csv", models.GitlabMergeRequest{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_merge_requests_for_mr_notes_test.csv",
 		[]string{
 			"connection_id",
 			"gitlab_id",
@@ -91,7 +91,7 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiMrNotesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabMrNote{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMrNote{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_mr_notes.csv",
 		[]string{
 			"connection_id",
 			"gitlab_id",
@@ -112,7 +112,7 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.GitlabMrComment{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMrComment{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_mr_comments.csv",
 		[]string{
 			"connection_id",
 			"gitlab_id",
@@ -135,7 +135,7 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertMrCommentMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.PullRequestComment{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestComment{}.TableName()),
+		"./snapshot_tables/pull_request_comments.csv",
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",

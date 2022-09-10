@@ -28,7 +28,6 @@ import (
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
-	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
 )
 
@@ -59,7 +58,6 @@ func ConvertTasks(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	jobIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubJob{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -87,14 +85,14 @@ func ConvertTasks(taskCtx core.SubTaskContext) error {
 			}
 
 			domainjob := &devops.CICDTask{
-				DomainEntity: domainlayer.DomainEntity{Id: jobIdGen.Generate(data.Options.ConnectionId, repoId, line.ID)},
+				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s:%d:%d", "github", "GithubJob", data.Options.ConnectionId, line.ID)},
 				Name:         line.Name,
 				Type:         line.Type,
 				StartedDate:  *line.StartedAt,
 				FinishedDate: line.CompletedAt,
 			}
 			if len(tmp) > 0 {
-				domainjob.PipelineId = fmt.Sprintf("%s:%s:%d:%d:%s:%s", "github", "GithubPipeline", data.Options.ConnectionId, repoId, tmp[0].HeadBranch, line.HeadSha)
+				domainjob.PipelineId = fmt.Sprintf("%s:%s:%d:%d", "github", "GithubRun", data.Options.ConnectionId, line.RunID)
 			}
 
 			if line.Conclusion == "success" {

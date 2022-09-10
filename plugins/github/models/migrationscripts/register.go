@@ -28,5 +28,6 @@ func All() []migration.Script {
 		new(addGithubRunsTable),
 		new(addGithubJobsTable),
 		new(addGithubPipelineTable),
+		new(deleteGithubPipelineTable),
 	}
 }

@@ -25,6 +25,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/swaggo/gin-swagger v1.4.3
 	github.com/swaggo/swag v1.8.3
+	github.com/tidwall/gjson v1.14.3
 	github.com/viant/afs v1.16.0
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	go.temporal.io/api v1.7.1-0.20220223032354-6e6fe738916a
@@ -113,6 +114,8 @@ require (
 	github.com/spf13/pflag v1.0.6-0.20200504143853-81378bbcd8a1 // indirect
 	github.com/stretchr/objx v0.3.0 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/ugorji/go/codec v1.2.6 // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect

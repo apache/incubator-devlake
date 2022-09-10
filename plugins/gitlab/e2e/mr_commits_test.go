@@ -18,9 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
@@ -50,7 +50,7 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabMergeRequest{},
-		fmt.Sprintf("./snapshot_tables/%s_for_mr_commit_test.csv", models.GitlabMergeRequest{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_merge_requests_for_mr_commit_test.csv",
 		[]string{
 			"connection_id",
 			"gitlab_id",
@@ -94,7 +94,7 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiMrCommitsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabCommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabCommit{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_commits.csv",
 		[]string{
 			"sha",
 			"title",
@@ -118,7 +118,7 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.GitlabProjectCommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabProjectCommit{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_project_commits.csv",
 		[]string{
 			"connection_id",
 			"gitlab_project_id",
@@ -132,7 +132,7 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 
 	dataflowTester.VerifyTable(
 		models.GitlabMrCommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabMrCommit{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_mr_commits.csv",
 		[]string{
 			"connection_id",
 			"merge_request_id",
@@ -149,7 +149,7 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertApiMrCommitsMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.PullRequestCommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestCommit{}.TableName()),
+		"./snapshot_tables/pull_request_commits.csv",
 		[]string{
 			"commit_sha",
 			"pull_request_id",
@@ -166,7 +166,7 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertCommitsMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Commit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.Commit{}.TableName()),
+		"./snapshot_tables/commits.csv",
 		[]string{
 			"sha",
 			"_raw_data_params",
@@ -190,7 +190,7 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 
 	dataflowTester.VerifyTable(
 		code.RepoCommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.RepoCommit{}.TableName()),
+		"./snapshot_tables/repo_commits.csv",
 		[]string{
 			"repo_id",
 			"commit_sha",

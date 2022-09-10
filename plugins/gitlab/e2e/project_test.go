@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -49,7 +48,7 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractProjectMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabProject{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabProject{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_projects.csv",
 		[]string{
 			"connection_id",
 			"gitlab_id",
@@ -78,7 +77,7 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Repo{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.Repo{}.TableName()),
+		"./snapshot_tables/repos.csv",
 		[]string{
 			"id",
 			"_raw_data_params",

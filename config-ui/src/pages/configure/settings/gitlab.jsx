@@ -49,7 +49,7 @@ export default function GitlabSettings (props) {
   }
 
   useEffect(() => {
-    if (connection && connection.ID) {
+    if (connection && connection.id) {
       console.log('>> GITLAB CONNECTION OBJECT RECEIVED...', connection)
     } else {
       console.log('>>>> WARNING!! NO CONNECTION OBJECT', connection)

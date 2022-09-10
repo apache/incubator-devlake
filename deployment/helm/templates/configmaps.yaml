@@ -25,4 +25,7 @@ data:
   MYSQL_DATABASE: "{{ .Values.mysql.database }}"
   MYSQL_ROOT_PASSWORD: "{{ .Values.mysql.rootPassword }}"
   LOGGING_DIR: "{{ .Values.lake.loggingDir }}"
-
+{{- if .Values.ui.basicAuth.enabled }}
+  ADMIN_USER: "{{ .Values.ui.basicAuth.user }}"
+  ADMIN_PASS: "{{ .Values.ui.basicAuth.password }}"
+{{- end }}

@@ -18,9 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/tapd/impl"
@@ -51,7 +51,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractBugStatusMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdBugStatus{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugStatus{}.TableName()),
+		"./snapshot_tables/_tool_tapd_bug_statuses.csv",
 		[]string{
 			"connection_id",
 			"workspace_id",
@@ -66,8 +66,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	)
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bugs.csv",
-		"_raw_tapd_api_bugs")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bugs.csv", "_raw_tapd_api_bugs")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.TapdBug{})
@@ -77,7 +76,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractBugMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdBug{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBug{}.TableName()),
+		"./snapshot_tables/_tool_tapd_bugs.csv",
 		[]string{
 			"connection_id",
 			"id",
@@ -217,7 +216,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.TapdWorkSpaceBug{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdWorkSpaceBug{}.TableName()),
+		"./snapshot_tables/_tool_tapd_workspace_bugs.csv",
 		[]string{
 			"connection_id",
 			"workspace_id",
@@ -230,7 +229,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.TapdIterationBug{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdIterationBug{}.TableName()),
+		"./snapshot_tables/_tool_tapd_iteration_bugs.csv",
 		[]string{
 			"connection_id",
 			"workspace_id",
@@ -246,7 +245,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.TapdBugLabel{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugLabel{}.TableName()),
+		"./snapshot_tables/_tool_tapd_bug_labels.csv",
 		[]string{
 			"label_name",
 			"bug_id",
@@ -264,7 +263,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertBugMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
-		fmt.Sprintf("./snapshot_tables/%s_bug.csv", ticket.Issue{}.TableName()),
+		"./snapshot_tables/_tool_tapd_bug_labels_bug.csv",
 		[]string{
 			"id",
 			"_raw_data_params",
@@ -300,7 +299,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		ticket.BoardIssue{},
-		fmt.Sprintf("./snapshot_tables/%s_bug.csv", ticket.BoardIssue{}.TableName()),
+		"./snapshot_tables/board_issues_bug.csv",
 		[]string{
 			"board_id",
 			"issue_id",
@@ -312,7 +311,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		ticket.SprintIssue{},
-		fmt.Sprintf("./snapshot_tables/%s_bug.csv", ticket.SprintIssue{}.TableName()),
+		"./snapshot_tables/sprint_issues_bug.csv",
 		[]string{
 			"issue_id",
 			"sprint_id",
@@ -325,7 +324,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertBugLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueLabel{},
-		fmt.Sprintf("./snapshot_tables/%s_bug.csv", ticket.IssueLabel{}.TableName()),
+		"./snapshot_tables/issue_labels_bug.csv",
 		[]string{
 			"issue_id",
 			"label_name",
@@ -335,5 +334,4 @@ func TestTapdBugDataFlow(t *testing.T) {
 			"_raw_data_remark",
 		},
 	)
-
 }

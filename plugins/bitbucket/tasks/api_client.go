@@ -21,12 +21,9 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"net/http"
-	"strconv"
-	"time"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"net/http"
 )
 
 func CreateApiClient(taskCtx core.TaskContext, connection *models.BitbucketConnection) (*helper.ApiAsyncClient, error) {
@@ -52,20 +49,6 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.BitbucketConne
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
-		Method:               http.MethodGet,
-		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
-			rateLimitHeader := res.Header.Get("X-Request-Count")
-			if rateLimitHeader == "" {
-				// use default
-				return 0, 0, nil
-			}
-			rateLimit, err := strconv.Atoi(rateLimitHeader)
-			if err != nil {
-				return 0, 0, errors.Default.Wrap(err, "failed to parse X-Request-Count header")
-			}
-
-			return rateLimit, 1 * time.Minute, nil
-		},
 	}
 	asyncApiClient, err := helper.CreateAsyncApiClient(
 		taskCtx,

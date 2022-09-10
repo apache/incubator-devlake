@@ -19,7 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -42,7 +42,7 @@ func CollectProject(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		UrlTemplate: "projects/{{ .Params.ProjectId }}",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			body, err := ioutil.ReadAll(res.Body)
+			body, err := io.ReadAll(res.Body)
 			if err != nil {
 				return nil, err
 			}

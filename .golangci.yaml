@@ -19,16 +19,16 @@
 linters:
   disable-all: true
   enable:
-    - deadcode
+    # - deadcode
     - errcheck
     - gosimple
     - govet
     - ineffassign
     - staticcheck
-    - structcheck
+    # - structcheck
     - typecheck
     - unused
-    - varcheck
+    # - varcheck
 #    - exhaustive
 #    - funlen
 #    - goconst

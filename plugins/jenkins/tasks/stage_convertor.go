@@ -65,10 +65,8 @@ func ConvertStages(taskCtx core.SubTaskContext) error {
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
 			tjs.status, tjs.start_time_millis, tjs.duration_millis, 
 			tjs.pause_duration_millis, tjs.type, 
-			tjbr.commit_sha, tjb.class, 
-			tjb.triggered_by, tjb.building, tjbr.branch, tjbr.repo_url`),
+			tjb.triggered_by, tjb.building`),
 		dal.From("_tool_jenkins_builds tjb"),
-		dal.Join("left join _tool_jenkins_build_repos tjbr on tjbr.build_name = tjb.display_name"),
 		dal.Join("left join _tool_jenkins_stages tjs on tjs.build_name = tjb.display_name"),
 		dal.Where("tjb.connection_id = ? ", data.Options.ConnectionId),
 	}
@@ -112,15 +110,14 @@ func ConvertStages(taskCtx core.SubTaskContext) error {
 
 			jenkinsTask := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: fmt.Sprintf("%s:%s:%d:%s:%s", "jenkins", "JenkinsTask", body.ConnectionId,
+					Id: fmt.Sprintf("%s:%s:%d:%s:%s", "jenkins", "JenkinsStage", body.ConnectionId,
 						body.BuildName, body.Name),
 				},
 				Name: body.Name,
-				PipelineId: fmt.Sprintf("%s:%s:%d:%s:%s", "jenkins", "JenkinsPipeline", body.ConnectionId,
-					body.CommitSha, body.BuildName),
+				PipelineId: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline", body.ConnectionId,
+					body.BuildName),
 				Result:       jenkinsTaskResult,
 				Status:       jenkinsTaskStatus,
-				Type:         "CI/CD",
 				DurationSec:  uint64(body.DurationMillis / 1000),
 				StartedDate:  time.Unix(durationSec, 0),
 				FinishedDate: jenkinsTaskFinishedDate,

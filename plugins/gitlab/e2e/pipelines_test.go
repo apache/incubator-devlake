@@ -18,7 +18,7 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -39,8 +39,7 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 		},
 	}
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_pipeline.csv",
-		"_raw_gitlab_api_pipeline")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_pipeline.csv", "_raw_gitlab_api_pipeline")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GitlabPipeline{})
@@ -48,7 +47,7 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiPipelinesMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabPipeline{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabPipeline{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_pipelines.csv",
 		[]string{
 			"connection_id",
 			"gitlab_id",
@@ -63,6 +62,54 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+		},
+	)
+
+	dataflowTester.VerifyTable(
+		models.GitlabPipelineProject{},
+		"./snapshot_tables/_tool_gitlab_pipeline_projects.csv",
+		[]string{
+			"connection_id",
+			"pipeline_id",
+			"project_id",
+			"ref",
+			"sha",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
+	// verify conversion
+	dataflowTester.FlushTabler(&devops.CICDPipeline{})
+	dataflowTester.FlushTabler(&devops.CiCDPipelineRepo{})
+	dataflowTester.Subtask(tasks.ConvertPipelineMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertPipelineProjectMeta, taskData)
+	dataflowTester.VerifyTable(
+		devops.CICDPipeline{},
+		"./snapshot_tables/cicd_pipelines.csv",
+		[]string{
+			"id",
+			"name",
+			"result",
+			"status",
+			"type",
+			"duration_sec",
+			"created_date",
+			"finished_date",
+			"environment",
+		},
+	)
+
+	dataflowTester.VerifyTable(
+		devops.CiCDPipelineRepo{},
+		"./snapshot_tables/cicd_pipeline_repos.csv",
+		[]string{
+			"id",
+			"commit_sha",
+			"branch",
+			"repo",
 		},
 	)
 }

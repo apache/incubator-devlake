@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -46,7 +45,7 @@ func TestAEProjectDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractProjectMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.AEProject{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.AEProject{}.TableName()),
+		"./snapshot_tables/_tool_ae_projects.csv",
 		[]string{
 			"connection_id",
 			"id",

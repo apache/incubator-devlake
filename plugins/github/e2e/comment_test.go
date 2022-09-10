@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -72,7 +71,7 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiPrReviewCommentsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubIssueComment{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubIssueComment{}.TableName()),
+		"./snapshot_tables/_tool_github_issue_comments.csv",
 		[]string{
 			"connection_id",
 			"github_id",
@@ -90,7 +89,7 @@ func TestCommentDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.GithubPrComment{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPrComment{}.TableName()),
+		"./snapshot_tables/_tool_github_pull_request_comments.csv",
 		[]string{
 			"connection_id",
 			"github_id",
@@ -125,7 +124,7 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertIssueCommentsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueComment{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", ticket.IssueComment{}.TableName()),
+		"./snapshot_tables/issue_comments.csv",
 		[]string{
 			"id",
 			"issue_id",
@@ -140,7 +139,7 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertPullRequestCommentsMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.PullRequestComment{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.PullRequestComment{}.TableName()),
+		"./snapshot_tables/pull_request_comments.csv",
 		[]string{
 			"id",
 			"_raw_data_params",

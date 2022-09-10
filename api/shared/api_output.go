@@ -26,6 +26,8 @@ import (
 	"net/http"
 )
 
+const BadRequestBody = "bad request body format"
+
 type ApiBody struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`

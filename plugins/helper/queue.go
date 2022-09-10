@@ -22,12 +22,14 @@ import (
 	"sync/atomic"
 )
 
+// QueueNode represents a node in the queue
 type QueueNode interface {
 	Next() interface{}
 	SetNext(next interface{})
 	Data() interface{}
 }
 
+// Queue represetns a queue
 type Queue struct {
 	count int64
 	head  QueueNode
@@ -73,7 +75,7 @@ func (q *Queue) PushWithoutLock(node QueueNode) {
 
 // PullWithOutLock is no lock mode of Pull
 func (q *Queue) PullWithOutLock() QueueNode {
-	var node QueueNode = nil
+	var node QueueNode
 
 	if q.head != nil {
 		node = q.head
@@ -127,11 +129,13 @@ func NewQueue() *Queue {
 	}
 }
 
+// QueueIteratorNode implements the helper.Iterator interface with ability to accept new item when being iterated
 type QueueIteratorNode struct {
 	next QueueNode
 	data interface{}
 }
 
+// Next return the next node
 func (q *QueueIteratorNode) Next() interface{} {
 	if q.next == nil {
 		return nil
@@ -139,6 +143,7 @@ func (q *QueueIteratorNode) Next() interface{} {
 	return q.next
 }
 
+// SetNext updates the next pointer of the node
 func (q *QueueIteratorNode) SetNext(next interface{}) {
 	if next == nil {
 		q.next = nil
@@ -147,10 +152,12 @@ func (q *QueueIteratorNode) SetNext(next interface{}) {
 	}
 }
 
+// Data returns data of the node
 func (q *QueueIteratorNode) Data() interface{} {
 	return q.data
 }
 
+// NewQueueIteratorNode creates a new QueueIteratorNode
 func NewQueueIteratorNode(data interface{}) *QueueIteratorNode {
 	return &QueueIteratorNode{
 		data: data,
