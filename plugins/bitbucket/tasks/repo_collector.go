@@ -20,7 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -46,7 +46,7 @@ func CollectApiRepositories(taskCtx core.SubTaskContext) error {
 		UrlTemplate: "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}",
 		Query:       GetQuery,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			body, err := ioutil.ReadAll(res.Body)
+			body, err := io.ReadAll(res.Body)
 			res.Body.Close()
 			if err != nil {
 				return nil, err

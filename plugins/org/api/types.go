@@ -180,16 +180,16 @@ type userAccount struct {
 	UserId    string
 }
 
-func (au *userAccount) toDomainLayer(accountUsers []userAccount) []*crossdomain.UserAccount {
-	result := make([]*crossdomain.UserAccount, 0, len(accountUsers))
-	for _, ac := range accountUsers {
-		result = append(result, &crossdomain.UserAccount{
-			UserId:    ac.UserId,
-			AccountId: ac.AccountId,
-		})
-	}
-	return result
-}
+// func (au *userAccount) toDomainLayer(accountUsers []userAccount) []*crossdomain.UserAccount {
+// 	result := make([]*crossdomain.UserAccount, 0, len(accountUsers))
+// 	for _, ac := range accountUsers {
+// 		result = append(result, &crossdomain.UserAccount{
+// 			UserId:    ac.UserId,
+// 			AccountId: ac.AccountId,
+// 		})
+// 	}
+// 	return result
+// }
 
 func (au *userAccount) fromDomainLayer(accountUsers []crossdomain.UserAccount) []userAccount {
 	result := make([]userAccount, 0, len(accountUsers))
@@ -272,6 +272,6 @@ func (*projectMapping) toDomainLayer(tt []projectMapping) []*crossdomain.Project
 	return result
 }
 
-func (m *projectMapping) fakeData() []projectMapping {
-	return fakeProjectMapping
-}
+// func (m *projectMapping) fakeData() []projectMapping {
+// 	return fakeProjectMapping
+// }

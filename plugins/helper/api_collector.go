@@ -21,7 +21,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/apache/incubator-devlake/errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"text/template"
@@ -157,7 +157,10 @@ func (collector *ApiCollector) Execute() error {
 		}
 		for {
 			if !iterator.HasNext() || apiClient.HasError() {
-				collector.args.ApiClient.WaitAsync()
+				err = collector.args.ApiClient.WaitAsync()
+				if err != nil {
+					return err
+				}
 				if !iterator.HasNext() || apiClient.HasError() {
 					break
 				}
@@ -345,12 +348,12 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 		defer logger.Debug("fetchAsync >>> done for %s %v", apiUrl, apiQuery)
 		logger := collector.args.Ctx.GetLogger()
 		// read body to buffer
-		body, err := ioutil.ReadAll(res.Body)
+		body, err := io.ReadAll(res.Body)
 		if err != nil {
 			return err
 		}
 		res.Body.Close()
-		res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+		res.Body = io.NopCloser(bytes.NewBuffer(body))
 		// convert body to array of RawJSON
 		items, err := collector.args.ResponseParser(res)
 		if err != nil {
@@ -381,7 +384,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 		// increase progress only when it was not nested
 		collector.args.Ctx.IncProgress(1)
 		if handler != nil {
-			res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+			res.Body = io.NopCloser(bytes.NewBuffer(body))
 			return handler(count, body, res)
 		}
 		return nil

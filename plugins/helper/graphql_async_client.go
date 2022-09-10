@@ -78,7 +78,7 @@ func (apiClient *GraphqlAsyncClient) updateRateRemaining(rateRemaining int, rese
 	go func() {
 		nextDuring := 3 * time.Minute
 		if resetAt != nil && resetAt.After(time.Now()) {
-			nextDuring = resetAt.Sub(time.Now())
+			nextDuring = time.Until(*resetAt)
 		}
 		<-time.After(nextDuring)
 		newRateRemaining, newResetAt, err := apiClient.getRateRemaining(apiClient.ctx, apiClient.client, apiClient.logger)
@@ -143,7 +143,7 @@ func (apiClient *GraphqlAsyncClient) NextTick(task func() error) {
 	}()
 }
 
-// WaitAsync blocks until all async requests were done
+// Wait blocks until all async requests were done
 func (apiClient *GraphqlAsyncClient) Wait() error {
 	apiClient.waitGroup.Wait()
 	if len(apiClient.workerErrors) > 0 {

@@ -19,7 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -56,7 +56,7 @@ func CollectBoard(taskCtx core.SubTaskContext) error {
 		GetTotalPages: GetTotalPagesFromResponse,
 		Concurrency:   10,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			blob, err := ioutil.ReadAll(res.Body)
+			blob, err := io.ReadAll(res.Body)
 			if err != nil {
 				return nil, err
 			}

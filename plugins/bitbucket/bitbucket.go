@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Export a variable named PluginEntry for Framework to search and load
+// PluginEntry exports for Framework to search and load
 var PluginEntry impl.Bitbucket //nolint
 
 // standalone mode for debugging
