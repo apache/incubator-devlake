@@ -131,6 +131,7 @@ service:
   type: NodePort
   # service port for devlake-ui
   uiPort: 32001
+  grafanaPort : 32002
 
 ingress:
   enabled: false
