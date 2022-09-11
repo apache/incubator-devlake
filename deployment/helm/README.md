@@ -13,9 +13,10 @@ clone the code
 helm install devlake deployment/helm
 ```
 
-And visit your devlake from the node port (32001 by default).
+And visit your devlake Config-UI  from the nodePort (32001 by default) and Grafana Dashboard from the nodePort ( 32002 by default.)
 
-http://YOUR-NODE-IP:32001
+http://YOUR-NODE-IP:32001 for Config-UI
+http://YOUR-NODE-IP:32002 for Grafana Dashboard
 
 Note : You must provide the connection to the port through the Inbound rules of the cluster. You may found it in the cluster security group or the cluster firewall.
 
