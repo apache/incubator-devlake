@@ -60,7 +60,10 @@ func CollectApiIssueComments(taskCtx core.SubTaskContext) error {
 		if err != nil {
 			return fmt.Errorf("failed to get latest gitea issue record: %w", err)
 		}
-
+		if latestUpdatedIssueComment.IssueId != 0 {
+			since = &latestUpdatedIssueComment.GiteaUpdatedAt
+			incremental = true
+		}
 	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{

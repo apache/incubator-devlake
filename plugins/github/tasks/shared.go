@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/plugins/github/utils"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -26,7 +25,7 @@ import (
 
 func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {
 	link := res.Header.Get("link")
-	pageInfo, err := utils.GetPagingFromLinkHeader(link)
+	pageInfo, err := helper.GetPagingFromLinkHeader(link)
 	if err != nil {
 		return 0, nil
 	}

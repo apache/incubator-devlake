@@ -25,7 +25,6 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	githubUtils "github.com/apache/incubator-devlake/plugins/github/utils"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -72,7 +71,7 @@ func ExtractApiComments(taskCtx core.SubTaskContext) error {
 				return nil, nil
 			}
 			//If this is a pr, ignore
-			issueINumber, err := githubUtils.GetIssueIdByIssueUrl(apiComment.IssueUrl)
+			issueINumber, err := helper.GetIssueIdByIssueUrl(apiComment.IssueUrl)
 			if err != nil {
 				return nil, err
 			}

@@ -54,6 +54,7 @@ func CollectApiRepositories(taskCtx core.SubTaskContext) error {
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
+		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
 			body, err := ioutil.ReadAll(res.Body)
 			res.Body.Close()

@@ -17,7 +17,7 @@ limitations under the License.
 
 // https://golang.org/doc/tutorial/add-a-test
 
-package utils
+package helper
 
 import (
 	"fmt"

@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -55,15 +54,12 @@ type GiteaInput struct {
 }
 
 func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, error) {
-	total := res.Header.Get("X-PageCount")
-	if total == "" {
+	link := res.Header.Get("link")
+	pageInfo, err := helper.GetPagingFromLinkHeader(link)
+	if err != nil {
 		return 0, nil
 	}
-	totalInt, err := strconv.Atoi(total)
-	if err != nil {
-		return 0, err
-	}
-	return totalInt, nil
+	return pageInfo.Last, nil
 }
 
 func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, error) {

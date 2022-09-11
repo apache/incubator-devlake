@@ -78,6 +78,7 @@ func CollectApiCommits(taskCtx core.SubTaskContext) error {
 			query.Set("limit", strconv.Itoa(reqData.Pager.Size))
 			return query, nil
 		},
+		GetTotalPages:  GetTotalPagesFromResponse,
 		ResponseParser: GetRawMessageFromResponse,
 	})
 
