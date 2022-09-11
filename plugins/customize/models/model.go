@@ -17,26 +17,10 @@ limitations under the License.
 
 package models
 
-import (
-	"time"
-
-	"github.com/apache/incubator-devlake/models/common"
-)
-
-type GithubPipeline struct {
-	common.NoPKModel
-	ConnectionId uint64     `gorm:"primaryKey"`
-	RepoId       int        `gorm:"primaryKey"`
-	Branch       string     `json:"branch" gorm:"primaryKey;type:varchar(255)"`
-	Commit       string     `json:"commit" gorm:"primaryKey;type:varchar(255)"`
-	StartedDate  *time.Time `json:"started_time"`
-	FinishedDate *time.Time `json:"finished_time"`
-	Duration     float64    `json:"duration"`
-	Status       string     `json:"status" gorm:"type:varchar(255)"`
-	Result       string     `json:"results" gorm:"type:varchar(255)"`
-	Type         string     `json:"type" gorm:"type:varchar(255)"`
+type Table struct {
+	Name string
 }
 
-func (GithubPipeline) TableName() string {
-	return "_tool_github_pipelines"
+func (t *Table) TableName() string {
+	return t.Name
 }

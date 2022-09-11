@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/generator/util"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -64,7 +63,7 @@ func pluginNameExistValidate(input string) error {
 }
 
 func pluginNames(withFramework bool) (pluginItems []string, err error) {
-	files, err := ioutil.ReadDir(`plugins`)
+	files, err := os.ReadDir(`plugins`)
 	if err != nil {
 		return nil, err
 	}

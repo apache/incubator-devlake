@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -47,7 +46,7 @@ func TestAECommitDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractCommitsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.AECommit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.AECommit{}.TableName()),
+		"./snapshot_tables/_tool_ae_commits.csv",
 		[]string{
 			"hex_sha",
 			"analysis_id",
@@ -68,7 +67,7 @@ func TestAECommitDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertCommitsMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Commit{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", code.Commit{}.TableName()),
+		"./snapshot_tables/commits.csv",
 		[]string{
 			"sha",
 			"_raw_data_params",

@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -51,7 +50,7 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractBugChangelogMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdBugChangelog{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugChangelog{}.TableName()),
+		"./snapshot_tables/_tool_tapd_bug_changelogs.csv",
 		[]string{
 			"connection_id",
 			"id",
@@ -71,7 +70,7 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 	)
 	dataflowTester.VerifyTable(
 		models.TapdBugChangelogItem{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.TapdBugChangelogItem{}.TableName()),
+		"./snapshot_tables/_tool_tapd_bug_changelog_items.csv",
 		[]string{
 			"connection_id",
 			"changelog_id",
@@ -91,7 +90,7 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertBugChangelogMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueChangelogs{},
-		fmt.Sprintf("./snapshot_tables/%s_bug.csv", ticket.IssueChangelogs{}.TableName()),
+		"./snapshot_tables/issue_changelogs_bug.csv",
 		[]string{
 			"_raw_data_params",
 			"_raw_data_table",

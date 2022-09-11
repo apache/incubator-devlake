@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/dora/api"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -31,6 +30,8 @@ var ConvertChangeLeadTimeMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
+const RAW_ISSUES_TABLE = `dora_issues`
+
 func ConvertChangeLeadTime(taskCtx core.SubTaskContext) error {
 	//db := taskCtx.GetDal()
 	//data := taskCtx.GetData().(*DoraTaskData)
@@ -41,7 +42,7 @@ func ConvertChangeLeadTime(taskCtx core.SubTaskContext) error {
 			Params: DoraApiParams{
 				// TODO
 			},
-			Table: api.RAW_ISSUES_TABLE,
+			Table: RAW_ISSUES_TABLE,
 		},
 		//InputRowType: reflect.TypeOf(githubModels.GithubJob{}),
 		//Input:        cursor,

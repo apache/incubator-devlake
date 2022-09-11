@@ -19,10 +19,10 @@ package push
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/api/shared"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/services"
 	"github.com/gin-gonic/gin"
 )
@@ -52,7 +52,7 @@ func Post(c *gin.Context) {
 	var rowsToInsert []map[string]interface{}
 	err = c.ShouldBindJSON(&rowsToInsert)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request body format", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody, errors.AsUserMessage()))
 		return
 	}
 	rowsAffected, err := services.InsertRow(tableName, rowsToInsert)

@@ -19,9 +19,6 @@ package tasks
 
 import (
 	"fmt"
-	"reflect"
-	"time"
-
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -29,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"reflect"
 )
 
 var ConvertJobMeta = core.SubTaskMeta{
@@ -65,9 +63,9 @@ func ConvertJobs(taskCtx core.SubTaskContext) error {
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
 			gitlabJob := inputRow.(*gitlabModels.GitlabJob)
 
-			startedAt := time.Now()
+			startedAt := gitlabJob.GitlabCreatedAt
 			if gitlabJob.StartedAt != nil {
-				startedAt = *gitlabJob.StartedAt
+				startedAt = gitlabJob.StartedAt
 			}
 
 			domainJob := &devops.CICDTask{
@@ -89,7 +87,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) error {
 				Type: "CI/CD",
 
 				DurationSec:  uint64(gitlabJob.Duration),
-				StartedDate:  startedAt,
+				StartedDate:  *startedAt,
 				FinishedDate: gitlabJob.FinishedAt,
 			}
 

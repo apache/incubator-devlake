@@ -22,7 +22,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -91,7 +91,7 @@ func (n *NotificationService) sendNotification(notificationType models.Notificat
 	}
 
 	notification.ResponseCode = resp.StatusCode
-	respBody, err := ioutil.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}

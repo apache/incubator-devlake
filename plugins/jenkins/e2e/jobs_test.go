@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
@@ -41,6 +40,7 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	}
 
 	// import raw data table
+	// SELECT * FROM _raw_jenkins_api_jobs INTO OUTFILE "/tmp/_raw_jenkins_api_jobs.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jenkins_api_jobs.csv", "_raw_jenkins_api_jobs")
 
 	// verify extraction
@@ -48,7 +48,7 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiJobsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.JenkinsJob{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.JenkinsJob{}.TableName()),
+		"./snapshot_tables/_tool_jenkins_jobs.csv",
 		[]string{
 			"connection_id",
 			"name",
@@ -68,7 +68,7 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertJobsMeta, taskData)
 	dataflowTester.VerifyTable(
 		devops.Job{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", devops.Job{}.TableName()),
+		"./snapshot_tables/jobs.csv",
 		[]string{
 			"name",
 			"id",

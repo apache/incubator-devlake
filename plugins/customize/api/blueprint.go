@@ -18,22 +18,38 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/go-playground/validator/v10"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 )
 
-var vld *validator.Validate
-var connectionHelper *helper.ConnectionApiHelper
-var basicRes core.BasicRes
-
-func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
-	basicRes = helper.NewDefaultBasicRes(config, logger, database)
-	vld = validator.New()
-	connectionHelper = helper.NewConnectionHelper(
-		basicRes,
-		vld,
-	)
+func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+	var err error
+	plan := make(core.PipelinePlan, len(scope))
+	for i, scopeElem := range scope {
+		taskOptions := make(map[string]interface{})
+		err = json.Unmarshal(scopeElem.Options, &taskOptions)
+		if err != nil {
+			return nil, err
+		}
+		_, err := tasks.DecodeAndValidateTaskOptions(taskOptions)
+		if err != nil {
+			return nil, err
+		}
+		// subtasks
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
+		if err != nil {
+			return nil, err
+		}
+		plan[i] = core.PipelineStage{
+			{
+				Plugin:   "customize",
+				Subtasks: subtasks,
+				Options:  taskOptions,
+			},
+		}
+	}
+	return plan, nil
 }

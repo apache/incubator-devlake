@@ -211,7 +211,7 @@ func ReloadBlueprints(c *cron.Cron) error {
 		blueprint := parseBlueprint(pp)
 		plan, err := blueprint.UnmarshalPlan()
 		if err != nil {
-			blueprintLog.Error(err, "created cron job failed")
+			blueprintLog.Error(err, failToCreateCronJob)
 			return err
 		}
 		_, err = c.AddFunc(blueprint.CronConfig, func() {
@@ -223,7 +223,7 @@ func ReloadBlueprints(c *cron.Cron) error {
 			}
 		})
 		if err != nil {
-			blueprintLog.Error(err, "created cron job failed")
+			blueprintLog.Error(err, failToCreateCronJob)
 			return err
 		}
 	}
@@ -242,7 +242,7 @@ func createPipelineByBlueprint(blueprintId uint64, name string, plan core.Pipeli
 	pipeline, err := CreatePipeline(&newPipeline)
 	// Return all created tasks to the User
 	if err != nil {
-		blueprintLog.Error(err, "created cron job failed")
+		blueprintLog.Error(err, failToCreateCronJob)
 		return nil, err
 	}
 	return pipeline, err

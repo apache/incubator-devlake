@@ -73,6 +73,7 @@ func (*encryptPipeline) Up(ctx context.Context, db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
+	//nolint:errcheck
 	defer db.Migrator().DropTable(&Pipeline0904Temp{})
 
 	var result *gorm.DB
@@ -107,6 +108,9 @@ func (*encryptPipeline) Up(ctx context.Context, db *gorm.DB) error {
 			Plan:          encryptedPlan,
 		}
 		err = db.Create(newPipeline).Error
+		if err != nil {
+			return err
+		}
 	}
 
 	err = db.Migrator().DropTable(&PipelineOldVersion{})

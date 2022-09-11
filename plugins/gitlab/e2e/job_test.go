@@ -18,7 +18,7 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -47,7 +47,7 @@ func TestGitlabJobDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiJobsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GitlabJob{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GitlabJob{}.TableName()),
+		"./snapshot_tables/_tool_gitlab_jobs.csv",
 		[]string{
 			"connection_id",
 			"gitlab_id",
@@ -61,15 +61,33 @@ func TestGitlabJobDataFlow(t *testing.T) {
 			"allow_failure",
 			"duration",
 			"web_url",
-
 			"gitlab_created_at",
 			"started_at",
 			"finished_at",
-
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
+		},
+	)
+
+	// verify conversion
+	dataflowTester.FlushTabler(&devops.CICDTask{})
+	dataflowTester.Subtask(tasks.ConvertJobMeta, taskData)
+	dataflowTester.VerifyTable(
+		devops.CICDTask{},
+		"./snapshot_tables/cicd_tasks.csv",
+		[]string{
+			"id",
+			"name",
+			"pipeline_id",
+			"result",
+			"status",
+			"type",
+			"duration_sec",
+			"started_date",
+			"finished_date",
+			"environment",
 		},
 	)
 }

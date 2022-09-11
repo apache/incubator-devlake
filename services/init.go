@@ -38,6 +38,8 @@ var cronManager *cron.Cron
 var log core.Logger
 var migrationRequireConfirmation bool
 
+const failToCreateCronJob = "created cron job failed"
+
 // Init the services module
 func Init() {
 	var err error
@@ -73,6 +75,7 @@ func Init() {
 	log.Info("Db migration confirmation needed: %v", migrationRequireConfirmation)
 }
 
+// ExecuteMigration executes all pending migration scripts and initialize services module
 func ExecuteMigration() error {
 	err := migration.Execute(context.Background())
 	if err != nil {
@@ -84,6 +87,7 @@ func ExecuteMigration() error {
 	return nil
 }
 
+// MigrationRequireConfirmation returns if there were migration scripts waiting to be executed
 func MigrationRequireConfirmation() bool {
 	return migrationRequireConfirmation
 }

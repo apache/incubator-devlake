@@ -111,11 +111,10 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, ignoreBoard bool,
 	}
 	if data.Options.TransformationRules.StoryPointField != "" {
 		unknownStoryPoint := apiIssue.Fields.AllFields[data.Options.TransformationRules.StoryPointField]
-		switch unknownStoryPoint.(type) {
+		switch sp := unknownStoryPoint.(type) {
 		case string:
 			// string, try to parse
-			strStoryPoint, _ := unknownStoryPoint.(string)
-			issue.StoryPoint, _ = strconv.ParseFloat(strStoryPoint, 32)
+			issue.StoryPoint, _ = strconv.ParseFloat(sp, 32)
 		case nil:
 		default:
 			// not string, convert to float64, ignore it if failed

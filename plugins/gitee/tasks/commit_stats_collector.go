@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -105,7 +105,7 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 		},
 
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			body, err := ioutil.ReadAll(res.Body)
+			body, err := io.ReadAll(res.Body)
 			res.Body.Close()
 			if err != nil {
 				return nil, err

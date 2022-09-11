@@ -89,7 +89,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 					Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline", jenkinsBuild.ConnectionId,
 						jenkinsBuild.DisplayName),
 				},
-				Name:         jenkinsBuild.DisplayName,
+				Name:         jenkinsBuild.JobName,
 				Result:       jenkinsPipelineResult,
 				Status:       jenkinsPipelineStatus,
 				FinishedDate: jenkinsPipelineFinishedDate,
@@ -107,9 +107,31 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) error {
 				}
 				results = append(results, domainPipelineRelation)
 			}
-
 			jenkinsPipeline.RawDataOrigin = jenkinsBuild.RawDataOrigin
 			results = append(results, jenkinsPipeline)
+
+			if !jenkinsBuild.HasStages {
+				jenkinsTask := &devops.CICDTask{
+					DomainEntity: domainlayer.DomainEntity{
+						Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsTask", jenkinsBuild.ConnectionId,
+							jenkinsBuild.DisplayName),
+					},
+					Name:         jenkinsBuild.JobName,
+					Result:       jenkinsPipelineResult,
+					Status:       jenkinsPipelineStatus,
+					Type:         "CI/CD",
+					DurationSec:  uint64(durationSec),
+					StartedDate:  jenkinsBuild.StartTime,
+					FinishedDate: jenkinsPipelineFinishedDate,
+				}
+
+				jenkinsTask.PipelineId = fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline",
+					jenkinsBuild.ConnectionId, jenkinsBuild.DisplayName)
+
+				jenkinsTask.RawDataOrigin = jenkinsBuild.RawDataOrigin
+				results = append(results, jenkinsTask)
+
+			}
 
 			return results, nil
 		},

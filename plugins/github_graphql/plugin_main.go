@@ -43,7 +43,7 @@ var _ core.PluginInit = (*GithubGraphql)(nil)
 var _ core.PluginTask = (*GithubGraphql)(nil)
 var _ core.PluginApi = (*GithubGraphql)(nil)
 
-// Export a variable named PluginEntry for Framework to search and load
+// PluginEntry exports a symbol for Framework to load
 var PluginEntry GithubGraphql //nolint
 
 type GithubGraphql struct{}

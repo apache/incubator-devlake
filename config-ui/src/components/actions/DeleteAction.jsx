@@ -28,7 +28,11 @@ import {
 
 const DeleteAction = (props) => {
   const {
-    id, connection, showConfirmation = () => {}, onConfirm = () => {}, onCancel = () => {},
+    id,
+    connection,
+    showConfirmation = () => {},
+    onConfirm = () => {},
+    onCancel = () => {},
     isDisabled = false,
     isLoading = false,
     text = 'Delete',
@@ -36,13 +40,13 @@ const DeleteAction = (props) => {
   } = props
   return (
     <Popover
-      key={`delete-popover-key-${connection.ID}`}
+      key={`delete-popover-key-${connection.id}`}
       className='trigger-delete-connection'
       popoverClassName='popover-delete-connection'
       position={Position.RIGHT}
       autoFocus={false}
       enforceFocus={false}
-      isOpen={id === connection.ID}
+      isOpen={id !== null && id === connection.id}
       usePortal={false}
     >
       <a

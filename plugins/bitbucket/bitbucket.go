@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Export a variable named PluginEntry for Framework to search and load
+// PluginEntry exports for Framework to search and load
 var PluginEntry impl.Bitbucket //nolint
 
 // standalone mode for debugging
@@ -36,30 +36,11 @@ func main() {
 	_ = cmd.MarkFlagRequired("owner")
 	_ = cmd.MarkFlagRequired("repo")
 
-	prType := cmd.Flags().String("prType", "type/(.*)$", "pr type")
-	prComponent := cmd.Flags().String("prComponent", "component/(.*)$", "pr component")
-	prBodyClosePattern := cmd.Flags().String("prBodyClosePattern", "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/api.bitbucket.org\\/2.0\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)", "pr body close pattern")
-	issueSeverity := cmd.Flags().String("issueSeverity", "severity/(.*)$", "issue severity")
-	issuePriority := cmd.Flags().String("issuePriority", "^(highest|high|medium|low)$", "issue priority")
-	issueComponent := cmd.Flags().String("issueComponent", "component/(.*)$", "issue component")
-	issueTypeBug := cmd.Flags().String("issueTypeBug", "^(bug|failure|error)$", "issue type bug")
-	issueTypeIncident := cmd.Flags().String("issueTypeIncident", "", "issue type incident")
-	issueTypeRequirement := cmd.Flags().String("issueTypeRequirement", "^(feat|feature|proposal|requirement)$", "issue type requirement")
-
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"connectionId":         *connectionId,
-			"owner":                *owner,
-			"repo":                 *repo,
-			"prType":               *prType,
-			"prComponent":          *prComponent,
-			"prBodyClosePattern":   *prBodyClosePattern,
-			"issueSeverity":        *issueSeverity,
-			"issuePriority":        *issuePriority,
-			"issueComponent":       *issueComponent,
-			"issueTypeBug":         *issueTypeBug,
-			"issueTypeIncident":    *issueTypeIncident,
-			"issueTypeRequirement": *issueTypeRequirement,
+			"connectionId": *connectionId,
+			"owner":        *owner,
+			"repo":         *repo,
 		})
 	}
 	runner.RunCmd(cmd)

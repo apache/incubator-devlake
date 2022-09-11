@@ -107,6 +107,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) (err error) {
 	if err != nil {
 		return err
 	}
+	//nolint:errcheck
 	defer db.Migrator().DropTable(&JiraConnectionNew{})
 
 	// step2

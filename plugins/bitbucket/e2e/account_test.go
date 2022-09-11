@@ -18,11 +18,11 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
+	"testing"
+
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/impl"
@@ -57,7 +57,7 @@ func TestAccountDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BitbucketAccount{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.BitbucketAccount{}.TableName()),
+		"./snapshot_tables/_tool_bitbucket_accounts.csv",
 		[]string{
 			"connection_id",
 			"user_name",

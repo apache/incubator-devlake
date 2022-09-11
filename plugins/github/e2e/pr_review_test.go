@@ -18,7 +18,6 @@ limitations under the License.
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -55,7 +54,7 @@ func TestPrReviewDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestReviewsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubPrReview{},
-		fmt.Sprintf("./snapshot_tables/%s.csv", models.GithubPrReview{}.TableName()),
+		"./snapshot_tables/_tool_github_pull_request_reviews.csv",
 		[]string{
 			"connection_id",
 			"github_id",

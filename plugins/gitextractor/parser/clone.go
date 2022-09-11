@@ -20,7 +20,6 @@ package parser
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 
@@ -86,7 +85,7 @@ func (l *GitRepoCreator) CloneOverSSH(repoId, url, privateKey, passphrase string
 }
 
 func withTempDirectory(f func(tempDir string) (*GitRepo, error)) (*GitRepo, error) {
-	dir, err := ioutil.TempDir("", "gitextractor")
+	dir, err := os.MkdirTemp("", "gitextractor")
 	if err != nil {
 		return nil, err
 	}

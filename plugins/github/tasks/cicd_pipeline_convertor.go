@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -35,7 +36,7 @@ var ConvertPipelinesMeta = core.SubTaskMeta{
 	Name:             "convertPipelines",
 	EntryPoint:       ConvertPipelines,
 	EnabledByDefault: true,
-	Description:      "Convert tool layer table github_pipelines into  domain layer table cicd_pipeline",
+	Description:      "Convert tool layer table github_runs into  domain layer table cicd_pipeline",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
@@ -44,8 +45,9 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	pipeline := &githubModels.GithubPipeline{}
+	pipeline := &githubModels.GithubRun{}
 	cursor, err := db.Cursor(
+		dal.Select("id, name, head_sha, head_branch, status, conclusion, github_created_at, github_updated_at"),
 		dal.From(pipeline),
 		dal.Where("repo_id = ? and connection_id=?", repoId, data.Options.ConnectionId),
 	)
@@ -54,7 +56,6 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 	}
 	defer cursor.Close()
 
-	pipelineIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPipeline{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -65,22 +66,20 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_RUN_TABLE,
 		},
-		InputRowType: reflect.TypeOf(githubModels.GithubPipeline{}),
+		InputRowType: reflect.TypeOf(githubModels.GithubRun{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, error) {
-			line := inputRow.(*githubModels.GithubPipeline)
+			line := inputRow.(*githubModels.GithubRun)
 			domainPipeline := &devops.CICDPipeline{
-				DomainEntity: domainlayer.DomainEntity{Id: pipelineIdGen.Generate(data.Options.ConnectionId, repoId, line.Branch, line.Commit)},
-				Name: didgen.NewDomainIdGenerator(&githubModels.GithubRepo{}).
-					Generate(line.ConnectionId, line.RepoId),
-				Type:         line.Type,
-				DurationSec:  uint64(line.Duration),
-				CreatedDate:  *line.StartedDate,
-				FinishedDate: line.FinishedDate,
+				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s:%d:%d", "github", "GithubRun", data.Options.ConnectionId, line.ID)},
+				Name:         line.Name,
+				Type:         "CI/CD",
+				CreatedDate:  *line.GithubCreatedAt,
+				FinishedDate: line.GithubUpdatedAt,
 			}
-			if line.Result == "success" {
+			if line.Conclusion == "success" {
 				domainPipeline.Result = devops.SUCCESS
-			} else if line.Result == "failure" || line.Result == "startup_failure" {
+			} else if line.Conclusion == "failure" || line.Conclusion == "startup_failure" {
 				domainPipeline.Result = devops.FAILURE
 			} else {
 				domainPipeline.Result = devops.ABORT
@@ -90,14 +89,14 @@ func ConvertPipelines(taskCtx core.SubTaskContext) error {
 				domainPipeline.Status = devops.IN_PROGRESS
 			} else {
 				domainPipeline.Status = devops.DONE
+				domainPipeline.DurationSec = uint64(line.GithubUpdatedAt.Sub(*line.GithubCreatedAt).Seconds())
 			}
 
 			domainPipelineProject := &devops.CiCDPipelineRepo{
-				DomainEntity: domainlayer.DomainEntity{Id: pipelineIdGen.Generate(data.Options.ConnectionId, repoId, line.Branch, line.Commit)},
-				CommitSha:    line.Commit,
-				Branch:       line.Branch,
-				Repo: didgen.NewDomainIdGenerator(&githubModels.GithubRepo{}).
-					Generate(line.ConnectionId, line.RepoId),
+				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s:%d:%d", "github", "GithubRun", data.Options.ConnectionId, line.ID)},
+				CommitSha:    line.HeadSha,
+				Branch:       line.HeadBranch,
+				Repo:         didgen.NewDomainIdGenerator(&githubModels.GithubRepo{}).Generate(data.Options.ConnectionId, repoId),
 			}
 
 			return []interface{}{

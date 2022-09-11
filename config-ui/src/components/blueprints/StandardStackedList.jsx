@@ -15,8 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useState, useCallback } from 'react'
-import { CSSTransition } from 'react-transition-group'
+import React from 'react'
 import {
   Button,
   Icon,
@@ -24,6 +23,8 @@ import {
   Elevation,
   Card,
   Colors,
+  Popover,
+  PopoverInteractionKind,
 } from '@blueprintjs/core'
 
 const StandardStackedList = (props) => {
@@ -68,7 +69,22 @@ const StandardStackedList = (props) => {
                     onClick={() => onAdd(item)}
                     style={{ cursor: 'pointer' }}
                   >
-                    {item?.name || item}
+                    {item.shortTitle || item.icon
+                      ? (
+                        <Popover
+                          className='docs-popover-portal-example-popover'
+                          interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
+                          content={
+                            <div style={{ padding: '5px', justifyContent: 'center', display: 'flex' }}>
+                              {item.icon && <img src={item.icon} style={{ maxWidth: '100%', overflow: 'hidden', width: '14px', height: '14px', borderRadius: '50%', marginRight: '2px' }} />}
+                              {item.title}
+                            </div>
+                          }
+                        >
+                          {item.shortTitle || item.title}
+                        </Popover>
+                        )
+                      : item.title}
                   </label>
                 </div>
               </div>

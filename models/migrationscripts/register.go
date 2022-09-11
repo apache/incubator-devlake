@@ -42,5 +42,6 @@ func All() []migration.Script {
 		new(modifyPipeline),
 		new(encryptBLueprint),
 		new(encryptPipeline),
+		new(modifyCICDTasks),
 	}
 }

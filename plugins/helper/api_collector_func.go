@@ -21,13 +21,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
 // GetRawMessageDirectFromResponse FIXME ...
 func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, error) {
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, erro
 		return nil, errors.Default.New("res is nil")
 	}
 	defer res.Body.Close()
-	resBody, err := ioutil.ReadAll(res.Body)
+	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response body of %s", res.Request.URL.String()))
 	}

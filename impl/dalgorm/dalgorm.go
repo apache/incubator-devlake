@@ -162,6 +162,16 @@ func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.Colum
 	return cms, nil
 }
 
+// AddColumn add one column for the table
+func (d *Dalgorm) AddColumn(table, columnName, columnType string) error {
+	return d.Exec("ALTER TABLE ? ADD ? ?", clause.Table{Name: table}, clause.Column{Name: columnName}, clause.Expr{SQL: columnType})
+}
+
+// DropColumn drop one column from the table
+func (d *Dalgorm) DropColumn(table, columnName string) error {
+	return d.Exec("ALTER TABLE ? DROP COLUMN ?", clause.Table{Name: table}, clause.Column{Name: columnName})
+}
+
 // GetPrimaryKeyFields get the PrimaryKey from `gorm` tag
 func (d *Dalgorm) GetPrimaryKeyFields(t reflect.Type) []reflect.StructField {
 	return utils.WalkFields(t, func(field *reflect.StructField) bool {

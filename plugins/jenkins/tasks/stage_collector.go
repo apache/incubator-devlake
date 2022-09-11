@@ -39,6 +39,7 @@ var CollectApiStagesMeta = core.SubTaskMeta{
 }
 
 type SimpleBuild struct {
+	Path        string
 	JobName     string
 	Number      string
 	DisplayName string
@@ -48,9 +49,9 @@ func CollectApiStages(taskCtx core.SubTaskContext) error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	clauses := []dal.Clause{
-		dal.Select("tjb.job_name,tjb.number, tjb.display_name"),
-		dal.From("_tool_jenkins_builds tjb"),
-		dal.Where(`tjb.connection_id = ? and tjb.class = ?`,
+		dal.Select("tjj.path,tjb.job_name,tjb.number,tjb.display_name"),
+		dal.From("_tool_jenkins_builds as tjb,_tool_jenkins_jobs as tjj"),
+		dal.Where(`tjb.connection_id = ? and tjb.class = ? and tjb.job_name = tjj.name`,
 			data.Options.ConnectionId, "WorkflowRun"),
 	}
 
@@ -76,7 +77,7 @@ func CollectApiStages(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
-		UrlTemplate: "job/{{ .Input.JobName }}/{{ .Input.Number }}/wfapi/describe",
+		UrlTemplate: "{{ .Input.Path }}/job/{{ .Input.JobName }}/{{ .Input.Number }}/wfapi/describe",
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/

@@ -19,8 +19,9 @@ import { useEffect, useState, useCallback } from 'react'
 import request from '@/utils/request'
 import { ToastNotification } from '@/components/Toast'
 import { Providers } from '@/data/Providers'
+import DataScopeConnection from '@/models/DataScopeConnection'
 
-const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint }, activeConnection = null) => {
+const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint }, activeConnection = null, setConnections = () => []) => {
   const [isFetching, setIsFetching] = useState(false)
   const [issueTypes, setIssueTypes] = useState([])
   const [fields, setFields] = useState([])
@@ -36,7 +37,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
     //   return
     // }
     try {
-      if (apiProxyPath.includes('null')) {
+      if (apiProxyPath.includes('null') || !activeConnection?.connectionId) {
         throw new Error('Connection ID is Null')
       }
       setError(null)
@@ -65,7 +66,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
     //   return
     // }
     try {
-      if (apiProxyPath.includes('null')) {
+      if (apiProxyPath.includes('null') || !activeConnection?.connectionId) {
         throw new Error('Connection ID is Null')
       }
       setError(null)
@@ -94,7 +95,7 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
     //   return
     // }
     try {
-      if (apiProxyPath.includes('null')) {
+      if (apiProxyPath.includes('null') || !activeConnection?.connectionId) {
         throw new Error('Connection ID is Null')
       }
       setError(null)
@@ -153,13 +154,13 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
     activeConnection,
     apiProxyPath])
 
-  const createListData = (data = [], titleProperty = 'name', valueProperty = 'name') => {
+  const createListData = (data = [], titleProperty = 'name', valueProperty = 'id') => {
     return data.map((d, dIdx) => ({
-      ...d,
-      id: d.id || dIdx,
-      key: d.key ? d.key : dIdx,
+      id: d[valueProperty],
+      key: d[valueProperty],
       title: d[titleProperty],
       value: d[valueProperty],
+      icon: d?.location?.avatarURI,
       type: d.schema?.type || 'string'
     }))
   }
@@ -175,8 +176,12 @@ const useJIRA = ({ apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint 
   }, [fieldsResponse])
 
   useEffect(() => {
-    setBoards(boardsResponse ? createListData(boardsResponse, 'name', 'name') : [])
+    setBoards(boardsResponse ? createListData(boardsResponse, 'name', 'id') : [])
   }, [boardsResponse])
+
+  // useEffect(() => {
+  //   console.log('>>> ALL JIRA RESOURCES!', allResources)
+  // }, [allResources])
 
   useEffect(() => {
     console.log('>>> JIRA API PROXY: FIELD SELECTOR LIST DATA', fields)

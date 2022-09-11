@@ -84,9 +84,9 @@ function useBlueprintValidation ({
     return Array.isArray(set) ? set.every(i => !isNaN(i)) : false
   }, [])
 
-  const validateRepositoryName = useCallback((set = []) => {
+  const validateRepositoryName = useCallback((projects = []) => {
     const repoRegExp = /([a-z0-9_-]){2,}\/([a-z0-9_-]){2,}$/gi
-    return set.every(i => i.match(repoRegExp))
+    return projects.every(p => p.value.match(repoRegExp))
   }, [])
 
   const valiateNonEmptySet = useCallback((set = []) => {
@@ -151,9 +151,6 @@ function useBlueprintValidation ({
           if (activeProvider?.id === Providers.GITLAB && projects[activeConnection?.id]?.length === 0) {
             errs.push('Projects: No Project IDs entered.')
           }
-          if (activeProvider?.id === Providers.GITLAB && !validateNumericSet(projects[activeConnection?.id])) {
-            errs.push('Projects: Only Numeric Project IDs are supported.')
-          }
 
           connections.forEach(c => {
             if (c.provider === Providers.JIRA && boards[c?.id]?.length === 0) {
@@ -167,9 +164,6 @@ function useBlueprintValidation ({
             }
             if (c.provider === Providers.GITLAB && projects[c?.id]?.length === 0) {
               errs.push(`${c.name} requires Project IDs`)
-            }
-            if (c.provider === Providers.GITLAB && !validateNumericSet(projects[c?.id])) {
-              errs.push(`${c.name} has invalid Project ID`)
             }
             if (entities[c?.id]?.length === 0) {
               errs.push(`${c.name} is missing Data Entities`)

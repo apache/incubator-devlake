@@ -20,7 +20,7 @@ import { CSSTransition } from 'react-transition-group'
 import { useHistory, useLocation, Link } from 'react-router-dom'
 import dayjs from '@/utils/time'
 import {
-  API_PROXY_ENDPOINT,
+  JIRA_API_PROXY_ENDPOINT,
   ISSUE_TYPES_ENDPOINT,
   ISSUE_FIELDS_ENDPOINT,
   BOARDS_ENDPOINT,
@@ -38,7 +38,8 @@ import { ToastNotification } from '@/components/Toast'
 
 import { BlueprintMode } from '@/data/NullBlueprint'
 import { NullBlueprintConnection } from '@/data/NullBlueprintConnection'
-import { NullConnection } from '@/data/NullConnection'
+import Connection from '@/models/Connection'
+import ProviderListConnection from '@/models/ProviderListConnection'
 
 import {
   WorkflowSteps,
@@ -69,6 +70,8 @@ import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
 
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
+import useGitlab from '@/hooks/useGitlab'
+import { GITLAB_API_PROXY_ENDPOINT, PROJECTS_ENDPOINT } from '@/config/gitlabApiProxy'
 
 // import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 
@@ -178,6 +181,7 @@ const CreateBlueprint = (props) => {
     setProjects,
     setEntities: setDataEntities,
     setTransformations,
+    setTransformationSettings,
     createProviderScopes,
     createProviderConnections,
     getDefaultTransformations,
@@ -241,10 +245,23 @@ const CreateBlueprint = (props) => {
     error: jiraProxyError,
   } = useJIRA(
     {
-      apiProxyPath: API_PROXY_ENDPOINT,
+      apiProxyPath: JIRA_API_PROXY_ENDPOINT,
       issuesEndpoint: ISSUE_TYPES_ENDPOINT,
       fieldsEndpoint: ISSUE_FIELDS_ENDPOINT,
       boardsEndpoint: BOARDS_ENDPOINT,
+    },
+    configuredConnection
+  )
+
+  const {
+    fetchProjects: fetchGitlabProjects,
+    projects: gitlabProjects,
+    isFetching: isFetchingGitlab,
+    error: gitlabProxyError,
+  } = useGitlab(
+    {
+      apiProxyPath: GITLAB_API_PROXY_ENDPOINT,
+      projectsEndpoint: PROJECTS_ENDPOINT,
     },
     configuredConnection
   )
@@ -268,7 +285,7 @@ const CreateBlueprint = (props) => {
     name: connectionName,
     endpointUrl,
     proxy,
-    rateLimit,
+    rateLimitPerHour,
     token,
     initialTokenStore,
     username,
@@ -279,7 +296,7 @@ const CreateBlueprint = (props) => {
     setName,
     setEndpointUrl,
     setProxy,
-    setRateLimit,
+    setRateLimitPerHour,
     setUsername,
     setPassword,
     setToken,
@@ -335,7 +352,7 @@ const CreateBlueprint = (props) => {
     name: connectionName,
     endpointUrl,
     proxy,
-    rateLimit,
+    rateLimitPerHour,
     token,
     username,
     password,
@@ -350,7 +367,7 @@ const CreateBlueprint = (props) => {
     null
   )
 
-  const activeTransformation = useMemo(() => transformations[configuredProject || configuredBoard?.id], [transformations, configuredProject, configuredBoard?.id])
+  const activeTransformation = useMemo(() => transformations[configuredProject?.id || configuredBoard?.id], [transformations, configuredProject?.id, configuredBoard?.id])
 
   // eslint-disable-next-line no-unused-vars
   const isValidStep = useCallback((stepId) => { }, [])
@@ -431,7 +448,7 @@ const CreateBlueprint = (props) => {
     setAllTestResponses({})
     setInitialTokenStore({})
     clearActiveConnection()
-    setActiveConnection(NullConnection)
+    setActiveConnection(new Connection())
     // setSaveConnectionComplete(null)
   }, [
     blueprintConnections,
@@ -462,7 +479,7 @@ const CreateBlueprint = (props) => {
     )
     setTransformations((existingTransformations) => ({
       ...existingTransformations,
-      [configuredProject]: {},
+      [configuredProject?.id]: {},
       [configuredBoard?.id]: {},
     }))
     setConfiguredProject(null)
@@ -508,7 +525,7 @@ const CreateBlueprint = (props) => {
         setConnectionDialogIsOpen(true)
       }
     },
-    [setProvider]
+    [setProvider, setActiveProvider, setManagedConnection, setConnectionDialogIsOpen]
   )
 
   const addProjectTransformation = useCallback((project) => {
@@ -526,23 +543,24 @@ const CreateBlueprint = (props) => {
     setConnectionDialogIsOpen(true)
   }, [])
 
-  const setTransformationSettings = useCallback(
-    (settings, configuredEntity) => {
-      console.log(
-        '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
-        configuredEntity,
-        settings
-      )
-      setTransformations((existingTransformations) => ({
-        ...existingTransformations,
-        [configuredEntity]: {
-          ...existingTransformations[configuredEntity],
-          ...settings,
-        },
-      }))
-    },
-    [setTransformations]
-  )
+  // @note: replaced by definition in dsm hook!
+  // const setTransformationSettings = useCallback(
+  //   (settings, configuredEntity) => {
+  //     console.log(
+  //       '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
+  //       configuredEntity,
+  //       settings
+  //     )
+  //     setTransformations((existingTransformations) => ({
+  //       ...existingTransformations,
+  //       [configuredEntity]: {
+  //         ...existingTransformations[configuredEntity],
+  //         ...settings,
+  //       },
+  //     }))
+  //   },
+  //   [setTransformations]
+  // )
 
   const handleTransformationSave = useCallback((settings, entity) => {
     console.log('>> SAVING / CLOSING Transformation Settings')
@@ -608,6 +626,7 @@ const CreateBlueprint = (props) => {
     fetchBoards,
     fetchFields,
     fetchIssueTypes,
+    enabledProviders,
     mode
   ])
 
@@ -799,10 +818,8 @@ const CreateBlueprint = (props) => {
     console.log('>> PROJECTS LIST', projects)
     console.log('>> BOARDS LIST', boards)
 
-    const projectTransformation = projects[configuredConnection?.id]
-    const boardTransformation = boards[configuredConnection?.id]?.map(
-      (b) => b.id
-    )
+    const projectTransformation = projects[configuredConnection?.id]?.map(p => p.id)
+    const boardTransformation = boards[configuredConnection?.id]?.map(b => b.id)
     if (projectTransformation) {
       setTransformations((cT) => ({
         ...projectTransformation.reduce(initializeTransformations, {}),
@@ -938,7 +955,7 @@ const CreateBlueprint = (props) => {
   }, [onlineStatus, blueprintConnections])
 
   useEffect(() => {
-    setConnectionsList(cList => cList.map((c, cIdx) => ({
+    setConnectionsList(cList => cList.map((c, cIdx) => new ProviderListConnection({
       ...c,
       statusResponse: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider),
       status: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status
@@ -1034,6 +1051,9 @@ const CreateBlueprint = (props) => {
                       blueprintConnections={blueprintConnections}
                       dataEntitiesList={dataEntitiesList}
                       boardsList={boardsList}
+                      fetchGitlabProjects={fetchGitlabProjects}
+                      isFetchingGitlab={isFetchingGitlab}
+                      gitlabProjects={gitlabProjects}
                       boards={boards}
                       dataEntities={dataEntities}
                       projects={projects}
@@ -1046,6 +1066,7 @@ const CreateBlueprint = (props) => {
                       isSaving={isSaving}
                       isRunning={isRunning}
                       validationErrors={[...validationErrors, ...blueprintValidationErrors]}
+                      isFetching={isFetchingJIRA || isFetchingGitlab || isFetchingConnection}
                     />
                   )}
 
@@ -1058,7 +1079,6 @@ const CreateBlueprint = (props) => {
                       blueprintConnections={blueprintConnections}
                       dataEntities={dataEntities}
                       projects={projects}
-                      boardsList={boardsList}
                       boards={boards}
                       issueTypes={jiraApiIssueTypes}
                       fields={jiraApiFields}
@@ -1115,7 +1135,7 @@ const CreateBlueprint = (props) => {
               onPrev={prevStep}
               onSave={handleBlueprintSave}
               onSaveAndRun={handleBlueprintSaveAndRun}
-              isLoading={isSaving || isFetchingJIRA || isFetchingConnection || isTestingConnection}
+              isLoading={isSaving || isFetchingJIRA || isFetchingGitlab || isFetchingConnection || isTestingConnection}
               isValid={advancedMode ? isValidBlueprint && isValidPipeline : isValidBlueprint}
               canGoNext={canAdvanceNext}
             />
@@ -1135,7 +1155,7 @@ const CreateBlueprint = (props) => {
         endpointUrl={endpointUrl}
         name={connectionName}
         proxy={proxy}
-        rateLimit={rateLimit}
+        rateLimitPerHour={rateLimitPerHour}
         token={token}
         initialTokenStore={initialTokenStore}
         username={username}
@@ -1152,7 +1172,7 @@ const CreateBlueprint = (props) => {
         onNameChange={setName}
         onEndpointChange={setEndpointUrl}
         onProxyChange={setProxy}
-        onRateLimitChange={setRateLimit}
+        onRateLimitChange={setRateLimitPerHour}
         onTokenChange={setToken}
         onUsernameChange={setUsername}
         onPasswordChange={setPassword}
