@@ -27,8 +27,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
-// BatchSave performs mulitple records persistence of a specific type in one sql query to improve the performance
-type BatchSave struct {
+// BatchShared is the base of BatchSave&BatchUpdate
+type BatchShared struct {
 	basicRes core.BasicRes
 	log      core.Logger
 	db       dal.Dal
@@ -42,13 +42,18 @@ type BatchSave struct {
 	primaryKey []reflect.StructField
 }
 
-// BatchUpdate will update records by batch
-type BatchUpdate struct {
-	*BatchSave
+// BatchSave performs mulitple records persistence of a specific type in one sql query to improve the performance
+type BatchSave struct {
+	*BatchShared
 }
 
-// NewBatchSave creates a new BatchSave instance
-func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchSave, error) {
+// BatchUpdate will update records by batch
+type BatchUpdate struct {
+	*BatchShared
+}
+
+// NewBatchShared creates a new NewBatchShared instance to used in BatchSave&BatchUpdate
+func NewBatchShared(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchShared, error) {
 	if slotType.Kind() != reflect.Ptr {
 		return nil, errors.Default.New("slotType must be a pointer")
 	}
@@ -60,7 +65,7 @@ func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*Bat
 	}
 
 	log := basicRes.GetLogger().Nested(slotType.String())
-	return &BatchSave{
+	batchShared := &BatchShared{
 		basicRes:   basicRes,
 		log:        log,
 		db:         db,
@@ -69,19 +74,26 @@ func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*Bat
 		size:       size,
 		valueIndex: make(map[string]int),
 		primaryKey: primaryKey,
-	}, nil
+	}
+	return batchShared, nil
+}
+
+// NewBatchSave creates a new BatchSave instance
+func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchSave, error) {
+	batchShared, err := NewBatchShared(basicRes, slotType, size)
+	if err != nil {
+		return nil, err
+	}
+	return &BatchSave{batchShared}, nil
 }
 
 // NewBatchUpdate creates a new BatchUpdate instance
 func NewBatchUpdate(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchUpdate, error) {
-	batchSave, err := NewBatchSave(basicRes, slotType, size)
+	batchShared, err := NewBatchShared(basicRes, slotType, size)
 	if err != nil {
 		return nil, err
 	}
-	batchUpdate := BatchUpdate{
-		BatchSave: batchSave,
-	}
-	return &batchUpdate, nil
+	return &BatchUpdate{batchShared}, nil
 }
 
 // Add record to cache. BatchSave would flush them into Database when cache is max out
@@ -99,22 +111,22 @@ func (c *BatchSave) Add(slot interface{}) error {
 	return nil
 }
 
-// Update record to cache. BatchSave would flush them into Database when cache is max out
-func (c *BatchUpdate) Update(slot interface{}) error {
+// Add record to cache. BatchUpdate would flush them into Database when cache is max out
+func (c *BatchUpdate) Add(slot interface{}) error {
 	err := c.prepareForFlush(slot)
 	if err != nil {
 		return err
 	}
 	// flush out into database if max outed
 	if c.current == c.size {
-		return c.FlushUpdate()
+		return c.Flush()
 	} else if c.current%100 == 0 {
 		c.log.Debug("batch save current: %d", c.current)
 	}
 	return nil
 }
 
-func (c *BatchSave) prepareForFlush(slot interface{}) error {
+func (c *BatchShared) prepareForFlush(slot interface{}) error {
 	// type checking
 	if reflect.TypeOf(slot) != c.slotType {
 		return errors.Default.New("sub cache type mismatched")
@@ -150,8 +162,8 @@ func (c *BatchSave) Flush() error {
 	return nil
 }
 
-// FlushUpdate update cached records into database
-func (c *BatchUpdate) FlushUpdate() error {
+// Flush update cached records into database
+func (c *BatchUpdate) Flush() error {
 	err := c.db.UpdateColumns(c.slots.Slice(0, c.current).Interface())
 	if err != nil {
 		return err
@@ -173,7 +185,7 @@ func (c *BatchSave) Close() error {
 // Close would flash the cache and release resources
 func (c *BatchUpdate) Close() error {
 	if c.current > 0 {
-		return c.FlushUpdate()
+		return c.Flush()
 	}
 	return nil
 }

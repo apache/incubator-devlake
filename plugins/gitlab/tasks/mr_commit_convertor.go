@@ -32,7 +32,7 @@ var ConvertApiMrCommitsMeta = core.SubTaskMeta{
 	Name:             "convertApiMergeRequestsCommits",
 	EntryPoint:       ConvertApiMergeRequestsCommits,
 	EnabledByDefault: true,
-	Description:      "Update domain layer PullRequestCommit according to GitlabMrCommit",
+	Description:      "Add domain layer PullRequestCommit according to GitlabMrCommit",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 

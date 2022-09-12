@@ -36,7 +36,7 @@ var ConvertProjectMeta = core.SubTaskMeta{
 	Name:             "convertApiProject",
 	EntryPoint:       ConvertApiProjects,
 	EnabledByDefault: true,
-	Description:      "Update domain layer Repo according to GitlabProject",
+	Description:      "Add domain layer Repo according to GitlabProject",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
 }
 
