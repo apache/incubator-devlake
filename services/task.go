@@ -24,7 +24,6 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"regexp"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/apache/incubator-devlake/logger"
@@ -225,16 +224,21 @@ func runTasksStandalone(parentLogger core.Logger, taskIds []uint64) errors.Error
 		taskId := taskId
 		go func() {
 			taskLog.Info("run task in background ", taskId)
-			results <- runTaskStandalone(parentLogger, taskId)
+			var err errors.Error
+			taskErr := runTaskStandalone(parentLogger, taskId)
+			if taskErr != nil {
+				err = errors.Default.Wrap(taskErr, fmt.Sprintf("Error running task %d.", taskId))
+			}
+			results <- err
 		}()
 	}
-	errs := make([]string, 0)
+	errs := make([]error, 0)
 	var err error
 	finished := 0
 	for err = range results {
 		if err != nil {
 			taskLog.Error(err, "task failed")
-			errs = append(errs, err.Error())
+			errs = append(errs, err)
 		}
 		finished++
 		if finished == len(taskIds) {
@@ -242,7 +246,7 @@ func runTasksStandalone(parentLogger core.Logger, taskIds []uint64) errors.Error
 		}
 	}
 	if len(errs) > 0 {
-		err = errors.Default.New(strings.Join(errs, "\n"))
+		err = errors.Default.Combine(errs)
 	}
 	return errors.Convert(err)
 }

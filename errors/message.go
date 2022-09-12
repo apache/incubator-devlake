@@ -98,17 +98,21 @@ func (m *errMessage) getPrettifiedMessage(messageType MessageType) string {
 func (m Messages) Format(messageType MessageType) string {
 	msgs := []string{}
 	for _, m := range m {
-		msgs = append(msgs, m.getMessage(messageType))
+		if msg := m.getMessage(messageType); msg != "" {
+			msgs = append(msgs, m.getMessage(messageType))
+		}
 	}
 	return strings.Join(msgs, "\ncaused by: ")
 }
 
-// Get gets the main (top-level) message of the Messages
+// Get gets the main (top-level) (or first non-empty message if exists) message of the Messages
 func (m Messages) Get(messageType MessageType) string {
-	if len(m) == 0 {
-		return ""
+	for _, m := range m {
+		if msg := m.getMessage(messageType); msg != "" {
+			return msg
+		}
 	}
-	return m[0].getMessage(messageType)
+	return ""
 }
 
 // Causes gets the non-main messages of the Messages in causal sequence
@@ -118,8 +122,7 @@ func (m Messages) Causes(messageType MessageType) []string {
 	}
 	causes := []string{}
 	for _, m := range m[1:] {
-		msg := m.getMessage(messageType)
-		if msg != "" {
+		if msg := m.getMessage(messageType); msg != "" {
 			causes = append(causes, msg)
 		}
 	}
