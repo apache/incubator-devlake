@@ -33,7 +33,7 @@ var ConvertCommitsMeta = core.SubTaskMeta{
 	Name:             "convertApiCommits",
 	EntryPoint:       ConvertApiCommits,
 	EnabledByDefault: false,
-	Description:      "Update domain layer commit according to GitlabCommit",
+	Description:      "Add domain layer commit according to GitlabCommit",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
