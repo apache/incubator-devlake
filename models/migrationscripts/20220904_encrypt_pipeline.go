@@ -19,13 +19,15 @@ package migrationscripts
 
 import (
 	"context"
+	"time"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
-	"time"
 )
 
 type Pipeline0904Temp struct {
@@ -48,7 +50,7 @@ func (Pipeline0904Temp) TableName() string {
 }
 
 type PipelineOldVersion struct {
-	common.Model
+	archived.Model
 	Name          string         `json:"name" gorm:"index"`
 	BlueprintId   uint64         `json:"blueprintId"`
 	Plan          datatypes.JSON `json:"plan"`

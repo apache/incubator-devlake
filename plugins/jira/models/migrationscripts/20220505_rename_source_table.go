@@ -19,14 +19,15 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/common"
-	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	jiraArchived "github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type JiraConnectionV010 struct {
-	common.Model
+	archived.Model
 	Name                       string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	Endpoint                   string `json:"endpoint" validate:"required"`
 	BasicAuthEncoded           string `json:"basicAuthEncoded" validate:"required"`
@@ -44,7 +45,7 @@ func (JiraConnectionV010) TableName() string {
 type renameSourceTable struct{}
 
 func (*renameSourceTable) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().RenameTable(archived.JiraSource{}, JiraConnectionV010{})
+	err := db.Migrator().RenameTable(jiraArchived.JiraSource{}, JiraConnectionV010{})
 	return errors.Convert(err)
 }
 

@@ -19,9 +19,8 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/common"
-	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
@@ -37,7 +36,7 @@ func (Component) TableName() string {
 }
 
 type CommitFile struct {
-	domainlayer.DomainEntity
+	archived.DomainEntity
 	CommitSha string `gorm:"type:varchar(40)"`
 	FilePath  string `gorm:"type:varchar(255)"`
 	Additions int
@@ -49,7 +48,7 @@ func (CommitFile) TableName() string {
 }
 
 type CommitFileComponent struct {
-	common.NoPKModel
+	archived.NoPKModel
 	CommitFileId  string `gorm:"primaryKey;type:varchar(255)"`
 	ComponentName string `gorm:"type:varchar(255)"`
 }
