@@ -1,0 +1,2 @@
+id,name,description,url,created_date
+gitlab:GitlabProject:1:12345678,Snowflake Spend,This is a dbt package for understanding the cost your Snowflake Data Warehouse is accruing.,https://gitlab.com/gitlab-data/snowflake_spend,2019-06-20T14:14:45.108+00:00
