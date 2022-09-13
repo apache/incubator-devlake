@@ -26,7 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/dora/api"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
