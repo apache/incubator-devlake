@@ -66,8 +66,6 @@ func TestPrDataFlow(t *testing.T) {
 			"number",
 			"state",
 			"title",
-			"bitbucket_created_at",
-			"bitbucket_updated_at",
 			"closed_at",
 			"comment_count",
 			"commits",

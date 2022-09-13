@@ -138,8 +138,6 @@ func TestIssueDataFlow(t *testing.T) {
 			"original_status",
 			"story_point",
 			"resolution_date",
-			"created_date",
-			"updated_date",
 			"lead_time_minutes",
 			"parent_issue_id",
 			"priority",

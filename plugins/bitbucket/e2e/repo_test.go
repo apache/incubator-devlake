@@ -67,8 +67,6 @@ func TestRepoDataFlow(t *testing.T) {
 			"description",
 			"owner_id",
 			"language",
-			"created_date",
-			"updated_date",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -114,8 +112,6 @@ func TestRepoDataFlow(t *testing.T) {
 			"owner_id",
 			"language",
 			"forked_from",
-			"created_date",
-			"updated_date",
 			"deleted",
 		},
 	)
