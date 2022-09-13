@@ -103,7 +103,7 @@ func handlePluginCall(pluginName string, handler core.ApiResourceHandler) func(c
 		}
 		output, err := handler(input)
 		if err != nil {
-			shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("error executing the requested resource for plugin %s", pluginName)))
+			shared.ApiOutputError(c, errors.BadInput.Wrap(err, fmt.Sprintf("error executing the requested resource for plugin %s", pluginName)))
 		} else if output != nil {
 			status := output.Status
 			if status < http.StatusContinue {
