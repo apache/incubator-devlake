@@ -99,7 +99,7 @@ func (m Messages) Format(messageType MessageType) string {
 	msgs := []string{}
 	for _, m := range m {
 		if msg := m.getMessage(messageType); msg != "" {
-			msgs = append(msgs, m.getMessage(messageType))
+			msgs = append(msgs, msg)
 		}
 	}
 	return strings.Join(msgs, "\ncaused by: ")
