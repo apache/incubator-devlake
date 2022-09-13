@@ -35,19 +35,6 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			return nil, err
 		}
 		taskOptions["connectionId"] = connectionId
-
-		//TODO Add transformation rules to task options
-
-        /*
-        var transformationRules tasks.TransformationRules
-        if len(scopeElem.Transformation) > 0 {
-            err = json.Unmarshal(scopeElem.Transformation, &transformationRules)
-            if err != nil {
-                return nil, err
-            }
-        }
-        */
-		//taskOptions["transformationRules"] = transformationRules
 		_, err := tasks.DecodeAndValidateTaskOptions(taskOptions)
 		if err != nil {
 			return nil, err

@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Export a variable named PluginEntry for Framework to search and load
+// PluginEntry is a variable named for Framework to search and load
 var PluginEntry impl.Webhook //nolint
 
 // standalone mode for debugging

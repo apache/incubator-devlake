@@ -32,7 +32,7 @@ type WebhookIssueRequest struct {
 	Description             string     `mapstructure:"description"`
 	EpicKey                 string     `mapstructure:"epic_key"`
 	Type                    string     `mapstructure:"type"`
-	Status                  string     `mapstructure:"status" validate:"required" validate:"oneof=TODO DONE IN_PROGRESS"`
+	Status                  string     `mapstructure:"status" validate:"oneof=TODO DONE IN_PROGRESS"`
 	OriginalStatus          string     `mapstructure:"original_status" validate:"required"`
 	StoryPoint              int64      `mapstructure:"story_point"`
 	ResolutionDate          *time.Time `mapstructure:"resolution_date"`
