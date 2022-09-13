@@ -73,7 +73,7 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err error) {
 			Params: DoraApiParams{
 				// TODO
 			},
-			Table: api.RAW_DEPLOYMENTS_TABLE,
+			Table: "cicd_tasks",
 		},
 		InputRowType: reflect.TypeOf(devops.CICDTask{}),
 		Input:        cursor,
