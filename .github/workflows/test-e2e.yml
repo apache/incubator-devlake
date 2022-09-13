@@ -87,8 +87,8 @@ jobs:
             ${{ runner.os }}-go-
       - name: Test-pg
         env:
-          DB_URL: postgres://merico:merico@db:5432/lake?sslmode=disable
-          E2E_DB_URL: postgres://merico:merico@db:5432/lake?sslmode=disable
+          DB_URL: postgres://merico:merico@db:5432/lake?charset=utf8mb4&parseTime=True
+          E2E_DB_URL: postgres://merico:merico@db:5432/lake?charset=utf8mb4&parseTime=True
         run: |
           cp .env.example .env
           make e2e-test
