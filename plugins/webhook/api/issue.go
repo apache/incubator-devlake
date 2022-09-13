@@ -54,37 +54,15 @@ type WebhookIssueRequest struct {
 	//DeploymentId          string
 }
 
-/*
-PostIssue receive a record as below and save it
-POST /plugins/webhook/:connectionId/issue
-{
-  "board_key": "DLK",
-  "url": "",
-  "issue_key": "DLK-1234",
-  "title": "a feature from DLK",
-  "description": "",
-  "epic_key": "",
-  "type": "BUG",
-  "status": "TODO",
-  "original_status": "created",
-  "story_point": 0,
-  "resolution_date": null,
-  "created_date": "2020-01-01T12:00:00+00:00",
-  "updated_date": null,
-  "lead_time_minutes": 0,
-  "parent_issue_key": "DLK-1200",
-  "priority": "",
-  "original_estimate_minutes": 0,
-  "time_spent_minutes": 0,
-  "time_remaining_minutes": 0,
-  "creator_id": "user1131",
-  "creator_name": "Nick name 1",
-  "assignee_id": "user1132",
-  "assignee_name": "Nick name 2",
-  "severity": "",
-  "component": ""
-}
-*/
+// PostIssue
+// @Summary receive a record as defined and save it
+// @Description receive a record as follow and save it, example: {"board_key":"DLK","url":"","issue_key":"DLK-1234","title":"a feature from DLK","description":"","epic_key":"","type":"BUG","status":"TODO","original_status":"created","story_point":0,"resolution_date":null,"created_date":"2020-01-01T12:00:00+00:00","updated_date":null,"lead_time_minutes":0,"parent_issue_key":"DLK-1200","priority":"","original_estimate_minutes":0,"time_spent_minutes":0,"time_remaining_minutes":0,"creator_id":"user1131","creator_name":"Nick name 1","assignee_id":"user1132","assignee_name":"Nick name 2","severity":"","component":""}
+// @Tags plugins/webhook
+// @Param body body WebhookPipelineRequest true "json body"
+// @Success 200  {string} noResponse ""
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/:connectionId/issue [POST]
 func PostIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -95,15 +73,14 @@ func PostIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	return &core.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
 
-/*
-POST /plugins/webhook/:connectionId/issue/:issueId/close
-{
-	"name": "Webhook data connection name",
-	"endpoint": "Webhook api endpoint, i.e. https://example.com",
-	"username": "username, usually should be email address",
-	"password": "Webhook api access token"
-}
-*/
+// CloseIssue
+// @Summary set issue's status to DONE
+// @Description set issue's status to DONE
+// @Tags plugins/webhook
+// @Success 200  {string} noResponse ""
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/:connectionId/issue/:boardKey/:issueId/close [POST]
 func CloseIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)

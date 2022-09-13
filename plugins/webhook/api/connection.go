@@ -24,12 +24,15 @@ import (
 	"net/http"
 )
 
-/*
-POST /plugins/webhook/connections
-{
-	"name": "Webhook data connection name"
-}
-*/
+// PostConnections
+// @Summary create webhook connection
+// @Description Create webhook connection, example: {"name":"Webhook data connection name"}
+// @Tags plugins/webhook
+// @Param body body models.WebhookConnection true "json body"
+// @Success 200  {object} models.WebhookConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections [POST]
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	// update from request and save to database
 	connection := &models.WebhookConnection{}
@@ -40,12 +43,15 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-/*
-PATCH /plugins/webhook/connections/:connectionId
-{
-	"name": "Webhook data connection name"
-}
-*/
+// PatchConnection
+// @Summary patch webhook connection
+// @Description Patch webhook connection
+// @Tags plugins/webhook
+// @Param body body models.WebhookConnection true "json body"
+// @Success 200  {object} models.WebhookConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections/{connectionId} [PATCH]
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.Patch(connection, input)
@@ -55,9 +61,14 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection}, nil
 }
 
-/*
-DELETE /plugins/webhook/connections/:connectionId
-*/
+// DeleteConnection
+// @Summary delete a webhook connection
+// @Description Delete a webhook connection
+// @Tags plugins/webhook
+// @Success 200  {object} models.WebhookConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections/{connectionId} [DELETE]
 func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -68,9 +79,14 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
-/*
-GET /plugins/webhook/connections
-*/
+// ListConnections
+// @Summary get all webhook connections
+// @Description Get all webhook connections
+// @Tags plugins/webhook
+// @Success 200  {object} []models.WebhookConnection
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections [GET]
 func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	var connections []models.WebhookConnection
 	err := connectionHelper.List(&connections)
@@ -86,14 +102,14 @@ type WebhookConnectionResponse struct {
 	CicdPipelineEndpoint string
 }
 
-/*
-GET /plugins/webhook/connections/:connectionId
-{
-	"name": "Webhook data connection name",
-	"issues_endpoint": "/plugins/webhook/:connectionId/issues",
-	"cicd_pipeline_endpoint": "/plugins/webhook/:connectionId/cicd_pipeline"
-}
-*/
+// GetConnection
+// @Summary get webhook connection detail
+// @Description Get webhook connection detail
+// @Tags plugins/webhook
+// @Success 200  {object} WebhookConnectionResponse
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/connections/{connectionId} [GET]
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)

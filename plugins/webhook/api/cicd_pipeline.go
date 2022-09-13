@@ -37,21 +37,15 @@ type WebhookPipelineRequest struct {
 	CommitSha string `mapstructure:"commit_sha"`
 }
 
-/*
-PostCicdPipeline receive a record as below and save it
-POST /plugins/webhook/:connectionId/cicd_pipeline
-{
-	"id": "A123123",
-	"result": "one of SUCCESS/FAILURE/ABORT",
-	"status": "one of IN_PROGRESS/DONE",
-	"type": "CI/CD",
-	"created_date": "2020-01-01T12:00:00+00:00",
-	"finished_date": "2020-01-01T12:59:59+00:00",
-	"repo": "devlake",
-	"branch": "main",
-	"commit_sha": "015e3d3b480e417aede5a1293bd61de9b0fd051d"
-}
-*/
+// PostCicdPipeline
+// @Summary create pipeline by webhook
+// @Description Create pipeline by webhook, example: {"id":"A123123","result":"one of SUCCESS/FAILURE/ABORT","status":"one of IN_PROGRESS/DONE","type":"CI/CD","created_date":"2020-01-01T12:00:00+00:00","finished_date":"2020-01-01T12:59:59+00:00","repo":"devlake","branch":"main","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d"}
+// @Tags plugins/webhook
+// @Param body body WebhookPipelineRequest true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/:connectionId/cicd_pipeline [POST]
 func PostCicdPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
