@@ -18,7 +18,7 @@ limitations under the License.
 package main
 
 import (
-	"github.com/apache/incubator-devlake/plugins/{{ .PluginName }}/impl"
+	"github.com/apache/incubator-devlake/plugins/{{ .pluginName }}/impl"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/spf13/cobra"
 )

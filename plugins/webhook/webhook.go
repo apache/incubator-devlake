@@ -18,7 +18,7 @@ limitations under the License.
 package main
 
 import (
-	"github.com/apache/incubator-devlake/plugins/Webhook/impl"
+	"github.com/apache/incubator-devlake/plugins/webhook/impl"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/spf13/cobra"
 )
