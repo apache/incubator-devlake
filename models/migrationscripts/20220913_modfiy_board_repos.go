@@ -15,16 +15,37 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package crossdomain
+package migrationscripts
 
-import "github.com/apache/incubator-devlake/models/common"
+import (
+	"context"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
-type BoardRepo struct {
-	BoardId string `gorm:"primaryKey;type:varchar(255)"`
-	RepoId  string `gorm:"primaryKey;type:varchar(255)"`
-	common.NoPKModel
+	"gorm.io/gorm"
+)
+
+type modifyBoardRepos struct{}
+
+func (*modifyBoardRepos) Up(ctx context.Context, db *gorm.DB) error {
+	err := db.Migrator().AutoMigrate(BoardRepo0913{})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (BoardRepo) TableName() string {
+func (*modifyBoardRepos) Version() uint64 {
+	return 20220913232735
+}
+
+func (*modifyBoardRepos) Name() string {
+	return "modify board repos"
+}
+
+type BoardRepo0913 struct {
+	archived.NoPKModel
+}
+
+func (BoardRepo0913) TableName() string {
 	return "board_repos"
 }
