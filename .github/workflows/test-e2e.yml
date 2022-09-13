@@ -72,7 +72,6 @@ jobs:
           POSTGRES_DB: lake
           POSTGRES_USER: merico
           POSTGRES_PASSWORD: merico
-          POSTGRES_ROOT_PASSWORD: root
     container: mericodev/lake-builder:latest
     steps:
       - uses: actions/checkout@v3
@@ -88,8 +87,8 @@ jobs:
             ${{ runner.os }}-go-
       - name: Test-pg
         env:
-          DB_URL: postgres://root:root@db:5432/lake?sslmode=disable
-          E2E_DB_URL: postgres://root:root@db:5432/lake?sslmode=disable
+          DB_URL: postgres://merico:merico@db:5432/lake?sslmode=disable
+          E2E_DB_URL: postgres://merico:merico@db:5432/lake?sslmode=disable
         run: |
           cp .env.example .env
           make e2e-test
