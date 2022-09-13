@@ -30,13 +30,20 @@ var PluginEntry impl.Dora //nolint
 func main() {
 	cmd := &cobra.Command{Use: "dora"}
 
-	// TODO add your cmd flag if necessary
-	// yourFlag := cmd.Flags().IntP("yourFlag", "y", 8, "TODO add description here")
-	// _ = cmd.MarkFlagRequired("yourFlag")
+	repoId := cmd.Flags().StringP("repoId", "r", "", "repo id")
+	_ = cmd.MarkFlagRequired("repoId")
+
+	// environment := cmd.Flags().StringP("environment", "e", "", "environment")
+	// _ = cmd.MarkFlagRequired("environment")
+
+	// environmentRegex := cmd.Flags().StringP("environmentRegex", "z", "", "environmentRegex")
+	// _ = cmd.MarkFlagRequired("environmentRegex")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			// TODO add more custom params here
+			"repoId": *repoId,
+			// "environment":      *environment,
+			// "environmentRegex": *environmentRegex,
 		})
 	}
 	runner.RunCmd(cmd)

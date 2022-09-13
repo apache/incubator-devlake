@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -58,6 +59,8 @@ func (plugin Dora) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 func (plugin Dora) SubTaskMetas() []core.SubTaskMeta {
 	// TODO add your sub task here
 	return []core.SubTaskMeta{
+		tasks.EnrichTaskEnvMeta,
+		//tasks.ConvertChangeLeadTimeMeta,
 		tasks.ConnectIssueDeployMeta,
 	}
 }
