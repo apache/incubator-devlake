@@ -18,6 +18,7 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -90,6 +91,7 @@ func TestRepoDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&code.Repo{})
 	dataflowTester.FlushTabler(&ticket.Board{})
+	dataflowTester.FlushTabler(&crossdomain.BoardRepo{})
 	dataflowTester.Subtask(tasks.ConvertRepoMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Repo{},
@@ -116,6 +118,15 @@ func TestRepoDataFlow(t *testing.T) {
 			"description",
 			"url",
 			"created_date",
+		},
+	)
+
+	dataflowTester.VerifyTable(
+		crossdomain.BoardRepo{},
+		"./snapshot_tables/board_repos.csv",
+		[]string{
+			"board_id",
+			"repo_id",
 		},
 	)
 }

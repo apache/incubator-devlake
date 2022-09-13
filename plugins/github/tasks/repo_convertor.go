@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -93,9 +94,14 @@ func ConvertRepo(taskCtx core.SubTaskContext) error {
 				CreatedDate: &repository.CreatedDate,
 			}
 
+			domainBoardRepo := &crossdomain.BoardRepo{
+				BoardId: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
+				RepoId:  repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
+			}
 			return []interface{}{
 				domainRepository,
 				domainBoard,
+				domainBoardRepo,
 			}, nil
 		},
 	})
