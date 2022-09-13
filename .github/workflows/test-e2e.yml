@@ -62,3 +62,35 @@ jobs:
           cp .env.example .env
           make e2e-test
           make e2e-plugins
+
+  e2e-postgres:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:14.2
+        env:
+          MYSQL_DATABASE: lake
+          MYSQL_USER: merico
+          MYSQL_PASSWORD: merico
+          MYSQL_ROOT_PASSWORD: root
+    container: mericodev/lake-builder:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache test-e2e-pg
+        id: cache-test-e2e-pg
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Test-pg
+        env:
+          DB_URL: postgres://root:root@db:5432/lake?sslmode=disable
+          E2E_DB_URL: postgres://root:root@db:5432/lake?sslmode=disable
+        run: |
+          cp .env.example .env
+          make e2e-test
+          make e2e-plugins
