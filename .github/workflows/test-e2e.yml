@@ -19,17 +19,17 @@
 name: test-e2e
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - '**.go'
-      - 'Makefile'
-      - 'go.mod'
-      - 'go.sum'
-      - '.github/workflows/*.yml'
-      - 'test/**'
-      - 'e2e/**'
-      - 'devops/**'
-      - 'config-ui/**'
+      - "**.go"
+      - "Makefile"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/*.yml"
+      - "test/**"
+      - "e2e/**"
+      - "devops/**"
+      - "config-ui/**"
 jobs:
   e2e-mysql:
     runs-on: ubuntu-latest
@@ -69,10 +69,10 @@ jobs:
       db:
         image: postgres:14.2
         env:
-          MYSQL_DATABASE: lake
-          MYSQL_USER: merico
-          MYSQL_PASSWORD: merico
-          MYSQL_ROOT_PASSWORD: root
+          POSTGRES_DB: lake
+          POSTGRES_USER: merico
+          POSTGRES_PASSWORD: merico
+          POSTGRES_ROOT_PASSWORD: root
     container: mericodev/lake-builder:latest
     steps:
       - uses: actions/checkout@v3
