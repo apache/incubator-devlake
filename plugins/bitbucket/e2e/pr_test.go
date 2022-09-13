@@ -130,7 +130,6 @@ func TestPrDataFlow(t *testing.T) {
 			"author_id",
 			"parent_pr_id",
 			"pull_request_key",
-			"created_date",
 			"merged_date",
 			"closed_date",
 			"type",

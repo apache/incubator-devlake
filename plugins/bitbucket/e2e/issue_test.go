@@ -83,8 +83,6 @@ func TestIssueDataFlow(t *testing.T) {
 			"lead_time_minutes",
 			"url",
 			"closed_at",
-			"bitbucket_created_at",
-			"bitbucket_updated_at",
 			"severity",
 			"component",
 			"_raw_data_params",
