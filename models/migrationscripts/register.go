@@ -45,5 +45,6 @@ func All() []migration.Script {
 		new(modifyCICDTasks),
 		new(modifyBoardRepos),
 		new(addOriginChangeValueForPr),
+		new(commitfileAddLength),
 	}
 }
