@@ -51,7 +51,7 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err error) {
 		}
 	} else {
 		taskNamePattern = "deploy" // default
-		taskNameReg, err = regexp.Compile("deploy")
+		taskNameReg, err = regexp.Compile(taskNamePattern)
 		if err != nil {
 			return fmt.Errorf("regexp Compile taskNameReg failed:[%s] stack:[%s]", err.Error(), debug.Stack())
 		}
