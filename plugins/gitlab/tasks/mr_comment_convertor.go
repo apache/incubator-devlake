@@ -34,7 +34,7 @@ var ConvertMrCommentMeta = core.SubTaskMeta{
 	Name:             "convertMergeRequestComment",
 	EntryPoint:       ConvertMergeRequestComment,
 	EnabledByDefault: true,
-	Description:      "Update domain layer Comment according to GitlabMrComment",
+	Description:      "Add domain layer Comment according to GitlabMrComment",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 

@@ -33,7 +33,7 @@ var ConvertApiMergeRequestsMeta = core.SubTaskMeta{
 	Name:             "convertApiMergeRequests",
 	EntryPoint:       ConvertApiMergeRequests,
 	EnabledByDefault: true,
-	Description:      "Update domain layer PullRequest according to GitlabMergeRequest",
+	Description:      "Add domain layer PullRequest according to GitlabMergeRequest",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 

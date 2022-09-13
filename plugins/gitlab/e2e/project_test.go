@@ -18,6 +18,8 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -74,6 +76,8 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 
 	// verify conversion
 	dataflowTester.FlushTabler(&code.Repo{})
+	dataflowTester.FlushTabler(&ticket.Board{})
+	dataflowTester.FlushTabler(&crossdomain.BoardRepo{})
 	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Repo{},
@@ -93,6 +97,25 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 			"created_date",
 			"updated_date",
 			"deleted",
+		},
+	)
+	dataflowTester.VerifyTable(
+		ticket.Board{},
+		"./snapshot_tables/boards.csv",
+		[]string{
+			"id",
+			"name",
+			"description",
+			"url",
+			"created_date",
+		},
+	)
+	dataflowTester.VerifyTable(
+		crossdomain.BoardRepo{},
+		"./snapshot_tables/board_repos.csv",
+		[]string{
+			"board_id",
+			"repo_id",
 		},
 	)
 }

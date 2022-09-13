@@ -19,7 +19,11 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/gitlab/api"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
+	"reflect"
 )
 
 type fixDurationToFloat8 struct{}
@@ -41,22 +45,23 @@ func (*fixDurationToFloat8) Up(ctx context.Context, db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-
 	cursor, err := db.Model(&GitlabJob20220906{}).Select([]string{"connection_id", "gitlab_id", "duration"}).Rows()
 	if err != nil {
 		return err
 	}
+	batch, err := helper.NewBatchUpdate(api.BasicRes, reflect.TypeOf(&GitlabJob20220906{}), 500)
+	if err != nil {
+		return errors.Default.Wrap(err, "error getting batch from table", errors.UserMessage("Internal Converter execution error"))
+	}
+	defer batch.Close()
 	for cursor.Next() {
 		job := GitlabJob20220906{}
 		err = db.ScanRows(cursor, &job)
 		if err != nil {
 			return err
 		}
-		err = db.
-			Model(job).
-			Where(`connection_id=? AND gitlab_id=?`, job.ConnectionId, job.GitlabId).
-			Update(`duration2`, job.Duration).
-			Error
+		job.Duration2 = job.Duration
+		err = batch.Add(&job)
 		if err != nil {
 			return err
 		}

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -35,7 +36,7 @@ var ConvertProjectMeta = core.SubTaskMeta{
 	Name:             "convertApiProject",
 	EntryPoint:       ConvertApiProjects,
 	EnabledByDefault: true,
-	Description:      "Update domain layer Repo according to GitlabProject",
+	Description:      "Add domain layer Repo according to GitlabProject",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET},
 }
 
@@ -62,10 +63,11 @@ func ConvertApiProjects(taskCtx core.SubTaskContext) error {
 
 			domainRepository := convertToRepositoryModel(gitlabProject)
 			domainBoard := convertToBoardModel(gitlabProject)
-
+			domainBoardRepo := convertToBoardRepoModel(gitlabProject)
 			return []interface{}{
 				domainRepository,
 				domainBoard,
+				domainBoardRepo,
 			}, nil
 		},
 	})
@@ -102,4 +104,12 @@ func convertToBoardModel(project *models.GitlabProject) *ticket.Board {
 		CreatedDate: &project.CreatedDate,
 	}
 	return domainBoard
+}
+
+func convertToBoardRepoModel(project *models.GitlabProject) *crossdomain.BoardRepo {
+	domainBoardRepo := &crossdomain.BoardRepo{
+		BoardId: didgen.NewDomainIdGenerator(project).Generate(project.ConnectionId, project.GitlabId),
+		RepoId:  didgen.NewDomainIdGenerator(project).Generate(project.ConnectionId, project.GitlabId),
+	}
+	return domainBoardRepo
 }
