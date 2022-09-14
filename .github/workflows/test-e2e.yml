@@ -19,17 +19,17 @@
 name: test-e2e
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - '**.go'
-      - 'Makefile'
-      - 'go.mod'
-      - 'go.sum'
-      - '.github/workflows/*.yml'
-      - 'test/**'
-      - 'e2e/**'
-      - 'devops/**'
-      - 'config-ui/**'
+      - "**.go"
+      - "Makefile"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/*.yml"
+      - "test/**"
+      - "e2e/**"
+      - "devops/**"
+      - "config-ui/**"
 jobs:
   e2e-mysql:
     runs-on: ubuntu-latest
@@ -58,6 +58,37 @@ jobs:
         env:
           DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&parseTime=True
           E2E_DB_URL: mysql://root:root@db:3306/lake?charset=utf8mb4&parseTime=True
+        run: |
+          cp .env.example .env
+          make e2e-test
+          make e2e-plugins
+
+  e2e-postgres:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:14.2
+        env:
+          POSTGRES_DB: lake
+          POSTGRES_USER: merico
+          POSTGRES_PASSWORD: merico
+    container: mericodev/lake-builder:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache test-e2e-pg
+        id: cache-test-e2e-pg
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Test-pg
+        env:
+          DB_URL: postgres://merico:merico@db:5432/lake
+          E2E_DB_URL: postgres://merico:merico@db:5432/lake
         run: |
           cp .env.example .env
           make e2e-test
