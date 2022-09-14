@@ -46,6 +46,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
 		Query:              GetQuery,
 		GetTotalPages:      GetTotalPagesFromResponse,
 		ResponseParser:     GetRawMessageFromResponse,
+		AfterResponse:      ignoreIssueHTTPStatus404,
 	})
 
 	if err != nil {
