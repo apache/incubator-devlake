@@ -40,6 +40,14 @@ type BitbucketInput struct {
 	BitbucketId int
 }
 
+type BitbucketPagination struct {
+	Values  []interface{} `json:"values"`
+	PageLen int           `json:"pagelen"`
+	Size    int           `json:"size"`
+	Page    int           `json:"page"`
+	Next    string        `json:"next"`
+}
+
 func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helper.RawDataSubTaskArgs, *BitbucketTaskData) {
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
@@ -135,4 +143,14 @@ func GetIssuesIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, 
 	}
 
 	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketInput{}))
+}
+
+func ignoreHTTPStatus404(res *http.Response) errors.Error {
+	if res.StatusCode == http.StatusUnauthorized {
+		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
+	}
+	if res.StatusCode == http.StatusNotFound {
+		return helper.ErrIgnoreAndContinue
+	}
+	return nil
 }
