@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
@@ -36,7 +37,7 @@ var ConvertApiMrCommitsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func ConvertApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
+func ConvertApiMergeRequestsCommits(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_COMMITS_TABLE)
 	db := taskCtx.GetDal()
 
@@ -64,7 +65,7 @@ func ConvertApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
 		InputRowType:       reflect.TypeOf(models.GitlabMrCommit{}),
 		Input:              cursor,
 
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			GitlabMrCommit := inputRow.(*models.GitlabMrCommit)
 			domainPrcommit := &code.PullRequestCommit{
 				CommitSha:     GitlabMrCommit.CommitSha,

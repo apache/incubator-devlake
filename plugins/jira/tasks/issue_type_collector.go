@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -37,7 +38,7 @@ var CollectIssueTypesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func CollectIssueTypes(taskCtx core.SubTaskContext) error {
+func CollectIssueTypes(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issue_types")
@@ -59,7 +60,7 @@ func CollectIssueTypes(taskCtx core.SubTaskContext) error {
 		Concurrency: 1,
 		UrlTemplate: urlTemplate,
 
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data []json.RawMessage
 			err := helper.UnmarshalResponse(res, &data)
 			return data, err

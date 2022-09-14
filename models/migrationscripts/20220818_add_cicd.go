@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
@@ -27,17 +28,13 @@ import (
 
 type addCICD struct{}
 
-func (*addCICD) Up(ctx context.Context, db *gorm.DB) error {
+func (*addCICD) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().AutoMigrate(
 		&CICDPipelineRepo{},
 		&CICDPipeline{},
 		&CICDTask{},
 	)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return errors.Convert(err)
 }
 
 func (*addCICD) Version() uint64 {

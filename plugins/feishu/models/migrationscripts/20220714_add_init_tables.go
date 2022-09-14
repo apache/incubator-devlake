@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 
@@ -34,20 +35,20 @@ func (u *addInitTables) SetConfigGetter(config core.ConfigGetter) {
 	u.config = config
 }
 
-func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
+func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().DropTable(
 		&archived.FeishuConnection{},
 		&archived.FeishuMeetingTopUserItem{},
 	)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	err = db.Migrator().CreateTable(
 		&archived.FeishuConnection{},
 		&archived.FeishuMeetingTopUserItem{},
 	)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	encodeKey := u.config.GetString(core.EncodeKeyEnvStr)
@@ -57,11 +58,11 @@ func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	connection.SecretKey = u.config.GetString(`FEISHU_APPSCRECT`)
 	connection.Name = `Feishu`
 	if connection.Endpoint != `` && connection.AppId != `` && connection.SecretKey != `` && encodeKey != `` {
-		err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, error) {
+		err = helper.UpdateEncryptFields(connection, func(plaintext string) (string, errors.Error) {
 			return core.Encrypt(encodeKey, plaintext)
 		})
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 		// update from .env and save to db
 		db.Create(connection)

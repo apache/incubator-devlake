@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"net/http"
 	"reflect"
@@ -38,7 +39,7 @@ type SimpleAccountWithId struct {
 	AccountId int
 }
 
-func CollectAccountOrg(taskCtx core.SubTaskContext) error {
+func CollectAccountOrg(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
@@ -73,10 +74,10 @@ func CollectAccountOrg(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
 		UrlTemplate: "/users/{{ .Input.Login }}/orgs",
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			res.Body.Close()
 			return []json.RawMessage{body}, nil

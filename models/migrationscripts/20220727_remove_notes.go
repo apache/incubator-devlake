@@ -19,20 +19,15 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type removeNotes struct{}
 
-func (*removeNotes) Up(ctx context.Context, db *gorm.DB) error {
-
-	err := db.Migrator().DropTable(archived.Note{})
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (*removeNotes) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	return errors.Convert(db.Migrator().DropTable(archived.Note{}))
 }
 
 func (*removeNotes) Version() uint64 {

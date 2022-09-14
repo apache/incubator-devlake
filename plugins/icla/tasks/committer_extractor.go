@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/icla/models"
@@ -26,16 +27,16 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractCommitter
 
-func ExtractCommitter(taskCtx core.SubTaskContext) error {
+func ExtractCommitter(taskCtx core.SubTaskContext) errors.Error {
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx:    taskCtx,
 			Params: IclaApiParams{},
 			Table:  RAW_COMMITTER_TABLE,
 		},
-		Extract: func(resData *helper.RawData) ([]interface{}, error) {
+		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
 			names := &map[string]string{}
-			err := json.Unmarshal(resData.Data, names)
+			err := errors.Convert(json.Unmarshal(resData.Data, names))
 			if err != nil {
 				return nil, err
 			}

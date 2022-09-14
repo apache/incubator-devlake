@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"strconv"
 	"time"
 
@@ -35,7 +36,7 @@ type ApiProjectResponse struct {
 	AEUpdateTime *time.Time `json:"update_time"`
 }
 
-func ExtractProject(taskCtx core.SubTaskContext) error {
+func ExtractProject(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*AeTaskData)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -47,9 +48,9 @@ func ExtractProject(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_PROJECT_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &ApiProjectResponse{}
-			err := json.Unmarshal(row.Data, body)
+			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {
 				return nil, err
 			}

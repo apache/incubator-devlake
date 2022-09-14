@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -40,7 +41,7 @@ var ConvertRepoMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
-func ConvertRepo(taskCtx core.SubTaskContext) error {
+func ConvertRepo(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	repoId := data.Repo.BitbucketId
@@ -68,7 +69,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_REPOSITORIES_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			repository := inputRow.(*models.BitbucketRepo)
 			domainRepository := &code.Repo{
 				DomainEntity: domainlayer.DomainEntity{

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"reflect"
@@ -35,7 +36,7 @@ var EnrichMergeRequestsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
+func EnrichMergeRequests(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
 
 	db := taskCtx.GetDal()
@@ -55,7 +56,7 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 		InputRowType:       reflect.TypeOf(models.GitlabMergeRequest{}),
 		Input:              cursor,
 
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabMr := inputRow.(*models.GitlabMergeRequest)
 			// enrich first_comment_time field
 			notes := make([]models.GitlabMrNote, 0)
@@ -110,7 +111,7 @@ func EnrichMergeRequests(taskCtx core.SubTaskContext) error {
 	return converter.Execute()
 }
 
-func findEarliestNote(notes []models.GitlabMrNote) (*models.GitlabMrNote, error) {
+func findEarliestNote(notes []models.GitlabMrNote) (*models.GitlabMrNote, errors.Error) {
 	var earliestNote *models.GitlabMrNote
 	earliestTime := time.Now()
 	for i := range notes {

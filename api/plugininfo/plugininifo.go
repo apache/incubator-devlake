@@ -147,7 +147,7 @@ func Get(c *gin.Context) {
 	}
 
 	// plugin info
-	err := core.TraversalPlugin(func(name string, plugin core.PluginMeta) error {
+	err := core.TraversalPlugin(func(name string, plugin core.PluginMeta) errors.Error {
 		infoPlugin := NewPluginInfo()
 		info.PluginInfos = append(info.PluginInfos, infoPlugin)
 
@@ -173,7 +173,7 @@ func Get(c *gin.Context) {
 	})
 
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting plugin info of plugins", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting plugin info of plugins"))
 	}
 
 	shared.ApiOutputSuccess(c, info, http.StatusOK)

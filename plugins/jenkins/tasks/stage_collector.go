@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -45,7 +46,7 @@ type SimpleBuild struct {
 	DisplayName string
 }
 
-func CollectApiStages(taskCtx core.SubTaskContext) error {
+func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	clauses := []dal.Clause{
@@ -81,11 +82,11 @@ func CollectApiStages(taskCtx core.SubTaskContext) error {
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Stages []json.RawMessage `json:"stages"`
 			}

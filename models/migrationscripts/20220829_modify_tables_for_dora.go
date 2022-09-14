@@ -19,21 +19,19 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
 )
 
 type modifyTablesForDora struct{}
 
-func (*modifyTablesForDora) Up(ctx context.Context, db *gorm.DB) error {
+func (*modifyTablesForDora) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().AutoMigrate(
 		&CICDPipeline0829{},
 		&PullRequest0829{},
 		&Issue0829{},
 	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return errors.Convert(err)
 }
 
 func (*modifyTablesForDora) Version() uint64 {

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -65,14 +66,14 @@ var ExtractApiIssueCommentsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {
+func ExtractApiIssueComments(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_COMMENTS_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			issueComment := &BitbucketIssueCommentsResponse{}
-			err := json.Unmarshal(row.Data, issueComment)
+			err := errors.Convert(json.Unmarshal(row.Data, issueComment))
 			if err != nil {
 				return nil, err
 			}
@@ -107,7 +108,7 @@ func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertIssueComment(issueComment *BitbucketIssueCommentsResponse) (*models.BitbucketIssueComment, error) {
+func convertIssueComment(issueComment *BitbucketIssueCommentsResponse) (*models.BitbucketIssueComment, errors.Error) {
 	bitbucketIssueComment := &models.BitbucketIssueComment{
 		BitbucketId:        issueComment.BitbucketId,
 		AuthorId:           issueComment.User.AccountId,

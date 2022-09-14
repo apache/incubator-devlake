@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -40,7 +41,7 @@ type GithubAccountOrgsResponse struct {
 	Description string `json:"description"`
 }
 
-func ExtractAccountOrg(taskCtx core.SubTaskContext) error {
+func ExtractAccountOrg(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -52,16 +53,16 @@ func ExtractAccountOrg(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_ACCOUNT_ORG_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			apiAccountOrgs := &[]GithubAccountOrgsResponse{}
 			err := json.Unmarshal(row.Data, apiAccountOrgs)
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			simpleAccount := &SimpleAccountWithId{}
 			err = json.Unmarshal(row.Input, simpleAccount)
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			results := make([]interface{}, 0, len(*apiAccountOrgs))
 			for _, apiAccountOrg := range *apiAccountOrgs {

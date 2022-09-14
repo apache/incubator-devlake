@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"reflect"
 
@@ -37,7 +38,7 @@ var ConvertIssueCommentsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertIssueComments(taskCtx core.SubTaskContext) error {
+func ConvertIssueComments(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	repoId := data.Repo.BitbucketId
@@ -68,7 +69,7 @@ func ConvertIssueComments(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_ISSUE_COMMENTS_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketIssueComment := inputRow.(*bitbucketModels.BitbucketIssueComment)
 			domainIssueComment := &ticket.IssueComment{
 				DomainEntity: domainlayer.DomainEntity{

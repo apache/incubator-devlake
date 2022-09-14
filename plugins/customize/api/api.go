@@ -18,7 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -33,7 +32,7 @@ type field struct {
 	ColumnType string `json:"columnType"`
 }
 
-func getFields(d dal.Dal, tbl string) ([]field, error) {
+func getFields(d dal.Dal, tbl string) ([]field, errors.Error) {
 	columns, err := d.GetColumns(&models.Table{Name: tbl}, func(columnMeta dal.ColumnMeta) bool {
 		return strings.HasPrefix(columnMeta.Name(), "x_")
 	})
@@ -49,7 +48,7 @@ func getFields(d dal.Dal, tbl string) ([]field, error) {
 	}
 	return result, nil
 }
-func checkField(d dal.Dal, table, field string) (bool, error) {
+func checkField(d dal.Dal, table, field string) (bool, errors.Error) {
 	if !strings.HasPrefix(field, "x_") {
 		return false, errors.Default.New("column name should start with `x_`")
 	}
@@ -65,7 +64,7 @@ func checkField(d dal.Dal, table, field string) (bool, error) {
 	return false, nil
 }
 
-func CreateField(d dal.Dal, table, field string) error {
+func CreateField(d dal.Dal, table, field string) errors.Error {
 	exists, err := checkField(d, table, field)
 	if err != nil {
 		return err
@@ -80,7 +79,7 @@ func CreateField(d dal.Dal, table, field string) error {
 	return nil
 }
 
-func deleteField(d dal.Dal, table, field string) error {
+func deleteField(d dal.Dal, table, field string) errors.Error {
 	exists, err := checkField(d, table, field)
 	if err != nil {
 		return err
@@ -109,13 +108,13 @@ func NewHandlers(dal dal.Dal) *Handlers {
 
 // ListFields return all customized fields
 // @Summary return all customized fields
-// @Description return all customized fields
+// @Description return all customized fieldsh
 // @Tags plugins/customize
 // @Success 200  {object} shared.ApiBody "Success"
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/customize/{table}/fields [GET]
-func (h *Handlers) ListFields(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func (h *Handlers) ListFields(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	fields, err := getFields(h.dal, input.Params["table"])
 	if err != nil {
 		return &core.ApiResourceOutput{Status: http.StatusBadRequest}, errors.Default.Wrap(err, "getFields error")
@@ -132,11 +131,11 @@ func (h *Handlers) ListFields(input *core.ApiResourceInput) (*core.ApiResourceOu
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/customize/{table}/fields [POST]
-func (h *Handlers) CreateFields(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func (h *Handlers) CreateFields(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	table := input.Params["table"]
 	fld, ok := input.Body["name"].(string)
 	if !ok {
-		return &core.ApiResourceOutput{Status: http.StatusBadRequest}, fmt.Errorf("the name is not string")
+		return &core.ApiResourceOutput{Status: http.StatusBadRequest}, errors.BadInput.New("the name is not string")
 	}
 	err := CreateField(h.dal, table, fld)
 	if err != nil {
@@ -153,7 +152,7 @@ func (h *Handlers) CreateFields(input *core.ApiResourceInput) (*core.ApiResource
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/customize/{table}/fields [DELETE]
-func (h *Handlers) DeleteField(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func (h *Handlers) DeleteField(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	table := input.Params["table"]
 	fld := input.Params["field"]
 	err := deleteField(h.dal, table, fld)

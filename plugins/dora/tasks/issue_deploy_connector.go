@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -36,7 +37,7 @@ var ConnectIssueDeployMeta = core.SubTaskMeta{
 
 const RAW_ISSUES_TABLE = `dora_issues`
 
-func ConnectIssueDeploy(taskCtx core.SubTaskContext) error {
+func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
 
@@ -68,7 +69,7 @@ func ConnectIssueDeploy(taskCtx core.SubTaskContext) error {
 		},
 		InputRowType: reflect.TypeOf(ticket.Issue{}),
 		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			issueToBeUpdate := inputRow.(*ticket.Issue)
 			cicdTask := &devops.CICDTask{}
 			cicdTakClauses := []dal.Clause{

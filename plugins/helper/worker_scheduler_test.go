@@ -19,6 +19,7 @@ package helper
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"testing"
 	"time"
 
@@ -34,7 +35,7 @@ func TestWorkerSchedulerQpsControl(t *testing.T) {
 	defer s.Release()
 	for i := 1; i <= 5; i++ {
 		t := i
-		s.SubmitBlocking(func() error {
+		s.SubmitBlocking(func() errors.Error {
 			testChannel <- t
 			return nil
 		})

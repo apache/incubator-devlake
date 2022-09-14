@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -44,7 +45,7 @@ type SimpleJob struct {
 	Path string
 }
 
-func CollectApiBuilds(taskCtx core.SubTaskContext) error {
+func CollectApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	clauses := []dal.Clause{
@@ -79,7 +80,7 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			treeValue := fmt.Sprintf(
 				"allBuilds[number,timestamp,duration,estimatedDuration,fullDisplayName,result,actions[lastBuiltRevision[SHA1,branch[name]],remoteUrls,mercurialRevisionNumber,causes[*]],changeSet[kind,revisions[revision]]]{%d,%d}",
@@ -87,7 +88,7 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) error {
 			query.Set("tree", treeValue)
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Builds []json.RawMessage `json:"allBuilds"`
 			}

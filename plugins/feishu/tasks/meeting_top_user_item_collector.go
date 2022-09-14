@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -32,7 +33,7 @@ const RAW_MEETING_TOP_USER_ITEM_TABLE = "feishu_meeting_top_user_item"
 
 var _ core.SubTaskEntryPoint = CollectMeetingTopUserItem
 
-func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
+func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*FeishuTaskData)
 	pageSize := 100
 	NumOfDaysToCollectInt := int(data.Options.NumOfDaysToCollect)
@@ -40,7 +41,6 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 	if err != nil {
 		return err
 	}
-
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -53,7 +53,7 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 		Incremental: false,
 		Input:       iterator,
 		UrlTemplate: "/reports/get_top_user",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			input := reqData.Input.(*helper.DatePair)
 			query.Set("start_time", strconv.FormatInt(input.PairStartTime.Unix(), 10))
@@ -62,7 +62,7 @@ func CollectMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 			query.Set("order_by", "2")
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body := &apimodels.FeishuMeetingTopUserItemResult{}
 			err := helper.UnmarshalResponse(res, body)
 			if err != nil {

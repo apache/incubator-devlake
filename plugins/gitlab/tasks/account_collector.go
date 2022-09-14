@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
@@ -36,7 +37,7 @@ var CollectAccountsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func CollectAccounts(taskCtx core.SubTaskContext) error {
+func CollectAccounts(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_USER_TABLE)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect gitlab users")
@@ -46,7 +47,7 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 		ApiClient:          data.ApiClient,
 		UrlTemplate:        "/projects/{{ .Params.ProjectId }}/members/all",
 		//PageSize:           100,
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			// query.Set("sort", "asc")
 			// query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -54,7 +55,7 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var items []json.RawMessage
 			err := helper.UnmarshalResponse(res, &items)
 			if err != nil {

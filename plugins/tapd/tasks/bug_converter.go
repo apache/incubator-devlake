@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strconv"
 
@@ -32,7 +33,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-func ConvertBug(taskCtx core.SubTaskContext) error {
+func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
@@ -55,7 +56,7 @@ func ConvertBug(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdBug{}),
 		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolL := inputRow.(*models.TapdBug)
 			domainL := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{

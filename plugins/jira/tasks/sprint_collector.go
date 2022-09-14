@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
@@ -39,7 +40,7 @@ var CollectSprintsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func CollectSprints(taskCtx core.SubTaskContext) error {
+func CollectSprints(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect sprints")
@@ -56,7 +57,7 @@ func CollectSprints(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		PageSize:    50,
 		UrlTemplate: "agile/1.0/board/{{ .Params.BoardId }}/sprint",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("jql", jql)
 			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
@@ -64,7 +65,7 @@ func CollectSprints(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Values []json.RawMessage `json:"values"`
 			}

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"time"
 
@@ -57,7 +58,7 @@ var ConvertStagesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ConvertStages(taskCtx core.SubTaskContext) error {
+func ConvertStages(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	clauses := []dal.Clause{
@@ -87,7 +88,7 @@ func ConvertStages(taskCtx core.SubTaskContext) error {
 			Ctx:   taskCtx,
 			Table: RAW_STAGE_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			body := inputRow.(*JenkinsBuildWithRepoStage)
 			if body.Name == "" {
 				return nil, err

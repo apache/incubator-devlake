@@ -44,7 +44,7 @@ func (t *Table) TableName() string {
 	return t.name
 }
 
-func LoadData(c core.SubTaskContext) error {
+func LoadData(c core.SubTaskContext) errors.Error {
 	var db dal.Dal
 	config := c.GetData().(*StarRocksConfig)
 	if config.SourceDsn != "" && config.SourceType != "" {
@@ -53,15 +53,15 @@ func LoadData(c core.SubTaskContext) error {
 		if config.SourceType == "mysql" {
 			o, err = gorm.Open(mysql.Open(config.SourceDsn))
 			if err != nil {
-				return err
+				return errors.Convert(err)
 			}
 		} else if config.SourceType == "postgres" {
 			o, err = gorm.Open(postgres.Open(config.SourceDsn))
 			if err != nil {
-				return err
+				return errors.Convert(err)
 			}
 		} else {
-			return fmt.Errorf("unsupported source type %s", config.SourceType)
+			return errors.NotFound.New(fmt.Sprintf("unsupported source type %s", config.SourceType))
 		}
 		db = dalgorm.NewDalgorm(o)
 	} else {
@@ -85,7 +85,7 @@ func LoadData(c core.SubTaskContext) error {
 			for _, table := range allTables {
 				for _, r := range tables {
 					var ok bool
-					ok, err = regexp.Match(r, []byte(table))
+					ok, err = errors.Convert01(regexp.Match(r, []byte(table)))
 					if err != nil {
 						return err
 					}
@@ -99,7 +99,7 @@ func LoadData(c core.SubTaskContext) error {
 
 	starrocks, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.User, config.Password, config.Host, config.Port, config.Database))
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	for _, table := range starrocksTables {
@@ -107,17 +107,17 @@ func LoadData(c core.SubTaskContext) error {
 		err = createTable(starrocks, db, starrocksTable, table, c, config.Extra)
 		if err != nil {
 			c.GetLogger().Error(err, "create table %s in starrocks error", table)
-			return err
+			return errors.Convert(err)
 		}
 		err = loadData(starrocks, c, starrocksTable, table, db, config)
 		if err != nil {
 			c.GetLogger().Error(err, "load data %s error", table)
-			return err
+			return errors.Convert(err)
 		}
 	}
 	return nil
 }
-func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table string, c core.SubTaskContext, extra string) error {
+func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table string, c core.SubTaskContext, extra string) errors.Error {
 	columeMetas, err := db.GetColumns(&Table{name: table}, nil)
 	if err != nil {
 		return err
@@ -151,7 +151,7 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 	}
 	tableSql := fmt.Sprintf("create table if not exists `%s` ( %s ) %s", starrocksTable, strings.Join(columns, ","), extra)
 	c.GetLogger().Info(tableSql)
-	_, err = starrocks.Exec(tableSql)
+	_, err = errors.Convert01(starrocks.Exec(tableSql))
 	return err
 }
 
@@ -163,10 +163,12 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 	if execErr != nil {
 		return execErr
 	}
+	var err error
 	for {
+		var rows *sql.Rows
 		var data []map[string]interface{}
 		// select data from db
-		rows, err := db.RawCursor(fmt.Sprintf("select * from %s limit %d offset %d", table, config.BatchSize, offset))
+		rows, err = db.RawCursor(fmt.Sprintf("select * from %s limit %d offset %d", table, config.BatchSize, offset))
 		if err != nil {
 			return err
 		}
@@ -263,7 +265,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 		offset += len(data)
 	}
 	// drop old table
-	_, err := starrocks.Exec(fmt.Sprintf("drop table if exists %s", starrocksTable))
+	_, err = starrocks.Exec(fmt.Sprintf("drop table if exists %s", starrocksTable))
 	if err != nil {
 		return err
 	}

@@ -24,7 +24,6 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"github.com/mitchellh/mapstructure"
 )
 
 type StatusMapping struct {
@@ -61,17 +60,17 @@ type JiraTaskData struct {
 	JiraServerInfo models.JiraServerInfo
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JiraOptions, error) {
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JiraOptions, errors.Error) {
 	var op JiraOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, err
 	}
 	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New(fmt.Sprintf("invalid connectionId:%d", op.ConnectionId), errors.AsUserMessage())
+		return nil, errors.BadInput.New(fmt.Sprintf("invalid connectionId:%d", op.ConnectionId))
 	}
 	if op.BoardId == 0 {
-		return nil, errors.BadInput.New(fmt.Sprintf("invalid boardId:%d", op.BoardId), errors.AsUserMessage())
+		return nil, errors.BadInput.New(fmt.Sprintf("invalid boardId:%d", op.BoardId))
 	}
 	return &op, nil
 }

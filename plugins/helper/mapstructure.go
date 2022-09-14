@@ -19,6 +19,8 @@ package helper
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/go-playground/validator/v10"
 	"reflect"
 	"time"
 
@@ -26,7 +28,7 @@ import (
 )
 
 // DecodeMapStruct with time.Time and Iso8601Time support
-func DecodeMapStruct(input map[string]interface{}, result interface{}) error {
+func DecodeMapStruct(input map[string]interface{}, result interface{}) errors.Error {
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
 		ZeroFields: true,
 		DecodeHook: mapstructure.ComposeDecodeHookFunc(
@@ -66,11 +68,24 @@ func DecodeMapStruct(input map[string]interface{}, result interface{}) error {
 		Result: result,
 	})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	if err := decoder.Decode(input); err != nil {
-		return err
+		return errors.Convert(err)
 	}
-	return err
+	return errors.Convert(err)
+}
+
+// Decode decodes `source` into `target`. Pass an optional validator to validate the target.
+func Decode(source interface{}, target interface{}, vld *validator.Validate) errors.Error {
+	if err := mapstructure.Decode(source, target); err != nil {
+		return errors.Default.Wrap(err, "error decoding map into target type")
+	}
+	if vld != nil {
+		if err := vld.Struct(target); err != nil {
+			return errors.Default.Wrap(err, "error validating target")
+		}
+	}
+	return nil
 }

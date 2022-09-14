@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
@@ -32,7 +33,7 @@ var CollectTagMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
-func CollectApiTag(taskCtx core.SubTaskContext) error {
+func CollectApiTag(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TAG_TABLE)
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{

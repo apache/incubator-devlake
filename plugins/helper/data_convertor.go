@@ -26,7 +26,7 @@ import (
 )
 
 // DataConvertHandler Accept row from source cursor, return list of entities that need to be stored
-type DataConvertHandler func(row interface{}) ([]interface{}, error)
+type DataConvertHandler func(row interface{}) ([]interface{}, errors.Error)
 
 // DataConverterArgs includes the arguments about DataConverter.
 // This will be used in Creating a DataConverter.
@@ -58,7 +58,7 @@ type DataConverter struct {
 
 // NewDataConverter function helps you create a DataConverter using DataConverterArgs.
 // You can see the usage in plugins/github/tasks/pr_issue_convertor.go or other convertor file.
-func NewDataConverter(args DataConverterArgs) (*DataConverter, error) {
+func NewDataConverter(args DataConverterArgs) (*DataConverter, errors.Error) {
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func NewDataConverter(args DataConverterArgs) (*DataConverter, error) {
 // Execute function implements Subtask interface.
 // It loads data from Tool Layer Tables using `Ctx.GetDal()`, convert Data using `converter.args.Convert` handler
 // Then save data to Domain Layer Tables using BatchSaveDivider
-func (converter *DataConverter) Execute() error {
+func (converter *DataConverter) Execute() errors.Error {
 	// load data from database
 	db := converter.args.Ctx.GetDal()
 
@@ -94,25 +94,25 @@ func (converter *DataConverter) Execute() error {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return errors.Convert(ctx.Err())
 		default:
 		}
 		inputRow := reflect.New(converter.args.InputRowType).Interface()
 		err := db.Fetch(cursor, inputRow)
 		if err != nil {
-			return errors.Default.Wrap(err, "error fetching rows", errors.UserMessage("Internal Converter execution error"))
+			return errors.Default.Wrap(err, "error fetching rows")
 		}
 
 		results, err := converter.args.Convert(inputRow)
 		if err != nil {
-			return errors.Default.Wrap(err, "error calling Converter plugin implementation", errors.UserMessage("Internal Converter execution error"))
+			return errors.Default.Wrap(err, "error calling Converter plugin implementation")
 		}
 
 		for _, result := range results {
 			// get the batch operator for the specific type
 			batch, err := divider.ForType(reflect.TypeOf(result))
 			if err != nil {
-				return errors.Default.Wrap(err, "error getting batch from result", errors.UserMessage("Internal Converter execution error"))
+				return errors.Default.Wrap(err, "error getting batch from result")
 			}
 			// set raw data origin field
 			origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
@@ -122,7 +122,7 @@ func (converter *DataConverter) Execute() error {
 			// records get saved into db when slots were max outed
 			err = batch.Add(result)
 			if err != nil {
-				return errors.Default.Wrap(err, "error adding result to batch", errors.UserMessage("Internal Converter execution error"))
+				return errors.Default.Wrap(err, "error adding result to batch")
 			}
 		}
 		converter.args.Ctx.IncProgress(1)

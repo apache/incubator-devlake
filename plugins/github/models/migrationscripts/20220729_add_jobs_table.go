@@ -58,7 +58,7 @@ func (GithubJob20220729) TableName() string {
 
 type addGithubJobsTable struct{}
 
-func (u *addGithubJobsTable) Up(ctx context.Context, db *gorm.DB) error {
+func (u *addGithubJobsTable) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	// create table
 	err := db.Migrator().CreateTable(GithubJob20220729{})
 	if err != nil {

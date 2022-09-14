@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -35,7 +36,7 @@ var CollectStatusMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func CollectStatus(taskCtx core.SubTaskContext) error {
+func CollectStatus(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
@@ -50,7 +51,7 @@ func CollectStatus(taskCtx core.SubTaskContext) error {
 		ApiClient:     data.ApiClient,
 		UrlTemplate:   "api/2/status",
 		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data []json.RawMessage
 			err := helper.UnmarshalResponse(res, &data)
 			return data, err

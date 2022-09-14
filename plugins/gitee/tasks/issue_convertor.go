@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -39,7 +40,7 @@ var ConvertIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertIssues(taskCtx core.SubTaskContext) error {
+func ConvertIssues(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
 	repoId := data.Repo.GiteeId
@@ -63,7 +64,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(giteeModels.GiteeIssue{}),
 		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			issue := inputRow.(*giteeModels.GiteeIssue)
 			domainIssue := &ticket.Issue{
 				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, issue.GiteeId)},

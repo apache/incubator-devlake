@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/ae/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -33,7 +34,7 @@ type AeApiCommit struct {
 	DevEq       int    `json:"dev_eq"`
 }
 
-func ExtractCommits(taskCtx core.SubTaskContext) error {
+func ExtractCommits(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*AeTaskData)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -45,9 +46,9 @@ func ExtractCommits(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_COMMITS_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			apiCommit := &AeApiCommit{}
-			err := json.Unmarshal(row.Data, apiCommit)
+			err := errors.Convert(json.Unmarshal(row.Data, apiCommit))
 			if err != nil {
 				return nil, err
 			}

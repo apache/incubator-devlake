@@ -50,7 +50,7 @@ Type in what the raw_table is, then generator will export and save in plugins/$p
 				Label: "plugin_name",
 				Items: pluginItems,
 			}
-			_, pluginName, err = prompt.Run()
+			_, pluginName, err = errors.Convert001(prompt.Run())
 			cobra.CheckErr(err)
 		}
 

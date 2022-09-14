@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
@@ -39,10 +40,10 @@ func (GitlabPipelineProjects20220907) TableName() string {
 	return "_tool_gitlab_pipeline_projects"
 }
 
-func (*addPipelineProjects) Up(ctx context.Context, db *gorm.DB) error {
+func (*addPipelineProjects) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().CreateTable(&GitlabPipelineProjects20220907{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	return nil
 }

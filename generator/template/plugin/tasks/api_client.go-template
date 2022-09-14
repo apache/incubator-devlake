@@ -25,10 +25,11 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext, connection *models.{{ .PluginName }}Connection) (*helper.ApiAsyncClient, error) {
+func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext, connection *models.{{ .PluginName }}Connection) (*helper.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
@@ -37,9 +38,9 @@ func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext, connection *models.
 	if err != nil {
 		return nil, err
 	}
-	apiClient.SetAfterFunction(func(res *http.Response) error {
+	apiClient.SetAfterFunction(func(res *http.Response) errors.Error {
 		if res.StatusCode == http.StatusUnauthorized {
-			return fmt.Errorf("authentication failed, please check your AccessToken")
+			return errors.HttpStatus(res.StatusCode).New("authentication failed, please check your AccessToken")
 		}
 		return nil
 	})
@@ -47,7 +48,7 @@ func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext, connection *models.
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
-		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
+		DynamicRateLimit: func(res *http.Response) (int, time.Duration, errors.Error) {
 			rateLimitHeader := res.Header.Get("RateLimit-Limit")
 			if rateLimitHeader == "" {
 				// use default
@@ -55,7 +56,7 @@ func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext, connection *models.
 			}
 			rateLimit, err := strconv.Atoi(rateLimitHeader)
 			if err != nil {
-				return 0, 0, fmt.Errorf("failed to parse RateLimit-Limit header: %w", err)
+				return 0, 0, errors.Default.Wrap(err, "failed to parse RateLimit-Limit header")
 			}
 			// seems like {{ .plugin-ame }} rate limit is on minute basis
 			return rateLimit, 1 * time.Minute, nil

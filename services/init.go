@@ -19,6 +19,7 @@ package services
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/config"
@@ -76,7 +77,7 @@ func Init() {
 }
 
 // ExecuteMigration executes all pending migration scripts and initialize services module
-func ExecuteMigration() error {
+func ExecuteMigration() errors.Error {
 	err := migration.Execute(context.Background())
 	if err != nil {
 		return err

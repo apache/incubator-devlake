@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
@@ -76,15 +77,15 @@ func (GitlabJob20220729) TableName() string {
 	return "_tool_gitlab_jobs"
 }
 
-func (*modifyGitlabCI) Up(ctx context.Context, db *gorm.DB) error {
+func (*modifyGitlabCI) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().AddColumn(&GitlabPipeline20220729{}, "gitlab_updated_at")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	err = db.Migrator().AutoMigrate(&GitlabJob20220729{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return nil

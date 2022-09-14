@@ -19,6 +19,7 @@ package didgen
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"testing"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -35,7 +36,7 @@ func (f *FooPlugin) Description() string {
 func (f *FooPlugin) Init() {
 }
 
-func (f *FooPlugin) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) error {
+func (f *FooPlugin) Execute(options map[string]interface{}, progress chan<- float32, ctx context.Context) errors.Error {
 	return nil
 }
 

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
@@ -42,7 +43,7 @@ type GithubAccountResponse struct {
 	SiteAdmin         bool   `json:"site_admin"`
 }
 
-func convertAccount(res *GithubAccountResponse, repoId int, connId uint64) (*models.GithubRepoAccount, error) {
+func convertAccount(res *GithubAccountResponse, repoId int, connId uint64) (*models.GithubRepoAccount, errors.Error) {
 	githubAccount := &models.GithubRepoAccount{
 		ConnectionId: connId,
 		RepoGithubId: repoId,

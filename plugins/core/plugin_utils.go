@@ -37,7 +37,7 @@ func init() {
 
 // TODO: maybe move encryption/decryption into helper?
 // AES + Base64 encryption using ENCODE_KEY in .env as key
-func Encrypt(encKey, plainText string) (string, error) {
+func Encrypt(encKey, plainText string) (string, errors.Error) {
 	// add suffix to the data part
 	inputBytes := append([]byte(plainText), 123, 110, 100, 100, 116, 102, 125)
 	// perform encryption
@@ -50,7 +50,7 @@ func Encrypt(encKey, plainText string) (string, error) {
 }
 
 // Base64 + AES decryption using ENCODE_KEY in .env as key
-func Decrypt(encKey, encryptedText string) (string, error) {
+func Decrypt(encKey, encryptedText string) (string, errors.Error) {
 	// when encryption key is not set
 	if encKey == "" {
 		// return error message
@@ -60,7 +60,7 @@ func Decrypt(encKey, encryptedText string) (string, error) {
 	// Decode Base64
 	decodingFromBase64, err1 := base64.StdEncoding.DecodeString(encryptedText)
 	if err1 != nil {
-		return encryptedText, err1
+		return encryptedText, errors.Convert(err1)
 	}
 	// perform AES decryption
 	output, err2 := AesDecrypt(decodingFromBase64, []byte(encKey))
@@ -103,13 +103,13 @@ func PKCS7UnPadding(origData []byte) []byte {
 }
 
 // AES encryption, CBC
-func AesEncrypt(origData, key []byte) ([]byte, error) {
+func AesEncrypt(origData, key []byte) ([]byte, errors.Error) {
 	// data alignment fill and encryption
 	sha256Key := sha256.Sum256(key)
 	key = sha256Key[:]
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	// data alignment fill and encryption
 	blockSize := block.BlockSize()
@@ -121,13 +121,13 @@ func AesEncrypt(origData, key []byte) ([]byte, error) {
 }
 
 // AES decryption
-func AesDecrypt(crypted, key []byte) ([]byte, error) {
+func AesDecrypt(crypted, key []byte) ([]byte, errors.Error) {
 	// Uniformly use sha256 to process as 32-bit Byte (256-bit bit)
 	sha256Key := sha256.Sum256(key)
 	key = sha256Key[:]
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	// Get the block size and check whether the ciphertext length is legal
 	blockSize := block.BlockSize()

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -68,14 +69,14 @@ type BitbucketPrCommentsResponse struct {
 	}
 }
 
-func ExtractApiPullRequestsComments(taskCtx core.SubTaskContext) error {
+func ExtractApiPullRequestsComments(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMENTS_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			prComment := &BitbucketPrCommentsResponse{}
-			err := json.Unmarshal(row.Data, prComment)
+			err := errors.Convert(json.Unmarshal(row.Data, prComment))
 			if err != nil {
 				return nil, err
 			}
@@ -109,7 +110,7 @@ func ExtractApiPullRequestsComments(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertPullRequestComment(prComment *BitbucketPrCommentsResponse) (*models.BitbucketPrComment, error) {
+func convertPullRequestComment(prComment *BitbucketPrCommentsResponse) (*models.BitbucketPrComment, errors.Error) {
 	bitbucketPrComment := &models.BitbucketPrComment{
 		BitbucketId:        prComment.BitbucketId,
 		AuthorId:           prComment.User.AccountId,

@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/refdiff/utils"
 )
 
-func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
+func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
 	db := taskCtx.GetDal()
@@ -56,7 +56,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 	for cursor.Next() {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return errors.Convert(ctx.Err())
 		default:
 		}
 		err = db.Fetch(cursor, commitParent)
@@ -76,7 +76,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) error {
 	for _, pair := range commitPairs {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return errors.Convert(ctx.Err())
 		default:
 		}
 		// ref might advance, keep commit sha for debugging

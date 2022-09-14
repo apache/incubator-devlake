@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
@@ -33,7 +34,7 @@ var ExtractBoardMeta = core.SubTaskMeta{Name: "extractBoard",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractBoard(taskCtx core.SubTaskContext) error {
+func ExtractBoard(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -45,9 +46,9 @@ func ExtractBoard(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_BOARD_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var board apiv2models.Board
-			err := json.Unmarshal(row.Data, &board)
+			err := errors.Convert(json.Unmarshal(row.Data, &board))
 			if err != nil {
 				return nil, err
 			}

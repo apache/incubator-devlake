@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
@@ -26,13 +27,13 @@ import (
 
 type addFrameTables struct{}
 
-func (*addFrameTables) Up(ctx context.Context, db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(
+func (*addFrameTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	return errors.Convert(db.Migrator().AutoMigrate(
 		&archived.Task{},
 		&archived.Notification{},
 		&archived.Pipeline{},
 		&archived.Blueprint{},
-	)
+	))
 }
 
 func (*addFrameTables) Version() uint64 {

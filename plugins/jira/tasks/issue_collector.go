@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"io"
@@ -50,7 +51,7 @@ var CollectIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CROSS},
 }
 
-func CollectIssues(taskCtx core.SubTaskContext) error {
+func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
 
@@ -67,7 +68,7 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 			dal.Orderby("_tool_jira_issues.updated DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
-		if err != nil && err != gorm.ErrRecordNotFound {
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 			return errors.NotFound.Wrap(err, "failed to get latest jira issue record: %w")
 		}
 		if latestUpdated.IssueId > 0 {
@@ -116,7 +117,7 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("jql", jql)
 			query.Set("startAt", fmt.Sprintf("%v", reqData.Pager.Skip))
@@ -143,17 +144,17 @@ func CollectIssues(taskCtx core.SubTaskContext) error {
 		*/
 		GetTotalPages: GetTotalPagesFromResponse,
 		Concurrency:   10,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Issues []json.RawMessage `json:"issues"`
 			}
 			blob, err := io.ReadAll(res.Body)
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			err = json.Unmarshal(blob, &data)
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			return data.Issues, nil
 		},

@@ -23,7 +23,6 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
 )
 
 type BitbucketOptions struct {
@@ -42,11 +41,11 @@ type BitbucketTaskData struct {
 	Repo      *models.BitbucketRepo
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOptions, error) {
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOptions, errors.Error) {
 	var op BitbucketOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.New("could not decode options for Bitbucket execution")
 	}
 	if op.Owner == "" {
 		return nil, errors.Default.New("owner is required for Bitbucket execution")
@@ -57,7 +56,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*BitbucketOpt
 
 	// find the needed Bitbucket now
 	if op.ConnectionId == 0 {
-		return nil, errors.Default.New("connectionId is invalid")
+		return nil, errors.Default.New("Bitbucket connectionId is invalid")
 	}
 	return &op, nil
 }

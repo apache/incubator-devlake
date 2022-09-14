@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -30,7 +31,7 @@ import (
 
 const RAW_COMMITS_TABLE = "ae_commits"
 
-func CollectCommits(taskCtx core.SubTaskContext) error {
+func CollectCommits(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*AeTaskData)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -44,20 +45,20 @@ func CollectCommits(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		PageSize:    2000,
 		UrlTemplate: "projects/{{ .Params.ProjectId }}/commits",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
-				return nil, err
+				return nil, errors.Default.Wrap(err, "error reading endpoint response by AE commit collector")
 			}
 			var results []json.RawMessage
-			err = json.Unmarshal(body, &results)
-			return results, err
+			err = errors.Convert(json.Unmarshal(body, &results))
+			return results, errors.Default.Wrap(err, "error deserializing endpoint response by AE commit collector")
 		},
 	})
 

@@ -19,6 +19,7 @@ package apiv2models
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"gorm.io/datatypes"
@@ -206,7 +207,7 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 	return result
 }
 
-func (i *Issue) SetAllFields(raw datatypes.JSON) error {
+func (i *Issue) SetAllFields(raw datatypes.JSON) errors.Error {
 	var issue2 struct {
 		Expand string          `json:"expand"`
 		ID     uint64          `json:"id,string"`
@@ -214,11 +215,11 @@ func (i *Issue) SetAllFields(raw datatypes.JSON) error {
 		Key    string          `json:"key"`
 		Fields json.RawMessage `json:"fields"`
 	}
-	err := json.Unmarshal(raw, &issue2)
+	err := errors.Convert(json.Unmarshal(raw, &issue2))
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(issue2.Fields, &i.Fields.AllFields)
+	err = errors.Convert(json.Unmarshal(issue2.Fields, &i.Fields.AllFields))
 	if err != nil {
 		return err
 	}

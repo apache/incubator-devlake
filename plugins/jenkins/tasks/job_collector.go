@@ -39,7 +39,7 @@ var CollectApiJobsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func CollectApiJobs(taskCtx core.SubTaskContext) error {
+func CollectApiJobs(taskCtx core.SubTaskContext) errors.Error {
 	it := helper.NewQueueIterator()
 	it.Push(models.NewFolderInput(""))
 	data := taskCtx.GetData().(*JenkinsTaskData)
@@ -67,7 +67,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 
 		UrlTemplate: "{{ .Input.Path }}api/json",
 		Input:       it,
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			treeValue := fmt.Sprintf(
 				"jobs[name,class,url,color,base,jobs,upstreamProjects[name]]{%d,%d}",
@@ -75,7 +75,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 			query.Set("tree", treeValue)
 			return query, nil
 		},
-		Header: func(reqData *helper.RequestData) (http.Header, error) {
+		Header: func(reqData *helper.RequestData) (http.Header, errors.Error) {
 			input, ok := reqData.Input.(*models.FolderInput)
 			if ok {
 				return http.Header{
@@ -88,7 +88,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 			}
 		},
 
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Jobs []json.RawMessage `json:"jobs"`
 			}
@@ -99,7 +99,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) error {
 			BasePath := res.Request.Header.Get("Path")
 			for _, rawJobs := range data.Jobs {
 				job := &models.Job{}
-				err := json.Unmarshal(rawJobs, job)
+				err := errors.Convert(json.Unmarshal(rawJobs, job))
 				if err != nil {
 					return nil, err
 				}

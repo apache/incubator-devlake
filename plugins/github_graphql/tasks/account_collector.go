@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -68,7 +69,7 @@ type SimpleAccount struct {
 
 var _ core.SubTaskEntryPoint = CollectAccount
 
-func CollectAccount(taskCtx core.SubTaskContext) error {
+func CollectAccount(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 
@@ -137,7 +138,7 @@ func CollectAccount(taskCtx core.SubTaskContext) error {
 	return collector.Execute()
 }
 
-func convertAccount(res GraphqlQueryAccount, connId uint64) ([]interface{}, error) {
+func convertAccount(res GraphqlQueryAccount, connId uint64) ([]interface{}, errors.Error) {
 	results := make([]interface{}, 0, len(res.Organizations.Nodes)+1)
 	githubAccount := &models.GithubAccount{
 		ConnectionId: connId,

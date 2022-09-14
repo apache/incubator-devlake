@@ -18,30 +18,31 @@ limitations under the License.
 package utils
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"strconv"
 	"time"
 )
 
 // StrToIntOr Return defaultValue if text is empty, or try to convert it to int
-func StrToIntOr(text string, defaultValue int) (int, error) {
+func StrToIntOr(text string, defaultValue int) (int, errors.Error) {
 	if text == "" {
 		return defaultValue, nil
 	}
-	return strconv.Atoi(text)
+	return errors.Convert01(strconv.Atoi(text))
 }
 
 // StrToDurationOr Return defaultValue if text is empty, or try to convert it to time.Duration
-func StrToDurationOr(text string, defaultValue time.Duration) (time.Duration, error) {
+func StrToDurationOr(text string, defaultValue time.Duration) (time.Duration, errors.Error) {
 	if text == "" {
 		return defaultValue, nil
 	}
-	return time.ParseDuration(text)
+	return errors.Convert01(time.ParseDuration(text))
 }
 
 // StrToBoolOr Return defaultValue if text is empty, or try to convert it to bool
-func StrToBoolOr(text string, defaultValue bool) (bool, error) {
+func StrToBoolOr(text string, defaultValue bool) (bool, errors.Error) {
 	if text == "" {
 		return defaultValue, nil
 	}
-	return strconv.ParseBool(text)
+	return errors.Convert01(strconv.ParseBool(text))
 }

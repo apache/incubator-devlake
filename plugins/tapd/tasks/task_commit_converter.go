@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"reflect"
 
@@ -28,7 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-func ConvertTaskCommit(taskCtx core.SubTaskContext) error {
+func ConvertTaskCommit(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_COMMIT_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
@@ -48,7 +49,7 @@ func ConvertTaskCommit(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdTaskCommit{}),
 		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolL := inputRow.(*models.TapdTaskCommit)
 			domainL := &crossdomain.IssueCommit{
 				IssueId:   issueIdGen.Generate(data.Options.ConnectionId, toolL.TaskId),

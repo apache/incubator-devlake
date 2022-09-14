@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -32,7 +33,7 @@ var ExtractJobsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ExtractJobs(taskCtx core.SubTaskContext) error {
+func ExtractJobs(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
@@ -46,9 +47,9 @@ func ExtractJobs(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_JOB_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			githubJob := &models.GithubJob{}
-			err := json.Unmarshal(row.Data, githubJob)
+			err := errors.Convert(json.Unmarshal(row.Data, githubJob))
 			if err != nil {
 				return nil, err
 			}

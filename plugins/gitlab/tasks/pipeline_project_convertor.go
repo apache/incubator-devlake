@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -36,7 +37,7 @@ var ConvertPipelineProjectMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertPipelineProjects(taskCtx core.SubTaskContext) error {
+func ConvertPipelineProjects(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 
@@ -59,7 +60,7 @@ func ConvertPipelineProjects(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_PIPELINE_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabPipelineProject := inputRow.(*gitlabModels.GitlabPipelineProject)
 
 			domainPipelineRepo := &devops.CiCDPipelineRepo{

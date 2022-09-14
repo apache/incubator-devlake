@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -37,7 +38,7 @@ var ConvertPullRequestCommitsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
+func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMIT_TABLE)
 	repoId := data.Repo.GiteeId
@@ -60,7 +61,7 @@ func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err error) {
 		InputRowType:       reflect.TypeOf(models.GiteePullRequestCommit{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			giteePullRequestCommit := inputRow.(*models.GiteePullRequestCommit)
 			domainPrCommit := &code.PullRequestCommit{
 				CommitSha:     giteePullRequestCommit.CommitSha,

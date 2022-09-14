@@ -59,7 +59,7 @@ var ExtractApiRepoMeta = core.SubTaskMeta{
 
 type ApiRepoResponse AzureApiRepo
 
-func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
+func ExtractApiRepositories(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*AzureTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -77,9 +77,9 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_REPOSITORIES_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &ApiRepoResponse{}
-			err := json.Unmarshal(row.Data, body)
+			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {
 				return nil, err
 			}

@@ -44,7 +44,7 @@ var CollectApiPullRequestReviewsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS, core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
+func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	since := data.Since
@@ -116,7 +116,7 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/reviews",
 
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
@@ -124,7 +124,7 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var items []json.RawMessage
 			err := helper.UnmarshalResponse(res, &items)
 			if err != nil {

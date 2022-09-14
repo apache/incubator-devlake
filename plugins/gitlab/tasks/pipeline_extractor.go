@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -60,15 +61,15 @@ var ExtractApiPipelinesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
+func ExtractApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			// create gitlab commit
 			gitlabApiPipeline := &ApiPipeline{}
-			err := json.Unmarshal(row.Data, gitlabApiPipeline)
+			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiPipeline))
 			if err != nil {
 				return nil, err
 			}

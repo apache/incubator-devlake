@@ -19,11 +19,12 @@ package migration
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
 )
 
 type Script interface {
-	Up(ctx context.Context, db *gorm.DB) error
+	Up(ctx context.Context, db *gorm.DB) errors.Error
 	Version() uint64
 	Name() string
 }

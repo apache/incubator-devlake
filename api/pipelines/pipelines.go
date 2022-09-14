@@ -56,14 +56,14 @@ func Post(c *gin.Context) {
 
 	err := c.MustBindWith(newPipeline, binding.JSON)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad JSON request body format", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad JSON request body format"))
 		return
 	}
 
 	pipeline, err := services.CreatePipeline(newPipeline)
 	// Return all created tasks to the User
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating pipeline", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating pipeline"))
 		return
 	}
 	shared.ApiOutputSuccess(c, pipeline, http.StatusCreated)
@@ -95,12 +95,12 @@ func Index(c *gin.Context) {
 	var query services.PipelineQuery
 	err := c.ShouldBindQuery(&query)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody, errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
 	pipelines, count, err := services.GetPipelines(&query)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipelines", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipelines"))
 		return
 	}
 	shared.ApiOutputSuccess(c, shared.ResponsePipelines{Pipelines: pipelines, Count: count}, http.StatusOK)
@@ -133,12 +133,12 @@ func Get(c *gin.Context) {
 	pipelineId := c.Param("pipelineId")
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipelineID format supplied", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipelineID format supplied"))
 		return
 	}
 	pipeline, err := services.GetPipeline(id)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipeline", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipeline"))
 		return
 	}
 	shared.ApiOutputSuccess(c, pipeline, http.StatusOK)
@@ -160,12 +160,12 @@ func Delete(c *gin.Context) {
 	pipelineId := c.Param("pipelineId")
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipelineID format supplied", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipelineID format supplied"))
 		return
 	}
 	err = services.CancelPipeline(id)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error cancelling pipeline", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error cancelling pipeline"))
 		return
 	}
 	shared.ApiOutputSuccess(c, nil, http.StatusOK)
@@ -188,17 +188,17 @@ func DownloadLogs(c *gin.Context) {
 	pipelineId := c.Param("pipelineId")
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipeline ID format supplied", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipeline ID format supplied"))
 		return
 	}
 	pipeline, err := services.GetPipeline(id)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipeline", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipeline"))
 		return
 	}
 	archive, err := services.GetPipelineLogsArchivePath(pipeline)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting logs for pipeline", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting logs for pipeline"))
 		return
 	}
 	defer os.Remove(archive)

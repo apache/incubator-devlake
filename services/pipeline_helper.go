@@ -19,7 +19,6 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
@@ -28,7 +27,7 @@ import (
 )
 
 // CreateDbPipeline returns a NewPipeline
-func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, error) {
+func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, errors.Error) {
 	// create pipeline object from posted data
 	dbPipeline := &models.DbPipeline{
 		Name:          newPipeline.Name,
@@ -45,8 +44,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 		return nil, err
 	}
 	// save pipeline to database
-	err = db.Create(&dbPipeline).Error
-	if err != nil {
+	if err := db.Create(&dbPipeline).Error; err != nil {
 		globalPipelineLog.Error(err, "create pipline failed: %w", err)
 		return nil, errors.Internal.Wrap(err, "create pipline failed")
 	}
@@ -75,11 +73,11 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 		return nil, errors.Internal.Wrap(err, "save tasks for pipeline failed")
 	}
 	if dbPipeline.TotalTasks == 0 {
-		return nil, fmt.Errorf("no task to run")
+		return nil, errors.Internal.New("no task to run")
 	}
 
 	// update tasks state
-	planByte, err := json.Marshal(newPipeline.Plan)
+	planByte, err := errors.Convert01(json.Marshal(newPipeline.Plan))
 	if err != nil {
 		return nil, err
 	}
@@ -88,11 +86,10 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	if err != nil {
 		return nil, err
 	}
-	err = db.Model(dbPipeline).Updates(map[string]interface{}{
+	if err := db.Model(dbPipeline).Updates(map[string]interface{}{
 		"total_tasks": dbPipeline.TotalTasks,
 		"plan":        dbPipeline.Plan,
-	}).Error
-	if err != nil {
+	}).Error; err != nil {
 		globalPipelineLog.Error(err, "update pipline state failed: %w", err)
 		return nil, errors.Internal.Wrap(err, "update pipline state failed")
 	}
@@ -101,7 +98,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 }
 
 // GetDbPipelines by query
-func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, error) {
+func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.Error) {
 	dbPipelines := make([]*models.DbPipeline, 0)
 	db := db.Model(dbPipelines).Order("id DESC")
 	if query.BlueprintId != 0 {
@@ -116,7 +113,7 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, error) {
 	var count int64
 	err := db.Count(&count).Error
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Default.Wrap(err, "error getting DB pipelines count")
 	}
 	if query.Page > 0 && query.PageSize > 0 {
 		offset := query.PageSize * (query.Page - 1)
@@ -124,20 +121,20 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, error) {
 	}
 	err = db.Find(&dbPipelines).Error
 	if err != nil {
-		return nil, count, err
+		return nil, count, errors.Default.Wrap(err, "error finding DB pipelines")
 	}
 	return dbPipelines, count, nil
 }
 
 // GetDbPipeline by id
-func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, error) {
+func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, errors.Error) {
 	dbPipeline := &models.DbPipeline{}
 	err := db.First(dbPipeline, pipelineId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.NotFound.New("pipeline not found", errors.AsUserMessage())
+			return nil, errors.NotFound.New("pipeline not found")
 		}
-		return nil, errors.Internal.Wrap(err, "error getting the pipeline from database", errors.AsUserMessage())
+		return nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
 	}
 	return dbPipeline, nil
 }
@@ -181,7 +178,7 @@ func parseDbPipeline(pipeline *models.Pipeline) *models.DbPipeline {
 }
 
 // encryptDbPipeline encrypts dbPipeline.Plan
-func encryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, error) {
+func encryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, errors.Error) {
 	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
 	planEncrypt, err := core.Encrypt(encKey, dbPipeline.Plan)
 	if err != nil {
@@ -192,7 +189,7 @@ func encryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, error
 }
 
 // encryptDbPipeline decrypts dbPipeline.Plan
-func decryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, error) {
+func decryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, errors.Error) {
 	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
 	plan, err := core.Decrypt(encKey, dbPipeline.Plan)
 	if err != nil {

@@ -33,7 +33,7 @@ import (
 )
 
 // NewGormDb FIXME ...
-func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
+func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, errors.Error) {
 	dbLoggingLevel := gormLogger.Error
 	switch strings.ToLower(config.GetString("DB_LOGGING_LEVEL")) {
 	case "silent":
@@ -68,11 +68,11 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 	}
 	dbUrl := config.GetString("DB_URL")
 	if dbUrl == "" {
-		return nil, errors.BadInput.New("DB_URL is required", errors.AsUserMessage())
+		return nil, errors.BadInput.New("DB_URL is required")
 	}
 	u, err := url.Parse(dbUrl)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	var db *gorm.DB
 	switch strings.ToLower(u.Scheme) {
@@ -82,18 +82,18 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, error) {
 	case "postgresql", "postgres", "pg":
 		db, err = gorm.Open(postgres.Open(dbUrl), dbConfig)
 	default:
-		return nil, errors.BadInput.New(fmt.Sprintf("invalid DB_URL:%s", dbUrl), errors.AsUserMessage())
+		return nil, errors.BadInput.New(fmt.Sprintf("invalid DB_URL:%s", dbUrl))
 	}
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	sqlDB, err := db.DB()
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	sqlDB.SetMaxIdleConns(idleConns)
 	sqlDB.SetMaxOpenConns(dbMaxOpenConns)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	return db, err
+	return db, errors.Convert(err)
 }

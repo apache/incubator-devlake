@@ -23,7 +23,6 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
 )
 
 type GithubOptions struct {
@@ -43,17 +42,17 @@ type GithubTaskData struct {
 	Repo          *models.GithubRepo
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOptions, error) {
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOptions, errors.Error) {
 	var op GithubOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, err
 	}
 	if op.Owner == "" {
-		return nil, errors.BadInput.New("owner is required for GitHub execution", errors.AsUserMessage())
+		return nil, errors.BadInput.New("owner is required for GitHub execution")
 	}
 	if op.Repo == "" {
-		return nil, errors.BadInput.New("repo is required for GitHub execution", errors.AsUserMessage())
+		return nil, errors.BadInput.New("repo is required for GitHub execution")
 	}
 	if op.PrType == "" {
 		op.PrType = "type/(.*)$"
@@ -85,7 +84,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOption
 
 	// find the needed GitHub now
 	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
+		return nil, errors.BadInput.New("connectionId is invalid")
 	}
 	return &op, nil
 }

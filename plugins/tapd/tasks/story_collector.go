@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
@@ -34,7 +35,7 @@ const RAW_STORY_TABLE = "tapd_api_stories"
 
 var _ core.SubTaskEntryPoint = CollectStorys
 
-func CollectStorys(taskCtx core.SubTaskContext) error {
+func CollectStorys(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
@@ -49,7 +50,7 @@ func CollectStorys(taskCtx core.SubTaskContext) error {
 			dal.Orderby("modified DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
-		if err != nil && err != gorm.ErrRecordNotFound {
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 			return errors.Default.Wrap(err, "failed to get latest tapd changelog record")
 		}
 		if latestUpdated.Id > 0 {
@@ -63,7 +64,7 @@ func CollectStorys(taskCtx core.SubTaskContext) error {
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
 		UrlTemplate:        "stories",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

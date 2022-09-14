@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -32,15 +33,15 @@ var ExtractApiMrCommitsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func ExtractApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
+func ExtractApiMergeRequestsCommits(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_COMMITS_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			// create gitlab commit
 			gitlabApiCommit := &GitlabApiCommit{}
-			err := json.Unmarshal(row.Data, gitlabApiCommit)
+			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiCommit))
 			if err != nil {
 				return nil, err
 			}
@@ -50,7 +51,7 @@ func ExtractApiMergeRequestsCommits(taskCtx core.SubTaskContext) error {
 			}
 			// get input info
 			input := &GitlabInput{}
-			err = json.Unmarshal(row.Input, input)
+			err = errors.Convert(json.Unmarshal(row.Input, input))
 			if err != nil {
 				return nil, err
 			}

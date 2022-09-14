@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -43,7 +44,7 @@ type SimpleBranch struct {
 	HeadBranch string `json:"head_branch" gorm:"type:varchar(255)"`
 }
 
-func ConvertTasks(taskCtx core.SubTaskContext) error {
+func ConvertTasks(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
@@ -70,7 +71,7 @@ func ConvertTasks(taskCtx core.SubTaskContext) error {
 		},
 		InputRowType: reflect.TypeOf(githubModels.GithubJob{}),
 		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			line := inputRow.(*githubModels.GithubJob)
 
 			tmp := make([]*SimpleBranch, 0)

@@ -50,7 +50,7 @@ func NewWorkerScheduler(
 	maxWorkDuration time.Duration,
 	maxRetry int,
 	logger core.Logger,
-) (*WorkerScheduler, error) {
+) (*WorkerScheduler, errors.Error) {
 	if maxWork <= 0 {
 		return nil, errors.Default.New("maxWork less than 1")
 	}
@@ -66,7 +66,7 @@ func NewWorkerScheduler(
 		s.checkError(i)
 	}))
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	s.pool = pool
 	return s, nil
@@ -79,7 +79,7 @@ func NewWorkerScheduler(
 // Varaible ASYNC_CF=true to enable callframes capturing when debugging.
 // IMPORTANT: do NOT call SubmitBlocking inside the async task, it is likely to cause a deadlock, call
 // SubmitNonBlocking instead when number of tasks is relatively small.
-func (s *WorkerScheduler) SubmitBlocking(task func() error) {
+func (s *WorkerScheduler) SubmitBlocking(task func() errors.Error) {
 	if s.HasError() {
 		return
 	}
@@ -139,7 +139,7 @@ func (s *WorkerScheduler) HasError() bool {
 // NextTick enqueues task in a NonBlocking manner, you should only call this method within task submitted by
 // SubmitBlocking method
 // IMPORTANT: do NOT call this method with a huge number of tasks, it is likely to eat up all available memory
-func (s *WorkerScheduler) NextTick(task func() error) {
+func (s *WorkerScheduler) NextTick(task func() errors.Error) {
 	// to make sure task will be enqueued
 	s.waitGroup.Add(1)
 	go func() {
@@ -149,7 +149,7 @@ func (s *WorkerScheduler) NextTick(task func() error) {
 }
 
 // Wait blocks current go-routine until all workers returned
-func (s *WorkerScheduler) Wait() error {
+func (s *WorkerScheduler) Wait() errors.Error {
 	s.waitGroup.Wait()
 	if len(s.workerErrors) > 0 {
 		return errors.Default.Combine(s.workerErrors, "worker scheduler captured these errors")

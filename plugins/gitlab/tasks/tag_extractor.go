@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -43,18 +44,18 @@ var ExtractTagMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
-func ExtractApiTag(taskCtx core.SubTaskContext) error {
+func ExtractApiTag(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TAG_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			// need to extract 1 kinds of entities here
 			results := make([]interface{}, 0, 1)
 
 			// create gitlab commit
 			gitlabApiTag := &GitlabApiTag{}
-			err := json.Unmarshal(row.Data, gitlabApiTag)
+			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiTag))
 			if err != nil {
 				return nil, err
 			}
@@ -77,7 +78,7 @@ func ExtractApiTag(taskCtx core.SubTaskContext) error {
 }
 
 // Convert the API response to our DB model instance
-func convertTag(tag *GitlabApiTag) (*models.GitlabTag, error) {
+func convertTag(tag *GitlabApiTag) (*models.GitlabTag, errors.Error) {
 	gitlabTag := &models.GitlabTag{
 		Name:               tag.Name,
 		Message:            tag.Message,

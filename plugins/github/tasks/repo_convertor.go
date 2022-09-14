@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"reflect"
 
@@ -41,7 +42,7 @@ var ConvertRepoMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
-func ConvertRepo(taskCtx core.SubTaskContext) error {
+func ConvertRepo(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
@@ -69,7 +70,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_REPOSITORIES_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			repository := inputRow.(*models.GithubRepo)
 			domainRepository := &code.Repo{
 				DomainEntity: domainlayer.DomainEntity{

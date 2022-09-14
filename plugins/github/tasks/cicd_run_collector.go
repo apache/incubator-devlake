@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
@@ -37,7 +38,7 @@ var CollectRunsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func CollectRuns(taskCtx core.SubTaskContext) error {
+func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
@@ -54,14 +55,14 @@ func CollectRuns(taskCtx core.SubTaskContext) error {
 		PageSize:    100,
 		Incremental: false,
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/actions/runs",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body := &GithubRawRunsResult{}
 			err := helper.UnmarshalResponse(res, body)
 			if err != nil {

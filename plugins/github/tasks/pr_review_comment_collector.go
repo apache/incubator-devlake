@@ -33,7 +33,7 @@ const RAW_PR_REVIEW_COMMENTS_TABLE = "github_api_pull_request_review_comments"
 
 // this struct should be moved to `github_api_common.go`
 
-func CollectPrReviewComments(taskCtx core.SubTaskContext) error {
+func CollectPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
@@ -77,7 +77,7 @@ func CollectPrReviewComments(taskCtx core.SubTaskContext) error {
 		Incremental: incremental,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/comments",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			if since != nil {
 				query.Set("since", since.String())
@@ -88,7 +88,7 @@ func CollectPrReviewComments(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var items []json.RawMessage
 			err := helper.UnmarshalResponse(res, &items)
 			if err != nil {

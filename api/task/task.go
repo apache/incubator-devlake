@@ -57,17 +57,17 @@ func Index(c *gin.Context) {
 	var query services.TaskQuery
 	err := c.ShouldBindQuery(&query)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody, errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
 	err = c.ShouldBindUri(&query)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request URI format", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request URI format"))
 		return
 	}
 	tasks, count, err := services.GetTasks(&query)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting tasks", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting tasks"))
 		return
 	}
 	shared.ApiOutputSuccess(c, gin.H{"tasks": tasks, "count": count}, http.StatusOK)
@@ -77,12 +77,12 @@ func Delete(c *gin.Context) {
 	taskId := c.Param("taskId")
 	id, err := strconv.ParseUint(taskId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "invalid task ID format", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "invalid task ID format"))
 		return
 	}
 	err = services.CancelTask(id)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error cancelling task", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error cancelling task"))
 		return
 	}
 	shared.ApiOutputSuccess(c, nil, http.StatusOK)

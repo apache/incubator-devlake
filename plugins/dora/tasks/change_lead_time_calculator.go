@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	goerror "errors"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -28,7 +30,7 @@ import (
 	"time"
 )
 
-func CalculateChangeLeadTime(taskCtx core.SubTaskContext) error {
+func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*DoraTaskData)
 	db := taskCtx.GetDal()
 	repoId := data.Options.RepoId
@@ -53,7 +55,7 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) error {
 		BatchSize:    100,
 		InputRowType: reflect.TypeOf(code.PullRequest{}),
 		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			pr := inputRow.(*code.PullRequest)
 			firstCommitDate, err := getFirstCommitTime(pr.Id, db)
 			if err != nil {
@@ -111,7 +113,7 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) error {
 	return enricher.Execute()
 }
 
-func getFirstCommitTime(prId string, db dal.Dal) (*time.Time, error) {
+func getFirstCommitTime(prId string, db dal.Dal) (*time.Time, errors.Error) {
 	commit := &code.Commit{}
 	commitClauses := []dal.Clause{
 		dal.From(&code.Commit{}),
@@ -120,7 +122,7 @@ func getFirstCommitTime(prId string, db dal.Dal) (*time.Time, error) {
 		dal.Orderby("commits.authored_date ASC"),
 	}
 	err := db.First(commit, commitClauses...)
-	if err == gorm.ErrRecordNotFound {
+	if goerror.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	if err != nil {
@@ -129,7 +131,7 @@ func getFirstCommitTime(prId string, db dal.Dal) (*time.Time, error) {
 	return &commit.AuthoredDate, nil
 }
 
-func getFirstReviewTime(prId string, prCreator string, db dal.Dal) (*time.Time, error) {
+func getFirstReviewTime(prId string, prCreator string, db dal.Dal) (*time.Time, errors.Error) {
 	review := &code.PullRequestComment{}
 	commentClauses := []dal.Clause{
 		dal.From(&code.PullRequestComment{}),
@@ -146,7 +148,7 @@ func getFirstReviewTime(prId string, prCreator string, db dal.Dal) (*time.Time, 
 	return &review.CreatedDate, nil
 }
 
-func getDeployTime(repoId string, mergeSha string, mergeDate time.Time, db dal.Dal) (*time.Time, error) {
+func getDeployTime(repoId string, mergeSha string, mergeDate time.Time, db dal.Dal) (*time.Time, errors.Error) {
 	cicdTask := &devops.CICDTask{}
 	cicdTaskClauses := []dal.Clause{
 		dal.From(&devops.CICDTask{}),

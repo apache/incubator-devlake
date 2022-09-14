@@ -19,6 +19,7 @@ package app
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/runner"
@@ -26,7 +27,7 @@ import (
 )
 
 // DevLakeTaskActivity FIXME ...
-func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64, loggerConfig *core.LoggerConfig) error {
+func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64, loggerConfig *core.LoggerConfig) errors.Error {
 	cfg, log, db, err := loadResources(configJson, loggerConfig)
 	if err != nil {
 		return err

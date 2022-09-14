@@ -48,7 +48,7 @@ func (plugin Azure) Description() string {
 	return "collect some Azure data"
 }
 
-func (plugin Azure) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Azure) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -62,7 +62,7 @@ func (plugin Azure) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Azure) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Azure) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -121,7 +121,7 @@ func (plugin Azure) MigrationScripts() []migration.Script {
 	return migrationscripts.All()
 }
 
-func (plugin Azure) Close(taskCtx core.TaskContext) error {
+func (plugin Azure) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.AzureTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

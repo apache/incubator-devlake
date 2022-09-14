@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -32,18 +33,18 @@ var ExtractApiCommitsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
-func ExtractApiCommits(taskCtx core.SubTaskContext) error {
+func ExtractApiCommits(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			// need to extract 3 kinds of entities here
 			results := make([]interface{}, 0, 3)
 
 			// create gitlab commit
 			gitlabApiCommit := &GitlabApiCommit{}
-			err := json.Unmarshal(row.Data, gitlabApiCommit)
+			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiCommit))
 			if err != nil {
 				return nil, err
 			}
@@ -88,7 +89,7 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 }
 
 // Convert the API response to our DB model instance
-func ConvertCommit(commit *GitlabApiCommit) (*models.GitlabCommit, error) {
+func ConvertCommit(commit *GitlabApiCommit) (*models.GitlabCommit, errors.Error) {
 	gitlabCommit := &models.GitlabCommit{
 		Sha:            commit.GitlabId,
 		Title:          commit.Title,

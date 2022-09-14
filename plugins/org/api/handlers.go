@@ -37,24 +37,24 @@ func NewHandlers(db dal.Dal, basicRes core.BasicRes) *Handlers {
 	return &Handlers{store: NewDbStore(db, basicRes)}
 }
 
-func (h *Handlers) unmarshal(r *http.Request, items interface{}) error {
+func (h *Handlers) unmarshal(r *http.Request, items interface{}) errors.Error {
 	if r == nil {
 		return errors.Default.New("request is nil")
 	}
 	if r.MultipartForm == nil {
 		if err := r.ParseMultipartForm(maxMemory); err != nil {
-			return err
+			return errors.Convert(err)
 		}
 	}
 	f, fh, err := r.FormFile("file")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	f.Close()
 	file, err := fh.Open()
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	defer file.Close()
-	return gocsv.UnmarshalCSV(csv.NewReader(file), items)
+	return errors.Convert(gocsv.UnmarshalCSV(csv.NewReader(file), items))
 }

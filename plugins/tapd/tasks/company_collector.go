@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
@@ -31,7 +32,7 @@ const RAW_COMPANY_TABLE = "tapd_api_companies"
 
 var _ core.SubTaskEntryPoint = CollectCompanies
 
-func CollectCompanies(taskCtx core.SubTaskContext) error {
+func CollectCompanies(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMPANY_TABLE, true)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect companies")
@@ -40,14 +41,14 @@ func CollectCompanies(taskCtx core.SubTaskContext) error {
 		ApiClient:          data.ApiClient,
 		//PageSize:    100,
 		UrlTemplate: "workspaces/projects",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("company_id", fmt.Sprintf("%v", data.Options.CompanyId))
 			//query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			//query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Companies []json.RawMessage `json:"data"`
 			}

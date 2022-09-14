@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -40,7 +41,7 @@ var CollectJobsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func CollectJobs(taskCtx core.SubTaskContext) error {
+func CollectJobs(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	cursor, err := db.Cursor(
@@ -70,14 +71,14 @@ func CollectJobs(taskCtx core.SubTaskContext) error {
 		Input:       iterator,
 		Incremental: false,
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/actions/runs/{{ .Input.ID }}/jobs",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body := &GithubRawJobsResult{}
 			err := helper.UnmarshalResponse(res, body)
 			if err != nil {

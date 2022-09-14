@@ -30,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
 )
 
 type GithubTestConnResponse struct {
@@ -46,17 +45,14 @@ type GithubTestConnResponse struct {
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/github/test [POST]
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// process input
 	var params models.TestConnectionRequest
-	err := mapstructure.Decode(input.Body, &params)
+	err := helper.Decode(input.Body, &params, vld)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
+		return nil, err
 	}
-	err = vld.Struct(params)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
-	}
+
 	tokens := strings.Split(params.Token, ",")
 
 	// verify multiple token in parallel
@@ -80,21 +76,21 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 				basicRes,
 			)
 			if err != nil {
-				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token), errors.AsUserMessage())}
+				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token))}
 				return
 			}
 			res, err := apiClient.Get("user", nil, nil)
 			if err != nil {
-				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token), errors.AsUserMessage())}
+				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token))}
 				return
 			}
 			githubUserOfToken := &models.GithubUserOfToken{}
 			err = helper.UnmarshalResponse(res, githubUserOfToken)
 			if err != nil {
-				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%v %s", j, token), errors.AsUserMessage())}
+				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%v %s", j, token))}
 				return
 			} else if githubUserOfToken.Login == "" {
-				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("invalid token for #%v %s", j, token), errors.AsUserMessage())}
+				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("invalid token for #%v %s", j, token))}
 				return
 			}
 			results <- VerifyResult{login: githubUserOfToken.Login}
@@ -134,7 +130,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/github/connections [POST]
-func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.GithubConnection{}
 	err := connectionHelper.Create(connection, input)
 	if err != nil {
@@ -151,7 +147,7 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/github/connections/{connectionId} [PATCH]
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.GithubConnection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
@@ -167,7 +163,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/github/connections/{connectionId} [DELETE]
-func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.GithubConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -184,7 +180,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/github/connections [GET]
-func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var connections []models.GithubConnection
 	err := connectionHelper.List(&connections)
 	if err != nil {
@@ -201,7 +197,7 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/github/connections/{connectionId} [GET]
-func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.GithubConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {

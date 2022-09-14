@@ -44,7 +44,7 @@ var CollectApiCommitStatsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
-func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
+func CollectApiCommitStats(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_STATS_TABLE)
 
@@ -94,7 +94,7 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			query.Set("direction", "asc")
@@ -104,11 +104,11 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			res.Body.Close()
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			return []json.RawMessage{body}, nil
 		},

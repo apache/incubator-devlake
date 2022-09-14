@@ -19,6 +19,7 @@ package helper
 
 import (
 	"database/sql"
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"time"
 
@@ -28,8 +29,8 @@ import (
 // Iterator FIXME ...
 type Iterator interface {
 	HasNext() bool
-	Fetch() (interface{}, error)
-	Close() error
+	Fetch() (interface{}, errors.Error)
+	Close() errors.Error
 }
 
 // DalCursorIterator FIXME ...
@@ -41,12 +42,12 @@ type DalCursorIterator struct {
 }
 
 // NewDalCursorIterator FIXME ...
-func NewDalCursorIterator(db dal.Dal, cursor *sql.Rows, elemType reflect.Type) (*DalCursorIterator, error) {
+func NewDalCursorIterator(db dal.Dal, cursor *sql.Rows, elemType reflect.Type) (*DalCursorIterator, errors.Error) {
 	return NewBatchedDalCursorIterator(db, cursor, elemType, -1)
 }
 
 // NewBatchedDalCursorIterator FIXME ...
-func NewBatchedDalCursorIterator(db dal.Dal, cursor *sql.Rows, elemType reflect.Type, batchSize int) (*DalCursorIterator, error) {
+func NewBatchedDalCursorIterator(db dal.Dal, cursor *sql.Rows, elemType reflect.Type, batchSize int) (*DalCursorIterator, errors.Error) {
 	return &DalCursorIterator{
 		db:        db,
 		cursor:    cursor,
@@ -62,7 +63,7 @@ func (c *DalCursorIterator) HasNext() bool {
 
 // Fetch if batching is disabled, it'll read a single row, otherwise it'll read as many rows up to the batch size, and the
 // runtime return type will be []interface{}. Note, HasNext needs to have been called before invoking this.
-func (c *DalCursorIterator) Fetch() (interface{}, error) {
+func (c *DalCursorIterator) Fetch() (interface{}, errors.Error) {
 	if c.batchSize > 0 {
 		return c.batchedFetch()
 	}
@@ -77,13 +78,13 @@ func (c *DalCursorIterator) Fetch() (interface{}, error) {
 	return elem, nil
 }
 
-func (c *DalCursorIterator) batchedFetch() (interface{}, error) {
+func (c *DalCursorIterator) batchedFetch() (interface{}, errors.Error) {
 	var elems []interface{}
 	for i := 1; ; i++ {
 		elem := reflect.New(c.elemType).Interface()
 		err := c.cursor.Scan(elem)
 		if err != nil {
-			return nil, err
+			return nil, errors.Convert(err)
 		}
 		elems = append(elems, elem)
 		if i == c.batchSize || !c.HasNext() {
@@ -94,8 +95,8 @@ func (c *DalCursorIterator) batchedFetch() (interface{}, error) {
 }
 
 // Close iterator
-func (c *DalCursorIterator) Close() error {
-	return c.cursor.Close()
+func (c *DalCursorIterator) Close() errors.Error {
+	return errors.Convert(c.cursor.Close())
 }
 
 var _ Iterator = (*DalCursorIterator)(nil)
@@ -120,7 +121,7 @@ func (c *DateIterator) HasNext() bool {
 }
 
 // Fetch FIXME ...
-func (c *DateIterator) Fetch() (interface{}, error) {
+func (c *DateIterator) Fetch() (interface{}, errors.Error) {
 	c.Current++
 	return &DatePair{
 		PairStartTime: c.startTime.AddDate(0, 0, c.Current),
@@ -129,12 +130,12 @@ func (c *DateIterator) Fetch() (interface{}, error) {
 }
 
 // Close iterator
-func (c *DateIterator) Close() error {
+func (c *DateIterator) Close() errors.Error {
 	return nil
 }
 
 // NewDateIterator FIXME ...
-func NewDateIterator(days int) (*DateIterator, error) {
+func NewDateIterator(days int) (*DateIterator, errors.Error) {
 	endTime := time.Now().Truncate(24 * time.Hour)
 	return &DateIterator{
 		startTime: endTime.AddDate(0, 0, -days-1),
@@ -155,7 +156,7 @@ func (q *QueueIterator) HasNext() bool {
 }
 
 // Fetch current item
-func (q *QueueIterator) Fetch() (interface{}, error) {
+func (q *QueueIterator) Fetch() (interface{}, errors.Error) {
 	return q.queue.PullWithOutLock(), nil
 }
 
@@ -165,7 +166,7 @@ func (q *QueueIterator) Push(data QueueNode) {
 }
 
 // Close releases resources
-func (q *QueueIterator) Close() error {
+func (q *QueueIterator) Close() errors.Error {
 	q.queue.CleanWithOutLock()
 	return nil
 }

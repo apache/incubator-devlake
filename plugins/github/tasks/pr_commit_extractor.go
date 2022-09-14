@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -55,7 +56,7 @@ type PullRequestCommit struct {
 	Message json.RawMessage
 }
 
-func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
+func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -74,17 +75,17 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_PR_COMMIT_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			apiPullRequestCommit := &PrCommitsResponse{}
 			if strings.HasPrefix(string(row.Data), "{\"message\": \"Not Found\"") {
 				return nil, nil
 			}
-			err := json.Unmarshal(row.Data, apiPullRequestCommit)
+			err := errors.Convert(json.Unmarshal(row.Data, apiPullRequestCommit))
 			if err != nil {
 				return nil, err
 			}
 			pull := &SimplePr{}
-			err = json.Unmarshal(row.Input, pull)
+			err = errors.Convert(json.Unmarshal(row.Input, pull))
 			if err != nil {
 				return nil, err
 			}
@@ -117,7 +118,7 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertPullRequestCommit(prCommit *PrCommitsResponse, connId uint64) (*models.GithubCommit, error) {
+func convertPullRequestCommit(prCommit *PrCommitsResponse, connId uint64) (*models.GithubCommit, errors.Error) {
 	githubCommit := &models.GithubCommit{
 		Sha:            prCommit.Sha,
 		Message:        string(prCommit.Commit.Message),

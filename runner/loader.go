@@ -31,7 +31,7 @@ import (
 )
 
 // LoadPlugins load plugins from local directory
-func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -69,5 +69,5 @@ func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db 
 		}
 		return nil
 	})
-	return walkErr
+	return errors.Convert(walkErr)
 }

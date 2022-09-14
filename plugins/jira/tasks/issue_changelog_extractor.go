@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -35,7 +36,7 @@ var ExtractIssueChangelogsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CROSS},
 }
 
-func ExtractIssueChangelogs(taskCtx core.SubTaskContext) error {
+func ExtractIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 		return nil
@@ -50,15 +51,15 @@ func ExtractIssueChangelogs(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_CHANGELOG_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			// process input
 			var input apiv2models.Input
-			err := json.Unmarshal(row.Input, &input)
+			err := errors.Convert(json.Unmarshal(row.Input, &input))
 			if err != nil {
 				return nil, err
 			}
 			var changelog apiv2models.Changelog
-			err = json.Unmarshal(row.Data, &changelog)
+			err = errors.Convert(json.Unmarshal(row.Data, &changelog))
 			if err != nil {
 				return nil, err
 			}

@@ -39,7 +39,7 @@ var _ core.PluginBlueprintV100 = (*Bitbucket)(nil)
 
 type Bitbucket string
 
-func (plugin Bitbucket) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Bitbucket) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -69,7 +69,7 @@ func (plugin Bitbucket) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Bitbucket) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Bitbucket) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -103,7 +103,7 @@ func (plugin Bitbucket) MigrationScripts() []migration.Script {
 	return migrationscripts.All()
 }
 
-func (plugin Bitbucket) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+func (plugin Bitbucket) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 

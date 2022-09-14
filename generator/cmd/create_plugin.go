@@ -33,39 +33,46 @@ func init() {
 	rootCmd.AddCommand(createPluginCmd)
 }
 
-func pluginNameNotExistValidate(input string) error {
-	if input == `` {
-		return errors.Default.New("plugin name require")
+func pluginNameNotExistValidate() promptui.ValidateFunc {
+	return func(input string) error {
+		if input == `` {
+			return errors.Default.New("plugin name require")
+		}
+		snakeNameReg := regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`)
+		if !snakeNameReg.MatchString(input) {
+			return errors.Default.New("plugin name invalid (start with a-z and consist with a-z0-9_)")
+		}
+		if strings.ToLower(input) == `framework` || strings.ToLower(input) == `core` || strings.ToLower(input) == `helper` {
+			return errors.Default.New("plugin name cannot be `framework` or `core` or `helper`")
+		}
+		_, err := os.Stat(`plugins/` + input)
+		if os.IsNotExist(err) {
+			return nil
+		}
+		if err != nil {
+			return errors.Default.Wrap(err, "err getting plugin path")
+		}
+		return errors.Default.New("plugin exists")
 	}
-	snakeNameReg := regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`)
-	if !snakeNameReg.MatchString(input) {
-		return errors.Default.New("plugin name invalid (start with a-z and consist with a-z0-9_)")
-	}
-	if strings.ToLower(input) == `framework` || strings.ToLower(input) == `core` || strings.ToLower(input) == `helper` {
-		return errors.Default.New("plugin name cannot be `framework` or `core` or `helper`")
-	}
-	_, err := os.Stat(`plugins/` + input)
-	if os.IsNotExist(err) {
+}
+
+func pluginNameExistValidate() promptui.ValidateFunc {
+	return func(input string) error {
+		if input == `` {
+			return errors.Default.New("plugin name require")
+		}
+		_, err := os.Stat(`plugins/` + input)
+		if err != nil {
+			return errors.Default.Wrap(err, "error getting plugin path")
+		}
 		return nil
 	}
-	if err != nil {
-		return err
-	}
-	return errors.Default.New("plugin exists")
 }
 
-func pluginNameExistValidate(input string) error {
-	if input == `` {
-		return errors.Default.New("plugin name require")
-	}
-	_, err := os.Stat(`plugins/` + input)
-	return err
-}
-
-func pluginNames(withFramework bool) (pluginItems []string, err error) {
+func pluginNames(withFramework bool) (pluginItems []string, _ errors.Error) {
 	files, err := os.ReadDir(`plugins`)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "error reading plugins directory")
 	}
 	if withFramework {
 		pluginItems = append(pluginItems, `framework`)
@@ -90,11 +97,11 @@ Type in what the name of plugin is, then generator will create a new plugin in p
 		if len(args) > 0 {
 			pluginName = args[0]
 		}
-		err := pluginNameNotExistValidate(pluginName)
+		err := pluginNameNotExistValidate()(pluginName)
 		if err != nil {
 			prompt := promptui.Prompt{
 				Label:    "plugin_name",
-				Validate: pluginNameNotExistValidate,
+				Validate: pluginNameNotExistValidate(),
 				Default:  pluginName,
 			}
 			pluginName, err = prompt.Run()

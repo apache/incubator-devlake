@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 	"gorm.io/gorm"
@@ -42,12 +43,9 @@ func (JiraConnectionV010) TableName() string {
 
 type renameSourceTable struct{}
 
-func (*renameSourceTable) Up(ctx context.Context, db *gorm.DB) error {
+func (*renameSourceTable) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().RenameTable(archived.JiraSource{}, JiraConnectionV010{})
-	if err != nil {
-		return err
-	}
-	return nil
+	return errors.Convert(err)
 }
 
 func (*renameSourceTable) Version() uint64 {

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -43,7 +44,7 @@ type PullRequestReview struct {
 	SubmittedAt helper.Iso8601Time `json:"submitted_at"`
 }
 
-func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) error {
+func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -62,12 +63,12 @@ func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_PR_REVIEW_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			apiPullRequestReview := &PullRequestReview{}
 			if strings.HasPrefix(string(row.Data), "{\"message\": \"Not Found\"") {
 				return nil, nil
 			}
-			err := json.Unmarshal(row.Data, apiPullRequestReview)
+			err := errors.Convert(json.Unmarshal(row.Data, apiPullRequestReview))
 			if err != nil {
 				return nil, err
 			}
@@ -75,7 +76,7 @@ func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) error {
 				return nil, nil
 			}
 			pull := &SimplePr{}
-			err = json.Unmarshal(row.Input, pull)
+			err = errors.Convert(json.Unmarshal(row.Input, pull))
 			if err != nil {
 				return nil, err
 			}

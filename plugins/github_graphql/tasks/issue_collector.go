@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -78,7 +79,7 @@ var CollectIssueMeta = core.SubTaskMeta{
 
 var _ core.SubTaskEntryPoint = CollectIssue
 
-func CollectIssue(taskCtx core.SubTaskContext) error {
+func CollectIssue(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 	config := data.Options.TransformationRules
 	issueRegexes, err := githubTasks.NewIssueRegexes(config)
@@ -161,7 +162,7 @@ func CollectIssue(taskCtx core.SubTaskContext) error {
 	return collector.Execute()
 }
 
-func convertGithubIssue(issue GraphqlQueryIssue, connectionId uint64, repositoryId int) (*models.GithubIssue, error) {
+func convertGithubIssue(issue GraphqlQueryIssue, connectionId uint64, repositoryId int) (*models.GithubIssue, errors.Error) {
 	githubIssue := &models.GithubIssue{
 		ConnectionId:    connectionId,
 		GithubId:        issue.DatabaseId,
@@ -192,7 +193,7 @@ func convertGithubIssue(issue GraphqlQueryIssue, connectionId uint64, repository
 	return githubIssue, nil
 }
 
-func convertGithubLabels(issueRegexes *githubTasks.IssueRegexes, issue GraphqlQueryIssue, githubIssue *models.GithubIssue) ([]interface{}, error) {
+func convertGithubLabels(issueRegexes *githubTasks.IssueRegexes, issue GraphqlQueryIssue, githubIssue *models.GithubIssue) ([]interface{}, errors.Error) {
 	var results []interface{}
 	for _, label := range issue.Labels.Nodes {
 		results = append(results, &models.GithubIssueLabel{

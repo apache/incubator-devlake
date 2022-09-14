@@ -30,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -45,7 +44,7 @@ var _ core.CloseablePluginTask = (*Jira)(nil)
 
 type Jira struct{}
 
-func (plugin Jira) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Jira) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -130,17 +129,17 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.JiraOptions
 	var err error
 	logger := taskCtx.GetLogger()
 	logger.Debug("%v", options)
-	err = mapstructure.Decode(options, &op)
+	err = helper.Decode(options, &op, nil)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "could not decode Jira options", errors.AsUserMessage())
+		return nil, errors.Default.Wrap(err, "could not decode Jira options")
 	}
 	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New("jira connectionId is invalid", errors.AsUserMessage())
+		return nil, errors.BadInput.New("jira connectionId is invalid")
 	}
 	connection := &models.JiraConnection{}
 	connectionHelper := helper.NewConnectionHelper(
@@ -148,27 +147,27 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		nil,
 	)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not get connection API instance for Jira", errors.AsUserMessage())
+		return nil, errors.BadInput.Wrap(err, "could not get connection API instance for Jira")
 	}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get Jira connection", errors.AsUserMessage())
+		return nil, errors.Default.Wrap(err, "unable to get Jira connection")
 	}
 
 	var since time.Time
 	if op.Since != "" {
 		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `since`", errors.AsUserMessage())
+			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
 		}
 	}
 	jiraApiClient, err := tasks.NewJiraApiClient(taskCtx, connection)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "failed to create jira api client", errors.AsUserMessage())
+		return nil, errors.Default.Wrap(err, "failed to create jira api client")
 	}
 	info, code, err := tasks.GetJiraServerInfo(jiraApiClient)
 	if err != nil || code != http.StatusOK || info == nil {
-		return nil, errors.HttpStatus(code).Wrap(err, "fail to get Jira server info", errors.AsUserMessage())
+		return nil, errors.HttpStatus(code).Wrap(err, "fail to get Jira server info")
 	}
 	taskData := &tasks.JiraTaskData{
 		Options:        &op,
@@ -182,7 +181,7 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	return taskData, nil
 }
 
-func (plugin Jira) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+func (plugin Jira) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
@@ -200,7 +199,7 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"POST": api.TestConnection,
 		},
 		"echo": {
-			"POST": func(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+			"POST": func(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 				return &core.ApiResourceOutput{Body: input.Body}, nil
 			},
 		},
@@ -219,7 +218,7 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 	}
 }
 
-func (plugin Jira) Close(taskCtx core.TaskContext) error {
+func (plugin Jira) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.JiraTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

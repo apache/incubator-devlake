@@ -20,6 +20,7 @@ package migration
 import (
 	"context"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"sort"
 	"sync"
 
@@ -65,16 +66,16 @@ func (m *migrator) register(scripts []Script, comment string) {
 	}
 }
 
-func (m *migrator) bookKeep(script *scriptWithComment) error {
+func (m *migrator) bookKeep(script *scriptWithComment) errors.Error {
 	record := &MigrationHistory{
 		ScriptVersion: script.Version(),
 		ScriptName:    script.Name(),
 		Comment:       script.comment,
 	}
-	return m.db.Create(record).Error
+	return errors.Convert(m.db.Create(record).Error)
 }
 
-func (m *migrator) execute(ctx context.Context) error {
+func (m *migrator) execute(ctx context.Context) errors.Error {
 	sort.Slice(m.pending, func(i, j int) bool {
 		return m.pending[i].Version() < m.pending[j].Version()
 	})
@@ -90,17 +91,17 @@ func (m *migrator) execute(ctx context.Context) error {
 	}
 	return nil
 }
-func (m *migrator) getExecuted() (map[string]bool, error) {
+func (m *migrator) getExecuted() (map[string]bool, errors.Error) {
 	var err error
 	versions := make(map[string]bool)
 	err = m.db.Migrator().AutoMigrate(&MigrationHistory{})
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "error performing migrations")
 	}
 	var records []MigrationHistory
 	err = m.db.Find(&records).Error
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "error finding migration history records")
 	}
 	for _, record := range records {
 		versions[fmt.Sprintf("%s:%d", record.ScriptName, record.ScriptVersion)] = true
@@ -112,7 +113,7 @@ func Register(scripts []Script, comment string) {
 	m.register(scripts, comment)
 }
 
-func Execute(ctx context.Context) error {
+func Execute(ctx context.Context) errors.Error {
 	return m.execute(ctx)
 }
 

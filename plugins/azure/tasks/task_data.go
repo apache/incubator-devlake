@@ -21,7 +21,6 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/azure/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
 )
 
 type AzureApiParams struct {
@@ -43,15 +42,15 @@ type AzureTaskData struct {
 	Repo       *models.AzureRepo
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*AzureOptions, error) {
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*AzureOptions, errors.Error) {
 	var op AzureOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "unable to decode Azure options")
 	}
 	// find the needed Azure now
 	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
+		return nil, errors.BadInput.New("Azure connectionId is invalid")
 	}
 	return &op, nil
 }

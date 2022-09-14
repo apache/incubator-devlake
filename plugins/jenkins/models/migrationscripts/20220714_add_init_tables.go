@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"context"
 	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/gorm/clause"
 
@@ -29,7 +30,7 @@ import (
 
 type addInitTables struct{}
 
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().DropTable(
 		"_raw_jenkins_api_jobs",
 		"_raw_jenkins_api_builds",
@@ -37,7 +38,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.JenkinsBuild{},
 	)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	err = db.Migrator().AutoMigrate(
@@ -46,7 +47,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.JenkinsConnection{},
 	)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	v := config.GetConfig()
@@ -67,12 +68,12 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	conn.Username = useName
 	conn.Password, err = core.Encrypt(encKey, passWord)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return nil

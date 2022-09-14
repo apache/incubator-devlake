@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/url"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -29,7 +30,7 @@ const RAW_STORY_STATUS_TABLE = "tapd_api_story_status"
 
 var _ core.SubTaskEntryPoint = CollectStoryStatus
 
-func CollectStoryStatus(taskCtx core.SubTaskContext) error {
+func CollectStoryStatus(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_STATUS_TABLE, false)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect bugStatus")
@@ -39,7 +40,7 @@ func CollectStoryStatus(taskCtx core.SubTaskContext) error {
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
 		UrlTemplate:        "workflows/status_map",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("system", "story")

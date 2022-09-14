@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -34,7 +35,7 @@ var ExtractApiStagesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ExtractApiStages(taskCtx core.SubTaskContext) error {
+func ExtractApiStages(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -44,14 +45,14 @@ func ExtractApiStages(taskCtx core.SubTaskContext) error {
 			Ctx:   taskCtx,
 			Table: RAW_STAGE_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &models.Stage{}
-			err := json.Unmarshal(row.Data, body)
+			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {
 				return nil, err
 			}
 			input := &SimpleBuild{}
-			err = json.Unmarshal(row.Input, input)
+			err = errors.Convert(json.Unmarshal(row.Input, input))
 			if err != nil {
 				return nil, err
 			}

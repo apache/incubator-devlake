@@ -39,7 +39,7 @@ var CollectApiIssueCommentsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func CollectApiIssueComments(taskCtx core.SubTaskContext) error {
+func CollectApiIssueComments(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMENTS_TABLE)
 
@@ -95,7 +95,7 @@ func CollectApiIssueComments(taskCtx core.SubTaskContext) error {
 		Incremental:        incremental,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/issues/comments",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			if since != nil {

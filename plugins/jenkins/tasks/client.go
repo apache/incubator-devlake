@@ -19,12 +19,13 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
-func CreateApiClient(taskCtx core.TaskContext, connection *models.JenkinsConnection) (*helper.ApiAsyncClient, error) {
+func CreateApiClient(taskCtx core.TaskContext, connection *models.JenkinsConnection) (*helper.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),

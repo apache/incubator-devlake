@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -37,7 +38,7 @@ var ConvertPullRequestLabelsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
+func ConvertPullRequestLabels(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_TABLE)
 	repoId := data.Repo.GiteeId
@@ -59,7 +60,7 @@ func ConvertPullRequestLabels(taskCtx core.SubTaskContext) error {
 		InputRowType:       reflect.TypeOf(models.GiteePullRequestLabel{}),
 		Input:              cursor,
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			prLabel := inputRow.(*models.GiteePullRequestLabel)
 			domainPrLabel := &code.PullRequestLabel{
 				PullRequestId: prIdGen.Generate(data.Options.ConnectionId, prLabel.PullId),

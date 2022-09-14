@@ -19,18 +19,15 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type renameStepToStage struct{}
 
-func (*renameStepToStage) Up(ctx context.Context, db *gorm.DB) error {
-	err := db.Migrator().RenameColumn(archived.Pipeline{}, "step", "stage")
-	if err != nil {
-		return err
-	}
-	return nil
+func (*renameStepToStage) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	return errors.Convert(db.Migrator().RenameColumn(archived.Pipeline{}, "step", "stage"))
 }
 
 func (*renameStepToStage) Version() uint64 {

@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts/archived"
 	"gorm.io/gorm"
@@ -26,7 +27,7 @@ import (
 
 type addInitTables struct{}
 
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().DropTable(
 		"_raw_tapd_api_bug_changelogs",
 		"_raw_tapd_api_bugs",
@@ -87,10 +88,10 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.TapdStoryBug{},
 	)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
-	return db.Migrator().AutoMigrate(
+	return errors.Convert(db.Migrator().AutoMigrate(
 		&archived.TapdWorkspace{},
 		&archived.TapdSubWorkspace{},
 		&archived.TapdWorklog{},
@@ -127,7 +128,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.TapdTaskCustomFields{},
 		&archived.TapdStoryCategory{},
 		&archived.TapdStoryBug{},
-	)
+	))
 }
 
 func (*addInitTables) Version() uint64 {

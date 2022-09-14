@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"time"
 )
@@ -38,7 +39,7 @@ type BitbucketAccountResponse struct {
 	}
 }
 
-func convertAccount(res *BitbucketAccountResponse, connId uint64) (*models.BitbucketAccount, error) {
+func convertAccount(res *BitbucketAccountResponse, connId uint64) (*models.BitbucketAccount, errors.Error) {
 	bitbucketAccount := &models.BitbucketAccount{
 		ConnectionId:  connId,
 		UserName:      res.UserName,

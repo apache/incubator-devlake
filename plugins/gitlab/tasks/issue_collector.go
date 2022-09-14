@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
@@ -41,7 +42,7 @@ var CollectApiIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func CollectApiIssues(taskCtx core.SubTaskContext) error {
+func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
 
@@ -54,7 +55,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 			dal.Orderby("gitlab_updated_at DESC"),
 		}
 		err := db.First(&latestUpdated, clause...)
-		if err != nil && err != gorm.ErrRecordNotFound {
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 			return errors.Default.Wrap(err, "failed to get latest gitlab issue record")
 		}
 		if latestUpdated.GitlabId > 0 {
@@ -73,7 +74,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			if since != nil {
 				query.Set("created_after", since.String())
@@ -86,7 +87,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) error {
 		},
 
 		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var items []json.RawMessage
 			err := helper.UnmarshalResponse(res, &items)
 			if err != nil {

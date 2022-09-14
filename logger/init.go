@@ -19,10 +19,11 @@ package logger
 
 import (
 	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
-	"io"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -51,28 +52,24 @@ func init() {
 	})
 	basePath := cfg.GetString("LOGGING_DIR")
 	if basePath == "" {
-		inner.Error("LOGGING_DIR is not set. Log files will not be generated.")
+		inner.Warn("LOGGING_DIR is not set. Log files will not be generated.")
 	} else {
 		basePath = filepath.Join(basePath, "devlake.log")
 	}
-	var err error
+	var err errors.Error
 	Global, err = NewDefaultLogger(inner)
+	if err != nil {
+		panic(err)
+	}
+	stream, err := GetFileStream(basePath)
+	if err != nil {
+		stream = os.Stdout
+	}
 	Global.SetStream(&core.LoggerStreamConfig{
 		Path:   basePath,
-		Writer: createLogStream(basePath),
+		Writer: stream,
 	})
 	if err != nil {
-		panic(err)
+		Global.Warn(err, "Failed to create filestream for logs. Logs will not be piped to files.")
 	}
-}
-
-func createLogStream(path string) io.Writer {
-	if path == "" {
-		return nil
-	}
-	stream, err := GetFileStream(path)
-	if err != nil {
-		panic(err)
-	}
-	return stream
 }

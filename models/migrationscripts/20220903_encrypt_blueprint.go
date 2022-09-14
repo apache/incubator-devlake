@@ -61,10 +61,10 @@ func (BlueprintOldVersion) TableName() string {
 
 type encryptBLueprint struct{}
 
-func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) error {
+func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().CreateTable(&Blueprint0903Temp{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	//nolint:errcheck
 	defer db.Migrator().DropTable(&Blueprint0903Temp{})
@@ -74,7 +74,7 @@ func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) error {
 	result = db.Find(&blueprintList)
 
 	if result.Error != nil {
-		return result.Error
+		return errors.Convert(result.Error)
 	}
 
 	// Encrypt all blueprints.plan&settings which had been stored before v0.14
@@ -82,7 +82,7 @@ func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) error {
 		c := config.GetConfig()
 		encKey := c.GetString(core.EncodeKeyEnvStr)
 		if encKey == "" {
-			return errors.BadInput.New("invalid encKey", errors.AsUserMessage())
+			return errors.BadInput.New("invalid encKey")
 		}
 		encryptedPlan, err := core.Encrypt(encKey, string(v.Plan))
 		if err != nil {
@@ -102,7 +102,7 @@ func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) error {
 			Plan:       encryptedPlan,
 			Settings:   encryptedSettings,
 		}
-		err = db.Create(newBlueprint).Error
+		err = errors.Convert(db.Create(newBlueprint).Error)
 		if err != nil {
 			return err
 		}
@@ -110,12 +110,12 @@ func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) error {
 
 	err = db.Migrator().DropTable(&BlueprintOldVersion{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	err = db.Migrator().RenameTable(Blueprint0903Temp{}, BlueprintOldVersion{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return nil

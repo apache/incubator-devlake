@@ -18,15 +18,13 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
-	"reflect"
-	"regexp"
-	"runtime/debug"
-
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"reflect"
+	"regexp"
 )
 
 var EnrichTaskEnvMeta = core.SubTaskMeta{
@@ -37,7 +35,7 @@ var EnrichTaskEnvMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func EnrichTasksEnv(taskCtx core.SubTaskContext) (err error) {
+func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
 	repoId := data.Options.RepoId
@@ -45,15 +43,15 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err error) {
 	var taskNameReg *regexp.Regexp
 	taskNamePattern := data.Options.EnvironmentRegex
 	if len(taskNamePattern) > 0 {
-		taskNameReg, err = regexp.Compile(taskNamePattern)
+		taskNameReg, err = errors.Convert01(regexp.Compile(taskNamePattern))
 		if err != nil {
-			return fmt.Errorf("regexp Compile taskNameReg failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile taskNameReg failed")
 		}
 	} else {
 		taskNamePattern = "deploy" // default
-		taskNameReg, err = regexp.Compile(taskNamePattern)
+		taskNameReg, err = errors.Convert01(regexp.Compile(taskNamePattern))
 		if err != nil {
-			return fmt.Errorf("regexp Compile taskNameReg failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+			return errors.Default.Wrap(err, "regexp Compile taskNameReg failed")
 		}
 	}
 
@@ -76,7 +74,7 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err error) {
 		},
 		InputRowType: reflect.TypeOf(devops.CICDTask{}),
 		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			cicdTask := inputRow.(*devops.CICDTask)
 			results := make([]interface{}, 0, 1)
 			if deployTask := taskNameReg.FindString(cicdTask.Name); deployTask == "" {

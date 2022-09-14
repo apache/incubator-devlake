@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -26,7 +27,7 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractMeetingTopUserItem
 
-func ExtractMeetingTopUserItem(taskCtx core.SubTaskContext) error {
+func ExtractMeetingTopUserItem(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*FeishuTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -36,14 +37,14 @@ func ExtractMeetingTopUserItem(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_MEETING_TOP_USER_ITEM_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &models.FeishuMeetingTopUserItem{}
-			err := json.Unmarshal(row.Data, body)
+			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {
 				return nil, err
 			}
 			rawInput := &helper.DatePair{}
-			rawErr := json.Unmarshal(row.Input, rawInput)
+			rawErr := errors.Convert(json.Unmarshal(row.Input, rawInput))
 			if rawErr != nil {
 				return nil, rawErr
 			}

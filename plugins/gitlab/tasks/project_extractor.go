@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -55,15 +56,15 @@ func convertProject(gitlabApiProject *GitlabApiProject) *models.GitlabProject {
 	return gitlabProject
 }
 
-func ExtractApiProject(taskCtx core.SubTaskContext) error {
+func ExtractApiProject(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			// create gitlab commit
 			gitlabApiProject := &GitlabApiProject{}
-			err := json.Unmarshal(row.Data, gitlabApiProject)
+			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiProject))
 			if err != nil {
 				return nil, err
 			}

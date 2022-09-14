@@ -20,6 +20,7 @@ package store
 import (
 	"encoding/csv"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -32,15 +33,15 @@ type csvWriter struct {
 	w *csv.Writer
 }
 
-func newCsvWriter(path string, v interface{}) (*csvWriter, error) {
+func newCsvWriter(path string, v interface{}) (*csvWriter, errors.Error) {
 	f, err := os.Create(path)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	// declare UTF-8 encoding
 	_, err = f.WriteString("\xEF\xBB\xBF")
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	w := csv.NewWriter(f)
 	value := reflect.Indirect(reflect.ValueOf(v))
@@ -53,12 +54,12 @@ func newCsvWriter(path string, v interface{}) (*csvWriter, error) {
 	}
 	err = w.Write(header)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	return &csvWriter{f: f, w: w}, nil
 }
 
-func (w *csvWriter) Write(item interface{}) error {
+func (w *csvWriter) Write(item interface{}) errors.Error {
 	v := reflect.Indirect(reflect.ValueOf(item))
 	n := v.NumField()
 	record := make([]string, 0, n)
@@ -68,12 +69,12 @@ func (w *csvWriter) Write(item interface{}) error {
 		}
 		record = append(record, fmt.Sprint(v.Field(i).Interface()))
 	}
-	return w.w.Write(record)
+	return errors.Convert(w.w.Write(record))
 }
 
-func (w *csvWriter) Close() error {
+func (w *csvWriter) Close() errors.Error {
 	w.w.Flush()
-	return w.f.Close()
+	return errors.Convert(w.f.Close())
 }
 
 type CsvStore struct {
@@ -85,70 +86,70 @@ type CsvStore struct {
 	commitParentWriter *csvWriter
 }
 
-func NewCsvStore(dir string) (*CsvStore, error) {
+func NewCsvStore(dir string) (*CsvStore, errors.Error) {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		err = os.MkdirAll(dir, 0700)
 		if err != nil {
-			return nil, err
+			return nil, errors.Convert(err)
 		}
 	}
 	var err error
 	s := &CsvStore{dir: dir}
 	s.repoCommitWriter, err = newCsvWriter(filepath.Join(dir, "repo_commits.csv"), code.RepoCommit{})
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	s.commitWriter, err = newCsvWriter(filepath.Join(dir, "commits.csv"), code.Commit{})
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	s.refWriter, err = newCsvWriter(filepath.Join(dir, "refs.csv"), code.Ref{})
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	s.commitFileWriter, err = newCsvWriter(filepath.Join(dir, "commit_files.csv"), code.CommitFile{})
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	s.commitParentWriter, err = newCsvWriter(filepath.Join(dir, "commit_parents.csv"), code.CommitParent{})
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	return s, nil
 }
 
-func (c *CsvStore) RepoCommits(repoCommit *code.RepoCommit) error {
+func (c *CsvStore) RepoCommits(repoCommit *code.RepoCommit) errors.Error {
 	return c.repoCommitWriter.Write(repoCommit)
 }
 
-func (c *CsvStore) Commits(commit *code.Commit) error {
+func (c *CsvStore) Commits(commit *code.Commit) errors.Error {
 	return c.commitWriter.Write(commit)
 }
 
-func (c *CsvStore) Refs(ref *code.Ref) error {
+func (c *CsvStore) Refs(ref *code.Ref) errors.Error {
 	return c.refWriter.Write(ref)
 }
 
-func (c *CsvStore) CommitFiles(file *code.CommitFile) error {
+func (c *CsvStore) CommitFiles(file *code.CommitFile) errors.Error {
 	return c.commitFileWriter.Write(file)
 }
 
-func (c *CsvStore) CommitFileComponents(commitFileComponent *code.CommitFileComponent) error {
+func (c *CsvStore) CommitFileComponents(commitFileComponent *code.CommitFileComponent) errors.Error {
 	return c.commitFileWriter.Write(commitFileComponent)
 }
 
-func (c *CsvStore) CommitParents(pp []*code.CommitParent) error {
+func (c *CsvStore) CommitParents(pp []*code.CommitParent) errors.Error {
 	var err error
 	for _, p := range pp {
 		err = c.commitParentWriter.Write(p)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 	}
 	return nil
 }
 
-func (c *CsvStore) Close() error {
+func (c *CsvStore) Close() errors.Error {
 	if c.repoCommitWriter != nil {
 		c.repoCommitWriter.Close()
 	}

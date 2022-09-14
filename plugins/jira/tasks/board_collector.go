@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"net/http"
 
@@ -38,7 +39,7 @@ var CollectBoardMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func CollectBoard(taskCtx core.SubTaskContext) error {
+func CollectBoard(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect board:%d", data.Options.BoardId)
@@ -55,10 +56,10 @@ func CollectBoard(taskCtx core.SubTaskContext) error {
 		UrlTemplate:   "agile/1.0/board/{{ .Params.BoardId }}",
 		GetTotalPages: GetTotalPagesFromResponse,
 		Concurrency:   10,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			blob, err := io.ReadAll(res.Body)
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			res.Body.Close()
 			return []json.RawMessage{blob}, nil

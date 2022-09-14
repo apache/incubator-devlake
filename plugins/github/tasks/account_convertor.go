@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
 	"reflect"
 	"strings"
@@ -47,7 +48,7 @@ type GithubAccountWithOrg struct {
 	common.NoPKModel
 }
 
-func ConvertAccounts(taskCtx core.SubTaskContext) error {
+func ConvertAccounts(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
@@ -71,7 +72,7 @@ func ConvertAccounts(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_ACCOUNT_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubUser := inputRow.(*githubModels.GithubAccount)
 
 			// query related orgs

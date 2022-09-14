@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -47,7 +48,7 @@ type SimplePr struct {
 	GiteeId int
 }
 
-func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
+func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PULL_REQUEST_COMMIT_TABLE)
 
@@ -74,7 +75,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/commits",
 
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -84,7 +85,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var items []json.RawMessage
 			err := helper.UnmarshalResponse(res, &items)
 			if err != nil {

@@ -19,7 +19,9 @@ package tasks
 
 import (
 	"encoding/json"
+	goerror "errors"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
 	"io"
 	"net/http"
@@ -45,7 +47,7 @@ var IssueIdGen *didgen.DomainIdGenerator
 var IterIdGen *didgen.DomainIdGenerator
 
 // res will not be used
-func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) (int, error) {
+func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
 	data := args.Ctx.GetData().(*TapdTaskData)
 	apiClient, err := NewTapdApiClient(args.Ctx.TaskContext(), data.Connection)
 	if err != nil {
@@ -66,7 +68,7 @@ func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) 
 	return totalPage, err
 }
 
-func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string) (iterationFromId uint64, iterationToId uint64, err error) {
+func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string) (iterationFromId uint64, iterationToId uint64, err errors.Error) {
 	data := taskCtx.GetData().(*TapdTaskData)
 	db := taskCtx.GetDal()
 	iterationFrom := &models.TapdIteration{}
@@ -76,7 +78,7 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 			data.Options.ConnectionId, data.Options.WorkspaceId, old),
 	}
 	err = db.First(iterationFrom, clauses...)
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 		return 0, 0, err
 	}
 
@@ -87,21 +89,22 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 			data.Options.ConnectionId, data.Options.WorkspaceId, new),
 	}
 	err = db.First(iterationTo, clauses...)
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 		return 0, 0, err
 	}
 	return iterationFrom.Id, iterationTo.Id, nil
 }
-func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, error) {
+
+func GetRawMessageDirectFromResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
 	body, err := io.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	return []json.RawMessage{body}, nil
 }
 
-func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, error) {
+func GetRawMessageArrayFromResponse(res *http.Response) ([]json.RawMessage, errors.Error) {
 	var data struct {
 		Data []json.RawMessage `json:"data"`
 	}

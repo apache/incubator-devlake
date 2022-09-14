@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -34,7 +35,7 @@ var ExtractApiJobsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ExtractApiJobs(taskCtx core.SubTaskContext) error {
+func ExtractApiJobs(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -51,15 +52,15 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_JOB_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &models.Job{}
-			err := json.Unmarshal(row.Data, body)
+			err := errors.Convert(json.Unmarshal(row.Data, body))
 			if err != nil {
 				return nil, err
 			}
 
 			input := &models.FolderInput{}
-			err = json.Unmarshal(row.Input, input)
+			err = errors.Convert(json.Unmarshal(row.Input, input))
 			if err != nil {
 				return nil, err
 			}

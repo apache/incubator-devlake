@@ -30,7 +30,6 @@ type (
 	crdbErrorImpl struct {
 		wrappedRaw error
 		wrapped    *crdbErrorImpl
-		userMsg    string
 		msg        string
 		data       interface{}
 		t          *Type
@@ -48,22 +47,25 @@ func init() {
 }
 
 func (e *crdbErrorImpl) Error() string {
-	return fmt.Sprintf("%+v", e.wrappedRaw)
+	//crdb spits out a bunch of excess strings, so do some cleanup
+	rawMsg := fmt.Sprintf("%+v", e.wrappedRaw)
+	parts := strings.Split(rawMsg, "\n(1) ")
+	if len(parts) == 1 {
+		return parts[0]
+	}
+	return parts[1]
 }
 
 func (e *crdbErrorImpl) Message() string {
 	return strings.Join(e.getMessages(func(err *crdbErrorImpl) string {
+		if err.msg == "" {
+			return ""
+		}
 		code := ""
 		if err.t.httpCode != 0 {
 			code = fmt.Sprintf("(%d)", err.t.httpCode)
 		}
 		return err.msg + " " + code
-	}), "\ncaused by: ")
-}
-
-func (e *crdbErrorImpl) UserMessage() string {
-	return strings.Join(e.getMessages(func(err *crdbErrorImpl) string {
-		return err.userMsg
 	}), "\ncaused by: ")
 }
 
@@ -127,12 +129,10 @@ func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbError
 	var wrappedErr *crdbErrorImpl
 	var wrappedRaw error
 	rawMessage := message
-	if cfg.userMsg != "" {
-		rawMessage = fmt.Sprintf("%s [%s]", message, cfg.userMsg)
-	}
+	cfg.stackOffset += 2
 	if err == nil {
 		if enableStacktraces {
-			wrappedRaw = cerror.NewWithDepth(2, rawMessage)
+			wrappedRaw = cerror.NewWithDepth(int(cfg.stackOffset), rawMessage)
 		} else {
 			wrappedRaw = errors.New(message)
 		}
@@ -145,7 +145,7 @@ func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbError
 			}
 		}
 		if enableStacktraces {
-			wrappedRaw = cerror.WrapWithDepth(2, err, rawMessage)
+			wrappedRaw = cerror.WrapWithDepth(int(cfg.stackOffset), err, rawMessage)
 		} else {
 			wrappedRaw = cerror.WithDetail(err, rawMessage)
 		}
@@ -154,12 +154,8 @@ func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbError
 		wrappedRaw: wrappedRaw,
 		wrapped:    wrappedErr,
 		msg:        rawMessage,
-		userMsg:    cfg.userMsg,
 		data:       cfg.data,
 		t:          errType,
-	}
-	if cfg.asUserMsg {
-		impl.userMsg = message // set to original
 	}
 	return impl
 }

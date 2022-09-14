@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
@@ -36,7 +37,7 @@ var ConvertIssueLabelsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
+func ConvertIssueLabels(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
 	projectId := data.Options.ProjectId
@@ -63,7 +64,7 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(gitlabModels.GitlabIssueLabel{}),
 		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			issueLabel := inputRow.(*gitlabModels.GitlabIssueLabel)
 			domainIssueLabel := &ticket.IssueLabel{
 				IssueId:   issueIdGen.Generate(data.Options.ConnectionId, issueLabel.IssueId),

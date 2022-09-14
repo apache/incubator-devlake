@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
@@ -80,26 +81,26 @@ func (JenkinsStage0729) TableName() string {
 	return "_tool_jenkins_stages"
 }
 
-func (*modifyAllEntities) Up(ctx context.Context, db *gorm.DB) error {
+func (*modifyAllEntities) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().AddColumn(JenkinsBuild0729{}, "type")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	err = db.Migrator().AddColumn(JenkinsBuild0729{}, "class")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	err = db.Migrator().AddColumn(JenkinsBuild0729{}, "triggered_by")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	err = db.Migrator().AddColumn(JenkinsBuild0729{}, "building")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	err = db.Migrator().AddColumn(JenkinsBuild0729{}, "has_stages")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	err = db.Migrator().AutoMigrate(
 		JenkinsJobDag0729{},
@@ -107,7 +108,7 @@ func (*modifyAllEntities) Up(ctx context.Context, db *gorm.DB) error {
 		JenkinsStage0729{},
 	)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return nil

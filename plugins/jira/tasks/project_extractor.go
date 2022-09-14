@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
@@ -34,7 +35,7 @@ var ExtractProjectsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractProjects(taskCtx core.SubTaskContext) error {
+func ExtractProjects(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -45,9 +46,9 @@ func ExtractProjects(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_PROJECT_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var project apiv2models.Project
-			err := json.Unmarshal(row.Data, &project)
+			err := errors.Convert(json.Unmarshal(row.Data, &project))
 			if err != nil {
 				return nil, err
 			}

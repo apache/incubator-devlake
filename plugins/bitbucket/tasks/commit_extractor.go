@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
@@ -58,7 +59,7 @@ type CommitsResponse struct {
 	} `json:"parents"`
 }
 
-func ExtractApiCommits(taskCtx core.SubTaskContext) error {
+func ExtractApiCommits(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*BitbucketTaskData)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -78,9 +79,9 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_COMMIT_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			commit := &CommitsResponse{}
-			err := json.Unmarshal(row.Data, commit)
+			err := errors.Convert(json.Unmarshal(row.Data, commit))
 			if err != nil {
 				return nil, err
 			}

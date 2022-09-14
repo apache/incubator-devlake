@@ -38,7 +38,7 @@ var ExtractCustomizedFieldsMeta = core.SubTaskMeta{Name: "extractCustomizedField
 }
 
 // ExtractCustomizedFields extracts fields from raw data tables and assigns to domain layer tables
-func ExtractCustomizedFields(taskCtx core.SubTaskContext) error {
+func ExtractCustomizedFields(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*TaskData)
 	if data == nil || data.Options == nil {
 		return nil
@@ -48,7 +48,7 @@ func ExtractCustomizedFields(taskCtx core.SubTaskContext) error {
 	for _, rule := range data.Options.TransformationRules {
 		err = extractCustomizedFields(taskCtx.GetContext(), d, rule.Table, rule.RawDataTable, rule.RawDataParams, rule.Mapping)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error extracting customized fields")
 		}
 	}
 	return nil

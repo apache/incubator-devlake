@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
     "github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/api"
@@ -46,7 +47,7 @@ func (plugin {{ .PluginName }}) Description() string {
 	return "collect some {{ .PluginName }} data"
 }
 
-func (plugin {{ .PluginName }}) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin {{ .PluginName }}) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -57,7 +58,7 @@ func (plugin {{ .PluginName }}) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
     if err != nil {
         return nil, err
@@ -69,12 +70,12 @@ func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx core.TaskContext, option
     connection := &models.{{ .PluginName }}Connection{}
     err = connectionHelper.FirstById(connection, op.ConnectionId)
     if err != nil {
-        return nil, fmt.Errorf("unable to get {{ .PluginName }} connection by the given connection ID: %v", err)
+        return nil, errors.Default.Wrap(err, "unable to get {{ .PluginName }} connection by the given connection ID")
     }
 
     apiClient, err := tasks.New{{ .PluginName }}ApiClient(taskCtx, connection)
     if err != nil {
-        return nil, fmt.Errorf("unable to get {{ .PluginName }} API client instance: %v", err)
+        return nil, errors.Default.Wrap(err, "unable to get {{ .PluginName }} API client instance")
     }
 
     return &tasks.{{ .PluginName }}TaskData{
@@ -109,14 +110,14 @@ func (plugin {{ .PluginName }}) ApiResources() map[string]map[string]core.ApiRes
     }
 }
 
-func (plugin {{ .PluginName }}) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+func (plugin {{ .PluginName }}) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
-func (plugin {{ .PluginName }}) Close(taskCtx core.TaskContext) error {
+func (plugin {{ .PluginName }}) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.{{ .PluginName }}TaskData)
 	if !ok {
-		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	data.ApiClient.Release()
 	return nil

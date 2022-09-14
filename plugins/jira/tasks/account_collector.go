@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -39,7 +40,7 @@ var CollectAccountsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func CollectAccounts(taskCtx core.SubTaskContext) error {
+func CollectAccounts(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
@@ -75,13 +76,13 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
 		UrlTemplate: urlTemplate,
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			user := reqData.Input.(*models.JiraAccount)
 			query := url.Values{}
 			query.Set(queryKey, user.AccountId)
 			return query, nil
 		},
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
 				var results []json.RawMessage
 				err := helper.UnmarshalResponse(res, &results)

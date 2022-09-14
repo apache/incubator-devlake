@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 	"gorm.io/gorm"
@@ -26,10 +27,10 @@ import (
 
 type modifyBoardRepos struct{}
 
-func (*modifyBoardRepos) Up(ctx context.Context, db *gorm.DB) error {
+func (*modifyBoardRepos) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().AutoMigrate(BoardRepo0913{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	return nil
 }

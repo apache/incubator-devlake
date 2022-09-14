@@ -65,7 +65,7 @@ func (GithubRun20220728) TableName() string {
 
 type addGithubRunsTable struct{}
 
-func (u *addGithubRunsTable) Up(ctx context.Context, db *gorm.DB) error {
+func (u *addGithubRunsTable) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	// create table
 	err := db.Migrator().CreateTable(GithubRun20220728{})
 	if err != nil {

@@ -19,22 +19,23 @@ package services
 
 import (
 	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/gorm"
 )
 
 // CreateDbBlueprint accepts a Blueprint instance and insert it to database
-func CreateDbBlueprint(dbBlueprint *models.DbBlueprint) error {
+func CreateDbBlueprint(dbBlueprint *models.DbBlueprint) errors.Error {
 	err := db.Create(&dbBlueprint).Error
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error creating DB blueprint")
 	}
 	return nil
 }
 
 // GetDbBlueprints returns a paginated list of Blueprints based on `query`
-func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, error) {
+func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, errors.Error) {
 	dbBlueprints := make([]*models.DbBlueprint, 0)
 	db := db.Model(dbBlueprints).Order("id DESC")
 	if query.Enable != nil {
@@ -44,7 +45,7 @@ func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, error
 	var count int64
 	err := db.Count(&count).Error
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Default.Wrap(err, "error getting DB count of blueprints")
 	}
 	if query.Page > 0 && query.PageSize > 0 {
 		offset := query.PageSize * (query.Page - 1)
@@ -52,30 +53,30 @@ func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, error
 	}
 	err = db.Find(&dbBlueprints).Error
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Default.Wrap(err, "error finding DB blueprints")
 	}
 
 	return dbBlueprints, count, nil
 }
 
 // GetDbBlueprint returns the detail of a given Blueprint ID
-func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, error) {
+func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, errors.Error) {
 	dbBlueprint := &models.DbBlueprint{}
 	err := db.First(dbBlueprint, dbBlueprintId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, err
+			return nil, errors.NotFound.Wrap(err, "could not find blueprint in DB")
 		}
-		return nil, err
+		return nil, errors.Default.Wrap(err, "error getting blueprint from DB")
 	}
 	return dbBlueprint, nil
 }
 
 // DeleteDbBlueprint deletes blueprint by id
-func DeleteDbBlueprint(id uint64) error {
+func DeleteDbBlueprint(id uint64) errors.Error {
 	err := db.Delete(&models.DbBlueprint{}, "id = ?", id).Error
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error deleting blueprint from DB")
 	}
 	return nil
 }
@@ -111,7 +112,7 @@ func parseDbBlueprint(blueprint *models.Blueprint) *models.DbBlueprint {
 }
 
 // encryptDbBlueprint
-func encryptDbBlueprint(dbBlueprint *models.DbBlueprint) (*models.DbBlueprint, error) {
+func encryptDbBlueprint(dbBlueprint *models.DbBlueprint) (*models.DbBlueprint, errors.Error) {
 	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
 	planEncrypt, err := core.Encrypt(encKey, dbBlueprint.Plan)
 	if err != nil {
@@ -127,7 +128,7 @@ func encryptDbBlueprint(dbBlueprint *models.DbBlueprint) (*models.DbBlueprint, e
 }
 
 // decryptDbBlueprint
-func decryptDbBlueprint(dbBlueprint *models.DbBlueprint) (*models.DbBlueprint, error) {
+func decryptDbBlueprint(dbBlueprint *models.DbBlueprint) (*models.DbBlueprint, errors.Error) {
 	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
 	plan, err := core.Decrypt(encKey, dbBlueprint.Plan)
 	if err != nil {

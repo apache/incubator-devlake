@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
@@ -34,7 +35,7 @@ var ExtractWorklogsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractWorklogs(taskCtx core.SubTaskContext) error {
+func ExtractWorklogs(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -45,14 +46,14 @@ func ExtractWorklogs(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_WORKLOGS_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var input apiv2models.Input
-			err := json.Unmarshal(row.Input, &input)
+			err := errors.Convert(json.Unmarshal(row.Input, &input))
 			if err != nil {
 				return nil, err
 			}
 			var worklog apiv2models.Worklog
-			err = json.Unmarshal(row.Data, &worklog)
+			err = errors.Convert(json.Unmarshal(row.Data, &worklog))
 			if err != nil {
 				return nil, err
 			}

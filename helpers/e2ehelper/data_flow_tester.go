@@ -232,7 +232,7 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 		panic(errors.Default.Wrap(err, fmt.Sprintf("unable to run select query on table %s", dst.TableName())))
 	}
 
-	columns, err := dbCursor.Columns()
+	columns, err := errors.Convert01(dbCursor.Columns())
 	if err != nil {
 		panic(errors.Default.Wrap(err, fmt.Sprintf("unable to get columns from table %s", dst.TableName())))
 	}
@@ -255,7 +255,7 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 	}
 
 	for dbCursor.Next() {
-		err = dbCursor.Scan(forScanValues...)
+		err = errors.Convert(dbCursor.Scan(forScanValues...))
 		if err != nil {
 			panic(errors.Default.Wrap(err, fmt.Sprintf("unable to scan row on table %s: %v", dst.TableName(), err)))
 		}

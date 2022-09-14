@@ -18,21 +18,23 @@ limitations under the License.
 package services
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 /*
 GetPluginsApiResources return value
-{
-	"jira": {
-		"connections": {
-			"POST": *ApiResourceHandler
+
+	{
+		"jira": {
+			"connections": {
+				"POST": *ApiResourceHandler
+			}
 		}
 	}
-}
 */
 // GetPluginsApiResources returns all APIs of all plugins
-func GetPluginsApiResources() (map[string]map[string]map[string]core.ApiResourceHandler, error) {
+func GetPluginsApiResources() (map[string]map[string]map[string]core.ApiResourceHandler, errors.Error) {
 	res := make(map[string]map[string]map[string]core.ApiResourceHandler)
 	for pluginName, pluginEntry := range core.AllPlugins() {
 		if pluginApi, ok := pluginEntry.(core.PluginApi); ok {

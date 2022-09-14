@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"net/http"
 
@@ -34,7 +35,7 @@ import (
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router       /plugins/org/project_mapping.csv [get]
-func (h *Handlers) GetProjectMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func (h *Handlers) GetProjectMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	input.Query.Get("fake_data")
 	var mapping []projectMapping
 	var err error
@@ -43,12 +44,12 @@ func (h *Handlers) GetProjectMapping(input *core.ApiResourceInput) (*core.ApiRes
 	} else {
 		mapping, err = h.store.findAllProjectMapping()
 		if err != nil {
-			return nil, err
+			return nil, errors.Convert(err)
 		}
 	}
 	blob, err := gocsv.MarshalBytes(mapping)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	return &core.ApiResourceOutput{
 		Body:   nil,
@@ -71,7 +72,7 @@ func (h *Handlers) GetProjectMapping(input *core.ApiResourceInput) (*core.ApiRes
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router       /plugins/org/project_mapping.csv [put]
-func (h *Handlers) CreateProjectMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func (h *Handlers) CreateProjectMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var mapping []projectMapping
 	err := h.unmarshal(input.Request, &mapping)
 	if err != nil {

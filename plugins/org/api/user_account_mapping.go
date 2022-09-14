@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"net/http"
 
@@ -34,12 +35,12 @@ import (
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router       /plugins/org/user_account_mapping.csv [get]
-func (h *Handlers) GetUserAccountMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func (h *Handlers) GetUserAccountMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	accounts, err := h.store.findAllAccounts()
 	if err != nil {
 		return nil, err
 	}
-	blob, err := gocsv.MarshalBytes(accounts)
+	blob, err := errors.Convert01(gocsv.MarshalBytes(accounts))
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +65,7 @@ func (h *Handlers) GetUserAccountMapping(input *core.ApiResourceInput) (*core.Ap
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router       /plugins/org/user_account_mapping.csv [put]
-func (h *Handlers) CreateUserAccountMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func (h *Handlers) CreateUserAccountMapping(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var aa []account
 	err := h.unmarshal(input.Request, &aa)
 	if err != nil {

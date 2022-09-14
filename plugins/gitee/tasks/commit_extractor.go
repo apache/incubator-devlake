@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitee/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -56,17 +57,17 @@ type GiteeApiCommitResponse struct {
 	Url         string               `json:"url"`
 }
 
-func ExtractApiCommits(taskCtx core.SubTaskContext) error {
+func ExtractApiCommits(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_COMMIT_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			results := make([]interface{}, 0, 4)
 
 			commit := &GiteeApiCommitResponse{}
 
-			err := json.Unmarshal(row.Data, commit)
+			err := errors.Convert(json.Unmarshal(row.Data, commit))
 
 			if err != nil {
 				return nil, err
@@ -110,7 +111,7 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) error {
 }
 
 // ConvertCommit Convert the API response to our DB model instance
-func ConvertCommit(commit *GiteeApiCommitResponse) (*models.GiteeCommit, error) {
+func ConvertCommit(commit *GiteeApiCommitResponse) (*models.GiteeCommit, errors.Error) {
 	giteeCommit := &models.GiteeCommit{
 		Sha:            commit.Sha,
 		Message:        commit.Commit.Message,

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -51,15 +52,15 @@ var ExtractApiJobsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ExtractApiJobs(taskCtx core.SubTaskContext) error {
+func ExtractApiJobs(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_JOB_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			// create gitlab commit
 			gitlabApiJob := &ApiJob{}
-			err := json.Unmarshal(row.Data, gitlabApiJob)
+			err := errors.Convert(json.Unmarshal(row.Data, gitlabApiJob))
 			if err != nil {
 				return nil, err
 			}
@@ -86,7 +87,7 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) error {
 	return extractor.Execute()
 }
 
-func convertJob(job *ApiJob, projectId int) (*models.GitlabJob, error) {
+func convertJob(job *ApiJob, projectId int) (*models.GitlabJob, errors.Error) {
 	return &models.GitlabJob{
 		GitlabId:     job.Id,
 		ProjectId:    projectId,

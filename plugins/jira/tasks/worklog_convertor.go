@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -38,7 +39,7 @@ var ConvertWorklogsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertWorklogs(taskCtx core.SubTaskContext) error {
+func ConvertWorklogs(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()
 	connectionId := data.Options.ConnectionId
@@ -73,7 +74,7 @@ func ConvertWorklogs(taskCtx core.SubTaskContext) error {
 		},
 		InputRowType: reflect.TypeOf(models.JiraWorklog{}),
 		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jiraWorklog := inputRow.(*models.JiraWorklog)
 			worklog := &ticket.IssueWorklog{
 				DomainEntity:     domainlayer.DomainEntity{Id: worklogIdGen.Generate(jiraWorklog.ConnectionId, jiraWorklog.IssueId, jiraWorklog.WorklogId)},

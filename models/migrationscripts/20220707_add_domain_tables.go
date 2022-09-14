@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
@@ -26,7 +27,7 @@ import (
 
 type addDomainTables struct{}
 
-func (*addDomainTables) Up(ctx context.Context, db *gorm.DB) error {
+func (*addDomainTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().DropTable(
 		"issue_assignee_history",
 		"issue_status_history",
@@ -64,10 +65,10 @@ func (*addDomainTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.RefsPrCherrypick{},
 	)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
-	return db.Migrator().AutoMigrate(
+	return errors.Convert(db.Migrator().AutoMigrate(
 		&archived.Repo{},
 		&archived.Commit{},
 		&archived.CommitParent{},
@@ -103,7 +104,7 @@ func (*addDomainTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.Team{},
 		&archived.UserAccount{},
 		&archived.TeamUser{},
-	)
+	))
 }
 
 func (*addDomainTables) Version() uint64 {

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -37,7 +38,7 @@ var ConvertPullRequestReviewsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS, core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func ConvertPullRequestReviews(taskCtx core.SubTaskContext) error {
+func ConvertPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
@@ -69,7 +70,7 @@ func ConvertPullRequestReviews(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_PR_REVIEW_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			githubPullRequestReview := inputRow.(*githubModels.GithubPrReview)
 			domainPrReview := &code.PullRequestComment{
 				DomainEntity: domainlayer.DomainEntity{

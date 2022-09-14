@@ -81,7 +81,7 @@ func pipelineServiceInit() {
 
 	var pipelineMaxParallel = cfg.GetInt64("PIPELINE_MAX_PARALLEL")
 	if pipelineMaxParallel < 0 {
-		panic(errors.BadInput.New(`PIPELINE_MAX_PARALLEL should be a positive integer`, errors.AsUserMessage()))
+		panic(errors.BadInput.New(`PIPELINE_MAX_PARALLEL should be a positive integer`))
 	}
 	if pipelineMaxParallel == 0 {
 		globalPipelineLog.Warn(nil, `pipelineMaxParallel=0 means pipeline will be run No Limit`)
@@ -92,10 +92,10 @@ func pipelineServiceInit() {
 }
 
 // CreatePipeline and return the model
-func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
+func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.Error) {
 	dbPipeline, err := CreateDbPipeline(newPipeline)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	dbPipeline, err = decryptDbPipeline(dbPipeline)
 	if err != nil {
@@ -106,10 +106,10 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, error) {
 }
 
 // GetPipelines by query
-func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
+func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error) {
 	dbPipelines, i, err := GetDbPipelines(query)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Convert(err)
 	}
 	pipelines := make([]*models.Pipeline, 0)
 	for _, dbPipeline := range dbPipelines {
@@ -125,7 +125,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, error) {
 }
 
 // GetPipeline by id
-func GetPipeline(pipelineId uint64) (*models.Pipeline, error) {
+func GetPipeline(pipelineId uint64) (*models.Pipeline, errors.Error) {
 	dbPipeline, err := GetDbPipeline(pipelineId)
 	if err != nil {
 		return nil, err
@@ -139,7 +139,7 @@ func GetPipeline(pipelineId uint64) (*models.Pipeline, error) {
 }
 
 // GetPipelineLogsArchivePath creates an archive for the logs of this pipeline and returns its file path
-func GetPipelineLogsArchivePath(pipeline *models.Pipeline) (string, error) {
+func GetPipelineLogsArchivePath(pipeline *models.Pipeline) (string, errors.Error) {
 	logPath, err := getPipelineLogsPath(pipeline)
 	if err != nil {
 		return "", err
@@ -264,8 +264,7 @@ func watchTemporalPipelines() {
 						return
 					}
 					lastPayload := payloads[len(payloads)-1]
-					err = dc.FromPayload(lastPayload, progressDetail)
-					if err != nil {
+					if err := dc.FromPayload(lastPayload, progressDetail); err != nil {
 						globalPipelineLog.Error(err, "failed to unmarshal heartbeat payload: %w", err)
 						continue
 					}
@@ -281,7 +280,7 @@ func getTemporalWorkflowId(pipelineId uint64) string {
 }
 
 // NotifyExternal FIXME ...
-func NotifyExternal(pipelineId uint64) error {
+func NotifyExternal(pipelineId uint64) errors.Error {
 	if notificationService == nil {
 		return nil
 	}
@@ -306,13 +305,13 @@ func NotifyExternal(pipelineId uint64) error {
 }
 
 // CancelPipeline FIXME ...
-func CancelPipeline(pipelineId uint64) error {
+func CancelPipeline(pipelineId uint64) errors.Error {
 	if temporalClient != nil {
-		return temporalClient.CancelWorkflow(context.Background(), getTemporalWorkflowId(pipelineId), "")
+		return errors.Convert(temporalClient.CancelWorkflow(context.Background(), getTemporalWorkflowId(pipelineId), ""))
 	}
 	pendingTasks, count, err := GetTasks(&TaskQuery{PipelineId: pipelineId, Pending: 1, PageSize: -1})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	if count == 0 {
 		return nil
@@ -320,11 +319,11 @@ func CancelPipeline(pipelineId uint64) error {
 	for _, pendingTask := range pendingTasks {
 		_ = CancelTask(pendingTask.ID)
 	}
-	return err
+	return errors.Convert(err)
 }
 
 // getPipelineLogsPath gets the logs directory of this pipeline
-func getPipelineLogsPath(pipeline *models.Pipeline) (string, error) {
+func getPipelineLogsPath(pipeline *models.Pipeline) (string, errors.Error) {
 	pipelineLog := getPipelineLogger(pipeline)
 	path := filepath.Dir(pipelineLog.GetConfig().Path)
 	_, err := os.Stat(path)
@@ -332,7 +331,7 @@ func getPipelineLogsPath(pipeline *models.Pipeline) (string, error) {
 		return path, nil
 	}
 	if os.IsNotExist(err) {
-		return "", fmt.Errorf("logs for pipeline #%d not found: %v", pipeline.ID, err)
+		return "", errors.NotFound.Wrap(err, fmt.Sprintf("logs for pipeline #%d not found", pipeline.ID))
 	}
-	return "", fmt.Errorf("err validating logs path for pipeline #%d: %v", pipeline.ID, err)
+	return "", errors.Default.Wrap(err, fmt.Sprintf("error validating logs path for pipeline #%d", pipeline.ID))
 }

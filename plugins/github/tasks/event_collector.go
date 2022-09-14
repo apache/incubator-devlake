@@ -44,7 +44,7 @@ var CollectApiEventsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func CollectApiEvents(taskCtx core.SubTaskContext) error {
+func CollectApiEvents(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
@@ -86,7 +86,7 @@ func CollectApiEvents(taskCtx core.SubTaskContext) error {
 		Incremental: incremental,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/issues/events",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			if since != nil {
@@ -99,7 +99,7 @@ func CollectApiEvents(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var items []json.RawMessage
 			err := helper.UnmarshalResponse(res, &items)
 			if err != nil {

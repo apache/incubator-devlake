@@ -19,20 +19,15 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type addProjectMapping struct{}
 
-func (*addProjectMapping) Up(ctx context.Context, db *gorm.DB) error {
-
-	err := db.Migrator().AutoMigrate(&archived.ProjectMapping{})
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (*addProjectMapping) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	return errors.Convert(db.Migrator().AutoMigrate(&archived.ProjectMapping{}))
 }
 
 func (*addProjectMapping) Version() uint64 {

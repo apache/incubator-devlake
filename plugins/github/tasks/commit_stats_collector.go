@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	goerror "github.com/cockroachdb/errors"
 	"gorm.io/gorm"
 	"io"
 	"net/http"
@@ -43,7 +44,7 @@ var CollectApiCommitStatsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
-func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
+func CollectApiCommitStats(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
@@ -55,7 +56,7 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 		dal.Orderby("committed_date DESC"),
 		dal.Limit(1),
 	)
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 		return errors.Default.Wrap(err, "failed to get latest github commit record")
 	}
 
@@ -106,7 +107,7 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			query.Set("direction", "asc")
@@ -116,11 +117,11 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			res.Body.Close()
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			return []json.RawMessage{body}, nil
 		},

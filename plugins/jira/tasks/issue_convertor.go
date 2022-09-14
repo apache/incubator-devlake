@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"net/url"
 	"path/filepath"
 	"reflect"
@@ -40,7 +41,7 @@ var ConvertIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertIssues(taskCtx core.SubTaskContext) error {
+func ConvertIssues(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
 
@@ -80,7 +81,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_ISSUE_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jiraIssue := inputRow.(*jiraModels.JiraIssue)
 			issue := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{

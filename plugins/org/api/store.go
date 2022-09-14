@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
@@ -27,13 +28,13 @@ import (
 )
 
 type store interface {
-	findAllUsers() ([]user, error)
-	findAllTeams() ([]team, error)
-	findAllAccounts() ([]account, error)
-	findAllUserAccounts() ([]userAccount, error)
-	findAllProjectMapping() ([]projectMapping, error)
-	deleteAll(i interface{}) error
-	save(items []interface{}) error
+	findAllUsers() ([]user, errors.Error)
+	findAllTeams() ([]team, errors.Error)
+	findAllAccounts() ([]account, errors.Error)
+	findAllUserAccounts() ([]userAccount, errors.Error)
+	findAllProjectMapping() ([]projectMapping, errors.Error)
+	deleteAll(i interface{}) errors.Error
+	save(items []interface{}) errors.Error
 }
 
 type dbStore struct {
@@ -46,7 +47,7 @@ func NewDbStore(db dal.Dal, basicRes core.BasicRes) *dbStore {
 	return &dbStore{db: db, driver: driver}
 }
 
-func (d *dbStore) findAllUsers() ([]user, error) {
+func (d *dbStore) findAllUsers() ([]user, errors.Error) {
 	var u *user
 	var uu []crossdomain.User
 	err := d.db.All(&uu)
@@ -60,7 +61,7 @@ func (d *dbStore) findAllUsers() ([]user, error) {
 	}
 	return u.fromDomainLayer(uu, tus), nil
 }
-func (d *dbStore) findAllTeams() ([]team, error) {
+func (d *dbStore) findAllTeams() ([]team, errors.Error) {
 	var tt []crossdomain.Team
 	err := d.db.All(&tt)
 	if err != nil {
@@ -69,7 +70,7 @@ func (d *dbStore) findAllTeams() ([]team, error) {
 	var t *team
 	return t.fromDomainLayer(tt), nil
 }
-func (d *dbStore) findAllAccounts() ([]account, error) {
+func (d *dbStore) findAllAccounts() ([]account, errors.Error) {
 	var aa []crossdomain.Account
 	err := d.db.All(&aa)
 	if err != nil {
@@ -84,7 +85,7 @@ func (d *dbStore) findAllAccounts() ([]account, error) {
 	return a.fromDomainLayer(aa, ua), nil
 }
 
-func (d *dbStore) findAllUserAccounts() ([]userAccount, error) {
+func (d *dbStore) findAllUserAccounts() ([]userAccount, errors.Error) {
 	var uas []crossdomain.UserAccount
 	err := d.db.All(&uas)
 	if err != nil {
@@ -95,7 +96,7 @@ func (d *dbStore) findAllUserAccounts() ([]userAccount, error) {
 	return au.fromDomainLayer(uas), nil
 }
 
-func (d *dbStore) findAllProjectMapping() ([]projectMapping, error) {
+func (d *dbStore) findAllProjectMapping() ([]projectMapping, errors.Error) {
 	var mapping []crossdomain.ProjectMapping
 	err := d.db.All(&mapping)
 	if err != nil {
@@ -104,11 +105,11 @@ func (d *dbStore) findAllProjectMapping() ([]projectMapping, error) {
 	var pm *projectMapping
 	return pm.fromDomainLayer(mapping), nil
 }
-func (d *dbStore) deleteAll(i interface{}) error {
+func (d *dbStore) deleteAll(i interface{}) errors.Error {
 	return d.db.Delete(i, dal.Where("1=1"))
 }
 
-func (d *dbStore) save(items []interface{}) error {
+func (d *dbStore) save(items []interface{}) errors.Error {
 	for _, item := range items {
 		batch, err := d.driver.ForType(reflect.TypeOf(item))
 		if err != nil {

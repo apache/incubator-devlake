@@ -27,7 +27,7 @@ import (
 
 var plugins map[string]PluginMeta
 
-func RegisterPlugin(name string, plugin PluginMeta) error {
+func RegisterPlugin(name string, plugin PluginMeta) errors.Error {
 	if plugins == nil {
 		plugins = make(map[string]PluginMeta)
 	}
@@ -35,7 +35,7 @@ func RegisterPlugin(name string, plugin PluginMeta) error {
 	return nil
 }
 
-func GetPlugin(name string) (PluginMeta, error) {
+func GetPlugin(name string) (PluginMeta, errors.Error) {
 	if plugins == nil {
 		return nil, errors.Default.New("RegisterPlugin have never been called.")
 	}
@@ -45,9 +45,9 @@ func GetPlugin(name string) (PluginMeta, error) {
 	return nil, errors.Default.New(fmt.Sprintf("Plugin `%s` doesn't exist", name))
 }
 
-type PluginCallBack func(name string, plugin PluginMeta) error
+type PluginCallBack func(name string, plugin PluginMeta) errors.Error
 
-func TraversalPlugin(handle PluginCallBack) error {
+func TraversalPlugin(handle PluginCallBack) errors.Error {
 	for name, plugin := range plugins {
 		err := handle(name, plugin)
 		if err != nil {
@@ -61,7 +61,7 @@ func AllPlugins() map[string]PluginMeta {
 	return plugins
 }
 
-func FindPluginNameBySubPkgPath(subPkgPath string) (string, error) {
+func FindPluginNameBySubPkgPath(subPkgPath string) (string, errors.Error) {
 	for name, plugin := range plugins {
 		if strings.HasPrefix(subPkgPath, plugin.RootPkgPath()) {
 			return name, nil

@@ -19,23 +19,23 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type renameColumnsOfPullRequestIssue struct{}
 
-func (*renameColumnsOfPullRequestIssue) Up(ctx context.Context, db *gorm.DB) error {
+func (*renameColumnsOfPullRequestIssue) Up(ctx context.Context, db *gorm.DB) errors.Error {
 
 	err := db.Migrator().RenameColumn(&archived.PullRequestIssue{}, "pull_request_number", "pull_request_key")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	err = db.Migrator().RenameColumn(&archived.PullRequestIssue{}, "issue_number", "issue_key")
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
-
 	return nil
 }
 

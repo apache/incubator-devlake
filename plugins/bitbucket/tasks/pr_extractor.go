@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -82,9 +83,9 @@ type BitbucketApiPullRequest struct {
 	Participants []BitbucketAccountResponse `json:"participants"`
 }
 
-func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
+func ExtractApiPullRequests(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*BitbucketTaskData)
-	var err error
+	var err errors.Error
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -102,9 +103,9 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			rawL := &BitbucketApiPullRequest{}
-			err := json.Unmarshal(row.Data, rawL)
+			err := errors.Convert(json.Unmarshal(row.Data, rawL))
 			if err != nil {
 				return nil, err
 			}
@@ -135,14 +136,12 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 			return results, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}
-
 	return extractor.Execute()
 }
-func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, repoId string) (*models.BitbucketPullRequest, error) {
+func convertBitbucketPullRequest(pull *BitbucketApiPullRequest, connId uint64, repoId string) (*models.BitbucketPullRequest, errors.Error) {
 	bitbucketPull := &models.BitbucketPullRequest{
 		ConnectionId:       connId,
 		BitbucketId:        pull.BitbucketId,

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -38,7 +39,7 @@ var ConvertMrCommentMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
+func ConvertMergeRequestComment(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PROJECT_TABLE)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
@@ -66,7 +67,7 @@ func ConvertMergeRequestComment(taskCtx core.SubTaskContext) error {
 		InputRowType:       reflect.TypeOf(models.GitlabMrComment{}),
 		Input:              cursor,
 
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabComments := inputRow.(*models.GitlabMrComment)
 
 			domainComment := &code.PullRequestComment{

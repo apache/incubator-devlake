@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -52,7 +53,7 @@ type DetailGithubAccountResponse struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 }
 
-func ExtractAccounts(taskCtx core.SubTaskContext) error {
+func ExtractAccounts(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -64,9 +65,9 @@ func ExtractAccounts(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_ACCOUNT_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			apiAccount := &DetailGithubAccountResponse{}
-			err := json.Unmarshal(row.Data, apiAccount)
+			err := errors.Convert(json.Unmarshal(row.Data, apiAccount))
 			if err != nil {
 				return nil, err
 			}

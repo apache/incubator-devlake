@@ -46,7 +46,7 @@ func (GithubPipeline20220803) TableName() string {
 
 type addGithubPipelineTable struct{}
 
-func (u *addGithubPipelineTable) Up(ctx context.Context, db *gorm.DB) error {
+func (u *addGithubPipelineTable) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	// create table
 	err := db.Migrator().CreateTable(GithubPipeline20220803{})
 	if err != nil {

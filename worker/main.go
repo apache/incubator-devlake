@@ -18,6 +18,7 @@ limitations under the License.
 package main
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"log"
 
 	"github.com/apache/incubator-devlake/config"
@@ -44,10 +45,10 @@ func main() {
 	// establish temporal connection
 	TASK_QUEUE := cfg.GetString("TEMPORAL_TASK_QUEUE")
 	// Create the client object just once per process
-	c, err := client.NewClient(client.Options{
+	c, err := errors.Convert01(client.NewClient(client.Options{
 		HostPort: cfg.GetString("TEMPORAL_URL"),
 		Logger:   app.NewTemporalLogger(logger.Global),
-	})
+	}))
 	if err != nil {
 		log.Fatalln("unable to create Temporal client", err)
 	}
@@ -57,7 +58,7 @@ func main() {
 	w.RegisterWorkflow(app.DevLakePipelineWorkflow)
 	w.RegisterActivity(app.DevLakeTaskActivity)
 	// Start listening to the Task Queue
-	err = w.Run(worker.InterruptCh())
+	err = errors.Convert(w.Run(worker.InterruptCh()))
 	if err != nil {
 		log.Fatalln("unable to start Worker", err)
 	}

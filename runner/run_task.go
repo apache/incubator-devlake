@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/utils"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 
@@ -44,18 +43,17 @@ func RunTask(
 	db *gorm.DB,
 	progress chan core.RunningProgress,
 	taskId uint64,
-) error {
+) errors.Error {
 	task := &models.Task{}
-	err := db.Find(task, taskId).Error
-	if err != nil {
-		return err
+	if err := db.Find(task, taskId).Error; err != nil {
+		return errors.Convert(err)
 	}
 	if task.Status == models.TASK_COMPLETED {
 		return errors.Default.New("invalid task status")
 	}
 	log, err := getTaskLogger(parentLogger, task)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	beganAt := time.Now()
 	// make sure task status always correct even if it panicked
@@ -81,36 +79,38 @@ func RunTask(
 				"failed_sub_task": subTaskName,
 			}).Error
 			if dbe != nil {
-				log.Error(err, "failed to finalize task status into db")
+				log.Error(err, "failed to finalize task status into db (task failed)")
 			}
 		} else {
-			err = db.Model(task).Updates(map[string]interface{}{
+			dbe := db.Model(task).Updates(map[string]interface{}{
 				"status":        models.TASK_COMPLETED,
 				"message":       "",
 				"finished_at":   finishedAt,
 				"spent_seconds": spentSeconds,
 			}).Error
+			if dbe != nil {
+				log.Error(err, "failed to finalize task status into db (task succeeded)")
+			}
 		}
 	}()
 
 	// start execution
 	log.Info("start executing task: %d", task.ID)
-	err = db.Model(task).Updates(map[string]interface{}{
+	if err := db.Model(task).Updates(map[string]interface{}{
 		"status":   models.TASK_RUNNING,
 		"message":  "",
 		"began_at": beganAt,
-	}).Error
-	if err != nil {
-		return err
+	}).Error; err != nil {
+		return errors.Convert(err)
 	}
 
 	var options map[string]interface{}
-	err = json.Unmarshal(task.Options, &options)
+	err = errors.Convert(json.Unmarshal(task.Options, &options))
 	if err != nil {
 		return err
 	}
 	var subtasks []string
-	err = json.Unmarshal(task.Subtasks, &subtasks)
+	err = errors.Convert(json.Unmarshal(task.Subtasks, &subtasks))
 	if err != nil {
 		return err
 	}
@@ -195,7 +195,7 @@ func RunPluginSubTasks(
 	if len(subtaskNames) != 0 {
 		// decode user specified subtasks
 		var specifiedTasks []string
-		err := mapstructure.Decode(subtaskNames, &specifiedTasks)
+		err := helper.Decode(subtaskNames, &specifiedTasks, nil)
 		if err != nil {
 			return errors.Default.Wrap(err, "subtasks could not be decoded")
 		}
@@ -308,7 +308,7 @@ func runSubtask(
 	subtaskNumber int,
 	ctx core.SubTaskContext,
 	entryPoint core.SubTaskEntryPoint,
-) error {
+) errors.Error {
 	beginAt := time.Now()
 	subtask := &models.Subtask{
 		Name:    ctx.GetName(),
@@ -331,7 +331,7 @@ func recordSubtask(log core.Logger, db *gorm.DB, subtask *models.Subtask) {
 	}
 }
 
-func getTaskLogger(parentLogger core.Logger, task *models.Task) (core.Logger, error) {
+func getTaskLogger(parentLogger core.Logger, task *models.Task) (core.Logger, errors.Error) {
 	log := parentLogger.Nested(fmt.Sprintf("task #%d", task.ID))
 	loggingPath := logger.GetTaskLoggerPath(log.GetConfig(), task)
 	stream, err := logger.GetFileStream(loggingPath)

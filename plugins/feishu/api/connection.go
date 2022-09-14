@@ -22,12 +22,10 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/feishu/apimodels"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
-
-	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 // @Summary test feishu connection
@@ -38,18 +36,12 @@ import (
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/feishu/test [POST]
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// process input
 	var params models.TestConnectionRequest
-	err := mapstructure.Decode(input.Body, &params)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
+	if err := helper.Decode(input.Body, &params, vld); err != nil {
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
-	err = vld.Struct(params)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
-	}
-
 	authApiClient, err := helper.NewApiClient(context.TODO(), params.Endpoint, nil, 0, params.Proxy, basicRes)
 	if err != nil {
 		return nil, err
@@ -85,7 +77,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/feishu/connections [POST]
-func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.FeishuConnection{}
 	err := connectionHelper.Create(connection, input)
 	if err != nil {
@@ -102,7 +94,7 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/feishu/connections/{connectionId} [PATCH]
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.FeishuConnection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
@@ -118,7 +110,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/feishu/connections/{connectionId} [DELETE]
-func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.FeishuConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -135,7 +127,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/feishu/connections [GET]
-func ListConnections(_ *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func ListConnections(_ *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var connections []models.FeishuConnection
 	err := connectionHelper.List(&connections)
 	if err != nil {
@@ -152,7 +144,7 @@ func ListConnections(_ *core.ApiResourceInput) (*core.ApiResourceOutput, error) 
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/feishu/connections/{connectionId} [GET]
-func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.FeishuConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {

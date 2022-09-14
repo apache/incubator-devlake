@@ -18,13 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	aeModels "github.com/apache/incubator-devlake/plugins/ae/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 // NOTE: This only works on Commits in the Domain layer. You need to run Github or Gitlab collection and Domain layer enrichemnt first.
-func ConvertCommits(taskCtx core.SubTaskContext) error {
+func ConvertCommits(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*AeTaskData)
 
@@ -47,7 +48,7 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 		// we do a non-blocking checking, this should be applied to all converters from all plugins
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return errors.Convert(ctx.Err())
 		default:
 		}
 		// uncomment following line if you want to test out canceling feature for this task

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -37,7 +38,7 @@ var ConvertPrCommentsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
+func ConvertPullRequestComments(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	repoId := data.Repo.BitbucketId
@@ -69,7 +70,7 @@ func ConvertPullRequestComments(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_PULL_REQUEST_COMMENTS_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketPullRequestComment := inputRow.(*bitbucketModels.BitbucketPrComment)
 			domainPrComment := &code.PullRequestComment{
 				DomainEntity: domainlayer.DomainEntity{

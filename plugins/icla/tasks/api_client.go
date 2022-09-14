@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/utils"
@@ -26,7 +27,7 @@ import (
 
 const ENDPOINT = "https://people.apache.org/"
 
-func NewIclaApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, error) {
+func NewIclaApiClient(taskCtx core.TaskContext) (*helper.ApiAsyncClient, errors.Error) {
 	// load and process configuration
 	token := taskCtx.GetConfig("ICLA_TOKEN")
 	if token == "" {

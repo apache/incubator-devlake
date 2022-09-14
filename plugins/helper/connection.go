@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/go-playground/validator/v10"
-	"github.com/mitchellh/mapstructure"
 )
 
 // BaseConnection FIXME ...
@@ -92,7 +91,7 @@ func NewConnectionHelper(
 }
 
 // Create a connection record based on request body
-func (c *ConnectionApiHelper) Create(connection interface{}, input *core.ApiResourceInput) error {
+func (c *ConnectionApiHelper) Create(connection interface{}, input *core.ApiResourceInput) errors.Error {
 	// update fields from request body
 	err := c.merge(connection, input.Body)
 	if err != nil {
@@ -102,7 +101,7 @@ func (c *ConnectionApiHelper) Create(connection interface{}, input *core.ApiReso
 }
 
 // Patch (Modify) a connection record based on request body
-func (c *ConnectionApiHelper) Patch(connection interface{}, input *core.ApiResourceInput) error {
+func (c *ConnectionApiHelper) Patch(connection interface{}, input *core.ApiResourceInput) errors.Error {
 	err := c.First(connection, input.Params)
 	if err != nil {
 		return err
@@ -116,20 +115,20 @@ func (c *ConnectionApiHelper) Patch(connection interface{}, input *core.ApiResou
 }
 
 // First finds connection from db  by parsing request input and decrypt it
-func (c *ConnectionApiHelper) First(connection interface{}, params map[string]string) error {
+func (c *ConnectionApiHelper) First(connection interface{}, params map[string]string) errors.Error {
 	connectionId := params["connectionId"]
 	if connectionId == "" {
-		return errors.BadInput.New("missing connectionId", errors.AsUserMessage())
+		return errors.BadInput.New("missing connectionId")
 	}
 	id, err := strconv.ParseUint(connectionId, 10, 64)
 	if err != nil || id < 1 {
-		return errors.BadInput.New("invalid connectionId", errors.AsUserMessage())
+		return errors.BadInput.New("invalid connectionId")
 	}
 	return c.FirstById(connection, id)
 }
 
 // FirstById finds connection from db by id and decrypt it
-func (c *ConnectionApiHelper) FirstById(connection interface{}, id uint64) error {
+func (c *ConnectionApiHelper) FirstById(connection interface{}, id uint64) errors.Error {
 	err := c.db.First(connection, dal.Where("id = ?", id))
 	if err != nil {
 		return err
@@ -139,7 +138,7 @@ func (c *ConnectionApiHelper) FirstById(connection interface{}, id uint64) error
 }
 
 // List returns all connections with password/token decrypted
-func (c *ConnectionApiHelper) List(connections interface{}) error {
+func (c *ConnectionApiHelper) List(connections interface{}) errors.Error {
 	err := c.db.All(connections)
 	if err != nil {
 		return err
@@ -152,26 +151,15 @@ func (c *ConnectionApiHelper) List(connections interface{}) error {
 }
 
 // Delete connection
-func (c *ConnectionApiHelper) Delete(connection interface{}) error {
+func (c *ConnectionApiHelper) Delete(connection interface{}) errors.Error {
 	return c.db.Delete(connection)
 }
 
-func (c *ConnectionApiHelper) merge(connection interface{}, body map[string]interface{}) error {
-	// merge
-	err := mapstructure.Decode(body, connection)
-	if err != nil {
-		return err
-	}
-	// validate
-	err = c.validator.Struct(connection)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (c *ConnectionApiHelper) merge(connection interface{}, body map[string]interface{}) errors.Error {
+	return Decode(body, connection, c.validator)
 }
 
-func (c *ConnectionApiHelper) save(connection interface{}) error {
+func (c *ConnectionApiHelper) save(connection interface{}) errors.Error {
 	c.encrypt(connection)
 
 	err := c.db.CreateOrUpdate(connection)
@@ -184,7 +172,7 @@ func (c *ConnectionApiHelper) save(connection interface{}) error {
 }
 
 func (c *ConnectionApiHelper) decrypt(connection interface{}) {
-	err := UpdateEncryptFields(connection, func(encrypted string) (string, error) {
+	err := UpdateEncryptFields(connection, func(encrypted string) (string, errors.Error) {
 		return core.Decrypt(c.encKey, encrypted)
 	})
 	if err != nil {
@@ -193,7 +181,7 @@ func (c *ConnectionApiHelper) decrypt(connection interface{}) {
 }
 
 func (c *ConnectionApiHelper) encrypt(connection interface{}) {
-	err := UpdateEncryptFields(connection, func(plaintext string) (string, error) {
+	err := UpdateEncryptFields(connection, func(plaintext string) (string, errors.Error) {
 		return core.Encrypt(c.encKey, plaintext)
 	})
 	if err != nil {
@@ -202,7 +190,7 @@ func (c *ConnectionApiHelper) encrypt(connection interface{}) {
 }
 
 // UpdateEncryptFields update fields of val with tag `encrypt:"yes|true"`
-func UpdateEncryptFields(val interface{}, update func(in string) (string, error)) error {
+func UpdateEncryptFields(val interface{}, update func(in string) (string, errors.Error)) errors.Error {
 	v := reflect.ValueOf(val)
 	if v.Kind() != reflect.Ptr {
 		panic(errors.Default.New(fmt.Sprintf("val is not a pointer: %v", val)))

@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/ae/tasks"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -42,7 +41,7 @@ var _ core.CloseablePluginTask = (*AE)(nil)
 
 type AE struct{}
 
-func (plugin AE) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin AE) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -69,35 +68,28 @@ func (plugin AE) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin AE) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin AE) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.AeOptions
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "AE plugin could not decode options")
 	}
 	if op.ProjectId <= 0 {
 		return nil, errors.Default.New("projectId is required")
 	}
-
 	connection := &models.AeConnection{}
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
 		nil,
 	)
-	if err != nil {
-		return nil, err
-	}
-
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "error getting connection for AE plugin")
 	}
-
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, err
 	}
-
 	return &tasks.AeTaskData{
 		Options:   &op,
 		ApiClient: apiClient,
@@ -129,7 +121,7 @@ func (plugin AE) ApiResources() map[string]map[string]core.ApiResourceHandler {
 	}
 }
 
-func (plugin AE) Close(taskCtx core.TaskContext) error {
+func (plugin AE) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.AeTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

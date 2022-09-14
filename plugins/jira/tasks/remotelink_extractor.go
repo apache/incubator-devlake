@@ -36,7 +36,7 @@ var ExtractRemotelinksMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
+func ExtractRemotelinks(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	connectionId := data.Options.ConnectionId
 	boardId := data.Options.BoardId
@@ -61,7 +61,7 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	defer cursor.Close()
 
@@ -74,15 +74,15 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_REMOTELINK_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var result []interface{}
 			var raw apiv2models.RemoteLink
-			err := json.Unmarshal(row.Data, &raw)
+			err := errors.Convert(json.Unmarshal(row.Data, &raw))
 			if err != nil {
 				return nil, err
 			}
 			var input apiv2models.Input
-			err = json.Unmarshal(row.Input, &input)
+			err = errors.Convert(json.Unmarshal(row.Input, &input))
 			if err != nil {
 				return nil, err
 			}
@@ -112,7 +112,7 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) error {
 		},
 	})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return extractor.Execute()

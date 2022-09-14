@@ -45,13 +45,12 @@ var (
 )
 
 // CreateBlueprint accepts a Blueprint instance and insert it to database
-func CreateBlueprint(blueprint *models.Blueprint) error {
+func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 	err := validateBlueprint(blueprint)
 	if err != nil {
 		return err
 	}
-	dbBlueprint := parseDbBlueprint(blueprint)
-	dbBlueprint, err = encryptDbBlueprint(dbBlueprint)
+	dbBlueprint, err := encryptDbBlueprint(parseDbBlueprint(blueprint))
 	if err != nil {
 		return err
 	}
@@ -68,10 +67,10 @@ func CreateBlueprint(blueprint *models.Blueprint) error {
 }
 
 // GetBlueprints returns a paginated list of Blueprints based on `query`
-func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, error) {
+func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
 	dbBlueprints, count, err := GetDbBlueprints(query)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Convert(err)
 	}
 	blueprints := make([]*models.Blueprint, 0)
 	for _, dbBlueprint := range dbBlueprints {
@@ -86,13 +85,13 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, error) {
 }
 
 // GetBlueprint returns the detail of a given Blueprint ID
-func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
+func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
 	dbBlueprint, err := GetDbBlueprint(blueprintId)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.NotFound.New("blueprint not found", errors.AsUserMessage())
+			return nil, errors.NotFound.New("blueprint not found")
 		}
-		return nil, errors.Internal.Wrap(err, "error getting the task from database", errors.AsUserMessage())
+		return nil, errors.Internal.Wrap(err, "error getting the task from database")
 	}
 	dbBlueprint, err = decryptDbBlueprint(dbBlueprint)
 	if err != nil {
@@ -102,11 +101,11 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, error) {
 	return blueprint, nil
 }
 
-func validateBlueprint(blueprint *models.Blueprint) error {
+func validateBlueprint(blueprint *models.Blueprint) errors.Error {
 	// validation
 	err := vld.Struct(blueprint)
 	if err != nil {
-		return err
+		return errors.BadInput.WrapRaw(err)
 	}
 	if strings.ToLower(blueprint.CronConfig) == "manual" {
 		blueprint.IsManual = true
@@ -120,7 +119,7 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 	}
 	if blueprint.Mode == models.BLUEPRINT_MODE_ADVANCED {
 		plan := make(core.PipelinePlan, 0)
-		err = json.Unmarshal(blueprint.Plan, &plan)
+		err = errors.Convert(json.Unmarshal(blueprint.Plan, &plan))
 
 		if err != nil {
 			return errors.Default.Wrap(err, "invalid plan")
@@ -140,7 +139,7 @@ func validateBlueprint(blueprint *models.Blueprint) error {
 }
 
 // PatchBlueprint FIXME ...
-func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, error) {
+func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, errors.Error) {
 	// load record from db
 	blueprint, err := GetBlueprint(id)
 	if err != nil {
@@ -159,7 +158,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	// validation
 	err = validateBlueprint(blueprint)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.WrapRaw(err)
 	}
 
 	// save
@@ -178,7 +177,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 }
 
 // DeleteBlueprint FIXME ...
-func DeleteBlueprint(id uint64) error {
+func DeleteBlueprint(id uint64) errors.Error {
 	err := DeleteDbBlueprint(id)
 	if err != nil {
 		return errors.Internal.Wrap(err, fmt.Sprintf("error deleting blueprint %d", id))
@@ -191,20 +190,19 @@ func DeleteBlueprint(id uint64) error {
 }
 
 // ReloadBlueprints FIXME ...
-func ReloadBlueprints(c *cron.Cron) error {
+func ReloadBlueprints(c *cron.Cron) errors.Error {
 	dbBlueprints := make([]*models.DbBlueprint, 0)
-	err := db.Model(&models.DbBlueprint{}).
+	if err := db.Model(&models.DbBlueprint{}).
 		Where("enable = ? AND is_manual = ?", true, false).
-		Find(&dbBlueprints).Error
-	if err != nil {
-		panic(err)
+		Find(&dbBlueprints).Error; err != nil {
+		return errors.Internal.Wrap(err, "error finding blueprints while reloading")
 	}
 	for _, e := range c.Entries() {
 		c.Remove(e.ID)
 	}
 	c.Stop()
 	for _, pp := range dbBlueprints {
-		pp, err = decryptDbBlueprint(pp)
+		pp, err := decryptDbBlueprint(pp)
 		if err != nil {
 			return err
 		}
@@ -214,17 +212,16 @@ func ReloadBlueprints(c *cron.Cron) error {
 			blueprintLog.Error(err, failToCreateCronJob)
 			return err
 		}
-		_, err = c.AddFunc(blueprint.CronConfig, func() {
+		if _, err := c.AddFunc(blueprint.CronConfig, func() {
 			pipeline, err := createPipelineByBlueprint(blueprint.ID, blueprint.Name, plan)
 			if err != nil {
 				blueprintLog.Error(err, "run cron job failed")
 			} else {
 				blueprintLog.Info("Run new cron job successfully, pipeline id: %d", pipeline.ID)
 			}
-		})
-		if err != nil {
+		}); err != nil {
 			blueprintLog.Error(err, failToCreateCronJob)
-			return err
+			return errors.Default.Wrap(err, "created cron job failed")
 		}
 	}
 	if len(dbBlueprints) > 0 {
@@ -234,7 +231,7 @@ func ReloadBlueprints(c *cron.Cron) error {
 	return nil
 }
 
-func createPipelineByBlueprint(blueprintId uint64, name string, plan core.PipelinePlan) (*models.Pipeline, error) {
+func createPipelineByBlueprint(blueprintId uint64, name string, plan core.PipelinePlan) (*models.Pipeline, errors.Error) {
 	newPipeline := models.NewPipeline{}
 	newPipeline.Plan = plan
 	newPipeline.Name = name
@@ -243,18 +240,18 @@ func createPipelineByBlueprint(blueprintId uint64, name string, plan core.Pipeli
 	// Return all created tasks to the User
 	if err != nil {
 		blueprintLog.Error(err, failToCreateCronJob)
-		return nil, err
+		return nil, errors.Convert(err)
 	}
-	return pipeline, err
+	return pipeline, nil
 }
 
 // GeneratePlanJson generates pipeline plan by version
-func GeneratePlanJson(settings json.RawMessage) (json.RawMessage, error) {
+func GeneratePlanJson(settings json.RawMessage) (json.RawMessage, errors.Error) {
 	bpSettings := new(models.BlueprintSettings)
-	err := json.Unmarshal(settings, bpSettings)
+	err := errors.Convert(json.Unmarshal(settings, bpSettings))
 
 	if err != nil {
-		return nil, fmt.Errorf("settings:%s:%s", string(settings), err.Error())
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("settings:%s", string(settings)))
 	}
 	var plan interface{}
 	switch bpSettings.Version {
@@ -266,13 +263,13 @@ func GeneratePlanJson(settings json.RawMessage) (json.RawMessage, error) {
 	if err != nil {
 		return nil, err
 	}
-	return json.Marshal(plan)
+	return errors.Convert01(json.Marshal(plan))
 }
 
 // GeneratePlanJsonV100 generates pipeline plan according v1.0.0 definition
-func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan, error) {
+func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan, errors.Error) {
 	connections := make([]*core.BlueprintConnectionV100, 0)
-	err := json.Unmarshal(settings.Connections, &connections)
+	err := errors.Convert(json.Unmarshal(settings.Connections, &connections))
 	if err != nil {
 		return nil, err
 	}
@@ -301,11 +298,11 @@ func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan
 }
 
 // FormatPipelinePlans merges multiple pipelines and append before and after pipeline
-func FormatPipelinePlans(beforePlanJson json.RawMessage, mainPlan core.PipelinePlan, afterPlanJson json.RawMessage) (core.PipelinePlan, error) {
+func FormatPipelinePlans(beforePlanJson json.RawMessage, mainPlan core.PipelinePlan, afterPlanJson json.RawMessage) (core.PipelinePlan, errors.Error) {
 	newPipelinePlan := core.PipelinePlan{}
 	if beforePlanJson != nil {
 		beforePipelinePlan := core.PipelinePlan{}
-		err := json.Unmarshal(beforePlanJson, &beforePipelinePlan)
+		err := errors.Convert(json.Unmarshal(beforePlanJson, &beforePipelinePlan))
 		if err != nil {
 			return nil, err
 		}
@@ -316,7 +313,7 @@ func FormatPipelinePlans(beforePlanJson json.RawMessage, mainPlan core.PipelineP
 
 	if afterPlanJson != nil {
 		afterPipelinePlan := core.PipelinePlan{}
-		err := json.Unmarshal(afterPlanJson, &afterPipelinePlan)
+		err := errors.Convert(json.Unmarshal(afterPlanJson, &afterPipelinePlan))
 		if err != nil {
 			return nil, err
 		}
@@ -343,7 +340,7 @@ func MergePipelinePlans(plans ...core.PipelinePlan) core.PipelinePlan {
 }
 
 // TriggerBlueprint triggers blueprint immediately
-func TriggerBlueprint(id uint64) (*models.Pipeline, error) {
+func TriggerBlueprint(id uint64) (*models.Pipeline, errors.Error) {
 	// load record from db
 	blueprint, err := GetBlueprint(id)
 	if err != nil {
@@ -357,11 +354,11 @@ func TriggerBlueprint(id uint64) (*models.Pipeline, error) {
 	// done
 	return pipeline, err
 }
-func save(blueprint *models.Blueprint) error {
+func save(blueprint *models.Blueprint) errors.Error {
 	dbBlueprint := parseDbBlueprint(blueprint)
 	dbBlueprint, err := encryptDbBlueprint(dbBlueprint)
 	if err != nil {
 		return err
 	}
-	return db.Save(dbBlueprint).Error
+	return errors.Convert(db.Save(dbBlueprint).Error)
 }

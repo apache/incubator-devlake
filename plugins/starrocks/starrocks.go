@@ -18,9 +18,10 @@ limitations under the License.
 package main
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/runner"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 )
 
@@ -32,9 +33,9 @@ func (s StarRocks) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (s StarRocks) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (s StarRocks) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op StarRocksConfig
-	err := mapstructure.Decode(options, &op)
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, err
 	}

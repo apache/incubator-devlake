@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -57,7 +58,7 @@ type IssueComment struct {
 	GiteeUpdatedAt helper.Iso8601Time `json:"updated_at"`
 }
 
-func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {
+func ExtractApiIssueComments(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GiteeTaskData)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
@@ -69,9 +70,9 @@ func ExtractApiIssueComments(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_COMMENTS_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			apiComment := &IssueComment{}
-			err := json.Unmarshal(row.Data, apiComment)
+			err := errors.Convert(json.Unmarshal(row.Data, apiComment))
 			if err != nil {
 				return nil, err
 			}

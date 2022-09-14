@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -28,7 +29,7 @@ import (
 	"reflect"
 )
 
-func ConvertSubWorkspace(taskCtx core.SubTaskContext) error {
+func ConvertSubWorkspace(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_SUB_WORKSPACE_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
@@ -47,7 +48,7 @@ func ConvertSubWorkspace(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdSubWorkspace{}),
 		Input:              cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			workspace := inputRow.(*models.TapdSubWorkspace)
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{

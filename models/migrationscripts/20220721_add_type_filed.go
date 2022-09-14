@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
@@ -36,14 +37,8 @@ func (Job20220721) TableName() string {
 
 type addTypeField struct{}
 
-func (*addTypeField) Up(ctx context.Context, db *gorm.DB) error {
-
-	err := db.Migrator().AddColumn(Job20220721{}, "type")
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (*addTypeField) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	return errors.Convert(db.Migrator().AddColumn(Job20220721{}, "type"))
 }
 
 func (*addTypeField) Version() uint64 {

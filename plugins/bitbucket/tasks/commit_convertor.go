@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -38,7 +39,7 @@ var ConvertCommitsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
-func ConvertCommits(taskCtx core.SubTaskContext) error {
+func ConvertCommits(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	repoId := data.Repo.BitbucketId
@@ -72,7 +73,7 @@ func ConvertCommits(taskCtx core.SubTaskContext) error {
 		InputRowType: reflect.TypeOf(bitbucketModels.BitbucketCommit{}),
 		Input:        cursor,
 
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			bitbucketCommit := inputRow.(*bitbucketModels.BitbucketCommit)
 			domainCommit := &code.Commit{
 				Sha:           bitbucketCommit.Sha,

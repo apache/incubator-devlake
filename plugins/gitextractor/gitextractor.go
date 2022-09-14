@@ -18,6 +18,8 @@ limitations under the License.
 package main
 
 import (
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
-	"github.com/mitchellh/mapstructure"
 )
 
 var _ core.PluginMeta = (*GitExtractor)(nil)
@@ -51,14 +52,12 @@ func (plugin GitExtractor) SubTaskMetas() []core.SubTaskMeta {
 }
 
 // based on task context and user input options, return data that shared among all subtasks
-func (plugin GitExtractor) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin GitExtractor) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.GitExtractorOptions
-	err := mapstructure.Decode(options, &op)
-	if err != nil {
+	if err := helper.Decode(options, op, nil); err != nil {
 		return nil, err
 	}
-	err = op.Valid()
-	if err != nil {
+	if err := op.Valid(); err != nil {
 		return nil, err
 	}
 	storage := store.NewDatabase(taskCtx, op.Url)
@@ -69,10 +68,10 @@ func (plugin GitExtractor) PrepareTaskData(taskCtx core.TaskContext, options map
 	return repo, nil
 }
 
-func (plugin GitExtractor) Close(taskCtx core.TaskContext) error {
+func (plugin GitExtractor) Close(taskCtx core.TaskContext) errors.Error {
 	if repo, ok := taskCtx.GetData().(*parser.GitRepo); ok {
 		if err := repo.Close(); err != nil {
-			return err
+			return errors.Convert(err)
 		}
 	}
 	return nil
@@ -82,8 +81,8 @@ func (plugin GitExtractor) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/gitextractor"
 }
 
-func newGitRepo(logger core.Logger, storage models.Store, op tasks.GitExtractorOptions) (*parser.GitRepo, error) {
-	var err error
+func newGitRepo(logger core.Logger, storage models.Store, op tasks.GitExtractorOptions) (*parser.GitRepo, errors.Error) {
+	var err errors.Error
 	var repo *parser.GitRepo
 	p := parser.NewGitRepoCreator(storage, logger)
 	if strings.HasPrefix(op.Url, "http") {

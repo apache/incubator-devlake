@@ -19,6 +19,7 @@ package logger
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/sirupsen/logrus"
 	"regexp"
@@ -32,7 +33,7 @@ type DefaultLogger struct {
 	config *core.LoggerConfig
 }
 
-func NewDefaultLogger(log *logrus.Logger) (core.Logger, error) {
+func NewDefaultLogger(log *logrus.Logger) (core.Logger, errors.Error) {
 	defaultLogger := &DefaultLogger{
 		log:    log,
 		config: &core.LoggerConfig{},
@@ -106,7 +107,7 @@ func (l *DefaultLogger) Nested(newPrefix string) core.Logger {
 	return newLogger
 }
 
-func (l *DefaultLogger) getLogger(prefix string) (core.Logger, error) {
+func (l *DefaultLogger) getLogger(prefix string) (core.Logger, errors.Error) {
 	newLogrus := logrus.New()
 	newLogrus.SetLevel(l.log.Level)
 	newLogrus.SetFormatter(l.log.Formatter)
@@ -131,14 +132,15 @@ func (l *DefaultLogger) createPrefix(newPrefix string) string {
 }
 
 func formatMessage(err error, msg string, args ...interface{}) string {
+	msg = fmt.Sprintf(msg, args...)
 	if err == nil {
-		return fmt.Sprintf(msg, args...)
+		return msg
 	}
 	formattedErr := strings.ReplaceAll(err.Error(), "\n", "\n\t")
 	if msg == "" {
 		return formattedErr
 	}
-	return fmt.Sprintf("%s\n%s", fmt.Sprintf(msg, args...), formattedErr)
+	return fmt.Sprintf("%s\n\tcaused by: %s", msg, formattedErr)
 }
 
 var _ core.Logger = (*DefaultLogger)(nil)

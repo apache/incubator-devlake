@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
@@ -34,15 +35,15 @@ var ExtractStoryCustomFieldsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractStoryCustomFields(taskCtx core.SubTaskContext) error {
+func ExtractStoryCustomFields(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CUSTOM_FIELDS_TABLE, false)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var storyCustomFields struct {
 				CustomFieldConfig models.TapdStoryCustomFields
 			}
-			err := json.Unmarshal(row.Data, &storyCustomFields)
+			err := errors.Convert(json.Unmarshal(row.Data, &storyCustomFields))
 			if err != nil {
 				return nil, err
 			}

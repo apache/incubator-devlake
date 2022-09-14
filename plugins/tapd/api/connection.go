@@ -26,10 +26,8 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 
-	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
-
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 // @Summary test tapd connection
@@ -40,16 +38,12 @@ import (
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/test [POST]
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// process input
 	var connection models.TestConnectionRequest
-	err := mapstructure.Decode(input.Body, &connection)
+	err := helper.Decode(input.Body, &connection, vld)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
-	}
-	err = vld.Struct(connection)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
+		return nil, err
 	}
 
 	// verify multiple token in parallel
@@ -89,7 +83,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections [POST]
-func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// create a new connections
 	connection := &models.TapdConnection{}
 
@@ -111,7 +105,7 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections/{connectionId} [PATCH]
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.TapdConnection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
@@ -128,7 +122,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections/{connectionId} [DELETE]
-func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.TapdConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -145,7 +139,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections [GET]
-func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var connections []models.TapdConnection
 	err := connectionHelper.List(&connections)
 	if err != nil {
@@ -162,7 +156,7 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/tapd/connections/{connectionId} [GET]
-func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.TapdConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {

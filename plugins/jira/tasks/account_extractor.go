@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
@@ -34,7 +35,7 @@ var ExtractAccountsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ExtractAccounts(taskCtx core.SubTaskContext) error {
+func ExtractAccounts(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -45,9 +46,9 @@ func ExtractAccounts(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_USERS_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var user apiv2models.Account
-			err := json.Unmarshal(row.Data, &user)
+			err := errors.Convert(json.Unmarshal(row.Data, &user))
 			if err != nil {
 				return nil, err
 			}

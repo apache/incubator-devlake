@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"time"
 
@@ -33,7 +34,7 @@ const (
 	TimeOut = 10 * time.Second
 )
 
-func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.JiraConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -58,13 +59,13 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
+	body, err := errors.Convert01(io.ReadAll(resp.Body))
 	if err != nil {
 		return nil, err
 	}
 	// verify response body is json
 	var tmp interface{}
-	err = json.Unmarshal(body, &tmp)
+	err = errors.Convert(json.Unmarshal(body, &tmp))
 	if err != nil {
 		return nil, err
 	}

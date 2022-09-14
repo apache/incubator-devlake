@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"github.com/mitchellh/mapstructure"
 )
 
 // @Summary test jira connection
@@ -40,18 +39,13 @@ import (
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jira/test [POST]
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// decode
-	var err error
+	var err errors.Error
 	var connection models.TestConnectionRequest
-	err = mapstructure.Decode(input.Body, &connection)
+	err = helper.Decode(input.Body, &connection, vld)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
-	}
-	// validate
-	err = vld.Struct(connection)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
+		return nil, err
 	}
 	// test connection
 	apiClient, err := helper.NewApiClient(
@@ -65,31 +59,31 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		basicRes,
 	)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	// serverInfo checking
 	res, err := apiClient.Get("api/2/serverInfo", nil, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	serverInfoFail := "Failed testing the serverInfo: [ " + res.Request.URL.String() + " ]"
 	// check if `/rest/` was missing
 	if res.StatusCode == http.StatusNotFound && !strings.HasSuffix(connection.Endpoint, "/rest/") {
 		endpointUrl, err := url.Parse(connection.Endpoint)
 		if err != nil {
-			return nil, err
+			return nil, errors.Convert(err)
 		}
 		refUrl, err := url.Parse("/rest/")
 		if err != nil {
-			return nil, err
+			return nil, errors.Convert(err)
 		}
 		restUrl := endpointUrl.ResolveReference(refUrl)
-		return nil, errors.NotFound.New(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()), errors.AsUserMessage())
+		return nil, errors.NotFound.New(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()))
 	}
 	resBody := &models.JiraServerInfo{}
 	err = helper.UnmarshalResponse(res, resBody)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	// check version
 	if resBody.DeploymentType == models.DeploymentServer {
@@ -140,7 +134,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jira/connections [POST]
-func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
 	connection := &models.JiraConnection{}
 	err := connectionHelper.Create(connection, input)
@@ -158,7 +152,7 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jira/connections/{connectionId} [PATCH]
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.JiraConnection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
@@ -174,7 +168,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jira/connections/{connectionId} [DELETE]
-func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.JiraConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -191,7 +185,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jira/connections [GET]
-func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var connections []models.JiraConnection
 	err := connectionHelper.List(&connections)
 	if err != nil {
@@ -207,7 +201,7 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /plugins/jira/connections/{connectionId} [GET]
-func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.JiraConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {

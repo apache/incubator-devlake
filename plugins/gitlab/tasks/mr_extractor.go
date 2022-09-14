@@ -74,7 +74,7 @@ var ExtractApiMergeRequestsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
-func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
+func ExtractApiMergeRequests(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
 	config := data.Options.TransformationRules
 	var labelTypeRegex *regexp.Regexp
@@ -96,9 +96,9 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			mr := &MergeRequestRes{}
-			err := json.Unmarshal(row.Data, mr)
+			err := errors.Convert(json.Unmarshal(row.Data, mr))
 			if err != nil {
 				return nil, err
 			}
@@ -152,13 +152,13 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) error {
 	})
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return extractor.Execute()
 }
 
-func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, error) {
+func convertMergeRequest(mr *MergeRequestRes) (*models.GitlabMergeRequest, errors.Error) {
 	gitlabMergeRequest := &models.GitlabMergeRequest{
 		GitlabId:         mr.GitlabId,
 		Iid:              mr.Iid,

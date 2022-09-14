@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"net/http"
 
@@ -28,7 +29,7 @@ import (
 
 const RAW_PROJECT_TABLE = "ae_project"
 
-func CollectProject(taskCtx core.SubTaskContext) error {
+func CollectProject(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*AeTaskData)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -41,15 +42,13 @@ func CollectProject(taskCtx core.SubTaskContext) error {
 		},
 		ApiClient:   data.ApiClient,
 		UrlTemplate: "projects/{{ .Params.ProjectId }}",
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
 			res.Body.Close()
-			return []json.RawMessage{
-				json.RawMessage(body),
-			}, nil
+			return []json.RawMessage{body}, nil
 		},
 	})
 

@@ -35,20 +35,22 @@ import (
 
 const RAW_COMMENTS_TABLE = "github_api_comments"
 
-func CollectApiComments(taskCtx core.SubTaskContext) error {
+func CollectApiComments(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	since := data.Since
 	incremental := false
-	var err error
+	var err errors.Error
 	if since == nil {
 		since, incremental, err = calculateSince(data, db)
 		if err != nil {
 			return err
 		}
 	}
-
+	if err != nil {
+		return err
+	}
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -64,7 +66,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 		Incremental: incremental,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/issues/comments",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
 			if since != nil {
@@ -77,7 +79,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var items []json.RawMessage
 			err := helper.UnmarshalResponse(res, &items)
 			if err != nil {
@@ -88,7 +90,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) error {
 	})
 
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error collecting github comments")
 	}
 
 	return collector.Execute()
@@ -102,7 +104,7 @@ var CollectApiCommentsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_TICKET},
 }
 
-func calculateSince(data *GithubTaskData, db dal.Dal) (*time.Time, bool, error) {
+func calculateSince(data *GithubTaskData, db dal.Dal) (*time.Time, bool, errors.Error) {
 	since := &time.Time{}
 	incremental := false
 	var latestUpdatedIssueComt models.GithubIssueComment

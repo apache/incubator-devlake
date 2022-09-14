@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
@@ -61,7 +62,7 @@ var CollectRepoMeta = core.SubTaskMeta{
 	Description:      "Collect Repo data from GithubGraphql api",
 }
 
-func CollectRepo(taskCtx core.SubTaskContext) error {
+func CollectRepo(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 	db := taskCtx.GetDal()
 

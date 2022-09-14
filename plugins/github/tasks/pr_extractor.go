@@ -61,7 +61,7 @@ type GithubApiPullRequest struct {
 	}
 }
 
-func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
+func ExtractApiPullRequests(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	config := data.Options.TransformationRules
 	var labelTypeRegex *regexp.Regexp
@@ -99,9 +99,9 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 			*/
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			rawL := &GithubApiPullRequest{}
-			err := json.Unmarshal(row.Data, rawL)
+			err := errors.Convert(json.Unmarshal(row.Data, rawL))
 			if err != nil {
 				return nil, err
 			}
@@ -153,12 +153,12 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) error {
 	})
 
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error initializing Github PR extractor")
 	}
 
 	return extractor.Execute()
 }
-func convertGithubPullRequest(pull *GithubApiPullRequest, connId uint64, repoId int) (*models.GithubPullRequest, error) {
+func convertGithubPullRequest(pull *GithubApiPullRequest, connId uint64, repoId int) (*models.GithubPullRequest, errors.Error) {
 	githubPull := &models.GithubPullRequest{
 		ConnectionId:    connId,
 		GithubId:        pull.GithubId,

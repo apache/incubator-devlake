@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"context"
 	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts/archived"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -27,7 +28,7 @@ import (
 
 type addInitTables struct{}
 
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().DropTable(
 		&archived.BitbucketRepo{},
 		&archived.BitbucketRepoCommit{},
@@ -41,7 +42,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	)
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	err = db.Migrator().AutoMigrate(
@@ -57,7 +58,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	)
 
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	v := config.GetConfig()
@@ -74,16 +75,13 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		conn.Endpoint = endPoint
 		conn.BasicAuth.Username = bitbucketUsername
 		conn.BasicAuth.Password = bitbucketAppPassword
-		if err != nil {
-			return err
-		}
 		conn.Proxy = v.GetString("BITBUCKET_PROXY")
 		conn.RateLimitPerHour = v.GetInt("BITBUCKET_API_REQUESTS_PER_HOUR")
 
 		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
 
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error creating connection entry for BitBucket")
 		}
 	}
 

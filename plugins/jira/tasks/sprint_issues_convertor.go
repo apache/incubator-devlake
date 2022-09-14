@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 
@@ -36,7 +37,7 @@ var ConvertSprintIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertSprintIssues(taskCtx core.SubTaskContext) error {
+func ConvertSprintIssues(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
 
@@ -67,7 +68,7 @@ func ConvertSprintIssues(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_ISSUE_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jiraSprintIssue := inputRow.(*models.JiraSprintIssue)
 			sprintIssue := &ticket.SprintIssue{
 				SprintId: sprintIdGen.Generate(data.Options.ConnectionId, jiraSprintIssue.SprintId),

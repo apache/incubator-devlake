@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
@@ -32,7 +33,7 @@ var ExtractEpicsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CROSS},
 }
 
-func ExtractEpics(taskCtx core.SubTaskContext) error {
+func ExtractEpics(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 	db := taskCtx.GetDal()
 	connectionId := data.Options.ConnectionId
@@ -52,7 +53,7 @@ func ExtractEpics(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_EPIC_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			return extractIssues(data, mappings, true, row)
 		},
 	})

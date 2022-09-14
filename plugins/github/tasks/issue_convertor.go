@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strconv"
 
@@ -40,7 +41,7 @@ var ConvertIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertIssues(taskCtx core.SubTaskContext) error {
+func ConvertIssues(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
@@ -71,7 +72,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) error {
 		},
 		InputRowType: reflect.TypeOf(githubModels.GithubIssue{}),
 		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			issue := inputRow.(*githubModels.GithubIssue)
 			domainIssue := &ticket.Issue{
 				DomainEntity:    domainlayer.DomainEntity{Id: issueIdGen.Generate(data.Options.ConnectionId, issue.GithubId)},

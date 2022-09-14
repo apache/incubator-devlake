@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -70,7 +71,7 @@ type MilestonesResponse struct {
 	ClosedAt     *helper.Iso8601Time `json:"closed_at"`
 }
 
-func ExtractMilestones(taskCtx core.SubTaskContext) error {
+func ExtractMilestones(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -82,9 +83,9 @@ func ExtractMilestones(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_MILESTONE_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			response := &MilestonesResponse{}
-			err := json.Unmarshal(row.Data, response)
+			err := errors.Convert(json.Unmarshal(row.Data, response))
 			if err != nil {
 				return nil, err
 			}

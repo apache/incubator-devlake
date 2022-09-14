@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
@@ -34,20 +35,20 @@ var ExtractStoryCommitMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ExtractStoryCommits(taskCtx core.SubTaskContext) error {
+func ExtractStoryCommits(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_COMMIT_TABLE, false)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			var issueCommitBody models.TapdStoryCommit
-			err := json.Unmarshal(row.Data, &issueCommitBody)
+			err := errors.Convert(json.Unmarshal(row.Data, &issueCommitBody))
 			if err != nil {
 				return nil, err
 			}
 			toolL := issueCommitBody
 			toolL.ConnectionId = data.Options.ConnectionId
 			issue := SimpleStory{}
-			err = json.Unmarshal(row.Input, &issue)
+			err = errors.Convert(json.Unmarshal(row.Input, &issue))
 			if err != nil {
 				return nil, err
 			}

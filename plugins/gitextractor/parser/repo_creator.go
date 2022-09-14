@@ -18,6 +18,7 @@ limitations under the License.
 package parser
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	git "github.com/libgit2/git2go/v33"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -41,10 +42,10 @@ func NewGitRepoCreator(store models.Store, logger core.Logger) *GitRepoCreator {
 	}
 }
 
-func (l *GitRepoCreator) LocalRepo(repoPath, repoId string) (*GitRepo, error) {
+func (l *GitRepoCreator) LocalRepo(repoPath, repoId string) (*GitRepo, errors.Error) {
 	repo, err := git.OpenRepository(repoPath)
 	if err != nil {
-		return nil, err
+		return nil, errors.Convert(err)
 	}
 	return l.newGitRepo(repoId, repo), nil
 }

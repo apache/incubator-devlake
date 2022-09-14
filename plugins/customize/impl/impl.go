@@ -18,7 +18,7 @@ limitations under the License.
 package impl
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/customize/api"
@@ -37,7 +37,7 @@ type Customize struct {
 	handlers *api.Handlers
 }
 
-func (plugin *Customize) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin *Customize) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	basicRes := helper.NewDefaultBasicRes(config, logger, db)
 	plugin.handlers = api.NewHandlers(basicRes.GetDal())
 	return nil
@@ -49,17 +49,17 @@ func (plugin Customize) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Customize) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+func (plugin Customize) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
-func (plugin Customize) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Customize) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.Options
 	var err error
 	logger := taskCtx.GetLogger()
 	logger.Debug("%v", options)
 	err = mapstructure.Decode(options, &op)
 	if err != nil {
-		return nil, fmt.Errorf("could not decode Jira options: %v", err)
+		return nil, errors.Default.Wrap(err, "could not decode Jira options")
 	}
 	taskData := &tasks.TaskData{
 		Options: &op,

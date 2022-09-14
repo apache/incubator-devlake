@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/azure/models/migrationscripts/archived"
 	"gorm.io/gorm"
@@ -26,11 +27,11 @@ import (
 
 type addInitTables struct{}
 
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
+func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	if !db.Migrator().HasTable(&archived.AzureConnection{}) {
 		err := db.Migrator().AutoMigrate(&archived.AzureConnection{})
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 	}
 	err := db.Migrator().AutoMigrate(
@@ -38,7 +39,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		&archived.AzureBuildDefinition{},
 	)
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 
 	return nil
