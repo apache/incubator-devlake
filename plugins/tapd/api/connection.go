@@ -54,7 +54,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		map[string]string{
 			"Authorization": fmt.Sprintf("Basic %s", connection.GetEncodedToken()),
 		},
-		3*time.Second,
+		10*time.Second,
 		connection.Proxy,
 		basicRes,
 	)
