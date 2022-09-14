@@ -42,17 +42,12 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 
 	var taskNameReg *regexp.Regexp
 	taskNamePattern := data.Options.EnvironmentRegex
-	if len(taskNamePattern) > 0 {
-		taskNameReg, err = errors.Convert01(regexp.Compile(taskNamePattern))
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp Compile taskNameReg failed")
-		}
-	} else {
-		taskNamePattern = "deploy" // default
-		taskNameReg, err = errors.Convert01(regexp.Compile(taskNamePattern))
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp Compile taskNameReg failed")
-		}
+	if len(taskNamePattern) == 0 {
+		taskNamePattern = "deploy"
+	}
+	taskNameReg, errRegexp := regexp.Compile(taskNamePattern)
+	if errRegexp != nil {
+		return fmt.Errorf("regexp Compile taskNameReg failed:[%s] stack:[%s]", err.Error(), debug.Stack())
 	}
 
 	cursor, err := db.Cursor(
