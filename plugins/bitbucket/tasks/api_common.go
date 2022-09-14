@@ -145,29 +145,12 @@ func GetIssuesIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, 
 	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketInput{}))
 }
 
-func ignoreIssueHTTPStatus404(res *http.Response) errors.Error {
+func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	if res.StatusCode == http.StatusUnauthorized {
 		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
 	}
 	if res.StatusCode == http.StatusNotFound {
-		resMessage := struct {
-			Type  string `json:"type"`
-			Error struct {
-				Message string `json:"message"`
-			} `json:"error"`
-		}{}
-		resBody, err := io.ReadAll(res.Body)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
-		}
-		err = json.Unmarshal(resBody, &resMessage)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
-		}
-		if resMessage.Error.Message == "Repository has no issue tracker." {
-			return helper.ErrIgnoreAndContinue
-		}
-		return errors.Default.New(resMessage.Error.Message)
+		return helper.ErrIgnoreAndContinue
 	}
 	return nil
 }
