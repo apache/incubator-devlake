@@ -18,15 +18,11 @@ limitations under the License.
 package impl
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/webhook/api"
-	"github.com/apache/incubator-devlake/plugins/webhook/models"
 	"github.com/apache/incubator-devlake/plugins/webhook/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/webhook/tasks"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -34,10 +30,7 @@ import (
 // make sure interface is implemented
 var _ core.PluginMeta = (*Webhook)(nil)
 var _ core.PluginInit = (*Webhook)(nil)
-var _ core.PluginTask = (*Webhook)(nil)
 var _ core.PluginApi = (*Webhook)(nil)
-var _ core.PluginBlueprintV100 = (*Webhook)(nil)
-var _ core.CloseablePluginTask = (*Webhook)(nil)
 
 type Webhook struct{}
 
@@ -48,31 +41,6 @@ func (plugin Webhook) Description() string {
 func (plugin Webhook) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
-}
-
-func (plugin Webhook) SubTaskMetas() []core.SubTaskMeta {
-	// TODO add your sub task here
-	return []core.SubTaskMeta{}
-}
-
-func (plugin Webhook) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
-	op, err := tasks.DecodeAndValidateTaskOptions(options)
-	if err != nil {
-		return nil, err
-	}
-	connectionHelper := helper.NewConnectionHelper(
-		taskCtx,
-		nil,
-	)
-	connection := &models.WebhookConnection{}
-	err = connectionHelper.FirstById(connection, op.ConnectionId)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get webhook connection by the given connection ID")
-	}
-
-	return &tasks.WebhookTaskData{
-		Options: op,
-	}, nil
 }
 
 // PkgPath information lost when compiled as plugin(.so)
@@ -95,26 +63,14 @@ func (plugin Webhook) ApiResources() map[string]map[string]core.ApiResourceHandl
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
-		":connectionId/cicd_pipeline": {
+		":connectionId/cicd_pipelines": {
 			"POST": api.PostCicdPipeline,
 		},
-		":connectionId/issue": {
+		":connectionId/issues": {
 			"POST": api.PostIssue,
 		},
 		":connectionId/issue/:boardKey/:issueId/close": {
 			"POST": api.CloseIssue,
 		},
 	}
-}
-
-func (plugin Webhook) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
-}
-
-func (plugin Webhook) Close(taskCtx core.TaskContext) errors.Error {
-	_, ok := taskCtx.GetData().(*tasks.WebhookTaskData)
-	if !ok {
-		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
-	}
-	return nil
 }

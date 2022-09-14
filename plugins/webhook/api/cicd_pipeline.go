@@ -46,7 +46,7 @@ type WebhookPipelineRequest struct {
 // @Success 200
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/webhook/:connectionId/cicd_pipeline [POST]
+// @Router /plugins/webhook/:connectionId/cicd_pipelines [POST]
 func PostCicdPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
