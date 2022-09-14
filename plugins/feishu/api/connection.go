@@ -40,7 +40,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	// process input
 	var params models.TestConnectionRequest
 	if err := helper.Decode(input.Body, &params, vld); err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
 	authApiClient, err := helper.NewApiClient(context.TODO(), params.Endpoint, nil, 0, params.Proxy, basicRes)
 	if err != nil {

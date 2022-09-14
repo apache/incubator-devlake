@@ -81,7 +81,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
 
 		if err != nil {
-			return errors.Default.Wrap(err, "error creating connection entry for BitBucket", errors.AsUserMessage())
+			return errors.Default.Wrap(err, "error creating connection entry for BitBucket")
 		}
 	}
 

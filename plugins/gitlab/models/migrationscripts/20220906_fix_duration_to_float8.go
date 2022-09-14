@@ -51,7 +51,7 @@ func (*fixDurationToFloat8) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	}
 	batch, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&GitlabJob20220906{}), 500)
 	if err != nil {
-		return errors.Default.Wrap(err, "error getting batch from table", errors.UserMessage("Internal Converter execution error"))
+		return errors.Default.Wrap(err, "error getting batch from table")
 	}
 	defer batch.Close()
 	for cursor.Next() {

@@ -52,8 +52,6 @@ type (
 	Option func(*options)
 
 	options struct {
-		userMsg     string
-		asUserMsg   bool
 		data        interface{}
 		stackOffset uint
 	}
@@ -131,20 +129,6 @@ func (t *Type) GetHttpCode() int {
 		return http.StatusInternalServerError
 	}
 	return t.httpCode
-}
-
-// UserMessage add a user-friendly message to the Error
-func UserMessage(msg string) Option {
-	return func(opts *options) {
-		opts.userMsg = msg
-	}
-}
-
-// AsUserMessage use the ordinary message as the user-friendly message of the Error
-func AsUserMessage() Option {
-	return func(opts *options) {
-		opts.asUserMsg = true
-	}
 }
 
 // WithData associate data with this Error

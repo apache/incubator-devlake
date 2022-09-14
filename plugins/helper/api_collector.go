@@ -94,21 +94,21 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 	// process args
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "Couldn't resolve raw subtask args", errors.UserMessage("Internal Collector setup error"))
+		return nil, errors.Default.Wrap(err, "Couldn't resolve raw subtask args")
 	}
 	// TODO: check if args.Table is valid
 	if args.UrlTemplate == "" {
-		return nil, errors.Default.New("UrlTemplate is required", errors.UserMessage("Internal Collector setup error"))
+		return nil, errors.Default.New("UrlTemplate is required")
 	}
 	tpl, err := errors.Convert01(template.New(args.Table).Parse(args.UrlTemplate))
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate", errors.UserMessage("Internal Collector setup error"))
+		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate")
 	}
 	if args.ApiClient == nil {
-		return nil, errors.Default.New("ApiClient is required", errors.UserMessage("Internal Collector setup error"))
+		return nil, errors.Default.New("ApiClient is required")
 	}
 	if args.ResponseParser == nil {
-		return nil, errors.Default.New("ResponseParser is required", errors.UserMessage("Internal Collector setup error"))
+		return nil, errors.Default.New("ResponseParser is required")
 	}
 	apiCollector := &ApiCollector{
 		RawDataSubTask: rawDataSubTask,
@@ -120,7 +120,7 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 	} else if apiCollector.GetAfterResponse() == nil {
 		apiCollector.SetAfterResponse(func(res *http.Response) errors.Error {
 			if res.StatusCode == http.StatusUnauthorized {
-				return errors.Unauthorized.New("authentication failed, please check your AccessToken", errors.AsUserMessage())
+				return errors.Unauthorized.New("authentication failed, please check your AccessToken")
 			}
 			return nil
 		})
@@ -137,14 +137,14 @@ func (collector *ApiCollector) Execute() errors.Error {
 	db := collector.args.Ctx.GetDal()
 	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
 	if err != nil {
-		return errors.Default.Wrap(err, "error auto-migrating collector", errors.UserMessage("Internal Collector execution error"))
+		return errors.Default.Wrap(err, "error auto-migrating collector")
 	}
 
 	// flush data if not incremental collection
 	if !collector.args.Incremental {
 		err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 		if err != nil {
-			return errors.Default.Wrap(err, "error deleting data from collector", errors.UserMessage("Internal Collector execution error"))
+			return errors.Default.Wrap(err, "error deleting data from collector")
 		}
 	}
 
@@ -154,7 +154,7 @@ func (collector *ApiCollector) Execute() errors.Error {
 		defer iterator.Close()
 		apiClient := collector.args.ApiClient
 		if apiClient == nil {
-			return errors.Default.New("api_collector can not Execute with nil apiClient", errors.UserMessage("Internal Collector execution error"))
+			return errors.Default.New("api_collector can not Execute with nil apiClient")
 		}
 		for {
 			if !iterator.HasNext() || apiClient.HasError() {
@@ -178,13 +178,13 @@ func (collector *ApiCollector) Execute() errors.Error {
 	}
 
 	if err != nil {
-		return errors.Default.Wrap(err, "error executing collector", errors.UserMessage("Internal Collector execution error"))
+		return errors.Default.Wrap(err, "error executing collector")
 	}
 	logger.Debug("wait for all async api to be finished")
 	err = collector.args.ApiClient.WaitAsync()
 	if err != nil {
 		logger.Error(err, "end api collection error")
-		err = errors.Default.Wrap(err, "Error waiting for async Collector execution", errors.AsUserMessage())
+		err = errors.Default.Wrap(err, "Error waiting for async Collector execution")
 	} else {
 		logger.Info("end api collection without error")
 	}
@@ -351,14 +351,14 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 		// read body to buffer
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", apiUrl), errors.AsUserMessage())
+			return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", apiUrl))
 		}
 		res.Body.Close()
 		res.Body = io.NopCloser(bytes.NewBuffer(body))
 		// convert body to array of RawJSON
 		items, err := collector.args.ResponseParser(res)
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error parsing response from %s", apiUrl), errors.AsUserMessage())
+			return errors.Default.Wrap(err, fmt.Sprintf("error parsing response from %s", apiUrl))
 		}
 		// save to db
 		count := len(items)
@@ -379,7 +379,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 		}
 		err = db.Create(rows, dal.From(collector.table))
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error inserting raw rows into %s", collector.table), errors.UserMessage(fmt.Sprintf("internal error processing response from %s", url)))
+			return errors.Default.Wrap(err, fmt.Sprintf("error inserting raw rows into %s", collector.table))
 		}
 		logger.Debug("fetchAsync === total %d rows were saved into database", count)
 		// increase progress only when it was not nested

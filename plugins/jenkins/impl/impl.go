@@ -85,7 +85,7 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 		return nil, err
 	}
 	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
+		return nil, errors.BadInput.New("connectionId is invalid")
 	}
 
 	connection := &models.JenkinsConnection{}

@@ -47,7 +47,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOption
 		return nil, err
 	}
 	if op.ProjectId == 0 {
-		return nil, errors.BadInput.New("ProjectId is required for Gitlab execution", errors.AsUserMessage())
+		return nil, errors.BadInput.New("ProjectId is required for Gitlab execution")
 	}
 	if op.PrType == "" {
 		op.PrType = "type/(.*)$"
@@ -79,7 +79,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOption
 
 	// find the needed GitHub now
 	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
+		return nil, errors.BadInput.New("connectionId is invalid")
 	}
 	return &op, nil
 }

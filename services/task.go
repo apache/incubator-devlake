@@ -202,9 +202,9 @@ func GetTask(taskId uint64) (*models.Task, errors.Error) {
 	err := db.First(task, taskId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.NotFound.New("task not found", errors.AsUserMessage())
+			return nil, errors.NotFound.New("task not found")
 		}
-		return nil, errors.Internal.Wrap(err, "error getting the task from database", errors.AsUserMessage())
+		return nil, errors.Internal.Wrap(err, "error getting the task from database")
 	}
 	return task, nil
 }

@@ -62,22 +62,22 @@ func NewApiClient(
 ) (*ApiClient, errors.Error) {
 	parsedUrl, err := url.Parse(endpoint)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("Invalid URL: %s", endpoint), errors.AsUserMessage())
+		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("Invalid URL: %s", endpoint))
 	}
 	if parsedUrl.Scheme == "" {
-		return nil, errors.BadInput.New("Invalid URL scheme", errors.AsUserMessage())
+		return nil, errors.BadInput.New("Invalid URL scheme")
 	}
 	err = utils.CheckDNS(parsedUrl.Hostname())
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "Failed to resolve DNS", errors.AsUserMessage())
+		return nil, errors.Default.Wrap(err, "Failed to resolve DNS")
 	}
 	port, err := utils.ResolvePort(parsedUrl.Port(), parsedUrl.Scheme)
 	if err != nil {
-		return nil, errors.Default.New("Failed to resolve Port", errors.AsUserMessage())
+		return nil, errors.Default.New("Failed to resolve Port")
 	}
 	err = utils.CheckNetwork(parsedUrl.Hostname(), port, time.Duration(2)*time.Second)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "Failed to connect", errors.AsUserMessage())
+		return nil, errors.Default.Wrap(err, "Failed to connect")
 	}
 	apiClient := &ApiClient{}
 	apiClient.Setup(
@@ -91,7 +91,7 @@ func NewApiClient(
 	// set insecureSkipVerify
 	insecureSkipVerify, err := utils.StrToBoolOr(br.GetConfig("IN_SECURE_SKIP_VERIFY"), false)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "failed to parse IN_SECURE_SKIP_VERIFY", errors.UserMessage("Malformed config on server"))
+		return nil, errors.Default.Wrap(err, "failed to parse IN_SECURE_SKIP_VERIFY")
 	}
 	if insecureSkipVerify {
 		apiClient.client.Transport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
@@ -213,14 +213,14 @@ func (apiClient *ApiClient) Do(
 ) (*http.Response, errors.Error) {
 	uri, err := GetURIStringPointer(apiClient.endpoint, path, query)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("Unable to construct URI from %s, %s, %s", apiClient.endpoint, path, query), errors.UserMessage("Unable to construct URI"))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("Unable to construct URI from %s, %s, %s", apiClient.endpoint, path, query))
 	}
 	// process body
 	var reqBody io.Reader
 	if body != nil {
 		reqJson, err := json.Marshal(body)
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("unable to serialize API request body for %s", *uri), errors.UserMessage("unable to serialize API request body"))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("unable to serialize API request body for %s", *uri))
 		}
 		reqBody = bytes.NewBuffer(reqJson)
 	}
@@ -231,7 +231,7 @@ func (apiClient *ApiClient) Do(
 		req, err = errors.Convert01(http.NewRequest(method, *uri, reqBody))
 	}
 	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("unable to create API request for %s", *uri), errors.UserMessage("unable to create API request"))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("unable to create API request for %s", *uri))
 	}
 	req.Header.Set("Content-Type", "application/json")
 
@@ -252,14 +252,14 @@ func (apiClient *ApiClient) Do(
 	if apiClient.beforeRequest != nil {
 		err = apiClient.beforeRequest(req)
 		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error running beforeRequest for %s", req.URL.String()), errors.UserMessage("error before making API call"))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("error running beforeRequest for %s", req.URL.String()))
 		}
 	}
 	apiClient.logDebug("[api-client] %v %v", method, *uri)
 	res, err = errors.Convert01(apiClient.client.Do(req))
 	if err != nil {
 		apiClient.logError(err, "[api-client] failed to request %s with error", req.URL.String())
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error running beforeRequest for %s", req.URL.String()), errors.UserMessage("error before making API call"))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error running beforeRequest for %s", req.URL.String()))
 	}
 	// after receive
 	if apiClient.afterResponse != nil {
@@ -270,7 +270,7 @@ func (apiClient *ApiClient) Do(
 		}
 		if err != nil {
 			res.Body.Close()
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("error running afterRequest for %s", req.URL.String()), errors.UserMessage("error after making API call"))
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("error running afterRequest for %s", req.URL.String()))
 		}
 	}
 	return res, nil
@@ -300,11 +300,11 @@ func UnmarshalResponse(res *http.Response, v interface{}) errors.Error {
 	defer res.Body.Close()
 	resBody, err := io.ReadAll(res.Body)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()), errors.AsUserMessage())
+		return errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
 	}
 	err = errors.Convert(json.Unmarshal(resBody, &v))
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)), errors.AsUserMessage())
+		return errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 	}
 	return nil
 }

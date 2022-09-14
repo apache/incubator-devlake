@@ -72,7 +72,7 @@ func (plugin AE) PrepareTaskData(taskCtx core.TaskContext, options map[string]in
 	var op tasks.AeOptions
 	err := helper.Decode(options, &op, nil)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "AE plugin could not decode options", errors.AsUserMessage())
+		return nil, errors.Default.Wrap(err, "AE plugin could not decode options")
 	}
 	if op.ProjectId <= 0 {
 		return nil, errors.Default.New("projectId is required")
@@ -84,7 +84,7 @@ func (plugin AE) PrepareTaskData(taskCtx core.TaskContext, options map[string]in
 	)
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error getting connection for AE plugin", errors.AsUserMessage())
+		return nil, errors.Default.Wrap(err, "error getting connection for AE plugin")
 	}
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {

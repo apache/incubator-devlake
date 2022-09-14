@@ -86,16 +86,16 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, errors.E
 	// process args
 	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error processing raw subtask args", errors.UserMessage("Internal GraphQL Collector error"))
+		return nil, errors.Default.Wrap(err, "error processing raw subtask args")
 	}
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate", errors.UserMessage("Internal GraphQL Collector error"))
+		return nil, errors.Default.Wrap(err, "Failed to compile UrlTemplate")
 	}
 	if args.GraphqlClient == nil {
-		return nil, errors.Default.New("ApiClient is required", errors.UserMessage("Internal GraphQL Collector error"))
+		return nil, errors.Default.New("ApiClient is required")
 	}
 	if args.ResponseParser == nil {
-		return nil, errors.Default.New("ResponseParser is required", errors.UserMessage("Internal GraphQL Collector error"))
+		return nil, errors.Default.New("ResponseParser is required")
 	}
 	apicllector := &GraphqlCollector{
 		RawDataSubTask: rawDataSubTask,
@@ -129,13 +129,13 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 	db := collector.args.Ctx.GetDal()
 	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
 	if err != nil {
-		return errors.Default.Wrap(err, "error running auto-migrate", errors.UserMessage("Internal GraphQL Collector execution error"))
+		return errors.Default.Wrap(err, "error running auto-migrate")
 	}
 
 	// flush data if not incremental collection
 	err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 	if err != nil {
-		return errors.Default.Wrap(err, "error deleting from collector table", errors.UserMessage("Internal GraphQL Collector execution error"))
+		return errors.Default.Wrap(err, "error deleting from collector table")
 	}
 	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.table, collector.params)
 
@@ -172,7 +172,7 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 
 	err = collector.args.GraphqlClient.Wait()
 	if err != nil {
-		err = errors.Default.Wrap(err, "ended API collector execution with error", errors.UserMessage("Internal GraphQL Collector execution error"))
+		err = errors.Default.Wrap(err, "ended API collector execution with error")
 		logger.Error(err, "")
 	} else {
 		logger.Info("ended api collection without error")

@@ -105,10 +105,10 @@ Type in what the name of collector is, then generator will create a new collecto
 			Label: "http_path",
 			Validate: func(input string) error {
 				if input == `` {
-					return errors.BadInput.New("http_path required", errors.AsUserMessage())
+					return errors.BadInput.New("http_path required")
 				}
 				if strings.HasPrefix(input, `/`) {
-					return errors.BadInput.New("http_path shouldn't start with '/'", errors.AsUserMessage())
+					return errors.BadInput.New("http_path shouldn't start with '/'")
 				}
 				return nil
 			},

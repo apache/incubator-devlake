@@ -114,7 +114,7 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 	default:
 		err := apiClient.client.Query(apiClient.ctx, q, variables)
 		if err != nil {
-			return errors.Default.Wrap(err, "error making GraphQL call", errors.UserMessage("Internal async GraphQL call error"))
+			return errors.Default.Wrap(err, "error making GraphQL call")
 		}
 		cost := 1
 		if apiClient.getRateCost != nil {

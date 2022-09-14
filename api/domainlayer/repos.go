@@ -47,7 +47,7 @@ GET /repos
 func ReposIndex(c *gin.Context) {
 	repos, count, err := services.GetRepos()
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting repositories", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting repositories"))
 		return
 	}
 	shared.ApiOutputSuccess(c, gin.H{"repos": repos, "count": count}, http.StatusOK)

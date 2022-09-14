@@ -30,7 +30,6 @@ type (
 	crdbErrorImpl struct {
 		wrappedRaw error
 		wrapped    *crdbErrorImpl
-		userMsg    string
 		msg        string
 		data       interface{}
 		t          *Type
@@ -67,12 +66,6 @@ func (e *crdbErrorImpl) Message() string {
 			code = fmt.Sprintf("(%d)", err.t.httpCode)
 		}
 		return err.msg + " " + code
-	}), "\ncaused by: ")
-}
-
-func (e *crdbErrorImpl) UserMessage() string {
-	return strings.Join(e.getMessages(func(err *crdbErrorImpl) string {
-		return err.userMsg
 	}), "\ncaused by: ")
 }
 
@@ -136,9 +129,6 @@ func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbError
 	var wrappedErr *crdbErrorImpl
 	var wrappedRaw error
 	rawMessage := message
-	if cfg.userMsg != "" {
-		rawMessage = fmt.Sprintf("%s [%s]", message, cfg.userMsg)
-	}
 	cfg.stackOffset += 2
 	if err == nil {
 		if enableStacktraces {
@@ -164,12 +154,8 @@ func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbError
 		wrappedRaw: wrappedRaw,
 		wrapped:    wrappedErr,
 		msg:        rawMessage,
-		userMsg:    cfg.userMsg,
 		data:       cfg.data,
 		t:          errType,
-	}
-	if cfg.asUserMsg {
-		impl.userMsg = message // set to original
 	}
 	return impl
 }

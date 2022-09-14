@@ -46,11 +46,11 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*AzureOptions
 	var op AzureOptions
 	err := helper.Decode(options, &op, nil)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to decode Azure options", errors.AsUserMessage())
+		return nil, errors.Default.Wrap(err, "unable to decode Azure options")
 	}
 	// find the needed Azure now
 	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New("Azure connectionId is invalid", errors.AsUserMessage())
+		return nil, errors.BadInput.New("Azure connectionId is invalid")
 	}
 	return &op, nil
 }

@@ -60,7 +60,7 @@ func (plugin Org) PrepareTaskData(taskCtx core.TaskContext, options map[string]i
 	var op tasks.Options
 	err := helper.Decode(options, &op, nil)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode options", errors.AsUserMessage())
+		return nil, errors.BadInput.Wrap(err, "could not decode options")
 	}
 	taskData := &tasks.TaskData{
 		Options: &op,

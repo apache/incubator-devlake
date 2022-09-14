@@ -165,7 +165,7 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		return nil, err
 	}
 	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
+		return nil, errors.BadInput.New("connectionId is invalid")
 	}
 	connection := &models.TapdConnection{}
 	connectionHelper := helper.NewConnectionHelper(
@@ -181,7 +181,7 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if op.Since != "" {
 		since, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.Since))
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `since`", errors.AsUserMessage())
+			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
 		}
 	}
 	if connection.RateLimitPerHour == 0 {

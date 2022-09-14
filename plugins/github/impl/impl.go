@@ -144,20 +144,20 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	connection := &models.GithubConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get github connection by the given connection ID", errors.AsUserMessage())
+		return nil, errors.Default.Wrap(err, "unable to get github connection by the given connection ID")
 	}
 
 	var since time.Time
 	if op.Since != "" {
 		since, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.Since))
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `since`", errors.AsUserMessage())
+			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
 		}
 	}
 
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get github API client instance", errors.AsUserMessage())
+		return nil, errors.Default.Wrap(err, "unable to get github API client instance")
 	}
 	taskData := &tasks.GithubTaskData{
 		Options:   op,

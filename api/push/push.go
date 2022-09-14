@@ -52,12 +52,12 @@ func Post(c *gin.Context) {
 	var rowsToInsert []map[string]interface{}
 	err = c.ShouldBindJSON(&rowsToInsert)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody, errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
 	rowsAffected, err := services.InsertRow(tableName, rowsToInsert)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("error inserting request body into table %s", tableName), errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("error inserting request body into table %s", tableName)))
 		return
 	}
 	shared.ApiOutputSuccess(c, gin.H{"rowsAffected": rowsAffected}, http.StatusOK)

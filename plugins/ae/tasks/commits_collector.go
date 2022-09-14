@@ -54,11 +54,11 @@ func CollectCommits(taskCtx core.SubTaskContext) errors.Error {
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			if err != nil {
-				return nil, errors.Default.Wrap(err, "error reading endpoint response by AE commit collector", errors.AsUserMessage())
+				return nil, errors.Default.Wrap(err, "error reading endpoint response by AE commit collector")
 			}
 			var results []json.RawMessage
 			err = errors.Convert(json.Unmarshal(body, &results))
-			return results, errors.Default.Wrap(err, "error deserializing endpoint response by AE commit collector", errors.AsUserMessage())
+			return results, errors.Default.Wrap(err, "error deserializing endpoint response by AE commit collector")
 		},
 	})
 

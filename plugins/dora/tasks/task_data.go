@@ -45,7 +45,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions,
 	var op DoraOptions
 	err := helper.Decode(options, &op, nil)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error decoding DORA task options", errors.AsUserMessage())
+		return nil, errors.Default.Wrap(err, "error decoding DORA task options")
 	}
 
 	return &op, nil

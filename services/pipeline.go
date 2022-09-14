@@ -81,7 +81,7 @@ func pipelineServiceInit() {
 
 	var pipelineMaxParallel = cfg.GetInt64("PIPELINE_MAX_PARALLEL")
 	if pipelineMaxParallel < 0 {
-		panic(errors.BadInput.New(`PIPELINE_MAX_PARALLEL should be a positive integer`, errors.AsUserMessage()))
+		panic(errors.BadInput.New(`PIPELINE_MAX_PARALLEL should be a positive integer`))
 	}
 	if pipelineMaxParallel == 0 {
 		globalPipelineLog.Warn(nil, `pipelineMaxParallel=0 means pipeline will be run No Limit`)

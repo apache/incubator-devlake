@@ -173,7 +173,7 @@ func Get(c *gin.Context) {
 	})
 
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting plugin info of plugins", errors.AsUserMessage()))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting plugin info of plugins"))
 	}
 
 	shared.ApiOutputSuccess(c, info, http.StatusOK)

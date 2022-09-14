@@ -139,7 +139,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		c := config.GetConfig()
 		encKey := c.GetString(core.EncodeKeyEnvStr)
 		if encKey == "" {
-			return errors.BadInput.New("jira v0.11 invalid encKey", errors.AsUserMessage())
+			return errors.BadInput.New("jira v0.11 invalid encKey")
 		}
 		var auth string
 		if auth, err = core.Decrypt(encKey, v.BasicAuthEncoded); err != nil {

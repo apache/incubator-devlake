@@ -49,10 +49,10 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOption
 		return nil, err
 	}
 	if op.Owner == "" {
-		return nil, errors.BadInput.New("owner is required for GitHub execution", errors.AsUserMessage())
+		return nil, errors.BadInput.New("owner is required for GitHub execution")
 	}
 	if op.Repo == "" {
-		return nil, errors.BadInput.New("repo is required for GitHub execution", errors.AsUserMessage())
+		return nil, errors.BadInput.New("repo is required for GitHub execution")
 	}
 	if op.PrType == "" {
 		op.PrType = "type/(.*)$"
@@ -84,7 +84,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOption
 
 	// find the needed GitHub now
 	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
+		return nil, errors.BadInput.New("connectionId is invalid")
 	}
 	return &op, nil
 }

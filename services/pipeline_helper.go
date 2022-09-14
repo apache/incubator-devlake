@@ -132,9 +132,9 @@ func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, errors.Error) {
 	err := db.First(dbPipeline, pipelineId).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.NotFound.New("pipeline not found", errors.AsUserMessage())
+			return nil, errors.NotFound.New("pipeline not found")
 		}
-		return nil, errors.Internal.Wrap(err, "error getting the pipeline from database", errors.AsUserMessage())
+		return nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
 	}
 	return dbPipeline, nil
 }

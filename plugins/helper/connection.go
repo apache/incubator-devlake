@@ -118,11 +118,11 @@ func (c *ConnectionApiHelper) Patch(connection interface{}, input *core.ApiResou
 func (c *ConnectionApiHelper) First(connection interface{}, params map[string]string) errors.Error {
 	connectionId := params["connectionId"]
 	if connectionId == "" {
-		return errors.BadInput.New("missing connectionId", errors.AsUserMessage())
+		return errors.BadInput.New("missing connectionId")
 	}
 	id, err := strconv.ParseUint(connectionId, 10, 64)
 	if err != nil || id < 1 {
-		return errors.BadInput.New("invalid connectionId", errors.AsUserMessage())
+		return errors.BadInput.New("invalid connectionId")
 	}
 	return c.FirstById(connection, id)
 }

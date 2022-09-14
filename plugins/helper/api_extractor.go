@@ -75,11 +75,11 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 
 	count, err := db.Count(clauses...)
 	if err != nil {
-		return errors.Default.Wrap(err, "error getting count of clauses", errors.UserMessage("Internal Extractor execution error"))
+		return errors.Default.Wrap(err, "error getting count of clauses")
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
-		return errors.Default.Wrap(err, "error running DB query", errors.UserMessage("Internal Extractor execution error"))
+		return errors.Default.Wrap(err, "error running DB query")
 	}
 	log.Info("get data from %s where params=%s and got %d", extractor.table, extractor.params, count)
 	defer cursor.Close()
@@ -101,19 +101,19 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 		}
 		err = db.Fetch(cursor, row)
 		if err != nil {
-			return errors.Default.Wrap(err, "error fetching row", errors.UserMessage("Internal Extractor execution error"))
+			return errors.Default.Wrap(err, "error fetching row")
 		}
 
 		results, err := extractor.args.Extract(row)
 		if err != nil {
-			return errors.Default.Wrap(err, "error calling plugin Extract implementation", errors.UserMessage("Internal Extractor execution error"))
+			return errors.Default.Wrap(err, "error calling plugin Extract implementation")
 		}
 
 		for _, result := range results {
 			// get the batch operator for the specific type
 			batch, err := divider.ForType(reflect.TypeOf(result))
 			if err != nil {
-				return errors.Default.Wrap(err, "error getting batch from result", errors.UserMessage("Internal Extractor execution error"))
+				return errors.Default.Wrap(err, "error getting batch from result")
 			}
 			// set raw data origin field
 			origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
@@ -127,7 +127,7 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 			// records get saved into db when slots were max outed
 			err = batch.Add(result)
 			if err != nil {
-				return errors.Default.Wrap(err, "error adding result to batch", errors.UserMessage("Internal Extractor execution error"))
+				return errors.Default.Wrap(err, "error adding result to batch")
 			}
 			extractor.args.Ctx.IncProgress(1)
 		}

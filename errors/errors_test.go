@@ -41,20 +41,9 @@ func TestCrdbErrorImpl(t *testing.T) {
 		msgParts := strings.Split(msg, "\ncaused by: ")
 		expectedParts := []string{
 			"f1 error (404)",
-			"f2 error [f2 user error] (404)",
+			"f2 error (404)",
 			"f3 error (400)",
 			os.ErrNotExist.Error() + " (400)",
-		}
-		require.Equal(t, expectedParts, msgParts)
-	})
-	t.Run("user_message", func(t *testing.T) {
-		msg := lakeErr.UserMessage()
-		require.NotEqual(t, err.Error(), msg)
-		fmt.Printf("======================User Message=======================: \n%s\n\n\n", msg)
-		msgParts := strings.Split(msg, "\ncaused by: ")
-		expectedParts := []string{
-			"f1 error",
-			"f2 user error",
 		}
 		require.Equal(t, expectedParts, msgParts)
 	})
@@ -100,12 +89,12 @@ func TestCrdbErrorImpl(t *testing.T) {
 
 func f1() error {
 	err := f2()
-	return Default.Wrap(err, "f1 error", AsUserMessage())
+	return Default.Wrap(err, "f1 error")
 }
 
 func f2() error {
 	err := f3()
-	return NotFound.Wrap(err, "f2 error", UserMessage("f2 user error"))
+	return NotFound.Wrap(err, "f2 error")
 }
 
 func f3() error {

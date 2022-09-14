@@ -114,11 +114,11 @@ func (plugin Gitee) PrepareTaskData(taskCtx core.TaskContext, options map[string
 	}
 
 	if op.Owner == "" {
-		return nil, errors.BadInput.New("owner is required for Gitee execution", errors.AsUserMessage())
+		return nil, errors.BadInput.New("owner is required for Gitee execution")
 	}
 
 	if op.Repo == "" {
-		return nil, errors.BadInput.New("repo is required for Gitee execution", errors.AsUserMessage())
+		return nil, errors.BadInput.New("repo is required for Gitee execution")
 	}
 
 	if op.PrType == "" {
@@ -154,7 +154,7 @@ func (plugin Gitee) PrepareTaskData(taskCtx core.TaskContext, options map[string
 	}
 
 	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New("connectionId is invalid", errors.AsUserMessage())
+		return nil, errors.BadInput.New("connectionId is invalid")
 	}
 
 	connection := &models.GiteeConnection{}

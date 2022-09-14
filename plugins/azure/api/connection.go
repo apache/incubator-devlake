@@ -35,7 +35,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	// decode
 	var connection models.TestConnectionRequest
 	if err := helper.Decode(input.Body, &connection, vld); err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
 	// test connection
 	encodedToken := utils.GetEncodedToken(connection.Username, connection.Password)

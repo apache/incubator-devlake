@@ -68,7 +68,7 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, errors.Error)
 	}
 	dbUrl := config.GetString("DB_URL")
 	if dbUrl == "" {
-		return nil, errors.BadInput.New("DB_URL is required", errors.AsUserMessage())
+		return nil, errors.BadInput.New("DB_URL is required")
 	}
 	u, err := url.Parse(dbUrl)
 	if err != nil {
@@ -82,7 +82,7 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, errors.Error)
 	case "postgresql", "postgres", "pg":
 		db, err = gorm.Open(postgres.Open(dbUrl), dbConfig)
 	default:
-		return nil, errors.BadInput.New(fmt.Sprintf("invalid DB_URL:%s", dbUrl), errors.AsUserMessage())
+		return nil, errors.BadInput.New(fmt.Sprintf("invalid DB_URL:%s", dbUrl))
 	}
 	if err != nil {
 		return nil, errors.Convert(err)

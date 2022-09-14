@@ -89,7 +89,7 @@ func (*encryptPipeline) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		c := config.GetConfig()
 		encKey := c.GetString(core.EncodeKeyEnvStr)
 		if encKey == "" {
-			return errors.BadInput.New("invalid encKey", errors.AsUserMessage())
+			return errors.BadInput.New("invalid encKey")
 		}
 		encryptedPlan, err := core.Encrypt(encKey, string(v.Plan))
 		if err != nil {

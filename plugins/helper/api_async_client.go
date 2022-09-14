@@ -56,7 +56,7 @@ func CreateAsyncApiClient(
 	// load retry/timeout from configuration
 	retry, err := utils.StrToIntOr(taskCtx.GetConfig("API_RETRY"), 3)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "failed to parse API_RETRY", errors.AsUserMessage())
+		return nil, errors.BadInput.Wrap(err, "failed to parse API_RETRY")
 	}
 
 	timeoutConf := taskCtx.GetConfig("API_TIMEOUT")
@@ -64,7 +64,7 @@ func CreateAsyncApiClient(
 		// override timeout value if API_TIMEOUT is provided
 		timeout, err := time.ParseDuration(timeoutConf)
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "failed to parse API_TIMEOUT", errors.AsUserMessage())
+			return nil, errors.BadInput.Wrap(err, "failed to parse API_TIMEOUT")
 		}
 		apiClient.SetTimeout(timeout)
 	} else if apiClient.GetTimeout() == 0 {
@@ -197,7 +197,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		}
 
 		if err != nil {
-			err = errors.Default.Wrap(err, fmt.Sprintf("retry exceeded %d times calling %s", retry, path), errors.UserMessage("Async API call retries exhausted"))
+			err = errors.Default.Wrap(err, fmt.Sprintf("retry exceeded %d times calling %s", retry, path))
 			apiClient.logger.Error(err, "")
 			return errors.Convert(err)
 		}

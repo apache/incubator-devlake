@@ -46,7 +46,7 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptio
 	var op JenkinsOptions
 	err := helper.Decode(options, &op, nil)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
 	// find the needed Jenkins now
 	if op.ConnectionId == 0 {

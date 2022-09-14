@@ -37,17 +37,17 @@ type GitExtractorOptions struct {
 
 func (o GitExtractorOptions) Valid() errors.Error {
 	if o.RepoId == "" {
-		return errors.BadInput.New("empty repoId", errors.AsUserMessage())
+		return errors.BadInput.New("empty repoId")
 	}
 	if o.Url == "" {
-		return errors.BadInput.New("empty url", errors.AsUserMessage())
+		return errors.BadInput.New("empty url")
 	}
 	url := strings.TrimPrefix(o.Url, "ssh://")
 	if !(strings.HasPrefix(o.Url, "http") || strings.HasPrefix(url, "git@") || strings.HasPrefix(o.Url, "/")) {
-		return errors.BadInput.New("wrong url", errors.AsUserMessage())
+		return errors.BadInput.New("wrong url")
 	}
 	if o.Proxy != "" && !strings.HasPrefix(o.Proxy, "http://") {
-		return errors.BadInput.New("only support http proxy", errors.AsUserMessage())
+		return errors.BadInput.New("only support http proxy")
 	}
 	return nil
 }

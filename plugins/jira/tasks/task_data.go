@@ -67,10 +67,10 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JiraOptions,
 		return nil, err
 	}
 	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New(fmt.Sprintf("invalid connectionId:%d", op.ConnectionId), errors.AsUserMessage())
+		return nil, errors.BadInput.New(fmt.Sprintf("invalid connectionId:%d", op.ConnectionId))
 	}
 	if op.BoardId == 0 {
-		return nil, errors.BadInput.New(fmt.Sprintf("invalid boardId:%d", op.BoardId), errors.AsUserMessage())
+		return nil, errors.BadInput.New(fmt.Sprintf("invalid boardId:%d", op.BoardId))
 	}
 	return &op, nil
 }

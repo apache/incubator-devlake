@@ -43,10 +43,10 @@ import (
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var connection models.TestConnectionRequest
 	if err := mapstructure.Decode(input.Body, &connection); err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
 	if err := vld.Struct(connection); err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
+		return nil, errors.BadInput.Wrap(err, "could not validate request parameters")
 	}
 	// test connection
 	apiClient, err := helper.NewApiClient(
