@@ -126,7 +126,7 @@ func runPipeline(pipelineId uint64) errors.Error {
 	if err != nil {
 		pipeline.Status = models.TASK_FAILED
 		if lakeErr := errors.AsLakeErrorType(err); lakeErr != nil {
-			pipeline.Message = lakeErr.Messages().Format(errors.UserMessageType)
+			pipeline.Message = lakeErr.Messages().Format()
 		} else {
 			pipeline.Message = err.Error()
 		}

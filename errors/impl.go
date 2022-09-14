@@ -125,7 +125,7 @@ func newSingleCrdbError(t *Type, err error, message string, opts ...Option) Erro
 			t = cast.GetType()
 		}
 	}
-	msg.addMessage(t, message, message, false)
+	msg.addMessage(t, message)
 	return newCrdbError(t, err, msg, cfg)
 }
 
@@ -133,9 +133,9 @@ func newCombinedCrdbError(t *Type, errs []error) Error {
 	msg := &errMessage{}
 	for _, e := range errs {
 		if le, ok := e.(*crdbErrorImpl); ok {
-			msg.appendMessage(le.msg.getMessage(RawMessageType), le.msg.getMessage(UserMessageType))
+			msg.appendMessage(le.msg.getMessage())
 		} else {
-			msg.appendMessage(e.Error(), "")
+			msg.appendMessage(e.Error())
 		}
 	}
 	opts := &options{}
@@ -150,9 +150,9 @@ func newCrdbError(t *Type, err error, msg *errMessage, opts *options) *crdbError
 	opts.stackOffset += 2
 	if err == nil {
 		if enableStacktraces {
-			wrappedRaw = cerror.NewWithDepth(int(opts.stackOffset), msg.getPrettifiedMessage(RawMessageType))
+			wrappedRaw = cerror.NewWithDepth(int(opts.stackOffset), msg.getPrettifiedMessage())
 		} else {
-			wrappedRaw = errors.New(msg.getPrettifiedMessage(RawMessageType))
+			wrappedRaw = errors.New(msg.getPrettifiedMessage())
 		}
 	} else {
 		if cast, ok := err.(*crdbErrorImpl); ok {
@@ -160,9 +160,9 @@ func newCrdbError(t *Type, err error, msg *errMessage, opts *options) *crdbError
 			wrappedErr = cast
 		}
 		if enableStacktraces {
-			wrappedRaw = cerror.WrapWithDepth(int(opts.stackOffset), err, msg.getPrettifiedMessage(RawMessageType))
+			wrappedRaw = cerror.WrapWithDepth(int(opts.stackOffset), err, msg.getPrettifiedMessage())
 		} else {
-			wrappedRaw = cerror.WithDetail(err, msg.getPrettifiedMessage(RawMessageType))
+			wrappedRaw = cerror.WithDetail(err, msg.getPrettifiedMessage())
 		}
 	}
 	impl := &crdbErrorImpl{

@@ -46,8 +46,8 @@ func ApiOutputError(c *gin.Context, err error) {
 		messages := e.Messages()
 		c.JSON(e.GetType().GetHttpCode(), &ApiBody{
 			Success: false,
-			Message: messages.Get(errors.UserMessageType),
-			Causes:  messages.Causes(errors.UserMessageType),
+			Message: messages.Get(),
+			Causes:  messages.Causes(),
 		})
 	} else {
 		logger.Global.Error(err, "HTTP %d error (native)", http.StatusInternalServerError)
@@ -74,7 +74,7 @@ func ApiOutputSuccess(c *gin.Context, body interface{}, status int) {
 func ApiOutputAbort(c *gin.Context, err error) {
 	if e, ok := err.(errors.Error); ok {
 		logger.Global.Error(err, "HTTP %d abort-error", e.GetType().GetHttpCode())
-		_ = c.AbortWithError(e.GetType().GetHttpCode(), fmt.Errorf(e.Messages().Format(errors.UserMessageType)))
+		_ = c.AbortWithError(e.GetType().GetHttpCode(), fmt.Errorf(e.Messages().Format()))
 	} else {
 		logger.Global.Error(err, "HTTP %d abort-error (native)", http.StatusInternalServerError)
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
