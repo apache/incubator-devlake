@@ -333,10 +333,12 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 		commitFile.CommitSha = commitSha
 		commitFile.FilePath = file.NewFile.Path
 
-		// use commitSha and the sha256 of FilePath to create id
-		ShaFilePath := sha256.New()
-		ShaFilePath.Write([]byte(file.NewFile.Path))
-		commitFile.Id = commitSha + ":" + hex.EncodeToString(ShaFilePath.Sum(nil))
+		// With some long path,the varchar(255) was not enough both ID and file_path
+		// So we use the hash to compress the path in ID and add length of file_path.
+		// Use commitSha and the sha256 of FilePath to create id
+		shaFilePath := sha256.New()
+		shaFilePath.Write([]byte(file.NewFile.Path))
+		commitFile.Id = commitSha + ":" + hex.EncodeToString(shaFilePath.Sum(nil))
 
 		commitFileComponent = new(code.CommitFileComponent)
 		for component, reg := range componentMap {
@@ -345,7 +347,7 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 				break
 			}
 		}
-		commitFileComponent.CommitFileId = commitSha + ":" + file.NewFile.Path
+		commitFileComponent.CommitFileId = commitFile.Id
 		//commitFileComponent.FilePath = file.NewFile.Path
 		//commitFileComponent.CommitSha = commitSha
 		if commitFileComponent.ComponentName == "" {

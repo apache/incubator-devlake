@@ -22,6 +22,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"reflect"
+	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
@@ -54,6 +55,16 @@ func (CommitFileAddLengthBak) TableName() string {
 	return "commit_files_bak"
 }
 
+type CommitFileComponentBak struct {
+	archived.NoPKModel
+	CommitFileId  string `gorm:"primaryKey;type:varchar(255)"`
+	ComponentName string `gorm:"type:varchar(255)"`
+}
+
+func (CommitFileComponentBak) TableName() string {
+	return "commit_file_components_bak"
+}
+
 type addCommitFilePathLength struct{}
 
 func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Error {
@@ -72,10 +83,11 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 	if err != nil {
 		return errors.Default.Wrap(err, "error on select CommitFileAddLength")
 	}
+	defer cursor.Close()
 
-	batch, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&CommitFileAddLength{}), 100)
+	batch, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&CommitFileAddLength{}), 200)
 	if err != nil {
-		return errors.Default.Wrap(err, "error getting batch from table")
+		return errors.Default.Wrap(err, "error getting batch from table commit_file")
 	}
 
 	defer batch.Close()
@@ -83,14 +95,16 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 		cfb := CommitFileAddLengthBak{}
 		err = db.ScanRows(cursor, &cfb)
 		if err != nil {
-			return errors.Default.Wrap(err, "error scan rows from table")
+			return errors.Default.Wrap(err, "error scan rows from table commit_files_bak")
 		}
 
 		cf := CommitFileAddLength(cfb)
 
-		ShaFilePath := sha256.New()
-		ShaFilePath.Write([]byte(cf.FilePath))
-		cf.Id = cf.CommitSha + hex.EncodeToString(ShaFilePath.Sum(nil))
+		// With some long path,the varchar(255) was not enough both ID and file_path
+		// So we use the hash to compress the path in ID and add length of file_path.
+		shaFilePath := sha256.New()
+		shaFilePath.Write([]byte(cf.FilePath))
+		cf.Id = cf.CommitSha + ":" + hex.EncodeToString(shaFilePath.Sum(nil))
 
 		err = batch.Add(&cf)
 		if err != nil {
@@ -98,8 +112,73 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 		}
 	}
 
+	err = db.Migrator().RenameTable(&CommitFileComponent{}, &CommitFileComponentBak{})
+	if err != nil {
+		return errors.Default.Wrap(err, "error no rename commit_file_components to commit_file_components_bak")
+	}
+
+	err = db.Migrator().AutoMigrate(&CommitFileComponent{})
+	if err != nil {
+		return errors.Default.Wrap(err, "error on auto migrate commit_file")
+	}
+
+	// update old id to new id and write to the new table
+	cursor2, err := db.Model(&CommitFileComponentBak{}).Rows()
+	if err != nil {
+		return errors.Default.Wrap(err, "error on select commit_file_components_bak")
+	}
+	defer cursor2.Close()
+
+	batch2, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&CommitFileComponent{}), 500)
+	if err != nil {
+		return errors.Default.Wrap(err, "error getting batch from table commit_file_components")
+	}
+	defer batch2.Close()
+
+	for cursor2.Next() {
+		cfcb := CommitFileComponentBak{}
+		err = db.ScanRows(cursor2, &cfcb)
+		if err != nil {
+			return errors.Default.Wrap(err, "error scan rows from table commit_file_components_bak")
+		}
+
+		cfc := CommitFileComponent(cfcb)
+
+		ids := strings.Split(cfc.CommitFileId, ":")
+
+		commitSha := ""
+		filePath := ""
+
+		if len(ids) > 0 {
+			commitSha = ids[0]
+			if len(ids) > 1 {
+				for i := 1; i < len(ids); i++ {
+					if i > 1 {
+						filePath += ":"
+					}
+					filePath += ids[i]
+				}
+			}
+		}
+
+		// With some long path,the varchar(255) was not enough both ID and file_path
+		// So we use the hash to compress the path in ID and add length of file_path.
+		shaFilePath := sha256.New()
+		shaFilePath.Write([]byte(filePath))
+		cfc.CommitFileId = commitSha + ":" + hex.EncodeToString(shaFilePath.Sum(nil))
+
+		err = batch2.Add(&cfc)
+		if err != nil {
+			return errors.Default.Wrap(err, "error on batch add")
+		}
+	}
+
 	// drop the old table
 	err = db.Migrator().DropTable(&CommitFileAddLengthBak{})
+	if err != nil {
+		return errors.Default.Wrap(err, "error no drop commit_files_bak")
+	}
+	err = db.Migrator().DropTable(&CommitFileComponentBak{})
 	if err != nil {
 		return errors.Default.Wrap(err, "error no drop commit_files_bak")
 	}
