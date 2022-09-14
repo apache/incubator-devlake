@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
 	"net/http"
@@ -63,7 +64,7 @@ type WebhookIssueRequest struct {
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/:connectionId/issue [POST]
-func PostIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -81,7 +82,7 @@ func PostIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/:connectionId/issue/:boardKey/:issueId/close [POST]
-func CloseIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func CloseIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {

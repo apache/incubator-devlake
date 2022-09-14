@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -44,7 +45,7 @@ func (plugin Webhook) Description() string {
 	return "collect some Webhook data"
 }
 
-func (plugin Webhook) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Webhook) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -54,7 +55,7 @@ func (plugin Webhook) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{}
 }
 
-func (plugin Webhook) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Webhook) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -66,7 +67,7 @@ func (plugin Webhook) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 	connection := &models.WebhookConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get Webhook connection by the given connection ID: %v", err)
+		return nil, errors.Default.Wrap(err, "unable to get webhook connection by the given connection ID")
 	}
 
 	return &tasks.WebhookTaskData{
@@ -106,14 +107,14 @@ func (plugin Webhook) ApiResources() map[string]map[string]core.ApiResourceHandl
 	}
 }
 
-func (plugin Webhook) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+func (plugin Webhook) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
-func (plugin Webhook) Close(taskCtx core.TaskContext) error {
+func (plugin Webhook) Close(taskCtx core.TaskContext) errors.Error {
 	_, ok := taskCtx.GetData().(*tasks.WebhookTaskData)
 	if !ok {
-		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	return nil
 }

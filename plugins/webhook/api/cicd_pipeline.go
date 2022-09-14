@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
 	"net/http"
@@ -46,7 +47,7 @@ type WebhookPipelineRequest struct {
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/:connectionId/cicd_pipeline [POST]
-func PostCicdPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostCicdPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {

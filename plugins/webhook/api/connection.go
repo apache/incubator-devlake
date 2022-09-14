@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
 	"net/http"
@@ -33,7 +34,7 @@ import (
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections [POST]
-func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.Create(connection, input)
@@ -52,7 +53,7 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections/{connectionId} [PATCH]
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
@@ -69,7 +70,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections/{connectionId} [DELETE]
-func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -87,7 +88,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections [GET]
-func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var connections []models.WebhookConnection
 	err := connectionHelper.List(&connections)
 	if err != nil {
@@ -110,7 +111,7 @@ type WebhookConnectionResponse struct {
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections/{connectionId} [GET]
-func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	response := &WebhookConnectionResponse{WebhookConnection: *connection}

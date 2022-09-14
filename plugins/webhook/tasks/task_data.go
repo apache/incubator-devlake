@@ -18,7 +18,7 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -34,15 +34,15 @@ type WebhookTaskData struct {
 	Options *WebhookOptions
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*WebhookOptions, error) {
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*WebhookOptions, errors.Error) {
 	var op WebhookOptions
 	err := mapstructure.Decode(options, &op)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.New("could not decode options for webhook execution")
 	}
 
 	if op.ConnectionId == 0 {
-		return nil, fmt.Errorf("connectionId is invalid")
+		return nil, errors.Default.New("Webhook connectionId is invalid")
 	}
 	return &op, nil
 }

@@ -19,16 +19,17 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/webhook/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type addInitTables struct{}
 
-func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
-	return db.Migrator().AutoMigrate(
+func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	return errors.Convert(db.Migrator().AutoMigrate(
 		&archived.WebhookConnection{},
-	)
+	))
 }
 
 func (*addInitTables) Version() uint64 {
