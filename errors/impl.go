@@ -97,7 +97,7 @@ func (e *crdbErrorImpl) getMessages(getMessage func(*crdbErrorImpl) *errMessage)
 	ok := false
 	for {
 		msg := getMessage(err)
-		if len(msg.raw) > 0 {
+		if len(msg.msgs) > 0 {
 			msgs = append(msgs, msg)
 		}
 		unwrapped := err.Unwrap()

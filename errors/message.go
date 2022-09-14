@@ -28,48 +28,44 @@ type (
 	// MessageType the type of message for an Error
 	MessageType int
 
+	// errMessage an abstraction around a given Error's message
 	errMessage struct {
-		raw []string
+		// all the messages associated with an Error. The size will be > 1 if the Error is created using Type.Combine
+		msgs []string
 	}
 )
 
-func (m *errMessage) addMessage(t *Type, raw string) {
-	if raw == "" {
+func (m *errMessage) addMessage(t *Type, msg string) {
+	if msg == "" {
 		return
 	}
 	if t.httpCode != 0 {
-		raw = fmt.Sprintf("%s (%d)", raw, t.httpCode)
+		msg = fmt.Sprintf("%s (%d)", msg, t.httpCode)
 	}
-	m.appendMessage(raw)
+	m.appendMessage(msg)
 }
 
-func (m *errMessage) appendMessage(raw string) {
-	m.raw = append(m.raw, raw)
+func (m *errMessage) appendMessage(msg string) {
+	m.msgs = append(m.msgs, msg)
 }
 
 func (m *errMessage) getMessage() string {
-	f := func(target []string) string {
-		if len(target) == 0 {
-			return ""
-		}
-		return strings.Join(target, ",")
+	if len(m.msgs) == 0 {
+		return ""
 	}
-	return f(m.raw)
+	return strings.Join(m.msgs, ",")
 }
 
 func (m *errMessage) getPrettifiedMessage() string {
-	f := func(target []string) string {
-		if len(target) == 0 {
-			return ""
-		}
-		if len(target) == 1 {
-			return target[0]
-		}
-		effectiveMsg := strings.Join(target, "\n=====================\n")
-		effectiveMsg = "\t" + strings.ReplaceAll(effectiveMsg, "\n", "\n\t")
-		return fmt.Sprintf("\ncombined messages: \n{\n%s\n}", effectiveMsg)
+	if len(m.msgs) == 0 {
+		return ""
 	}
-	return f(m.raw)
+	if len(m.msgs) == 1 {
+		return m.msgs[0]
+	}
+	effectiveMsg := strings.Join(m.msgs, "\n=====================\n")
+	effectiveMsg = "\t" + strings.ReplaceAll(effectiveMsg, "\n", "\n\t")
+	return fmt.Sprintf("\ncombined messages: \n{\n%s\n}", effectiveMsg)
 }
 
 // Format formats the messages into a single string
