@@ -40,6 +40,14 @@ type BitbucketInput struct {
 	BitbucketId int
 }
 
+type BitbucketPagination struct {
+	Values  []interface{} `json:"values"`
+	PageLen int           `json:"pagelen"`
+	Size    int           `json:"size"`
+	Page    int           `json:"page"`
+	Next    string        `json:"next"`
+}
+
 func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helper.RawDataSubTaskArgs, *BitbucketTaskData) {
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	RawDataSubTaskArgs := &helper.RawDataSubTaskArgs{
