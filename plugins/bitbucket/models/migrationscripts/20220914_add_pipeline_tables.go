@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
@@ -39,10 +40,10 @@ func (BitbucketPipeline20220914) TableName() string {
 	return "_tool_bitbucket_pipelines"
 }
 
-func (*addPipeline20220914) Up(ctx context.Context, db *gorm.DB) error {
+func (*addPipeline20220914) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().CreateTable(&BitbucketPipeline20220914{})
 	if err != nil {
-		return err
+		return errors.Convert(err)
 	}
 	return nil
 }

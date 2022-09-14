@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -93,15 +94,15 @@ var ExtractApiPipelinesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ExtractApiPipelines(taskCtx core.SubTaskContext) error {
+func ExtractApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			// create bitbucket commit
 			bitbucketApiPipeline := &BitbucketApiPipeline{}
-			err := json.Unmarshal(row.Data, bitbucketApiPipeline)
+			err := errors.Convert(json.Unmarshal(row.Data, bitbucketApiPipeline))
 			if err != nil {
 				return nil, err
 			}

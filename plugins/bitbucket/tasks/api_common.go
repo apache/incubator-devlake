@@ -145,6 +145,7 @@ func GetIssuesIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, 
 	return helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(BitbucketInput{}))
 }
 
+<<<<<<< HEAD
 func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	if res.StatusCode == http.StatusUnauthorized {
 		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
@@ -156,6 +157,9 @@ func ignoreHTTPStatus404(res *http.Response) errors.Error {
 }
 
 func ignoreHTTPStatus403(res *http.Response) error {
+=======
+func ignoreHTTPStatus403(res *http.Response) errors.Error {
+>>>>>>> fd0ad042 (fix: change error to errors.Error)
 	if res.StatusCode == http.StatusForbidden {
 		return helper.ErrIgnoreAndContinue
 	}
