@@ -170,14 +170,20 @@ func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.Colum
 // AddColumn add one column for the table
 func (d *Dalgorm) AddColumn(table, columnName, columnType string) error {
 	// work around the error `cached plan must not change result type` for postgres
-	defer d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
+	// wrap in func(){} to make the linter happy
+	defer func() {
+		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
+	}()
 	return d.Exec("ALTER TABLE ? ADD ? ?", clause.Table{Name: table}, clause.Column{Name: columnName}, clause.Expr{SQL: columnType})
 }
 
 // DropColumn drop one column from the table
 func (d *Dalgorm) DropColumn(table, columnName string) error {
 	// work around the error `cached plan must not change result type` for postgres
-	defer d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
+	// wrap in func(){} to make the linter happy
+	defer func() {
+		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
+	}()
 	return d.Exec("ALTER TABLE ? DROP COLUMN ?", clause.Table{Name: table}, clause.Column{Name: columnName})
 }
 
