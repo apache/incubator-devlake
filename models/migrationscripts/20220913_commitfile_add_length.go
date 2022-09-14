@@ -75,7 +75,7 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 
 	batch, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&CommitFileAddLength{}), 100)
 	if err != nil {
-		return errors.Default.Wrap(err, "error getting batch from table", errors.UserMessage("Internal Converter execution error"))
+		return errors.Default.Wrap(err, "error getting batch from table")
 	}
 
 	defer batch.Close()
@@ -83,7 +83,7 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 		cfb := CommitFileAddLengthBak{}
 		err = db.ScanRows(cursor, &cfb)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error scan rows from table")
 		}
 
 		cf := CommitFileAddLength(cfb)
