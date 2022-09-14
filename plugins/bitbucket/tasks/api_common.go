@@ -154,3 +154,10 @@ func ignoreHTTPStatus404(res *http.Response) errors.Error {
 	}
 	return nil
 }
+
+func ignoreHTTPStatus403(res *http.Response) error {
+	if res.StatusCode == http.StatusForbidden {
+		return helper.ErrIgnoreAndContinue
+	}
+	return nil
+}

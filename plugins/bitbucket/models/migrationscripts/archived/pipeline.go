@@ -15,16 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"time"
 )
 
-// All return all the migration scripts
-func All() []migration.Script {
-	return []migration.Script{
-		new(addInitTables),
-		new(addPipeline20220914),
-	}
+type BitbucketPipeline struct {
+	ConnectionId      uint64 `gorm:"primaryKey"`
+	BitbucketId       string `gorm:"primaryKey"`
+	Status            string `gorm:"type:varchar(100)"`
+	Result            string `gorm:"type:varchar(100)"`
+	RefName           string `gorm:"type:varchar(255)"`
+	WebUrl            string `gorm:"type:varchar(255)"`
+	DurationInSeconds int
+
+	BitbucketCreatedOn  *time.Time
+	BitbucketCompleteOn *time.Time
+
+	archived.NoPKModel
+}
+
+func (BitbucketPipeline) TableName() string {
+	return "_tool_bitbucket_pipelines"
 }
