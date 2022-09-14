@@ -28,6 +28,10 @@ import (
 
 // CreateDbPipeline returns a NewPipeline
 func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, errors.Error) {
+	planByte, err := errors.Convert01(json.Marshal(newPipeline.Plan))
+	if err != nil {
+		return nil, err
+	}
 	// create pipeline object from posted data
 	dbPipeline := &models.DbPipeline{
 		Name:          newPipeline.Name,
@@ -35,11 +39,12 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 		Status:        models.TASK_CREATED,
 		Message:       "",
 		SpentSeconds:  0,
+		Plan:          string(planByte),
 	}
 	if newPipeline.BlueprintId != 0 {
 		dbPipeline.BlueprintId = newPipeline.BlueprintId
 	}
-	dbPipeline, err := encryptDbPipeline(dbPipeline)
+	dbPipeline, err = encryptDbPipeline(dbPipeline)
 	if err != nil {
 		return nil, err
 	}
@@ -77,18 +82,8 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	}
 
 	// update tasks state
-	planByte, err := errors.Convert01(json.Marshal(newPipeline.Plan))
-	if err != nil {
-		return nil, err
-	}
-	dbPipeline.Plan = string(planByte)
-	dbPipeline, err = encryptDbPipeline(dbPipeline)
-	if err != nil {
-		return nil, err
-	}
 	if err := db.Model(dbPipeline).Updates(map[string]interface{}{
 		"total_tasks": dbPipeline.TotalTasks,
-		"plan":        dbPipeline.Plan,
 	}).Error; err != nil {
 		globalPipelineLog.Error(err, "update pipline state failed: %w", err)
 		return nil, errors.Internal.Wrap(err, "update pipline state failed")
