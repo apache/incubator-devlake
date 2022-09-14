@@ -18,13 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"regexp"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"reflect"
-	"regexp"
 )
 
 var EnrichTaskEnvMeta = core.SubTaskMeta{
@@ -47,7 +48,7 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	}
 	taskNameReg, errRegexp := regexp.Compile(taskNamePattern)
 	if errRegexp != nil {
-		return fmt.Errorf("regexp Compile taskNameReg failed:[%s] stack:[%s]", err.Error(), debug.Stack())
+		return errors.Default.Wrap(errRegexp, "regexp Compile taskNameReg failed")
 	}
 
 	cursor, err := db.Cursor(
