@@ -154,7 +154,7 @@ func ignoreIssueHTTPStatus404(res *http.Response) errors.Error {
 		}
 		err = json.Unmarshal(resBody, &resMessage)
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", resBody))
+			return errors.Default.Wrap(err, fmt.Sprintf("error decoding response from %s: raw response: %s", res.Request.URL.String(), string(resBody)))
 		}
 		if resMessage.Error.Message == "Repository has no issue tracker." {
 			return helper.ErrIgnoreAndContinue
