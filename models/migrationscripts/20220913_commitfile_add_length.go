@@ -21,9 +21,12 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"reflect"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/plugins/gitlab/api"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
 )
 
@@ -39,46 +42,75 @@ func (CommitFileAddLength) TableName() string {
 	return "commit_files"
 }
 
-type commitfileAddLength struct{}
+type CommitFileAddLengthBak struct {
+	archived.DomainEntity
+	CommitSha string `gorm:"type:varchar(40)"`
+	FilePath  string `gorm:"type:varchar(255)"`
+	Additions int
+	Deletions int
+}
 
-func (*commitfileAddLength) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AlterColumn(&CommitFileAddLength{}, "file_path")
+func (CommitFileAddLengthBak) TableName() string {
+	return "commit_files_bak"
+}
+
+type addCommitFilePathLength struct{}
+
+func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	err := db.Migrator().RenameTable(&CommitFile{}, &CommitFileAddLengthBak{})
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error no rename commit_file to commit_files_bak")
 	}
 
-	// update old id to new id
-	cursor, err := db.Model(&CommitFileAddLength{}).Select([]string{"commit_sha", "file_path"}).Rows()
+	err = db.Migrator().AutoMigrate(&CommitFileAddLength{})
 	if err != nil {
-		return err
+		return errors.Default.Wrap(err, "error on auto migrate commit_file")
 	}
 
+	// update old id to new id and write to the new table
+	cursor, err := db.Model(&CommitFileAddLengthBak{}).Rows()
+	if err != nil {
+		return errors.Default.Wrap(err, "error on select CommitFileAddLength")
+	}
+
+	batch, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&CommitFileAddLength{}), 100)
+	if err != nil {
+		return errors.Default.Wrap(err, "error getting batch from table", errors.UserMessage("Internal Converter execution error"))
+	}
+
+	defer batch.Close()
 	for cursor.Next() {
-		cf := CommitFileAddLength{}
-		err = db.ScanRows(cursor, &cf)
+		cfb := CommitFileAddLengthBak{}
+		err = db.ScanRows(cursor, &cfb)
 		if err != nil {
 			return err
 		}
+
+		cf := CommitFileAddLength(cfb)
 
 		ShaFilePath := sha256.New()
 		ShaFilePath.Write([]byte(cf.FilePath))
+		cf.Id = cf.CommitSha + hex.EncodeToString(ShaFilePath.Sum(nil))
 
-		err = db.Model(cf).
-			Where(`commit_sha=? AND file_path=?`, cf.CommitSha, cf.FilePath).
-			Update(`id`, cf.CommitSha+hex.EncodeToString(ShaFilePath.Sum(nil))).
-			Error
+		err = batch.Add(&cf)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, "error on batch add")
 		}
+	}
+
+	// drop the old table
+	err = db.Migrator().DropTable(&CommitFileAddLengthBak{})
+	if err != nil {
+		return errors.Default.Wrap(err, "error no drop commit_files_bak")
 	}
 
 	return nil
 }
 
-func (*commitfileAddLength) Version() uint64 {
+func (*addCommitFilePathLength) Version() uint64 {
 	return 20220913165805
 }
 
-func (*commitfileAddLength) Name() string {
+func (*addCommitFilePathLength) Name() string {
 	return "add length of commit_file file_path"
 }
