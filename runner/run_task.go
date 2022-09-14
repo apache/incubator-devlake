@@ -70,6 +70,8 @@ func RunTask(
 				if meta, ok := lakeErr.GetData().(*core.SubTaskMeta); ok {
 					subTaskName = meta.Name
 				}
+			} else {
+				lakeErr = errors.Convert(err)
 			}
 			dbe := db.Model(task).Updates(map[string]interface{}{
 				"status":          models.TASK_FAILED,

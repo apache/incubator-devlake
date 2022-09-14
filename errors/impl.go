@@ -118,6 +118,7 @@ func newSingleCrdbError(t *Type, err error, message string, opts ...Option) Erro
 	for _, opt := range opts {
 		opt(cfg)
 	}
+	cfg.stackOffset += 1
 	msg := &errMessage{}
 	if cast, ok := err.(*crdbErrorImpl); ok {
 		if t == Default { // inherit wrapped error's type
@@ -137,7 +138,9 @@ func newCombinedCrdbError(t *Type, errs []error) Error {
 			msg.appendMessage(e.Error(), "")
 		}
 	}
-	return newCrdbError(t, nil, msg, &options{})
+	opts := &options{}
+	opts.stackOffset += 1
+	return newCrdbError(t, nil, msg, opts)
 }
 
 func newCrdbError(t *Type, err error, msg *errMessage, opts *options) *crdbErrorImpl {

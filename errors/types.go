@@ -100,7 +100,7 @@ func (t *Type) wrapRaw(err error, forceWrap bool, opts ...Option) Error {
 	} else {
 		msg = err.Error()
 	}
-	return newSingleCrdbError(t, err, msg)
+	return newSingleCrdbError(t, err, msg, opts...)
 }
 
 // Combine constructs a new Error from combining multiple errors. Stacktrace info for each of the errors will not be present in the result, so it's
