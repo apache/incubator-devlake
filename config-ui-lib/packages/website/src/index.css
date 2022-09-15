@@ -1,22 +1,24 @@
 body {
-  margin: 0;
   color: #292b3f;
 }
 
 h1 {
   margin: 0;
   font-size: 24px;
+  color: #292b3f;
   font-weight: 600;
 }
 
 h2 {
   margin: 0;
   font-size: 20px;
+  color: #292b3f;
   font-weight: 600;
 }
 
 h3 {
   margin: 0;
+  color: #292b3f;
 }
 
 h4 {

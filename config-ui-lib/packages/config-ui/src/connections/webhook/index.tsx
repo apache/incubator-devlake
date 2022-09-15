@@ -15,6 +15,25 @@
  * limitations under the License.
  *
  */
+import { Button, Table } from 'antd';
+
+import * as S from './styled';
+
 export const Webhook = () => {
-  return <div>webhook</div>;
+  return (
+    <S.Container>
+      <h1>
+        <span>Webhook</span>
+      </h1>
+      <h4>
+        Use Webhooks to define Incidents and Deployments for your CI tools if they are not listed in Data Sources.
+      </h4>
+      <div className="content">
+        <div className="operate">
+          <Button type="primary">Add Webhook</Button>
+        </div>
+        <Table />
+      </div>
+    </S.Container>
+  );
 };

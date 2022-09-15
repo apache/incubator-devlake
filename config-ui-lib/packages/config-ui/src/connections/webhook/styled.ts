@@ -15,36 +15,14 @@
  * limitations under the License.
  *
  */
-import { resolve } from 'path';
+import styled from '@emotion/styled';
 
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import vitePluginImp from 'vite-plugin-imp';
+export const Container = styled.div`
+  .content {
+    margin-top: 48px;
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [
-    react(),
-    vitePluginImp({
-      libList: [
-        {
-          libName: 'antd',
-          style(name) {
-            return `antd/es/${name}/style/css.js`;
-          },
-        },
-      ],
-    }),
-  ],
-
-  build: {
-    outDir: resolve(__dirname, '_website'),
-  },
-
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
-      '@devlake/config-ui': resolve(__dirname, '../config-ui/src/index.ts'),
-    },
-  },
-});
+    .operate {
+      margin-bottom: 12px;
+    }
+  }
+`;
