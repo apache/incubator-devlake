@@ -94,7 +94,6 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) errors.Error {
 				Result:       jenkinsPipelineResult,
 				Status:       jenkinsPipelineStatus,
 				FinishedDate: jenkinsPipelineFinishedDate,
-				Type:         "CI/CD",
 				DurationSec:  uint64(durationSec),
 				CreatedDate:  jenkinsBuild.StartTime,
 			}
@@ -120,7 +119,6 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) errors.Error {
 					Name:         jenkinsBuild.JobName,
 					Result:       jenkinsPipelineResult,
 					Status:       jenkinsPipelineStatus,
-					Type:         "CI/CD",
 					DurationSec:  uint64(durationSec),
 					StartedDate:  jenkinsBuild.StartTime,
 					FinishedDate: jenkinsPipelineFinishedDate,

@@ -85,7 +85,6 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "manual", "scheduled"},
 					Default:    devops.DONE,
 				}, gitlabPipeline.Status),
-				Type:         "CI/CD",
 				CreatedDate:  createdAt,
 				FinishedDate: gitlabPipeline.GitlabUpdatedAt,
 			}

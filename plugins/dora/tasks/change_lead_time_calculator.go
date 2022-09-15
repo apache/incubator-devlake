@@ -153,7 +153,7 @@ func getDeployTime(repoId string, environment string, mergeDate time.Time, db da
 	cicdTaskClauses := []dal.Clause{
 		dal.From(&devops.CICDTask{}),
 		dal.Join("left join cicd_pipeline_commits on cicd_tasks.pipeline_id = cicd_pipeline_commits.pipeline_id"),
-		dal.Where(`cicd_pipeline_commits.repo = ? 
+		dal.Where(`cicd_pipeline_commits.repo_id = ? 
 			and cicd_tasks.environment = ? 
 			and cicd_tasks.result = ?
 			and cicd_tasks.started_date > ?`,
