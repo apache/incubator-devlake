@@ -1478,6 +1478,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@devlake/config-ui@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@devlake/config-ui@workspace:."
+  dependencies:
+    "@types/node": ^18.7.18
+    "@types/react": ^18.0.17
+    "@types/react-dom": ^18.0.6
+    "@vitejs/plugin-react": ^2.1.0
+    eslint-config-mints: ^2.0.2
+    eslint-plugin-header: ^3.1.1
+    prettier: ^2.7.1
+    react: ^18.2.0
+    react-dom: ^18.2.0
+    typescript: ^4.6.4
+    vite: ^3.1.0
+  languageName: unknown
+  linkType: soft
+
 "@esbuild/linux-loong64@npm:0.15.7":
   version: 0.15.7
   resolution: "@esbuild/linux-loong64@npm:0.15.7"
@@ -1616,6 +1634,13 @@ __metadata:
   version: 0.0.29
   resolution: "@types/json5@npm:0.0.29"
   checksum: e60b153664572116dfea673c5bda7778dbff150498f44f998e34b5886d8afc47f16799280e4b6e241c0472aef1bc36add771c569c68fc5125fc2ae519a3eb9ac
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^18.7.18":
+  version: 18.7.18
+  resolution: "@types/node@npm:18.7.18"
+  checksum: 8aec61f0f96e2a69ce51f1f40f949ca578bbb4fe05d7c0b8ce3aeeb848e90f755837f17f6ac132ca404d974fe9b2974150ad3b4984fc9dc7c3ceddb10bae0167
   languageName: node
   linkType: hard
 
@@ -2193,23 +2218,6 @@ __metadata:
   checksum: 902a9f5d8967a3e2faf138d5cb784b9979bad2e6db5357c5b21c568df4ebe62bcb15108af1b2253744844eb964fc023fbd9afbbbb6ddd0bcc204c6fb5b7bf3af
   languageName: node
   linkType: hard
-
-"config-ui-lib@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "config-ui-lib@workspace:."
-  dependencies:
-    "@types/react": ^18.0.17
-    "@types/react-dom": ^18.0.6
-    "@vitejs/plugin-react": ^2.1.0
-    eslint-config-mints: ^2.0.2
-    eslint-plugin-header: ^3.1.1
-    prettier: ^2.7.1
-    react: ^18.2.0
-    react-dom: ^18.2.0
-    typescript: ^4.6.4
-    vite: ^3.1.0
-  languageName: unknown
-  linkType: soft
 
 "confusing-browser-globals@npm:^1.0.11":
   version: 1.0.11

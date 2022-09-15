@@ -11,3 +11,6 @@
 #.pnp.*
 
 !yarn.lock
+_build
+_types
+_website

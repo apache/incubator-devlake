@@ -1,12 +1,24 @@
 {
-  "name": "config-ui-lib",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@devlake/config-ui",
+  "version": "0.0.0-rc.0",
   "packageManager": "yarn@3.2.3",
+  "files": [
+    "_build",
+    "_types"
+  ],
+  "main": "./_build/config-ui.umd.js",
+  "module": "./_build/config-ui.mjs",
+  "exports": {
+    ".": {
+      "import": "./_build/config-ui.mjs",
+      "require": "./_build/config-ui.umd.js"
+    }
+  },
   "scripts": {
-    "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview",
+    "dev:website": "vite --config vite.config.website.ts",
+    "preview:website": "vite --config vite.config.website.ts preview",
+    "build:website": "vite --config vite.config.website.ts build",
     "prettier": "prettier . --write"
   },
   "dependencies": {
@@ -14,6 +26,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@types/node": "^18.7.18",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@vitejs/plugin-react": "^2.1.0",
