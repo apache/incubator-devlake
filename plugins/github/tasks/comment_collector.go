@@ -20,10 +20,11 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -105,9 +106,11 @@ var CollectApiCommentsMeta = core.SubTaskMeta{
 }
 
 func calculateSince(data *GithubTaskData, db dal.Dal) (*time.Time, bool, errors.Error) {
-	since := &time.Time{}
-	incremental := false
+	var since *time.Time
 	var latestUpdatedIssueComt models.GithubIssueComment
+	var latestUpdatedPrComt models.GithubPrComment
+
+	incremental := false
 	err := db.All(
 		&latestUpdatedIssueComt,
 		dal.Join("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id"),
@@ -120,7 +123,7 @@ func calculateSince(data *GithubTaskData, db dal.Dal) (*time.Time, bool, errors.
 	if err != nil {
 		return nil, false, errors.Default.Wrap(err, "failed to get latest github issue record")
 	}
-	var latestUpdatedPrComt models.GithubPrComment
+
 	err = db.All(
 		&latestUpdatedPrComt,
 		dal.Join("left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id"),
