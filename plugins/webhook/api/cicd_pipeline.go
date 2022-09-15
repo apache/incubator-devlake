@@ -171,26 +171,7 @@ func PostPipelineFinish(input *core.ApiResourceInput) (*core.ApiResourceOutput, 
 	if err != nil {
 		return nil, errors.NotFound.Wrap(err, `tasks not found`)
 	}
-	typeHasCi := false
-	typeHasCd := false
-	result := `SUCCESS`
-	for _, domainTask := range domainTasks {
-		if domainTask.Type == `CI/CD` {
-			typeHasCi = true
-			typeHasCd = true
-		} else if domainTask.Type == `CI` {
-			typeHasCi = true
-		} else if domainTask.Type == `CD` {
-			typeHasCd = true
-		}
-		if domainTask.Type == `ABORT` {
-			result = `ABORT`
-		} else if domainTask.Type == `FAILURE` {
-			if result == `SUCCESS` {
-				result = `FAILURE`
-			}
-		}
-	}
+	typeHasCi, typeHasCd, result := getTypeAndResultFromTasks(domainTasks)
 	if typeHasCi && typeHasCd {
 		domainPipeline.Type = `CI/CD`
 	} else if typeHasCi {
@@ -211,4 +192,28 @@ func PostPipelineFinish(input *core.ApiResourceInput) (*core.ApiResourceOutput, 
 	}
 
 	return &core.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
+}
+
+func getTypeAndResultFromTasks(domainTasks []devops.CICDTask) (typeHasCi bool, typeHasCd bool, result string) {
+	typeHasCi = false
+	typeHasCd = false
+	result = `SUCCESS`
+	for _, domainTask := range domainTasks {
+		if domainTask.Type == `CI/CD` {
+			typeHasCi = true
+			typeHasCd = true
+		} else if domainTask.Type == `CI` {
+			typeHasCi = true
+		} else if domainTask.Type == `CD` {
+			typeHasCd = true
+		}
+		if domainTask.Result == `ABORT` {
+			result = `ABORT`
+		} else if domainTask.Result == `FAILURE` {
+			if result == `SUCCESS` {
+				result = `FAILURE`
+			}
+		}
+	}
+	return
 }
