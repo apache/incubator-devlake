@@ -10,4 +10,10 @@ export default defineConfig({
   build: {
     outDir: resolve(__dirname, '_website'),
   },
+
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+    },
+  },
 });

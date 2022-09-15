@@ -9,8 +9,11 @@
   },
   "dependencies": {
     "@devlake/config-ui": "workspace:^",
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.4.0"
   },
   "devDependencies": {
     "@types/node": "^18.7.18",

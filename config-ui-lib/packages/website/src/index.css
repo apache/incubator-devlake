@@ -1,0 +1,33 @@
+body {
+  margin: 0;
+  color: #292b3f;
+}
+
+h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+h3 {
+  margin: 0;
+}
+
+h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #70727f;
+  font-weight: 400;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
