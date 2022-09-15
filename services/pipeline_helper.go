@@ -19,6 +19,7 @@ package services
 
 import (
 	"encoding/json"
+	goerror "errors"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
@@ -126,7 +127,7 @@ func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, errors.Error) {
 	dbPipeline := &models.DbPipeline{}
 	err := db.First(dbPipeline, pipelineId).Error
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if goerror.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NotFound.New("pipeline not found")
 		}
 		return nil, errors.Internal.Wrap(err, "error getting the pipeline from database")

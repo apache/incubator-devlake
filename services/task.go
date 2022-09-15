@@ -20,6 +20,7 @@ package services
 import (
 	"context"
 	"encoding/json"
+	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"regexp"
@@ -200,7 +201,7 @@ func GetTask(taskId uint64) (*models.Task, errors.Error) {
 	task := &models.Task{}
 	err := db.First(task, taskId).Error
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if goerror.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NotFound.New("task not found")
 		}
 		return nil, errors.Internal.Wrap(err, "error getting the task from database")

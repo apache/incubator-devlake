@@ -18,6 +18,7 @@ limitations under the License.
 package services
 
 import (
+	goerror "errors"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
@@ -64,7 +65,7 @@ func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, errors.Error) {
 	dbBlueprint := &models.DbBlueprint{}
 	err := db.First(dbBlueprint, dbBlueprintId).Error
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if goerror.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NotFound.Wrap(err, "could not find blueprint in DB")
 		}
 		return nil, errors.Default.Wrap(err, "error getting blueprint from DB")
