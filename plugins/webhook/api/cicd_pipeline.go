@@ -18,9 +18,14 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"time"
 )
@@ -53,6 +58,51 @@ func PostCicdPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 	if err != nil {
 		return nil, err
 	}
-	// TODO save pipeline
+	// get request
+	request := &WebhookPipelineRequest{}
+	err = helper.DecodeMapStruct(input.Body, request)
+	if err != nil {
+		return &core.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
+	}
+	// validate
+	vld = validator.New()
+	err = errors.Convert(vld.Struct(request))
+	if err != nil {
+		return &core.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
+	}
+
+	db := basicRes.GetDal()
+	domainPipeline := &devops.CICDPipeline{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: fmt.Sprintf("%s:%d:%s:%s:%s:%s", "webhook", connection.ID, request.Repo, request.Branch, request.CommitSha, request.Id),
+		},
+		Name:         request.Id,
+		Result:       request.Result,
+		Status:       request.Status,
+		Type:         request.Type,
+		CreatedDate:  request.CreatedDate,
+		FinishedDate: request.FinishedDate,
+	}
+	if domainPipeline.FinishedDate != nil {
+		domainPipeline.DurationSec = uint64(domainPipeline.FinishedDate.Sub(domainPipeline.CreatedDate).Seconds())
+	}
+	domainPipelineRepo := &devops.CiCDPipelineRepo{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: fmt.Sprintf("%s:%d:%s:%s:%s", "webhook", connection.ID, request.Repo, request.Branch, request.CommitSha),
+		},
+		CommitSha: request.CommitSha,
+		Branch:    request.Branch,
+		Repo:      request.Repo,
+	}
+	// save
+	err = db.CreateOrUpdate(domainPipeline)
+	if err != nil {
+		return nil, err
+	}
+	err = db.CreateOrUpdate(domainPipelineRepo)
+	if err != nil {
+		return nil, err
+	}
+
 	return &core.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
