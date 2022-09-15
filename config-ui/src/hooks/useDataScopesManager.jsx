@@ -171,7 +171,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
               owner: p.value.split('/')[0],
               repo: p.value.split('/')[1],
             },
-            transformation: { ...transformations[p] },
+            transformation: { ...transformations[p?.id] },
           }))
           break
         case Providers.TAPD:
