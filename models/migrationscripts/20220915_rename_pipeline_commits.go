@@ -20,14 +20,14 @@ package migrationscripts
 import (
 	"context"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type renamePipelineCommits struct{}
 
 type CiCDPipelineRepoOld struct {
-	domainlayer.DomainEntity
+	archived.DomainEntity
 	CommitSha string `gorm:"primaryKey;type:varchar(255)"`
 	Branch    string `gorm:"type:varchar(255)"`
 	Repo      string `gorm:"type:varchar(255)"`
@@ -38,6 +38,7 @@ func (CiCDPipelineRepoOld) TableName() string {
 }
 
 type CiCDPipelineRepo0915 struct {
+	archived.NoPKModel
 	PipelineId string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha  string `gorm:"primaryKey;type:varchar(255)"`
 	Branch     string `gorm:"type:varchar(255)"`
