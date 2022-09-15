@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -63,12 +62,10 @@ func ConvertPipelineProjects(taskCtx core.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabPipelineProject := inputRow.(*gitlabModels.GitlabPipelineProject)
 
-			domainPipelineRepo := &devops.CiCDPipelineRepo{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipelineProject.PipelineId),
-				},
-				CommitSha: gitlabPipelineProject.Sha,
-				Branch:    gitlabPipelineProject.Ref,
+			domainPipelineRepo := &devops.CiCDPipelineCommit{
+				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipelineProject.PipelineId),
+				CommitSha:  gitlabPipelineProject.Sha,
+				Branch:     gitlabPipelineProject.Ref,
 				Repo: didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{}).
 					Generate(gitlabPipelineProject.ConnectionId, gitlabPipelineProject.ProjectId),
 			}

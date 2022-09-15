@@ -22,7 +22,6 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
-	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -65,11 +64,9 @@ func ConvertBuildRepos(taskCtx core.SubTaskContext) errors.Error {
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jenkinsBuildRepo := inputRow.(*models.JenkinsBuildRepo)
-			build := &devops.CiCDPipelineRepo{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsTask", jenkinsBuildRepo.ConnectionId,
-						jenkinsBuildRepo.BuildName),
-				},
+			build := &devops.CiCDPipelineCommit{
+				PipelineId: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsTask", jenkinsBuildRepo.ConnectionId,
+					jenkinsBuildRepo.BuildName),
 				CommitSha: jenkinsBuildRepo.CommitSha,
 				Branch:    jenkinsBuildRepo.Branch,
 				Repo:      jenkinsBuildRepo.RepoUrl,

@@ -93,11 +93,11 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 				domainPipeline.DurationSec = uint64(line.GithubUpdatedAt.Sub(*line.GithubCreatedAt).Seconds())
 			}
 
-			domainPipelineProject := &devops.CiCDPipelineRepo{
-				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s:%d:%d", "github", "GithubRun", data.Options.ConnectionId, line.ID)},
-				CommitSha:    line.HeadSha,
-				Branch:       line.HeadBranch,
-				Repo:         didgen.NewDomainIdGenerator(&githubModels.GithubRepo{}).Generate(data.Options.ConnectionId, repoId),
+			domainPipelineProject := &devops.CiCDPipelineCommit{
+				PipelineId: fmt.Sprintf("%s:%s:%d:%d", "github", "GithubRun", data.Options.ConnectionId, line.ID),
+				CommitSha:  line.HeadSha,
+				Branch:     line.HeadBranch,
+				Repo:       didgen.NewDomainIdGenerator(&githubModels.GithubRepo{}).Generate(data.Options.ConnectionId, repoId),
 			}
 
 			return []interface{}{

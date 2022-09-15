@@ -46,5 +46,6 @@ func All() []migration.Script {
 		new(modifyBoardRepos),
 		new(addOriginChangeValueForPr),
 		new(addCommitFilePathLength),
+		new(renamePipelineCommits),
 	}
 }
