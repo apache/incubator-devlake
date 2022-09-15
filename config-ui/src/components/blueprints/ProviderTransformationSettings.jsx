@@ -53,7 +53,7 @@ const ProviderTransformationSettings = (props) => {
     jiraProxyError,
     isFetchingJIRA = false
   } = props
-  
+
   useEffect(() => {
     console.log('OVER HERE!!!', entityIdKey)
   }, [entityIdKey])

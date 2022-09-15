@@ -91,7 +91,7 @@ const DataTransformations = (props) => {
     cardStyle = {}
   } = props
 
-  const entityIdKey = useMemo(() => provider?.id === Providers.JENKINS ? `C#${configuredConnection?.id}`: (configuredProject?.id || configuredBoard?.id), [provider?.id, configuredConnection?.id, configuredProject?.id, configuredBoard?.id])
+  const entityIdKey = useMemo(() => provider?.id === Providers.JENKINS ? `C#${configuredConnection?.id}` : (configuredProject?.id || configuredBoard?.id), [provider?.id, configuredConnection?.id, configuredProject?.id, configuredBoard?.id])
 
   const boardsAndProjects = useMemo(() => [
     ...(Array.isArray(boards[configuredConnection?.id]) ? boards[configuredConnection?.id] : []),
@@ -309,7 +309,7 @@ const DataTransformations = (props) => {
                     </>
                   )}
 
-                  {(configuredProject || configuredBoard || (configuredConnection.provider == Providers.JENKINS && configuredConnection)) && (
+                  {(configuredProject || configuredBoard || (configuredConnection.provider === Providers.JENKINS && configuredConnection)) && (
                     <div>
                       {!useDropdownSelector && (configuredProject || configuredBoard) && (
                         <>
