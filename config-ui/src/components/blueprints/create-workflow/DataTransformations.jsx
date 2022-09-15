@@ -106,7 +106,7 @@ const DataTransformations = (props) => {
     value: e?.value,
     title: e?.title,
     entity: e,
-    type: typeof e === 'object' ? 'board' : 'project'
+    type: e.variant
   })))
   const [activeEntity, setActiveEntity] = useState()
 

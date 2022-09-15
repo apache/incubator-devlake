@@ -47,17 +47,19 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
   const activeProject = useMemo(() => configuredProject, [configuredProject])
   const activeBoard = useMemo(() => configuredBoard, [configuredBoard])
 
-  const selectedProjects = useMemo(() => projects[connection?.id] || [], [projects, connection?.id])
+  const selectedProjects = useMemo(() => projects[connection?.id]?.map(
+    (p) => p && p?.id
+  ), [projects, connection?.id])
   const selectedBoards = useMemo(() => boards[connection?.id]?.map(
     (b) => b && b?.id
   ), [boards, connection?.id])
 
-  const storedProjectTransformation = useMemo(() => connection?.transformations[connection?.projects?.findIndex(p => p === configuredProject)], [connection, configuredProject])
+  const storedProjectTransformation = useMemo(() => connection?.transformations[connection?.projects?.findIndex(p => p === configuredProject?.id)], [connection, configuredProject?.id])
   const storedBoardTransformation = useMemo(() => connection?.transformations[connection?.boardIds?.findIndex(b => b === configuredBoard?.id)], [connection, configuredBoard?.id])
 
-  const activeProjectTransformation = useMemo(() => transformations[activeProject], [transformations, activeProject])
+  const activeProjectTransformation = useMemo(() => transformations[activeProject?.id], [transformations, activeProject?.id])
   const activeBoardTransformation = useMemo(() => transformations[activeBoard?.id], [transformations, activeBoard?.id])
-  const activeTransformation = useMemo(() => transformations[connection?.providerId === Providers.JIRA ? configuredBoard?.id : configuredProject], [transformations, configuredProject, configuredBoard?.id, connection?.providerId])
+  const activeTransformation = useMemo(() => transformations[connection?.providerId === Providers.JIRA ? configuredBoard?.id : configuredProject?.id], [transformations, configuredProject?.id, configuredBoard?.id, connection?.providerId])
 
   const getDefaultTransformations = useCallback((providerId) => {
     let transforms = {}
@@ -249,10 +251,12 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
 
   const getGithubProjects = useCallback((c) => [Providers.GITHUB].includes(c.plugin)
     ? c.scope.map((s) => new GitHubProject({
-      id: `${s.options.owner}/${s.options?.repo}`,
-      key: `${s.options.owner}/${s.options?.repo}`,
-      value: `${s.options.owner}/${s.options?.repo}`,
-      title: `${s.options.owner}/${s.options?.repo}`,
+      id: `${s.options?.owner}/${s.options?.repo}`,
+      key: `${s.options?.owner}/${s.options?.repo}`,
+      owner: s.options?.owner,
+      repo: s.options?.repo,
+      value: `${s.options?.owner}/${s.options?.repo}`,
+      title: `${s.options?.owner}/${s.options?.repo}`,
     }))
     : [], [])
 
@@ -437,7 +441,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
       case Providers.GITLAB:
         setProjects(p => ({ ...p, [connection?.id]: connection?.projects || [] }))
         setEntities(e => ({ ...e, [connection?.id]: connection?.entityList || [] }))
-        connection?.projects.forEach((p, pIdx) => setTransformationSettings(connection.transformations[pIdx], p))
+        connection?.projects.forEach((p, pIdx) => setTransformationSettings(connection.transformations[pIdx], p?.id))
         break
       case Providers.JIRA:
         // fetchBoards()
