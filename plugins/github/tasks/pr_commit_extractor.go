@@ -58,6 +58,7 @@ type PullRequestCommit struct {
 
 func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
+	repoId := data.Repo.GithubId
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -90,7 +91,13 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			// need to extract 2 kinds of entities here
-			results := make([]interface{}, 0, 2)
+			results := make([]interface{}, 0, 3)
+			githubRepoCommit := &models.GithubRepoCommit{
+				ConnectionId: data.Options.ConnectionId,
+				RepoId:       repoId,
+				CommitSha:    apiPullRequestCommit.Sha,
+			}
+			results = append(results, githubRepoCommit)
 
 			githubCommit, err := convertPullRequestCommit(apiPullRequestCommit, data.Options.ConnectionId)
 			if err != nil {

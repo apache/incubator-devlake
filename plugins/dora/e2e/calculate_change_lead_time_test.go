@@ -18,16 +18,17 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/dora/impl"
 	"github.com/apache/incubator-devlake/plugins/dora/tasks"
 )
 
-func TestEnrichEnvDataFlow(t *testing.T) {
+func TestCalculateCLTimeDataFlow(t *testing.T) {
 	var plugin impl.Dora
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "dora", plugin)
 
@@ -40,17 +41,19 @@ func TestEnrichEnvDataFlow(t *testing.T) {
 			},
 		},
 	}
-
-	dataflowTester.FlushTabler(&devops.CICDTask{})
-
+	dataflowTester.FlushTabler(&code.PullRequest{})
 	// import raw data table
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_pipeline_repos.csv", &devops.CiCDPipelineRepo{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_tasks.csv", &devops.CICDTask{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_tasks_for_other_jobs.csv", &devops.CICDTask{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_requests.csv", &code.PullRequest{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_request_comments.csv", &code.PullRequestComment{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_request_commits.csv", &code.PullRequestCommit{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/commits.csv", &code.Commit{})
 
 	// verify converter
-	dataflowTester.Subtask(tasks.EnrichTaskEnvMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/lake_cicd_tasks.csv",
+	dataflowTester.Subtask(tasks.CalculateChangeLeadTimeMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&code.PullRequest{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/pull_requests.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }
