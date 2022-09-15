@@ -19,7 +19,11 @@ package parser
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"regexp"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -27,7 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	git "github.com/libgit2/git2go/v33"
-	"regexp"
 )
 
 type GitRepo struct {
@@ -329,7 +332,14 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 		commitFile = new(code.CommitFile)
 		commitFile.CommitSha = commitSha
 		commitFile.FilePath = file.NewFile.Path
-		commitFile.Id = commitSha + ":" + file.NewFile.Path
+
+		// With some long path,the varchar(255) was not enough both ID and file_path
+		// So we use the hash to compress the path in ID and add length of file_path.
+		// Use commitSha and the sha256 of FilePath to create id
+		shaFilePath := sha256.New()
+		shaFilePath.Write([]byte(file.NewFile.Path))
+		commitFile.Id = commitSha + ":" + hex.EncodeToString(shaFilePath.Sum(nil))
+
 		commitFileComponent = new(code.CommitFileComponent)
 		for component, reg := range componentMap {
 			if reg.MatchString(commitFile.FilePath) {
@@ -337,7 +347,7 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 				break
 			}
 		}
-		commitFileComponent.CommitFileId = commitSha + ":" + file.NewFile.Path
+		commitFileComponent.CommitFileId = commitFile.Id
 		//commitFileComponent.FilePath = file.NewFile.Path
 		//commitFileComponent.CommitSha = commitSha
 		if commitFileComponent.ComponentName == "" {
