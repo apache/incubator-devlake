@@ -46,7 +46,6 @@ func TestEnrichEnvDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_tasks.csv", &devops.CICDTask{})
 
 	// verify converter
-	dataflowTester.FlushTabler(&devops.CICDTask{})
 	dataflowTester.Subtask(tasks.EnrichTaskEnvMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/lake_cicd_tasks.csv",
