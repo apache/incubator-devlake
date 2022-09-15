@@ -17,7 +17,10 @@ limitations under the License.
 
 package devops
 
+import "github.com/apache/incubator-devlake/models/common"
+
 type CiCDPipelineCommit struct {
+	common.NoPKModel
 	PipelineId string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha  string `gorm:"primaryKey;type:varchar(255)"`
 	Branch     string `gorm:"type:varchar(255)"`
