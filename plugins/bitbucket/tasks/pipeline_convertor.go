@@ -88,19 +88,9 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 				}, bitbucketPipeline.Status),
 				Type:         "CI/CD",
 				CreatedDate:  createdAt,
+				DurationSec:  bitbucketPipeline.DurationInSeconds,
 				FinishedDate: bitbucketPipeline.BitbucketCompleteOn,
 			}
-
-			// rebuild the FinishedDate and DurationSec by Status
-			finishedAt := time.Now()
-			if domainPipeline.Status != devops.DONE {
-				domainPipeline.FinishedDate = nil
-			} else if bitbucketPipeline.BitbucketCompleteOn != nil {
-				finishedAt = *bitbucketPipeline.BitbucketCompleteOn
-			}
-			durationTime := finishedAt.Sub(createdAt)
-
-			domainPipeline.DurationSec = uint64(durationTime.Seconds())
 
 			return []interface{}{
 				domainPipeline,

@@ -29,7 +29,7 @@ type BitbucketPipeline struct {
 	Result            string `gorm:"type:varchar(100)"`
 	RefName           string `gorm:"type:varchar(255)"`
 	WebUrl            string `gorm:"type:varchar(255)"`
-	DurationInSeconds int
+	DurationInSeconds uint64
 
 	BitbucketCreatedOn  *time.Time
 	BitbucketCompleteOn *time.Time

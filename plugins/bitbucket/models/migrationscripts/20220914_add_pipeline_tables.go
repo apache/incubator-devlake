@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"context"
 	"github.com/apache/incubator-devlake/errors"
+	"time"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
@@ -28,11 +29,16 @@ import (
 type addPipeline20220914 struct{}
 
 type BitbucketPipeline20220914 struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	PipelineId   int    `gorm:"primaryKey"`
-	ProjectId    int    `gorm:"primaryKey;type:varchar(255)"`
-	Ref          string `gorm:"type:varchar(255)"`
-	Sha          string `gorm:"type:varchar(255)"`
+	ConnectionId      uint64 `gorm:"primaryKey"`
+	BitbucketId       string `gorm:"primaryKey"`
+	Status            string `gorm:"type:varchar(100)"`
+	Result            string `gorm:"type:varchar(100)"`
+	RefName           string `gorm:"type:varchar(255)"`
+	WebUrl            string `gorm:"type:varchar(255)"`
+	DurationInSeconds int
+
+	BitbucketCreatedOn  *time.Time
+	BitbucketCompleteOn *time.Time
 	archived.NoPKModel
 }
 

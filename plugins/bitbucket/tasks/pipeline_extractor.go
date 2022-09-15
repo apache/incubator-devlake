@@ -68,14 +68,14 @@ type BitbucketApiPipeline struct {
 		Name string
 		Type string
 	} `json:"trigger"`
-	CreatedOn         time.Time `json:"created_on"`
-	CompletedOn       time.Time `json:"completed_on"`
-	RunNumber         int       `json:"run_number"`
-	DurationInSeconds int       `json:"duration_in_seconds"`
-	BuildSecondsUsed  int       `json:"build_seconds_used"`
-	FirstSuccessful   bool      `json:"first_successful"`
-	Expired           bool      `json:"expired"`
-	HasVariables      bool      `json:"has_variables"`
+	CreatedOn         *time.Time `json:"created_on"`
+	CompletedOn       *time.Time `json:"completed_on"`
+	RunNumber         int        `json:"run_number"`
+	DurationInSeconds uint64     `json:"duration_in_seconds"`
+	BuildSecondsUsed  int        `json:"build_seconds_used"`
+	FirstSuccessful   bool       `json:"first_successful"`
+	Expired           bool       `json:"expired"`
+	HasVariables      bool       `json:"has_variables"`
 	Links             struct {
 		Self struct {
 			Href string
@@ -108,13 +108,15 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 			}
 
 			bitbucketPipeline := &models.BitbucketPipeline{
-				ConnectionId:      data.Options.ConnectionId,
-				BitbucketId:       bitbucketApiPipeline.Uuid,
-				WebUrl:            bitbucketApiPipeline.Links.Self.Href,
-				Status:            bitbucketApiPipeline.State.Name,
-				Result:            bitbucketApiPipeline.State.Result.Name,
-				RefName:           bitbucketApiPipeline.Target.RefName,
-				DurationInSeconds: bitbucketApiPipeline.DurationInSeconds,
+				ConnectionId:        data.Options.ConnectionId,
+				BitbucketId:         bitbucketApiPipeline.Uuid,
+				WebUrl:              bitbucketApiPipeline.Links.Self.Href,
+				Status:              bitbucketApiPipeline.State.Name,
+				Result:              bitbucketApiPipeline.State.Result.Name,
+				RefName:             bitbucketApiPipeline.Target.RefName,
+				DurationInSeconds:   bitbucketApiPipeline.DurationInSeconds,
+				BitbucketCreatedOn:  bitbucketApiPipeline.CreatedOn,
+				BitbucketCompleteOn: bitbucketApiPipeline.CompletedOn,
 			}
 			if err != nil {
 				return nil, err
