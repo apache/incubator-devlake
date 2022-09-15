@@ -74,7 +74,7 @@ type CICDPipelineRepo0905 struct {
 }
 
 func (CICDPipelineRepo0905) TableName() string {
-	return "cicd_pipeline_repos"
+	return "cicd_pipeline_commits"
 }
 
 type CICDPipelineRelationship0905 struct {
