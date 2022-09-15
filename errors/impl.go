@@ -30,7 +30,7 @@ type (
 	crdbErrorImpl struct {
 		wrappedRaw error
 		wrapped    *crdbErrorImpl
-		msg        string
+		msg        *errMessage
 		data       interface{}
 		t          *Type
 	}
@@ -56,17 +56,10 @@ func (e *crdbErrorImpl) Error() string {
 	return parts[1]
 }
 
-func (e *crdbErrorImpl) Message() string {
-	return strings.Join(e.getMessages(func(err *crdbErrorImpl) string {
-		if err.msg == "" {
-			return ""
-		}
-		code := ""
-		if err.t.httpCode != 0 {
-			code = fmt.Sprintf("(%d)", err.t.httpCode)
-		}
-		return err.msg + " " + code
-	}), "\ncaused by: ")
+func (e *crdbErrorImpl) Messages() Messages {
+	return e.getMessages(func(err *crdbErrorImpl) *errMessage {
+		return err.msg
+	})
 }
 
 func (e *crdbErrorImpl) Unwrap() error {
@@ -98,13 +91,13 @@ func (e *crdbErrorImpl) As(t *Type) Error {
 	}
 }
 
-func (e *crdbErrorImpl) getMessages(getMessage func(*crdbErrorImpl) string) []string {
-	msgs := []string{}
+func (e *crdbErrorImpl) getMessages(getMessage func(*crdbErrorImpl) *errMessage) []*errMessage {
+	msgs := []*errMessage{}
 	err := e
 	ok := false
 	for {
 		msg := getMessage(err)
-		if msg != "" {
+		if len(msg.msgs) > 0 {
 			msgs = append(msgs, msg)
 		}
 		unwrapped := err.Unwrap()
@@ -120,41 +113,63 @@ func (e *crdbErrorImpl) getMessages(getMessage func(*crdbErrorImpl) string) []st
 	return msgs
 }
 
-func newCrdbError(t *Type, err error, message string, opts ...Option) *crdbErrorImpl {
+func newSingleCrdbError(t *Type, err error, message string, opts ...Option) Error {
 	cfg := &options{}
 	for _, opt := range opts {
 		opt(cfg)
 	}
+	cfg.stackOffset += 1
+	msg := &errMessage{}
+	if cast, ok := err.(*crdbErrorImpl); ok {
+		if t == Default { // inherit wrapped error's type
+			t = cast.GetType()
+		}
+	}
+	msg.addMessage(t, message)
+	return newCrdbError(t, err, msg, cfg)
+}
+
+func newCombinedCrdbError(t *Type, errs []error) Error {
+	msg := &errMessage{}
+	for _, e := range errs {
+		if le, ok := e.(*crdbErrorImpl); ok {
+			msg.appendMessage(le.msg.getMessage())
+		} else {
+			msg.appendMessage(e.Error())
+		}
+	}
+	opts := &options{}
+	opts.stackOffset += 1
+	return newCrdbError(t, nil, msg, opts)
+}
+
+func newCrdbError(t *Type, err error, msg *errMessage, opts *options) *crdbErrorImpl {
 	errType := t
 	var wrappedErr *crdbErrorImpl
 	var wrappedRaw error
-	rawMessage := message
-	cfg.stackOffset += 2
+	opts.stackOffset += 2
 	if err == nil {
 		if enableStacktraces {
-			wrappedRaw = cerror.NewWithDepth(int(cfg.stackOffset), rawMessage)
+			wrappedRaw = cerror.NewWithDepth(int(opts.stackOffset), msg.getPrettifiedMessage())
 		} else {
-			wrappedRaw = errors.New(message)
+			wrappedRaw = errors.New(msg.getPrettifiedMessage())
 		}
 	} else {
 		if cast, ok := err.(*crdbErrorImpl); ok {
 			err = cast.wrappedRaw
 			wrappedErr = cast
-			if t == Default { // inherit wrapped error's type
-				errType = cast.GetType()
-			}
 		}
 		if enableStacktraces {
-			wrappedRaw = cerror.WrapWithDepth(int(cfg.stackOffset), err, rawMessage)
+			wrappedRaw = cerror.WrapWithDepth(int(opts.stackOffset), err, msg.getPrettifiedMessage())
 		} else {
-			wrappedRaw = cerror.WithDetail(err, rawMessage)
+			wrappedRaw = cerror.WithDetail(err, msg.getPrettifiedMessage())
 		}
 	}
 	impl := &crdbErrorImpl{
 		wrappedRaw: wrappedRaw,
 		wrapped:    wrappedErr,
-		msg:        rawMessage,
-		data:       cfg.data,
+		msg:        msg,
+		data:       opts.data,
 		t:          errType,
 	}
 	return impl

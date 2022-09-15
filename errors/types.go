@@ -20,7 +20,6 @@ package errors
 import (
 	"fmt"
 	"net/http"
-	"strings"
 )
 
 // Supported error types
@@ -37,7 +36,7 @@ var (
 	Timeout      = register(&Type{httpCode: http.StatusGatewayTimeout, meta: "timeout"})
 
 	//cached values
-	typesByHttpCode = map[int]*Type{}
+	typesByHttpCode = newSyncMap[int, *Type]()
 )
 
 type (
@@ -58,24 +57,22 @@ type (
 )
 
 func HttpStatus(code int) *Type {
-	t, ok := typesByHttpCode[code]
-	if !ok {
-		t = Internal
+	t, ok := typesByHttpCode.Load(code)
+	if !ok { // lazily cache any missing codes
+		t = &Type{httpCode: code, meta: fmt.Sprintf("type_http_%d", code)}
+		typesByHttpCode.Store(code, t)
 	}
 	return t
 }
 
 // New constructs a new Error instance with this message
 func (t *Type) New(message string, opts ...Option) Error {
-	return newCrdbError(t, nil, message, opts...)
+	return newSingleCrdbError(t, nil, message, opts...)
 }
 
 // Wrap constructs a new Error instance with this message and wraps the passed in error. A nil 'err' will return a nil Error.
 func (t *Type) Wrap(err error, message string, opts ...Option) Error {
-	if err == nil {
-		return nil
-	}
-	return newCrdbError(t, err, message, opts...)
+	return newSingleCrdbError(t, err, message, opts...)
 }
 
 // WrapRaw constructs a new Error instance that directly wraps this error with no additional context. A nil 'err' will return a nil Error.
@@ -103,24 +100,13 @@ func (t *Type) wrapRaw(err error, forceWrap bool, opts ...Option) Error {
 	} else {
 		msg = err.Error()
 	}
-	return newCrdbError(t, err, msg, opts...)
+	return newSingleCrdbError(t, err, msg, opts...)
 }
 
-// Combine constructs a new Error from combining multiple errors. Stacktrace info for each of the errors will not be present in the result.
-func (t *Type) Combine(errs []error, msg string, opts ...Option) Error {
-	msgs := []string{}
-	for _, e := range errs {
-		if le := AsLakeErrorType(e); le != nil {
-			if msg0 := le.Message(); msg0 != "" {
-				msgs = append(msgs, le.Message())
-			}
-		} else {
-			msgs = append(msgs, e.Error())
-		}
-	}
-	effectiveMsg := strings.Join(msgs, "\n=====================\n")
-	effectiveMsg = "\t" + strings.ReplaceAll(effectiveMsg, "\n", "\n\t")
-	return newCrdbError(t, nil, fmt.Sprintf("%s\ncombined messages: \n{\n%s\n}", msg, effectiveMsg), opts...)
+// Combine constructs a new Error from combining multiple errors. Stacktrace info for each of the errors will not be present in the result, so it's
+// best to log the errors before combining them.
+func (t *Type) Combine(errs []error) Error {
+	return newCombinedCrdbError(t, errs)
 }
 
 // GetHttpCode gets the associated Http code with this Type, if explicitly set, otherwise http.StatusInternalServerError
@@ -149,9 +135,9 @@ func withStackOffset(offset uint) Option {
 func register(t *Type) *Type {
 	if t == nil {
 		t = &Type{meta: "default"}
-		typesByHttpCode[t.httpCode] = t
+		typesByHttpCode.Store(t.httpCode, t)
 	} else if t.httpCode != 0 {
-		typesByHttpCode[t.httpCode] = t
+		typesByHttpCode.Store(t.httpCode, t)
 	}
 	return t
 }

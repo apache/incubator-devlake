@@ -113,11 +113,11 @@ func runPipeline(pipelineId uint64) errors.Error {
 		err = pipelineRun.runPipelineStandalone()
 	}
 	if err != nil {
-		err = errors.Default.Wrap(err, fmt.Sprintf("error running pipeline %d", pipelineId))
+		err = errors.Default.Wrap(err, fmt.Sprintf("Error running pipeline %d.", pipelineId))
 	}
 	pipeline, e := GetPipeline(pipelineId)
 	if e != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("unable to get pipeline %d", pipelineId))
+		return errors.Default.Wrap(err, fmt.Sprintf("Unable to get pipeline %d.", pipelineId))
 	}
 	// finished, update database
 	finishedAt := time.Now()
@@ -125,7 +125,11 @@ func runPipeline(pipelineId uint64) errors.Error {
 	pipeline.SpentSeconds = int(finishedAt.Unix() - pipeline.BeganAt.Unix())
 	if err != nil {
 		pipeline.Status = models.TASK_FAILED
-		pipeline.Message = err.Error()
+		if lakeErr := errors.AsLakeErrorType(err); lakeErr != nil {
+			pipeline.Message = lakeErr.Messages().Format()
+		} else {
+			pipeline.Message = err.Error()
+		}
 	} else {
 		pipeline.Status = models.TASK_COMPLETED
 		pipeline.Message = ""

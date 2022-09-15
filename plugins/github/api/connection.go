@@ -57,7 +57,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 
 	// verify multiple token in parallel
 	type VerifyResult struct {
-		err   error
+		err   errors.Error
 		login string
 	}
 	results := make(chan VerifyResult)
@@ -76,21 +76,21 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 				basicRes,
 			)
 			if err != nil {
-				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token))}
+				results <- VerifyResult{err: errors.BadInput.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token))}
 				return
 			}
 			res, err := apiClient.Get("user", nil, nil)
 			if err != nil {
-				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token))}
+				results <- VerifyResult{err: errors.HttpStatus(res.StatusCode).Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token))}
 				return
 			}
 			githubUserOfToken := &models.GithubUserOfToken{}
 			err = helper.UnmarshalResponse(res, githubUserOfToken)
 			if err != nil {
-				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%v %s", j, token))}
+				results <- VerifyResult{err: errors.BadInput.Wrap(err, fmt.Sprintf("verify token failed for #%v %s", j, token))}
 				return
 			} else if githubUserOfToken.Login == "" {
-				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("invalid token for #%v %s", j, token))}
+				results <- VerifyResult{err: errors.BadInput.Wrap(err, fmt.Sprintf("invalid token for #%v %s", j, token))}
 				return
 			}
 			results <- VerifyResult{login: githubUserOfToken.Login}
@@ -99,11 +99,11 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 
 	// collect verification results
 	logins := make([]string, 0)
-	msgs := make([]string, 0)
+	allErrors := make([]error, 0)
 	i := 0
 	for result := range results {
 		if result.err != nil {
-			msgs = append(msgs, result.err.Error())
+			allErrors = append(allErrors, result.err)
 		}
 		logins = append(logins, result.login)
 		i++
@@ -111,8 +111,8 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 			close(results)
 		}
 	}
-	if len(msgs) > 0 {
-		return nil, errors.Default.New(strings.Join(msgs, "\n"))
+	if len(allErrors) > 0 {
+		return nil, errors.Default.Combine(allErrors)
 	}
 
 	githubApiResponse := GithubTestConnResponse{}
