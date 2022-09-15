@@ -18,16 +18,19 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/dora/impl"
 	"github.com/apache/incubator-devlake/plugins/dora/tasks"
 )
 
-func TestEnrichEnvDataFlow(t *testing.T) {
+func TestConnectIssueDeployDataFlow(t *testing.T) {
 	var plugin impl.Dora
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "dora", plugin)
 
@@ -40,17 +43,18 @@ func TestEnrichEnvDataFlow(t *testing.T) {
 			},
 		},
 	}
-
-	dataflowTester.FlushTabler(&devops.CICDTask{})
-
+	dataflowTester.FlushTabler(&code.PullRequest{})
 	// import raw data table
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_pipeline_repos.csv", &devops.CiCDPipelineRepo{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_tasks.csv", &devops.CICDTask{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_tasks_for_other_jobs.csv", &devops.CICDTask{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/board_issues.csv", &ticket.BoardIssue{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/board_repos.csv", &crossdomain.BoardRepo{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/issues.csv", &ticket.Issue{})
 
 	// verify converter
-	dataflowTester.Subtask(tasks.EnrichTaskEnvMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/lake_cicd_tasks.csv",
+	dataflowTester.Subtask(tasks.ConnectIssueDeployMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&ticket.Issue{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/issues.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }

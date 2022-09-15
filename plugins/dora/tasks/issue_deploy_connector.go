@@ -18,12 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	goerror "errors"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"gorm.io/gorm"
 	"reflect"
 )
 
@@ -34,8 +36,6 @@ var ConnectIssueDeployMeta = core.SubTaskMeta{
 	Description:      "TODO",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
-
-const RAW_ISSUES_TABLE = `dora_issues`
 
 func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
@@ -50,7 +50,7 @@ func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
 		dal.Join("left join board_repos on board_repos.board_id = board_issues.board_id"),
 		dal.Where(
 			"board_repos.repo_id = ? and issues.type = ?",
-			data.Options.RepoId, "Incident",
+			data.Options.RepoId, "INCIDENT",
 		),
 	}
 	cursor, err := db.Cursor(clauses...)
@@ -74,19 +74,21 @@ func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
 			cicdTask := &devops.CICDTask{}
 			cicdTakClauses := []dal.Clause{
 				dal.From(cicdTask),
-				dal.Join(`left join cicd_pipelines 
-					on cicd_pipelines.id = cicd_tasks.pipeline_id`),
-				dal.Join("left join cicd_pipeline_repos on cicd_pipelines.id = cicd_pipeline_repos.id"),
+				dal.Join("left join cicd_pipeline_repos on cicd_tasks.pipeline_id = cicd_pipeline_repos.id"),
 				dal.Where(
 					`cicd_pipeline_repos.repo = ? and cicd_tasks.finished_date < ? 
-								and cicd_tasks.result = ? and cicd_tasks.type = ?`,
-					data.Options.RepoId, issueToBeUpdate.CreatedDate, "SUCCESS", "DEPLOY",
+								and cicd_tasks.result = ? and cicd_tasks.environment = ?`,
+					data.Options.RepoId, issueToBeUpdate.CreatedDate, "SUCCESS", data.Options.Environment,
 				),
 				dal.Orderby("cicd_tasks.finished_date DESC"),
 			}
 			err = db.First(cicdTask, cicdTakClauses...)
 			if err != nil {
-				return nil, err
+				if goerror.Is(err, gorm.ErrRecordNotFound) {
+					return nil, nil
+				} else {
+					return nil, err
+				}
 			}
 			issueToBeUpdate.DeploymentId = cicdTask.Id
 
