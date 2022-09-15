@@ -6,7 +6,9 @@
   "scripts": {
     "postinstall": "cd .. && husky install config-ui-lib/.husky",
     "prepack": "pinst --disable",
-    "postpack": "pinst --enable"
+    "postpack": "pinst --enable",
+    "start": "yarn workspace @devlake/website dev",
+    "build": "yarn workspace @devlake/config-ui build"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
