@@ -15,29 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/plugins/{{ .pluginName }}/impl"
-	"github.com/apache/incubator-devlake/runner"
-	"github.com/spf13/cobra"
+	"context"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/webhook/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
-// Export a variable named PluginEntry for Framework to search and load
-var PluginEntry impl.{{ .PluginName }} //nolint
+type addInitTables struct{}
 
-// standalone mode for debugging
-func main() {
-	cmd := &cobra.Command{Use: "{{ .pluginName }}"}
+func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	return errors.Convert(db.Migrator().AutoMigrate(
+		&archived.WebhookConnection{},
+	))
+}
 
-	// TODO add your cmd flag if necessary
-	// yourFlag := cmd.Flags().IntP("yourFlag", "y", 8, "TODO add description here")
-	// _ = cmd.MarkFlagRequired("yourFlag")
+func (*addInitTables) Version() uint64 {
+	return 20220908000001
+}
 
-	cmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			// TODO add more custom params here
-		})
-	}
-	runner.RunCmd(cmd)
+func (*addInitTables) Name() string {
+	return "webhook init schemas"
 }

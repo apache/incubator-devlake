@@ -18,26 +18,26 @@ limitations under the License.
 package main
 
 import (
-	"github.com/apache/incubator-devlake/plugins/{{ .pluginName }}/impl"
-	"github.com/apache/incubator-devlake/runner"
 	"github.com/spf13/cobra"
+
+	"github.com/apache/incubator-devlake/plugins/webhook/impl"
 )
 
-// Export a variable named PluginEntry for Framework to search and load
-var PluginEntry impl.{{ .PluginName }} //nolint
+// PluginEntry is a variable named for Framework to search and load
+var PluginEntry impl.Webhook //nolint
 
 // standalone mode for debugging
 func main() {
-	cmd := &cobra.Command{Use: "{{ .pluginName }}"}
+	cmd := &cobra.Command{Use: "webhook"}
 
-	// TODO add your cmd flag if necessary
-	// yourFlag := cmd.Flags().IntP("yourFlag", "y", 8, "TODO add description here")
-	// _ = cmd.MarkFlagRequired("yourFlag")
+	//connectionId := cmd.Flags().Uint64P("connection", "c", 0, "webhook connection id")
+	//_ = cmd.MarkFlagRequired("connection")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			// TODO add more custom params here
-		})
+		println(`webhook plugin can only run in API`)
 	}
-	runner.RunCmd(cmd)
+	err := cmd.Execute()
+	if err != nil {
+		panic(err)
+	}
 }
