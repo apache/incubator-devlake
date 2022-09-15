@@ -147,7 +147,7 @@ func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error) {
 func (apiClient *GraphqlAsyncClient) Wait() errors.Error {
 	apiClient.waitGroup.Wait()
 	if len(apiClient.workerErrors) > 0 {
-		return errors.Default.Combine(apiClient.workerErrors, "graphql workers encountered error(s)")
+		return errors.Default.Combine(apiClient.workerErrors)
 	}
 	return nil
 }

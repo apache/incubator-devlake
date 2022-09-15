@@ -19,6 +19,7 @@ package services
 
 import (
 	"encoding/json"
+	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"strings"
@@ -88,7 +89,7 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Er
 func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
 	dbBlueprint, err := GetDbBlueprint(blueprintId)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if goerror.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NotFound.New("blueprint not found")
 		}
 		return nil, errors.Internal.Wrap(err, "error getting the task from database")

@@ -17,32 +17,28 @@ limitations under the License.
 
 package errors
 
-type (
-	requiredSupertype interface {
-		error
-		Unwrap() error
-	}
-	// Error The interface that all internally managed errors should adhere to.
-	Error interface {
-		requiredSupertype
-		// Messages the message associated with this Error.
-		Messages() Messages
-		// GetType gets the Type of this error
-		GetType() *Type
-		// As Attempts to cast this Error to the requested Type, and returns nil if it can't.
-		As(*Type) Error
-		// GetData returns the data associated with this Error (may be nil)
-		GetData() interface{}
-	}
-)
+import "sync"
 
-// AsLakeErrorType attempts to cast err to Error, otherwise returns nil
-func AsLakeErrorType(err error) Error {
-	if cast, ok := err.(Error); ok {
-		return cast
-	}
-	return nil
+// Wraps the native sync map in generic form. Consider moving this to another package for broader use later
+type syncMap[K any, V any] struct {
+	m *sync.Map
 }
 
-var _ error = (Error)(nil)
-var _ requiredSupertype = (Error)(nil)
+func newSyncMap[K any, V any]() *syncMap[K, V] {
+	return &syncMap[K, V]{
+		m: new(sync.Map),
+	}
+}
+
+func (sm *syncMap[K, V]) Store(key K, val V) {
+	sm.m.Store(key, val)
+}
+
+func (sm *syncMap[K, V]) Load(key K) (V, bool) {
+	var v V
+	val, ok := sm.m.Load(key)
+	if ok {
+		v = val.(V)
+	}
+	return v, ok
+}

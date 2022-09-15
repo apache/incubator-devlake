@@ -249,6 +249,8 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 			forScanValues[i] = new(bool)
 		} else if columnType.ScanType().Name() == `RawBytes` {
 			forScanValues[i] = new(sql.NullString)
+		} else if columnType.ScanType().Name() == `NullInt64` {
+			forScanValues[i] = new(sql.NullInt64)
 		} else {
 			forScanValues[i] = new(string)
 		}
@@ -279,6 +281,13 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 				value := *forScanValues[i].(*sql.NullString)
 				if value.Valid {
 					values[i] = value.String
+				} else {
+					values[i] = ``
+				}
+			case *sql.NullInt64:
+				value := *forScanValues[i].(*sql.NullInt64)
+				if value.Valid {
+					values[i] = strconv.FormatInt(value.Int64, 10)
 				} else {
 					values[i] = ``
 				}

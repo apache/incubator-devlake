@@ -78,7 +78,7 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 				pr.OrigReviewLag = int64(firstReviewTime.Sub(pr.CreatedDate).Minutes())
 				pr.OrigReviewTimespan = int64(pr.MergedDate.Sub(*firstReviewTime).Minutes())
 			}
-			deployTime, err := getDeployTime(repoId, pr.MergeCommitSha, *pr.MergedDate, db)
+			deployTime, err := getDeployTime(repoId, data.Options.Environment, *pr.MergedDate, db)
 			if err != nil {
 				return nil, err
 			}
@@ -139,7 +139,7 @@ func getFirstReviewTime(prId string, prCreator string, db dal.Dal) (*time.Time, 
 		dal.Orderby("created_date ASC"),
 	}
 	err := db.First(review, commentClauses...)
-	if err == gorm.ErrRecordNotFound {
+	if goerror.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	if err != nil {
@@ -148,22 +148,20 @@ func getFirstReviewTime(prId string, prCreator string, db dal.Dal) (*time.Time, 
 	return &review.CreatedDate, nil
 }
 
-func getDeployTime(repoId string, mergeSha string, mergeDate time.Time, db dal.Dal) (*time.Time, errors.Error) {
+func getDeployTime(repoId string, environment string, mergeDate time.Time, db dal.Dal) (*time.Time, errors.Error) {
 	cicdTask := &devops.CICDTask{}
 	cicdTaskClauses := []dal.Clause{
 		dal.From(&devops.CICDTask{}),
-		dal.Join("left join cicd_pipelines on cicd_pipelines.id = cicd_tasks.pipeline_id"),
-		dal.Join("left join cicd_pipeline_repos on cicd_pipelines.id = cicd_pipeline_repos.id"),
-		dal.Where(`cicd_pipeline_repos.commit_sha = ? 
-			and cicd_pipeline_repos.repo = ? 
-			and cicd_tasks.type = ? 
+		dal.Join("left join cicd_pipeline_repos on cicd_tasks.pipeline_id = cicd_pipeline_repos.id"),
+		dal.Where(`cicd_pipeline_repos.repo = ? 
+			and cicd_tasks.environment = ? 
 			and cicd_tasks.result = ?
 			and cicd_tasks.started_date > ?`,
-			mergeSha, repoId, "DEPLOY", "SUCCESS", mergeDate),
+			repoId, environment, "SUCCESS", mergeDate),
 		dal.Orderby("cicd_tasks.started_date ASC"),
 	}
 	err := db.First(cicdTask, cicdTaskClauses...)
-	if err == gorm.ErrRecordNotFound {
+	if goerror.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	if err != nil {

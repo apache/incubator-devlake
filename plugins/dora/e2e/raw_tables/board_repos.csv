@@ -1,0 +1,2 @@
+board_id,repo_id,created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+github:GithubRepo:1:384111310,github:GithubRepo:1:384111310,2022-09-15 05:36:33.649,2022-09-15 05:36:33.649,"{""ConnectionId"":1,""Owner"":""apache"",""Repo"":""incubator-devlake""}",_raw_github_api_repositories,14,""
