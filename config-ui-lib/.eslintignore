@@ -2,3 +2,4 @@
 _build
 _types
 _website
+.eslintrc.js
