@@ -1,4 +1,4 @@
-id,commit_sha,branch,repo
+pipeline_id,commit_sha,branch,repo
 github:GithubRun:1:1510490015,1e897421860606afc3d1304cafe5cd187cee13e9,master,github:GithubRepo:1:134018330
 github:GithubRun:1:1510490016,1e897421860606afc3d1304cafe5cd187cee13e9,master,github:GithubRepo:1:134018330
 github:GithubRun:1:1510490017,1e897421860606afc3d1304cafe5cd187cee13e9,master,github:GithubRepo:1:134018330

@@ -45,6 +45,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&models.JenkinsBuild{})
 	dataflowTester.FlushTabler(&models.JenkinsBuildRepo{})
+	dataflowTester.FlushTabler(&models.JenkinsStage{})
 
 	dataflowTester.Subtask(tasks.ExtractApiBuildsMeta, taskData)
 	dataflowTester.VerifyTable(
