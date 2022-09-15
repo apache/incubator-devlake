@@ -43,6 +43,20 @@ const Deployment = (props) => {
   const [deployTag, setDeployTag] = useState(transformation?.deployTagPattern || '')
   const [enableDeployTag, setEnableDeployTag] = useState(transformation?.deployTagPattern !== '' ? 1 : 0)
 
+  const getDeployTagHint = (providerId) => {
+    let tagHint = ''
+    switch (providerId) {
+      case Providers.JENKINS:
+        tagHint = 'The Jenkins build with a name that matches the given regEx is considered as a deployment.'
+        break
+      case Providers.GITLAB:
+      case 'default':
+        tagHint = 'A CI job/build with a name that matches the given regEx is considered as an deployment.'
+        break
+    }
+    return tagHint
+  }
+
   useEffect(() => {
     console.log('CI/CD Deployment Transform:', entityIdKey, deployTag)
     if (entityIdKey && enableDeployTag === 1) {
@@ -51,18 +65,11 @@ const Deployment = (props) => {
       onSettingsChange({ deployTagPattern: '' }, entityIdKey)
     }
   }, [
-    // provider,
-    // connection,
-    // configuredProject,
-    // configuredBoard,
     deployTag,
     enableDeployTag,
-    entityIdKey
+    entityIdKey,
+    onSettingsChange
   ])
-
-  // useEffect(() => {
-  //   console.log('>>> CI/CD Deployment Transform ENTITY ID KEY:', entityIdKey)
-  // }, [entityIdKey])
 
   return (
     <>
@@ -93,10 +100,9 @@ const Deployment = (props) => {
           <>
             <div
               className='bp3-form-helper-text'
-              style={{ textAlign: 'left', color: '#94959F' }}
+              style={{ display: 'block', textAlign: 'left', color: '#94959F', marginBottom: '5px' }}
             >
-              A CI job/build with a name that matches the given regEx is
-              considered as an deployment.
+              {getDeployTagHint(provider?.id)}
             </div>
             <div className='formContainer'>
               <FormGroup
