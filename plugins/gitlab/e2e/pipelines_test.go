@@ -109,7 +109,8 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 			"pipeline_id",
 			"commit_sha",
 			"branch",
-			"repo",
+			"repo_id",
+			"repo_url",
 		},
 	)
 }

@@ -27,81 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
-func TestGithubJobsDataFlow(t *testing.T) {
-	var github impl.Github
-	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", github)
-
-	taskData := &tasks.GithubTaskData{
-		Options: &tasks.GithubOptions{
-			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
-		},
-		Repo: &models.GithubRepo{
-			GithubId: 134018330,
-		},
-	}
-
-	// import raw data table
-	// SELECT * FROM _raw_github_api_jobs INTO OUTFILE "/tmp/_raw_github_api_jobs.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_jobs.csv", "_raw_github_api_jobs")
-
-	// verify extraction
-	dataflowTester.FlushTabler(&models.GithubJob{})
-	dataflowTester.FlushTabler(&devops.CICDTask{})
-
-	dataflowTester.Subtask(tasks.ExtractJobsMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.GithubJob{},
-		"./snapshot_tables/_tool_github_jobs.csv",
-		[]string{
-			"connection_id",
-			"repo_id",
-			"id",
-			"run_id",
-			"run_url",
-			"node_id",
-			"head_sha",
-			"url",
-			"status",
-			"conclusion",
-			"started_at",
-			"completed_at",
-			"name",
-			"steps",
-			"check_run_url",
-			"labels",
-			"runner_id",
-			"runner_name",
-			"runner_group_id",
-			"type",
-
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-
-	dataflowTester.Subtask(tasks.ConvertTasksMeta, taskData)
-	dataflowTester.VerifyTable(
-		devops.CICDTask{},
-		"./snapshot_tables/cicd_tasks.csv",
-		[]string{
-			"name",
-			"pipeline_id",
-			"result",
-			"status",
-			"type",
-			"duration_sec",
-			"started_date",
-			"finished_date",
-		},
-	)
-}
-
-func TestGithubRunsDataFlow(t *testing.T) {
-
+func TestGithubCICDDataFlow(t *testing.T) {
 	var github impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", github)
 
@@ -191,7 +117,64 @@ func TestGithubRunsDataFlow(t *testing.T) {
 			"pipeline_id",
 			"commit_sha",
 			"branch",
-			"repo",
+			"repo_id",
+			"repo_url",
+		},
+	)
+
+	// import raw data table
+	// SELECT * FROM _raw_github_api_jobs INTO OUTFILE "/tmp/_raw_github_api_jobs.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_jobs.csv", "_raw_github_api_jobs")
+
+	// verify extraction
+	dataflowTester.FlushTabler(&models.GithubJob{})
+	dataflowTester.FlushTabler(&devops.CICDTask{})
+
+	dataflowTester.Subtask(tasks.ExtractJobsMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.GithubJob{},
+		"./snapshot_tables/_tool_github_jobs.csv",
+		[]string{
+			"connection_id",
+			"repo_id",
+			"id",
+			"run_id",
+			"run_url",
+			"node_id",
+			"head_sha",
+			"url",
+			"status",
+			"conclusion",
+			"started_at",
+			"completed_at",
+			"name",
+			"steps",
+			"check_run_url",
+			"labels",
+			"runner_id",
+			"runner_name",
+			"runner_group_id",
+			"type",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
+	dataflowTester.Subtask(tasks.ConvertTasksMeta, taskData)
+	dataflowTester.VerifyTable(
+		devops.CICDTask{},
+		"./snapshot_tables/cicd_tasks.csv",
+		[]string{
+			"name",
+			"pipeline_id",
+			"result",
+			"status",
+			"type",
+			"duration_sec",
+			"started_date",
+			"finished_date",
 		},
 	)
 }

@@ -34,7 +34,7 @@ type CiCDPipelineRepoOld struct {
 }
 
 func (CiCDPipelineRepoOld) TableName() string {
-	return "cicd_pipeline_commits"
+	return "cicd_pipeline_repos"
 }
 
 type CiCDPipelineRepo0915 struct {
@@ -42,7 +42,8 @@ type CiCDPipelineRepo0915 struct {
 	PipelineId string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha  string `gorm:"primaryKey;type:varchar(255)"`
 	Branch     string `gorm:"type:varchar(255)"`
-	Repo       string `gorm:"index;type:varchar(255)"`
+	RepoId     string `gorm:"index;type:varchar(255)"`
+	RepoUrl    string
 }
 
 func (CiCDPipelineRepo0915) TableName() string {
@@ -58,7 +59,7 @@ func (*renamePipelineCommits) Up(ctx context.Context, db *gorm.DB) errors.Error 
 	if err != nil {
 		return errors.Convert(err)
 	}
-	err = db.Migrator().RenameIndex(CiCDPipelineRepo0915{}, `idx_cicd_pipeline_commits_raw_data_params`, `idx_cicd_pipeline_commits_raw_data_params`)
+	err = db.Migrator().DropIndex(CiCDPipelineRepo0915{}, `idx_cicd_pipeline_repos_raw_data_params`)
 	if err != nil {
 		return errors.Convert(err)
 	}

@@ -97,7 +97,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 				PipelineId: fmt.Sprintf("%s:%s:%d:%d", "github", "GithubRun", data.Options.ConnectionId, line.ID),
 				CommitSha:  line.HeadSha,
 				Branch:     line.HeadBranch,
-				Repo:       didgen.NewDomainIdGenerator(&githubModels.GithubRepo{}).Generate(data.Options.ConnectionId, repoId),
+				RepoId:     didgen.NewDomainIdGenerator(&githubModels.GithubRepo{}).Generate(data.Options.ConnectionId, repoId),
 			}
 
 			return []interface{}{
