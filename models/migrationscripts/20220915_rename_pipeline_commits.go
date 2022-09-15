@@ -34,7 +34,7 @@ type CiCDPipelineRepoOld struct {
 }
 
 func (CiCDPipelineRepoOld) TableName() string {
-	return "cicd_pipeline_repos"
+	return "cicd_pipeline_commits"
 }
 
 type CiCDPipelineRepo0915 struct {
@@ -58,7 +58,7 @@ func (*renamePipelineCommits) Up(ctx context.Context, db *gorm.DB) errors.Error 
 	if err != nil {
 		return errors.Convert(err)
 	}
-	err = db.Migrator().RenameIndex(CiCDPipelineRepo0915{}, `idx_cicd_pipeline_repos_raw_data_params`, `idx_cicd_pipeline_commits_raw_data_params`)
+	err = db.Migrator().RenameIndex(CiCDPipelineRepo0915{}, `idx_cicd_pipeline_commits_raw_data_params`, `idx_cicd_pipeline_commits_raw_data_params`)
 	if err != nil {
 		return errors.Convert(err)
 	}
