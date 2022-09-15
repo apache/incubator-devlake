@@ -90,10 +90,12 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%v %s", j, token))}
 				return
 			} else if githubUserOfToken.Login == "" {
-				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("invalid token for #%v %s", j, token))}
+				results <- VerifyResult{err: errors.Default.Wrap(errors.Unauthorized.New("invalid token"), fmt.Sprintf("invalid token for #%v %s", j, token))}
+				return
+			} else {
+				results <- VerifyResult{login: githubUserOfToken.Login}
 				return
 			}
-			results <- VerifyResult{login: githubUserOfToken.Login}
 		}()
 	}
 
@@ -101,7 +103,10 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	logins := make([]string, 0)
 	msgs := make([]string, 0)
 	i := 0
+	fmt.Println("444444", len(results))
 	for result := range results {
+		fmt.Println("3333333", result)
+
 		if result.err != nil {
 			msgs = append(msgs, result.err.Error())
 		}
