@@ -91,6 +91,8 @@ const DataTransformations = (props) => {
     cardStyle = {}
   } = props
 
+  const entityIdKey = useMemo(() => provider?.id === Providers.JENKINS ? `C#${configuredConnection?.id}`: (configuredProject?.id || configuredBoard?.id), [provider?.id, configuredConnection?.id, configuredProject?.id, configuredBoard?.id])
+
   const boardsAndProjects = useMemo(() => [
     ...(Array.isArray(boards[configuredConnection?.id]) ? boards[configuredConnection?.id] : []),
     ...(Array.isArray(projects[configuredConnection?.id]) ? projects[configuredConnection?.id] : [])], [
@@ -131,6 +133,10 @@ const DataTransformations = (props) => {
       }
     }
   }, [activeEntity, addBoardTransformation, addProjectTransformation, useDropdownSelector])
+
+  // useEffect(() => {
+  //   console.log('OVER HERE!!!', entityIdKey)
+  // }, [entityIdKey])
 
   return (
     <div className='workflow-step workflow-step-add-transformation' data-step={activeStep?.id}>
@@ -303,9 +309,9 @@ const DataTransformations = (props) => {
                     </>
                   )}
 
-                  {(configuredProject || configuredBoard) && (
+                  {(configuredProject || configuredBoard || (configuredConnection.provider == Providers.JENKINS && configuredConnection)) && (
                     <div>
-                      {!useDropdownSelector && (
+                      {!useDropdownSelector && (configuredProject || configuredBoard) && (
                         <>
                           <h4>Project</h4>
                           <p style={{ color: '#292B3F' }}>{configuredProject?.title || configuredBoard?.title || '< select a project >'}</p>
@@ -333,6 +339,7 @@ const DataTransformations = (props) => {
                       {!dataEntities[configuredConnection.id] ||
                         (dataEntities[configuredConnection.id]?.length ===
                           0 && <p>(No Data Entities Selected)</p>)}
+
                       {dataEntities[configuredConnection.id]?.find(
                         (e) => DEFAULT_DATA_ENTITIES.some(dE => dE.value === e.value)
                       ) && (
@@ -342,6 +349,7 @@ const DataTransformations = (props) => {
                           connection={configuredConnection}
                           configuredProject={configuredProject}
                           configuredBoard={configuredBoard}
+                          entityIdKey={entityIdKey}
                           issueTypes={issueTypes}
                           fields={fields}
                           boards={boards}
@@ -350,7 +358,6 @@ const DataTransformations = (props) => {
                           transformation={activeTransformation}
                           transformations={transformations}
                           onSettingsChange={setTransformationSettings}
-                          entity={DataEntityTypes.TICKET}
                           isSaving={isSaving}
                           isFetchingJIRA={isFetchingJIRA}
                           isSavingConnection={isSavingConnection}
@@ -374,7 +381,7 @@ const DataTransformations = (props) => {
                           disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
                           style={{ marginLeft: '5px' }}
                         /> */}
-                        {enableGoBack && (
+                        {enableGoBack && (configuredProject || configuredBoard) && (
                           <Button
                             text='Go Back'
                             intent={Intent.PRIMARY}
@@ -400,7 +407,7 @@ const DataTransformations = (props) => {
                 </>
               )}
 
-              {[Providers.JENKINS].includes(configuredConnection.provider) && (
+              {/* {[Providers.JENKINS].includes(configuredConnection.provider) && (
                 <>
                   <div className='bp3-non-ideal-state'>
                     <div className='bp3-non-ideal-state-visual'>
@@ -414,7 +421,7 @@ const DataTransformations = (props) => {
                     </div>
                   </div>
                 </>
-              )}
+              )} */}
             </Card>
           </div>
         </div>

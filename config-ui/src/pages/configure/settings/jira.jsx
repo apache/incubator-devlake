@@ -53,6 +53,7 @@ const createTypeMapObject = (customType, standardType) => {
 
 export default function JiraSettings (props) {
   const {
+    provider,
     connection,
     blueprint,
     entities = [],
@@ -363,7 +364,7 @@ export default function JiraSettings (props) {
 
           <div className='issue-type-multiselect' style={{ display: 'flex', marginBottom: '10px' }}>
             <div className='issue-type-label' style={{ minWidth: '120px', paddingRight: '10px', paddingTop: '3px' }}>
-              <label>Incident</label>
+              <label>Incident <Tag intent={Intent.PRIMARY} style={{ fontSize: '10px' }} minimal>DORA</Tag></label>
             </div>
             <div className='issue-type-multiselect-selector' style={{ minWidth: '200px', width: '100%' }}>
               <MultiSelect

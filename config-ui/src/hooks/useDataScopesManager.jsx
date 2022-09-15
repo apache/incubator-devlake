@@ -85,13 +85,18 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
           bugTags: [],
           incidentTags: [],
           requirementTags: [],
+          deployTagPattern: ''
         }
         break
       case Providers.JENKINS:
-        // No Transform Settings...
+        transforms = {
+          deployTagPattern: ''
+        }
         break
       case Providers.GITLAB:
-        // No Transform Settings...
+        transforms = {
+          deployTagPattern: ''
+        }
         break
       case Providers.TAPD:
         // No Transform Settings...
@@ -147,7 +152,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
               projectId: Number(p.value),
               title: p.title
             },
-            transformation: {},
+            transformation: { ...transformations[p?.id] },
           }))
           break
         case Providers.JENKINS:
@@ -155,7 +160,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
             ...newScope,
             // options: {
             // },
-            // transformation: {},
+            transformation: { ...transformations[`C${connection?.id}`] },
           }
           break
         case Providers.GITHUB:
@@ -318,7 +323,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     switch (providerId) {
       case Providers.GITHUB:
       case Providers.GITLAB:
-        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
+        entities = DEFAULT_DATA_ENTITIES
         break
       case Providers.JIRA:
         entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')

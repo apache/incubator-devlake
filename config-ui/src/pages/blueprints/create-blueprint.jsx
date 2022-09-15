@@ -185,6 +185,7 @@ const CreateBlueprint = (props) => {
     createProviderScopes,
     createProviderConnections,
     getDefaultTransformations,
+    getDefaultEntities,
     initializeTransformations
   } = useDataScopesManager({ connection: configuredConnection, settings: blueprintSettings })
 
@@ -698,25 +699,25 @@ const CreateBlueprint = (props) => {
         integrationsData.find((p) => p.id === someConnection.provider)
       )
     }
-    const getDefaultEntities = (providerId) => {
-      let entities = []
-      switch (providerId) {
-        case Providers.GITHUB:
-        case Providers.GITLAB:
-          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
-          break
-        case Providers.JIRA:
-          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
-          break
-        case Providers.JENKINS:
-          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-          break
-        case Providers.TAPD:
-          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-          break
-      }
-      return entities
-    }
+    // const getDefaultEntities = (providerId) => {
+    //   let entities = []
+    //   switch (providerId) {
+    //     case Providers.GITHUB:
+    //     case Providers.GITLAB:
+    //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
+    //       break
+    //     case Providers.JIRA:
+    //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
+    //       break
+    //     case Providers.JENKINS:
+    //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+    //       break
+    //     case Providers.TAPD:
+    //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+    //       break
+    //   }
+    //   return entities
+    // }
     const initializeEntities = (pV, cV) => ({
       ...pV,
       [cV.id]: !pV[cV.id] ? getDefaultEntities(cV?.provider) : [],
@@ -960,7 +961,8 @@ const CreateBlueprint = (props) => {
       statusResponse: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider),
       status: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status
     })))
-    setCanAdvanceNext(dataConnections.every(dC => dC.status === 200))
+    // @todo: re-enable next disable on offline connection! (disabled to allow GitHub Test)
+    // setCanAdvanceNext(dataConnections.every(dC => dC.status === 200))
   }, [dataConnections, setConnectionsList])
 
   return (
