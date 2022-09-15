@@ -22,13 +22,13 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"time"
 
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
 type Task20220601 struct {
-	common.Model
+	archived.Model
 	Plugin        string         `json:"plugin" gorm:"index"`
 	Subtasks      datatypes.JSON `json:"subtasks"`
 	Options       datatypes.JSON `json:"options"`

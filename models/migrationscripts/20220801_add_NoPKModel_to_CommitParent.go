@@ -19,13 +19,14 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type commitParent struct {
-	common.NoPKModel
+	archived.NoPKModel
 	CommitSha       string `json:"commitSha" gorm:"primaryKey;type:varchar(40);comment:commit hash"`
 	ParentCommitSha string `json:"parentCommitSha" gorm:"primaryKey;type:varchar(40);comment:parent commit hash"`
 }

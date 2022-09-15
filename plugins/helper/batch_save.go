@@ -19,9 +19,10 @@ package helper
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strings"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"

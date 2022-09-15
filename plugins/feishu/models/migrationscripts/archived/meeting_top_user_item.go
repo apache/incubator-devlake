@@ -18,18 +18,19 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
 type FeishuMeetingTopUserItem struct {
-	common.NoPKModel `json:"-"`
-	ConnectionId     uint64    `gorm:"primaryKey"`
-	StartTime        time.Time `gorm:"primaryKey"`
-	Name             string    `json:"name" gorm:"primaryKey;type:varchar(255)"`
-	MeetingCount     string    `json:"meeting_count" gorm:"type:varchar(255)"`
-	MeetingDuration  string    `json:"meeting_duration" gorm:"type:varchar(255)"`
-	UserType         int64     `json:"user_type"`
+	archived.NoPKModel `json:"-"`
+	ConnectionId       uint64    `gorm:"primaryKey"`
+	StartTime          time.Time `gorm:"primaryKey"`
+	Name               string    `json:"name" gorm:"primaryKey;type:varchar(255)"`
+	MeetingCount       string    `json:"meeting_count" gorm:"type:varchar(255)"`
+	MeetingDuration    string    `json:"meeting_duration" gorm:"type:varchar(255)"`
+	UserType           int64     `json:"user_type"`
 }
 
 func (FeishuMeetingTopUserItem) TableName() string {
