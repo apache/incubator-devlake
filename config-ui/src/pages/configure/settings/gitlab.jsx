@@ -28,6 +28,7 @@ export default function GitlabSettings (props) {
     connection,
     entities = [],
     transformation = {},
+    entityIdKey,
     provider,
     projects,
     configuredProject,
@@ -42,6 +43,7 @@ export default function GitlabSettings (props) {
         <Deployment
           provider={provider}
           entities={entities}
+          entityIdKey={entityIdKey}
           transformation={transformation}
           connection={connection}
           onSettingsChange={onSettingsChange}

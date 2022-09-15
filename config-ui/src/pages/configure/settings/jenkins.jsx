@@ -44,6 +44,7 @@ export default function JenkinsSettings (props) {
   const {
     provider,
     transformation,
+    entityIdKey,
     connection,
     entities = [],
     onSettingsChange = () => {},
@@ -92,6 +93,7 @@ export default function JenkinsSettings (props) {
         <Deployment
           provider={provider}
           entities={entities}
+          entityIdKey={entityIdKey}
           transformation={transformation}
           connection={connection}
           onSettingsChange={onSettingsChange}

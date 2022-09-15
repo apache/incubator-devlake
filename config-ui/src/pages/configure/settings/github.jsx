@@ -40,6 +40,7 @@ export default function GithubSettings (props) {
     connection,
     entities = [],
     transformation = {},
+    entityIdKey,
     isSaving,
     isSavingConnection,
     onSettingsChange = () => {},
@@ -211,6 +212,7 @@ export default function GithubSettings (props) {
         <Deployment
           provider={provider}
           entities={entities}
+          entityIdKey={entityIdKey}
           transformation={transformation}
           connection={connection}
           onSettingsChange={onSettingsChange}

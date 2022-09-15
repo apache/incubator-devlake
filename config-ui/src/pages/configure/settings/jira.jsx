@@ -59,6 +59,7 @@ export default function JiraSettings (props) {
     entities = [],
     configuredBoard,
     transformation = {},
+    entityIdKey,
     transformations = {},
     isSaving,
     onSettingsChange = () => {},

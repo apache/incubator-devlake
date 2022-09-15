@@ -40,11 +40,10 @@ const Deployment = (props) => {
     onSettingsChange = () => {},
   } = props
 
-  const [deployTag, setDeployTag] = useState('')
-  const [enableDeployTag, setEnableDeployTag] = useState(0)
+  const [deployTag, setDeployTag] = useState(transformation?.deployTagPattern || '')
+  const [enableDeployTag, setEnableDeployTag] = useState(transformation?.deployTagPattern !== '' ? 1 : 0)
 
   useEffect(() => {
-    // const derivedEntityId = provider?.id === Providers.JENKINS ? `C#${connection?.id}`: (configuredProject?.id || configuredBoard?.id)
     console.log('CI/CD Deployment Transform:', entityIdKey, deployTag)
     if (entityIdKey && enableDeployTag === 1) {
       onSettingsChange({ deployTagPattern: deployTag }, entityIdKey)
@@ -61,16 +60,9 @@ const Deployment = (props) => {
     entityIdKey
   ])
 
-  useEffect(() => {
-    if (transformation) {
-      // @todo: restore modify state
-    }
-  }, [transformation])
-
-
-  useEffect(() => {
-    console.log('>>> MY ENTITY ID KEY =', entityIdKey)
-  }, [entityIdKey])
+  // useEffect(() => {
+  //   console.log('>>> CI/CD Deployment Transform ENTITY ID KEY:', entityIdKey)
+  // }, [entityIdKey])
 
   return (
     <>

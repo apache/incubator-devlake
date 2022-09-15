@@ -160,7 +160,8 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
             ...newScope,
             // options: {
             // },
-            transformation: { ...transformations[`C${connection?.id}`] },
+            // NOTE: Jenkins has no concept of projects/boards. Transformations Key'ed by Conn ID!
+            transformation: { ...transformations[`C#${connection?.id}`] },
           }
           break
         case Providers.GITHUB:
