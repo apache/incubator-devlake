@@ -87,7 +87,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 
 	dataflowTester.FlushTabler(&devops.CICDTask{})
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
-	dataflowTester.FlushTabler(&devops.CiCDPipelineRepo{})
+	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 	dataflowTester.FlushTabler(&devops.CICDPipelineRelationship{})
 	dataflowTester.Subtask(tasks.EnrichApiBuildWithStagesMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertBuildsToCICDMeta, taskData)
@@ -133,10 +133,10 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.VerifyTable(
-		devops.CiCDPipelineRepo{},
-		"./snapshot_tables/cicd_pipeline_repos.csv",
+		devops.CiCDPipelineCommit{},
+		"./snapshot_tables/cicd_pipeline_commits.csv",
 		[]string{
-			"id",
+			"pipeline_id",
 			"repo",
 			"branch",
 			"commit_sha",

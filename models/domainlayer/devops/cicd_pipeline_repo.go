@@ -17,15 +17,13 @@ limitations under the License.
 
 package devops
 
-import "github.com/apache/incubator-devlake/models/domainlayer"
-
-type CiCDPipelineRepo struct {
-	domainlayer.DomainEntity
-	CommitSha string `gorm:"primaryKey;type:varchar(255)"`
-	Branch    string `gorm:"type:varchar(255)"`
-	Repo      string `gorm:"type:varchar(255)"`
+type CiCDPipelineCommit struct {
+	PipelineId string `gorm:"primaryKey;type:varchar(255)"`
+	CommitSha  string `gorm:"primaryKey;type:varchar(255)"`
+	Branch     string `gorm:"type:varchar(255)"`
+	Repo       string `gorm:"type:varchar(255)"`
 }
 
-func (CiCDPipelineRepo) TableName() string {
-	return "cicd_pipeline_repos"
+func (CiCDPipelineCommit) TableName() string {
+	return "cicd_pipeline_commits"
 }

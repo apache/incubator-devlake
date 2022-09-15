@@ -123,7 +123,7 @@ func TestGithubRunsDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubRun{})
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
-	dataflowTester.FlushTabler(&devops.CiCDPipelineRepo{})
+	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 
 	dataflowTester.Subtask(tasks.ExtractRunsMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -185,9 +185,10 @@ func TestGithubRunsDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.VerifyTable(
-		&devops.CiCDPipelineRepo{},
-		"./snapshot_tables/cicd_pipeline_repos.csv",
+		&devops.CiCDPipelineCommit{},
+		"./snapshot_tables/cicd_pipeline_commits.csv",
 		[]string{
+			"pipeline_id",
 			"commit_sha",
 			"branch",
 			"repo",
