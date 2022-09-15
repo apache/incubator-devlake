@@ -15,29 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/{{ .pluginName }}/impl"
-	"github.com/apache/incubator-devlake/runner"
-	"github.com/spf13/cobra"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/go-playground/validator/v10"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
-// Export a variable named PluginEntry for Framework to search and load
-var PluginEntry impl.{{ .PluginName }} //nolint
+var vld *validator.Validate
+var connectionHelper *helper.ConnectionApiHelper
+var basicRes core.BasicRes
 
-// standalone mode for debugging
-func main() {
-	cmd := &cobra.Command{Use: "{{ .pluginName }}"}
-
-	// TODO add your cmd flag if necessary
-	// yourFlag := cmd.Flags().IntP("yourFlag", "y", 8, "TODO add description here")
-	// _ = cmd.MarkFlagRequired("yourFlag")
-
-	cmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			// TODO add more custom params here
-		})
-	}
-	runner.RunCmd(cmd)
+func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
+	basicRes = helper.NewDefaultBasicRes(config, logger, database)
+	vld = validator.New()
+	connectionHelper = helper.NewConnectionHelper(
+		basicRes,
+		vld,
+	)
 }

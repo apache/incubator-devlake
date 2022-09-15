@@ -15,29 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package migrationscripts
 
-import (
-	"github.com/apache/incubator-devlake/plugins/{{ .pluginName }}/impl"
-	"github.com/apache/incubator-devlake/runner"
-	"github.com/spf13/cobra"
-)
+import "github.com/apache/incubator-devlake/migration"
 
-// Export a variable named PluginEntry for Framework to search and load
-var PluginEntry impl.{{ .PluginName }} //nolint
-
-// standalone mode for debugging
-func main() {
-	cmd := &cobra.Command{Use: "{{ .pluginName }}"}
-
-	// TODO add your cmd flag if necessary
-	// yourFlag := cmd.Flags().IntP("yourFlag", "y", 8, "TODO add description here")
-	// _ = cmd.MarkFlagRequired("yourFlag")
-
-	cmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			// TODO add more custom params here
-		})
+// All return all the migration scripts
+func All() []migration.Script {
+	return []migration.Script{
+		new(addInitTables),
 	}
-	runner.RunCmd(cmd)
 }

@@ -169,7 +169,7 @@ func (apiClient *ApiAsyncClient) DoAsync(
 		}
 		if err == ErrIgnoreAndContinue {
 			// make sure defer func got be executed
-			err = nil //nolint:all
+			err = nil //nolint
 			return nil
 		}
 

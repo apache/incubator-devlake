@@ -60,11 +60,3 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.BitbucketConne
 	}
 	return asyncApiClient, nil
 }
-
-type BitbucketPagination struct {
-	Values  []interface{} `json:"values"`
-	PageLen int           `json:"pagelen"`
-	Size    int           `json:"size"`
-	Page    int           `json:"page"`
-	Next    string        `json:"next"`
-}

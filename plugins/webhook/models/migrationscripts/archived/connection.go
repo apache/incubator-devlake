@@ -15,29 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/plugins/{{ .pluginName }}/impl"
-	"github.com/apache/incubator-devlake/runner"
-	"github.com/spf13/cobra"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-// Export a variable named PluginEntry for Framework to search and load
-var PluginEntry impl.{{ .PluginName }} //nolint
+type BaseConnection struct {
+	Name string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	archived.Model
+}
 
-// standalone mode for debugging
-func main() {
-	cmd := &cobra.Command{Use: "{{ .pluginName }}"}
+type WebhookConnection struct {
+	BaseConnection `mapstructure:",squash"`
+}
 
-	// TODO add your cmd flag if necessary
-	// yourFlag := cmd.Flags().IntP("yourFlag", "y", 8, "TODO add description here")
-	// _ = cmd.MarkFlagRequired("yourFlag")
-
-	cmd.Run = func(cmd *cobra.Command, args []string) {
-		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			// TODO add more custom params here
-		})
-	}
-	runner.RunCmd(cmd)
+func (WebhookConnection) TableName() string {
+	return "_tool_webhook_connections"
 }

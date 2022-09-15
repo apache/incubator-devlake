@@ -18,36 +18,36 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"encoding/base64"
+	"fmt"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type EpicResponse struct {
-	Id    int
-	Title string
-	Value string
+type BasicAuth struct {
+	Username string `mapstructure:"username" validate:"required" json:"username"`
+	Password string `mapstructure:"password" validate:"required" json:"password" encrypt:"yes"`
+}
+
+func (ba BasicAuth) GetEncodedToken() string {
+	return base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", ba.Username, ba.Password)))
+}
+
+type BaseConnection struct {
+	Name string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	archived.Model
+}
+
+type RestConnection struct {
+	BaseConnection   `mapstructure:",squash"`
+	Endpoint         string `mapstructure:"endpoint" validate:"required" json:"endpoint"`
+	Proxy            string `mapstructure:"proxy" json:"proxy"`
+	RateLimitPerHour int    `comment:"api request rate limit per hour" json:"rateLimit"`
 }
 
 type TestConnectionRequest struct {
-	Endpoint         string `json:"endpoint"`
-	Proxy            string `json:"proxy"`
-	helper.BasicAuth `mapstructure:",squash"`
-}
-
-type BoardResponse struct {
-	Id    int
-	Title string
-	Value string
-}
-type TransformationRules struct {
-	PrType               string `mapstructure:"prType" json:"prType"`
-	PrComponent          string `mapstructure:"prComponent" json:"prComponent"`
-	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern"`
-	IssueSeverity        string `mapstructure:"issueSeverity" json:"issueSeverity"`
-	IssuePriority        string `mapstructure:"issuePriority" json:"issuePriority"`
-	IssueComponent       string `mapstructure:"issueComponent" json:"issueComponent"`
-	IssueTypeBug         string `mapstructure:"issueTypeBug" json:"issueTypeBug"`
-	IssueTypeIncident    string `mapstructure:"issueTypeIncident" json:"issueTypeIncident"`
-	IssueTypeRequirement string `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement"`
+	Endpoint  string `json:"endpoint"`
+	Proxy     string `json:"proxy"`
+	BasicAuth `mapstructure:",squash"`
 }
 
 type ApiUserResponse struct {
@@ -59,9 +59,8 @@ type ApiUserResponse struct {
 }
 
 type BitbucketConnection struct {
-	helper.RestConnection      `mapstructure:",squash"`
-	helper.BasicAuth           `mapstructure:",squash"`
-	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
+	RestConnection `mapstructure:",squash"`
+	BasicAuth      `mapstructure:",squash"`
 }
 
 func (BitbucketConnection) TableName() string {

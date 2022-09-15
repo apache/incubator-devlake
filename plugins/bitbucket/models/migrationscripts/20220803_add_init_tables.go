@@ -19,20 +19,22 @@ package migrationscripts
 
 import (
 	"context"
+	"encoding/base64"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
+	"strings"
 )
 
 type addInitTables struct{}
 
 func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().DropTable(
+		//history table
 		&archived.BitbucketRepo{},
 		&archived.BitbucketRepoCommit{},
-		&archived.BitbucketConnection{},
 		&archived.BitbucketAccount{},
 		&archived.BitbucketCommit{},
 		&archived.BitbucketPullRequest{},
@@ -40,7 +42,6 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		&archived.BitbucketPrComment{},
 		&archived.BitbucketIssueComment{},
 	)
-
 	if err != nil {
 		return errors.Convert(err)
 	}
@@ -56,32 +57,51 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		&archived.BitbucketPrComment{},
 		&archived.BitbucketIssueComment{},
 	)
-
 	if err != nil {
 		return errors.Convert(err)
 	}
 
-	v := config.GetConfig()
-	encKey := v.GetString("ENCODE_KEY")
-	endPoint := v.GetString("BITBUCKET_ENDPOINT")
-	bitbucketUsername := v.GetString("BITBUCKET_AUTH_USERNAME")
-	bitbucketAppPassword := v.GetString("BITBUCKET_AUTH_PASSWORD")
-	if encKey == "" || endPoint == "" || bitbucketUsername == "" || bitbucketAppPassword == "" {
-		return nil
-	} else {
+	var result *gorm.DB
+	var bitbucketConns []archived.BitbucketConnection
+	result = db.Find(&bitbucketConns)
+	if result.Error != nil {
+		return errors.Convert(result.Error)
+	}
+
+	for _, v := range bitbucketConns {
 		conn := &archived.BitbucketConnection{}
-		conn.Name = "init bitbucket connection"
-		conn.ID = 1
-		conn.Endpoint = endPoint
-		conn.BasicAuth.Username = bitbucketUsername
-		conn.BasicAuth.Password = bitbucketAppPassword
-		conn.Proxy = v.GetString("BITBUCKET_PROXY")
-		conn.RateLimitPerHour = v.GetInt("BITBUCKET_API_REQUESTS_PER_HOUR")
+		conn.ID = v.ID
+		conn.Name = v.Name
+		conn.Endpoint = v.Endpoint
+		conn.Proxy = v.Proxy
+		conn.RateLimitPerHour = v.RateLimitPerHour
 
-		err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
-
+		c := config.GetConfig()
+		encKey := c.GetString(core.EncodeKeyEnvStr)
+		if encKey == "" {
+			return errors.BadInput.New("bitbucket invalid encKey")
+		}
+		var auth string
+		if auth, err = core.Decrypt(encKey, v.BasicAuth.GetEncodedToken()); err != nil {
+			return errors.Convert(err)
+		}
+		var pk []byte
+		pk, err = base64.StdEncoding.DecodeString(auth)
 		if err != nil {
 			return errors.Default.Wrap(err, "error creating connection entry for BitBucket")
+		}
+		originInfo := strings.Split(string(pk), ":")
+		if len(originInfo) == 2 {
+			conn.Username = originInfo[0]
+			conn.Password, err = core.Encrypt(encKey, originInfo[1])
+			if err != nil {
+				return errors.Convert(err)
+			}
+			// create
+			tx := db.Create(&conn)
+			if tx.Error != nil {
+				return errors.Default.Wrap(tx.Error, "error adding connection to DB")
+			}
 		}
 	}
 

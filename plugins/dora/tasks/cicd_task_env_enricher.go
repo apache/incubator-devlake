@@ -18,13 +18,14 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"regexp"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"reflect"
-	"regexp"
 )
 
 var EnrichTaskEnvMeta = core.SubTaskMeta{
@@ -42,17 +43,12 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 
 	var taskNameReg *regexp.Regexp
 	taskNamePattern := data.Options.EnvironmentRegex
-	if len(taskNamePattern) > 0 {
-		taskNameReg, err = errors.Convert01(regexp.Compile(taskNamePattern))
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp Compile taskNameReg failed")
-		}
-	} else {
-		taskNamePattern = "deploy" // default
-		taskNameReg, err = errors.Convert01(regexp.Compile(taskNamePattern))
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp Compile taskNameReg failed")
-		}
+	if len(taskNamePattern) == 0 {
+		taskNamePattern = "deploy"
+	}
+	taskNameReg, errRegexp := regexp.Compile(taskNamePattern)
+	if errRegexp != nil {
+		return errors.Default.Wrap(errRegexp, "regexp Compile taskNameReg failed")
 	}
 
 	cursor, err := db.Cursor(

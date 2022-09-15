@@ -19,9 +19,8 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/helper"
-
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_ISSUE_TABLE = "bitbucket_api_issues"
@@ -46,6 +45,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
 		Query:              GetQuery,
 		GetTotalPages:      GetTotalPagesFromResponse,
 		ResponseParser:     GetRawMessageFromResponse,
+		AfterResponse:      ignoreHTTPStatus404,
 	})
 
 	if err != nil {

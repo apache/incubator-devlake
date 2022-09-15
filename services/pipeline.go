@@ -117,8 +117,8 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error
 		if err != nil {
 			return nil, 0, err
 		}
-		dbPipeline := parsePipeline(dbPipeline)
-		pipelines = append(pipelines, dbPipeline)
+		pipeline := parsePipeline(dbPipeline)
+		pipelines = append(pipelines, pipeline)
 	}
 
 	return pipelines, i, nil

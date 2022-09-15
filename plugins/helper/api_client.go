@@ -75,7 +75,7 @@ func NewApiClient(
 	if err != nil {
 		return nil, errors.Default.New("Failed to resolve Port")
 	}
-	err = utils.CheckNetwork(parsedUrl.Hostname(), port, time.Duration(2)*time.Second)
+	err = utils.CheckNetwork(parsedUrl.Hostname(), port, 10*time.Second)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Failed to connect")
 	}
