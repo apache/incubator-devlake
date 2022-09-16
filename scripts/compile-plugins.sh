@@ -39,7 +39,7 @@ PLUGIN_SRC_DIR=$SCRIPT_DIR/../plugins
 PLUGIN_OUTPUT_DIR=$SCRIPT_DIR/../bin/plugins
 
 if [ -z "$PLUGIN" ]; then
-    PLUGINS=$(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -name helper -not -empty)
+    PLUGINS=$(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -name helper -not -name e2e -not -empty)
 else
     PLUGINS=$PLUGIN_SRC_DIR/$PLUGIN
 fi

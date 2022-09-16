@@ -167,23 +167,6 @@ func (t *DataFlowTester) FlushRawTable(rawTableName string) {
 	}
 }
 
-// DropAllTables drops all tables in the database
-func (t *DataFlowTester) DropAllTables() {
-	m := t.Db.Migrator()
-	tables, err := m.GetTables()
-	if err != nil {
-		panic(err)
-	}
-	var tablesRaw []interface{}
-	for _, table := range tables {
-		tablesRaw = append(tablesRaw, table)
-	}
-	err = m.DropTable(tablesRaw...)
-	if err != nil {
-		panic(err)
-	}
-}
-
 // FlushTabler migrate table and deletes all records from specified table
 func (t *DataFlowTester) FlushTabler(dst schema.Tabler) {
 	// flush target table

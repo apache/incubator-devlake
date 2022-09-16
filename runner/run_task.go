@@ -45,8 +45,8 @@ func RunTask(
 	taskId uint64,
 ) (err errors.Error) {
 	task := &models.Task{}
-	if err := db.Find(task, taskId).Error; err != nil {
-		return errors.Convert(err)
+	if err = errors.Convert(db.Find(task, taskId).Error); err != nil {
+		return err
 	}
 	if task.Status == models.TASK_COMPLETED {
 		return errors.Default.New("invalid task status")
@@ -105,14 +105,13 @@ func RunTask(
 
 	// start execution
 	log.Info("start executing task: %d", task.ID)
-	if err := db.Model(task).Updates(map[string]interface{}{
+	if err = errors.Convert(db.Model(task).Updates(map[string]interface{}{
 		"status":   models.TASK_RUNNING,
 		"message":  "",
 		"began_at": beganAt,
-	}).Error; err != nil {
-		return errors.Convert(err)
+	}).Error); err != nil {
+		return err
 	}
-
 	var options map[string]interface{}
 	err = errors.Convert(json.Unmarshal(task.Options, &options))
 	if err != nil {
@@ -123,7 +122,6 @@ func RunTask(
 	if err != nil {
 		return err
 	}
-
 	err = RunPluginTask(
 		ctx,
 		config.GetConfig(),
