@@ -31,10 +31,10 @@ type bitbucketApiCommit struct {
 	Hash  string `json:"hash"`
 	Links struct {
 		Self struct {
-			Href string
+			Href string `json:"href"`
 		}
 		Html struct {
-			Href string
+			Href string `json:"href"`
 		}
 	} `json:"links"`
 }
@@ -44,7 +44,7 @@ type bitbucketApiPipelineTarget struct {
 	RefType  string `json:"ref_type"`
 	RefName  string `json:"ref_name"`
 	Selector struct {
-		Type string
+		Type string `json:"type"`
 	} `json:"selector"`
 	Commit *bitbucketApiCommit `json:"commit"`
 }
@@ -53,20 +53,24 @@ type BitbucketApiPipeline struct {
 	Uuid  string `json:"uuid"`
 	Type  string `json:"type"`
 	State struct {
-		Name   string
-		Type   string
-		Result struct {
-			Name string
-			Type string
-		}
+		Name   string `json:"name"`
+		Type   string `json:"type"`
+		Result *struct {
+			Name string `json:"name"`
+			Type string `json:"type"`
+		} `json:"result"`
+		Stage *struct {
+			Name string `json:"name"`
+			Type string `json:"type"`
+		} `json:"stage"`
 	} `json:"state"`
 	BuildNumber int                         `json:"build_number"`
 	Creator     *BitbucketAccountResponse   `json:"creator"`
 	Repo        *BitbucketApiRepo           `json:"repository"`
 	Target      *bitbucketApiPipelineTarget `json:"target"`
 	Trigger     struct {
-		Name string
-		Type string
+		Name string `json:"name"`
+		Type string `json:"type"`
 	} `json:"trigger"`
 	CreatedOn         *time.Time `json:"created_on"`
 	CompletedOn       *time.Time `json:"completed_on"`
@@ -78,11 +82,11 @@ type BitbucketApiPipeline struct {
 	HasVariables      bool       `json:"has_variables"`
 	Links             struct {
 		Self struct {
-			Href string
+			Href string `json:"href"`
 		} `json:"self"`
 		Steps struct {
-			Href string
-		}
+			Href string `json:"href"`
+		} `json:"steps"`
 	} `json:"links"`
 }
 
@@ -112,7 +116,6 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 				BitbucketId:         bitbucketApiPipeline.Uuid,
 				WebUrl:              bitbucketApiPipeline.Links.Self.Href,
 				Status:              bitbucketApiPipeline.State.Name,
-				Result:              bitbucketApiPipeline.State.Result.Name,
 				RefName:             bitbucketApiPipeline.Target.RefName,
 				DurationInSeconds:   bitbucketApiPipeline.DurationInSeconds,
 				BitbucketCreatedOn:  bitbucketApiPipeline.CreatedOn,
@@ -120,6 +123,11 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 			}
 			if err != nil {
 				return nil, err
+			}
+			if bitbucketApiPipeline.State.Result != nil {
+				bitbucketPipeline.Result = bitbucketApiPipeline.State.Result.Name
+			} else if bitbucketApiPipeline.State.Stage != nil {
+				bitbucketPipeline.Result = bitbucketApiPipeline.State.Stage.Name
 			}
 
 			results := make([]interface{}, 0, 2)
