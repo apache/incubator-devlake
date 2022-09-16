@@ -20,6 +20,7 @@ package tasks
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"reflect"
 	"time"
@@ -85,10 +86,11 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) errors.Error {
 				finishTime := jenkinsBuild.StartTime.Add(time.Duration(durationSec * int64(time.Second)))
 				jenkinsPipelineFinishedDate = &finishTime
 			}
+			buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
 			jenkinsPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline", jenkinsBuild.ConnectionId,
-						jenkinsBuild.DisplayName),
+					Id: buildIdGen.Generate(jenkinsBuild.ConnectionId,
+						jenkinsBuild.FullDisplayName),
 				},
 				Name:         jenkinsBuild.JobName,
 				Result:       jenkinsPipelineResult,
@@ -100,10 +102,10 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) errors.Error {
 
 			if jenkinsBuild.TriggeredBy != "" {
 				domainPipelineRelation := &devops.CICDPipelineRelationship{
-					ParentPipelineId: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline", jenkinsBuild.ConnectionId,
+					ParentPipelineId: buildIdGen.Generate(jenkinsBuild.ConnectionId,
 						jenkinsBuild.TriggeredBy),
-					ChildPipelineId: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline", jenkinsBuild.ConnectionId,
-						jenkinsBuild.DisplayName),
+					ChildPipelineId: buildIdGen.Generate(jenkinsBuild.ConnectionId,
+						jenkinsBuild.FullDisplayName),
 				}
 				results = append(results, domainPipelineRelation)
 			}
@@ -114,7 +116,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) errors.Error {
 				jenkinsTask := &devops.CICDTask{
 					DomainEntity: domainlayer.DomainEntity{
 						Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsTask", jenkinsBuild.ConnectionId,
-							jenkinsBuild.DisplayName),
+							jenkinsBuild.FullDisplayName),
 					},
 					Name:         jenkinsBuild.JobName,
 					Result:       jenkinsPipelineResult,
@@ -124,8 +126,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) errors.Error {
 					FinishedDate: jenkinsPipelineFinishedDate,
 				}
 
-				jenkinsTask.PipelineId = fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline",
-					jenkinsBuild.ConnectionId, jenkinsBuild.DisplayName)
+				jenkinsTask.PipelineId = buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullDisplayName)
 
 				jenkinsTask.RawDataOrigin = jenkinsBuild.RawDataOrigin
 				results = append(results, jenkinsTask)

@@ -99,7 +99,7 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) errors.Error {
 			}
 
 			//if commit.Author != nil {
-			//	bitbucketCommit.AuthorName = commit.Author.User.DisplayName
+			//	bitbucketCommit.AuthorName = commit.Author.User.FullDisplayName
 			//	bitbucketCommit.AuthorId = commit.Author.User.AccountId
 			//	results = append(results, commit.Author)
 			//}

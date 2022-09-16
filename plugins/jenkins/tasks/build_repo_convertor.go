@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
@@ -64,9 +63,10 @@ func ConvertBuildRepos(taskCtx core.SubTaskContext) errors.Error {
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			jenkinsBuildRepo := inputRow.(*models.JenkinsBuildRepo)
-			build := &devops.CiCDPipelineCommit{
-				PipelineId: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsTask", jenkinsBuildRepo.ConnectionId,
-					jenkinsBuildRepo.BuildName),
+			buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
+			build := &devops.CiCDPipelineRepo{
+				PipelineId: buildIdGen.Generate(jenkinsBuild.ConnectionId,
+						jenkinsBuildRepo.BuildName),
 				CommitSha: jenkinsBuildRepo.CommitSha,
 				Branch:    jenkinsBuildRepo.Branch,
 				RepoUrl:   jenkinsBuildRepo.RepoUrl,

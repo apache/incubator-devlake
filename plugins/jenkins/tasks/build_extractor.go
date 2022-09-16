@@ -76,7 +76,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 				ConnectionId:      data.Options.ConnectionId,
 				JobName:           input.Name,
 				Duration:          body.Duration,
-				DisplayName:       body.DisplayName,
+				FullDisplayName:   body.DisplayName,
 				EstimatedDuration: body.EstimatedDuration,
 				Number:            body.Number,
 				Result:            body.Result,
@@ -103,7 +103,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 						if url != "" {
 							buildCommitRemoteUrl := models.JenkinsBuildRepo{
 								ConnectionId: data.Options.ConnectionId,
-								BuildName:    build.DisplayName,
+								BuildName:    build.FullDisplayName,
 								CommitSha:    sha,
 								RepoUrl:      url,
 								Branch:       branch,
