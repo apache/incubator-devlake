@@ -42,6 +42,7 @@ type TransformationRules struct {
 	IssueTypeBug         string `mapstructure:"issueTypeBug" json:"issueTypeBug"`
 	IssueTypeIncident    string `mapstructure:"issueTypeIncident" json:"issueTypeIncident"`
 	IssueTypeRequirement string `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement"`
+	DeployTagPattern     string `mapstructure:"deployTagPattern" json:"deployTagPattern"`
 }
 
 func (GithubConnection) TableName() string {

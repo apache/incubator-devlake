@@ -23,6 +23,19 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer"
 )
 
+const (
+	TEST       = "TEST"
+	LINT       = "LINT"
+	BUILD      = "BUILD"
+	DEPLOYMENT = "DEPLOYMENT"
+)
+
+const (
+	PRODUCTION = "PRODUCTION"
+	STAGING    = "STAGING"
+	TESTING    = "TESTING"
+)
+
 type CICDTask struct {
 	domainlayer.DomainEntity
 	Name         string `gorm:"type:varchar(255)"`
