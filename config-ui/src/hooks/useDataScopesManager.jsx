@@ -110,6 +110,7 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
           bugTags: [],
           incidentTags: [],
           requirementTags: [],
+          // @todo: verify if jira utilizes deploy tag?
           deployTagPattern: ''
         }
         break
@@ -483,6 +484,7 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
         break
       case Providers.JENKINS:
         setEntities(e => ({ ...e, [connection?.id]: connection?.entityList || [] }))
+        setTransformationSettings(connection.transformations[0], `C#${connection?.id}`)
         break
     }
   }, [

@@ -524,6 +524,7 @@ const BlueprintSettings = (props) => {
     activeBlueprint?.mode
   ])
 
+  // @note: lifted higher to dsm hook
   // const getDefaultEntities = useCallback((providerId) => {
   //   let entities = []
   //   switch (providerId) {

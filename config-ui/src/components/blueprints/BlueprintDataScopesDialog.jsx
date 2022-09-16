@@ -66,6 +66,7 @@ const BlueprintDataScopesDialog = (props) => {
     configuredConnection,
     configuredProject,
     configuredBoard,
+    configurationKey,
     scopeConnection,
     dataEntitiesList = [],
     boardsList = [],
@@ -141,14 +142,6 @@ const BlueprintDataScopesDialog = (props) => {
     }
   } = props
 
-  // useEffect(() => {
-  //   console.log('>>> MY BOARDS LIST!!!!', boardsList)
-  // }, [boardsList])
-
-  // useEffect(() => {
-  //   console.log('>>> MY SELECTED BOARDS!!!!', boards)
-  // }, [boards])
-
   return (
     <>
       <MultistepDialog
@@ -223,6 +216,7 @@ const BlueprintDataScopesDialog = (props) => {
                 configuredConnection={configuredConnection}
                 configuredProject={configuredProject}
                 configuredBoard={configuredBoard}
+                configurationKey={configurationKey}
                 addBoardTransformation={addBoardTransformation}
                 addProjectTransformation={addProjectTransformation}
                 isSaving={isSaving}
