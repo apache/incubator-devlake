@@ -103,8 +103,10 @@ func ConvertTasks(taskCtx core.SubTaskContext) (err errors.Error) {
 				FinishedDate: line.CompletedAt,
 			}
 
-			if deployFlag := deployTagRegexp.FindString(line.Name); deployFlag != "" {
-				domainjob.Type = devops.DEPLOYMENT
+			if deployTagRegexp != nil {
+				if deployFlag := deployTagRegexp.FindString(line.Name); deployFlag != "" {
+					domainjob.Type = devops.DEPLOYMENT
+				}
 			}
 			if len(tmp) > 0 {
 				domainjob.PipelineId = fmt.Sprintf("%s:%s:%d:%d", "github", "GithubRun", data.Options.ConnectionId, line.RunID)
