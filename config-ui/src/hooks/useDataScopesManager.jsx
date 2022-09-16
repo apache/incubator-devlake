@@ -28,11 +28,13 @@ import GitHubProject from '@/models/GithubProject'
 import GitlabProject from '@/models/GitlabProject'
 import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 
-function useDataScopesManager ({ provider, blueprint, /* connection, */ settings = {}, setSettings = () => {} }) {
+function useDataScopesManager ({ mode = 'create', provider, blueprint, /* connection, */ settings = {}, setSettings = () => {} }) {
   const [connections, setConnections] = useState([])
 
   const [scopeConnection, setScopeConnection] = useState()
-  const connection = useMemo(() => scopeConnection, [scopeConnection])
+  const [configuredConnection, setConfiguredConnection] = useState()
+  const connection = useMemo(() => mode === 'edit' ? scopeConnection : configuredConnection, [scopeConnection, configuredConnection])
+  // const connection = useMemo(() => scopeConnection, [scopeConnection])
 
   // const [blueprint, setBlueprint] = useState(NullBlueprint)
   const [boards, setBoards] = useState({})
@@ -54,8 +56,8 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     (b) => b && b?.id
   ), [boards, connection?.id])
 
-  const storedProjectTransformation = useMemo(() => connection?.transformations[connection?.projects?.findIndex(p => p === configuredProject?.id)], [connection, configuredProject?.id])
-  const storedBoardTransformation = useMemo(() => connection?.transformations[connection?.boardIds?.findIndex(b => b === configuredBoard?.id)], [connection, configuredBoard?.id])
+  const storedProjectTransformation = useMemo(() => connection?.transformations && connection?.transformations[connection?.projects?.findIndex(p => p === configuredProject?.id)], [connection, configuredProject?.id])
+  const storedBoardTransformation = useMemo(() => connection?.transformations && connection?.transformations[connection?.boardIds?.findIndex(b => b === configuredBoard?.id)], [connection, configuredBoard?.id])
 
   const activeProjectTransformation = useMemo(() => transformations[activeProject?.id], [transformations, activeProject?.id])
   const activeBoardTransformation = useMemo(() => transformations[activeBoard?.id], [transformations, activeBoard?.id])
@@ -76,6 +78,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
           issueTypeBug: '',
           issueTypeIncident: '',
           refdiff: null,
+          deployTagPattern: '/deploy/'
         }
         break
       case Providers.JIRA:
@@ -92,16 +95,22 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
         break
       case Providers.JENKINS:
         transforms = {
-          deployTagPattern: ''
+          deployTagPattern: '/deploy/'
         }
         break
       case Providers.GITLAB:
         transforms = {
-          deployTagPattern: ''
+          deployTagPattern: '/deploy/'
         }
         break
       case Providers.TAPD:
-        // No Transform Settings...
+        // @todo: complete tapd transforms #2673
+        transforms = {
+          issueTypeRequirement: '',
+          issueTypeBug: '',
+          issueTypeIncident: '',
+          deployTagPattern: '/deploy/'
+        }
         break
     }
     console.log('>>>>> DATA SCOPES MANAGER: Getting Default Transformation Values for PROVIDER Type ', providerId, transforms)
@@ -543,6 +552,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     projects,
     entities,
     transformations,
+    configuredConnection,
     configuredBoard,
     configuredProject,
     storedProjectTransformation,
@@ -555,6 +565,7 @@ function useDataScopesManager ({ provider, blueprint, /* connection, */ settings
     // setActiveTransformation,
     setConnections,
     setScopeConnection,
+    setConfiguredConnection,
     setConfiguredBoard,
     setConfiguredProject,
     // setBlueprint,

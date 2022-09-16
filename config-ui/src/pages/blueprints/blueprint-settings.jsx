@@ -96,7 +96,7 @@ const BlueprintSettings = (props) => {
   // @disabled Provided By Data Scopes Manager
   // const [connections, setConnections] = useState([])
   const [blueprintConnections, setBlueprintConnections] = useState([])
-  const [configuredConnection, setConfiguredConnection] = useState()
+  // const [configuredConnection, setConfiguredConnection] = useState()
 
   // @todo: relocate or discard
   const [newConnectionScopes, setNewConnectionScopes] = useState({})
@@ -165,9 +165,11 @@ const BlueprintSettings = (props) => {
     activeBoardTransformation,
     activeProjectTransformation,
     activeTransformation,
+    configuredConnection,
     configuredBoard,
     configuredProject,
     enabledProviders,
+    setConfiguredConnection,
     setConfiguredBoard,
     setConfiguredProject,
     setBoards,
@@ -186,6 +188,7 @@ const BlueprintSettings = (props) => {
     getJiraMappedBoards,
     getDefaultEntities
   } = useDataScopesManager({
+    mode: 'edit',
     blueprint: activeBlueprint,
     provider: activeProvider,
     // connection: scopeConnection,

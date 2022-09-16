@@ -112,7 +112,7 @@ const CreateBlueprint = (props) => {
   const [boardsList, setBoardsList] = useState([])
 
   const [blueprintConnections, setBlueprintConnections] = useState([])
-  const [configuredConnection, setConfiguredConnection] = useState()
+  // const [configuredConnection, setConfiguredConnection] = useState()
 
   const [activeConnectionTab, setActiveConnectionTab] = useState()
 
@@ -177,17 +177,23 @@ const CreateBlueprint = (props) => {
     projects,
     entities: dataEntities,
     transformations,
+    setConfiguredConnection,
+    setConfiguredBoard,
+    setConfiguredProject,
     setBoards,
     setProjects,
     setEntities: setDataEntities,
     setTransformations,
     setTransformationSettings,
+    configuredConnection,
+    configuredProject,
+    configuredBoard,
     createProviderScopes,
     createProviderConnections,
     getDefaultTransformations,
     getDefaultEntities,
     initializeTransformations
-  } = useDataScopesManager({ connection: configuredConnection, settings: blueprintSettings })
+  } = useDataScopesManager({ settings: blueprintSettings })
 
   const {
     pipelineName,
@@ -359,14 +365,14 @@ const CreateBlueprint = (props) => {
     password,
   })
 
-  const [configuredProject, setConfiguredProject] = useState(
-    // projects.length > 0 ? projects[0] : null
-    null
-  )
-  const [configuredBoard, setConfiguredBoard] = useState(
-    // boards.length > 0 ? boards[0] : null
-    null
-  )
+  // const [configuredProject, setConfiguredProject] = useState(
+  //   // projects.length > 0 ? projects[0] : null
+  //   null
+  // )
+  // const [configuredBoard, setConfiguredBoard] = useState(
+  //   // boards.length > 0 ? boards[0] : null
+  //   null
+  // )
 
   const activeTransformation = useMemo(() => transformations[configuredProject?.id || configuredBoard?.id], [transformations, configuredProject?.id, configuredBoard?.id])
 

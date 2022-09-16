@@ -73,7 +73,7 @@ const Deployment = (props) => {
 
   return (
     <>
-      <h5>CI/CD</h5>
+      <h5>CI/CD <Tag className='bp3-form-helper-text' minimal>RegExp</Tag></h5>
       <p>Define deployment using one of the followng options</p>
       <p style={{ color: '#292B3F' }}>
         <strong>What is a deployment?</strong>{' '}
@@ -121,6 +121,7 @@ const Deployment = (props) => {
                   disabled={isSaving}
                   className='input'
                   maxLength={255}
+                  required
                 />
               </FormGroup>
             </div>

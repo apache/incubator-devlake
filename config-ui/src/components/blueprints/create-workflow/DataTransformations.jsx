@@ -111,7 +111,7 @@ const DataTransformations = (props) => {
   const [activeEntity, setActiveEntity] = useState()
 
   const transformationHasProperties = useCallback((item) => {
-    const storedTransform = transformations[item] || transformations[item?.id]
+    const storedTransform = transformations[item?.id]
     return storedTransform && Object.values(storedTransform).some(v => v && v.length > 0)
   }, [transformations])
 
