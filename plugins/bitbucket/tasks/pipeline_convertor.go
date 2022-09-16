@@ -76,15 +76,17 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 					Id: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId),
 				},
 				Name: didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketPipeline{}).
-					Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId),
+					Generate(data.Options.ConnectionId, bitbucketPipeline.RefName),
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"FAILED"},
+					Failed:  []string{"FAILED", "ERROR"},
 					Abort:   []string{"STOPPED", "SKIPPED"},
-					Default: "SUCCESSFUL",
+					Success: []string{"SUCCESSFUL", "PASSED"},
+					Manual:  []string{"PAUSED", "HALTED"},
+					Default: devops.SUCCESS,
 				}, bitbucketPipeline.Result),
 				Status: devops.GetStatus(&devops.StatusRule{
 					InProgress: []string{"IN_PROGRESS"},
-					Default:    "COMPLETED",
+					Default:    devops.DONE,
 				}, bitbucketPipeline.Status),
 				Type:         "CI/CD",
 				CreatedDate:  createdAt,
