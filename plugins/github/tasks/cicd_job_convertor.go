@@ -18,9 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"reflect"
+	"regexp"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
