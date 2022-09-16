@@ -55,7 +55,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"connection_id",
 			"job_name",
 			"duration",
-			"display_name",
+			"full_display_name",
 			"estimated_duration",
 			"number",
 			"result",

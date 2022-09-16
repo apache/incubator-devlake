@@ -68,7 +68,7 @@ func ConvertStages(taskCtx core.SubTaskContext) errors.Error {
 			tjs.pause_duration_millis, tjs.type, 
 			tjb.triggered_by, tjb.building`),
 		dal.From("_tool_jenkins_builds tjb"),
-		dal.Join("left join _tool_jenkins_stages tjs on tjs.build_name = tjb.display_name"),
+		dal.Join("left join _tool_jenkins_stages tjs on tjs.build_name = tjb.full_display_name"),
 		dal.Where("tjb.connection_id = ? ", data.Options.ConnectionId),
 	}
 
