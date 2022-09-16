@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/github/models"
 

@@ -23,7 +23,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -31,6 +30,8 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper/common"
@@ -117,6 +118,10 @@ func (apiClient *ApiClient) Setup(
 	apiClient.client = &http.Client{Timeout: timeout}
 	apiClient.SetEndpoint(endpoint)
 	apiClient.SetHeaders(headers)
+}
+
+func (apiClient *ApiClient) GetHttpClient() *http.Client {
+	return apiClient.client
 }
 
 // SetEndpoint FIXME ...
