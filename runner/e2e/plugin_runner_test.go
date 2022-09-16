@@ -20,7 +20,6 @@ package e2e
 import (
 	"context"
 	"encoding/json"
-	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/migration"
@@ -28,15 +27,12 @@ import (
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/core"
-	gitlabhack "github.com/apache/incubator-devlake/plugins/gitlab/api"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/stretchr/testify/require"
 	"gorm.io/datatypes"
 	"sync"
 	"testing"
 )
-
-var once = &sync.Once{}
 
 func TestPluginRunner(t *testing.T) {
 	pluginHelper := newMockPluginHelper()
@@ -448,10 +444,6 @@ func runPlugin(t *testing.T, pluginName string, plugin *mocks.TestPlugin, task *
 	ctx := context.Background()
 	tester := e2ehelper.NewDataFlowTester(t, pluginName, plugin)
 	log := tester.Log.Nested("test")
-	once.Do(func() {
-		gitlabhack.Init(config.GetConfig(), tester.Log, tester.Db) // hack until this isn't needed anymore
-		runMigrations(t, ctx, tester)
-	})
 	err := errors.Convert(tester.Db.Save(task).Error)
 	require.NoError(t, err)
 	progressDetail := &models.TaskProgressDetail{}

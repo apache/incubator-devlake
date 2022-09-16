@@ -15,11 +15,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package model
+package models
 
 import "github.com/apache/incubator-devlake/plugins/core"
 
-// do not remove (used by mockery)
+// TestPlugin do not remove (used by mockery)
 // nolint: unused
 type TestPlugin interface {
 	core.PluginTask

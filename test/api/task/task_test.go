@@ -20,33 +20,20 @@ package task
 import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/test"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/apache/incubator-devlake/api"
-	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/models"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/services"
 	"github.com/gin-gonic/gin"
 	"github.com/magiconair/properties/assert"
 )
 
 func init() {
-	v := config.GetConfig()
-	encKey := v.GetString(core.EncodeKeyEnvStr)
-	if encKey == "" {
-		// Randomly generate a bunch of encryption keys and set them to config
-		encKey = core.RandomEncKey()
-		v.Set(core.EncodeKeyEnvStr, encKey)
-		err := config.WriteConfig(v)
-		if err != nil {
-			panic(err)
-		}
-	}
-	services.Init()
+	test.Setup()
 }
 
 func TestNewTask(t *testing.T) {

@@ -91,9 +91,10 @@ type TableOptions struct {
 
 // NewDataFlowTester create a *DataFlowTester to help developer test their subtasks data flow
 func NewDataFlowTester(t *testing.T, pluginName string, pluginMeta core.PluginMeta) *DataFlowTester {
-	err := core.RegisterPlugin(pluginName, pluginMeta)
-	if err != nil {
-		panic(err)
+	if pluginMeta != nil {
+		if err := core.RegisterPlugin(pluginName, pluginMeta); err != nil {
+			panic(err)
+		}
 	}
 	cfg := config.GetConfig()
 	e2eDbUrl := cfg.GetString(`E2E_DB_URL`)
@@ -468,4 +469,22 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 		panic(err)
 	}
 	assert.Equal(t.T, expectedTotal, actualTotal, fmt.Sprintf(`%s count not match`, dst.TableName()))
+}
+
+// DropAllTables drops all tables in the database
+func (t *DataFlowTester) DropAllTables() {
+	m := t.Db.Migrator()
+	tables, err := m.GetTables()
+	if err != nil {
+		panic(err)
+	}
+	var tablesRaw []interface{}
+	for _, table := range tables {
+		tablesRaw = append(tablesRaw, table)
+	}
+	err = m.DropTable(tablesRaw...)
+	if err != nil {
+		panic(err)
+	}
+	t.Log.Info(fmt.Sprintf("dropped all %d tables from DB", len(tablesRaw)))
 }

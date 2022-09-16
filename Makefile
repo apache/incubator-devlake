@@ -94,7 +94,7 @@ mock:
 	mockery --dir=./plugins/core --unroll-variadic=false --name='.*'
 	mockery --dir=./plugins/core/dal --unroll-variadic=false --name='.*'
 	mockery --dir=./plugins/helper --unroll-variadic=false --name='.*'
-	mockery --dir=./plugins/e2e/model --unroll-variadic=false --name='.*'
+	mockery --dir=./runner/e2e/models --unroll-variadic=false --name='.*'
 
 test: unit-test e2e-test
 
@@ -102,7 +102,7 @@ unit-test: mock build
 	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -timeout 60s -v $$m; done
 
 e2e-test: mock build
-	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -timeout 300s -v ./test/...
+	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -p 1 -timeout 300s -v ./test/... ./runner/e2e...
 
 e2e-plugins:
 	export ENV_PATH=$(shell readlink -f .env); set -e; for m in $$(go list ./plugins/... | egrep 'e2e'); do echo $$m; go test -timeout 300s -gcflags=all=-l -v $$m; done

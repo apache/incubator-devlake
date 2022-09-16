@@ -63,6 +63,7 @@ func init() {
 	}
 	stream, err := GetFileStream(basePath)
 	if err != nil {
+		basePath = ""
 		stream = os.Stdout
 	}
 	Global.SetStream(&core.LoggerStreamConfig{

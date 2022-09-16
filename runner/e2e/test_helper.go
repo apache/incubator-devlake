@@ -21,8 +21,13 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/test"
 	"github.com/stretchr/testify/mock"
 )
+
+func init() {
+	test.Setup()
+}
 
 // nolint:unused
 type mockPluginHelper struct {

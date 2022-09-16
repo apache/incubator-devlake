@@ -28,7 +28,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var m = migrator{}
+var m *migrator
 
 type scriptWithComment struct {
 	Script
@@ -43,6 +43,7 @@ type migrator struct {
 }
 
 func Init(db *gorm.DB) {
+	m = &migrator{}
 	m.db = db
 	var err error
 	m.executed, err = m.getExecuted()
