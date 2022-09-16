@@ -18,13 +18,26 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/migration"
+	"context"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
-// All return all the migration scripts
-func All() []migration.Script {
-	return []migration.Script{
-		new(addInitTables),
-		new(addPipeline20220914),
+type addPipeline20220914 struct{}
+
+func (*addPipeline20220914) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	err := db.Migrator().AutoMigrate(&archived.BitbucketPipeline{})
+	if err != nil {
+		return errors.Convert(err)
 	}
+	return nil
+}
+
+func (*addPipeline20220914) Version() uint64 {
+	return 20220914111223
+}
+
+func (*addPipeline20220914) Name() string {
+	return "bitbucket add _tool_bitbucket_pipelines table"
 }
