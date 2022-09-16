@@ -66,6 +66,7 @@ const DataTransformations = (props) => {
     configuredConnection,
     configuredProject,
     configuredBoard,
+    configurationKey,
     handleConnectionTabChange = () => {},
     prevStep = () => {},
     addBoardTransformation = () => {},
@@ -91,7 +92,8 @@ const DataTransformations = (props) => {
     cardStyle = {}
   } = props
 
-  const entityIdKey = useMemo(() => provider?.id === Providers.JENKINS ? `C#${configuredConnection?.id}` : (configuredProject?.id || configuredBoard?.id), [provider?.id, configuredConnection?.id, configuredProject?.id, configuredBoard?.id])
+  // lifted to dsm hook
+  // const entityIdKey = useMemo(() => provider?.id === Providers.JENKINS ? `C#${configuredConnection?.id}` : (configuredProject?.id || configuredBoard?.id), [provider?.id, configuredConnection?.id, configuredProject?.id, configuredBoard?.id])
 
   const boardsAndProjects = useMemo(() => [
     ...(Array.isArray(boards[configuredConnection?.id]) ? boards[configuredConnection?.id] : []),
@@ -134,9 +136,9 @@ const DataTransformations = (props) => {
     }
   }, [activeEntity, addBoardTransformation, addProjectTransformation, useDropdownSelector])
 
-  // useEffect(() => {
-  //   console.log('OVER HERE!!!', entityIdKey)
-  // }, [entityIdKey])
+  useEffect(() => {
+    console.log('>>> DATA TRANSFORMATIONS: DSM $configurationKey', configurationKey)
+  }, [configurationKey])
 
   return (
     <div className='workflow-step workflow-step-add-transformation' data-step={activeStep?.id}>
@@ -349,7 +351,7 @@ const DataTransformations = (props) => {
                           connection={configuredConnection}
                           configuredProject={configuredProject}
                           configuredBoard={configuredBoard}
-                          entityIdKey={entityIdKey}
+                          entityIdKey={configurationKey}
                           issueTypes={issueTypes}
                           fields={fields}
                           boards={boards}

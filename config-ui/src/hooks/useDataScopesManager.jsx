@@ -27,13 +27,14 @@ import JiraBoard from '@/models/JiraBoard'
 import GitHubProject from '@/models/GithubProject'
 import GitlabProject from '@/models/GitlabProject'
 import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+import { DataScopeModes } from '@/data/DataScopes'
 
-function useDataScopesManager ({ mode = 'create', provider, blueprint, /* connection, */ settings = {}, setSettings = () => {} }) {
+function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, blueprint, /* connection, */ settings = {}, setSettings = () => {} }) {
   const [connections, setConnections] = useState([])
 
   const [scopeConnection, setScopeConnection] = useState()
   const [configuredConnection, setConfiguredConnection] = useState()
-  const connection = useMemo(() => mode === 'edit' ? scopeConnection : configuredConnection, [scopeConnection, configuredConnection])
+  const connection = useMemo(() => mode === DataScopeModes.EDIT ? scopeConnection : configuredConnection, [scopeConnection, configuredConnection, mode])
   // const connection = useMemo(() => scopeConnection, [scopeConnection])
 
   // const [blueprint, setBlueprint] = useState(NullBlueprint)
@@ -45,6 +46,24 @@ function useDataScopesManager ({ mode = 'create', provider, blueprint, /* connec
 
   const [configuredProject, setConfiguredProject] = useState(null)
   const [configuredBoard, setConfiguredBoard] = useState(null)
+  const configurationKey = useMemo(() => {
+    let key = `C#${connection?.id}`
+    switch (connection?.providerId) {
+      case Providers.GITHUB:
+      case Providers.GITLAB:
+        key = configuredProject?.id
+        break
+      case Providers.JIRA:
+        key = configuredBoard?.id
+        break
+      case Providers.JENKINS:
+      case 'default':
+        key = `C#${connection?.id}`
+        break
+    }
+    console.log('>>> DSM: Active Configuration Key ===', key)
+    return key
+  }, [connection?.providerId, connection?.id, configuredProject?.id, configuredBoard?.id])
 
   const activeProject = useMemo(() => configuredProject, [configuredProject])
   const activeBoard = useMemo(() => configuredBoard, [configuredBoard])
@@ -61,7 +80,8 @@ function useDataScopesManager ({ mode = 'create', provider, blueprint, /* connec
 
   const activeProjectTransformation = useMemo(() => transformations[activeProject?.id], [transformations, activeProject?.id])
   const activeBoardTransformation = useMemo(() => transformations[activeBoard?.id], [transformations, activeBoard?.id])
-  const activeTransformation = useMemo(() => transformations[connection?.providerId === Providers.JIRA ? configuredBoard?.id : configuredProject?.id], [transformations, configuredProject?.id, configuredBoard?.id, connection?.providerId])
+  const activeTransformation = useMemo(() => transformations[configurationKey], [configurationKey, transformations])
+  // const activeTransformation = useMemo(() => transformations[connection?.providerId === Providers.JIRA ? configuredBoard?.id : configuredProject?.id], [transformations, configuredProject?.id, configuredBoard?.id, connection?.providerId])
 
   const getDefaultTransformations = useCallback((providerId) => {
     let transforms = {}
@@ -247,13 +267,13 @@ function useDataScopesManager ({ mode = 'create', provider, blueprint, /* connec
         configuredEntity,
         settings
       )
-      setTransformations((existingTransformations) => ({
+      setTransformations((existingTransformations) => configuredEntity ? ({
         ...existingTransformations,
         [configuredEntity]: new TransformationSettings({
           ...existingTransformations[configuredEntity],
           ...settings,
-        }),
-      }))
+        })
+      }) : existingTransformations)
     },
     [setTransformations]
   )
@@ -385,7 +405,8 @@ function useDataScopesManager ({ mode = 'create', provider, blueprint, /* connec
           : '-'
       ),
       scope: c.scope,
-      editable: ![Providers.JENKINS].includes(c.plugin),
+      // editable: ![Providers.JENKINS].includes(c.plugin),
+      editable: true,
       advancedEditable: false,
       isMultiStage: false,
       isSingleStage: true,
@@ -498,7 +519,7 @@ function useDataScopesManager ({ mode = 'create', provider, blueprint, /* connec
   }, [provider])
 
   useEffect(() => {
-    console.log('>>>>> DATA SCOPES MANAGER: BOARDS...', boards)
+    console.log('>>>>> DATA SCOPES MANAGER: INITIALIZE BOARDS...', boards)
     const boardTransformations = boards[connection?.id]
     if (Array.isArray(boardTransformations) && boardTransformations?.length > 0) {
       setTransformations((cT) => ({
@@ -510,7 +531,7 @@ function useDataScopesManager ({ mode = 'create', provider, blueprint, /* connec
   }, [boards, connection?.id, initializeTransformations])
 
   useEffect(() => {
-    console.log('>>>>> DATA SCOPES MANAGER: PROJECTS...', projects)
+    console.log('>>>>> DATA SCOPES MANAGER: INITIALIZE PROJECTS...', projects)
     const projectTransformations = projects[connection?.id]
     if (Array.isArray(projectTransformations)) {
       setTransformations((cT) => ({
@@ -555,6 +576,7 @@ function useDataScopesManager ({ mode = 'create', provider, blueprint, /* connec
     configuredConnection,
     configuredBoard,
     configuredProject,
+    configurationKey,
     storedProjectTransformation,
     storedBoardTransformation,
     activeBoardTransformation,

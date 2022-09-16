@@ -34,6 +34,7 @@
  * @property {plain|token?} authentication
  * @property {string|object?} plugin
  * @property {string|object?} provider
+ * @property {string?} providerId
  * @property {<Array<DataEntity>>} entities
  * @property {boolean} multiConnection
  * @property {number|string?} status
@@ -61,6 +62,7 @@ class Connection {
     this.plugin = data?.plugin || null
     // @todo: will be replaced out by $this.plugin
     this.provider = data?.provider || null
+    this.providerId = data?.providerId || null
     this.entities = data?.entities || []
     this.multiConnection = data?.multiConnection || true
     this.status = data?.status || null

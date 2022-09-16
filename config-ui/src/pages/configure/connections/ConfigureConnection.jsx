@@ -144,7 +144,7 @@ export default function ConfigureConnection () {
     } else {
       console.log('NO PARAMS!')
     }
-  }, [connectionId, providerId, integrationsData])
+  }, [connectionId, providerId])
 
   useEffect(() => {
 

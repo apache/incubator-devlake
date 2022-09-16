@@ -60,6 +60,7 @@ import CodeInspector from '@/components/pipelines/CodeInspector'
 
 // import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
 import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
+import { DataScopeModes } from '@/data/DataScopes'
 
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -168,6 +169,7 @@ const BlueprintSettings = (props) => {
     configuredConnection,
     configuredBoard,
     configuredProject,
+    configurationKey,
     enabledProviders,
     setConfiguredConnection,
     setConfiguredBoard,
@@ -188,7 +190,7 @@ const BlueprintSettings = (props) => {
     getJiraMappedBoards,
     getDefaultEntities
   } = useDataScopesManager({
-    mode: 'edit',
+    mode: DataScopeModes.EDIT,
     blueprint: activeBlueprint,
     provider: activeProvider,
     // connection: scopeConnection,
@@ -448,7 +450,8 @@ const BlueprintSettings = (props) => {
     // activeProvider,
     connectionsList,
     connections,
-    setScopeConnection
+    setScopeConnection,
+    setConfiguredConnection
   ])
 
   const validateActiveSetting = useCallback(() => {
@@ -1291,6 +1294,7 @@ const BlueprintSettings = (props) => {
         configuredConnection={configuredConnection}
         configuredProject={configuredProject}
         configuredBoard={configuredBoard}
+        configurationKey={configurationKey}
         scopeConnection={scopeConnection}
         activeTransformation={activeTransformation}
         addProjectTransformation={addProjectTransformation}

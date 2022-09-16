@@ -177,6 +177,7 @@ const CreateBlueprint = (props) => {
     projects,
     entities: dataEntities,
     transformations,
+    activeTransformation,
     setConfiguredConnection,
     setConfiguredBoard,
     setConfiguredProject,
@@ -188,6 +189,7 @@ const CreateBlueprint = (props) => {
     configuredConnection,
     configuredProject,
     configuredBoard,
+    configurationKey,
     createProviderScopes,
     createProviderConnections,
     getDefaultTransformations,
@@ -374,7 +376,7 @@ const CreateBlueprint = (props) => {
   //   null
   // )
 
-  const activeTransformation = useMemo(() => transformations[configuredProject?.id || configuredBoard?.id], [transformations, configuredProject?.id, configuredBoard?.id])
+  // const activeTransformation = useMemo(() => transformations[configuredProject?.id || configuredBoard?.id], [transformations, configuredProject?.id, configuredBoard?.id])
 
   // eslint-disable-next-line no-unused-vars
   const isValidStep = useCallback((stepId) => { }, [])
@@ -393,7 +395,7 @@ const CreateBlueprint = (props) => {
     )
     setConfiguredProject(null)
     setConfiguredBoard(null)
-  }, [blueprintSteps])
+  }, [blueprintSteps, setConfiguredBoard, setConfiguredProject])
 
   const testSelectedConnections = useCallback((connections, savedConnection = {}, callback = () => {}) => {
     const runTest = async () => {
@@ -438,7 +440,7 @@ const CreateBlueprint = (props) => {
       )
       setConfiguredConnection(selectedConnection)
     },
-    [blueprintConnections, setProvider]
+    [blueprintConnections, setProvider, setConfiguredConnection]
   )
 
   const handleConnectionDialogOpen = useCallback(() => {
@@ -491,7 +493,7 @@ const CreateBlueprint = (props) => {
     }))
     setConfiguredProject(null)
     setConfiguredBoard(null)
-  }, [setTransformations, configuredProject, configuredBoard])
+  }, [setTransformations, setConfiguredBoard, setConfiguredProject, configuredProject, configuredBoard])
 
   const handleBlueprintSave = useCallback(() => {
     console.log('>>> SAVING BLUEPRINT!!')
@@ -577,7 +579,7 @@ const CreateBlueprint = (props) => {
     setConfiguredBoard(null)
     ToastNotification.clear()
     ToastNotification.show({ message: 'Transformation Rules Added.', intent: Intent.SUCCESS, icon: 'small-tick' })
-  }, [])
+  }, [setConfiguredProject, setConfiguredBoard])
 
   const handleAdvancedMode = (enableAdvanced = true) => {
     setAdvancedMode(enableAdvanced)
@@ -746,6 +748,8 @@ const CreateBlueprint = (props) => {
     testSelectedConnections(blueprintConnections)
   }, [
     blueprintConnections,
+    getDefaultEntities,
+    setConfiguredConnection,
     setProvider,
     setBoards,
     setDataEntities,
@@ -781,7 +785,7 @@ const CreateBlueprint = (props) => {
           break
       }
     }
-  }, [configuredConnection, setActiveConnectionTab])
+  }, [configuredConnection, setActiveConnectionTab, setConfiguredBoard, setConfiguredProject])
 
   useEffect(() => {
     console.log('>> DATA ENTITIES', dataEntities)
@@ -1093,6 +1097,7 @@ const CreateBlueprint = (props) => {
                       configuredConnection={configuredConnection}
                       configuredProject={configuredProject}
                       configuredBoard={configuredBoard}
+                      configurationKey={configurationKey}
                       handleConnectionTabChange={handleConnectionTabChange}
                       prevStep={prevStep}
                       addBoardTransformation={addBoardTransformation}
