@@ -20,34 +20,14 @@ package migrationscripts
 import (
 	"context"
 	"github.com/apache/incubator-devlake/errors"
-	"time"
-
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts/archived"
 	"gorm.io/gorm"
 )
 
 type addPipeline20220914 struct{}
 
-type BitbucketPipeline20220914 struct {
-	ConnectionId      uint64 `gorm:"primaryKey"`
-	BitbucketId       string `gorm:"primaryKey"`
-	Status            string `gorm:"type:varchar(100)"`
-	Result            string `gorm:"type:varchar(100)"`
-	RefName           string `gorm:"type:varchar(255)"`
-	WebUrl            string `gorm:"type:varchar(255)"`
-	DurationInSeconds int
-
-	BitbucketCreatedOn  *time.Time
-	BitbucketCompleteOn *time.Time
-	archived.NoPKModel
-}
-
-func (BitbucketPipeline20220914) TableName() string {
-	return "_tool_bitbucket_pipelines"
-}
-
 func (*addPipeline20220914) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().CreateTable(&BitbucketPipeline20220914{})
+	err := db.Migrator().AutoMigrate(&archived.BitbucketPipeline{})
 	if err != nil {
 		return errors.Convert(err)
 	}

@@ -26,7 +26,7 @@ import (
 	"time"
 )
 
-type BitbucketApiCommit struct {
+type bitbucketApiCommit struct {
 	Type  string `json:"type"`
 	Hash  string `json:"hash"`
 	Links struct {
@@ -39,14 +39,14 @@ type BitbucketApiCommit struct {
 	} `json:"links"`
 }
 
-type BitbucketApiPipelineTarget struct {
+type bitbucketApiPipelineTarget struct {
 	Type     string `json:"type"`
 	RefType  string `json:"ref_type"`
 	RefName  string `json:"ref_name"`
 	Selector struct {
 		Type string
 	} `json:"selector"`
-	Commit *BitbucketApiCommit `json:"commit"`
+	Commit *bitbucketApiCommit `json:"commit"`
 }
 
 type BitbucketApiPipeline struct {
@@ -63,7 +63,7 @@ type BitbucketApiPipeline struct {
 	BuildNumber int                         `json:"build_number"`
 	Creator     *BitbucketAccountResponse   `json:"creator"`
 	Repo        *BitbucketApiRepo           `json:"repository"`
-	Target      *BitbucketApiPipelineTarget `json:"target"`
+	Target      *bitbucketApiPipelineTarget `json:"target"`
 	Trigger     struct {
 		Name string
 		Type string
