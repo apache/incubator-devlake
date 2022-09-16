@@ -19,8 +19,10 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
+	"regexp"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -44,10 +46,19 @@ type SimpleBranch struct {
 	HeadBranch string `json:"head_branch" gorm:"type:varchar(255)"`
 }
 
-func ConvertTasks(taskCtx core.SubTaskContext) errors.Error {
+func ConvertTasks(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
+
+	var deployTagRegexp *regexp.Regexp
+	deployTagPattern := data.Options.DeployTagPattern
+	if len(deployTagPattern) > 0 {
+		deployTagRegexp, err = errors.Convert01(regexp.Compile(deployTagPattern))
+		if err != nil {
+			return errors.Default.Wrap(err, "regexp compile deployTagPattern failed")
+		}
+	}
 
 	job := &githubModels.GithubJob{}
 	cursor, err := db.Cursor(
@@ -88,9 +99,12 @@ func ConvertTasks(taskCtx core.SubTaskContext) errors.Error {
 			domainjob := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s:%d:%d", "github", "GithubJob", data.Options.ConnectionId, line.ID)},
 				Name:         line.Name,
-				Type:         line.Type,
 				StartedDate:  *line.StartedAt,
 				FinishedDate: line.CompletedAt,
+			}
+
+			if deployFlag := deployTagRegexp.FindString(line.Name); deployFlag != "" {
+				domainjob.Type = devops.DEPLOYMENT
 			}
 			if len(tmp) > 0 {
 				domainjob.PipelineId = fmt.Sprintf("%s:%s:%d:%d", "github", "GithubRun", data.Options.ConnectionId, line.RunID)
