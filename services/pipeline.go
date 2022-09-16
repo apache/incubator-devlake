@@ -20,6 +20,11 @@ package services
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
@@ -29,10 +34,6 @@ import (
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/converter"
 	"golang.org/x/sync/semaphore"
-	"os"
-	"path/filepath"
-	"strings"
-	"time"
 )
 
 var notificationService *NotificationService
@@ -198,6 +199,8 @@ func watchTemporalPipelines() {
 			if err != nil {
 				panic(err)
 			}
+			// progressDetails will be only used in this goroutine now
+			// So it needn't lock and unlock now
 			progressDetails := make(map[uint64]*models.TaskProgressDetail)
 			// check their status against temporal
 			for _, rp := range runningDbPipelines {
