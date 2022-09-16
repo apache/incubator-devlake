@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -53,6 +52,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
+	buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(models.JenkinsBuild{}),
@@ -86,7 +86,6 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) errors.Error {
 				finishTime := jenkinsBuild.StartTime.Add(time.Duration(durationSec * int64(time.Second)))
 				jenkinsPipelineFinishedDate = &finishTime
 			}
-			buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
 			jenkinsPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: buildIdGen.Generate(jenkinsBuild.ConnectionId,
@@ -115,7 +114,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) errors.Error {
 			if !jenkinsBuild.HasStages {
 				jenkinsTask := &devops.CICDTask{
 					DomainEntity: domainlayer.DomainEntity{
-						Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsTask", jenkinsBuild.ConnectionId,
+						Id: buildIdGen.Generate(jenkinsBuild.ConnectionId,
 							jenkinsBuild.FullDisplayName),
 					},
 					Name:         jenkinsBuild.JobName,

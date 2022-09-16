@@ -43,7 +43,7 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 
 	// import tool table
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jenkins_builds.csv", models.JenkinsBuild{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jenkins_build_repos.csv", models.JenkinsBuildRepo{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jenkins_build_commits.csv", models.JenkinsBuildCommit{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/cicd_tasks.csv", devops.CICDTask{})
 
 	// verify extraction
