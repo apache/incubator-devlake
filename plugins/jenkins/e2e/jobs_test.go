@@ -20,8 +20,6 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/devops"
-
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/impl"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -60,23 +58,6 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 			"_raw_data_table",
 			"_raw_data_id",
 			"_raw_data_remark",
-		},
-	)
-
-	// verify conversion
-	dataflowTester.FlushTabler(&devops.Job{})
-	dataflowTester.Subtask(tasks.ConvertJobsMeta, taskData)
-	dataflowTester.VerifyTable(
-		devops.Job{},
-		"./snapshot_tables/jobs.csv",
-		[]string{
-			"name",
-			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-			"type",
 		},
 	)
 }
