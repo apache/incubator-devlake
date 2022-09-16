@@ -76,7 +76,6 @@ func (plugin Jenkins) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertBuildsToCICDMeta,
 		tasks.ConvertStagesMeta,
 		tasks.ConvertBuildReposMeta,
-		tasks.ConvertJobsMeta,
 	}
 }
 func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {

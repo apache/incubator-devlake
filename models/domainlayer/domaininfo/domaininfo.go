@@ -59,10 +59,8 @@ func GetDomainTablesInfo() []Tabler {
 		&crossdomain.User{},
 		&crossdomain.UserAccount{},
 		// devops
-		&devops.Build{},
 		&devops.CICDPipeline{},
 		&devops.CICDTask{},
-		&devops.Job{},
 		// didgen no table
 		// ticket
 		&ticket.Board{},
