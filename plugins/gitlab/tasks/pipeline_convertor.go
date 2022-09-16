@@ -50,6 +50,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 	defer cursor.Close()
 
 	pipelineIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabPipeline{})
+	projectIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(gitlabModels.GitlabPipeline{}),
@@ -74,7 +75,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
 				},
-				Name: didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{}).
+				Name: projectIdGen.
 					Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"failed"},
