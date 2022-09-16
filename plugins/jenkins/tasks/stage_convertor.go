@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"reflect"
 	"time"
 
@@ -77,7 +78,8 @@ func ConvertStages(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-
+	stageIdGen := didgen.NewDomainIdGenerator(&models.JenkinsStage{})
+	buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
 	convertor, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(JenkinsBuildWithRepoStage{}),
 		Input:        cursor,
@@ -108,14 +110,13 @@ func ConvertStages(taskCtx core.SubTaskContext) errors.Error {
 			startedDate := time.Unix(body.StartTimeMillis/1000, 0)
 			finishedDate := startedDate.Add(time.Duration(durationSec * int64(time.Second)))
 			jenkinsTaskFinishedDate = &finishedDate
-
 			jenkinsTask := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: fmt.Sprintf("%s:%s:%d:%s:%s", "jenkins", "JenkinsStage", body.ConnectionId,
+					Id: stageIdGen.Generate(body.ConnectionId,
 						body.BuildName, body.Name),
 				},
 				Name: body.Name,
-				PipelineId: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline", body.ConnectionId,
+				PipelineId: buildIdGen.Generate(body.ConnectionId,
 					body.BuildName),
 				Result:       jenkinsTaskResult,
 				Status:       jenkinsTaskStatus,

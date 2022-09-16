@@ -79,12 +79,23 @@ func (JenkinsBuil0916) TableName() string {
 	return "_tool_jenkins_builds"
 }
 
+type JenkinsBuildRepo0916 struct {
+}
+
+func (JenkinsBuildRepo0916) TableName() string {
+	return "_tool_jenkins_build_repos"
+}
+
 func (*modifyJenkinsBuild) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	cursor, err := db.Model(&JenkinsBuildOld{}).Rows()
 	if err != nil {
 		return errors.Convert(err)
 	}
 	err = db.Migrator().RenameTable(&JenkinsBuildOld{}, "_tool_jenkins_builds_old")
+	if err != nil {
+		return errors.Default.Wrap(err, "fail to rename _tool_jenkins_builds")
+	}
+	err = db.Migrator().RenameTable(&JenkinsBuildRepo0916{}, "_tool_jenkins_build_commits")
 	if err != nil {
 		return errors.Default.Wrap(err, "fail to rename _tool_jenkins_builds")
 	}

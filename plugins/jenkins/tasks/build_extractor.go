@@ -101,7 +101,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 					}
 					for _, url := range a.RemoteUrls {
 						if url != "" {
-							buildCommitRemoteUrl := models.JenkinsBuildRepo{
+							buildCommitRemoteUrl := models.JenkinsBuildCommit{
 								ConnectionId: data.Options.ConnectionId,
 								BuildName:    build.FullDisplayName,
 								CommitSha:    sha,

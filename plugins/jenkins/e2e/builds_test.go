@@ -44,7 +44,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.JenkinsBuild{})
-	dataflowTester.FlushTabler(&models.JenkinsBuildRepo{})
+	dataflowTester.FlushTabler(&models.JenkinsBuildCommit{})
 	dataflowTester.FlushTabler(&models.JenkinsStage{})
 
 	dataflowTester.Subtask(tasks.ExtractApiBuildsMeta, taskData)
@@ -61,8 +61,6 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"result",
 			"timestamp",
 			"start_time",
-			"commit_sha",
-
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -71,8 +69,8 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.VerifyTable(
-		models.JenkinsBuildRepo{},
-		"./snapshot_tables/_tool_jenkins_build_repos.csv",
+		models.JenkinsBuildCommit{},
+		"./snapshot_tables/_tool_jenkins_build_commits.csv",
 		[]string{
 			"connection_id",
 			"build_name",
