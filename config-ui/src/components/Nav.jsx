@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import {
   Alignment,
   Position,
@@ -26,11 +26,41 @@ import {
 import '@/styles/nav.scss'
 import { ReactComponent as SlackIcon } from '@/images/slack-mark-monochrome-black.svg'
 import { ReactComponent as SlackLogo } from '@/images/slack-rgb.svg'
+import UIContext from '../store/UIContext'
+import useWindowSize from '../hooks/useWIndowSize'
+
 
 const Nav = () => {
+  const uiContext = useContext(UIContext);
+  const [menuClass, setMenuClass] = useState("navbarMenuButton");
+  const size = useWindowSize();
+
+  const toggleSidebarOpen = (open) => {
+    uiContext.changeSidebarVisibility(open)
+    if (open){
+      setMenuClass("navbarMenuButtonSidebarOpened");
+      return;
+    }
+    setMenuClass("navbarMenuButton");
+  }
+
+  useEffect(() => {
+    if (size.width >= 850 ) {
+      if(uiContext.sidebarVisible != true){
+        toggleSidebarOpen(true);
+      }
+    }
+    else {
+      toggleSidebarOpen(false);
+    }
+  }, [size]);
+
   return (
     <Navbar className='navbar'>
-      <Navbar.Group align={Alignment.RIGHT}>
+      <Navbar.Group className={menuClass}>
+        <Icon icon={uiContext.sidebarVisible ? 'menu-closed' : 'menu-open'} onClick={toggleSidebarOpen.bind(null, !uiContext.sidebarVisible)} size={16} />
+      </Navbar.Group>
+      {!uiContext.sidebarVisible && <Navbar.Group className='navbarItems'>
         <a href='https://github.com/apache/incubator-devlake' rel='noreferrer' target='_blank' className='navIconLink'>
           <Icon icon='git-branch' size={16} />
         </a>
@@ -64,7 +94,7 @@ const Nav = () => {
             </div>
           </>
         </Popover>
-      </Navbar.Group>
+      </Navbar.Group>}
     </Navbar>
   )
 }
