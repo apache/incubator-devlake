@@ -121,11 +121,13 @@ const Deployment = (props) => {
                   className='input'
                   maxLength={255}
                   rightElement={
-                    enableDeployTag && (transformation?.deployTagPattern == '' || !transformation?.deployTagPattern)
-                    ? (<Tooltip intent={Intent.PRIMARY} content='Deployment Tag RegEx required'>
-                        <Icon icon='warning-sign' color={Colors.GRAY3} size={12} style={{ margin: '8px' }} />
-                      </Tooltip>)
-                    : null
+                    enableDeployTag && (transformation?.deployTagPattern === '' || !transformation?.deployTagPattern)
+                      ? (
+                        <Tooltip intent={Intent.PRIMARY} content='Deployment Tag RegEx required'>
+                          <Icon icon='warning-sign' color={Colors.GRAY3} size={12} style={{ margin: '8px' }} />
+                        </Tooltip>
+                        )
+                      : null
                   }
                   required
                 />
