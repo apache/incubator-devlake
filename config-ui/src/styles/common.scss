@@ -19,6 +19,11 @@
   padding-top: 50px;
   min-height: 100vh;
   overflow: hidden;
+
+  @media only screen and (max-width: 850px) {
+    justify-content: flex-start;
+    padding: 50px 30px;
+  }
 }
 
 .main {
@@ -31,6 +36,11 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+
+  @media only screen and (max-width: 850px) {
+    margin-left: 0;
+    padding: 0rem;
+  }
 }
 
 .description {
