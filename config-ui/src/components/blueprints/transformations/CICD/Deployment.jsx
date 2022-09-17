@@ -59,9 +59,7 @@ const Deployment = (props) => {
 
   useEffect(() => {
     console.log('CI/CD Deployment Transform:', entityIdKey, deployTag)
-    if (entityIdKey && enableDeployTag === 1) {
-      onSettingsChange({ deployTagPattern: deployTag }, entityIdKey)
-    } else if (entityIdKey && enableDeployTag === 0) {
+    if (entityIdKey && enableDeployTag === 0) {
       onSettingsChange({ deployTagPattern: '' }, entityIdKey)
     }
   }, [
@@ -117,7 +115,7 @@ const Deployment = (props) => {
                   id='github-pr-type'
                   placeholder='/deploy/'
                   value={transformation?.deployTagPattern}
-                  onChange={(e) => setDeployTag(e.target.value)}
+                  onChange={(e) => onSettingsChange({ deployTagPattern: e.target.value }, entityIdKey)}
                   disabled={isSaving}
                   className='input'
                   maxLength={255}
