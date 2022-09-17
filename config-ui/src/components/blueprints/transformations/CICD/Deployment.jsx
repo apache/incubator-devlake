@@ -25,6 +25,7 @@ import {
   Tag,
   Icon,
   Colors,
+  Tooltip
 } from '@blueprintjs/core'
 import { Providers, ProviderLabels } from '@/data/Providers'
 const Deployment = (props) => {
@@ -119,6 +120,13 @@ const Deployment = (props) => {
                   disabled={isSaving}
                   className='input'
                   maxLength={255}
+                  rightElement={
+                    enableDeployTag && (transformation?.deployTagPattern == '' || !transformation?.deployTagPattern)
+                    ? (<Tooltip intent={Intent.PRIMARY} content='Deployment Tag RegEx required'>
+                        <Icon icon='warning-sign' color={Colors.GRAY3} size={12} style={{ margin: '8px' }} />
+                      </Tooltip>)
+                    : null
+                  }
                   required
                 />
               </FormGroup>
