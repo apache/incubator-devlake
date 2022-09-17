@@ -208,7 +208,7 @@ const DataTransformations = (props) => {
                   </h3>
                   <Divider className='section-divider' />
 
-                  {useDropdownSelector && entityList && [Providers.JIRA, Providers.GITHUB].includes(configuredConnection.provider) && (
+                  {useDropdownSelector && entityList && [Providers.JIRA, Providers.GITHUB, Providers.GITLAB].includes(configuredConnection.provider) && (
                     <div className='project-or-board-select' style={{ marginBottom: '20px' }}>
                       <h4>{configuredConnection.provider === Providers.JIRA ? 'Board' : 'Project'}</h4>
                       <Select
@@ -311,7 +311,7 @@ const DataTransformations = (props) => {
                     </>
                   )}
 
-                  {(configuredProject || configuredBoard || (configuredConnection.provider === Providers.JENKINS && configuredConnection)) && (
+                  {(configuredProject || configuredBoard || (configuredConnection?.provider === Providers.JENKINS && configuredConnection)) && (
                     <div>
                       {!useDropdownSelector && (configuredProject || configuredBoard) && (
                         <>
@@ -409,7 +409,7 @@ const DataTransformations = (props) => {
                 </>
               )}
 
-              {/* {[Providers.JENKINS].includes(configuredConnection.provider) && (
+              {[Providers.GITLAB].includes(configuredConnection.provider) && dataEntities[configuredConnection.id].every(e => e.value !== DataEntityTypes.DEVOPS) && (
                 <>
                   <div className='bp3-non-ideal-state'>
                     <div className='bp3-non-ideal-state-visual'>
@@ -423,7 +423,7 @@ const DataTransformations = (props) => {
                     </div>
                   </div>
                 </>
-              )} */}
+              )}
             </Card>
           </div>
         </div>
