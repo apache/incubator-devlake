@@ -191,7 +191,7 @@ func PostPipelineFinish(input *core.ApiResourceInput) (*core.ApiResourceOutput, 
 }
 
 // getTypeAndResultFromTasks will extract pipeline type and result from tasks
-// type = tasks' type if all tasks have the same type, or ``
+// type = tasks' type if all tasks have the same type, or empty string
 // result = ABORT if any tasks' type is ABORT,
 // or result = FAILURE if any tasks' type is ABORT and others are SUCCESS
 // or result = SUCCESS if all tasks' type is SUCCESS
