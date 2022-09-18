@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/zentao/models/archived"
+	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
 var _ core.SubTaskEntryPoint = ExtractProjects
@@ -43,7 +43,7 @@ func ExtractProjects(taskCtx core.SubTaskContext) error {
 			Table:  RAW_PROJECT_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, error) {
-			project := &archived.ZentaoProject{}
+			project := &models.ZentaoProject{}
 			err := json.Unmarshal(row.Data, project)
 			if err != nil {
 				return nil, err
