@@ -334,7 +334,9 @@ function useConnectionManager (
             ),
           ])
           const builtConnections = aC
-            .map((providerResponse) => [].concat(providerResponse.data || []).map(c => new Connection({
+            .map((providerResponse) => []
+              .concat(Array.isArray(providerResponse.data) ? providerResponse.data : [])
+              .map(c => new Connection({
               ...c,
               connectionId: c.id,
               plugin: providerResponse.config?.url?.split('/')[3],
