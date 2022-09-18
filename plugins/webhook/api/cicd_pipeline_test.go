@@ -24,48 +24,44 @@ import (
 )
 
 func TestGetTypeAndResultFromTasks(t *testing.T) {
-	ciDomainTask := devops.CICDTask{Type: `CI`}
-	cdDomainTask := devops.CICDTask{Type: `CD`}
-	cicdDomainTask := devops.CICDTask{Type: `CI/CD`}
+	testDomainTask := devops.CICDTask{Type: devops.TEST}
+	buildDomainTask := devops.CICDTask{Type: devops.BUILD}
+	deploymentDomainTask := devops.CICDTask{Type: devops.DEPLOYMENT}
 
 	abortDomainTask := devops.CICDTask{Result: `ABORT`}
 	failureDomainTask := devops.CICDTask{Result: `FAILURE`}
 	successDomainTask := devops.CICDTask{Result: `SUCCESS`}
 
-	hasCi, hasCd, _ := getTypeAndResultFromTasks([]devops.CICDTask{ciDomainTask})
-	assert.True(t, hasCi)
-	assert.False(t, hasCd)
+	pipelineType, _ := getTypeAndResultFromTasks([]devops.CICDTask{testDomainTask})
+	assert.Equal(t, devops.TEST, pipelineType)
 
-	hasCi, hasCd, _ = getTypeAndResultFromTasks([]devops.CICDTask{cdDomainTask, cdDomainTask, cdDomainTask})
-	assert.False(t, hasCi)
-	assert.True(t, hasCd)
+	pipelineType, _ = getTypeAndResultFromTasks([]devops.CICDTask{buildDomainTask})
+	assert.Equal(t, devops.BUILD, pipelineType)
 
-	hasCi, hasCd, _ = getTypeAndResultFromTasks([]devops.CICDTask{ciDomainTask, cicdDomainTask, cdDomainTask})
-	assert.True(t, hasCi)
-	assert.True(t, hasCd)
+	pipelineType, _ = getTypeAndResultFromTasks([]devops.CICDTask{deploymentDomainTask, deploymentDomainTask, deploymentDomainTask})
+	assert.Equal(t, devops.DEPLOYMENT, pipelineType)
 
-	hasCi, hasCd, _ = getTypeAndResultFromTasks([]devops.CICDTask{ciDomainTask, cdDomainTask, cdDomainTask})
-	assert.True(t, hasCi)
-	assert.True(t, hasCd)
+	pipelineType, _ = getTypeAndResultFromTasks([]devops.CICDTask{buildDomainTask, deploymentDomainTask, buildDomainTask})
+	assert.Equal(t, ``, pipelineType)
 
-	_, _, result := getTypeAndResultFromTasks([]devops.CICDTask{abortDomainTask, failureDomainTask, successDomainTask})
+	_, result := getTypeAndResultFromTasks([]devops.CICDTask{abortDomainTask, failureDomainTask, successDomainTask})
 	assert.Equal(t, `ABORT`, result)
 
-	_, _, result = getTypeAndResultFromTasks([]devops.CICDTask{failureDomainTask, successDomainTask})
+	_, result = getTypeAndResultFromTasks([]devops.CICDTask{failureDomainTask, successDomainTask})
 	assert.Equal(t, `FAILURE`, result)
 
-	_, _, result = getTypeAndResultFromTasks([]devops.CICDTask{successDomainTask})
+	_, result = getTypeAndResultFromTasks([]devops.CICDTask{successDomainTask})
 	assert.Equal(t, `SUCCESS`, result)
 
-	_, _, result = getTypeAndResultFromTasks([]devops.CICDTask{successDomainTask, successDomainTask})
+	_, result = getTypeAndResultFromTasks([]devops.CICDTask{successDomainTask, successDomainTask})
 	assert.Equal(t, `SUCCESS`, result)
 
-	_, _, result = getTypeAndResultFromTasks([]devops.CICDTask{successDomainTask, successDomainTask, failureDomainTask})
+	_, result = getTypeAndResultFromTasks([]devops.CICDTask{successDomainTask, successDomainTask, failureDomainTask})
 	assert.Equal(t, `FAILURE`, result)
 
-	_, _, result = getTypeAndResultFromTasks([]devops.CICDTask{successDomainTask, successDomainTask, abortDomainTask})
+	_, result = getTypeAndResultFromTasks([]devops.CICDTask{successDomainTask, successDomainTask, abortDomainTask})
 	assert.Equal(t, `ABORT`, result)
 
-	_, _, result = getTypeAndResultFromTasks([]devops.CICDTask{failureDomainTask, failureDomainTask, abortDomainTask})
+	_, result = getTypeAndResultFromTasks([]devops.CICDTask{failureDomainTask, failureDomainTask, abortDomainTask})
 	assert.Equal(t, `ABORT`, result)
 }

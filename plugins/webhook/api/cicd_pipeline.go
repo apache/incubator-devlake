@@ -39,7 +39,8 @@ type WebhookTaskRequest struct {
 	Name         string     `validate:"required"` // Name should be unique in one pipeline
 	Result       string     `validate:"oneof=SUCCESS FAILURE ABORT IN_PROGRESS"`
 	Status       string     `validate:"oneof=IN_PROGRESS DONE"`
-	Type         string     `validate:"oneof=CI CD CI/CD"`
+	Type         string     `validate:"oneof=TEST LINT BUILD DEPLOYMENT"`
+	Environment  string     `validate:"oneof=PRODUCTION STAGING TESTING"`
 	StartedDate  time.Time  `mapstructure:"created_date" validate:"required"`
 	FinishedDate *time.Time `mapstructure:"finished_date"`
 
@@ -51,8 +52,8 @@ type WebhookTaskRequest struct {
 // PostCicdTask
 // @Summary create pipeline by webhook
 // @Description Create pipeline by webhook.<br/>
-// @Description example1: {"pipeline_name":"A123","name":"unit-test","result":"IN_PROGRESS","status":"IN_PROGRESS","type":"CI","created_date":"2020-01-01T12:00:00+00:00","finished_date":"2020-01-01T12:59:59+00:00","repo_id":"devlake","branch":"main","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d"}<br/>
-// @Description example2: {"pipeline_name":"A123","name":"unit-test","result":"SUCCESS","status":"DONE","type":"CI/CD","created_date":"2020-01-01T12:00:00+00:00","finished_date":"2020-01-01T12:59:59+00:00","repo_id":"devlake","branch":"main","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d"}<br/>
+// @Description example1: {"pipeline_name":"A123","name":"unit-test","result":"IN_PROGRESS","status":"IN_PROGRESS","type":"TEST","environment":"PRODUCTION","created_date":"2020-01-01T12:00:00+00:00","finished_date":"2020-01-01T12:59:59+00:00","repo_id":"devlake","branch":"main","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d"}<br/>
+// @Description example2: {"pipeline_name":"A123","name":"unit-test","result":"SUCCESS","status":"DONE","type":"DEPLOYMENT","environment":"PRODUCTION","created_date":"2020-01-01T12:00:00+00:00","finished_date":"2020-01-01T12:59:59+00:00","repo_id":"devlake","branch":"main","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d"}<br/>
 // @Description When request webhook first time for each pipeline, it will be created.
 // @Description So we suggest request before task start and after pipeline finish.
 // @Description Remember fill all data to request after pipeline finish.
@@ -77,9 +78,9 @@ func PostCicdTask(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	}
 	// validate
 	vld = validator.New()
-	err = errors.BadInput.Wrap(vld.Struct(request), `input json error`)
+	err = errors.Convert(vld.Struct(request))
 	if err != nil {
-		return &core.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
+		return nil, errors.BadInput.Wrap(vld.Struct(request), `input json error`)
 	}
 
 	db := basicRes.GetDal()
@@ -93,6 +94,7 @@ func PostCicdTask(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 		Result:       request.Result,
 		Status:       request.Status,
 		Type:         request.Type,
+		Environment:  request.Environment,
 		StartedDate:  request.StartedDate,
 		FinishedDate: request.FinishedDate,
 	}
@@ -171,14 +173,8 @@ func PostPipelineFinish(input *core.ApiResourceInput) (*core.ApiResourceOutput, 
 	if err != nil {
 		return nil, errors.NotFound.Wrap(err, `tasks not found`)
 	}
-	typeHasCi, typeHasCd, result := getTypeAndResultFromTasks(domainTasks)
-	if typeHasCi && typeHasCd {
-		domainPipeline.Type = `CI/CD`
-	} else if typeHasCi {
-		domainPipeline.Type = `CI`
-	} else if typeHasCd {
-		domainPipeline.Type = `CD`
-	}
+	pipelineType, result := getTypeAndResultFromTasks(domainTasks)
+	domainPipeline.Type = pipelineType
 	domainPipeline.Result = result
 	domainPipeline.Status = ticket.DONE
 	now := time.Now()
@@ -194,18 +190,19 @@ func PostPipelineFinish(input *core.ApiResourceInput) (*core.ApiResourceOutput, 
 	return &core.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
 
-func getTypeAndResultFromTasks(domainTasks []devops.CICDTask) (typeHasCi bool, typeHasCd bool, result string) {
-	typeHasCi = false
-	typeHasCd = false
+// getTypeAndResultFromTasks will extract pipeline type and result from tasks
+// type = tasks' type if all tasks have the same type, or ``
+// result = ABORT if any tasks' type is ABORT,
+// or result = FAILURE if any tasks' type is ABORT and others are SUCCESS
+// or result = SUCCESS if all tasks' type is SUCCESS
+func getTypeAndResultFromTasks(domainTasks []devops.CICDTask) (pipelineType, result string) {
 	result = `SUCCESS`
+	if len(domainTasks) > 0 {
+		pipelineType = domainTasks[0].Type
+	}
 	for _, domainTask := range domainTasks {
-		if domainTask.Type == `CI/CD` {
-			typeHasCi = true
-			typeHasCd = true
-		} else if domainTask.Type == `CI` {
-			typeHasCi = true
-		} else if domainTask.Type == `CD` {
-			typeHasCd = true
+		if domainTask.Type != pipelineType {
+			pipelineType = ``
 		}
 		if domainTask.Result == `ABORT` {
 			result = `ABORT`
