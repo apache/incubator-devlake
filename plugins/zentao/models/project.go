@@ -15,15 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package models
 
 import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/models/common"
 	"time"
 )
 
 type ZentaoProject struct {
-	archived.NoPKModel
+	common.NoPKModel
 	ConnectionId  uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	ID            int    `json:"id"`
 	Project       int    `json:"project"`
@@ -59,11 +59,11 @@ type ZentaoProject struct {
 	OpenedDate     time.Time  `json:"openedDate"`
 	OpenedVersion  string     `json:"openedVersion"`
 	LastEditedBy   string     `json:"lastEditedBy"`
-	LastEditedDate *time.Time `json:"lastEditedDate"`
+	LastEditedDate *time.Time `json:"lastEditedDate,string"`
 	ClosedBy       string     `json:"closedBy"`
-	ClosedDate     *time.Time `json:"closedDate"`
+	ClosedDate     *time.Time `json:"closedDate,string"`
 	CanceledBy     string     `json:"canceledBy"`
-	CanceledDate   *time.Time `json:"canceledDate"`
+	CanceledDate   *time.Time `json:"canceledDate,string"`
 	SuspendedDate  string     `json:"suspendedDate"`
 	PO             string     `json:"PO"`
 	PM             `json:"PM"`
