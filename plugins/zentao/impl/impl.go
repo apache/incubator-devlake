@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
-    "github.com/apache/incubator-devlake/plugins/zentao/api"
-    "github.com/apache/incubator-devlake/plugins/zentao/models"
-    "github.com/apache/incubator-devlake/plugins/zentao/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/zentao/api"
+	"github.com/apache/incubator-devlake/plugins/zentao/models"
+	"github.com/apache/incubator-devlake/plugins/zentao/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -37,8 +37,6 @@ var _ core.PluginTask = (*Zentao)(nil)
 var _ core.PluginApi = (*Zentao)(nil)
 var _ core.PluginBlueprintV100 = (*Zentao)(nil)
 var _ core.CloseablePluginTask = (*Zentao)(nil)
-
-
 
 type Zentao struct{}
 
@@ -55,33 +53,34 @@ func (plugin Zentao) SubTaskMetas() []core.SubTaskMeta {
 	// TODO add your sub task here
 	return []core.SubTaskMeta{
 		tasks.CollectProjectMeta,
+		tasks.ExtractProjectsMeta,
 	}
 }
 
 func (plugin Zentao) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
-    if err != nil {
-        return nil, err
-    }
-    connectionHelper := helper.NewConnectionHelper(
-        taskCtx,
-        nil,
-    )
-    connection := &models.ZentaoConnection{}
-    err = connectionHelper.FirstById(connection, op.ConnectionId)
-    if err != nil {
-        return nil, fmt.Errorf("unable to get Zentao connection by the given connection ID: %v", err)
-    }
+	if err != nil {
+		return nil, err
+	}
+	connectionHelper := helper.NewConnectionHelper(
+		taskCtx,
+		nil,
+	)
+	connection := &models.ZentaoConnection{}
+	err = connectionHelper.FirstById(connection, op.ConnectionId)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get Zentao connection by the given connection ID: %v", err)
+	}
 
-    apiClient, err := tasks.NewZentaoApiClient(taskCtx, connection)
-    if err != nil {
-        return nil, fmt.Errorf("unable to get Zentao API client instance: %v", err)
-    }
+	apiClient, err := tasks.NewZentaoApiClient(taskCtx, connection)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get Zentao API client instance: %v", err)
+	}
 
-    return &tasks.ZentaoTaskData{
-        Options:   op,
-        ApiClient: apiClient,
-    }, nil
+	return &tasks.ZentaoTaskData{
+		Options:   op,
+		ApiClient: apiClient,
+	}, nil
 }
 
 // PkgPath information lost when compiled as plugin(.so)
@@ -94,20 +93,20 @@ func (plugin Zentao) MigrationScripts() []migration.Script {
 }
 
 func (plugin Zentao) ApiResources() map[string]map[string]core.ApiResourceHandler {
-    return map[string]map[string]core.ApiResourceHandler{
-        "test": {
-            "POST": api.TestConnection,
-        },
-        "connections": {
-            "POST": api.PostConnections,
-            "GET":  api.ListConnections,
-        },
-        "connections/:connectionId": {
-            "GET":    api.GetConnection,
-            "PATCH":  api.PatchConnection,
-            "DELETE": api.DeleteConnection,
-        },
-    }
+	return map[string]map[string]core.ApiResourceHandler{
+		"test": {
+			"POST": api.TestConnection,
+		},
+		"connections": {
+			"POST": api.PostConnections,
+			"GET":  api.ListConnections,
+		},
+		"connections/:connectionId": {
+			"GET":    api.GetConnection,
+			"PATCH":  api.PatchConnection,
+			"DELETE": api.DeleteConnection,
+		},
+	}
 }
 
 func (plugin Zentao) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
