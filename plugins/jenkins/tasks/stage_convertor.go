@@ -18,11 +18,13 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"regexp"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"reflect"
-	"time"
 
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -59,9 +61,18 @@ var ConvertStagesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ConvertStages(taskCtx core.SubTaskContext) errors.Error {
+func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
+	var deployTagRegexp *regexp.Regexp
+	deployTagPattern := data.Options.DeployTagPattern
+	if len(deployTagPattern) > 0 {
+		deployTagRegexp, err = errors.Convert01(regexp.Compile(deployTagPattern))
+		if err != nil {
+			return errors.Default.Wrap(err, "regexp compile deployTagPattern failed")
+		}
+	}
+
 	clauses := []dal.Clause{
 		dal.Select(`tjb.connection_id, tjs.build_name, tjs.name, tjs._raw_data_remark, 
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
@@ -123,6 +134,11 @@ func ConvertStages(taskCtx core.SubTaskContext) errors.Error {
 				DurationSec:  uint64(body.DurationMillis / 1000),
 				StartedDate:  time.Unix(durationSec, 0),
 				FinishedDate: jenkinsTaskFinishedDate,
+			}
+			if deployTagRegexp != nil {
+				if deployFlag := deployTagRegexp.FindString(body.Name); deployFlag != "" {
+					jenkinsTask.Type = devops.DEPLOYMENT
+				}
 			}
 			jenkinsTask.RawDataOrigin = body.RawDataOrigin
 
