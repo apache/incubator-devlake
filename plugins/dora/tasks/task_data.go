@@ -27,8 +27,8 @@ type DoraApiParams struct {
 
 type TransformationRules struct {
 	ProductionPattern string `mapstructure:"productionPattern" json:"productionPattern"`
-	TestingPattern    string `mapstructure:"testingPattern" json:"testingPattern"`
 	StagingPattern    string `mapstructure:"stagingPattern" json:"stagingPattern"`
+	TestingPattern    string `mapstructure:"testingPattern" json:"testingPattern"`
 }
 
 type DoraOptions struct {
@@ -52,10 +52,10 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions,
 		op.ProductionPattern = "(?i)deploy"
 	}
 	if op.StagingPattern == "" {
-		op.ProductionPattern = "(?i)stag"
+		op.StagingPattern = "(?i)stag"
 	}
 	if op.TestingPattern == "" {
-		op.ProductionPattern = "(?i)test"
+		op.TestingPattern = "(?i)test"
 	}
 	return &op, nil
 }

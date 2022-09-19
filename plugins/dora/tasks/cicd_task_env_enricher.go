@@ -41,7 +41,6 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	data := taskCtx.GetData().(*DoraTaskData)
 	repoId := data.Options.RepoId
 
-	var EnvironmentVar = devops.PRODUCTION
 	productionNamePattern := data.Options.ProductionPattern
 	stagingNamePattern := data.Options.StagingPattern
 	testingNamePattern := data.Options.TestingPattern
@@ -81,7 +80,8 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			cicdTask := inputRow.(*devops.CICDTask)
 			results := make([]interface{}, 0, 1)
-
+			// var EnvironmentVar = devops.PRODUCTION
+			var EnvironmentVar string
 			if productEnv := productionNameRegexp.FindString(cicdTask.Name); productEnv != "" {
 				EnvironmentVar = devops.PRODUCTION
 			}
