@@ -31,6 +31,7 @@ import { DataScopeModes } from '@/data/DataScopes'
 
 function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, blueprint, /* connection, */ settings = {}, setSettings = () => {} }) {
   const [connections, setConnections] = useState([])
+  const [newConnections, setNewConnections] = useState([])
 
   const [scopeConnection, setScopeConnection] = useState()
   const [configuredConnection, setConfiguredConnection] = useState()
@@ -141,7 +142,7 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
   const initializeTransformations = useCallback((pV, cV, iDx) => ({
     ...pV,
     [cV]: new TransformationSettings(getDefaultTransformations(connection?.providerId, iDx)),
-  }), [connection, getDefaultTransformations])
+  }), [connection?.providerId, getDefaultTransformations])
 
   // @todo: generate scopes dynamically from $integrationsData (in future Integrations Hook [plugin registry])
   const createProviderScopes = useCallback(
@@ -192,7 +193,7 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
             ...newScope,
             // options: {
             // },
-            // NOTE: Jenkins has no concept of projects/boards. Transformations Key'ed by Conn ID!
+            // NOTE: Jenkins has no concept of projects/boards. Transformations Key'ed by Conn *INDEX* ID!
             transformation: { ...transformations[`C#${connection?.id}`] },
           }
           break
@@ -521,6 +522,21 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
   }, [provider])
 
   useEffect(() => {
+    console.log('>>>>> DATA SCOPES MANAGER: INITIALIZE NEW CONNECTION TRANSFORMATIONS...', newConnections)
+    // @note: jenkins has no "project/board" entity associated!
+    // transformations are based on the main connection scope...
+    const jenkinsTransformations = newConnections.filter(c => c.plugin === Providers.JENKINS).map(c => `C#${c?.id}`)
+    console.log('>>>>> DATA SCOPES MANAGER: JENKINS TRANSFORMATIONS SCOPES...', jenkinsTransformations)
+    if (Array.isArray(jenkinsTransformations)) {
+      setTransformations((cT) => ({
+        ...jenkinsTransformations.reduce(initializeTransformations, {}),
+        // Spread Current/Existing Transformations Settings
+        ...cT,
+      }))
+    }
+  }, [newConnections])
+
+  useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: INITIALIZE BOARDS...', boards)
     const boardTransformations = boards[connection?.id]
     if (Array.isArray(boardTransformations) && boardTransformations?.length > 0) {
@@ -549,6 +565,10 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
   }, [entities])
 
   useEffect(() => {
+    console.log('>>>>> DATA SCOPES MANAGER: DATA ENTITIES...', entities)
+  }, [entities])
+
+  useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: TRANSFORMATIONS...', transformations)
   }, [transformations])
 
@@ -568,8 +588,13 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
     console.log('>>>>> DATA SCOPES MANAGER: ACTIVE BOARD TRANSFORMATION RULES...', activeBoardTransformation)
   }, [activeBoardTransformation])
 
+  useEffect(() => {
+    console.log('>>>>> DATA SCOPES MANAGER: MEMOIZED ACTIVE CONNECTION...', connection)
+  }, [connection])
+
   return {
     connections,
+    newConnections,
     // blueprint,
     boards,
     projects,
@@ -587,6 +612,7 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
     scopeConnection,
     enabledProviders,
     // setActiveTransformation,
+    setNewConnections,
     setConnections,
     setScopeConnection,
     setConfiguredConnection,

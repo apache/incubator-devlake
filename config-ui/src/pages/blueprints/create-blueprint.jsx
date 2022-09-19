@@ -111,7 +111,8 @@ const CreateBlueprint = (props) => {
   ])
   const [boardsList, setBoardsList] = useState([])
 
-  const [blueprintConnections, setBlueprintConnections] = useState([])
+  // @note: lifted to dsm hook
+  // const [blueprintConnections, setBlueprintConnections] = useState([])
   // const [configuredConnection, setConfiguredConnection] = useState()
 
   const [activeConnectionTab, setActiveConnectionTab] = useState()
@@ -173,11 +174,13 @@ const CreateBlueprint = (props) => {
   } = useBlueprintManager()
 
   const {
+    newConnections: blueprintConnections,
     boards,
     projects,
     entities: dataEntities,
     transformations,
     activeTransformation,
+    setNewConnections: setBlueprintConnections,
     setConfiguredConnection,
     setConfiguredBoard,
     setConfiguredProject,

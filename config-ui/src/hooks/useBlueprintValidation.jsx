@@ -151,7 +151,7 @@ function useBlueprintValidation ({
           }
           if (activeProvider?.id === Providers.GITHUB && !validateRepositoryName(projects[activeConnection?.id])) {
             errs.push('Projects: Only Git Repository Names are supported (username/repo).')
-          }          
+          }
           if (activeProvider?.id === Providers.GITHUB && !validateUniqueObjectSet(projects[activeConnection?.id])) {
             errs.push('Projects: Duplicate project detected.')
           }

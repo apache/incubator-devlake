@@ -44,6 +44,7 @@ const Deployment = (props) => {
   const [deployTag, setDeployTag] = useState(transformation?.deployTagPattern || '')
   const [enableDeployTag, setEnableDeployTag] = useState(transformation?.deployTagPattern !== '' ? 1 : 0)
 
+  // @todo: check w/ product team about using standard message and avoid customized hints
   const getDeployTagHint = (providerId) => {
     let tagHint = ''
     switch (providerId) {
