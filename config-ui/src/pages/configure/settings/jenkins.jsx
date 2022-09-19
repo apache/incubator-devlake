@@ -56,8 +56,6 @@ export default function JenkinsSettings (props) {
 
   // eslint-disable-next-line max-len
   const [errors, setErrors] = useState([])
-  // const [deployTag, setDeployTag] = useState('')
-  // const [enableDeployTag, setEnableDeployTag] = useState(0)
 
   const cancel = () => {
     history.push(`/integrations/${provider.id}`)
@@ -74,14 +72,6 @@ export default function JenkinsSettings (props) {
       connectionId
     })
   }, [errors, onSettingsChange, connectionId, providerId])
-
-  // useEffect(() => {
-  //   if (enableDeployTag === 1) {
-  //     onSettingsChange({ deployTagPattern: deployTag }, `C#${connection?.id}`)
-  //   } else if (enableDeployTag === 0) {
-  //     onSettingsChange({ deployTagPattern: '' }, `C#${connection?.id}`)
-  //   }
-  // }, [deployTag, enableDeployTag])
 
   useEffect(() => {
     console.log('>>> JENKINS: DATA ENTITIES...', entities)

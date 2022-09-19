@@ -18,6 +18,7 @@
 import React, { useEffect, useState } from 'react'
 import { Checkbox, Intent, MenuItem, Position, Tooltip } from '@blueprintjs/core'
 import { MultiSelect } from '@blueprintjs/select'
+import GitlabProject from '@/models/GitlabProject'
 
 const GitlabProjectsSelector = (props) => {
   const {
@@ -128,7 +129,7 @@ const GitlabProjectsSelector = (props) => {
                     ...rT,
                     [configuredConnection.id]: [
                       ...rT[configuredConnection.id],
-                      item,
+                      new GitlabProject(item),
                     ],
                   }
                 : { ...rT }

@@ -41,28 +41,52 @@ const Deployment = (props) => {
     onSettingsChange = () => {},
   } = props
 
-  const [deployTag, setDeployTag] = useState(transformation?.deployTagPattern || '')
-  const [enableDeployTag, setEnableDeployTag] = useState(transformation?.deployTagPattern !== '' ? 1 : 0)
+  const [deployTag, setDeployTag] = useState(transformation?.productionPattern || '')
+  const [enableDeployTag, setEnableDeployTag] = useState([transformation?.productionPattern, transformation?.stagingPattern, transformation?.testingPattern].some(t => t && t !== '') ? 1 : 0)
 
   // @todo: check w/ product team about using standard message and avoid customized hints
-  const getDeployTagHint = (providerId) => {
+  const getDeployTagHint = (providerId, providerName = 'Plugin') => {
     let tagHint = ''
     switch (providerId) {
       case Providers.JENKINS:
-        tagHint = 'The Jenkins build with a name that matches the given regEx is considered as a deployment.'
+        // eslint-disable-next-line max-len
+        tagHint = `The ${providerName} build with a name that matches the given regEx is considered as a deployment. You can define your Deployments for three environments: Production, Staging and Testing.`
         break
+      case Providers.GITHUB:
       case Providers.GITLAB:
       case 'default':
-        tagHint = 'A CI job/build with a name that matches the given regEx is considered as an deployment.'
+        // eslint-disable-next-line max-len
+        tagHint = 'A CI job/build with a name that matches the given regEx is considered as an deployment. You can define your Deployments for three environments: Production, Staging and Testing.'
         break
     }
     return tagHint
   }
 
+  const getDeployOptionLabel = (providerId, providerName) => {
+    let label = ''
+    switch (providerId) {
+      case Providers.JENKINS:
+        // eslint-disable-next-line max-len
+        label = `Detect Deployment from Builds in ${providerName}`
+        break
+      case Providers.GITHUB:
+        label = `Detect Deployment from Jobs in ${providerName} Action`
+        break
+      case Providers.GITLAB:
+      case 'default':
+        // eslint-disable-next-line max-len
+        label = `Detect Deployment from Jobs in ${providerName} CI`
+        break
+    }
+    return label
+  }
+
   useEffect(() => {
-    console.log('CI/CD Deployment Transform:', entityIdKey, deployTag)
+    console.log('>>> CI/CD Deployment Transform:', entityIdKey, deployTag)
     if (entityIdKey && enableDeployTag === 0) {
-      onSettingsChange({ deployTagPattern: '' }, entityIdKey)
+      onSettingsChange({ productionPattern: '' }, entityIdKey)
+      onSettingsChange({ stagingPattern: '' }, entityIdKey)
+      onSettingsChange({ testingPattern: '' }, entityIdKey)
     }
   }, [
     deployTag,
@@ -70,6 +94,10 @@ const Deployment = (props) => {
     entityIdKey,
     onSettingsChange
   ])
+
+  useEffect(() => {
+    console.log('>>> CI/CD Deployment: TRANSFORMATION OBJECT!', transformation)
+  }, [transformation])
 
   return (
     <>
@@ -91,9 +119,7 @@ const Deployment = (props) => {
         required
       >
         <Radio
-          label={`Detect Deployment from Builds in ${
-            ProviderLabels[provider?.id.toUpperCase()]
-          }`}
+          label={getDeployOptionLabel(provider?.id, ProviderLabels[provider?.id?.toUpperCase()])}
           value={1}
         />
         {enableDeployTag === 1 && (
@@ -102,27 +128,87 @@ const Deployment = (props) => {
               className='bp3-form-helper-text'
               style={{ display: 'block', textAlign: 'left', color: '#94959F', marginBottom: '5px' }}
             >
-              {getDeployTagHint(provider?.id)}
+              {getDeployTagHint(provider?.id, ProviderLabels[provider?.id?.toUpperCase()])}
             </div>
             <div className='formContainer'>
               <FormGroup
                 disabled={isSaving}
                 inline={true}
-                label='Deployment'
-                labelFor='deploy-tag'
+                label={<label className='bp3-label' style={{ minWidth: '150px', marginRight: '10px' }}>Deployment (Production)</label>}
+                labelFor='deploy-tag-production'
                 className='formGroup'
                 contentClassName='formGroupContent'
               >
                 <InputGroup
-                  id='github-pr-type'
-                  placeholder='/deploy/'
-                  value={transformation?.deployTagPattern}
-                  onChange={(e) => onSettingsChange({ deployTagPattern: e.target.value }, entityIdKey)}
+                  id='deploy-tag-production'
+                  placeholder='(?i)deploy'
+                  value={transformation?.productionPattern}
+                  onChange={(e) => onSettingsChange({ productionPattern: e.target.value }, entityIdKey)}
                   disabled={isSaving}
                   className='input'
                   maxLength={255}
                   rightElement={
-                    enableDeployTag && (transformation?.deployTagPattern === '' || !transformation?.deployTagPattern)
+                    enableDeployTag && (transformation?.productionPattern === '' || !transformation?.productionPattern)
+                      ? (
+                        <Tooltip intent={Intent.PRIMARY} content='Deployment Tag RegEx required'>
+                          <Icon icon='warning-sign' color={Colors.GRAY3} size={12} style={{ margin: '8px' }} />
+                        </Tooltip>
+                        )
+                      : null
+                  }
+                  required
+                />
+              </FormGroup>
+            </div>
+            <div className='formContainer'>
+              <FormGroup
+                disabled={isSaving}
+                inline={true}
+                label={<label className='bp3-label' style={{ minWidth: '150px', marginRight: '10px' }}>Deployment (Staging)</label>}
+                labelFor='deploy-tag-staging'
+                className='formGroup'
+                contentClassName='formGroupContent'
+              >
+                <InputGroup
+                  id='deploy-tag-staging'
+                  placeholder='(?i)stag'
+                  value={transformation?.stagingPattern}
+                  onChange={(e) => onSettingsChange({ stagingPattern: e.target.value }, entityIdKey)}
+                  disabled={isSaving}
+                  className='input'
+                  maxLength={255}
+                  rightElement={
+                    enableDeployTag && (transformation?.stagingPattern === '' || !transformation?.stagingPattern)
+                      ? (
+                        <Tooltip intent={Intent.PRIMARY} content='Deployment Tag RegEx required'>
+                          <Icon icon='warning-sign' color={Colors.GRAY3} size={12} style={{ margin: '8px' }} />
+                        </Tooltip>
+                        )
+                      : null
+                  }
+                  required
+                />
+              </FormGroup>
+            </div>
+            <div className='formContainer'>
+              <FormGroup
+                disabled={isSaving}
+                inline={true}
+                label={<label className='bp3-label' style={{ minWidth: '150px', marginRight: '10px' }}>Deployment (Testing)</label>}
+                labelFor='deploy-tag-testing'
+                className='formGroup'
+                contentClassName='formGroupContent'
+              >
+                <InputGroup
+                  id='deploy-tag-testing'
+                  placeholder='(?i)test'
+                  value={transformation?.testingPattern}
+                  onChange={(e) => onSettingsChange({ testingPattern: e.target.value }, entityIdKey)}
+                  disabled={isSaving}
+                  className='input'
+                  maxLength={255}
+                  rightElement={
+                    enableDeployTag && (transformation?.testingPattern === '' || !transformation?.testingPattern)
                       ? (
                         <Tooltip intent={Intent.PRIMARY} content='Deployment Tag RegEx required'>
                           <Icon icon='warning-sign' color={Colors.GRAY3} size={12} style={{ margin: '8px' }} />

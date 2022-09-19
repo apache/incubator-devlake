@@ -99,7 +99,9 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
           issueTypeBug: '',
           issueTypeIncident: '',
           refdiff: null,
-          deployTagPattern: '/deploy/'
+          productionPattern: '',
+          stagingPattern: '',
+          testingPattern: ''
         }
         break
       case Providers.JIRA:
@@ -111,18 +113,24 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
           bugTags: [],
           incidentTags: [],
           requirementTags: [],
-          // @todo: verify if jira utilizes deploy tag?
-          deployTagPattern: ''
+          // @todo: verify if jira utilizes deploy tag(s)?
+          productionPattern: '',
+          stagingPattern: '',
+          testingPattern: ''
         }
         break
       case Providers.JENKINS:
         transforms = {
-          deployTagPattern: '/deploy/'
+          productionPattern: '',
+          stagingPattern: '',
+          testingPattern: ''
         }
         break
       case Providers.GITLAB:
         transforms = {
-          deployTagPattern: '/deploy/'
+          productionPattern: '',
+          stagingPattern: '',
+          testingPattern: ''
         }
         break
       case Providers.TAPD:
@@ -131,7 +139,9 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
           issueTypeRequirement: '',
           issueTypeBug: '',
           issueTypeIncident: '',
-          deployTagPattern: '/deploy/'
+          productionPattern: '',
+          stagingPattern: '',
+          testingPattern: ''
         }
         break
     }
@@ -534,7 +544,7 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
         ...cT,
       }))
     }
-  }, [newConnections])
+  }, [newConnections, initializeTransformations])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: INITIALIZE BOARDS...', boards)
