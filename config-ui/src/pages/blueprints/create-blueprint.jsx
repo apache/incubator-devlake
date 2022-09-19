@@ -975,7 +975,7 @@ const CreateBlueprint = (props) => {
       status: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status
     })))
     // @todo: re-enable next disable on offline connection! (disabled to allow GitHub Test)
-    // setCanAdvanceNext(dataConnections.every(dC => dC.status === 200))
+    setCanAdvanceNext(dataConnections.every(dC => dC.status === 200))
   }, [dataConnections, setConnectionsList])
 
   return (
