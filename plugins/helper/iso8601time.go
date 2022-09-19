@@ -18,6 +18,7 @@ limitations under the License.
 package helper
 
 import (
+	"database/sql/driver"
 	"fmt"
 	"regexp"
 	"strings"
@@ -62,6 +63,10 @@ func init() {
 		{
 			Matcher: regexp.MustCompile(`[+-][\d]{2}:[\d]{2}$`),
 			Format:  "2006-01-02T15:04:05-07:00",
+		},
+		{
+			Matcher: regexp.MustCompile(`[+-][\d]{2}-[\d]{2}$`),
+			Format:  "2006-01-02",
 		},
 	}
 }
@@ -130,4 +135,30 @@ func Iso8601TimeToTime(iso8601Time *Iso8601Time) *time.Time {
 	}
 	t := iso8601Time.ToTime()
 	return &t
+}
+
+// Value FIXME ...
+func (jt *Iso8601Time) Value() (driver.Value, error) {
+	if jt == nil {
+		return nil, nil
+	}
+	var zeroTime time.Time
+	t := jt.time
+	if t.UnixNano() == zeroTime.UnixNano() {
+		return nil, nil
+	}
+	return t, nil
+}
+
+// Scan FIXME ...
+func (jt *Iso8601Time) Scan(v interface{}) error {
+	value, ok := v.(time.Time)
+	if ok {
+		*jt = Iso8601Time{
+			time:   value,
+			format: time.RFC3339,
+		}
+		return nil
+	}
+	return fmt.Errorf("can not convert %v to timestamp", v)
 }
