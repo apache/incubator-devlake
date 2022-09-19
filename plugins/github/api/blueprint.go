@@ -39,6 +39,7 @@ import (
 func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
 	plan := make(core.PipelinePlan, len(scope))
+	apiRepo, token, proxy := &tasks.GithubApiRepo{}, "", ""
 	for i, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
 		transformationRules := make(map[string]interface{})
@@ -94,42 +95,9 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		// collect git data by gitextractor if CODE was requested
 		if utils.StringsContains(scopeElem.Entities, core.DOMAIN_TYPE_CODE) {
 			// here is the tricky part, we have to obtain the repo id beforehand
-			connection := new(models.GithubConnection)
-			err = connectionHelper.FirstById(connection, connectionId)
+			apiRepo, token, proxy, err = getApiRepo(connectionId, op)
 			if err != nil {
 				return nil, err
-			}
-			token := strings.Split(connection.Token, ",")[0]
-			apiClient, err := helper.NewApiClient(
-				context.TODO(),
-				connection.Endpoint,
-				map[string]string{
-					"Authorization": fmt.Sprintf("Bearer %s", token),
-				},
-				10*time.Second,
-				connection.Proxy,
-				basicRes,
-			)
-			if err != nil {
-				return nil, err
-			}
-			res, err := apiClient.Get(fmt.Sprintf("repos/%s/%s", op.Owner, op.Repo), nil, nil)
-			if err != nil {
-				return nil, err
-			}
-			defer res.Body.Close()
-			if res.StatusCode != http.StatusOK {
-				return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf(
-					"unexpected status code when requesting repo detail from %s", res.Request.URL.String()))
-			}
-			body, err := errors.Convert01(io.ReadAll(res.Body))
-			if err != nil {
-				return nil, err
-			}
-			apiRepo := new(tasks.GithubApiRepo)
-			err = errors.Convert(json.Unmarshal(body, apiRepo))
-			if err != nil {
-				return nil, errors.Convert(err)
 			}
 			cloneUrl, err := errors.Convert01(url.Parse(apiRepo.CloneUrl))
 			if err != nil {
@@ -141,11 +109,85 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 				Options: map[string]interface{}{
 					"url":    cloneUrl.String(),
 					"repoId": didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connectionId, apiRepo.GithubId),
-					"proxy":  connection.Proxy,
+					"proxy":  proxy,
 				},
 			})
 		}
 		plan[i] = stage
+		// dora
+		if doraRules, ok := transformationRules["dora"]; ok && doraRules != nil {
+			j := i + 1
+			// add a new task to next stage
+			if plan[j] != nil {
+				j++
+			}
+			if j == len(plan) {
+				plan = append(plan, nil)
+			}
+			if err != nil {
+				return nil, err
+			}
+			if apiRepo.GithubId == 0 {
+				apiRepo, _, _, err = getApiRepo(connectionId, op)
+				if err != nil {
+					return nil, err
+				}
+			}
+			doraOption := make(map[string]interface{})
+			doraOption["repoId"] = didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connectionId, apiRepo.GithubId)
+			doraOption["tasks"] = []string{"EnrichTaskEnv"}
+			doraOption["transformation"] = doraRules
+			plan[j] = core.PipelineStage{
+				{
+					Plugin:  "dora",
+					Options: doraOption,
+				},
+			}
+			// remove it from github transformationRules
+			delete(transformationRules, "dora")
+		}
 	}
 	return plan, nil
+}
+
+func getApiRepo(connectionId uint64, op *tasks.GithubOptions) (*tasks.GithubApiRepo, string, string, errors.Error) {
+	// here is the tricky part, we have to obtain the repo id beforehand
+	connection := new(models.GithubConnection)
+	err := connectionHelper.FirstById(connection, connectionId)
+	if err != nil {
+		return nil, "", "", err
+	}
+	token := strings.Split(connection.Token, ",")[0]
+	apiClient, err := helper.NewApiClient(
+		context.TODO(),
+		connection.Endpoint,
+		map[string]string{
+			"Authorization": fmt.Sprintf("Bearer %s", token),
+		},
+		10*time.Second,
+		connection.Proxy,
+		basicRes,
+	)
+	if err != nil {
+		return nil, "", "", err
+	}
+	res, err := apiClient.Get(fmt.Sprintf("repos/%s/%s", op.Owner, op.Repo), nil, nil)
+	if err != nil {
+		return nil, "", "", err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil, "", "", errors.HttpStatus(res.StatusCode).New(fmt.Sprintf(
+			"unexpected status code when requesting repo detail from %s", res.Request.URL.String()))
+	}
+	body, err := errors.Convert01(io.ReadAll(res.Body))
+	if err != nil {
+		return nil, "", "", err
+	}
+	apiRepo := new(tasks.GithubApiRepo)
+	err = errors.Convert(json.Unmarshal(body, apiRepo))
+	if err != nil {
+		return nil, "", "", errors.Convert(err)
+	}
+	return apiRepo, token, connection.Proxy, nil
 }
