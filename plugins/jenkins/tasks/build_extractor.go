@@ -86,6 +86,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 			vcs := body.ChangeSet.Kind
 			if vcs == "git" || vcs == "hg" {
 				for _, a := range body.Actions {
+					sha := ""
 					branch := ""
 					if a.LastBuiltRevision.SHA1 != "" {
 						sha = a.LastBuiltRevision.SHA1
@@ -102,6 +103,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 							buildCommitRemoteUrl := models.JenkinsBuildCommit{
 								ConnectionId: data.Options.ConnectionId,
 								BuildName:    build.FullDisplayName,
+								CommitSha:    sha,
 								RepoUrl:      url,
 								Branch:       branch,
 							}
