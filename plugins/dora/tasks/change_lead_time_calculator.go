@@ -19,6 +19,9 @@ package tasks
 
 import (
 	goerror "errors"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
@@ -26,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
-	"reflect"
-	"time"
 )
 
 func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
@@ -78,7 +79,7 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 				pr.OrigReviewLag = int64(firstReviewTime.Sub(pr.CreatedDate).Minutes())
 				pr.OrigReviewTimespan = int64(pr.MergedDate.Sub(*firstReviewTime).Minutes())
 			}
-			deployTime, err := getDeployTime(repoId, data.Options.Environment, *pr.MergedDate, db)
+			deployTime, err := getDeployTime(repoId, devops.PRODUCTION, *pr.MergedDate, db)
 			if err != nil {
 				return nil, err
 			}
