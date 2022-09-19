@@ -20,9 +20,10 @@ package migration
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"sort"
 	"sync"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"gorm.io/gorm"
 )
@@ -82,11 +83,11 @@ func (m *migrator) execute(ctx context.Context) errors.Error {
 	for _, script := range m.pending {
 		err := script.Up(ctx, m.db)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, fmt.Sprintf("error Up() on script [%s]", script.Name()))
 		}
 		err = m.bookKeep(script)
 		if err != nil {
-			return err
+			return errors.Default.Wrap(err, fmt.Sprintf("error bookKeep() on script [%s]", script.Name()))
 		}
 	}
 	return nil

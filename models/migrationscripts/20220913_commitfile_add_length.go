@@ -68,11 +68,28 @@ func (CommitFileComponentBak) TableName() string {
 type addCommitFilePathLength struct{}
 
 func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().RenameTable(&CommitFile{}, &CommitFileAddLengthBak{})
-	if err != nil {
-		return errors.Default.Wrap(err, "error no rename commit_file to commit_files_bak")
+	var err error
+
+	// commit_files
+	// rename the commit_file_bak to cache old table
+	if db.Migrator().HasTable(&CommitFileAddLengthBak{}) {
+		// if the bak table aready exists that means we have already renamed it
+		// check if we should drop unfinished table for reset it.
+		if db.Migrator().HasTable(&CommitFile{}) {
+			err = db.Migrator().DropTable(&CommitFile{})
+			if err != nil {
+				return errors.Default.Wrap(err, "fail to reset commit_file")
+			}
+		}
+	} else {
+		// if it is not exists,that means we need rename it.
+		err = db.Migrator().RenameTable(&CommitFile{}, &CommitFileAddLengthBak{})
+		if err != nil {
+			return errors.Default.Wrap(err, "error no rename commit_file to commit_files_bak")
+		}
 	}
 
+	// create new commit_files table
 	err = db.Migrator().AutoMigrate(&CommitFileAddLength{})
 	if err != nil {
 		return errors.Default.Wrap(err, "error on auto migrate commit_file")
@@ -85,6 +102,7 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 	}
 	defer cursor.Close()
 
+	// caculate and save the data to new table
 	batch, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&CommitFileAddLength{}), 200)
 	if err != nil {
 		return errors.Default.Wrap(err, "error getting batch from table commit_file")
@@ -108,15 +126,30 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 
 		err = batch.Add(&cf)
 		if err != nil {
-			return errors.Default.Wrap(err, "error on batch add")
+			return errors.Default.Wrap(err, "error on commit_files batch add")
 		}
 	}
 
-	err = db.Migrator().RenameTable(&CommitFileComponent{}, &CommitFileComponentBak{})
-	if err != nil {
-		return errors.Default.Wrap(err, "error no rename commit_file_components to commit_file_components_bak")
+	// rename the commit_file_components_bak
+	if db.Migrator().HasTable(&CommitFileComponentBak{}) {
+		// if the bak table aready exists that means we have already renamed it
+		// check if we should drop unfinished table for reset it.
+		if db.Migrator().HasTable(&CommitFileComponent{}) {
+			err = db.Migrator().DropTable(&CommitFileComponent{})
+			if err != nil {
+				return errors.Default.Wrap(err, "fail to reset commit_file_components")
+			}
+		}
+
+	} else {
+		// if it is not exists,that means we need rename it.
+		err = db.Migrator().RenameTable(&CommitFileComponent{}, &CommitFileComponentBak{})
+		if err != nil {
+			return errors.Default.Wrap(err, "error no rename commit_file_components to commit_file_components_bak")
+		}
 	}
 
+	// create new commit_file_components table
 	err = db.Migrator().AutoMigrate(&CommitFileComponent{})
 	if err != nil {
 		return errors.Default.Wrap(err, "error on auto migrate commit_file")
@@ -129,6 +162,7 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 	}
 	defer cursor2.Close()
 
+	// caculate and save the data to new table
 	batch2, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&CommitFileComponent{}), 500)
 	if err != nil {
 		return errors.Default.Wrap(err, "error getting batch from table commit_file_components")
@@ -169,7 +203,7 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 
 		err = batch2.Add(&cfc)
 		if err != nil {
-			return errors.Default.Wrap(err, "error on batch add")
+			return errors.Default.Wrap(err, "error on commit_file_components batch add")
 		}
 	}
 
@@ -180,7 +214,7 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 	}
 	err = db.Migrator().DropTable(&CommitFileComponentBak{})
 	if err != nil {
-		return errors.Default.Wrap(err, "error no drop commit_files_bak")
+		return errors.Default.Wrap(err, "error no drop commit_file_components_bak")
 	}
 
 	return nil
