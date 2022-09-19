@@ -42,8 +42,8 @@ type BitbucketIssueCommentsResponse struct {
 		Repository *BitbucketApiRepo `json:"repository"`
 		Links      struct {
 			Self struct {
-				Href string
-			}
+				Href string `json:"href"`
+			} `json:"self"`
 		} `json:"links"`
 		Title string `json:"title"`
 	}
