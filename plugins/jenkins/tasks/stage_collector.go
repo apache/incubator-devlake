@@ -40,9 +40,9 @@ var CollectApiStagesMeta = core.SubTaskMeta{
 }
 
 type SimpleBuild struct {
-	Path        string
-	JobName     string
-	Number      string
+	Path            string
+	JobName         string
+	Number          string
 	FullDisplayName string
 }
 
