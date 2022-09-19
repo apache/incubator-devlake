@@ -18,6 +18,9 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+	"regexp"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
@@ -26,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"reflect"
 )
 
 var ConvertJobMeta = core.SubTaskMeta{
@@ -37,9 +39,18 @@ var ConvertJobMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertJobs(taskCtx core.SubTaskContext) errors.Error {
+func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
+
+	var deployTagRegexp *regexp.Regexp
+	deployTagPattern := data.Options.DeployTagPattern
+	if len(deployTagPattern) > 0 {
+		deployTagRegexp, err = errors.Convert01(regexp.Compile(deployTagPattern))
+		if err != nil {
+			return errors.Default.Wrap(err, "regexp compile deployTagPattern failed")
+		}
+	}
 
 	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabJob{}))
 	if err != nil {
@@ -58,7 +69,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) errors.Error {
 				ConnectionId: data.Options.ConnectionId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_USER_TABLE,
+			Table: RAW_JOB_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabJob := inputRow.(*gitlabModels.GitlabJob)
@@ -90,6 +101,11 @@ func ConvertJobs(taskCtx core.SubTaskContext) errors.Error {
 				DurationSec:  uint64(gitlabJob.Duration),
 				StartedDate:  *startedAt,
 				FinishedDate: gitlabJob.FinishedAt,
+			}
+			if deployTagRegexp != nil {
+				if deployFlag := deployTagRegexp.FindString(gitlabJob.Name); deployFlag != "" {
+					domainJob.Type = devops.DEPLOYMENT
+				}
 			}
 
 			return []interface{}{
