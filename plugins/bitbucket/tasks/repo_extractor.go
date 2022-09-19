@@ -21,9 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-)
 
-import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/core"
