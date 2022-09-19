@@ -62,7 +62,7 @@ func ConvertPipelineProjects(taskCtx core.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			gitlabPipelineProject := inputRow.(*gitlabModels.GitlabPipelineProject)
 
-			domainPipelineRepo := &devops.CiCDPipelineCommit{
+			domainPipelineCommit := &devops.CiCDPipelineCommit{
 				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipelineProject.PipelineId),
 				CommitSha:  gitlabPipelineProject.Sha,
 				Branch:     gitlabPipelineProject.Ref,
@@ -71,7 +71,7 @@ func ConvertPipelineProjects(taskCtx core.SubTaskContext) errors.Error {
 			}
 
 			return []interface{}{
-				domainPipelineRepo,
+				domainPipelineCommit,
 			}, nil
 		},
 	})

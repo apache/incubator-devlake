@@ -18,9 +18,15 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"time"
 )
@@ -59,7 +65,7 @@ type WebhookIssueRequest struct {
 // @Summary receive a record as defined and save it
 // @Description receive a record as follow and save it, example: {"board_key":"DLK","url":"","issue_key":"DLK-1234","title":"a feature from DLK","description":"","epic_key":"","type":"BUG","status":"TODO","original_status":"created","story_point":0,"resolution_date":null,"created_date":"2020-01-01T12:00:00+00:00","updated_date":null,"lead_time_minutes":0,"parent_issue_key":"DLK-1200","priority":"","original_estimate_minutes":0,"time_spent_minutes":0,"time_remaining_minutes":0,"creator_id":"user1131","creator_name":"Nick name 1","assignee_id":"user1132","assignee_name":"Nick name 2","severity":"","component":""}
 // @Tags plugins/webhook
-// @Param body body WebhookPipelineRequest true "json body"
+// @Param body body WebhookIssueRequest true "json body"
 // @Success 200  {string} noResponse ""
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
@@ -70,7 +76,78 @@ func PostIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Er
 	if err != nil {
 		return nil, err
 	}
-	// TODO save issue
+	// get request
+	request := &WebhookIssueRequest{}
+	err = helper.DecodeMapStruct(input.Body, request)
+	if err != nil {
+		return &core.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
+	}
+	// validate
+	vld = validator.New()
+	err = errors.Convert(vld.Struct(request))
+	if err != nil {
+		return &core.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
+	}
+
+	db := basicRes.GetDal()
+	domainIssue := &ticket.Issue{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, request.BoardKey, request.IssueKey),
+		},
+		Url:                     request.Url,
+		IssueKey:                request.IssueKey,
+		Title:                   request.Title,
+		Description:             request.Description,
+		EpicKey:                 request.EpicKey,
+		Type:                    request.Type,
+		Status:                  request.Status,
+		OriginalStatus:          request.OriginalStatus,
+		StoryPoint:              request.StoryPoint,
+		ResolutionDate:          request.ResolutionDate,
+		CreatedDate:             request.CreatedDate,
+		UpdatedDate:             request.UpdatedDate,
+		LeadTimeMinutes:         request.LeadTimeMinutes,
+		Priority:                request.Priority,
+		OriginalEstimateMinutes: request.OriginalEstimateMinutes,
+		TimeSpentMinutes:        request.TimeSpentMinutes,
+		TimeRemainingMinutes:    request.TimeRemainingMinutes,
+		CreatorName:             request.CreatorName,
+		AssigneeName:            request.AssigneeName,
+		Severity:                request.Severity,
+		Component:               request.Component,
+	}
+	if request.CreatorId != "" {
+		domainIssue.CreatorId = fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.CreatorId)
+	}
+	if request.AssigneeId != "" {
+		domainIssue.AssigneeId = fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.AssigneeId)
+	}
+	if request.ParentIssueKey != "" {
+		domainIssue.ParentIssueId = fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, request.BoardKey, request.ParentIssueKey)
+	}
+	domainBoard := &ticket.Board{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.BoardKey),
+		},
+	}
+	boardIssue := &ticket.BoardIssue{
+		BoardId: domainBoard.Id,
+		IssueId: domainIssue.Id,
+	}
+	// save
+	err = db.CreateOrUpdate(domainIssue)
+	if err != nil {
+		return nil, err
+	}
+	err = db.CreateOrUpdate(domainBoard)
+	if err != nil {
+		return nil, err
+	}
+	err = db.CreateOrUpdate(boardIssue)
+	if err != nil {
+		return nil, err
+	}
+
 	return &core.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
 
@@ -88,6 +165,20 @@ func CloseIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.E
 	if err != nil {
 		return nil, err
 	}
-	// TODO close issue
+
+	db := basicRes.GetDal()
+	domainIssue := &ticket.Issue{}
+	err = db.First(domainIssue, dal.Where("id = ?", fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, input.Params[`boardKey`], input.Params[`issueId`])))
+	if err != nil {
+		return nil, errors.NotFound.Wrap(err, `issue not found`)
+	}
+	domainIssue.Status = ticket.DONE
+	domainIssue.OriginalStatus = ``
+
+	// save
+	err = db.Update(domainIssue)
+	if err != nil {
+		return nil, err
+	}
 	return &core.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }
