@@ -41,14 +41,22 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	data := taskCtx.GetData().(*DoraTaskData)
 	repoId := data.Options.RepoId
 
-	var taskNameReg *regexp.Regexp
-	taskNamePattern := data.Options.EnvironmentRegex
-	if len(taskNamePattern) == 0 {
-		taskNamePattern = "deploy"
-	}
-	taskNameReg, errRegexp := regexp.Compile(taskNamePattern)
+	var EnvironmentVar = devops.PRODUCTION
+	productionNamePattern := data.Options.ProductionPattern
+	stagingNamePattern := data.Options.StagingPattern
+	testingNamePattern := data.Options.TestingPattern
+
+	productionNameRegexp, errRegexp := regexp.Compile(productionNamePattern)
 	if errRegexp != nil {
-		return errors.Default.Wrap(errRegexp, "regexp Compile taskNameReg failed")
+		return errors.Default.Wrap(errRegexp, "Regexp compile productionPattern failed")
+	}
+	stagingNameRegexp, errRegexp := regexp.Compile(stagingNamePattern)
+	if errRegexp != nil {
+		return errors.Default.Wrap(errRegexp, "Regexp compile stagingPattern failed")
+	}
+	testingNameRegexp, errRegexp := regexp.Compile(testingNamePattern)
+	if errRegexp != nil {
+		return errors.Default.Wrap(errRegexp, "Regexp compile testingPattern failed")
 	}
 
 	cursor, err := db.Cursor(
@@ -73,20 +81,27 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			cicdTask := inputRow.(*devops.CICDTask)
 			results := make([]interface{}, 0, 1)
-			if deployTask := taskNameReg.FindString(cicdTask.Name); deployTask == "" {
-				return nil, nil
+
+			if productEnv := productionNameRegexp.FindString(cicdTask.Name); productEnv != "" {
+				EnvironmentVar = devops.PRODUCTION
 			}
+			if stagingEnv := stagingNameRegexp.FindString(cicdTask.Name); stagingEnv != "" {
+				EnvironmentVar = devops.STAGING
+			}
+			if testingEnv := testingNameRegexp.FindString(cicdTask.Name); testingEnv != "" {
+				EnvironmentVar = devops.TESTING
+			}
+
 			cicdPipelineFilter := &devops.CICDTask{
 				DomainEntity: cicdTask.DomainEntity,
 				PipelineId:   cicdTask.PipelineId,
 				Name:         cicdTask.Name,
 				Result:       cicdTask.Result,
 				Status:       cicdTask.Status,
-				Type:         "DEPLOY",
 				DurationSec:  cicdTask.DurationSec,
 				StartedDate:  cicdTask.StartedDate,
 				FinishedDate: cicdTask.FinishedDate,
-				Environment:  data.Options.Environment,
+				Environment:  EnvironmentVar,
 			}
 			results = append(results, cicdPipelineFilter)
 			return results, nil

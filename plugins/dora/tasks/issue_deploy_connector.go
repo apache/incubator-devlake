@@ -19,6 +19,8 @@ package tasks
 
 import (
 	goerror "errors"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
-	"reflect"
 )
 
 var ConnectIssueDeployMeta = core.SubTaskMeta{
@@ -78,7 +79,7 @@ func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
 				dal.Where(
 					`cicd_pipeline_commits.repo_id = ? and cicd_tasks.finished_date < ? 
 								and cicd_tasks.result = ? and cicd_tasks.environment = ?`,
-					data.Options.RepoId, issueToBeUpdate.CreatedDate, "SUCCESS", data.Options.Environment,
+					data.Options.RepoId, issueToBeUpdate.CreatedDate, "SUCCESS", devops.PRODUCTION,
 				),
 				dal.Orderby("cicd_tasks.finished_date DESC"),
 			}

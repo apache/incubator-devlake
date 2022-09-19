@@ -26,8 +26,9 @@ type DoraApiParams struct {
 }
 
 type TransformationRules struct {
-	Environment      string `mapstructure:"environment" json:"environment"`
-	EnvironmentRegex string `mapstructure:"environmentRegex" json:"environmentRegex"`
+	ProductionPattern string `mapstructure:"productionPattern" json:"productionPattern"`
+	TestingPattern    string `mapstructure:"testingPattern" json:"testingPattern"`
+	StagingPattern    string `mapstructure:"stagingPattern" json:"stagingPattern"`
 }
 
 type DoraOptions struct {
@@ -47,6 +48,14 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions,
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error decoding DORA task options")
 	}
-
+	if op.ProductionPattern == "" {
+		op.ProductionPattern = "(?i)deploy"
+	}
+	if op.StagingPattern == "" {
+		op.ProductionPattern = "(?i)stag"
+	}
+	if op.TestingPattern == "" {
+		op.ProductionPattern = "(?i)test"
+	}
 	return &op, nil
 }
