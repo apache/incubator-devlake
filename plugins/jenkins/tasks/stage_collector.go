@@ -43,7 +43,7 @@ type SimpleBuild struct {
 	Path        string
 	JobName     string
 	Number      string
-	DisplayName string
+	FullDisplayName string
 }
 
 func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
