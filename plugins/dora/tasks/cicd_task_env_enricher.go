@@ -80,8 +80,7 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			cicdTask := inputRow.(*devops.CICDTask)
 			results := make([]interface{}, 0, 1)
-			// var EnvironmentVar = devops.PRODUCTION
-			var EnvironmentVar string
+			var EnvironmentVar = devops.PRODUCTION
 			if productEnv := productionNameRegexp.FindString(cicdTask.Name); productEnv != "" {
 				EnvironmentVar = devops.PRODUCTION
 			}
