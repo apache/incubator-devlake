@@ -384,24 +384,21 @@ const DataTransformations = (props) => {
                           style={{ marginLeft: '5px' }}
                         /> */}
                         {enableGoBack && (configuredProject || configuredBoard) && (
-                          <Button
-                            text='Go Back'
+                          <Tooltip
+                            position={Position.TOP}
                             intent={Intent.PRIMARY}
-                            small
-                            outlined
-                            onClick={() => onSave()}
-                            // disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
-                            style={{ marginLeft: '5px' }}
-                            icon={(
-                              <Tooltip
-                                position={Position.TOP}
-                                intent={Intent.PRIMARY}
-                                content='Close Editor to Continue'
-                              >
-                                <Spinner size={12} />
-                              </Tooltip>
-                            )}
-                          />
+                            content='Close Editor to Continue'
+                          >
+                            <Button
+                              text='Go Back'
+                              intent={Intent.PRIMARY}
+                              small
+                              outlined
+                              onClick={() => onSave()}
+                              // disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
+                              style={{ marginLeft: '5px' }}
+                            />
+                          </Tooltip>
                         )}
                       </div>
                     </div>
