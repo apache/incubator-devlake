@@ -11,6 +11,7 @@ require (
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/gocarina/gocsv v0.0.0-20220707092902-b9da1f06c77e
 	github.com/google/uuid v1.3.0
+	github.com/lib/pq v1.10.2
 	github.com/libgit2/git2go/v33 v33.0.6
 	github.com/magiconair/properties v1.8.5
 	github.com/manifoldco/promptui v0.9.0
