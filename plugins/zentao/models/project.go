@@ -25,7 +25,7 @@ import (
 type ZentaoProject struct {
 	common.NoPKModel
 	ConnectionId  uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID            int    `json:"id"`
+	ID            int    `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Project       int    `json:"project"`
 	Model         string `json:"model"`
 	Type          string `json:"type"`
@@ -109,5 +109,5 @@ type Hours struct {
 }
 
 func (ZentaoProject) TableName() string {
-	return "_tool_zentao_project"
+	return "_tool_zentao_projects"
 }
