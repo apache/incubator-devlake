@@ -406,7 +406,10 @@ const DataTransformations = (props) => {
                 </>
               )}
 
-              {[Providers.GITLAB].includes(configuredConnection.provider) && dataEntities[configuredConnection.id].every(e => e.value !== DataEntityTypes.DEVOPS) && (
+              {([Providers.TAPD].includes(configuredConnection.provider) || (
+                [Providers.GITLAB].includes(configuredConnection.provider) &&
+                dataEntities[configuredConnection.id].every(e => e.value !== DataEntityTypes.DEVOPS))) &&
+                (
                 <>
                   <div className='bp3-non-ideal-state'>
                     <div className='bp3-non-ideal-state-visual'>
@@ -420,7 +423,7 @@ const DataTransformations = (props) => {
                     </div>
                   </div>
                 </>
-              )}
+                )}
             </Card>
           </div>
         </div>
