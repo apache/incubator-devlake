@@ -20,9 +20,11 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"time"
+)
 
+import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
