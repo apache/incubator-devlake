@@ -88,13 +88,13 @@ export default function JiraSettings (props) {
   // @todo: lift higher to dsm hook
   const savedRequirementTags = useMemo(() => boards[connection?.id]
     ? boards[connection?.id].reduce((pV, cV, iDx) => ({ ...pV, [cV?.id]: connection?.transformations ? connection?.transformations[iDx]?.requirementTags : transformation?.requirementTags, }), {})
-    : {}, [connection?.id, configuredBoard?.id, boards, transformations])
+    : {}, [connection?.id, boards, connection?.transformations, transformation?.requirementTags])
   const savedBugTags = useMemo(() => boards[connection?.id]
     ? boards[connection?.id].reduce((pV, cV, iDx) => ({ ...pV, [cV?.id]: connection?.transformations ? connection?.transformations[iDx]?.bugTags : transformation?.bugTags, }), {})
-    : {}, [connection?.id, configuredBoard?.id, boards, transformations])
+    : {}, [connection?.id, boards, connection?.transformations, transformation?.bugTags])
   const savedIncidentTags = useMemo(() => boards[connection?.id]
     ? boards[connection?.id].reduce((pV, cV, iDx) => ({ ...pV, [cV?.id]: connection?.transformations ? connection?.transformations[iDx]?.incidentTags : transformation?.incidentTags, }), {})
-    : {}, [connection?.id, configuredBoard?.id, boards, transformations])
+    : {}, [connection?.id, boards, connection?.transformations, transformation?.incidentTags])
 
   const [requirementTags, setRequirementTags] = useState(savedRequirementTags)
   const [bugTags, setBugTags] = useState(savedBugTags)
