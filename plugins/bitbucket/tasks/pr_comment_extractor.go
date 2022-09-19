@@ -40,12 +40,12 @@ type BitbucketPrCommentsResponse struct {
 	CreatedOn   time.Time  `json:"created_on"`
 	UpdatedOn   *time.Time `json:"updated_on"`
 	Content     struct {
-		Type string
-		Raw  string
+		Type string `json:"type"`
+		Raw  string `json:"raw"`
 	} `json:"content"`
-	User    *BitbucketAccountResponse
-	Deleted bool
-	Type    string `json:"type"`
+	User    *BitbucketAccountResponse `json:"user"`
+	Deleted bool                      `json:"deleted"`
+	Type    string                    `json:"type"`
 	Links   struct {
 		Self struct {
 			Href string
@@ -55,17 +55,17 @@ type BitbucketPrCommentsResponse struct {
 		} `json:"html"`
 	} `json:"links"`
 	PullRequest struct {
-		Type  string
-		Id    int
-		Title string
+		Type  string `json:"type"`
+		Id    int    `json:"id"`
+		Title string `json:"title"`
 		Links struct {
 			Self struct {
-				Href string
-			}
+				Href string `json:"href"`
+			} `json:"self"`
 			Html struct {
-				Href string
-			}
-		}
+				Href string `json:"href"`
+			} `json:"html"`
+		} `json:"links"`
 	}
 }
 

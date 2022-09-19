@@ -40,31 +40,30 @@ type ApiRepoResponse BitbucketApiRepo
 
 type BitbucketApiRepo struct {
 	BitbucketId string
-	Scm         string `json:"scm"`
-	HasWiki     bool   `json:"has_wiki"`
+	Scm         string                  `json:"scm"`
+	HasWiki     bool                    `json:"has_wiki"`
+	Uuid        string                  `json:"uuid"`
+	FullName    string                  `json:"full_name"`
+	Language    string                  `json:"language"`
+	Description string                  `json:"description"`
+	Type        string                  `json:"type"`
+	HasIssue    bool                    `json:"has_issue"`
+	ForkPolicy  string                  `json:"fork_policy"`
+	Owner       models.BitbucketAccount `json:"owner"`
+	CreatedAt   time.Time               `json:"created_on"`
+	UpdatedAt   *time.Time              `json:"updated_on"`
 	Links       struct {
 		Clone []struct {
-			Href string
-			Name string
+			Href string `json:"href"`
+			Name string `json:"name"`
 		} `json:"clone"`
 		Self struct {
-			Href string
+			Href string `json:"href"`
 		} `json:"self"`
-
 		Html struct {
-			Href string
+			Href string `json:"href"`
 		} `json:"html"`
 	} `json:"links"`
-	Uuid        string `json:"uuid"`
-	FullName    string `json:"full_name"`
-	Language    string `json:"language"`
-	Description string `json:"description"`
-	Type        string `json:"type"`
-	HasIssue    bool   `json:"has_issue"`
-	ForkPolicy  string `json:"fork_policy"`
-	Owner       models.BitbucketAccount
-	CreatedAt   time.Time  `json:"created_on"`
-	UpdatedAt   *time.Time `json:"updated_on"`
 }
 
 func ExtractApiRepositories(taskCtx core.SubTaskContext) errors.Error {
