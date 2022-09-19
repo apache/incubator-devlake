@@ -17,7 +17,10 @@ limitations under the License.
 
 package main
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 func getTablesByDomainLayer(domainLayer string) []string {
 	switch domainLayer {
@@ -102,6 +105,8 @@ func getDataType(dataType string) string {
 		starrocksDatatype = "json"
 	} else if dataType == "uuid" {
 		starrocksDatatype = "char(36)"
+	} else if strings.HasSuffix(dataType, "[]") {
+		starrocksDatatype = fmt.Sprintf("array<%s>", getDataType(strings.Split(dataType, "[]")[0]))
 	}
 	return starrocksDatatype
 }
