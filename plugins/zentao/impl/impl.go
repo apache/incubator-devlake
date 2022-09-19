@@ -54,6 +54,8 @@ func (plugin Zentao) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
 		tasks.CollectProjectMeta,
 		tasks.ExtractProjectsMeta,
+		tasks.CollectExecutionMeta,
+		tasks.ExtractExecutionsMeta,
 	}
 }
 
