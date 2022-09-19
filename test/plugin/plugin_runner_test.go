@@ -15,17 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package e2e
+package plugin
 
 import (
 	"context"
 	"encoding/json"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/models"
-	"github.com/apache/incubator-devlake/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/stretchr/testify/require"
@@ -465,13 +463,6 @@ func runPlugin(t *testing.T, pluginName string, plugin *mocks.TestPlugin, task *
 		return &pluginResponse{tester: tester, result: *task, progressDetail: *progressDetail}, err
 	}
 	return &pluginResponse{tester: tester, result: *task, progressDetail: *progressDetail}, nil
-}
-
-func runMigrations(t *testing.T, ctx context.Context, tester *e2ehelper.DataFlowTester) {
-	migration.Init(tester.Db)
-	runner.RegisterMigrationScripts(migrationscripts.All(), "Framework", nil, tester.Log)
-	err := migration.Execute(ctx)
-	require.NoError(t, err)
 }
 
 type pluginResponse struct {
