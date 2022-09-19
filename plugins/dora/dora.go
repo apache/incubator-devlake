@@ -33,8 +33,6 @@ func main() {
 	repoId := cmd.Flags().StringP("repoId", "r", "", "repo id")
 	_ = cmd.MarkFlagRequired("repoId")
 
-	
-
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"repoId": *repoId,

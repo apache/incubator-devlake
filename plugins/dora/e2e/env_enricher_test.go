@@ -35,8 +35,9 @@ func TestEnrichEnvDataFlow(t *testing.T) {
 		Options: &tasks.DoraOptions{
 			RepoId: "github:GithubRepo:1:384111310",
 			TransformationRules: tasks.TransformationRules{
-				Environment:      "staging",
-				EnvironmentRegex: "deploy",
+				ProductionPattern: "(?i)deploy",
+				StagingPattern:    "(?i)stag",
+				TestingPattern:    "(?i)test",
 			},
 		},
 	}
