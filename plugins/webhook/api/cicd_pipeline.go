@@ -120,7 +120,7 @@ func PostCicdTask(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 		return nil, errors.Forbidden.New(`can not receive this task because pipeline has already been done.`)
 	}
 
-	domainPipelineRepo := &devops.CiCDPipelineCommit{
+	domainPipelineCommit := &devops.CiCDPipelineCommit{
 		PipelineId: pipelineId,
 		CommitSha:  request.CommitSha,
 		Branch:     request.Branch,
@@ -136,7 +136,7 @@ func PostCicdTask(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	if err != nil {
 		return nil, err
 	}
-	err = db.CreateOrUpdate(domainPipelineRepo)
+	err = db.CreateOrUpdate(domainPipelineCommit)
 	if err != nil {
 		return nil, err
 	}
