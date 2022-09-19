@@ -2,51 +2,51 @@ package archived
 
 import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type ZentaoExecution struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	Id             uint64 `json:"id"`
-	Project        uint64 `json:"project"`
-	Model          string `json:"model"`
-	Type           string `json:"type"`
-	Lifetime       string `json:"lifetime"`
-	Budget         string `json:"budget"`
-	BudgetUnit     string `json:"budgetUnit"`
-	Attribute      string `json:"attribute"`
-	Percent        int    `json:"percent"`
-	Milestone      string `json:"milestone"`
-	Output         string `json:"output"`
-	Auth           string `json:"auth"`
-	Parent         int    `json:"parent"`
-	Path           string `json:"path"`
-	Grade          int    `json:"grade"`
-	Name           string `json:"name"`
-	Code           string `json:"code"`
-	Begin          string `json:"begin"`
-	End            string `json:"end"`
-	RealBegan      string `json:"realBegan"`
-	RealEnd        string `json:"realEnd"`
-	Days           int    `json:"days"`
-	Status         string `json:"status"`
-	SubStatus      string `json:"subStatus"`
-	Pri            string `json:"pri"`
-	Desc           string `json:"desc"`
-	Version        int    `json:"version"`
-	ParentVersion  int    `json:"parentVersion"`
-	PlanDuration   int    `json:"planDuration"`
-	RealDuration   int    `json:"realDuration"`
+	ConnectionId   uint64              `gorm:"primaryKey"`
+	Id             uint64              `json:"id" gorm:"primaryKey"`
+	Project        uint64              `json:"project"`
+	Model          string              `json:"model"`
+	Type           string              `json:"type"`
+	Lifetime       string              `json:"lifetime"`
+	Budget         string              `json:"budget"`
+	BudgetUnit     string              `json:"budgetUnit"`
+	Attribute      string              `json:"attribute"`
+	Percent        int                 `json:"percent"`
+	Milestone      string              `json:"milestone"`
+	Output         string              `json:"output"`
+	Auth           string              `json:"auth"`
+	Parent         int                 `json:"parent"`
+	Path           string              `json:"path"`
+	Grade          int                 `json:"grade"`
+	Name           string              `json:"name"`
+	Code           string              `json:"code"`
+	Begin          *helper.Iso8601Time `json:"begin"`
+	End            *helper.Iso8601Time `json:"end"`
+	RealBegan      *helper.Iso8601Time `json:"realBegan"`
+	RealEnd        *helper.Iso8601Time `json:"realEnd"`
+	Days           int                 `json:"days"`
+	Status         string              `json:"status"`
+	SubStatus      string              `json:"subStatus"`
+	Pri            string              `json:"pri"`
+	Desc           string              `json:"desc"`
+	Version        int                 `json:"version"`
+	ParentVersion  int                 `json:"parentVersion"`
+	PlanDuration   int                 `json:"planDuration"`
+	RealDuration   int                 `json:"realDuration"`
 	OpenedBy       `json:"openedBy"`
-	OpenedDate     time.Time `json:"openedDate"`
-	OpenedVersion  string    `json:"openedVersion"`
+	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	OpenedVersion  string              `json:"openedVersion"`
 	LastEditedBy   `json:"lastEditedBy"`
-	LastEditedDate time.Time `json:"lastEditedDate"`
+	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
 	ClosedBy       `json:"closedBy"`
-	ClosedDate     time.Time `json:"closedDate"`
+	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
 	CanceledBy     `json:"canceledBy"`
-	CanceledDate   time.Time `json:"canceledDate"`
-	SuspendedDate  string    `json:"suspendedDate"`
+	CanceledDate   *helper.Iso8601Time `json:"canceledDate"`
+	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate"`
 	PO             `json:"PO"`
 	PM             `json:"PM"`
 	QD             `json:"QD"`
@@ -147,5 +147,5 @@ type TeamMember struct {
 }
 
 func (ZentaoExecution) TableName() string {
-	return "_tool_zentao_execution"
+	return "_tool_zentao_executions"
 }
