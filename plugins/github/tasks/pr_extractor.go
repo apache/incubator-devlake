@@ -35,30 +35,32 @@ var ExtractApiPullRequestsMeta = core.SubTaskMeta{
 }
 
 type GithubApiPullRequest struct {
-	GithubId int `json:"id"`
-	Number   int
-	State    string
-	Title    string
-	Body     json.RawMessage
-	HtmlUrl  string `json:"html_url"`
+	GithubId int             `json:"id"`
+	Number   int             `json:"number"`
+	State    string          `json:"state"`
+	Title    string          `json:"title"`
+	Body     json.RawMessage `json:"body"`
+	HtmlUrl  string          `json:"html_url"`
 	Labels   []struct {
 		Name string `json:"name"`
 	} `json:"labels"`
-	Assignee        *GithubAccountResponse
-	User            *GithubAccountResponse
-	ClosedAt        *helper.Iso8601Time `json:"closed_at"`
-	MergedAt        *helper.Iso8601Time `json:"merged_at"`
-	GithubCreatedAt helper.Iso8601Time  `json:"created_at"`
-	GithubUpdatedAt helper.Iso8601Time  `json:"updated_at"`
-	MergeCommitSha  string              `json:"merge_commit_sha"`
-	Head            struct {
-		Ref string
-		Sha string
-	}
-	Base struct {
-		Ref string
-		Sha string
-	}
+	Assignee        *GithubAccountResponse `json:"assignee"`
+	User            *GithubAccountResponse `json:"user"`
+	ClosedAt        *helper.Iso8601Time    `json:"closed_at"`
+	MergedAt        *helper.Iso8601Time    `json:"merged_at"`
+	GithubCreatedAt helper.Iso8601Time     `json:"created_at"`
+	GithubUpdatedAt helper.Iso8601Time     `json:"updated_at"`
+	MergeCommitSha  string                 `json:"merge_commit_sha"`
+	Head            *struct {
+		Ref  string         `json:"ref"`
+		Sha  string         `json:"sha"`
+		Repo *GithubApiRepo `json:"repo"`
+	} `json:"head"`
+	Base *struct {
+		Ref  string         `json:"ref"`
+		Sha  string         `json:"sha"`
+		Repo *GithubApiRepo `json:"repo"`
+	} `json:"base"`
 }
 
 func ExtractApiPullRequests(taskCtx core.SubTaskContext) errors.Error {
@@ -178,5 +180,9 @@ func convertGithubPullRequest(pull *GithubApiPullRequest, connId uint64, repoId 
 		HeadRef:         pull.Head.Ref,
 		HeadCommitSha:   pull.Head.Sha,
 	}
+	if pull.Head.Repo != nil {
+		githubPull.HeadRepoId = pull.Head.Repo.GithubId
+	}
+
 	return githubPull, nil
 }

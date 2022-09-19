@@ -15,14 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"context"
+	"gorm.io/gorm"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type GithubPullRequest struct {
+type addFieldHeadRepoId20220919 struct {
 	ConnectionId    uint64 `gorm:"primaryKey"`
 	GithubId        int    `gorm:"primaryKey"`
 	RepoId          int    `gorm:"index"`
@@ -52,9 +56,24 @@ type GithubPullRequest struct {
 	Url            string `gorm:"type:varchar(255)"`
 	AuthorName     string `gorm:"type:varchar(100)"`
 	AuthorId       int
-	common.NoPKModel
+	archived.NoPKModel
 }
 
-func (GithubPullRequest) TableName() string {
+func (addFieldHeadRepoId20220919) TableName() string {
 	return "_tool_github_pull_requests"
+}
+
+type addHeadRepoIdFieldInGithubPr struct{}
+
+func (*addHeadRepoIdFieldInGithubPr) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	err := db.Migrator().AddColumn(addFieldHeadRepoId20220919{}, "head_repo_id")
+	return errors.Convert(err)
+}
+
+func (*addHeadRepoIdFieldInGithubPr) Version() uint64 {
+	return 20220919223048
+}
+
+func (*addHeadRepoIdFieldInGithubPr) Name() string {
+	return "add column `head_repo_id` at tool_github_pull_requests"
 }
