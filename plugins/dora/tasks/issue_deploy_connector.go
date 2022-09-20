@@ -40,18 +40,12 @@ var ConnectIssueDeployMeta = core.SubTaskMeta{
 
 func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*DoraTaskData)
-
 	issue := &ticket.Issue{}
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
 		dal.From(issue),
-		dal.Join(`left join board_issues 
-			on issues.id = board_issues.issue_id`),
-		dal.Join("left join board_repos on board_repos.board_id = board_issues.board_id"),
 		dal.Where(
-			"board_repos.repo_id = ? and issues.type = ?",
-			data.Options.RepoId, "INCIDENT",
+			"issues.type = ?", "INCIDENT",
 		),
 	}
 	cursor, err := db.Cursor(clauses...)
