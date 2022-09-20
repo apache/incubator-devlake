@@ -79,7 +79,7 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 				pr.OrigReviewLag = int64(firstReviewTime.Sub(pr.CreatedDate).Minutes())
 				pr.OrigReviewTimespan = int64(pr.MergedDate.Sub(*firstReviewTime).Minutes())
 			}
-			deployTime, err := getDeployTime(repoId, devops.PRODUCTION, *pr.MergedDate, db)
+			deployTime, err := getDeployTime(devops.PRODUCTION, *pr.MergedDate, db)
 			if err != nil {
 				return nil, err
 			}
@@ -149,16 +149,15 @@ func getFirstReviewTime(prId string, prCreator string, db dal.Dal) (*time.Time, 
 	return &review.CreatedDate, nil
 }
 
-func getDeployTime(repoId string, environment string, mergeDate time.Time, db dal.Dal) (*time.Time, errors.Error) {
+func getDeployTime(environment string, mergeDate time.Time, db dal.Dal) (*time.Time, errors.Error) {
 	cicdTask := &devops.CICDTask{}
 	cicdTaskClauses := []dal.Clause{
 		dal.From(&devops.CICDTask{}),
 		dal.Join("left join cicd_pipeline_commits on cicd_tasks.pipeline_id = cicd_pipeline_commits.pipeline_id"),
-		dal.Where(`cicd_pipeline_commits.repo_id = ? 
-			and cicd_tasks.environment = ? 
+		dal.Where(`cicd_tasks.environment = ? 
 			and cicd_tasks.result = ?
 			and cicd_tasks.started_date > ?`,
-			repoId, environment, "SUCCESS", mergeDate),
+			environment, "SUCCESS", mergeDate),
 		dal.Orderby("cicd_tasks.started_date ASC"),
 	}
 	err := db.First(cicdTask, cicdTaskClauses...)

@@ -77,9 +77,9 @@ func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
 				dal.From(cicdTask),
 				dal.Join("left join cicd_pipeline_commits on cicd_tasks.pipeline_id = cicd_pipeline_commits.pipeline_id"),
 				dal.Where(
-					`cicd_pipeline_commits.repo_id = ? and cicd_tasks.finished_date < ? 
+					`cicd_tasks.finished_date < ? 
 								and cicd_tasks.result = ? and cicd_tasks.environment = ?`,
-					data.Options.RepoId, issueToBeUpdate.CreatedDate, "SUCCESS", devops.PRODUCTION,
+					issueToBeUpdate.CreatedDate, "SUCCESS", devops.PRODUCTION,
 				),
 				dal.Orderby("cicd_tasks.finished_date DESC"),
 			}
