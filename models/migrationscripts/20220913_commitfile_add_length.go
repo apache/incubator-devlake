@@ -21,6 +21,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -67,33 +68,40 @@ func (CommitFileComponentBak) TableName() string {
 
 type addCommitFilePathLength struct{}
 
-func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Error {
+func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) (errs errors.Error) {
 	var err error
 
-	// commit_files
 	// rename the commit_file_bak to cache old table
-	if db.Migrator().HasTable(&CommitFileAddLengthBak{}) {
-		// if the bak table aready exists that means we have already renamed it
-		// check if we should drop unfinished table for reset it.
-		if db.Migrator().HasTable(&CommitFile{}) {
-			err = db.Migrator().DropTable(&CommitFile{})
+	err = db.Migrator().RenameTable(&CommitFile{}, &CommitFileAddLengthBak{})
+	if err != nil {
+		return errors.Default.Wrap(err, "error no rename commit_file to commit_files_bak")
+	}
+
+	// rollback for rename back
+	defer func() {
+		if errs != nil {
+			err = db.Migrator().RenameTable(&CommitFileAddLengthBak{}, &CommitFile{})
 			if err != nil {
-				return errors.Default.Wrap(err, "fail to reset commit_file")
+				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table commit_file_bak , you must to rollback by yourself. %s", err.Error()))
 			}
 		}
-	} else {
-		// if it is not exists,that means we need rename it.
-		err = db.Migrator().RenameTable(&CommitFile{}, &CommitFileAddLengthBak{})
-		if err != nil {
-			return errors.Default.Wrap(err, "error no rename commit_file to commit_files_bak")
-		}
-	}
+	}()
 
 	// create new commit_files table
 	err = db.Migrator().AutoMigrate(&CommitFileAddLength{})
 	if err != nil {
 		return errors.Default.Wrap(err, "error on auto migrate commit_file")
 	}
+
+	// rollback for create new table
+	defer func() {
+		if errs != nil {
+			err = db.Migrator().DropTable(&CommitFile{})
+			if err != nil {
+				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table CommitFile , you must to rollback by yourself. %s", err.Error()))
+			}
+		}
+	}()
 
 	// update old id to new id and write to the new table
 	cursor, err := db.Model(&CommitFileAddLengthBak{}).Rows()
@@ -131,29 +139,36 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 	}
 
 	// rename the commit_file_components_bak
-	if db.Migrator().HasTable(&CommitFileComponentBak{}) {
-		// if the bak table aready exists that means we have already renamed it
-		// check if we should drop unfinished table for reset it.
-		if db.Migrator().HasTable(&CommitFileComponent{}) {
-			err = db.Migrator().DropTable(&CommitFileComponent{})
+	err = db.Migrator().RenameTable(&CommitFileComponent{}, &CommitFileComponentBak{})
+	if err != nil {
+		return errors.Default.Wrap(err, "error no rename commit_file_components to commit_file_components_bak")
+	}
+
+	// rollback for rename back
+	defer func() {
+		if errs != nil {
+			err = db.Migrator().RenameTable(&CommitFileComponentBak{}, &CommitFileComponent{})
 			if err != nil {
-				return errors.Default.Wrap(err, "fail to reset commit_file_components")
+				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table commit_file_components_bak , you must to rollback by yourself. %s", err.Error()))
 			}
 		}
-
-	} else {
-		// if it is not exists,that means we need rename it.
-		err = db.Migrator().RenameTable(&CommitFileComponent{}, &CommitFileComponentBak{})
-		if err != nil {
-			return errors.Default.Wrap(err, "error no rename commit_file_components to commit_file_components_bak")
-		}
-	}
+	}()
 
 	// create new commit_file_components table
 	err = db.Migrator().AutoMigrate(&CommitFileComponent{})
 	if err != nil {
 		return errors.Default.Wrap(err, "error on auto migrate commit_file")
 	}
+
+	// rollback for create new table
+	defer func() {
+		if errs != nil {
+			err = db.Migrator().DropTable(&CommitFileComponent{})
+			if err != nil {
+				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table commit_file_components , you must to rollback by yourself. %s", err.Error()))
+			}
+		}
+	}()
 
 	// update old id to new id and write to the new table
 	cursor2, err := db.Model(&CommitFileComponentBak{}).Rows()
