@@ -67,6 +67,7 @@ type addHeadRepoIdFieldInGithubPr struct{}
 
 func (*addHeadRepoIdFieldInGithubPr) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().AddColumn(addFieldHeadRepoId20220919{}, "head_repo_id")
+	_ = db.Exec("SELECT * FROM ? LIMIT 1", "_tool_github_pull_requests")
 	return errors.Convert(err)
 }
 
