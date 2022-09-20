@@ -44,7 +44,7 @@ func TestEnrichEnvDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&devops.CICDTask{})
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_pipeline_repos.csv", &devops.CiCDPipelineRepo{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_pipeline_commits.csv", &devops.CiCDPipelineCommit{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_tasks.csv", &devops.CICDTask{})
 
 	// verify converter

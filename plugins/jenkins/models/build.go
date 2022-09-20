@@ -28,15 +28,14 @@ type JenkinsBuild struct {
 	common.NoPKModel
 	// collected fields
 	ConnectionId      uint64    `gorm:"primaryKey"`
-	JobName           string    `gorm:"primaryKey;type:varchar(255)"`
+	JobName           string    `gorm:"index;type:varchar(255)"`
 	Duration          float64   // build time
-	DisplayName       string    `gorm:"type:varchar(255)"` // "#7"
+	FullDisplayName   string    `gorm:"primaryKey;type:varchar(255)"` // "job name #7"
 	EstimatedDuration float64   // EstimatedDuration
-	Number            int64     `gorm:"primaryKey"`
+	Number            int64     `gorm:"index"`
 	Result            string    // Result
 	Timestamp         int64     // start time
 	StartTime         time.Time // convered by timestamp
-	CommitSha         string    `gorm:"type:varchar(255)"`
 	Type              string    `gorm:"index;type:varchar(255)"`
 	Class             string    `gorm:"index;type:varchar(255)" `
 	TriggeredBy       string    `gorm:"type:varchar(255)"`

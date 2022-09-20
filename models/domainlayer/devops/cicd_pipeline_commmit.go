@@ -17,21 +17,17 @@ limitations under the License.
 
 package devops
 
-import (
-	"github.com/apache/incubator-devlake/models/domainlayer"
-	"time"
-)
+import "github.com/apache/incubator-devlake/models/common"
 
-type Build struct {
-	domainlayer.DomainEntity
-	JobId       string `gorm:"index"`
-	Name        string `gorm:"type:varchar(255)"`
-	CommitSha   string `gorm:"type:varchar(40)"`
-	DurationSec uint64
-	Status      string `gorm:"type:varchar(100)"`
-	StartedDate time.Time
+type CiCDPipelineCommit struct {
+	common.NoPKModel
+	PipelineId string `gorm:"primaryKey;type:varchar(255)"`
+	CommitSha  string `gorm:"primaryKey;type:varchar(255)"`
+	Branch     string `gorm:"type:varchar(255)"`
+	RepoId     string `gorm:"index;type:varchar(255)"`
+	RepoUrl    string
 }
 
-func (Build) TableName() string {
-	return "builds"
+func (CiCDPipelineCommit) TableName() string {
+	return "cicd_pipeline_commits"
 }

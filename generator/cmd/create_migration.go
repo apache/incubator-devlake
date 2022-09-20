@@ -51,7 +51,7 @@ If framework passed, generator will create a new migration in models/migrationsc
 			pluginName = args[0]
 		}
 		if pluginName == `` {
-			pluginItems, err := pluginNames(false)
+			pluginItems, err := pluginNames(true)
 			cobra.CheckErr(err)
 			prompt := promptui.Select{
 				Label: "plugin_name",

@@ -45,7 +45,7 @@ func TestConnectIssueDeployDataFlow(t *testing.T) {
 	}
 	dataflowTester.FlushTabler(&code.PullRequest{})
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_pipeline_repos.csv", &devops.CiCDPipelineRepo{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_pipeline_commits.csv", &devops.CiCDPipelineCommit{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_tasks_for_other_jobs.csv", &devops.CICDTask{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/board_issues.csv", &ticket.BoardIssue{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/board_repos.csv", &crossdomain.BoardRepo{})

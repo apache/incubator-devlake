@@ -15,36 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
-import (
-	"context"
-	"github.com/apache/incubator-devlake/errors"
+import "github.com/apache/incubator-devlake/models/common"
 
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
-)
-
-type Job20220721 struct {
-	Name string `gorm:"type:varchar(255)"`
-	Type string `gorm:"type:varchar(255)"`
-	archived.DomainEntity
+type JenkinsBuildCommit struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	BuildName    string `gorm:"primaryKey;type:varchar(255)"`
+	CommitSha    string `gorm:"primaryKey;type:varchar(255)"`
+	Branch       string `gorm:"type:varchar(255)"`
+	RepoUrl      string `gorm:"type:varchar(255)"`
+	common.NoPKModel
 }
 
-func (Job20220721) TableName() string {
-	return "jobs"
-}
-
-type addTypeField struct{}
-
-func (*addTypeField) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	return errors.Convert(db.Migrator().AddColumn(Job20220721{}, "type"))
-}
-
-func (*addTypeField) Version() uint64 {
-	return 20220721000005
-}
-
-func (*addTypeField) Name() string {
-	return "add column `type` at jobs"
+func (JenkinsBuildCommit) TableName() string {
+	return "_tool_jenkins_build_commits"
 }

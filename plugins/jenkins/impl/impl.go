@@ -49,7 +49,7 @@ func (plugin Jenkins) Init(config *viper.Viper, logger core.Logger, db *gorm.DB)
 func (plugin Jenkins) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{
 		&models.JenkinsBuild{},
-		&models.JenkinsBuildRepo{},
+		&models.JenkinsBuildCommit{},
 		&models.JenkinsConnection{},
 		&models.JenkinsJob{},
 		&models.JenkinsJobDag{},
@@ -76,7 +76,6 @@ func (plugin Jenkins) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertBuildsToCICDMeta,
 		tasks.ConvertStagesMeta,
 		tasks.ConvertBuildReposMeta,
-		tasks.ConvertJobsMeta,
 	}
 }
 func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {

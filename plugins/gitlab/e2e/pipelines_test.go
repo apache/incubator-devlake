@@ -83,7 +83,7 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 
 	// verify conversion
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
-	dataflowTester.FlushTabler(&devops.CiCDPipelineRepo{})
+	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 	dataflowTester.Subtask(tasks.ConvertPipelineMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertPipelineProjectMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -103,13 +103,14 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.VerifyTable(
-		devops.CiCDPipelineRepo{},
-		"./snapshot_tables/cicd_pipeline_repos.csv",
+		devops.CiCDPipelineCommit{},
+		"./snapshot_tables/cicd_pipeline_commits.csv",
 		[]string{
-			"id",
+			"pipeline_id",
 			"commit_sha",
 			"branch",
-			"repo",
+			"repo_id",
+			"repo_url",
 		},
 	)
 }

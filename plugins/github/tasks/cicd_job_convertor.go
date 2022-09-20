@@ -18,9 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"reflect"
+	"regexp"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -29,7 +30,7 @@ import (
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
-	githubModels "github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
 var ConvertTasksMeta = core.SubTaskMeta{
@@ -44,12 +45,21 @@ type SimpleBranch struct {
 	HeadBranch string `json:"head_branch" gorm:"type:varchar(255)"`
 }
 
-func ConvertTasks(taskCtx core.SubTaskContext) errors.Error {
+func ConvertTasks(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
-	job := &githubModels.GithubJob{}
+	var deployTagRegexp *regexp.Regexp
+	deployTagPattern := data.Options.DeployTagPattern
+	if len(deployTagPattern) > 0 {
+		deployTagRegexp, err = errors.Convert01(regexp.Compile(deployTagPattern))
+		if err != nil {
+			return errors.Default.Wrap(err, "regexp compile deployTagPattern failed")
+		}
+	}
+
+	job := &models.GithubJob{}
 	cursor, err := db.Cursor(
 		dal.From(job),
 		dal.Where("repo_id = ? and connection_id=?", repoId, data.Options.ConnectionId),
@@ -58,7 +68,8 @@ func ConvertTasks(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-
+	jobIdGen := didgen.NewDomainIdGenerator(&models.GithubJob{})
+	runIdGen := didgen.NewDomainIdGenerator(&models.GithubRun{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -69,50 +80,41 @@ func ConvertTasks(taskCtx core.SubTaskContext) errors.Error {
 			},
 			Table: RAW_JOB_TABLE,
 		},
-		InputRowType: reflect.TypeOf(githubModels.GithubJob{}),
+		InputRowType: reflect.TypeOf(models.GithubJob{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			line := inputRow.(*githubModels.GithubJob)
+			line := inputRow.(*models.GithubJob)
 
-			tmp := make([]*SimpleBranch, 0)
-			clauses := []dal.Clause{
-				dal.Select("head_branch"),
-				dal.From("_tool_github_runs"),
-				dal.Where("id = ?", line.RunID),
-			}
-			err = db.All(&tmp, clauses...)
-			if err != nil {
-				return nil, err
-			}
-
-			domainjob := &devops.CICDTask{
-				DomainEntity: domainlayer.DomainEntity{Id: fmt.Sprintf("%s:%s:%d:%d", "github", "GithubJob", data.Options.ConnectionId, line.ID)},
+			domainJob := &devops.CICDTask{
+				DomainEntity: domainlayer.DomainEntity{Id: jobIdGen.Generate(data.Options.ConnectionId, line.RunID,
+					line.ID)},
 				Name:         line.Name,
-				Type:         line.Type,
 				StartedDate:  *line.StartedAt,
 				FinishedDate: line.CompletedAt,
+				PipelineId:   runIdGen.Generate(data.Options.ConnectionId, line.RepoId, line.RunID),
 			}
-			if len(tmp) > 0 {
-				domainjob.PipelineId = fmt.Sprintf("%s:%s:%d:%d", "github", "GithubRun", data.Options.ConnectionId, line.RunID)
+			if deployTagRegexp != nil {
+				if deployFlag := deployTagRegexp.FindString(line.Name); deployFlag != "" {
+					domainJob.Type = devops.DEPLOYMENT
+				}
 			}
-
 			if line.Conclusion == "success" {
-				domainjob.Result = devops.SUCCESS
+				domainJob.Result = devops.SUCCESS
 			} else if line.Conclusion == "failure" || line.Conclusion == "startup_failure" {
-				domainjob.Result = devops.FAILURE
+				domainJob.Result = devops.FAILURE
 			} else {
-				domainjob.Result = devops.ABORT
+				domainJob.Result = devops.ABORT
 			}
 
 			if line.Status != "completed" {
-				domainjob.Status = devops.IN_PROGRESS
+				domainJob.Status = devops.IN_PROGRESS
 			} else {
-				domainjob.Status = devops.DONE
-				domainjob.DurationSec = uint64(line.CompletedAt.Sub(*line.StartedAt).Seconds())
+				domainJob.Status = devops.DONE
+				domainJob.DurationSec = uint64(line.CompletedAt.Sub(*line.StartedAt).Seconds())
 			}
 
 			return []interface{}{
-				domainjob,
+				domainJob,
 			}, nil
 		},
 	})

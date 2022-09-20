@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"time"
 )
 
 type BitbucketIssueCommentsResponse struct {
@@ -32,27 +33,27 @@ type BitbucketIssueCommentsResponse struct {
 	CreatedOn   time.Time  `json:"created_on"`
 	UpdatedOn   *time.Time `json:"updated_on"`
 	Content     struct {
-		Type string
+		Type string `json:"type"`
 		Raw  string `json:"raw"`
 	} `json:"content"`
-	User  *BitbucketAccountResponse
+	User  *BitbucketAccountResponse `json:"user"`
 	Issue struct {
-		Type       string
-		Id         int
-		Repository *BitbucketApiRepo
+		Type       string            `json:"type"`
+		Id         int               `json:"id"`
+		Repository *BitbucketApiRepo `json:"repository"`
 		Links      struct {
 			Self struct {
-				Href string
-			}
-		}
-		Title string
+				Href string `json:"href"`
+			} `json:"self"`
+		} `json:"links"`
+		Title string `json:"title"`
 	}
 	Links struct {
 		Self struct {
-			Href string
+			Href string `json:"href"`
 		} `json:"self"`
 		Html struct {
-			Href string
+			Href string `json:"href"`
 		} `json:"html"`
 	} `json:"links"`
 }

@@ -19,38 +19,37 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/errors"
-	"regexp"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type IssuesResponse struct {
-	Type        string `json:"type"`
-	BitbucketId int    `json:"id"`
-	Repository  *BitbucketApiRepo
+	Type        string            `json:"type"`
+	BitbucketId int               `json:"id"`
+	Repository  *BitbucketApiRepo `json:"repository"`
 	Links       struct {
 		Self struct {
-			Href string
+			Href string `json:"href"`
 		} `json:"self"`
 		Html struct {
-			Href string
+			Href string `json:"href"`
 		} `json:"html"`
 	} `json:"links"`
 	Title   string `json:"title"`
 	Content struct {
-		Type string
-		Raw  string
+		Type string `json:"type"`
+		Raw  string `json:"raw"`
 	} `json:"content"`
-	Reporter  *BitbucketAccountResponse
-	Assignee  *BitbucketAccountResponse
-	State     string `json:"state"`
-	Kind      string `json:"kind"`
+	Reporter  *BitbucketAccountResponse `json:"reporter"`
+	Assignee  *BitbucketAccountResponse `json:"assignee"`
+	State     string                    `json:"state"`
+	Kind      string                    `json:"kind"`
 	Milestone *struct {
-		Id int
+		Id int `json:"id"`
 	} `json:"milestone"`
 	Component          string    `json:"component"`
 	Priority           string    `json:"priority"`
@@ -58,15 +57,6 @@ type IssuesResponse struct {
 	Watches            int       `json:"watches"`
 	BitbucketCreatedAt time.Time `json:"created_on"`
 	BitbucketUpdatedAt time.Time `json:"updated_on"`
-}
-
-type IssueRegexes struct {
-	SeverityRegex        *regexp.Regexp
-	ComponentRegex       *regexp.Regexp
-	PriorityRegex        *regexp.Regexp
-	TypeBugRegex         *regexp.Regexp
-	TypeRequirementRegex *regexp.Regexp
-	TypeIncidentRegex    *regexp.Regexp
 }
 
 var ExtractApiIssuesMeta = core.SubTaskMeta{

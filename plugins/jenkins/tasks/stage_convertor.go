@@ -18,10 +18,13 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
+	"regexp"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -58,9 +61,18 @@ var ConvertStagesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ConvertStages(taskCtx core.SubTaskContext) errors.Error {
+func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
+	var deployTagRegexp *regexp.Regexp
+	deployTagPattern := data.Options.DeployTagPattern
+	if len(deployTagPattern) > 0 {
+		deployTagRegexp, err = errors.Convert01(regexp.Compile(deployTagPattern))
+		if err != nil {
+			return errors.Default.Wrap(err, "regexp compile deployTagPattern failed")
+		}
+	}
+
 	clauses := []dal.Clause{
 		dal.Select(`tjb.connection_id, tjs.build_name, tjs.name, tjs._raw_data_remark, 
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
@@ -68,7 +80,7 @@ func ConvertStages(taskCtx core.SubTaskContext) errors.Error {
 			tjs.pause_duration_millis, tjs.type, 
 			tjb.triggered_by, tjb.building`),
 		dal.From("_tool_jenkins_builds tjb"),
-		dal.Join("left join _tool_jenkins_stages tjs on tjs.build_name = tjb.display_name"),
+		dal.Join("left join _tool_jenkins_stages tjs on tjs.build_name = tjb.full_display_name"),
 		dal.Where("tjb.connection_id = ? ", data.Options.ConnectionId),
 	}
 
@@ -77,7 +89,8 @@ func ConvertStages(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-
+	stageIdGen := didgen.NewDomainIdGenerator(&models.JenkinsStage{})
+	buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
 	convertor, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(JenkinsBuildWithRepoStage{}),
 		Input:        cursor,
@@ -108,20 +121,24 @@ func ConvertStages(taskCtx core.SubTaskContext) errors.Error {
 			startedDate := time.Unix(body.StartTimeMillis/1000, 0)
 			finishedDate := startedDate.Add(time.Duration(durationSec * int64(time.Second)))
 			jenkinsTaskFinishedDate = &finishedDate
-
 			jenkinsTask := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: fmt.Sprintf("%s:%s:%d:%s:%s", "jenkins", "JenkinsStage", body.ConnectionId,
+					Id: stageIdGen.Generate(body.ConnectionId,
 						body.BuildName, body.Name),
 				},
 				Name: body.Name,
-				PipelineId: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsPipeline", body.ConnectionId,
+				PipelineId: buildIdGen.Generate(body.ConnectionId,
 					body.BuildName),
 				Result:       jenkinsTaskResult,
 				Status:       jenkinsTaskStatus,
 				DurationSec:  uint64(body.DurationMillis / 1000),
 				StartedDate:  time.Unix(durationSec, 0),
 				FinishedDate: jenkinsTaskFinishedDate,
+			}
+			if deployTagRegexp != nil {
+				if deployFlag := deployTagRegexp.FindString(body.Name); deployFlag != "" {
+					jenkinsTask.Type = devops.DEPLOYMENT
+				}
 			}
 			jenkinsTask.RawDataOrigin = body.RawDataOrigin
 

@@ -15,18 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package devops
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer"
+	"context"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts/archived"
+	"gorm.io/gorm"
 )
 
-type Job struct {
-	Name string `gorm:"type:varchar(255)"`
-	Type string `gorm:"type:varchar(255)"`
-	domainlayer.DomainEntity
+type addPipeline20220914 struct{}
+
+func (*addPipeline20220914) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	err := db.Migrator().AutoMigrate(&archived.BitbucketPipeline{})
+	if err != nil {
+		return errors.Convert(err)
+	}
+	return nil
 }
 
-func (Job) TableName() string {
-	return "jobs"
+func (*addPipeline20220914) Version() uint64 {
+	return 20220914111223
+}
+
+func (*addPipeline20220914) Name() string {
+	return "bitbucket add _tool_bitbucket_pipelines table"
 }

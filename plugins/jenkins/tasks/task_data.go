@@ -18,9 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
@@ -30,9 +30,10 @@ type JenkinsApiParams struct {
 }
 
 type JenkinsOptions struct {
-	ConnectionId uint64 `json:"connectionId"`
-	Since        string
-	Tasks        []string `json:"tasks,omitempty"`
+	ConnectionId               uint64 `json:"connectionId"`
+	Since                      string
+	Tasks                      []string `json:"tasks,omitempty"`
+	models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type JenkinsTaskData struct {
@@ -47,6 +48,9 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptio
 	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
+	}
+	if op.DeployTagPattern == "" {
+		op.DeployTagPattern = "(?i)deploy"
 	}
 	// find the needed Jenkins now
 	if op.ConnectionId == 0 {

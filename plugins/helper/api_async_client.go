@@ -153,18 +153,18 @@ func (apiClient *ApiAsyncClient) DoAsync(
 	request = func() errors.Error {
 		var err error
 		var res *http.Response
-		var body []byte
+		var respBody []byte
 
 		apiClient.logger.Debug("endpoint: %s  method: %s  header: %s  body: %s query: %s", path, method, header, body, query)
 		res, err = apiClient.Do(method, path, query, body, header)
 		// make sure response body is read successfully, or we might have to retry
 		if err == nil {
 			// make sure response.Body stream will be closed to avoid running out of file handle
-			defer func(body io.ReadCloser) { body.Close() }(res.Body)
+			defer func(readCloser io.ReadCloser) { _ = readCloser.Close() }(res.Body)
 			// replace NetworkStream with MemoryBuffer
-			body, err = io.ReadAll(res.Body)
+			respBody, err = io.ReadAll(res.Body)
 			if err == nil {
-				res.Body = io.NopCloser(bytes.NewBuffer(body))
+				res.Body = io.NopCloser(bytes.NewBuffer(respBody))
 			}
 		}
 		if err == ErrIgnoreAndContinue {

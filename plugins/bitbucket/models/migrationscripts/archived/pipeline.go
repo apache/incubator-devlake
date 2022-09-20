@@ -18,19 +18,25 @@ limitations under the License.
 package archived
 
 import (
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"time"
 )
 
-type Build struct {
-	DomainEntity
-	JobId       string `gorm:"index"`
-	Name        string `gorm:"type:varchar(255)"`
-	CommitSha   string `gorm:"type:varchar(40)"`
-	DurationSec uint64
-	Status      string `gorm:"type:varchar(100)"`
-	StartedDate time.Time
+type BitbucketPipeline struct {
+	ConnectionId      uint64 `gorm:"primaryKey"`
+	BitbucketId       string `gorm:"primaryKey"`
+	Status            string `gorm:"type:varchar(100)"`
+	Result            string `gorm:"type:varchar(100)"`
+	RefName           string `gorm:"type:varchar(255)"`
+	WebUrl            string `gorm:"type:varchar(255)"`
+	DurationInSeconds uint64
+
+	BitbucketCreatedOn  *time.Time
+	BitbucketCompleteOn *time.Time
+
+	archived.NoPKModel
 }
 
-func (Build) TableName() string {
-	return "builds"
+func (BitbucketPipeline) TableName() string {
+	return "_tool_bitbucket_pipelines"
 }

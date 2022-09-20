@@ -81,7 +81,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 			}
 			res, err := apiClient.Get("user", nil, nil)
 			if err != nil {
-				results <- VerifyResult{err: errors.HttpStatus(res.StatusCode).Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token))}
+				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token))}
 				return
 			}
 			githubUserOfToken := &models.GithubUserOfToken{}

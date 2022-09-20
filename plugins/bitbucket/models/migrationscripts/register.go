@@ -25,5 +25,6 @@ import (
 func All() []migration.Script {
 	return []migration.Script{
 		new(addInitTables),
+		new(addPipeline20220914),
 	}
 }

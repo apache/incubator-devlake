@@ -18,11 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"reflect"
 
-	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -44,7 +43,7 @@ func ConvertBuildRepos(taskCtx core.SubTaskContext) errors.Error {
 
 	clauses := []dal.Clause{
 		dal.Select("*"),
-		dal.From(&models.JenkinsBuildRepo{}),
+		dal.From(&models.JenkinsBuildCommit{}),
 		dal.Where("connection_id = ?", data.Options.ConnectionId),
 	}
 	cursor, err := db.Cursor(clauses...)
@@ -52,9 +51,10 @@ func ConvertBuildRepos(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
+	buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.JenkinsBuildRepo{}),
+		InputRowType: reflect.TypeOf(models.JenkinsBuildCommit{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
@@ -64,15 +64,13 @@ func ConvertBuildRepos(taskCtx core.SubTaskContext) errors.Error {
 			Table: RAW_BUILD_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			jenkinsBuildRepo := inputRow.(*models.JenkinsBuildRepo)
-			build := &devops.CiCDPipelineRepo{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: fmt.Sprintf("%s:%s:%d:%s", "jenkins", "JenkinsTask", jenkinsBuildRepo.ConnectionId,
-						jenkinsBuildRepo.BuildName),
-				},
+			jenkinsBuildRepo := inputRow.(*models.JenkinsBuildCommit)
+			build := &devops.CiCDPipelineCommit{
+				PipelineId: buildIdGen.Generate(jenkinsBuildRepo.ConnectionId,
+					jenkinsBuildRepo.BuildName),
 				CommitSha: jenkinsBuildRepo.CommitSha,
 				Branch:    jenkinsBuildRepo.Branch,
-				Repo:      jenkinsBuildRepo.RepoUrl,
+				RepoUrl:   jenkinsBuildRepo.RepoUrl,
 			}
 			return []interface{}{
 				build,

@@ -28,7 +28,6 @@ func All() []migration.Script {
 		new(updateBlueprintMode),
 		new(renameTasksToPlan),
 		new(addDomainTables),
-		new(addTypeField),
 		new(commitfileComponent),
 		new(removeNotes),
 		new(addProjectMapping),
@@ -46,5 +45,6 @@ func All() []migration.Script {
 		new(modifyBoardRepos),
 		new(addOriginChangeValueForPr),
 		new(addCommitFilePathLength),
+		new(renamePipelineCommits),
 	}
 }

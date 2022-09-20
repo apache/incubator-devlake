@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -68,7 +69,7 @@ func ExtractApiStages(taskCtx core.SubTaskContext) errors.Error {
 				StartTimeMillis:     body.StartTimeMillis,
 				DurationMillis:      body.DurationMillis,
 				PauseDurationMillis: body.PauseDurationMillis,
-				BuildName:           input.DisplayName,
+				BuildName:           input.FullDisplayName,
 			}
 
 			results = append(results, stage)

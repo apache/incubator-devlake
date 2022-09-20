@@ -44,7 +44,8 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.JenkinsBuild{})
-	dataflowTester.FlushTabler(&models.JenkinsBuildRepo{})
+	dataflowTester.FlushTabler(&models.JenkinsBuildCommit{})
+	dataflowTester.FlushTabler(&models.JenkinsStage{})
 
 	dataflowTester.Subtask(tasks.ExtractApiBuildsMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -54,14 +55,12 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"connection_id",
 			"job_name",
 			"duration",
-			"display_name",
+			"full_display_name",
 			"estimated_duration",
 			"number",
 			"result",
 			"timestamp",
 			"start_time",
-			"commit_sha",
-
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
@@ -70,8 +69,8 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.VerifyTable(
-		models.JenkinsBuildRepo{},
-		"./snapshot_tables/_tool_jenkins_build_repos.csv",
+		models.JenkinsBuildCommit{},
+		"./snapshot_tables/_tool_jenkins_build_commits.csv",
 		[]string{
 			"connection_id",
 			"build_name",
@@ -87,10 +86,11 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 
 	dataflowTester.FlushTabler(&devops.CICDTask{})
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
-	dataflowTester.FlushTabler(&devops.CiCDPipelineRepo{})
+	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 	dataflowTester.FlushTabler(&devops.CICDPipelineRelationship{})
 	dataflowTester.Subtask(tasks.EnrichApiBuildWithStagesMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertBuildsToCICDMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertBuildReposMeta, taskData)
 
 	dataflowTester.VerifyTable(
 		devops.CICDTask{},
@@ -133,11 +133,12 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	)
 
 	dataflowTester.VerifyTable(
-		devops.CiCDPipelineRepo{},
-		"./snapshot_tables/cicd_pipeline_repos.csv",
+		devops.CiCDPipelineCommit{},
+		"./snapshot_tables/cicd_pipeline_commits.csv",
 		[]string{
-			"id",
-			"repo",
+			"pipeline_id",
+			"repo_id",
+			"repo_url",
 			"branch",
 			"commit_sha",
 		},

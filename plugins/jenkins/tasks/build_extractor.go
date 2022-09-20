@@ -20,11 +20,10 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	"strconv"
 	"strings"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -76,7 +75,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 				ConnectionId:      data.Options.ConnectionId,
 				JobName:           input.Name,
 				Duration:          body.Duration,
-				DisplayName:       body.DisplayName,
+				FullDisplayName:   body.DisplayName,
 				EstimatedDuration: body.EstimatedDuration,
 				Number:            body.Number,
 				Result:            body.Result,
@@ -95,15 +94,15 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 					if a.MercurialRevisionNumber != "" {
 						sha = a.MercurialRevisionNumber
 					}
-					build.CommitSha = sha
+
 					if len(a.LastBuiltRevision.Branches) > 0 {
 						branch = a.LastBuiltRevision.Branches[0].Name
 					}
 					for _, url := range a.RemoteUrls {
 						if url != "" {
-							buildCommitRemoteUrl := models.JenkinsBuildRepo{
+							buildCommitRemoteUrl := models.JenkinsBuildCommit{
 								ConnectionId: data.Options.ConnectionId,
-								BuildName:    build.DisplayName,
+								BuildName:    build.FullDisplayName,
 								CommitSha:    sha,
 								RepoUrl:      url,
 								Branch:       branch,
@@ -119,10 +118,6 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 							}
 						}
 					}
-				}
-			} else if vcs == "svn" {
-				if len(body.ChangeSet.Revisions) > 0 {
-					build.CommitSha = strconv.Itoa(body.ChangeSet.Revisions[0].Revision)
 				}
 			}
 

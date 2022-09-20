@@ -5,7 +5,8 @@
     "standard",
     "standard-jsx",
     "standard-react",
-    "plugin:react-hooks/recommended"
+    "plugin:react-hooks/recommended",
+    "prettier"
   ],
   "ignorePatterns": [
     "dist/*",
@@ -21,7 +22,8 @@
   "plugins": [
     "unicorn",
     "babel",
-    "header"
+    "header",
+    "prettier"
   ],
   "settings": {
     "import/resolver": {
@@ -45,6 +47,7 @@
     }
   },
   "rules": {
+    "prettier/prettier": ["warn"],
     "camelcase": "off",
     "max-len": [1, 140, 2],
     "react/jsx-indent": ["error", 2],

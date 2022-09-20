@@ -17,17 +17,26 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/models/common"
+import (
+	"github.com/apache/incubator-devlake/models/common"
+	"time"
+)
 
-type JenkinsBuildRepo struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	BuildName    string `gorm:"primaryKey;type:varchar(255)"`
-	CommitSha    string `gorm:"primaryKey;type:varchar(255)"`
-	Branch       string `gorm:"type:varchar(255)"`
-	RepoUrl      string `gorm:"type:varchar(255)"`
+type BitbucketPipeline struct {
+	ConnectionId      uint64 `gorm:"primaryKey"`
+	BitbucketId       string `gorm:"primaryKey"`
+	Status            string `gorm:"type:varchar(100)"`
+	Result            string `gorm:"type:varchar(100)"`
+	RefName           string `gorm:"type:varchar(255)"`
+	WebUrl            string `gorm:"type:varchar(255)"`
+	DurationInSeconds uint64
+
+	BitbucketCreatedOn  *time.Time
+	BitbucketCompleteOn *time.Time
+
 	common.NoPKModel
 }
 
-func (JenkinsBuildRepo) TableName() string {
-	return "_tool_jenkins_build_repos"
+func (BitbucketPipeline) TableName() string {
+	return "_tool_bitbucket_pipelines"
 }
