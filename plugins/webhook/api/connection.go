@@ -80,11 +80,19 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 	return &core.ApiResourceOutput{Body: connection}, err
 }
 
+type WebhookConnectionResponse struct {
+	models.WebhookConnection
+	PostIssuesEndpoint       string `json:"postIssuesEndpoint"`
+	CloseIssuesEndpoint      string `json:"closeIssuesEndpoint"`
+	PostPipelineTaskEndpoint string `json:"postPipelineTaskEndpoint"`
+	ClosePipelineEndpoint    string `json:"closePipelineEndpoint"`
+}
+
 // ListConnections
 // @Summary get all webhook connections
 // @Description Get all webhook connections
 // @Tags plugins/webhook
-// @Success 200  {object} []models.WebhookConnection
+// @Success 200  {object} []WebhookConnectionResponse
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /plugins/webhook/connections [GET]
@@ -94,13 +102,11 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	if err != nil {
 		return nil, err
 	}
+	var responseList []WebhookConnectionResponse
+	for _, connection := range connections {
+		responseList = append(responseList, *formatConnection(&connection))
+	}
 	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
-}
-
-type WebhookConnectionResponse struct {
-	models.WebhookConnection
-	IssuesEndpoint       string
-	CicdPipelineEndpoint string
 }
 
 // GetConnection
@@ -114,8 +120,15 @@ type WebhookConnectionResponse struct {
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
-	response := &WebhookConnectionResponse{WebhookConnection: *connection}
-	response.IssuesEndpoint = fmt.Sprintf(`/plugins/webhook/%d/issues`, connection.ID)
-	response.CicdPipelineEndpoint = fmt.Sprintf(`/plugins/webhook/%d/cicd_pipeline`, connection.ID)
+	response := formatConnection(connection)
 	return &core.ApiResourceOutput{Body: response}, err
+}
+
+func formatConnection(connection *models.WebhookConnection) *WebhookConnectionResponse {
+	response := &WebhookConnectionResponse{WebhookConnection: *connection}
+	response.PostIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/%d/issues`, connection.ID)
+	response.CloseIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/%d/issue/:boardKey/:issueId/close`, connection.ID)
+	response.PostPipelineTaskEndpoint = fmt.Sprintf(`/plugins/webhook/%d/cicd_tasks`, connection.ID)
+	response.ClosePipelineEndpoint = fmt.Sprintf(`/plugins/webhook/%d/cicd_pipeline/:pipelineName/finish`, connection.ID)
+	return response
 }
