@@ -53,6 +53,13 @@ const Deployment = (props) => {
       ? 1
       : 0
   )
+  const isDeployTagEmpty = useMemo(
+    () =>
+      enableDeployTag &&
+      (transformation?.productionPattern === '' ||
+        !transformation?.productionPattern),
+    [enableDeployTag, transformation?.productionPattern]
+  )
 
   const clearDeploymentTags = useCallback(
     (deploymentOption) => {
@@ -91,8 +98,7 @@ const Deployment = (props) => {
       case Providers.GITLAB:
       case 'default':
         // eslint-disable-next-line max-len
-        tagHint =
-          'A CI job/build with a name that matches the given regEx is considered as an deployment. You can define your Deployments for three environments: Production, Staging and Testing.'
+        tagHint = `A CI job/build with a name that matches the given regEx is considered as an deployment. You can define your Deployments for three environments: Production, Staging and Testing.`
         break
     }
     return tagHint
@@ -207,19 +213,17 @@ const Deployment = (props) => {
                   className='input'
                   maxLength={255}
                   rightElement={
-                    enableDeployTag &&
-                    (transformation?.productionPattern === '' ||
-                      !transformation?.productionPattern) ? (
-                        <Tooltip
+                    isDeployTagEmpty ? (
+                      <Tooltip
                         intent={Intent.PRIMARY}
                         content='Deployment Tag RegEx required'
                       >
                         <Icon
-                            icon='warning-sign'
-                            color={Colors.GRAY3}
-                            size={12}
-                            style={{ margin: '8px' }}
-                          />
+                          icon='warning-sign'
+                          color={Colors.GRAY3}
+                          size={12}
+                          style={{ margin: '8px' }}
+                        />
                       </Tooltip>
                     ) : null
                   }
