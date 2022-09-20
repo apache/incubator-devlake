@@ -15,36 +15,11 @@
  * limitations under the License.
  *
  */
-import React, {
-  Fragment,
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-} from 'react'
-import {
-  Button,
-  Icon,
-  Intent,
-  InputGroup,
-  MenuItem,
-  Divider,
-  Elevation,
-  Card,
-  Colors,
-  Spinner,
-  Tooltip,
-  Position,
-} from '@blueprintjs/core'
+import React, { Fragment, useEffect, useState, useCallback, useMemo } from 'react'
+import { Button, Icon, Intent, InputGroup, MenuItem, Divider, Elevation, Card, Colors, Spinner, Tooltip, Position } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import { integrationsData } from '@/data/integrations'
-import {
-  Providers,
-  ProviderTypes,
-  ProviderIcons,
-  ConnectionStatus,
-  ConnectionStatusLabels,
-} from '@/data/Providers'
+import { Providers, ProviderTypes, ProviderIcons, ConnectionStatus, ConnectionStatusLabels } from '@/data/Providers'
 import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
 import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 
@@ -101,12 +76,8 @@ const DataTransformations = (props) => {
 
   const boardsAndProjects = useMemo(
     () => [
-      ...(Array.isArray(boards[configuredConnection?.id])
-        ? boards[configuredConnection?.id]
-        : []),
-      ...(Array.isArray(projects[configuredConnection?.id])
-        ? projects[configuredConnection?.id]
-        : []),
+      ...(Array.isArray(boards[configuredConnection?.id]) ? boards[configuredConnection?.id] : []),
+      ...(Array.isArray(projects[configuredConnection?.id]) ? projects[configuredConnection?.id] : []),
     ],
     [projects, boards, configuredConnection?.id]
   )
@@ -125,10 +96,7 @@ const DataTransformations = (props) => {
   const transformationHasProperties = useCallback(
     (item) => {
       const storedTransform = transformations[item?.id]
-      return (
-        storedTransform &&
-        Object.values(storedTransform).some((v) => v && v.length > 0)
-      )
+      return storedTransform && Object.values(storedTransform).some((v) => v && v.length > 0)
     },
     [transformations]
   )
@@ -150,29 +118,17 @@ const DataTransformations = (props) => {
           break
       }
     }
-  }, [
-    activeEntity,
-    addBoardTransformation,
-    addProjectTransformation,
-    useDropdownSelector,
-  ])
+  }, [activeEntity, addBoardTransformation, addProjectTransformation, useDropdownSelector])
 
   useEffect(() => {
-    console.log(
-      '>>> DATA TRANSFORMATIONS: DSM $configurationKey',
-      configurationKey
-    )
+    console.log('>>> DATA TRANSFORMATIONS: DSM $configurationKey', configurationKey)
   }, [configurationKey])
 
   return (
-    <div
-      className='workflow-step workflow-step-add-transformation'
-      data-step={activeStep?.id}
-    >
+    <div className='workflow-step workflow-step-add-transformation' data-step={activeStep?.id}>
       {enableNoticeAlert && (
         <p className='alert neutral'>
-          Set transformation rules for your selected data to view more complex
-          metrics in the dashboards.
+          Set transformation rules for your selected data to view more complex metrics in the dashboards.
           <br />
           <a
             href='#'
@@ -191,15 +147,8 @@ const DataTransformations = (props) => {
       {blueprintConnections.length > 0 && (
         <div style={{ display: 'flex' }}>
           {enableConnectionTabs && (
-            <div
-              className='connection-tab-selector'
-              style={{ minWidth: '200px' }}
-            >
-              <Card
-                className='workflow-card connection-tabs-card'
-                elevation={Elevation.TWO}
-                style={{ padding: '10px' }}
-              >
+            <div className='connection-tab-selector' style={{ minWidth: '200px' }}>
+              <Card className='workflow-card connection-tabs-card' elevation={Elevation.TWO} style={{ padding: '10px' }}>
                 <ConnectionTabs
                   connections={blueprintConnections}
                   onChange={handleConnectionTabChange}
@@ -208,24 +157,13 @@ const DataTransformations = (props) => {
               </Card>
             </div>
           )}
-          <div
-            className='connection-transformation'
-            style={{ marginLeft: '10px', width: '100%' }}
-          >
-            <Card
-              className='workflow-card workflow-panel-card'
-              elevation={elevation}
-              style={{ ...cardStyle }}
-            >
+          <div className='connection-transformation' style={{ marginLeft: '10px', width: '100%' }}>
+            <Card className='workflow-card workflow-panel-card' elevation={elevation} style={{ ...cardStyle }}>
               {configuredConnection && (
                 <>
                   <h3>
                     <span style={{ float: 'left', marginRight: '8px' }}>
-                      {ProviderIcons[configuredConnection.provider] ? (
-                        ProviderIcons[configuredConnection.provider](24, 24)
-                      ) : (
-                        <></>
-                      )}
+                      {ProviderIcons[configuredConnection.provider] ? ProviderIcons[configuredConnection.provider](24, 24) : <></>}
                     </span>{' '}
                     {configuredConnection.title}
                   </h3>
@@ -233,24 +171,11 @@ const DataTransformations = (props) => {
 
                   {useDropdownSelector &&
                     entityList &&
-                    [
-                      Providers.JIRA,
-                      Providers.GITHUB,
-                      Providers.GITLAB,
-                    ].includes(configuredConnection.provider) && (
-                      <div
-                        className='project-or-board-select'
-                        style={{ marginBottom: '20px' }}
-                      >
-                        <h4>
-                          {configuredConnection.provider === Providers.JIRA
-                            ? 'Board'
-                            : 'Project'}
-                        </h4>
+                    [Providers.JIRA, Providers.GITHUB, Providers.GITLAB].includes(configuredConnection.provider) && (
+                      <div className='project-or-board-select' style={{ marginBottom: '20px' }}>
+                        <h4>{configuredConnection.provider === Providers.JIRA ? 'Board' : 'Project'}</h4>
                         <Select
-                          disabled={
-                            configuredConnection.provider === Providers.JENKINS
-                          }
+                          disabled={configuredConnection.provider === Providers.JENKINS}
                           popoverProps={{ usePortal: false }}
                           className='selector-entity'
                           id='selector-entity'
@@ -258,11 +183,7 @@ const DataTransformations = (props) => {
                           fill={true}
                           items={entityList}
                           activeItem={activeEntity}
-                          itemPredicate={(query, item) =>
-                            item?.title
-                              ?.toString()
-                              .toLowerCase()
-                              .indexOf(query.toLowerCase()) >= 0}
+                          itemPredicate={(query, item) => item?.title?.toString().toLowerCase().indexOf(query.toLowerCase()) >= 0}
                           itemRenderer={(item, { handleClick, modifiers }) => (
                             <MenuItem
                               active={modifiers.active}
@@ -272,31 +193,17 @@ const DataTransformations = (props) => {
                               text={item.title}
                             />
                           )}
-                          noResults={
-                            <MenuItem
-                              disabled={true}
-                              text='No projects or boards.'
-                            />
-                          }
+                          noResults={<MenuItem disabled={true} text='No projects or boards.' />}
                           onItemSelect={(item) => {
                             setActiveEntity(item)
                           }}
                         >
                           <Button
-                            disabled={
-                              configuredConnection.provider ===
-                              Providers.JENKINS
-                            }
+                            disabled={configuredConnection.provider === Providers.JENKINS}
                             className='btn-select-entity'
                             intent={Intent.PRIMARY}
                             outlined
-                            text={
-                              activeEntity
-                                ? `${
-                                    activeEntity?.title || '- None Available -'
-                                  }`
-                                : '< Select Project / Board >'
-                            }
+                            text={activeEntity ? `${activeEntity?.title || '- None Available -'}` : '< Select Project / Board >'}
                             rightIcon='caret-down'
                             fill
                             style={{
@@ -307,11 +214,9 @@ const DataTransformations = (props) => {
                           />
                         </Select>
                       </div>
-                  )}
+                    )}
 
-                  {[Providers.GITLAB, Providers.GITHUB].includes(
-                    configuredConnection.provider
-                  ) &&
+                  {[Providers.GITLAB, Providers.GITHUB].includes(configuredConnection.provider) &&
                     !useDropdownSelector &&
                     !configuredProject && (
                       <>
@@ -334,55 +239,52 @@ const DataTransformations = (props) => {
                           />
                         )}
                       </>
-                  )}
-
-                  {[Providers.JIRA].includes(configuredConnection.provider) &&
-                    !useDropdownSelector &&
-                    !configuredBoard && (
-                      <>
-                        <StandardStackedList
-                          items={boards}
-                          transformations={transformations}
-                          className='selected-items-list selected-boards-list'
-                          connection={configuredConnection}
-                          activeItem={configuredBoard}
-                          onAdd={addBoardTransformation}
-                          onChange={addBoardTransformation}
-                          isEditing={transformationHasProperties}
-                        />
-                        {boards[configuredConnection.id].length === 0 && (
-                          <NoData
-                            title='No Boards Selected'
-                            icon='th'
-                            message='Please select specify at least one board.'
-                            onClick={prevStep}
-                          />
-                        )}
-                      </>
-                  )}
-
-                  {(configuredProject || configuredBoard || (configuredConnection?.provider === Providers.JENKINS && configuredConnection)) && (
-                  <div>
-                    {!useDropdownSelector &&
-                        (configuredProject || configuredBoard) && (
-                          <>
-                            <h4>Project</h4>
-                            <p style={{ color: '#292B3F' }}>
-                              {configuredProject?.title || configuredBoard?.title || '< select a project >'}
-                            </p>
-                          </>
                     )}
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <h4 style={{ margin: 0 }}>Data Transformation Rules</h4>
-                      <div>
-                        {/* @todo: reactivate clear all functionality */}
-                        {/* <Button
+
+                  {[Providers.JIRA].includes(configuredConnection.provider) && !useDropdownSelector && !configuredBoard && (
+                    <>
+                      <StandardStackedList
+                        items={boards}
+                        transformations={transformations}
+                        className='selected-items-list selected-boards-list'
+                        connection={configuredConnection}
+                        activeItem={configuredBoard}
+                        onAdd={addBoardTransformation}
+                        onChange={addBoardTransformation}
+                        isEditing={transformationHasProperties}
+                      />
+                      {boards[configuredConnection.id].length === 0 && (
+                        <NoData
+                          title='No Boards Selected'
+                          icon='th'
+                          message='Please select specify at least one board.'
+                          onClick={prevStep}
+                        />
+                      )}
+                    </>
+                  )}
+
+                  {(configuredProject ||
+                    configuredBoard ||
+                    (configuredConnection?.provider === Providers.JENKINS && configuredConnection)) && (
+                    <div>
+                      {!useDropdownSelector && (configuredProject || configuredBoard) && (
+                        <>
+                          <h4>Project</h4>
+                          <p style={{ color: '#292B3F' }}>{configuredProject?.title || configuredBoard?.title || '< select a project >'}</p>
+                        </>
+                      )}
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <h4 style={{ margin: 0 }}>Data Transformation Rules</h4>
+                        <div>
+                          {/* @todo: reactivate clear all functionality */}
+                          {/* <Button
                             minimal
                             small
                             text='Clear All'
@@ -392,45 +294,37 @@ const DataTransformations = (props) => {
                             style={{ float: 'right' }}
                             disabled={Object.keys(activeTransformation || {}).length === 0}
                           /> */}
+                        </div>
                       </div>
-                    </div>
 
-                    {!dataEntities[configuredConnection.id] ||
-                        (dataEntities[configuredConnection.id]?.length ===
-                          0 && <p>(No Data Entities Selected)</p>)}
+                      {!dataEntities[configuredConnection.id] ||
+                        (dataEntities[configuredConnection.id]?.length === 0 && <p>(No Data Entities Selected)</p>)}
 
-                    {dataEntities[configuredConnection.id]?.find((e) =>
-                      DEFAULT_DATA_ENTITIES.some((dE) => dE.value === e.value)
-                    ) && (
-                    <ProviderTransformationSettings
-                      provider={integrationsData.find(
-                        (i) => i.id === configuredConnection?.provider
+                      {dataEntities[configuredConnection.id]?.find((e) => DEFAULT_DATA_ENTITIES.some((dE) => dE.value === e.value)) && (
+                        <ProviderTransformationSettings
+                          provider={integrationsData.find((i) => i.id === configuredConnection?.provider)}
+                          blueprint={blueprint}
+                          connection={configuredConnection}
+                          configuredProject={configuredProject}
+                          configuredBoard={configuredBoard}
+                          entityIdKey={configurationKey}
+                          issueTypes={issueTypes}
+                          fields={fields}
+                          boards={boards}
+                          projects={projects}
+                          entities={dataEntities}
+                          transformation={activeTransformation}
+                          transformations={transformations}
+                          onSettingsChange={setTransformationSettings}
+                          isSaving={isSaving}
+                          isFetchingJIRA={isFetchingJIRA}
+                          isSavingConnection={isSavingConnection}
+                          jiraProxyError={jiraProxyError}
+                        />
                       )}
-                      blueprint={blueprint}
-                      connection={configuredConnection}
-                      configuredProject={configuredProject}
-                      configuredBoard={configuredBoard}
-                      entityIdKey={configurationKey}
-                      issueTypes={issueTypes}
-                      fields={fields}
-                      boards={boards}
-                      projects={projects}
-                      entities={dataEntities}
-                      transformation={activeTransformation}
-                      transformations={transformations}
-                      onSettingsChange={setTransformationSettings}
-                      isSaving={isSaving}
-                      isFetchingJIRA={isFetchingJIRA}
-                      isSavingConnection={isSavingConnection}
-                      jiraProxyError={jiraProxyError}
-                    />
-                    )}
 
-                    <div
-                      className='transformation-actions'
-                      style={{ display: 'flex', justifyContent: 'flex-end' }}
-                    >
-                      {/* <Button
+                      <div className='transformation-actions' style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        {/* <Button
                           text='Cancel'
                           small
                           outlined
@@ -445,50 +339,41 @@ const DataTransformations = (props) => {
                           disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
                           style={{ marginLeft: '5px' }}
                         /> */}
-                      {enableGoBack &&
-                          (configuredProject || configuredBoard) && (
-                            <Tooltip
-                              position={Position.TOP}
+                        {enableGoBack && (configuredProject || configuredBoard) && (
+                          <Tooltip position={Position.TOP} intent={Intent.PRIMARY} content='Close Editor to Continue'>
+                            <Button
+                              text='Go Back'
                               intent={Intent.PRIMARY}
-                              content='Close Editor to Continue'
-                            >
-                              <Button
-                                text='Go Back'
-                                intent={Intent.PRIMARY}
-                                small
-                                outlined
-                                onClick={() => onSave()}
-                                // disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
-                                style={{ marginLeft: '5px' }}
-                              />
-                            </Tooltip>
-                      )}
+                              small
+                              outlined
+                              onClick={() => onSave()}
+                              // disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
+                              style={{ marginLeft: '5px' }}
+                            />
+                          </Tooltip>
+                        )}
+                      </div>
                     </div>
-                  </div>
                   )}
                 </>
               )}
 
               {([Providers.TAPD].includes(configuredConnection.provider) ||
                 ([Providers.GITLAB].includes(configuredConnection.provider) &&
-                  dataEntities[configuredConnection.id].every(
-                    (e) => e.value !== DataEntityTypes.DEVOPS
-                  ))) && (
-                  <>
-                    <div className='bp3-non-ideal-state'>
-                      <div className='bp3-non-ideal-state-visual'>
-                        <Icon icon='disable' size={32} />
-                      </div>
-                      <div className='bp3-non-ideal-state-text'>
-                        <h4 className='bp3-heading' style={{ margin: 0 }}>
-                          No Data Transformations
-                        </h4>
-                        <div>
-                          No additional settings are available at this time.
-                        </div>
-                      </div>
+                  dataEntities[configuredConnection.id].every((e) => e.value !== DataEntityTypes.DEVOPS))) && (
+                <>
+                  <div className='bp3-non-ideal-state'>
+                    <div className='bp3-non-ideal-state-visual'>
+                      <Icon icon='disable' size={32} />
                     </div>
-                  </>
+                    <div className='bp3-non-ideal-state-text'>
+                      <h4 className='bp3-heading' style={{ margin: 0 }}>
+                        No Data Transformations
+                      </h4>
+                      <div>No additional settings are available at this time.</div>
+                    </div>
+                  </div>
+                </>
               )}
             </Card>
           </div>
@@ -506,10 +391,7 @@ const DataTransformations = (props) => {
               </h4>
               <div>Please select at least one connection source.</div>
             </div>
-            <button
-              className='bp3-button bp4-intent-primary'
-              onClick={prevStep}
-            >
+            <button className='bp3-button bp4-intent-primary' onClick={prevStep}>
               Go Back
             </button>
           </div>
