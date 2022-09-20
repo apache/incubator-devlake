@@ -68,7 +68,7 @@ const TaskActivity = (props) => {
     <>
       <div
         className='pipeline-task-activity'
-style={{
+        style={{
           // padding: '20px',
           padding: Object.keys(stages).length === 1 ? '0' : 0,
           overflow: 'hidden',
@@ -197,7 +197,7 @@ style={{
                         icon={
                           <Icon
                             size={12}
-color={Colors.GRAY2}
+                            color={Colors.GRAY2}
                             icon={
                               expandedTask?.id === t.id
                                 ? 'collapse-all'
@@ -363,7 +363,6 @@ color={Colors.GRAY2}
                           <Popover>
                             <>`${t.message.slice(0, 255)}...`</>
                             <div
-style={{
                               style={{
                                 maxWidth: '300px',
                                 maxHeight: '300px',
@@ -379,7 +378,10 @@ style={{
                                   icon='warning-sign'
                                   size={14}
                                   color={Colors.RED5}
-style={{ float: 'left', margin: '2px 4px 0 0' }}
+                                  style={{
+                                    float: 'left',
+                                    margin: '2px 4px 0 0'
+                                  }}
                                 />
                                 ERROR MESSAGE{' '}
                                 <small style={{ color: Colors.GRAY3 }}>
@@ -533,7 +535,7 @@ style={{ float: 'left', margin: '2px 4px 0 0' }}
                 icon='warning-sign'
                 size={12}
                 color={Colors.ORANGE5}
-style={{ float: 'left', margin: '0 4px 0 0' }}
+                style={{ float: 'left', margin: '0 4px 0 0' }}
               />
               <p>
                 <strong>Missing Configuration</strong>, this pipeline has no
