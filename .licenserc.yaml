@@ -25,6 +25,8 @@ header:
     - 'LICENSE'
     - 'NOTICE'
     - 'config-ui/node_modules'
+    - 'config-ui/.prettierignore'
+    - 'config-ui/.prettierrc.js'
     - 'bin'
     - 'logs'
     - 'mocks'
