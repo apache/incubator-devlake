@@ -96,8 +96,24 @@ const DataTransformations = (props) => {
     cardStyle = {}
   } = props
 
-  // lifted to dsm hook
-  // const entityIdKey = useMemo(() => provider?.id === Providers.JENKINS ? `C#${configuredConnection?.id}` : (configuredProject?.id || configuredBoard?.id), [provider?.id, configuredConnection?.id, configuredProject?.id, configuredBoard?.id])
+  const isTransformationSupported = useMemo(
+    () =>
+      configuredProject ||
+      configuredBoard ||
+      (configuredConnection?.provider === Providers.JENKINS &&
+        configuredConnection),
+    [configuredProject, configuredBoard, configuredConnection]
+  )
+
+  const noTransformationsAvailable = useMemo(
+    () =>
+      [Providers.TAPD].includes(configuredConnection?.provider) ||
+      ([Providers.GITLAB].includes(configuredConnection?.provider) &&
+        dataEntities[configuredConnection?.id].every(
+          (e) => e.value !== DataEntityTypes.DEVOPS
+        )),
+    [configuredConnection?.provider, configuredConnection?.id, dataEntities]
+  )
 
   const boardsAndProjects = useMemo(
     () => [
@@ -362,11 +378,8 @@ const DataTransformations = (props) => {
                       </>
                     )}
 
-                  {(configuredProject ||
-                    configuredBoard ||
-                    (configuredConnection?.provider === Providers.JENKINS &&
-                      configuredConnection)) && (
-                      <div>
+                  {isTransformationSupported && (
+                    <div>
                       {!useDropdownSelector &&
                         (configuredProject || configuredBoard) && (
                           <>
@@ -379,27 +392,15 @@ const DataTransformations = (props) => {
                           </>
                         )}
                       <div
-                          style={{
+                        style={{
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center'
                         }}
-                        >
-                          <h4 style={{ margin: 0 }}>Data Transformation Rules</h4>
-                          <div>
-                          {/* @todo: reactivate clear all functionality */}
-                          {/* <Button
-                            minimal
-                            small
-                            text='Clear All'
-                            intent={Intent.NONE}
-                            href='#'
-                            onClick={clearTransformation}
-                            style={{ float: 'right' }}
-                            disabled={Object.keys(activeTransformation || {}).length === 0}
-                          /> */}
-                        </div>
-                        </div>
+                      >
+                        <h4 style={{ margin: 0 }}>Data Transformation Rules</h4>
+                        <div />
+                      </div>
 
                       {!dataEntities[configuredConnection.id] ||
                         (dataEntities[configuredConnection.id]?.length ===
@@ -433,25 +434,10 @@ const DataTransformations = (props) => {
                       )}
 
                       <div
-                          className='transformation-actions'
-                          style={{ display: 'flex', justifyContent: 'flex-end' }}
-                        >
-                          {/* <Button
-                          text='Cancel'
-                          small
-                          outlined
-                          onClick={onCancel}
-                        />
-                        <Button
-                          text='Save'
-                          intent={Intent.PRIMARY}
-                          small
-                          outlined
-                          onClick={() => onSave(newTransformation[configuredBoard?.id], configuredBoard?.id)}
-                          disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
-                          style={{ marginLeft: '5px' }}
-                        /> */}
-                          {enableGoBack &&
+                        className='transformation-actions'
+                        style={{ display: 'flex', justifyContent: 'flex-end' }}
+                      >
+                        {enableGoBack &&
                           (configuredProject || configuredBoard) && (
                             <Tooltip
                               position={Position.TOP}
@@ -464,37 +450,32 @@ const DataTransformations = (props) => {
                                 small
                                 outlined
                                 onClick={() => onSave()}
-                                // disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
                                 style={{ marginLeft: '5px' }}
                               />
                             </Tooltip>
                           )}
-                        </div>
+                      </div>
                     </div>
                   )}
                 </>
               )}
 
-              {([Providers.TAPD].includes(configuredConnection.provider) ||
-                ([Providers.GITLAB].includes(configuredConnection.provider) &&
-                  dataEntities[configuredConnection.id].every(
-                    (e) => e.value !== DataEntityTypes.DEVOPS
-                  ))) && (
+              {noTransformationsAvailable && (
                 <>
-                    <div className='bp3-non-ideal-state'>
+                  <div className='bp3-non-ideal-state'>
                     <div className='bp3-non-ideal-state-visual'>
-                        <Icon icon='disable' size={32} />
-                      </div>
+                      <Icon icon='disable' size={32} />
+                    </div>
                     <div className='bp3-non-ideal-state-text'>
-                        <h4 className='bp3-heading' style={{ margin: 0 }}>
+                      <h4 className='bp3-heading' style={{ margin: 0 }}>
                         No Data Transformations
                       </h4>
-                        <div>
+                      <div>
                         No additional settings are available at this time.
                       </div>
-                      </div>
+                    </div>
                   </div>
-                  </>
+                </>
               )}
             </Card>
           </div>
