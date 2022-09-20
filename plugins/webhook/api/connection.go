@@ -106,7 +106,7 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	for _, connection := range connections {
 		responseList = append(responseList, *formatConnection(&connection))
 	}
-	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
+	return &core.ApiResourceOutput{Body: responseList, Status: http.StatusOK}, nil
 }
 
 // GetConnection
