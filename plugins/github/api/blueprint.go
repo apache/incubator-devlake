@@ -37,9 +37,18 @@ import (
 )
 
 func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
+	repoHelper := RepoHelper{}
+	plan, err := DoMakePipeline(subtaskMetas, connectionId, scope, repoHelper)
+	if err != nil {
+		return nil, err
+	}
+	return plan, nil
+}
+
+func DoMakePipeline(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100, repoHelper BpHelper) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
+	apiRepo, _, _ := &tasks.GithubApiRepo{}, "", ""
 	plan := make(core.PipelinePlan, len(scope))
-	apiRepo, token, proxy := &tasks.GithubApiRepo{}, "", ""
 	for i, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
 		transformationRules := make(map[string]interface{})
@@ -95,7 +104,8 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		// collect git data by gitextractor if CODE was requested
 		if utils.StringsContains(scopeElem.Entities, core.DOMAIN_TYPE_CODE) {
 			// here is the tricky part, we have to obtain the repo id beforehand
-			apiRepo, token, proxy, err = getApiRepo(connectionId, op)
+			res, token, proxy, err := repoHelper.GetApiRepo(connectionId, op)
+			apiRepo = res.(*tasks.GithubApiRepo)
 			if err != nil {
 				return nil, err
 			}
@@ -128,10 +138,12 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 				return nil, err
 			}
 			if apiRepo.GithubId == 0 {
-				apiRepo, _, _, err = getApiRepo(connectionId, op)
+				res, _, _, err := repoHelper.GetApiRepo(connectionId, op)
 				if err != nil {
 					return nil, err
 				}
+				apiRepo = res.(*tasks.GithubApiRepo)
+
 			}
 			doraOption := make(map[string]interface{})
 			doraOption["repoId"] = didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connectionId, apiRepo.GithubId)
@@ -150,7 +162,14 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 	return plan, nil
 }
 
-func getApiRepo(connectionId uint64, op *tasks.GithubOptions) (*tasks.GithubApiRepo, string, string, errors.Error) {
+type BpHelper interface {
+	GetApiRepo(connectionId uint64, op interface{}) (interface{}, string, string, errors.Error)
+}
+
+type RepoHelper struct{}
+
+func (c RepoHelper) GetApiRepo(connectionId uint64, originOp interface{}) (interface{}, string, string, errors.Error) {
+	op := originOp.(*tasks.GithubOptions)
 	// here is the tricky part, we have to obtain the repo id beforehand
 	connection := new(models.GithubConnection)
 	err := connectionHelper.FirstById(connection, connectionId)

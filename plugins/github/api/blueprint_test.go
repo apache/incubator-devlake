@@ -20,27 +20,46 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"github.com/apache/incubator-devlake/runner"
+	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
-	"strings"
 	"testing"
 )
 
 func TestMakePipelinePlan(t *testing.T) {
 	cmd := &cobra.Command{Use: "github"}
-	cfg := config.GetConfig()
-	log := logger.Global.Nested("test")
-	db, err := runner.NewGormDb(cfg, log)
-	Init(cfg, log, db)
+	option := &tasks.GithubOptions{
+		ConnectionId: 1,
+		Tasks:        nil,
+		Since:        "",
+		Owner:        "merico-dev",
+		Repo:         "lake",
+		TransformationRules: models.TransformationRules{
+			PrType:               "hey,man,wasup",
+			PrComponent:          "component/(.*)$",
+			PrBodyClosePattern:   "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)",
+			IssueSeverity:        "severity/(.*)$",
+			IssuePriority:        "^(highest|high|medium|low)$",
+			IssueComponent:       "component/(.*)$",
+			IssueTypeBug:         "^(bug|failure|error)$",
+			IssueTypeIncident:    "",
+			IssueTypeRequirement: "^(feat|feature|proposal|requirement)$",
+			DeployTagPattern:     "(?i)deploy",
+		},
+	}
+	mockConnHelper := mocks.NewBpHelper(t)
+	mockConnHelper.On("GetApiRepo", uint64(1), option).Return(&tasks.GithubApiRepo{
+		Name:     "test",
+		GithubId: 1,
+		CloneUrl: "CloneUrl",
+	}, "", "", nil)
 	mockMeta := mocks.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/github")
-	err = core.RegisterPlugin(cmd.Use, mockMeta)
+
+	err := core.RegisterPlugin(cmd.Use, mockMeta)
 	if err != nil {
 		panic(err)
 	}
@@ -65,17 +84,13 @@ func TestMakePipelinePlan(t *testing.T) {
 	}
 	scopes := make([]*core.BlueprintScopeV100, 0)
 	scopes = append(scopes, bs)
-	plan, err := MakePipelinePlan(nil, 1, scopes)
+	plan, err := DoMakePipeline(nil, 1, scopes, mockConnHelper)
+
 	assert.Nil(t, err)
 	planJson, err1 := json.Marshal(plan)
 	assert.Nil(t, err1)
-	githubConn := &models.GithubConnection{}
-	err = connectionHelper.FirstById(githubConn, 1)
-	assert.Nil(t, err)
-	token := strings.Split(githubConn.Token, ",")[0]
-	expectPlan := fmt.Sprintf(`[[{"plugin":"github","subtasks":[],"options":{"connectionId":1,"owner":"merico-dev","repo":"lake","transformationRules":{"prType":"hey,man,wasup"}}},{"plugin":"gitextractor","subtasks":null,"options":{"proxy":"","repoId":"github:GithubRepo:1:491450511","url":"https://git:%s@github.com/merico-dev/lake.git"}}],[{"plugin":"refdiff","subtasks":null,"options":{"tagsLimit":10,"tagsOrder":"reverse semver","tagsPattern":"pattern"}}],[{"plugin":"dora","subtasks":null,"options":{"repoId":"github:GithubRepo:1:491450511","tasks":["EnrichTaskEnv"],"transformation":{"environment":"pattern","environmentRegex":"xxxx"}}}]]`,
-		token,
-	)
+	fmt.Println(string(planJson))
+	expectPlan := `[[{"plugin":"github","subtasks":[],"options":{"connectionId":1,"owner":"merico-dev","repo":"lake","transformationRules":{"prType":"hey,man,wasup"}}},{"plugin":"gitextractor","subtasks":null,"options":{"proxy":"","repoId":"github:GithubRepo:1:1","url":"//git:@CloneUrl"}}],[{"plugin":"refdiff","subtasks":null,"options":{"tagsLimit":10,"tagsOrder":"reverse semver","tagsPattern":"pattern"}}],[{"plugin":"dora","subtasks":null,"options":{"repoId":"github:GithubRepo:1:1","tasks":["EnrichTaskEnv"],"transformation":{"environment":"pattern","environmentRegex":"xxxx"}}}]]`
 	assert.Equal(t, expectPlan, string(planJson))
 
 }
