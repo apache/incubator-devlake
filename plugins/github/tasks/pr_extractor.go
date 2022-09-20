@@ -51,12 +51,12 @@ type GithubApiPullRequest struct {
 	GithubCreatedAt helper.Iso8601Time     `json:"created_at"`
 	GithubUpdatedAt helper.Iso8601Time     `json:"updated_at"`
 	MergeCommitSha  string                 `json:"merge_commit_sha"`
-	Head            *struct {
+	Head            struct {
 		Ref  string         `json:"ref"`
 		Sha  string         `json:"sha"`
 		Repo *GithubApiRepo `json:"repo"`
 	} `json:"head"`
-	Base *struct {
+	Base struct {
 		Ref  string         `json:"ref"`
 		Sha  string         `json:"sha"`
 		Repo *GithubApiRepo `json:"repo"`
