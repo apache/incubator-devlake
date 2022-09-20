@@ -43,9 +43,9 @@ func RunTask(
 	db *gorm.DB,
 	progress chan core.RunningProgress,
 	taskId uint64,
-) error {
+) (err error) {
 	task := &models.Task{}
-	err := db.Find(task, taskId).Error
+	err = db.Find(task, taskId).Error
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,14 @@ func RunTask(
 	// make sure task status always correct even if it panicked
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("run task failed with panic (%s): %v", utils.GatherCallFrames(0), r)
+			var e error
+			switch et := r.(type) {
+			case error:
+				e = et
+			default:
+				e = fmt.Errorf("%v", et)
+			}
+			err = fmt.Errorf("run task failed with panic (%s): %v", utils.GatherCallFrames(0), e)
 		}
 		finishedAt := time.Now()
 		spentSeconds := finishedAt.Unix() - beganAt.Unix()
