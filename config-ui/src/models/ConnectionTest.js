@@ -45,39 +45,39 @@ const ConnectionStatusLabels = {
  */
 
 class ConnectionTest {
-  constructor (data = {}) {
+  constructor(data = {}) {
     this.connection = data?.connection || null
     this.status = data?.status || ConnectionStatusCodes.OFFLINE
     this.statusLabel = data?.statusLabel || ConnectionStatusLabels[this.status]
     this.testResponse = data?.testResponse || null
   }
 
-  get (property) {
+  get(property) {
     return this[property]
   }
 
-  set (property, value) {
+  set(property, value) {
     this[property] = value
     return this.property
   }
 
-  getStatusCodes () {
+  getStatusCodes() {
     return ConnectionStatusCodes
   }
 
-  getStatusLabels () {
+  getStatusLabels() {
     return ConnectionStatusLabels
   }
 
-  isOnline () {
+  isOnline() {
     return this.status === ConnectionStatusCodes.ONLINE
   }
 
-  isOffline () {
+  isOffline() {
     return this.status === ConnectionStatusCodes.OFFLINE
   }
 
-  isTesting () {
+  isTesting() {
     return this.status === ConnectionStatusCodes.TESTING
   }
 }

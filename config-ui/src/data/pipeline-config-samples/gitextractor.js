@@ -27,6 +27,4 @@ const gitextractorConfig = [
   ]
 ]
 
-export {
-  gitextractorConfig
-}
+export { gitextractorConfig }

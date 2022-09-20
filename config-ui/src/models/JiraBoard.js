@@ -42,15 +42,17 @@ class JiraBoard {
     this.shortTitle = data?.shortTitle || null
     this.icon = data?.icon || null
     this.type = data?.type || 'kanban'
-    this.location = data?.location ? { ...data?.location } : {
-      projectId: null,
-      displayName: null,
-      projectName: null,
-      projectKey: null,
-      projectTypeKey: null,
-      avatarURI: null,
-      name: null
-    }
+    this.location = data?.location
+      ? { ...data?.location }
+      : {
+          projectId: null,
+          displayName: null,
+          projectName: null,
+          projectKey: null,
+          projectTypeKey: null,
+          avatarURI: null,
+          name: null
+        }
 
     this.useApi = data?.useApi || true
     this.variant = data?.variant || 'board'

@@ -40,7 +40,7 @@ import InputValidationError from '@/components/validation/InputValidationError'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
-export default function ConnectionForm (props) {
+export default function ConnectionForm(props) {
   const {
     isLocked = false,
     isValid = true,
@@ -52,7 +52,7 @@ export default function ConnectionForm (props) {
     initialTokenStore = {
       0: '',
       1: '',
-      2: '',
+      2: ''
     },
     username,
     password,
@@ -83,7 +83,7 @@ export default function ConnectionForm (props) {
     placeholders,
     enableActions = true,
     formGroupClassName = 'formGroup',
-    showHeadline = true,
+    showHeadline = true
   } = props
 
   const connectionNameRef = useRef()
@@ -101,7 +101,10 @@ export default function ConnectionForm (props) {
   const [personalAccessTokens, setPersonalAccessTokens] = useState([])
   const [tokenTests, setTokenTests] = useState([])
 
-  const patTestPayload = useMemo(() => ({ endpoint: endpointUrl, proxy }), [endpointUrl, proxy])
+  const patTestPayload = useMemo(
+    () => ({ endpoint: endpointUrl, proxy }),
+    [endpointUrl, proxy]
+  )
 
   const getConnectionStatusIcon = () => {
     let statusIcon = <Icon icon='full-circle' size='10' color={Colors.RED3} />
@@ -127,9 +130,17 @@ export default function ConnectionForm (props) {
       token,
       username,
       password,
-      rateLimitPerHour,
+      rateLimitPerHour
     })
-  }, [name, endpointUrl, token, username, password, rateLimitPerHour, onValidate])
+  }, [
+    name,
+    endpointUrl,
+    token,
+    username,
+    password,
+    rateLimitPerHour,
+    onValidate
+  ])
   const fieldHasError = (fieldId) => {
     return validationErrors.some((e) => e.includes(fieldId))
   }
@@ -138,16 +149,19 @@ export default function ConnectionForm (props) {
     return validationErrors.find((e) => e.includes(fieldId))
   }
 
-  const getValidityStatus = useCallback((token, testResponse, allTestResponses) => {
-    let status = 'Invalid'
-    // @todo: add duplicate user check
-    if (testResponse?.success) {
-      status = 'Valid'
-    } else {
-      status = 'Invalid'
-    }
-    return status
-  }, [])
+  const getValidityStatus = useCallback(
+    (token, testResponse, allTestResponses) => {
+      let status = 'Invalid'
+      // @todo: add duplicate user check
+      if (testResponse?.success) {
+        status = 'Valid'
+      } else {
+        status = 'Invalid'
+      }
+      return status
+    },
+    []
+  )
 
   const activateErrorStates = (elementId) => {
     setStateErrored(elementId || false)
@@ -157,7 +171,7 @@ export default function ConnectionForm (props) {
     const emptyToken = ''
     setTokenStore((tokens) => ({
       ...tokens,
-      [Object.keys(tokens).length]: emptyToken,
+      [Object.keys(tokens).length]: emptyToken
     }))
   }
 
@@ -176,24 +190,25 @@ export default function ConnectionForm (props) {
   const syncPersonalAcessTokens = useCallback(() => {
     onTokenChange(personalAccessTokens.join(',').trim())
     // eslint-disable-next-line no-unused-vars
-    const tokenTestResponses = personalAccessTokens.filter(t => t !== '').map((t, tIdx) => {
-      const withAlert = false
-      const testPayload = {
-        ...patTestPayload,
-        token: t,
-      }
-      if (![connectionEndpointRef.current?.id, connectionProxyRef.current?.id].includes(document.activeElement?.id)) {
-        onTest(withAlert, testPayload)
-      }
-      return t
-    })
-  }, [
-    personalAccessTokens,
-    patTestPayload,
-
-    onTokenChange,
-    onTest
-  ])
+    const tokenTestResponses = personalAccessTokens
+      .filter((t) => t !== '')
+      .map((t, tIdx) => {
+        const withAlert = false
+        const testPayload = {
+          ...patTestPayload,
+          token: t
+        }
+        if (
+          ![
+            connectionEndpointRef.current?.id,
+            connectionProxyRef.current?.id
+          ].includes(document.activeElement?.id)
+        ) {
+          onTest(withAlert, testPayload)
+        }
+        return t
+      })
+  }, [personalAccessTokens, patTestPayload, onTokenChange, onTest])
 
   useEffect(() => {
     if (!allowedAuthTypes.includes(authType)) {
@@ -223,11 +238,7 @@ export default function ConnectionForm (props) {
       console.log('>> PERSONAL ACCESS TOKENS ENTERED...', personalAccessTokens)
       syncPersonalAcessTokens()
     }
-  }, [
-    activeProvider?.id,
-    personalAccessTokens,
-    syncPersonalAcessTokens
-  ])
+  }, [activeProvider?.id, personalAccessTokens, syncPersonalAcessTokens])
 
   useEffect(() => {
     console.log(
@@ -243,18 +254,28 @@ export default function ConnectionForm (props) {
 
   useEffect(() => {
     console.log('>> ALL TEST RESPONSES FROM CONN MGR...', allTestResponses)
-    setTokenTests(personalAccessTokens.filter(t => t !== '').map((t, tIdx) => {
-      return {
-        id: tIdx,
-        token: t,
-        response: allTestResponses ? allTestResponses[t] : null,
-        success: allTestResponses ? allTestResponses[t]?.success : false,
-        message: allTestResponses ? allTestResponses[t]?.message : 'invalid token',
-        username: allTestResponses ? allTestResponses[t]?.login : '',
-        status: getValidityStatus(t, allTestResponses ? allTestResponses[t] : null, allTestResponses),
-        isDuplicate: !!(allTestResponses && allTestResponses[t])
-      }
-    }))
+    setTokenTests(
+      personalAccessTokens
+        .filter((t) => t !== '')
+        .map((t, tIdx) => {
+          return {
+            id: tIdx,
+            token: t,
+            response: allTestResponses ? allTestResponses[t] : null,
+            success: allTestResponses ? allTestResponses[t]?.success : false,
+            message: allTestResponses
+              ? allTestResponses[t]?.message
+              : 'invalid token',
+            username: allTestResponses ? allTestResponses[t]?.login : '',
+            status: getValidityStatus(
+              t,
+              allTestResponses ? allTestResponses[t] : null,
+              allTestResponses
+            ),
+            isDuplicate: !!(allTestResponses && allTestResponses[t])
+          }
+        })
+    )
   }, [allTestResponses, personalAccessTokens, getValidityStatus])
 
   return (
@@ -266,7 +287,7 @@ export default function ConnectionForm (props) {
               className='headline'
               style={{
                 marginTop: 0,
-                textDecoration: isLocked ? 'line-through' : 'none',
+                textDecoration: isLocked ? 'line-through' : 'none'
               }}
             >
               Configure Connection
@@ -286,7 +307,7 @@ export default function ConnectionForm (props) {
               maxWidth: '480px',
               marginBottom: '20px',
               backgroundColor: showLimitWarning ? '#f0f0f0' : 'transparent',
-              border: showLimitWarning ? 'inherit' : 0,
+              border: showLimitWarning ? 'inherit' : 0
             }}
           >
             <p className='warning-message' intent={Intent.WARNING}>
@@ -478,7 +499,7 @@ export default function ConnectionForm (props) {
                             style={{
                               display: 'flex',
                               flex: 1,
-                              marginBottom: '8px',
+                              marginBottom: '8px'
                             }}
                           >
                             <div
@@ -491,7 +512,8 @@ export default function ConnectionForm (props) {
                                 placeholder='Token'
                                 value={pat}
                                 onChange={(e) =>
-                                  setPersonalToken(patIdx, e.target.value)}
+                                  setPersonalToken(patIdx, e.target.value)
+                                }
                                 className='input personal-token-input'
                                 fill
                                 autoComplete='false'
@@ -502,9 +524,16 @@ export default function ConnectionForm (props) {
                                 className='token-info-status'
                                 style={{ display: 'flex', padding: '0 10px' }}
                               >
-                                {(tokenTests[patIdx]?.success && pat !== '') ? (
+                                {tokenTests[patIdx]?.success && pat !== '' ? (
                                   <>
-                                    <span style={{ color: Colors.GRAY4, marginRight: '10px' }}>From: {tokenTests[patIdx]?.username}</span>
+                                    <span
+                                      style={{
+                                        color: Colors.GRAY4,
+                                        marginRight: '10px'
+                                      }}
+                                    >
+                                      From: {tokenTests[patIdx]?.username}
+                                    </span>
                                     <span
                                       className='token-validation-status'
                                       style={{ color: Colors.GREEN4 }}
@@ -528,7 +557,7 @@ export default function ConnectionForm (props) {
                               className='token-removal'
                               style={{
                                 marginLeft: 'auto',
-                                justifyContent: 'flex-end',
+                                justifyContent: 'flex-end'
                               }}
                             >
                               <Button
@@ -554,7 +583,8 @@ export default function ConnectionForm (props) {
                           small
                           outlined
                           onClick={() =>
-                            addAnotherAccessToken(personalAccessTokens.length)}
+                            addAnotherAccessToken(personalAccessTokens.length)
+                          }
                         />
                       </div>
                     </div>
@@ -710,9 +740,13 @@ export default function ConnectionForm (props) {
             </div>
           </>
         )}
-        {[Providers.GITHUB, Providers.GITLAB, Providers.JIRA, Providers.JENKINS, Providers.TAPD].includes(
-          activeProvider?.id
-        ) && (
+        {[
+          Providers.GITHUB,
+          Providers.GITLAB,
+          Providers.JIRA,
+          Providers.JENKINS,
+          Providers.TAPD
+        ].includes(activeProvider?.id) && (
           <>
             <div className='formContainer'>
               <FormGroup
@@ -752,7 +786,9 @@ export default function ConnectionForm (props) {
                 className={formGroupClassName}
                 contentClassName='formGroupContent'
               >
-                <Label>{labels ? labels.rateLimitPerHour : <>Rate&nbsp;Limit</>}</Label>
+                <Label>
+                  {labels ? labels.rateLimitPerHour : <>Rate&nbsp;Limit</>}
+                </Label>
                 <NumericInput
                   id='connection-ratelimit'
                   ref={connectionRateLimitRef}
@@ -761,20 +797,22 @@ export default function ConnectionForm (props) {
                   max={1000000000}
                   clampValueOnBlur={true}
                   className={`input input-ratelimit ${
-                  fieldHasError('RateLimit') ? 'invalid-field' : ''
-                }`}
+                    fieldHasError('RateLimit') ? 'invalid-field' : ''
+                  }`}
                   fill={false}
                   placeholder={
-                  placeholders.rateLimitPerHour
-                    ? placeholders.rateLimitPerHour
-                    : '1000'
-                }
+                    placeholders.rateLimitPerHour
+                      ? placeholders.rateLimitPerHour
+                      : '1000'
+                  }
                   allowNumericCharactersOnly={true}
-                  onValueChange={(rateLimitPerHour) => { onRateLimitChange(rateLimitPerHour) }}
+                  onValueChange={(rateLimitPerHour) => {
+                    onRateLimitChange(rateLimitPerHour)
+                  }}
                   value={rateLimitPerHour}
                   rightElement={
                     <InputValidationError error={getFieldError('RateLimit')} />
-                }
+                  }
                 />
               </FormGroup>
             </div>
@@ -786,7 +824,7 @@ export default function ConnectionForm (props) {
             style={{
               display: 'flex',
               marginTop: '30px',
-              justifyContent: 'space-between',
+              justifyContent: 'space-between'
             }}
           >
             <div style={{ display: 'flex' }}>

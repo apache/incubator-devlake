@@ -25,7 +25,7 @@ import {
   Spinner,
   Elevation,
   Card,
-  Colors,
+  Colors
 } from '@blueprintjs/core'
 
 import BlueprintNameCard from '../BlueprintNameCard'
@@ -66,7 +66,10 @@ const DataConnections = (props) => {
   }, [])
 
   return (
-    <div className='workflow-step workflow-step-data-connections' data-step={activeStep?.id}>
+    <div
+      className='workflow-step workflow-step-data-connections'
+      data-step={activeStep?.id}
+    >
       <BlueprintNameCard
         advancedMode={advancedMode}
         activeStep={activeStep}
@@ -84,7 +87,7 @@ const DataConnections = (props) => {
         <div
           style={{
             display: 'flex',
-            justifyContent: 'space-between',
+            justifyContent: 'space-between'
           }}
         >
           <h3 style={{ margin: 0 }}>
@@ -132,11 +135,18 @@ const DataConnections = (props) => {
                     justifyContent: 'space-between',
                     // margin: '8px 0',
                     padding: '8px 12px',
-                    borderBottom: '1px solid #f0f0f0',
+                    borderBottom: '1px solid #f0f0f0'
                   }}
                 >
                   <div>
-                    <div className='connection-name' style={{ display: 'flex', alignItems: 'center', fontWeight: 600 }}>
+                    <div
+                      className='connection-name'
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        fontWeight: 600
+                      }}
+                    >
                       {bC.title}
                     </div>
                   </div>
@@ -151,7 +161,23 @@ const DataConnections = (props) => {
                       className='connection-status'
                       style={{ textTransform: 'capitalize' }}
                     >
-                      {(bC.statusResponse && displayOnlineStatus(bC.statusResponse)) || <><span style={{ display: 'inline-block', marginRight: '5px', width: '12px', height: '12px', float: 'left' }}><Spinner size={12} color={Colors.GRAY3} /></span> Testing</>}
+                      {(bC.statusResponse &&
+                        displayOnlineStatus(bC.statusResponse)) || (
+                        <>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              marginRight: '5px',
+                              width: '12px',
+                              height: '12px',
+                              float: 'left'
+                            }}
+                          >
+                            <Spinner size={12} color={Colors.GRAY3} />
+                          </span>{' '}
+                          Testing
+                        </>
+                      )}
                     </div>
                     <div
                       className='connection-actions'
@@ -172,7 +198,7 @@ const DataConnections = (props) => {
                         minimal
                         style={{
                           minWidth: '18px',
-                          minHeight: '18px',
+                          minHeight: '18px'
                         }}
                       />
                     </div>
@@ -180,17 +206,23 @@ const DataConnections = (props) => {
                 </div>
               ))}
             </Card>
-            {blueprintConnections.some(c => c.status !== 200) && !isTesting && (
-              <p style={{ margin: '10px 0', color: Colors.RED4 }}>
-                Please fix the offline connection.
-              </p>
-            )}
+            {blueprintConnections.some((c) => c.status !== 200) &&
+              !isTesting && (
+                <p style={{ margin: '10px 0', color: Colors.RED4 }}>
+                  Please fix the offline connection.
+                </p>
+              )}
           </>
         )}
       </Card>
 
       <div className='mode-notice advanced-mode-notice'>
-        <p>To customize how tasks are executed in the blueprint, please use <a href='#' rel='noreferrer' onClick={() => onAdvancedMode(true)}>Advanced Mode</a></p>
+        <p>
+          To customize how tasks are executed in the blueprint, please use{' '}
+          <a href='#' rel='noreferrer' onClick={() => onAdvancedMode(true)}>
+            Advanced Mode
+          </a>
+        </p>
       </div>
     </div>
   )

@@ -16,10 +16,7 @@
  *
  */
 import React, { useEffect, useMemo } from 'react'
-import {
-  Intent,
-  MenuItem,
-} from '@blueprintjs/core'
+import { Intent, MenuItem } from '@blueprintjs/core'
 import { MultiSelect, Select } from '@blueprintjs/select'
 const BoardsSelector = (props) => {
   const {
@@ -40,32 +37,28 @@ const BoardsSelector = (props) => {
     itemRenderer = (item, { handleClick, modifiers }) => (
       <MenuItem
         active={modifiers.active}
-        disabled={
-          selectedItems.find(i => i?.id === item?.id)
-        }
+        disabled={selectedItems.find((i) => i?.id === item?.id)}
         key={item.value}
         // label=
         onClick={handleClick}
         text={
-          selectedItems.find(i => i?.id === item?.id)
-            ? (
-              <>
-                <input type='checkbox' checked readOnly /> {item?.title}
-              </>
-              )
-            : (
-              <span style={{ fontWeight: 700 }}>
-                <input type='checkbox' readOnly /> {item?.title}
-              </span>
-              )
+          selectedItems.find((i) => i?.id === item?.id) ? (
+            <>
+              <input type='checkbox' checked readOnly /> {item?.title}
+            </>
+          ) : (
+            <span style={{ fontWeight: 700 }}>
+              <input type='checkbox' readOnly /> {item?.title}
+            </span>
+          )
         }
         style={{
           marginBottom: '2px',
-          fontWeight: items.includes(item) ? 700 : 'normal',
+          fontWeight: items.includes(item) ? 700 : 'normal'
         }}
       />
     ),
-    tagRenderer = (item) => item?.title,
+    tagRenderer = (item) => item?.title
   } = props
 
   return (
@@ -91,14 +84,15 @@ const BoardsSelector = (props) => {
             selectedItems={selectedItems}
             activeItem={activeItem}
             itemPredicate={(query, item) =>
-              item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+              item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0
+            }
             itemRenderer={itemRenderer}
             tagRenderer={tagRenderer}
             tagInputProps={{
               tagProps: {
                 intent: Intent.PRIMARY,
                 minimal: true
-              },
+              }
             }}
             noResults={<MenuItem disabled={true} text='No Boards Available.' />}
             onRemove={(item) => {
@@ -107,7 +101,7 @@ const BoardsSelector = (props) => {
                   ...rT,
                   [configuredConnection.id]: rT[configuredConnection.id].filter(
                     (t) => t?.id !== item.id
-                  ),
+                  )
                 }
               })
             }}
@@ -118,15 +112,14 @@ const BoardsSelector = (props) => {
                       ...rT,
                       [configuredConnection.id]: [
                         ...rT[configuredConnection.id],
-                        item,
-                      ],
+                        item
+                      ]
                     }
                   : { ...rT }
               })
             }}
             style={{ borderRight: 0 }}
           />
-
         </div>
       </div>
     </>

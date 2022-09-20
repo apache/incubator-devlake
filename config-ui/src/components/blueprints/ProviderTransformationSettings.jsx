@@ -17,7 +17,7 @@
  */
 import React, { useEffect } from 'react'
 import {
-  Providers,
+  Providers
   // ProviderTypes,
   // ProviderIcons,
   // ConnectionStatus,

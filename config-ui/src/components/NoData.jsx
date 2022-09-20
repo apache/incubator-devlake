@@ -25,7 +25,7 @@ const NoData = (props) => {
     icon = 'offline',
     iconSize = 32,
     actionText = 'Go Back',
-    onClick = () => {},
+    onClick = () => {}
   } = props
 
   return (

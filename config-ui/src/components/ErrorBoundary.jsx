@@ -17,7 +17,14 @@
  */
 import React, { Fragment } from 'react'
 import { withRouter } from 'react-router-dom'
-import { Button, Intent, Icon, Colors, Elevation, Card } from '@blueprintjs/core'
+import {
+  Button,
+  Intent,
+  Icon,
+  Colors,
+  Elevation,
+  Card
+} from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -27,7 +34,7 @@ import { ReactComponent as Logo } from '@/images/devlake-logo.svg'
 import { ReactComponent as LogoText } from '@/images/devlake-textmark.svg'
 
 class ErrorBoundary extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {
       hasError: false,
@@ -36,16 +43,16 @@ class ErrorBoundary extends React.Component {
     }
   }
 
-  static getDerivedStateFromError (error) {
+  static getDerivedStateFromError(error) {
     console.log('>>> DEVLAKE APP ERROR:', error)
     return { hasError: true, error: error }
   }
 
-  componentDidCatch (error, errorInfo) {
+  componentDidCatch(error, errorInfo) {
     console.log('>>> DEVLAKE ERROR STACKTRACE:', errorInfo, error)
   }
 
-  render () {
+  render() {
     if (this.state.hasError) {
       return (
         <>
@@ -58,24 +65,45 @@ class ErrorBoundary extends React.Component {
                     <div>
                       <div className='devlake-logo' style={{ margin: 0 }}>
                         <Logo width={48} height={48} className='logo' />
-                        <LogoText width={100} height={13} className='logo-textmark' />
+                        <LogoText
+                          width={100}
+                          height={13}
+                          className='logo-textmark'
+                        />
                       </div>
                       <h1 style={{ margin: 0, textAlign: 'center' }}>
                         Application Error
                       </h1>
-                      <Card elevation={Elevation.TWO} style={{ margin: '18px 0', maxWidth: '700px' }}>
+                      <Card
+                        elevation={Elevation.TWO}
+                        style={{ margin: '18px 0', maxWidth: '700px' }}
+                      >
                         <h2 style={{ margin: 0 }}>
-                          <span style={{ display: 'inline-block', marginRight: '10px' }}>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              marginRight: '10px'
+                            }}
+                          >
                             <Icon icon='error' color={Colors.RED5} size={16} />
                           </span>
                           {this.state.error?.toString() || 'Unknown Error'}
                         </h2>
                         <p style={{ margin: 0 }}>
-                          Please try again, if the problem persists include the above error message when filing a bug report on <strong>GitHub</strong>.
-                          You can also message us on <strong>Slack</strong> to engage with community members for solutions to common issues.
+                          Please try again, if the problem persists include the
+                          above error message when filing a bug report on{' '}
+                          <strong>GitHub</strong>. You can also message us on{' '}
+                          <strong>Slack</strong> to engage with community
+                          members for solutions to common issues.
                         </p>
-                        <p style={{ margin: '18px 0 0 0', textAlign: 'center' }}>
-                          <Button onClick={() => this.props.history.push('/')} text='Continue' intent={Intent.PRIMARY} />
+                        <p
+                          style={{ margin: '18px 0 0 0', textAlign: 'center' }}
+                        >
+                          <Button
+                            onClick={() => this.props.history.push('/')}
+                            text='Continue'
+                            intent={Intent.PRIMARY}
+                          />
                           <a
                             href='https://github.com/apache/incubator-devlake'
                             className='bp3-button bp3-outlined'

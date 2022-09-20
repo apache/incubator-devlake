@@ -16,7 +16,15 @@
  *
  */
 import React, { useEffect, useState } from 'react'
-import { Button, Colors, FormGroup, InputGroup, Label, Position, Tooltip } from '@blueprintjs/core'
+import {
+  Button,
+  Colors,
+  FormGroup,
+  InputGroup,
+  Label,
+  Position,
+  Tooltip
+} from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -25,7 +33,7 @@ import SaveAlert from '@/components/SaveAlert'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 
-export default function Configure () {
+export default function Configure() {
   const [alertOpen, setAlertOpen] = useState(false)
   const [dbUrl, setDbUrl] = useState()
   const [port, setPort] = useState()
@@ -36,7 +44,7 @@ export default function Configure () {
     MODE: null
   })
 
-  async function saveAll (e) {
+  async function saveAll(e) {
     e.preventDefault()
 
     // config.DB_URL = dbUrl
@@ -48,7 +56,12 @@ export default function Configure () {
   }
 
   const isValidForm = (dbUrl, port) => {
-    return port && port.toString().length > 0 && dbUrl && dbUrl.toString().length >= 2
+    return (
+      port &&
+      port.toString().length > 0 &&
+      dbUrl &&
+      dbUrl.toString().length >= 2
+    )
   }
 
   useEffect(() => {
@@ -69,7 +82,6 @@ export default function Configure () {
   return (
     <>
       <div className='container'>
-
         <Nav />
         <Sidebar />
         <Content>
@@ -78,12 +90,23 @@ export default function Configure () {
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/', icon: false, text: 'DEV LAKE' },
-                { href: '/lake/api/configuration', icon: false, text: 'Lake API Setup' },
+                {
+                  href: '/lake/api/configuration',
+                  icon: false,
+                  text: 'Lake API Setup'
+                }
               ]}
             />
             <div className='headlineContainer'>
-              <h1>Configuration {alertOpen && <span style={{ color: Colors.GRAY3 }}>(Please Restart)</span>}</h1>
-              <p className='description'>Configure your <code className='code'>.env</code> file values</p>
+              <h1>
+                Configuration{' '}
+                {alertOpen && (
+                  <span style={{ color: Colors.GRAY3 }}>(Please Restart)</span>
+                )}
+              </h1>
+              <p className='description'>
+                Configure your <code className='code'>.env</code> file values
+              </p>
             </div>
 
             <form className='form'>
@@ -101,7 +124,10 @@ export default function Configure () {
                   contentClassName='formGroup'
                   readOnly={alertOpen}
                 >
-                  <Tooltip content='The URL Connection string to the database' position={Position.TOP}>
+                  <Tooltip
+                    content='The URL Connection string to the database'
+                    position={Position.TOP}
+                  >
                     <Label>
                       Database&nbsp;URL <span className='requiredStar'>*</span>
                       <InputGroup
@@ -131,7 +157,10 @@ export default function Configure () {
                   contentClassName='formGroup'
                   readOnly={alertOpen}
                 >
-                  <Tooltip content='The main port for the REST server' position={Position.TOP}>
+                  <Tooltip
+                    content='The main port for the REST server'
+                    position={Position.TOP}
+                  >
                     <Label>
                       Port <span className='requiredStar'>*</span>
                       <InputGroup
@@ -156,7 +185,10 @@ export default function Configure () {
                   contentClassName='formGroup'
                   readOnly={alertOpen}
                 >
-                  <Tooltip content='The development mode for the server' position={Position.TOP}>
+                  <Tooltip
+                    content='The development mode for the server'
+                    position={Position.TOP}
+                  >
                     <Label>
                       Mode
                       <InputGroup

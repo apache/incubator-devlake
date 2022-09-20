@@ -16,13 +16,7 @@
  *
  */
 import React from 'react'
-import {
-  Button,
-  Intent,
-  Card,
-  Elevation,
-  Tag,
-} from '@blueprintjs/core'
+import { Button, Intent, Card, Elevation, Tag } from '@blueprintjs/core'
 import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
 
@@ -42,23 +36,19 @@ const DataScopesGrid = (props) => {
       display: 'flex',
       flex: 1,
       width: '100%',
-      flexDirection: 'column',
+      flexDirection: 'column'
     },
     elevation = Elevation.TWO,
     isLoading = false
   } = props
 
   return (
-
-    <Card
-      elevation={elevation}
-      style={{ ...cardStyle }}
-    >
+    <Card elevation={elevation} style={{ ...cardStyle }}>
       <div
         className={`simplegrid ${classNames.join(' ')}`}
         style={{
           ...gridStyle,
-          backgroundColor: !blueprint?.enable ? '#f8f8f8' : 'inherit',
+          backgroundColor: !blueprint?.enable ? '#f8f8f8' : 'inherit'
         }}
       >
         <div
@@ -72,19 +62,13 @@ const DataScopesGrid = (props) => {
             padding: '16px 20px',
             fontWeight: 'bold',
             borderBottom: '1px solid #BDCEFB',
-            justfiyContent: 'space-evenly',
+            justfiyContent: 'space-evenly'
           }}
         >
-          <div
-            className='cell-header connections'
-            style={{ flex: 1 }}
-          >
+          <div className='cell-header connections' style={{ flex: 1 }}>
             Data Connections
           </div>
-          <div
-            className='cell-header entities'
-            style={{ flex: 1 }}
-          >
+          <div className='cell-header entities' style={{ flex: 1 }}>
             Data Entities
           </div>
           <div className='cell-header scope' style={{ flex: 1 }}>
@@ -96,10 +80,7 @@ const DataScopesGrid = (props) => {
           >
             Transformation
           </div>
-          <div
-            className='cell-header actions'
-            style={{ minWidth: '100px' }}
-          >
+          <div className='cell-header actions' style={{ minWidth: '100px' }}>
             &nbsp;
           </div>
         </div>
@@ -116,34 +97,52 @@ const DataScopesGrid = (props) => {
               lineHeight: 'auto',
               padding: '10px 20px',
               borderBottom: '1px solid #BDCEFB',
-              justfiyContent: 'space-evenly',
+              justfiyContent: 'space-evenly'
             }}
           >
-            <div className='cell connections' style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+            <div
+              className='cell connections'
+              style={{ display: 'flex', flex: 1, alignItems: 'center' }}
+            >
               <span style={{ marginBottom: '-5px', marginRight: '10px' }}>
                 {c.icon}
               </span>
               <span>{c.name}</span>
               {mode === BlueprintMode.ADVANCED && (
-                <Tag intent={Intent.PRIMARY} minimal style={{ marginLeft: '10px', fontSize: '10px' }}>STAGE {c.stage}</Tag>
+                <Tag
+                  intent={Intent.PRIMARY}
+                  minimal
+                  style={{ marginLeft: '10px', fontSize: '10px' }}
+                >
+                  STAGE {c.stage}
+                </Tag>
               )}
             </div>
-            <div className='cell entities' style={{ display: 'flex', flex: 1, alignItems: 'center' }}>
+            <div
+              className='cell entities'
+              style={{ display: 'flex', flex: 1, alignItems: 'center' }}
+            >
               <ul
                 style={{
                   listStyle: 'none',
                   margin: 0,
-                  padding: 0,
+                  padding: 0
                 }}
               >
                 {c.entities.map((entityLabel, eIdx) => (
-                  <li key={`list-item-key-${eIdx}`}>
-                    {entityLabel}
-                  </li>
+                  <li key={`list-item-key-${eIdx}`}>{entityLabel}</li>
                 ))}
               </ul>
             </div>
-            <div className='cell scope' style={{ display: 'flex', flex: 1, alignItems: 'center', whiteSpace: 'nowrap' }}>
+            <div
+              className='cell scope'
+              style={{
+                display: 'flex',
+                flex: 1,
+                alignItems: 'center',
+                whiteSpace: 'nowrap'
+              }}
+            >
               {[Providers.GITLAB, Providers.GITHUB].includes(
                 c.provider?.id
               ) && (
@@ -151,11 +150,14 @@ const DataScopesGrid = (props) => {
                   style={{
                     listStyle: 'none',
                     margin: 0,
-                    padding: 0,
+                    padding: 0
                   }}
                 >
                   {c.projects.map((project, pIdx) => (
-                    <li key={`list-item-key-${pIdx}`} style={{ whiteSpace: 'break-spaces' }}>
+                    <li
+                      key={`list-item-key-${pIdx}`}
+                      style={{ whiteSpace: 'break-spaces' }}
+                    >
                       {project.title}
                     </li>
                   ))}
@@ -166,7 +168,7 @@ const DataScopesGrid = (props) => {
                   style={{
                     listStyle: 'none',
                     margin: 0,
-                    padding: 0,
+                    padding: 0
                   }}
                 >
                   {c.boards.map((board, bIdx) => (
@@ -177,17 +179,25 @@ const DataScopesGrid = (props) => {
             </div>
             <div
               className='cell transformation'
-              style={{ display: 'flex', flex: 1, alignItems: 'center', marginLeft: '40px' }}
+              style={{
+                display: 'flex',
+                flex: 1,
+                alignItems: 'center',
+                marginLeft: '40px'
+              }}
             >
               <ul
                 style={{
                   listStyle: 'none',
                   margin: 0,
-                  padding: 0,
+                  padding: 0
                 }}
               >
                 {c.transformationStates.map((state, sIdx) => (
-                  <li key={`list-item-key-${sIdx}`} style={{ minWidth: '80px' }}>
+                  <li
+                    key={`list-item-key-${sIdx}`}
+                    style={{ minWidth: '80px' }}
+                  >
                     {state}
                   </li>
                 ))}
@@ -200,13 +210,21 @@ const DataScopesGrid = (props) => {
                 minWidth: '100px',
                 textAlign: 'right',
                 alignItems: 'center',
-                justifyContent: 'flex-end',
+                justifyContent: 'flex-end'
               }}
             >
               <Button
-                disabled={mode === BlueprintMode.NORMAL && [Providers.TAPD].includes(c.providerId)}
+                disabled={
+                  mode === BlueprintMode.NORMAL &&
+                  [Providers.TAPD].includes(c.providerId)
+                }
                 icon='annotation'
-                intent={mode === BlueprintMode.NORMAL && c.providerId === Providers.TAPD ? Intent.NONE : Intent.PRIMARY}
+                intent={
+                  mode === BlueprintMode.NORMAL &&
+                  c.providerId === Providers.TAPD
+                    ? Intent.NONE
+                    : Intent.PRIMARY
+                }
                 size={12}
                 small
                 minimal
@@ -218,7 +236,6 @@ const DataScopesGrid = (props) => {
         ))}
       </div>
     </Card>
-
   )
 }
 

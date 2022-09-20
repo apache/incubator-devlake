@@ -35,7 +35,7 @@ import {
   Radio,
   RadioGroup,
   Switch,
-  Tooltip,
+  Tooltip
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import InputValidationError from '@/components/validation/InputValidationError'
@@ -76,7 +76,7 @@ const AddBlueprintDialog = (props) => {
     isValidBlueprint = false,
     pipelines = [],
     detectedProviders = [],
-    tasksLocked = false,
+    tasksLocked = false
   } = props
 
   useEffect(() => {}, [enable, cronConfig, customCronConfig])
@@ -118,7 +118,7 @@ const AddBlueprintDialog = (props) => {
                     style={{
                       display: 'inline',
                       marginRight: 0,
-                      fontWeight: 'bold',
+                      fontWeight: 'bold'
                     }}
                   >
                     Blueprint Name
@@ -146,27 +146,25 @@ const AddBlueprintDialog = (props) => {
                       lineHeight: '18px',
                       marginRight: 0,
                       marginBottom: 0,
-                      fontWeight: 'bold',
+                      fontWeight: 'bold'
                     }}
                   >
                     Frequency
                     <span className='requiredStar'>*</span>
                   </Label>
-                  {getCronPresetByConfig(cronConfig)
-                    ? (
-                      <small
-                        style={{
-                          fontSize: '10px',
-                          color: Colors.GRAY2,
-                          display: 'block',
-                        }}
-                      >
-                        {getCronPresetByConfig(cronConfig).description}
-                      </small>
-                      )
-                    : (
-                        ''
-                      )}
+                  {getCronPresetByConfig(cronConfig) ? (
+                    <small
+                      style={{
+                        fontSize: '10px',
+                        color: Colors.GRAY2,
+                        display: 'block'
+                      }}
+                    >
+                      {getCronPresetByConfig(cronConfig).description}
+                    </small>
+                  ) : (
+                    ''
+                  )}
                   <RadioGroup
                     inline={true}
                     label={false}
@@ -180,7 +178,7 @@ const AddBlueprintDialog = (props) => {
                       getCronPreset('hourly'),
                       getCronPreset('daily'),
                       getCronPreset('weekly'),
-                      getCronPreset('monthly'),
+                      getCronPreset('monthly')
                     ].map((preset, prIdx) => (
                       <Radio
                         key={`cron-preset-tooltip-key${prIdx}`}
@@ -201,7 +199,7 @@ const AddBlueprintDialog = (props) => {
                             cronConfig === preset.cronConfig
                               ? 'bold'
                               : 'normal',
-                          outline: 'none !important',
+                          outline: 'none !important'
                         }}
                       />
                     ))}
@@ -209,7 +207,7 @@ const AddBlueprintDialog = (props) => {
                       label='Custom'
                       value='custom'
                       style={{
-                        fontWeight: cronConfig === 'custom' ? 'bold' : 'normal',
+                        fontWeight: cronConfig === 'custom' ? 'bold' : 'normal'
                       }}
                     />
                   </RadioGroup>
@@ -228,7 +226,7 @@ const AddBlueprintDialog = (props) => {
                         style={{
                           display: 'inline',
                           marginRight: 0,
-                          fontWeight: 'bold',
+                          fontWeight: 'bold'
                         }}
                       >
                         Custom Schedule
@@ -240,18 +238,16 @@ const AddBlueprintDialog = (props) => {
                         id='cron-custom'
                         readOnly={cronConfig !== 'custom'}
                         leftElement={
-                          cronConfig !== 'custom'
-                            ? (
-                              <Icon
-                                icon='lock'
-                                size={11}
-                                style={{
-                                  alignSelf: 'center',
-                                  margin: '4px 10px -2px 6px',
-                                }}
-                              />
-                              )
-                            : null
+                          cronConfig !== 'custom' ? (
+                            <Icon
+                              icon='lock'
+                              size={11}
+                              style={{
+                                alignSelf: 'center',
+                                margin: '4px 10px -2px 6px'
+                              }}
+                            />
+                          ) : null
                         }
                         rightElement={
                           <InputValidationError
@@ -295,14 +291,14 @@ const AddBlueprintDialog = (props) => {
                               textShadow: 'none',
                               fontSize: '12px',
                               padding: '12px',
-                              maxWidth: '300px',
+                              maxWidth: '300px'
                             }}
                           >
                             <div
                               style={{
                                 marginBottom: '10px',
                                 fontWeight: 700,
-                                fontSize: '14px',
+                                fontSize: '14px'
                               }}
                             >
                               <Icon
@@ -345,15 +341,13 @@ const AddBlueprintDialog = (props) => {
                     </strong>
                   }
                   labelInfo={
-                    tasksLocked
-                      ? (
-                          ''
-                        )
-                      : (
-                        <span style={{ display: 'block' }}>
-                          Choose Pipeline Run Template for task configuration
-                        </span>
-                        )
+                    tasksLocked ? (
+                      ''
+                    ) : (
+                      <span style={{ display: 'block' }}>
+                        Choose Pipeline Run Template for task configuration
+                      </span>
+                    )
                   }
                   inline={false}
                   labelFor='blueprint-tasks'
@@ -370,7 +364,7 @@ const AddBlueprintDialog = (props) => {
                         popoverProps={{
                           usePortal: false,
                           popoverClassName: 'blueprint-tasks-popover',
-                          fill: true,
+                          fill: true
                         }}
                         inline={true}
                         fill={true}
@@ -379,7 +373,8 @@ const AddBlueprintDialog = (props) => {
                         itemPredicate={(query, item) =>
                           item?.title
                             ?.toLowerCase()
-                            .indexOf(query.toLowerCase()) >= 0}
+                            .indexOf(query.toLowerCase()) >= 0
+                        }
                         itemRenderer={(item, { handleClick, modifiers }) => (
                           <MenuItem
                             active={modifiers.active}
@@ -420,7 +415,7 @@ const AddBlueprintDialog = (props) => {
                             justifyContent: 'space-between',
                             minWidth: '300px',
                             maxWidth: '460px',
-                            whiteSpace: 'nowrap',
+                            whiteSpace: 'nowrap'
                           }}
                           text={
                             selectedPipelineTemplate
@@ -444,7 +439,8 @@ const AddBlueprintDialog = (props) => {
                         disabled={isSaving}
                         onClick={() =>
                           setSelectedPipelineTemplate(null) |
-                          setBlueprintTasks([])}
+                          setBlueprintTasks([])
+                        }
                       />
                     </ButtonGroup>
                   )}
@@ -455,7 +451,8 @@ const AddBlueprintDialog = (props) => {
                 {!tasksLocked && tasks.length > 0 && (
                   <Button
                     onClick={() =>
-                      setBlueprintTasks([]) | setSelectedPipelineTemplate(null)}
+                      setBlueprintTasks([]) | setSelectedPipelineTemplate(null)
+                    }
                     icon='eraser'
                     round
                     minimal
@@ -476,7 +473,7 @@ const AddBlueprintDialog = (props) => {
                     style={{
                       display: 'inline',
                       marginRight: 0,
-                      fontWeight: 'bold',
+                      fontWeight: 'bold'
                     }}
                   >
                     Enable Blueprint?
@@ -498,7 +495,7 @@ const AddBlueprintDialog = (props) => {
                     style={{
                       display: 'inline',
                       marginRight: 0,
-                      marginBottom: 0,
+                      marginBottom: 0
                     }}
                   >
                     Next Run Date
@@ -547,7 +544,8 @@ const AddBlueprintDialog = (props) => {
               icon='cloud-upload'
               intent={Intent.PRIMARY}
               onClick={() =>
-                saveBlueprint(draftBlueprint ? draftBlueprint.id : null)}
+                saveBlueprint(draftBlueprint ? draftBlueprint.id : null)
+              }
             >
               {draftBlueprint ? 'Modify Blueprint' : 'Save Blueprint'}
             </Button>

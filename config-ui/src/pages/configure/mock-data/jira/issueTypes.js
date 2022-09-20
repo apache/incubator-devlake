@@ -120,9 +120,7 @@ const issueTypesData = [
     subtask: false,
     avatarId: 1,
     hierarchyLevel: 0
-  },
+  }
 ]
 
-export {
-  issueTypesData
-}
+export { issueTypesData }

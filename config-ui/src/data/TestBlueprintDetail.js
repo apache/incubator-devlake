@@ -16,16 +16,17 @@
  *
  */
 import React from 'react'
-import {
-  Intent,
-  Icon,
-  Colors,
-  Spinner
-} from '@blueprintjs/core'
+import { Intent, Icon, Colors, Spinner } from '@blueprintjs/core'
 
 import { NullBlueprint } from '@/data/NullBlueprint'
 import { Providers, ProviderIcons } from '@/data/Providers'
-import { StageStatus, TaskStatus, TaskStatusLabels, StatusColors, StatusBgColors } from '@/data/Task'
+import {
+  StageStatus,
+  TaskStatus,
+  TaskStatusLabels,
+  StatusColors,
+  StatusBgColors
+} from '@/data/Task'
 
 const EMPTY_RUN = {
   id: null,
@@ -37,7 +38,7 @@ const EMPTY_RUN = {
   stage: 'Stage 1',
   tasksTotal: 0,
   tasksFinished: 0,
-  error: null,
+  error: null
 }
 
 const TEST_BLUEPRINT = {
@@ -45,7 +46,7 @@ const TEST_BLUEPRINT = {
   id: 1,
   name: 'DevLake Daily Blueprint',
   createdAt: new Date().toLocaleString(),
-  updatedAt: new Date().toLocaleString(),
+  updatedAt: new Date().toLocaleString()
 }
 
 const TEST_CONNECTIONS = [
@@ -54,15 +55,15 @@ const TEST_CONNECTIONS = [
     provider: Providers.GITHUB,
     name: 'Merico GitHub',
     dataScope: 'merico-dev/ake, merico-dev/lake-website',
-    dataEntities: ['code', 'ticket', 'user'],
+    dataEntities: ['code', 'ticket', 'user']
   },
   {
     id: 0,
     provider: Providers.JIRA,
     name: 'Merico JIRA',
     dataScope: 'Sprint Dev Board, DevLake Sync Board ',
-    dataEntities: ['ticket'],
-  },
+    dataEntities: ['ticket']
+  }
 ]
 
 // eslint-disable-next-line no-unused-vars
@@ -102,7 +103,7 @@ const TEST_BLUEPRINT_API_RESPONSE = {
           'convertPullRequestLabels',
           'convertPullRequestIssues',
           'convertIssueComments',
-          'convertPullRequestComments',
+          'convertPullRequestComments'
         ],
         options: {
           connectionId: 1,
@@ -116,18 +117,18 @@ const TEST_BLUEPRINT_API_RESPONSE = {
             issueTypeIncident: '',
             issueTypeRequirement: '',
             prComponent: '',
-            prType: '',
-          },
-        },
+            prType: ''
+          }
+        }
       },
       {
         plugin: 'gitextractor',
         subtasks: null,
         options: {
           repoId: 'github:GithubRepo:1:506830252',
-          url: 'https://git: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@github.com/e2corporation/incubator-devlake.git',
-        },
-      },
+          url: 'https://git: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@github.com/e2corporation/incubator-devlake.git'
+        }
+      }
     ],
     [
       {
@@ -136,10 +137,10 @@ const TEST_BLUEPRINT_API_RESPONSE = {
         options: {
           tagsLimit: 10,
           tagsOrder: '',
-          tagsPattern: '',
-        },
-      },
-    ],
+          tagsPattern: ''
+        }
+      }
+    ]
   ],
   enable: true,
   cronConfig: '0 0 * * *',
@@ -155,7 +156,7 @@ const TEST_BLUEPRINT_API_RESPONSE = {
             entities: ['CODE', 'TICKET'],
             options: {
               owner: 'e2corporation',
-              repo: 'incubator-devlake',
+              repo: 'incubator-devlake'
             },
             transformation: {
               prType: '',
@@ -169,17 +170,17 @@ const TEST_BLUEPRINT_API_RESPONSE = {
               refdiff: {
                 tagsOrder: '',
                 tagsPattern: '',
-                tagsLimit: 10,
-              },
-            },
-          },
-        ],
-      },
-    ],
+                tagsLimit: 10
+              }
+            }
+          }
+        ]
+      }
+    ]
   },
   id: 1,
   createdAt: '2022-07-11T10:23:38.908-04:00',
-  updatedAt: '2022-07-11T10:23:38.908-04:00',
+  updatedAt: '2022-07-11T10:23:38.908-04:00'
 }
 
 const TEST_STAGES = [
@@ -200,7 +201,7 @@ const TEST_STAGES = [
         subTasksCompleted: 25,
         recordsFinished: 1234,
         message: 'All 25 subtasks completed',
-        status: TaskStatus.COMPLETE,
+        status: TaskStatus.COMPLETE
       },
       {
         id: 0,
@@ -212,10 +213,10 @@ const TEST_STAGES = [
         subTasksCompleted: 25,
         recordsFinished: 1234,
         message: 'All 25 subtasks completed',
-        status: TaskStatus.COMPLETE,
-      },
+        status: TaskStatus.COMPLETE
+      }
     ],
-    stageHeaderClassName: 'complete',
+    stageHeaderClassName: 'complete'
   },
   {
     id: 2,
@@ -234,7 +235,7 @@ const TEST_STAGES = [
         subTasksCompleted: 25,
         recordsFinished: 1234,
         message: 'Subtask 5/25: Extracting Issues',
-        status: TaskStatus.ACTIVE,
+        status: TaskStatus.ACTIVE
       },
       {
         id: 0,
@@ -246,10 +247,10 @@ const TEST_STAGES = [
         subTasksCompleted: 0,
         recordsFinished: 0,
         message: 'Invalid Board ID',
-        status: TaskStatus.FAILED,
-      },
+        status: TaskStatus.FAILED
+      }
     ],
-    stageHeaderClassName: 'active',
+    stageHeaderClassName: 'active'
   },
   {
     id: 3,
@@ -268,10 +269,10 @@ const TEST_STAGES = [
         subTasksCompleted: 0,
         recordsFinished: 0,
         message: 'Subtasks pending',
-        status: TaskStatus.CREATED,
-      },
+        status: TaskStatus.CREATED
+      }
     ],
-    stageHeaderClassName: 'pending',
+    stageHeaderClassName: 'pending'
   },
   {
     id: 4,
@@ -290,11 +291,11 @@ const TEST_STAGES = [
         subTasksCompleted: 0,
         recordsFinished: 0,
         message: 'Subtasks pending',
-        status: TaskStatus.CREATED,
-      },
+        status: TaskStatus.CREATED
+      }
     ],
-    stageHeaderClassName: 'pending',
-  },
+    stageHeaderClassName: 'pending'
+  }
 ]
 
 const TEST_HISTORICAL_RUNS = [
@@ -305,7 +306,7 @@ const TEST_HISTORICAL_RUNS = [
     statusIcon: <Icon icon='tick-circle' size={14} color={Colors.GREEN5} />,
     startedAt: '05/25/2022 0:00 AM',
     completedAt: '05/25/2022 0:15 AM',
-    duration: '15 min',
+    duration: '15 min'
   },
   {
     id: 1,
@@ -314,7 +315,7 @@ const TEST_HISTORICAL_RUNS = [
     statusIcon: <Icon icon='tick-circle' size={14} color={Colors.GREEN5} />,
     startedAt: '05/25/2022 0:00 AM',
     completedAt: '05/25/2022 0:15 AM',
-    duration: '15 min',
+    duration: '15 min'
   },
   {
     id: 2,
@@ -323,7 +324,7 @@ const TEST_HISTORICAL_RUNS = [
     statusIcon: <Icon icon='delete' size={14} color={Colors.RED5} />,
     startedAt: '05/25/2022 0:00 AM',
     completedAt: '05/25/2022 0:00 AM',
-    duration: '0 min',
+    duration: '0 min'
   },
   {
     id: 3,
@@ -332,7 +333,7 @@ const TEST_HISTORICAL_RUNS = [
     statusIcon: <Icon icon='tick-circle' size={14} color={Colors.GREEN5} />,
     startedAt: '05/25/2022 0:00 AM',
     completedAt: '05/25/2022 0:15 AM',
-    duration: '15 min',
+    duration: '15 min'
   },
   {
     id: 4,
@@ -341,7 +342,7 @@ const TEST_HISTORICAL_RUNS = [
     statusIcon: <Icon icon='tick-circle' size={14} color={Colors.GREEN5} />,
     startedAt: '05/25/2022 0:00 AM',
     completedAt: '05/25/2022 0:15 AM',
-    duration: '15 min',
+    duration: '15 min'
   },
   {
     id: 5,
@@ -350,8 +351,8 @@ const TEST_HISTORICAL_RUNS = [
     statusIcon: <Icon icon='delete' size={14} color={Colors.RED5} />,
     startedAt: '05/25/2022 0:00 AM',
     completedAt: '05/25/2022 0:00 AM',
-    duration: '0 min',
-  },
+    duration: '0 min'
+  }
 ]
 
 const TEST_RUN = {
@@ -365,7 +366,7 @@ const TEST_RUN = {
   tasksTotal: 5,
   tasksFinished: 8,
   // totalTasks: 13,
-  error: null,
+  error: null
 }
 
 export {

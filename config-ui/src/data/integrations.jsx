@@ -42,8 +42,17 @@ const integrationsData = [
     multiConnection: true,
     isBeta: false,
     name: ProviderLabels.GITLAB,
-    icon: <GitlabProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <GitlabProvider className='providerIconSvg' width='40' height='40' />,
+    icon: (
+      <GitlabProvider
+        className='providerIconSvg'
+        width='30'
+        height='30'
+        style={{ float: 'left', marginTop: '5px' }}
+      />
+    ),
+    iconDashboard: (
+      <GitlabProvider className='providerIconSvg' width='40' height='40' />
+    ),
     // @todo: relocated to ProviderTransformationSettings since v0.12.0
     settings: {}
   },
@@ -54,8 +63,17 @@ const integrationsData = [
     multiConnection: true,
     isBeta: false,
     name: ProviderLabels.JENKINS,
-    icon: <JenkinsProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <JenkinsProvider className='providerIconSvg' width='40' height='40' />,
+    icon: (
+      <JenkinsProvider
+        className='providerIconSvg'
+        width='30'
+        height='30'
+        style={{ float: 'left', marginTop: '5px' }}
+      />
+    ),
+    iconDashboard: (
+      <JenkinsProvider className='providerIconSvg' width='40' height='40' />
+    ),
     // @todo: relocated to ProviderTransformationSettings since v0.12.0
     settings: {}
   },
@@ -66,8 +84,17 @@ const integrationsData = [
     multiConnection: true,
     isBeta: true,
     name: ProviderLabels.TAPD,
-    icon: <TapdProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <TapdProvider className='providerIconSvg' width='40' height='40' />,
+    icon: (
+      <TapdProvider
+        className='providerIconSvg'
+        width='30'
+        height='30'
+        style={{ float: 'left', marginTop: '5px' }}
+      />
+    ),
+    iconDashboard: (
+      <TapdProvider className='providerIconSvg' width='40' height='40' />
+    ),
     // relocated to ProviderTransformationSettings since v0.12.0
     settings: {}
   },
@@ -78,8 +105,17 @@ const integrationsData = [
     multiConnection: true,
     isBeta: false,
     name: ProviderLabels.JIRA,
-    icon: <JiraProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <JiraProvider className='providerIconSvg' width='40' height='40' />,
+    icon: (
+      <JiraProvider
+        className='providerIconSvg'
+        width='30'
+        height='30'
+        style={{ float: 'left', marginTop: '5px' }}
+      />
+    ),
+    iconDashboard: (
+      <JiraProvider className='providerIconSvg' width='40' height='40' />
+    ),
     // relocated to ProviderTransformationSettings since v0.12.0
     settings: {}
   },
@@ -90,11 +126,20 @@ const integrationsData = [
     multiConnection: true,
     isBeta: false,
     name: ProviderLabels.GITHUB,
-    icon: <GitHubProvider className='providerIconSvg' width='30' height='30' style={{ float: 'left', marginTop: '5px' }} />,
-    iconDashboard: <GitHubProvider className='providerIconSvg' width='40' height='40' />,
+    icon: (
+      <GitHubProvider
+        className='providerIconSvg'
+        width='30'
+        height='30'
+        style={{ float: 'left', marginTop: '5px' }}
+      />
+    ),
+    iconDashboard: (
+      <GitHubProvider className='providerIconSvg' width='40' height='40' />
+    ),
     // relocated to ProviderTransformationSettings since v0.12.0
     settings: {}
-  },
+  }
 ]
 
 const pluginsData = [
@@ -119,10 +164,7 @@ const pluginsData = [
     iconDashboard: <Icon icon='box' size={32} />,
     // relocated to ProviderTransformationSettings since v0.12.0
     settings: {}
-  },
+  }
 ]
 
-export {
-  integrationsData,
-  pluginsData
-}
+export { integrationsData, pluginsData }

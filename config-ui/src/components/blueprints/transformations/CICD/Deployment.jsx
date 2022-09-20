@@ -38,34 +38,46 @@ const Deployment = (props) => {
     entityIdKey,
     entities = [],
     isSaving = false,
-    onSettingsChange = () => {},
+    onSettingsChange = () => {}
   } = props
 
-  const [deployTag, setDeployTag] = useState(transformation?.productionPattern || '')
-  const [enableDeployTag, setEnableDeployTag] = useState([
-    transformation?.productionPattern,
-    // transformation?.stagingPattern,
-    // transformation?.testingPattern
-  ].some(t => t && t !== '') ? 1 : 0)
+  const [deployTag, setDeployTag] = useState(
+    transformation?.productionPattern || ''
+  )
+  const [enableDeployTag, setEnableDeployTag] = useState(
+    [
+      transformation?.productionPattern
+      // transformation?.stagingPattern,
+      // transformation?.testingPattern
+    ].some((t) => t && t !== '')
+      ? 1
+      : 0
+  )
 
-  const clearDeploymentTags = useCallback((deploymentOption) => {
-    if (entityIdKey && deploymentOption === 0) {
-      onSettingsChange({ productionPattern: '' }, entityIdKey)
-      // onSettingsChange({ stagingPattern: '' }, entityIdKey)
-      // onSettingsChange({ testingPattern: '' }, entityIdKey)
-    }
-  }, [entityIdKey, onSettingsChange])
+  const clearDeploymentTags = useCallback(
+    (deploymentOption) => {
+      if (entityIdKey && deploymentOption === 0) {
+        onSettingsChange({ productionPattern: '' }, entityIdKey)
+        // onSettingsChange({ stagingPattern: '' }, entityIdKey)
+        // onSettingsChange({ testingPattern: '' }, entityIdKey)
+      }
+    },
+    [entityIdKey, onSettingsChange]
+  )
 
-  const handleDeploymentPreference = useCallback((deployOptionState) => {
-    setEnableDeployTag(deployOptionState)
-    switch (deployOptionState) {
-      case 0:
-        clearDeploymentTags(deployOptionState)
-        break
-      case 1:
-        break
-    }
-  }, [clearDeploymentTags])
+  const handleDeploymentPreference = useCallback(
+    (deployOptionState) => {
+      setEnableDeployTag(deployOptionState)
+      switch (deployOptionState) {
+        case 0:
+          clearDeploymentTags(deployOptionState)
+          break
+        case 1:
+          break
+      }
+    },
+    [clearDeploymentTags]
+  )
 
   // @todo: check w/ product team about using standard message and avoid customized hints
   const getDeployTagHint = (providerId, providerName = 'Plugin') => {
@@ -79,7 +91,8 @@ const Deployment = (props) => {
       case Providers.GITLAB:
       case 'default':
         // eslint-disable-next-line max-len
-        tagHint = 'A CI job/build with a name that matches the given regEx is considered as an deployment. You can define your Deployments for three environments: Production, Staging and Testing.'
+        tagHint =
+          'A CI job/build with a name that matches the given regEx is considered as an deployment. You can define your Deployments for three environments: Production, Staging and Testing.'
         break
     }
     return tagHint
@@ -107,16 +120,24 @@ const Deployment = (props) => {
   useEffect(() => {
     console.log('>>> CI/CD Deployment: TRANSFORMATION OBJECT!', transformation)
     setEnableDeployTag(
-      [transformation?.productionPattern,
-      // transformation?.stagingPattern,
-      // transformation?.testingPattern
-      ].some(t => t && t !== '') ? 1 : 0
+      [
+        transformation?.productionPattern
+        // transformation?.stagingPattern,
+        // transformation?.testingPattern
+      ].some((t) => t && t !== '')
+        ? 1
+        : 0
     )
   }, [transformation, transformation?.productionPattern])
 
   return (
     <>
-      <h5>CI/CD <Tag className='bp3-form-helper-text' minimal>RegExp</Tag></h5>
+      <h5>
+        CI/CD{' '}
+        <Tag className='bp3-form-helper-text' minimal>
+          RegExp
+        </Tag>
+      </h5>
       <p>Define deployment using one of the followng options</p>
       <p style={{ color: '#292B3F' }}>
         <strong>What is a deployment?</strong>{' '}
@@ -134,22 +155,40 @@ const Deployment = (props) => {
         required
       >
         <Radio
-          label={getDeployOptionLabel(provider?.id, ProviderLabels[provider?.id?.toUpperCase()])}
+          label={getDeployOptionLabel(
+            provider?.id,
+            ProviderLabels[provider?.id?.toUpperCase()]
+          )}
           value={1}
         />
         {enableDeployTag === 1 && (
           <>
             <div
               className='bp3-form-helper-text'
-              style={{ display: 'block', textAlign: 'left', color: '#94959F', marginBottom: '5px' }}
+              style={{
+                display: 'block',
+                textAlign: 'left',
+                color: '#94959F',
+                marginBottom: '5px'
+              }}
             >
-              {getDeployTagHint(provider?.id, ProviderLabels[provider?.id?.toUpperCase()])}
+              {getDeployTagHint(
+                provider?.id,
+                ProviderLabels[provider?.id?.toUpperCase()]
+              )}
             </div>
             <div className='formContainer'>
               <FormGroup
                 disabled={isSaving}
                 inline={true}
-                label={<label className='bp3-label' style={{ minWidth: '150px', marginRight: '10px' }}>Deployment (Production)</label>}
+                label={
+                  <label
+                    className='bp3-label'
+                    style={{ minWidth: '150px', marginRight: '10px' }}
+                  >
+                    Deployment (Production)
+                  </label>
+                }
                 labelFor='deploy-tag-production'
                 className='formGroup'
                 contentClassName='formGroupContent'
@@ -158,18 +197,31 @@ const Deployment = (props) => {
                   id='deploy-tag-production'
                   placeholder='(?i)deploy'
                   value={transformation?.productionPattern}
-                  onChange={(e) => onSettingsChange({ productionPattern: e.target.value }, entityIdKey)}
+                  onChange={(e) =>
+                    onSettingsChange(
+                      { productionPattern: e.target.value },
+                      entityIdKey
+                    )
+                  }
                   disabled={isSaving}
                   className='input'
                   maxLength={255}
                   rightElement={
-                    enableDeployTag && (transformation?.productionPattern === '' || !transformation?.productionPattern)
-                      ? (
-                        <Tooltip intent={Intent.PRIMARY} content='Deployment Tag RegEx required'>
-                          <Icon icon='warning-sign' color={Colors.GRAY3} size={12} style={{ margin: '8px' }} />
-                        </Tooltip>
-                        )
-                      : null
+                    enableDeployTag &&
+                    (transformation?.productionPattern === '' ||
+                      !transformation?.productionPattern) ? (
+                        <Tooltip
+                        intent={Intent.PRIMARY}
+                        content='Deployment Tag RegEx required'
+                      >
+                        <Icon
+                            icon='warning-sign'
+                            color={Colors.GRAY3}
+                            size={12}
+                            style={{ margin: '8px' }}
+                          />
+                      </Tooltip>
+                    ) : null
                   }
                   required
                 />

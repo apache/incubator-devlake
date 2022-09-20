@@ -28,6 +28,4 @@ const jiraConfig = [
   ]
 ]
 
-export {
-  jiraConfig
-}
+export { jiraConfig }

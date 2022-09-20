@@ -18,7 +18,9 @@
 import React, { useEffect, useState } from 'react'
 import {
   Button,
-  FormGroup, InputGroup, Label,
+  FormGroup,
+  InputGroup,
+  Label,
   Tag,
   Intent
 } from '@blueprintjs/core'
@@ -26,14 +28,9 @@ import { Buffer } from 'buffer'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
-export default function GenerateTokenForm (props) {
-  const {
-    isTesting,
-    isSaving,
-    isLocked,
-    onTokenChange,
-    setShowTokenCreator
-  } = props
+export default function GenerateTokenForm(props) {
+  const { isTesting, isSaving, isLocked, onTokenChange, setShowTokenCreator } =
+    props
   const [generatorUsername, setGeneratorUsername] = useState('')
   const [generatorPassword, setGeneratorPassword] = useState('')
   const [newToken, setNewToken] = useState()
@@ -57,8 +54,13 @@ export default function GenerateTokenForm (props) {
 
   return (
     <>
-      <h3 style={{ margin: 0 }}>GENERATE TOKEN <Tag>base64</Tag></h3>
-      <p style={{ margin: '0 0 10px 0' }}>Enter <strong>Username</strong> (or E-mail) and <strong>Password</strong></p>
+      <h3 style={{ margin: 0 }}>
+        GENERATE TOKEN <Tag>base64</Tag>
+      </h3>
+      <p style={{ margin: '0 0 10px 0' }}>
+        Enter <strong>Username</strong> (or E-mail) and{' '}
+        <strong>Password</strong>
+      </p>
       <div className='formContainer' style={{ marginBottom: '0.2rem' }}>
         <FormGroup
           label=''
@@ -68,7 +70,13 @@ export default function GenerateTokenForm (props) {
           className='formGroup'
           contentClassName='formGroupContent'
         >
-          <Label style={{ display: 'inline', minWidth: '50px', whiteSpace: 'nowrap' }}>
+          <Label
+            style={{
+              display: 'inline',
+              minWidth: '50px',
+              whiteSpace: 'nowrap'
+            }}
+          >
             Username <span className='requiredStar'>*</span>
           </Label>
           <InputGroup
@@ -91,7 +99,13 @@ export default function GenerateTokenForm (props) {
           className='formGroup'
           contentClassName='formGroupContent'
         >
-          <Label style={{ display: 'inline', minWidth: '50px', whiteSpace: 'nowrap' }}>
+          <Label
+            style={{
+              display: 'inline',
+              minWidth: '50px',
+              whiteSpace: 'nowrap'
+            }}
+          >
             Password <span className='requiredStar'>*</span>
           </Label>
           <InputGroup
@@ -108,15 +122,25 @@ export default function GenerateTokenForm (props) {
       </div>
       <div style={{ display: 'flex' }}>
         <Button
-          type='button' icon='eraser' text=''
+          type='button'
+          icon='eraser'
+          text=''
           style={{ display: 'flex', marginLeft: 'auto', marginRight: '5px' }}
-          onClick={resetTokenGenerator} small minimal
+          onClick={resetTokenGenerator}
+          small
+          minimal
         />
         <Button
-          type='button' intent={Intent.PRIMARY} icon='random' text='Generate'
+          type='button'
+          intent={Intent.PRIMARY}
+          icon='random'
+          text='Generate'
           style={{ display: 'flex' }}
           disabled={!generatorUsername || !generatorPassword}
-          onClick={() => generateAuthToken(generatorUsername, generatorPassword)} small
+          onClick={() =>
+            generateAuthToken(generatorUsername, generatorPassword)
+          }
+          small
         />
       </div>
     </>

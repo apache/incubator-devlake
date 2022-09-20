@@ -17,20 +17,25 @@
  */
 import React, { useEffect, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
-import { Icon, } from '@blueprintjs/core'
+import { Icon } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/data/integrations'
-import { ProviderConnectionLimits, ProviderFormLabels, ProviderFormPlaceholders, Providers } from '@/data/Providers'
+import {
+  ProviderConnectionLimits,
+  ProviderFormLabels,
+  ProviderFormPlaceholders,
+  Providers
+} from '@/data/Providers'
 import useConnectionManager from '@/hooks/useConnectionManager'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
-export default function EditConnection () {
+export default function EditConnection() {
   const history = useHistory()
   const { providerId, connectionId } = useParams()
 
@@ -56,10 +61,13 @@ export default function EditConnection () {
     setUsername,
     setPassword,
     setToken
-  } = useConnectionManager({
-    activeProvider,
-    connectionId,
-  }, true)
+  } = useConnectionManager(
+    {
+      activeProvider,
+      connectionId
+    },
+    true
+  )
 
   const cancel = () => {
     history.push(`/integrations/${activeProvider.id}`)
@@ -97,7 +105,7 @@ export default function EditConnection () {
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER = ', providerId)
-    setActiveProvider(integrationsData.find(p => p.id === providerId))
+    setActiveProvider(integrationsData.find((p) => p.id === providerId))
   }, [])
 
   return (
@@ -111,7 +119,11 @@ export default function EditConnection () {
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/integrations', icon: false, text: 'Integrations' },
-                { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}` },
+                {
+                  href: `/integrations/${activeProvider.id}`,
+                  icon: false,
+                  text: `${activeProvider.name}`
+                },
                 {
                   href: `/connections/edit/${activeProvider.id}/${activeConnection.id}`,
                   icon: false,
@@ -121,18 +133,29 @@ export default function EditConnection () {
               ]}
             />
             <div style={{ width: '100%' }}>
-              <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
+              <Link
+                style={{ float: 'right', marginLeft: '10px', color: '#777777' }}
+                to={`/integrations/${activeProvider.id}`}
+              >
                 <Icon icon='undo' size={16} /> Go Back
               </Link>
               <div style={{ display: 'flex' }}>
                 <div>
-                  <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span>
+                  <span style={{ marginRight: '10px' }}>
+                    {activeProvider.icon}
+                  </span>
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
-                    Edit <strong style={{ fontWeight: 900 }}>{activeProvider.name}</strong> Connection
+                    Edit{' '}
+                    <strong style={{ fontWeight: 900 }}>
+                      {activeProvider.name}
+                    </strong>{' '}
+                    Connection
                   </h1>
-                  <p className='description'>Manage the connection for this provider.</p>
+                  <p className='description'>
+                    Manage the connection for this provider.
+                  </p>
                 </div>
               </div>
               <div className='editConnection' style={{ display: 'flex' }}>
@@ -156,7 +179,15 @@ export default function EditConnection () {
                   testStatus={testStatus}
                   errors={errors}
                   showError={showError}
-                  authType={[Providers.JENKINS, Providers.JIRA, Providers.TAPD].includes(activeProvider.id) ? 'plain' : 'token'}
+                  authType={
+                    [
+                      Providers.JENKINS,
+                      Providers.JIRA,
+                      Providers.TAPD
+                    ].includes(activeProvider.id)
+                      ? 'plain'
+                      : 'token'
+                  }
                   sourceLimits={ProviderConnectionLimits}
                   labels={ProviderFormLabels[activeProvider.id]}
                   placeholders={ProviderFormPlaceholders[activeProvider.id]}

@@ -17,7 +17,7 @@
  */
 import React, { useEffect, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
-import { Icon, } from '@blueprintjs/core'
+import { Icon } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -38,11 +38,13 @@ import useConnectionValidation from '@/hooks/useConnectionValidation'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
-export default function AddConnection () {
+export default function AddConnection() {
   const history = useHistory()
   const { providerId } = useParams()
 
-  const [activeProvider, setActiveProvider] = useState(integrationsData.find(p => p.id === providerId))
+  const [activeProvider, setActiveProvider] = useState(
+    integrationsData.find((p) => p.id === providerId)
+  )
 
   const {
     testConnection,
@@ -71,10 +73,10 @@ export default function AddConnection () {
     setToken,
     setInitialTokenStore,
     fetchAllConnections,
-    connectionLimitReached,
+    connectionLimitReached
     // Providers
   } = useConnectionManager({
-    activeProvider,
+    activeProvider
   })
 
   const {
@@ -125,7 +127,7 @@ export default function AddConnection () {
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER = ', providerId)
-    setActiveProvider(integrationsData.find(p => p.id === providerId))
+    setActiveProvider(integrationsData.find((p) => p.id === providerId))
   }, [providerId])
 
   return (
@@ -139,23 +141,39 @@ export default function AddConnection () {
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/integrations', icon: false, text: 'Integrations' },
-                { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}` },
-                { href: `/connections/add/${activeProvider.id}`, icon: false, text: 'Add Connection', current: true }
+                {
+                  href: `/integrations/${activeProvider.id}`,
+                  icon: false,
+                  text: `${activeProvider.name}`
+                },
+                {
+                  href: `/connections/add/${activeProvider.id}`,
+                  icon: false,
+                  text: 'Add Connection',
+                  current: true
+                }
               ]}
             />
             <div style={{ width: '100%' }}>
-              <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
+              <Link
+                style={{ float: 'right', marginLeft: '10px', color: '#777777' }}
+                to={`/integrations/${activeProvider.id}`}
+              >
                 <Icon icon='undo' size={16} /> Go Back
               </Link>
               <div style={{ display: 'flex' }}>
                 <div>
-                  <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span>
+                  <span style={{ marginRight: '10px' }}>
+                    {activeProvider.icon}
+                  </span>
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
                     {activeProvider.name} Add Connection
                   </h1>
-                  <p className='page-description'>Create a new connection for this provider.</p>
+                  <p className='page-description'>
+                    Create a new connection for this provider.
+                  </p>
                 </div>
               </div>
               <div className='addConnection' style={{ display: 'flex' }}>
@@ -190,7 +208,15 @@ export default function AddConnection () {
                   allTestResponses={allTestResponses}
                   errors={errors}
                   showError={showError}
-                  authType={[Providers.JENKINS, Providers.JIRA, Providers.TAPD].includes(activeProvider.id) ? 'plain' : 'token'}
+                  authType={
+                    [
+                      Providers.JENKINS,
+                      Providers.JIRA,
+                      Providers.TAPD
+                    ].includes(activeProvider.id)
+                      ? 'plain'
+                      : 'token'
+                  }
                   sourceLimits={ProviderConnectionLimits}
                   labels={ProviderFormLabels[activeProvider.id]}
                   placeholders={ProviderFormPlaceholders[activeProvider.id]}

@@ -23,7 +23,7 @@ import {
   Icon,
   Classes,
   Tabs,
-  Tab,
+  Tab
 } from '@blueprintjs/core'
 
 const ConnectionTabs = (props) => {
@@ -31,7 +31,7 @@ const ConnectionTabs = (props) => {
     connections = [],
     errors = [],
     selectedTabId,
-    onChange = () => {},
+    onChange = () => {}
   } = props
 
   return (
@@ -52,12 +52,15 @@ const ConnectionTabs = (props) => {
               errors.some((e) => e.includes(c.name)) ? (
                 <>
                   {c.title}{' '}
-                  <span style={{ display: 'flex', alignItems: 'center', alignSelf: 'center', marginLeft: '10px' }}>
-                    <Icon
-                      icon='warning-sign'
-                      size={10}
-                      color={Colors.GRAY4}
-                    />
+                  <span
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      alignSelf: 'center',
+                      marginLeft: '10px'
+                    }}
+                  >
+                    <Icon icon='warning-sign' size={10} color={Colors.GRAY4} />
                   </span>
                 </>
               ) : (

@@ -17,10 +17,7 @@
  */
 
 import React, { useEffect, useState, useCallback } from 'react'
-import {
-  BrowserRouter as Router,
-  Route
-} from 'react-router-dom'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
 
 import 'normalize.css'
 import '@/styles/app.scss'
@@ -136,7 +133,6 @@ function App (props) {
         hasFailed={hasMigrationFailed}
       />
     </Router>
-
   )
 }
 

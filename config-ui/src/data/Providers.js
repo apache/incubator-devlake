@@ -40,7 +40,7 @@ const Providers = {
   AE: 'ae',
   DBT: 'dbt',
   STARROCKS: 'starrocks',
-  TAPD: 'tapd',
+  TAPD: 'tapd'
 }
 
 const ProviderTypes = {
@@ -61,7 +61,7 @@ const ProviderLabels = {
   AE: 'Analysis Engine (AE)',
   DBT: 'Data Build Tool (DBT)',
   STARROCKS: 'StarRocks',
-  TAPD: 'TAPD',
+  TAPD: 'TAPD'
 }
 
 const ProviderConnectionLimits = {
@@ -91,7 +91,11 @@ const ProviderFormLabels = {
     token: 'Access Token',
     username: 'Username',
     password: 'Password',
-    rateLimitPerHour: <>Rate Limit <sup>(per hour)</sup></>
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+      </>
+    )
   },
   jenkins: {
     name: 'Connection Name',
@@ -100,7 +104,11 @@ const ProviderFormLabels = {
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password',
-    rateLimitPerHour: <>Rate Limit <sup>(per hour)</sup></>
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+      </>
+    )
   },
   tapd: {
     name: 'Connection Name',
@@ -109,7 +117,11 @@ const ProviderFormLabels = {
     token: 'Basic Auth Token',
     username: 'Username',
     password: 'Password',
-    rateLimitPerHour: <>Rate Limit <sup>(per hour)</sup></>
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+      </>
+    )
   },
   jira: {
     name: 'Connection Name',
@@ -121,7 +133,12 @@ const ProviderFormLabels = {
       <>
         Password
         <Tooltip
-          content={(<span>If you are using JIRA Cloud or JIRA Server, <br />your API Token should be used as password.</span>)}
+          content={
+            <span>
+              If you are using JIRA Cloud or JIRA Server, <br />
+              your API Token should be used as password.
+            </span>
+          }
           intent='primary'
         >
           <Icon
@@ -137,8 +154,13 @@ const ProviderFormLabels = {
             }}
           />
         </Tooltip>
-      </>),
-    rateLimitPerHour: <>Rate Limit <sup>(per hour)</sup></>
+      </>
+    ),
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+      </>
+    )
   },
   github: {
     name: 'Connection Name',
@@ -148,7 +170,12 @@ const ProviderFormLabels = {
       <>
         Auth Token(s)
         <Tooltip
-          content={(<span>Due to Github's rate limit, input more tokens, <br />comma separated, to accelerate data collection.</span>)}
+          content={
+            <span>
+              Due to Github's rate limit, input more tokens, <br />
+              comma separated, to accelerate data collection.
+            </span>
+          }
           intent='primary'
         >
           <Icon
@@ -164,10 +191,15 @@ const ProviderFormLabels = {
             }}
           />
         </Tooltip>
-      </>),
+      </>
+    ),
     username: 'Username',
     password: 'Password',
-    rateLimitPerHour: <>Rate Limit <sup>(per hour)</sup></>
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+      </>
+    )
   }
 }
 
@@ -229,16 +261,28 @@ const ProviderFormPlaceholders = {
 }
 
 const ProviderIcons = {
-  [Providers.GITLAB]: (w, h) => <GitlabProviderIcon width={w || 24} height={h || 24} />,
-  [Providers.JENKINS]: (w, h) => <JenkinsProviderIcon width={w || 24} height={h || 24} />,
-  [Providers.TAPD]: (w, h) => <TapdProviderIcon width={w || 24} height={h || 24} />,
-  [Providers.JIRA]: (w, h) => <JiraProviderIcon width={w || 24} height={h || 24} />,
-  [Providers.GITHUB]: (w, h) => <GitHubProviderIcon width={w || 24} height={h || 24} />,
+  [Providers.GITLAB]: (w, h) => (
+    <GitlabProviderIcon width={w || 24} height={h || 24} />
+  ),
+  [Providers.JENKINS]: (w, h) => (
+    <JenkinsProviderIcon width={w || 24} height={h || 24} />
+  ),
+  [Providers.TAPD]: (w, h) => (
+    <TapdProviderIcon width={w || 24} height={h || 24} />
+  ),
+  [Providers.JIRA]: (w, h) => (
+    <JiraProviderIcon width={w || 24} height={h || 24} />
+  ),
+  [Providers.GITHUB]: (w, h) => (
+    <GitHubProviderIcon width={w || 24} height={h || 24} />
+  ),
   [Providers.REFDIFF]: (w, h) => <Icon icon='box' size={w || 24} />,
   [Providers.GITEXTRACTOR]: (w, h) => <Icon icon='box' size={w || 24} />,
-  [Providers.FEISHU]: (w, h) => <img src={FeishuIcon} width={w || 24} height={h || 24} />,
+  [Providers.FEISHU]: (w, h) => (
+    <img src={FeishuIcon} width={w || 24} height={h || 24} />
+  ),
   [Providers.AE]: (w, h) => <Icon icon='box' size={w || 24} />,
-  [Providers.DBT]: (w, h) => <Icon icon='box' size={w || 24} />,
+  [Providers.DBT]: (w, h) => <Icon icon='box' size={w || 24} />
 }
 
 const ConnectionStatus = {

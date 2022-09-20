@@ -15,17 +15,24 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useCallback, useState, useRef } from 'react'
+import React, {
+  Fragment,
+  useEffect,
+  useCallback,
+  useState,
+  useRef
+} from 'react'
 import { CSSTransition } from 'react-transition-group'
-import {
-  useHistory,
-  useLocation,
-  Link,
-} from 'react-router-dom'
+import { useHistory, useLocation, Link } from 'react-router-dom'
 import { GRAFANA_URL } from '@/utils/config'
 import {
-  Button, Icon, Intent, Switch,
-  FormGroup, ButtonGroup, InputGroup,
+  Button,
+  Icon,
+  Intent,
+  Switch,
+  FormGroup,
+  ButtonGroup,
+  InputGroup,
   Elevation,
   TextArea,
   Card,
@@ -35,11 +42,7 @@ import {
   Colors,
   Tag
 } from '@blueprintjs/core'
-import {
-  Providers,
-  ProviderTypes,
-  ProviderIcons
-} from '@/data/Providers'
+import { Providers, ProviderTypes, ProviderIcons } from '@/data/Providers'
 import { integrationsData, pluginsData } from '@/data/integrations'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
@@ -71,9 +74,14 @@ const CreatePipeline = (props) => {
   // const { providerId } = useParams()
   // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
   // eslint-disable-next-line no-unused-vars
-  const [integrations, setIntegrations] = useState([...integrationsData, ...pluginsData])
+  const [integrations, setIntegrations] = useState([
+    ...integrationsData,
+    ...pluginsData
+  ])
   // eslint-disable-next-line no-unused-vars
-  const [jiraIntegration, setJiraIntegration] = useState(integrationsData.find(p => p.id === Providers.JIRA))
+  const [jiraIntegration, setJiraIntegration] = useState(
+    integrationsData.find((p) => p.id === Providers.JIRA)
+  )
 
   const [today, setToday] = useState(new Date())
   const pipelinePrefixes = ['COLLECT', 'SYNC']
@@ -82,8 +90,10 @@ const CreatePipeline = (props) => {
     today.toString(), // Wed Dec 15 2021 23:48:43 GMT-0500 (EST)
     today.toISOString(), // 2021-12-16T04:48:43.107Z
     // eslint-disable-next-line max-len
-    `${today.getFullYear()}${today.getMonth() + 1}${today.getDate()}${today.getHours()}${today.getMinutes()}${today.getSeconds()}`, // 202112154936
-    today.toUTCString(), // Thu, 16 Dec 2021 04:49:52 GMT
+    `${today.getFullYear()}${
+      today.getMonth() + 1
+    }${today.getDate()}${today.getHours()}${today.getMinutes()}${today.getSeconds()}`, // 202112154936
+    today.toUTCString() // Thu, 16 Dec 2021 04:49:52 GMT
   ]
 
   const [readyProviders, setReadyProviders] = useState([])
@@ -98,13 +108,17 @@ const CreatePipeline = (props) => {
   const [runTasks, setRunTasks] = useState([])
   const [runTasksAdvanced, setRunTasksAdvanced] = useState([])
   const [existingTasks, setExistingTasks] = useState([])
-  const [rawConfiguration, setRawConfiguration] = useState(JSON.stringify([runTasks], null, '  '))
+  const [rawConfiguration, setRawConfiguration] = useState(
+    JSON.stringify([runTasks], null, '  ')
+  )
   const [isValidConfiguration, setIsValidConfiguration] = useState(false)
   const [validationError, setValidationError] = useState()
 
   const [namePrefix, setNamePrefix] = useState(pipelinePrefixes[0])
   const [nameSuffix, setNameSuffix] = useState(pipelineSuffixes[0])
-  const [pipelineName, setPipelineName] = useState(`${namePrefix} ${nameSuffix}`)
+  const [pipelineName, setPipelineName] = useState(
+    `${namePrefix} ${nameSuffix}`
+  )
   const [projectId, setProjectId] = useState([])
   const [boardId, setBoardId] = useState([])
   const [connectionId, setConnectionId] = useState('')
@@ -118,7 +132,10 @@ const CreatePipeline = (props) => {
   const [selectedGithubRepo, setSelectedGithubRepo] = useState()
   const [refDiffRepoId, setRefDiffRepoId] = useState('')
   const [refDiffPairs, setRefDiffPairs] = useState([])
-  const [refDiffTasks, setRefDiffTasks] = useState(['calculateCommitsDiff', 'calculateIssuesDiff'])
+  const [refDiffTasks, setRefDiffTasks] = useState([
+    'calculateCommitsDiff',
+    'calculateIssuesDiff'
+  ])
 
   const addBlueprintRef = useRef()
 
@@ -158,7 +175,7 @@ const CreatePipeline = (props) => {
     saveBlueprint,
     deleteBlueprint,
     isDeleting: isDeletingBlueprint,
-    saveComplete: saveBlueprintComplete,
+    saveComplete: saveBlueprintComplete
   } = useBlueprintManager()
 
   const {
@@ -238,9 +255,9 @@ const CreatePipeline = (props) => {
   })
 
   useEffect(() => {
-    [...integrationsData, ...pluginsData].forEach((i, idx) => {
+    ;[...integrationsData, ...pluginsData].forEach((i, idx) => {
       setTimeout(() => {
-        setReadyProviders(r => [...r, i.id])
+        setReadyProviders((r) => [...r, i.id])
       }, idx * 50)
     })
   }, [])
@@ -250,115 +267,139 @@ const CreatePipeline = (props) => {
   }
 
   const isValidPipeline = () => {
-    if (advancedMode) { return isValidAdvancedPipeline() }
-    return enabledProviders.length >= 1 &&
+    if (advancedMode) {
+      return isValidAdvancedPipeline()
+    }
+    return (
+      enabledProviders.length >= 1 &&
       pipelineName !== '' &&
       pipelineName.length > 2 &&
       validationErrors.length === 0
+    )
   }
 
   const isValidAdvancedPipeline = () => {
-    return pipelineName !== '' &&
-    pipelineName.length > 2 &&
-    validationErrors.length === 0 &&
-    isValidConfiguration
+    return (
+      pipelineName !== '' &&
+      pipelineName.length > 2 &&
+      validationErrors.length === 0 &&
+      isValidConfiguration
+    )
   }
 
   const isMultiStagePipeline = (tasks = []) => {
     return tasks.length > 1 && Array.isArray(tasks[0])
   }
 
-  const getManyProviderOptions = useCallback((providerId, optionProperty, ids, options = {}) => {
-    return ids.map(id => {
-      return {
-        Plugin: providerId,
-        Options: {
-          [optionProperty]: parseInt(id, 10),
-          ...options
-        }
-      }
-    })
-  }, [])
-
-  const getProviderOptions = useCallback((providerId) => {
-    let options = {}
-    switch (providerId) {
-      case Providers.JENKINS:
-      // NO OPTIONS for Jenkins!
-        break
-      case Providers.JIRA:
-        options = {
-          boardId: parseInt(boardId, 10),
-          connectionId: parseInt(connectionId, 10)
-        }
-        break
-      case Providers.GITHUB:
-        options = {
-          repo: repositoryName,
-          owner
-        }
-        break
-      case Providers.GITLAB:
-        options = {
-          projectId: parseInt(projectId, 10)
-        }
-        break
-      case Providers.GITEXTRACTOR:
-        options = {
-          url: gitExtractorUrl,
-          repoId: gitExtractorRepoId
-        }
-        break
-      case Providers.REFDIFF:
-        options = {
-          repoId: refDiffRepoId,
-          pairs: refDiffPairs,
-          tasks: refDiffTasks,
-        }
-        break
-      default:
-        break
-    }
-    return options
-  }, [boardId,
-    owner,
-    projectId,
-    repositoryName,
-    connectionId,
-    gitExtractorUrl,
-    gitExtractorRepoId,
-    refDiffRepoId,
-    refDiffTasks,
-    refDiffPairs
-  ])
-
-  const configureProvider = useCallback((providerId) => {
-    let providerConfig = {}
-    switch (providerId) {
-      case Providers.GITLAB:
-        providerConfig = getManyProviderOptions(providerId, 'projectId', [...projectId])
-        break
-      case Providers.JIRA:
-        providerConfig = getManyProviderOptions(
-          providerId,
-          'boardId',
-          [...boardId],
-          {
-            connectionId: parseInt(connectionId, 10)
-          }
-        )
-        break
-      default:
-        providerConfig = {
+  const getManyProviderOptions = useCallback(
+    (providerId, optionProperty, ids, options = {}) => {
+      return ids.map((id) => {
+        return {
           Plugin: providerId,
           Options: {
-            ...getProviderOptions(providerId)
+            [optionProperty]: parseInt(id, 10),
+            ...options
           }
         }
-        break
-    }
-    return providerConfig
-  }, [getProviderOptions, getManyProviderOptions, projectId, boardId, connectionId])
+      })
+    },
+    []
+  )
+
+  const getProviderOptions = useCallback(
+    (providerId) => {
+      let options = {}
+      switch (providerId) {
+        case Providers.JENKINS:
+          // NO OPTIONS for Jenkins!
+          break
+        case Providers.JIRA:
+          options = {
+            boardId: parseInt(boardId, 10),
+            connectionId: parseInt(connectionId, 10)
+          }
+          break
+        case Providers.GITHUB:
+          options = {
+            repo: repositoryName,
+            owner
+          }
+          break
+        case Providers.GITLAB:
+          options = {
+            projectId: parseInt(projectId, 10)
+          }
+          break
+        case Providers.GITEXTRACTOR:
+          options = {
+            url: gitExtractorUrl,
+            repoId: gitExtractorRepoId
+          }
+          break
+        case Providers.REFDIFF:
+          options = {
+            repoId: refDiffRepoId,
+            pairs: refDiffPairs,
+            tasks: refDiffTasks
+          }
+          break
+        default:
+          break
+      }
+      return options
+    },
+    [
+      boardId,
+      owner,
+      projectId,
+      repositoryName,
+      connectionId,
+      gitExtractorUrl,
+      gitExtractorRepoId,
+      refDiffRepoId,
+      refDiffTasks,
+      refDiffPairs
+    ]
+  )
+
+  const configureProvider = useCallback(
+    (providerId) => {
+      let providerConfig = {}
+      switch (providerId) {
+        case Providers.GITLAB:
+          providerConfig = getManyProviderOptions(providerId, 'projectId', [
+            ...projectId
+          ])
+          break
+        case Providers.JIRA:
+          providerConfig = getManyProviderOptions(
+            providerId,
+            'boardId',
+            [...boardId],
+            {
+              connectionId: parseInt(connectionId, 10)
+            }
+          )
+          break
+        default:
+          providerConfig = {
+            Plugin: providerId,
+            Options: {
+              ...getProviderOptions(providerId)
+            }
+          }
+          break
+      }
+      return providerConfig
+    },
+    [
+      getProviderOptions,
+      getManyProviderOptions,
+      projectId,
+      boardId,
+      connectionId
+    ]
+  )
 
   const resetPipelineName = () => {
     setToday(new Date())
@@ -390,14 +431,14 @@ const CreatePipeline = (props) => {
     } catch (e) {
       console.log('>> PARSE JSON ERROR!', e)
       setValidationError(e.message)
-      setPipelineErrors(errs => [...errs, e.message])
+      setPipelineErrors((errs) => [...errs, e.message])
       // ToastNotification.show({ message: e.message, intent: 'danger', icon: 'error' })
     }
   }
 
   const formatRawCode = () => {
     try {
-      setRawConfiguration(config => {
+      setRawConfiguration((config) => {
         const parsedConfig = parseJSON(config)
         const formattedConfig = JSON.stringify(parsedConfig, null, '  ')
         return formattedConfig || config
@@ -421,12 +462,13 @@ const CreatePipeline = (props) => {
     return isValid
   }, [rawConfiguration])
 
-  useEffect(() => {
-
-  }, [pipelineName])
+  useEffect(() => {}, [pipelineName])
 
   useEffect(() => {
-    console.log('>> PIPELINE RUN TASK SETTINGS FOR PIPELINE MANAGER ....', runTasks)
+    console.log(
+      '>> PIPELINE RUN TASK SETTINGS FOR PIPELINE MANAGER ....',
+      runTasks
+    )
     setPipelineSettings({
       name: pipelineName,
       tasks: advancedMode ? runTasksAdvanced : [[...runTasks]]
@@ -439,15 +481,31 @@ const CreatePipeline = (props) => {
       validate()
       setBlueprintTasks([[...runTasks]])
     }
-  }, [advancedMode, runTasks, runTasksAdvanced, pipelineName, setPipelineSettings, validate, validateAdvanced, setBlueprintTasks])
+  }, [
+    advancedMode,
+    runTasks,
+    runTasksAdvanced,
+    pipelineName,
+    setPipelineSettings,
+    validate,
+    validateAdvanced,
+    setBlueprintTasks
+  ])
 
   useEffect(() => {
     validateBlueprint()
-  }, [name, cronConfig, customCronConfig, blueprintTasks, enable, validateBlueprint])
+  }, [
+    name,
+    cronConfig,
+    customCronConfig,
+    blueprintTasks,
+    enable,
+    validateBlueprint
+  ])
 
   useEffect(() => {
     console.log('>> ENBALED PROVIDERS = ', enabledProviders)
-    const PipelineTasks = enabledProviders.map(p => configureProvider(p))
+    const PipelineTasks = enabledProviders.map((p) => configureProvider(p))
     setRunTasks(PipelineTasks.flat())
     console.log('>> CONFIGURED PIPELINE TASKS = ', PipelineTasks)
     validate()
@@ -466,8 +524,10 @@ const CreatePipeline = (props) => {
   }, [
     enabledProviders,
     projectId,
-    boardId, connectionId,
-    owner, repositoryName,
+    boardId,
+    connectionId,
+    owner,
+    repositoryName,
     configureProvider,
     validate,
     fetchAllConnections,
@@ -489,25 +549,47 @@ const CreatePipeline = (props) => {
   }, [namePrefix, nameSuffix])
 
   useEffect(() => {
-    console.log('>> JIRA CONNECTION ID SELECTED, CONNECTION INSTANCE = ', selectedConnection)
-    setConnectionId(sId => selectedConnection ? selectedConnection.value : null)
+    console.log(
+      '>> JIRA CONNECTION ID SELECTED, CONNECTION INSTANCE = ',
+      selectedConnection
+    )
+    setConnectionId((sId) =>
+      selectedConnection ? selectedConnection.value : null
+    )
     validate()
   }, [selectedConnection, validate])
 
   useEffect(() => {
-    console.log('>> DOMAIN LAYER REPOSITIRY SELECTED, REPO = ', selectedGithubRepo)
-    setGitExtractorRepoId(rId => selectedGithubRepo ? selectedGithubRepo.value : null)
+    console.log(
+      '>> DOMAIN LAYER REPOSITIRY SELECTED, REPO = ',
+      selectedGithubRepo
+    )
+    setGitExtractorRepoId((rId) =>
+      selectedGithubRepo ? selectedGithubRepo.value : null
+    )
     validate()
   }, [selectedGithubRepo, validate])
 
   useEffect(() => {
     console.log('>> FETCHED ALL JIRA CONNECTIONS... ', allConnections)
-    setConnections(allConnections.map(c => { return { id: c.ID, title: c.name || 'Instance', value: c.ID } }))
+    setConnections(
+      allConnections.map((c) => {
+        return { id: c.ID, title: c.name || 'Instance', value: c.ID }
+      })
+    )
   }, [allConnections])
 
   useEffect(() => {
     console.log('>> FETCHED DOMAIN LAYER REPOS... ', domainRepositories)
-    setRepositories(domainRepositories.map((r, rIdx) => { return { id: rIdx, title: r.name || r.id || `Repository #${r.id || rIdx}`, value: r.id || rIdx } }))
+    setRepositories(
+      domainRepositories.map((r, rIdx) => {
+        return {
+          id: rIdx,
+          title: r.name || r.id || `Repository #${r.id || rIdx}`,
+          value: r.id || rIdx
+        }
+      })
+    )
   }, [domainRepositories])
 
   useEffect(() => {
@@ -516,33 +598,48 @@ const CreatePipeline = (props) => {
 
   useEffect(() => {
     if (location.state?.existingTasks) {
-      console.log('>> RESTART ATTEMPT: DETECTED EXISTING PIPELINE CONFIGURATION... ', location.state.existingTasks)
+      console.log(
+        '>> RESTART ATTEMPT: DETECTED EXISTING PIPELINE CONFIGURATION... ',
+        location.state.existingTasks
+      )
       const tasks = location.state.existingTasks
       setRestartDetected(true)
       setExistingTasks(tasks)
       window.history.replaceState(null, '')
       // !WARNING! This logic will only handle ONE STAGE (Stage 1)
       // @todo: refactor later for multi-stage
-      const GitLabTask = tasks.filter(t => t.plugin === Providers.GITLAB)
-      const GitHubTask = tasks.find(t => t.plugin === Providers.GITHUB)
-      const JiraTask = tasks.filter(t => t.plugin === Providers.JIRA)
-      const JenkinsTask = tasks.find(t => t.plugin === Providers.JENKINS)
-      const GitExtractorTask = tasks.find(t => t.plugin === Providers.GITEXTRACTOR)
-      const RefDiffTask = tasks.find(t => t.plugin === Providers.REFDIFF)
+      const GitLabTask = tasks.filter((t) => t.plugin === Providers.GITLAB)
+      const GitHubTask = tasks.find((t) => t.plugin === Providers.GITHUB)
+      const JiraTask = tasks.filter((t) => t.plugin === Providers.JIRA)
+      const JenkinsTask = tasks.find((t) => t.plugin === Providers.JENKINS)
+      const GitExtractorTask = tasks.find(
+        (t) => t.plugin === Providers.GITEXTRACTOR
+      )
+      const RefDiffTask = tasks.find((t) => t.plugin === Providers.REFDIFF)
       const configuredProviders = []
       if (GitLabTask && GitLabTask.length > 0) {
         configuredProviders.push(Providers.GITLAB)
-        setProjectId(Array.isArray(GitLabTask) ? GitLabTask.map(gT => gT.options?.projectId) : GitLabTask.options?.projectId)
+        setProjectId(
+          Array.isArray(GitLabTask)
+            ? GitLabTask.map((gT) => gT.options?.projectId)
+            : GitLabTask.options?.projectId
+        )
       }
       if (GitHubTask) {
         configuredProviders.push(Providers.GITHUB)
-        setRepositoryName(GitHubTask.options?.repositoryName || GitHubTask.options?.repo)
+        setRepositoryName(
+          GitHubTask.options?.repositoryName || GitHubTask.options?.repo
+        )
         setOwner(GitHubTask.options?.owner)
       }
       if (JiraTask && JiraTask.length > 0) {
         fetchAllConnections(false)
         configuredProviders.push(Providers.JIRA)
-        setBoardId(Array.isArray(JiraTask) ? JiraTask.map(jT => jT.options?.boardId) : JiraTask.options?.boardId)
+        setBoardId(
+          Array.isArray(JiraTask)
+            ? JiraTask.map((jT) => jT.options?.boardId)
+            : JiraTask.options?.boardId
+        )
         const connSrcId = JiraTask[0].options?.connectionId
         setSelectedConnection({
           id: parseInt(connSrcId, 10),
@@ -564,7 +661,7 @@ const CreatePipeline = (props) => {
         setRefDiffPairs(RefDiffTask.options?.pairs || [])
         configuredProviders.push(Providers.REFDIFF)
       }
-      setEnabledProviders(eP => [...eP, ...configuredProviders])
+      setEnabledProviders((eP) => [...eP, ...configuredProviders])
     } else {
       setRestartDetected(false)
       setExistingTasks([])
@@ -585,8 +682,8 @@ const CreatePipeline = (props) => {
   useEffect(() => {
     if (existingTasks.length > 0) {
       const multiStageTasks = buildPipelineStages(existingTasks, true)
-      const PipelineTasks = multiStageTasks.map(s => {
-        return s.map(t => {
+      const PipelineTasks = multiStageTasks.map((s) => {
+        return s.map((t) => {
           return {
             Plugin: t.plugin,
             Options: {
@@ -611,7 +708,11 @@ const CreatePipeline = (props) => {
   }, [blueprintDialogIsOpen, fetchAllPipelines])
 
   useEffect(() => {
-    setPipelineTemplates(pipelines.slice(0, 100).map(p => ({ ...p, id: p.id, title: p.name, value: p.id })))
+    setPipelineTemplates(
+      pipelines
+        .slice(0, 100)
+        .map((p) => ({ ...p, id: p.id, title: p.name, value: p.id }))
+    )
   }, [pipelines])
 
   useEffect(() => {
@@ -622,7 +723,11 @@ const CreatePipeline = (props) => {
   }, [selectedPipelineTemplate])
 
   useEffect(() => {
-    setSelectedPipelineTemplate(pipelineTemplates.find(pT => pT.tasks.flat().toString() === blueprintTasks.flat().toString()))
+    setSelectedPipelineTemplate(
+      pipelineTemplates.find(
+        (pT) => pT.tasks.flat().toString() === blueprintTasks.flat().toString()
+      )
+    )
   }, [pipelineTemplates])
 
   useEffect(() => {
@@ -654,7 +759,11 @@ const CreatePipeline = (props) => {
 
   return (
     <>
-      <div className={`container container-create-pipeline ${advancedMode ? 'advanced-mode' : ''}`}>
+      <div
+        className={`container container-create-pipeline ${
+          advancedMode ? 'advanced-mode' : ''
+        }`}
+      >
         <Nav />
         <Sidebar />
         <Content>
@@ -663,17 +772,32 @@ const CreatePipeline = (props) => {
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/pipelines', icon: false, text: 'Pipelines' },
-                { href: '/pipelines/create', icon: false, text: 'Create Pipeline Run', current: true },
+                {
+                  href: '/pipelines/create',
+                  icon: false,
+                  text: 'Create Pipeline Run',
+                  current: true
+                }
               ]}
             />
 
             <div className='headlineContainer'>
-              <Link style={{ display: 'flex', fontSize: '14px', float: 'right', marginLeft: '10px', color: '#777777' }} to='/pipelines'>
+              <Link
+                style={{
+                  display: 'flex',
+                  fontSize: '14px',
+                  float: 'right',
+                  marginLeft: '10px',
+                  color: '#777777'
+                }}
+                to='/pipelines'
+              >
                 <Icon
                   icon='undo'
                   size={16}
                   style={{ marginRight: '5px', opacity: 0.6 }}
-                /> Go Back
+                />{' '}
+                Go Back
               </Link>
               <div style={{ display: 'flex' }}>
                 <div>
@@ -688,45 +812,99 @@ const CreatePipeline = (props) => {
                       enforceFocus={false}
                       usePortal={false}
                     >
-                      <a href='#' rel='noreferrer'><HelpIcon width={19} height={19} style={{ marginLeft: '10px' }} /></a>
+                      <a href='#' rel='noreferrer'>
+                        <HelpIcon
+                          width={19}
+                          height={19}
+                          style={{ marginLeft: '10px' }}
+                        />
+                      </a>
                       <>
-                        <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '300px' }}>
-                          <div style={{ marginBottom: '10px', fontWeight: 700, fontSize: '14px' }}>
+                        <div
+                          style={{
+                            textShadow: 'none',
+                            fontSize: '12px',
+                            padding: '12px',
+                            maxWidth: '300px'
+                          }}
+                        >
+                          <div
+                            style={{
+                              marginBottom: '10px',
+                              fontWeight: 700,
+                              fontSize: '14px'
+                            }}
+                          >
                             <Icon icon='help' size={16} /> Run Pipeline
                           </div>
-                          <p>Need Help? &mdash; Configure the <strong>Data Providers</strong> you want and click
-                            <Icon icon='play' size={12} /> <strong>RUN</strong> to trigger a new Pipeline run.
+                          <p>
+                            Need Help? &mdash; Configure the{' '}
+                            <strong>Data Providers</strong> you want and click
+                            <Icon icon='play' size={12} /> <strong>RUN</strong>{' '}
+                            to trigger a new Pipeline run.
                           </p>
                         </div>
                       </>
                     </Popover>
                   </h1>
 
-                  <p className='page-description mb-0'>Trigger data collection for one or more Data Providers.</p>
+                  <p className='page-description mb-0'>
+                    Trigger data collection for one or more Data Providers.
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div className='' style={{ width: '100%', marginTop: '10px', alignSelf: 'flex-start', alignContent: 'flex-start' }}>
+            <div
+              className=''
+              style={{
+                width: '100%',
+                marginTop: '10px',
+                alignSelf: 'flex-start',
+                alignContent: 'flex-start'
+              }}
+            >
               <h2 className='headline'>
                 <Icon
                   icon='git-pull'
-                  height={16} size={16} color='rgba(0,0,0,0.5)'
-                /> Pipeline Name {advancedMode && <>(Advanced)</>}<span className='requiredStar'>*</span>
+                  height={16}
+                  size={16}
+                  color='rgba(0,0,0,0.5)'
+                />{' '}
+                Pipeline Name {advancedMode && <>(Advanced)</>}
+                <span className='requiredStar'>*</span>
               </h2>
-              <p className='group-caption'>Create a user-friendly name for this Run, or select and use a default auto-generated one.</p>
-              <div className='form-group' style={{ maxWidth: '480px', paddingLeft: '22px' }}>
+              <p className='group-caption'>
+                Create a user-friendly name for this Run, or select and use a
+                default auto-generated one.
+              </p>
+              <div
+                className='form-group'
+                style={{ maxWidth: '480px', paddingLeft: '22px' }}
+              >
                 {isValidPipeline() && (
                   <Icon
-                    icon='tick' color={Colors.GREEN5} size={12}
-                    style={{ float: 'right', marginTop: '7px', marginLeft: '5px' }}
-                  />)}
+                    icon='tick'
+                    color={Colors.GREEN5}
+                    size={12}
+                    style={{
+                      float: 'right',
+                      marginTop: '7px',
+                      marginLeft: '5px'
+                    }}
+                  />
+                )}
                 {!isValidPipeline() && (
                   <>
                     <Icon
-                      icon='exclude-row' color={Colors.RED5}
+                      icon='exclude-row'
+                      color={Colors.RED5}
                       size={12}
-                      style={{ float: 'right', marginTop: '7px', marginLeft: '5px' }}
+                      style={{
+                        float: 'right',
+                        marginTop: '7px',
+                        marginLeft: '5px'
+                      }}
                     />
                   </>
                 )}
@@ -740,18 +918,23 @@ const CreatePipeline = (props) => {
                   fill
                   required
                 >
-
                   <InputGroup
                     id='pipeline-name'
                     disabled={isRunning}
                     placeholder='eg. COLLECTION YYYYMMDDHHMMSS'
                     value={pipelineName}
                     onChange={(e) => setPipelineName(e.target.value)}
-                    className={!isValidPipelineForm ? 'input-pipeline-name is-invalid' : 'input-pipeline-name is-valid'}
+                    className={
+                      !isValidPipelineForm
+                        ? 'input-pipeline-name is-invalid'
+                        : 'input-pipeline-name is-valid'
+                    }
                     rightElement={
                       <>
                         <Button
-                          icon='reset' text='' small
+                          icon='reset'
+                          text=''
+                          small
                           minimal
                           onClick={() => resetPipelineName()}
                         />
@@ -787,12 +970,29 @@ const CreatePipeline = (props) => {
                               >
                                 <Button
                                   intent={Intent.PRIMARY}
-                                  icon={<Icon icon='warning-sign' size={14} color={Colors.ORANGE5} />}
+                                  icon={
+                                    <Icon
+                                      icon='warning-sign'
+                                      size={14}
+                                      color={Colors.ORANGE5}
+                                    />
+                                  }
                                   small
                                   style={{ margin: '3px 4px 0 0' }}
                                 />
-                                <div style={{ padding: '5px', minWidth: '300px', maxWidth: '300px', justifyContent: 'flex-start' }}>
-                                  <FormValidationErrors errors={validationErrors} textAlign='left' styles={{ display: 'flex' }} />
+                                <div
+                                  style={{
+                                    padding: '5px',
+                                    minWidth: '300px',
+                                    maxWidth: '300px',
+                                    justifyContent: 'flex-start'
+                                  }}
+                                >
+                                  <FormValidationErrors
+                                    errors={validationErrors}
+                                    textAlign='left'
+                                    styles={{ display: 'flex' }}
+                                  />
                                 </div>
                               </Popover>
                             </div>
@@ -810,34 +1010,81 @@ const CreatePipeline = (props) => {
               {advancedMode && (
                 <>
                   <h2 className='headline'>
-                    <Icon icon='code' height={16} size={16} color='rgba(0,0,0,0.5)' />{' '}
-                    <strong>JSON</strong> Provider Configuration<span className='requiredStar'>*</span>
+                    <Icon
+                      icon='code'
+                      height={16}
+                      size={16}
+                      color='rgba(0,0,0,0.5)'
+                    />{' '}
+                    <strong>JSON</strong> Provider Configuration
+                    <span className='requiredStar'>*</span>
                   </h2>
-                  <p className='group-caption'>Define Plugins and Options manually. Only valid JSON code is allowed.</p>
-                  <div style={{ padding: '10px 0', borderBottom: '1px solid rgba(0, 0, 0, 0.08)' }}>
+                  <p className='group-caption'>
+                    Define Plugins and Options manually. Only valid JSON code is
+                    allowed.
+                  </p>
+                  <div
+                    style={{
+                      padding: '10px 0',
+                      borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
+                    }}
+                  >
                     <div className='form-group' style={{ paddingLeft: '22px' }}>
                       <Card
                         className='code-editor-card'
                         interactive={false}
                         elevation={Elevation.TWO}
-                        style={{ padding: '2px', minWidth: '320px', width: '100%', maxWidth: '640px', marginBottom: '20px' }}
+                        style={{
+                          padding: '2px',
+                          minWidth: '320px',
+                          width: '100%',
+                          maxWidth: '640px',
+                          marginBottom: '20px'
+                        }}
                       >
-                        <h3 style={{ borderBottom: '1px solid #eeeeee', margin: 0, padding: '8px 10px' }}>
-                          <span style={{ float: 'right', fontSize: '9px', color: '#aaaaaa' }}>application/json</span>
+                        <h3
+                          style={{
+                            borderBottom: '1px solid #eeeeee',
+                            margin: 0,
+                            padding: '8px 10px'
+                          }}
+                        >
+                          <span
+                            style={{
+                              float: 'right',
+                              fontSize: '9px',
+                              color: '#aaaaaa'
+                            }}
+                          >
+                            application/json
+                          </span>
                           TASKS EDITOR
                           {isMultiStagePipeline(runTasksAdvanced) && (
                             <>
-                              {' '} &rarr; {' '}
-                              <Icon icon='layers' color={Colors.GRAY4} size={14} style={{ marginRight: '5px' }} />
-                              <span style={{
-                                fontStyle: 'normal',
-                                fontWeight: 900,
-                                letterSpacing: '1px',
-                                color: '#333',
-                                fontSize: '11px'
-                              }}
+                              {' '}
+                              &rarr;{' '}
+                              <Icon
+                                icon='layers'
+                                color={Colors.GRAY4}
+                                size={14}
+                                style={{ marginRight: '5px' }}
+                              />
+                              <span
+                                style={{
+                                  fontStyle: 'normal',
+                                  fontWeight: 900,
+                                  letterSpacing: '1px',
+                                  color: '#333',
+                                  fontSize: '11px'
+                                }}
                               >
-                                MULTI-STAGE <Tag intent={Intent.PRIMARY} style={{ borderRadius: '20px' }}>{runTasksAdvanced.length}</Tag>
+                                MULTI-STAGE{' '}
+                                <Tag
+                                  intent={Intent.PRIMARY}
+                                  style={{ borderRadius: '20px' }}
+                                >
+                                  {runTasksAdvanced.length}
+                                </Tag>
                               </span>
                             </>
                           )}
@@ -846,7 +1093,10 @@ const CreatePipeline = (props) => {
                           growVertically={false}
                           fill={true}
                           className='codeArea'
-                          style={{ height: '440px !important', maxWidth: '640px' }}
+                          style={{
+                            height: '440px !important',
+                            maxWidth: '640px'
+                          }}
                           value={rawConfiguration}
                           onChange={(e) => setRawConfiguration(e.target.value)}
                         />
@@ -887,7 +1137,8 @@ const CreatePipeline = (props) => {
                           }}
                         >
                           <ButtonGroup
-                            className='code-editor-controls' style={{
+                            className='code-editor-controls'
+                            style={{
                               borderRadius: '3px',
                               boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)'
                             }}
@@ -898,10 +1149,7 @@ const CreatePipeline = (props) => {
                               position={Position.TOP}
                               usePortal={true}
                             >
-                              <Button
-                                disabled={isRunning}
-                                icon='cog'
-                              />
+                              <Button disabled={isRunning} icon='cog' />
                               <>
                                 <PipelineConfigsMenu
                                   setRawConfiguration={setRawConfiguration}
@@ -911,15 +1159,25 @@ const CreatePipeline = (props) => {
                             </Popover>
                             <Button
                               disabled={!isValidConfiguration}
-                              small text='Format' icon='align-left'
+                              small
+                              text='Format'
+                              icon='align-left'
                               onClick={() => formatRawCode()}
                             />
                             <Button
-                              small text='Revert' icon='reset'
-                              onClick={() => setRawConfiguration(JSON.stringify([runTasks], null, '  '))}
+                              small
+                              text='Revert'
+                              icon='reset'
+                              onClick={() =>
+                                setRawConfiguration(
+                                  JSON.stringify([runTasks], null, '  ')
+                                )
+                              }
                             />
                             <Button
-                              small text='Clear' icon='eraser'
+                              small
+                              text='Clear'
+                              icon='eraser'
                               onClick={() => setRawConfiguration('[[]]')}
                             />
                             <Popover
@@ -931,96 +1189,163 @@ const CreatePipeline = (props) => {
                               usePortal={false}
                             >
                               <Button
-                                intent={isValidConfiguration ? Intent.SUCCESS : Intent.PRIMARY}
+                                intent={
+                                  isValidConfiguration
+                                    ? Intent.SUCCESS
+                                    : Intent.PRIMARY
+                                }
                                 small
-                                text={isValidConfiguration ? 'Valid' : 'Invalid'}
-                                icon={isValidConfiguration ? 'confirm' : 'warning-sign'}
+                                text={
+                                  isValidConfiguration ? 'Valid' : 'Invalid'
+                                }
+                                icon={
+                                  isValidConfiguration
+                                    ? 'confirm'
+                                    : 'warning-sign'
+                                }
                               />
                               <>
-                                <div style={{
-                                  textShadow: 'none',
-                                  fontSize: '12px',
-                                  padding: '12px',
-                                  minWidth: '300px',
-                                  maxWidth: '300px',
-                                  maxHeight: '200px',
-                                  overflow: 'hidden',
-                                  overflowY: 'auto'
-                                }}
+                                <div
+                                  style={{
+                                    textShadow: 'none',
+                                    fontSize: '12px',
+                                    padding: '12px',
+                                    minWidth: '300px',
+                                    maxWidth: '300px',
+                                    maxHeight: '200px',
+                                    overflow: 'hidden',
+                                    overflowY: 'auto'
+                                  }}
                                 >
-                                  {isValidConfiguration
-                                    ? (
-                                      <>
-                                        <Icon
-                                          icon='tick' color={Colors.GREEN5} size={16}
-                                          style={{ float: 'left', marginRight: '5px' }}
-                                        />
-                                        <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '5px' }}>
-                                          JSON Configuration Valid
-                                        </div>
-                                        {isMultiStagePipeline(runTasksAdvanced) && (
-                                          <>
-                                            <div
-                                              className='bp3-elevation-1' style={{
-                                                backgroundColor: '#f6f6f6',
-                                                padding: '4px 6px',
-                                                borderRadius: '3px',
-                                                marginBottom: '10px'
-                                              }}
-                                            >
-                                              <Icon icon='layers' color={Colors.GRAY4} size={14} style={{ marginRight: '5px' }} />
-                                              <span style={{
+                                  {isValidConfiguration ? (
+                                    <>
+                                      <Icon
+                                        icon='tick'
+                                        color={Colors.GREEN5}
+                                        size={16}
+                                        style={{
+                                          float: 'left',
+                                          marginRight: '5px'
+                                        }}
+                                      />
+                                      <div
+                                        style={{
+                                          fontSize: '13px',
+                                          fontWeight: 800,
+                                          marginBottom: '5px'
+                                        }}
+                                      >
+                                        JSON Configuration Valid
+                                      </div>
+                                      {isMultiStagePipeline(
+                                        runTasksAdvanced
+                                      ) && (
+                                        <>
+                                          <div
+                                            className='bp3-elevation-1'
+                                            style={{
+                                              backgroundColor: '#f6f6f6',
+                                              padding: '4px 6px',
+                                              borderRadius: '3px',
+                                              marginBottom: '10px'
+                                            }}
+                                          >
+                                            <Icon
+                                              icon='layers'
+                                              color={Colors.GRAY4}
+                                              size={14}
+                                              style={{ marginRight: '5px' }}
+                                            />
+                                            <span
+                                              style={{
                                                 fontStyle: 'normal',
                                                 fontWeight: 900,
                                                 letterSpacing: '1px',
                                                 color: '#333',
                                                 fontSize: '11px'
                                               }}
-                                              >
-                                                MULTI-STAGE <Tag>{runTasksAdvanced.length}</Tag>
-                                              </span>
-                                            </div>
-                                            <span style={{ fontSize: '10px' }}>Multi-stage task configuration detected.</span>
-                                          </>
-                                        )}
-                                      </>
-                                      )
-                                    : (
-                                      <>
-                                        <Icon
-                                          icon='issue' color={Colors.RED5} size={16}
-                                          style={{ float: 'left', marginRight: '5px' }}
-                                        />
-                                        <div style={{ fontSize: '13px', fontWeight: 800, marginBottom: '5px' }}>
-                                          Invalid JSON Configuration
-                                        </div>
-                                        {validationError}
-                                      </>
+                                            >
+                                              MULTI-STAGE{' '}
+                                              <Tag>
+                                                {runTasksAdvanced.length}
+                                              </Tag>
+                                            </span>
+                                          </div>
+                                          <span style={{ fontSize: '10px' }}>
+                                            Multi-stage task configuration
+                                            detected.
+                                          </span>
+                                        </>
                                       )}
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Icon
+                                        icon='issue'
+                                        color={Colors.RED5}
+                                        size={16}
+                                        style={{
+                                          float: 'left',
+                                          marginRight: '5px'
+                                        }}
+                                      />
+                                      <div
+                                        style={{
+                                          fontSize: '13px',
+                                          fontWeight: 800,
+                                          marginBottom: '5px'
+                                        }}
+                                      >
+                                        Invalid JSON Configuration
+                                      </div>
+                                      {validationError}
+                                    </>
+                                  )}
                                 </div>
                               </>
                             </Popover>
-
                           </ButtonGroup>
                         </div>
                       </Card>
                       <div style={{ marginTop: '0', maxWidth: '640px' }}>
                         <div style={{ display: 'flex', minHeight: '34px' }}>
-                          <div style={{
-                            marginRight: '5px',
-                            paddingLeft: '10px',
-                            fontWeight: 800,
-                            letterSpacing: '2px',
-                            color: Colors.GRAY2,
-                          }}
-                          ><span><Icon icon='nest' size={12} color={Colors.GRAY4} style={{ marginRight: '2px' }} /> DATA PROVIDERS</span>
+                          <div
+                            style={{
+                              marginRight: '5px',
+                              paddingLeft: '10px',
+                              fontWeight: 800,
+                              letterSpacing: '2px',
+                              color: Colors.GRAY2
+                            }}
+                          >
+                            <span>
+                              <Icon
+                                icon='nest'
+                                size={12}
+                                color={Colors.GRAY4}
+                                style={{ marginRight: '2px' }}
+                              />{' '}
+                              DATA PROVIDERS
+                            </span>
                           </div>
                           {detectedProviders.map((provider, pIdx) => (
-                            <div className='detected-provider-icon' key={`provider-icon-key-${pIdx}`} style={{ margin: '5px 18px' }}>
-                              {ProviderIcons[provider] ? ProviderIcons[provider](20, 20) : <></>}
+                            <div
+                              className='detected-provider-icon'
+                              key={`provider-icon-key-${pIdx}`}
+                              style={{ margin: '5px 18px' }}
+                            >
+                              {ProviderIcons[provider] ? (
+                                ProviderIcons[provider](20, 20)
+                              ) : (
+                                <></>
+                              )}
                             </div>
                           ))}
-                          {detectedProviders.length === 0 && (<span style={{ color: Colors.GRAY4 }}>&lt; None Configured &gt;</span>)}
+                          {detectedProviders.length === 0 && (
+                            <span style={{ color: Colors.GRAY4 }}>
+                              &lt; None Configured &gt;
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1031,14 +1356,23 @@ const CreatePipeline = (props) => {
               {!advancedMode && (
                 <>
                   <h2 className='headline'>
-                    <Icon icon='database' height={16} size={16} color='rgba(0,0,0,0.5)' />{' '}
+                    <Icon
+                      icon='database'
+                      height={16}
+                      size={16}
+                      color='rgba(0,0,0,0.5)'
+                    />{' '}
                     Data Providers<span className='requiredStar'>*</span>
                   </h2>
                   <p className='group-caption'>
-                    Configure available plugins to enable for this <strong>Pipeline Run</strong>.<br />
+                    Configure available plugins to enable for this{' '}
+                    <strong>Pipeline Run</strong>.<br />
                     Turn the switch to the ON position to activate.
                   </p>
-                  <div className='data-providers' style={{ marginTop: '8px', width: '100%' }}>
+                  <div
+                    className='data-providers'
+                    style={{ marginTop: '8px', width: '100%' }}
+                  >
                     {integrations.map((provider) => (
                       <CSSTransition
                         key={`fx-key-provider-${provider.id}`}
@@ -1050,25 +1384,43 @@ const CreatePipeline = (props) => {
                         {/* <div key={`provider-${provider.id}`}> */}
                         <div
                           // eslint-disable-next-line max-len
-                          className={`data-provider-row data-provider-${provider.id.toLowerCase()} ${enabledProviders.includes(provider.id) ? 'on' : 'off'}`}
+                          className={`data-provider-row data-provider-${provider.id.toLowerCase()} ${
+                            enabledProviders.includes(provider.id)
+                              ? 'on'
+                              : 'off'
+                          }`}
                         >
                           <div className='provider-info'>
-                            <div className='provider-icon'>{provider.iconDashboard}</div>
-                            <span className='provider-name'>{provider.name}</span>
+                            <div className='provider-icon'>
+                              {provider.iconDashboard}
+                            </div>
+                            <span className='provider-name'>
+                              {provider.name}
+                            </span>
                             <Tooltip
                               intent={Intent.PRIMARY}
-                              content={`Enable ${provider.name}`} position={Position.LEFT} popoverClassName='pipeline-tooltip'
+                              content={`Enable ${provider.name}`}
+                              position={Position.LEFT}
+                              popoverClassName='pipeline-tooltip'
                             >
                               <Switch
                                 // alignIndicator={Alignment.CENTER}
                                 disabled={isRunning}
                                 className={`provider-toggle-switch switch-${provider.id.toLowerCase()}`}
-                                innerLabel={!enabledProviders.includes(provider.id) ? 'OFF' : null}
+                                innerLabel={
+                                  !enabledProviders.includes(provider.id)
+                                    ? 'OFF'
+                                    : null
+                                }
                                 innerLabelChecked='ON'
                                 checked={enabledProviders.includes(provider.id)}
-                                onChange={() => setEnabledProviders(p =>
-                                  enabledProviders.includes(provider.id) ? p.filter(p => p !== provider.id) : [...p, provider.id]
-                                )}
+                                onChange={() =>
+                                  setEnabledProviders((p) =>
+                                    enabledProviders.includes(provider.id)
+                                      ? p.filter((p) => p !== provider.id)
+                                      : [...p, provider.id]
+                                  )
+                                }
                               />
                             </Tooltip>
                           </div>
@@ -1109,8 +1461,18 @@ const CreatePipeline = (props) => {
                           <div className='provider-actions'>
                             <ButtonGroup minimal rounded='true'>
                               {provider.type === ProviderTypes.INTEGRATION && (
-                                <Button className='pipeline-action-btn' minimal onClick={() => history.push(`/integrations/${provider.id}`)}>
-                                  <Icon icon='cog' color={Colors.GRAY4} size={16} />
+                                <Button
+                                  className='pipeline-action-btn'
+                                  minimal
+                                  onClick={() =>
+                                    history.push(`/integrations/${provider.id}`)
+                                  }
+                                >
+                                  <Icon
+                                    icon='cog'
+                                    color={Colors.GRAY4}
+                                    size={16}
+                                  />
                                 </Button>
                               )}
                               <Popover
@@ -1122,20 +1484,36 @@ const CreatePipeline = (props) => {
                                 enforceFocus={false}
                                 usePortal={true}
                               >
-                                <Button className='pipeline-action-btn' minimal><Icon icon='help' color={Colors.GRAY4} size={16} /></Button>
+                                <Button className='pipeline-action-btn' minimal>
+                                  <Icon
+                                    icon='help'
+                                    color={Colors.GRAY4}
+                                    size={16}
+                                  />
+                                </Button>
                                 <>
-                                  <div style={{ textShadow: 'none', fontSize: '12px', padding: '12px', maxWidth: '300px' }}>
-                                    <div style={{
-                                      marginBottom: '10px',
-                                      fontWeight: 700,
-                                      fontSize: '14px',
+                                  <div
+                                    style={{
+                                      textShadow: 'none',
+                                      fontSize: '12px',
+                                      padding: '12px',
+                                      maxWidth: '300px'
                                     }}
+                                  >
+                                    <div
+                                      style={{
+                                        marginBottom: '10px',
+                                        fontWeight: 700,
+                                        fontSize: '14px'
+                                      }}
                                     >
-                                      <Icon icon='help' size={16} /> {provider.name} Settings
+                                      <Icon icon='help' size={16} />{' '}
+                                      {provider.name} Settings
                                     </div>
                                     <p>
-                                      Need Help? &mdash; Please enter the required{' '}
-                                      <strong>Run Settings</strong> for this data provider.
+                                      Need Help? &mdash; Please enter the
+                                      required <strong>Run Settings</strong> for
+                                      this data provider.
                                     </p>
                                     {/* specific provider field help notes */}
                                     {(() => {
@@ -1145,18 +1523,30 @@ const CreatePipeline = (props) => {
                                           helpContext = (
                                             <img
                                               src={GitlabHelpNote}
-                                              alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
+                                              alt={provider.name}
+                                              style={{
+                                                maxHeight: '64px',
+                                                maxWidth: '100%'
+                                              }}
                                             />
                                           )
                                           break
                                         case Providers.JENKINS:
-                                          helpContext = <strong>(Options not required)</strong>
+                                          helpContext = (
+                                            <strong>
+                                              (Options not required)
+                                            </strong>
+                                          )
                                           break
                                         case Providers.JIRA:
                                           helpContext = (
                                             <img
                                               src={JiraHelpNote}
-                                              alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
+                                              alt={provider.name}
+                                              style={{
+                                                maxHeight: '64px',
+                                                maxWidth: '100%'
+                                              }}
                                             />
                                           )
                                           break
@@ -1164,21 +1554,34 @@ const CreatePipeline = (props) => {
                                           helpContext = (
                                             <img
                                               src={GithubHelpNote}
-                                              alt={provider.name} style={{ maxHeight: '64px', maxWidth: '100%' }}
+                                              alt={provider.name}
+                                              style={{
+                                                maxHeight: '64px',
+                                                maxWidth: '100%'
+                                              }}
                                             />
                                           )
                                           break
                                         case Providers.GITEXTRACTOR:
                                           helpContext = (
                                             <>
-                                              <div><strong>GitExtractor README</strong></div>
-                                              <p>This plugin extract commits and references from a remote or local git repository.</p>
+                                              <div>
+                                                <strong>
+                                                  GitExtractor README
+                                                </strong>
+                                              </div>
+                                              <p>
+                                                This plugin extract commits and
+                                                references from a remote or
+                                                local git repository.
+                                              </p>
                                               <a
                                                 className='bp3-button bp3-small'
                                                 rel='noreferrer'
                                                 target='_blank'
                                                 href='https://github.com/apache/incubator-devlake/tree/main/plugins/gitextractor'
-                                              >Learn More
+                                              >
+                                                Learn More
                                               </a>
                                             </>
                                           )
@@ -1186,14 +1589,20 @@ const CreatePipeline = (props) => {
                                         case Providers.REFDIFF:
                                           helpContext = (
                                             <>
-                                              <div><strong>RefDiff README</strong></div>
-                                              <p>You need to run gitextractor before the refdiff plugin.</p>
+                                              <div>
+                                                <strong>RefDiff README</strong>
+                                              </div>
+                                              <p>
+                                                You need to run gitextractor
+                                                before the refdiff plugin.
+                                              </p>
                                               <a
                                                 className='bp3-button bp3-small'
                                                 rel='noreferrer'
                                                 target='_blank'
                                                 href='https://github.com/apache/incubator-devlake/tree/main/plugins/refdiff'
-                                              >Learn More
+                                              >
+                                                Learn More
                                               </a>
                                             </>
                                           )
@@ -1213,36 +1622,73 @@ const CreatePipeline = (props) => {
                   </div>
                 </>
               )}
-
             </div>
-            <div className='blueprint-options' style={{ alignSelf: 'flex-start', justifyContent: 'flex-start', marginBottom: '30px' }}>
-              <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'flex-start', alignItems: 'center', alignContent: 'center' }}>
-                <h2 className='headline' style={{ color: enableAutomation ? Colors.BLACK : Colors.GRAY2 }}>
+            <div
+              className='blueprint-options'
+              style={{
+                alignSelf: 'flex-start',
+                justifyContent: 'flex-start',
+                marginBottom: '30px'
+              }}
+            >
+              <div
+                style={{
+                  marginTop: '10px',
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  alignContent: 'center'
+                }}
+              >
+                <h2
+                  className='headline'
+                  style={{
+                    color: enableAutomation ? Colors.BLACK : Colors.GRAY2
+                  }}
+                >
                   <Icon
                     icon='calendar'
-                    height={16} size={16} color='rgba(0,0,0,0.5)'
-                  /> Automate Pipeline
-
+                    height={16}
+                    size={16}
+                    color='rgba(0,0,0,0.5)'
+                  />{' '}
+                  Automate Pipeline
                 </h2>
                 <Switch
-                  disabled={advancedMode ? !isValidAdvancedPipeline() : !isValidPipeline()}
-                  style={{ display: 'flex', alignSelf: 'center', margin: '13px 0 0 15px' }}
+                  disabled={
+                    advancedMode
+                      ? !isValidAdvancedPipeline()
+                      : !isValidPipeline()
+                  }
+                  style={{
+                    display: 'flex',
+                    alignSelf: 'center',
+                    margin: '13px 0 0 15px'
+                  }}
                   checked={enableAutomation}
-                  onChange={(e) => setEnableAutomation(a => !a)} label={false}
+                  onChange={(e) => setEnableAutomation((a) => !a)}
+                  label={false}
                 />
               </div>
               <p className='group-caption'>
-                Automatically run this pipeline configuration by setting up a recurring <strong>Blueprint</strong>.
+                Automatically run this pipeline configuration by setting up a
+                recurring <strong>Blueprint</strong>.
               </p>
               {!saveBlueprintComplete && (
                 <Button
                   ref={addBlueprintRef}
-                  disabled={!enableAutomation || (advancedMode ? !isValidAdvancedPipeline() : !isValidPipeline())}
+                  disabled={
+                    !enableAutomation ||
+                    (advancedMode
+                      ? !isValidAdvancedPipeline()
+                      : !isValidPipeline())
+                  }
                   intent={enableAutomation ? Intent.WARNING : Intent.NONE}
-                  small text='Add Blueprint'
+                  small
+                  text='Add Blueprint'
                   icon='plus'
                   style={{ marginLeft: '25px' }}
-                  onClick={() => setBlueprintDialogIsOpen(opened => !opened)}
+                  onClick={() => setBlueprintDialogIsOpen((opened) => !opened)}
                 />
               )}
               {saveBlueprintComplete && (
@@ -1255,7 +1701,9 @@ const CreatePipeline = (props) => {
                     text={saveBlueprintComplete.name}
                     icon='bold'
                     style={{ marginLeft: '25px' }}
-                    onClick={() => setBlueprintDialogIsOpen(opened => !opened)}
+                    onClick={() =>
+                      setBlueprintDialogIsOpen((opened) => !opened)
+                    }
                   />
                   <Button
                     disabled={isDeletingBlueprint}
@@ -1267,86 +1715,145 @@ const CreatePipeline = (props) => {
                 </ButtonGroup>
               )}
             </div>
-            <div style={{ display: 'flex', marginTop: '32px', width: '100%', justifyContent: 'flex-start' }}>
+            <div
+              style={{
+                display: 'flex',
+                marginTop: '32px',
+                width: '100%',
+                justifyContent: 'flex-start'
+              }}
+            >
               {validationErrors.length > 0 && (
                 <FormValidationErrors errors={validationErrors} />
               )}
             </div>
-            <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+            <div
+              style={{
+                display: 'flex',
+                width: '100%',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start'
+              }}
+            >
               <Button
                 id='btn-run-pipeline'
-                className='btn-pipeline btn-run-pipeline' icon='play' intent='primary'
-                disabled={advancedMode ? !isValidAdvancedPipeline() : !isValidPipeline()}
+                className='btn-pipeline btn-run-pipeline'
+                icon='play'
+                intent='primary'
+                disabled={
+                  advancedMode ? !isValidAdvancedPipeline() : !isValidPipeline()
+                }
                 onClick={runPipeline}
                 loading={isRunning}
-              ><strong>Run</strong> Pipeline
+              >
+                <strong>Run</strong> Pipeline
               </Button>
               <Tooltip content='Manage Pipelines' position={Position.TOP}>
                 <Button
                   onClick={() => history.push('/pipelines')}
                   className='btn-pipeline btn-view-jobs'
-                  icon='pulse' minimal style={{ marginLeft: '5px' }}
-                >View All Pipelines
+                  icon='pulse'
+                  minimal
+                  style={{ marginLeft: '5px' }}
+                >
+                  View All Pipelines
                 </Button>
               </Tooltip>
               <Button
                 className='btn-pipeline btn-reset-pipeline'
-                icon='eraser' minimal style={{ marginLeft: '5px' }}
+                icon='eraser'
+                minimal
+                style={{ marginLeft: '5px' }}
                 onClick={resetConfiguration}
-              >Reset
+              >
+                Reset
               </Button>
               <div style={{ padding: '7px 5px 0 50px' }}>
-                <Tooltip content='Advanced Pipeline Mode' position={Position.TOP}>
+                <Tooltip
+                  content='Advanced Pipeline Mode'
+                  position={Position.TOP}
+                >
                   <Switch
                     className='advanced-mode-toggleswitch'
                     intent={Intent.DANGER}
                     checked={advancedMode}
-                    onChange={() => setAdvancedMode(t => !t)}
+                    onChange={() => setAdvancedMode((t) => !t)}
                     labelElement={
                       <>
-                        <span style={{
-                          fontSize: '14px',
-                          fontWeight: 800,
-                          display: 'inline-block',
-                          whiteSpace: 'nowrap'
-                        }}
-                        >Advanced Mode
-                        </span><br />
-                        <strong style={{ color: !advancedMode ? Colors.GRAY3 : '' }}>Raw JSON Trigger</strong>
+                        <span
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 800,
+                            display: 'inline-block',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          Advanced Mode
+                        </span>
+                        <br />
+                        <strong
+                          style={{ color: !advancedMode ? Colors.GRAY3 : '' }}
+                        >
+                          Raw JSON Trigger
+                        </strong>
                       </>
                     }
                   />
                 </Tooltip>
               </div>
             </div>
-            <p style={{ margin: '5px 3px', alignSelf: 'flex-start', fontSize: '10px' }}>
-              Visit the <a href='#'><strong>All Jobs</strong></a> section to monitor complete pipeline activity.<br />
-              Once you run this pipeline, you’ll be redirected to collection status.
+            <p
+              style={{
+                margin: '5px 3px',
+                alignSelf: 'flex-start',
+                fontSize: '10px'
+              }}
+            >
+              Visit the{' '}
+              <a href='#'>
+                <strong>All Jobs</strong>
+              </a>{' '}
+              section to monitor complete pipeline activity.
+              <br />
+              Once you run this pipeline, you’ll be redirected to collection
+              status.
             </p>
             {advancedMode && (
               <div style={{ alignSelf: 'flex-start' }}>
-                <h4 style={{
-                  marginBottom: '8px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                }}
-                ><Icon icon='issue' size={12} style={{ marginBottom: '2px' }} /> <span>Expert Use Only</span>
+                <h4
+                  style={{
+                    marginBottom: '8px',
+                    fontSize: '12px',
+                    fontWeight: 700
+                  }}
+                >
+                  <Icon
+                    icon='issue'
+                    size={12}
+                    style={{ marginBottom: '2px' }}
+                  />{' '}
+                  <span>Expert Use Only</span>
                 </h4>
                 <p style={{ fontSize: '10px' }}>
-                  Trigger a manual Pipeline with <a href='#'><strong>JSON Configuration</strong></a>.<br />
+                  Trigger a manual Pipeline with{' '}
+                  <a href='#'>
+                    <strong>JSON Configuration</strong>
+                  </a>
+                  .<br />
                   Please review the{' '}
                   <a
-                    href='https://github.com/apache/incubator-devlake/wiki/How-to-use-the-triggers-page' target='_blank'
+                    href='https://github.com/apache/incubator-devlake/wiki/How-to-use-the-triggers-page'
+                    target='_blank'
                     rel='noreferrer'
                     style={{
-                      fontWeight:
-                        'bold',
+                      fontWeight: 'bold',
                       color: '#E8471C',
                       textDecoration: 'underline'
                     }}
                   >
                     Documentation
-                  </a> on creating complex Pipelines.
+                  </a>{' '}
+                  on creating complex Pipelines.
                 </p>
               </div>
             )}
@@ -1391,7 +1898,6 @@ const CreatePipeline = (props) => {
         getCronPresetByConfig={getCronPresetByConfig}
         tasksLocked={true}
       />
-
     </>
   )
 }

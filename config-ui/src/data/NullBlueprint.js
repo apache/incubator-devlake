@@ -32,12 +32,8 @@ const NullBlueprint = {
   name: null,
   // Advanced mode uses tasks
   // @todo sort out which key is to be used
-  tasks: [
-    []
-  ],
-  plan: [
-    []
-  ],
+  tasks: [[]],
+  plan: [[]],
   // Normal mode uses settings
   settings: {
     version: '1.0.0',
@@ -51,8 +47,4 @@ const NullBlueprint = {
   isManual: false
 }
 
-export {
-  NullBlueprint,
-  BlueprintMode,
-  BlueprintStatus
-}
+export { NullBlueprint, BlueprintMode, BlueprintStatus }

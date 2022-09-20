@@ -27,9 +27,9 @@ const NullProvider = {
   // eslint-disable-next-line max-len
   icon: <Icon icon='box' size={30} />, // Provider Icon
   iconDashboard: <Icon icon='box' size={42} />, // Provider Icon on INTEGRATIONS Dashboard
-  settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (<></>) // REACT Settings Component for Render
+  settings: ({ activeProvider, activeConnection, isSaving, setSettings }) => (
+    <></>
+  ) // REACT Settings Component for Render
 }
 
-export {
-  NullProvider
-}
+export { NullProvider }

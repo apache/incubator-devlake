@@ -30,12 +30,12 @@ const collectionDefaults = {
   jira: {
     options: {
       boardId: 8,
-      connectionId: 1,
+      connectionId: 1
     }
   },
   jenkins: {
     options: {}
-  },
+  }
 }
 
 module.exports = collectionDefaults

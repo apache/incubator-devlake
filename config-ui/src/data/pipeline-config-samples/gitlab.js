@@ -15,14 +15,16 @@
  * limitations under the License.
  *
  */
-const gitlabConfig = [[{
-  plugin: 'gitlab',
-  options: {
-    projectId: 278964,
-    connectionId: 1
-  }
-}]]
+const gitlabConfig = [
+  [
+    {
+      plugin: 'gitlab',
+      options: {
+        projectId: 278964,
+        connectionId: 1
+      }
+    }
+  ]
+]
 
-export {
-  gitlabConfig
-}
+export { gitlabConfig }

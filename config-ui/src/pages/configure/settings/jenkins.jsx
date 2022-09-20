@@ -16,10 +16,7 @@
  *
  */
 import React, { useEffect, useState } from 'react'
-import {
-  useParams,
-  useHistory
-} from 'react-router-dom'
+import { useParams, useHistory } from 'react-router-dom'
 import {
   Button,
   ButtonGroup,
@@ -31,7 +28,7 @@ import {
   RadioGroup,
   Switch,
   Tag,
-  Tooltip,
+  Tooltip
 } from '@blueprintjs/core'
 
 import { DataEntityTypes } from '@/data/DataEntities'
@@ -40,7 +37,7 @@ import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
-export default function JenkinsSettings (props) {
+export default function JenkinsSettings(props) {
   const {
     provider,
     transformation,
@@ -79,7 +76,7 @@ export default function JenkinsSettings (props) {
 
   return (
     <>
-      {entities.some(e => e.value === DataEntityTypes.DEVOPS) ? (
+      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) ? (
         <Deployment
           provider={provider}
           entities={entities}
