@@ -50,6 +50,7 @@ func TestCalculateCLTimeDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_request_comments.csv", &code.PullRequestComment{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_request_commits.csv", &code.PullRequestCommit{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/commits.csv", &code.Commit{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/repos.csv", &code.Repo{})
 
 	// verify converter
 	dataflowTester.Subtask(tasks.CalculateChangeLeadTimeMeta, taskData)

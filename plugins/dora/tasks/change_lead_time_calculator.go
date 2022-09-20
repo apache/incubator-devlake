@@ -35,7 +35,7 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	repoIdList := make([]string, 0)
 	repoClause := dal.From(&code.Repo{})
-	err := db.Pluck("id", repoIdList, repoClause)
+	err := db.Pluck("id", &repoIdList, repoClause)
 	if err != nil {
 		return err
 	}
