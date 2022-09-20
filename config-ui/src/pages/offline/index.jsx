@@ -29,6 +29,8 @@ import {
   Spinner,
   Colors
 } from '@blueprintjs/core'
+import { ReactComponent as Logo } from '@/images/devlake-logo.svg'
+import { ReactComponent as LogoText } from '@/images/devlake-textmark.svg'
 import '@/styles/offline.scss'
 
 const Offline = (props) => {
@@ -134,6 +136,10 @@ const Offline = (props) => {
             style={{ maxWidth: '500px', margin: '0 auto', display: 'flex', height: '100%', flexDirection: 'column' }}
           >
             <div style={{ margin: 'auto auto', padding: '16px' }}>
+              <div className='devlake-logo' style={{ margin: 0 }}>
+                <Logo width={48} height={48} className='logo' />
+                <LogoText width={100} height={13} className='logo-textmark' />
+              </div>
               <CSSTransition in={cardReady} timeout={900} classNames='offline-card'>
                 <Card
                   elevation={Elevation.THREE}
@@ -207,10 +213,10 @@ const Offline = (props) => {
                           style={{ cursor: 'pointer' }}
                         >
                           <Button
-                            intent={Intent.DANGER} icon='warning-sign'
+                            intent={Intent.PRIMARY}
+                            icon='warning-sign'
                             style={{ fontWeight: 700 }}
                             onClick={() => history.replace('/')}
-                            large
                           >Continue
                           </Button>
                         </Tooltip>
@@ -220,7 +226,6 @@ const Offline = (props) => {
                           style={{ marginLeft: '5px' }}
                           disabled={!cardReady}
                           onClick={() => testEndpoint()}
-                          large
                         />
                       </>
                       )
@@ -232,7 +237,6 @@ const Offline = (props) => {
                         <Button
                           icon='cog' intent={Intent.PRIMARY}
                           onClick={() => history.replace('/')}
-                          large
                         >
                           Open Dashboard
                         </Button>
@@ -240,7 +244,7 @@ const Offline = (props) => {
                           href='https://github.com/apache/incubator-devlake/blob/main/README.md'
                           target='_blank'
                           rel='noreferrer'
-                          style={{ marginLeft: '5px' }} className='bp3-button bp3-large bp3-minimal'
+                          style={{ marginLeft: '5px' }} className='bp3-button bp3-minimal'
                         >
                           <Icon icon='help' size={16} style={{ marginRight: '5px' }} />
                           Read Documentation
@@ -250,7 +254,6 @@ const Offline = (props) => {
                 </Card>
               </CSSTransition>
               <div style={{ margin: '10px 5px 10px 5px', display: 'flex', justifyContnt: 'flex-start' }}>
-                <img src='/logo.svg' width={20} style={{ width: '20px', marginTop: '3px', marginRight: '5px', alignSelf: 'flex-start' }} />
                 <div style={{ color: 'rgba(33, 33, 33, 0.6)' }}>
                   {isOffline
                     ? (

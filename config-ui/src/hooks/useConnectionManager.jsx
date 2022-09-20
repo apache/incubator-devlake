@@ -334,14 +334,16 @@ function useConnectionManager (
             ),
           ])
           const builtConnections = aC
-            .map((providerResponse) => [].concat(providerResponse.data || []).map(c => new Connection({
-              ...c,
-              connectionId: c.id,
-              plugin: providerResponse.config?.url?.split('/')[3],
-              provider: providerResponse.config?.url?.split('/')[3],
-              // @note: realtime connection status will be later injected by hook callees (non-blocking)
-              status: ConnectionStatus.ONLINE
-            })))
+            .map((providerResponse) => []
+              .concat(Array.isArray(providerResponse.data) ? providerResponse.data : [])
+              .map(c => new Connection({
+                ...c,
+                connectionId: c.id,
+                plugin: providerResponse.config?.url?.split('/')[3],
+                provider: providerResponse.config?.url?.split('/')[3],
+                // @note: realtime connection status will be later injected by hook callees (non-blocking)
+                status: ConnectionStatus.ONLINE
+              })))
           setAllProviderConnections(builtConnections.flat())
           console.log(
             '>> ALL SOURCE CONNECTIONS: FETCHING ALL CONNECTION FROM ALL DATA SOURCES'
@@ -352,6 +354,7 @@ function useConnectionManager (
             `${DEVLAKE_ENDPOINT}/plugins/${provider?.id}/connections`
           )
           console.log('>> RAW ALL CONNECTIONS DATA FROM API...', c?.data)
+          handleOfflineMode(c?.status, c)
           const providerConnections = []
             .concat(Array.isArray(c?.data) ? c?.data : [])
             .map((conn, idx) =>

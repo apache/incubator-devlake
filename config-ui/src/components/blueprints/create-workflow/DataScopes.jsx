@@ -23,6 +23,7 @@ import BoardsSelector from '@/components/blueprints/BoardsSelector'
 import DataEntitiesSelector from '@/components/blueprints/DataEntitiesSelector'
 import NoData from '@/components/NoData'
 import GitlabProjectsSelector from '@/components/blueprints/GitlabProjectsSelector'
+import GitHubProject from '@/models/GithubProject'
 
 const DataScopes = (props) => {
   const {
@@ -128,7 +129,7 @@ const DataScopes = (props) => {
                         onChange={(values) =>
                           setProjects((p) => ({
                             ...p,
-                            [configuredConnection.id]: [...values.map((v, vIdx) => ({
+                            [configuredConnection.id]: [...values.map((v, vIdx) => new GitHubProject({
                               id: v,
                               key: v,
                               title: v,

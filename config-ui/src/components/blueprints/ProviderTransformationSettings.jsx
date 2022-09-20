@@ -15,15 +15,15 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useState, useCallback } from 'react'
+import React, { useEffect } from 'react'
 import {
   Providers,
-  ProviderTypes,
-  ProviderIcons,
-  ConnectionStatus,
-  ConnectionStatusLabels,
+  // ProviderTypes,
+  // ProviderIcons,
+  // ConnectionStatus,
+  // ConnectionStatusLabels,
 } from '@/data/Providers'
-import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
+// import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
@@ -39,6 +39,7 @@ const ProviderTransformationSettings = (props) => {
     configuredBoard,
     transformations = {},
     transformation = {},
+    entityIdKey,
     newTransformation = {},
     boards = {},
     projects = {},
@@ -53,6 +54,10 @@ const ProviderTransformationSettings = (props) => {
     isFetchingJIRA = false
   } = props
 
+  useEffect(() => {
+    console.log('OVER HERE!!!', entityIdKey)
+  }, [entityIdKey])
+
   return (
     <div className='transformation-settings' data-provider={provider?.id}>
       {provider?.id === Providers.GITHUB && (
@@ -62,6 +67,7 @@ const ProviderTransformationSettings = (props) => {
           configuredProject={configuredProject}
           projects={projects}
           transformation={transformation}
+          entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}
@@ -76,6 +82,7 @@ const ProviderTransformationSettings = (props) => {
           configuredProject={configuredProject}
           projects={projects}
           transformation={transformation}
+          entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}
@@ -93,6 +100,7 @@ const ProviderTransformationSettings = (props) => {
           issueTypes={issueTypes}
           fields={fields}
           transformation={transformation}
+          entityIdKey={entityIdKey}
           transformations={transformations}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
@@ -108,6 +116,7 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={connection}
           transformation={transformation}
+          entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}
@@ -119,6 +128,7 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={connection}
           transformation={transformation}
+          entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}

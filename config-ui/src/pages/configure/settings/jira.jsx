@@ -53,11 +53,13 @@ const createTypeMapObject = (customType, standardType) => {
 
 export default function JiraSettings (props) {
   const {
+    provider,
     connection,
     blueprint,
     entities = [],
     configuredBoard,
     transformation = {},
+    entityIdKey,
     transformations = {},
     isSaving,
     onSettingsChange = () => {},
@@ -86,13 +88,13 @@ export default function JiraSettings (props) {
   // @todo: lift higher to dsm hook
   const savedRequirementTags = useMemo(() => boards[connection?.id]
     ? boards[connection?.id].reduce((pV, cV, iDx) => ({ ...pV, [cV?.id]: connection?.transformations ? connection?.transformations[iDx]?.requirementTags : transformation?.requirementTags, }), {})
-    : {}, [connection?.id, configuredBoard?.id, boards, transformations])
+    : {}, [connection?.id, boards, connection?.transformations, transformation?.requirementTags])
   const savedBugTags = useMemo(() => boards[connection?.id]
     ? boards[connection?.id].reduce((pV, cV, iDx) => ({ ...pV, [cV?.id]: connection?.transformations ? connection?.transformations[iDx]?.bugTags : transformation?.bugTags, }), {})
-    : {}, [connection?.id, configuredBoard?.id, boards, transformations])
+    : {}, [connection?.id, boards, connection?.transformations, transformation?.bugTags])
   const savedIncidentTags = useMemo(() => boards[connection?.id]
     ? boards[connection?.id].reduce((pV, cV, iDx) => ({ ...pV, [cV?.id]: connection?.transformations ? connection?.transformations[iDx]?.incidentTags : transformation?.incidentTags, }), {})
-    : {}, [connection?.id, configuredBoard?.id, boards, transformations])
+    : {}, [connection?.id, boards, connection?.transformations, transformation?.incidentTags])
 
   const [requirementTags, setRequirementTags] = useState(savedRequirementTags)
   const [bugTags, setBugTags] = useState(savedBugTags)
@@ -363,7 +365,7 @@ export default function JiraSettings (props) {
 
           <div className='issue-type-multiselect' style={{ display: 'flex', marginBottom: '10px' }}>
             <div className='issue-type-label' style={{ minWidth: '120px', paddingRight: '10px', paddingTop: '3px' }}>
-              <label>Incident</label>
+              <label>Incident <Tag intent={Intent.PRIMARY} style={{ fontSize: '10px' }} minimal>DORA</Tag></label>
             </div>
             <div className='issue-type-multiselect-selector' style={{ minWidth: '200px', width: '100%' }}>
               <MultiSelect

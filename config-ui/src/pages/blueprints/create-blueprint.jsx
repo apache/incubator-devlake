@@ -111,8 +111,9 @@ const CreateBlueprint = (props) => {
   ])
   const [boardsList, setBoardsList] = useState([])
 
-  const [blueprintConnections, setBlueprintConnections] = useState([])
-  const [configuredConnection, setConfiguredConnection] = useState()
+  // @note: lifted to dsm hook
+  // const [blueprintConnections, setBlueprintConnections] = useState([])
+  // const [configuredConnection, setConfiguredConnection] = useState()
 
   const [activeConnectionTab, setActiveConnectionTab] = useState()
 
@@ -173,20 +174,31 @@ const CreateBlueprint = (props) => {
   } = useBlueprintManager()
 
   const {
+    newConnections: blueprintConnections,
     boards,
     projects,
     entities: dataEntities,
     transformations,
+    activeTransformation,
+    setNewConnections: setBlueprintConnections,
+    setConfiguredConnection,
+    setConfiguredBoard,
+    setConfiguredProject,
     setBoards,
     setProjects,
     setEntities: setDataEntities,
     setTransformations,
     setTransformationSettings,
+    configuredConnection,
+    configuredProject,
+    configuredBoard,
+    configurationKey,
     createProviderScopes,
     createProviderConnections,
     getDefaultTransformations,
+    getDefaultEntities,
     initializeTransformations
-  } = useDataScopesManager({ connection: configuredConnection, settings: blueprintSettings })
+  } = useDataScopesManager({ settings: blueprintSettings })
 
   const {
     pipelineName,
@@ -358,16 +370,16 @@ const CreateBlueprint = (props) => {
     password,
   })
 
-  const [configuredProject, setConfiguredProject] = useState(
-    // projects.length > 0 ? projects[0] : null
-    null
-  )
-  const [configuredBoard, setConfiguredBoard] = useState(
-    // boards.length > 0 ? boards[0] : null
-    null
-  )
+  // const [configuredProject, setConfiguredProject] = useState(
+  //   // projects.length > 0 ? projects[0] : null
+  //   null
+  // )
+  // const [configuredBoard, setConfiguredBoard] = useState(
+  //   // boards.length > 0 ? boards[0] : null
+  //   null
+  // )
 
-  const activeTransformation = useMemo(() => transformations[configuredProject?.id || configuredBoard?.id], [transformations, configuredProject?.id, configuredBoard?.id])
+  // const activeTransformation = useMemo(() => transformations[configuredProject?.id || configuredBoard?.id], [transformations, configuredProject?.id, configuredBoard?.id])
 
   // eslint-disable-next-line no-unused-vars
   const isValidStep = useCallback((stepId) => { }, [])
@@ -386,7 +398,7 @@ const CreateBlueprint = (props) => {
     )
     setConfiguredProject(null)
     setConfiguredBoard(null)
-  }, [blueprintSteps])
+  }, [blueprintSteps, setConfiguredBoard, setConfiguredProject])
 
   const testSelectedConnections = useCallback((connections, savedConnection = {}, callback = () => {}) => {
     const runTest = async () => {
@@ -431,7 +443,7 @@ const CreateBlueprint = (props) => {
       )
       setConfiguredConnection(selectedConnection)
     },
-    [blueprintConnections, setProvider]
+    [blueprintConnections, setProvider, setConfiguredConnection]
   )
 
   const handleConnectionDialogOpen = useCallback(() => {
@@ -484,7 +496,7 @@ const CreateBlueprint = (props) => {
     }))
     setConfiguredProject(null)
     setConfiguredBoard(null)
-  }, [setTransformations, configuredProject, configuredBoard])
+  }, [setTransformations, setConfiguredBoard, setConfiguredProject, configuredProject, configuredBoard])
 
   const handleBlueprintSave = useCallback(() => {
     console.log('>>> SAVING BLUEPRINT!!')
@@ -570,7 +582,7 @@ const CreateBlueprint = (props) => {
     setConfiguredBoard(null)
     ToastNotification.clear()
     ToastNotification.show({ message: 'Transformation Rules Added.', intent: Intent.SUCCESS, icon: 'small-tick' })
-  }, [])
+  }, [setConfiguredProject, setConfiguredBoard])
 
   const handleAdvancedMode = (enableAdvanced = true) => {
     setAdvancedMode(enableAdvanced)
@@ -698,25 +710,25 @@ const CreateBlueprint = (props) => {
         integrationsData.find((p) => p.id === someConnection.provider)
       )
     }
-    const getDefaultEntities = (providerId) => {
-      let entities = []
-      switch (providerId) {
-        case Providers.GITHUB:
-        case Providers.GITLAB:
-          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
-          break
-        case Providers.JIRA:
-          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
-          break
-        case Providers.JENKINS:
-          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-          break
-        case Providers.TAPD:
-          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-          break
-      }
-      return entities
-    }
+    // const getDefaultEntities = (providerId) => {
+    //   let entities = []
+    //   switch (providerId) {
+    //     case Providers.GITHUB:
+    //     case Providers.GITLAB:
+    //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
+    //       break
+    //     case Providers.JIRA:
+    //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
+    //       break
+    //     case Providers.JENKINS:
+    //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+    //       break
+    //     case Providers.TAPD:
+    //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+    //       break
+    //   }
+    //   return entities
+    // }
     const initializeEntities = (pV, cV) => ({
       ...pV,
       [cV.id]: !pV[cV.id] ? getDefaultEntities(cV?.provider) : [],
@@ -739,6 +751,8 @@ const CreateBlueprint = (props) => {
     testSelectedConnections(blueprintConnections)
   }, [
     blueprintConnections,
+    getDefaultEntities,
+    setConfiguredConnection,
     setProvider,
     setBoards,
     setDataEntities,
@@ -774,7 +788,7 @@ const CreateBlueprint = (props) => {
           break
       }
     }
-  }, [configuredConnection, setActiveConnectionTab])
+  }, [configuredConnection, setActiveConnectionTab, setConfiguredBoard, setConfiguredProject])
 
   useEffect(() => {
     console.log('>> DATA ENTITIES', dataEntities)
@@ -960,6 +974,7 @@ const CreateBlueprint = (props) => {
       statusResponse: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider),
       status: dataConnections.find(dC => dC.id === c.id && dC.provider === c.provider)?.status
     })))
+    // @todo: re-enable next disable on offline connection! (disabled to allow GitHub Test)
     setCanAdvanceNext(dataConnections.every(dC => dC.status === 200))
   }, [dataConnections, setConnectionsList])
 
@@ -1085,6 +1100,7 @@ const CreateBlueprint = (props) => {
                       configuredConnection={configuredConnection}
                       configuredProject={configuredProject}
                       configuredBoard={configuredBoard}
+                      configurationKey={configurationKey}
                       handleConnectionTabChange={handleConnectionTabChange}
                       prevStep={prevStep}
                       addBoardTransformation={addBoardTransformation}

@@ -136,7 +136,7 @@ const Blueprints = (props) => {
     setExpandDetails(opened => blueprint.id === activeBlueprint?.id && opened ? false : !opened)
     fetchAllPipelines()
     setActiveBlueprint(blueprint)
-  }, [fetchAllPipelines, setExpandDetails, setActiveBlueprint])
+  }, [fetchAllPipelines, setExpandDetails, setActiveBlueprint, activeBlueprint?.id])
 
   const configureBlueprint = useCallback((blueprint) => {
     history.push(`/blueprints/detail/${blueprint.id}`)
@@ -152,7 +152,7 @@ const Blueprints = (props) => {
 
   const isActiveBlueprint = useCallback((bId) => {
     return activeBlueprint?.id === bId
-  }, [])
+  }, [activeBlueprint?.id])
 
   const isStandardCronPreset = useCallback((cronConfig) => {
     return cronPresets.some(p => p.cronConfig === cronConfig)
@@ -204,7 +204,7 @@ const Blueprints = (props) => {
       setBlueprintDialogIsOpen(false)
       fetchAllBlueprints()
     }
-  }, [saveComplete])
+  }, [saveComplete, fetchAllBlueprints])
 
   useEffect(() => {
     if (deleteComplete.status === 200) {
@@ -267,7 +267,7 @@ const Blueprints = (props) => {
       }
     })
     setFilterParams(activeFilterStatus)
-  }, [activeFilterStatus, setFilterParams, getCronPreset])
+  }, [activeFilterStatus, setFilterParams, getCronPreset, setFilterFunc])
 
   // useEffect(() => {
   //   if (Array.isArray(tasks)) {
@@ -282,7 +282,7 @@ const Blueprints = (props) => {
 
   useEffect(() => {
     setPaginatorData(blueprints)
-  }, [blueprints])
+  }, [blueprints, setPaginatorData])
 
   return (
     <>

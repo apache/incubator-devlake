@@ -29,16 +29,18 @@ import {
   Position
 } from '@blueprintjs/core'
 import { DataEntityTypes } from '@/data/DataEntities'
+import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
 export default function GithubSettings (props) {
   const {
-    // eslint-disable-next-line no-unused-vars
+    provider,
     connection,
     entities = [],
     transformation = {},
+    entityIdKey,
     isSaving,
     isSavingConnection,
     onSettingsChange = () => {},
@@ -60,12 +62,12 @@ export default function GithubSettings (props) {
   }, [setEnableAdditionalCalculations, configuredProject, onSettingsChange])
 
   useEffect(() => {
-    console.log('>>>> TRANSFORMATION SETTINGS OBJECT....', transformation)
+    console.log('>>>> GITHUB: TRANSFORMATION SETTINGS OBJECT....', transformation)
     setEnableAdditionalCalculations(!!transformation?.refdiff)
   }, [transformation])
 
   useEffect(() => {
-    console.log('>>>> ENABLE GITHUB ADDITIONAL SETTINGS..?', enableAdditionalCalculations)
+    console.log('>>>> GITHUB: ENABLE GITHUB ADDITIONAL SETTINGS..?', enableAdditionalCalculations)
     if (enableAdditionalCalculations === 'disabled') {
       // onSettingsChange({gitextractorCalculation: ''}, configuredProject)
     }
@@ -206,6 +208,18 @@ export default function GithubSettings (props) {
         </>
       )}
 
+      {entities.some(e => e.value === DataEntityTypes.DEVOPS) && configuredProject && (
+        <Deployment
+          provider={provider}
+          entities={entities}
+          entityIdKey={entityIdKey}
+          transformation={transformation}
+          connection={connection}
+          onSettingsChange={onSettingsChange}
+          isSaving={isSaving || isSavingConnection}
+        />
+      )}
+
       {entities.some(e => e.value === DataEntityTypes.CODE_REVIEW) && (
         <><h5>Code Review{' '} <Tag className='bp3-form-helper-text' minimal>RegExp</Tag></h5>
           <p className=''>Map your pull requests labels with each category to view corresponding metrics in the dashboard.</p>
@@ -296,6 +310,7 @@ export default function GithubSettings (props) {
               <TextArea
                 id='github-pr-body'
                 className='textarea'
+                value={transformation?.prBodyClosePattern}
                 placeholder='(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and )?(#|https:\/\/github.com\/%s\/%s\/issues\/)\d+[ ]*)+)'
                 onChange={(e) => onSettingsChange({ prBodyClosePattern: e.target.value }, configuredProject?.id)}
                 disabled={isSaving || isSavingConnection}
@@ -303,8 +318,7 @@ export default function GithubSettings (props) {
                 rows={2}
                 growVertically={false}
                 autoFocus
-              >{transformation?.prBodyClosePattern}
-              </TextArea>
+              />
             </FormGroup>
           </div>
 

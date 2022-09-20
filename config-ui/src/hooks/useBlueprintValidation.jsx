@@ -93,6 +93,10 @@ function useBlueprintValidation ({
     return set.length > 0
   }, [])
 
+  const validateUniqueObjectSet = useCallback((set = []) => {
+    return [...new Set(set.map(o => JSON.stringify(o)))].length === set.length
+  }, [])
+
   const validateBlueprintName = useCallback((name = '') => {
     return name && name.length >= 2
   }, [])
@@ -145,11 +149,20 @@ function useBlueprintValidation ({
           if (activeProvider?.id === Providers.GITHUB && !validateRepositoryName(projects[activeConnection?.id])) {
             errs.push('Projects: Only Git Repository Names are supported (username/repo).')
           }
+          if (activeProvider?.id === Providers.GITHUB && !validateRepositoryName(projects[activeConnection?.id])) {
+            errs.push('Projects: Only Git Repository Names are supported (username/repo).')
+          }
+          if (activeProvider?.id === Providers.GITHUB && !validateUniqueObjectSet(projects[activeConnection?.id])) {
+            errs.push('Projects: Duplicate project detected.')
+          }
           if (entities[activeConnection?.id]?.length === 0) {
             errs.push('Data Entities: No Data Entities selected.')
           }
           if (activeProvider?.id === Providers.GITLAB && projects[activeConnection?.id]?.length === 0) {
             errs.push('Projects: No Project IDs entered.')
+          }
+          if (activeProvider?.id === Providers.GITLAB && !validateUniqueObjectSet(projects[activeConnection?.id])) {
+            errs.push('Projects: Duplicate project detected.')
           }
 
           connections.forEach(c => {
@@ -191,7 +204,8 @@ function useBlueprintValidation ({
     activeConnection,
     isValidCronExpression,
     validateNumericSet,
-    validateRepositoryName
+    validateRepositoryName,
+    validateUniqueObjectSet
   ])
 
   const fieldHasError = useCallback((fieldId) => {

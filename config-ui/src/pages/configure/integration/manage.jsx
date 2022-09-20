@@ -130,7 +130,7 @@ export default function ManageIntegration () {
     console.log('>> ACTIVE PROVIDER = ', providerId)
     setIntegrations(integrations)
     setActiveProvider(integrations.find(p => p.id === providerId))
-  }, [])
+  }, [integrations, providerId])
 
   useEffect(() => {
     let flushTimeout
