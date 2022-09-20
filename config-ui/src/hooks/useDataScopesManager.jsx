@@ -100,8 +100,8 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
           issueTypeIncident: '',
           refdiff: null,
           productionPattern: '',
-          stagingPattern: '',
-          testingPattern: ''
+          // stagingPattern: '',
+          // testingPattern: ''
         }
         break
       case Providers.JIRA:
@@ -115,22 +115,22 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
           requirementTags: [],
           // @todo: verify if jira utilizes deploy tag(s)?
           productionPattern: '',
-          stagingPattern: '',
-          testingPattern: ''
+          // stagingPattern: '',
+          // testingPattern: ''
         }
         break
       case Providers.JENKINS:
         transforms = {
           productionPattern: '',
-          stagingPattern: '',
-          testingPattern: ''
+          // stagingPattern: '',
+          // testingPattern: ''
         }
         break
       case Providers.GITLAB:
         transforms = {
           productionPattern: '',
-          stagingPattern: '',
-          testingPattern: ''
+          // stagingPattern: '',
+          // testingPattern: ''
         }
         break
       case Providers.TAPD:
@@ -140,8 +140,8 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
           issueTypeBug: '',
           issueTypeIncident: '',
           productionPattern: '',
-          stagingPattern: '',
-          testingPattern: ''
+          // stagingPattern: '',
+          // testingPattern: ''
         }
         break
     }

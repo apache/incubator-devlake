@@ -42,7 +42,11 @@ const Deployment = (props) => {
   } = props
 
   const [deployTag, setDeployTag] = useState(transformation?.productionPattern || '')
-  const [enableDeployTag, setEnableDeployTag] = useState([transformation?.productionPattern, transformation?.stagingPattern, transformation?.testingPattern].some(t => t && t !== '') ? 1 : 0)
+  const [enableDeployTag, setEnableDeployTag] = useState([
+    transformation?.productionPattern,
+    // transformation?.stagingPattern,
+    // transformation?.testingPattern
+  ].some(t => t && t !== '') ? 1 : 0)
 
   // @todo: check w/ product team about using standard message and avoid customized hints
   const getDeployTagHint = (providerId, providerName = 'Plugin') => {
@@ -85,8 +89,8 @@ const Deployment = (props) => {
     console.log('>>> CI/CD Deployment Transform:', entityIdKey, deployTag)
     if (entityIdKey && enableDeployTag === 0) {
       onSettingsChange({ productionPattern: '' }, entityIdKey)
-      onSettingsChange({ stagingPattern: '' }, entityIdKey)
-      onSettingsChange({ testingPattern: '' }, entityIdKey)
+      // onSettingsChange({ stagingPattern: '' }, entityIdKey)
+      // onSettingsChange({ testingPattern: '' }, entityIdKey)
     }
   }, [
     deployTag,
@@ -160,7 +164,7 @@ const Deployment = (props) => {
                 />
               </FormGroup>
             </div>
-            <div className='formContainer'>
+            {/* <div className='formContainer'>
               <FormGroup
                 disabled={isSaving}
                 inline={true}
@@ -219,7 +223,7 @@ const Deployment = (props) => {
                   required
                 />
               </FormGroup>
-            </div>
+            </div> */}
           </>
         )}
         <Radio
