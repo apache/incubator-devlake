@@ -8,7 +8,8 @@
     "start": "webpack serve --progress",
     "start-production": "npm run build-production;node server.js",
     "lint": "eslint ./src --fix --ext .jsx --ext .js",
-    "cypress": "./node_modules/.bin/cypress open"
+    "cypress": "./node_modules/.bin/cypress open",
+    "prettier": "prettier . --write"
   },
   "dependencies": {
     "@babel/eslint-parser": "^7.18.2",
@@ -53,6 +54,7 @@
     "cypress": "^9.5.1",
     "eslint": "^7.15.0",
     "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-config-standard-jsx": "^10.0.0",
     "eslint-config-standard-react": "^11.0.1",
@@ -65,6 +67,7 @@
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-okay": "0.0.2",
+    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^4.3.1",
     "eslint-plugin-react": "^7.26.1",
     "eslint-plugin-react-hooks": "^4.2.0",
@@ -80,6 +83,7 @@
     "node-sass": "^6.0.1",
     "postcss": "^7.0.35",
     "postcss-loader": "^4.0.1",
+    "prettier": "^2.7.1",
     "resolve-url-loader": "^4.0.0",
     "sass": "^1.30.0",
     "sass-loader": "^10.2.0",
