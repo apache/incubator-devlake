@@ -361,33 +361,28 @@ const DataTransformations = (props) => {
                       </>
                   )}
 
-                  {(configuredProject ||
-                    configuredBoard ||
-                    (configuredConnection?.provider === Providers.JENKINS &&
-                      configuredConnection)) && (
-                      <div>
-                        {!useDropdownSelector &&
+                  {(configuredProject || configuredBoard || (configuredConnection?.provider === Providers.JENKINS && configuredConnection)) && (
+                  <div>
+                    {!useDropdownSelector &&
                         (configuredProject || configuredBoard) && (
                           <>
                             <h4>Project</h4>
                             <p style={{ color: '#292B3F' }}>
-                              {configuredProject?.title ||
-                                configuredBoard?.title ||
-                                '< select a project >'}
+                              {configuredProject?.title || configuredBoard?.title || '< select a project >'}
                             </p>
                           </>
-                        )}
-                        <div
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <h4 style={{ margin: 0 }}>Data Transformation Rules</h4>
-                          <div>
-                            {/* @todo: reactivate clear all functionality */}
-                            {/* <Button
+                    )}
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <h4 style={{ margin: 0 }}>Data Transformation Rules</h4>
+                      <div>
+                        {/* @todo: reactivate clear all functionality */}
+                        {/* <Button
                             minimal
                             small
                             text='Clear All'
@@ -397,45 +392,45 @@ const DataTransformations = (props) => {
                             style={{ float: 'right' }}
                             disabled={Object.keys(activeTransformation || {}).length === 0}
                           /> */}
-                          </div>
-                        </div>
+                      </div>
+                    </div>
 
-                        {!dataEntities[configuredConnection.id] ||
+                    {!dataEntities[configuredConnection.id] ||
                         (dataEntities[configuredConnection.id]?.length ===
                           0 && <p>(No Data Entities Selected)</p>)}
 
-                        {dataEntities[configuredConnection.id]?.find((e) =>
-                          DEFAULT_DATA_ENTITIES.some((dE) => dE.value === e.value)
-                        ) && (
-                        <ProviderTransformationSettings
-                          provider={integrationsData.find(
-                            (i) => i.id === configuredConnection?.provider
-                          )}
-                          blueprint={blueprint}
-                          connection={configuredConnection}
-                          configuredProject={configuredProject}
-                          configuredBoard={configuredBoard}
-                          entityIdKey={configurationKey}
-                          issueTypes={issueTypes}
-                          fields={fields}
-                          boards={boards}
-                          projects={projects}
-                          entities={dataEntities}
-                          transformation={activeTransformation}
-                          transformations={transformations}
-                          onSettingsChange={setTransformationSettings}
-                          isSaving={isSaving}
-                          isFetchingJIRA={isFetchingJIRA}
-                          isSavingConnection={isSavingConnection}
-                          jiraProxyError={jiraProxyError}
-                        />
-                        )}
+                    {dataEntities[configuredConnection.id]?.find((e) =>
+                      DEFAULT_DATA_ENTITIES.some((dE) => dE.value === e.value)
+                    ) && (
+                    <ProviderTransformationSettings
+                      provider={integrationsData.find(
+                        (i) => i.id === configuredConnection?.provider
+                      )}
+                      blueprint={blueprint}
+                      connection={configuredConnection}
+                      configuredProject={configuredProject}
+                      configuredBoard={configuredBoard}
+                      entityIdKey={configurationKey}
+                      issueTypes={issueTypes}
+                      fields={fields}
+                      boards={boards}
+                      projects={projects}
+                      entities={dataEntities}
+                      transformation={activeTransformation}
+                      transformations={transformations}
+                      onSettingsChange={setTransformationSettings}
+                      isSaving={isSaving}
+                      isFetchingJIRA={isFetchingJIRA}
+                      isSavingConnection={isSavingConnection}
+                      jiraProxyError={jiraProxyError}
+                    />
+                    )}
 
-                        <div
-                          className='transformation-actions'
-                          style={{ display: 'flex', justifyContent: 'flex-end' }}
-                        >
-                          {/* <Button
+                    <div
+                      className='transformation-actions'
+                      style={{ display: 'flex', justifyContent: 'flex-end' }}
+                    >
+                      {/* <Button
                           text='Cancel'
                           small
                           outlined
@@ -450,7 +445,7 @@ const DataTransformations = (props) => {
                           disabled={[Providers.GITLAB].includes(configuredConnection?.provider)}
                           style={{ marginLeft: '5px' }}
                         /> */}
-                          {enableGoBack &&
+                      {enableGoBack &&
                           (configuredProject || configuredBoard) && (
                             <Tooltip
                               position={Position.TOP}
@@ -467,9 +462,9 @@ const DataTransformations = (props) => {
                                 style={{ marginLeft: '5px' }}
                               />
                             </Tooltip>
-                          )}
-                        </div>
-                      </div>
+                      )}
+                    </div>
+                  </div>
                   )}
                 </>
               )}
