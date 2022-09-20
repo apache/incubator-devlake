@@ -19,19 +19,31 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/runner"
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
 func TestMakePipelinePlan(t *testing.T) {
+	cmd := &cobra.Command{Use: "github"}
 	cfg := config.GetConfig()
 	log := logger.Global.Nested("test")
 	db, err := runner.NewGormDb(cfg, log)
 	Init(cfg, log, db)
+	mockMeta := mocks.NewPluginMeta(t)
+	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/github")
+	err = core.RegisterPlugin(cmd.Use, mockMeta)
+	if err != nil {
+		panic(err)
+	}
 	bs := &core.BlueprintScopeV100{
 		Entities: []string{"CODE"},
 		Options: json.RawMessage(`{
@@ -53,7 +65,17 @@ func TestMakePipelinePlan(t *testing.T) {
 	}
 	scopes := make([]*core.BlueprintScopeV100, 0)
 	scopes = append(scopes, bs)
-	_, err = MakePipelinePlan(nil, 1, scopes)
+	plan, err := MakePipelinePlan(nil, 1, scopes)
 	assert.Nil(t, err)
-	//assert.Equal(t, plan, result3)
+	planJson, err1 := json.Marshal(plan)
+	assert.Nil(t, err1)
+	githubConn := &models.GithubConnection{}
+	err = connectionHelper.FirstById(githubConn, 1)
+	assert.Nil(t, err)
+	token := strings.Split(githubConn.Token, ",")[0]
+	expectPlan := fmt.Sprintf(`[[{"plugin":"github","subtasks":[],"options":{"connectionId":1,"owner":"merico-dev","repo":"lake","transformationRules":{"prType":"hey,man,wasup"}}},{"plugin":"gitextractor","subtasks":null,"options":{"proxy":"","repoId":"github:GithubRepo:1:491450511","url":"https://git:%s@github.com/merico-dev/lake.git"}}],[{"plugin":"refdiff","subtasks":null,"options":{"tagsLimit":10,"tagsOrder":"reverse semver","tagsPattern":"pattern"}}],[{"plugin":"dora","subtasks":null,"options":{"repoId":"github:GithubRepo:1:491450511","tasks":["EnrichTaskEnv"],"transformation":{"environment":"pattern","environmentRegex":"xxxx"}}}]]`,
+		token,
+	)
+	assert.Equal(t, expectPlan, string(planJson))
+
 }
