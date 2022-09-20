@@ -37,7 +37,17 @@ import (
 )
 
 func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
+	repoHelper := RepoHelper{}
+	plan, err := DoMakePipeline(subtaskMetas, connectionId, scope, repoHelper)
+	if err != nil {
+		return nil, err
+	}
+	return plan, nil
+}
+
+func DoMakePipeline(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100, repoHelper BpHelper) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
+	apiRepo, _, _ := &tasks.GithubApiRepo{}, "", ""
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
 		plan, err = processScope(subtaskMetas, connectionId, scopeElem, i, plan, nil, nil)
