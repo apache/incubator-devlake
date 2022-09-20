@@ -19,18 +19,15 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
-	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestMakePipelinePlan(t *testing.T) {
-	cmd := &cobra.Command{Use: "github"}
 	option := &tasks.GithubOptions{
 		ConnectionId: 1,
 		Tasks:        nil,
@@ -59,7 +56,7 @@ func TestMakePipelinePlan(t *testing.T) {
 	mockMeta := mocks.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/github")
 
-	err := core.RegisterPlugin(cmd.Use, mockMeta)
+	err := core.RegisterPlugin("github", mockMeta)
 	if err != nil {
 		panic(err)
 	}
@@ -89,7 +86,6 @@ func TestMakePipelinePlan(t *testing.T) {
 	assert.Nil(t, err)
 	planJson, err1 := json.Marshal(plan)
 	assert.Nil(t, err1)
-	fmt.Println(string(planJson))
 	expectPlan := `[[{"plugin":"github","subtasks":[],"options":{"connectionId":1,"owner":"merico-dev","repo":"lake","transformationRules":{"prType":"hey,man,wasup"}}},{"plugin":"gitextractor","subtasks":null,"options":{"proxy":"","repoId":"github:GithubRepo:1:1","url":"//git:@CloneUrl"}}],[{"plugin":"refdiff","subtasks":null,"options":{"tagsLimit":10,"tagsOrder":"reverse semver","tagsPattern":"pattern"}}],[{"plugin":"dora","subtasks":null,"options":{"repoId":"github:GithubRepo:1:1","tasks":["EnrichTaskEnv"],"transformation":{"environment":"pattern","environmentRegex":"xxxx"}}}]]`
 	assert.Equal(t, expectPlan, string(planJson))
 
