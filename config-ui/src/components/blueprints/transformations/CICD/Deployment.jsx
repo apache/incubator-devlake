@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import {
   Intent,
   FormGroup,
@@ -47,6 +47,25 @@ const Deployment = (props) => {
     // transformation?.stagingPattern,
     // transformation?.testingPattern
   ].some(t => t && t !== '') ? 1 : 0)
+
+  const clearDeploymentTags = useCallback((deploymentOption) => {
+    if (entityIdKey && deploymentOption === 0) {
+      onSettingsChange({ productionPattern: '' }, entityIdKey)
+      // onSettingsChange({ stagingPattern: '' }, entityIdKey)
+      // onSettingsChange({ testingPattern: '' }, entityIdKey)
+    }
+  }, [entityIdKey, onSettingsChange])
+
+  const handleDeploymentPreference = useCallback((deployOptionState) => {
+    setEnableDeployTag(deployOptionState)
+    switch (deployOptionState) {
+      case 0:
+        clearDeploymentTags(deployOptionState)
+        break
+      case 1:
+        break
+    }
+  }, [clearDeploymentTags])
 
   // @todo: check w/ product team about using standard message and avoid customized hints
   const getDeployTagHint = (providerId, providerName = 'Plugin') => {
@@ -86,22 +105,14 @@ const Deployment = (props) => {
   }
 
   useEffect(() => {
-    console.log('>>> CI/CD Deployment Transform:', entityIdKey, deployTag)
-    if (entityIdKey && enableDeployTag === 0) {
-      onSettingsChange({ productionPattern: '' }, entityIdKey)
-      // onSettingsChange({ stagingPattern: '' }, entityIdKey)
-      // onSettingsChange({ testingPattern: '' }, entityIdKey)
-    }
-  }, [
-    deployTag,
-    enableDeployTag,
-    entityIdKey,
-    onSettingsChange
-  ])
-
-  useEffect(() => {
     console.log('>>> CI/CD Deployment: TRANSFORMATION OBJECT!', transformation)
-  }, [transformation])
+    setEnableDeployTag(
+      [transformation?.productionPattern,
+      // transformation?.stagingPattern,
+      // transformation?.testingPattern
+      ].some(t => t && t !== '') ? 1 : 0
+    )
+  }, [transformation, transformation?.productionPattern])
 
   return (
     <>
@@ -118,7 +129,7 @@ const Deployment = (props) => {
         inline={false}
         label={false}
         name='deploy-tag'
-        onChange={(e) => setEnableDeployTag(Number(e.target.value))}
+        onChange={(e) => handleDeploymentPreference(Number(e.target.value))}
         selectedValue={enableDeployTag}
         required
       >

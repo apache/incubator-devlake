@@ -62,12 +62,12 @@ export default function GithubSettings (props) {
   }, [setEnableAdditionalCalculations, configuredProject, onSettingsChange])
 
   useEffect(() => {
-    console.log('>>>> TRANSFORMATION SETTINGS OBJECT....', transformation)
+    console.log('>>>> GITHUB: TRANSFORMATION SETTINGS OBJECT....', transformation)
     setEnableAdditionalCalculations(!!transformation?.refdiff)
   }, [transformation])
 
   useEffect(() => {
-    console.log('>>>> ENABLE GITHUB ADDITIONAL SETTINGS..?', enableAdditionalCalculations)
+    console.log('>>>> GITHUB: ENABLE GITHUB ADDITIONAL SETTINGS..?', enableAdditionalCalculations)
     if (enableAdditionalCalculations === 'disabled') {
       // onSettingsChange({gitextractorCalculation: ''}, configuredProject)
     }
