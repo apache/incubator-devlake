@@ -19,24 +19,17 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/runner"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestProcessScope(t *testing.T) {
-	cfg := config.GetConfig()
-	log := logger.Global.Nested("github")
-	db, _ := runner.NewGormDb(cfg, log)
-	Init(cfg, log, db)
 	connection := &models.GithubConnection{
 		RestConnection: helper.RestConnection{
 			BaseConnection: helper.BaseConnection{
@@ -89,6 +82,6 @@ func TestProcessScope(t *testing.T) {
 	}
 	planJson, err1 := json.Marshal(plan)
 	assert.Nil(t, err1)
-	expectPlan := `[[{"plugin":"github","subtasks":[],"options":{"connectionId":1,"owner":"test","repo":"testRepo","transformationRules":{"prType":"hey,man,wasup"}}},{"plugin":"gitextractor","subtasks":null,"options":{"proxy":"","repoId":"github:GithubRepo:1:123","url":"//git:123@HttpUrlToRepo"}}],[{"plugin":"refdiff","subtasks":null,"options":{"tagsLimit":10,"tagsOrder":"reverse semver","tagsPattern":"pattern"}}],[{"plugin":"dora","subtasks":null,"options":{"repoId":"github:GithubRepo:1:123","tasks":["EnrichTaskEnv"],"transformation":{"environment":"pattern","environmentRegex":"xxxx"}}}]]`
+	expectPlan := `[[{"plugin":"github","subtasks":[],"options":{"connectionId":1,"owner":"test","repo":"testRepo","transformationRules":{"prType":"hey,man,wasup"}}},{"plugin":"gitextractor","subtasks":null,"options":{"proxy":"","repoId":"github:GithubRepo:1:123","url":"//git:123@HttpUrlToRepo"}}],[{"plugin":"refdiff","subtasks":null,"options":{"tagsLimit":10,"tagsOrder":"reverse semver","tagsPattern":"pattern"}}],[{"plugin":"dora","subtasks":null,"options":{"repoId":"github:GithubRepo:1:123","tasks":["EnrichTaskEnv"],"transformationRules":{"environment":"pattern","environmentRegex":"xxxx"}}}]]`
 	assert.Equal(t, expectPlan, string(planJson))
 }

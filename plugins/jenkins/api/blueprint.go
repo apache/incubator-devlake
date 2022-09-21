@@ -73,7 +73,8 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			}
 			doraOption := make(map[string]interface{})
 			doraOption["tasks"] = []string{"EnrichTaskEnv"}
-			doraOption["transformation"] = doraRules
+			doraOption["dataSource"] = []string{"jenkins"}
+			doraOption["transformationRules"] = doraRules
 			plan[j] = core.PipelineStage{
 				{
 					Plugin:  "dora",
