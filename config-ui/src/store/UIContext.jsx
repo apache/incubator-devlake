@@ -19,6 +19,7 @@ import React, { useState } from 'react'
 
 const UIContext = React.createContext({
   sidebarVisible: false,
+  desktopBreakpointWidth: 850,
   changeSidebarVisibility: () => {}
 })
 

@@ -37,22 +37,11 @@ const Nav = () => {
 
   const toggleSidebarOpen = (open) => {
     uiContext.changeSidebarVisibility(open)
-    if (open){
-      setMenuClass('navbarMenuButtonSidebarOpened')
-      return
-    }
-    setMenuClass('navbarMenuButton')
+    setMenuClass((currentMenuClass) => open ? 'navbarMenuButtonSidebarOpened' : currentMenuClass)
   }
 
   useEffect(() => {
-    if (size.width >= 850 ) {
-      if(uiContext.sidebarVisible != true){
-        toggleSidebarOpen(true)
-      }
-    }
-    else {
-      toggleSidebarOpen(false)
-    }
+    toggleSidebarOpen((size.width >= uiContext.desktopBreakpointWidth && uiContext.sidebarVisible != true) ? true : false)
   }, [size])
 
   return (
