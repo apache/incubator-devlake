@@ -122,6 +122,7 @@ function useDataScopesManager({
     () => transformations[configurationKey],
     [configurationKey, transformations]
   )
+  // eslint-disable-next-line max-len
   // const activeTransformation = useMemo(() => transformations[connection?.providerId === Providers.JIRA ? configuredBoard?.id : configuredProject?.id], [transformations, configuredProject?.id, configuredBoard?.id, connection?.providerId])
 
   const getDefaultTransformations = useCallback((providerId) => {
@@ -322,6 +323,7 @@ function useDataScopesManager({
       ...currentSettings,
       connections: [...newConnections, ...existingConnections]
     }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     connection,
     connections,

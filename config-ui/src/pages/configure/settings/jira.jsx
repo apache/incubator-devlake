@@ -81,8 +81,11 @@ export default function JiraSettings(props) {
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState('')
   const [remoteLinkCommitSha, setRemoteLinkCommitSha] = useState('')
 
+  // eslint-disable-next-line max-len
   // const savedRequirementTags = useMemo(() => transformation?.requirementTags || [], [transformation?.requirementTags, configuredBoard?.id])
+  // eslint-disable-next-line max-len
   // const savedBugTags = useMemo(() => transformation?.bugTags || [], [transformation?.bugTags, configuredBoard?.id])
+  // eslint-disable-next-line max-len
   // const savedIncidentTags = useMemo(() => transformation?.incidentTags || [], [transformation?.incidentTags, configuredBoard?.id])
 
   // @todo: lift higher to dsm hook

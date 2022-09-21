@@ -386,6 +386,7 @@ const CreateBlueprint = (props) => {
   //   null
   // )
 
+  // eslint-disable-next-line max-len
   // const activeTransformation = useMemo(() => transformations[configuredProject?.id || configuredBoard?.id], [transformations, configuredProject?.id, configuredBoard?.id])
 
   // eslint-disable-next-line no-unused-vars
@@ -1100,6 +1101,7 @@ const CreateBlueprint = (props) => {
                       advancedMode={advancedMode}
                       blueprintConnections={dataConnections}
                       // blueprintConnections={blueprintConnections}
+                      // eslint-disable-next-line max-len
                       // blueprintConnections={[...blueprintConnections.map((c, cIdx) => ({...c, statusResponse: onlineStatus[cIdx], status: onlineStatus[cIdx]?.status }))]}
                       onlineStatus={onlineStatus}
                       connectionsList={connectionsList}

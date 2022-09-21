@@ -158,6 +158,7 @@ const Offline = (props) => {
         icon: 'error'
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [retryCount.current, retryLimit])
 
   return (

@@ -563,7 +563,7 @@ const BlueprintSettings = (props) => {
     cronConfig,
     customCronConfig,
     validateBlueprintName,
-    validateNumericSet,
+    // validateNumericSet,
     validateRepositoryName,
     isValidCronExpression,
     isValidBlueprint,

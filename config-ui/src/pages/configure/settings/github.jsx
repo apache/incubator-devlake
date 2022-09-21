@@ -418,6 +418,7 @@ export default function GithubSettings(props) {
                 id='github-pr-body'
                 className='textarea'
                 value={transformation?.prBodyClosePattern}
+                // eslint-disable-next-line max-len
                 placeholder='(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and )?(#|https:\/\/github.com\/%s\/%s\/issues\/)\d+[ ]*)+)'
                 onChange={(e) =>
                   onSettingsChange(

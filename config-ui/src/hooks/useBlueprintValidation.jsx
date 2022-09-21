@@ -236,6 +236,7 @@ function useBlueprintValidation({
     }
 
     setErrors(errs)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     name,
     cronConfig,
