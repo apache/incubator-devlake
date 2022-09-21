@@ -45,7 +45,7 @@ import Connections from '@/pages/connections/index'
 import { Webhook as WebhookConnection } from '@/pages/connections/webhook'
 import MigrationAlertDialog from '@/components/MigrationAlertDialog'
 
-function App (props) {
+function App(props) {
   const {
     isProcessing,
     migrationWarning,

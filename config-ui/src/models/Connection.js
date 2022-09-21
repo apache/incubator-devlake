@@ -42,7 +42,7 @@
  * @property {<Array<string>>?} errors
  */
 class Connection {
-  constructor (data = {}) {
+  constructor(data = {}) {
     this.id = parseInt(data?.id, 10) || null
     this.connectionId = parseInt(data?.connectionId, 10) || this.id
     this.name = data?.name || ''
@@ -74,16 +74,16 @@ class Connection {
     this.determineAuthentication()
   }
 
-  get (property) {
+  get(property) {
     return this[property]
   }
 
-  set (property, value) {
+  set(property, value) {
     this[property] = value
     return this.property
   }
 
-  determineAuthentication () {
+  determineAuthentication() {
     if (this.token !== null && this.token !== '') {
       this.authentication = 'token'
     } else {

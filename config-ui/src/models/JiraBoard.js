@@ -32,7 +32,7 @@
  * @property {project|board?} variant
  */
 class JiraBoard {
-  constructor (data = {}) {
+  constructor(data = {}) {
     this.id = data?.id || null
     this.key = data?.key || this.id || null
     this.self = data?.self || null
@@ -58,16 +58,16 @@ class JiraBoard {
     this.variant = data?.variant || 'board'
   }
 
-  get (property) {
+  get(property) {
     return this[property]
   }
 
-  set (property, value) {
+  set(property, value) {
     this[property] = value
     return this.property
   }
 
-  getConfiguredEntityId () {
+  getConfiguredEntityId() {
     return this.id
   }
 }

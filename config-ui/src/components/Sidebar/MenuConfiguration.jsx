@@ -25,7 +25,8 @@ const MenuConfiguration = (activeRoute) => {
       id: 0,
       label: 'Data Integrations',
       route: '/integrations',
-      active: activeRoute.url.startsWith('/integrations') || activeRoute.url === '/',
+      active:
+        activeRoute.url.startsWith('/integrations') || activeRoute.url === '/',
       icon: 'data-connection',
       classNames: [],
       children: [
@@ -33,49 +34,61 @@ const MenuConfiguration = (activeRoute) => {
           id: 0,
           label: ProviderLabels.JIRA,
           route: '/integrations/jira',
-          active: activeRoute.url.endsWith('/integrations/jira') || activeRoute.url.endsWith('/jira'),
+          active:
+            activeRoute.url.endsWith('/integrations/jira') ||
+            activeRoute.url.endsWith('/jira'),
           icon: 'layers',
-          classNames: [],
+          classNames: []
         },
         {
           id: 1,
           label: ProviderLabels.GITHUB,
           route: '/integrations/github',
-          active: activeRoute.url.endsWith('/integrations/github') || activeRoute.url.endsWith('/github'),
+          active:
+            activeRoute.url.endsWith('/integrations/github') ||
+            activeRoute.url.endsWith('/github'),
           icon: 'layers',
-          classNames: [],
+          classNames: []
         },
         {
           id: 2,
           label: ProviderLabels.GITLAB,
           route: '/integrations/gitlab',
-          active: activeRoute.url.endsWith('/integrations/gitlab') || activeRoute.url.endsWith('/gitlab'),
+          active:
+            activeRoute.url.endsWith('/integrations/gitlab') ||
+            activeRoute.url.endsWith('/gitlab'),
           icon: 'layers',
-          classNames: [],
+          classNames: []
         },
         {
           id: 3,
           label: ProviderLabels.JENKINS,
           route: '/integrations/jenkins',
-          active: activeRoute.url.endsWith('/integrations/jenkins') || activeRoute.url.endsWith('/jenkins'),
+          active:
+            activeRoute.url.endsWith('/integrations/jenkins') ||
+            activeRoute.url.endsWith('/jenkins'),
           icon: 'layers',
-          classNames: [],
+          classNames: []
         },
         {
           id: 4,
           label: `${ProviderLabels.TAPD} (beta)`,
           route: '/integrations/tapd',
-          active: activeRoute.url.endsWith('/integrations/tapd') || activeRoute.url.endsWith('/tapd'),
+          active:
+            activeRoute.url.endsWith('/integrations/tapd') ||
+            activeRoute.url.endsWith('/tapd'),
           icon: 'layers',
-          classNames: [],
+          classNames: []
         },
         {
           id: 5,
           label: 'Webhook',
           route: '/connections/webhook',
-          active: activeRoute.url.endsWith('/connections/webhook') || activeRoute.url.endsWith('/webhook'),
+          active:
+            activeRoute.url.endsWith('/connections/webhook') ||
+            activeRoute.url.endsWith('/webhook'),
           icon: 'layers',
-          classNames: [],
+          classNames: []
         }
       ]
     },
@@ -93,8 +106,8 @@ const MenuConfiguration = (activeRoute) => {
           route: '/blueprints/create',
           active: activeRoute.url.endsWith('/blueprints/create'),
           icon: 'git-pull',
-          classNames: [],
-        },
+          classNames: []
+        }
       ]
     },
     {
@@ -105,8 +118,7 @@ const MenuConfiguration = (activeRoute) => {
       classNames: [],
       route: '/connections',
       active: activeRoute.url === '/connections',
-      children: [
-      ]
+      children: []
     },
     {
       id: 2,
@@ -115,9 +127,8 @@ const MenuConfiguration = (activeRoute) => {
       classNames: [],
       route: GRAFANA_URL,
       active: false,
-      children: [
-      ]
-    },
+      children: []
+    }
     // {
     //   id: 3,
     //   label: 'Pipelines',

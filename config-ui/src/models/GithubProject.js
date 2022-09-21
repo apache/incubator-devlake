@@ -31,7 +31,7 @@
  * @property {project|board?} variant
  */
 class GitHubProject {
-  constructor (data = {}) {
+  constructor(data = {}) {
     this.id = data?.id || null
     this.key = data?.key || this.id || null
     this.owner = data?.owner || null
@@ -49,16 +49,16 @@ class GitHubProject {
     this.variant = data?.variant || 'project'
   }
 
-  get (property) {
+  get(property) {
     return this[property]
   }
 
-  set (property, value) {
+  set(property, value) {
     this[property] = value
     return this.property
   }
 
-  getConfiguredEntityId () {
+  getConfiguredEntityId() {
     return this.name.toString() || this.id
   }
 }

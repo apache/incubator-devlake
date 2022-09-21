@@ -60,13 +60,21 @@ export const AddModal = ({ onSubmit, onCancel }) => {
   }
 
   return (
-    <Dialog isOpen={true} title='Add a New Webhook' style={{ width: 640 }} onClose={onCancel}>
+    <Dialog
+      isOpen={true}
+      title='Add a New Webhook'
+      style={{ width: 640 }}
+      onClose={onCancel}
+    >
       <S.FormWrapper>
         {step === 1 && (
           <>
             <div className='form'>
               <h2>Webhook Name *</h2>
-              <p>Give your Webhook a unique name to help you identify it in the future.</p>
+              <p>
+                Give your Webhook a unique name to help you identify it in the
+                future.
+              </p>
               <input
                 type='text'
                 placeholder='Your Webhook Name'
@@ -93,7 +101,9 @@ export const AddModal = ({ onSubmit, onCancel }) => {
             <div className='url'>
               <h2>POST URL</h2>
               <p>
-                Copy the following URLs to your issue tracking tool for Incidents and CI tool for Deployments by making a POST to DevLake.
+                Copy the following URLs to your issue tracking tool for
+                Incidents and CI tool for Deployments by making a POST to
+                DevLake.
               </p>
               <h3>Incident</h3>
               <p>Send incident opened and reopened events</p>
