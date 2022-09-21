@@ -29,5 +29,6 @@ func All() []migration.Script {
 		new(addGithubJobsTable),
 		new(addGithubPipelineTable),
 		new(deleteGithubPipelineTable),
+		new(addHeadRepoIdFieldInGithubPr),
 	}
 }

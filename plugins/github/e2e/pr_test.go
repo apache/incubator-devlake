@@ -64,6 +64,7 @@ func TestPrDataFlow(t *testing.T) {
 			"connection_id",
 			"github_id",
 			"repo_id",
+			"head_repo_id",
 			"number",
 			"state",
 			"title",
