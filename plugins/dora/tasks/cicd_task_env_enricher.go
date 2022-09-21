@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"database/sql"
 	"reflect"
 	"regexp"
 
@@ -44,6 +45,7 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	productionNamePattern := data.Options.ProductionPattern
 	stagingNamePattern := data.Options.StagingPattern
 	testingNamePattern := data.Options.TestingPattern
+	dataSource := data.Options.DataSoure
 
 	productionNameRegexp, errRegexp := regexp.Compile(productionNamePattern)
 	if errRegexp != nil {
@@ -57,14 +59,22 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	if errRegexp != nil {
 		return errors.Default.Wrap(errRegexp, "Regexp compile testingPattern failed")
 	}
-
-	cursor, err := db.Cursor(
-		dal.From(&devops.CICDTask{}),
-		dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id=? and cicd_tasks.pipeline_id = cpr.pipeline_id ", repoId),
-		dal.Where("status=?", devops.DONE))
+	var cursor *sql.Rows
+	if len(dataSource) == 0 {
+		cursor, err = db.Cursor(
+			dal.From(&devops.CICDTask{}),
+			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id = ? and cicd_tasks.pipeline_id = cpr.pipeline_id ", repoId),
+			dal.Where("status=?", devops.DONE))
+	} else {
+		cursor, err = db.Cursor(
+			dal.From(&devops.CICDTask{}),
+			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id != '' and cicd_tasks.pipeline_id = cpr.pipeline_id "),
+			dal.Where("status=?", devops.DONE))
+	}
 	if err != nil {
 		return err
 	}
+
 	defer cursor.Close()
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
