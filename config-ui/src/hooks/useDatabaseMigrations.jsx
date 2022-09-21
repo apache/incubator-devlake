@@ -33,12 +33,15 @@ function useDatabaseMigrations(Configuration = MigrationOptions) {
 
   const handleConfirmMigration = useCallback(() => {
     setIsProcessing(true)
-    const m = request.get(Configuration.apiProceedEndpoint)
-    setWasMigrationSuccessful(m?.status === 200 && m?.success === true)
-    setTimeout(() => {
-      setIsProcessing(false)
-      setHasMigrationFailed(m?.status !== 200)
-    }, 3000)
+    const migrate = async () => {
+      const m = await request.get(Configuration.apiProceedEndpoint)
+      setWasMigrationSuccessful(m?.status === 200 && m?.data?.success === true)
+      setTimeout(() => {
+        setIsProcessing(false)
+        setHasMigrationFailed(m?.status !== 200)
+      }, 3000)
+    }
+    migrate()
   }, [Configuration.apiProceedEndpoint])
 
   const handleCancelMigration = useCallback(() => {
