@@ -80,8 +80,6 @@ func TestBitbucketPipelineDataFlow(t *testing.T) {
 			"status",
 			"type",
 			"duration_sec",
-			"created_date",
-			"finished_date",
 			"environment",
 		},
 	)
