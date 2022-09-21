@@ -77,7 +77,7 @@ If the pre-built dashboards are limited for your use cases, you can always custo
 
 ## 😍 How to Contribute
 
-Please read the [contribution guidelines](https://devlake.apache.org/community) before you make contributon. The following docs list the resources you might need to know after you decided to make contribution.
+Please read the [contribution guidelines](https://devlake.apache.org/community) before you make contribution. The following docs list the resources you might need to know after you decided to make contribution.
 
 - [Create an Issue](https://devlake.apache.org/community/make-contribution/fix-or-create-issues): Report a bug or feature request to Apache DevLake
 - [Put Up a PR](https://devlake.apache.org/community/make-contribution/development-workflow): Start with [good first issues](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [issues with no assignees](https://github.com/apache/incubator-devlake/issues?q=is%3Aissue+is%3Aopen+no%3Aassignee)
