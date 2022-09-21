@@ -60,8 +60,6 @@ func TestBitbucketPipelineDataFlow(t *testing.T) {
 			"ref_name",
 			"web_url",
 			"duration_in_seconds",
-			"bitbucket_created_on",
-			"bitbucket_complete_on",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
