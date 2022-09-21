@@ -20,6 +20,7 @@ package migrationscripts
 import (
 	"context"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -67,7 +68,7 @@ type addHeadRepoIdFieldInGithubPr struct{}
 
 func (*addHeadRepoIdFieldInGithubPr) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	err := db.Migrator().AddColumn(addFieldHeadRepoId20220919{}, "head_repo_id")
-	_ = db.Exec("SELECT * FROM ? LIMIT 1", "_tool_github_pull_requests")
+	_ = db.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: addFieldHeadRepoId20220919{}.TableName()})
 	return errors.Convert(err)
 }
 
