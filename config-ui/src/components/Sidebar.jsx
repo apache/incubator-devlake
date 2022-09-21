@@ -33,7 +33,7 @@ import UIContext from '../store/UIContext'
 
 const Sidebar = () => {
   const activeRoute = useRouteMatch()
-  const uiContext = useContext(UIContext);
+  const uiContext = useContext(UIContext)
   const [menu, setMenu] = useState(MenuConfiguration(activeRoute))
   const [versionTag, setVersionTag] = useState('')
 

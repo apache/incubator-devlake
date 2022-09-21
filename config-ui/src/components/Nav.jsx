@@ -31,29 +31,29 @@ import useWindowSize from '../hooks/useWIndowSize'
 
 
 const Nav = () => {
-  const uiContext = useContext(UIContext);
-  const [menuClass, setMenuClass] = useState("navbarMenuButton");
-  const size = useWindowSize();
+  const uiContext = useContext(UIContext)
+  const [menuClass, setMenuClass] = useState("navbarMenuButton")
+  const size = useWindowSize()
 
   const toggleSidebarOpen = (open) => {
     uiContext.changeSidebarVisibility(open)
     if (open){
-      setMenuClass("navbarMenuButtonSidebarOpened");
-      return;
+      setMenuClass("navbarMenuButtonSidebarOpened")
+      return
     }
-    setMenuClass("navbarMenuButton");
+    setMenuClass("navbarMenuButton")
   }
 
   useEffect(() => {
     if (size.width >= 850 ) {
       if(uiContext.sidebarVisible != true){
-        toggleSidebarOpen(true);
+        toggleSidebarOpen(true)
       }
     }
     else {
-      toggleSidebarOpen(false);
+      toggleSidebarOpen(false)
     }
-  }, [size]);
+  }, [size])
 
   return (
     <Navbar className='navbar'>
@@ -88,7 +88,8 @@ const Nav = () => {
                   className='bp3-button bp3-intent-warning bp3-elevation-1 bp3-small'
                   style={{ marginTop: '10px' }}
                 >
-                  Message us on&nbsp;<strong>Slack</strong>
+                  Message us on&nbsp
+                  <strong>Slack</strong>
                 </a>
               </p>
             </div>
