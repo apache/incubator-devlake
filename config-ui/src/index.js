@@ -24,7 +24,7 @@ import { UIContextProvider } from './store/UIContext'
 
 ReactDOM.render(
   <UIContextProvider>
-    <App />
+  <App />
   </UIContextProvider>,
   document.getElementById('app')
 )

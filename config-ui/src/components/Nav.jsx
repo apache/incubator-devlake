@@ -32,16 +32,16 @@ import useWindowSize from '../hooks/useWIndowSize'
 
 const Nav = () => {
   const uiContext = useContext(UIContext)
-  const [menuClass, setMenuClass] = useState("navbarMenuButton")
+  const [menuClass, setMenuClass] = useState('navbarMenuButton')
   const size = useWindowSize()
 
   const toggleSidebarOpen = (open) => {
     uiContext.changeSidebarVisibility(open)
     if (open){
-      setMenuClass("navbarMenuButtonSidebarOpened")
+      setMenuClass('navbarMenuButtonSidebarOpened')
       return
     }
-    setMenuClass("navbarMenuButton")
+    setMenuClass('navbarMenuButton')
   }
 
   useEffect(() => {
