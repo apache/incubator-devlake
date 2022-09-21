@@ -164,7 +164,7 @@ func processScope(subtaskMetas []core.SubTaskMeta, connectionId uint64, scopeEle
 		doraOption := make(map[string]interface{})
 		doraOption["repoId"] = didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, apiRepo.GitlabId)
 		doraOption["tasks"] = []string{"EnrichTaskEnv"}
-		doraOption["transformation"] = doraRules
+		doraOption["transformationRules"] = doraRules
 		plan[j] = core.PipelineStage{
 			{
 				Plugin:  "dora",

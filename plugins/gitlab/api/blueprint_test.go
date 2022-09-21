@@ -19,24 +19,17 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/runner"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestProcessScope(t *testing.T) {
-	cfg := config.GetConfig()
-	log := logger.Global.Nested("gitlab")
-	db, _ := runner.NewGormDb(cfg, log)
-	Init(cfg, log, db)
 	connection := &models.GitlabConnection{
 		RestConnection: helper.RestConnection{
 			BaseConnection: helper.BaseConnection{
@@ -88,6 +81,6 @@ func TestProcessScope(t *testing.T) {
 	}
 	planJson, err1 := json.Marshal(plan)
 	assert.Nil(t, err1)
-	expectPlan := `[[{"plugin":"gitlab","subtasks":[],"options":{"connectionId":1,"projectId":123,"transformationRules":{"prType":"hey,man,wasup"}}},{"plugin":"gitextractor","subtasks":null,"options":{"proxy":"","repoId":"gitlab:GitlabProject:1:123","url":"//git:123@HttpUrlToRepo"}}],[{"plugin":"refdiff","subtasks":null,"options":{"tagsLimit":10,"tagsOrder":"reverse semver","tagsPattern":"pattern"}}],[{"plugin":"dora","subtasks":null,"options":{"repoId":"gitlab:GitlabProject:1:123","tasks":["EnrichTaskEnv"],"transformation":{"environment":"pattern","environmentRegex":"xxxx"}}}]]`
+	expectPlan := `[[{"plugin":"gitlab","subtasks":[],"options":{"connectionId":1,"projectId":123,"transformationRules":{"prType":"hey,man,wasup"}}},{"plugin":"gitextractor","subtasks":null,"options":{"proxy":"","repoId":"gitlab:GitlabProject:1:123","url":"//git:123@HttpUrlToRepo"}}],[{"plugin":"refdiff","subtasks":null,"options":{"tagsLimit":10,"tagsOrder":"reverse semver","tagsPattern":"pattern"}}],[{"plugin":"dora","subtasks":null,"options":{"repoId":"gitlab:GitlabProject:1:123","tasks":["EnrichTaskEnv"],"transformationRules":{"environment":"pattern","environmentRegex":"xxxx"}}}]]`
 	assert.Equal(t, expectPlan, string(planJson))
 }
