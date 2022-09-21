@@ -17,7 +17,7 @@
  */
 import { setEnvValue } from '../../../../utils/envValue'
 
-export default function handler (req, res) {
+export default function handler(req, res) {
   const { key, value } = req.query
 
   setEnvValue(key, value)

@@ -16,12 +16,7 @@
  *
  */
 import React, { useEffect } from 'react'
-import {
-  Card,
-  Elevation,
-  Intent,
-  Spinner
-} from '@blueprintjs/core'
+import { Card, Elevation, Intent, Spinner } from '@blueprintjs/core'
 const ContentLoader = (props) => {
   const {
     title = 'Loading ...',
@@ -29,17 +24,23 @@ const ContentLoader = (props) => {
     spinnerSize = 24,
     spinnerIntent = Intent.PRIMARY,
     elevation = Elevation.TWO,
-    cardStyle = { width: '100%', marginBottom: '20px', boxShadow: elevation === Elevation.ZERO ? 'none' : 'initial' },
+    cardStyle = {
+      width: '100%',
+      marginBottom: '20px',
+      boxShadow: elevation === Elevation.ZERO ? 'none' : 'initial'
+    },
     cardStyleOverrides = {},
     messageClasses = ['bp3-ui-text', 'bp3-text-large']
   } = props
 
-  useEffect(() => {
-
-  }, [title, message, spinnerSize])
+  useEffect(() => {}, [title, message, spinnerSize])
 
   return (
-    <Card interactive={false} elevation={elevation} style={{ ...cardStyle, ...cardStyleOverrides }}>
+    <Card
+      interactive={false}
+      elevation={elevation}
+      style={{ ...cardStyle, ...cardStyleOverrides }}
+    >
       <div style={{}}>
         <div style={{ display: 'flex' }}>
           <Spinner intent={spinnerIntent} size={spinnerSize} />

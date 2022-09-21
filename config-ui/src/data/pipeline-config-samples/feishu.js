@@ -24,6 +24,4 @@ const feishuConfig = [
   ]
 ]
 
-export {
-  feishuConfig
-}
+export { feishuConfig }

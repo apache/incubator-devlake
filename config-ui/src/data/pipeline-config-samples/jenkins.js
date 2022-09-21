@@ -26,6 +26,4 @@ const jenkinsConfig = [
   ]
 ]
 
-export {
-  jenkinsConfig
-}
+export { jenkinsConfig }

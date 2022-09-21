@@ -21,65 +21,64 @@ import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { Providers } from '@/data/Providers'
 
-function useSettingsManager ({
-  activeProvider,
-  activeConnection,
-  settings,
-}) {
+function useSettingsManager({ activeProvider, activeConnection, settings }) {
   const [isSaving, setIsSaving] = useState(false)
   const [isTesting, setIsTesting] = useState(false)
   const [errors, setErrors] = useState([])
   const [showError, setShowError] = useState(false)
 
-  const buildConnectionPayload = useCallback((connection) => {
-    let connectionPayload = {}
-    switch (activeProvider.id) {
-      case Providers.JIRA:
-        connectionPayload = {
-          ...connectionPayload,
-          name: connection.name,
-          endpoint: connection.endpoint,
-          username: connection.username,
-          password: connection.password,
-          proxy: connection.proxy || connection.Proxy
-        }
-        break
-      case Providers.GITHUB:
-        connectionPayload = {
-          ...connectionPayload,
-          name: connection.name,
-          endpoint: connection.endpoint,
-          token: connection.token,
-          proxy: connection.proxy || connection.Proxy
-        }
-        break
-      case Providers.JENKINS:
-        connectionPayload = {
-          ...connectionPayload,
-          name: connection.name,
-          endpoint: connection.endpoint,
-          username: connection.username,
-          password: connection.password
-        }
-        break
-      case Providers.GITLAB:
-        connectionPayload = {
-          ...connectionPayload,
-          name: connection.name,
-          endpoint: connection.endpoint,
-          token: connection.token,
-          proxy: connection.proxy || connection.Proxy
-        }
-        break
-    }
-    return connectionPayload
-  }, [activeProvider.id])
+  const buildConnectionPayload = useCallback(
+    (connection) => {
+      let connectionPayload = {}
+      switch (activeProvider.id) {
+        case Providers.JIRA:
+          connectionPayload = {
+            ...connectionPayload,
+            name: connection.name,
+            endpoint: connection.endpoint,
+            username: connection.username,
+            password: connection.password,
+            proxy: connection.proxy || connection.Proxy
+          }
+          break
+        case Providers.GITHUB:
+          connectionPayload = {
+            ...connectionPayload,
+            name: connection.name,
+            endpoint: connection.endpoint,
+            token: connection.token,
+            proxy: connection.proxy || connection.Proxy
+          }
+          break
+        case Providers.JENKINS:
+          connectionPayload = {
+            ...connectionPayload,
+            name: connection.name,
+            endpoint: connection.endpoint,
+            username: connection.username,
+            password: connection.password
+          }
+          break
+        case Providers.GITLAB:
+          connectionPayload = {
+            ...connectionPayload,
+            name: connection.name,
+            endpoint: connection.endpoint,
+            token: connection.token,
+            proxy: connection.proxy || connection.Proxy
+          }
+          break
+      }
+      return connectionPayload
+    },
+    [activeProvider.id]
+  )
 
   const saveSettings = useCallback(() => {
     setIsSaving(true)
     const settingsPayload = {
       ...buildConnectionPayload(activeConnection),
-      ...settings,
+      ...settings
       // DEV: true
     }
 
@@ -95,7 +94,10 @@ function useSettingsManager ({
       try {
         setShowError(false)
         ToastNotification.clear()
-        const s = await request.patch(`${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/connections/${activeConnection.ID}`, settingsPayload)
+        const s = await request.patch(
+          `${DEVLAKE_ENDPOINT}/plugins/${activeProvider.id}/connections/${activeConnection.ID}`,
+          settingsPayload
+        )
         console.log('>> SETTINGS SAVED SUCCESSFULLY', settingsPayload, s)
         saveResponse = {
           ...saveResponse,
@@ -114,24 +116,34 @@ function useSettingsManager ({
 
     setTimeout(() => {
       if (saveResponse.success && errors.length === 0) {
-        ToastNotification.show({ message: 'Instance Settings saved successfully.', intent: 'success', icon: 'small-tick' })
+        ToastNotification.show({
+          message: 'Instance Settings saved successfully.',
+          intent: 'success',
+          icon: 'small-tick'
+        })
         setShowError(false)
         setIsSaving(false)
       } else {
-        ToastNotification.show({ message: 'Instance Settings failed to save, please try again.', intent: 'danger', icon: 'error' })
+        ToastNotification.show({
+          message: 'Instance Settings failed to save, please try again.',
+          intent: 'danger',
+          icon: 'error'
+        })
         setShowError(true)
         setIsSaving(false)
       }
     }, 2000)
-  }, [activeConnection, activeProvider.id, buildConnectionPayload, errors.length, settings])
+  }, [
+    activeConnection,
+    activeProvider.id,
+    buildConnectionPayload,
+    errors.length,
+    settings
+  ])
 
-  const clear = () => {
+  const clear = () => {}
 
-  }
-
-  const restore = () => {
-
-  }
+  const restore = () => {}
 
   return {
     saveSettings,

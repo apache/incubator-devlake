@@ -18,7 +18,17 @@
 import React, { Fragment } from 'react'
 import { FormGroup, Label, Tag, TagInput } from '@blueprintjs/core'
 
-const MappingTag = ({ classNames, labelIntent, labelName, onChange, rightElement, helperText, typeOrStatus, values, placeholderText }) => {
+const MappingTag = ({
+  classNames,
+  labelIntent,
+  labelName,
+  onChange,
+  rightElement,
+  helperText,
+  typeOrStatus,
+  values,
+  placeholderText
+}) => {
   return (
     <>
       <div className='formContainer'>
@@ -33,18 +43,24 @@ const MappingTag = ({ classNames, labelIntent, labelName, onChange, rightElement
         >
           {labelName && (
             <Label style={{ display: 'inline' }}>
-              <span style={{ marginRight: '10px' }}><Tag className={classNames} intent={labelIntent}>{labelName}</Tag></span>
+              <span style={{ marginRight: '10px' }}>
+                <Tag className={classNames} intent={labelIntent}>
+                  {labelName}
+                </Tag>
+              </span>
             </Label>
           )}
           <TagInput
             placeholder={placeholderText}
             values={values || []}
             fill={true}
-            onChange={value => setTimeout(() => onChange([...new Set(value)]), 0)}
+            onChange={(value) =>
+              setTimeout(() => onChange([...new Set(value)]), 0)
+            }
             addOnPaste={true}
             addOnBlur={true}
             rightElement={rightElement}
-            onKeyDown={e => e.key === 'Enter' && e.preventDefault()}
+            onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
             className='tagInput'
           />
         </FormGroup>

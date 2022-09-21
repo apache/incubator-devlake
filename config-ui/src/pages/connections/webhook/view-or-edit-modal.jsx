@@ -57,11 +57,19 @@ export const ViewOrEditModal = ({ record, onSubmit, onCancel }) => {
   }
 
   return (
-    <Dialog isOpen={true} title='View or Edit Webhook' style={{ width: 640 }} onClose={handleCancel}>
+    <Dialog
+      isOpen={true}
+      title='View or Edit Webhook'
+      style={{ width: 640 }}
+      onClose={handleCancel}
+    >
       <S.FormWrapper>
         <div className='form'>
           <h2>Webhook Name *</h2>
-          <p>Give your Webhook a unique name to help you identify it in the future.</p>
+          <p>
+            Give your Webhook a unique name to help you identify it in the
+            future.
+          </p>
           <input
             type='text'
             placeholder='Your Webhook Name'
@@ -73,7 +81,10 @@ export const ViewOrEditModal = ({ record, onSubmit, onCancel }) => {
         </div>
         <div className='url'>
           <h2>POST URL</h2>
-          <p>Copy the following URLs to your issue tracking tool for Incidents and CI tool for Deployments by making a POST to DevLake.</p>
+          <p>
+            Copy the following URLs to your issue tracking tool for Incidents
+            and CI tool for Deployments by making a POST to DevLake.
+          </p>
           <h3>Incident</h3>
           <p>Send incident opened and reopened events</p>
           <div className='block'>

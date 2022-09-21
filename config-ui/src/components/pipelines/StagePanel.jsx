@@ -19,7 +19,8 @@ import React from 'react'
 // import { CSSTransition } from 'react-transition-group'
 import {
   Card,
-  Button, Icon,
+  Button,
+  Icon,
   ButtonGroup,
   Elevation,
   Colors,
@@ -32,7 +33,9 @@ const StagePanel = (props) => {
   const {
     activePipeline,
     // pipelineReady = false,
-    stages, activeStageId = 1, isLoading = false
+    stages,
+    activeStageId = 1,
+    isLoading = false
   } = props
 
   const getActiveStageDisplayColor = (status) => {
@@ -41,7 +44,7 @@ const StagePanel = (props) => {
       case 'TASK_COMPLETED':
         color = Colors.GREEN4
         break
-      case 'TASK_FAILED' :
+      case 'TASK_FAILED':
         color = Colors.RED4
         break
       case 'TASK_CREATED':
@@ -73,54 +76,53 @@ const StagePanel = (props) => {
           justifySelf: 'flex-start',
           marginBottom: '8px',
           padding: 0,
-          backgroundColor: activePipeline.status === 'TASK_COMPLETED' ? 'rgba(245, 255, 250, 0.99)' : 'inherit',
+          backgroundColor:
+            activePipeline.status === 'TASK_COMPLETED'
+              ? 'rgba(245, 255, 250, 0.99)'
+              : 'inherit',
           overflow: 'hidden',
           whiteSpace: 'nowrap',
           textOverflow: 'ellipsis'
         }}
       >
-
         <ButtonGroup style={{ backgroundColor: 'transparent', zIndex: '-1' }}>
-          <Button minimal active style={{ width: '32px', backgroundColor: '#eeeeee', padding: 0 }}>
-            <div style={{
-              margin: 0,
-              display: 'flex',
-              position: 'relative',
-              justifyContent: 'center',
-              alignItems: 'center',
-              alignContent: 'center'
-            }}
+          <Button
+            minimal
+            active
+            style={{ width: '32px', backgroundColor: '#eeeeee', padding: 0 }}
+          >
+            <div
+              style={{
+                margin: 0,
+                display: 'flex',
+                position: 'relative',
+                justifyContent: 'center',
+                alignItems: 'center',
+                alignContent: 'center'
+              }}
             >
               {isLoading && (
-                <span style={{
-                  position: 'absolute',
-                  width: '24px',
-                  height: '24px',
-                  marginLeft: '4px',
-                  display: 'flex',
-                  justifyContent: 'center'
-                }}
+                <span
+                  style={{
+                    position: 'absolute',
+                    width: '24px',
+                    height: '24px',
+                    marginLeft: '4px',
+                    display: 'flex',
+                    justifyContent: 'center'
+                  }}
                 >
                   <Spinner size={20} intent={Intent.PRIMARY} />
-                </span>)}
+                </span>
+              )}
               {(() => {
                 let statusIcon = null
                 switch (activePipeline.status) {
                   case 'TASK_COMPLETED':
-                    statusIcon = (
-                      <Icon
-                        icon='tick-circle'
-                        size={24}
-                      />
-                    )
+                    statusIcon = <Icon icon='tick-circle' size={24} />
                     break
                   case 'TASK_FAILED':
-                    statusIcon = (
-                      <Icon
-                        icon='error'
-                        size={24}
-                      />
-                    )
+                    statusIcon = <Icon icon='error' size={24} />
                     break
                   case 'TASK_RUNNING':
                   default:
@@ -133,7 +135,20 @@ const StagePanel = (props) => {
                     )
                     break
                 }
-                return !isLoading && (<span style={{ position: 'absolute', marginLeft: '3px', width: '24px', height: '24px' }}>{statusIcon}</span>)
+                return (
+                  !isLoading && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        marginLeft: '3px',
+                        width: '24px',
+                        height: '24px'
+                      }}
+                    >
+                      {statusIcon}
+                    </span>
+                  )
+                )
               })()}
             </div>
           </Button>
@@ -142,7 +157,7 @@ const StagePanel = (props) => {
             style={{
               position: 'relative',
               backgroundColor: '#eeeeee',
-              paddingRight: '20px',
+              paddingRight: '20px'
             }}
           >
             <h3
@@ -189,7 +204,7 @@ const StagePanel = (props) => {
                 style={{
                   position: 'relative',
                   backgroundColor: '#eeeeee',
-                  paddingRight: '50px',
+                  paddingRight: '50px'
                 }}
               >
                 <h3
@@ -214,7 +229,6 @@ const StagePanel = (props) => {
                 }}
               />
             </>
-
           )}
         </ButtonGroup>
         <div style={{ display: 'flex', marginLeft: 'auto', padding: '0 10px' }}>
@@ -229,8 +243,21 @@ const StagePanel = (props) => {
               letterSpacing: '2px',
               justifySelf: 'flex-end'
             }}
-          >Finished Tasks &middot; <span style={{ color: Colors.GREEN5 }}>{activePipeline.finishedTasks}</span>
-            <em style={{ color: '#dddddd', padding: '0 4px', textTransform: 'lowercase' }}>/</em>{activePipeline.totalTasks}
+          >
+            Finished Tasks &middot;{' '}
+            <span style={{ color: Colors.GREEN5 }}>
+              {activePipeline.finishedTasks}
+            </span>
+            <em
+              style={{
+                color: '#dddddd',
+                padding: '0 4px',
+                textTransform: 'lowercase'
+              }}
+            >
+              /
+            </em>
+            {activePipeline.totalTasks}
           </h3>
           {/* <span style={{fontSize: '16px', fontWeight: 700, marginLeft: 'auto', lineHeight: '33px'}} /> */}
           {/* {Number((activePipeline.finishedTasks / activePipeline.totalTasks) * 100).toFixed(1)}% */}

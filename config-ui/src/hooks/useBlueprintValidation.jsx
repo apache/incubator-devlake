@@ -20,7 +20,7 @@ import parser from 'cron-parser'
 import { BlueprintMode } from '@/data/NullBlueprint'
 import { Providers } from '@/data/Providers'
 
-function useBlueprintValidation ({
+function useBlueprintValidation({
   name,
   cronConfig,
   customCronConfig,
@@ -65,28 +65,31 @@ function useBlueprintValidation ({
     }
   }, [])
 
-  const isValidJSON = useCallback((rawConfiguration) => {
-    let isValid = false
-    try {
-      const parsedCode = parseJSON(rawConfiguration)
-      isValid = parsedCode !== false
-      // setValidationAdvancedError(null)
-    } catch (e) {
-      console.log('>> FORMAT CODE: Invalid Code Format!', e)
-      isValid = false
-      // setValidationAdvancedError(e.message)
-    }
-    // setIsValidConfiguration(isValid)
-    return isValid
-  }, [parseJSON])
+  const isValidJSON = useCallback(
+    (rawConfiguration) => {
+      let isValid = false
+      try {
+        const parsedCode = parseJSON(rawConfiguration)
+        isValid = parsedCode !== false
+        // setValidationAdvancedError(null)
+      } catch (e) {
+        console.log('>> FORMAT CODE: Invalid Code Format!', e)
+        isValid = false
+        // setValidationAdvancedError(e.message)
+      }
+      // setIsValidConfiguration(isValid)
+      return isValid
+    },
+    [parseJSON]
+  )
 
   const validateNumericSet = useCallback((set = []) => {
-    return Array.isArray(set) ? set.every(i => !isNaN(i)) : false
+    return Array.isArray(set) ? set.every((i) => !isNaN(i)) : false
   }, [])
 
   const validateRepositoryName = useCallback((projects = []) => {
     const repoRegExp = /([a-z0-9_-]){2,}\/([a-z0-9_-]){2,}$/gi
-    return projects.every(p => p.value.match(repoRegExp))
+    return projects.every((p) => p.value.match(repoRegExp))
   }, [])
 
   const valiateNonEmptySet = useCallback((set = []) => {
@@ -94,7 +97,7 @@ function useBlueprintValidation ({
   }, [])
 
   const validateUniqueObjectSet = useCallback((set = []) => {
-    return [...new Set(set.map(o => JSON.stringify(o)))].length === set.length
+    return [...new Set(set.map((o) => JSON.stringify(o)))].length === set.length
   }, [])
 
   const validateBlueprintName = useCallback((name = '') => {
@@ -112,7 +115,10 @@ function useBlueprintValidation ({
       errs.push('Blueprint Name: Name too short, 3 chars minimum.')
     }
 
-    if (mode !== null && ![BlueprintMode.NORMAL, BlueprintMode.ADVANCED].includes(mode)) {
+    if (
+      mode !== null &&
+      ![BlueprintMode.NORMAL, BlueprintMode.ADVANCED].includes(mode)
+    ) {
       errs.push('Invalid / Unsupported Blueprint Mode Detected!')
     }
 
@@ -121,12 +127,20 @@ function useBlueprintValidation ({
         errs.push('Blueprint Cron: No Crontab schedule defined.')
       }
 
-      if (cronConfig && !['custom', 'manual'].includes(cronConfig) && !isValidCronExpression(cronConfig)) {
-        errs.push('Blueprint Cron: Invalid Crontab Expression, unable to parse.')
+      if (
+        cronConfig &&
+        !['custom', 'manual'].includes(cronConfig) &&
+        !isValidCronExpression(cronConfig)
+      ) {
+        errs.push(
+          'Blueprint Cron: Invalid Crontab Expression, unable to parse.'
+        )
       }
 
       if (cronConfig === 'custom' && !isValidCronExpression(customCronConfig)) {
-        errs.push(`Blueprint Cron: Invalid Custom Expression, unable to parse. [${customCronConfig}]`)
+        errs.push(
+          `Blueprint Cron: Invalid Custom Expression, unable to parse. [${customCronConfig}]`
+        )
       }
 
       if (enable && tasks?.length === 0) {
@@ -140,42 +154,76 @@ function useBlueprintValidation ({
           }
           break
         case 2:
-          if (activeProvider?.id === Providers.JIRA && boards[activeConnection?.id]?.length === 0) {
+          if (
+            activeProvider?.id === Providers.JIRA &&
+            boards[activeConnection?.id]?.length === 0
+          ) {
             errs.push('Boards: No Boards selected.')
           }
-          if (activeProvider?.id === Providers.GITHUB && projects[activeConnection?.id]?.length === 0) {
+          if (
+            activeProvider?.id === Providers.GITHUB &&
+            projects[activeConnection?.id]?.length === 0
+          ) {
             errs.push('Projects: No Project Repsitories entered.')
           }
-          if (activeProvider?.id === Providers.GITHUB && !validateRepositoryName(projects[activeConnection?.id])) {
-            errs.push('Projects: Only Git Repository Names are supported (username/repo).')
+          if (
+            activeProvider?.id === Providers.GITHUB &&
+            !validateRepositoryName(projects[activeConnection?.id])
+          ) {
+            errs.push(
+              'Projects: Only Git Repository Names are supported (username/repo).'
+            )
           }
-          if (activeProvider?.id === Providers.GITHUB && !validateRepositoryName(projects[activeConnection?.id])) {
-            errs.push('Projects: Only Git Repository Names are supported (username/repo).')
+          if (
+            activeProvider?.id === Providers.GITHUB &&
+            !validateRepositoryName(projects[activeConnection?.id])
+          ) {
+            errs.push(
+              'Projects: Only Git Repository Names are supported (username/repo).'
+            )
           }
-          if (activeProvider?.id === Providers.GITHUB && !validateUniqueObjectSet(projects[activeConnection?.id])) {
+          if (
+            activeProvider?.id === Providers.GITHUB &&
+            !validateUniqueObjectSet(projects[activeConnection?.id])
+          ) {
             errs.push('Projects: Duplicate project detected.')
           }
           if (entities[activeConnection?.id]?.length === 0) {
             errs.push('Data Entities: No Data Entities selected.')
           }
-          if (activeProvider?.id === Providers.GITLAB && projects[activeConnection?.id]?.length === 0) {
+          if (
+            activeProvider?.id === Providers.GITLAB &&
+            projects[activeConnection?.id]?.length === 0
+          ) {
             errs.push('Projects: No Project IDs entered.')
           }
-          if (activeProvider?.id === Providers.GITLAB && !validateUniqueObjectSet(projects[activeConnection?.id])) {
+          if (
+            activeProvider?.id === Providers.GITLAB &&
+            !validateUniqueObjectSet(projects[activeConnection?.id])
+          ) {
             errs.push('Projects: Duplicate project detected.')
           }
 
-          connections.forEach(c => {
+          connections.forEach((c) => {
             if (c.provider === Providers.JIRA && boards[c?.id]?.length === 0) {
               errs.push(`${c.name} requires a Board`)
             }
-            if (c.provider === Providers.GITHUB && projects[c?.id]?.length === 0) {
+            if (
+              c.provider === Providers.GITHUB &&
+              projects[c?.id]?.length === 0
+            ) {
               errs.push(`${c.name} requires Project Names`)
             }
-            if (c.provider === Providers.GITHUB && !validateRepositoryName(projects[c?.id])) {
+            if (
+              c.provider === Providers.GITHUB &&
+              !validateRepositoryName(projects[c?.id])
+            ) {
               errs.push(`${c.name} has Invalid Project Repository`)
             }
-            if (c.provider === Providers.GITLAB && projects[c?.id]?.length === 0) {
+            if (
+              c.provider === Providers.GITLAB &&
+              projects[c?.id]?.length === 0
+            ) {
               errs.push(`${c.name} requires Project IDs`)
             }
             if (entities[c?.id]?.length === 0) {
@@ -188,6 +236,7 @@ function useBlueprintValidation ({
     }
 
     setErrors(errs)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     name,
     cronConfig,
@@ -208,13 +257,19 @@ function useBlueprintValidation ({
     validateUniqueObjectSet
   ])
 
-  const fieldHasError = useCallback((fieldId) => {
-    return errors.some(e => e.includes(fieldId))
-  }, [errors])
+  const fieldHasError = useCallback(
+    (fieldId) => {
+      return errors.some((e) => e.includes(fieldId))
+    },
+    [errors]
+  )
 
-  const getFieldError = useCallback((fieldId) => {
-    return errors.find(e => e.includes(fieldId))
-  }, [errors])
+  const getFieldError = useCallback(
+    (fieldId) => {
+      return errors.find((e) => e.includes(fieldId))
+    },
+    [errors]
+  )
 
   useEffect(() => {
     // console.log('>>> BLUEPRINT FORM ERRORS...', errors)

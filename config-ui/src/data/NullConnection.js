@@ -25,9 +25,7 @@ const NullConnection = {
   username: null,
   password: null,
   createdAt: null,
-  updatedAt: null,
+  updatedAt: null
 }
 
-export {
-  NullConnection
-}
+export { NullConnection }

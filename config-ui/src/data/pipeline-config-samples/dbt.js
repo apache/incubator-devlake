@@ -33,6 +33,4 @@ const dbtConfig = [
   ]
 ]
 
-export {
-  dbtConfig
-}
+export { dbtConfig }

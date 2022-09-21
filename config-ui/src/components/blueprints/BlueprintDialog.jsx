@@ -26,14 +26,14 @@ import {
   Icon,
   Intent,
   Label,
-  MenuItem,
+  MenuItem
 } from '@blueprintjs/core'
 
 import { NullBlueprint } from '@/data/NullBlueprint'
 
 const Modes = {
   CREATE: 'create',
-  EDIT: 'edit',
+  EDIT: 'edit'
 }
 
 const BlueprintDialog = (props) => {
@@ -53,9 +53,7 @@ const BlueprintDialog = (props) => {
     errors = []
   } = props
 
-  useEffect(() => {
-
-  }, [content])
+  useEffect(() => {}, [content])
 
   return (
     <>
@@ -69,9 +67,7 @@ const BlueprintDialog = (props) => {
         canOutsideClickClose={canOutsideClickClose}
         style={{ backgroundColor: '#ffffff' }}
       >
-        <div className={Classes.DIALOG_BODY}>
-          {content}
-        </div>
+        <div className={Classes.DIALOG_BODY}>{content}</div>
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button

@@ -31,14 +31,14 @@ import {
   Divider,
   Elevation,
   Card,
-  Colors,
+  Colors
 } from '@blueprintjs/core'
 import {
   Providers,
   ProviderTypes,
   ProviderIcons,
   ConnectionStatus,
-  ConnectionStatusLabels,
+  ConnectionStatusLabels
 } from '@/data/Providers'
 
 import InputValidationError from '@/components/validation/InputValidationError'
@@ -64,33 +64,38 @@ const DataSync = (props) => {
   } = props
 
   return (
-    <div className='workflow-step workflow-step-set-sync-frequency' data-step={activeStep?.id}>
-      <Card className='workflow-card' elevation={elevation} style={{ ...cardStyle }}>
+    <div
+      className='workflow-step workflow-step-set-sync-frequency'
+      data-step={activeStep?.id}
+    >
+      <Card
+        className='workflow-card'
+        elevation={elevation}
+        style={{ ...cardStyle }}
+      >
         {enableHeader && (
           <>
             <h3 style={{ marginBottom: '8px' }}>Set Sync Frequency</h3>
-            {getCronPresetByConfig(cronConfig)
-              ? (
-                <p
-                  style={{
-                    display: 'block',
-                  }}
-                >
-                  <strong>Automated</strong> &mdash;{' '}
-                  {getCronPresetByConfig(cronConfig).description}
-                </p>
-                )
-              : (
-                <small
-                  style={{
-                    fontSize: '10px',
-                    color: Colors.GRAY2,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {cronConfig}
-                </small>
-                )}
+            {getCronPresetByConfig(cronConfig) ? (
+              <p
+                style={{
+                  display: 'block'
+                }}
+              >
+                <strong>Automated</strong> &mdash;{' '}
+                {getCronPresetByConfig(cronConfig).description}
+              </p>
+            ) : (
+              <small
+                style={{
+                  fontSize: '10px',
+                  color: Colors.GRAY2,
+                  textTransform: 'uppercase'
+                }}
+              >
+                {cronConfig}
+              </small>
+            )}
             <Divider className='section-divider' />
           </>
         )}
@@ -110,7 +115,7 @@ const DataSync = (props) => {
             label='Manual'
             value='manual'
             style={{
-              fontWeight: cronConfig === 'manual' ? 'bold' : 'normal',
+              fontWeight: cronConfig === 'manual' ? 'bold' : 'normal'
             }}
           />
           {/* Dynamic Presets from Connection Manager */}
@@ -118,7 +123,7 @@ const DataSync = (props) => {
             getCronPreset('hourly'),
             getCronPreset('daily'),
             getCronPreset('weekly'),
-            getCronPreset('monthly'),
+            getCronPreset('monthly')
           ].map((preset, prIdx) => (
             <Radio
               key={`cron-preset-tooltip-key${prIdx}`}
@@ -137,7 +142,7 @@ const DataSync = (props) => {
               style={{
                 fontWeight:
                   cronConfig === preset.cronConfig ? 'bold' : 'normal',
-                outline: 'none !important',
+                outline: 'none !important'
               }}
             />
           ))}
@@ -145,13 +150,13 @@ const DataSync = (props) => {
             label='Custom'
             value='custom'
             style={{
-              fontWeight: cronConfig === 'custom' ? 'bold' : 'normal',
+              fontWeight: cronConfig === 'custom' ? 'bold' : 'normal'
             }}
           />
         </RadioGroup>
         <div
           style={{
-            display: cronConfig === 'custom' ? 'flex' : 'none',
+            display: cronConfig === 'custom' ? 'flex' : 'none'
           }}
         >
           <FormGroup
@@ -170,18 +175,16 @@ const DataSync = (props) => {
               fill={false}
               readOnly={cronConfig !== 'custom'}
               leftElement={
-                cronConfig !== 'custom'
-                  ? (
-                    <Icon
-                      icon='lock'
-                      size={11}
-                      style={{
-                        alignSelf: 'center',
-                        margin: '4px 10px -2px 6px',
-                      }}
-                    />
-                    )
-                  : null
+                cronConfig !== 'custom' ? (
+                  <Icon
+                    icon='lock'
+                    size={11}
+                    style={{
+                      alignSelf: 'center',
+                      margin: '4px 10px -2px 6px'
+                    }}
+                  />
+                ) : null
               }
               rightElement={
                 <>
@@ -203,7 +206,7 @@ const DataSync = (props) => {
             style={{
               display: 'inline',
               marginTop: 'auto',
-              paddingBottom: '15px',
+              paddingBottom: '15px'
             }}
           >
             <Popover
@@ -227,14 +230,14 @@ const DataSync = (props) => {
                     textShadow: 'none',
                     fontSize: '12px',
                     padding: '12px',
-                    maxWidth: '300px',
+                    maxWidth: '300px'
                   }}
                 >
                   <div
                     style={{
                       marginBottom: '10px',
                       fontWeight: 700,
-                      fontSize: '14px',
+                      fontSize: '14px'
                     }}
                   >
                     <Icon
@@ -262,7 +265,7 @@ const DataSync = (props) => {
                     style={{
                       border: 0,
                       margin: 0,
-                      maxWidth: '100%',
+                      maxWidth: '100%'
                     }}
                   />
                 </div>

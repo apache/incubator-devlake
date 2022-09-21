@@ -23,7 +23,7 @@ import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
-export default function GitlabSettings (props) {
+export default function GitlabSettings(props) {
   const {
     connection,
     entities = [],
@@ -38,12 +38,16 @@ export default function GitlabSettings (props) {
   } = props
 
   useEffect(() => {
-    console.log('>>>> GITLAB: TRANSFORMATION SETTINGS OBJECT....', transformation)
+    console.log(
+      '>>>> GITLAB: TRANSFORMATION SETTINGS OBJECT....',
+      transformation
+    )
   }, [transformation])
 
   return (
     <>
-      {entities.some(e => e.value === DataEntityTypes.DEVOPS) && configuredProject ? (
+      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) &&
+      configuredProject ? (
         <Deployment
           provider={provider}
           entities={entities}

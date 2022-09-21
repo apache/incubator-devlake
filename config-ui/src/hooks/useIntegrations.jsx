@@ -18,17 +18,14 @@
 import { useState, useEffect } from 'react'
 import { integrationsData } from '@/data/integrations'
 
-function useIntegrations (data = []) {
+function useIntegrations(data = []) {
   const [integrations, setIntegrations] = useState(integrationsData)
 
   useEffect(() => {
     // setIntegrations(integrationsData)
   }, [])
 
-  return [
-    integrations,
-    setIntegrations
-  ]
+  return [integrations, setIntegrations]
 }
 
 export default useIntegrations

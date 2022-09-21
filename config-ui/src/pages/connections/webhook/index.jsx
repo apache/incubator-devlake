@@ -42,7 +42,8 @@ export const Webhook = () => {
   // defined the edit or delete record
   const [record, setRecord] = useState()
 
-  const { loading, data, operating, onCreate, onUpdate, onDelete } = useWebhookManager()
+  const { loading, data, operating, onCreate, onUpdate, onDelete } =
+    useWebhookManager()
 
   const handleShowModal = (mt, r) => {
     setModalType(mt)
@@ -93,7 +94,11 @@ export const Webhook = () => {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <WebHookProviderIcon className='providerIconSvg' width='30' height='30' />
+                <WebHookProviderIcon
+                  className='providerIconSvg'
+                  width='30'
+                  height='30'
+                />
                 <h1 style={{ margin: '0 0 0 8px' }}>Webhook</h1>
               </div>
               <Link style={{ color: '#777777' }} to='/integrations'>
@@ -101,13 +106,19 @@ export const Webhook = () => {
               </Link>
             </div>
             <div className='page-description'>
-              Use Webhooks to define Incidents and Deployments for your CI tools if they are not listed in Data Sources.
+              Use Webhooks to define Incidents and Deployments for your CI tools
+              if they are not listed in Data Sources.
             </div>
           </div>
           <div className='manageProvider'>
             <S.Container>
               <span>
-                <Button intent='primary' text='Add Webhook' loading={operating} onClick={() => handleShowModal('add')} />
+                <Button
+                  intent='primary'
+                  text='Add Webhook'
+                  loading={operating}
+                  onClick={() => handleShowModal('add')}
+                />
               </span>
               <S.Wrapper>
                 <S.Grid className='title'>
@@ -148,9 +159,23 @@ export const Webhook = () => {
           </div>
         </div>
       </Content>
-      {modalType === 'add' && <AddModal onSubmit={onCreate} onCancel={handleHideModal} />}
-      {modalType === 'edit' && <ViewOrEditModal record={record} onSubmit={onUpdate} onCancel={handleHideModal} />}
-      {modalType === 'delete' && <DeleteModal record={record} onSubmit={onDelete} onCancel={handleHideModal} />}
+      {modalType === 'add' && (
+        <AddModal onSubmit={onCreate} onCancel={handleHideModal} />
+      )}
+      {modalType === 'edit' && (
+        <ViewOrEditModal
+          record={record}
+          onSubmit={onUpdate}
+          onCancel={handleHideModal}
+        />
+      )}
+      {modalType === 'delete' && (
+        <DeleteModal
+          record={record}
+          onSubmit={onDelete}
+          onCancel={handleHideModal}
+        />
+      )}
     </div>
   )
 }

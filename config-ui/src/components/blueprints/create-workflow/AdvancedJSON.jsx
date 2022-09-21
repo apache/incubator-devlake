@@ -28,7 +28,7 @@ import {
   Divider,
   Elevation,
   Card,
-  Colors,
+  Colors
 } from '@blueprintjs/core'
 import PipelineConfigsMenu from '@/components/menus/PipelineConfigsMenu'
 import BlueprintNameCard from '@/components/blueprints/BlueprintNameCard'
@@ -65,7 +65,10 @@ const AdvancedJSON = (props) => {
   } = props
 
   return (
-    <div className='workflow-step workflow-step-advanced-json' data-step={activeStep?.id}>
+    <div
+      className='workflow-step workflow-step-advanced-json'
+      data-step={activeStep?.id}
+    >
       {useBlueprintName && (
         <BlueprintNameCard
           activeStep={activeStep}
@@ -87,7 +90,14 @@ const AdvancedJSON = (props) => {
           <>
             <h3>
               {title}
-              {validationAdvancedError && <Icon icon='warning-sign' size={15} color={Colors.ORANGE5} style={{ marginLeft: '6px', marginBottom: '2px' }} />}
+              {validationAdvancedError && (
+                <Icon
+                  icon='warning-sign'
+                  size={15}
+                  color={Colors.ORANGE5}
+                  style={{ marginLeft: '6px', marginBottom: '2px' }}
+                />
+              )}
             </h3>
             <Divider className='section-divider' />
           </>
@@ -100,13 +110,23 @@ const AdvancedJSON = (props) => {
           className='code-editor-card'
           interactive={false}
           elevation={Elevation.ZERO}
-          style={{ padding: '2px', minWidth: '320px', width: '100%', maxWidth: '100%', marginBottom: '20px', ...cardStyle }}
+          style={{
+            padding: '2px',
+            minWidth: '320px',
+            width: '100%',
+            maxWidth: '100%',
+            marginBottom: '20px',
+            ...cardStyle
+          }}
         >
           <TextArea
             growVertically={false}
             fill={true}
             className='codeArea'
-            style={{ minHeight: '240px', backgroundColor: validationAdvancedError ? '#fff9e9' : '#f9f9f9' }}
+            style={{
+              minHeight: '240px',
+              backgroundColor: validationAdvancedError ? '#fff9e9' : '#f9f9f9'
+            }}
             value={rawConfiguration}
             onChange={(e) => setRawConfiguration(e.target.value)}
           />
@@ -123,13 +143,15 @@ const AdvancedJSON = (props) => {
             <ButtonGroup
               intent={Intent.PRIMARY}
               minimal
-              className='code-editor-controls' style={{
-                borderRadius: '3px',
+              className='code-editor-controls'
+              style={{
+                borderRadius: '3px'
                 // boxShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)'
               }}
             >
               <Button
-                small text='Reset'
+                small
+                text='Reset'
                 icon='eraser'
                 onClick={() => setRawConfiguration('[[]]')}
               />
@@ -165,15 +187,18 @@ const AdvancedJSON = (props) => {
             </ButtonGroup>
           </div>
         </Card>
-
       </Card>
 
       {showModeNotice && (
         <div className='mode-notice normal-mode-notice'>
-          <p>To visually define blueprint tasks, please use <a href='#' rel='noreferrer' onClick={() => onAdvancedMode(false)}>Normal Mode</a></p>
+          <p>
+            To visually define blueprint tasks, please use{' '}
+            <a href='#' rel='noreferrer' onClick={() => onAdvancedMode(false)}>
+              Normal Mode
+            </a>
+          </p>
         </div>
       )}
-
     </div>
   )
 }

@@ -58,12 +58,20 @@ export default function Integration() {
             <AppCrumbs
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
-                { href: '/integrations', icon: false, text: 'Integrations', current: true },
+                {
+                  href: '/integrations',
+                  icon: false,
+                  text: 'Integrations',
+                  current: true
+                }
               ]}
             />
             <div className='headlineContainer'>
               <h1>Data Integrations</h1>
-              <p className='page-description'>{integrationsData.length} connections are available for data collection.</p>
+              <p className='page-description'>
+                {integrationsData.length} connections are available for data
+                collection.
+              </p>
             </div>
             <div className='integrationProviders'>
               {integrationsData.map((provider) => (
@@ -72,11 +80,14 @@ export default function Integration() {
                   key={`provider-${provider.id}`}
                   onClick={() => handleProviderClick(provider.id)}
                 >
-                  <div className='providerIcon'>
-                    {provider.iconDashboard}
-                  </div>
+                  <div className='providerIcon'>{provider.iconDashboard}</div>
                   <div className='providerName'>
-                    {provider.name} {provider.isBeta && <><sup>(beta)</sup></>}
+                    {provider.name}{' '}
+                    {provider.isBeta && (
+                      <>
+                        <sup>(beta)</sup>
+                      </>
+                    )}
                   </div>
                 </div>
               ))}
@@ -84,14 +95,23 @@ export default function Integration() {
             <div className='headlineContainer'>
               <h1>Webhooks</h1>
               <p className='page-description'>
-                You can use Webhooks to define Issues and Deployments to be used in calculating DORA metrics. Please note: Webhooks cannot
-                be created or managed in Blueprints.
+                You can use Webhooks to define Issues and Deployments to be used
+                in calculating DORA metrics. Please note: Webhooks cannot be
+                created or managed in Blueprints.
               </p>
             </div>
             <div className='integrationProviders'>
-              <div className='iProvider' style={{ width: 130 }} onClick={() => history.push('/connections/webhook')}>
+              <div
+                className='iProvider'
+                style={{ width: 130 }}
+                onClick={() => history.push('/connections/webhook')}
+              >
                 <div className='providerIcon'>
-                  <WebHookProviderIcon className='providerIconSvg' width='40' height='40' />
+                  <WebHookProviderIcon
+                    className='providerIconSvg'
+                    width='40'
+                    height='40'
+                  />
                 </div>
                 <div className='providerName'>Issue/Deployment Webhook</div>
               </div>

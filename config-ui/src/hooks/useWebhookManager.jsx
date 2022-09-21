@@ -29,7 +29,9 @@ export const useWebhookManager = () => {
   const fetch = async () => {
     setLoading(true)
     try {
-      const res = await axios.get(`${DEVLAKE_ENDPOINT}/plugins/webhook/connections`)
+      const res = await axios.get(
+        `${DEVLAKE_ENDPOINT}/plugins/webhook/connections`
+      )
       setData(res.data)
     } catch (err) {
     } finally {
@@ -47,9 +49,14 @@ export const useWebhookManager = () => {
     setOperating(true)
     try {
       const {
-        data: { id },
-      } = await axios.post(`${DEVLAKE_ENDPOINT}/plugins/webhook/connections`, payload)
-      const { data } = await axios.get(`${DEVLAKE_ENDPOINT}/plugins/webhook/connections/${id}`)
+        data: { id }
+      } = await axios.post(
+        `${DEVLAKE_ENDPOINT}/plugins/webhook/connections`,
+        payload
+      )
+      const { data } = await axios.get(
+        `${DEVLAKE_ENDPOINT}/plugins/webhook/connections/${id}`
+      )
       fetch()
       return data
     } catch (err) {
@@ -62,18 +69,21 @@ export const useWebhookManager = () => {
     setOperating(true)
     ToastNotification.clear()
     try {
-      await axios.patch(`${DEVLAKE_ENDPOINT}/plugins/webhook/connections/${id}`, payload)
+      await axios.patch(
+        `${DEVLAKE_ENDPOINT}/plugins/webhook/connections/${id}`,
+        payload
+      )
       ToastNotification.show({
         message: 'Update record succeeded.',
         intent: 'success',
-        icon: 'small-tick',
+        icon: 'small-tick'
       })
       fetch()
     } catch (err) {
       ToastNotification.show({
         message: err.response.data.message,
         intent: 'danger',
-        icon: 'error',
+        icon: 'error'
       })
     } finally {
       setOperating(false)
@@ -84,11 +94,13 @@ export const useWebhookManager = () => {
     setOperating(true)
     ToastNotification.clear()
     try {
-      await axios.delete(`${DEVLAKE_ENDPOINT}/plugins/webhook/connections/${id}`)
+      await axios.delete(
+        `${DEVLAKE_ENDPOINT}/plugins/webhook/connections/${id}`
+      )
       ToastNotification.show({
         message: 'Delete record succeeded.',
         intent: 'success',
-        icon: 'small-tick',
+        icon: 'small-tick'
       })
       fetch()
     } catch (err) {
@@ -103,6 +115,6 @@ export const useWebhookManager = () => {
     operating,
     onCreate,
     onUpdate,
-    onDelete,
+    onDelete
   }
 }

@@ -16,7 +16,7 @@
  *
  */
 
-export function parseMapping (mappingString) {
+export function parseMapping(mappingString) {
   const mapping = {}
   if (!mappingString.trim()) {
     return mapping

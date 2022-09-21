@@ -29,13 +29,23 @@ import GitlabProject from '@/models/GitlabProject'
 import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import { DataScopeModes } from '@/data/DataScopes'
 
-function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, blueprint, /* connection, */ settings = {}, setSettings = () => {} }) {
+function useDataScopesManager({
+  mode = DataScopeModes.CREATE,
+  provider,
+  blueprint,
+  /* connection, */ settings = {},
+  setSettings = () => {}
+}) {
   const [connections, setConnections] = useState([])
   const [newConnections, setNewConnections] = useState([])
 
   const [scopeConnection, setScopeConnection] = useState()
   const [configuredConnection, setConfiguredConnection] = useState()
-  const connection = useMemo(() => mode === DataScopeModes.EDIT ? scopeConnection : configuredConnection, [scopeConnection, configuredConnection, mode])
+  const connection = useMemo(
+    () =>
+      mode === DataScopeModes.EDIT ? scopeConnection : configuredConnection,
+    [scopeConnection, configuredConnection, mode]
+  )
   // const connection = useMemo(() => scopeConnection, [scopeConnection])
 
   // const [blueprint, setBlueprint] = useState(NullBlueprint)
@@ -64,24 +74,55 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
     }
     console.log('>>> DSM: Active Configuration Key ===', key)
     return key
-  }, [connection?.providerId, connection?.id, configuredProject?.id, configuredBoard?.id])
+  }, [
+    connection?.providerId,
+    connection?.id,
+    configuredProject?.id,
+    configuredBoard?.id
+  ])
 
   const activeProject = useMemo(() => configuredProject, [configuredProject])
   const activeBoard = useMemo(() => configuredBoard, [configuredBoard])
 
-  const selectedProjects = useMemo(() => projects[connection?.id]?.map(
-    (p) => p && p?.id
-  ), [projects, connection?.id])
-  const selectedBoards = useMemo(() => boards[connection?.id]?.map(
-    (b) => b && b?.id
-  ), [boards, connection?.id])
+  const selectedProjects = useMemo(
+    () => projects[connection?.id]?.map((p) => p && p?.id),
+    [projects, connection?.id]
+  )
+  const selectedBoards = useMemo(
+    () => boards[connection?.id]?.map((b) => b && b?.id),
+    [boards, connection?.id]
+  )
 
-  const storedProjectTransformation = useMemo(() => connection?.transformations && connection?.transformations[connection?.projects?.findIndex(p => p === configuredProject?.id)], [connection, configuredProject?.id])
-  const storedBoardTransformation = useMemo(() => connection?.transformations && connection?.transformations[connection?.boardIds?.findIndex(b => b === configuredBoard?.id)], [connection, configuredBoard?.id])
+  const storedProjectTransformation = useMemo(
+    () =>
+      connection?.transformations &&
+      connection?.transformations[
+        connection?.projects?.findIndex((p) => p === configuredProject?.id)
+      ],
+    [connection, configuredProject?.id]
+  )
+  const storedBoardTransformation = useMemo(
+    () =>
+      connection?.transformations &&
+      connection?.transformations[
+        connection?.boardIds?.findIndex((b) => b === configuredBoard?.id)
+      ],
+    [connection, configuredBoard?.id]
+  )
 
-  const activeProjectTransformation = useMemo(() => transformations[activeProject?.id], [transformations, activeProject?.id])
-  const activeBoardTransformation = useMemo(() => transformations[activeBoard?.id], [transformations, activeBoard?.id])
-  const activeTransformation = useMemo(() => transformations[configurationKey], [configurationKey, transformations])
+  const activeProjectTransformation = useMemo(
+    () => transformations[activeProject?.id],
+    [transformations, activeProject?.id]
+  )
+  const activeBoardTransformation = useMemo(
+    () => transformations[activeBoard?.id],
+    [transformations, activeBoard?.id]
+  )
+  const activeTransformation = useMemo(
+    () => transformations[configurationKey],
+    [configurationKey, transformations]
+  )
+  // eslint-disable-next-line max-len
   // const activeTransformation = useMemo(() => transformations[connection?.providerId === Providers.JIRA ? configuredBoard?.id : configuredProject?.id], [transformations, configuredProject?.id, configuredBoard?.id, connection?.providerId])
 
   const getDefaultTransformations = useCallback((providerId) => {
@@ -99,7 +140,7 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
           issueTypeBug: '',
           issueTypeIncident: '',
           refdiff: null,
-          productionPattern: '',
+          productionPattern: ''
           // stagingPattern: '',
           // testingPattern: ''
         }
@@ -114,21 +155,21 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
           incidentTags: [],
           requirementTags: [],
           // @todo: verify if jira utilizes deploy tag(s)?
-          productionPattern: '',
+          productionPattern: ''
           // stagingPattern: '',
           // testingPattern: ''
         }
         break
       case Providers.JENKINS:
         transforms = {
-          productionPattern: '',
+          productionPattern: ''
           // stagingPattern: '',
           // testingPattern: ''
         }
         break
       case Providers.GITLAB:
         transforms = {
-          productionPattern: '',
+          productionPattern: ''
           // stagingPattern: '',
           // testingPattern: ''
         }
@@ -139,20 +180,29 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
           issueTypeRequirement: '',
           issueTypeBug: '',
           issueTypeIncident: '',
-          productionPattern: '',
+          productionPattern: ''
           // stagingPattern: '',
           // testingPattern: ''
         }
         break
     }
-    console.log('>>>>> DATA SCOPES MANAGER: Getting Default Transformation Values for PROVIDER Type ', providerId, transforms)
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: Getting Default Transformation Values for PROVIDER Type ',
+      providerId,
+      transforms
+    )
     return transforms
   }, [])
 
-  const initializeTransformations = useCallback((pV, cV, iDx) => ({
-    ...pV,
-    [cV]: new TransformationSettings(getDefaultTransformations(connection?.providerId, iDx)),
-  }), [connection?.providerId, getDefaultTransformations])
+  const initializeTransformations = useCallback(
+    (pV, cV, iDx) => ({
+      ...pV,
+      [cV]: new TransformationSettings(
+        getDefaultTransformations(connection?.providerId, iDx)
+      )
+    }),
+    [connection?.providerId, getDefaultTransformations]
+  )
 
   // @todo: generate scopes dynamically from $integrationsData (in future Integrations Hook [plugin registry])
   const createProviderScopes = useCallback(
@@ -173,7 +223,7 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
       )
       let newScope = {
         ...defaultScope,
-        entities: entities[connection.id]?.map((entity) => entity.value) || [],
+        entities: entities[connection.id]?.map((entity) => entity.value) || []
       }
       switch (providerId) {
         case Providers.JIRA:
@@ -185,7 +235,7 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
               // @todo: verify initial value of since date for jira provider
               // since: new Date(),
             },
-            transformation: { ...transformations[b?.id] },
+            transformation: { ...transformations[b?.id] }
           }))
           break
         case Providers.GITLAB:
@@ -195,7 +245,7 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
               projectId: Number(p.value),
               title: p.title
             },
-            transformation: { ...transformations[p?.id] },
+            transformation: { ...transformations[p?.id] }
           }))
           break
         case Providers.JENKINS:
@@ -204,7 +254,7 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
             // options: {
             // },
             // NOTE: Jenkins has no concept of projects/boards. Transformations Key'ed by Conn *INDEX* ID!
-            transformation: { ...transformations[`C#${connection?.id}`] },
+            transformation: { ...transformations[`C#${connection?.id}`] }
           }
           break
         case Providers.GITHUB:
@@ -212,14 +262,14 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
             ...newScope,
             options: {
               owner: p.value.split('/')[0],
-              repo: p.value.split('/')[1],
+              repo: p.value.split('/')[1]
             },
-            transformation: { ...transformations[p?.id] },
+            transformation: { ...transformations[p?.id] }
           }))
           break
         case Providers.TAPD:
           newScope = {
-            ...newScope,
+            ...newScope
             // options: {
             // },
             // transformation: {},
@@ -231,35 +281,49 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
     []
   )
 
-  const createProviderConnections = useCallback((blueprintConnections) => {
-    console.log('>>>>> DATA SCOPES MANAGER: Creating Provider Connection Scopes...', blueprintConnections)
-    return blueprintConnections.map((c, cIdx) => ({
-      connectionId: c.value || c.connectionId,
-      plugin: c.plugin || c.provider,
-      scope: createProviderScopes(
-        typeof c.provider === 'object' ? c.provider?.id : c.provider,
-        c,
-        cIdx,
-        entities,
-        boards,
-        projects,
-        transformations
-      ),
-    }))
-  }, [boards, projects, entities, transformations, createProviderScopes])
+  const createProviderConnections = useCallback(
+    (blueprintConnections) => {
+      console.log(
+        '>>>>> DATA SCOPES MANAGER: Creating Provider Connection Scopes...',
+        blueprintConnections
+      )
+      return blueprintConnections.map((c, cIdx) => ({
+        connectionId: c.value || c.connectionId,
+        plugin: c.plugin || c.provider,
+        scope: createProviderScopes(
+          typeof c.provider === 'object' ? c.provider?.id : c.provider,
+          c,
+          cIdx,
+          entities,
+          boards,
+          projects,
+          transformations
+        )
+      }))
+    },
+    [boards, projects, entities, transformations, createProviderScopes]
+  )
 
   const modifyConnectionSettings = useCallback(() => {
-    const newConnections = createProviderConnections(connections.filter(c => c.providerId === connection?.providerId))
-    const existingConnections = blueprint?.settings?.connections?.filter(storedConnection => storedConnection.plugin !== connection?.plugin)
-    console.log('>>>>> DATA SCOPES MANAGER: Modifying Connection Scopes...', newConnections)
-    console.log('>>>>> DATA SCOPES MANAGER: Filtered Existing connection Scopes...', existingConnections)
+    const newConnections = createProviderConnections(
+      connections.filter((c) => c.providerId === connection?.providerId)
+    )
+    const existingConnections = blueprint?.settings?.connections?.filter(
+      (storedConnection) => storedConnection.plugin !== connection?.plugin
+    )
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: Modifying Connection Scopes...',
+      newConnections
+    )
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: Filtered Existing connection Scopes...',
+      existingConnections
+    )
     setSettings((currentSettings) => ({
       ...currentSettings,
-      connections: [
-        ...newConnections,
-        ...existingConnections
-      ],
+      connections: [...newConnections, ...existingConnections]
     }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     connection,
     connections,
@@ -279,63 +343,99 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
         configuredEntity,
         settings
       )
-      setTransformations((existingTransformations) => configuredEntity ? ({
-        ...existingTransformations,
-        [configuredEntity]: new TransformationSettings({
-          ...existingTransformations[configuredEntity],
-          ...settings,
-        })
-      }) : existingTransformations)
+      setTransformations((existingTransformations) =>
+        configuredEntity
+          ? {
+              ...existingTransformations,
+              [configuredEntity]: new TransformationSettings({
+                ...existingTransformations[configuredEntity],
+                ...settings
+              })
+            }
+          : existingTransformations
+      )
     },
     [setTransformations]
   )
 
-  const getGithubProjects = useCallback((c) => [Providers.GITHUB].includes(c.plugin)
-    ? c.scope.map((s) => new GitHubProject({
-      id: `${s.options?.owner}/${s.options?.repo}`,
-      key: `${s.options?.owner}/${s.options?.repo}`,
-      owner: s.options?.owner,
-      repo: s.options?.repo,
-      value: `${s.options?.owner}/${s.options?.repo}`,
-      title: `${s.options?.owner}/${s.options?.repo}`,
-    }))
-    : [], [])
+  const getGithubProjects = useCallback(
+    (c) =>
+      [Providers.GITHUB].includes(c.plugin)
+        ? c.scope.map(
+            (s) =>
+              new GitHubProject({
+                id: `${s.options?.owner}/${s.options?.repo}`,
+                key: `${s.options?.owner}/${s.options?.repo}`,
+                owner: s.options?.owner,
+                repo: s.options?.repo,
+                value: `${s.options?.owner}/${s.options?.repo}`,
+                title: `${s.options?.owner}/${s.options?.repo}`
+              })
+          )
+        : [],
+    []
+  )
 
-  const getGitlabProjects = useCallback((c) => [Providers.GITLAB].includes(c.plugin)
-    ? c.scope.map((s) => new GitlabProject({
-      id: s.options?.projectId,
-      key: s.options?.projectId,
-      value: s.options?.projectId,
-      title: s.options?.title || `Project ${s.options?.projectId}`,
-    }))
-    : [], [])
+  const getGitlabProjects = useCallback(
+    (c) =>
+      [Providers.GITLAB].includes(c.plugin)
+        ? c.scope.map(
+            (s) =>
+              new GitlabProject({
+                id: s.options?.projectId,
+                key: s.options?.projectId,
+                value: s.options?.projectId,
+                title: s.options?.title || `Project ${s.options?.projectId}`
+              })
+          )
+        : [],
+    []
+  )
 
-  const getAdvancedGithubProjects = useCallback((t, providerId) => [Providers.GITHUB].includes(providerId)
-    ? [new GitHubProject({
-        id: `${t.options?.owner}/${t.options?.repo}`,
-        key: `${t.options?.owner}/${t.options?.repo}`,
-        value: `${t.options?.owner}/${t.options?.repo}`,
-        title: `${t.options?.owner}/${t.options?.repo}`,
-      })]
-    : [], [])
+  const getAdvancedGithubProjects = useCallback(
+    (t, providerId) =>
+      [Providers.GITHUB].includes(providerId)
+        ? [
+            new GitHubProject({
+              id: `${t.options?.owner}/${t.options?.repo}`,
+              key: `${t.options?.owner}/${t.options?.repo}`,
+              value: `${t.options?.owner}/${t.options?.repo}`,
+              title: `${t.options?.owner}/${t.options?.repo}`
+            })
+          ]
+        : [],
+    []
+  )
 
-  const getAdvancedGitlabProjects = useCallback((t, providerId) => [Providers.GITLAB].includes(providerId)
-    ? [new GitlabProject({
-        id: t.options?.projectId,
-        key: t.options?.projectId,
-        value: t.options?.projectId,
-        title: t.options?.title || `Project ${t.options?.projectId}`,
-      })]
-    : [], [])
+  const getAdvancedGitlabProjects = useCallback(
+    (t, providerId) =>
+      [Providers.GITLAB].includes(providerId)
+        ? [
+            new GitlabProject({
+              id: t.options?.projectId,
+              key: t.options?.projectId,
+              value: t.options?.projectId,
+              title: t.options?.title || `Project ${t.options?.projectId}`
+            })
+          ]
+        : [],
+    []
+  )
 
-  const getAdvancedJiraBoards = useCallback((t, providerId) => [Providers.JIRA].includes(providerId)
-    ? [new JiraBoard({
-        id: t.options?.boardId,
-        key: t.options?.boardId,
-        value: t.options?.boardId,
-        title: t.options?.title || `Board ${t.options?.boardId}`,
-      })]
-    : [], [])
+  const getAdvancedJiraBoards = useCallback(
+    (t, providerId) =>
+      [Providers.JIRA].includes(providerId)
+        ? [
+            new JiraBoard({
+              id: t.options?.boardId,
+              key: t.options?.boardId,
+              value: t.options?.boardId,
+              title: t.options?.title || `Board ${t.options?.boardId}`
+            })
+          ]
+        : [],
+    []
+  )
 
   // (altered version from PR No. 2926)
   // const getJiraMappedBoards = useCallback((options = []) => {
@@ -349,20 +449,25 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
   //   })
   // }, [])
 
-  const getJiraMappedBoards = useCallback((boardIds = [], boardListItems = []) => {
-    return boardIds.map((bId, sIdx) => {
-      const boardObject = boardListItems.find(apiBoard => Number(apiBoard.id) === Number(bId))
-      return new JiraBoard({
-        ...boardObject,
-        id: boardObject?.id || bId || sIdx + 1,
-        key: sIdx,
-        value: boardObject?.name || `Board ${bId}`,
-        title: boardObject?.name || `Board ${bId}`,
-        type: boardObject?.type || 'scrum',
-        location: { ...boardObject?.location }
+  const getJiraMappedBoards = useCallback(
+    (boardIds = [], boardListItems = []) => {
+      return boardIds.map((bId, sIdx) => {
+        const boardObject = boardListItems.find(
+          (apiBoard) => Number(apiBoard.id) === Number(bId)
+        )
+        return new JiraBoard({
+          ...boardObject,
+          id: boardObject?.id || bId || sIdx + 1,
+          key: sIdx,
+          value: boardObject?.name || `Board ${bId}`,
+          title: boardObject?.name || `Board ${bId}`,
+          type: boardObject?.type || 'scrum',
+          location: { ...boardObject?.location }
+        })
       })
-    })
-  }, [])
+    },
+    []
+  )
 
   const getDefaultEntities = useCallback((providerId) => {
     let entities = []
@@ -372,7 +477,9 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
         entities = DEFAULT_DATA_ENTITIES
         break
       case Providers.JIRA:
-        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
+        entities = DEFAULT_DATA_ENTITIES.filter(
+          (d) => d.name === 'issue-tracking' || d.name === 'cross-domain'
+        )
         break
       case Providers.JENKINS:
         entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
@@ -384,12 +491,22 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
     return entities
   }, [])
 
-  const createNormalConnection = useCallback((blueprint, c, cIdx, DEFAULT_DATA_ENTITIES, connections = [], connectionsList = [], boardsList = []) => (
-    {
+  const createNormalConnection = useCallback(
+    (
+      blueprint,
+      c,
+      cIdx,
+      DEFAULT_DATA_ENTITIES,
+      connections = [],
+      connectionsList = [],
+      boardsList = []
+    ) => ({
       ...c,
       mode: BlueprintMode.NORMAL,
       // @IMPORTANT: Preserve Original LIST INDEX ID!
-      id: connectionsList.find(lC => lC.value === c.connectionId && lC.provider === c.plugin)?.id,
+      id: connectionsList.find(
+        (lC) => lC.value === c.connectionId && lC.provider === c.plugin
+      )?.id,
       connectionId: c.connectionId,
       value: c.connectionId,
       provider: integrationsData.find((i) => i.id === c.plugin),
@@ -397,9 +514,17 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
       providerId: c.plugin,
       plugin: c.plugin,
       icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
-      name: connections.find(pC => pC.connectionId === c.connectionId && pC.plugin === c.plugin)?.name || `${ProviderLabels[c.plugin?.toUpperCase()]} #${c.connectionId || cIdx}`,
-      entities: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)?.title),
-      entityList: c.scope[0]?.entities?.map((e) => DEFAULT_DATA_ENTITIES.find(de => de.value === e)),
+      name:
+        connections.find(
+          (pC) => pC.connectionId === c.connectionId && pC.plugin === c.plugin
+        )?.name ||
+        `${ProviderLabels[c.plugin?.toUpperCase()]} #${c.connectionId || cIdx}`,
+      entities: c.scope[0]?.entities?.map(
+        (e) => DEFAULT_DATA_ENTITIES.find((de) => de.value === e)?.title
+      ),
+      entityList: c.scope[0]?.entities?.map((e) =>
+        DEFAULT_DATA_ENTITIES.find((de) => de.value === e)
+      ),
       projects: [Providers.GITLAB].includes(c.plugin)
         ? getGitlabProjects(c)
         : getGithubProjects(c),
@@ -412,7 +537,13 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
       boardsList: boardsList,
       transformations: c.scope.map((s) => ({ ...s.transformation })),
       transformationStates: c.scope.map((s) =>
-        Object.values(s.transformation).some((v) => Array.isArray(v) ? v.length > 0 : (v && typeof v === 'object' ? Object.keys(v)?.length > 0 : v?.toString().length > 0))
+        Object.values(s.transformation).some((v) =>
+          Array.isArray(v)
+            ? v.length > 0
+            : v && typeof v === 'object'
+            ? Object.keys(v)?.length > 0
+            : v?.toString().length > 0
+        )
           ? 'Added'
           : '-'
       ),
@@ -424,15 +555,26 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
       isSingleStage: true,
       stage: 1,
       totalStages: 1
-    }
-  ), [getGithubProjects, getGitlabProjects])
+    }),
+    [getGithubProjects, getGitlabProjects]
+  )
 
-  const createAdvancedConnection = useCallback((blueprint, c, cIdx, DEFAULT_DATA_ENTITIES, connections = [], connectionsList = [], boardsList = []) => (
-    {
+  const createAdvancedConnection = useCallback(
+    (
+      blueprint,
+      c,
+      cIdx,
+      DEFAULT_DATA_ENTITIES,
+      connections = [],
+      connectionsList = [],
+      boardsList = []
+    ) => ({
       ...c,
       mode: BlueprintMode.ADVANCED,
       // @IMPORTANT: Preserve Original LIST INDEX ID!
-      id: connectionsList.find(lC => lC.value === c.options?.connectionId && lC.provider === c.plugin)?.id,
+      id: connectionsList.find(
+        (lC) => lC.value === c.options?.connectionId && lC.provider === c.plugin
+      )?.id,
       connectionId: c.options?.connectionId,
       value: c.options?.connectionId,
       provider: integrationsData.find((i) => i.id === c.plugin),
@@ -440,40 +582,66 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
       plugin: c.plugin,
       providerId: c.plugin,
       icon: ProviderIcons[c.plugin] ? ProviderIcons[c.plugin](18, 18) : null,
-      name: connections.find(pC => pC.connectionId === c.options?.connectionId && pC.provider === c.plugin)?.name || `Connection ID #${c.options?.connectionId || cIdx}`,
+      name:
+        connections.find(
+          (pC) =>
+            pC.connectionId === c.options?.connectionId &&
+            pC.provider === c.plugin
+        )?.name || `Connection ID #${c.options?.connectionId || cIdx}`,
       projects: [Providers.GITLAB].includes(c.plugin)
         ? getAdvancedGitlabProjects(c, c.plugin)
         : getAdvancedGithubProjects(c, c.plugin),
       entities: ['-'],
       entitityList: getDefaultEntities(c.plugin),
       boards: [Providers.JIRA].includes(c.plugin)
-        ? getAdvancedJiraBoards(c, c.plugin).map(bId => `Board ${bId}`)
+        ? getAdvancedJiraBoards(c, c.plugin).map((bId) => `Board ${bId}`)
         : [],
       boardIds: [Providers.JIRA].includes(c.plugin)
         ? getAdvancedJiraBoards(c, c.plugin)
         : [],
       boardsList: [Providers.JIRA].includes(c.plugin)
-        ? getAdvancedJiraBoards(c, c.plugin).map(bId => `Board ${bId}`)
+        ? getAdvancedJiraBoards(c, c.plugin).map((bId) => `Board ${bId}`)
         : [],
       transformations: [],
-      transformationStates: typeof c.options?.transformationRules === 'object' &&
-        Object.values(c.options?.transformationRules || {}).some(v => (Array.isArray(v) && v.length > 0) || v.toString().length > 0)
-        ? ['Added'] : ['-'],
+      transformationStates:
+        typeof c.options?.transformationRules === 'object' &&
+        Object.values(c.options?.transformationRules || {}).some(
+          (v) => (Array.isArray(v) && v.length > 0) || v.toString().length > 0
+        )
+          ? ['Added']
+          : ['-'],
       scope: c,
       task: c,
       editable: false,
       advancedEditable: true,
       plan: blueprint?.plan,
-      isMultiStage: Array.isArray(blueprint?.plan) && blueprint?.plan.length > 1,
-      isSingleStage: Array.isArray(blueprint?.plan) && blueprint?.plan.length === 1,
-      stage: blueprint?.plan.findIndex((s, sId) => s.find(t => JSON.stringify(t) === JSON.stringify(c))) + 1,
-      totalStages: blueprint?.plan?.length,
-    }
-  ), [getAdvancedGithubProjects, getAdvancedGitlabProjects, getAdvancedJiraBoards, getDefaultEntities])
+      isMultiStage:
+        Array.isArray(blueprint?.plan) && blueprint?.plan.length > 1,
+      isSingleStage:
+        Array.isArray(blueprint?.plan) && blueprint?.plan.length === 1,
+      stage:
+        blueprint?.plan.findIndex((s, sId) =>
+          s.find((t) => JSON.stringify(t) === JSON.stringify(c))
+        ) + 1,
+      totalStages: blueprint?.plan?.length
+    }),
+    [
+      getAdvancedGithubProjects,
+      getAdvancedGitlabProjects,
+      getAdvancedJiraBoards,
+      getDefaultEntities
+    ]
+  )
 
   useEffect(() => {
-    console.log('>>>>> DATA SCOPES MANAGER: INITIALIZING TRANSFORMATION RULES...', selectedProjects)
-    console.log('>>>>> DATA SCOPES MANAGER: INITIALIZING TRANSFORMATION RULES...', selectedBoards)
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: INITIALIZING TRANSFORMATION RULES...',
+      selectedProjects
+    )
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: INITIALIZING TRANSFORMATION RULES...',
+      selectedBoards
+    )
   }, [selectedProjects, selectedBoards, initializeTransformations])
 
   useEffect(() => {
@@ -481,27 +649,46 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
     switch (connection?.provider?.id) {
       case Providers.GITHUB:
       case Providers.GITLAB:
-        setProjects(p => ({ ...p, [connection?.id]: connection?.projects || [] }))
-        setEntities(e => ({ ...e, [connection?.id]: connection?.entityList || [] }))
-        connection?.projects.forEach((p, pIdx) => setTransformationSettings(connection.transformations[pIdx], p?.id))
+        setProjects((p) => ({
+          ...p,
+          [connection?.id]: connection?.projects || []
+        }))
+        setEntities((e) => ({
+          ...e,
+          [connection?.id]: connection?.entityList || []
+        }))
+        connection?.projects.forEach((p, pIdx) =>
+          setTransformationSettings(connection.transformations[pIdx], p?.id)
+        )
         break
       case Providers.JIRA:
         // fetchBoards()
         // fetchIssueTypes()
         // fetchFields()
-        setBoards(b => ({ ...b, [connection?.id]: connection?.boardsList || [] }))
-        setEntities(e => ({ ...e, [connection?.id]: connection?.entityList || [] }))
-        connection?.boardIds.forEach((bId, bIdx) => setTransformationSettings(connection.transformations[bIdx], bId))
+        setBoards((b) => ({
+          ...b,
+          [connection?.id]: connection?.boardsList || []
+        }))
+        setEntities((e) => ({
+          ...e,
+          [connection?.id]: connection?.entityList || []
+        }))
+        connection?.boardIds.forEach((bId, bIdx) =>
+          setTransformationSettings(connection.transformations[bIdx], bId)
+        )
         break
       case Providers.JENKINS:
-        setEntities(e => ({ ...e, [connection?.id]: connection?.entityList || [] }))
-        setTransformationSettings(connection.transformations[0], `C#${connection?.id}`)
+        setEntities((e) => ({
+          ...e,
+          [connection?.id]: connection?.entityList || []
+        }))
+        setTransformationSettings(
+          connection.transformations[0],
+          `C#${connection?.id}`
+        )
         break
     }
-  }, [
-    connection,
-    setTransformationSettings
-  ])
+  }, [connection, setTransformationSettings])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: Connection List...', connections)
@@ -532,16 +719,24 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
   }, [provider])
 
   useEffect(() => {
-    console.log('>>>>> DATA SCOPES MANAGER: INITIALIZE NEW CONNECTION TRANSFORMATIONS...', newConnections)
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: INITIALIZE NEW CONNECTION TRANSFORMATIONS...',
+      newConnections
+    )
     // @note: jenkins has no "project/board" entity associated!
     // transformations are based on the main connection scope...
-    const jenkinsTransformations = newConnections.filter(c => c.plugin === Providers.JENKINS).map(c => `C#${c?.id}`)
-    console.log('>>>>> DATA SCOPES MANAGER: JENKINS TRANSFORMATIONS SCOPES...', jenkinsTransformations)
+    const jenkinsTransformations = newConnections
+      .filter((c) => c.plugin === Providers.JENKINS)
+      .map((c) => `C#${c?.id}`)
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: JENKINS TRANSFORMATIONS SCOPES...',
+      jenkinsTransformations
+    )
     if (Array.isArray(jenkinsTransformations)) {
       setTransformations((cT) => ({
         ...jenkinsTransformations.reduce(initializeTransformations, {}),
         // Spread Current/Existing Transformations Settings
-        ...cT,
+        ...cT
       }))
     }
   }, [newConnections, initializeTransformations])
@@ -549,11 +744,14 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: INITIALIZE BOARDS...', boards)
     const boardTransformations = boards[connection?.id]
-    if (Array.isArray(boardTransformations) && boardTransformations?.length > 0) {
+    if (
+      Array.isArray(boardTransformations) &&
+      boardTransformations?.length > 0
+    ) {
       setTransformations((cT) => ({
         ...boardTransformations.reduce(initializeTransformations, {}),
         // Spread Current/Existing Transformations Settings
-        ...cT,
+        ...cT
       }))
     }
   }, [boards, connection?.id, initializeTransformations])
@@ -565,7 +763,7 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
       setTransformations((cT) => ({
         ...projectTransformations.reduce(initializeTransformations, {}),
         // Spread Current/Existing Transformations Settings
-        ...cT,
+        ...cT
       }))
     }
   }, [projects, connection?.id, initializeTransformations])
@@ -579,27 +777,45 @@ function useDataScopesManager ({ mode = DataScopeModes.CREATE, provider, bluepri
   }, [entities])
 
   useEffect(() => {
-    console.log('>>>>> DATA SCOPES MANAGER: TRANSFORMATIONS...', transformations)
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: TRANSFORMATIONS...',
+      transformations
+    )
   }, [transformations])
 
   useEffect(() => {
-    console.log('>>>>> DATA SCOPES MANAGER: CURRENT BLUEPRINT SETTINGS...', settings)
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: CURRENT BLUEPRINT SETTINGS...',
+      settings
+    )
   }, [settings])
 
   useEffect(() => {
-    console.log('>>>>> DATA SCOPES MANAGER: ACTIVE TRANSFORMATION RULES...', activeTransformation)
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: ACTIVE TRANSFORMATION RULES...',
+      activeTransformation
+    )
   }, [activeTransformation])
 
   useEffect(() => {
-    console.log('>>>>> DATA SCOPES MANAGER: ACTIVE PROJECT TRANSFORMATION RULES...', activeProjectTransformation)
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: ACTIVE PROJECT TRANSFORMATION RULES...',
+      activeProjectTransformation
+    )
   }, [activeProjectTransformation])
 
   useEffect(() => {
-    console.log('>>>>> DATA SCOPES MANAGER: ACTIVE BOARD TRANSFORMATION RULES...', activeBoardTransformation)
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: ACTIVE BOARD TRANSFORMATION RULES...',
+      activeBoardTransformation
+    )
   }, [activeBoardTransformation])
 
   useEffect(() => {
-    console.log('>>>>> DATA SCOPES MANAGER: MEMOIZED ACTIVE CONNECTION...', connection)
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: MEMOIZED ACTIVE CONNECTION...',
+      connection
+    )
   }, [connection])
 
   return {

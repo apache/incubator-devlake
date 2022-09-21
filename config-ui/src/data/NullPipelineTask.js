@@ -21,8 +21,7 @@ const NullPipelineTask = {
   createdAt: null,
   updatedAt: null,
   plugin: null,
-  options: {
-  },
+  options: {},
   status: 'TASK_CREATED',
   message: '',
   progress: 0,
@@ -34,6 +33,4 @@ const NullPipelineTask = {
   spentSeconds: 0
 }
 
-export {
-  NullPipelineTask
-}
+export { NullPipelineTask }

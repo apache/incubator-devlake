@@ -16,8 +16,17 @@
  *
  */
 import React from 'react'
-import { Providers, } from '@/data/Providers'
-import { Button, ButtonGroup, Colors, FormGroup, InputGroup, Intent, MenuItem, TagInput, } from '@blueprintjs/core'
+import { Providers } from '@/data/Providers'
+import {
+  Button,
+  ButtonGroup,
+  Colors,
+  FormGroup,
+  InputGroup,
+  Intent,
+  MenuItem,
+  TagInput
+} from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import RefDiffSettings from '@/components/pipelines/pipeline-settings/refdiff'
 
@@ -51,7 +60,7 @@ const ProviderSettings = (props) => {
     setRefDiffPairs = () => {},
     setRefDiffTasks = () => {},
     isEnabled = () => {},
-    isRunning = false,
+    isRunning = false
     // onReset = () => {}
   } = props
 
@@ -59,15 +68,29 @@ const ProviderSettings = (props) => {
 
   switch (providerId) {
     case Providers.JENKINS:
-      providerSettings = <p><strong style={{ fontWeight: 900 }}>AUTO-CONFIGURED</strong><br />No Additional Settings</p>
+      providerSettings = (
+        <p>
+          <strong style={{ fontWeight: 900 }}>AUTO-CONFIGURED</strong>
+          <br />
+          No Additional Settings
+        </p>
+      )
       break
     case Providers.JIRA:
       providerSettings = (
         <>
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
-            label={<strong>Connection ID<span className='requiredStar'>*</span></strong>}
-            labelInfo={<span style={{ display: 'block' }}>Choose Connection Instance ID</span>}
+            label={
+              <strong>
+                Connection ID<span className='requiredStar'>*</span>
+              </strong>
+            }
+            labelInfo={
+              <span style={{ display: 'block' }}>
+                Choose Connection Instance ID
+              </span>
+            }
             inline={false}
             labelFor='source-id'
             className=''
@@ -85,7 +108,9 @@ const ProviderSettings = (props) => {
                 fill={true}
                 items={connections}
                 activeItem={selectedConnection}
-                itemPredicate={(query, item) => item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+                itemPredicate={(query, item) =>
+                  item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0
+                }
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
                     active={modifiers.active}
@@ -103,8 +128,17 @@ const ProviderSettings = (props) => {
                 <Button
                   className='btn-connection-id-selector'
                   disabled={isRunning || !isEnabled(providerId)}
-                  style={{ justifyContent: 'space-between', minWidth: '206px', maxWidth: '290px', whiteSpace: 'nowrap' }}
-                  text={selectedConnection ? `${selectedConnection.title} [${selectedConnection.value}]` : 'Select Instance'}
+                  style={{
+                    justifyContent: 'space-between',
+                    minWidth: '206px',
+                    maxWidth: '290px',
+                    whiteSpace: 'nowrap'
+                  }}
+                  text={
+                    selectedConnection
+                      ? `${selectedConnection.title} [${selectedConnection.value}]`
+                      : 'Select Instance'
+                  }
                   rightIcon='double-caret-vertical'
                   fill
                 />
@@ -120,17 +154,21 @@ const ProviderSettings = (props) => {
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
             label={
-              <strong style={{ marginTop: '10px', display: 'inline-block' }}>Board ID<span className='requiredStar'>*</span>
+              <strong style={{ marginTop: '10px', display: 'inline-block' }}>
+                Board ID<span className='requiredStar'>*</span>
                 <span
                   className='badge-count'
                   style={{
                     opacity: isEnabled(providerId) ? 0.5 : 0.1
                   }}
-                >{boardId.length}
+                >
+                  {boardId.length}
                 </span>
               </strong>
-          }
-            labelInfo={<span style={{ display: 'block' }}>Enter JIRA Board ID.</span>}
+            }
+            labelInfo={
+              <span style={{ display: 'block' }}>Enter JIRA Board ID.</span>
+            }
             inline={false}
             labelFor='board-id'
             className=''
@@ -154,8 +192,8 @@ const ProviderSettings = (props) => {
                     minimal
                     onClick={() => setBoardId([])}
                   />
-              }
-                onKeyDown={e => e.key === 'Enter' && e.preventDefault()}
+                }
+                onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
                 className='input-board-id tagInput'
               />
             </div>
@@ -168,8 +206,14 @@ const ProviderSettings = (props) => {
         <>
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
-            label={<strong>Owner<span className='requiredStar'>*</span></strong>}
-            labelInfo={<span style={{ display: 'block' }}>Enter Project Owner</span>}
+            label={
+              <strong>
+                Owner<span className='requiredStar'>*</span>
+              </strong>
+            }
+            labelInfo={
+              <span style={{ display: 'block' }}>Enter Project Owner</span>
+            }
             inline={false}
             labelFor='owner'
             className=''
@@ -188,8 +232,14 @@ const ProviderSettings = (props) => {
           </FormGroup>
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
-            label={<strong>Repository Name<span className='requiredStar'>*</span></strong>}
-            labelInfo={<span style={{ display: 'block' }}>Enter Git repository</span>}
+            label={
+              <strong>
+                Repository Name<span className='requiredStar'>*</span>
+              </strong>
+            }
+            labelInfo={
+              <span style={{ display: 'block' }}>Enter Git repository</span>
+            }
             inline={false}
             labelFor='repository-name'
             className=''
@@ -216,8 +266,16 @@ const ProviderSettings = (props) => {
         <>
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
-            label={<strong>Connection ID<span className='requiredStar'>*</span></strong>}
-            labelInfo={<span style={{ display: 'block' }}>Choose Connection Instance ID</span>}
+            label={
+              <strong>
+                Connection ID<span className='requiredStar'>*</span>
+              </strong>
+            }
+            labelInfo={
+              <span style={{ display: 'block' }}>
+                Choose Connection Instance ID
+              </span>
+            }
             inline={false}
             labelFor='source-id'
             className=''
@@ -235,7 +293,9 @@ const ProviderSettings = (props) => {
                 fill={true}
                 items={connections}
                 activeItem={selectedConnection}
-                itemPredicate={(query, item) => item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+                itemPredicate={(query, item) =>
+                  item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0
+                }
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
                     active={modifiers.active}
@@ -253,8 +313,17 @@ const ProviderSettings = (props) => {
                 <Button
                   className='btn-connection-id-selector'
                   disabled={isRunning || !isEnabled(providerId)}
-                  style={{ justifyContent: 'space-between', minWidth: '206px', maxWidth: '290px', whiteSpace: 'nowrap' }}
-                  text={selectedConnection ? `${selectedConnection.title} [${selectedConnection.value}]` : 'Select Instance'}
+                  style={{
+                    justifyContent: 'space-between',
+                    minWidth: '206px',
+                    maxWidth: '290px',
+                    whiteSpace: 'nowrap'
+                  }}
+                  text={
+                    selectedConnection
+                      ? `${selectedConnection.title} [${selectedConnection.value}]`
+                      : 'Select Instance'
+                  }
                   rightIcon='double-caret-vertical'
                   fill
                 />
@@ -270,17 +339,21 @@ const ProviderSettings = (props) => {
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
             label={
-              <strong>Project ID<span className='requiredStar'>*</span>
+              <strong>
+                Project ID<span className='requiredStar'>*</span>
                 <span
                   className='badge-count'
                   style={{
                     opacity: isEnabled(providerId) ? 0.5 : 0.1
                   }}
-                >{projectId.length}
+                >
+                  {projectId.length}
                 </span>
               </strong>
-          }
-            labelInfo={<span style={{ display: 'block' }}>Enter GitLab Project ID.</span>}
+            }
+            labelInfo={
+              <span style={{ display: 'block' }}>Enter GitLab Project ID.</span>
+            }
             inline={false}
             labelFor='project-id'
             className=''
@@ -303,8 +376,8 @@ const ProviderSettings = (props) => {
                     minimal
                     onClick={() => setProjectId([])}
                   />
-              }
-                onKeyDown={e => e.key === 'Enter' && e.preventDefault()}
+                }
+                onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
                 className='input-project-id tagInput'
               />
             </div>
@@ -317,8 +390,14 @@ const ProviderSettings = (props) => {
         <>
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
-            label={<strong>Git URL<span className='requiredStar'>*</span></strong>}
-            labelInfo={<span style={{ display: 'block' }}>Enter Repository URL</span>}
+            label={
+              <strong>
+                Git URL<span className='requiredStar'>*</span>
+              </strong>
+            }
+            labelInfo={
+              <span style={{ display: 'block' }}>Enter Repository URL</span>
+            }
             inline={false}
             labelFor='git-url'
             className=''
@@ -338,8 +417,14 @@ const ProviderSettings = (props) => {
           </FormGroup>
           <FormGroup
             disabled={isRunning || !isEnabled(providerId)}
-            label={<strong style={{ marginTop: '10px', display: 'inline-block' }}>Repository ID<span className='requiredStar'>*</span></strong>}
-            labelInfo={<span style={{ display: 'block' }}>Choose Repo Column ID</span>}
+            label={
+              <strong style={{ marginTop: '10px', display: 'inline-block' }}>
+                Repository ID<span className='requiredStar'>*</span>
+              </strong>
+            }
+            labelInfo={
+              <span style={{ display: 'block' }}>Choose Repo Column ID</span>
+            }
             inline={false}
             labelFor='gitextractor-repo-id'
             className=''
@@ -360,15 +445,23 @@ const ProviderSettings = (props) => {
             /> */}
             <ButtonGroup>
               <Select
-                disabled={isRunning || !isEnabled(providerId) || repositories.length === 0}
+                disabled={
+                  isRunning ||
+                  !isEnabled(providerId) ||
+                  repositories.length === 0
+                }
                 className='selector-gitextractor-repo-id'
-                popoverProps={{ popoverClassName: 'gitextractor-repo-id-popover' }}
+                popoverProps={{
+                  popoverClassName: 'gitextractor-repo-id-popover'
+                }}
                 multiple
                 inline={true}
                 fill={true}
                 items={repositories}
                 activeItem={selectedGithubRepo}
-                itemPredicate={(query, item) => item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+                itemPredicate={(query, item) =>
+                  item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0
+                }
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
                     active={modifiers.active}
@@ -386,11 +479,24 @@ const ProviderSettings = (props) => {
                 <Button
                   className='btn-gitextractor-repo-id-selector'
                   disabled={isRunning || !isEnabled(providerId)}
-                  style={{ justifyContent: 'space-between', minWidth: '220px', maxWidth: '420px', whiteSpace: 'nowrap' }}
-                  text={(
-                  selectedGithubRepo
-                    ? <>{selectedGithubRepo.title} <span style={{ fontSize: '10px', color: Colors.GRAY3 }}>[{selectedGithubRepo.value}]</span></>
-                    : 'Select Repository')}
+                  style={{
+                    justifyContent: 'space-between',
+                    minWidth: '220px',
+                    maxWidth: '420px',
+                    whiteSpace: 'nowrap'
+                  }}
+                  text={
+                    selectedGithubRepo ? (
+                      <>
+                        {selectedGithubRepo.title}{' '}
+                        <span style={{ fontSize: '10px', color: Colors.GRAY3 }}>
+                          [{selectedGithubRepo.value}]
+                        </span>
+                      </>
+                    ) : (
+                      'Select Repository'
+                    )
+                  }
                   rightIcon='double-caret-vertical'
                   fill
                 />

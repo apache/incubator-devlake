@@ -25,7 +25,8 @@ export const Container = styled.div`
 export const Wrapper = styled.div`
   margin-top: 12px;
   background: #ffffff;
-  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1), 0px 1.6px 8px rgba(0, 0, 0, 0.07);
+  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1),
+    0px 1.6px 8px rgba(0, 0, 0, 0.07);
   border-radius: 4px;
 `
 

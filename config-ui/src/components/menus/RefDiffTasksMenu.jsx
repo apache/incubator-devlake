@@ -16,31 +16,29 @@
  *
  */
 import React from 'react'
-import {
-  Menu,
-  MenuItem,
-  Checkbox,
-  Intent
-} from '@blueprintjs/core'
+import { Menu, MenuItem, Checkbox, Intent } from '@blueprintjs/core'
 
 const RefDiffTasksMenu = (props) => {
   const {
     tasks = [
       { task: 'calculateCommitsDiff', label: 'Calculate Commits Diff' },
-      { task: 'calculateIssuesDiff', label: 'Calculate Issues Diff' }],
+      { task: 'calculateIssuesDiff', label: 'Calculate Issues Diff' }
+    ],
     selected = [],
     onSelect = () => {}
   } = props
   return (
     <Menu className='tasks-menu refdiff-tasks-menu' minimal='true'>
-      <label style={{
-        fontSize: '10px',
-        fontWeight: 800,
-        textTransform: 'uppercase',
-        padding: '6px 8px',
-        display: 'block'
-      }}
-      >AVAILABLE PLUGIN TASKS
+      <label
+        style={{
+          fontSize: '10px',
+          fontWeight: 800,
+          textTransform: 'uppercase',
+          padding: '6px 8px',
+          display: 'block'
+        }}
+      >
+        AVAILABLE PLUGIN TASKS
       </label>
       {tasks.map((t, tIdx) => (
         <MenuItem
@@ -50,7 +48,7 @@ const RefDiffTasksMenu = (props) => {
           active={Boolean(selected.includes(t.task))}
           // onClick={(e) => e.preventDefault()}
           data-task={t}
-          text={(
+          text={
             <>
               <Checkbox
                 intent={Intent.WARNING}
@@ -59,7 +57,7 @@ const RefDiffTasksMenu = (props) => {
                 onChange={(e) => onSelect(e, t)}
               />
             </>
-          )}
+          }
         />
       ))}
     </Menu>

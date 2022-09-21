@@ -26,7 +26,7 @@ import {
   Elevation,
   Popover,
   Card,
-  Colors,
+  Colors
 } from '@blueprintjs/core'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
 
@@ -97,25 +97,23 @@ const WorkflowActions = (props) => {
             text='Next Step'
             onClick={onNext}
             rightIcon={
-              validationErrors.length > 0
-                ? (
-                  <Popover
-                    interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
-                    defaultIsOpen={true}
-                    enforceFocus={false}
-                  >
-                    <Icon
-                      icon='warning-sign'
-                      size={12}
-                      color={Colors.ORANGE5}
-                      style={{ outline: 'none', margin: '0 3px 2px 3px' }}
-                    />
-                    <div style={{ padding: '5px' }}>
-                      <FormValidationErrors errors={validationErrors} />
-                    </div>
-                  </Popover>
-                  )
-                : null
+              validationErrors.length > 0 ? (
+                <Popover
+                  interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
+                  defaultIsOpen={true}
+                  enforceFocus={false}
+                >
+                  <Icon
+                    icon='warning-sign'
+                    size={12}
+                    color={Colors.ORANGE5}
+                    style={{ outline: 'none', margin: '0 3px 2px 3px' }}
+                  />
+                  <div style={{ padding: '5px' }}>
+                    <FormValidationErrors errors={validationErrors} />
+                  </div>
+                </Popover>
+              ) : null
             }
           />
         </div>

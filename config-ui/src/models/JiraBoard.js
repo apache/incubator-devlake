@@ -32,7 +32,7 @@
  * @property {project|board?} variant
  */
 class JiraBoard {
-  constructor (data = {}) {
+  constructor(data = {}) {
     this.id = data?.id || null
     this.key = data?.key || this.id || null
     this.self = data?.self || null
@@ -42,30 +42,32 @@ class JiraBoard {
     this.shortTitle = data?.shortTitle || null
     this.icon = data?.icon || null
     this.type = data?.type || 'kanban'
-    this.location = data?.location ? { ...data?.location } : {
-      projectId: null,
-      displayName: null,
-      projectName: null,
-      projectKey: null,
-      projectTypeKey: null,
-      avatarURI: null,
-      name: null
-    }
+    this.location = data?.location
+      ? { ...data?.location }
+      : {
+          projectId: null,
+          displayName: null,
+          projectName: null,
+          projectKey: null,
+          projectTypeKey: null,
+          avatarURI: null,
+          name: null
+        }
 
     this.useApi = data?.useApi || true
     this.variant = data?.variant || 'board'
   }
 
-  get (property) {
+  get(property) {
     return this[property]
   }
 
-  set (property, value) {
+  set(property, value) {
     this[property] = value
     return this.property
   }
 
-  getConfiguredEntityId () {
+  getConfiguredEntityId() {
     return this.id
   }
 }

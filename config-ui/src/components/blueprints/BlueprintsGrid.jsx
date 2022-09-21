@@ -19,8 +19,11 @@ import React, { useEffect, useCallback } from 'react'
 import dayjs from '@/utils/time'
 import {
   ButtonGroup,
-  Button, Icon, Intent,
-  Card, Elevation,
+  Button,
+  Icon,
+  Intent,
+  Card,
+  Elevation,
   PopoverInteractionKind,
   Popover,
   Tooltip,
@@ -59,9 +62,12 @@ const BlueprintsGrid = (props) => {
   } = props
 
   // eslint-disable-next-line no-unused-vars
-  const getCronPreset = useCallback((presetName) => {
-    return cronPresets.find(p => p.name === presetName)
-  }, [cronPresets])
+  const getCronPreset = useCallback(
+    (presetName) => {
+      return cronPresets.find((p) => p.name === presetName)
+    },
+    [cronPresets]
+  )
 
   useEffect(() => {
     console.log('>> FILTER BLUEPRINTS BY INTERVAL....', activeFilterStatus)
@@ -78,50 +84,66 @@ const BlueprintsGrid = (props) => {
           alignContent: 'flex-start'
         }}
       >
-        <ButtonGroup className='filter-status-group blueprints-filter-group' style={{ zIndex: 0 }}>
+        <ButtonGroup
+          className='filter-status-group blueprints-filter-group'
+          style={{ zIndex: 0 }}
+        >
           <Button
             intent={!activeFilterStatus ? Intent.PRIMARY : Intent.NONE}
             active={!activeFilterStatus}
             onClick={() => onFilter(null)}
-          >All
+          >
+            All
           </Button>
           <Button
-            intent={activeFilterStatus === 'hourly' ? Intent.PRIMARY : Intent.NONE}
+            intent={
+              activeFilterStatus === 'hourly' ? Intent.PRIMARY : Intent.NONE
+            }
             active={activeFilterStatus === 'hourly'}
             onClick={() => onFilter('hourly')}
           >
             Hourly
           </Button>
           <Button
-            intent={activeFilterStatus === 'daily' ? Intent.PRIMARY : Intent.NONE}
+            intent={
+              activeFilterStatus === 'daily' ? Intent.PRIMARY : Intent.NONE
+            }
             active={activeFilterStatus === 'daily'}
             onClick={() => onFilter('daily')}
           >
             Daily
           </Button>
           <Button
-            intent={activeFilterStatus === 'weekly' ? Intent.PRIMARY : Intent.NONE}
+            intent={
+              activeFilterStatus === 'weekly' ? Intent.PRIMARY : Intent.NONE
+            }
             active={activeFilterStatus === 'weekly'}
             onClick={() => onFilter('weekly')}
           >
             Weekly
           </Button>
           <Button
-            intent={activeFilterStatus === 'monthly' ? Intent.PRIMARY : Intent.NONE}
+            intent={
+              activeFilterStatus === 'monthly' ? Intent.PRIMARY : Intent.NONE
+            }
             active={activeFilterStatus === 'monthly'}
             onClick={() => onFilter('monthly')}
           >
             Monthly
           </Button>
           <Button
-            intent={activeFilterStatus === 'manual' ? Intent.PRIMARY : Intent.NONE}
+            intent={
+              activeFilterStatus === 'manual' ? Intent.PRIMARY : Intent.NONE
+            }
             active={activeFilterStatus === 'manual'}
             onClick={() => onFilter('manual')}
           >
             Manual
           </Button>
           <Button
-            intent={activeFilterStatus === 'custom' ? Intent.PRIMARY : Intent.NONE}
+            intent={
+              activeFilterStatus === 'custom' ? Intent.PRIMARY : Intent.NONE
+            }
             active={activeFilterStatus === 'custom'}
             onClick={() => onFilter('custom')}
           >
@@ -144,27 +166,32 @@ const BlueprintsGrid = (props) => {
         }}
       >
         <div
-          className='blueprints-list-grid' style={{
+          className='blueprints-list-grid'
+          style={{
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
             minWidth: '830px'
           }}
         >
-          {(blueprints).map((b, bIdx) => (
+          {blueprints.map((b, bIdx) => (
             <div key={`blueprint-row-key-${bIdx}`}>
               <div
                 style={{
                   display: 'flex',
                   width: '100%',
                   minHeight: '48px',
-                  borderBottom: isActiveBlueprint(b.id) && expandDetails ? 'none' : '1px solid #eee',
+                  borderBottom:
+                    isActiveBlueprint(b.id) && expandDetails
+                      ? 'none'
+                      : '1px solid #eee',
                   backgroundColor: !b.enable ? '#f8f8f8' : 'inherit',
-                  color: !b.enable ? '#555555' : 'inherit',
+                  color: !b.enable ? '#555555' : 'inherit'
                 }}
               >
                 <div
-                  className='blueprint-row' style={{
+                  className='blueprint-row'
+                  style={{
                     display: 'flex',
                     width: '100%',
                     justifyContent: 'space-between',
@@ -174,14 +201,18 @@ const BlueprintsGrid = (props) => {
                     position: 'relative'
                   }}
                 >
-                  <div className='blueprint-id' style={{ flex: 1, maxWidth: '100px' }}>
+                  <div
+                    className='blueprint-id'
+                    style={{ flex: 1, maxWidth: '100px' }}
+                  >
                     <div style={{ height: '24px', lineHeight: '24px' }}>
-                      <label style={{
-                        marginLeft: '25px',
-                        fontSize: '9px',
-                        fontWeight: '400',
-                        color: '#777777'
-                      }}
+                      <label
+                        style={{
+                          marginLeft: '25px',
+                          fontSize: '9px',
+                          fontWeight: '400',
+                          color: '#777777'
+                        }}
                       >
                         ID
                       </label>
@@ -189,7 +220,9 @@ const BlueprintsGrid = (props) => {
                     <Button
                       className='bp-row-expand-trigger'
                       onClick={() => expandBlueprint(b)}
-                      small minimal style={{
+                      small
+                      minimal
+                      style={{
                         minHeight: '20px',
                         minWidth: '20px',
                         marginTop: '-3px',
@@ -199,8 +232,17 @@ const BlueprintsGrid = (props) => {
                       }}
                     >
                       <Icon
-                        size={12} color={isActiveBlueprint(b.id) && expandDetails ? Colors.BLUE3 : Colors.GRAY2}
-                        icon={isActiveBlueprint(b.id) && expandDetails ? 'collapse-all' : 'expand-all'}
+                        size={12}
+                        color={
+                          isActiveBlueprint(b.id) && expandDetails
+                            ? Colors.BLUE3
+                            : Colors.GRAY2
+                        }
+                        icon={
+                          isActiveBlueprint(b.id) && expandDetails
+                            ? 'collapse-all'
+                            : 'expand-all'
+                        }
                         style={{ margin: '0' }}
                       />
                     </Button>
@@ -208,47 +250,63 @@ const BlueprintsGrid = (props) => {
                   </div>
                   <div
                     className='blueprint-name'
-                    style={{ flex: 2, minWidth: '176px', fontWeight: 800, cursor: 'pointer' }}
+                    style={{
+                      flex: 2,
+                      minWidth: '176px',
+                      fontWeight: 800,
+                      cursor: 'pointer'
+                    }}
                     onClick={() => expandBlueprint(b)}
                   >
                     <div style={{ height: '24px', lineHeight: '24px' }}>
-                      <label style={{
-                        fontSize: '9px',
-                        fontWeight: '400',
-                        color: '#777777'
-                      }}
+                      <label
+                        style={{
+                          fontSize: '9px',
+                          fontWeight: '400',
+                          color: '#777777'
+                        }}
                       >
                         Blueprint Name
                       </label>
                     </div>
                     {b.name}
                   </div>
-                  <div className='blueprint-interval' style={{ flex: 1, minWidth: '60px' }}>
+                  <div
+                    className='blueprint-interval'
+                    style={{ flex: 1, minWidth: '60px' }}
+                  >
                     <div style={{ height: '24px', lineHeight: '24px' }}>
-                      <label style={{
-                        fontSize: '9px',
-                        fontWeight: '400',
-                        color: '#777777'
-                      }}
+                      <label
+                        style={{
+                          fontSize: '9px',
+                          fontWeight: '400',
+                          color: '#777777'
+                        }}
                       >
                         Frequency
                       </label>
                     </div>
                     {b.interval}
                   </div>
-                  <div className='blueprint-next-rundate' style={{ flex: 1, whiteSpace: 'nowrap' }}>
+                  <div
+                    className='blueprint-next-rundate'
+                    style={{ flex: 1, whiteSpace: 'nowrap' }}
+                  >
                     <div style={{ height: '24px', lineHeight: '24px' }}>
-                      <label style={{
-                        fontSize: '9px',
-                        fontWeight: '400',
-                        color: '#777777'
-                      }}
+                      <label
+                        style={{
+                          fontSize: '9px',
+                          fontWeight: '400',
+                          color: '#777777'
+                        }}
                       >
                         Next Run Date
                       </label>
                     </div>
                     <div>
-                      {b.isManual ? 'Manual' : dayjs(getNextRunDate(b.cronConfig)).format('L LTS')}
+                      {b.isManual
+                        ? 'Manual'
+                        : dayjs(getNextRunDate(b.cronConfig)).format('L LTS')}
                     </div>
                     {/* <div>
                       <span style={{ color: b.enable ? Colors.GREEN5 : Colors.GRAY3, position: 'absolute', bottom: '4px' }}>
@@ -256,19 +314,34 @@ const BlueprintsGrid = (props) => {
                       </span>
                     </div> */}
                   </div>
-                  <div className='blueprint-actions' style={{ flex: 1, textAlign: 'right' }}>
+                  <div
+                    className='blueprint-actions'
+                    style={{ flex: 1, textAlign: 'right' }}
+                  >
                     <div style={{ height: '24px', lineHeight: '24px' }}>
-                      <label style={{
-                        fontSize: '9px',
-                        fontWeight: '400',
-                        color: '#777777'
-                      }}
+                      <label
+                        style={{
+                          fontSize: '9px',
+                          fontWeight: '400',
+                          color: '#777777'
+                        }}
                       >
-                   &nbsp;
+                        &nbsp;
                       </label>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', justifySelf: 'flex-end' }}>
-                      <Button small minimal style={{ marginLeft: 'auto', marginRight: '10px' }} onClick={() => configureBlueprint(b)}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifySelf: 'flex-end'
+                      }}
+                    >
+                      <Button
+                        small
+                        minimal
+                        style={{ marginLeft: 'auto', marginRight: '10px' }}
+                        onClick={() => configureBlueprint(b)}
+                      >
                         <Tooltip
                           content='Blueprint Status'
                           interactionKind={PopoverInteractionKind.HOVER}
@@ -279,7 +352,12 @@ const BlueprintsGrid = (props) => {
                           <Icon icon='pulse' size={16} color={Colors.GRAY3} />
                         </Tooltip>
                       </Button>
-                      <Button small minimal style={{ marginRight: '10px' }} onClick={() => configureBlueprintSettings(b)}>
+                      <Button
+                        small
+                        minimal
+                        style={{ marginRight: '10px' }}
+                        onClick={() => configureBlueprintSettings(b)}
+                      >
                         <Tooltip
                           content='Blueprint Settings'
                           interactionKind={PopoverInteractionKind.HOVER}
@@ -291,8 +369,17 @@ const BlueprintsGrid = (props) => {
                         </Tooltip>
                       </Button>
                       <Popover position={Position.LEFT} disabled>
-                        <Button disabled small minimal style={{ marginRight: '10px' }}>
-                          <Icon icon='trash' color={Colors.LIGHT_GRAY3} size={15} />
+                        <Button
+                          disabled
+                          small
+                          minimal
+                          style={{ marginRight: '10px' }}
+                        >
+                          <Icon
+                            icon='trash'
+                            color={Colors.LIGHT_GRAY3}
+                            size={15}
+                          />
                         </Button>
                         <DeletePopover
                           activeBlueprint={b}
@@ -314,19 +401,53 @@ const BlueprintsGrid = (props) => {
               </div>
               <Collapse isOpen={expandDetails && activeBlueprint.id === b.id}>
                 <Card
-                  elevation={Elevation.TWO} style={{
+                  elevation={Elevation.TWO}
+                  style={{
                     padding: '0',
                     margin: '30px 30px',
                     minWidth: '860px',
                     backgroundColor: !b.enable ? '#f8f8f8' : 'initial'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '0', padding: '10px' }}>
-                    <div style={{ letterSpacing: '1px', fontWeight: 800, whiteSpace: 'nowrap' }}>
-                      <Icon icon='bold' color={Colors.BLUE4} size={14} style={{ marginRight: '5px' }} /> BLUEPRINT ID {activeBlueprint?.id}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      margin: '0',
+                      padding: '10px'
+                    }}
+                  >
+                    <div
+                      style={{
+                        letterSpacing: '1px',
+                        fontWeight: 800,
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      <Icon
+                        icon='bold'
+                        color={Colors.BLUE4}
+                        size={14}
+                        style={{ marginRight: '5px' }}
+                      />{' '}
+                      BLUEPRINT ID {activeBlueprint?.id}
                       {isLoading && (
-                        <span style={{ paddingLeft: '20px', fontWeight: 700, color: '#777777', fontSize: '11px' }}>
-                          <span style={{ display: 'inline-block', marginRight: '10px', marginTop: '2px' }}>
+                        <span
+                          style={{
+                            paddingLeft: '20px',
+                            fontWeight: 700,
+                            color: '#777777',
+                            fontSize: '11px'
+                          }}
+                        >
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              marginRight: '10px',
+                              marginTop: '2px'
+                            }}
+                          >
                             <Spinner size={12} />
                           </span>
                           LOADING ASSOCIATED PIPELINES...
@@ -339,7 +460,8 @@ const BlueprintsGrid = (props) => {
                           backgroundColor: b.enable
                             ? Colors.GREEN3
                             : Colors.GRAY3
-                        }} round='true'
+                        }}
+                        round='true'
                       >
                         {b.enable ? 'ACTIVE' : 'INACTIVE'}
                       </Tag>
@@ -348,46 +470,87 @@ const BlueprintsGrid = (props) => {
                   <Divider style={{ marginRight: 0, marginLeft: 0 }} />
                   <div style={{ padding: '20px', display: 'flex' }}>
                     <div style={{ flex: 2, paddingRight: '30px' }}>
-                      <h3 style={{ margin: 0, textTransform: 'uppercase' }}>Run Schedule</h3>
+                      <h3 style={{ margin: 0, textTransform: 'uppercase' }}>
+                        Run Schedule
+                      </h3>
                       <p style={{ margin: 0 }}>
                         Based on the current CRON settings, here are next{' '}
                         <strong>5</strong> expected data collection dates.
                       </p>
                       <div style={{ margin: '10px 0' }}>
-                        {activeBlueprint?.id && blueprintSchedule.map((s, sIdx) => (
-                          <div key={`run-schedule-event-key${sIdx}`} style={{ padding: '6px 4px', opacity: b.enable ? 1 : 0.5 }}>
-                            <Icon
-                              icon='calendar' size={14}
-                              color={b.enable ? Colors.BLUE4 : Colors.GRAY4}
-                              style={{ marginRight: '10px' }}
-                            />
-                            {dayjs(s).format('L LTS')}
-                          </div>
-                        ))}
+                        {activeBlueprint?.id &&
+                          blueprintSchedule.map((s, sIdx) => (
+                            <div
+                              key={`run-schedule-event-key${sIdx}`}
+                              style={{
+                                padding: '6px 4px',
+                                opacity: b.enable ? 1 : 0.5
+                              }}
+                            >
+                              <Icon
+                                icon='calendar'
+                                size={14}
+                                color={b.enable ? Colors.BLUE4 : Colors.GRAY4}
+                                style={{ marginRight: '10px' }}
+                              />
+                              {dayjs(s).format('L LTS')}
+                            </div>
+                          ))}
                       </div>
-                      <div className='related-pipelines-list' style={{ marginBottom: '20px' }}>
+                      <div
+                        className='related-pipelines-list'
+                        style={{ marginBottom: '20px' }}
+                      >
                         {!isLoading && (
-                          <h3 style={{ margin: '0 0 5px 0', textTransform: 'uppercase' }}>
-                            Historical Runs <small style={{ color: Colors.GRAY5 }}>(last 5)</small>
+                          <h3
+                            style={{
+                              margin: '0 0 5px 0',
+                              textTransform: 'uppercase'
+                            }}
+                          >
+                            Historical Runs{' '}
+                            <small style={{ color: Colors.GRAY5 }}>
+                              (last 5)
+                            </small>
                           </h3>
                         )}
-                        {!isLoading && pipelines.length === 0 && (<p>No Pipelines have been found for this blueprint.</p>)}
-                        {!isLoading && pipelines.slice(0, 5).map((p, pIdx) => (
-                          <div
-                            key={`pipeline-run-key-${pIdx}`}
-                            className='pipeline-run-entry'
-                            style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', padding: '4px 0' }}
-                          >
+                        {!isLoading && pipelines.length === 0 && (
+                          <p>
+                            No Pipelines have been found for this blueprint.
+                          </p>
+                        )}
+                        {!isLoading &&
+                          pipelines.slice(0, 5).map((p, pIdx) => (
                             <div
-                              className='pipeline-id'
-                              style={{ minWidth: '60px', paddingRight: '15px', fontWeight: 'bold' }}
+                              key={`pipeline-run-key-${pIdx}`}
+                              className='pipeline-run-entry'
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                alignItems: 'center',
+                                padding: '4px 0'
+                              }}
                             >
-                              #{p.id}
-                            </div>
-                            <div className='pipeline-created' style={{ minWidth: '180px', paddingRight: '15px' }}>
-                              {dayjs(p.createdAt).format('L LTS')}
-                            </div>
-                            {/* <div className='pipeline-name' style={{ flex: 1, paddingRight: '15px' }}>
+                              <div
+                                className='pipeline-id'
+                                style={{
+                                  minWidth: '60px',
+                                  paddingRight: '15px',
+                                  fontWeight: 'bold'
+                                }}
+                              >
+                                #{p.id}
+                              </div>
+                              <div
+                                className='pipeline-created'
+                                style={{
+                                  minWidth: '180px',
+                                  paddingRight: '15px'
+                                }}
+                              >
+                                {dayjs(p.createdAt).format('L LTS')}
+                              </div>
+                              {/* <div className='pipeline-name' style={{ flex: 1, paddingRight: '15px' }}>
                               <span
                                 style={{
                                   display: 'block',
@@ -399,39 +562,61 @@ const BlueprintsGrid = (props) => {
                               >{p.name}
                               </span>
                             </div> */}
-                            <div style={{ paddingRight: '15px', color: Colors.GRAY2, whiteSpace: 'nowrap' }}>
-                              {p.status === 'TASK_RUNNING'
-                                ? dayjs(p.createdAt).toNow(true)
-                                : dayjs(p.updatedAt).from(p.createdAt, true)}
-                            </div>
-                            <div>{p.status?.replace('TASK_', '')}</div>
-                            <div style={{ padding: '0 15px' }}>
-                              {/* <Button
+                              <div
+                                style={{
+                                  paddingRight: '15px',
+                                  color: Colors.GRAY2,
+                                  whiteSpace: 'nowrap'
+                                }}
+                              >
+                                {p.status === 'TASK_RUNNING'
+                                  ? dayjs(p.createdAt).toNow(true)
+                                  : dayjs(p.updatedAt).from(p.createdAt, true)}
+                              </div>
+                              <div>{p.status?.replace('TASK_', '')}</div>
+                              <div style={{ padding: '0 15px' }}>
+                                {/* <Button
                                 onClick={() => onViewPipeline(b.blueprintId)}
                                 icon='eye-open'
                                 size={14}
                                 color={Colors.GRAY3}
                                 small minimal
                               /> */}
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
                       </div>
 
                       {!b.enable && (
                         <p style={{ marginTop: '10px 0 0 0', fontSize: '9px' }}>
-                          <Icon icon='warning-sign' size={11} color={Colors.ORANGE5} style={{ float: 'left', marginRight: '5px' }} />
-                          Blueprint is NOT Enabled / Active this schedule will not run.
+                          <Icon
+                            icon='warning-sign'
+                            size={11}
+                            color={Colors.ORANGE5}
+                            style={{ float: 'left', marginRight: '5px' }}
+                          />
+                          Blueprint is NOT Enabled / Active this schedule will
+                          not run.
                         </p>
                       )}
                     </div>
                     <div style={{ flex: 1 }}>
                       <label style={{ color: Colors.GRAY1 }}>Blueprint</label>
-                      <h3 style={{ marginTop: 0, fontSize: '16px', fontWeight: 800 }}>
+                      <h3
+                        style={{
+                          marginTop: 0,
+                          fontSize: '16px',
+                          fontWeight: 800
+                        }}
+                      >
                         {b.name}
                       </h3>
-                      <label style={{ color: Colors.GRAY1 }}>Crontab Configuration</label>
-                      <h3 style={{ margin: '0 0 20px 0', fontSize: '16px' }}>{b.cronConfig}</h3>
+                      <label style={{ color: Colors.GRAY1 }}>
+                        Crontab Configuration
+                      </label>
+                      <h3 style={{ margin: '0 0 20px 0', fontSize: '16px' }}>
+                        {b.cronConfig}
+                      </h3>
 
                       <label style={{ color: Colors.GRAY1 }}>Next Run</label>
                       <h3 style={{ margin: '0 0 20px 0', fontSize: '16px' }}>
@@ -439,14 +624,15 @@ const BlueprintsGrid = (props) => {
                       </h3>
 
                       {/* <label style={{ color: Colors.GRAY3 }}>Operations</label> */}
-                      <div style={{
-                        marginTop: '5px',
-                        display: 'flex',
-                        justifySelf: 'flex-start',
-                        alignItems: 'center',
-                        justifyContent: 'left',
-                        fontSize: '10px'
-                      }}
+                      <div
+                        style={{
+                          marginTop: '5px',
+                          display: 'flex',
+                          justifySelf: 'flex-start',
+                          alignItems: 'center',
+                          justifyContent: 'left',
+                          fontSize: '10px'
+                        }}
                       >
                         {/* <Button
                           intent={Intent.PRIMARY}
@@ -473,25 +659,26 @@ const BlueprintsGrid = (props) => {
                         /> */}
                       </div>
                     </div>
-
                   </div>
                 </Card>
-
               </Collapse>
             </div>
           ))}
-          {(blueprints.length === 0) && (
+          {blueprints.length === 0 && (
             <div style={{ padding: '12px' }}>
-              <h3 style={{
-                fontWeight: 800,
-                letterSpacing: '2px',
-                textTransform: 'uppercase',
-                margin: 0,
-              }}
-              >0 Blueprints
+              <h3
+                style={{
+                  fontWeight: 800,
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase',
+                  margin: 0
+                }}
+              >
+                0 Blueprints
               </h3>
-              <p style={{ margin: 0 }}>There are no blueprints for the current status
-                {' '}<strong>{activeFilterStatus}</strong>.
+              <p style={{ margin: 0 }}>
+                There are no blueprints for the current status{' '}
+                <strong>{activeFilterStatus}</strong>.
               </p>
             </div>
           )}

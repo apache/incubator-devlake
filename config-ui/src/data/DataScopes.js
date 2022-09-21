@@ -21,6 +21,4 @@ const DataScopeModes = {
   EDIT: 'edit'
 }
 
-export {
-  DataScopeModes
-}
+export { DataScopeModes }

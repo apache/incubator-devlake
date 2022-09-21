@@ -16,12 +16,7 @@
  *
  */
 import React from 'react'
-import {
-  Divider,
-  Elevation,
-  Card,
-  Colors,
-} from '@blueprintjs/core'
+import { Divider, Elevation, Card, Colors } from '@blueprintjs/core'
 
 const AdvancedJSONValidation = (props) => {
   const {
@@ -42,7 +37,7 @@ const AdvancedJSONValidation = (props) => {
     // isRunning = false,
     isValidConfiguration = false,
     // advancedMode = false,
-    validationAdvancedError = null,
+    validationAdvancedError = null
     // validationErrors = [],
   } = props
 
@@ -71,7 +66,7 @@ const AdvancedJSONValidation = (props) => {
               style={{
                 // color: '#7497F7',
                 marginTop: '5px',
-                display: 'inline-block',
+                display: 'inline-block'
               }}
             >
               Find out more
@@ -88,7 +83,7 @@ const AdvancedJSONValidation = (props) => {
               rel='noreferrer'
               style={{
                 marginTop: '5px',
-                display: 'inline-block',
+                display: 'inline-block'
               }}
               onClick={onPrev}
             >
@@ -102,7 +97,7 @@ const AdvancedJSONValidation = (props) => {
             style={{
               borderRadius: '8px',
               backgroundColor: '#f0f0f0',
-              padding: '10px',
+              padding: '10px'
             }}
           >
             {rawConfiguration}
