@@ -80,6 +80,7 @@ type CommitLineChange struct {
 	ChangedType string `gorm:"type:varchar(255)"`
 	AuthorName  string `gorm:"type:varchar(255)"`
 	AuthorEmail string `gorm:"type:varchar(255)"`
+	PrevCommit  string `gorm:"type:varchar(255)"`
 }
 
 func (CommitLineChange) TableName() string {

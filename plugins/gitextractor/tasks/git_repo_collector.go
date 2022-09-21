@@ -84,6 +84,16 @@ func CollectGitTags(subTaskCtx core.SubTaskContext) errors.Error {
 	}
 	return repo.CollectTags(subTaskCtx)
 }
+func CollectGitDiffLines(subTaskCtx core.SubTaskContext) errors.Error {
+	repo := getGitRepo(subTaskCtx)
+	if count, err := repo.CountTags(); err != nil {
+		subTaskCtx.GetLogger().Error(err, "unable to get line content")
+		subTaskCtx.SetProgress(0, -1)
+	} else {
+		subTaskCtx.SetProgress(0, count)
+	}
+	return repo.CollectDiffLine(subTaskCtx)
+}
 
 func getGitRepo(subTaskCtx core.SubTaskContext) *parser.GitRepo {
 	repo, ok := subTaskCtx.GetData().(*parser.GitRepo)
@@ -91,6 +101,14 @@ func getGitRepo(subTaskCtx core.SubTaskContext) *parser.GitRepo {
 		panic("git repo reference not found on context")
 	}
 	return repo
+}
+
+var CollectGitDiffLineMeta = core.SubTaskMeta{
+	Name:             "collectDiffLine",
+	EntryPoint:       CollectGitDiffLines,
+	EnabledByDefault: true,
+	Description:      "collect git commit diff line into Domain Layer Tables",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 var CollectGitCommitMeta = core.SubTaskMeta{
