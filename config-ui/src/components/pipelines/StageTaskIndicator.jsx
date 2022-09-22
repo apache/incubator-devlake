@@ -22,7 +22,7 @@ import {
   Colors,
   Tooltip,
   Position,
-  Intent,
+  Intent
 } from '@blueprintjs/core'
 import { ProviderIcons } from '@/data/Providers'
 

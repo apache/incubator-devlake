@@ -16,27 +16,28 @@
  *
  */
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import {
-  Popover,
-  Menu,
-  MenuItem,
-  Button
-} from '@blueprintjs/core'
+import { Popover, Menu, MenuItem, Button } from '@blueprintjs/core'
 
 import { integrationsData } from '@/data/integrations'
 
 const PagingOptionsMenu = (props) => {
-  const { pageOptions = [10, 25, 50, 75, 100], perPage = 10, setPerPage = (page) => undefined } = props
+  const {
+    pageOptions = [10, 25, 50, 75, 100],
+    perPage = 10,
+    setPerPage = (page) => undefined
+  } = props
   return (
     <Menu>
-      {pageOptions && pageOptions.map(pageOption => (
-        <MenuItem
-          key={pageOption}
-          active={perPage === pageOption}
-          icon='key-option'
-          text={`${pageOption} Records`}
-          onClick={() => setPerPage(pageOption)}
-        />))}
+      {pageOptions &&
+        pageOptions.map((pageOption) => (
+          <MenuItem
+            key={pageOption}
+            active={perPage === pageOption}
+            icon='key-option'
+            text={`${pageOption} Records`}
+            onClick={() => setPerPage(pageOption)}
+          />
+        ))}
     </Menu>
   )
 }
@@ -50,7 +51,7 @@ const Controls = (props) => {
     maxPage,
     onPrevPage = () => {},
     onNextPage = () => {},
-    isLoading = false,
+    isLoading = false
   } = props
 
   return (
@@ -92,7 +93,7 @@ const Controls = (props) => {
   )
 }
 
-function usePaginator (initialLoadingState = false) {
+function usePaginator(initialLoadingState = false) {
   // const [integrations, setIntegrations] = useState(integrationsData)
 
   const [data, setData] = useState([])
@@ -116,36 +117,45 @@ function usePaginator (initialLoadingState = false) {
   const [pageOptions, setPageOptions] = useState([5, 25, 50, 75, 100])
   const [currentPage, setCurrentPage] = useState(1)
   const [perPage, setPerPage] = useState(pageOptions[1])
-  const maxPage = useMemo(() => Math.max(1, Math.ceil(filteredData.length / perPage)), [filteredData, perPage])
+  const maxPage = useMemo(
+    () => Math.max(1, Math.ceil(filteredData.length / perPage)),
+    [filteredData, perPage]
+  )
 
   // others
   const [isLoading, setIsLoading] = useState(initialLoadingState || false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [refresh, setRefresh] = useState(false)
 
-  const setDataWithDefault = useCallback((data) => {
-    console.log('>> SET ALL DATA...', data)
-    setData(data || [])
-  }, [setData])
+  const setDataWithDefault = useCallback(
+    (data) => {
+      console.log('>> SET ALL DATA...', data)
+      setData(data || [])
+    },
+    [setData]
+  )
 
   const goNextPage = useCallback(() => {
     console.log('>>> PAGINATOR: GO NEXT PAGE ...')
-    setCurrentPage(currentPage => Math.min(maxPage, currentPage + 1))
+    setCurrentPage((currentPage) => Math.min(maxPage, currentPage + 1))
     // setRefresh((r) => !r)
     console.log('>>>> NEXT PAGE', currentPage)
   }, [maxPage, currentPage])
 
   const goPrevPage = useCallback(() => {
     console.log('>>> PAGINATOR: GO PREV PAGE ...')
-    setCurrentPage(currentPage => Math.max(1, currentPage - 1))
+    setCurrentPage((currentPage) => Math.max(1, currentPage - 1))
     // setRefresh((r) => !r)
     console.log('>>>> PREV PAGE', currentPage)
   }, [currentPage])
 
-  const changePerPage = useCallback((perPage) => {
-    setPerPage(perPage)
-    setCurrentPage(1)
-  }, [setPerPage])
+  const changePerPage = useCallback(
+    (perPage) => {
+      setPerPage(perPage)
+      setCurrentPage(1)
+    },
+    [setPerPage]
+  )
 
   const resetPage = useCallback(() => {
     setCurrentPage(1)
@@ -161,10 +171,10 @@ function usePaginator (initialLoadingState = false) {
 
   useEffect(() => {
     paginateData()
-  }, [/* refresh, */perPage, filteredData, currentPage, paginateData])
+  }, [/* refresh, */ perPage, filteredData, currentPage, paginateData])
 
   useEffect(() => {
-    setCurrentPage(currentPage => Math.min(maxPage, currentPage))
+    setCurrentPage((currentPage) => Math.min(maxPage, currentPage))
   }, [maxPage, setCurrentPage])
 
   const renderControlsComponent = useCallback(() => {
@@ -177,11 +187,24 @@ function usePaginator (initialLoadingState = false) {
         perPage={perPage}
         isLoading={isLoading}
         pagingOptionsMenu={
-          <PagingOptionsMenu pageOptions={pageOptions} perPage={perPage} setPerPage={changePerPage} />
+          <PagingOptionsMenu
+            pageOptions={pageOptions}
+            perPage={perPage}
+            setPerPage={changePerPage}
+          />
         }
       />
     )
-  }, [currentPage, maxPage, perPage, pageOptions, isLoading, goNextPage, goPrevPage, changePerPage])
+  }, [
+    currentPage,
+    maxPage,
+    perPage,
+    pageOptions,
+    isLoading,
+    goNextPage,
+    goPrevPage,
+    changePerPage
+  ])
 
   return {
     goNextPage,
@@ -202,7 +225,7 @@ function usePaginator (initialLoadingState = false) {
     setFilterFunc,
     // setMaxPage,
     setIsLoading,
-    setIsProcessing,
+    setIsProcessing
   }
 }
 

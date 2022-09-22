@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -76,10 +77,9 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOption
 	if op.IssueTypeRequirement == "" {
 		op.IssueTypeRequirement = "^(feat|feature|proposal|requirement)$"
 	}
-	if op.DeployTagPattern == "" {
-		op.DeployTagPattern = "(?i)deploy"
+	if op.DeploymentPattern == "" {
+		op.DeploymentPattern = "(?i)deploy"
 	}
-
 	// find the needed GitHub now
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("connectionId is invalid")

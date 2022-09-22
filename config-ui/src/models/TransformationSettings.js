@@ -20,17 +20,17 @@
  * @typedef {object} TransformationSettings
  */
 class TransformationSettings {
-  constructor (data = {}) {
+  constructor(data = {}) {
     for (const [key, value] of Object.entries(data)) {
       this[[key]] = value
     }
   }
 
-  get (property) {
+  get(property) {
     return this[property]
   }
 
-  set (property, value) {
+  set(property, value) {
     this[property] = value
     return this.property
   }

@@ -16,11 +16,9 @@
  *
  */
 import { useState, useEffect, useCallback } from 'react'
-import {
-  Providers,
-} from '@/data/Providers'
+import { Providers } from '@/data/Providers'
 
-function useConnectionValidation ({
+function useConnectionValidation({
   activeProvider,
   name,
   endpointUrl,
@@ -32,10 +30,7 @@ function useConnectionValidation ({
 }) {
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
-  const [validURIs, setValidURIs] = useState([
-    'http://',
-    'https://'
-  ])
+  const [validURIs, setValidURIs] = useState(['http://', 'https://'])
 
   const clear = () => {
     setErrors([])
@@ -46,13 +41,20 @@ function useConnectionValidation ({
     console.log('>> VALIDATING PROVIDER ID: ', activeProvider?.id)
     console.log('>> RUNNING FORM VALIDATIONS AGAINST FIELD VALUES...')
     console.log(
-      'NAME', name,
-      'ENDPOINT URL', endpointUrl,
-      'PROXY URL', proxy,
-      'RATE LIMIT', rateLimitPerHour,
-      'TOKEN', token,
-      'USERNAME', username,
-      'PASSWORD', password
+      'NAME',
+      name,
+      'ENDPOINT URL',
+      endpointUrl,
+      'PROXY URL',
+      proxy,
+      'RATE LIMIT',
+      rateLimitPerHour,
+      'TOKEN',
+      token,
+      'USERNAME',
+      username,
+      'PASSWORD',
+      password
     )
 
     if (!name) {
@@ -75,7 +77,11 @@ function useConnectionValidation ({
       errs.push('Endpoint URL must end in trailing slash (/)')
     }
 
-    if (proxy && proxy !== '' && !validURIs.some(uri => proxy?.startsWith(uri))) {
+    if (
+      proxy &&
+      proxy !== '' &&
+      !validURIs.some((uri) => proxy?.startsWith(uri))
+    ) {
       errs.push('Proxy URL must be valid HTTP/S protocol')
     }
 

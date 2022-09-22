@@ -39,7 +39,7 @@ type TestConnectionRequest struct {
 }
 
 type TransformationRules struct {
-	DeployTagPattern string `mapstructure:"deployTagPattern" json:"deployTagPattern"`
+	DeploymentPattern string `mapstructure:"deploymentPattern" json:"deploymentPattern"`
 }
 
 func (JenkinsConnection) TableName() string {

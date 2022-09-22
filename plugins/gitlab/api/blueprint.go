@@ -40,112 +40,175 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 	var err errors.Error
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
-		// handle taskOptions and transformationRules, by dumping them to taskOptions
-		transformationRules := make(map[string]interface{})
-		if len(scopeElem.Transformation) > 0 {
-			err = errors.Convert(json.Unmarshal(scopeElem.Transformation, &transformationRules))
-			if err != nil {
-				return nil, err
-			}
-		}
-		// refdiff
-		if refdiffRules, ok := transformationRules["refdiff"]; ok && refdiffRules != nil {
-			// add a new task to next stage
-			j := i + 1
-			if j == len(plan) {
-				plan = append(plan, nil)
-			}
-			plan[j] = core.PipelineStage{
-				{
-					Plugin:  "refdiff",
-					Options: refdiffRules.(map[string]interface{}),
-				},
-			}
-			// remove it from github transformationRules
-			delete(transformationRules, "refdiff")
-		}
-		// construct task options for github
-		options := make(map[string]interface{})
-		err = errors.Convert(json.Unmarshal(scopeElem.Options, &options))
+		plan, err = processScope(subtaskMetas, connectionId, scopeElem, i, plan, nil, nil)
 		if err != nil {
 			return nil, err
 		}
-		options["connectionId"] = connectionId
-		options["transformationRules"] = transformationRules
-		// make sure task options is valid
-		op, err := tasks.DecodeAndValidateTaskOptions(options)
+	}
+	return plan, nil
+}
+
+func processScope(subtaskMetas []core.SubTaskMeta, connectionId uint64, scopeElem *core.BlueprintScopeV100, i int, plan core.PipelinePlan, apiRepo *tasks.GitlabApiProject, connection *models.GitlabConnection) (core.PipelinePlan, errors.Error) {
+	var err errors.Error
+	// handle taskOptions and transformationRules, by dumping them to taskOptions
+	transformationRules := make(map[string]interface{})
+	if len(scopeElem.Transformation) > 0 {
+		err = errors.Convert(json.Unmarshal(scopeElem.Transformation, &transformationRules))
 		if err != nil {
 			return nil, err
 		}
-		// construct subtasks
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
-		if err != nil {
-			return nil, err
+	}
+	// refdiff
+	if refdiffRules, ok := transformationRules["refdiff"]; ok && refdiffRules != nil {
+		// add a new task to next stage
+		j := i + 1
+		if j == len(plan) {
+			plan = append(plan, nil)
 		}
-		stage := plan[i]
-		if stage == nil {
-			stage = core.PipelineStage{}
+		plan[j] = core.PipelineStage{
+			{
+				Plugin:  "refdiff",
+				Options: refdiffRules.(map[string]interface{}),
+			},
 		}
-		stage = append(stage, &core.PipelineTask{
-			Plugin:   "gitlab",
-			Subtasks: subtasks,
-			Options:  options,
-		})
-		// collect git data by gitextractor if CODE was requested
-		if utils.StringsContains(scopeElem.Entities, core.DOMAIN_TYPE_CODE) {
-			// here is the tricky part, we have to obtain the repo id beforehand
-			connection := new(models.GitlabConnection)
+		// remove it from github transformationRules
+		delete(transformationRules, "refdiff")
+	}
+	// construct task options for github
+	options := make(map[string]interface{})
+	err = errors.Convert(json.Unmarshal(scopeElem.Options, &options))
+	if err != nil {
+		return nil, err
+	}
+	options["connectionId"] = connectionId
+	options["transformationRules"] = transformationRules
+	// make sure task options is valid
+	op, err := tasks.DecodeAndValidateTaskOptions(options)
+	if err != nil {
+		return nil, err
+	}
+	// construct subtasks
+	subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
+	if err != nil {
+		return nil, err
+	}
+	stage := plan[i]
+	if stage == nil {
+		stage = core.PipelineStage{}
+	}
+	stage = append(stage, &core.PipelineTask{
+		Plugin:   "gitlab",
+		Subtasks: subtasks,
+		Options:  options,
+	})
+	// collect git data by gitextractor if CODE was requested
+	if utils.StringsContains(scopeElem.Entities, core.DOMAIN_TYPE_CODE) {
+		// here is the tricky part, we have to obtain the repo id beforehand
+		if connection == nil {
+			connection = new(models.GitlabConnection)
 			err = connectionHelper.FirstById(connection, connectionId)
 			if err != nil {
 				return nil, err
 			}
-			token := strings.Split(connection.Token, ",")[0]
-			apiClient, err := helper.NewApiClient(
-				context.TODO(),
-				connection.Endpoint,
-				map[string]string{
-					"Authorization": fmt.Sprintf("Bearer %s", token),
-				},
-				10*time.Second,
-				connection.Proxy,
-				BasicRes,
-			)
-			if err != nil {
-				return nil, err
-			}
-			res, err := apiClient.Get(fmt.Sprintf("projects/%d", op.ProjectId), nil, nil)
-			if err != nil {
-				return nil, err
-			}
-			defer res.Body.Close()
-			if res.StatusCode != http.StatusOK {
-				return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code when requesting repo detail from %s", res.Request.URL.String()))
-			}
-			body, err := errors.Convert01(io.ReadAll(res.Body))
-			if err != nil {
-				return nil, err
-			}
-			apiRepo := new(tasks.GitlabApiProject)
-			err = errors.Convert(json.Unmarshal(body, apiRepo))
-			if err != nil {
-				return nil, err
-			}
-			cloneUrl, err := errors.Convert01(url.Parse(apiRepo.HttpUrlToRepo))
-			if err != nil {
-				return nil, err
-			}
-			cloneUrl.User = url.UserPassword("git", token)
-			stage = append(stage, &core.PipelineTask{
-				Plugin: "gitextractor",
-				Options: map[string]interface{}{
-					"url":    cloneUrl.String(),
-					"repoId": didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, apiRepo.GitlabId),
-					"proxy":  connection.Proxy,
-				},
-			})
-			// TODO, add refdiff in the future
 		}
-		plan[i] = stage
+		token := strings.Split(connection.Token, ",")[0]
+		if apiRepo == nil {
+			apiRepo = new(tasks.GitlabApiProject)
+			err = getApiRepo(connection, token, op, apiRepo)
+			if err != nil {
+				return nil, err
+			}
+		}
+		cloneUrl, err := errors.Convert01(url.Parse(apiRepo.HttpUrlToRepo))
+		if err != nil {
+			return nil, err
+		}
+		cloneUrl.User = url.UserPassword("git", token)
+		stage = append(stage, &core.PipelineTask{
+			Plugin: "gitextractor",
+			Options: map[string]interface{}{
+				"url":    cloneUrl.String(),
+				"repoId": didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, apiRepo.GitlabId),
+				"proxy":  connection.Proxy,
+			},
+		})
 	}
+	// dora
+	if productionPattern, ok := transformationRules["productionPattern"]; ok && productionPattern != nil {
+		j := i + 1
+		// add a new task to next stage
+		if j == len(plan) {
+			plan = append(plan, nil)
+		}
+		if plan[j] != nil {
+			j++
+		}
+		if j == len(plan) {
+			plan = append(plan, nil)
+		}
+		if apiRepo == nil {
+			if connection == nil {
+				connection = new(models.GitlabConnection)
+				err = connectionHelper.FirstById(connection, connectionId)
+				if err != nil {
+					return nil, err
+				}
+			}
+			token := strings.Split(connection.Token, ",")[0]
+			apiRepo = new(tasks.GitlabApiProject)
+			err = getApiRepo(connection, token, op, apiRepo)
+			if err != nil {
+				return nil, err
+			}
+		}
+		doraOption := make(map[string]interface{})
+		doraOption["repoId"] = didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, apiRepo.GitlabId)
+		doraOption["tasks"] = []string{"EnrichTaskEnv"}
+		doraRules := make(map[string]interface{})
+		doraRules["productionPattern"] = productionPattern
+		doraOption["transformationRules"] = doraRules
+		plan[j] = core.PipelineStage{
+			{
+				Plugin:  "dora",
+				Options: doraOption,
+			},
+		}
+		// remove it from github transformationRules
+		delete(transformationRules, "productionPattern")
+	}
+	plan[i] = stage
 	return plan, nil
+}
+
+func getApiRepo(connection *models.GitlabConnection, token string, op *tasks.GitlabOptions, apiRepo *tasks.GitlabApiProject) errors.Error {
+	apiClient, err := helper.NewApiClient(
+		context.TODO(),
+		connection.Endpoint,
+		map[string]string{
+			"Authorization": fmt.Sprintf("Bearer %s", token),
+		},
+		10*time.Second,
+		connection.Proxy,
+		BasicRes,
+	)
+	if err != nil {
+		return err
+	}
+	res, err := apiClient.Get(fmt.Sprintf("projects/%d", op.ProjectId), nil, nil)
+	if err != nil {
+		return err
+	}
+	//defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code when requesting repo detail from %s", res.Request.URL.String()))
+	}
+	body, err := errors.Convert01(io.ReadAll(res.Body))
+	if err != nil {
+		return err
+	}
+	err = errors.Convert(json.Unmarshal(body, apiRepo))
+	if err != nil {
+		return err
+	}
+	return nil
 }

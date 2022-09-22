@@ -24,9 +24,7 @@ const projectsData = [
   { id: 5, title: 'GL PRJ 789', value: 1211 },
   { id: 6, title: 'GL PRJ 22E', value: 34168 },
   { id: 7, title: 'GL PRJ 98Z', value: 9877673 },
-  { id: 8, title: 'GL PRJ RR5', value: 657493 },
+  { id: 8, title: 'GL PRJ RR5', value: 657493 }
 ]
 
-export {
-  projectsData
-}
+export { projectsData }

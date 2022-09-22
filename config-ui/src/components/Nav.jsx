@@ -54,7 +54,12 @@ const Nav = () => {
           <Icon icon='git-branch' size={16} />
         </a>
         <Navbar.Divider />
-        <a href='mailto:hello@merico.dev' rel='noreferrer' target='_blank' className='navIconLink'>
+        <a
+          href='mailto:hello@merico.dev'
+          rel='noreferrer'
+          target='_blank'
+          className='navIconLink'
+        >
           <Icon icon='envelope' size={16} />
         </a>
         <Navbar.Divider />
@@ -64,12 +69,25 @@ const Nav = () => {
         </a> */}
         {/* SLACK: ENABLED (Primary) */}
         <Popover position={Position.LEFT}>
-          <SlackIcon className='slackIcon' width={16} height={16} style={{ cursor: 'pointer' }} />
+          <SlackIcon
+            className='slackIcon'
+            width={16}
+            height={16}
+            style={{ cursor: 'pointer' }}
+          />
           <>
-            <div style={{ maxWidth: '200px', padding: '10px', fontSize: '11px' }}>
-              <SlackLogo width={131} height={49} style={{ display: 'block', margin: '0 auto' }} />
+            <div
+              style={{ maxWidth: '200px', padding: '10px', fontSize: '11px' }}
+            >
+              <SlackLogo
+                width={131}
+                height={49}
+                style={{ display: 'block', margin: '0 auto' }}
+              />
               <p style={{ textAlign: 'center' }}>
-                Want to interact with the <strong>Merico Community</strong>? Join us on our Slack Channel.<br />
+                Want to interact with the <strong>Merico Community</strong>?
+                Join us on our Slack Channel.
+                <br />
                 <a
                   href='https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ'
                   rel='noreferrer'

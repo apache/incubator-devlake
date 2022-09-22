@@ -16,18 +16,17 @@
  *
  */
 import React, { useEffect, useState } from 'react'
+import { useParams, Link, useHistory } from 'react-router-dom'
 import {
-  useParams,
-  Link,
-  useHistory
-} from 'react-router-dom'
-import {
-  Button, Card, Elevation, Colors,
+  Button,
+  Card,
+  Elevation,
+  Colors,
   Tooltip,
   Position,
   Spinner,
   Intent,
-  Icon,
+  Icon
 } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -43,13 +42,15 @@ import ContentLoader from '@/components/loaders/ContentLoader'
 
 import '@/styles/integration.scss'
 
-export default function ManageIntegration () {
+export default function ManageIntegration() {
   const history = useHistory()
 
   const { providerId } = useParams()
 
   const [integrations, setIntegrations] = useState(integrationsData)
-  const [activeProvider, setActiveProvider] = useState(integrations.find(p => p.id === providerId))
+  const [activeProvider, setActiveProvider] = useState(
+    integrations.find((p) => p.id === providerId)
+  )
   const [isRunningDelete, setIsRunningDelete] = useState(false)
 
   const [deleteId, setDeleteId] = useState(null)
@@ -64,7 +65,7 @@ export default function ManageIntegration () {
     fetchAllConnections,
     errors,
     deleteComplete,
-    testAllConnections,
+    testAllConnections
   } = useConnectionManager({
     activeProvider
   })
@@ -75,7 +76,11 @@ export default function ManageIntegration () {
 
   const editConnection = (connection, e) => {
     console.log(e.target.classList)
-    if (e.target && (!e.target.classList.contains('cell-actions') || !e.target.classList.contains('actions-link'))) {
+    if (
+      e.target &&
+      (!e.target.classList.contains('cell-actions') ||
+        !e.target.classList.contains('actions-link'))
+    ) {
       history.push(`/connections/edit/${activeProvider.id}/${connection.id}`)
     }
   }
@@ -91,7 +96,10 @@ export default function ManageIntegration () {
     try {
       deleteConnection(connection)
     } catch (e) {
-      ToastNotification.show({ message: `Failed to remove instance ${connection.name}`, icon: 'warning-sign' })
+      ToastNotification.show({
+        message: `Failed to remove instance ${connection.name}`,
+        icon: 'warning-sign'
+      })
     }
   }
 
@@ -100,12 +108,14 @@ export default function ManageIntegration () {
   }
 
   const getTestedConnection = (connection) => {
-    return testedConnections.find(tC => tC.id === connection.id)
+    return testedConnections.find((tC) => tC.id === connection.id)
   }
 
   const getConnectionStatus = (connection) => {
     let s = null
-    const connectionAfterTest = testedConnections.find(tC => tC.id === connection.id)
+    const connectionAfterTest = testedConnections.find(
+      (tC) => tC.id === connection.id
+    )
     switch (parseInt(connectionAfterTest?.status, 10)) {
       case 1:
         s = <strong style={{ color: Colors.GREEN3 }}>Online</strong>
@@ -115,8 +125,15 @@ export default function ManageIntegration () {
         break
       case 0:
       default:
-      // eslint-disable-next-line max-len
-        s = <strong style={{ color: Colors.GRAY4 }}><span style={{ float: 'right' }}><Spinner size={11} intent={Intent.NONE} /></span> Offline</strong>
+        // eslint-disable-next-line max-len
+        s = (
+          <strong style={{ color: Colors.GRAY4 }}>
+            <span style={{ float: 'right' }}>
+              <Spinner size={11} intent={Intent.NONE} />
+            </span>{' '}
+            Offline
+          </strong>
+        )
         break
     }
     return s
@@ -129,8 +146,8 @@ export default function ManageIntegration () {
   useEffect(() => {
     console.log('>> ACTIVE PROVIDER = ', providerId)
     setIntegrations(integrations)
-    setActiveProvider(integrations.find(p => p.id === providerId))
-  }, [])
+    setActiveProvider(integrations.find((p) => p.id === providerId))
+  }, [integrations, providerId])
 
   useEffect(() => {
     let flushTimeout
@@ -161,54 +178,109 @@ export default function ManageIntegration () {
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/integrations', icon: false, text: 'Integrations' },
-                { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}`, current: true },
+                {
+                  href: `/integrations/${activeProvider.id}`,
+                  icon: false,
+                  text: `${activeProvider.name}`,
+                  current: true
+                }
               ]}
             />
             <div className='headlineContainer'>
-              <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to='/integrations'>
+              <Link
+                style={{ float: 'right', marginLeft: '10px', color: '#777777' }}
+                to='/integrations'
+              >
                 <Icon icon='undo' size={16} /> Go Back
               </Link>
               <div style={{ display: 'flex' }}>
                 <div>
-                  <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span>
+                  <span style={{ marginRight: '10px' }}>
+                    {activeProvider.icon}
+                  </span>
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
-                    {activeProvider.name} Integration {activeProvider.isBeta && <><sup>(beta)</sup></>}
+                    {activeProvider.name} Integration{' '}
+                    {activeProvider.isBeta && (
+                      <>
+                        <sup>(beta)</sup>
+                      </>
+                    )}
                   </h1>
-                  <p className='page-description'>Manage integration and connections.</p>
+                  <p className='page-description'>
+                    Manage integration and connections.
+                  </p>
                 </div>
               </div>
             </div>
             <div className='manageProvider'>
               {errors && errors.length > 0 && (
-                <Card interactive={false} elevation={Elevation.TWO} style={{ width: '100%', marginBottom: '20px' }}>
+                <Card
+                  interactive={false}
+                  elevation={Elevation.TWO}
+                  style={{ width: '100%', marginBottom: '20px' }}
+                >
                   <div style={{}}>
                     <h4 className='bp3-heading'>
-                      <Icon icon='warning-sign' size={18} color={Colors.RED5} style={{ marginRight: '10px' }} />
+                      <Icon
+                        icon='warning-sign'
+                        size={18}
+                        color={Colors.RED5}
+                        style={{ marginRight: '10px' }}
+                      />
                       Warning &mdash; This integration has issues
                     </h4>
-                    <p className='bp3-ui-text bp3-text-large' style={{ margin: 0 }}>
-                      Please see below for all messages that will need to be resolved.
+                    <p
+                      className='bp3-ui-text bp3-text-large'
+                      style={{ margin: 0 }}
+                    >
+                      Please see below for all messages that will need to be
+                      resolved.
                     </p>
                   </div>
                 </Card>
               )}
               {isLoading && (
-                <ContentLoader title='Loading Connections ...' message='Please wait while the connections are loaded.' />
+                <ContentLoader
+                  title='Loading Connections ...'
+                  message='Please wait while the connections are loaded.'
+                />
               )}
               {!isLoading && connections && connections.length === 0 && (
-                <Card interactive={false} elevation={Elevation.TWO} style={{ width: '100%', marginBottom: '20px' }}>
+                <Card
+                  interactive={false}
+                  elevation={Elevation.TWO}
+                  style={{ width: '100%', marginBottom: '20px' }}
+                >
                   <div style={{}}>
                     <h4 className='bp3-heading'>
-                      <Icon icon='offline' size={18} color={Colors.GRAY3} style={{ marginRight: '10px' }} /> No Connection Entries
+                      <Icon
+                        icon='offline'
+                        size={18}
+                        color={Colors.GRAY3}
+                        style={{ marginRight: '10px' }}
+                      />{' '}
+                      No Connection Entries
                     </h4>
-                    <p className='bp3-ui-text bp3-text-large' style={{ margin: 0 }}>
-                      Please check your connection settings and try again.
-                      Also verify the authentication token (if applicable) for accuracy.
+                    <p
+                      className='bp3-ui-text bp3-text-large'
+                      style={{ margin: 0 }}
+                    >
+                      Please check your connection settings and try again. Also
+                      verify the authentication token (if applicable) for
+                      accuracy.
                     </p>
-                    <p className='bp3-monospace-text' style={{ margin: '0 0 20px 0', fontSize: '10px', color: Colors.GRAY4 }}>
-                      If the problem persists, please contact our team on <strong>GitHub</strong>
+                    <p
+                      className='bp3-monospace-text'
+                      style={{
+                        margin: '0 0 20px 0',
+                        fontSize: '10px',
+                        color: Colors.GRAY4
+                      }}
+                    >
+                      If the problem persists, please contact our team on{' '}
+                      <strong>GitHub</strong>
                     </p>
                     <p>
                       <Button
@@ -218,9 +290,13 @@ export default function ManageIntegration () {
                         text='Add Connection'
                         style={{ marginRight: '10px' }}
                       />
-                      <Button rightIcon='refresh' text='Refresh Connections' minimal onClick={refreshConnections} />
+                      <Button
+                        rightIcon='refresh'
+                        text='Refresh Connections'
+                        minimal
+                        onClick={refreshConnections}
+                      />
                     </p>
-
                   </div>
                 </Card>
               )}
@@ -237,13 +313,25 @@ export default function ManageIntegration () {
                       text='Add Connection'
                       style={{ marginRight: '10px' }}
                     />
-                    <Button rightIcon='refresh' text='Refresh Connections' minimal onClick={refreshConnections} />
+                    <Button
+                      rightIcon='refresh'
+                      text='Refresh Connections'
+                      minimal
+                      onClick={refreshConnections}
+                    />
                   </p>
-                  <Card interactive={false} elevation={Elevation.TWO} style={{ width: '100%', padding: '2px' }}>
-                    <table className='bp3-html-table bp3-html-table-bordered connections-table' style={{ width: '100%' }}>
+                  <Card
+                    interactive={false}
+                    elevation={Elevation.TWO}
+                    style={{ width: '100%', padding: '2px' }}
+                  >
+                    <table
+                      className='bp3-html-table bp3-html-table-bordered connections-table'
+                      style={{ width: '100%' }}
+                    >
                       <thead>
                         <tr>
-                          {!connectionLimitReached && (<th>ID</th>)}
+                          {!connectionLimitReached && <th>ID</th>}
                           <th>Connection Name</th>
                           <th>Endpoint</th>
                           <th>Status</th>
@@ -255,22 +343,37 @@ export default function ManageIntegration () {
                           <tr
                             key={`connection-row-${idx}`}
                             // eslint-disable-next-line max-len
-                            className={getTestedConnection(connection) && getTestedConnection(connection).status !== 1 ? 'connection-offline' : 'connection-online'}
+                            className={
+                              getTestedConnection(connection) &&
+                              getTestedConnection(connection).status !== 1
+                                ? 'connection-offline'
+                                : 'connection-online'
+                            }
                           >
                             {!connectionLimitReached && (
                               <td
                                 style={{ cursor: 'pointer' }}
                                 className='cell-name'
                               >
-                                <Tooltip content='Use this ConnectionID for Triggers' position={Position.TOP}>
-                                  <span style={{ color: Colors.BLUE3, fontWeight: 'bold' }}>
+                                <Tooltip
+                                  content='Use this ConnectionID for Triggers'
+                                  position={Position.TOP}
+                                >
+                                  <span
+                                    style={{
+                                      color: Colors.BLUE3,
+                                      fontWeight: 'bold'
+                                    }}
+                                  >
                                     {connection.id}
                                   </span>
                                 </Tooltip>
                               </td>
                             )}
                             <td
-                              onClick={(e) => configureConnection(connection, e)}
+                              onClick={(e) =>
+                                configureConnection(connection, e)
+                              }
                               style={{ cursor: 'pointer' }}
                               className='cell-name'
                             >
@@ -287,11 +390,17 @@ export default function ManageIntegration () {
                             </td>
                             <td
                               className='cell-endpoint'
-                              onClick={(e) => configureConnection(connection, e)}
+                              onClick={(e) =>
+                                configureConnection(connection, e)
+                              }
                               style={{ cursor: 'pointer' }}
                             >
                               {connection.endpoint || connection.Endpoint}
-                              {!connection.endpoint && !connection.Endpoint && (<span style={{ color: Colors.GRAY4 }}>( To be configured )</span>)}
+                              {!connection.endpoint && !connection.Endpoint && (
+                                <span style={{ color: Colors.GRAY4 }}>
+                                  ( To be configured )
+                                </span>
+                              )}
                             </td>
                             <td className='cell-status'>
                               {getConnectionStatus(connection)}
@@ -302,7 +411,9 @@ export default function ManageIntegration () {
                                 data-provider={connection.id}
                                 className='table-action-link actions-link'
                                 // onClick={() => editConnection(connection)}
-                                onClick={(e) => configureConnection(connection, e)}
+                                onClick={(e) =>
+                                  configureConnection(connection, e)
+                                }
                               >
                                 <Icon icon='settings' size={12} />
                                 Settings
@@ -312,13 +423,21 @@ export default function ManageIntegration () {
                                   id={deleteId}
                                   connection={connection}
                                   text='Delete'
-                                  showConfirmation={() => setDeleteId(connection.id)}
+                                  showConfirmation={() =>
+                                    setDeleteId(connection.id)
+                                  }
                                   onConfirm={runDeletion}
                                   onCancel={(e) => setDeleteId(false)}
-                                  isDisabled={isRunningDelete || isDeletingConnection}
-                                  isLoading={isRunningDelete || isDeletingConnection}
+                                  isDisabled={
+                                    isRunningDelete || isDeletingConnection
+                                  }
+                                  isLoading={
+                                    isRunningDelete || isDeletingConnection
+                                  }
                                 >
-                                  <DeleteConfirmationMessage title={`DELETE "${connection.name}"`} />
+                                  <DeleteConfirmationMessage
+                                    title={`DELETE "${connection.name}"`}
+                                  />
                                 </DeleteAction>
                               )}
                               {/* <a
@@ -345,19 +464,35 @@ export default function ManageIntegration () {
                       </tbody>
                     </table>
                     {connectionLimitReached && (
-                      <p style={{ margin: 0, padding: '10px', backgroundColor: '#f0f0f0', borderTop: '1px solid #cccccc' }}>
-                        <Icon icon='warning-sign' size='16' color={Colors.GRAY1} style={{ marginRight: '5px' }} />
-                        You have reached the maximum number of allowed connections for this provider.
+                      <p
+                        style={{
+                          margin: 0,
+                          padding: '10px',
+                          backgroundColor: '#f0f0f0',
+                          borderTop: '1px solid #cccccc'
+                        }}
+                      >
+                        <Icon
+                          icon='warning-sign'
+                          size='16'
+                          color={Colors.GRAY1}
+                          style={{ marginRight: '5px' }}
+                        />
+                        You have reached the maximum number of allowed
+                        connections for this provider.
                       </p>
                     )}
                   </Card>
-                  <p style={{
-                    textAlign: 'right',
-                    margin: '12px 6px',
-                    fontSize: '10px',
-                    color: '#aaaaaa'
-                  }}
-                  >Fetched <strong>{connections.length}</strong> connection(s) from Lake API for <strong>{activeProvider.name}</strong>
+                  <p
+                    style={{
+                      textAlign: 'right',
+                      margin: '12px 6px',
+                      fontSize: '10px',
+                      color: '#aaaaaa'
+                    }}
+                  >
+                    Fetched <strong>{connections.length}</strong> connection(s)
+                    from Lake API for <strong>{activeProvider.name}</strong>
                   </p>
                 </>
               )}

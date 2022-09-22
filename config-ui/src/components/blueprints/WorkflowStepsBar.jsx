@@ -23,7 +23,7 @@ import {
   Intent,
   Elevation,
   Card,
-  Colors,
+  Colors
 } from '@blueprintjs/core'
 import { WorkflowSteps } from '@/data/BlueprintWorkflow'
 

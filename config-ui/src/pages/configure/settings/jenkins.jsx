@@ -16,17 +16,38 @@
  *
  */
 import React, { useEffect, useState } from 'react'
+import { useParams, useHistory } from 'react-router-dom'
 import {
-  useParams,
-  useHistory
-} from 'react-router-dom'
+  Button,
+  ButtonGroup,
+  Classes,
+  Intent,
+  FormGroup,
+  InputGroup,
+  Radio,
+  RadioGroup,
+  Switch,
+  Tag,
+  Tooltip
+} from '@blueprintjs/core'
+
 import { DataEntityTypes } from '@/data/DataEntities'
+import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
-export default function JenkinsSettings (props) {
-  const { provider, connection, entities = [], onSettingsChange = () => {} } = props
+export default function JenkinsSettings(props) {
+  const {
+    provider,
+    transformation,
+    entityIdKey,
+    connection,
+    entities = [],
+    onSettingsChange = () => {},
+    isSaving = false,
+    isSavingConnection = false
+  } = props
   const history = useHistory()
   const { providerId, connectionId } = useParams()
 
@@ -49,14 +70,30 @@ export default function JenkinsSettings (props) {
     })
   }, [errors, onSettingsChange, connectionId, providerId])
 
+  useEffect(() => {
+    console.log('>>> JENKINS: DATA ENTITIES...', entities)
+  }, [entities])
+
   return (
     <>
-      <div className='headlineContainer'>
-        <h3 className='headline'>No Additional Settings</h3>
-        <p className='description'>
-          This integration doesn’t require any configuration.
-        </p>
-      </div>
+      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) ? (
+        <Deployment
+          provider={provider}
+          entities={entities}
+          entityIdKey={entityIdKey}
+          transformation={transformation}
+          connection={connection}
+          onSettingsChange={onSettingsChange}
+          isSaving={isSaving || isSavingConnection}
+        />
+      ) : (
+        <div className='headlineContainer'>
+          <h3 className='headline'>No Additional Settings</h3>
+          <p className='description'>
+            This integration doesn’t require any configuration.
+          </p>
+        </div>
+      )}
     </>
   )
 }

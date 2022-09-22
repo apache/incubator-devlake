@@ -38,7 +38,7 @@ import {
   MenuItem,
   Position,
   Colors,
-  Tag,
+  Tag
 } from '@blueprintjs/core'
 import { MultiSelect, Select } from '@blueprintjs/select'
 import InputValidationError from '@/components/validation/InputValidationError'
@@ -61,33 +61,29 @@ const DataEntitiesSelector = (props) => {
     getFieldError = () => {},
     itemRenderer = (item, { handleClick, modifiers }) => (
       <MenuItem
-        active={modifiers.active || selectedItems.find(i => i.id === item.id)}
-        disabled={
-          selectedItems.find(i => i.id === item.id)
-        }
+        active={modifiers.active || selectedItems.find((i) => i.id === item.id)}
+        disabled={selectedItems.find((i) => i.id === item.id)}
         key={item.value}
         // label=
         onClick={handleClick}
         text={
-          selectedItems.find(i => i.id === item.id)
-            ? (
-              <>
-                <input type='checkbox' checked readOnly /> {item.title}
-              </>
-              )
-            : (
-              <span style={{ fontWeight: 700 }}>
-                <input type='checkbox' readOnly /> {item.title}
-              </span>
-              )
+          selectedItems.find((i) => i.id === item.id) ? (
+            <>
+              <input type='checkbox' checked readOnly /> {item.title}
+            </>
+          ) : (
+            <span style={{ fontWeight: 700 }}>
+              <input type='checkbox' readOnly /> {item.title}
+            </span>
+          )
         }
         style={{
           marginBottom: '2px',
-          fontWeight: items.includes(item) ? 700 : 'normal',
+          fontWeight: items.includes(item) ? 700 : 'normal'
         }}
       />
     ),
-    tagRenderer = (item) => item.title,
+    tagRenderer = (item) => item.title
   } = props
   return (
     <>
@@ -112,14 +108,15 @@ const DataEntitiesSelector = (props) => {
             selectedItems={selectedItems}
             activeItem={activeItem}
             itemPredicate={(query, item) =>
-              item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0}
+              item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0
+            }
             itemRenderer={itemRenderer}
             tagRenderer={tagRenderer}
             tagInputProps={{
               tagProps: {
                 intent: Intent.PRIMARY,
-                minimal: true,
-              },
+                minimal: true
+              }
             }}
             noResults={<MenuItem disabled={true} text='No Data Entities.' />}
             onRemove={(item) => {
@@ -128,7 +125,7 @@ const DataEntitiesSelector = (props) => {
                   ...rT,
                   [configuredConnection.id]: rT[configuredConnection.id].filter(
                     (t) => t.id !== item.id
-                  ),
+                  )
                 }
               })
             }}
@@ -139,8 +136,8 @@ const DataEntitiesSelector = (props) => {
                       ...rT,
                       [configuredConnection.id]: [
                         ...rT[configuredConnection.id],
-                        item,
-                      ],
+                        item
+                      ]
                     }
                   : { ...rT }
               })

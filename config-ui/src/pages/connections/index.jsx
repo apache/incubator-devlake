@@ -54,11 +54,7 @@ import React from 'react'
 // import { DataEntityTypes } from '@/data/DataEntities'
 
 const Connections = (props) => {
-  return (
-    <>
-
-    </>
-  )
+  return <></>
 }
 
 export default Connections

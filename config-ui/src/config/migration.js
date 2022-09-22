@@ -22,7 +22,8 @@ const MigrationOptions = {
   apiCancelEndpoint: null,
   apiStatusCode: 428, // API Response Code for Migration Required
   warningId: 'DEVLAKE__MIGRATION_WARNING', // Local Storage Warning ID Key
-  cancelToastMessage: 'Migration Halted - Please downgrade manually, you will continue to receive a warning unless you proceed with migration or rollback.',
+  cancelToastMessage:
+    'Migration Halted - Please downgrade manually, you will continue to receive a warning unless you proceed with migration or rollback.',
   failedToastMessage: 'Database Migration Failed! (Check Network Console)',
   AlertDialog: {
     title: 'New Migration Scripts Detected',
@@ -33,6 +34,4 @@ const MigrationOptions = {
   }
 }
 
-export {
-  MigrationOptions
-}
+export { MigrationOptions }

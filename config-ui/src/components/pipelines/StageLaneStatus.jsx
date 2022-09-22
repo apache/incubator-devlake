@@ -36,7 +36,8 @@ const StageLaneStatus = (props) => {
   return (
     <>
       <div
-        className='stage-footer' style={{
+        className='stage-footer'
+        style={{
           padding: '5px 10px',
           marginBottom: '4px',
           alignSelf: 'flex-end',
@@ -56,13 +57,29 @@ const StageLaneStatus = (props) => {
             color: isStageCompleted(sK) ? Colors.GREEN5 : Colors.GRAY5
           }}
         >
-          {isStageActive(sK) && <span style={{ color: Colors.BLACK }}> ACTIVE</span>}
-          {isStageCompleted(sK) && <span style={{ color: Colors.GREEN5 }}>COMPLETED</span>}
-          {isStageFailed(sK) && <span style={{ color: Colors.RED5 }}>FAILED</span>}
+          {isStageActive(sK) && (
+            <span style={{ color: Colors.BLACK }}> ACTIVE</span>
+          )}
+          {isStageCompleted(sK) && (
+            <span style={{ color: Colors.GREEN5 }}>COMPLETED</span>
+          )}
+          {isStageFailed(sK) && (
+            <span style={{ color: Colors.RED5 }}>FAILED</span>
+          )}
           {isStagePending(sK) && <>WAITING</>}
-          <span style={{ fontWeight: 500, color: isStageActive(sK) ? '#000' : 'inherit', opacity: 0.6 }}>
-            {' '}&middot;{' '}
-            {isStageCompleted(sK) ? getCompletedTaskCount(stage) : getRunningTaskCount(stage)}/{getTotalTasksCount(stage)}
+          <span
+            style={{
+              fontWeight: 500,
+              color: isStageActive(sK) ? '#000' : 'inherit',
+              opacity: 0.6
+            }}
+          >
+            {' '}
+            &middot;{' '}
+            {isStageCompleted(sK)
+              ? getCompletedTaskCount(stage)
+              : getRunningTaskCount(stage)}
+            /{getTotalTasksCount(stage)}
           </span>
         </div>
         {/* <div className='stage-caption'>

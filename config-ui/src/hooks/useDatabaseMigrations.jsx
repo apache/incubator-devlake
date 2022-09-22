@@ -18,27 +18,30 @@
 import { useState, useEffect, useCallback } from 'react'
 import request from '@/utils/request'
 import { MigrationOptions } from '@/config/migration'
-import {
-  Intent
-} from '@blueprintjs/core'
+import { Intent } from '@blueprintjs/core'
 import { ToastNotification } from '@/components/Toast'
 
-function useDatabaseMigrations (Configuration = MigrationOptions) {
+function useDatabaseMigrations(Configuration = MigrationOptions) {
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const [migrationWarning, setMigrationWarning] = useState(localStorage.getItem(Configuration.warningId))
+  const [migrationWarning, setMigrationWarning] = useState(
+    localStorage.getItem(Configuration.warningId)
+  )
   const [migrationAlertOpened, setMigrationAlertOpened] = useState(false)
   const [wasMigrationSuccessful, setWasMigrationSuccessful] = useState(false)
   const [hasMigrationFailed, setHasMigrationFailed] = useState(false)
 
   const handleConfirmMigration = useCallback(() => {
     setIsProcessing(true)
-    const m = request.get(Configuration.apiProceedEndpoint)
-    setWasMigrationSuccessful(m?.status === 200 && m?.success === true)
-    setTimeout(() => {
-      setIsProcessing(false)
-      setHasMigrationFailed(m?.status !== 200)
-    }, 3000)
+    const migrate = async () => {
+      const m = await request.get(Configuration.apiProceedEndpoint)
+      setWasMigrationSuccessful(m?.status === 200 && m?.data?.success === true)
+      setTimeout(() => {
+        setIsProcessing(false)
+        setHasMigrationFailed(m?.status !== 200)
+      }, 3000)
+    }
+    migrate()
   }, [Configuration.apiProceedEndpoint])
 
   const handleCancelMigration = useCallback(() => {
@@ -84,7 +87,10 @@ function useDatabaseMigrations (Configuration = MigrationOptions) {
   useEffect(() => {
     if (migrationWarning) {
       // eslint-disable-next-line max-len
-      console.log(`>>> MIGRATION WARNING DETECTED !! Local Storage Key = [${MigrationOptions.warningId}]:`, migrationWarning)
+      console.log(
+        `>>> MIGRATION WARNING DETECTED !! Local Storage Key = [${MigrationOptions.warningId}]:`,
+        migrationWarning
+      )
     }
   }, [migrationWarning])
 

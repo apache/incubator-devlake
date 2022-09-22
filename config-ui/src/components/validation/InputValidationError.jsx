@@ -22,7 +22,7 @@ import {
   Popover,
   PopoverInteractionKind,
   Intent,
-  Position,
+  Position
 } from '@blueprintjs/core'
 
 const InputValidationError = (props) => {
@@ -34,7 +34,7 @@ const InputValidationError = (props) => {
     elementRef,
     onError = () => {},
     onSuccess = () => {},
-    interactionKind = PopoverInteractionKind.HOVER_TARGET_ONLY,
+    interactionKind = PopoverInteractionKind.HOVER_TARGET_ONLY
   } = props
 
   const [elementIsFocused, setElementIsFocused] = useState(false)
@@ -133,7 +133,7 @@ const InputValidationError = (props) => {
           style={{
             outline: 'none',
             padding: '5px',
-            borderTop: `2px solid ${Colors.RED5}`,
+            borderTop: `2px solid ${Colors.RED5}`
           }}
         >
           {error}

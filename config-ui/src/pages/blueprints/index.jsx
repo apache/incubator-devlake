@@ -20,14 +20,16 @@ import { useHistory } from 'react-router-dom'
 // import dayjs from '@/utils/time'
 // import cron from 'cron-validate'
 import {
-  Button, Icon, Intent,
+  Button,
+  Icon,
+  Intent,
   Popover,
   Position,
   Tooltip,
   Colors,
   Card,
   NonIdealState,
-  Elevation,
+  Elevation
 } from '@blueprintjs/core'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
@@ -115,7 +117,7 @@ const Blueprints = (props) => {
     validate,
     errors: blueprintValidationErrors,
     // setErrors: setBlueprintErrors,
-    isValid: isValidBlueprint,
+    isValid: isValidBlueprint
   } = useBlueprintValidation({
     name,
     cronConfig,
@@ -124,56 +126,94 @@ const Blueprints = (props) => {
     tasks
   })
 
-  const handleBlueprintActivation = useCallback((blueprint) => {
-    if (blueprint.enable) {
-      deactivateBlueprint(blueprint)
-    } else {
-      activateBlueprint(blueprint)
-    }
-  }, [activateBlueprint, deactivateBlueprint])
+  const handleBlueprintActivation = useCallback(
+    (blueprint) => {
+      if (blueprint.enable) {
+        deactivateBlueprint(blueprint)
+      } else {
+        activateBlueprint(blueprint)
+      }
+    },
+    [activateBlueprint, deactivateBlueprint]
+  )
 
-  const expandBlueprint = useCallback((blueprint) => {
-    setExpandDetails(opened => blueprint.id === activeBlueprint?.id && opened ? false : !opened)
-    fetchAllPipelines()
-    setActiveBlueprint(blueprint)
-  }, [fetchAllPipelines, setExpandDetails, setActiveBlueprint])
+  const expandBlueprint = useCallback(
+    (blueprint) => {
+      setExpandDetails((opened) =>
+        blueprint.id === activeBlueprint?.id && opened ? false : !opened
+      )
+      fetchAllPipelines()
+      setActiveBlueprint(blueprint)
+    },
+    [
+      fetchAllPipelines,
+      setExpandDetails,
+      setActiveBlueprint,
+      activeBlueprint?.id
+    ]
+  )
 
-  const configureBlueprint = useCallback((blueprint) => {
-    history.push(`/blueprints/detail/${blueprint.id}`)
-  }, [history])
+  const configureBlueprint = useCallback(
+    (blueprint) => {
+      history.push(`/blueprints/detail/${blueprint.id}`)
+    },
+    [history]
+  )
 
-  const configureBlueprintSettings = useCallback((blueprint) => {
-    history.push(`/blueprints/settings/${blueprint.id}`)
-  }, [history])
+  const configureBlueprintSettings = useCallback(
+    (blueprint) => {
+      history.push(`/blueprints/settings/${blueprint.id}`)
+    },
+    [history]
+  )
 
   const createNewBlueprint = useCallback(() => {
     history.push('/blueprints/create')
   }, [history])
 
-  const isActiveBlueprint = useCallback((bId) => {
-    return activeBlueprint?.id === bId
-  }, [])
+  const isActiveBlueprint = useCallback(
+    (bId) => {
+      return activeBlueprint?.id === bId
+    },
+    [activeBlueprint?.id]
+  )
 
-  const isStandardCronPreset = useCallback((cronConfig) => {
-    return cronPresets.some(p => p.cronConfig === cronConfig)
-  }, [cronPresets])
+  const isStandardCronPreset = useCallback(
+    (cronConfig) => {
+      return cronPresets.some((p) => p.cronConfig === cronConfig)
+    },
+    [cronPresets]
+  )
 
-  const fieldHasError = useCallback((fieldId) => {
-    return blueprintValidationErrors.some(e => e.includes(fieldId))
-  }, [blueprintValidationErrors])
+  const fieldHasError = useCallback(
+    (fieldId) => {
+      return blueprintValidationErrors.some((e) => e.includes(fieldId))
+    },
+    [blueprintValidationErrors]
+  )
 
-  const getFieldError = useCallback((fieldId) => {
-    return blueprintValidationErrors.find(e => e.includes(fieldId))
-  }, [blueprintValidationErrors])
+  const getFieldError = useCallback(
+    (fieldId) => {
+      return blueprintValidationErrors.find((e) => e.includes(fieldId))
+    },
+    [blueprintValidationErrors]
+  )
 
-  const viewPipeline = useCallback((blueprintId) => {
-    // history.push(`/pipelines/activity/${runId}`)
-    history.push(`/blueprints/detail/${blueprintId}`)
-  }, [history])
+  const viewPipeline = useCallback(
+    (blueprintId) => {
+      // history.push(`/pipelines/activity/${runId}`)
+      history.push(`/blueprints/detail/${blueprintId}`)
+    },
+    [history]
+  )
 
   useEffect(() => {
-    setBlueprintSchedule(activeBlueprint?.id ? getSchedule(activeBlueprint.cronConfig) : [])
-    setRelatedPipelines(pipelines.filter(p => p.blueprintId === activeBlueprint?.id))
+    setBlueprintSchedule(
+      activeBlueprint?.id ? getSchedule(activeBlueprint.cronConfig) : []
+    )
+    setRelatedPipelines(
+      pipelines.filter((p) => p.blueprintId === activeBlueprint?.id)
+    )
     console.log('>>> ACTIVE/EXPANDED BLUEPRINT', activeBlueprint)
   }, [activeBlueprint, getSchedule, pipelines])
 
@@ -181,7 +221,11 @@ const Blueprints = (props) => {
     if (draftBlueprint && draftBlueprint.id) {
       console.log('>>> DRAFT = ', draftBlueprint)
       setBlueprintName(draftBlueprint.name)
-      setCronConfig(!isStandardCronPreset(draftBlueprint.cronConfig) ? 'custom' : draftBlueprint.cronConfig)
+      setCronConfig(
+        !isStandardCronPreset(draftBlueprint.cronConfig)
+          ? 'custom'
+          : draftBlueprint.cronConfig
+      )
       setCustomCronConfig(draftBlueprint.cronConfig)
       setBlueprintTasks(draftBlueprint.tasks)
       setEnableBlueprint(draftBlueprint.enable)
@@ -204,7 +248,7 @@ const Blueprints = (props) => {
       setBlueprintDialogIsOpen(false)
       fetchAllBlueprints()
     }
-  }, [saveComplete])
+  }, [saveComplete, fetchAllBlueprints])
 
   useEffect(() => {
     if (deleteComplete.status === 200) {
@@ -253,21 +297,29 @@ const Blueprints = (props) => {
         case 'daily':
         case 'weekly':
         case 'monthly':
-          console.log(blueprint.cronConfig === getCronPreset(activeFilterStatus).cronConfig)
-          return blueprint.cronConfig === getCronPreset(activeFilterStatus).cronConfig
+          console.log(
+            blueprint.cronConfig ===
+              getCronPreset(activeFilterStatus).cronConfig
+          )
+          return (
+            blueprint.cronConfig ===
+            getCronPreset(activeFilterStatus).cronConfig
+          )
         case 'manual':
           return blueprint.isManual
         case 'custom':
-          return blueprint.cronConfig !== getCronPreset('hourly').cronConfig &&
+          return (
+            blueprint.cronConfig !== getCronPreset('hourly').cronConfig &&
             blueprint.cronConfig !== getCronPreset('daily').cronConfig &&
             blueprint.cronConfig !== getCronPreset('weekly').cronConfig &&
             blueprint.cronConfig !== getCronPreset('monthly').cronConfig
+          )
         default:
           return true
       }
     })
     setFilterParams(activeFilterStatus)
-  }, [activeFilterStatus, setFilterParams, getCronPreset])
+  }, [activeFilterStatus, setFilterParams, getCronPreset, setFilterFunc])
 
   // useEffect(() => {
   //   if (Array.isArray(tasks)) {
@@ -282,7 +334,7 @@ const Blueprints = (props) => {
 
   useEffect(() => {
     setPaginatorData(blueprints)
-  }, [blueprints])
+  }, [blueprints, setPaginatorData])
 
   return (
     <>
@@ -301,21 +353,22 @@ const Blueprints = (props) => {
             <div className='headlineContainer'>
               <div style={{ display: 'flex' }}>
                 <div>
-                  <h1 style={{ margin: 0 }}>
-                    Blueprints
-                  </h1>
+                  <h1 style={{ margin: 0 }}>Blueprints</h1>
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
-                  {blueprints.length > 0 && (<Button
-                    // disabled={pipelines.length === 0}
-                    icon='plus' intent={Intent.PRIMARY}
-                    text='New Blueprint'
-                    onClick={() => createNewBlueprint()}
-                                             />)}
+                  {blueprints.length > 0 && (
+                    <Button
+                      // disabled={pipelines.length === 0}
+                      icon='plus'
+                      intent={Intent.PRIMARY}
+                      text='New Blueprint'
+                      onClick={() => createNewBlueprint()}
+                    />
+                  )}
                 </div>
               </div>
             </div>
-            {(!isFetchingBlueprints) && blueprints.length > 0 && (
+            {!isFetchingBlueprints && blueprints.length > 0 && (
               <>
                 <BlueprintsGrid
                   blueprints={pagedData}
@@ -338,51 +391,73 @@ const Blueprints = (props) => {
                   cronPresets={cronPresets}
                   onViewPipeline={viewPipeline}
                 />
-              </>)}
+              </>
+            )}
 
             {!isFetchingBlueprints && blueprints.length === 0 && (
               <Card style={{ marginTop: '36px' }} elevation={Elevation.TWO}>
                 <NonIdealState
                   className='blueprints-non-ideal-state'
-                  icon={<NoBlueprintsIcon width={120} height={120} style={{ marginBottom: '-30px' }} />}
+                  icon={
+                    <NoBlueprintsIcon
+                      width={120}
+                      height={120}
+                      style={{ marginBottom: '-30px' }}
+                    />
+                  }
                   title=''
-                  description={(
+                  description={
                     <>
-                      <p style={{ color: '#292B3F', fontSize: '15px', padding: '0 14%', textAlign: 'center' }}>A blueprint is a plan that covers all the work, such as selecting and transforming the data you wish to collect, to get your raw data ready for query and metric computation in the dashboards. Try adding your first blueprint!</p>
-                      <div style={{
-                        display: 'flex',
-                        alignSelf: 'center',
-                        justifyContent: 'center',
-                        marginTop: '5px'
-                      }}
+                      <p
+                        style={{
+                          color: '#292B3F',
+                          fontSize: '15px',
+                          padding: '0 14%',
+                          textAlign: 'center'
+                        }}
                       >
-                        {pipelines.length === 0
-                          ? (
-                            <Button
-                                // disabled={pipelines.length === 0}
-                              icon='plus'
-                              intent={Intent.PRIMARY} text='New Blueprint'
-                              style={{ marginRight: '10px' }}
-                              onClick={createNewBlueprint}
-                            />
-                            )
-                          : (
-                            <Button
-                              icon='plus'
-                              intent={Intent.PRIMARY} text='New Blueprint'
-                              style={{ marginRight: '10px' }}
-                              onClick={createNewBlueprint}
-                            />
-                            )}
-
+                        A blueprint is a plan that covers all the work, such as
+                        selecting and transforming the data you wish to collect,
+                        to get your raw data ready for query and metric
+                        computation in the dashboards. Try adding your first
+                        blueprint!
+                      </p>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignSelf: 'center',
+                          justifyContent: 'center',
+                          marginTop: '5px'
+                        }}
+                      >
+                        {pipelines.length === 0 ? (
+                          <Button
+                            // disabled={pipelines.length === 0}
+                            icon='plus'
+                            intent={Intent.PRIMARY}
+                            text='New Blueprint'
+                            style={{ marginRight: '10px' }}
+                            onClick={createNewBlueprint}
+                          />
+                        ) : (
+                          <Button
+                            icon='plus'
+                            intent={Intent.PRIMARY}
+                            text='New Blueprint'
+                            style={{ marginRight: '10px' }}
+                            onClick={createNewBlueprint}
+                          />
+                        )}
                       </div>
                     </>
-                  )}
+                  }
                   // action={createNewBlueprint}
                 />
               </Card>
             )}
-            <div style={{ alignSelf: 'flex-end', padding: '10px' }}>{renderPagnationControls()}</div>
+            <div style={{ alignSelf: 'flex-end', padding: '10px' }}>
+              {renderPagnationControls()}
+            </div>
           </main>
         </Content>
       </div>
@@ -416,7 +491,6 @@ const Blueprints = (props) => {
         getCronPreset={getCronPreset}
         getCronPresetByConfig={getCronPresetByConfig}
       />
-
     </>
   )
 }

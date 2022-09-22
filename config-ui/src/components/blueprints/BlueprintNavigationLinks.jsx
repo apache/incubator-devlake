@@ -37,14 +37,19 @@ const BlueprintNavigationLinks = (props) => {
         name: 'status',
         label: 'Settings',
         route: `/blueprints/settings/${blueprint?.id}`,
-        active: activeRoute?.url.endsWith(`/blueprints/settings/${blueprint?.id}`)
+        active: activeRoute?.url.endsWith(
+          `/blueprints/settings/${blueprint?.id}`
+        )
       }
     ]
   } = props
 
-  const routeToLocation = useCallback((route) => {
-    history.push(route)
-  }, [history])
+  const routeToLocation = useCallback(
+    (route) => {
+      history.push(route)
+    },
+    [history]
+  )
 
   return (
     <div
@@ -52,14 +57,19 @@ const BlueprintNavigationLinks = (props) => {
       style={{
         alignSelf: 'center',
         display: 'flex',
-        margin: '20px auto',
+        margin: '20px auto'
       }}
     >
       {links.map((link) => (
-        <div key={`blueprint-nav-link-key-${link?.id}`} style={{ marginRight: '10px' }}>
+        <div
+          key={`blueprint-nav-link-key-${link?.id}`}
+          style={{ marginRight: '10px' }}
+        >
           <a
             href='#'
-            className={`blueprint-navigation-link ${link?.active ? 'active' : ''}`}
+            className={`blueprint-navigation-link ${
+              link?.active ? 'active' : ''
+            }`}
             onClick={() => routeToLocation(link?.route)}
           >
             {link.label}

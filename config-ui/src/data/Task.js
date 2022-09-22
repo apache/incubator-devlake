@@ -20,7 +20,7 @@ const StageStatus = {
   PENDING: 'Pending',
   COMPLETE: 'Complete',
   FAILED: 'Failed',
-  ACTIVE: 'In Progress',
+  ACTIVE: 'In Progress'
 }
 
 const TaskStatus = {
@@ -30,7 +30,7 @@ const TaskStatus = {
   RUNNING: 'TASK_RUNNING',
   CREATED: 'TASK_CREATED',
   PENDING: 'TASK_CREATED',
-  CANCELLED: 'TASK_CANCELLED',
+  CANCELLED: 'TASK_CANCELLED'
 }
 
 const TaskStatusLabels = {
@@ -40,21 +40,21 @@ const TaskStatusLabels = {
   [TaskStatus.RUNNING]: 'In Progress',
   [TaskStatus.CREATED]: 'Created (Pending)',
   [TaskStatus.PENDING]: 'Created (Pending)',
-  [TaskStatus.CANCELLED]: 'Cancelled',
+  [TaskStatus.CANCELLED]: 'Cancelled'
 }
 
 const StatusColors = {
   PENDING: '#292B3F',
   COMPLETE: '#4DB764',
   FAILED: '#E34040',
-  ACTIVE: '#7497F7',
+  ACTIVE: '#7497F7'
 }
 
 const StatusBgColors = {
   PENDING: 'transparent',
   COMPLETE: '#EDFBF0',
   FAILED: '#FEEFEF',
-  ACTIVE: '#F0F4FE',
+  ACTIVE: '#F0F4FE'
 }
 
 export {

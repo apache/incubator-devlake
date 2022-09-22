@@ -21,6 +21,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -67,16 +68,40 @@ func (CommitFileComponentBak) TableName() string {
 
 type addCommitFilePathLength struct{}
 
-func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().RenameTable(&CommitFile{}, &CommitFileAddLengthBak{})
+func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) (errs errors.Error) {
+	var err error
+
+	// rename the commit_file_bak to cache old table
+	err = db.Migrator().RenameTable(&CommitFile{}, &CommitFileAddLengthBak{})
 	if err != nil {
 		return errors.Default.Wrap(err, "error no rename commit_file to commit_files_bak")
 	}
 
+	// rollback for rename back
+	defer func() {
+		if errs != nil {
+			err = db.Migrator().RenameTable(&CommitFileAddLengthBak{}, &CommitFile{})
+			if err != nil {
+				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table commit_file_bak , you must to rollback by yourself. %s", err.Error()))
+			}
+		}
+	}()
+
+	// create new commit_files table
 	err = db.Migrator().AutoMigrate(&CommitFileAddLength{})
 	if err != nil {
 		return errors.Default.Wrap(err, "error on auto migrate commit_file")
 	}
+
+	// rollback for create new table
+	defer func() {
+		if errs != nil {
+			err = db.Migrator().DropTable(&CommitFile{})
+			if err != nil {
+				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table CommitFile , you must to rollback by yourself. %s", err.Error()))
+			}
+		}
+	}()
 
 	// update old id to new id and write to the new table
 	cursor, err := db.Model(&CommitFileAddLengthBak{}).Rows()
@@ -85,6 +110,7 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 	}
 	defer cursor.Close()
 
+	// caculate and save the data to new table
 	batch, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&CommitFileAddLength{}), 200)
 	if err != nil {
 		return errors.Default.Wrap(err, "error getting batch from table commit_file")
@@ -108,19 +134,41 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 
 		err = batch.Add(&cf)
 		if err != nil {
-			return errors.Default.Wrap(err, "error on batch add")
+			return errors.Default.Wrap(err, "error on commit_files batch add")
 		}
 	}
 
+	// rename the commit_file_components_bak
 	err = db.Migrator().RenameTable(&CommitFileComponent{}, &CommitFileComponentBak{})
 	if err != nil {
 		return errors.Default.Wrap(err, "error no rename commit_file_components to commit_file_components_bak")
 	}
 
+	// rollback for rename back
+	defer func() {
+		if errs != nil {
+			err = db.Migrator().RenameTable(&CommitFileComponentBak{}, &CommitFileComponent{})
+			if err != nil {
+				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table commit_file_components_bak , you must to rollback by yourself. %s", err.Error()))
+			}
+		}
+	}()
+
+	// create new commit_file_components table
 	err = db.Migrator().AutoMigrate(&CommitFileComponent{})
 	if err != nil {
 		return errors.Default.Wrap(err, "error on auto migrate commit_file")
 	}
+
+	// rollback for create new table
+	defer func() {
+		if errs != nil {
+			err = db.Migrator().DropTable(&CommitFileComponent{})
+			if err != nil {
+				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table commit_file_components , you must to rollback by yourself. %s", err.Error()))
+			}
+		}
+	}()
 
 	// update old id to new id and write to the new table
 	cursor2, err := db.Model(&CommitFileComponentBak{}).Rows()
@@ -129,6 +177,7 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 	}
 	defer cursor2.Close()
 
+	// caculate and save the data to new table
 	batch2, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&CommitFileComponent{}), 500)
 	if err != nil {
 		return errors.Default.Wrap(err, "error getting batch from table commit_file_components")
@@ -169,7 +218,7 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 
 		err = batch2.Add(&cfc)
 		if err != nil {
-			return errors.Default.Wrap(err, "error on batch add")
+			return errors.Default.Wrap(err, "error on commit_file_components batch add")
 		}
 	}
 
@@ -180,7 +229,7 @@ func (*addCommitFilePathLength) Up(ctx context.Context, db *gorm.DB) errors.Erro
 	}
 	err = db.Migrator().DropTable(&CommitFileComponentBak{})
 	if err != nil {
-		return errors.Default.Wrap(err, "error no drop commit_files_bak")
+		return errors.Default.Wrap(err, "error no drop commit_file_components_bak")
 	}
 
 	return nil

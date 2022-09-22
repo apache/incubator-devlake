@@ -31,7 +31,7 @@ import {
   Intent,
   Label,
   MenuItem,
-  Position,
+  Position
 } from '@blueprintjs/core'
 
 import { NullBlueprint } from '@/data/NullBlueprint'
@@ -40,16 +40,17 @@ import DataTransformations from '@/components/blueprints/create-workflow/DataTra
 
 const Modes = {
   CREATE: 'create',
-  EDIT: 'edit',
+  EDIT: 'edit'
 }
 
 const DialogPanel = (props) => {
-  const {
-    children
-  } = props
+  const { children } = props
 
   return (
-    <div className={classNames(Classes.DIALOG_BODY)} style={{ minHeight: '300px' }}>
+    <div
+      className={classNames(Classes.DIALOG_BODY)}
+      style={{ minHeight: '300px' }}
+    >
       {children}
     </div>
   )
@@ -66,6 +67,7 @@ const BlueprintDataScopesDialog = (props) => {
     configuredConnection,
     configuredProject,
     configuredBoard,
+    configurationKey,
     scopeConnection,
     dataEntitiesList = [],
     boardsList = [],
@@ -123,7 +125,7 @@ const BlueprintDataScopesDialog = (props) => {
       intent: Intent.PRIMARY,
       text: 'Next Step',
       outlined: true,
-      loading: isFetchingJIRA || isFetchingGitlab || isSaving,
+      loading: isFetchingJIRA || isFetchingGitlab || isSaving
     },
     finalButtonProps = {
       disabled: !isValid,
@@ -140,14 +142,6 @@ const BlueprintDataScopesDialog = (props) => {
       loading: isFetchingJIRA || isFetchingGitlab || isSaving
     }
   } = props
-
-  // useEffect(() => {
-  //   console.log('>>> MY BOARDS LIST!!!!', boardsList)
-  // }, [boardsList])
-
-  // useEffect(() => {
-  //   console.log('>>> MY SELECTED BOARDS!!!!', boards)
-  // }, [boards])
 
   return (
     <>
@@ -223,6 +217,7 @@ const BlueprintDataScopesDialog = (props) => {
                 configuredConnection={configuredConnection}
                 configuredProject={configuredProject}
                 configuredBoard={configuredBoard}
+                configurationKey={configurationKey}
                 addBoardTransformation={addBoardTransformation}
                 addProjectTransformation={addProjectTransformation}
                 isSaving={isSaving}

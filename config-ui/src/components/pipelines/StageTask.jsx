@@ -16,7 +16,7 @@
  *
  */
 import React, { useState } from 'react'
-import { Card, Elevation, } from '@blueprintjs/core'
+import { Card, Elevation } from '@blueprintjs/core'
 import StageTaskName from '@/components/pipelines/StageTaskName'
 import StageTaskIndicator from '@/components/pipelines/StageTaskIndicator'
 import StageTaskCaption from '@/components/pipelines/StageTaskCaption'
@@ -24,7 +24,7 @@ import StageTaskCaption from '@/components/pipelines/StageTaskCaption'
 const StageTask = (props) => {
   const {
     // stages = [],
-    task,
+    task
     // sK,
     // sIdx,
   } = props
@@ -32,7 +32,9 @@ const StageTask = (props) => {
   const [taskModuleOpened, setTaskModuleOpened] = useState(null)
 
   const generateStageTaskCssClasses = () => {
-    return `pipeline-task-module task-${task.status.split('_')[1].toLowerCase()} ${task.ID === taskModuleOpened?.ID ? 'active' : ''}`
+    return `pipeline-task-module task-${task.status
+      .split('_')[1]
+      .toLowerCase()} ${task.ID === taskModuleOpened?.ID ? 'active' : ''}`
   }
 
   const determineCardElevation = (status, isElevated = false) => {
@@ -52,12 +54,13 @@ const StageTask = (props) => {
   return (
     <>
       <Card
-        elevation={determineCardElevation(task.status, taskModuleOpened !== null)}
+        elevation={determineCardElevation(
+          task.status,
+          taskModuleOpened !== null
+        )}
         className={generateStageTaskCssClasses()}
         onClick={() => setTaskModuleOpened(task)}
-        style={{
-
-        }}
+        style={{}}
       >
         <StageTaskIndicator task={task} />
         <div
@@ -67,7 +70,11 @@ const StageTask = (props) => {
           }}
         >
           <div style={{ padding: '4px 2px 4px 0', width: '100%' }}>
-            <StageTaskName task={task} showDetails={taskModuleOpened} onClose={() => setTaskModuleOpened(null)} />
+            <StageTaskName
+              task={task}
+              showDetails={taskModuleOpened}
+              onClose={() => setTaskModuleOpened(null)}
+            />
             <StageTaskCaption task={task} options={task.options} />
           </div>
         </div>

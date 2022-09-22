@@ -17,7 +17,7 @@
  */
 import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
-import { Button, Card, Elevation, Icon, Intent, } from '@blueprintjs/core'
+import { Button, Card, Elevation, Icon, Intent } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -32,17 +32,24 @@ import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMe
 
 import { integrationsData } from '@/data/integrations'
 import { NullSettings } from '@/data/NullSettings'
-import { ProviderConnectionLimits, ProviderFormLabels, ProviderFormPlaceholders, Providers } from '@/data/Providers'
+import {
+  ProviderConnectionLimits,
+  ProviderFormLabels,
+  ProviderFormPlaceholders,
+  Providers
+} from '@/data/Providers'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 import '@/styles/configure.scss'
 
-export default function ConfigureConnection () {
+export default function ConfigureConnection() {
   const history = useHistory()
   const { providerId, connectionId } = useParams()
 
-  const [activeProvider, setActiveProvider] = useState(integrationsData.find(p => p.id === providerId))
+  const [activeProvider, setActiveProvider] = useState(
+    integrationsData.find((p) => p.id === providerId)
+  )
   // const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [showConnectionSettings, setShowConnectionSettings] = useState(true)
   const [deleteId, setDeleteId] = useState(null)
@@ -82,15 +89,18 @@ export default function ConfigureConnection () {
     isDeleting: isDeletingConnection,
     deleteConnection,
     deleteComplete
-  } = useConnectionManager({
-    activeProvider,
-    connectionId,
-  }, true)
+  } = useConnectionManager(
+    {
+      activeProvider,
+      connectionId
+    },
+    true
+  )
 
   const {
     saveSettings,
     // errors: settingsErrors,
-    isSaving,
+    isSaving
     // isTesting,
     // showError,
   } = useSettingsManager({
@@ -118,37 +128,41 @@ export default function ConfigureConnection () {
     history.push(`/integrations/${activeProvider.id}`)
   }
 
-  const renderProviderSettings = useCallback((providerId, activeProvider) => {
-    console.log('>>> RENDERING PROVIDER SETTINGS...')
-    let settingsComponent = null
-    if (activeProvider && activeProvider.settings) {
-      settingsComponent = activeProvider.settings({
-        activeProvider,
-        activeConnection,
-        isSaving,
-        isSavingConnection,
-        setSettings
-      })
-    } else {
-      // @todo create & display "fallback/empty settings" view
-      console.log('>> WARNING: NO PROVIDER SETTINGS RENDERED, PROVIDER = ', activeProvider)
-    }
-    return settingsComponent
-  }, [activeConnection, isSaving, isSavingConnection])
+  const renderProviderSettings = useCallback(
+    (providerId, activeProvider) => {
+      console.log('>>> RENDERING PROVIDER SETTINGS...')
+      let settingsComponent = null
+      if (activeProvider && activeProvider.settings) {
+        settingsComponent = activeProvider.settings({
+          activeProvider,
+          activeConnection,
+          isSaving,
+          isSavingConnection,
+          setSettings
+        })
+      } else {
+        // @todo create & display "fallback/empty settings" view
+        console.log(
+          '>> WARNING: NO PROVIDER SETTINGS RENDERED, PROVIDER = ',
+          activeProvider
+        )
+      }
+      return settingsComponent
+    },
+    [activeConnection, isSaving, isSavingConnection]
+  )
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER ID = ', providerId)
     console.log('>>>> DETECTED CONNECTION ID = ', connectionId)
     if (connectionId && providerId) {
-      setActiveProvider(integrationsData.find(p => p.id === providerId))
+      setActiveProvider(integrationsData.find((p) => p.id === providerId))
     } else {
       console.log('NO PARAMS!')
     }
-  }, [connectionId, providerId, integrationsData])
+  }, [connectionId, providerId])
 
-  useEffect(() => {
-
-  }, [settings])
+  useEffect(() => {}, [settings])
 
   useEffect(() => {
     if (deleteComplete) {
@@ -172,33 +186,55 @@ export default function ConfigureConnection () {
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/integrations', icon: false, text: 'Integrations' },
-                { href: `/integrations/${activeProvider.id}`, icon: false, text: `${activeProvider.name}` },
+                {
+                  href: `/integrations/${activeProvider.id}`,
+                  icon: false,
+                  text: `${activeProvider.name}`
+                },
                 {
                   href: `/connections/configure/${activeProvider.id}/${activeConnection?.id}`,
                   icon: false,
-                  text: `${activeConnection ? activeConnection.name : 'Configure'} Settings`,
+                  text: `${
+                    activeConnection ? activeConnection.name : 'Configure'
+                  } Settings`,
                   current: true
                 }
               ]}
             />
             <div className='configureConnection' style={{ width: '100%' }}>
               {!isLoadingConnection && (
-                <Link style={{ float: 'right', marginLeft: '10px', color: '#777777' }} to={`/integrations/${activeProvider.id}`}>
+                <Link
+                  style={{
+                    float: 'right',
+                    marginLeft: '10px',
+                    color: '#777777'
+                  }}
+                  to={`/integrations/${activeProvider.id}`}
+                >
                   <Icon icon='fast-backward' size={16} /> Connection List
                 </Link>
               )}
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <div>
-                  <span style={{ marginRight: '10px' }}>{activeProvider.icon}</span>
+                  <span style={{ marginRight: '10px' }}>
+                    {activeProvider.icon}
+                  </span>
                 </div>
                 {isLoadingConnection && (
-                  <ContentLoader title='Loading Connection ...' message='Please wait while connection settings are loaded.' />
+                  <ContentLoader
+                    title='Loading Connection ...'
+                    message='Please wait while connection settings are loaded.'
+                  />
                 )}
                 {!isLoadingConnection && (
                   <div style={{ justifyContent: 'flex-start' }}>
                     <div style={{ display: 'flex' }}>
                       <h1 style={{ margin: 0 }}>
-                        Manage <strong style={{ fontWeight: 900 }}>{activeProvider.name}</strong> Settings
+                        Manage{' '}
+                        <strong style={{ fontWeight: 900 }}>
+                          {activeProvider.name}
+                        </strong>{' '}
+                        Settings
                       </h1>
                       {activeProvider.multiConnection && (
                         <div style={{ paddingTop: '5px' }}>
@@ -206,22 +242,35 @@ export default function ConfigureConnection () {
                             id={deleteId}
                             connection={activeConnection}
                             text='Delete'
-                            showConfirmation={() => setDeleteId(activeConnection.id)}
+                            showConfirmation={() =>
+                              setDeleteId(activeConnection.id)
+                            }
                             onConfirm={deleteConnection}
                             onCancel={(e) => setDeleteId(null)}
                             isDisabled={isDeletingConnection}
                             isLoading={isDeletingConnection}
                           >
-                            <DeleteConfirmationMessage title={`DELETE "${activeConnection.name}"`} />
+                            <DeleteConfirmationMessage
+                              title={`DELETE "${activeConnection.name}"`}
+                            />
                           </DeleteAction>
                         </div>
                       )}
                     </div>
                     {activeConnection && (
                       <>
-                        {[Providers.GITLAB, Providers.JIRA, Providers.TAPD].includes(activeProvider.id) &&
-                        (<h2 style={{ margin: 0 }}>#{activeConnection?.id} {activeConnection.name}</h2>)}
-                        <p className='page-description'>Manage settings and options for this connection.</p>
+                        {[
+                          Providers.GITLAB,
+                          Providers.JIRA,
+                          Providers.TAPD
+                        ].includes(activeProvider.id) && (
+                          <h2 style={{ margin: 0 }}>
+                            #{activeConnection?.id} {activeConnection.name}
+                          </h2>
+                        )}
+                        <p className='page-description'>
+                          Manage settings and options for this connection.
+                        </p>
                       </>
                     )}
                   </div>
@@ -232,66 +281,88 @@ export default function ConfigureConnection () {
                   <Card
                     interactive={false}
                     elevation={Elevation.ZERO}
-                    style={{ backgroundColor: '#f8f8f8', width: '100%', marginBottom: '20px' }}
+                    style={{
+                      backgroundColor: '#f8f8f8',
+                      width: '100%',
+                      marginBottom: '20px'
+                    }}
                   >
                     <Button
                       type='button'
                       icon={showConnectionSettings ? 'eye-on' : 'eye-off'}
-                      intent={showConnectionSettings ? Intent.PRIMARY : Intent.DISABLED}
+                      intent={
+                        showConnectionSettings
+                          ? Intent.PRIMARY
+                          : Intent.DISABLED
+                      }
                       style={{ margin: '2px', float: 'right' }}
-                      onClick={() => setShowConnectionSettings(!showConnectionSettings)}
+                      onClick={() =>
+                        setShowConnectionSettings(!showConnectionSettings)
+                      }
                       minimal
                       small
                     />
-                    {showConnectionSettings
-                      ? (
-                        <div className='editConnection' style={{ display: 'flex' }}>
-                          <ConnectionForm
-                            isValid={isValidForm}
-                            validationErrors={validationErrors}
-                            activeProvider={activeProvider}
-                            name={name}
-                            endpointUrl={endpointUrl}
-                            proxy={proxy}
-                            rateLimitPerHour={rateLimitPerHour}
-                            token={token}
-                            initialTokenStore={initialTokenStore}
-                            username={username}
-                            password={password}
-                            onSave={() => saveConnection()}
-                            onTest={testConnection}
-                            onCancel={cancel}
-                            onValidate={validate}
-                            onNameChange={setName}
-                            onEndpointChange={setEndpointUrl}
-                            onProxyChange={setProxy}
-                            onRateLimitChange={setRateLimitPerHour}
-                            onTokenChange={setToken}
-                            onUsernameChange={setUsername}
-                            onPasswordChange={setPassword}
-                            isSaving={isSavingConnection}
-                            isTesting={isTestingConnection}
-                            testStatus={testStatus}
-                            testResponse={testResponse}
-                            allTestResponses={allTestResponses}
-                            errors={errors}
-                            showError={showConnectionError}
-                            authType={[Providers.JENKINS, Providers.JIRA, Providers.TAPD].includes(activeProvider.id) ? 'plain' : 'token'}
-                            showLimitWarning={false}
-                            sourceLimits={ProviderConnectionLimits}
-                            labels={ProviderFormLabels[activeProvider.id]}
-                            placeholders={ProviderFormPlaceholders[activeProvider.id]}
-                          />
-                        </div>
-                        )
-                      : (
-                        <>
-                          <h2 style={{ margin: 0 }}>Configure Connection</h2>
-                          <p className='description' style={{ margin: 0 }}>
-                            ( Click the <strong>Visibility</strong> icon to your right to edit connection )
-                          </p>
-                        </>
-                        )}
+                    {showConnectionSettings ? (
+                      <div
+                        className='editConnection'
+                        style={{ display: 'flex' }}
+                      >
+                        <ConnectionForm
+                          isValid={isValidForm}
+                          validationErrors={validationErrors}
+                          activeProvider={activeProvider}
+                          name={name}
+                          endpointUrl={endpointUrl}
+                          proxy={proxy}
+                          rateLimitPerHour={rateLimitPerHour}
+                          token={token}
+                          initialTokenStore={initialTokenStore}
+                          username={username}
+                          password={password}
+                          onSave={() => saveConnection()}
+                          onTest={testConnection}
+                          onCancel={cancel}
+                          onValidate={validate}
+                          onNameChange={setName}
+                          onEndpointChange={setEndpointUrl}
+                          onProxyChange={setProxy}
+                          onRateLimitChange={setRateLimitPerHour}
+                          onTokenChange={setToken}
+                          onUsernameChange={setUsername}
+                          onPasswordChange={setPassword}
+                          isSaving={isSavingConnection}
+                          isTesting={isTestingConnection}
+                          testStatus={testStatus}
+                          testResponse={testResponse}
+                          allTestResponses={allTestResponses}
+                          errors={errors}
+                          showError={showConnectionError}
+                          authType={
+                            [
+                              Providers.JENKINS,
+                              Providers.JIRA,
+                              Providers.TAPD
+                            ].includes(activeProvider.id)
+                              ? 'plain'
+                              : 'token'
+                          }
+                          showLimitWarning={false}
+                          sourceLimits={ProviderConnectionLimits}
+                          labels={ProviderFormLabels[activeProvider.id]}
+                          placeholders={
+                            ProviderFormPlaceholders[activeProvider.id]
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <>
+                        <h2 style={{ margin: 0 }}>Configure Connection</h2>
+                        <p className='description' style={{ margin: 0 }}>
+                          ( Click the <strong>Visibility</strong> icon to your
+                          right to edit connection )
+                        </p>
+                      </>
+                    )}
                     {/* {validationErrors.length > 0 && (
                       <FormValidationErrors errors={validationErrors} />
                     )} */}

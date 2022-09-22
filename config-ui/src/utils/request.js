@@ -21,22 +21,32 @@ import { MigrationOptions } from '@/config/migration'
 const headers = {}
 
 const handleErrorResponse = (e, cb = () => {}) => {
-  let errorResponse = { success: false, message: e.message, data: null, status: 504 }
+  let errorResponse = {
+    success: false,
+    message: e.message,
+    data: null,
+    status: 504
+  }
   if (e.response) {
     errorResponse = {
       ...errorResponse,
       data: e.response ? e.response.data : null,
       message: e.response?.data?.message,
-      status: e.response ? e.response.status : 504,
+      status: e.response ? e.response.status : 504
     }
   }
   localStorage.removeItem(MigrationOptions.warningId)
   if (e.response?.status === MigrationOptions.apiStatusCode) {
-    console.log('>>> DATABASE MIGRATION REQUESTED! Setting Warning Identifier in Browser Storage...')
-    localStorage.setItem(MigrationOptions.warningId, JSON.stringify({
-      migration: true,
-      message: e.response?.data?.message
-    }))
+    console.log(
+      '>>> DATABASE MIGRATION REQUESTED! Setting Warning Identifier in Browser Storage...'
+    )
+    localStorage.setItem(
+      MigrationOptions.warningId,
+      JSON.stringify({
+        migration: true,
+        message: e.response?.data?.message
+      })
+    )
   }
   cb(e)
   return errorResponse
@@ -44,47 +54,38 @@ const handleErrorResponse = (e, cb = () => {}) => {
 
 export default {
   post: async (url, body, cb = () => {}) => {
-    return await axios.post(
-      url,
-      body,
-      {
+    return await axios
+      .post(url, body, {
         headers
-      }
-    ).catch(e => handleErrorResponse(e, cb))
+      })
+      .catch((e) => handleErrorResponse(e, cb))
   },
   get: async (url, cb = () => {}) => {
-    return await axios.get(
-      url,
-      {
+    return await axios
+      .get(url, {
         headers
-      }
-    ).catch(e => handleErrorResponse(e, cb))
+      })
+      .catch((e) => handleErrorResponse(e, cb))
   },
   put: async (url, body) => {
-    return await axios.put(
-      url,
-      body,
-      {
+    return await axios
+      .put(url, body, {
         headers
-      }
-    ).catch(e => handleErrorResponse(e))
+      })
+      .catch((e) => handleErrorResponse(e))
   },
   patch: async (url, body) => {
-    return await axios.patch(
-      url,
-      body,
-      {
+    return await axios
+      .patch(url, body, {
         headers
-      }
-    ).catch(e => handleErrorResponse(e))
+      })
+      .catch((e) => handleErrorResponse(e))
   },
   delete: async (url, body) => {
-    return await axios.delete(
-      url,
-      body,
-      {
+    return await axios
+      .delete(url, body, {
         headers
-      }
-    ).catch(e => handleErrorResponse(e))
+      })
+      .catch((e) => handleErrorResponse(e))
   }
 }

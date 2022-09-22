@@ -24,11 +24,10 @@ const NullBlueprintConnection = {
       repo: null,
       options: null,
       boardId: null,
-      transformation: {
-      },
-      entities: [],
-    },
-  ],
+      transformation: {},
+      entities: []
+    }
+  ]
 }
 
 export { NullBlueprintConnection }

@@ -26,6 +26,7 @@ type GithubPullRequest struct {
 	ConnectionId    uint64 `gorm:"primaryKey"`
 	GithubId        int    `gorm:"primaryKey"`
 	RepoId          int    `gorm:"index"`
+	HeadRepoId      int
 	Number          int    `gorm:"index"` // This number is used in GET requests to the API associated to reviewers / comments / etc.
 	State           string `gorm:"type:varchar(255)"`
 	Title           string

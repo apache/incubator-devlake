@@ -18,7 +18,10 @@
 import { useCallback, useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 
-function useNetworkOfflineMode (offlineStatuses = [502, 504], offlineRoute = '/offline') {
+function useNetworkOfflineMode(
+  offlineStatuses = [502, 504, 404],
+  offlineRoute = '/offline'
+) {
   const history = useHistory()
   const [status, setStatus] = useState()
   const [response, setResponse] = useState()

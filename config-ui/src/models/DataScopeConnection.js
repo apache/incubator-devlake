@@ -46,7 +46,7 @@
  * @property {number?} totalStages
  */
 class DataScopeConnection {
-  constructor (data = {}) {
+  constructor(data = {}) {
     this.id = parseInt(data?.id, 10) || null
     this.mode = data?.mode || 'NORMAL'
     this.name = data?.name || null
@@ -74,11 +74,11 @@ class DataScopeConnection {
     this.totalStages = data?.totalStages || 1
   }
 
-  get (property) {
+  get(property) {
     return this[property]
   }
 
-  set (property, value) {
+  set(property, value) {
     this[property] = value
     return this.property
   }

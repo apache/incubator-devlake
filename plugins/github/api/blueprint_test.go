@@ -19,55 +19,42 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/apache/incubator-devlake/mocks"
+	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
-	"github.com/spf13/cobra"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestMakePipelinePlan(t *testing.T) {
-	cmd := &cobra.Command{Use: "github"}
-	option := &tasks.GithubOptions{
-		ConnectionId: 1,
-		Tasks:        nil,
-		Since:        "",
-		Owner:        "merico-dev",
-		Repo:         "lake",
-		TransformationRules: models.TransformationRules{
-			PrType:               "hey,man,wasup",
-			PrComponent:          "component/(.*)$",
-			PrBodyClosePattern:   "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)",
-			IssueSeverity:        "severity/(.*)$",
-			IssuePriority:        "^(highest|high|medium|low)$",
-			IssueComponent:       "component/(.*)$",
-			IssueTypeBug:         "^(bug|failure|error)$",
-			IssueTypeIncident:    "",
-			IssueTypeRequirement: "^(feat|feature|proposal|requirement)$",
-			DeployTagPattern:     "(?i)deploy",
+func TestProcessScope(t *testing.T) {
+	connection := &models.GithubConnection{
+		RestConnection: helper.RestConnection{
+			BaseConnection: helper.BaseConnection{
+				Name: "github-test",
+				Model: common.Model{
+					ID: 1,
+				},
+			},
+			Endpoint:         "https://api.github.com/",
+			Proxy:            "",
+			RateLimitPerHour: 0,
+		},
+		AccessToken: helper.AccessToken{
+			Token: "123",
 		},
 	}
-	mockConnHelper := mocks.NewBpHelper(t)
-	mockConnHelper.On("GetApiRepo", uint64(1), option).Return(&tasks.GithubApiRepo{
-		Name:     "test",
-		GithubId: 1,
-		CloneUrl: "CloneUrl",
-	}, "", "", nil)
 	mockMeta := mocks.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/github")
-
-	err := core.RegisterPlugin(cmd.Use, mockMeta)
-	if err != nil {
-		panic(err)
-	}
+	err := core.RegisterPlugin("github", mockMeta)
+	assert.Nil(t, err)
 	bs := &core.BlueprintScopeV100{
 		Entities: []string{"CODE"},
 		Options: json.RawMessage(`{
-              "repo": "lake",
-              "owner": "merico-dev"
+              "owner": "test",
+              "repo": "testRepo"
             }`),
 		Transformation: json.RawMessage(`{
               "prType": "hey,man,wasup",
@@ -76,21 +63,22 @@ func TestMakePipelinePlan(t *testing.T) {
                 "tagsLimit": 10,
                 "tagsOrder": "reverse semver"
               },
-              "dora": {
-                "environment": "pattern",
-                "environmentRegex": "xxxx"
-              }
+              "productionPattern": "xxxx"
             }`),
+	}
+	apiRepo := &tasks.GithubApiRepo{
+		GithubId: 123,
+		CloneUrl: "HttpUrlToRepo",
 	}
 	scopes := make([]*core.BlueprintScopeV100, 0)
 	scopes = append(scopes, bs)
-	plan, err := DoMakePipeline(nil, 1, scopes, mockConnHelper)
-
-	assert.Nil(t, err)
+	plan := make(core.PipelinePlan, len(scopes))
+	for i, scopeElem := range scopes {
+		plan, err = processScope(nil, 1, scopeElem, i, plan, apiRepo, connection)
+		assert.Nil(t, err)
+	}
 	planJson, err1 := json.Marshal(plan)
 	assert.Nil(t, err1)
-	fmt.Println(string(planJson))
-	expectPlan := `[[{"plugin":"github","subtasks":[],"options":{"connectionId":1,"owner":"merico-dev","repo":"lake","transformationRules":{"prType":"hey,man,wasup"}}},{"plugin":"gitextractor","subtasks":null,"options":{"proxy":"","repoId":"github:GithubRepo:1:1","url":"//git:@CloneUrl"}}],[{"plugin":"refdiff","subtasks":null,"options":{"tagsLimit":10,"tagsOrder":"reverse semver","tagsPattern":"pattern"}}],[{"plugin":"dora","subtasks":null,"options":{"repoId":"github:GithubRepo:1:1","tasks":["EnrichTaskEnv"],"transformation":{"environment":"pattern","environmentRegex":"xxxx"}}}]]`
+	expectPlan := `[[{"plugin":"github","subtasks":[],"options":{"connectionId":1,"owner":"test","repo":"testRepo","transformationRules":{"prType":"hey,man,wasup"}}},{"plugin":"gitextractor","subtasks":null,"options":{"proxy":"","repoId":"github:GithubRepo:1:123","url":"//git:123@HttpUrlToRepo"}}],[{"plugin":"refdiff","subtasks":null,"options":{"tagsLimit":10,"tagsOrder":"reverse semver","tagsPattern":"pattern"}}],[{"plugin":"dora","subtasks":null,"options":{"repoId":"github:GithubRepo:1:123","tasks":["EnrichTaskEnv"],"transformationRules":{"productionPattern":"xxxx"}}}]]`
 	assert.Equal(t, expectPlan, string(planJson))
-
 }

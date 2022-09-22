@@ -23,9 +23,7 @@ const DeleteConfirmationMessage = (props) => {
     <>
       <h3>{title}</h3>
       <p className='confirmation-text'>
-        <strong>
-          Are you sure you want to continue?
-        </strong>
+        <strong>Are you sure you want to continue?</strong>
         &nbsp;This instance will be permanently deleted and cannot be restored.
       </p>
     </>

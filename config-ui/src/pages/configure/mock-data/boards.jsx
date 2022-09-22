@@ -24,6 +24,4 @@ const boardsData = [
   { id: 6, title: 'Closed', value: 6 }
 ]
 
-export {
-  boardsData
-}
+export { boardsData }

@@ -27,7 +27,7 @@ import {
   Icon,
   Intent,
   Label,
-  MenuItem,
+  MenuItem
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import {
@@ -36,7 +36,7 @@ import {
   ProviderLabels,
   ProviderFormLabels,
   ProviderFormPlaceholders,
-  ProviderConnectionLimits,
+  ProviderConnectionLimits
   // ProviderIcons,
 } from '@/data/Providers'
 import { NullBlueprintConnection } from '@/data/NullBlueprintConnection'
@@ -46,7 +46,7 @@ import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 
 const Modes = {
   CREATE: 'create',
-  EDIT: 'edit',
+  EDIT: 'edit'
 }
 
 // @todo: lift data sources list to configuration level, requires expansion when more providers are added..
@@ -55,32 +55,32 @@ const DATA_SOURCES_LIST = [
     id: 1,
     name: Providers.JIRA,
     title: ProviderLabels[Providers.JIRA.toUpperCase()],
-    value: Providers.JIRA,
+    value: Providers.JIRA
   },
   {
     id: 2,
     name: Providers.GITHUB,
     title: ProviderLabels[Providers.GITHUB.toUpperCase()],
-    value: Providers.GITHUB,
+    value: Providers.GITHUB
   },
   {
     id: 3,
     name: Providers.GITLAB,
     title: ProviderLabels[Providers.GITLAB.toUpperCase()],
-    value: Providers.GITLAB,
+    value: Providers.GITLAB
   },
   {
     id: 4,
     name: Providers.JENKINS,
     title: ProviderLabels[Providers.JENKINS.toUpperCase()],
-    value: Providers.JENKINS,
+    value: Providers.JENKINS
   },
   {
     id: 5,
     name: Providers.TAPD,
     title: ProviderLabels[Providers.TAPD.toUpperCase()],
-    value: Providers.TAPD,
-  },
+    value: Providers.TAPD
+  }
 ]
 
 const ConnectionDialog = (props) => {
@@ -127,7 +127,7 @@ const ConnectionDialog = (props) => {
     allTestResponses,
     errors = [],
     validationErrors = [],
-    canOutsideClickClose = false,
+    canOutsideClickClose = false
     // authType,
     // showLimitWarning = false
   } = props
@@ -237,7 +237,8 @@ const ConnectionDialog = (props) => {
                       activeItem={datasource}
                       itemPredicate={(query, item) =>
                         item.title.toLowerCase().indexOf(query.toLowerCase()) >=
-                        0}
+                        0
+                      }
                       itemRenderer={(item, { handleClick, modifiers }) => (
                         <MenuItem
                           active={modifiers.active}
@@ -271,7 +272,7 @@ const ConnectionDialog = (props) => {
                         style={{
                           maxWidth: '260px',
                           display: 'flex',
-                          justifyContent: 'space-between',
+                          justifyContent: 'space-between'
                         }}
                       />
                     </Select>
@@ -340,17 +341,15 @@ const ConnectionDialog = (props) => {
             >
               {testResponse && (
                 <>
-                  {testResponse.success
-                    ? (
-                      <span style={{ color: Colors.GREEN5 }}>
-                        Successfully Connected!
-                      </span>
-                      )
-                    : (
-                      <span style={{ color: Colors.RED5 }}>
-                        Connection Failed
-                      </span>
-                      )}
+                  {testResponse.success ? (
+                    <span style={{ color: Colors.GREEN5 }}>
+                      Successfully Connected!
+                    </span>
+                  ) : (
+                    <span style={{ color: Colors.RED5 }}>
+                      Connection Failed
+                    </span>
+                  )}
                 </>
               )}
             </div>

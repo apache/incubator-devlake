@@ -17,9 +17,15 @@
  */
 
 module.exports = {
-  printWidth: 140,
+  printWidth: 80,
   singleQuote: true,
+  singleAttributePerLine: false,
   jsxSingleQuote: true,
-  trailingComma: 'es5',
+  trailingComma: 'none',
   semi: false,
+  bracketSpacing: true,
+  useTabs: false,
+  tabWidth: 2,
+  bracketSameLine: false,
+  arrowParens: 'always'
 }

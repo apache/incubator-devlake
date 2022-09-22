@@ -65,9 +65,7 @@ const connectionsData = [
     endpoint: 'https://jira-demo-784.merico.dev',
     status: 3,
     errors: []
-  },
+  }
 ]
 
-export {
-  connectionsData
-}
+export { connectionsData }

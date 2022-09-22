@@ -18,14 +18,14 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/dora/impl"
 	"github.com/apache/incubator-devlake/plugins/dora/tasks"
 )
@@ -38,8 +38,9 @@ func TestConnectIssueDeployDataFlow(t *testing.T) {
 		Options: &tasks.DoraOptions{
 			RepoId: "github:GithubRepo:1:384111310",
 			TransformationRules: tasks.TransformationRules{
-				Environment:      "staging",
-				EnvironmentRegex: "deploy",
+				ProductionPattern: "(?i)deploy",
+				StagingPattern:    "(?i)stag",
+				TestingPattern:    "(?i)test",
 			},
 		},
 	}

@@ -24,7 +24,7 @@ import {
   Card,
   Colors,
   Popover,
-  PopoverInteractionKind,
+  PopoverInteractionKind
 } from '@blueprintjs/core'
 
 const StandardStackedList = (props) => {
@@ -39,7 +39,7 @@ const StandardStackedList = (props) => {
     onAdd = () => {},
     onChange = () => {},
     isEditing = () => {},
-    style = { padding: 0, marginTop: '10px' },
+    style = { padding: 0, marginTop: '10px' }
   } = props
 
   return (
@@ -60,7 +60,7 @@ const StandardStackedList = (props) => {
                 padding: '8px 12px',
                 borderBottom: '1px solid #f0f0f0',
                 backgroundColor:
-                  activeItem === item ? 'rgba(116, 151, 247, 0.2)' : '#fff',
+                  activeItem === item ? 'rgba(116, 151, 247, 0.2)' : '#fff'
               }}
             >
               <div>
@@ -69,29 +69,49 @@ const StandardStackedList = (props) => {
                     onClick={() => onAdd(item)}
                     style={{ cursor: 'pointer' }}
                   >
-                    {item.shortTitle || item.icon
-                      ? (
-                        <Popover
-                          className='docs-popover-portal-example-popover'
-                          interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
-                          content={
-                            <div style={{ padding: '5px', justifyContent: 'center', display: 'flex' }}>
-                              {item.icon && <img src={item.icon} style={{ maxWidth: '100%', overflow: 'hidden', width: '14px', height: '14px', borderRadius: '50%', marginRight: '2px' }} />}
-                              {item.title}
-                            </div>
-                          }
-                        >
-                          {item.shortTitle || item.title}
-                        </Popover>
-                        )
-                      : item.title}
+                    {item.shortTitle || item.icon ? (
+                      <Popover
+                        className='docs-popover-portal-example-popover'
+                        interactionKind={
+                          PopoverInteractionKind.HOVER_TARGET_ONLY
+                        }
+                        content={
+                          <div
+                            style={{
+                              padding: '5px',
+                              justifyContent: 'center',
+                              display: 'flex'
+                            }}
+                          >
+                            {item.icon && (
+                              <img
+                                src={item.icon}
+                                style={{
+                                  maxWidth: '100%',
+                                  overflow: 'hidden',
+                                  width: '14px',
+                                  height: '14px',
+                                  borderRadius: '50%',
+                                  marginRight: '2px'
+                                }}
+                              />
+                            )}
+                            {item.title}
+                          </div>
+                        }
+                      >
+                        {item.shortTitle || item.title}
+                      </Popover>
+                    ) : (
+                      item.title
+                    )}
                   </label>
                 </div>
               </div>
               <div
                 style={{
                   display: 'flex',
-                  alignContent: 'center',
+                  alignContent: 'center'
                 }}
               >
                 <div className='item-actions' style={{ paddingLeft: '20px' }}>
@@ -106,7 +126,7 @@ const StandardStackedList = (props) => {
                     style={{
                       minWidth: '18px',
                       minHeight: '18px',
-                      fontSize: '11px',
+                      fontSize: '11px'
                     }}
                     onClick={() => onAdd(item)}
                   />
