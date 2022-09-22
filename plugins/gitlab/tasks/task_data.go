@@ -77,7 +77,9 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOption
 	if op.IssueTypeRequirement == "" {
 		op.IssueTypeRequirement = "^(feat|feature|proposal|requirement)$"
 	}
-
+	if op.DeploymentPattern == "" {
+		op.DeploymentPattern = "(?i)deploy"
+	}
 	// find the needed GitHub now
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("connectionId is invalid")
