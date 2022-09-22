@@ -43,22 +43,24 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	repoId := data.Options.RepoId
 
 	productionNamePattern := data.Options.ProductionPattern
-	stagingNamePattern := data.Options.StagingPattern
-	testingNamePattern := data.Options.TestingPattern
+	// TODO: STAGE 2
+	// stagingNamePattern := data.Options.StagingPattern
+	// testingNamePattern := data.Options.TestingPattern
 	dataSource := data.Options.DataSoure
 
 	productionNameRegexp, errRegexp := regexp.Compile(productionNamePattern)
 	if errRegexp != nil {
 		return errors.Default.Wrap(errRegexp, "Regexp compile productionPattern failed")
 	}
-	stagingNameRegexp, errRegexp := regexp.Compile(stagingNamePattern)
-	if errRegexp != nil {
-		return errors.Default.Wrap(errRegexp, "Regexp compile stagingPattern failed")
-	}
-	testingNameRegexp, errRegexp := regexp.Compile(testingNamePattern)
-	if errRegexp != nil {
-		return errors.Default.Wrap(errRegexp, "Regexp compile testingPattern failed")
-	}
+	// TODO: STAGE 2
+	// stagingNameRegexp, errRegexp := regexp.Compile(stagingNamePattern)
+	// if errRegexp != nil {
+	// 	return errors.Default.Wrap(errRegexp, "Regexp compile stagingPattern failed")
+	// }
+	// testingNameRegexp, errRegexp := regexp.Compile(testingNamePattern)
+	// if errRegexp != nil {
+	// 	return errors.Default.Wrap(errRegexp, "Regexp compile testingPattern failed")
+	// }
 	var cursor *sql.Rows
 	if len(dataSource) == 0 {
 		cursor, err = db.Cursor(
@@ -90,16 +92,18 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			cicdTask := inputRow.(*devops.CICDTask)
 			results := make([]interface{}, 0, 1)
-			var EnvironmentVar = devops.PRODUCTION
+			var EnvironmentVar string
+			//var EnvironmentVar = devops.PRODUCTION
 			if productEnv := productionNameRegexp.FindString(cicdTask.Name); productEnv != "" {
 				EnvironmentVar = devops.PRODUCTION
 			}
-			if stagingEnv := stagingNameRegexp.FindString(cicdTask.Name); stagingEnv != "" {
-				EnvironmentVar = devops.STAGING
-			}
-			if testingEnv := testingNameRegexp.FindString(cicdTask.Name); testingEnv != "" {
-				EnvironmentVar = devops.TESTING
-			}
+			// TODO: STAGE 2
+			// if stagingEnv := stagingNameRegexp.FindString(cicdTask.Name); stagingEnv != "" {
+			// 	EnvironmentVar = devops.STAGING
+			// }
+			// if testingEnv := testingNameRegexp.FindString(cicdTask.Name); testingEnv != "" {
+			// 	EnvironmentVar = devops.TESTING
+			// }
 
 			cicdPipelineFilter := &devops.CICDTask{
 				DomainEntity: cicdTask.DomainEntity,
