@@ -138,6 +138,10 @@ func (c *CsvStore) CommitFileComponents(commitFileComponent *code.CommitFileComp
 	return c.commitFileWriter.Write(commitFileComponent)
 }
 
+func (c *CsvStore) CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error {
+	return c.commitFileWriter.Write(commitLineChange)
+}
+
 func (c *CsvStore) CommitParents(pp []*code.CommitParent) errors.Error {
 	var err error
 	for _, p := range pp {

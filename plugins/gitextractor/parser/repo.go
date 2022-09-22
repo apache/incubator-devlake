@@ -45,19 +45,19 @@ type GitRepo struct {
 
 func (r *GitRepo) CollectAll(subtaskCtx core.SubTaskContext) errors.Error {
 	subtaskCtx.SetProgress(0, -1)
-	//err := r.CollectTags(subtaskCtx)
-	//if err != nil {
-	//	return err
-	//}
-	//err = r.CollectBranches(subtaskCtx)
-	//if err != nil {
-	//	return err
-	//}
-	//err = r.CollectCommits(subtaskCtx)
-	//if err != nil {
-	//	return err
-	//}
-	//return r.CollectDiffLine(subtaskCtx)
+	err := r.CollectTags(subtaskCtx)
+	if err != nil {
+		return err
+	}
+	err = r.CollectBranches(subtaskCtx)
+	if err != nil {
+		return err
+	}
+	err = r.CollectCommits(subtaskCtx)
+	if err != nil {
+		return err
+	}
+	return r.CollectDiffLine(subtaskCtx)
 	return nil
 }
 
@@ -387,17 +387,6 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 	return errors.Convert(err)
 }
 
-func getDiffOpts() (*git.DiffOptions, errors.Error) {
-	opts, err := git.DefaultDiffOptions()
-	if err != nil {
-		return nil, errors.Convert(err)
-	}
-	opts.NotifyCallback = func(diffSoFar *git.Diff, delta git.DiffDelta, matchedPathSpec string) error {
-		return nil
-	}
-	return &opts, nil
-}
-
 func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 	//Using this subtask,we can get every line change in every commit.
 	//We maintain a snapshot structure to get which commit each deleted line belongs to
@@ -473,16 +462,22 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 					hunks = make([]git.DiffHunk, 0)
 					lastFile = file.NewFile.Path
 				}
+				hunkNum := 0
 				return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
 					hunks = append(hunks, hunk)
+					hunkNum++
 					return func(line git.DiffLine) error {
 						//update snapshot
-						nl := &models.Line{}
-						nl.LineCommit = curcommit.Id().String()
-						nl.LineContent = line.Content
-						nl.LineNoNew = line.NewLineno
-						nl.LineNoOld = line.OldLineno
-						nl.LineOrigin = line.Origin.String()
+						commitLineChange := &code.CommitLineChange{}
+						commitLineChange.CommitSha = curcommit.Id().String()
+						commitLineChange.ChangedType = line.Origin.String()
+						commitLineChange.LineNoNew = int16(line.NewLineno)
+						commitLineChange.LineNoOld = int16(line.OldLineno)
+						commitLineChange.OldFilePath = file.OldFile.Path
+						commitLineChange.NewFilePath = file.NewFile.Path
+						commitLineChange.HunkNum = string(hunkNum)
+						r.store.CommitLineChange(commitLineChange)
+
 						if line.Origin == git.DiffLineAddition {
 							added = append(added, line)
 						} else if line.Origin == git.DiffLineDeletion {
@@ -566,7 +561,6 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 						//line call back
 						return func(line git.DiffLine) error {
 							//first store line message
-
 							commitLineChange := &code.CommitLineChange{}
 							commitLineChange.CommitSha = curcommit.Id().String()
 							commitLineChange.ChangedType = line.Origin.String()
@@ -590,6 +584,7 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 								}
 								deleted = append(deleted, line)
 							}
+							r.store.CommitLineChange(commitLineChange)
 
 							return nil
 						}, nil
@@ -635,14 +630,14 @@ func (difflines difflines) Swap(i, j int) {
 	difflines[j] = temp
 }
 
-func UpdateSnapshotFileBlame(curcommit *git.Commit, deleted difflines, added difflines, last_file string, snapshot map[string]*FileBlame) {
+func UpdateSnapshotFileBlame(currentCommit *git.Commit, deleted difflines, added difflines, lastFile string, snapshot map[string]*FileBlame) {
 	sort.Sort(deleted)
 
 	for _, line := range deleted {
-		snapshot[last_file].RemoveLine(line.OldLineno)
+		snapshot[lastFile].RemoveLine(line.OldLineno)
 	}
 	for _, line := range added {
-		snapshot[last_file].AddLine(line.NewLineno, curcommit.Id().String())
+		snapshot[lastFile].AddLine(line.NewLineno, currentCommit.Id().String())
 	}
 }
 
@@ -665,7 +660,7 @@ func (fb *FileBlame) Walk(num int) {
 
 func (fb *FileBlame) Find(num int) *list.Element {
 	fb.Walk(num)
-	if fb.Idx == num && fb.It != nil /*fb.it != fb.lines.Back()*/ {
+	if fb.Idx == num && fb.It != nil {
 		return fb.It
 	}
 	return nil
@@ -695,7 +690,7 @@ func (fb *FileBlame) RemoveLine(num int) {
 	fb.Walk(num)
 	a := fb.It
 	if fb.Idx < 0 || num < 1 {
-		fmt.Println("error")
+		log.Fatal("RemoveLine Error")
 		return
 	}
 	if fb.Idx == num && fb.It != nil {
@@ -723,13 +718,23 @@ func (fb *FileBlame) RemoveLine(num int) {
 }
 func printSnapshotFileBlame(filepath string, snapshot map[string]*FileBlame) {
 	if _, ok := snapshot[filepath]; !ok {
-		fmt.Println("file not found")
+		log.Println("file not found")
 		return
 	}
 	temp := snapshot[filepath]
 	cnt := 0
 	for e := temp.Lines.Front(); e != nil; e = e.Next() {
 		cnt++
-		fmt.Println(cnt, e.Value)
+		log.Println(cnt, e.Value)
 	}
+}
+func getDiffOpts() (*git.DiffOptions, errors.Error) {
+	opts, err := git.DefaultDiffOptions()
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
+	opts.NotifyCallback = func(diffSoFar *git.Diff, delta git.DiffDelta, matchedPathSpec string) error {
+		return nil
+	}
+	return &opts, nil
 }

@@ -36,6 +36,7 @@ type CommitLineChange struct {
 	ChangedType string `gorm:"type:varchar(255)"`
 	AuthorName  string `gorm:"type:varchar(255)"`
 	AuthorEmail string `gorm:"type:varchar(255)"`
+	PrevCommit  string `gorm:"type:varchar(255)"`
 }
 
 func (CommitLineChange) TableName() string {
@@ -54,7 +55,7 @@ func (*commitLineChange) Up(ctx context.Context, db *gorm.DB) errors.Error {
 }
 
 func (*commitLineChange) Version() uint64 {
-	return 202209211031
+	return 202209221031
 }
 
 func (*commitLineChange) Name() string {
