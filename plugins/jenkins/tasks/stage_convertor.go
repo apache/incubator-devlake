@@ -65,11 +65,11 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	var deployTagRegexp *regexp.Regexp
-	deployTagPattern := data.Options.DeployTagPattern
-	if len(deployTagPattern) > 0 {
-		deployTagRegexp, err = errors.Convert01(regexp.Compile(deployTagPattern))
+	deploymentPattern := data.Options.DeploymentPattern
+	if len(deploymentPattern) > 0 {
+		deployTagRegexp, err = errors.Convert01(regexp.Compile(deploymentPattern))
 		if err != nil {
-			return errors.Default.Wrap(err, "regexp compile deployTagPattern failed")
+			return errors.Default.Wrap(err, "regexp compile deploymentPattern failed")
 		}
 	}
 

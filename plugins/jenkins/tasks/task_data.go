@@ -49,8 +49,8 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptio
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
-	if op.DeployTagPattern == "" {
-		op.DeployTagPattern = "(?i)deploy"
+	if op.DeploymentPattern == "" {
+		op.DeploymentPattern = "(?i)deploy"
 	}
 	// find the needed Jenkins now
 	if op.ConnectionId == 0 {

@@ -18,8 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -75,9 +76,6 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOption
 	}
 	if op.IssueTypeRequirement == "" {
 		op.IssueTypeRequirement = "^(feat|feature|proposal|requirement)$"
-	}
-	if op.DeployTagPattern == "" {
-		op.DeployTagPattern = "(?i)deploy"
 	}
 
 	// find the needed GitHub now

@@ -32,7 +32,7 @@ func main() {
 
 	repoId := cmd.Flags().StringP("repoId", "r", "", "repo id")
 	_ = cmd.MarkFlagRequired("repoId")
-	productionPattern := cmd.Flags().String("productionPattern", "(?i)deploy", "environment production name")
+	productionPattern := cmd.Flags().String("productionPattern", "(?i)production", "environment production name")
 	stagingPattern := cmd.Flags().String("stagingPattern", "(?i)stag", "environment stag name")
 	testingPattern := cmd.Flags().String("testingPattern", "(?i)test", "environment test name")
 
