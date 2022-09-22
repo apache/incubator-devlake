@@ -49,14 +49,6 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*DoraOptions,
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error decoding DORA task options")
 	}
-	if op.ProductionPattern == "" {
-		op.ProductionPattern = "(?i)deploy"
-	}
-	if op.StagingPattern == "" {
-		op.StagingPattern = "(?i)stag"
-	}
-	if op.TestingPattern == "" {
-		op.TestingPattern = "(?i)test"
-	}
+
 	return &op, nil
 }
