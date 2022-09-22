@@ -61,11 +61,14 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		}
 		if productionPattern, ok := transformationRules["productionPattern"]; ok && productionPattern != nil {
 			j := i + 1
+			if j == len(plan) {
+				plan = append(plan, nil)
+			}
 			// add a new task to next stage
 			if plan[j] != nil {
 				j++
 			}
-			if j == len(plan) {
+			if j+1 == len(plan) {
 				plan = append(plan, nil)
 			}
 			if err != nil {
