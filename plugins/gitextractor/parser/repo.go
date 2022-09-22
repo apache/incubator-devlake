@@ -33,6 +33,7 @@ import (
 	"log"
 	"regexp"
 	"sort"
+	"strconv"
 )
 
 type GitRepo struct {
@@ -355,8 +356,6 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 			}
 		}
 		commitFileComponent.CommitFileId = commitFile.Id
-		//commitFileComponent.FilePath = file.NewFile.Path
-		//commitFileComponent.CommitSha = commitSha
 		if commitFileComponent.ComponentName == "" {
 			commitFileComponent.ComponentName = "Default"
 		}
@@ -400,12 +399,11 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 	//get head commit object and add into commitList
 	commit, _ := repo.LookupCommit(commitOid.Target())
 	commitList = append(commitList, *commit)
-	// if current head has parent, get parent commitsha
+	// if current head has parents, get parent commitsha
 	for commit != nil && commit.ParentCount() > 0 {
 		pid := commit.ParentId(0)
 		commit, _ = repo.LookupCommit(pid)
 		commitList = append(commitList, *commit)
-
 	}
 	// reverse commitList
 	for i, j := 0, len(commitList)-1; i < j; i, j = i+1, j-1 {
@@ -419,21 +417,27 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 			return errors.Convert(err)
 		}
 		//process the first commit
-		if curcommit.ParentCount() == 0 {
+		if curcommit.ParentCount() == 0 || curcommit.ParentCount() > 0 {
 			var parentTree, tree *git.Tree
 			tree, err = curcommit.Tree()
 			if err != nil {
 				return errors.Convert(err)
 			}
 			var diff *git.Diff
+			//opts, err := getDiffOpts()
+			//FIXME error type convert
 			opts, err := git.DefaultDiffOptions()
-			if err != nil {
-				return errors.Convert(err)
-			}
 			opts.NotifyCallback = func(diffSoFar *git.Diff, delta git.DiffDelta, matchedPathSpec string) error {
 				return nil
 			}
-
+			if err != nil {
+				return errors.Convert(err)
+			}
+			if curcommit.ParentCount() > 0 {
+				parent := curcommit.Parent(0)
+				parentTree, err = parent.Tree()
+			}
+			tree, err = curcommit.Tree()
 			diff, err = repo.DiffTreeToTree(parentTree, tree, &opts)
 			if err != nil {
 				return errors.Convert(err)
@@ -443,14 +447,16 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 			added := make([]git.DiffLine, 0)
 			var lastFile string
 			lastFile = ""
+			// file callback
 			err = diff.ForEach(func(file git.DiffDelta, progress float64) (git.DiffForEachHunkCallback, error) {
-				//if file doesn't exist in snapshot, create a new one
-				if _, ok := snapshot[file.NewFile.Path]; !ok {
-					nfb, err := NewFileBlame()
+				//if doesn't exist in snapshot, create a new one
+				if _, ok := snapshot[file.OldFile.Path]; !ok {
+					fileBlame, err := NewFileBlame()
 					if err != nil {
+						//FIXME
 						log.Fatal(err)
 					}
-					snapshot[file.NewFile.Path] = (*FileBlame)(nfb)
+					snapshot[file.OldFile.Path] = (*FileBlame)(fileBlame)
 				}
 				if lastFile == "" {
 					lastFile = file.NewFile.Path
@@ -462,155 +468,56 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 					hunks = make([]git.DiffHunk, 0)
 					lastFile = file.NewFile.Path
 				}
+				// hunk callback
 				hunkNum := 0
 				return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
 					hunks = append(hunks, hunk)
 					hunkNum++
+					//line call back
 					return func(line git.DiffLine) error {
-						//update snapshot
+						//first store line message
 						commitLineChange := &code.CommitLineChange{}
+						commitLineChange.Id = curcommit.Id().String() + ":" + file.NewFile.Path + ":" + strconv.Itoa(line.OldLineno) + ":" + strconv.Itoa(line.NewLineno)
 						commitLineChange.CommitSha = curcommit.Id().String()
 						commitLineChange.ChangedType = line.Origin.String()
-						commitLineChange.LineNoNew = int16(line.NewLineno)
-						commitLineChange.LineNoOld = int16(line.OldLineno)
+						commitLineChange.LineNoNew = line.NewLineno
+						commitLineChange.LineNoOld = line.OldLineno
 						commitLineChange.OldFilePath = file.OldFile.Path
 						commitLineChange.NewFilePath = file.NewFile.Path
-						commitLineChange.HunkNum = string(hunkNum)
-						r.store.CommitLineChange(commitLineChange)
-
+						commitLineChange.HunkNum = hunkNum
 						if line.Origin == git.DiffLineAddition {
 							added = append(added, line)
 						} else if line.Origin == git.DiffLineDeletion {
+							fb := snapshot[file.OldFile.Path]
+							l := fb.Find(line.OldLineno)
+							if l != nil && l.Value != nil {
+								temp := snapshot[file.OldFile.Path].Find(line.OldLineno)
+								commitLineChange.PrevCommit = temp.Value.(string)
+							} else {
+								r.logger.Info("err", file.OldFile.Path, line.OldLineno, curcommit.Id().String())
+							}
 							deleted = append(deleted, line)
 						}
+						r.store.CommitLineChange(commitLineChange)
 						return nil
 					}, nil
 				}, nil
 			}, git.DiffDetailLines)
 			if err != nil {
-				return errors.Convert(err)
+				errors.Convert(err)
 			}
-			//process the last file in the diff
-
+			//finally,process the last file in  diff
 			UpdateSnapshotFileBlame(curcommit, deleted, added, lastFile, snapshot)
-		} else if curcommit.ParentCount() > 0 {
-			parent := curcommit.Parent(0)
-			if parent != nil {
-				var parentTree, tree *git.Tree
-				var err error
-				parentTree, err = parent.Tree()
-				if err != nil {
-					return errors.Convert(err)
-				}
-				tree, err = curcommit.Tree()
-				if err != nil {
-					return errors.Convert(err)
-				}
-				var diff *git.Diff
-				opts := &git.DiffOptions{}
-				//if we use these options, the diff will be very slow and snapshot will be wrong
-				// findOpts, err := git.DefaultDiffFindOptions()
-				// findOpts.Flags = git.DiffFindByConfig //git.DiffFindBreakRewrites
-				// err = diff.FindSimilar(&findOpts)
-				diff, err = repo.DiffTreeToTree(parentTree, tree, opts)
-				if err != nil {
-					return errors.Convert(err)
-				}
-				hunks := make([]git.DiffHunk, 0)
-				deleted := make(difflines, 0)
-				added := make([]git.DiffLine, 0)
-				var lastFile string
-				lastFile = ""
-
-				// file callback
-				err = diff.ForEach(func(file git.DiffDelta, progress float64) (git.DiffForEachHunkCallback, error) {
-					//if doesn't exist in snapshot, create a new one
-					if _, ok := snapshot[file.OldFile.Path]; !ok {
-						nfb, err := NewFileBlame()
-						if err != nil {
-							log.Fatal(err)
-						}
-						snapshot[file.OldFile.Path] = (*FileBlame)(nfb)
-					}
-					// if file renamed or copied, add the new file into snapshot
-					// if we don't use find_similar opts,each file treat as NewFile
-					//if file.NewFile.Path != file.OldFile.Path {
-					//	snapshot[file.NewFile.Path] = snapshot[file.OldFile.Path] //*/ nfb
-					//	return func(dh git.DiffHunk) (git.DiffForEachLineCallback, error) {
-					//		return func(dl git.DiffLine) error {
-					//			return nil
-					//		}, nil
-					//	}, nil
-					//
-					//}
-					if lastFile == "" {
-						lastFile = file.NewFile.Path
-					} else if lastFile != file.NewFile.Path {
-						UpdateSnapshotFileBlame(curcommit, deleted, added, lastFile, snapshot)
-						//reset the deleted and added,last_file now is current file
-						deleted = make([]git.DiffLine, 0)
-						added = make([]git.DiffLine, 0)
-						hunks = make([]git.DiffHunk, 0)
-						lastFile = file.NewFile.Path
-					}
-					// hunk callback
-					hunkNum := 0
-					return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
-						hunks = append(hunks, hunk)
-						hunkNum++
-						//line call back
-						return func(line git.DiffLine) error {
-							//first store line message
-							commitLineChange := &code.CommitLineChange{}
-							commitLineChange.CommitSha = curcommit.Id().String()
-							commitLineChange.ChangedType = line.Origin.String()
-							commitLineChange.LineNoNew = int16(line.NewLineno)
-							commitLineChange.LineNoOld = int16(line.OldLineno)
-							commitLineChange.OldFilePath = file.OldFile.Path
-							commitLineChange.NewFilePath = file.NewFile.Path
-							commitLineChange.HunkNum = string(hunkNum)
-
-							if line.Origin == git.DiffLineAddition {
-								added = append(added, line)
-							} else if line.Origin == git.DiffLineDeletion {
-								t := snapshot[file.OldFile.Path]
-								a := t.Find(line.OldLineno)
-								if a != nil && a.Value != nil {
-									temp := snapshot[file.OldFile.Path].Find(line.OldLineno)
-									commitLineChange.PrevCommit = temp.Value.(string)
-
-								} else {
-									fmt.Println("err", file.OldFile.Path, line.OldLineno, curcommit.Id().String())
-								}
-								deleted = append(deleted, line)
-							}
-							r.store.CommitLineChange(commitLineChange)
-
-							return nil
-						}, nil
-					}, nil
-				}, git.DiffDetailLines)
-				if err != nil {
-					log.Fatal(err)
-				}
-				//finally,process the last file in  diff
-				UpdateSnapshotFileBlame(curcommit, deleted, added, lastFile, snapshot)
-			}
 		}
 	}
-
-	//for test
-	log.Print("Test Area")
-	printSnapshotFileBlame("README.md", snapshot)
-
 	return nil
 }
 
 func NewFileBlame() (*models.FileBlame, error) {
-	fb := &models.FileBlame{Idx: 0, It: &list.Element{}, Lines: list.New()}
+	fb := models.FileBlame{Idx: 0, It: &list.Element{}, Lines: list.New()}
 	fb.It = fb.Lines.Front()
 	fb.Idx = 0
-	return fb, nil
+	return &fb, nil
 }
 
 type difflines []git.DiffLine
@@ -690,7 +597,6 @@ func (fb *FileBlame) RemoveLine(num int) {
 	fb.Walk(num)
 	a := fb.It
 	if fb.Idx < 0 || num < 1 {
-		log.Fatal("RemoveLine Error")
 		return
 	}
 	if fb.Idx == num && fb.It != nil {
@@ -713,21 +619,9 @@ func (fb *FileBlame) RemoveLine(num int) {
 		}
 
 		fb.Lines.Remove(a)
+	}
+}
 
-	}
-}
-func printSnapshotFileBlame(filepath string, snapshot map[string]*FileBlame) {
-	if _, ok := snapshot[filepath]; !ok {
-		log.Println("file not found")
-		return
-	}
-	temp := snapshot[filepath]
-	cnt := 0
-	for e := temp.Lines.Front(); e != nil; e = e.Next() {
-		cnt++
-		log.Println(cnt, e.Value)
-	}
-}
 func getDiffOpts() (*git.DiffOptions, errors.Error) {
 	opts, err := git.DefaultDiffOptions()
 	if err != nil {
