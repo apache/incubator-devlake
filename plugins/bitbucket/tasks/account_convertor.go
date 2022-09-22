@@ -18,17 +18,15 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
-
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	bitbucketModels "github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 

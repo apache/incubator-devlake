@@ -20,6 +20,7 @@ package archived
 import (
 	"encoding/base64"
 	"fmt"
+
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 

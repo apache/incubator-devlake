@@ -20,12 +20,13 @@ package migrationscripts
 import (
 	"context"
 	"encoding/base64"
+	"strings"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/gorm"
-	"strings"
 )
 
 type addInitTables struct{}

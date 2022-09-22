@@ -19,12 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"io"
 	"net/http"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_REPOSITORIES_TABLE = "bitbucket_api_repositories"

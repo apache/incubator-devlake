@@ -18,8 +18,9 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
 type BitbucketRepo struct {

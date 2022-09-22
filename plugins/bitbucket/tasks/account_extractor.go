@@ -18,9 +18,10 @@ limitations under the License.
 package tasks
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
-	"time"
 )
 
 type BitbucketAccountResponse struct {

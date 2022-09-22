@@ -18,8 +18,9 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/common"
 )
 
 type BitbucketIssue struct {

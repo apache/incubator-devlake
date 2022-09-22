@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts/archived"
 	"gorm.io/gorm"

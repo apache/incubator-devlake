@@ -20,14 +20,15 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"io"
 	"net/http"
 	"net/url"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type BitbucketApiParams struct {

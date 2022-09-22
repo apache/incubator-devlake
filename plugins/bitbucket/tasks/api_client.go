@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"net/http"
 )
 
 func CreateApiClient(taskCtx core.TaskContext, connection *models.BitbucketConnection) (*helper.ApiAsyncClient, errors.Error) {

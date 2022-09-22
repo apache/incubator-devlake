@@ -19,9 +19,8 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/helper"
-
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_PULL_REQUEST_TABLE = "bitbucket_api_pull_requests"
