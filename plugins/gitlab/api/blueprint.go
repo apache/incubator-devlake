@@ -143,7 +143,7 @@ func processScope(subtaskMetas []core.SubTaskMeta, connectionId uint64, scopeEle
 		if plan[j] != nil {
 			j++
 		}
-		if j+1 == len(plan) {
+		if j == len(plan) {
 			plan = append(plan, nil)
 		}
 		if apiRepo == nil {
