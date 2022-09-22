@@ -20,7 +20,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import App from './App'
-import { UIContextProvider } from './store/UIContext'
+import { UIContextProvider } from '@/store/UIContext'
 
 ReactDOM.render(
   <UIContextProvider>

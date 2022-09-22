@@ -26,8 +26,8 @@ import {
 import '@/styles/nav.scss'
 import { ReactComponent as SlackIcon } from '@/images/slack-mark-monochrome-black.svg'
 import { ReactComponent as SlackLogo } from '@/images/slack-rgb.svg'
-import UIContext from '../store/UIContext'
-import useWindowSize from '../hooks/useWIndowSize'
+import UIContext from '@/store/UIContext'
+import useWindowSize from '@/hooks/useWIndowSize'
 
 
 const Nav = () => {
