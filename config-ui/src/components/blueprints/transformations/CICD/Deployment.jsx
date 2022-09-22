@@ -15,76 +15,45 @@
  * limitations under the License.
  *
  */
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Intent,
   FormGroup,
   RadioGroup,
   InputGroup,
   Radio,
-  Tag,
-  Icon,
-  Colors,
-  Tooltip
+  Tag
 } from '@blueprintjs/core'
 import { Providers, ProviderLabels } from '@/data/Providers'
+
 const Deployment = (props) => {
   const {
-    connection,
     provider,
     transformation,
-    configuredProject,
-    configuredBoard,
     entityIdKey,
-    entities = [],
     isSaving = false,
     onSettingsChange = () => {}
   } = props
 
-  const [deployTag, setDeployTag] = useState(
-    transformation?.productionPattern || ''
-  )
-  const [enableDeployTag, setEnableDeployTag] = useState(
-    [
-      transformation?.productionPattern
-      // transformation?.stagingPattern,
-      // transformation?.testingPattern
-    ].some((t) => t && t !== '')
-      ? 1
-      : 0
-  )
-  const isDeployTagEmpty = useMemo(
-    () =>
-      enableDeployTag &&
-      (transformation?.productionPattern === '' ||
-        !transformation?.productionPattern),
-    [enableDeployTag, transformation?.productionPattern]
-  )
+  const [selectValue, setSelectValue] = useState(1)
 
-  const clearDeploymentTags = useCallback(
-    (deploymentOption) => {
-      if (entityIdKey && deploymentOption === 0) {
-        onSettingsChange({ productionPattern: '' }, entityIdKey)
-        // onSettingsChange({ stagingPattern: '' }, entityIdKey)
-        // onSettingsChange({ testingPattern: '' }, entityIdKey)
-      }
-    },
-    [entityIdKey, onSettingsChange]
-  )
+  useEffect(() => {
+    setSelectValue(
+      transformation?.deploymentPattern ||
+        transformation?.deploymentPattern === ''
+        ? 1
+        : 0
+    )
+  }, [transformation?.deploymentPattern])
 
-  const handleDeploymentPreference = useCallback(
-    (deployOptionState) => {
-      setEnableDeployTag(deployOptionState)
-      switch (deployOptionState) {
-        case 0:
-          clearDeploymentTags(deployOptionState)
-          break
-        case 1:
-          break
-      }
-    },
-    [clearDeploymentTags]
-  )
+  const handleChangeSelectValue = (sv) => {
+    if (entityIdKey && sv === 0) {
+      onSettingsChange({ deploymentPattern: undefined }, entityIdKey)
+    } else if (entityIdKey && sv === 1) {
+      onSettingsChange({ deploymentPattern: '' }, entityIdKey)
+    }
+    setSelectValue(sv)
+  }
 
   // @todo: check w/ product team about using standard message and avoid customized hints
   const getDeployTagHint = (providerId, providerName = 'Plugin') => {
@@ -98,7 +67,7 @@ const Deployment = (props) => {
       case Providers.GITLAB:
       case 'default':
         // eslint-disable-next-line max-len
-        tagHint = `A CI job/build with a name that matches the given regEx is considered as an deployment. You can define your Deployments for three environments: Production, Staging and Testing.`
+        tagHint = `A CI job/build with a name that matches the given regEx is considered as a Deployment.`
         break
     }
     return tagHint
@@ -123,41 +92,60 @@ const Deployment = (props) => {
     return label
   }
 
-  useEffect(() => {
-    console.log('>>> CI/CD Deployment: TRANSFORMATION OBJECT!', transformation)
-    setEnableDeployTag(
-      [
-        transformation?.productionPattern
-        // transformation?.stagingPattern,
-        // transformation?.testingPattern
-      ].some((t) => t && t !== '')
-        ? 1
-        : 0
-    )
-  }, [transformation, transformation?.productionPattern])
-
   return (
     <>
-      <h5>
-        CI/CD{' '}
-        <Tag className='bp3-form-helper-text' minimal>
-          RegExp
+      <h5>CI/CD</h5>
+      <p style={{ color: '#292B3F' }}>
+        <strong>Environment Mapping</strong>{' '}
+        <Tag intent={Intent.PRIMARY} style={{ fontSize: '10px' }} minimal>
+          DORA
         </Tag>
-      </h5>
-      <p>Define deployment using one of the followng options</p>
+      </p>
+      <p>
+        The environment that matches the given regEx is considered as the
+        Production environment. If you leave this field empty, all data will be
+        tagged as in the Production environment.
+      </p>
+      <FormGroup
+        disabled={isSaving}
+        inline={true}
+        label={
+          <label
+            className='bp3-label'
+            style={{ minWidth: '150px', marginRight: '10px' }}
+          >
+            Production
+          </label>
+        }
+        labelFor='production'
+        className='formGroup'
+        contentClassName='formGroupContent'
+      >
+        <InputGroup
+          id='deploy-tag-production'
+          placeholder='(?i)production'
+          value={transformation?.productionPattern}
+          onChange={(e) =>
+            onSettingsChange({ productionPattern: e.target.value }, entityIdKey)
+          }
+          disabled={isSaving}
+          className='input'
+          maxLength={255}
+        />
+      </FormGroup>
       <p style={{ color: '#292B3F' }}>
         <strong>What is a deployment?</strong>{' '}
         <Tag intent={Intent.PRIMARY} style={{ fontSize: '10px' }} minimal>
           DORA
         </Tag>
       </p>
-
+      <p>Define Deployment using one of the following options.</p>
       <RadioGroup
         inline={false}
         label={false}
         name='deploy-tag'
-        onChange={(e) => handleDeploymentPreference(Number(e.target.value))}
-        selectedValue={enableDeployTag}
+        onChange={(e) => handleChangeSelectValue(+e.target.value)}
+        selectedValue={selectValue}
         required
       >
         <Radio
@@ -167,7 +155,7 @@ const Deployment = (props) => {
           )}
           value={1}
         />
-        {enableDeployTag === 1 && (
+        {selectValue === 1 && (
           <>
             <div
               className='bp3-form-helper-text'
@@ -192,7 +180,7 @@ const Deployment = (props) => {
                     className='bp3-label'
                     style={{ minWidth: '150px', marginRight: '10px' }}
                   >
-                    Deployment (Production)
+                    Deployment
                   </label>
                 }
                 labelFor='deploy-tag-production'
@@ -202,95 +190,19 @@ const Deployment = (props) => {
                 <InputGroup
                   id='deploy-tag-production'
                   placeholder='(?i)deploy'
-                  value={transformation?.productionPattern}
+                  value={transformation?.deploymentPattern}
                   onChange={(e) =>
                     onSettingsChange(
-                      { productionPattern: e.target.value },
+                      { deploymentPattern: e.target.value },
                       entityIdKey
                     )
                   }
                   disabled={isSaving}
                   className='input'
                   maxLength={255}
-                  rightElement={
-                    isDeployTagEmpty ? (
-                      <Tooltip
-                        intent={Intent.PRIMARY}
-                        content='Deployment Tag RegEx required'
-                      >
-                        <Icon
-                          icon='warning-sign'
-                          color={Colors.GRAY3}
-                          size={12}
-                          style={{ margin: '8px' }}
-                        />
-                      </Tooltip>
-                    ) : null
-                  }
-                  required
                 />
               </FormGroup>
             </div>
-            {/* <div className='formContainer'>
-              <FormGroup
-                disabled={isSaving}
-                inline={true}
-                label={<label className='bp3-label' style={{ minWidth: '150px', marginRight: '10px' }}>Deployment (Staging)</label>}
-                labelFor='deploy-tag-staging'
-                className='formGroup'
-                contentClassName='formGroupContent'
-              >
-                <InputGroup
-                  id='deploy-tag-staging'
-                  placeholder='(?i)stag'
-                  value={transformation?.stagingPattern}
-                  onChange={(e) => onSettingsChange({ stagingPattern: e.target.value }, entityIdKey)}
-                  disabled={isSaving}
-                  className='input'
-                  maxLength={255}
-                  rightElement={
-                    enableDeployTag && (transformation?.stagingPattern === '' || !transformation?.stagingPattern)
-                      ? (
-                        <Tooltip intent={Intent.PRIMARY} content='Deployment Tag RegEx required'>
-                          <Icon icon='warning-sign' color={Colors.GRAY3} size={12} style={{ margin: '8px' }} />
-                        </Tooltip>
-                        )
-                      : null
-                  }
-                  required
-                />
-              </FormGroup>
-            </div>
-            <div className='formContainer'>
-              <FormGroup
-                disabled={isSaving}
-                inline={true}
-                label={<label className='bp3-label' style={{ minWidth: '150px', marginRight: '10px' }}>Deployment (Testing)</label>}
-                labelFor='deploy-tag-testing'
-                className='formGroup'
-                contentClassName='formGroupContent'
-              >
-                <InputGroup
-                  id='deploy-tag-testing'
-                  placeholder='(?i)test'
-                  value={transformation?.testingPattern}
-                  onChange={(e) => onSettingsChange({ testingPattern: e.target.value }, entityIdKey)}
-                  disabled={isSaving}
-                  className='input'
-                  maxLength={255}
-                  rightElement={
-                    enableDeployTag && (transformation?.testingPattern === '' || !transformation?.testingPattern)
-                      ? (
-                        <Tooltip intent={Intent.PRIMARY} content='Deployment Tag RegEx required'>
-                          <Icon icon='warning-sign' color={Colors.GRAY3} size={12} style={{ margin: '8px' }} />
-                        </Tooltip>
-                        )
-                      : null
-                  }
-                  required
-                />
-              </FormGroup>
-            </div> */}
           </>
         )}
         <Radio

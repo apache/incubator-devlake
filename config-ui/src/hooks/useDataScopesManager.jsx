@@ -140,7 +140,8 @@ function useDataScopesManager({
           issueTypeBug: '',
           issueTypeIncident: '',
           refdiff: null,
-          productionPattern: ''
+          productionPattern: '',
+          deploymentPattern: ''
           // stagingPattern: '',
           // testingPattern: ''
         }
@@ -155,21 +156,24 @@ function useDataScopesManager({
           incidentTags: [],
           requirementTags: [],
           // @todo: verify if jira utilizes deploy tag(s)?
-          productionPattern: ''
+          productionPattern: '',
+          deploymentPattern: ''
           // stagingPattern: '',
           // testingPattern: ''
         }
         break
       case Providers.JENKINS:
         transforms = {
-          productionPattern: ''
+          productionPattern: '',
+          deploymentPattern: ''
           // stagingPattern: '',
           // testingPattern: ''
         }
         break
       case Providers.GITLAB:
         transforms = {
-          productionPattern: ''
+          productionPattern: '',
+          deploymentPattern: ''
           // stagingPattern: '',
           // testingPattern: ''
         }
@@ -180,7 +184,8 @@ function useDataScopesManager({
           issueTypeRequirement: '',
           issueTypeBug: '',
           issueTypeIncident: '',
-          productionPattern: ''
+          productionPattern: '',
+          deploymentPattern: ''
           // stagingPattern: '',
           // testingPattern: ''
         }
