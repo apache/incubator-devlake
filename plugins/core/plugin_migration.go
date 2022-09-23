@@ -17,8 +17,26 @@ limitations under the License.
 
 package core
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/migration"
+)
 
+// MigrationScript upgrades database to a newer version
+type MigrationScript interface {
+	Up(basicRes BasicRes) errors.Error
+	Version() uint64
+	Name() string
+}
+
+// Migrator is responsible for making sure the registered scripts get applied to database and only once
+type Migrator interface {
+	Register(scripts []MigrationScript, comment string)
+	Execute() errors.Error
+	HasPendingScripts() bool
+}
+
+// Migratable is implemented by the plugin to declare all migration script that have to be applied to the database
 type Migratable interface {
 	MigrationScripts() []migration.Script
 }

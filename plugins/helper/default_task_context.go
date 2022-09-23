@@ -35,7 +35,7 @@ import (
 // bridge to current implementation at this point
 // TODO: implement another TaskContext for distributed runner/worker
 
-// DefaultBasicRes FIXME ...
+// Deprecated: use impl instead
 type DefaultBasicRes struct {
 	cfg    *viper.Viper
 	logger core.Logger
@@ -63,7 +63,7 @@ func (c *DefaultBasicRes) GetLogger() core.Logger {
 	return c.logger
 }
 
-// NewDefaultBasicRes FIXME ...
+// Deprecated: use impl instead
 func NewDefaultBasicRes(
 	cfg *viper.Viper,
 	logger core.Logger,
