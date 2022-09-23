@@ -113,6 +113,7 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 				DomainEntity: cicdTask.DomainEntity,
 				PipelineId:   cicdTask.PipelineId,
 				Name:         cicdTask.Name,
+				Type:         cicdTask.Type,
 				Result:       cicdTask.Result,
 				Status:       cicdTask.Status,
 				DurationSec:  cicdTask.DurationSec,
