@@ -47,7 +47,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 
 	pipeline := &models.GithubRun{}
 	cursor, err := db.Cursor(
-		dal.Select("id, name, head_sha, head_branch, status, conclusion, github_created_at, github_updated_at"),
+		dal.Select("id, repo_id, connection_id, name, head_sha, head_branch, status, conclusion, github_created_at, github_updated_at"),
 		dal.From(pipeline),
 		dal.Where("repo_id = ? and connection_id=?", repoId, data.Options.ConnectionId),
 	)
@@ -76,7 +76,6 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 					data.Options.ConnectionId, line.RepoId, line.ID),
 				},
 				Name:         line.Name,
-				Type:         "CI/CD",
 				CreatedDate:  *line.GithubCreatedAt,
 				FinishedDate: line.GithubUpdatedAt,
 			}
