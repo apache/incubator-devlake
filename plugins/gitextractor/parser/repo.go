@@ -59,7 +59,6 @@ func (r *GitRepo) CollectAll(subtaskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	return r.CollectDiffLine(subtaskCtx)
-	return nil
 }
 
 func (r *GitRepo) Close() errors.Error {
@@ -424,7 +423,6 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 				return errors.Convert(err)
 			}
 			var diff *git.Diff
-			//opts, err := getDiffOpts()
 			//FIXME error type convert
 			opts, err := git.DefaultDiffOptions()
 			opts.NotifyCallback = func(diffSoFar *git.Diff, delta git.DiffDelta, matchedPathSpec string) error {
@@ -437,7 +435,6 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 				parent := curcommit.Parent(0)
 				parentTree, err = parent.Tree()
 			}
-			tree, err = curcommit.Tree()
 			diff, err = repo.DiffTreeToTree(parentTree, tree, &opts)
 			if err != nil {
 				return errors.Convert(err)
@@ -498,13 +495,16 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 							}
 							deleted = append(deleted, line)
 						}
-						r.store.CommitLineChange(commitLineChange)
+						err = r.store.CommitLineChange(commitLineChange)
+						if err != nil {
+							return errors.Convert(err)
+						}
 						return nil
 					}, nil
 				}, nil
 			}, git.DiffDetailLines)
 			if err != nil {
-				errors.Convert(err)
+				return errors.Convert(err)
 			}
 			//finally,process the last file in  diff
 			UpdateSnapshotFileBlame(curcommit, deleted, added, lastFile, snapshot)
