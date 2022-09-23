@@ -17,13 +17,21 @@ limitations under the License.
 
 package models
 
-type Line struct {
-	LineNoNew      int
-	LineNoOld      int
-	LineContent    string
-	LineCommit     string
-	LinePrevCommit string
-	LineOrigin     string
-	LinePrevAuthor string
-	LineIndent     int
+import git "github.com/libgit2/git2go/v33"
+
+type Difflines []git.DiffLine
+
+// some essential functions for custom sort
+func (difflines Difflines) Len() int {
+	return len(difflines)
+}
+
+func (difflines Difflines) Less(i, j int) bool {
+	return difflines[i].OldLineno > difflines[j].OldLineno
+}
+
+func (difflines Difflines) Swap(i, j int) {
+	temp := difflines[i]
+	difflines[i] = difflines[j]
+	difflines[j] = temp
 }

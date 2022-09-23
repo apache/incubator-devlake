@@ -389,7 +389,7 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 	//Using this subtask,we can get every line change in every commit.
 	//We maintain a snapshot structure to get which commit each deleted line belongs to
-	snapshot := make(map[string] /*file path*/ *FileBlame)
+	snapshot := make(map[string] /*file path*/ *models.FileBlame)
 	repo := r.repo
 	//step 1. get the reverse commit list
 	commitList := make([]git.Commit, 0)
@@ -443,8 +443,8 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 				return errors.Convert(err)
 			}
 			hunks := make([]git.DiffHunk, 0)
-			deleted := make(difflines, 0)
-			added := make([]git.DiffLine, 0)
+			deleted := make(models.Difflines, 0)
+			added := make(models.Difflines, 0)
 			var lastFile string
 			lastFile = ""
 			// file callback
@@ -456,7 +456,7 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 						//FIXME
 						log.Fatal(err)
 					}
-					snapshot[file.OldFile.Path] = (*FileBlame)(fileBlame)
+					snapshot[file.OldFile.Path] = (*models.FileBlame)(fileBlame)
 				}
 				if lastFile == "" {
 					lastFile = file.NewFile.Path
@@ -520,105 +520,13 @@ func NewFileBlame() (*models.FileBlame, error) {
 	return &fb, nil
 }
 
-type difflines []git.DiffLine
-
-// some essential functions for custom sort
-func (difflines difflines) Len() int {
-	return len(difflines)
-}
-
-func (difflines difflines) Less(i, j int) bool {
-	return difflines[i].OldLineno > difflines[j].OldLineno
-}
-
-func (difflines difflines) Swap(i, j int) {
-	temp := difflines[i]
-	difflines[i] = difflines[j]
-	difflines[j] = temp
-}
-
-func UpdateSnapshotFileBlame(currentCommit *git.Commit, deleted difflines, added difflines, lastFile string, snapshot map[string]*FileBlame) {
+func UpdateSnapshotFileBlame(currentCommit *git.Commit, deleted models.Difflines, added models.Difflines, lastFile string, snapshot map[string]*models.FileBlame) {
 	sort.Sort(deleted)
-
 	for _, line := range deleted {
 		snapshot[lastFile].RemoveLine(line.OldLineno)
 	}
 	for _, line := range added {
 		snapshot[lastFile].AddLine(line.NewLineno, currentCommit.Id().String())
-	}
-}
-
-type FileBlame struct {
-	Idx   int
-	It    *list.Element
-	Lines *list.List
-}
-
-func (fb *FileBlame) Walk(num int) {
-	for fb.Idx < num && fb.It != fb.Lines.Back() {
-		fb.Idx++
-		fb.It = fb.It.Next()
-	}
-	for fb.Idx > num && fb.It != fb.Lines.Front() {
-		fb.Idx--
-		fb.It = fb.It.Prev()
-	}
-}
-
-func (fb *FileBlame) Find(num int) *list.Element {
-	fb.Walk(num)
-	if fb.Idx == num && fb.It != nil {
-		return fb.It
-	}
-	return nil
-}
-
-func (fb *FileBlame) AddLine(num int, commit string) {
-	fb.Walk(num)
-	flag := false
-	for fb.It == fb.Lines.Back() && fb.Idx < num {
-		flag = true
-		fb.It = fb.Lines.PushBack(nil)
-		fb.Idx++
-
-	}
-
-	if fb.It == nil {
-		fb.It = fb.Lines.PushBack(commit)
-	} else if flag {
-		fb.It.Value = commit
-	} else {
-		fb.It = fb.Lines.InsertBefore(commit, fb.It)
-	}
-}
-
-func (fb *FileBlame) RemoveLine(num int) {
-
-	fb.Walk(num)
-	a := fb.It
-	if fb.Idx < 0 || num < 1 {
-		return
-	}
-	if fb.Idx == num && fb.It != nil {
-		if fb.Lines.Len() == 1 {
-			fb.Idx = 0
-			fb.Lines.Init()
-			fb.It = fb.Lines.Front()
-			return
-		}
-		if fb.Idx == 1 {
-			fb.It = fb.It.Next()
-			fb.Lines.Remove(fb.It.Prev())
-			return
-		}
-		if fb.It != fb.Lines.Back() {
-			fb.It = fb.It.Next()
-		} else {
-			fb.It = fb.It.Prev()
-			fb.Idx--
-		}
-
-		fb.Lines.Remove(a)
 	}
 }
 

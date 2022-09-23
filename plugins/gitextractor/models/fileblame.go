@@ -19,7 +19,6 @@ package models
 
 import (
 	"container/list"
-	"fmt"
 )
 
 type FileBlame struct {
@@ -41,10 +40,9 @@ func (fb *FileBlame) Walk(num int) {
 
 func (fb *FileBlame) Find(num int) *list.Element {
 	fb.Walk(num)
-	if fb.Idx == num && fb.It != nil /*fb.it != fb.lines.Back()*/ {
+	if fb.Idx == num && fb.It != nil {
 		return fb.It
 	}
-	fmt.Println("error", fb.Idx, num)
 	return nil
 }
 
@@ -72,7 +70,6 @@ func (fb *FileBlame) RemoveLine(num int) {
 	fb.Walk(num)
 	a := fb.It
 	if fb.Idx < 0 || num < 1 {
-		fmt.Println("error")
 		return
 	}
 	if fb.Idx == num && fb.It != nil {
@@ -95,6 +92,5 @@ func (fb *FileBlame) RemoveLine(num int) {
 		}
 
 		fb.Lines.Remove(a)
-
 	}
 }
