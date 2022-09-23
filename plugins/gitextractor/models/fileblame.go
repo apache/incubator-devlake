@@ -55,7 +55,6 @@ func (fb *FileBlame) AddLine(num int, commit string) {
 		fb.Idx++
 
 	}
-
 	if fb.It == nil {
 		fb.It = fb.Lines.PushBack(commit)
 	} else if flag {
@@ -66,7 +65,6 @@ func (fb *FileBlame) AddLine(num int, commit string) {
 }
 
 func (fb *FileBlame) RemoveLine(num int) {
-
 	fb.Walk(num)
 	a := fb.It
 	if fb.Idx < 0 || num < 1 {
@@ -90,7 +88,6 @@ func (fb *FileBlame) RemoveLine(num int) {
 			fb.It = fb.It.Prev()
 			fb.Idx--
 		}
-
 		fb.Lines.Remove(a)
 	}
 }

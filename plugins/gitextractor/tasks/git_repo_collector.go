@@ -84,6 +84,7 @@ func CollectGitTags(subTaskCtx core.SubTaskContext) errors.Error {
 	}
 	return repo.CollectTags(subTaskCtx)
 }
+
 func CollectGitDiffLines(subTaskCtx core.SubTaskContext) errors.Error {
 	repo := getGitRepo(subTaskCtx)
 	if count, err := repo.CountTags(); err != nil {

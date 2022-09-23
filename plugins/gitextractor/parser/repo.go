@@ -197,7 +197,6 @@ func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) errors.Error {
 
 func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) errors.Error {
 	opts, err := getDiffOpts()
-
 	if err != nil {
 		return err
 	}
@@ -215,7 +214,6 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-
 	return errors.Convert(odb.ForEach(func(id *git.Oid) error {
 		select {
 		case <-subtaskCtx.GetContext().Done():
