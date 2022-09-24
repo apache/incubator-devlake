@@ -148,7 +148,12 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) errors.Error {
 					}
 				}
 			}
-			results = append(results, githubPr)
+			githubPrCommit := &models.GithubPrCommit{
+				ConnectionId:  data.Options.ConnectionId,
+				CommitSha:     githubPr.MergeCommitSha,
+				PullRequestId: githubPr.GithubId,
+			}
+			results = append(results, githubPr, githubPrCommit)
 
 			return results, nil
 		},

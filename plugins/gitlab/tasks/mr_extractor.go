@@ -147,6 +147,12 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) errors.Error {
 				results = append(results, gitlabReviewer)
 			}
 
+			gitlabMrCommit := &models.GitlabMrCommit{
+				ConnectionId:   data.Options.ConnectionId,
+				CommitSha:      gitlabMergeRequest.MergeCommitSha,
+				MergeRequestId: gitlabMergeRequest.GitlabId,
+			}
+			results = append(results, gitlabMrCommit)
 			return results, nil
 		},
 	})

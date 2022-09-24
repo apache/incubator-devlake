@@ -44,6 +44,7 @@ func TestGitlabMrDataFlow(t *testing.T) {
 		"_raw_gitlab_api_merge_requests")
 
 	// verify extraction
+	dataflowTester.FlushTabler(&models.GitlabMrCommit{})
 	dataflowTester.FlushTabler(&models.GitlabMergeRequest{})
 	dataflowTester.FlushTabler(&models.GitlabMrLabel{})
 	dataflowTester.Subtask(tasks.ExtractApiMergeRequestsMeta, taskData)
@@ -88,6 +89,20 @@ func TestGitlabMrDataFlow(t *testing.T) {
 			"connection_id",
 			"mr_id",
 			"label_name",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
+	dataflowTester.VerifyTable(
+		models.GitlabMrCommit{},
+		"./snapshot_tables/_tool_gitlab_mr_commits_in_mr.csv",
+		[]string{
+			"connection_id",
+			"commit_sha",
+			"merge_request_id",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
