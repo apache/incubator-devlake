@@ -28,7 +28,8 @@ export const UIContextProvider = (props) => {
 
   const contextValue = {
     sidebarVisible: sidebarVisible,
-    changeSidebarVisibility: setSidebarVisible
+    changeSidebarVisibility: setSidebarVisible,
+    desktopBreakpointWidth: 850
   }
 
   return (

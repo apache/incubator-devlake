@@ -57,8 +57,12 @@ const Sidebar = () => {
     fetchVersion()
   }, [])
 
-  return (
-    uiContext.sidebarVisible ? <Card interactive={false} elevation={Elevation.ZERO} className='card sidebar-card'>
+  return uiContext.sidebarVisible ? (
+    <Card
+      interactive={false}
+      elevation={Elevation.ZERO}
+      className='card sidebar-card'
+    >
       <div className='devlake-logo'>
         <Logo width={48} height={48} className='logo' />
         <LogoText width={100} height={13} className='logo-textmark' />
@@ -86,7 +90,9 @@ const Sidebar = () => {
         <strong>Apache 2.0 License</strong>
         <br />
       </span>
-    </Card> : <></>
+    </Card>
+  ) : (
+    <></>
   )
 }
 
