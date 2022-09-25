@@ -34,6 +34,7 @@ func main() {
 	executionId := cmd.Flags().IntP("executionId", "e", 8, "execution id")
 	productId := cmd.Flags().IntP("productId", "o", 8, "product id")
 	projectId := cmd.Flags().IntP("projectId", "p", 8, "project id")
+	storiesId := cmd.Flags().IntP("storiesId", "s", 1, "stories id")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
@@ -41,6 +42,7 @@ func main() {
 			"executionId":  *executionId,
 			"productId":    *productId,
 			"projectId":    *projectId,
+			"storiesId":    *storiesId,
 		})
 	}
 	runner.RunCmd(cmd)
