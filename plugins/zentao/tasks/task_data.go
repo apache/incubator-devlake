@@ -27,6 +27,7 @@ type ZentaoApiParams struct {
 	ProductId   uint64
 	ExecutionId uint64
 	ProjectId   uint64
+	StoriesId   uint64
 }
 
 type ZentaoOptions struct {
@@ -40,6 +41,7 @@ type ZentaoOptions struct {
 	ProjectId    uint64
 	Tasks        []string `json:"tasks,omitempty"`
 	Since        string
+	StoriesId    uint64
 }
 
 type ZentaoTaskData struct {

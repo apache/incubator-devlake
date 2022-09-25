@@ -29,7 +29,8 @@ func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 	return db.Migrator().AutoMigrate(
 		//archived.ZentaoConnection{},
 		//archived.ZentaoProject{},
-		archived.ZentaoExecution{},
+		//archived.ZentaoExecution{},
+		archived.ZentaoStories{},
 	)
 }
 
