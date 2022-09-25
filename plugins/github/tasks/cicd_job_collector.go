@@ -47,6 +47,7 @@ func CollectJobs(taskCtx core.SubTaskContext) errors.Error {
 	cursor, err := db.Cursor(
 		dal.Select("id"),
 		dal.From(models.GithubRun{}.TableName()),
+		dal.Where("repo_id = ?", data.Repo.GithubId),
 	)
 	if err != nil {
 		return err
