@@ -21,17 +21,17 @@ import git "github.com/libgit2/git2go/v33"
 
 type DiffLines []git.DiffLine
 
-//Len return length of diffLines
+// Len return length of diffLines
 func (diffLines DiffLines) Len() int {
 	return len(diffLines)
 }
 
-//Less function
+// Less function
 func (diffLines DiffLines) Less(i, j int) bool {
 	return diffLines[i].OldLineno > diffLines[j].OldLineno
 }
 
-//Swap function
+// Swap function
 func (diffLines DiffLines) Swap(i, j int) {
 	temp := diffLines[i]
 	diffLines[i] = diffLines[j]

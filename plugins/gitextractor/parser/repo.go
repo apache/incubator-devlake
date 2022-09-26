@@ -60,7 +60,7 @@ func (r *GitRepo) CollectAll(subtaskCtx core.SubTaskContext) errors.Error {
 	return r.CollectDiffLine(subtaskCtx)
 }
 
-//Close resources
+// Close resources
 func (r *GitRepo) Close() errors.Error {
 	defer func() {
 		if r.cleanup != nil {
@@ -79,7 +79,7 @@ func (r *GitRepo) CountTags() (int, errors.Error) {
 	return len(tags), nil
 }
 
-//CountBranches count the number of branches in a git repo
+// CountBranches count the number of branches in a git repo
 func (r *GitRepo) CountBranches(ctx context.Context) (int, errors.Error) {
 	var branchIter *git.BranchIterator
 	branchIter, err := r.repo.NewBranchIterator(git.BranchAll)
@@ -101,7 +101,7 @@ func (r *GitRepo) CountBranches(ctx context.Context) (int, errors.Error) {
 	return count, errors.Convert(err)
 }
 
-//CountCommits count the number of commits in a git repo
+// CountCommits count the number of commits in a git repo
 func (r *GitRepo) CountCommits(ctx context.Context) (int, errors.Error) {
 	odb, err := r.repo.Odb()
 	if err != nil {
@@ -123,7 +123,7 @@ func (r *GitRepo) CountCommits(ctx context.Context) (int, errors.Error) {
 	return count, errors.Convert(err)
 }
 
-//CollectTags Collect Tags data
+// CollectTags Collect Tags data
 func (r *GitRepo) CollectTags(subtaskCtx core.SubTaskContext) errors.Error {
 	return errors.Convert(r.repo.Tags.Foreach(func(name string, id *git.Oid) error {
 		select {
@@ -159,7 +159,7 @@ func (r *GitRepo) CollectTags(subtaskCtx core.SubTaskContext) errors.Error {
 	}))
 }
 
-//CollectBranches Collect branch data
+// CollectBranches Collect branch data
 func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) errors.Error {
 	var repoInter *git.BranchIterator
 	repoInter, err := r.repo.NewBranchIterator(git.BranchAll)
@@ -200,7 +200,7 @@ func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) errors.Error {
 	}))
 }
 
-//CollectCommits Collect data from each commit, we can also get the diff line
+// CollectCommits Collect data from each commit, we can also get the diff line
 func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) errors.Error {
 	opts, err := getDiffOpts()
 	if err != nil {
@@ -389,7 +389,7 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 	return errors.Convert(err)
 }
 
-//CollectDiffLine get line diff data from a specific branch
+// CollectDiffLine get line diff data from a specific branch
 func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 	//Using this subtask,we can get every line change in every commit.
 	//We maintain a snapshot structure to get which commit each deleted line belongs to

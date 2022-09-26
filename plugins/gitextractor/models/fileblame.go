@@ -39,7 +39,7 @@ func (fb *FileBlame) Walk(num int) {
 	}
 }
 
-//Find an element with specific line number
+// Find an element with specific line number
 func (fb *FileBlame) Find(num int) *list.Element {
 	fb.Walk(num)
 	if fb.Idx == num && fb.It != nil {
@@ -67,7 +67,7 @@ func (fb *FileBlame) AddLine(num int, commit string) {
 	}
 }
 
-//RemoveLine remove a line at num
+// RemoveLine remove a line at num
 func (fb *FileBlame) RemoveLine(num int) {
 	fb.Walk(num)
 	a := fb.It
