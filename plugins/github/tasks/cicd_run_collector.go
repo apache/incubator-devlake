@@ -52,7 +52,7 @@ func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 			Table: RAW_RUN_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
+		PageSize:    30,
 		Incremental: false,
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/actions/runs",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {

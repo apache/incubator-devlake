@@ -20,10 +20,11 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -47,6 +48,7 @@ func CollectJobs(taskCtx core.SubTaskContext) errors.Error {
 	cursor, err := db.Cursor(
 		dal.Select("id"),
 		dal.From(models.GithubRun{}.TableName()),
+		dal.Where("repo_id = ?", data.Repo.GithubId),
 	)
 	if err != nil {
 		return err
@@ -86,6 +88,7 @@ func CollectJobs(taskCtx core.SubTaskContext) errors.Error {
 			}
 			return body.GithubWorkflowJobs, nil
 		},
+		AfterResponse: ignoreHTTPStatus404,
 	})
 
 	if err != nil {

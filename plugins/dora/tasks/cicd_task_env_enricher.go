@@ -61,17 +61,19 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	// if errRegexp != nil {
 	// 	return errors.Default.Wrap(errRegexp, "Regexp compile testingPattern failed")
 	// }
+
 	var cursor *sql.Rows
 	if len(dataSource) == 0 {
 		cursor, err = db.Cursor(
 			dal.From(&devops.CICDTask{}),
 			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id = ? and cicd_tasks.pipeline_id = cpr.pipeline_id ", repoId),
-			dal.Where("status=?", devops.DONE))
+			dal.Where("status=? ", devops.DONE))
 	} else {
+
 		cursor, err = db.Cursor(
 			dal.From(&devops.CICDTask{}),
-			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id != '' and cicd_tasks.pipeline_id = cpr.pipeline_id "),
-			dal.Where("status=?", devops.DONE))
+			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id = ? and cicd_tasks.pipeline_id = cpr.pipeline_id ", repoId),
+			dal.Where("status=? and SUBSTRING_INDEX(id, ':', 1) in ? ", devops.DONE, dataSource))
 	}
 	if err != nil {
 		return err
