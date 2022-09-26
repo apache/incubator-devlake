@@ -27,6 +27,7 @@ type FileBlame struct {
 	Lines *list.List
 }
 
+// Walk to a specific index
 func (fb *FileBlame) Walk(num int) {
 	for fb.Idx < num && fb.It != fb.Lines.Back() {
 		fb.Idx++
@@ -38,6 +39,7 @@ func (fb *FileBlame) Walk(num int) {
 	}
 }
 
+//Find an element with specific line number
 func (fb *FileBlame) Find(num int) *list.Element {
 	fb.Walk(num)
 	if fb.Idx == num && fb.It != nil {
@@ -46,6 +48,7 @@ func (fb *FileBlame) Find(num int) *list.Element {
 	return nil
 }
 
+// AddLine Add a line at a specific line num
 func (fb *FileBlame) AddLine(num int, commit string) {
 	fb.Walk(num)
 	flag := false
@@ -64,6 +67,7 @@ func (fb *FileBlame) AddLine(num int, commit string) {
 	}
 }
 
+//RemoveLine remove a line at num
 func (fb *FileBlame) RemoveLine(num int) {
 	fb.Walk(num)
 	a := fb.It
@@ -90,4 +94,11 @@ func (fb *FileBlame) RemoveLine(num int) {
 		}
 		fb.Lines.Remove(a)
 	}
+}
+
+func NewFileBlame() (*FileBlame, error) {
+	fb := FileBlame{Idx: 0, It: &list.Element{}, Lines: list.New()}
+	fb.It = fb.Lines.Front()
+	fb.Idx = 0
+	return &fb, nil
 }

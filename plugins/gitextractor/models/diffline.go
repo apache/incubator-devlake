@@ -19,19 +19,21 @@ package models
 
 import git "github.com/libgit2/git2go/v33"
 
-type Difflines []git.DiffLine
+type DiffLines []git.DiffLine
 
-// some essential functions for custom sort
-func (difflines Difflines) Len() int {
-	return len(difflines)
+//Len return length of diffLines
+func (diffLines DiffLines) Len() int {
+	return len(diffLines)
 }
 
-func (difflines Difflines) Less(i, j int) bool {
-	return difflines[i].OldLineno > difflines[j].OldLineno
+//Less function
+func (diffLines DiffLines) Less(i, j int) bool {
+	return diffLines[i].OldLineno > diffLines[j].OldLineno
 }
 
-func (difflines Difflines) Swap(i, j int) {
-	temp := difflines[i]
-	difflines[i] = difflines[j]
-	difflines[j] = temp
+//Swap function
+func (diffLines DiffLines) Swap(i, j int) {
+	temp := diffLines[i]
+	diffLines[i] = diffLines[j]
+	diffLines[j] = temp
 }
