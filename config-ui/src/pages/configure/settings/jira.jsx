@@ -153,6 +153,10 @@ export default function JiraSettings(props) {
   const [requirementTags, setRequirementTags] = useState(savedRequirementTags)
   const [bugTags, setBugTags] = useState(savedBugTags)
   const [incidentTags, setIncidentTags] = useState(savedIncidentTags)
+  const allChosenTagsInThisBoard = useMemo(
+    () => [...requirementTags[configuredBoard?.id], ...bugTags[configuredBoard?.id], ...incidentTags[configuredBoard?.id]],
+    [configuredBoard?.id, requirementTags, bugTags, incidentTags],
+  )
 
   const [requirementTagsList, setRequirementTagsList] = useState([])
   const [bugTagsList, setBugTagsList] = useState([])
@@ -356,7 +360,7 @@ export default function JiraSettings(props) {
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
                     active={modifiers.active}
-                    disabled={requirementTags[configuredBoard?.id]?.some(
+                    disabled={allChosenTagsInThisBoard?.some(
                       (t) => Number(t.id) === Number(item.id)
                     )}
                     key={item.value}
@@ -494,7 +498,7 @@ export default function JiraSettings(props) {
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
                     active={modifiers.active}
-                    disabled={bugTags[configuredBoard?.id]?.some(
+                    disabled={allChosenTagsInThisBoard?.some(
                       (t) => Number(t.id) === Number(item.id)
                     )}
                     key={item.value}
@@ -636,7 +640,7 @@ export default function JiraSettings(props) {
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
                     active={modifiers.active}
-                    disabled={incidentTags[configuredBoard?.id]?.some(
+                    disabled={allChosenTagsInThisBoard?.some(
                       (t) => Number(t.id) === Number(item.id)
                     )}
                     key={item.value}
