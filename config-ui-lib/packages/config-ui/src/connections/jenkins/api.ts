@@ -15,21 +15,7 @@
  * limitations under the License.
  *
  */
-import { Jenkins } from './jenkins';
-import { Webhook } from './webhook';
-import * as T from './typed';
 
-interface Props {
-  type: T.ConnectionEnum;
-}
+import request from '../../utils/request';
 
-export const Connection = ({ type }: Props) => {
-  switch (type) {
-    case T.ConnectionEnum.jenkins:
-      return <Jenkins />;
-    case T.ConnectionEnum.webhook:
-      return <Webhook />;
-    default:
-      return null;
-  }
-};
+export const create = (payload: any) => request('/plugins/jenkins/connections', { method: 'POST', data: payload });

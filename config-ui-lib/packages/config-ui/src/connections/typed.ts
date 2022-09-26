@@ -17,4 +17,5 @@
  */
 export enum ConnectionEnum {
   webhook = 'webhook',
+  jenkins = 'jenkins',
 }
