@@ -48,7 +48,7 @@ const Nav = () => {
       <Navbar.Group className={menuClass}>
         <Icon
           icon={uiContext.sidebarVisible ? 'menu-closed' : 'menu-open'}
-          onClick={toggleSidebarOpen.bind(null, !uiContext.sidebarVisible)}
+          onClick={(e) => toggleSidebarOpen(null, !uiContext.sidebarVisible)}
           size={16}
         />
       </Navbar.Group>
