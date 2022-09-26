@@ -38,20 +38,21 @@ func TestIssueDataFlow(t *testing.T) {
 			TransformationRules: tasks.TransformationRules{
 				StoryPointField: "customfield_10024",
 				TypeMappings: map[string]tasks.TypeMapping{
-					"Sub-task": {
+					"10003": {
 						StandardType: "Sub-task",
 						StatusMappings: map[string]tasks.StatusMapping{
 							"done": {StandardStatus: "你好世界"},
 							"new":  {StandardStatus: "\u6069\u5E95\u6EF4\u68AF\u6B38\u592B\u5178\u4EA2\u59C6"},
 						},
 					},
-					"Task": {
+					"10031": {
 						StandardType: "Task",
 						StatusMappings: map[string]tasks.StatusMapping{
 							"done": {StandardStatus: "hello world"},
 							"new":  {StandardStatus: "110 100 100 116 102 46 99 111 109"},
 						},
 					},
+					// issueType "Test Execution" in raw_data and not fill here to test issueType not be defined
 				},
 			},
 		},
