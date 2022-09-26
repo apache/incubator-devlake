@@ -43,7 +43,8 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 
-	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabPipeline{}))
+	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabPipeline{}),
+		dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
 	if err != nil {
 		return err
 	}
@@ -76,7 +77,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 					Id: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipeline.GitlabId),
 				},
 				Name: projectIdGen.
-					Generate(data.Options.ConnectionId, gitlabPipeline.ProjectId),
+					Generate(data.Options.ConnectionId, data.Options.ProjectId),
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"failed"},
 					Abort:   []string{"canceled", "skipped"},
