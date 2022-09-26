@@ -40,17 +40,25 @@ const Deployment = (props) => {
   useEffect(() => {
     setSelectValue(
       transformation?.deploymentPattern ||
-        transformation?.deploymentPattern === ''
+        transformation?.deploymentPattern === '' ||
+        transformation?.productionPattern ||
+        transformation?.productionPattern === ''
         ? 1
         : 0
     )
-  }, [transformation?.deploymentPattern])
+  }, [transformation?.deploymentPattern, transformation?.productionPattern])
 
   const handleChangeSelectValue = (sv) => {
     if (entityIdKey && sv === 0) {
-      onSettingsChange({ deploymentPattern: undefined }, entityIdKey)
+      onSettingsChange(
+        { deploymentPattern: undefined, productionPattern: undefined },
+        entityIdKey
+      )
     } else if (entityIdKey && sv === 1) {
-      onSettingsChange({ deploymentPattern: '' }, entityIdKey)
+      onSettingsChange(
+        { deploymentPattern: '', productionPattern: '' },
+        entityIdKey
+      )
     }
     setSelectValue(sv)
   }
@@ -96,44 +104,6 @@ const Deployment = (props) => {
     <>
       <h5>CI/CD</h5>
       <p style={{ color: '#292B3F' }}>
-        <strong>Environment Mapping</strong>{' '}
-        <Tag intent={Intent.PRIMARY} style={{ fontSize: '10px' }} minimal>
-          DORA
-        </Tag>
-      </p>
-      <p>
-        The environment that matches the given regEx is considered as the
-        Production environment. If you leave this field empty, all data will be
-        tagged as in the Production environment.
-      </p>
-      <FormGroup
-        disabled={isSaving}
-        inline={true}
-        label={
-          <label
-            className='bp3-label'
-            style={{ minWidth: '150px', marginRight: '10px' }}
-          >
-            Production
-          </label>
-        }
-        labelFor='production'
-        className='formGroup'
-        contentClassName='formGroupContent'
-      >
-        <InputGroup
-          id='deploy-tag-production'
-          placeholder='(?i)production'
-          value={transformation?.productionPattern}
-          onChange={(e) =>
-            onSettingsChange({ productionPattern: e.target.value }, entityIdKey)
-          }
-          disabled={isSaving}
-          className='input'
-          maxLength={255}
-        />
-      </FormGroup>
-      <p style={{ color: '#292B3F' }}>
         <strong>What is a deployment?</strong>{' '}
         <Tag intent={Intent.PRIMARY} style={{ fontSize: '10px' }} minimal>
           DORA
@@ -157,20 +127,12 @@ const Deployment = (props) => {
         />
         {selectValue === 1 && (
           <>
-            <div
-              className='bp3-form-helper-text'
-              style={{
-                display: 'block',
-                textAlign: 'left',
-                color: '#94959F',
-                marginBottom: '5px'
-              }}
-            >
+            <p>
               {getDeployTagHint(
                 provider?.id,
                 ProviderLabels[provider?.id?.toUpperCase()]
               )}
-            </div>
+            </p>
             <div className='formContainer'>
               <FormGroup
                 disabled={isSaving}
@@ -203,6 +165,41 @@ const Deployment = (props) => {
                 />
               </FormGroup>
             </div>
+            <p>
+              The environment that matches the given regEx is considered as the
+              Production environment. If you leave this field empty, all data
+              will be tagged as in the Production environment.
+            </p>
+            <FormGroup
+              disabled={isSaving}
+              inline={true}
+              label={
+                <label
+                  className='bp3-label'
+                  style={{ minWidth: '150px', marginRight: '10px' }}
+                >
+                  Production
+                </label>
+              }
+              labelFor='production'
+              className='formGroup'
+              contentClassName='formGroupContent'
+            >
+              <InputGroup
+                id='deploy-tag-production'
+                placeholder='(?i)production'
+                value={transformation?.productionPattern}
+                onChange={(e) =>
+                  onSettingsChange(
+                    { productionPattern: e.target.value },
+                    entityIdKey
+                  )
+                }
+                disabled={isSaving}
+                className='input'
+                maxLength={255}
+              />
+            </FormGroup>
           </>
         )}
         <Radio

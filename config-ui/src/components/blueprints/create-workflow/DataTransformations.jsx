@@ -22,6 +22,7 @@ import React, {
   useCallback,
   useMemo
 } from 'react'
+import { isEqual } from 'lodash'
 import {
   Button,
   Icon,
@@ -96,6 +97,13 @@ const DataTransformations = (props) => {
     cardStyle = {}
   } = props
 
+  // Used to determine whether to display edit transformation or add transformation
+  const [initializeTransformations, setInitializeTransformations] = useState({})
+
+  useEffect(() => {
+    setInitializeTransformations(transformations)
+  }, [])
+
   const isTransformationSupported = useMemo(
     () =>
       configuredProject ||
@@ -138,15 +146,20 @@ const DataTransformations = (props) => {
   )
   const [activeEntity, setActiveEntity] = useState()
 
-  const transformationHasProperties = useCallback(
+  const transformationHasChanged = useCallback(
     (item) => {
+      const initializeTransform = initializeTransformations[item?.id]
       const storedTransform = transformations[item?.id]
+
+      console.log(initializeTransform)
+      console.log(storedTransform)
       return (
+        initializeTransform &&
         storedTransform &&
-        Object.values(storedTransform).some((v) => v && v.length > 0)
+        !isEqual(initializeTransform, storedTransform)
       )
     },
-    [transformations]
+    [initializeTransformations, transformations]
   )
 
   useEffect(() => {
@@ -340,7 +353,7 @@ const DataTransformations = (props) => {
                           activeItem={configuredProject}
                           onAdd={addProjectTransformation}
                           onChange={addProjectTransformation}
-                          isEditing={transformationHasProperties}
+                          isEditing={transformationHasChanged}
                         />
                         {projects[configuredConnection.id].length === 0 && (
                           <NoData
@@ -365,7 +378,7 @@ const DataTransformations = (props) => {
                           activeItem={configuredBoard}
                           onAdd={addBoardTransformation}
                           onChange={addBoardTransformation}
-                          isEditing={transformationHasProperties}
+                          isEditing={transformationHasChanged}
                         />
                         {boards[configuredConnection.id].length === 0 && (
                           <NoData
