@@ -37,6 +37,15 @@ var EnrichTaskEnvMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
+func Find(slice []string, val string) (int, bool) {
+	for i, item := range slice {
+		if item == val {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
 func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
@@ -62,15 +71,19 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	// 	return errors.Default.Wrap(errRegexp, "Regexp compile testingPattern failed")
 	// }
 	var cursor *sql.Rows
-	if len(dataSource) == 0 {
-		cursor, err = db.Cursor(
-			dal.From(&devops.CICDTask{}),
-			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id = ? and cicd_tasks.pipeline_id = cpr.pipeline_id ", repoId),
-			dal.Where("status=?", devops.DONE))
-	} else {
+	_, f1 := Find(dataSource, "jenkins")
+	if !f1 {
 		cursor, err = db.Cursor(
 			dal.From(&devops.CICDTask{}),
 			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id = '' and cicd_tasks.pipeline_id = cpr.pipeline_id "),
+			dal.Where("status=?", devops.DONE))
+	}
+	_, f2 := Find(dataSource, "github")
+	_, f3 := Find(dataSource, "gitlab")
+	if f2 || f3 || len(dataSource) == 0 {
+		cursor, err = db.Cursor(
+			dal.From(&devops.CICDTask{}),
+			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id = ? and cicd_tasks.pipeline_id = cpr.pipeline_id ", repoId),
 			dal.Where("status=?", devops.DONE))
 	}
 	if err != nil {
