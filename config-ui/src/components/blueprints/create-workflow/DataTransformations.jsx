@@ -439,20 +439,14 @@ const DataTransformations = (props) => {
                       >
                         {enableGoBack &&
                           (configuredProject || configuredBoard) && (
-                            <Tooltip
-                              position={Position.TOP}
+                            <Button
+                              text='Finish'
                               intent={Intent.PRIMARY}
-                              content='Close Editor to Continue'
-                            >
-                              <Button
-                                text='Go Back'
-                                intent={Intent.PRIMARY}
-                                small
-                                outlined
-                                onClick={() => onSave()}
-                                style={{ marginLeft: '5px' }}
-                              />
-                            </Tooltip>
+                              small
+                              outlined
+                              onClick={() => onSave()}
+                              style={{ marginLeft: '5px' }}
+                            />
                           )}
                       </div>
                     </div>
