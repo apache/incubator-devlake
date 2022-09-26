@@ -52,6 +52,7 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 			"connection_id",
 			"gitlab_id",
 			"gitlab_created_at",
+			"project_id",
 			"status",
 			"web_url",
 			"duration",
