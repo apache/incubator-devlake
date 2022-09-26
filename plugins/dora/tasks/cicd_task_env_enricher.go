@@ -70,7 +70,7 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	} else {
 		cursor, err = db.Cursor(
 			dal.From(&devops.CICDTask{}),
-			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id != '' and cicd_tasks.pipeline_id = cpr.pipeline_id "),
+			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id = '' and cicd_tasks.pipeline_id = cpr.pipeline_id "),
 			dal.Where("status=?", devops.DONE))
 	}
 	if err != nil {
