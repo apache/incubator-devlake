@@ -17,18 +17,23 @@ limitations under the License.
 
 package models
 
-import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
-)
+import git "github.com/libgit2/git2go/v33"
 
-type Store interface {
-	RepoCommits(repoCommit *code.RepoCommit) errors.Error
-	Commits(commit *code.Commit) errors.Error
-	Refs(ref *code.Ref) errors.Error
-	CommitFiles(file *code.CommitFile) errors.Error
-	CommitParents(pp []*code.CommitParent) errors.Error
-	CommitFileComponents(commitFileComponent *code.CommitFileComponent) errors.Error
-	CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error
-	Close() errors.Error
+type DiffLines []git.DiffLine
+
+// Len return length of diffLines
+func (diffLines DiffLines) Len() int {
+	return len(diffLines)
+}
+
+// Less function
+func (diffLines DiffLines) Less(i, j int) bool {
+	return diffLines[i].OldLineno > diffLines[j].OldLineno
+}
+
+// Swap function
+func (diffLines DiffLines) Swap(i, j int) {
+	temp := diffLines[i]
+	diffLines[i] = diffLines[j]
+	diffLines[j] = temp
 }

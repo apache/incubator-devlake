@@ -48,6 +48,7 @@ func (plugin GitExtractor) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectGitCommitMeta,
 		tasks.CollectGitBranchMeta,
 		tasks.CollectGitTagMeta,
+		tasks.CollectGitDiffLineMeta,
 	}
 }
 

@@ -67,3 +67,20 @@ type CommitFileComponent struct {
 func (CommitFileComponent) TableName() string {
 	return "commit_file_components"
 }
+
+type CommitLineChange struct {
+	domainlayer.DomainEntity
+	Id          string `gorm:"type:varchar(255);primaryKey"`
+	CommitSha   string `gorm:"type:varchar(40);"`
+	NewFilePath string `gorm:"type:varchar(255);"`
+	LineNoNew   int    `gorm:"type:int"`
+	LineNoOld   int    `gorm:"type:int"`
+	OldFilePath string `gorm:"type:varchar(255)"`
+	HunkNum     int    `gorm:"type:int"`
+	ChangedType string `gorm:"type:varchar(255)"`
+	PrevCommit  string `gorm:"type:varchar(255)"`
+}
+
+func (CommitLineChange) TableName() string {
+	return "commit_line_change"
+}

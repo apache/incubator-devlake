@@ -78,12 +78,14 @@ func (w *csvWriter) Close() errors.Error {
 }
 
 type CsvStore struct {
-	dir                string
-	repoCommitWriter   *csvWriter
-	commitWriter       *csvWriter
-	refWriter          *csvWriter
-	commitFileWriter   *csvWriter
-	commitParentWriter *csvWriter
+	dir                       string
+	repoCommitWriter          *csvWriter
+	commitWriter              *csvWriter
+	refWriter                 *csvWriter
+	commitFileWriter          *csvWriter
+	commitParentWriter        *csvWriter
+	commitFileComponentWriter *csvWriter
+	commitLineChangeWriter    *csvWriter
 }
 
 func NewCsvStore(dir string) (*CsvStore, errors.Error) {
@@ -115,6 +117,14 @@ func NewCsvStore(dir string) (*CsvStore, errors.Error) {
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
+	s.commitFileComponentWriter, err = newCsvWriter(filepath.Join(dir, "commit_file_components.csv"), code.CommitFileComponent{})
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
+	s.commitLineChangeWriter, err = newCsvWriter(filepath.Join(dir, "commit_line_changes.csv"), code.CommitLineChange{})
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
 	return s, nil
 }
 
@@ -135,7 +145,11 @@ func (c *CsvStore) CommitFiles(file *code.CommitFile) errors.Error {
 }
 
 func (c *CsvStore) CommitFileComponents(commitFileComponent *code.CommitFileComponent) errors.Error {
-	return c.commitFileWriter.Write(commitFileComponent)
+	return c.commitFileComponentWriter.Write(commitFileComponent)
+}
+
+func (c *CsvStore) CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error {
+	return c.commitLineChangeWriter.Write(commitLineChange)
 }
 
 func (c *CsvStore) CommitParents(pp []*code.CommitParent) errors.Error {
