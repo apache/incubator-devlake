@@ -228,6 +228,9 @@ func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
+		"connections/:connectionId/proxy/rest/*path": {
+			"GET": api.Proxy,
+		},
 	}
 }
 
