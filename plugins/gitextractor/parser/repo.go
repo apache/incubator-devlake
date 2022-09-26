@@ -471,7 +471,6 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 					hunkNum++
 					return func(line git.DiffLine) error {
 						commitLineChange := &code.CommitLineChange{}
-						commitLineChange.Id = curcommit.Id().String() + ":" + file.NewFile.Path + ":" + strconv.Itoa(line.OldLineno) + ":" + strconv.Itoa(line.NewLineno)
 						commitLineChange.CommitSha = curcommit.Id().String()
 						commitLineChange.ChangedType = line.Origin.String()
 						commitLineChange.LineNoNew = line.NewLineno
@@ -479,6 +478,7 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 						commitLineChange.OldFilePath = file.OldFile.Path
 						commitLineChange.NewFilePath = file.NewFile.Path
 						commitLineChange.HunkNum = hunkNum
+						commitLineChange.Id = curcommit.Id().String() + ":" + file.NewFile.Path + ":" + strconv.Itoa(line.OldLineno) + ":" + strconv.Itoa(line.NewLineno)
 						if line.Origin == git.DiffLineAddition {
 							added = append(added, line)
 						} else if line.Origin == git.DiffLineDeletion {
