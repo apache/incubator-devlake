@@ -52,7 +52,7 @@ func ConvertAccounts(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	cursor, err := db.Cursor(dal.From(&githubModels.GithubAccount{}))
+	cursor, err := db.Cursor(dal.From(&githubModels.GithubAccount{}), dal.Where("connection_id = ?", data.Options.ConnectionId))
 	if err != nil {
 		return err
 	}

@@ -94,7 +94,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 				domainPipeline.DurationSec = uint64(line.GithubUpdatedAt.Sub(*line.GithubCreatedAt).Seconds())
 			}
 
-			domainPipelineProject := &devops.CiCDPipelineCommit{
+			domainPipelineCommit := &devops.CiCDPipelineCommit{
 				PipelineId: runIdGen.Generate(
 					data.Options.ConnectionId, line.RepoId, line.ID),
 				CommitSha: line.HeadSha,
@@ -104,7 +104,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 
 			return []interface{}{
 				domainPipeline,
-				domainPipelineProject,
+				domainPipelineCommit,
 			}, nil
 		},
 	})
