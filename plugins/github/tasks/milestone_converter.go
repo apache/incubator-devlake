@@ -53,7 +53,7 @@ func ConvertMilestones(taskCtx core.SubTaskContext) errors.Error {
 		dal.Select("gi.github_id, gm.*"),
 		dal.From("_tool_github_issues gi"),
 		dal.Join("JOIN _tool_github_milestones gm ON gm.milestone_id = gi.milestone_id"),
-		dal.Where("gm.repo_id = ?", repoId),
+		dal.Where("gm.repo_id = ? and gm.connection_id = ?", repoId, data.Options.ConnectionId),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {

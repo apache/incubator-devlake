@@ -52,7 +52,8 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 		}
 	}
 
-	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabJob{}))
+	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabJob{}),
+		dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
 	if err != nil {
 		return err
 	}
