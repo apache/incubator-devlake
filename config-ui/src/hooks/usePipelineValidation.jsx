@@ -149,17 +149,6 @@ function usePipelineValidation({
         errs.push('Advanced Pipeline: Invalid Tasks Array Structure!')
       }
 
-      if (
-        Array.isArray(tasksAdvanced) &&
-        !tasksAdvanced
-          ?.flat()
-          .every((aT) => allowedProviders.includes(aT.Plugin || aT.plugin))
-      ) {
-        errs.push(
-          'Advanced Pipeline: Unsupported Data Provider Plugin Detected!'
-        )
-      }
-
       console.log('>>> Advanced Pipeline Validation Errors? ...', errs)
     }
     setErrors(errs)
