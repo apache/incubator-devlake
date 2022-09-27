@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -96,6 +97,7 @@ func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 			}
 			return data.Stages, nil
 		},
+		AfterResponse: ignoreHTTPStatus404,
 	})
 
 	if err != nil {
