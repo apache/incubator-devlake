@@ -86,7 +86,7 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
 	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 	dataflowTester.Subtask(tasks.ConvertPipelineMeta, taskData)
-	dataflowTester.Subtask(tasks.ConvertPipelineProjectMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertPipelineCommitMeta, taskData)
 	dataflowTester.VerifyTable(
 		devops.CICDPipeline{},
 		"./snapshot_tables/cicd_pipelines.csv",

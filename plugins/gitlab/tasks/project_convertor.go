@@ -46,7 +46,7 @@ func ConvertApiProjects(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
 		dal.From(&models.GitlabProject{}),
-		dal.Where("gitlab_id=?", data.Options.ProjectId),
+		dal.Where("gitlab_id=? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId),
 	}
 
 	cursor, err := db.Cursor(clauses...)
