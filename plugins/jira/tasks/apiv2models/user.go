@@ -46,6 +46,9 @@ func (u *Account) getAccountId() string {
 	if u.AccountId != "" {
 		return u.AccountId
 	}
+	if u.Key != "" {
+		return u.Key
+	}
 	return u.EmailAddress
 }
 
