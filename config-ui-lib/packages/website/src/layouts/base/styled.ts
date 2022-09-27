@@ -25,6 +25,7 @@ export const Container = styled.div`
   }
 
   main {
+    flex: auto;
     padding: 16px 24px;
   }
 `;

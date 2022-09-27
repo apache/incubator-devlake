@@ -30,17 +30,20 @@ export const Container = styled.div`
     margin-top: 24px;
 
     li {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 4px 6px;
+      display: inline-block;
       width: 130px;
       text-align: center;
-      transition: all 0.3s ease;
-      cursor: pointer;
 
-      &:hover {
-        box-shadow: 1px 1px 6px rgb(0 0 0 / 10%);
+      & > a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4px 6px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          box-shadow: 1px 1px 6px rgb(0 0 0 / 10%);
+        }
       }
     }
   }

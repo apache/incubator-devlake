@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom';
 
 import * as S from './styled';
 
+import JenkinsIcon from '@/images/icons/jenkins.svg';
 import WebhookIcon from '@/images/icons/webhook.svg';
 
 export const Connections = () => {
@@ -29,6 +30,18 @@ export const Connections = () => {
         Create and manage data connections from the following data sources or Webhooks to be used in syncing data in
         your Blueprints.
       </h4>
+      <div className="item">
+        <h2>Data Sources</h2>
+        <h4>Data connections created for the following data sources can be used in your Blueprints.</h4>
+        <ul className="list">
+          <li>
+            <Link to="/connection/jenkins">
+              <img src={JenkinsIcon} width={60} alt="" />
+              <span>Jenkins</span>
+            </Link>
+          </li>
+        </ul>
+      </div>
       <div className="item">
         <h2>Webhooks</h2>
         <h4>
