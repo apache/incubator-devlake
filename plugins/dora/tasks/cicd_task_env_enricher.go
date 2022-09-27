@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"database/sql"
+	"fmt"
 	"reflect"
 	"regexp"
 
@@ -46,7 +47,7 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	// TODO: STAGE 2
 	// stagingNamePattern := data.Options.StagingPattern
 	// testingNamePattern := data.Options.TestingPattern
-	dataSource := data.Options.DataSoure
+	prefix := data.Options.Prefix
 
 	productionNameRegexp, errRegexp := regexp.Compile(productionNamePattern)
 	if errRegexp != nil {
@@ -63,17 +64,16 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	// }
 
 	var cursor *sql.Rows
-	if len(dataSource) == 0 {
+	if len(prefix) == 0 {
 		cursor, err = db.Cursor(
 			dal.From(&devops.CICDTask{}),
 			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id = ? and cicd_tasks.pipeline_id = cpr.pipeline_id ", repoId),
 			dal.Where("status=? ", devops.DONE))
 	} else {
-
+		likeString := fmt.Sprintf(`%s:%s`, prefix, "%")
 		cursor, err = db.Cursor(
 			dal.From(&devops.CICDTask{}),
-			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id = ? and cicd_tasks.pipeline_id = cpr.pipeline_id ", repoId),
-			dal.Where("status=? and SUBSTRING_INDEX(id, ':', 1) in ? ", devops.DONE, dataSource))
+			dal.Where("status=? and id like ? ", devops.DONE, likeString))
 	}
 	if err != nil {
 		return err

@@ -1,0 +1,2 @@
+id,created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark,name,pipeline_id,result,status,type,duration_sec,started_date,finished_date,environment
+jenkins:GithubJob:1:8269872730,2022-09-15 03:20:03.867,2022-09-15 03:20:03.867,"{""ConnectionId"":1,""Owner"":""apache"",""Repo"":""incubator-devlake""}",_raw_github_api_jobs,21,"",deploy,jenkins:GithubRun:1:3022348786,SUCCESS,DONE,"",1006,2022-09-09 12:21:30,2022-09-09 12:38:16,""

@@ -48,10 +48,29 @@ func TestEnrichEnvDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_pipeline_commits.csv", &devops.CiCDPipelineCommit{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_tasks.csv", &devops.CICDTask{})
 
-	// verify converter
+	// verify enrich with repoId
 	dataflowTester.Subtask(tasks.EnrichTaskEnvMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/lake_cicd_tasks.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
+
+	// verify enrich with prefix
+	dataflowTester.FlushTabler(&devops.CICDTask{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_tasks_for_prefix.csv", &devops.CICDTask{})
+	taskDataPrefix := &tasks.DoraTaskData{
+		Options: &tasks.DoraOptions{
+			TransformationRules: tasks.TransformationRules{
+				Prefix:            "jenkins",
+				ProductionPattern: "(?i)deploy",
+				StagingPattern:    "(?i)stag",
+				TestingPattern:    "(?i)test",
+			},
+		},
+	}
+	dataflowTester.Subtask(tasks.EnrichTaskEnvMeta, taskDataPrefix)
+	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/lake_cicd_tasks_prefix.csv",
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 }

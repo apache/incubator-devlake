@@ -26,10 +26,10 @@ type DoraApiParams struct {
 }
 
 type TransformationRules struct {
-	ProductionPattern string   `mapstructure:"productionPattern" json:"productionPattern"`
-	StagingPattern    string   `mapstructure:"stagingPattern" json:"stagingPattern"`
-	TestingPattern    string   `mapstructure:"testingPattern" json:"testingPattern"`
-	DataSoure         []string `mapstructure:"dataSoure" json:"dataSoure"`
+	ProductionPattern string `mapstructure:"productionPattern" json:"productionPattern"`
+	StagingPattern    string `mapstructure:"stagingPattern" json:"stagingPattern"`
+	TestingPattern    string `mapstructure:"testingPattern" json:"testingPattern"`
+	Prefix            string `mapstructure:"prefix" json:"prefix"`
 }
 
 type DoraOptions struct {
