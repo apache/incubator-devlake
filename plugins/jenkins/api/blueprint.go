@@ -19,6 +19,7 @@ package api
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -43,6 +44,7 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			return nil, err
 		}
 		taskOptions["connectionId"] = connectionId
+		taskOptions["transformationRules"] = transformationRules
 		_, err := tasks.DecodeAndValidateTaskOptions(taskOptions)
 		if err != nil {
 			return nil, err
