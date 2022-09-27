@@ -59,8 +59,7 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 	queryKey := "accountId"
 	urlTemplate := "api/2/user"
 	if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
-		queryKey = "username"
-		urlTemplate = "api/2/user/search"
+		queryKey = "key"
 	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
@@ -82,23 +81,14 @@ func CollectAccounts(taskCtx core.SubTaskContext) error {
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
-			if data.JiraServerInfo.DeploymentType == models.DeploymentServer {
-				var results []json.RawMessage
-				err := helper.UnmarshalResponse(res, &results)
-				if err != nil {
-					return nil, err
-				}
-
-				return results, nil
-			} else {
-				var result json.RawMessage
-				err := helper.UnmarshalResponse(res, &result)
-				if err != nil {
-					return nil, err
-				}
-				return []json.RawMessage{result}, nil
+			var result json.RawMessage
+			err := helper.UnmarshalResponse(res, &result)
+			if err != nil {
+				return nil, err
 			}
+			return []json.RawMessage{result}, nil
 		},
+		AfterResponse: ignoreHTTPStatus404,
 	})
 	if err != nil {
 		logger.Error("collect account error:", err)
