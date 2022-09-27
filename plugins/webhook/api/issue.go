@@ -19,6 +19,9 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -27,8 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
 	"github.com/go-playground/validator/v10"
-	"net/http"
-	"time"
 )
 
 type WebhookIssueRequest struct {
@@ -125,24 +126,39 @@ func PostIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Er
 	if request.ParentIssueKey != "" {
 		domainIssue.ParentIssueId = fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, request.BoardKey, request.ParentIssueKey)
 	}
-	domainBoard := &ticket.Board{
-		DomainEntity: domainlayer.DomainEntity{
-			Id: fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.BoardKey),
-		},
-	}
+
+	domainBoardId := fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, request.BoardKey)
+
 	boardIssue := &ticket.BoardIssue{
-		BoardId: domainBoard.Id,
+		BoardId: domainBoardId,
 		IssueId: domainIssue.Id,
 	}
+
+	// check if board exists
+	count, err := db.Count(dal.From(&ticket.Board{}), dal.Where("id = ?", domainBoardId))
+	if err != nil {
+		return nil, err
+	}
+
+	// only create board with domainBoard non-existent
+	if count == 0 {
+		domainBoard := &ticket.Board{
+			DomainEntity: domainlayer.DomainEntity{
+				Id: domainBoardId,
+			},
+		}
+		err = db.Create(domainBoard)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// save
 	err = db.CreateOrUpdate(domainIssue)
 	if err != nil {
 		return nil, err
 	}
-	err = db.CreateOrUpdate(domainBoard)
-	if err != nil {
-		return nil, err
-	}
+
 	err = db.CreateOrUpdate(boardIssue)
 	if err != nil {
 		return nil, err
@@ -158,7 +174,7 @@ func PostIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Er
 // @Success 200  {string} noResponse ""
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /plugins/webhook/:connectionId/issue/:boardKey/:issueId/close [POST]
+// @Router /plugins/webhook/:connectionId/issue/:boardKey/:issueKey/close [POST]
 func CloseIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.First(connection, input.Params)
@@ -168,7 +184,7 @@ func CloseIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.E
 
 	db := basicRes.GetDal()
 	domainIssue := &ticket.Issue{}
-	err = db.First(domainIssue, dal.Where("id = ?", fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, input.Params[`boardKey`], input.Params[`issueId`])))
+	err = db.First(domainIssue, dal.Where("id = ?", fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, input.Params[`boardKey`], input.Params[`issueKey`])))
 	if err != nil {
 		return nil, errors.NotFound.Wrap(err, `issue not found`)
 	}
