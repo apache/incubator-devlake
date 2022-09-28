@@ -15,28 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/coding/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type addInitTables struct{}
-
-func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(
-		archived.CodingConnection{},
-	)
-	return errors.Convert(err)
+type CodingConnection struct {
+	archived.Model
+	Name             string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	Endpoint         string `mapstructure:"endpoint"  validate:"required"`
+	Proxy            string `mapstructure:"proxy"`
+	RateLimitPerHour int    `comment:"api request rate limit per hour"`
+	Token            string `mapstructure:"token" validate:"required" encrypt:"yes"`
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20220928000001
-}
-
-func (*addInitTables) Name() string {
-	return "coding init schemas"
+func (CodingConnection) TableName() string {
+	return "_tool_coding_connections"
 }

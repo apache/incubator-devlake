@@ -24,12 +24,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/apache/incubator-devlake/plugins/coding/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/coding/models"
 )
 
-//TODO Please modify the following code to fit your needs
+// TODO Please modify the following code to fit your needs
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error

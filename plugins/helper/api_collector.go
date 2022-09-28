@@ -340,9 +340,6 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 	var reqBody interface{}
 	if collector.args.RequestBody != nil {
 		reqBody = collector.args.RequestBody(reqData)
-		if err != nil {
-			panic(err)
-		}
 	}
 
 	apiHeader := (http.Header)(nil)

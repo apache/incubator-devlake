@@ -19,13 +19,10 @@ package tasks
 
 import (
 	"encoding/json"
-	"net/http"
-	"net/url"
-	"strconv"
-
-	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"net/http"
 )
 
 const RAW_DEPOT_TABLE = "coding_depot"
@@ -34,34 +31,40 @@ var _ core.SubTaskEntryPoint = CollectDepot
 
 func CollectDepot(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*CodingTaskData)
-	iterator, err := helper.NewDateIterator(365)
-	if err != nil {
-		return err
-	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: CodingApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				DepotId:      data.Options.DepotId,
 			},
 			Table: RAW_DEPOT_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Incremental: false,
-		Input:       iterator,
+		//PageSize: 100,
 		// TODO write which api would you want request
-		UrlTemplate: "open-api?Action=DescribeGitDepot",
-		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			input := reqData.Input.(*helper.DatePair)
-			query.Set("start_time", strconv.FormatInt(input.PairStartTime.Unix(), 10))
-			query.Set("end_time", strconv.FormatInt(input.PairEndTime.Unix(), 10))
-			return query, nil
-		},
+		UrlTemplate: "open-api",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			// TODO decode result from api request
-			return []json.RawMessage{}, nil
+			var resData struct {
+				Response struct {
+					Depot json.RawMessage `json:"Depot"`
+				} `json:"Response"`
+			}
+			err := helper.UnmarshalResponse(res, &resData.Response.Depot)
+
+			return []json.RawMessage{resData.Response.Depot}, err
 		},
+		RequestBody: func(reqData *helper.RequestData) map[string]interface{} {
+			body := make(map[string]interface{})
+			body["Action"] = "DescribeGitDepot"
+			body["DepotId"] = data.Options.DepotId
+			//body["PageNumber"] = reqData.Pager.Page
+			//body["PageSize"] = reqData.Pager.Size
+			return body
+		},
+		Method: http.MethodPost,
 	})
 	if err != nil {
 		return err
