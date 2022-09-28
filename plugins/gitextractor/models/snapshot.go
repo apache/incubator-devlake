@@ -17,10 +17,13 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/models/domainlayer"
+import (
+	"github.com/apache/incubator-devlake/models/common"
+)
 
 type Snapshot struct {
-	domainlayer.DomainEntity
+	common.NoPKModel
+	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha string `gorm:"primaryKey;type:varchar(40);"`
 	FilePath  string `gorm:"primaryKey;type:varchar(255);"`
 	LineNo    int    `gorm:"primaryKey;type:int;"`

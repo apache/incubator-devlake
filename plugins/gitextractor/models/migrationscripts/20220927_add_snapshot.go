@@ -20,12 +20,13 @@ package migrationscripts
 import (
 	"context"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/common"
 	"gorm.io/gorm"
 )
 
 type Snapshot struct {
-	domainlayer.DomainEntity
+	common.NoPKModel
+	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha string `gorm:"primaryKey;type:varchar(40);"`
 	FilePath  string `gorm:"primaryKey;type:varchar(255);"`
 	LineNo    int    `gorm:"primaryKey;type:int;"`
@@ -46,7 +47,7 @@ func (*addSnapshot20220927) Up(ctx context.Context, db *gorm.DB) errors.Error {
 }
 
 func (*addSnapshot20220927) Version() uint64 {
-	return 20220927111240
+	return 20220927111241
 }
 
 func (*addSnapshot20220927) Name() string {
