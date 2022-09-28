@@ -677,7 +677,7 @@ export default function ConnectionForm(props) {
                 <InputGroup
                   id='connection-username'
                   tabIndex={0}
-                  autoComplete='false'
+                  autoComplete='new-password'
                   inputRef={connectionUsernameRef}
                   disabled={isTesting || isSaving || isLocked}
                   placeholder='Enter Username'
