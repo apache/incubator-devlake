@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Export a variable named PluginEntry for Framework to search and load
+// PluginEntry Export a variable named PluginEntry for Framework to search and load
 var PluginEntry impl.Coding //nolint
 
 // standalone mode for debugging
@@ -31,12 +31,13 @@ func main() {
 	cmd := &cobra.Command{Use: "coding"}
 
 	// TODO add your cmd flag if necessary
-	// yourFlag := cmd.Flags().IntP("yourFlag", "y", 8, "TODO add description here")
-	// _ = cmd.MarkFlagRequired("yourFlag")
+	depotId := cmd.Flags().IntP("depotId", "d", 1, "depotId")
+	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "coding connection id")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			// TODO add more custom params here
+			"connectionId": *connectionId,
+			"depotId":      *depotId,
 		})
 	}
 	runner.RunCmd(cmd)

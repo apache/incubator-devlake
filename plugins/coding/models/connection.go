@@ -19,12 +19,12 @@ package models
 
 import "github.com/apache/incubator-devlake/plugins/helper"
 
-//TODO Please modify the following code to fit your needs
+// TODO Please modify the following code to fit your needs
 // This object conforms to what the frontend currently sends.
 type CodingConnection struct {
 	helper.RestConnection `mapstructure:",squash"`
-    //TODO you may need to use helper.BasicAuth instead of helper.AccessToken
-	helper.AccessToken    `mapstructure:",squash"`
+	//TODO you may need to use helper.BasicAuth instead of helper.AccessToken
+	helper.AccessToken `mapstructure:",squash"`
 }
 
 type TestConnectionRequest struct {

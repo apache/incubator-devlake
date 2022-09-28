@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/migration"
-	"github.com/apache/incubator-devlake/plugins/core"
-    "github.com/apache/incubator-devlake/plugins/coding/api"
-    "github.com/apache/incubator-devlake/plugins/coding/models"
-    "github.com/apache/incubator-devlake/plugins/coding/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/coding/api"
+	"github.com/apache/incubator-devlake/plugins/coding/models"
+	"github.com/apache/incubator-devlake/plugins/coding/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/coding/tasks"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -38,8 +38,6 @@ var _ core.PluginTask = (*Coding)(nil)
 var _ core.PluginApi = (*Coding)(nil)
 var _ core.PluginBlueprintV100 = (*Coding)(nil)
 var _ core.CloseablePluginTask = (*Coding)(nil)
-
-
 
 type Coding struct{}
 
@@ -61,31 +59,31 @@ func (plugin Coding) SubTaskMetas() []core.SubTaskMeta {
 
 func (plugin Coding) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
-    if err != nil {
-        return nil, err
-    }
-    connectionHelper := helper.NewConnectionHelper(
-        taskCtx,
-        nil,
-    )
-    connection := &models.CodingConnection{}
-    err = connectionHelper.FirstById(connection, op.ConnectionId)
-    if err != nil {
-        return nil, errors.Default.Wrap(err, "unable to get Coding connection by the given connection ID")
-    }
+	if err != nil {
+		return nil, err
+	}
+	connectionHelper := helper.NewConnectionHelper(
+		taskCtx,
+		nil,
+	)
+	connection := &models.CodingConnection{}
+	err = connectionHelper.FirstById(connection, op.ConnectionId)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "unable to get Coding connection by the given connection ID")
+	}
 
-    apiClient, err := tasks.NewCodingApiClient(taskCtx, connection)
-    if err != nil {
-        return nil, errors.Default.Wrap(err, "unable to get Coding API client instance")
-    }
+	apiClient, err := tasks.NewCodingApiClient(taskCtx, connection)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "unable to get Coding API client instance")
+	}
 
-    return &tasks.CodingTaskData{
-        Options:   op,
-        ApiClient: apiClient,
-    }, nil
+	return &tasks.CodingTaskData{
+		Options:   op,
+		ApiClient: apiClient,
+	}, nil
 }
 
-// PkgPath information lost when compiled as plugin(.so)
+// RootPkgPath information lost when compiled as plugin(.so)
 func (plugin Coding) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/coding"
 }
@@ -95,20 +93,20 @@ func (plugin Coding) MigrationScripts() []migration.Script {
 }
 
 func (plugin Coding) ApiResources() map[string]map[string]core.ApiResourceHandler {
-    return map[string]map[string]core.ApiResourceHandler{
-        "test": {
-            "POST": api.TestConnection,
-        },
-        "connections": {
-            "POST": api.PostConnections,
-            "GET":  api.ListConnections,
-        },
-        "connections/:connectionId": {
-            "GET":    api.GetConnection,
-            "PATCH":  api.PatchConnection,
-            "DELETE": api.DeleteConnection,
-        },
-    }
+	return map[string]map[string]core.ApiResourceHandler{
+		"test": {
+			"POST": api.TestConnection,
+		},
+		"connections": {
+			"POST": api.PostConnections,
+			"GET":  api.ListConnections,
+		},
+		"connections/:connectionId": {
+			"GET":    api.GetConnection,
+			"PATCH":  api.PatchConnection,
+			"DELETE": api.DeleteConnection,
+		},
+	}
 }
 
 func (plugin Coding) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
