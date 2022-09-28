@@ -18,11 +18,11 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"strings"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 )
 
 type GitExtractorOptions struct {

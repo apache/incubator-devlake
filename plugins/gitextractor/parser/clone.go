@@ -20,10 +20,10 @@ package parser
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net"
 	"os"
 
+	"github.com/apache/incubator-devlake/errors"
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	git "github.com/libgit2/git2go/v33"

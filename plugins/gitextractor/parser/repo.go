@@ -22,6 +22,10 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"regexp"
+	"sort"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -29,9 +33,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	git "github.com/libgit2/git2go/v33"
-	"regexp"
-	"sort"
-	"strconv"
 )
 
 type GitRepo struct {

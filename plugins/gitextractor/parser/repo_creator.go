@@ -19,10 +19,9 @@ package parser
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	git "github.com/libgit2/git2go/v33"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
+	git "github.com/libgit2/git2go/v33"
 )
 
 const (
