@@ -516,7 +516,7 @@ export default function ConnectionForm(props) {
                                 }
                                 className='input personal-token-input'
                                 fill
-                                autoComplete='false'
+                                autoComplete='new-password'
                               />
                             </div>
                             {tokenTests[patIdx] && (
@@ -595,7 +595,7 @@ export default function ConnectionForm(props) {
                   <InputGroup
                     id='connection-token'
                     type='password'
-                    autoComplete='false'
+                    autoComplete='new-password'
                     inputRef={connectionTokenRef}
                     disabled={isTesting || isSaving || isLocked}
                     placeholder={
@@ -716,7 +716,7 @@ export default function ConnectionForm(props) {
                   id='connection-password'
                   tabIndex={1}
                   type='password'
-                  autoComplete='false'
+                  autoComplete='new-password'
                   inputRef={connectionPasswordRef}
                   disabled={isTesting || isSaving || isLocked}
                   placeholder='Enter Password'
