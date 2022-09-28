@@ -24,10 +24,12 @@
     "@emotion/styled": "^11.10.4",
     "antd": "^4.23.1",
     "axios": "^0.27.2",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.185",
     "@types/node": "^18.7.18",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",

@@ -15,14 +15,7 @@
  * limitations under the License.
  *
  */
-
-import request from '../../utils/request';
-
-export const getList = () => request('/plugins/jenkins/connections', { method: 'GET' });
-
-export const create = (payload: any) => request('/plugins/jenkins/connections', { method: 'POST', data: payload });
-
-export const remove = (id: string) => request(`/plugins/jenkins/connections/${id}`, { method: 'DELETE' });
-
-export const update = (id: string, payload: any) =>
-  request(`/plugins/jenkins/connections/${id}`, { method: 'PATCH', data: payload });
+export * from './form';
+export * from './list';
+export * from './page';
+export * from './typed';

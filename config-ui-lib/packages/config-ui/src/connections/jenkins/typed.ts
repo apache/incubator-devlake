@@ -16,13 +16,21 @@
  *
  */
 
-import request from '../../utils/request';
+export type JenkinsListItemType = {
+  id: number;
+  name: string;
+  endpoint: string;
+  username: string;
+  password: string;
+  proxy: string;
+  rateLimitPerHour: number;
+};
 
-export const getList = () => request('/plugins/jenkins/connections', { method: 'GET' });
-
-export const create = (payload: any) => request('/plugins/jenkins/connections', { method: 'POST', data: payload });
-
-export const remove = (id: string) => request(`/plugins/jenkins/connections/${id}`, { method: 'DELETE' });
-
-export const update = (id: string, payload: any) =>
-  request(`/plugins/jenkins/connections/${id}`, { method: 'PATCH', data: payload });
+export type JenkinsFormPayloadType = {
+  name: string;
+  endpoint: string;
+  username: string;
+  password: string;
+  proxy?: string;
+  rateLimitPerHour?: number;
+};
