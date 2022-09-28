@@ -56,7 +56,7 @@ func CreateApiService() {
 	// Wait for user confirmation if db migration is needed
 	router.GET("/proceed-db-migration", func(ctx *gin.Context) {
 		if !services.MigrationRequireConfirmation() {
-			shared.ApiOutputError(ctx, errors.BadInput.New("no pending migration"))
+			shared.ApiOutputSuccess(ctx, nil, http.StatusOK)
 			return
 		}
 		err := services.ExecuteMigration()
