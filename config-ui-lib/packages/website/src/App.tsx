@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import * as Layout from './layouts';
 import * as Page from './pages';
@@ -25,7 +25,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout.Base />}>
-          <Route index element={<Page.Connections />} />
+          <Route index element={<Navigate to="connections" replace />} />
           <Route path="connections" element={<Page.Connections />} />
           <Route path="connection/:type" element={<Page.Connection />} />
         </Route>

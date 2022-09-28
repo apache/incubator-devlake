@@ -15,26 +15,98 @@
  * limitations under the License.
  *
  */
-import { Outlet, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
+import type { MenuProps } from 'antd';
+import { Layout, Menu, Popover } from 'antd';
+import {
+  DatabaseOutlined,
+  MenuUnfoldOutlined,
+  MenuFoldOutlined,
+  LinkOutlined,
+  MailOutlined,
+  SlackOutlined,
+} from '@ant-design/icons';
 
 import * as S from './styled';
 
+import Logo from '@/images/logo.svg';
+import Textmark from '@/images/textmark.svg';
+import SlackLogo from '@/images/slack-logo.svg';
+
+const { Header, Sider, Content, Footer } = Layout;
+
+const items = [{ label: <Link to="/connections">Connections</Link>, key: '/connections', icon: <DatabaseOutlined /> }];
+
 export const Base = () => {
+  const { pathname } = useLocation();
+  const [collapsed, setCollapsed] = useState(false);
+
+  const handleChangeMenu: MenuProps['onClick'] = (e) => {
+    console.log(e);
+  };
+
   return (
     <S.Container>
-      <nav>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/connections">Connections</Link>
-          </li>
-        </ul>
-      </nav>
-      <main>
-        <Outlet />
-      </main>
+      <Sider width={220} trigger={null} collapsible collapsed={collapsed}>
+        <div className="logo">
+          <img src={Logo} alt="" />
+          {!collapsed && <img src={Textmark} alt="" />}
+        </div>
+        <Menu theme="dark" mode="inline" items={items} selectedKeys={[pathname]} onClick={handleChangeMenu} />
+      </Sider>
+      <Layout>
+        <Header>
+          {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
+            className: 'trigger',
+            onClick: () => setCollapsed(!collapsed),
+          })}
+
+          <ul className="other-info">
+            <li>
+              <a href="https://github.com/apache/incubator-devlake" rel="noreferrer" target="_blank">
+                <LinkOutlined style={{ fontSize: 16 }} />
+              </a>
+            </li>
+            <li>
+              <a href="mailto:hello@merico.dev" rel="noreferrer" target="_blank">
+                <MailOutlined style={{ fontSize: 16 }} />
+              </a>
+            </li>
+            <li>
+              <Popover
+                placement="bottomLeft"
+                content={
+                  <div style={{ width: 240, textAlign: 'center' }}>
+                    <img src={SlackLogo} width={130} alt="" />
+                    <p>
+                      Want to interact with the <strong>Merico Community</strong>? Join us on our Slack Channel.
+                      <br />
+                      <a
+                        href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ"
+                        rel="noreferrer"
+                        target="_blank"
+                        className="bp3-button bp3-intent-warning bp3-elevation-1 bp3-small"
+                        style={{ marginTop: '10px' }}
+                      >
+                        Message us on&nbsp;<strong>Slack</strong>
+                      </a>
+                    </p>
+                  </div>
+                }
+              >
+                <SlackOutlined style={{ fontSize: 16 }} />
+              </Popover>
+            </li>
+          </ul>
+        </Header>
+        <Content>
+          <Outlet />
+        </Content>
+        <Footer>
+          <div className="copyright">Apache 2.0 License</div>
+        </Footer>
+      </Layout>
     </S.Container>
   );
 };

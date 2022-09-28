@@ -1626,6 +1626,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@devlake/website@workspace:packages/website"
   dependencies:
+    "@ant-design/icons": ^4.7.0
     "@emotion/react": ^11.10.4
     "@emotion/styled": ^11.10.4
     "@types/node": ^18.7.18

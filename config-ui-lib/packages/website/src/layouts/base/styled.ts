@@ -16,16 +16,61 @@
  *
  */
 import styled from '@emotion/styled';
+import { Layout } from 'antd';
 
-export const Container = styled.div`
-  display: flex;
+export const Container = styled(Layout)`
+  min-height: 100vh;
 
-  nav {
-    padding: 16px 24px;
+  .logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 0;
+
+    img + img {
+      margin-top: 8px;
+    }
   }
 
-  main {
-    flex: auto;
+  .trigger {
+    padding: 0 24px;
+    line-height: 64px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+
+  .other-info {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+
+    li {
+      margin-right: 12px;
+
+      &:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .copyright {
+    display: flex;
+    justify-content: center;
+    color: #7c7c7c;
+    font-size: 12px;
+  }
+
+  .ant-layout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+    background-color: #fff;
+  }
+
+  .ant-layout-content {
     padding: 16px 24px;
   }
 `;
