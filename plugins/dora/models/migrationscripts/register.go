@@ -23,5 +23,6 @@ import "github.com/apache/incubator-devlake/migration"
 func All() []migration.Script {
 	return []migration.Script{
 		new(addInitTables),
+		new(addDoraBenchmark),
 	}
 }
