@@ -19,6 +19,10 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
@@ -28,8 +32,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
 	"github.com/go-playground/validator/v10"
-	"net/http"
-	"time"
 )
 
 type WebhookTaskRequest struct {
@@ -161,14 +163,50 @@ func PostPipelineFinish(input *core.ApiResourceInput) (*core.ApiResourceOutput, 
 
 	db := basicRes.GetDal()
 	pipelineId := fmt.Sprintf("%s:%d:%s", "webhook", connection.ID, input.Params[`pipelineName`])
-	println(pipelineId)
+
+	now := time.Now()
+
+	// finished all CICDTask
+	cursor, err := db.Cursor(
+		dal.From(&devops.CICDTask{}),
+		dal.Where("pipeline_id = ?", pipelineId),
+	)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error on select CICDTask")
+	}
+	batch, err := helper.NewBatchSave(basicRes, reflect.TypeOf(&devops.CICDTask{}), 500)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error getting batch from CICDTask")
+	}
+	defer batch.Close()
+
+	domainTasks := []devops.CICDTask{}
+	for cursor.Next() {
+		task := &devops.CICDTask{}
+		err = errors.Convert(cursor.Scan(task))
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "error on Convert CICDTask data")
+		}
+		// set the IN_PROGRESS task to be ABORT
+		if task.Result == `IN_PROGRESS` {
+			task.Result = `ABORT`
+			task.FinishedDate = &now
+		}
+		task.Status = ticket.DONE
+		domainTasks = append(domainTasks, *task)
+		err = batch.Add(task)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("error on CICDTask batch add %v", task))
+		}
+	}
+
+	// finished CICDPipeline
 	domainPipeline := &devops.CICDPipeline{}
 	err = db.First(domainPipeline, dal.Where("id = ?", pipelineId))
 	if err != nil {
 		return nil, errors.NotFound.Wrap(err, `pipeline not found`)
 	}
 
-	domainTasks := []devops.CICDTask{}
 	err = db.All(&domainTasks, dal.Where("pipeline_id = ?", pipelineId))
 	if err != nil {
 		return nil, errors.NotFound.Wrap(err, `tasks not found`)
@@ -177,7 +215,6 @@ func PostPipelineFinish(input *core.ApiResourceInput) (*core.ApiResourceOutput, 
 	domainPipeline.Type = pipelineType
 	domainPipeline.Result = result
 	domainPipeline.Status = ticket.DONE
-	now := time.Now()
 	domainPipeline.FinishedDate = &now
 	domainPipeline.DurationSec = uint64(domainPipeline.FinishedDate.Sub(domainPipeline.CreatedDate).Seconds())
 
