@@ -78,7 +78,7 @@ type ApiCollectorArgs struct {
 	Concurrency    int
 	ResponseParser func(res *http.Response) ([]json.RawMessage, errors.Error)
 	AfterResponse  common.ApiClientAfterResponse
-	RequestBody    interface{}
+	RequestBody    func(reqData *RequestData) map[string]interface{}
 	Method         string
 }
 
@@ -98,8 +98,8 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Couldn't resolve raw subtask args")
 	}
-	// TODO: check if args.Table is valid
-	if args.UrlTemplate == "" {
+	// TODO: check if args.Table is valid when this is a http GET request
+	if args.UrlTemplate == "" && args.Method == "" {
 		return nil, errors.Default.New("UrlTemplate is required")
 	}
 	tpl, err := errors.Convert01(template.New(args.Table).Parse(args.UrlTemplate))
@@ -337,6 +337,13 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 			panic(err)
 		}
 	}
+	var reqBody interface{}
+	if collector.args.RequestBody != nil {
+		reqBody = collector.args.RequestBody(reqData)
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	apiHeader := (http.Header)(nil)
 	if collector.args.Header != nil {
@@ -393,7 +400,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 		return nil
 	}
 	if collector.args.Method == http.MethodPost {
-		collector.args.ApiClient.DoPostAsync(apiUrl, apiQuery, collector.args.RequestBody, apiHeader, responseHandler)
+		collector.args.ApiClient.DoPostAsync(apiUrl, apiQuery, reqBody, apiHeader, responseHandler)
 	} else {
 		collector.args.ApiClient.DoGetAsync(apiUrl, apiQuery, apiHeader, responseHandler)
 	}
