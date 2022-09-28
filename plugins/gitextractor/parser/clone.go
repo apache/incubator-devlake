@@ -56,7 +56,7 @@ func (l *GitRepoCreator) CloneOverHTTP(repoId, url, user, password, proxy string
 	return withTempDirectory(func(dir string) (*GitRepo, error) {
 		cloneOptions := &git.CloneOptions{Bare: true}
 		if proxy != "" {
-			cloneOptions.FetchOptions.ProxyOptions.Type = git.ProxyTypeSpecified
+			cloneOptions.FetchOptions.ProxyOptions.Type = git.ProxyTypeAuto
 			cloneOptions.FetchOptions.ProxyOptions.Url = proxy
 		}
 		if user != "" {
