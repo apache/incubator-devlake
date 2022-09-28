@@ -183,9 +183,9 @@ func PostPipelineFinish(input *core.ApiResourceInput) (*core.ApiResourceOutput, 
 	domainTasks := []devops.CICDTask{}
 	for cursor.Next() {
 		task := &devops.CICDTask{}
-		err = errors.Convert(cursor.Scan(task))
+		err = db.Fetch(cursor, task)
 		if err != nil {
-			return nil, errors.Default.Wrap(err, "error on Convert CICDTask data")
+			return nil, errors.Default.Wrap(err, "error on Fetch CICDTask data")
 		}
 		// set the IN_PROGRESS task to be ABORT
 		if task.Result == `IN_PROGRESS` {
