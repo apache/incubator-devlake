@@ -494,7 +494,9 @@ const BlueprintDetail = (props) => {
                     onClick={runBlueprint}
                     disabled={
                       !activeBlueprint?.enable ||
-                      currentRun?.status === TaskStatus.RUNNING
+                      [TaskStatus.CREATED, TaskStatus.RUNNING].includes(
+                        currentRun?.status
+                      )
                     }
                   />
                 </div>
