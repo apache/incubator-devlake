@@ -61,13 +61,13 @@ export default function Integration() {
                 {
                   href: '/integrations',
                   icon: false,
-                  text: 'Integrations',
+                  text: 'Connections',
                   current: true
                 }
               ]}
             />
             <div className='headlineContainer'>
-              <h1>Data Integrations</h1>
+              <h1>Data Connections</h1>
               <p className='page-description'>
                 {integrationsData.length} connections are available for data
                 collection.
@@ -95,9 +95,10 @@ export default function Integration() {
             <div className='headlineContainer'>
               <h1>Webhooks</h1>
               <p className='page-description'>
-                You can use Webhooks to define Issues and Deployments to be used
-                in calculating DORA metrics. Please note: Webhooks cannot be
-                created or managed in Blueprints.
+                You can use webhooks to import deployments and incidents from
+                the unsupported data integrations to calculate DORA metrics,
+                etc. Please note: webhooks cannot be created or managed in
+                Blueprints.
               </p>
             </div>
             <div className='integrationProviders'>

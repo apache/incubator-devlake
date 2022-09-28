@@ -381,7 +381,7 @@ const Offline = (props) => {
                       >
                         Proceed with{' '}
                         <span style={{ fontWeight: 800 }}>
-                          Data Integrations
+                          Data Connections
                         </span>
                       </a>
                       <br /> Lake API connection restored.
