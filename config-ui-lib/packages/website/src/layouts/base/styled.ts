@@ -67,6 +67,7 @@ export const Container = styled(Layout)`
     align-items: center;
     justify-content: space-between;
     padding: 0;
+    height: 50px;
     background-color: #fff;
   }
 
