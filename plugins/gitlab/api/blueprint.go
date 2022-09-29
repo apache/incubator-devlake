@@ -169,8 +169,9 @@ func processScope(subtaskMetas []core.SubTaskMeta, connectionId uint64, scopeEle
 		doraOption["transformationRules"] = doraRules
 		plan[j] = core.PipelineStage{
 			{
-				Plugin:  "dora",
-				Options: doraOption,
+				Plugin:   "dora",
+				Subtasks: []string{"EnrichTaskEnv"},
+				Options:  doraOption,
 			},
 		}
 		// remove it from github transformationRules
