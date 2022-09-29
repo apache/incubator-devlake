@@ -84,8 +84,9 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			doraOption["transformationRules"] = doraRules
 			plan[j] = core.PipelineStage{
 				{
-					Plugin:  "dora",
-					Options: doraOption,
+					Plugin:   "dora",
+					Subtasks: []string{"EnrichTaskEnv"},
+					Options:  doraOption,
 				},
 			}
 			// remove it from github transformationRules

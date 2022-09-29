@@ -306,11 +306,11 @@ func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan
 	}
 	mergedPipelinePlan := MergePipelinePlans(plans...)
 	if hasDoraEnrich {
-		doraRules["tasks"] = []string{"calculateChangeLeadTime", "ConnectIssueDeploy"}
 		plan := core.PipelineStage{
 			&core.PipelineTask{
-				Plugin:  "dora",
-				Options: doraRules,
+				Plugin:   "dora",
+				Subtasks: []string{"calculateChangeLeadTime", "ConnectIssueDeploy"},
+				Options:  doraRules,
 			},
 		}
 		mergedPipelinePlan = append(mergedPipelinePlan, plan)
