@@ -162,12 +162,7 @@ export default function JiraSettings(props) {
     [configuredBoard?.id, requirementTags, bugTags, incidentTags]
   )
 
-  const [requirementTagsList, setRequirementTagsList] = useState([])
-  const [bugTagsList, setBugTagsList] = useState([])
-  const [incidentTagsList, setIncidentTagsList] = useState([])
-
   const [fieldsList, setFieldsList] = useState(fields)
-  // const [issueTypesList, setIssueTypesList] = useState(issueTypes)
 
   useEffect(() => {
     if (configuredBoard?.id) {
@@ -262,16 +257,6 @@ export default function JiraSettings(props) {
   }, [fields])
 
   useEffect(() => {
-    console.log(
-      '>>> JIRA SETTINGS :: ISSUE TYPES LIST DATA CHANGED!',
-      issueTypes
-    )
-    setRequirementTagsList(issueTypes)
-    setBugTagsList(issueTypes)
-    setIncidentTagsList(issueTypes)
-  }, [issueTypes])
-
-  useEffect(() => {
     setJiraIssueEpicKeyField(
       fieldsList.find((f) => f.value === transformation?.epicKeyField)
     )
@@ -353,7 +338,7 @@ export default function JiraSettings(props) {
                 className='multiselector-requirement-type'
                 inline={true}
                 fill={true}
-                items={requirementTagsList}
+                items={issueTypes}
                 // selectedItems={savedTags}
                 // selectedItems={requirementTags[configuredBoard?.id]}
                 selectedItems={requirementTags[configuredBoard?.id]}
@@ -364,20 +349,17 @@ export default function JiraSettings(props) {
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
                     active={modifiers.active}
-                    disabled={allChosenTagsInThisBoard?.some(
-                      (t) => Number(t.id) === Number(item.id)
-                    )}
+                    disabled={allChosenTagsInThisBoard?.some(t => t.value === item.value)}
                     key={item.value}
-                    label={
-                      <span style={{ marginLeft: '20px' }}>
-                        {item.description || item.value}
+                    label={item.title !== item.value
+                      ? <span style={{ marginLeft: '20px' }}>
+                        {item.value} {item.name} {item.name !== item.value}
                       </span>
+                      : ''
                     }
                     onClick={handleClick}
                     text={
-                      requirementTags[configuredBoard?.id]?.some(
-                        (t) => Number(t.id) === Number(item.id)
-                      ) ? (
+                      requirementTags[configuredBoard?.id]?.some(t => t.value === item.value) ? (
                         <>
                           <img src={item.iconUrl} width={12} height={12} />{' '}
                           {item.title}{' '}
@@ -394,7 +376,7 @@ export default function JiraSettings(props) {
                       marginBottom: '2px',
                       fontWeight: requirementTags[
                         configuredBoard?.id
-                      ]?.includes(item)
+                      ]?.some(t => t.value === item.value)
                         ? 700
                         : 'normal'
                     }}
@@ -421,7 +403,7 @@ export default function JiraSettings(props) {
                 onItemSelect={(item) => {
                   // setRequirementTags((rT) => !rT.includes(item) ? [...rT, item] : [...rT])
                   setRequirementTags((rT) =>
-                    !rT[configuredBoard?.id]?.includes(item)
+                    !rT[configuredBoard?.id]?.some(t => t.value === item.value)
                       ? {
                           ...rT,
                           [configuredBoard?.id]: [
@@ -493,7 +475,7 @@ export default function JiraSettings(props) {
                 className='multiselector-bug-type'
                 inline={true}
                 fill={true}
-                items={bugTagsList}
+                items={issueTypes}
                 selectedItems={bugTags[configuredBoard?.id]}
                 activeItem={null}
                 itemPredicate={(query, item) =>
@@ -502,20 +484,17 @@ export default function JiraSettings(props) {
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
                     active={modifiers.active}
-                    disabled={allChosenTagsInThisBoard?.some(
-                      (t) => Number(t.id) === Number(item.id)
-                    )}
+                    disabled={allChosenTagsInThisBoard?.some(t => t.value === item.value)}
                     key={item.value}
-                    label={
-                      <span style={{ marginLeft: '20px' }}>
-                        {item.description || item.value}
+                    label={item.title !== item.value
+                      ? <span style={{ marginLeft: '20px' }}>
+                        {item.value} {item.name} {item.name !== item.value}
                       </span>
+                      : ''
                     }
                     onClick={handleClick}
                     text={
-                      bugTags[configuredBoard?.id]?.some(
-                        (t) => Number(t.id) === Number(item.id)
-                      ) ? (
+                      bugTags[configuredBoard?.id]?.some(t => t.value === item.value) ? (
                         <>
                           <img src={item.iconUrl} width={12} height={12} />{' '}
                           {item.title}{' '}
@@ -530,7 +509,7 @@ export default function JiraSettings(props) {
                     }
                     style={{
                       marginBottom: '2px',
-                      fontWeight: bugTags[configuredBoard?.id]?.includes(item)
+                      fontWeight: bugTags[configuredBoard?.id]?.some(t => t.value === item.value)
                         ? 700
                         : 'normal'
                     }}
@@ -557,7 +536,7 @@ export default function JiraSettings(props) {
                 onItemSelect={(item) => {
                   // setBugTags((bT) => !bT.includes(item) ? [...bT, item] : [...bT])
                   setBugTags((bT) =>
-                    !bT[configuredBoard?.id]?.includes(item)
+                    !bT[configuredBoard?.id]?.some(t => t.value === item.value)
                       ? {
                           ...bT,
                           [configuredBoard?.id]: [
@@ -635,7 +614,7 @@ export default function JiraSettings(props) {
                 className='multiselector-incident-type'
                 inline={true}
                 fill={true}
-                items={incidentTagsList}
+                items={issueTypes}
                 selectedItems={incidentTags[configuredBoard?.id]}
                 activeItem={null}
                 itemPredicate={(query, item) =>
@@ -644,20 +623,17 @@ export default function JiraSettings(props) {
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
                     active={modifiers.active}
-                    disabled={allChosenTagsInThisBoard?.some(
-                      (t) => Number(t.id) === Number(item.id)
-                    )}
+                    disabled={allChosenTagsInThisBoard?.some(t => t.value === item.value)}
                     key={item.value}
-                    label={
-                      <span style={{ marginLeft: '20px' }}>
-                        {item.description || item.value}
+                    label={item.title !== item.value
+                      ? <span style={{ marginLeft: '20px' }}>
+                        {item.value} {item.name} {item.name !== item.value}
                       </span>
+                      : ''
                     }
                     onClick={handleClick}
                     text={
-                      incidentTags[configuredBoard?.id]?.some(
-                        (t) => Number(t.id) === Number(item.id)
-                      ) ? (
+                      incidentTags[configuredBoard?.id]?.some(t => t.value === item.value) ? (
                         <>
                           <img src={item.iconUrl} width={12} height={12} />{' '}
                           {item.title}{' '}
@@ -672,9 +648,7 @@ export default function JiraSettings(props) {
                     }
                     style={{
                       marginBottom: '2px',
-                      fontWeight: incidentTags[configuredBoard?.id]?.some(
-                        (t) => Number(t.id) === Number(item.id)
-                      )
+                      fontWeight: incidentTags[configuredBoard?.id]?.some(t => t.value === item.value)
                         ? 700
                         : 'normal'
                     }}
@@ -701,7 +675,7 @@ export default function JiraSettings(props) {
                 onItemSelect={(item) => {
                   // setIncidentTags((iT) => !iT.includes(item) ? [...iT, item] : [...iT])
                   setIncidentTags((iT) =>
-                    !iT[configuredBoard?.id]?.includes(item)
+                    !iT[configuredBoard?.id]?.some(t => t.value === item.value)
                       ? {
                           ...iT,
                           [configuredBoard?.id]: [

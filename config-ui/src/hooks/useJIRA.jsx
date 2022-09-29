@@ -230,14 +230,16 @@ const useJIRA = (
 
   const createListData = (
     data = [],
-    titleProperty = 'name',
-    valueProperty = 'id'
+    titleProperty,
+    idProperty,
+    valueProperty,
+    valueProperty2,
   ) => {
     return data.map((d, dIdx) => ({
-      id: d[valueProperty],
-      key: d[valueProperty],
+      id: d[idProperty],
+      key: d[idProperty],
       title: d[titleProperty],
-      value: d[valueProperty],
+      value: d[valueProperty] || (valueProperty2 && d[valueProperty2]),
       icon: d?.location?.avatarURI,
       type: d.schema?.type || 'string'
     }))
@@ -246,7 +248,7 @@ const useJIRA = (
   useEffect(() => {
     setIssueTypes(
       issueTypesResponse
-        ? createListData(issueTypesResponse).reduce(
+        ? createListData(issueTypesResponse, 'name', 'id', 'untranslatedName', 'name').reduce(
             (pV, cV) =>
               !pV.some((i) => i.value === cV.value) ? [...pV, cV] : [...pV],
             []
@@ -257,13 +259,13 @@ const useJIRA = (
 
   useEffect(() => {
     setFields(
-      fieldsResponse ? createListData(fieldsResponse, 'name', 'id') : []
+      fieldsResponse ? createListData(fieldsResponse, 'name', 'id', 'id') : []
     )
   }, [fieldsResponse])
 
   useEffect(() => {
     setBoards(
-      boardsResponse ? createListData(boardsResponse, 'name', 'id') : []
+      boardsResponse ? createListData(boardsResponse, 'name', 'id', 'id') : []
     )
   }, [boardsResponse])
 
@@ -295,7 +297,6 @@ const useJIRA = (
     fetchIssueTypes,
     fetchBoards,
     fetchAllResources,
-    createListData,
     issueTypesResponse,
     fieldsResponse,
     boardsResponse,
