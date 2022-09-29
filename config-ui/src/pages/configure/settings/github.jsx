@@ -442,7 +442,6 @@ export default function GithubSettings(props) {
                 fill
                 rows={2}
                 growVertically={false}
-                autoFocus
               />
             </FormGroup>
           </div>
