@@ -15,47 +15,32 @@
  * limitations under the License.
  *
  */
-import styled from '@emotion/styled';
+import type { TableColumnType } from 'antd';
+import { Table } from 'antd';
 
-export const PageContainer = styled.div``;
+import type { WebhookItemType } from './typed';
 
-export const FormContainer = styled.div`
-  .tips {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 16px;
+export interface WebhookConnectionListProps {
+  style?: React.CSSProperties;
+  extraColumn?: TableColumnType<any>[];
+  loading: boolean;
+  data: Array<WebhookItemType>;
+}
 
-    span {
-      margin-left: 4px;
-    }
-  }
+export const WebhookConnectionList = ({ extraColumn, loading, data, ...props }: WebhookConnectionListProps) => {
+  const columns: TableColumnType<any>[] = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+    },
+    ...(extraColumn ?? []),
+  ];
 
-  .btns {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    margin-top: 24px;
-  }
-`;
-
-export const URLContainer = styled.div`
-  p {
-    margin: 0 0 10px;
-  }
-
-  .block {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 10px;
-    margin-bottom: 10px;
-    height: 38px;
-    background-color: #f0f4fe;
-
-    & > svg {
-      cursor: pointer;
-    }
-  }
-`;
+  return <Table {...props} rowKey="id" loading={loading} columns={columns} dataSource={data} pagination={false} />;
+};

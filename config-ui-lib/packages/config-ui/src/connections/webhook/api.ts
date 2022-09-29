@@ -15,25 +15,16 @@
  * limitations under the License.
  *
  */
-import { Button, Table } from 'antd';
 
-import * as S from './styled';
+import request from '../../utils/request';
 
-export const Webhook = () => {
-  return (
-    <S.Container>
-      <h1>
-        <span>Webhook</span>
-      </h1>
-      <h4>
-        Use Webhooks to define Incidents and Deployments for your CI tools if they are not listed in Data Sources.
-      </h4>
-      <div className="content">
-        <div className="operate">
-          <Button type="primary">Add Webhook</Button>
-        </div>
-        <Table />
-      </div>
-    </S.Container>
-  );
-};
+export const getList = () => request('/plugins/webhook/connections', { method: 'GET' });
+
+export const get = (id: number) => request(`/plugins/webhook/connections/${id}`, { method: 'GET' });
+
+export const create = (payload: any) => request('/plugins/webhook/connections', { method: 'POST', data: payload });
+
+export const remove = (id: number) => request(`/plugins/webhook/connections/${id}`, { method: 'DELETE' });
+
+export const update = (id: number, payload: any) =>
+  request(`/plugins/webhook/connections/${id}`, { method: 'PATCH', data: payload });
