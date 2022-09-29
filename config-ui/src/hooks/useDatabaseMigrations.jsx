@@ -33,9 +33,11 @@ function useDatabaseMigrations(Configuration = MigrationOptions) {
     setIsProcessing(true)
     const migrate = async () => {
       const m = await request.get(Configuration.apiProceedEndpoint)
-      setWasMigrationSuccessful(m?.status === 200 && m?.data?.success === true)
-      setIsProcessing(false)
-      setHasMigrationFailed(m?.status !== 200)
+      setTimeout(() => {
+        setWasMigrationSuccessful(m?.status === 200 && m?.data?.success === true)
+        setIsProcessing(false)
+        setHasMigrationFailed(m?.status !== 200)
+      }, 3000)
     }
     migrate()
   }, [Configuration.apiProceedEndpoint])
