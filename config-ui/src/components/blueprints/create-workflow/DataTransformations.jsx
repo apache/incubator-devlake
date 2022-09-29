@@ -102,7 +102,7 @@ const DataTransformations = (props) => {
 
   useEffect(() => {
     setInitializeTransformations(transformations)
-  }, [transformations])
+  }, [])
 
   const isTransformationSupported = useMemo(
     () =>
