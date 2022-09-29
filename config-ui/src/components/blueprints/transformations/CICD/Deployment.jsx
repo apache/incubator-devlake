@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   Intent,
   FormGroup,
@@ -81,24 +81,30 @@ const Deployment = (props) => {
     return tagHint
   }
 
-  const getDeployOptionLabel = (providerId, providerName) => {
-    let label = ''
+  const radioLabels = useMemo(() => {
+    let radio1
+    let radio2
+
+    const providerId = provider?.id
+    const providerName = ProviderLabels[provider?.id?.toUpperCase()]
+
     switch (providerId) {
       case Providers.JENKINS:
-        // eslint-disable-next-line max-len
-        label = `Detect Deployment from Builds in ${providerName}`
+        radio1 = 'Detect Deployment from Builds in Jenkins'
+        radio2 = 'Not using Jenkins Builds as Deployments'
         break
       case Providers.GITHUB:
-        label = `Detect Deployment from Jobs in ${providerName} Action`
+        radio1 = `Detect Deployment from Jobs in GitHub Action`
+        radio2 = 'Not using Jobs in GitHub Action as Deployments'
         break
       case Providers.GITLAB:
-      case 'default':
-        // eslint-disable-next-line max-len
-        label = `Detect Deployment from Jobs in ${providerName} CI`
-        break
+      default:
+        radio1 = `Detect Deployment from Jobs in ${providerName} CI`
+        radio2 = `Not using ${providerName} Builds as Deployments`
     }
-    return label
-  }
+
+    return [radio1, radio2]
+  }, [provider])
 
   return (
     <>
@@ -118,13 +124,7 @@ const Deployment = (props) => {
         selectedValue={selectValue}
         required
       >
-        <Radio
-          label={getDeployOptionLabel(
-            provider?.id,
-            ProviderLabels[provider?.id?.toUpperCase()]
-          )}
-          value={1}
-        />
+        <Radio label={radioLabels[0]} value={1} />
         {selectValue === 1 && (
           <>
             <p>
@@ -202,12 +202,7 @@ const Deployment = (props) => {
             </FormGroup>
           </>
         )}
-        <Radio
-          label={`Not using ${
-            ProviderLabels[provider?.id.toUpperCase()]
-          } Builds as Deployments`}
-          value={0}
-        />
+        <Radio label={radioLabels[1]} value={0} />
       </RadioGroup>
     </>
   )
