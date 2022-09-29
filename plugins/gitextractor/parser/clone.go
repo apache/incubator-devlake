@@ -20,10 +20,10 @@ package parser
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net"
 	"os"
 
+	"github.com/apache/incubator-devlake/errors"
 	gogit "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	git "github.com/libgit2/git2go/v33"
@@ -56,7 +56,7 @@ func (l *GitRepoCreator) CloneOverHTTP(repoId, url, user, password, proxy string
 	return withTempDirectory(func(dir string) (*GitRepo, error) {
 		cloneOptions := &git.CloneOptions{Bare: true}
 		if proxy != "" {
-			cloneOptions.FetchOptions.ProxyOptions.Type = git.ProxyTypeSpecified
+			cloneOptions.FetchOptions.ProxyOptions.Type = git.ProxyTypeAuto
 			cloneOptions.FetchOptions.ProxyOptions.Url = proxy
 		}
 		if user != "" {
