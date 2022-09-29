@@ -73,19 +73,18 @@ function useDatabaseMigrations(Configuration = MigrationOptions) {
     }
   }, [hasMigrationFailed])
 
-  const setNeedMigrateCallback = useCallback((errorObject) => {
-    if (migrationWarning) {
-      console.log(`>>> MIGRATION WARNING DETECTED !!:`, migrationWarning)
-    }
-    setMigrationWarning(errorObject)
-    setWasMigrationSuccessful(false)
-    setIsProcessing(false)
-    setHasMigrationFailed(false)
-  }, [setMigrationWarning])
+  const setNeedMigrateCallback = useCallback(
+    (errorObject) => {
+      setMigrationWarning(errorObject)
+      setWasMigrationSuccessful(false)
+      setIsProcessing(false)
+      setHasMigrationFailed(false)
+    },
+    [setMigrationWarning]
+  )
   useEffect(() => {
     MigrationOptions.setNeedMigrateCallback(setNeedMigrateCallback)
   }, [setNeedMigrateCallback])
-
 
   return {
     migrationWarning,
