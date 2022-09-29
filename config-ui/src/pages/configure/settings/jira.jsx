@@ -351,12 +351,6 @@ export default function JiraSettings(props) {
                     active={modifiers.active}
                     disabled={allChosenTagsInThisBoard?.some(t => t.value === item.value)}
                     key={item.value}
-                    label={item.title !== item.value
-                      ? <span style={{ marginLeft: '20px' }}>
-                        {item.value} {item.name} {item.name !== item.value}
-                      </span>
-                      : ''
-                    }
                     onClick={handleClick}
                     text={
                       requirementTags[configuredBoard?.id]?.some(t => t.value === item.value) ? (
@@ -486,12 +480,6 @@ export default function JiraSettings(props) {
                     active={modifiers.active}
                     disabled={allChosenTagsInThisBoard?.some(t => t.value === item.value)}
                     key={item.value}
-                    label={item.title !== item.value
-                      ? <span style={{ marginLeft: '20px' }}>
-                        {item.value} {item.name} {item.name !== item.value}
-                      </span>
-                      : ''
-                    }
                     onClick={handleClick}
                     text={
                       bugTags[configuredBoard?.id]?.some(t => t.value === item.value) ? (
@@ -625,12 +613,6 @@ export default function JiraSettings(props) {
                     active={modifiers.active}
                     disabled={allChosenTagsInThisBoard?.some(t => t.value === item.value)}
                     key={item.value}
-                    label={item.title !== item.value
-                      ? <span style={{ marginLeft: '20px' }}>
-                        {item.value} {item.name} {item.name !== item.value}
-                      </span>
-                      : ''
-                    }
                     onClick={handleClick}
                     text={
                       incidentTags[configuredBoard?.id]?.some(t => t.value === item.value) ? (

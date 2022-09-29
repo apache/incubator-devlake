@@ -233,13 +233,12 @@ const useJIRA = (
     titleProperty,
     idProperty,
     valueProperty,
-    valueProperty2,
   ) => {
     return data.map((d, dIdx) => ({
       id: d[idProperty],
       key: d[idProperty],
       title: d[titleProperty],
-      value: d[valueProperty] || (valueProperty2 && d[valueProperty2]),
+      value: d[valueProperty],
       icon: d?.location?.avatarURI,
       type: d.schema?.type || 'string'
     }))
@@ -248,7 +247,7 @@ const useJIRA = (
   useEffect(() => {
     setIssueTypes(
       issueTypesResponse
-        ? createListData(issueTypesResponse, 'name', 'id', 'untranslatedName', 'name').reduce(
+        ? createListData(issueTypesResponse, 'name', 'id', 'name').reduce(
             (pV, cV) =>
               !pV.some((i) => i.value === cV.value) ? [...pV, cV] : [...pV],
             []
