@@ -23,7 +23,7 @@ const MenuConfiguration = (activeRoute) => {
   return [
     {
       id: 0,
-      label: 'Data Integrations',
+      label: 'Data Connections',
       route: '/integrations',
       active:
         activeRoute.url.startsWith('/integrations') || activeRoute.url === '/',
