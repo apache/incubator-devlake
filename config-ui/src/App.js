@@ -52,10 +52,6 @@ function App(props) {
     migrationAlertOpened,
     wasMigrationSuccessful,
     hasMigrationFailed,
-    setMigrationWarning,
-    setMigrationAlertOpened,
-    setWasMigrationSuccessful,
-    setHasMigrationFailed,
     handleConfirmMigration,
     handleCancelMigration,
     handleMigrationDialogClose
@@ -123,7 +119,7 @@ function App(props) {
         onCancel={handleCancelMigration}
         onConfirm={handleConfirmMigration}
         isMigrating={isProcessing}
-        wasSuccesful={wasMigrationSuccessful}
+        wasSuccessful={wasMigrationSuccessful}
         hasFailed={hasMigrationFailed}
       />
     </Router>
