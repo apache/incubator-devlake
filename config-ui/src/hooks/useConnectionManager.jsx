@@ -262,7 +262,7 @@ function useConnectionManager(
           setIsSaving(false)
           setSaveComplete(saveResponse.success ? new Connection(s.data) : false)
           if (!saveResponse.success) {
-            notifyConnectionSaveFailure(s.data || s.message)
+            notifyConnectionSaveFailure(s?.data?.message || s.message)
           }
         } catch (e) {
           saveResponse.errors.push(e.message)
