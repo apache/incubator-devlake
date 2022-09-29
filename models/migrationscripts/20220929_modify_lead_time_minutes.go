@@ -51,6 +51,7 @@ func (*modifyLeadTimeMinutes) Up(ctx context.Context, db *gorm.DB) errors.Error 
 	if err != nil {
 		return errors.Convert(err)
 	}
+	db.First(&newIssue{})
 	return nil
 }
 
