@@ -280,16 +280,15 @@ func runTaskStandalone(parentLog core.Logger, taskId uint64) errors.Error {
 }
 
 func updateTaskProgress(taskId uint64, progress chan core.RunningProgress) {
-	runningTasks.mu.Lock()
-	defer runningTasks.mu.Unlock()
-
 	data := runningTasks.tasks[taskId]
 	if data == nil {
 		return
 	}
 	progressDetail := data.ProgressDetail
 	for p := range progress {
+		runningTasks.mu.Lock()
 		runner.UpdateProgressDetail(db, log, taskId, progressDetail, &p)
+		runningTasks.mu.Unlock()
 	}
 }
 
