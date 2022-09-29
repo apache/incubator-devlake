@@ -18,11 +18,11 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"strings"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 )
 
 type GitExtractorOptions struct {
@@ -45,9 +45,6 @@ func (o GitExtractorOptions) Valid() errors.Error {
 	url := strings.TrimPrefix(o.Url, "ssh://")
 	if !(strings.HasPrefix(o.Url, "http") || strings.HasPrefix(url, "git@") || strings.HasPrefix(o.Url, "/")) {
 		return errors.BadInput.New("wrong url")
-	}
-	if o.Proxy != "" && !strings.HasPrefix(o.Proxy, "http://") {
-		return errors.BadInput.New("only support http proxy")
 	}
 	return nil
 }
