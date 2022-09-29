@@ -47,5 +47,6 @@ func All() []migration.Script {
 		new(addCommitFilePathLength),
 		new(renamePipelineCommits),
 		new(commitLineChange),
+		new(modifyLeadTimeMinutes),
 	}
 }

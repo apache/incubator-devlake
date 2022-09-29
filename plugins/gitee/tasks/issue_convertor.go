@@ -77,7 +77,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) errors.Error {
 				AssigneeName:    issue.AssigneeName,
 				CreatorId:       accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId),
 				CreatorName:     issue.AuthorName,
-				LeadTimeMinutes: issue.LeadTimeMinutes,
+				LeadTimeMinutes: int64(issue.LeadTimeMinutes),
 				Url:             issue.Url,
 				CreatedDate:     &issue.GiteeCreatedAt,
 				UpdatedDate:     &issue.GiteeUpdatedAt,

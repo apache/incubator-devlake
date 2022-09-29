@@ -38,7 +38,7 @@ type Issue struct {
 	ResolutionDate          *time.Time
 	CreatedDate             *time.Time
 	UpdatedDate             *time.Time
-	LeadTimeMinutes         uint
+	LeadTimeMinutes         int64
 	ParentIssueId           string `gorm:"type:varchar(255)"`
 	Priority                string `gorm:"type:varchar(255)"`
 	OriginalEstimateMinutes int64
