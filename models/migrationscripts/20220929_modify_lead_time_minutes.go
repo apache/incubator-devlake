@@ -27,7 +27,7 @@ import (
 type modifyLeadTimeMinutes struct{}
 
 type newIssue struct {
-	LeadTimeMinutes int64 `gorm:"type:bigint(10)"`
+	LeadTimeMinutes int64
 }
 
 func (newIssue) TableName() string {
