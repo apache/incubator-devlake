@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import type { MenuProps } from 'antd';
 import { Layout, Menu, Popover } from 'antd';
@@ -39,7 +39,7 @@ const { Header, Sider, Content, Footer } = Layout;
 const items = [
   {
     label: <Link to="/connections">Connections</Link>,
-    key: '/connections',
+    key: 'connections',
     icon: <DatabaseOutlined />,
   },
 ];
@@ -52,6 +52,10 @@ export const Base = () => {
     console.log(e);
   };
 
+  const selectedKeys = useMemo(() => {
+    return pathname.split('/')[1];
+  }, [pathname]);
+
   return (
     <S.Container>
       <Sider width={220} trigger={null} collapsible collapsed={collapsed}>
@@ -63,7 +67,7 @@ export const Base = () => {
           theme="dark"
           mode="inline"
           items={items}
-          selectedKeys={[pathname]}
+          selectedKeys={[selectedKeys]}
           onClick={handleChangeMenu}
         />
       </Sider>

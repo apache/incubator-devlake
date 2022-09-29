@@ -38,7 +38,7 @@ export const Connections = () => {
         </h4>
         <ul className="list">
           <li>
-            <Link to="/connection/jenkins">
+            <Link to="/connections/jenkins">
               <img src={JenkinsIcon} width={60} alt="" />
               <span>Jenkins</span>
             </Link>
@@ -54,7 +54,7 @@ export const Connections = () => {
         </h4>
         <ul className="list">
           <li>
-            <Link to="/connection/webhook">
+            <Link to="/connections/webhook">
               <img src={WebhookIcon} width={60} alt="" />
               <span>Issue/Deployment Webhook</span>
             </Link>

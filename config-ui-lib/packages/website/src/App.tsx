@@ -27,7 +27,7 @@ function App() {
         <Route path="/" element={<Layout.Base />}>
           <Route index element={<Navigate to="connections" replace />} />
           <Route path="connections" element={<Page.Connections />} />
-          <Route path="connection/:type" element={<Page.Connection />} />
+          <Route path="connections/:type" element={<Page.Connection />} />
         </Route>
       </Routes>
     </BrowserRouter>
