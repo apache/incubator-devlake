@@ -17,19 +17,15 @@ limitations under the License.
 
 package models
 
-import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
-)
+import "github.com/apache/incubator-devlake/models/domainlayer"
 
-type Store interface {
-	RepoCommits(repoCommit *code.RepoCommit) errors.Error
-	Commits(commit *code.Commit) errors.Error
-	Refs(ref *code.Ref) errors.Error
-	CommitFiles(file *code.CommitFile) errors.Error
-	CommitParents(pp []*code.CommitParent) errors.Error
-	CommitFileComponents(commitFileComponent *code.CommitFileComponent) errors.Error
-	CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error
-	Snapshot(snapshot *Snapshot) errors.Error
-	Close() errors.Error
+type Snapshot struct {
+	domainlayer.DomainEntity
+	CommitSha string `gorm:"primaryKey;type:varchar(40);"`
+	FilePath  string `gorm:"primaryKey;type:varchar(255);"`
+	LineNo    int    `gorm:"primaryKey;type:int;"`
+}
+
+func (Snapshot) TableName() string {
+	return "repo_snapshot"
 }

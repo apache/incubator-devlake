@@ -20,6 +20,7 @@ package store
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -98,6 +99,14 @@ func (d *Database) CommitFileComponents(commitFileComponent *code.CommitFileComp
 		return err
 	}
 	return batch.Add(commitFileComponent)
+}
+
+func (d *Database) Snapshot(snapshotElement *models.Snapshot) errors.Error {
+	batch, err := d.driver.ForType(reflect.TypeOf(snapshotElement))
+	if err != nil {
+		return err
+	}
+	return batch.Add(snapshotElement)
 }
 
 func (d *Database) CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error {

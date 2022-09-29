@@ -15,21 +15,40 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
+	"context"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer"
+	"gorm.io/gorm"
 )
 
-type Store interface {
-	RepoCommits(repoCommit *code.RepoCommit) errors.Error
-	Commits(commit *code.Commit) errors.Error
-	Refs(ref *code.Ref) errors.Error
-	CommitFiles(file *code.CommitFile) errors.Error
-	CommitParents(pp []*code.CommitParent) errors.Error
-	CommitFileComponents(commitFileComponent *code.CommitFileComponent) errors.Error
-	CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error
-	Snapshot(snapshot *Snapshot) errors.Error
-	Close() errors.Error
+type Snapshot struct {
+	domainlayer.DomainEntity
+	CommitSha string `gorm:"primaryKey;type:varchar(40);"`
+	FilePath  string `gorm:"primaryKey;type:varchar(255);"`
+	LineNo    int    `gorm:"primaryKey;type:int;"`
+}
+
+func (Snapshot) TableName() string {
+	return "repo_snapshot"
+}
+
+type addSnapshot20220927 struct{}
+
+func (*addSnapshot20220927) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	err := db.Migrator().AutoMigrate(Snapshot{})
+	if err != nil {
+		return errors.Convert(err)
+	}
+	return nil
+}
+
+func (*addSnapshot20220927) Version() uint64 {
+	return 20220927111240
+}
+
+func (*addSnapshot20220927) Name() string {
+	return "add snapshot table"
 }

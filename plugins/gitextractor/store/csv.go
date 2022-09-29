@@ -21,6 +21,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -86,6 +87,7 @@ type CsvStore struct {
 	commitParentWriter        *csvWriter
 	commitFileComponentWriter *csvWriter
 	commitLineChangeWriter    *csvWriter
+	snapshotWriter            *csvWriter
 }
 
 func NewCsvStore(dir string) (*CsvStore, errors.Error) {
@@ -125,6 +127,10 @@ func NewCsvStore(dir string) (*CsvStore, errors.Error) {
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
+	s.snapshotWriter, err = newCsvWriter(filepath.Join(dir, "snapshot.csv"), models.Snapshot{})
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
 	return s, nil
 }
 
@@ -150,6 +156,10 @@ func (c *CsvStore) CommitFileComponents(commitFileComponent *code.CommitFileComp
 
 func (c *CsvStore) CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error {
 	return c.commitLineChangeWriter.Write(commitLineChange)
+}
+
+func (c *CsvStore) Snapshot(ss *models.Snapshot) errors.Error {
+	return c.commitLineChangeWriter.Write(ss)
 }
 
 func (c *CsvStore) CommitParents(pp []*code.CommitParent) errors.Error {
@@ -178,6 +188,9 @@ func (c *CsvStore) Close() errors.Error {
 	}
 	if c.commitParentWriter != nil {
 		c.commitParentWriter.Close()
+	}
+	if c.snapshotWriter != nil {
+		c.snapshotWriter.Close()
 	}
 	return nil
 }
