@@ -24,9 +24,7 @@ import { ToastNotification } from '@/components/Toast'
 function useDatabaseMigrations(Configuration = MigrationOptions) {
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const [migrationWarning, setMigrationWarning] = useState(
-    localStorage.getItem(Configuration.warningId)
-  )
+  const [migrationWarning, setMigrationWarning] = useState()
   const [migrationAlertOpened, setMigrationAlertOpened] = useState(false)
   const [wasMigrationSuccessful, setWasMigrationSuccessful] = useState(false)
   const [hasMigrationFailed, setHasMigrationFailed] = useState(false)
@@ -35,8 +33,10 @@ function useDatabaseMigrations(Configuration = MigrationOptions) {
     setIsProcessing(true)
     const migrate = async () => {
       const m = await request.get(Configuration.apiProceedEndpoint)
-      setWasMigrationSuccessful(m?.status === 200 && m?.data?.success === true)
       setTimeout(() => {
+        setWasMigrationSuccessful(
+          m?.status === 200 && m?.data?.success === true
+        )
         setIsProcessing(false)
         setHasMigrationFailed(m?.status !== 200)
       }, 3000)
@@ -46,7 +46,6 @@ function useDatabaseMigrations(Configuration = MigrationOptions) {
 
   const handleCancelMigration = useCallback(() => {
     setIsProcessing(true)
-    localStorage.removeItem(Configuration.warningId)
     setMigrationAlertOpened(false)
     setIsProcessing(false)
     ToastNotification.clear()
@@ -56,21 +55,15 @@ function useDatabaseMigrations(Configuration = MigrationOptions) {
       intent: Intent.NONE,
       icon: 'warning-sign'
     })
-  }, [Configuration.cancelToastMessage, Configuration.warningId])
+  }, [Configuration.cancelToastMessage])
 
   const handleMigrationDialogClose = useCallback(() => {
     setMigrationAlertOpened(false)
   }, [setMigrationAlertOpened])
 
   useEffect(() => {
-    setMigrationAlertOpened(migrationWarning !== null)
+    setMigrationAlertOpened(!!migrationWarning)
   }, [migrationWarning, setMigrationAlertOpened])
-
-  useEffect(() => {
-    if (wasMigrationSuccessful) {
-      localStorage.removeItem(MigrationOptions.warningId)
-    }
-  }, [wasMigrationSuccessful])
 
   useEffect(() => {
     if (hasMigrationFailed) {
@@ -84,15 +77,18 @@ function useDatabaseMigrations(Configuration = MigrationOptions) {
     }
   }, [hasMigrationFailed])
 
+  const setNeedMigrateCallback = useCallback(
+    (errorObject) => {
+      setMigrationWarning(errorObject)
+      setWasMigrationSuccessful(false)
+      setIsProcessing(false)
+      setHasMigrationFailed(false)
+    },
+    [setMigrationWarning]
+  )
   useEffect(() => {
-    if (migrationWarning) {
-      // eslint-disable-next-line max-len
-      console.log(
-        `>>> MIGRATION WARNING DETECTED !! Local Storage Key = [${MigrationOptions.warningId}]:`,
-        migrationWarning
-      )
-    }
-  }, [migrationWarning])
+    MigrationOptions.setNeedMigrateCallback(setNeedMigrateCallback)
+  }, [setNeedMigrateCallback])
 
   return {
     migrationWarning,
@@ -100,10 +96,6 @@ function useDatabaseMigrations(Configuration = MigrationOptions) {
     wasMigrationSuccessful,
     hasMigrationFailed,
     isProcessing,
-    setMigrationWarning,
-    setMigrationAlertOpened,
-    setWasMigrationSuccessful,
-    setHasMigrationFailed,
     setIsProcessing,
     handleConfirmMigration,
     handleCancelMigration,
