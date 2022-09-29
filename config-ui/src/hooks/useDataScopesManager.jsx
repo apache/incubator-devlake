@@ -464,7 +464,7 @@ function useDataScopesManager({
           ...boardObject,
           id: boardObject?.id || bId || sIdx + 1,
           key: sIdx,
-          value: boardObject?.name || `Board ${bId}`,
+          value: bId,
           title: boardObject?.name || `Board ${bId}`,
           type: boardObject?.type || 'scrum',
           location: { ...boardObject?.location }
