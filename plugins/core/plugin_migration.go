@@ -19,7 +19,6 @@ package core
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/migration"
 )
 
 // MigrationScript upgrades database to a newer version
@@ -38,5 +37,5 @@ type Migrator interface {
 
 // Migratable is implemented by the plugin to declare all migration script that have to be applied to the database
 type Migratable interface {
-	MigrationScripts() []migration.Script
+	MigrationScripts() []MigrationScript
 }

@@ -25,6 +25,7 @@ import (
 	"gorm.io/gorm/schema"
 )
 
+// Clause represents SQL Clause
 type Clause struct {
 	Type string
 	Data interface{}
@@ -88,6 +89,8 @@ type Dal interface {
 	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
 	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
 	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
+	// RenameColumn renames column name for specified table
+	RenameColumn(table, oldColumnName, newColumnName string) errors.Error
 }
 
 // GetColumnNames returns table Column Names in database

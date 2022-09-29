@@ -194,6 +194,16 @@ func (d *Dalgorm) GetPrimaryKeyFields(t reflect.Type) []reflect.StructField {
 	})
 }
 
+// RenameColumn renames column name for specified table
+func (d *Dalgorm) RenameColumn(table, oldColumnName, newColumnName string) errors.Error {
+	// work around the error `cached plan must not change result type` for postgres
+	// wrap in func(){} to make the linter happy
+	defer func() {
+		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
+	}()
+	return d.RenameColumn(table, oldColumnName, newColumnName)
+}
+
 // AllTables returns all tables in the database
 func (d *Dalgorm) AllTables() ([]string, errors.Error) {
 	var tableSql string

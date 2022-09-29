@@ -18,16 +18,15 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 type renameStepToStage struct{}
 
-func (*renameStepToStage) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	return errors.Convert(db.Migrator().RenameColumn(archived.Pipeline{}, "step", "stage"))
+func (*renameStepToStage) Up(basicRes core.BasicRes) errors.Error {
+	return errors.Convert(basicRes.GetDal().RenameColumn(archived.Pipeline{}.TableName(), "step", "stage"))
 }
 
 func (*renameStepToStage) Version() uint64 {

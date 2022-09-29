@@ -17,34 +17,36 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"github.com/apache/incubator-devlake/plugins/core"
+)
 
 // All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
+func All() []core.MigrationScript {
+	return []core.MigrationScript{
 		new(addFrameTables),
 		new(renameStepToStage),
 		new(addSubtasksField),
-		new(updateBlueprintMode),
-		new(renameTasksToPlan),
-		new(addDomainTables),
-		new(commitfileComponent),
-		new(removeNotes),
-		new(addProjectMapping),
-		new(renameColumnsOfPullRequestIssue),
-		new(addNoPKModelToCommitParent),
-		new(addSubtasksTable),
-		new(addCICD),
-		new(renameColumnsOfPrCommentIssueComment),
-		new(modifyTablesForDora),
-		new(addTypeFieldInBoard),
-		new(modifyPipeline),
-		new(encryptBLueprint),
-		new(encryptPipeline),
-		new(modifyCICDTasks),
-		new(modifyBoardRepos),
-		new(addOriginChangeValueForPr),
-		new(addCommitFilePathLength),
-		new(renamePipelineCommits),
+		// new(updateBlueprintMode),
+		// new(renameTasksToPlan),
+		// new(addDomainTables),
+		// new(commitfileComponent),
+		// new(removeNotes),
+		// new(addProjectMapping),
+		// new(renameColumnsOfPullRequestIssue),
+		// new(addNoPKModelToCommitParent),
+		// new(addSubtasksTable),
+		// new(addCICD),
+		// new(renameColumnsOfPrCommentIssueComment),
+		// new(modifyTablesForDora),
+		// new(addTypeFieldInBoard),
+		// new(modifyPipeline),
+		// new(encryptBLueprint),
+		// new(encryptPipeline),
+		// new(modifyCICDTasks),
+		// new(modifyBoardRepos),
+		// new(addOriginChangeValueForPr),
+		// new(addCommitFilePathLength),
+		// new(renamePipelineCommits),
 	}
 }

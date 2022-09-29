@@ -18,22 +18,30 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
 )
 
 type addFrameTables struct{}
 
-func (*addFrameTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	return errors.Convert(db.Migrator().AutoMigrate(
+var _ core.MigrationScript = (*addFrameTables)(nil)
+
+func (*addFrameTables) Up(basicRes core.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	for _, entity := range []interface{}{
 		&archived.Task{},
 		&archived.Notification{},
 		&archived.Pipeline{},
 		&archived.Blueprint{},
-	))
+	} {
+		err := db.AutoMigrate(entity)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (*addFrameTables) Version() uint64 {
