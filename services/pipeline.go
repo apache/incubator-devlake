@@ -167,9 +167,11 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 		globalPipelineLog.Info("get lock and wait pipeline")
 		dbPipeline := &models.DbPipeline{}
 		for {
+			cronLocker.Lock()
 			db.Where("status = ?", models.TASK_CREATED).
 				Not(startedPipelineIds).
 				Order("id ASC").Limit(1).Find(dbPipeline)
+			cronLocker.Unlock()
 			if dbPipeline.ID != 0 {
 				break
 			}

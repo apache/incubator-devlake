@@ -19,8 +19,10 @@ package services
 
 import (
 	"context"
-	"github.com/apache/incubator-devlake/errors"
+	"sync"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
@@ -38,6 +40,7 @@ var db *gorm.DB
 var cronManager *cron.Cron
 var log core.Logger
 var migrationRequireConfirmation bool
+var cronLocker sync.Mutex
 
 const failToCreateCronJob = "created cron job failed"
 
