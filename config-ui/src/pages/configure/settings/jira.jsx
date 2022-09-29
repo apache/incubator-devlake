@@ -154,8 +154,12 @@ export default function JiraSettings(props) {
   const [bugTags, setBugTags] = useState(savedBugTags)
   const [incidentTags, setIncidentTags] = useState(savedIncidentTags)
   const allChosenTagsInThisBoard = useMemo(
-    () => [...requirementTags[configuredBoard?.id], ...bugTags[configuredBoard?.id], ...incidentTags[configuredBoard?.id]],
-    [configuredBoard?.id, requirementTags, bugTags, incidentTags],
+    () => [
+      ...requirementTags[configuredBoard?.id],
+      ...bugTags[configuredBoard?.id],
+      ...incidentTags[configuredBoard?.id]
+    ],
+    [configuredBoard?.id, requirementTags, bugTags, incidentTags]
   )
 
   const [requirementTagsList, setRequirementTagsList] = useState([])

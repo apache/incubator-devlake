@@ -26,7 +26,8 @@ import {
   Colors,
   Icon,
   Popover,
-  Position
+  Position,
+  Intent
 } from '@blueprintjs/core'
 import { DataEntityTypes } from '@/data/DataEntities'
 import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
@@ -239,7 +240,18 @@ export default function GithubSettings(props) {
               <FormGroup
                 disabled={isSaving || isSavingConnection}
                 inline={true}
-                label='Type/Incident'
+                label={
+                  <>
+                    Type/Incident
+                    <Tag
+                      intent={Intent.PRIMARY}
+                      style={{ fontSize: '10px', marginLeft: '5px' }}
+                      minimal
+                    >
+                      DORA
+                    </Tag>
+                  </>
+                }
                 labelFor='github-issue-incident'
                 className='formGroup'
                 contentClassName='formGroupContent'
