@@ -29,13 +29,14 @@ type Sprint struct {
 	State         string     `json:"state"`
 	Name          string     `json:"name"`
 	StartDate     *time.Time `json:"startDate"`
+	ActivatedDate *time.Time `json:"activatedDate"`
 	EndDate       *time.Time `json:"endDate"`
 	CompleteDate  *time.Time `json:"completeDate"`
 	OriginBoardID uint64     `json:"originBoardId"`
 }
 
 func (s Sprint) ToToolLayer(connectionId uint64) *models.JiraSprint {
-	return &models.JiraSprint{
+	sprint := &models.JiraSprint{
 		ConnectionId:  connectionId,
 		SprintId:      s.ID,
 		Self:          s.Self,
@@ -46,4 +47,8 @@ func (s Sprint) ToToolLayer(connectionId uint64) *models.JiraSprint {
 		CompleteDate:  s.CompleteDate,
 		OriginBoardID: s.OriginBoardID,
 	}
+	if s.ActivatedDate != nil {
+		sprint.StartDate = s.ActivatedDate
+	}
+	return sprint
 }
