@@ -22,14 +22,14 @@ import { Button, Modal, Popconfirm } from 'antd';
 import { useRefreshData } from '../../hooks';
 import { operate } from '../../utils/operate';
 
-import { JenkinsForm } from './form';
-import { JenkinsList } from './list';
-import type { JenkinsFormPayloadType } from './typed';
+import { JenkinsConnectionForm } from './form';
+import { JenkinsConnectionList } from './list';
+import type { JenkinsPayloadType } from './typed';
 import * as API from './api';
 
 import * as S from './styled';
 
-export const JenkinsPage = () => {
+export const JenkinsConnection = () => {
   const [version, setVersion] = useState(0);
   const [visible, setVisible] = useState(false);
   const [modalType, setModalType] = useState<'add' | 'edit'>();
@@ -64,7 +64,7 @@ export const JenkinsPage = () => {
     handleShowModal();
   };
 
-  const handleSubmit = async (values: JenkinsFormPayloadType) => {
+  const handleSubmit = async (values: JenkinsPayloadType) => {
     const request = modalType === 'add' ? () => API.create(values) : () => API.update(updateObj?.id, values);
     const [success] = await operate(request);
     if (success) {
@@ -107,10 +107,13 @@ export const JenkinsPage = () => {
       <Button type="primary" onClick={handleCreate}>
         Add Connection
       </Button>
-      <JenkinsList style={{ marginTop: 12 }} extraColumn={extraColumn} loading={!ready} data={data} />
+      <JenkinsConnectionList style={{ marginTop: 12 }} extraColumn={extraColumn} loading={!ready} data={data} />
       <Modal open={visible} title={title} footer={null} onCancel={handleHideModal}>
-        <JenkinsForm initialValues={updateObj} onSubmit={handleSubmit} />
+        <JenkinsConnectionForm initialValues={updateObj} onSubmit={handleSubmit} />
       </Modal>
     </S.PageContainer>
   );
 };
+
+JenkinsConnection.Form = JenkinsConnectionForm;
+JenkinsConnection.List = JenkinsConnectionList;

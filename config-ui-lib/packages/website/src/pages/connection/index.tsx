@@ -16,15 +16,17 @@
  *
  */
 import { useParams } from 'react-router-dom';
-import { Connection as ConfigConnection, ConnectionEnum } from '@devlake/config-ui';
+import { JenkinsConnection, WebhookConnection } from '@devlake/config-ui';
 
 export const Connection = () => {
   const { type } = useParams();
-  const types = Object.values(ConnectionEnum) as string[];
 
-  if (!type || !types.includes(type)) {
-    return <div>someting error.</div>;
+  switch (type) {
+    case 'jenkins':
+      return <JenkinsConnection />;
+    case 'webhook':
+      return <WebhookConnection />;
+    default:
+      return null;
   }
-
-  return <ConfigConnection type={type as ConnectionEnum} />;
 };

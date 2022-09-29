@@ -18,16 +18,16 @@
 import type { TableColumnType } from 'antd';
 import { Table } from 'antd';
 
-import type { JenkinsListItemType } from './typed';
+import type { JenkinsItemType } from './typed';
 
 export interface JenkinsListProps {
   style?: React.CSSProperties;
   extraColumn?: TableColumnType<any>[];
   loading: boolean;
-  data: Array<JenkinsListItemType>;
+  data: Array<JenkinsItemType>;
 }
 
-export const JenkinsList = ({ extraColumn, loading, data, ...props }: JenkinsListProps) => {
+export const JenkinsConnectionList = ({ extraColumn, loading, data, ...props }: JenkinsListProps) => {
   const columns: TableColumnType<any>[] = [
     {
       title: 'ID',

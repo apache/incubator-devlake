@@ -16,7 +16,7 @@
  *
  */
 
-export type JenkinsListItemType = {
+export type JenkinsItemType = {
   id: number;
   name: string;
   endpoint: string;
@@ -26,7 +26,7 @@ export type JenkinsListItemType = {
   rateLimitPerHour: number;
 };
 
-export type JenkinsFormPayloadType = {
+export type JenkinsPayloadType = {
   name: string;
   endpoint: string;
   username: string;

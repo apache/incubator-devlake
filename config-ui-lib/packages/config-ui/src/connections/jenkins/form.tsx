@@ -18,14 +18,14 @@
 import { useEffect } from 'react';
 import { Form, Input, InputNumber, Button } from 'antd';
 
-import type { JenkinsListItemType, JenkinsFormPayloadType } from './typed';
+import type { JenkinsItemType, JenkinsPayloadType } from './typed';
 
 export interface JenkinsFormProps {
-  initialValues?: JenkinsListItemType;
-  onSubmit: (values: JenkinsFormPayloadType) => void;
+  initialValues?: JenkinsItemType;
+  onSubmit: (values: JenkinsPayloadType) => void;
 }
 
-export const JenkinsForm = ({ initialValues, onSubmit }: JenkinsFormProps) => {
+export const JenkinsConnectionForm = ({ initialValues, onSubmit }: JenkinsFormProps) => {
   const [form] = Form.useForm();
 
   useEffect(() => {

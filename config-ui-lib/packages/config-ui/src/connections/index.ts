@@ -15,5 +15,5 @@
  * limitations under the License.
  *
  */
-export * from './connections';
-export * from './typed';
+export * from './jenkins';
+export * from './webhook';

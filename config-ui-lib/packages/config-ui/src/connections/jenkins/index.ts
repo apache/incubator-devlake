@@ -17,5 +17,5 @@
  */
 export * from './form';
 export * from './list';
-export * from './page';
+export * from './connection';
 export * from './typed';
