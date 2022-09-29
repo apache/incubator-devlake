@@ -107,7 +107,7 @@ func PostIssue(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Er
 		ResolutionDate:          request.ResolutionDate,
 		CreatedDate:             request.CreatedDate,
 		UpdatedDate:             request.UpdatedDate,
-		LeadTimeMinutes:         request.LeadTimeMinutes,
+		LeadTimeMinutes:         int64(request.LeadTimeMinutes),
 		Priority:                request.Priority,
 		OriginalEstimateMinutes: request.OriginalEstimateMinutes,
 		TimeSpentMinutes:        request.TimeSpentMinutes,

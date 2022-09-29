@@ -85,7 +85,7 @@ func ConvertStory(taskCtx core.SubTaskContext) errors.Error {
 				Component:            toolL.Feature,
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
-				domainL.LeadTimeMinutes = uint(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
+				domainL.LeadTimeMinutes = int64(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{
