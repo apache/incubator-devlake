@@ -65,7 +65,10 @@ export const JenkinsConnection = () => {
   };
 
   const handleSubmit = async (values: JenkinsPayloadType) => {
-    const request = modalType === 'add' ? () => API.create(values) : () => API.update(updateObj?.id, values);
+    const request =
+      modalType === 'add'
+        ? () => API.create(values)
+        : () => API.update(updateObj?.id, values);
     const [success] = await operate(request);
     if (success) {
       setVersion((v) => v + 1);
@@ -92,7 +95,10 @@ export const JenkinsConnection = () => {
           <Button type="text" onClick={() => handleUpdate(row)}>
             Edit
           </Button>
-          <Popconfirm title="Are you sure you want to continue? " onConfirm={() => handleDelete(row)}>
+          <Popconfirm
+            title="Are you sure you want to continue? "
+            onConfirm={() => handleDelete(row)}
+          >
             <Button type="text" danger>
               Delete
             </Button>
@@ -107,9 +113,22 @@ export const JenkinsConnection = () => {
       <Button type="primary" onClick={handleCreate}>
         Add Connection
       </Button>
-      <JenkinsConnectionList style={{ marginTop: 12 }} extraColumn={extraColumn} loading={!ready} data={data} />
-      <Modal open={visible} title={title} footer={null} onCancel={handleHideModal}>
-        <JenkinsConnectionForm initialValues={updateObj} onSubmit={handleSubmit} />
+      <JenkinsConnectionList
+        style={{ marginTop: 12 }}
+        extraColumn={extraColumn}
+        loading={!ready}
+        data={data}
+      />
+      <Modal
+        open={visible}
+        title={title}
+        footer={null}
+        onCancel={handleHideModal}
+      >
+        <JenkinsConnectionForm
+          initialValues={updateObj}
+          onSubmit={handleSubmit}
+        />
       </Modal>
     </S.PageContainer>
   );

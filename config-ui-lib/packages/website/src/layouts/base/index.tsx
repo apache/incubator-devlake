@@ -36,7 +36,13 @@ import SlackLogo from '@/images/slack-logo.svg';
 
 const { Header, Sider, Content, Footer } = Layout;
 
-const items = [{ label: <Link to="/connections">Connections</Link>, key: '/connections', icon: <DatabaseOutlined /> }];
+const items = [
+  {
+    label: <Link to="/connections">Connections</Link>,
+    key: '/connections',
+    icon: <DatabaseOutlined />,
+  },
+];
 
 export const Base = () => {
   const { pathname } = useLocation();
@@ -53,23 +59,40 @@ export const Base = () => {
           <img src={Logo} alt="" />
           {!collapsed && <img src={Textmark} alt="" />}
         </div>
-        <Menu theme="dark" mode="inline" items={items} selectedKeys={[pathname]} onClick={handleChangeMenu} />
+        <Menu
+          theme="dark"
+          mode="inline"
+          items={items}
+          selectedKeys={[pathname]}
+          onClick={handleChangeMenu}
+        />
       </Sider>
       <Layout>
         <Header>
-          {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-            className: 'trigger',
-            onClick: () => setCollapsed(!collapsed),
-          })}
+          {React.createElement(
+            collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,
+            {
+              className: 'trigger',
+              onClick: () => setCollapsed(!collapsed),
+            },
+          )}
 
           <ul className="other-info">
             <li>
-              <a href="https://github.com/apache/incubator-devlake" rel="noreferrer" target="_blank">
+              <a
+                href="https://github.com/apache/incubator-devlake"
+                rel="noreferrer"
+                target="_blank"
+              >
                 <LinkOutlined style={{ fontSize: 16 }} />
               </a>
             </li>
             <li>
-              <a href="mailto:hello@merico.dev" rel="noreferrer" target="_blank">
+              <a
+                href="mailto:hello@merico.dev"
+                rel="noreferrer"
+                target="_blank"
+              >
                 <MailOutlined style={{ fontSize: 16 }} />
               </a>
             </li>
@@ -80,7 +103,9 @@ export const Base = () => {
                   <div style={{ width: 240, textAlign: 'center' }}>
                     <img src={SlackLogo} width={130} alt="" />
                     <p>
-                      Want to interact with the <strong>Merico Community</strong>? Join us on our Slack Channel.
+                      Want to interact with the{' '}
+                      <strong>Merico Community</strong>? Join us on our Slack
+                      Channel.
                       <br />
                       <a
                         href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ"

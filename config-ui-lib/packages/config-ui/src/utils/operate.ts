@@ -22,7 +22,10 @@ export type OperateConfig = {
   formatReason?: (err: unknown) => string;
 };
 
-export const operate = async (request: () => Promise<unknown>, config?: OperateConfig) => {
+export const operate = async (
+  request: () => Promise<unknown>,
+  config?: OperateConfig,
+) => {
   const { setOperating, formatReason } = config || {};
 
   try {
@@ -35,7 +38,9 @@ export const operate = async (request: () => Promise<unknown>, config?: OperateC
   } catch (err) {
     const reason = formatReason?.(err);
     notification.error({
-      message: reason ? `Operation failed. Reason: ${reason}` : 'Operation failed.',
+      message: reason
+        ? `Operation failed. Reason: ${reason}`
+        : 'Operation failed.',
     });
     return [false];
   } finally {

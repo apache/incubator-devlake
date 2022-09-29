@@ -65,7 +65,11 @@ export const WebhookConnectionForm = ({
       return (
         <S.FormContainer>
           <Form form={form} layout="vertical">
-            <Form.Item label="Webhook Name" name="name" rules={[{ required: true, message: 'Please connection name' }]}>
+            <Form.Item
+              label="Webhook Name"
+              name="name"
+              rules={[{ required: true, message: 'Please connection name' }]}
+            >
               <Input placeholder="Your Webhook Name" />
             </Form.Item>
             <Form.Item>
@@ -95,7 +99,11 @@ export const WebhookConnectionForm = ({
       return (
         <S.FormContainer>
           <Form form={form} layout="vertical">
-            <Form.Item label="Webhook Name" name="name" rules={[{ required: true, message: 'Please connection name' }]}>
+            <Form.Item
+              label="Webhook Name"
+              name="name"
+              rules={[{ required: true, message: 'Please connection name' }]}
+            >
               <Input placeholder="Your Webhook Name" />
             </Form.Item>
             <URLList record={initialValues} />
@@ -121,21 +129,27 @@ const URLList = ({ record }: URLListProps) => {
     <S.URLContainer>
       <h2>POST URL</h2>
       <p>
-        Copy the following URLs to your issue tracking tool for Incidents and CI tool for Deployments by making a POST
-        to DevLake.
+        Copy the following URLs to your issue tracking tool for Incidents and CI
+        tool for Deployments by making a POST to DevLake.
       </p>
       <h3>Incident</h3>
       <p>Send incident opened and reopened events</p>
       <div className="block">
         <span>{record.postIssuesEndpoint}</span>
-        <CopyToClipboard text={record.postIssuesEndpoint} onCopy={() => message.success('Copy successfully.')}>
+        <CopyToClipboard
+          text={record.postIssuesEndpoint}
+          onCopy={() => message.success('Copy successfully.')}
+        >
           <CopyOutlined width={16} height={16} />
         </CopyToClipboard>
       </div>
       <p>Send incident resolved events</p>
       <div className="block">
         <span>{record.closeIssuesEndpoint}</span>
-        <CopyToClipboard text={record.closeIssuesEndpoint} onCopy={() => message.success('Copy successfully.')}>
+        <CopyToClipboard
+          text={record.closeIssuesEndpoint}
+          onCopy={() => message.success('Copy successfully.')}
+        >
           <CopyOutlined width={16} height={16} />
         </CopyToClipboard>
       </div>
@@ -143,14 +157,20 @@ const URLList = ({ record }: URLListProps) => {
       <p>Send task started and finished events</p>
       <div className="block">
         <span>{record.postPipelineTaskEndpoint}</span>
-        <CopyToClipboard text={record.postPipelineTaskEndpoint} onCopy={() => message.success('Copy successfully.')}>
+        <CopyToClipboard
+          text={record.postPipelineTaskEndpoint}
+          onCopy={() => message.success('Copy successfully.')}
+        >
           <CopyOutlined width={16} height={16} />
         </CopyToClipboard>
       </div>
       <p>Send deployment finished events</p>
       <div className="block">
         <span>{record.closePipelineEndpoint}</span>
-        <CopyToClipboard text={record.closePipelineEndpoint} onCopy={() => message.success('Copy successfully.')}>
+        <CopyToClipboard
+          text={record.closePipelineEndpoint}
+          onCopy={() => message.success('Copy successfully.')}
+        >
           <CopyOutlined width={16} height={16} />
         </CopyToClipboard>
       </div>

@@ -76,7 +76,9 @@ export const WebhookConnection = () => {
   };
 
   const handleSubmit = async (values: WebhookPayloadType) => {
-    const [success] = await operate(() => API.update(initialValues?.id, values));
+    const [success] = await operate(() =>
+      API.update(initialValues?.id, values),
+    );
     if (success) {
       setVersion((v) => v + 1);
       handleHideModal();
@@ -103,7 +105,10 @@ export const WebhookConnection = () => {
           <Button type="text" onClick={() => handleUpdate(row)}>
             Edit
           </Button>
-          <Popconfirm title="Are you sure you want to continue? " onConfirm={() => handleDelete(row)}>
+          <Popconfirm
+            title="Are you sure you want to continue? "
+            onConfirm={() => handleDelete(row)}
+          >
             <Button type="text" danger>
               Delete
             </Button>
@@ -118,8 +123,18 @@ export const WebhookConnection = () => {
       <Button type="primary" onClick={handleCreate}>
         Add Connection
       </Button>
-      <WebhookConnectionList style={{ marginTop: 12 }} extraColumn={extraColumn} loading={!ready} data={data} />
-      <Modal open={visible} title={title} footer={null} onCancel={handleHideModal}>
+      <WebhookConnectionList
+        style={{ marginTop: 12 }}
+        extraColumn={extraColumn}
+        loading={!ready}
+        data={data}
+      />
+      <Modal
+        open={visible}
+        title={title}
+        footer={null}
+        onCancel={handleHideModal}
+      >
         <WebhookConnectionForm
           formType={formType}
           initialValues={initialValues}

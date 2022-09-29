@@ -27,7 +27,12 @@ export interface JenkinsListProps {
   data: Array<JenkinsItemType>;
 }
 
-export const JenkinsConnectionList = ({ extraColumn, loading, data, ...props }: JenkinsListProps) => {
+export const JenkinsConnectionList = ({
+  extraColumn,
+  loading,
+  data,
+  ...props
+}: JenkinsListProps) => {
   const columns: TableColumnType<any>[] = [
     {
       title: 'ID',
@@ -47,5 +52,14 @@ export const JenkinsConnectionList = ({ extraColumn, loading, data, ...props }: 
     ...(extraColumn ?? []),
   ];
 
-  return <Table {...props} rowKey="id" loading={loading} columns={columns} dataSource={data} pagination={false} />;
+  return (
+    <Table
+      {...props}
+      rowKey="id"
+      loading={loading}
+      columns={columns}
+      dataSource={data}
+      pagination={false}
+    />
+  );
 };

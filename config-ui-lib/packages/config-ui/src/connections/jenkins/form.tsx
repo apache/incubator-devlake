@@ -25,7 +25,10 @@ export interface JenkinsFormProps {
   onSubmit: (values: JenkinsPayloadType) => void;
 }
 
-export const JenkinsConnectionForm = ({ initialValues, onSubmit }: JenkinsFormProps) => {
+export const JenkinsConnectionForm = ({
+  initialValues,
+  onSubmit,
+}: JenkinsFormProps) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -40,17 +43,38 @@ export const JenkinsConnectionForm = ({ initialValues, onSubmit }: JenkinsFormPr
   };
 
   return (
-    <Form labelCol={{ span: 6 }} wrapperCol={{ span: 16 }} form={form} initialValues={initialValues}>
-      <Form.Item label="Name" name="name" rules={[{ required: true, message: 'Please connection name' }]}>
+    <Form
+      labelCol={{ span: 6 }}
+      wrapperCol={{ span: 16 }}
+      form={form}
+      initialValues={initialValues}
+    >
+      <Form.Item
+        label="Name"
+        name="name"
+        rules={[{ required: true, message: 'Please connection name' }]}
+      >
         <Input placeholder="eg. Jenkins" />
       </Form.Item>
-      <Form.Item label="Endpoint URL" name="endpoint" rules={[{ required: true, message: 'Please endpont url' }]}>
+      <Form.Item
+        label="Endpoint URL"
+        name="endpoint"
+        rules={[{ required: true, message: 'Please endpont url' }]}
+      >
         <Input placeholder="eg. https://api.jenkins.io/" />
       </Form.Item>
-      <Form.Item label="Username" name="username" rules={[{ required: true, message: 'Please your username' }]}>
+      <Form.Item
+        label="Username"
+        name="username"
+        rules={[{ required: true, message: 'Please your username' }]}
+      >
         <Input placeholder="Enter Username" />
       </Form.Item>
-      <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please your password' }]}>
+      <Form.Item
+        label="Password"
+        name="password"
+        rules={[{ required: true, message: 'Please your password' }]}
+      >
         <Input placeholder="Enter Password" />
       </Form.Item>
       <Form.Item label="Proxy URL" name="proxy">

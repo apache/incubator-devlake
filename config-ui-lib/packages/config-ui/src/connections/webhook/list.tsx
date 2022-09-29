@@ -27,7 +27,12 @@ export interface WebhookConnectionListProps {
   data: Array<WebhookItemType>;
 }
 
-export const WebhookConnectionList = ({ extraColumn, loading, data, ...props }: WebhookConnectionListProps) => {
+export const WebhookConnectionList = ({
+  extraColumn,
+  loading,
+  data,
+  ...props
+}: WebhookConnectionListProps) => {
   const columns: TableColumnType<any>[] = [
     {
       title: 'ID',
@@ -42,5 +47,14 @@ export const WebhookConnectionList = ({ extraColumn, loading, data, ...props }: 
     ...(extraColumn ?? []),
   ];
 
-  return <Table {...props} rowKey="id" loading={loading} columns={columns} dataSource={data} pagination={false} />;
+  return (
+    <Table
+      {...props}
+      rowKey="id"
+      loading={loading}
+      columns={columns}
+      dataSource={data}
+      pagination={false}
+    />
+  );
 };

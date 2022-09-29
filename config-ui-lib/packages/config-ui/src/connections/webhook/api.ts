@@ -18,13 +18,20 @@
 
 import request from '../../utils/request';
 
-export const getList = () => request('/plugins/webhook/connections', { method: 'GET' });
+export const getList = () =>
+  request('/plugins/webhook/connections', { method: 'GET' });
 
-export const get = (id: number) => request(`/plugins/webhook/connections/${id}`, { method: 'GET' });
+export const get = (id: number) =>
+  request(`/plugins/webhook/connections/${id}`, { method: 'GET' });
 
-export const create = (payload: any) => request('/plugins/webhook/connections', { method: 'POST', data: payload });
+export const create = (payload: any) =>
+  request('/plugins/webhook/connections', { method: 'POST', data: payload });
 
-export const remove = (id: number) => request(`/plugins/webhook/connections/${id}`, { method: 'DELETE' });
+export const remove = (id: number) =>
+  request(`/plugins/webhook/connections/${id}`, { method: 'DELETE' });
 
 export const update = (id: number, payload: any) =>
-  request(`/plugins/webhook/connections/${id}`, { method: 'PATCH', data: payload });
+  request(`/plugins/webhook/connections/${id}`, {
+    method: 'PATCH',
+    data: payload,
+  });
