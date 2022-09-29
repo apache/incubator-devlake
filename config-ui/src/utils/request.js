@@ -35,18 +35,14 @@ const handleErrorResponse = (e, cb = () => {}) => {
       status: e.response ? e.response.status : 504
     }
   }
-  localStorage.removeItem(MigrationOptions.warningId)
   if (e.response?.status === MigrationOptions.apiStatusCode) {
     console.log(
       '>>> DATABASE MIGRATION REQUESTED! Setting Warning Identifier in Browser Storage...'
     )
-    localStorage.setItem(
-      MigrationOptions.warningId,
-      JSON.stringify({
-        migration: true,
-        message: e.response?.data?.message
-      })
-    )
+    MigrationOptions.runNeedMigrateCallback({
+      migration: true,
+      message: e.response?.data?.message
+    })
   }
   cb(e)
   return errorResponse
