@@ -336,7 +336,7 @@ const BlueprintDetail = (props) => {
         duration:
           p.beganAt && p.finishedAt
             ? dayjs(p.beganAt).from(p.finishedAt, true)
-            : p.beganAt
+            : p.beganAt && [TaskStatus.RUNNING, TaskStatus.CREATED].includes(p?.status)
             ? dayjs(p.beganAt).toNow(true)
             : ' - '
       }))
