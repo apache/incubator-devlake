@@ -28,10 +28,14 @@ export const DeleteModal = ({ record, onSubmit, onCancel }) => {
   }
 
   return (
-    <Dialog isOpen={true} title='Delete this Webhook?' onClose={onCancel}>
+    <Dialog
+      isOpen={true}
+      title='Delete this Incoming Webhook?'
+      onClose={onCancel}
+    >
       <S.FormWrapper>
         <div className='message'>
-          <p>This Webhook cannot be recovered once it’s deleted.</p>
+          <p>This Incoming Webhook cannot be recovered once it’s deleted.</p>
         </div>
         <div className='btns'>
           <Button onClick={onCancel}>Cancel</Button>

@@ -42,7 +42,7 @@ import CreateBlueprint from '@/pages/blueprints/create-blueprint'
 import BlueprintDetail from '@/pages/blueprints/blueprint-detail'
 import BlueprintSettings from '@/pages/blueprints/blueprint-settings'
 import Connections from '@/pages/connections/index'
-import { Webhook as WebhookConnection } from '@/pages/connections/webhook'
+import { IncomingWebhook as IncomingWebhookConnection } from '@/pages/connections/incoming-webhook'
 import MigrationAlertDialog from '@/components/MigrationAlertDialog'
 
 function App(props) {
@@ -107,8 +107,8 @@ function App(props) {
       <Route exact path='/connections'>
         <Connections />
       </Route>
-      <Route exact path='/connections/webhook'>
-        <WebhookConnection />
+      <Route exact path='/connections/incoming-webhook'>
+        <IncomingWebhookConnection />
       </Route>
       <Route exact path='/offline'>
         <Offline />

@@ -59,20 +59,20 @@ export const ViewOrEditModal = ({ record, onSubmit, onCancel }) => {
   return (
     <Dialog
       isOpen={true}
-      title='View or Edit Webhook'
+      title='View or Edit Incoming Webhook'
       style={{ width: 640 }}
       onClose={handleCancel}
     >
       <S.FormWrapper>
         <div className='form'>
-          <h2>Webhook Name *</h2>
+          <h2>Incoming Webhook Name *</h2>
           <p>
-            Give your Webhook a unique name to help you identify it in the
-            future.
+            Give your Incoming Webhook a unique name to help you identify it in
+            the future.
           </p>
           <input
             type='text'
-            placeholder='Your Webhook Name'
+            placeholder='Your Incoming Webhook Name'
             className={error ? 'has-error' : ''}
             value={name || ''}
             onChange={handleInputChange}
