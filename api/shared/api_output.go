@@ -19,19 +19,19 @@ package shared
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 const BadRequestBody = "bad request body format"
 
 type ApiBody struct {
-	Success bool     `json:"success"`
-	Message string   `json:"message"`
-	Causes  []string `json:"causes"`
+	Success bool   `json:"success"`
+	Message string `json:"message"`
 }
 
 type ResponsePipelines struct {
@@ -47,7 +47,6 @@ func ApiOutputError(c *gin.Context, err error) {
 		c.JSON(e.GetType().GetHttpCode(), &ApiBody{
 			Success: false,
 			Message: messages.Get(),
-			Causes:  messages.Causes(),
 		})
 	} else {
 		logger.Global.Error(err, "HTTP %d error (native)", http.StatusInternalServerError)
