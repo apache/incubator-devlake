@@ -155,9 +155,15 @@ export default function JiraSettings(props) {
   const [incidentTags, setIncidentTags] = useState(savedIncidentTags)
   const allChosenTagsInThisBoard = useMemo(
     () => [
-      ...requirementTags[configuredBoard?.id],
-      ...bugTags[configuredBoard?.id],
-      ...incidentTags[configuredBoard?.id]
+      ...(Array.isArray(requirementTags[configuredBoard?.id])
+        ? requirementTags[configuredBoard?.id]
+        : []),
+      ...(Array.isArray(bugTags[configuredBoard?.id])
+        ? bugTags[configuredBoard?.id]
+        : []),
+      ...(Array.isArray(incidentTags[configuredBoard?.id])
+        ? incidentTags[configuredBoard?.id]
+        : [])
     ],
     [configuredBoard?.id, requirementTags, bugTags, incidentTags]
   )
@@ -349,11 +355,15 @@ export default function JiraSettings(props) {
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
                     active={modifiers.active}
-                    disabled={allChosenTagsInThisBoard?.some(t => t.value === item.value)}
+                    disabled={allChosenTagsInThisBoard?.some(
+                      (t) => t.value === item.value
+                    )}
                     key={item.value}
                     onClick={handleClick}
                     text={
-                      requirementTags[configuredBoard?.id]?.some(t => t.value === item.value) ? (
+                      requirementTags[configuredBoard?.id]?.some(
+                        (t) => t.value === item.value
+                      ) ? (
                         <>
                           <img src={item.iconUrl} width={12} height={12} />{' '}
                           {item.title}{' '}
@@ -368,9 +378,9 @@ export default function JiraSettings(props) {
                     }
                     style={{
                       marginBottom: '2px',
-                      fontWeight: requirementTags[
-                        configuredBoard?.id
-                      ]?.some(t => t.value === item.value)
+                      fontWeight: requirementTags[configuredBoard?.id]?.some(
+                        (t) => t.value === item.value
+                      )
                         ? 700
                         : 'normal'
                     }}
@@ -397,7 +407,9 @@ export default function JiraSettings(props) {
                 onItemSelect={(item) => {
                   // setRequirementTags((rT) => !rT.includes(item) ? [...rT, item] : [...rT])
                   setRequirementTags((rT) =>
-                    !rT[configuredBoard?.id]?.some(t => t.value === item.value)
+                    !rT[configuredBoard?.id]?.some(
+                      (t) => t.value === item.value
+                    )
                       ? {
                           ...rT,
                           [configuredBoard?.id]: [
@@ -478,11 +490,15 @@ export default function JiraSettings(props) {
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
                     active={modifiers.active}
-                    disabled={allChosenTagsInThisBoard?.some(t => t.value === item.value)}
+                    disabled={allChosenTagsInThisBoard?.some(
+                      (t) => t.value === item.value
+                    )}
                     key={item.value}
                     onClick={handleClick}
                     text={
-                      bugTags[configuredBoard?.id]?.some(t => t.value === item.value) ? (
+                      bugTags[configuredBoard?.id]?.some(
+                        (t) => t.value === item.value
+                      ) ? (
                         <>
                           <img src={item.iconUrl} width={12} height={12} />{' '}
                           {item.title}{' '}
@@ -497,7 +513,9 @@ export default function JiraSettings(props) {
                     }
                     style={{
                       marginBottom: '2px',
-                      fontWeight: bugTags[configuredBoard?.id]?.some(t => t.value === item.value)
+                      fontWeight: bugTags[configuredBoard?.id]?.some(
+                        (t) => t.value === item.value
+                      )
                         ? 700
                         : 'normal'
                     }}
@@ -524,7 +542,9 @@ export default function JiraSettings(props) {
                 onItemSelect={(item) => {
                   // setBugTags((bT) => !bT.includes(item) ? [...bT, item] : [...bT])
                   setBugTags((bT) =>
-                    !bT[configuredBoard?.id]?.some(t => t.value === item.value)
+                    !bT[configuredBoard?.id]?.some(
+                      (t) => t.value === item.value
+                    )
                       ? {
                           ...bT,
                           [configuredBoard?.id]: [
@@ -611,11 +631,15 @@ export default function JiraSettings(props) {
                 itemRenderer={(item, { handleClick, modifiers }) => (
                   <MenuItem
                     active={modifiers.active}
-                    disabled={allChosenTagsInThisBoard?.some(t => t.value === item.value)}
+                    disabled={allChosenTagsInThisBoard?.some(
+                      (t) => t.value === item.value
+                    )}
                     key={item.value}
                     onClick={handleClick}
                     text={
-                      incidentTags[configuredBoard?.id]?.some(t => t.value === item.value) ? (
+                      incidentTags[configuredBoard?.id]?.some(
+                        (t) => t.value === item.value
+                      ) ? (
                         <>
                           <img src={item.iconUrl} width={12} height={12} />{' '}
                           {item.title}{' '}
@@ -630,7 +654,9 @@ export default function JiraSettings(props) {
                     }
                     style={{
                       marginBottom: '2px',
-                      fontWeight: incidentTags[configuredBoard?.id]?.some(t => t.value === item.value)
+                      fontWeight: incidentTags[configuredBoard?.id]?.some(
+                        (t) => t.value === item.value
+                      )
                         ? 700
                         : 'normal'
                     }}
@@ -657,7 +683,9 @@ export default function JiraSettings(props) {
                 onItemSelect={(item) => {
                   // setIncidentTags((iT) => !iT.includes(item) ? [...iT, item] : [...iT])
                   setIncidentTags((iT) =>
-                    !iT[configuredBoard?.id]?.some(t => t.value === item.value)
+                    !iT[configuredBoard?.id]?.some(
+                      (t) => t.value === item.value
+                    )
                       ? {
                           ...iT,
                           [configuredBoard?.id]: [
