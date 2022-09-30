@@ -18,6 +18,8 @@
 import React, { useEffect, useMemo } from 'react'
 import { Intent, MenuItem } from '@blueprintjs/core'
 import { MultiSelect, Select } from '@blueprintjs/select'
+import JiraBoard from '@/models/JiraBoard'
+
 const BoardsSelector = (props) => {
   const {
     boards = [],
@@ -112,7 +114,7 @@ const BoardsSelector = (props) => {
                       ...rT,
                       [configuredConnection.id]: [
                         ...rT[configuredConnection.id],
-                        item
+                        new JiraBoard(item)
                       ]
                     }
                   : { ...rT }
