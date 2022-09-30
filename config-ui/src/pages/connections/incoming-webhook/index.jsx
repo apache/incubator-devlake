@@ -129,9 +129,9 @@ export const IncomingWebhook = () => {
                 {loading ? (
                   <div>Loading</div>
                 ) : (
-                  data.map((it, i) => (
+                  data.map((it) => (
                     <S.Grid key={it.id}>
-                      <li>{i + 1}</li>
+                      <li>{it.id}</li>
                       <li>{it.name}</li>
                       <li>
                         <Button
