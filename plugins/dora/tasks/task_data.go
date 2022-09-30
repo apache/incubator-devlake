@@ -35,7 +35,7 @@ type DoraOptions struct {
 	Tasks               []string `json:"tasks,omitempty"`
 	Since               string
 	RepoId              string `json:"repoId"`
-	Prefix              string `mapstructure:"prefix" json:"prefix"`
+	Prefix              string `json:"prefix"`
 	TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
