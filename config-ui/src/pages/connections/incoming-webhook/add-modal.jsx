@@ -137,14 +137,14 @@ export const AddModal = ({ onSubmit, onCancel }) => {
                 </CopyToClipboard>
               </div>
               <h3>Deployment</h3>
-              <p>Send task started and finished events</p>
+              <p>Trigger after the "deployment" jobs/builds finished</p>
               <div className='block'>
                 <span>{record.postPipelineTaskEndpoint}</span>
                 <CopyToClipboard text={record.postPipelineTaskEndpoint}>
                   <CopyIcon width={16} height={16} />
                 </CopyToClipboard>
               </div>
-              <p>Send deployment finished events</p>
+              <p>Trigger after all CI jobs/builds finished</p>
               <div className='block'>
                 <span>{record.closePipelineEndpoint}</span>
                 <CopyToClipboard text={record.closePipelineEndpoint}>
