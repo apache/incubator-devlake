@@ -26,12 +26,12 @@ github:
     - user-friendly
     - open-source
     - data
-    - DORA
     - hacktoberfest
     - integration
     - data-analysis
     - data-integration
     - data-engineering
+    - dora
     - etl
     - data-transfers
     - domain-layer
