@@ -61,11 +61,11 @@ func TestEnrichEnvDataFlow(t *testing.T) {
 	taskDataPrefix := &tasks.DoraTaskData{
 		Options: &tasks.DoraOptions{
 			TransformationRules: tasks.TransformationRules{
-				Prefix:            "jenkins",
 				ProductionPattern: "(?i)deploy",
 				StagingPattern:    "(?i)stag",
 				TestingPattern:    "(?i)test",
 			},
+			Prefix: "jenkins",
 		},
 	}
 	dataflowTester.Subtask(tasks.EnrichTaskEnvMeta, taskDataPrefix)
