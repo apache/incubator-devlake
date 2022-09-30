@@ -122,48 +122,53 @@ const useJIRA = (
     }
   }, [fieldsEndpoint, activeConnection, apiProxyPath])
 
-  const fetchBoards = useCallback(() => {
-    // if (activeConnection?.plugin !== Providers.JIRA) {
-    //   return
-    // }
-    try {
-      if (apiProxyPath.includes('null') || !activeConnection?.connectionId) {
-        throw new Error('Connection ID is Null')
-      }
-      setError(null)
-      setIsFetching(true)
-      const fetchApiBoards = async () => {
-        const boards = await request
-          .get(
-            activeConnection?.connectionId
-              ? boardsEndpoint.replace(
-                  '[:connectionId:]',
-                  activeConnection?.connectionId
-                )
-              : boardsEndpoint
+  const fetchBoards = useCallback(
+    async (search, callback = () => {}) => {
+      // if (activeConnection?.plugin !== Providers.JIRA) {
+      //   return
+      // }
+      try {
+        if (apiProxyPath.includes('null') || !activeConnection?.connectionId) {
+          throw new Error('Connection ID is Null')
+        }
+        setError(null)
+        setIsFetching(true)
+        const fetchApiBoards = async () => {
+          const boards = await request
+            .get(
+              activeConnection?.connectionId
+                ? `${boardsEndpoint.replace(
+                    '[:connectionId:]',
+                    activeConnection?.connectionId
+                  )}?name=${search}`
+                : `${boardsEndpoint}?name=${search}`
+            )
+            .catch((e) => setError(e))
+          console.log('>>> JIRA API PROXY: Boards Response...', boards)
+          setBoardsResponse(
+            boards && Array.isArray(boards.data?.values)
+              ? boards.data?.values
+              : []
           )
-          .catch((e) => setError(e))
-        console.log('>>> JIRA API PROXY: Boards Response...', boards)
-        setBoardsResponse(
-          boards && Array.isArray(boards.data?.values)
-            ? boards.data?.values
-            : []
-        )
-        // setTimeout(() => {
+          // setTimeout(() => {
+          setIsFetching(false)
+          // }, 1000)
+          return boards.data.values
+        }
+        const res = await fetchApiBoards()
+        if (callback) callback(res)
+      } catch (e) {
         setIsFetching(false)
-        // }, 1000)
+        setError(e)
+        ToastNotification.show({
+          message: e.message,
+          intent: 'danger',
+          icon: 'error'
+        })
       }
-      fetchApiBoards()
-    } catch (e) {
-      setIsFetching(false)
-      setError(e)
-      ToastNotification.show({
-        message: e.message,
-        intent: 'danger',
-        icon: 'error'
-      })
-    }
-  }, [boardsEndpoint, activeConnection, apiProxyPath])
+    },
+    [boardsEndpoint, activeConnection, apiProxyPath]
+  )
 
   const fetchAllResources = useCallback(
     async (connectionId, callback = () => {}) => {

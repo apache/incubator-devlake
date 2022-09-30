@@ -134,6 +134,8 @@ const CreateBlueprint = (props) => {
   // eslint-disable-next-line no-unused-vars
   const [canAdvancePrev, setCanAdvancePrev] = useState(true)
 
+  const [boardSearch, setBoardSearch] = useState()
+
   const {
     activeConnection,
     // eslint-disable-next-line no-unused-vars
@@ -689,6 +691,12 @@ const CreateBlueprint = (props) => {
   ])
 
   useEffect(() => {
+    if (boardSearch) {
+      fetchBoards(boardSearch)
+    }
+  }, [fetchBoards, boardSearch])
+
+  useEffect(() => {
     console.log(
       '>> PIPELINE RUN TASK SETTINGS FOR PIPELINE MANAGER ....',
       runTasks
@@ -1137,6 +1145,7 @@ const CreateBlueprint = (props) => {
                       setDataEntities={setDataEntities}
                       setProjects={setProjects}
                       setBoards={setBoards}
+                      setBoardSearch={setBoardSearch}
                       prevStep={prevStep}
                       isSaving={isSaving}
                       isRunning={isRunning}

@@ -51,6 +51,7 @@ const DataScopes = (props) => {
     setDataEntities = () => {},
     setProjects = () => {},
     setBoards = () => {},
+    setBoardSearch = () => {},
     prevStep = () => {},
     fieldHasError = () => {},
     getFieldError = () => {},
@@ -199,6 +200,7 @@ const DataScopes = (props) => {
                       <BoardsSelector
                         items={boardsList}
                         selectedItems={selectedBoards}
+                        onQueryChange={setBoardSearch}
                         onItemSelect={setBoards}
                         onClear={setBoards}
                         onRemove={setBoards}

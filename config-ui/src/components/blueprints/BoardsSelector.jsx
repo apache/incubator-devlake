@@ -24,7 +24,7 @@ const BoardsSelector = (props) => {
   const {
     boards = [],
     configuredConnection,
-    placeholder = 'Select boards',
+    placeholder = 'Search and select boards',
     items = [],
     selectedItems = [],
     // eslint-disable-next-line max-len
@@ -36,6 +36,7 @@ const BoardsSelector = (props) => {
     onItemSelect = () => {},
     onRemove = () => {},
     onClear = () => {},
+    onQueryChange = () => {},
     itemRenderer = (item, { handleClick, modifiers }) => (
       <MenuItem
         active={modifiers.active}
@@ -75,7 +76,7 @@ const BoardsSelector = (props) => {
         >
           <MultiSelect
             disabled={disabled || isSaving || isLoading}
-            // openOnKeyDown={true}
+            openOnKeyDown={true}
             resetOnSelect={true}
             placeholder={placeholder}
             popoverProps={{ usePortal: false, minimal: true }}
@@ -85,9 +86,6 @@ const BoardsSelector = (props) => {
             items={items}
             selectedItems={selectedItems}
             activeItem={activeItem}
-            itemPredicate={(query, item) =>
-              item?.title?.toLowerCase().indexOf(query.toLowerCase()) >= 0
-            }
             itemRenderer={itemRenderer}
             tagRenderer={tagRenderer}
             tagInputProps={{
@@ -97,6 +95,7 @@ const BoardsSelector = (props) => {
               }
             }}
             noResults={<MenuItem disabled={true} text='No Boards Available.' />}
+            onQueryChange={(query) => onQueryChange(query)}
             onRemove={(item) => {
               onRemove((rT) => {
                 return {

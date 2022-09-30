@@ -458,14 +458,15 @@ function useDataScopesManager({
     (boardIds = [], boardListItems = []) => {
       return boardIds.map((bId, sIdx) => {
         const boardObject = boardListItems.find(
-          (apiBoard) => Number(apiBoard.id) === Number(bId)
+          (apiBoard) =>
+            Number(apiBoard.id) === Number(bId) || +apiBoard.boardId === +bId
         )
         return new JiraBoard({
           ...boardObject,
           id: boardObject?.id || bId || sIdx + 1,
           key: sIdx,
           value: bId,
-          title: boardObject?.name || `Board ${bId}`,
+          title: boardObject?.name || boardObject?.title || `Board ${bId}`,
           type: boardObject?.type || 'scrum',
           location: { ...boardObject?.location }
         })
