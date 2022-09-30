@@ -74,6 +74,7 @@ const BlueprintDataScopesDialog = (props) => {
     issueTypesList = [],
     fieldsList = [],
     boards = {},
+    setBoardSearch = () => {},
     gitlabProjects = [],
     fetchGitlabProjects = () => [],
     entities = {},
@@ -178,6 +179,7 @@ const BlueprintDataScopesDialog = (props) => {
                 dataEntitiesList={dataEntitiesList}
                 boardsList={boardsList}
                 boards={boards}
+                setBoardSearch={setBoardSearch}
                 fetchGitlabProjects={fetchGitlabProjects}
                 gitlabProjects={gitlabProjects}
                 isFetchingGitlab={isFetchingGitlab}
