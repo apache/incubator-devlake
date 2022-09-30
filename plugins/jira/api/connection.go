@@ -20,11 +20,12 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -80,6 +81,10 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		restUrl := endpointUrl.ResolveReference(refUrl)
 		return nil, errors.NotFound.New(fmt.Sprintf("Seems like an invalid Endpoint URL, please try %s", restUrl.String()))
 	}
+	if res.StatusCode == http.StatusUnauthorized {
+		return nil, errors.HttpStatus(res.StatusCode).New("Error username/password")
+	}
+
 	resBody := &models.JiraServerInfo{}
 	err = helper.UnmarshalResponse(res, resBody)
 	if err != nil {
@@ -97,26 +102,16 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	}
 
 	// verify credential
-	getStatusFail := "an error occurred while making request to `/rest/api/2/status`"
-	res, err = apiClient.Get("api/2/status", nil, nil)
+	getStatusFail := "an error occurred while making request to `/rest/agile/1.0/board`"
+	res, err = apiClient.Get("agile/1.0/board", nil, nil)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, getStatusFail)
 	}
 	getStatusFail += ": [ " + res.Request.URL.String() + " ]"
 
 	errMsg := ""
-	if res.StatusCode == http.StatusForbidden {
-		resErrBody := &models.JiraErrorInfo{}
-		err = helper.UnmarshalResponse(res, resErrBody)
-		if err != nil {
-			return nil, errors.HttpStatus(res.StatusCode).Wrap(err, getStatusFail)
-		}
-		for _, em := range resErrBody.ErrorMessages {
-			if em == "error.no-permission" {
-				return nil, errors.Default.New(fmt.Sprintf("%s We get the error %s ,it might you use the right token(password) but with the wrong username.please check your password", getStatusFail, em))
-			}
-			errMsg += em + " \r\n"
-		}
+	if res.StatusCode == http.StatusUnauthorized {
+		return nil, errors.HttpStatus(res.StatusCode).New("it might you use the right token(password) but with the wrong username.please check your username/password")
 	}
 
 	if res.StatusCode != http.StatusOK {
