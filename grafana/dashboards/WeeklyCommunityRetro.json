@@ -110,7 +110,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  lake.issues as i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($repo_id)",
+          "rawSql": "select\n  count(*)\nfrom\n  lake.issues as i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($repo_id)",
           "refId": "A",
           "select": [
             [
@@ -191,7 +191,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  lake.issues as i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($repo_id)\n  and i.creator_id not in (select distinct id from accounts where organization in ($org))",
+          "rawSql": "select\n  count(*)\nfrom\n  lake.issues as i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($repo_id)\n  and i.creator_id not in (select distinct id from accounts where organization in ($org))",
           "refId": "A",
           "select": [
             [
@@ -273,7 +273,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  sum(case when i.creator_id not in (select distinct id from accounts where organization in ($org)\n    ) then 1 else 0 end)/count(*) as community_issue_ratio\nfrom\n  lake.issues as i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($repo_id)",
+          "rawSql": "select\n  sum(case when i.creator_id not in (select distinct id from accounts where organization in ($org)\n    ) then 1 else 0 end)/count(*) as community_issue_ratio\nfrom\n  lake.issues as i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($repo_id)",
           "refId": "A",
           "select": [
             [
@@ -346,7 +346,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  distinct i.creator_name\nfrom\n  lake.issues as i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($repo_id)\n  and i.creator_name not in (select distinct creator_name from issues where created_date < curdate() - INTERVAL WEEKDAY(curdate())+7 DAY and creator_name is not null)",
+          "rawSql": "select\n  distinct i.creator_name\nfrom\n  lake.issues as i\n  join lake.board_issues bi on i.id = bi.issue_id\n  join boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and date(i.created_date) BETWEEN curdate() - INTERVAL WEEKDAY(curdate())+7 DAY AND curdate() - INTERVAL WEEKDAY(curdate())+1 DAY\n  and b.id in ($repo_id)\n  and i.creator_name not in (select distinct creator_name from issues where created_date < curdate() - INTERVAL WEEKDAY(curdate())+7 DAY and creator_name is not null)",
           "refId": "A",
           "select": [
             [
