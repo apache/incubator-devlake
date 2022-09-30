@@ -232,7 +232,7 @@ const useJIRA = (
     data = [],
     titleProperty,
     idProperty,
-    valueProperty,
+    valueProperty
   ) => {
     return data.map((d, dIdx) => ({
       id: d[idProperty],
