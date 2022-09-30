@@ -166,7 +166,7 @@ func (c *ConnectionApiHelper) save(connection interface{}) errors.Error {
 	err := c.db.CreateOrUpdate(connection)
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate") {
-			return errors.BadInput.New("duplicated Connection Name")
+			return errors.BadInput.Wrap(err, "duplicated Connection Name")
 		}
 		return err
 	}
