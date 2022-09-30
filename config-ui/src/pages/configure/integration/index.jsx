@@ -22,7 +22,7 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import { integrationsData } from '@/data/integrations'
-import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/webhook.svg'
+import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/incoming-webhook.svg'
 
 import '@/styles/integration.scss'
 
@@ -105,7 +105,7 @@ export default function Integration() {
               <div
                 className='iProvider'
                 style={{ width: 130 }}
-                onClick={() => history.push('/connections/webhook')}
+                onClick={() => history.push('/connections/incoming-webhook')}
               >
                 <div className='providerIcon'>
                   <WebHookProviderIcon
@@ -114,7 +114,9 @@ export default function Integration() {
                     height='40'
                   />
                 </div>
-                <div className='providerName'>Issue/Deployment Webhook</div>
+                <div className='providerName'>
+                  Issue/Deployment Incoming Webhook
+                </div>
               </div>
             </div>
           </main>

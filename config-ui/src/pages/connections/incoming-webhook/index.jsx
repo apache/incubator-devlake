@@ -25,7 +25,7 @@ import Sidebar from '@/components/Sidebar'
 import Content from '@/components/Content'
 import AppCrumbs from '@/components/Breadcrumbs'
 import { useWebhookManager } from '@/hooks/useWebhookManager'
-import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/webhook.svg'
+import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/incoming-webhook.svg'
 import { ReactComponent as EditIcon } from '@/images/icons/setting-con.svg'
 import { ReactComponent as DeleteIcon } from '@/images/icons/delete.svg'
 
@@ -36,7 +36,7 @@ import * as S from './styled'
 
 const postUrlPrefix = `${window.location.origin}/api`
 
-export const Webhook = () => {
+export const IncomingWebhook = () => {
   // defined the form modal is add | edit | delete
   const [modalType, setModalType] = useState()
   // defined the edit or delete record
@@ -77,9 +77,9 @@ export const Webhook = () => {
               // use /connections replace here
               { href: '/integrations', icon: false, text: 'Integrations' },
               {
-                href: '/connections/webhook',
+                href: '/connections/incoming-webhook',
                 icon: false,
-                text: 'Webhook',
+                text: 'Incoming Webhook',
                 current: true
               }
             ]}
@@ -99,7 +99,7 @@ export const Webhook = () => {
                   width='30'
                   height='30'
                 />
-                <h1 style={{ margin: '0 0 0 8px' }}>Webhook</h1>
+                <h1 style={{ margin: '0 0 0 8px' }}>Incoming Webhook</h1>
               </div>
               <Link style={{ color: '#777777' }} to='/integrations'>
                 <Icon icon='undo' size={16} /> Go Back
@@ -115,7 +115,7 @@ export const Webhook = () => {
               <span>
                 <Button
                   intent='primary'
-                  text='Add Webhook'
+                  text='Add Incoming Webhook'
                   loading={operating}
                   onClick={() => handleShowModal('add')}
                 />
@@ -123,7 +123,7 @@ export const Webhook = () => {
               <S.Wrapper>
                 <S.Grid className='title'>
                   <li>ID</li>
-                  <li>Webhook Name</li>
+                  <li>Incoming Webhook Name</li>
                   <li />
                 </S.Grid>
                 {loading ? (

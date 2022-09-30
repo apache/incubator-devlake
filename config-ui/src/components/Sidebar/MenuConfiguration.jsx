@@ -82,10 +82,10 @@ const MenuConfiguration = (activeRoute) => {
         },
         {
           id: 5,
-          label: 'Webhook',
-          route: '/connections/webhook',
+          label: 'Incoming Webhook',
+          route: '/connections/incoming-webhook',
           active:
-            activeRoute.url.endsWith('/connections/webhook') ||
+            activeRoute.url.endsWith('/connections/incoming-webhook') ||
             activeRoute.url.endsWith('/webhook'),
           icon: 'layers',
           classNames: []
