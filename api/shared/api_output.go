@@ -19,11 +19,12 @@ package shared
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 const BadRequestBody = "bad request body format"
