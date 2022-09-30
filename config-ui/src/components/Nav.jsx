@@ -30,7 +30,7 @@ const Nav = () => {
 
   const toggleSidebarOpen = (open) => {
     uiContext.changeSidebarVisibility(open)
-    setMenuClass((_) =>
+    setMenuClass(() =>
       open ? 'navbarMenuButtonSidebarOpened' : 'navbarMenuButton'
     )
   }
