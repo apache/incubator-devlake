@@ -29,13 +29,13 @@ type TransformationRules struct {
 	ProductionPattern string `mapstructure:"productionPattern" json:"productionPattern"`
 	StagingPattern    string `mapstructure:"stagingPattern" json:"stagingPattern"`
 	TestingPattern    string `mapstructure:"testingPattern" json:"testingPattern"`
-	Prefix            string `mapstructure:"prefix" json:"prefix"`
 }
 
 type DoraOptions struct {
 	Tasks               []string `json:"tasks,omitempty"`
 	Since               string
 	RepoId              string `json:"repoId"`
+	Prefix              string `json:"prefix"`
 	TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
