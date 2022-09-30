@@ -117,6 +117,8 @@ const BlueprintSettings = (props) => {
   const [runTasks, setRunTasks] = useState([])
   const [runTasksAdvanced, setRunTasksAdvanced] = useState([])
 
+  const [boardSearch, setBoardSearch] = useState()
+
   const {
     // eslint-disable-next-line no-unused-vars
     activeStep,
@@ -671,8 +673,11 @@ const BlueprintSettings = (props) => {
                 connectionsList,
                 [Providers.JIRA].includes(c.plugin)
                   ? getJiraMappedBoards(
-                      c.scope.map((s) => s.options?.boardId),
-                      allJiraResources?.boards
+                      c.scope?.map((s) => s.options?.boardId),
+                      [
+                        ...allJiraResources?.boards,
+                        ...c.scope.map((s) => s.options)
+                      ]
                     )
                   : []
               )
@@ -697,7 +702,10 @@ const BlueprintSettings = (props) => {
                 [Providers.JIRA].includes(c.plugin)
                   ? getJiraMappedBoards(
                       c.scope?.map((s) => s.options?.boardId),
-                      allJiraResources?.boards
+                      [
+                        ...allJiraResources?.boards,
+                        ...c.scope.map((s) => s.options)
+                      ]
                     )
                   : []
               )
@@ -897,33 +905,64 @@ const BlueprintSettings = (props) => {
       scopeConnection?.connectionId &&
       activeBlueprint?.mode === BlueprintMode.NORMAL
     ) {
-      fetchAllResources(
-        scopeConnection?.connectionId,
-        (jiraResourcesResponse) => {
-          setConnections((Cs) =>
-            Cs.map(
-              (c) =>
-                new DataScopeConnection({
-                  ...c,
-                  boardsList: jiraResourcesResponse?.boards
-                    ? getJiraMappedBoards(
-                        c.boardIds,
-                        jiraResourcesResponse?.boards
-                      )
-                    : []
-                })
-            )
+      fetchIssueTypes()
+      fetchFields()
+      fetchBoards(undefined, (boards) =>
+        setConnections((Cs) =>
+          Cs.map(
+            (c) =>
+              new DataScopeConnection({
+                ...c,
+                boardsList: getJiraMappedBoards(c.boardIds, [
+                  ...(boards ?? []),
+                  ...c.scope.map((s) => s.options)
+                ])
+              })
           )
-        }
+        )
       )
     }
   }, [
     activeBlueprint?.mode,
-    fetchAllResources,
+    fetchIssueTypes,
+    fetchFields,
+    fetchBoards,
     scopeConnection?.connectionId,
     scopeConnection?.providerId,
     getJiraMappedBoards,
     setConnections
+  ])
+
+  useEffect(() => {
+    if (
+      scopeConnection?.providerId === Providers.JIRA &&
+      scopeConnection?.connectionId &&
+      activeBlueprint?.mode === BlueprintMode.NORMAL &&
+      boardSearch
+    ) {
+      fetchBoards(boardSearch, (boards) =>
+        setConnections((Cs) =>
+          Cs.map(
+            (c) =>
+              new DataScopeConnection({
+                ...c,
+                boardsList: getJiraMappedBoards(c.boardIds, [
+                  ...(boards ?? []),
+                  ...c.scope.map((s) => s.options)
+                ])
+              })
+          )
+        )
+      )
+    }
+  }, [
+    activeBlueprint?.mode,
+    fetchBoards,
+    scopeConnection?.connectionId,
+    scopeConnection?.providerId,
+    getJiraMappedBoards,
+    setConnections,
+    boardSearch
   ])
 
   useEffect(() => {
@@ -1405,6 +1444,7 @@ const BlueprintSettings = (props) => {
         provider={activeProvider}
         entities={entities}
         boards={boards}
+        setBoardSearch={setBoardSearch}
         boardsList={jiraApiBoards}
         projects={projects}
         issueTypesList={jiraApiIssueTypes}
