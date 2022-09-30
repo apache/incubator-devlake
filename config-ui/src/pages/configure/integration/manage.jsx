@@ -177,7 +177,7 @@ export default function ManageIntegration() {
             <AppCrumbs
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
-                { href: '/integrations', icon: false, text: 'Integrations' },
+                { href: '/integrations', icon: false, text: 'Connections' },
                 {
                   href: `/integrations/${activeProvider.id}`,
                   icon: false,
@@ -201,7 +201,7 @@ export default function ManageIntegration() {
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
-                    {activeProvider.name} Integration{' '}
+                    {activeProvider.name} Connections{' '}
                     {activeProvider.isBeta && (
                       <>
                         <sup>(beta)</sup>
@@ -209,7 +209,7 @@ export default function ManageIntegration() {
                     )}
                   </h1>
                   <p className='page-description'>
-                    Manage integration and connections.
+                    Manage connections.
                   </p>
                 </div>
               </div>
