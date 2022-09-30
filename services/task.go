@@ -279,7 +279,7 @@ func runTaskStandalone(parentLog core.Logger, taskId uint64) errors.Error {
 	return err
 }
 
-func getTaskById(taskId uint64) *RunningTaskData {
+func getRunningTaskById(taskId uint64) *RunningTaskData {
 	runningTasks.mu.Lock()
 	defer runningTasks.mu.Unlock()
 
@@ -287,7 +287,7 @@ func getTaskById(taskId uint64) *RunningTaskData {
 }
 
 func updateTaskProgress(taskId uint64, progress chan core.RunningProgress) {
-	data := getTaskById(taskId)
+	data := getRunningTaskById(taskId)
 	if data == nil {
 		return
 	}
