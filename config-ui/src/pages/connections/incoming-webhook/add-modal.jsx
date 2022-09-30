@@ -62,7 +62,7 @@ export const AddModal = ({ onSubmit, onCancel }) => {
   return (
     <Dialog
       isOpen={true}
-      title='Add a New Webhook'
+      title='Add a New Incoming Webhook'
       style={{ width: 640 }}
       onClose={onCancel}
     >
@@ -70,14 +70,14 @@ export const AddModal = ({ onSubmit, onCancel }) => {
         {step === 1 && (
           <>
             <div className='form'>
-              <h2>Webhook Name *</h2>
+              <h2>Incoming Webhook Name *</h2>
               <p>
-                Give your Webhook a unique name to help you identify it in the
-                future.
+                Give your Incoming Webhook a unique name to help you identify it
+                in the future.
               </p>
               <input
                 type='text'
-                placeholder='Your Webhook Name'
+                placeholder='Your Incoming Webhook Name'
                 className={error ? 'has-error' : ''}
                 value={name || ''}
                 onChange={handleInputChange}
