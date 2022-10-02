@@ -52,11 +52,11 @@ func (plugin Zentao) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) 
 func (plugin Zentao) SubTaskMetas() []core.SubTaskMeta {
 	// TODO add your sub task here
 	return []core.SubTaskMeta{
-		//tasks.CollectProjectMeta,
-		//tasks.ExtractProjectsMeta,
-		//tasks.CollectExecutionMeta,
-		//tasks.ExtractExecutionsMeta,
-		//tasks.ConvertExecutionsMeta,
+		tasks.CollectProjectMeta,
+		tasks.ExtractProjectsMeta,
+		tasks.CollectExecutionMeta,
+		tasks.ExtractExecutionsMeta,
+		tasks.ConvertExecutionsMeta,
 		tasks.CollectStoriesMeta,
 		tasks.ExtractStoriesMeta,
 		tasks.ConvertStoriesMeta,
