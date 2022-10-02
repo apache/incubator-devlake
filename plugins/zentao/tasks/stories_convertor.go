@@ -44,8 +44,8 @@ func ConvertStories(taskCtx core.SubTaskContext) error {
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStories{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoStories{}),
-		dal.Where(`_tool_zentao_stories.id = ? and 
-			_tool_zentao_stories.connection_id = ?`, data.Options.StoriesId, data.Options.ConnectionId),
+		dal.Where(`_tool_zentao_stories.execution_id = ? and 
+			_tool_zentao_stories.connection_id = ?`, data.Options.ExecutionId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -57,7 +57,9 @@ func ConvertStories(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
-				StoriesId: data.Options.StoriesId,
+				ProductId:   data.Options.ProductId,
+				ExecutionId: data.Options.ExecutionId,
+				ProjectId:   data.Options.ProjectId,
 			},
 			Table: RAW_STORIES_TABLE,
 		},
@@ -68,11 +70,11 @@ func ConvertStories(taskCtx core.SubTaskContext) error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: boardIdGen.Generate(toolStories.ConnectionId, toolStories.ID),
 				},
-				Url:                     "",
-				IconURL:                 "",
-				IssueKey:                "",
-				Title:                   toolStories.Title,
-				Description:             toolStories.Spec,
+				Url:      "",
+				IconURL:  "",
+				IssueKey: "",
+				Title:    toolStories.Title,
+				//Description:             toolStories.Spec,
 				EpicKey:                 "",
 				Type:                    toolStories.Type,
 				Status:                  toolStories.Status,

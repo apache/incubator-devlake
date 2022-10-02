@@ -37,7 +37,9 @@ func CollectStories(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
-				StoriesId: data.Options.StoriesId,
+				ProductId:   data.Options.ProductId,
+				ExecutionId: data.Options.ExecutionId,
+				ProjectId:   data.Options.ProjectId,
 			},
 			Table: RAW_STORIES_TABLE,
 		},
@@ -45,7 +47,7 @@ func CollectStories(taskCtx core.SubTaskContext) error {
 		Incremental: false,
 		PageSize:    100,
 		// TODO write which api would you want request
-		UrlTemplate: "/stories/{{ .Params.StoriesId }}",
+		UrlTemplate: "/executions/{{ .Params.ExecutionId }}/stories",
 		Query: func(reqData *helper.RequestData) (url.Values, error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -54,12 +56,16 @@ func CollectStories(taskCtx core.SubTaskContext) error {
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+			var data struct {
+				Stories []json.RawMessage `json:"stories"`
+			}
 			body, err := io.ReadAll(res.Body)
+			json.Unmarshal(body, &data)
 			res.Body.Close()
 			if err != nil {
 				return nil, err
 			}
-			return []json.RawMessage{body}, nil
+			return data.Stories, nil
 		},
 	})
 	if err != nil {

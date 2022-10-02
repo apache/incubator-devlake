@@ -40,7 +40,9 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
-				StoriesId: data.Options.StoriesId,
+				ProductId:   data.Options.ProductId,
+				ExecutionId: data.Options.ExecutionId,
+				ProjectId:   data.Options.ProjectId,
 			},
 			Table: RAW_STORIES_TABLE,
 		},
@@ -51,6 +53,7 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 				return nil, err
 			}
 			stories.ConnectionId = data.Options.ConnectionId
+			stories.ExecutionId = data.Options.ExecutionId
 			results := make([]interface{}, 0)
 			results = append(results, stories)
 			return results, nil
