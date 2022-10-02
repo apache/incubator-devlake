@@ -25,11 +25,16 @@ import (
 type ZentaoStories struct {
 	archived.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           int    `json:"id"gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Vision       string `json:"vision"`
-	Parent       int    `json:"parent"`
+	ExecutionId  uint64 `json:"execution_id"`
+	Project      int    `json:"project"`
 	Product      int    `json:"product"`
 	Branch       int    `json:"branch"`
+	Story        int    `json:"story"`
+	Version      int    `json:"version"`
+	Order        int    `json:"order"`
+	ID           int    `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
+	Vision       string `json:"vision"`
+	Parent       int    `json:"parent"`
 	Module       int    `json:"module"`
 	Plan         string `json:"plan"`
 	Source       string `json:"source"`
@@ -47,20 +52,20 @@ type ZentaoStories struct {
 	Color        string `json:"color"`
 	Stage        string `json:"stage"`
 	StagedBy     string `json:"stagedBy"`
-	//Mailto           []interface{} `json:"mailto" gorm:"-:all"`
-	Lib              int `json:"lib"`
-	FromStory        int `json:"fromStory"`
-	FromVersion      int `json:"fromVersion"`
-	OpenedBy         `json:"openedBy"`
-	OpenedDate       *helper.Iso8601Time `json:"openedDate"`
-	AssignedTo       `json:"assignedTo"`
-	AssignedDate     *helper.Iso8601Time `json:"assignedDate"`
-	ApprovedDate     string              `json:"approvedDate"`
-	LastEditedBy     `json:"lastEditedBy"`
-	LastEditedDate   *helper.Iso8601Time `json:"lastEditedDate"`
-	ChangedBy        string              `json:"changedBy"`
-	ChangedDate      string              `json:"changedDate"`
-	ReviewedBy       interface{}         `json:"reviewedBy" gorm:"-:all"`
+	//Mailto           []interface{} `json:"mailto"`
+	Lib            int `json:"lib"`
+	FromStory      int `json:"fromStory"`
+	FromVersion    int `json:"fromVersion"`
+	OpenedBy       `json:"openedBy"`
+	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	AssignedTo     `json:"assignedTo"`
+	AssignedDate   *helper.Iso8601Time `json:"assignedDate"`
+	ApprovedDate   string              `json:"approvedDate"`
+	LastEditedBy   `json:"lastEditedBy"`
+	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
+	ChangedBy      string              `json:"changedBy"`
+	ChangedDate    string              `json:"changedDate"`
+	//ReviewedBy       interface{} `json:"reviewedBy"`
 	ReviewedDate     *helper.Iso8601Time `json:"reviewedDate"`
 	ClosedBy         `json:"closedBy"`
 	ClosedDate       *helper.Iso8601Time `json:"closedDate"`
@@ -71,91 +76,22 @@ type ZentaoStories struct {
 	LinkStories      string              `json:"linkStories"`
 	LinkRequirements string              `json:"linkRequirements"`
 	DuplicateStory   int                 `json:"duplicateStory"`
-	Version          int                 `json:"version"`
 	StoryChanged     string              `json:"storyChanged"`
 	FeedbackBy       string              `json:"feedbackBy"`
 	NotifyEmail      string              `json:"notifyEmail"`
 	URChanged        string              `json:"URChanged"`
 	Deleted          bool                `json:"deleted"`
-	Spec             string              `json:"spec"`
-	Verify           string              `json:"verify"`
-	Executions       Executions          `json:"executions" gorm:"-:all"`
-	Tasks            []Tasks             `json:"tasks" gorm:"-:all"`
-	//Stages           []interface{}       `json:"stages" gorm:"-:all"`
-	PlanTitle []string `json:"planTitle" gorm:"-:all"`
-	//Children         []interface{}       `json:"children" gorm:"-:all"`
-	//Files            []interface{}       `json:"files" gorm:"-:all"`
-	ProductName   string  `json:"productName"`
-	ProductStatus string  `json:"productStatus"`
-	ModuleTitle   string  `json:"moduleTitle"`
-	Bugs          []Bugs  `json:"bugs" gorm:"-:all"`
-	Cases         []Cases `json:"cases" gorm:"-:all"`
-	//Requirements  []interface{} `json:"requirements" gorm:"-:all"`
-	Actions    []Actions `json:"actions" gorm:"-:all"`
-	PreAndNext `json:"preAndNext"`
-}
-type Executions struct {
-	Num1 struct {
-		Project int    `json:"project"`
-		Name    string `json:"name"`
-		Status  string `json:"status"`
-		Type    string `json:"type"`
-	} `json:"1"`
-}
-type Tasks struct {
-	ID         int    `json:"id"`
-	Name       string `json:"name"`
-	Type       string `json:"type"`
-	Status     string `json:"status"`
-	AssignedTo struct {
-		ID       int    `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"assignedTo"`
-}
-type Bugs struct {
-	ID       int    `json:"id"`
-	Title    string `json:"title"`
-	Status   string `json:"status"`
-	Pri      int    `json:"pri"`
-	Severity int    `json:"severity"`
-}
-type Cases struct {
-	ID     int    `json:"id"`
-	Title  string `json:"title"`
-	Pri    int    `json:"pri"`
-	Status string `json:"status"`
+	PriOrder         string              `json:"priOrder"`
+	ProductType      string              `json:"productType"`
+	PlanTitle        string              `json:"planTitle"`
+	ProductStatus    string              `json:"productStatus"`
 }
 
-type Actions struct {
-	ID         int    `json:"id"`
-	ObjectType string `json:"objectType"`
-	ObjectID   int    `json:"objectID"`
-	Product    string `json:"product"`
-	Project    int    `json:"project"`
-	Execution  int    `json:"execution"`
-	Actor      string `json:"actor"`
-	Action     string `json:"action"`
-	Date       string `json:"date"`
-	Comment    string `json:"comment"`
-	Extra      string `json:"extra"`
-	Read       string `json:"read"`
-	Vision     string `json:"vision"`
-	Efforted   int    `json:"efforted"`
-	//History    []interface{} `json:"history"`
-	Desc string `json:"desc"`
-}
 type AssignedTo struct {
 	ID       int    `json:"id"`
 	Account  string `json:"account"`
 	Avatar   string `json:"avatar"`
 	Realname string `json:"realname"`
-}
-
-type PreAndNext struct {
-	Pre  string `json:"pre"`
-	Next string `json:"next"`
 }
 
 func (ZentaoStories) TableName() string {
