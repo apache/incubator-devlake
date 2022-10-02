@@ -27,7 +27,6 @@ type ZentaoApiParams struct {
 	ProductId   uint64
 	ExecutionId uint64
 	ProjectId   uint64
-	StoriesId   uint64
 }
 
 type ZentaoOptions struct {
