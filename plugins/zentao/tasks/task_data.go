@@ -40,7 +40,6 @@ type ZentaoOptions struct {
 	ProjectId    uint64
 	Tasks        []string `json:"tasks,omitempty"`
 	Since        string
-	StoriesId    uint64
 }
 
 type ZentaoTaskData struct {
