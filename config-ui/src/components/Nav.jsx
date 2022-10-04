@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { Position, Popover, Navbar, Icon } from '@blueprintjs/core'
 import '@/styles/nav.scss'
 import { ReactComponent as SlackIcon } from '@/images/slack-mark-monochrome-black.svg'
@@ -24,35 +24,39 @@ import UIContext from '@/store/UIContext'
 import useWindowSize from '@/hooks/useWIndowSize'
 
 const Nav = () => {
-  const uiContext = useContext(UIContext)
+  const { changeSidebarVisibility, desktopBreakpointWidth, sidebarVisible } =
+    useContext(UIContext)
   const [menuClass, setMenuClass] = useState('navbarMenuButton')
   const size = useWindowSize()
 
-  const toggleSidebarOpen = (open) => {
-    uiContext.changeSidebarVisibility(open)
-    setMenuClass(() =>
-      open ? 'navbarMenuButtonSidebarOpened' : 'navbarMenuButton'
-    )
-  }
+  const toggleSidebarOpen = useCallback(
+    (open) => {
+      changeSidebarVisibility(open)
+      setMenuClass(() =>
+        open ? 'navbarMenuButtonSidebarOpened' : 'navbarMenuButton'
+      )
+    },
+    [changeSidebarVisibility]
+  )
 
   useEffect(
     () =>
-      uiContext.desktopBreakpointWidth <= size.width
-        ? !uiContext.sidebarVisible && toggleSidebarOpen(true)
+      desktopBreakpointWidth <= size.width
+        ? toggleSidebarOpen(true)
         : toggleSidebarOpen(false),
-    [size]
+    [size, toggleSidebarOpen, desktopBreakpointWidth]
   )
 
   return (
     <Navbar className='navbar'>
       <Navbar.Group className={menuClass}>
         <Icon
-          icon={uiContext.sidebarVisible ? 'menu-closed' : 'menu-open'}
-          onClick={(e) => toggleSidebarOpen(!uiContext.sidebarVisible)}
+          icon={sidebarVisible ? 'menu-closed' : 'menu-open'}
+          onClick={(e) => toggleSidebarOpen(!sidebarVisible)}
           size={16}
         />
       </Navbar.Group>
-      {!uiContext.sidebarVisible && (
+      {!sidebarVisible && (
         <Navbar.Group className='navbarItems'>
           <a
             href='https://github.com/apache/incubator-devlake'
