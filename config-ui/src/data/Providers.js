@@ -105,6 +105,28 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <Tooltip
+          content={
+            <span>
+              Rate Limit requests per hour, <br />
+              Enter a numeric value &gt; 0 to enable.
+            </span>
+          }
+          intent='primary'
+        >
+          <Icon
+            icon='info-sign'
+            size={12}
+            style={{
+              float: 'left',
+              display: 'inline-block',
+              alignContent: 'center',
+              marginBottom: '4px',
+              marginLeft: '8px',
+              color: '#999'
+            }}
+          />
+        </Tooltip>
       </>
     )
   },
@@ -118,6 +140,28 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <Tooltip
+          content={
+            <span>
+              Rate Limit requests per hour, <br />
+              Enter a numeric value &gt; 0 to enable.
+            </span>
+          }
+          intent='primary'
+        >
+          <Icon
+            icon='info-sign'
+            size={12}
+            style={{
+              float: 'left',
+              display: 'inline-block',
+              alignContent: 'center',
+              marginBottom: '4px',
+              marginLeft: '8px',
+              color: '#999'
+            }}
+          />
+        </Tooltip>
       </>
     )
   },
@@ -170,6 +214,28 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <Tooltip
+          content={
+            <span>
+              Rate Limit requests per hour, <br />
+              Enter a numeric value &gt; 0 to enable.
+            </span>
+          }
+          intent='primary'
+        >
+          <Icon
+            icon='info-sign'
+            size={12}
+            style={{
+              float: 'left',
+              display: 'inline-block',
+              alignContent: 'center',
+              marginBottom: '4px',
+              marginLeft: '8px',
+              color: '#999'
+            }}
+          />
+        </Tooltip>
       </>
     )
   },
@@ -248,6 +314,28 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <Tooltip
+          content={
+            <span>
+              Rate Limit requests per hour, <br />
+              Enter a numeric value &gt; 0 to enable.
+            </span>
+          }
+          intent='primary'
+        >
+          <Icon
+            icon='info-sign'
+            size={12}
+            style={{
+              float: 'left',
+              display: 'inline-block',
+              alignContent: 'center',
+              marginBottom: '4px',
+              marginLeft: '8px',
+              color: '#999'
+            }}
+          />
+        </Tooltip>
       </>
     )
   }
