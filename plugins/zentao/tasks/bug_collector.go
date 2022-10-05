@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"io"
@@ -29,9 +30,9 @@ import (
 
 const RAW_BUG_TABLE = "zentao_bug"
 
-var _ core.SubTaskEntryPoint = CollectExecution
+var _ core.SubTaskEntryPoint = CollectBug
 
-func CollectBug(taskCtx core.SubTaskContext) error {
+func CollectBug(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -48,14 +49,14 @@ func CollectBug(taskCtx core.SubTaskContext) error {
 		PageSize:    100,
 		// TODO write which api would you want request
 		UrlTemplate: "/products/{{ .Params.ProductId }}/bugs",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Bugs []json.RawMessage `json:"bugs"`
 			}
@@ -63,7 +64,7 @@ func CollectBug(taskCtx core.SubTaskContext) error {
 			json.Unmarshal(body, &data)
 			res.Body.Close()
 			if err != nil {
-				return nil, err
+				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
 			}
 			return data.Bugs, nil
 			//return []json.RawMessage{body}, nil

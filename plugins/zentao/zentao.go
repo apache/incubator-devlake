@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Export a variable named PluginEntry for Framework to search and load
+// PluginEntry Export a variable named PluginEntry for Framework to search and load
 var PluginEntry impl.Zentao //nolint
 
 // standalone mode for debugging

@@ -59,11 +59,11 @@ type ZentaoProject struct {
 	OpenedDate     time.Time  `json:"openedDate"`
 	OpenedVersion  string     `json:"openedVersion"`
 	LastEditedBy   string     `json:"lastEditedBy"`
-	LastEditedDate *time.Time `json:"lastEditedDate,string"`
+	LastEditedDate *time.Time `json:"lastEditedDate"`
 	ClosedBy       string     `json:"closedBy"`
-	ClosedDate     *time.Time `json:"closedDate,string"`
+	ClosedDate     *time.Time `json:"closedDate"`
 	CanceledBy     string     `json:"canceledBy"`
-	CanceledDate   *time.Time `json:"canceledDate,string"`
+	CanceledDate   *time.Time `json:"canceledDate"`
 	SuspendedDate  string     `json:"suspendedDate"`
 	PO             string     `json:"PO"`
 	PM             `json:"PM"`
