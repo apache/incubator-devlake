@@ -31,6 +31,7 @@ func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) error {
 		archived.ZentaoProject{},
 		archived.ZentaoExecution{},
 		archived.ZentaoStories{},
+		archived.ZentaoBug{},
 	)
 }
 
