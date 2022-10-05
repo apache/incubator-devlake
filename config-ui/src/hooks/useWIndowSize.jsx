@@ -16,14 +16,29 @@
  *
  */
 
-import React from 'react'
-import ReactDOM from 'react-dom'
-import App from './App'
-import { UIContextProvider } from '@/store/UIContext'
+import { useEffect, useState } from 'react'
 
-ReactDOM.render(
-  <UIContextProvider>
-    <App />
-  </UIContextProvider>,
-  document.getElementById('app')
-)
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: 320,
+    height: 240
+  })
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      })
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', handleResize)
+      handleResize()
+    }
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  return windowSize
+}
+
+export default useWindowSize
