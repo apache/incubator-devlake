@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import {
   // BrowserRouter as Router,
   useRouteMatch
@@ -29,9 +29,11 @@ import { ReactComponent as Logo } from '@/images/devlake-logo.svg'
 import { ReactComponent as LogoText } from '@/images/devlake-textmark.svg'
 
 import '@/styles/sidebar.scss'
+import UIContext from '../store/UIContext'
 
 const Sidebar = () => {
   const activeRoute = useRouteMatch()
+  const uiContext = useContext(UIContext)
 
   const [menu, setMenu] = useState(MenuConfiguration(activeRoute))
   const [versionTag, setVersionTag] = useState('')
@@ -56,7 +58,7 @@ const Sidebar = () => {
     fetchVersion()
   }, [])
 
-  return (
+  return uiContext.sidebarVisible ? (
     <Card
       interactive={false}
       elevation={Elevation.ZERO}
@@ -90,6 +92,8 @@ const Sidebar = () => {
         <br />
       </span>
     </Card>
+  ) : (
+    <></>
   )
 }
 

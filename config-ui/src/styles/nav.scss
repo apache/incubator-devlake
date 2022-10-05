@@ -22,6 +22,39 @@
   z-index: 1;
 }
 
+.navbarMenuButton {
+  position: absolute;
+  display: none;
+  color: #7497F7;
+  &:hover {
+    color: #E8471C; 
+  }
+
+  @media only screen and (max-width: 850px) {
+    display: flex;
+    left: 0px;
+  }
+}
+
+.navbarMenuButtonSidebarOpened {
+  position: absolute;
+  display: none;
+  color: #7497F7;
+  &:hover {
+    color: #E8471C; 
+  }
+
+  @media only screen and (max-width: 850px) {
+    display: flex;
+    left: 240px;
+  }
+}
+
+.navbarItems {
+  position:absolute;
+  right:40px;
+}
+
 .navIconLink:hover {
   color: #E8471C;
 }
