@@ -19,14 +19,25 @@ package logger
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/sirupsen/logrus"
-	"regexp"
-	"strings"
 )
 
 var alreadyInBracketsRegex = regexp.MustCompile(`\[.*?]+`)
+
+var (
+	debugLog     = &CliLoggerFormatter{showType: "debug"}
+	infoLog      = &CliLoggerFormatter{showType: "info"}
+	warnLog      = &CliLoggerFormatter{showType: "warn"}
+	errorLog     = &CliLoggerFormatter{showType: "error"}
+	fatalLog     = &CliLoggerFormatter{showType: "fatal"}
+	successLog   = &CliLoggerFormatter{showType: "success"}
+	separatorLog = &SeparatorFormatter{}
+)
 
 type DefaultLogger struct {
 	log    *logrus.Logger
@@ -59,22 +70,27 @@ func (l *DefaultLogger) Log(level core.LogLevel, format string, a ...interface{}
 }
 
 func (l *DefaultLogger) Printf(format string, a ...interface{}) {
+	//l.log.SetFormatter()
 	l.Log(core.LOG_INFO, format, a...)
 }
 
 func (l *DefaultLogger) Debug(format string, a ...interface{}) {
+	l.log.SetFormatter(debugLog)
 	l.Log(core.LOG_DEBUG, format, a...)
 }
 
 func (l *DefaultLogger) Info(format string, a ...interface{}) {
+	l.log.SetFormatter(infoLog)
 	l.Log(core.LOG_INFO, format, a...)
 }
 
 func (l *DefaultLogger) Warn(err error, format string, a ...interface{}) {
+	l.log.SetFormatter(warnLog)
 	l.Log(core.LOG_WARN, formatMessage(err, format, a...))
 }
 
 func (l *DefaultLogger) Error(err error, format string, a ...interface{}) {
+	l.log.SetFormatter(errorLog)
 	l.Log(core.LOG_ERROR, formatMessage(err, format, a...))
 }
 
