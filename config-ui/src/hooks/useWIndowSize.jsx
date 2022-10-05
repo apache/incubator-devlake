@@ -24,14 +24,13 @@ function useWindowSize() {
     height: 240
   })
 
-  function handleResize() {
-    setWindowSize({
-      width: window.innerWidth,
-      height: window.innerHeight
-    })
-  }
-
   useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      })
+    }
     if (typeof window !== 'undefined') {
       window.addEventListener('resize', handleResize)
       handleResize()
