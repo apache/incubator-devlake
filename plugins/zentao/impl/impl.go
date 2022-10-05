@@ -60,6 +60,9 @@ func (plugin Zentao) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectStoriesMeta,
 		tasks.ExtractStoriesMeta,
 		tasks.ConvertStoriesMeta,
+		tasks.CollectBugMeta,
+		tasks.ExtractBugMeta,
+		tasks.ConvertBugMeta,
 	}
 }
 
