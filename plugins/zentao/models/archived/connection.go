@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-//TODO Please modify the following code to fit your needs
+// TODO Please modify the following code to fit your needs
 // This object conforms to what the frontend currently sends.
 type ZentaoConnection struct {
 	RestConnection `mapstructure:",squash"`
