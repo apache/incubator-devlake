@@ -19,7 +19,7 @@ package models
 
 import "github.com/apache/incubator-devlake/plugins/helper"
 
-//TODO Please modify the following code to fit your needs
+// TODO Please modify the following code to fit your needs
 // This object conforms to what the frontend currently sends.
 type ZentaoConnection struct {
 	helper.RestConnection `mapstructure:",squash"`

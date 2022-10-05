@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
@@ -34,7 +35,7 @@ var ExtractExecutionsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractExecutions(taskCtx core.SubTaskContext) error {
+func ExtractExecutions(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -46,11 +47,11 @@ func ExtractExecutions(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_EXECUTION_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			execution := &models.ZentaoExecution{}
 			err := json.Unmarshal(row.Data, execution)
 			if err != nil {
-				return nil, err
+				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao execution extractor")
 			}
 			execution.ConnectionId = data.Options.ConnectionId
 			results := make([]interface{}, 0)

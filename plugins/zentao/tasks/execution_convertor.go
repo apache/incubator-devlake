@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -38,7 +39,7 @@ var ConvertExecutionsMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertExecutions(taskCtx core.SubTaskContext) error {
+func ConvertExecutions(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
@@ -63,7 +64,7 @@ func ConvertExecutions(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_EXECUTION_TABLE,
 		},
-		Convert: func(inputRow interface{}) ([]interface{}, error) {
+		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			toolExecution := inputRow.(*models.ZentaoExecution)
 
 			domainBoard := &ticket.Board{

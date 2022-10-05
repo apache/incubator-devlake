@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -44,7 +45,7 @@ func (plugin Zentao) Description() string {
 	return "collect some Zentao data"
 }
 
-func (plugin Zentao) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) error {
+func (plugin Zentao) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -66,10 +67,10 @@ func (plugin Zentao) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Zentao) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, error) {
+func (plugin Zentao) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.Wrap(err, "could not decode Zentao options")
 	}
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
@@ -78,12 +79,12 @@ func (plugin Zentao) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	connection := &models.ZentaoConnection{}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get Zentao connection by the given connection ID: %v", err)
+		return nil, errors.Default.Wrap(err, "unable to get Zentao connection by the given connection ID: %v")
 	}
 
 	apiClient, err := tasks.NewZentaoApiClient(taskCtx, connection)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get Zentao API client instance: %v", err)
+		return nil, errors.Default.Wrap(err, "unable to get Zentao API client instance: %v")
 	}
 
 	return &tasks.ZentaoTaskData{
@@ -118,14 +119,14 @@ func (plugin Zentao) ApiResources() map[string]map[string]core.ApiResourceHandle
 	}
 }
 
-func (plugin Zentao) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, error) {
+func (plugin Zentao) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
-func (plugin Zentao) Close(taskCtx core.TaskContext) error {
+func (plugin Zentao) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.ZentaoTaskData)
 	if !ok {
-		return fmt.Errorf("GetData failed when try to close %+v", taskCtx)
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	data.ApiClient.Release()
 	return nil

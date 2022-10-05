@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"io"
@@ -31,7 +32,7 @@ const RAW_EXECUTION_TABLE = "zentao_execution"
 
 var _ core.SubTaskEntryPoint = CollectExecution
 
-func CollectExecution(taskCtx core.SubTaskContext) error {
+func CollectExecution(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -48,18 +49,18 @@ func CollectExecution(taskCtx core.SubTaskContext) error {
 		PageSize:    100,
 		// TODO write which api would you want request
 		UrlTemplate: "executions/{{ .Params.ExecutionId }}",
-		Query: func(reqData *helper.RequestData) (url.Values, error) {
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, error) {
+		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			res.Body.Close()
 			if err != nil {
-				return nil, err
+				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao execution collector")
 			}
 			return []json.RawMessage{body}, nil
 		},

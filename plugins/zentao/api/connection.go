@@ -27,22 +27,22 @@ import (
 	"net/http"
 )
 
-//TODO Please modify the following code to fit your needs
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+// TODO Please modify the following code to fit your needs
+func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// process input
 	var params models.TestConnectionRequest
 	err := mapstructure.Decode(input.Body, &params)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not decode request parameters", errors.AsUserMessage())
+		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
 	err = vld.Struct(params)
 	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "could not validate request parameters", errors.AsUserMessage())
+		return nil, errors.BadInput.Wrap(err, "could not validate request parameters")
 	}
 
 	authApiClient, err := helper.NewApiClient(context.TODO(), params.Endpoint, nil, 0, params.Proxy, basicRes)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.WrapRaw(err)
 	}
 
 	// request for access token
@@ -52,12 +52,12 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	}
 	tokenRes, err := authApiClient.Post("/tokens", nil, tokenReqBody, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.WrapRaw(err)
 	}
 	tokenResBody := &models.ApiAccessTokenResponse{}
 	err = helper.UnmarshalResponse(tokenRes, tokenResBody)
 	if err != nil {
-		return nil, err
+		return nil, errors.Default.WrapRaw(err)
 	}
 	if tokenResBody.Token == "" {
 		return nil, errors.Default.New("failed to request access token")
@@ -77,7 +77,7 @@ POST /plugins/Zentao/connections
 	"password": "Zentao api access token"
 }
 */
-func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
 	connection := &models.ZentaoConnection{}
 	err := connectionHelper.Create(connection, input)
@@ -97,7 +97,7 @@ PATCH /plugins/Zentao/connections/:connectionId
 	"password": "Zentao api access token"
 }
 */
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.ZentaoConnection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
@@ -109,7 +109,7 @@ func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 /*
 DELETE /plugins/Zentao/connections/:connectionId
 */
-func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.ZentaoConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
@@ -122,7 +122,7 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 /*
 GET /plugins/Zentao/connections
 */
-func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var connections []models.ZentaoConnection
 	err := connectionHelper.List(&connections)
 	if err != nil {
@@ -141,7 +141,7 @@ GET /plugins/Zentao/connections/:connectionId
 	"password": "Zentao api access token"
 }
 */
-func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, error) {
+func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.ZentaoConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	return &core.ApiResourceOutput{Body: connection}, err

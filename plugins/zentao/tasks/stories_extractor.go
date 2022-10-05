@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
@@ -34,7 +35,7 @@ var ExtractStoriesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractStories(taskCtx core.SubTaskContext) error {
+func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -46,11 +47,11 @@ func ExtractStories(taskCtx core.SubTaskContext) error {
 			},
 			Table: RAW_STORIES_TABLE,
 		},
-		Extract: func(row *helper.RawData) ([]interface{}, error) {
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			stories := &models.ZentaoStories{}
 			err := json.Unmarshal(row.Data, stories)
 			if err != nil {
-				return nil, err
+				return nil, errors.Default.WrapRaw(err)
 			}
 			stories.ConnectionId = data.Options.ConnectionId
 			stories.ExecutionId = data.Options.ExecutionId

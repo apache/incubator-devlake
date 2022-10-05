@@ -65,7 +65,7 @@ func NewZentaoApiClient(taskCtx core.TaskContext, connection *models.ZentaoConne
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
-		DynamicRateLimit: func(res *http.Response) (int, time.Duration, error) {
+		DynamicRateLimit: func(res *http.Response) (int, time.Duration, errors.Error) {
 			rateLimitHeader := res.Header.Get("RateLimit-Limit")
 			if rateLimitHeader == "" {
 				// use default
@@ -73,7 +73,7 @@ func NewZentaoApiClient(taskCtx core.TaskContext, connection *models.ZentaoConne
 			}
 			rateLimit, err := strconv.Atoi(rateLimitHeader)
 			if err != nil {
-				return 0, 0, fmt.Errorf("failed to parse RateLimit-Limit header: %w", err)
+				return 0, 0, errors.Default.Wrap(err, "failed to parse RateLimit-Limit header: %w")
 			}
 			// seems like {{ .plugin-ame }} rate limit is on minute basis
 			return rateLimit, 1 * time.Minute, nil
