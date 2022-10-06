@@ -19,15 +19,16 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strings"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/generator/util"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/stoewer/go-strcase"
-	"os"
-	"path/filepath"
-	"regexp"
-	"strings"
 )
 
 func init() {
@@ -61,7 +62,10 @@ func collectorNameExistValidateHoc(pluginName string) promptui.ValidateFunc {
 			return errors.Default.New("please input which data would you will collect (snake_format)")
 		}
 		_, err := os.Stat(filepath.Join(`plugins`, pluginName, `tasks`, input+`_collector.go`))
-		return errors.Default.Wrap(err, "error getting collector src file")
+		if err != nil {
+			return errors.Default.Wrap(err, "error getting collector src file")
+		}
+		return nil
 	}
 	return collectorNameValidate
 }
