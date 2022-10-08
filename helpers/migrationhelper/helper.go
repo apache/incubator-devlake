@@ -28,153 +28,153 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-// ReBuildTable method can be used when we need to change the table structure and reprocess all the data in the table.
-func ReBuildTable(db *gorm.DB, old schema.Tabler, oldBak schema.Tabler, new schema.Tabler, callback_transform func(old schema.Tabler) schema.Tabler) (errs errors.Error) {
+// TransformRowsInPlace method can be used when we need to change the table structure and reprocess all the data in the table.
+func TransformRowsInPlace(db *gorm.DB, src schema.Tabler, bak schema.Tabler, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
 	var err error
 
 	// param cheking
-	errs = paramCheckingForReBuildTable(db, old, oldBak, new, callback_transform)
+	errs = paramCheckingForTransformRowsInPlace(db, src, bak, dst, callback_transform)
 	if errs != nil {
-		return errors.Default.Wrap(errs, "ReBuildTable param cheking error")
+		return errors.Default.Wrap(errs, "TransformRowsInPlace param cheking error")
 	}
 
-	// rename the old to oldBak for cache old table
-	err = db.Migrator().RenameTable(old, oldBak)
+	// rename the src to bak for cache src table
+	err = db.Migrator().RenameTable(src, bak)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error no rename [%s] to [%s]", old.TableName(), oldBak.TableName()))
+		return errors.Default.Wrap(err, fmt.Sprintf("error no rename [%s] to [%s]", src.TableName(), bak.TableName()))
 	}
 
 	// rollback for rename back
 	defer func() {
 		if errs != nil {
-			err = db.Migrator().RenameTable(oldBak, old)
+			err = db.Migrator().RenameTable(bak, src)
 			if err != nil {
-				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table [%s] , you must to rollback by yourself. %s", oldBak.TableName(), err.Error()))
+				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table [%s] , you must to rollback by yourself. %s", bak.TableName(), err.Error()))
 			}
 		}
 	}()
 
-	return ReBuildTableWithOutBak(db, oldBak, new, callback_transform)
+	return TransformRowsBetweenTables(db, bak, dst, callback_transform)
 }
 
-// ReBuildTableWithOutBak method can be used when we need to change the table structure and reprocess all the data in the table.
-// It request the old table and the new table with different table name.
-func ReBuildTableWithOutBak(db *gorm.DB, old schema.Tabler, new schema.Tabler, callback_transform func(old schema.Tabler) schema.Tabler) (errs errors.Error) {
+// TransformRowsBetweenTables method can be used when we need to change the table structure and reprocess all the data in the table.
+// It request the src table and the dst table with different table name.
+func TransformRowsBetweenTables(db *gorm.DB, src schema.Tabler, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
 	var err error
 
-	errs = paramCheckingForReBuildTableWithOutBak(db, old, new, callback_transform)
+	errs = paramCheckingForTransformRowsBetweenTables(db, src, dst, callback_transform)
 	if errs != nil {
-		return errors.Default.Wrap(errs, "ReBuildTableWithOutBak param cheking error")
+		return errors.Default.Wrap(errs, "TransformRowsBetweenTables param cheking error")
 	}
 
 	// create new commit_files table
-	err = db.Migrator().AutoMigrate(new)
+	err = db.Migrator().AutoMigrate(dst)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error on auto migrate [%s]", new.TableName()))
+		return errors.Default.Wrap(err, fmt.Sprintf("error on auto migrate [%s]", dst.TableName()))
 	}
 
 	// rollback for create new table
 	defer func() {
 		if errs != nil {
-			err = db.Migrator().DropTable(new)
+			err = db.Migrator().DropTable(dst)
 			if err != nil {
-				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table [%s] , you must to rollback by yourself. %s", new.TableName(), err.Error()))
+				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table [%s] , you must to rollback by yourself. %s", dst.TableName(), err.Error()))
 			}
 		}
 	}()
 
-	// update old id to new id and write to the new table
-	cursor, err := db.Model(old).Rows()
+	// update src id to dst id and write to the dst table
+	cursor, err := db.Model(src).Rows()
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error on select [%s]]", old.TableName()))
+		return errors.Default.Wrap(err, fmt.Sprintf("error on select [%s]]", src.TableName()))
 	}
 	defer cursor.Close()
 
 	// caculate and save the data to new table
-	batch, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(new), 200)
+	batch, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(dst), 200)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error getting batch from table [%s]", new.TableName()))
+		return errors.Default.Wrap(err, fmt.Sprintf("error getting batch from table [%s]", dst.TableName()))
 	}
 
 	defer batch.Close()
 	for cursor.Next() {
-		err = db.ScanRows(cursor, old)
+		err = db.ScanRows(cursor, src)
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error scan rows from table [%s]", old.TableName()))
+			return errors.Default.Wrap(err, fmt.Sprintf("error scan rows from table [%s]", src.TableName()))
 		}
 
-		cf := callback_transform(old)
+		cf := callback_transform(src)
 
 		err = batch.Add(&cf)
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error on [%s] batch add", new.TableName()))
+			return errors.Default.Wrap(err, fmt.Sprintf("error on [%s] batch add", dst.TableName()))
 		}
 	}
 
-	// drop the old table
-	err = db.Migrator().DropTable(old)
+	// drop the src table
+	err = db.Migrator().DropTable(src)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error no drop [%s]", old.TableName()))
+		return errors.Default.Wrap(err, fmt.Sprintf("error no drop [%s]", src.TableName()))
 	}
 
 	return nil
 }
 
-// paramCheckingForReBuildTable check the params of ReBuildTable
-func paramCheckingForReBuildTable(db *gorm.DB, old schema.Tabler, oldBak schema.Tabler, new schema.Tabler, callback_transform func(old schema.Tabler) schema.Tabler) (errs errors.Error) {
-	errs = paramCheckingForReBuildTableShare(db, new, callback_transform)
+// paramCheckingForTransformRowsInPlace check the params of TransformRowsInPlace
+func paramCheckingForTransformRowsInPlace(db *gorm.DB, src schema.Tabler, bak schema.Tabler, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
+	errs = paramCheckingShare(db, dst, callback_transform)
 	if errs != nil {
 		return errs
 	}
 
-	if old == nil {
-		return errors.Default.New("can not working with param old nil")
+	if src == nil {
+		return errors.Default.New("can not working with param src nil")
 	}
 
-	if oldBak == nil {
-		return errors.Default.New("can not working with param oldBack nil")
+	if bak == nil {
+		return errors.Default.New("can not working with param bak nil")
 	}
 
-	if new.TableName() == oldBak.TableName() {
-		return errors.Default.New(fmt.Sprintf("the oldBak and new can not use the same table name [%s][%s].",
-			oldBak.TableName(), new.TableName()))
+	if dst.TableName() == bak.TableName() {
+		return errors.Default.New(fmt.Sprintf("the bak and dst can not use the same table name [%s][%s].",
+			bak.TableName(), dst.TableName()))
 	}
 
-	if old.TableName() == oldBak.TableName() {
-		return errors.Default.New(fmt.Sprintf("the old and oldBak can not use the same table name [%s][%s].",
-			old.TableName(), oldBak.TableName()))
+	if src.TableName() == bak.TableName() {
+		return errors.Default.New(fmt.Sprintf("the src and bak can not use the same table name [%s][%s].",
+			src.TableName(), bak.TableName()))
 	}
 
 	return nil
 }
 
-// paramCheckingForReBuildTableWithOutBak check the params of ReBuildTableWithOutBak
-func paramCheckingForReBuildTableWithOutBak(db *gorm.DB, old schema.Tabler, new schema.Tabler, callback_transform func(old schema.Tabler) schema.Tabler) (errs errors.Error) {
-	errs = paramCheckingForReBuildTableShare(db, new, callback_transform)
+// paramCheckingForTransformRowsBetweenTables check the params of ReBuildTableWithOutBak
+func paramCheckingForTransformRowsBetweenTables(db *gorm.DB, src schema.Tabler, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
+	errs = paramCheckingShare(db, dst, callback_transform)
 	if errs != nil {
 		return errs
 	}
 
-	if old == nil {
-		return errors.Default.New("can not working with param old nil")
+	if src == nil {
+		return errors.Default.New("can not working with param src nil")
 	}
 
-	if old.TableName() == new.TableName() {
-		return errors.Default.New(fmt.Sprintf("old and new can not use the same table name [%s][%s].",
-			old.TableName(), new.TableName()))
+	if src.TableName() == dst.TableName() {
+		return errors.Default.New(fmt.Sprintf("src and dst can not use the same table name [%s][%s].",
+			src.TableName(), dst.TableName()))
 	}
 
 	return nil
 }
 
-// paramCheckingForReBuildTable check the Share part params of ReBuildTable and ReBuildTableWithOutBak
-func paramCheckingForReBuildTableShare(db *gorm.DB, new schema.Tabler, callback_transform func(old schema.Tabler) schema.Tabler) (errs errors.Error) {
+// paramCheckingShare check the Share part params of TransformRowsBetweenTables and TransformRowsInPlace
+func paramCheckingShare(db *gorm.DB, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
 	if db == nil {
 		return errors.Default.New("can not working with param db nil")
 	}
 
-	if new == nil {
-		return errors.Default.New("can not working with param new nil")
+	if dst == nil {
+		return errors.Default.New("can not working with param dst nil")
 	}
 
 	if callback_transform == nil {
