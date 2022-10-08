@@ -185,7 +185,7 @@ export default function ConfigureConnection() {
             <AppCrumbs
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
-                { href: '/integrations', icon: false, text: 'Integrations' },
+                { href: '/integrations', icon: false, text: 'Connections' },
                 {
                   href: `/integrations/${activeProvider.id}`,
                   icon: false,
