@@ -33,7 +33,7 @@ Apache DevLake is designed for developer teams looking to make better sense of t
 
 ## 💪 Supported Data Sources
 
-| Data Source  | Domain(s)                                           |Supoorted Versions                    | Plugins |
+| Data Source  | Domain(s)                                           |Supported Versions                    | Plugins |
 |--------------|-----------------------------------------------------|--------------------------------------|-------- |
 | GitHub       | Source Code Management, Code Review, Issue Tracking | Cloud                                |`github`, `gitextractor`, `refdiff` |
 | GitLab       | Source Code Management, Code Review, Issue Tracking | Cloud, Community Edition 13.x+       |`gitlab`, `gitextractor`, `refdiff` |
