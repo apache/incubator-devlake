@@ -18,27 +18,27 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type commitParent struct {
+var _ core.MigrationScript = (*addNoPKModelToCommitParent)(nil)
+
+type commitParent20220801 struct {
 	archived.NoPKModel
 	CommitSha       string `json:"commitSha" gorm:"primaryKey;type:varchar(40);comment:commit hash"`
 	ParentCommitSha string `json:"parentCommitSha" gorm:"primaryKey;type:varchar(40);comment:parent commit hash"`
 }
 
-func (commitParent) TableName() string {
+func (commitParent20220801) TableName() string {
 	return "commit_parents"
 }
 
 type addNoPKModelToCommitParent struct{}
 
-func (*addNoPKModelToCommitParent) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	return errors.Convert(db.Migrator().AutoMigrate(&commitParent{}))
+func (*addNoPKModelToCommitParent) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&commitParent20220801{})
 }
 
 func (*addNoPKModelToCommitParent) Version() uint64 {

@@ -18,30 +18,32 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-var _ core.MigrationScript = (*addTypeToBoard)(nil)
+var _ core.MigrationScript = (*addSubtaskToTaskTable)(nil)
 
-type boards20220830 struct {
-	Type string `gorm:"type:varchar(255)"`
+type tasks20220601 struct {
+	Subtasks json.RawMessage `json:"subtasks"`
 }
 
-func (boards20220830) TableName() string {
-	return "boards"
+func (tasks20220601) TableName() string {
+	return "_devlake_tasks"
 }
 
-type addTypeToBoard struct{}
+type addSubtaskToTaskTable struct{}
 
-func (*addTypeToBoard) Up(basicRes core.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(&boards20220830{})
+func (*addSubtaskToTaskTable) Up(basicRes core.BasicRes) errors.Error {
+	return errors.Convert(basicRes.GetDal().AutoMigrate(&tasks20220601{}))
 }
 
-func (*addTypeToBoard) Version() uint64 {
-	return 20220830142321
+func (*addSubtaskToTaskTable) Version() uint64 {
+	return 20220601000005
 }
 
-func (*addTypeToBoard) Name() string {
-	return "add column `type` at boards"
+func (*addSubtaskToTaskTable) Name() string {
+	return "add column `subtasks` at _devlake_tasks"
 }

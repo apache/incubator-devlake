@@ -146,7 +146,12 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) errors.Error
 	return errors.Convert(buildTx(d.db, clauses).Delete(entity).Error)
 }
 
-// UpdateColumns batch records in database
+// UpdateColumn allows you to update mulitple records
+func (d *Dalgorm) UpdateColumn(entity interface{}, columnName string, value interface{}, clauses ...dal.Clause) errors.Error {
+	return errors.Convert(buildTx(d.db, clauses).Model(entity).Update(columnName, value).Error)
+}
+
+// UpdateColumns allows you to update multiple columns of mulitple records
 func (d *Dalgorm) UpdateColumns(entity interface{}, clauses ...dal.Clause) errors.Error {
 	return errors.Convert(buildTx(d.db, clauses).UpdateColumns(entity).Error)
 }
@@ -201,7 +206,7 @@ func (d *Dalgorm) RenameColumn(table, oldColumnName, newColumnName string) error
 	defer func() {
 		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
 	}()
-	return d.RenameColumn(table, oldColumnName, newColumnName)
+	return errors.Convert(d.db.Migrator().RenameColumn(table, oldColumnName, newColumnName))
 }
 
 // AllTables returns all tables in the database
@@ -224,6 +229,16 @@ func (d *Dalgorm) AllTables() ([]string, errors.Error) {
 		}
 	}
 	return filteredTables, nil
+}
+
+// DropTables drop multiple tables by Model Pointer or Table Name
+func (d *Dalgorm) DropTables(dst ...interface{}) errors.Error {
+	return errors.Convert(d.db.Migrator().DropTable(dst...))
+}
+
+// RenameTable renames table name
+func (d *Dalgorm) RenameTable(oldName, newName string) errors.Error {
+	return errors.Convert(d.db.Migrator().RenameTable(oldName, newName))
 }
 
 // NewDalgorm FIXME ...

@@ -75,7 +75,9 @@ type Dal interface {
 	Create(entity interface{}, clauses ...Clause) errors.Error
 	// Update updates record
 	Update(entity interface{}, clauses ...Clause) errors.Error
-	// UpdateColumns batch records in database
+	// UpdateColumn allows you to update mulitple records
+	UpdateColumn(entity interface{}, columnName string, value interface{}, clauses ...Clause) errors.Error
+	// UpdateColumn allows you to update multiple columns of mulitple records
 	UpdateColumns(entity interface{}, clauses ...Clause) errors.Error
 	// CreateOrUpdate tries to create the record, or fallback to update all if failed
 	CreateOrUpdate(entity interface{}, clauses ...Clause) errors.Error
@@ -85,6 +87,10 @@ type Dal interface {
 	Delete(entity interface{}, clauses ...Clause) errors.Error
 	// AllTables returns all tables in database
 	AllTables() ([]string, errors.Error)
+	// DropTables drops all specified tables
+	DropTables(dst ...interface{}) errors.Error
+	// RenameTable renames table name
+	RenameTable(oldName, newName string) errors.Error
 	// GetColumns returns table columns in database
 	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
 	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag

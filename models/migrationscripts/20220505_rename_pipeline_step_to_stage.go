@@ -19,29 +19,22 @@ package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-var _ core.MigrationScript = (*addTypeToBoard)(nil)
+var _ core.MigrationScript = (*renamePipelineStepToStage)(nil)
 
-type boards20220830 struct {
-	Type string `gorm:"type:varchar(255)"`
+type renamePipelineStepToStage struct{}
+
+func (*renamePipelineStepToStage) Up(basicRes core.BasicRes) errors.Error {
+	return errors.Convert(basicRes.GetDal().RenameColumn(archived.Pipeline{}.TableName(), "step", "stage"))
 }
 
-func (boards20220830) TableName() string {
-	return "boards"
+func (*renamePipelineStepToStage) Version() uint64 {
+	return 20220505212344
 }
 
-type addTypeToBoard struct{}
-
-func (*addTypeToBoard) Up(basicRes core.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(&boards20220830{})
-}
-
-func (*addTypeToBoard) Version() uint64 {
-	return 20220830142321
-}
-
-func (*addTypeToBoard) Name() string {
-	return "add column `type` at boards"
+func (*renamePipelineStepToStage) Name() string {
+	return "Rename step to stage "
 }

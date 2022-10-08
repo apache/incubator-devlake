@@ -18,17 +18,20 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/core"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
 )
 
-type addDomainTables struct{}
+var _ core.MigrationScript = (*resetDomainTables)(nil)
 
-func (*addDomainTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().DropTable(
+type resetDomainTables struct{}
+
+func (*resetDomainTables) Up(basicRes core.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.DropTables(
 		"issue_assignee_history",
 		"issue_status_history",
 		"issue_sprints_history",
@@ -63,10 +66,11 @@ func (*addDomainTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		&archived.RefsPrCherrypick{},
 	)
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
-	return errors.Convert(db.Migrator().AutoMigrate(
+	migrationHelper := migrationhelper.NewMigrationHelper(basicRes)
+	return migrationHelper.AutoMigrateTables(
 		&archived.Repo{},
 		&archived.Commit{},
 		&archived.CommitParent{},
@@ -100,17 +104,17 @@ func (*addDomainTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		&archived.Team{},
 		&archived.UserAccount{},
 		&archived.TeamUser{},
-	))
+	)
 }
 
-func (*addDomainTables) Version() uint64 {
+func (*resetDomainTables) Version() uint64 {
 	return 20220707232344
 }
 
-func (*addDomainTables) Owner() string {
+func (*resetDomainTables) Owner() string {
 	return "Framework"
 }
 
-func (*addDomainTables) Name() string {
+func (*resetDomainTables) Name() string {
 	return "create domain layer init schemas"
 }

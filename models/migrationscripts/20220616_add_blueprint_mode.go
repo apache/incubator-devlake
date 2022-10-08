@@ -18,37 +18,45 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
-
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
-type Blueprint20220616 struct {
+var _ core.MigrationScript = (*addBlueprintMode)(nil)
+
+type blueprint20220616 struct {
 	Mode     string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
 	IsManual bool   `json:"isManual"`
 }
 
-func (Blueprint20220616) TableName() string {
+func (blueprint20220616) TableName() string {
 	return "_devlake_blueprints"
 }
 
-type updateBlueprintMode struct{}
+type addBlueprintMode struct{}
 
-func (*updateBlueprintMode) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(&Blueprint20220616{})
+func (*addBlueprintMode) Up(basicRes core.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.AutoMigrate(&blueprint20220616{})
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	db.Model(&Blueprint20220616{}).Where("mode is null").Update("mode", "ADVANCED")
-	db.Model(&Blueprint20220616{}).Where("is_manual is null").Update("is_manual", false)
+	err = db.UpdateColumn(&blueprint20220616{}, "mode", "ADVANCED", dal.Where("mode is null"))
+	if err != nil {
+		return err
+	}
+	err = db.UpdateColumn(&blueprint20220616{}, "is_manual", false, dal.Where("is_manual is null"))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (*updateBlueprintMode) Version() uint64 {
+func (*addBlueprintMode) Version() uint64 {
 	return 20220616110537
 }
 
-func (*updateBlueprintMode) Name() string {
+func (*addBlueprintMode) Name() string {
 	return "add mode field to blueprint"
 }

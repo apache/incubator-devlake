@@ -15,24 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package migrationhelper
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type renameStepToStage struct{}
-
-func (*renameStepToStage) Up(basicRes core.BasicRes) errors.Error {
-	return errors.Convert(basicRes.GetDal().RenameColumn(archived.Pipeline{}.TableName(), "step", "stage"))
+// MigrationHelper offers useful functions to help you writing migration script
+type MigrationHelper struct {
+	basicRes core.BasicRes
 }
 
-func (*renameStepToStage) Version() uint64 {
-	return 20220505212344
+// AutoMigrateTables runs AutoMigrate for muliple tables
+func (m *MigrationHelper) AutoMigrateTables(dst ...interface{}) errors.Error {
+	db := m.basicRes.GetDal()
+	for _, entity := range dst {
+		err := db.AutoMigrate(entity)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func (*renameStepToStage) Name() string {
-	return "Rename step to stage "
+// NewMigrationHelper creates a MigrationHelper instance
+func NewMigrationHelper(basicRes core.BasicRes) *MigrationHelper {
+	return &MigrationHelper{basicRes}
 }

@@ -19,39 +19,34 @@ package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type addFrameTables struct{}
+var _ core.MigrationScript = (*addFrameworkTables)(nil)
 
-var _ core.MigrationScript = (*addFrameTables)(nil)
+type addFrameworkTables struct{}
 
-func (*addFrameTables) Up(basicRes core.BasicRes) errors.Error {
-	db := basicRes.GetDal()
-	for _, entity := range []interface{}{
+func (*addFrameworkTables) Up(basicRes core.BasicRes) errors.Error {
+	migrationHelper := migrationhelper.NewMigrationHelper(basicRes)
+	return migrationHelper.AutoMigrateTables(
 		&archived.Task{},
 		&archived.Notification{},
 		&archived.Pipeline{},
 		&archived.Blueprint{},
-	} {
-		err := db.AutoMigrate(entity)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	)
 }
 
-func (*addFrameTables) Version() uint64 {
+func (*addFrameworkTables) Version() uint64 {
 	return 20220406212344
 }
 
-func (*addFrameTables) Owner() string {
+func (*addFrameworkTables) Owner() string {
 	return "Framework"
 }
 
-func (*addFrameTables) Name() string {
+func (*addFrameworkTables) Name() string {
 	return "create init schemas"
 }
