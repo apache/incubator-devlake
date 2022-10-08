@@ -21,13 +21,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"net/http"
 	"net/url"
+	"path"
 	"strings"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
@@ -99,7 +100,11 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			if err != nil {
 				return nil, err
 			}
-			token := strings.Split(connection.GetEncodedToken(), ",")[0]
+			tokens := strings.Split(connection.GetEncodedToken(), ",")
+			if len(tokens) == 0 {
+				return nil, errors.Default.New("no token")
+			}
+			token := tokens[0]
 			apiClient, err := helper.NewApiClient(
 				context.TODO(),
 				connection.Endpoint,
@@ -113,7 +118,8 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			if err != nil {
 				return nil, err
 			}
-			res, err := apiClient.Get(fmt.Sprintf("repositories/%s/%s", op.Owner, op.Repo), nil, nil)
+
+			res, err := apiClient.Get(path.Join("repositories", op.Owner, op.Repo), nil, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -133,18 +139,22 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			if err != nil {
 				return nil, err
 			}
-			cloneUrl, err := errors.Convert01(url.Parse(apiRepo.Links.Clone[0].Href))
-			if err != nil {
-				return nil, err
+			for _, u := range apiRepo.Links.Clone {
+				if u.Name == "https" {
+					cloneUrl, err := errors.Convert01(url.Parse(u.Href))
+					if err != nil {
+						return nil, err
+					}
+					cloneUrl.User = url.UserPassword(op.Owner, connection.Password)
+					stage = append(stage, &core.PipelineTask{
+						Plugin: "gitextractor",
+						Options: map[string]interface{}{
+							"url":    cloneUrl.String(),
+							"repoId": didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connectionId, apiRepo.BitbucketId),
+						},
+					})
+				}
 			}
-			cloneUrl.User = url.UserPassword("git", token)
-			stage = append(stage, &core.PipelineTask{
-				Plugin: "gitextractor",
-				Options: map[string]interface{}{
-					"url":    cloneUrl.String(),
-					"repoId": didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connectionId, apiRepo.BitbucketId),
-				},
-			})
 		}
 		plan[i] = stage
 	}
