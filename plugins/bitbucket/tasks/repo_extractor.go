@@ -97,7 +97,7 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0, 1)
 			bitbucketRepository := &models.BitbucketRepo{
 				ConnectionId: data.Options.ConnectionId,
-				BitbucketId:  "repositories/" + body.FullName,
+				BitbucketId:  body.FullName,
 				Name:         body.FullName,
 				HTMLUrl:      body.Links.Html.Href,
 				Description:  body.Description,
