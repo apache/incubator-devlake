@@ -19,8 +19,9 @@ package dal
 
 import (
 	"database/sql"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"gorm.io/gorm/schema"
 )
@@ -88,6 +89,10 @@ type Dal interface {
 	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
 	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
 	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
+	// RenameTable rename the oldName table to newName
+	RenameTable(oldName interface{}, newName interface{}) errors.Error
+	// DropTable drop the table
+	DropTable(dst ...interface{}) errors.Error
 }
 
 // GetColumnNames returns table Column Names in database

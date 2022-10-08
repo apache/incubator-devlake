@@ -22,14 +22,14 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitlab/api"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
 
 // TransformRowsInPlace method can be used when we need to change the table structure and reprocess all the data in the table.
-func TransformRowsInPlace(db *gorm.DB, src schema.Tabler, bak schema.Tabler, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
+func TransformRowsInPlace(db dal.Dal, src schema.Tabler, bak schema.Tabler, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
 	var err error
 
 	// param cheking
@@ -39,7 +39,7 @@ func TransformRowsInPlace(db *gorm.DB, src schema.Tabler, bak schema.Tabler, dst
 	}
 
 	// rename the src to bak for cache src table
-	err = db.Migrator().RenameTable(src, bak)
+	err = db.RenameTable(src, bak)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error no rename [%s] to [%s]", src.TableName(), bak.TableName()))
 	}
@@ -47,7 +47,7 @@ func TransformRowsInPlace(db *gorm.DB, src schema.Tabler, bak schema.Tabler, dst
 	// rollback for rename back
 	defer func() {
 		if errs != nil {
-			err = db.Migrator().RenameTable(bak, src)
+			err = db.RenameTable(bak, src)
 			if err != nil {
 				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table [%s] , you must to rollback by yourself. %s", bak.TableName(), err.Error()))
 			}
@@ -59,7 +59,7 @@ func TransformRowsInPlace(db *gorm.DB, src schema.Tabler, bak schema.Tabler, dst
 
 // TransformRowsBetweenTables method can be used when we need to change the table structure and reprocess all the data in the table.
 // It request the src table and the dst table with different table name.
-func TransformRowsBetweenTables(db *gorm.DB, src schema.Tabler, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
+func TransformRowsBetweenTables(db dal.Dal, src schema.Tabler, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
 	var err error
 
 	errs = paramCheckingForTransformRowsBetweenTables(db, src, dst, callback_transform)
@@ -68,7 +68,7 @@ func TransformRowsBetweenTables(db *gorm.DB, src schema.Tabler, dst schema.Table
 	}
 
 	// create new commit_files table
-	err = db.Migrator().AutoMigrate(dst)
+	err = db.AutoMigrate(dst)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error on auto migrate [%s]", dst.TableName()))
 	}
@@ -76,7 +76,7 @@ func TransformRowsBetweenTables(db *gorm.DB, src schema.Tabler, dst schema.Table
 	// rollback for create new table
 	defer func() {
 		if errs != nil {
-			err = db.Migrator().DropTable(dst)
+			err = db.DropTable(dst)
 			if err != nil {
 				errs = errors.Default.Wrap(err, fmt.Sprintf("fail to rollback table [%s] , you must to rollback by yourself. %s", dst.TableName(), err.Error()))
 			}
@@ -84,7 +84,9 @@ func TransformRowsBetweenTables(db *gorm.DB, src schema.Tabler, dst schema.Table
 	}()
 
 	// update src id to dst id and write to the dst table
-	cursor, err := db.Model(src).Rows()
+	cursor, err := db.Cursor(
+		dal.From(src.TableName()),
+	)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error on select [%s]]", src.TableName()))
 	}
@@ -98,7 +100,7 @@ func TransformRowsBetweenTables(db *gorm.DB, src schema.Tabler, dst schema.Table
 
 	defer batch.Close()
 	for cursor.Next() {
-		err = db.ScanRows(cursor, src)
+		err = db.Fetch(cursor, src)
 		if err != nil {
 			return errors.Default.Wrap(err, fmt.Sprintf("error scan rows from table [%s]", src.TableName()))
 		}
@@ -112,7 +114,7 @@ func TransformRowsBetweenTables(db *gorm.DB, src schema.Tabler, dst schema.Table
 	}
 
 	// drop the src table
-	err = db.Migrator().DropTable(src)
+	err = db.DropTable(src)
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error no drop [%s]", src.TableName()))
 	}
@@ -121,7 +123,7 @@ func TransformRowsBetweenTables(db *gorm.DB, src schema.Tabler, dst schema.Table
 }
 
 // paramCheckingForTransformRowsInPlace check the params of TransformRowsInPlace
-func paramCheckingForTransformRowsInPlace(db *gorm.DB, src schema.Tabler, bak schema.Tabler, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
+func paramCheckingForTransformRowsInPlace(db dal.Dal, src schema.Tabler, bak schema.Tabler, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
 	errs = paramCheckingShare(db, dst, callback_transform)
 	if errs != nil {
 		return errs
@@ -149,7 +151,7 @@ func paramCheckingForTransformRowsInPlace(db *gorm.DB, src schema.Tabler, bak sc
 }
 
 // paramCheckingForTransformRowsBetweenTables check the params of ReBuildTableWithOutBak
-func paramCheckingForTransformRowsBetweenTables(db *gorm.DB, src schema.Tabler, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
+func paramCheckingForTransformRowsBetweenTables(db dal.Dal, src schema.Tabler, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
 	errs = paramCheckingShare(db, dst, callback_transform)
 	if errs != nil {
 		return errs
@@ -168,7 +170,7 @@ func paramCheckingForTransformRowsBetweenTables(db *gorm.DB, src schema.Tabler, 
 }
 
 // paramCheckingShare check the Share part params of TransformRowsBetweenTables and TransformRowsInPlace
-func paramCheckingShare(db *gorm.DB, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
+func paramCheckingShare(db dal.Dal, dst schema.Tabler, callback_transform func(src schema.Tabler) schema.Tabler) (errs errors.Error) {
 	if db == nil {
 		return errors.Default.New("can not working with param db nil")
 	}
