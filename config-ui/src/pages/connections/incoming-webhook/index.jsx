@@ -75,7 +75,7 @@ export const IncomingWebhook = () => {
             items={[
               { href: '/', icon: false, text: 'Dashboard' },
               // use /connections replace here
-              { href: '/integrations', icon: false, text: 'Integrations' },
+              { href: '/integrations', icon: false, text: 'Connections' },
               {
                 href: '/connections/incoming-webhook',
                 icon: false,
