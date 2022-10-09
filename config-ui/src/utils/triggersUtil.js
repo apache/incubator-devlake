@@ -34,7 +34,7 @@ const TriggersUtil = {
   getCollectorJson: (name) => {
     return {
       Plugin: name,
-      Options: COLLECTION_DEFAULTS[name]?.options,
+      Options: COLLECTION_DEFAULTS[name]?.options
     }
   }
 }

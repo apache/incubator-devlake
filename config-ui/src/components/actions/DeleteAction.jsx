@@ -18,7 +18,8 @@
 
 import React, { Fragment } from 'react'
 import {
-  Button, Colors,
+  Button,
+  Colors,
   Position,
   Icon,
   Intent,
@@ -63,7 +64,13 @@ const DeleteAction = (props) => {
       <>
         <div style={{ padding: '15px 20px 15px 15px' }}>
           {children}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 15 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              marginTop: 15
+            }}
+          >
             <Button
               className={Classes.POPOVER2_DISMISS}
               style={{ marginRight: 10 }}

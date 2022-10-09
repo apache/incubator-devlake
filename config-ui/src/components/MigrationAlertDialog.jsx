@@ -23,7 +23,7 @@ import {
   Colors,
   Dialog,
   Intent,
-  Elevation,
+  Elevation
 } from '@blueprintjs/core'
 import ContentLoader from '@/components/loaders/ContentLoader'
 
@@ -48,7 +48,9 @@ const MigrationAlertDialog = (props) => {
       outlined: true
     },
     confirmButtonOpts = {
-      text: props.hasFailed ? MigrationOptions.AlertDialog.confirmRetryBtnText : MigrationOptions.AlertDialog.confirmBtnText,
+      text: props.hasFailed
+        ? MigrationOptions.AlertDialog.confirmRetryBtnText
+        : MigrationOptions.AlertDialog.confirmBtnText,
       intent: props.hasFailed ? Intent.WARNING : Intent.PRIMARY,
       icon: props.hasFailed ? 'error' : null
     },
@@ -56,7 +58,7 @@ const MigrationAlertDialog = (props) => {
       icon: 'small-tick',
       text: MigrationOptions.AlertDialog.continueBtnText,
       intent: Intent.SUCCESS
-    },
+    }
   } = props
 
   return (
@@ -74,15 +76,16 @@ const MigrationAlertDialog = (props) => {
       >
         <div className={Classes.DIALOG_BODY}>
           {!isMigrating && hasFailed && (
-          <>
-            <p style={{ margin: 0, padding: 0, color: Colors.RED4 }}>
-              <strong>Database Migration Failed!</strong>
-            </p>
-            <p style={{ margin: 0, padding: 0 }}>
-              There was a problem running migrations, please check server logs for details.{' '}
-              You may also try again, if the problem persists please file an issue on <strong>GitHub</strong>.
-            </p>
-          </>
+            <>
+              <p style={{ margin: 0, padding: 0, color: Colors.RED4 }}>
+                <strong>Database Migration Failed!</strong>
+              </p>
+              <p style={{ margin: 0, padding: 0 }}>
+                There was a problem running migrations, please check server logs
+                for details. You may also try again, if the problem persists
+                please file an issue on <strong>GitHub</strong>.
+              </p>
+            </>
           )}
           {!isMigrating && wasSuccessful ? (
             <>
@@ -101,7 +104,11 @@ const MigrationAlertDialog = (props) => {
                   <ContentLoader
                     title='Running Migrations...'
                     elevation={Elevation.ZERO}
-                    cardStyleOverrides={{ backgroundColor: 'transparent', marginBottom: 0, fontSize: '12px' }}
+                    cardStyleOverrides={{
+                      backgroundColor: 'transparent',
+                      marginBottom: 0,
+                      fontSize: '12px'
+                    }}
                     messageClasses={['bp3-ui-text']}
                     message={
                       <>
@@ -120,8 +127,8 @@ const MigrationAlertDialog = (props) => {
                     </p>
                     <p style={{ margin: 0, padding: 0 }}>
                       A Database migration is required to launch{' '}
-                      <strong>DevLake</strong>, to proceed, please send a request
-                      to{' '}
+                      <strong>DevLake</strong>, to proceed, please send a
+                      request to{' '}
                       <code style={{ backgroundColor: '#eeeeee' }}>
                         &lt;config-ui-endpoint&gt;/api/proceed-db-migration
                       </code>{' '}
@@ -142,10 +149,7 @@ const MigrationAlertDialog = (props) => {
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             {wasSuccessful ? (
               <>
-                <Button
-                  onClick={onClose}
-                  {...continueButtonOpts}
-                />
+                <Button onClick={onClose} {...continueButtonOpts} />
               </>
             ) : (
               <>

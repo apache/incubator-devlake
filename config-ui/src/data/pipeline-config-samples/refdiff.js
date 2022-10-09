@@ -30,6 +30,4 @@ const refdiffConfig = [
   ]
 ]
 
-export {
-  refdiffConfig
-}
+export { refdiffConfig }

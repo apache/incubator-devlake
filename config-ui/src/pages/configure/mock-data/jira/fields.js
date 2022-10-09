@@ -27,9 +27,7 @@ const fieldsData = [
     navigable: true,
     searchable: true,
     type: 'string',
-    clauseNames: [
-      'description'
-    ],
+    clauseNames: ['description'],
     schema: {
       type: 'string',
       system: 'description'
@@ -46,9 +44,7 @@ const fieldsData = [
     navigable: true,
     searchable: true,
     type: 'string',
-    clauseNames: [
-      'description'
-    ],
+    clauseNames: ['description'],
     schema: {
       type: 'string',
       system: 'description'
@@ -65,9 +61,7 @@ const fieldsData = [
     navigable: true,
     searchable: true,
     type: 'string',
-    clauseNames: [
-      'description'
-    ],
+    clauseNames: ['description'],
     schema: {
       type: 'string',
       system: 'description'
@@ -84,9 +78,7 @@ const fieldsData = [
     navigable: true,
     searchable: true,
     type: 'string',
-    clauseNames: [
-      'description'
-    ],
+    clauseNames: ['description'],
     schema: {
       type: 'string',
       system: 'description'
@@ -103,9 +95,7 @@ const fieldsData = [
     navigable: true,
     searchable: true,
     type: 'string',
-    clauseNames: [
-      'description'
-    ],
+    clauseNames: ['description'],
     schema: {
       type: 'string',
       system: 'description'
@@ -122,9 +112,7 @@ const fieldsData = [
     navigable: true,
     searchable: true,
     type: 'string',
-    clauseNames: [
-      'description'
-    ],
+    clauseNames: ['description'],
     schema: {
       type: 'string',
       system: 'description'
@@ -141,9 +129,7 @@ const fieldsData = [
     navigable: true,
     searchable: true,
     type: 'string',
-    clauseNames: [
-      'description'
-    ],
+    clauseNames: ['description'],
     schema: {
       type: 'string',
       system: 'description'
@@ -160,9 +146,7 @@ const fieldsData = [
     navigable: true,
     searchable: true,
     type: 'string',
-    clauseNames: [
-      'description'
-    ],
+    clauseNames: ['description'],
     schema: {
       type: 'string',
       system: 'description'
@@ -179,9 +163,7 @@ const fieldsData = [
     navigable: true,
     searchable: true,
     type: 'string',
-    clauseNames: [
-      'description'
-    ],
+    clauseNames: ['description'],
     schema: {
       type: 'string',
       system: 'description'
@@ -198,9 +180,7 @@ const fieldsData = [
     navigable: true,
     searchable: true,
     type: 'number',
-    clauseNames: [
-      'description'
-    ],
+    clauseNames: ['description'],
     schema: {
       type: 'string',
       system: 'description'
@@ -217,16 +197,12 @@ const fieldsData = [
     navigable: true,
     searchable: true,
     type: 'string',
-    clauseNames: [
-      'description'
-    ],
+    clauseNames: ['description'],
     schema: {
       type: 'string',
       system: 'description'
     }
-  },
+  }
 ]
 
-export {
-  fieldsData
-}
+export { fieldsData }

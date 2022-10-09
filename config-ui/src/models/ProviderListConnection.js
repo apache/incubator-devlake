@@ -43,7 +43,7 @@
  *
  */
 class ProviderListConnection {
-  constructor (data = {}) {
+  constructor(data = {}) {
     this.id = parseInt(data?.id, 10) || null
     this.key = parseInt(data?.key, 10) || null
     this.connectionId = parseInt(data?.connectionId, 10) || null
@@ -70,11 +70,11 @@ class ProviderListConnection {
     this.providerId = data?.providerId || null
   }
 
-  get (property) {
+  get(property) {
     return this[property]
   }
 
-  set (property, value) {
+  set(property, value) {
     this[property] = value
     return this.property
   }

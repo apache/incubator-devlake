@@ -16,14 +16,21 @@
  *
  */
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
+
+let needMigrateCallback = (errorObject) => undefined
+
 const MigrationOptions = {
   apiProceedEndpoint: `${DEVLAKE_ENDPOINT}/proceed-db-migration`, // API Get Endpoint
   // NO Api.Get action required for cancel at this time
   apiCancelEndpoint: null,
   apiStatusCode: 428, // API Response Code for Migration Required
-  warningId: 'DEVLAKE__MIGRATION_WARNING', // Local Storage Warning ID Key
-  cancelToastMessage: 'Migration Halted - Please downgrade manually, you will continue to receive a warning unless you proceed with migration or rollback.',
+  cancelToastMessage:
+    'Migration Halted - Please downgrade manually, you will continue to receive a warning unless you proceed with migration or rollback.',
   failedToastMessage: 'Database Migration Failed! (Check Network Console)',
+  runNeedMigrateCallback: (errorObject) => needMigrateCallback(errorObject),
+  setNeedMigrateCallback: (cb) => {
+    needMigrateCallback = cb
+  },
   AlertDialog: {
     title: 'New Migration Scripts Detected',
     cancelBtnText: 'Cancel',
@@ -33,6 +40,4 @@ const MigrationOptions = {
   }
 }
 
-export {
-  MigrationOptions
-}
+export { MigrationOptions }

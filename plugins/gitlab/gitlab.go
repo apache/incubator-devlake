@@ -28,18 +28,39 @@ var PluginEntry impl.Gitlab //nolint
 
 // standalone mode for debugging
 func main() {
-	gitlabCmd := &cobra.Command{Use: "gitlab"}
-	projectId := gitlabCmd.Flags().IntP("project-id", "p", 0, "gitlab project id")
-	connectionId := gitlabCmd.Flags().Uint64P("connection-id", "c", 0, "gitlab connection id")
+	cmd := &cobra.Command{Use: "gitlab"}
+	projectId := cmd.Flags().IntP("project-id", "p", 0, "gitlab project id")
+	connectionId := cmd.Flags().Uint64P("connection-id", "c", 0, "gitlab connection id")
+	_ = cmd.MarkFlagRequired("project-id")
+	_ = cmd.MarkFlagRequired("connection-id")
 
-	_ = gitlabCmd.MarkFlagRequired("project-id")
-	_ = gitlabCmd.MarkFlagRequired("connection-id")
-	gitlabCmd.Run = func(cmd *cobra.Command, args []string) {
+	prType := cmd.Flags().String("prType", "type/(.*)$", "pr type")
+	prComponent := cmd.Flags().String("prComponent", "component/(.*)$", "pr component")
+	prBodyClosePattern := cmd.Flags().String("prBodyClosePattern", "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)", "pr body close pattern")
+	issueSeverity := cmd.Flags().String("issueSeverity", "severity/(.*)$", "issue severity")
+	issuePriority := cmd.Flags().String("issuePriority", "^(highest|high|medium|low)$", "issue priority")
+	issueComponent := cmd.Flags().String("issueComponent", "component/(.*)$", "issue component")
+	issueTypeBug := cmd.Flags().String("issueTypeBug", "^(bug|failure|error)$", "issue type bug")
+	issueTypeIncident := cmd.Flags().String("issueTypeIncident", "", "issue type incident")
+	issueTypeRequirement := cmd.Flags().String("issueTypeRequirement", "^(feat|feature|proposal|requirement)$", "issue type requirement")
+	deployTagPattern := cmd.Flags().String("deployTagPattern", "(?i)deploy", "deploy tag name")
+
+	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"projectId":    *projectId,
-			"connectionId": *connectionId,
+			"projectId":            *projectId,
+			"connectionId":         *connectionId,
+			"prType":               *prType,
+			"prComponent":          *prComponent,
+			"prBodyClosePattern":   *prBodyClosePattern,
+			"issueSeverity":        *issueSeverity,
+			"issuePriority":        *issuePriority,
+			"issueComponent":       *issueComponent,
+			"issueTypeBug":         *issueTypeBug,
+			"issueTypeIncident":    *issueTypeIncident,
+			"issueTypeRequirement": *issueTypeRequirement,
+			"deployTagPattern":     *deployTagPattern,
 		})
 	}
 
-	runner.RunCmd(gitlabCmd)
+	runner.RunCmd(cmd)
 }

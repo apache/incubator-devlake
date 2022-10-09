@@ -55,7 +55,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err errors.Error) {
 		}
 	}
 	charPattern := regexp.MustCompile(`[\/a-zA-Z\s,]+`)
-	cursor, err := db.Cursor(dal.From(&githubModels.GithubPullRequest{}), dal.Where("repo_id = ?", repoId))
+	cursor, err := db.Cursor(dal.From(&githubModels.GithubPullRequest{}), dal.Where("repo_id = ? and connection_id = ?", repoId, data.Options.ConnectionId))
 	if err != nil {
 		return err
 	}

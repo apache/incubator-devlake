@@ -38,6 +38,10 @@ type TestConnectionRequest struct {
 	Proxy    string `json:"proxy"`
 }
 
+type TransformationRules struct {
+	DeploymentPattern string `mapstructure:"deploymentPattern" json:"deploymentPattern"`
+}
+
 func (JenkinsConnection) TableName() string {
 	return "_tool_jenkins_connections"
 }

@@ -28,19 +28,20 @@ import (
 	"reflect"
 )
 
-var ConvertPipelineProjectMeta = core.SubTaskMeta{
-	Name:             "convertPipelineProjects",
-	EntryPoint:       ConvertPipelineProjects,
+var ConvertPipelineCommitMeta = core.SubTaskMeta{
+	Name:             "convertPipelineCommits",
+	EntryPoint:       ConvertPipelineCommits,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_pipeline_project into domain layer table pipeline",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertPipelineProjects(taskCtx core.SubTaskContext) errors.Error {
+func ConvertPipelineCommits(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 
-	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabPipelineProject{}))
+	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabPipelineProject{}),
+		dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
 	if err != nil {
 		return err
 	}
@@ -60,18 +61,18 @@ func ConvertPipelineProjects(taskCtx core.SubTaskContext) errors.Error {
 			Table: RAW_PIPELINE_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			gitlabPipelineProject := inputRow.(*gitlabModels.GitlabPipelineProject)
+			gitlabPipelineCommit := inputRow.(*gitlabModels.GitlabPipelineProject)
 
-			domainPipelineRepo := &devops.CiCDPipelineCommit{
-				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipelineProject.PipelineId),
-				CommitSha:  gitlabPipelineProject.Sha,
-				Branch:     gitlabPipelineProject.Ref,
+			domainPipelineCommit := &devops.CiCDPipelineCommit{
+				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, gitlabPipelineCommit.PipelineId),
+				CommitSha:  gitlabPipelineCommit.Sha,
+				Branch:     gitlabPipelineCommit.Ref,
 				RepoId: didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{}).
-					Generate(gitlabPipelineProject.ConnectionId, gitlabPipelineProject.ProjectId),
+					Generate(gitlabPipelineCommit.ConnectionId, gitlabPipelineCommit.ProjectId),
 			}
 
 			return []interface{}{
-				domainPipelineRepo,
+				domainPipelineCommit,
 			}, nil
 		},
 	})

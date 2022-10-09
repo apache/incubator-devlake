@@ -34,6 +34,7 @@
  * @property {plain|token?} authentication
  * @property {string|object?} plugin
  * @property {string|object?} provider
+ * @property {string?} providerId
  * @property {<Array<DataEntity>>} entities
  * @property {boolean} multiConnection
  * @property {number|string?} status
@@ -41,7 +42,7 @@
  * @property {<Array<string>>?} errors
  */
 class Connection {
-  constructor (data = {}) {
+  constructor(data = {}) {
     this.id = parseInt(data?.id, 10) || null
     this.connectionId = parseInt(data?.connectionId, 10) || this.id
     this.name = data?.name || ''
@@ -61,6 +62,7 @@ class Connection {
     this.plugin = data?.plugin || null
     // @todo: will be replaced out by $this.plugin
     this.provider = data?.provider || null
+    this.providerId = data?.providerId || null
     this.entities = data?.entities || []
     this.multiConnection = data?.multiConnection || true
     this.status = data?.status || null
@@ -72,16 +74,16 @@ class Connection {
     this.determineAuthentication()
   }
 
-  get (property) {
+  get(property) {
     return this[property]
   }
 
-  set (property, value) {
+  set(property, value) {
     this[property] = value
     return this.property
   }
 
-  determineAuthentication () {
+  determineAuthentication() {
     if (this.token !== null && this.token !== '') {
       this.authentication = 'token'
     } else {

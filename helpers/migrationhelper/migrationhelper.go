@@ -24,12 +24,12 @@ import (
 
 // MigrationHelper offers useful functions to help you writing migration script
 type MigrationHelper struct {
-	basicRes core.BasicRes
+	core.BasicRes
 }
 
 // AutoMigrateTables runs AutoMigrate for muliple tables
-func (m *MigrationHelper) AutoMigrateTables(dst ...interface{}) errors.Error {
-	db := m.basicRes.GetDal()
+func (h *MigrationHelper) AutoMigrateTables(dst ...interface{}) errors.Error {
+	db := h.GetDal()
 	for _, entity := range dst {
 		err := db.AutoMigrate(entity)
 		if err != nil {

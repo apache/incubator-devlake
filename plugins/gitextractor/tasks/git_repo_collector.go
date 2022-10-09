@@ -18,11 +18,11 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"strings"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 )
 
 type GitExtractorOptions struct {
@@ -45,9 +45,6 @@ func (o GitExtractorOptions) Valid() errors.Error {
 	url := strings.TrimPrefix(o.Url, "ssh://")
 	if !(strings.HasPrefix(o.Url, "http") || strings.HasPrefix(url, "git@") || strings.HasPrefix(o.Url, "/")) {
 		return errors.BadInput.New("wrong url")
-	}
-	if o.Proxy != "" && !strings.HasPrefix(o.Proxy, "http://") {
-		return errors.BadInput.New("only support http proxy")
 	}
 	return nil
 }
@@ -85,12 +82,31 @@ func CollectGitTags(subTaskCtx core.SubTaskContext) errors.Error {
 	return repo.CollectTags(subTaskCtx)
 }
 
+func CollectGitDiffLines(subTaskCtx core.SubTaskContext) errors.Error {
+	repo := getGitRepo(subTaskCtx)
+	if count, err := repo.CountTags(); err != nil {
+		subTaskCtx.GetLogger().Error(err, "unable to get line content")
+		subTaskCtx.SetProgress(0, -1)
+	} else {
+		subTaskCtx.SetProgress(0, count)
+	}
+	return repo.CollectDiffLine(subTaskCtx)
+}
+
 func getGitRepo(subTaskCtx core.SubTaskContext) *parser.GitRepo {
 	repo, ok := subTaskCtx.GetData().(*parser.GitRepo)
 	if !ok {
 		panic("git repo reference not found on context")
 	}
 	return repo
+}
+
+var CollectGitDiffLineMeta = core.SubTaskMeta{
+	Name:             "collectDiffLine",
+	EntryPoint:       CollectGitDiffLines,
+	EnabledByDefault: false,
+	Description:      "collect git commit diff line into Domain Layer Tables",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
 
 var CollectGitCommitMeta = core.SubTaskMeta{

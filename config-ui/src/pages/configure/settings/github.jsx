@@ -26,19 +26,22 @@ import {
   Colors,
   Icon,
   Popover,
-  Position
+  Position,
+  Intent
 } from '@blueprintjs/core'
 import { DataEntityTypes } from '@/data/DataEntities'
+import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
-export default function GithubSettings (props) {
+export default function GithubSettings(props) {
   const {
-    // eslint-disable-next-line no-unused-vars
+    provider,
     connection,
     entities = [],
     transformation = {},
+    entityIdKey,
     isSaving,
     isSavingConnection,
     onSettingsChange = () => {},
@@ -47,25 +50,45 @@ export default function GithubSettings (props) {
 
   // eslint-disable-next-line no-unused-vars
   const [errors, setErrors] = useState([])
-  const [enableAdditionalCalculations, setEnableAdditionalCalculations] = useState(false)
+  const [enableAdditionalCalculations, setEnableAdditionalCalculations] =
+    useState(false)
 
   // eslint-disable-next-line no-unused-vars
-  const handleSettingsChange = useCallback((setting) => {
-    onSettingsChange(setting, configuredProject?.id)
-  }, [onSettingsChange, configuredProject])
+  const handleSettingsChange = useCallback(
+    (setting) => {
+      onSettingsChange(setting, configuredProject?.id)
+    },
+    [onSettingsChange, configuredProject]
+  )
 
-  const handleAdditionalSettings = useCallback((setting) => {
-    setEnableAdditionalCalculations(setting)
-    onSettingsChange({ refdiff: setting ? { tagsOrder: '', tagsPattern: '', tagsLimit: 10, } : null }, configuredProject?.id)
-  }, [setEnableAdditionalCalculations, configuredProject, onSettingsChange])
+  const handleAdditionalSettings = useCallback(
+    (setting) => {
+      setEnableAdditionalCalculations(setting)
+      onSettingsChange(
+        {
+          refdiff: setting
+            ? { tagsOrder: '', tagsPattern: '', tagsLimit: 10 }
+            : null
+        },
+        configuredProject?.id
+      )
+    },
+    [setEnableAdditionalCalculations, configuredProject, onSettingsChange]
+  )
 
   useEffect(() => {
-    console.log('>>>> TRANSFORMATION SETTINGS OBJECT....', transformation)
+    console.log(
+      '>>>> GITHUB: TRANSFORMATION SETTINGS OBJECT....',
+      transformation
+    )
     setEnableAdditionalCalculations(!!transformation?.refdiff)
   }, [transformation])
 
   useEffect(() => {
-    console.log('>>>> ENABLE GITHUB ADDITIONAL SETTINGS..?', enableAdditionalCalculations)
+    console.log(
+      '>>>> GITHUB: ENABLE GITHUB ADDITIONAL SETTINGS..?',
+      enableAdditionalCalculations
+    )
     if (enableAdditionalCalculations === 'disabled') {
       // onSettingsChange({gitextractorCalculation: ''}, configuredProject)
     }
@@ -73,13 +96,19 @@ export default function GithubSettings (props) {
 
   return (
     <>
-      {entities.some(e => e.value === DataEntityTypes.TICKET) && (
-        <><h5>Issue Tracking{' '} <Tag className='bp3-form-helper-text' minimal>RegExp</Tag></h5>
-          <p className=''>Map your issue labels with each category
-            to view corresponding metrics in the
-            dashboard.
+      {entities.some((e) => e.value === DataEntityTypes.TICKET) && (
+        <>
+          <h5>
+            Issue Tracking{' '}
+            <Tag className='bp3-form-helper-text' minimal>
+              RegExp
+            </Tag>
+          </h5>
+          <p className=''>
+            Map your issue labels with each category to view corresponding
+            metrics in the dashboard.
           </p>
-          <div style={{ }}>
+          <div style={{}}>
             <div className='formContainer'>
               <FormGroup
                 disabled={isSaving || isSavingConnection}
@@ -92,9 +121,14 @@ export default function GithubSettings (props) {
                 <InputGroup
                   id='github-issue-severity'
                   placeholder='severity/(.*)$'
-                // defaultValue={transformation?.issueSeverity}
+                  // defaultValue={transformation?.issueSeverity}
                   value={transformation?.issueSeverity}
-                  onChange={(e) => onSettingsChange({ issueSeverity: e.target.value }, configuredProject?.id)}
+                  onChange={(e) =>
+                    onSettingsChange(
+                      { issueSeverity: e.target.value },
+                      configuredProject?.id
+                    )
+                  }
                   disabled={isSaving || isSavingConnection}
                   className='input'
                   maxLength={255}
@@ -115,7 +149,12 @@ export default function GithubSettings (props) {
                   id='github-issue-component'
                   placeholder='component/(.*)$'
                   value={transformation?.issueComponent}
-                  onChange={(e) => onSettingsChange({ issueComponent: e.target.value }, configuredProject?.id)}
+                  onChange={(e) =>
+                    onSettingsChange(
+                      { issueComponent: e.target.value },
+                      configuredProject?.id
+                    )
+                  }
                   disabled={isSaving || isSavingConnection}
                   className='input'
                   maxLength={255}
@@ -135,7 +174,12 @@ export default function GithubSettings (props) {
                   id='github-issue-priority'
                   placeholder='(highest|high|medium|low)$'
                   value={transformation?.issuePriority}
-                  onChange={(e) => onSettingsChange({ issuePriority: e.target.value }, configuredProject?.id)}
+                  onChange={(e) =>
+                    onSettingsChange(
+                      { issuePriority: e.target.value },
+                      configuredProject?.id
+                    )
+                  }
                   disabled={isSaving || isSavingConnection}
                   className='input'
                   maxLength={255}
@@ -155,7 +199,12 @@ export default function GithubSettings (props) {
                   id='github-issue-requirement'
                   placeholder='(feat|feature|proposal|requirement)$'
                   value={transformation?.issueTypeRequirement}
-                  onChange={(e) => onSettingsChange({ issueTypeRequirement: e.target.value }, configuredProject?.id)}
+                  onChange={(e) =>
+                    onSettingsChange(
+                      { issueTypeRequirement: e.target.value },
+                      configuredProject?.id
+                    )
+                  }
                   disabled={isSaving || isSavingConnection}
                   className='input'
                   maxLength={255}
@@ -175,7 +224,12 @@ export default function GithubSettings (props) {
                   id='github-issue-bug'
                   placeholder='(bug|broken)$'
                   value={transformation?.issueTypeBug}
-                  onChange={(e) => onSettingsChange({ issueTypeBug: e.target.value }, configuredProject?.id)}
+                  onChange={(e) =>
+                    onSettingsChange(
+                      { issueTypeBug: e.target.value },
+                      configuredProject?.id
+                    )
+                  }
                   disabled={isSaving || isSavingConnection}
                   className='input'
                   maxLength={255}
@@ -186,7 +240,18 @@ export default function GithubSettings (props) {
               <FormGroup
                 disabled={isSaving || isSavingConnection}
                 inline={true}
-                label='Type/Incident'
+                label={
+                  <>
+                    Type/Incident
+                    <Tag
+                      intent={Intent.PRIMARY}
+                      style={{ fontSize: '10px', marginLeft: '5px' }}
+                      minimal
+                    >
+                      DORA
+                    </Tag>
+                  </>
+                }
                 labelFor='github-issue-incident'
                 className='formGroup'
                 contentClassName='formGroupContent'
@@ -195,7 +260,12 @@ export default function GithubSettings (props) {
                   id='github-issue-incident'
                   placeholder='(incident|p0|p1|p2)$'
                   value={transformation?.issueTypeIncident}
-                  onChange={(e) => onSettingsChange({ issueTypeIncident: e.target.value }, configuredProject?.id)}
+                  onChange={(e) =>
+                    onSettingsChange(
+                      { issueTypeIncident: e.target.value },
+                      configuredProject?.id
+                    )
+                  }
                   disabled={isSaving || isSavingConnection}
                   className='input'
                   maxLength={255}
@@ -206,11 +276,33 @@ export default function GithubSettings (props) {
         </>
       )}
 
-      {entities.some(e => e.value === DataEntityTypes.CODE_REVIEW) && (
-        <><h5>Code Review{' '} <Tag className='bp3-form-helper-text' minimal>RegExp</Tag></h5>
-          <p className=''>Map your pull requests labels with each category to view corresponding metrics in the dashboard.</p>
+      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) &&
+        configuredProject && (
+          <Deployment
+            provider={provider}
+            entities={entities}
+            entityIdKey={entityIdKey}
+            transformation={transformation}
+            connection={connection}
+            onSettingsChange={onSettingsChange}
+            isSaving={isSaving || isSavingConnection}
+          />
+        )}
 
-          <div style={{ }}>
+      {entities.some((e) => e.value === DataEntityTypes.CODE_REVIEW) && (
+        <>
+          <h5>
+            Code Review{' '}
+            <Tag className='bp3-form-helper-text' minimal>
+              RegExp
+            </Tag>
+          </h5>
+          <p className=''>
+            Map your pull requests labels with each category to view
+            corresponding metrics in the dashboard.
+          </p>
+
+          <div style={{}}>
             <div className='formContainer'>
               <FormGroup
                 disabled={isSaving || isSavingConnection}
@@ -224,7 +316,12 @@ export default function GithubSettings (props) {
                   id='github-pr-type'
                   placeholder='type/(.*)$'
                   value={transformation?.prType}
-                  onChange={(e) => onSettingsChange({ prType: e.target.value }, configuredProject?.id)}
+                  onChange={(e) =>
+                    onSettingsChange(
+                      { prType: e.target.value },
+                      configuredProject?.id
+                    )
+                  }
                   disabled={isSaving || isSavingConnection}
                   className='input'
                   maxLength={255}
@@ -244,7 +341,12 @@ export default function GithubSettings (props) {
                   id='github-pr-type'
                   placeholder='component/(.*)$'
                   value={transformation?.prComponent}
-                  onChange={(e) => onSettingsChange({ prComponent: e.target.value }, configuredProject?.id)}
+                  onChange={(e) =>
+                    onSettingsChange(
+                      { prComponent: e.target.value },
+                      configuredProject?.id
+                    )
+                  }
                   disabled={isSaving || isSavingConnection}
                   className='input'
                   maxLength={255}
@@ -253,7 +355,12 @@ export default function GithubSettings (props) {
             </div>
           </div>
 
-          <h5>PR-Issue Mapping{' '} <Tag className='bp3-form-helper-text' minimal>RegExp</Tag></h5>
+          <h5>
+            PR-Issue Mapping{' '}
+            <Tag className='bp3-form-helper-text' minimal>
+              RegExp
+            </Tag>
+          </h5>
           <p>
             Extract the issue numbers closed by pull requests. The issue numbers{' '}
             are parsed from PR bodies that meet the following RegEx.
@@ -263,7 +370,7 @@ export default function GithubSettings (props) {
             <FormGroup
               disabled={isSaving || isSavingConnection}
               inline={true}
-              label={(
+              label={
                 <>
                   PR Body Pattern
                   <Popover
@@ -274,20 +381,46 @@ export default function GithubSettings (props) {
                     enforceFocus={false}
                     usePortal={false}
                   >
-                    <Icon icon='help' size={12} color={Colors.GRAY3} style={{ marginLeft: '4px', marginBottom: '4px' }} />
-                    <div style={{ padding: '10px', width: '300px', maxWidth: '300px', fontSize: '10px' }}>
+                    <Icon
+                      icon='help'
+                      size={12}
+                      color={Colors.GRAY3}
+                      style={{ marginLeft: '4px', marginBottom: '4px' }}
+                    />
+                    <div
+                      style={{
+                        padding: '10px',
+                        width: '300px',
+                        maxWidth: '300px',
+                        fontSize: '10px'
+                      }}
+                    >
                       <p style={{ margin: '0 0 10px 0', lineHeight: '110%' }}>
-                        <Icon icon='tick-circle' size={10} color={Colors.GREEN4} style={{ marginRight: '4px' }} />
-                        Example 1: PR #321 body contains "<strong>Closes #1234</strong>" (PR #321 and issue #1234 will be mapped by the following RegEx)
+                        <Icon
+                          icon='tick-circle'
+                          size={10}
+                          color={Colors.GREEN4}
+                          style={{ marginRight: '4px' }}
+                        />
+                        Example 1: PR #321 body contains "
+                        <strong>Closes #1234</strong>" (PR #321 and issue #1234
+                        will be mapped by the following RegEx)
                       </p>
                       <p style={{ margin: 0, lineHeight: '110%' }}>
-                        <Icon icon='delete' size={10} color={Colors.RED4} style={{ marginRight: '4px' }} />
-                        Example 2: PR #321 body contains "<strong>Related to #1234</strong>" (PR #321 and issue #1234 will NOT be mapped by the following RegEx)
+                        <Icon
+                          icon='delete'
+                          size={10}
+                          color={Colors.RED4}
+                          style={{ marginRight: '4px' }}
+                        />
+                        Example 2: PR #321 body contains "
+                        <strong>Related to #1234</strong>" (PR #321 and issue
+                        #1234 will NOT be mapped by the following RegEx)
                       </p>
                     </div>
                   </Popover>
                 </>
-              )}
+              }
               labelFor='github-pr-body'
               className='formGroup'
               contentClassName='formGroupContent'
@@ -296,84 +429,125 @@ export default function GithubSettings (props) {
               <TextArea
                 id='github-pr-body'
                 className='textarea'
+                value={transformation?.prBodyClosePattern}
+                // eslint-disable-next-line max-len
                 placeholder='(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and )?(#|https:\/\/github.com\/%s\/%s\/issues\/)\d+[ ]*)+)'
-                onChange={(e) => onSettingsChange({ prBodyClosePattern: e.target.value }, configuredProject?.id)}
+                onChange={(e) =>
+                  onSettingsChange(
+                    { prBodyClosePattern: e.target.value },
+                    configuredProject?.id
+                  )
+                }
                 disabled={isSaving || isSavingConnection}
                 fill
                 rows={2}
                 growVertically={false}
-                autoFocus
-              >{transformation?.prBodyClosePattern}
-              </TextArea>
+              />
             </FormGroup>
           </div>
 
           <h5>Additional Settings</h5>
           <div>
-            <Checkbox checked={enableAdditionalCalculations} label='Enable calculation of commit and issue difference' onChange={(e) => handleAdditionalSettings(!enableAdditionalCalculations)} />
+            <Checkbox
+              checked={enableAdditionalCalculations}
+              label='Enable calculation of commit and issue difference'
+              onChange={(e) =>
+                handleAdditionalSettings(!enableAdditionalCalculations)
+              }
+            />
             {enableAdditionalCalculations && (
-            <>
-              <div className='additional-settings-refdiff'>
-                <FormGroup
-                  disabled={isSaving || isSavingConnection}
-                  inline={true}
-                  label='Tags Limit'
-                  className='formGroup'
-                  contentClassName='formGroupContent'
-                >
-                  <NumericInput
-                    id='refdiff-tags-limit'
+              <>
+                <div className='additional-settings-refdiff'>
+                  <FormGroup
                     disabled={isSaving || isSavingConnection}
-                    fill={true}
-                    placeholder='10'
-                    allowNumericCharactersOnly={true}
-                    onValueChange={(tagsLimitNumeric) => onSettingsChange({ refdiff: { ...transformation?.refdiff, tagsLimit: tagsLimitNumeric } }, configuredProject?.id)}
-                    value={transformation?.refdiff?.tagsLimit}
-                  />
-                </FormGroup>
-                <FormGroup
-                  disabled={isSaving || isSavingConnection}
-                  inline={true}
-                  label='Tags Pattern'
-                  className='formGroup'
-                  contentClassName='formGroupContent'
-                >
-                  <InputGroup
-                    id='refdiff-tags-pattern'
-                    placeholder='(regex)$'
-                    value={transformation?.refdiff?.tagsPattern}
-                    onChange={(e) => onSettingsChange({ refdiff: { ...transformation?.refdiff, tagsPattern: e.target.value } }, configuredProject?.id)}
+                    inline={true}
+                    label='Tags Limit'
+                    className='formGroup'
+                    contentClassName='formGroupContent'
+                  >
+                    <NumericInput
+                      id='refdiff-tags-limit'
+                      disabled={isSaving || isSavingConnection}
+                      fill={true}
+                      placeholder='10'
+                      allowNumericCharactersOnly={true}
+                      onValueChange={(tagsLimitNumeric) =>
+                        onSettingsChange(
+                          {
+                            refdiff: {
+                              ...transformation?.refdiff,
+                              tagsLimit: tagsLimitNumeric
+                            }
+                          },
+                          configuredProject?.id
+                        )
+                      }
+                      value={transformation?.refdiff?.tagsLimit}
+                    />
+                  </FormGroup>
+                  <FormGroup
                     disabled={isSaving || isSavingConnection}
-                    className='input'
-                    maxLength={255}
-                  />
-                </FormGroup>
-                <FormGroup
-                  disabled={isSaving || isSavingConnection}
-                  inline={true}
-                  label='Tags Order'
-                  className='formGroup'
-                  contentClassName='formGroupContent'
-                >
-                  <InputGroup
-                    id='refdiff-tags-order'
-                    placeholder='reverse semver'
-                    value={transformation?.refdiff?.tagsOrder}
-                    onChange={(e) => onSettingsChange({ refdiff: { ...transformation?.refdiff, tagsOrder: e.target.value } }, configuredProject?.id)}
+                    inline={true}
+                    label='Tags Pattern'
+                    className='formGroup'
+                    contentClassName='formGroupContent'
+                  >
+                    <InputGroup
+                      id='refdiff-tags-pattern'
+                      placeholder='(regex)$'
+                      value={transformation?.refdiff?.tagsPattern}
+                      onChange={(e) =>
+                        onSettingsChange(
+                          {
+                            refdiff: {
+                              ...transformation?.refdiff,
+                              tagsPattern: e.target.value
+                            }
+                          },
+                          configuredProject?.id
+                        )
+                      }
+                      disabled={isSaving || isSavingConnection}
+                      className='input'
+                      maxLength={255}
+                    />
+                  </FormGroup>
+                  <FormGroup
                     disabled={isSaving || isSavingConnection}
-                    className='input'
-                    maxLength={255}
-                  />
-                </FormGroup>
-              </div>
-
-            </>
+                    inline={true}
+                    label='Tags Order'
+                    className='formGroup'
+                    contentClassName='formGroupContent'
+                  >
+                    <InputGroup
+                      id='refdiff-tags-order'
+                      placeholder='reverse semver'
+                      value={transformation?.refdiff?.tagsOrder}
+                      onChange={(e) =>
+                        onSettingsChange(
+                          {
+                            refdiff: {
+                              ...transformation?.refdiff,
+                              tagsOrder: e.target.value
+                            }
+                          },
+                          configuredProject?.id
+                        )
+                      }
+                      disabled={isSaving || isSavingConnection}
+                      className='input'
+                      maxLength={255}
+                    />
+                  </FormGroup>
+                </div>
+              </>
             )}
           </div>
         </>
       )}
 
-      {(entities?.length === 0 || entities.every(e => e.value === DataEntityTypes.CROSSDOMAIN)) && (
+      {(entities?.length === 0 ||
+        entities.every((e) => e.value === DataEntityTypes.CROSSDOMAIN)) && (
         <div className='headlineContainer'>
           <h5>No Data Entities</h5>
           <p className='description'>
@@ -381,7 +555,6 @@ export default function GithubSettings (props) {
           </p>
         </div>
       )}
-
     </>
   )
 }

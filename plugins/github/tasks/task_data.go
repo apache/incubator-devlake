@@ -82,8 +82,8 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOption
 	if op.IssueTypeRequirement == "" {
 		op.IssueTypeRequirement = "^(feat|feature|proposal|requirement)$"
 	}
-	if op.DeployTagPattern == "" {
-		op.DeployTagPattern = "(?i)deploy"
+	if op.DeploymentPattern == "" {
+		op.DeploymentPattern = "(?i)deploy"
 	}
 
 	// find the needed GitHub now

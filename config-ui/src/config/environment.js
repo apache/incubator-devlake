@@ -17,6 +17,4 @@
  */
 const ENVIRONMENT = process.env.NODE_ENV
 
-export {
-  ENVIRONMENT
-}
+export { ENVIRONMENT }

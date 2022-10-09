@@ -51,10 +51,10 @@ func (w Worklog) ToToolLayer(connectionId uint64, issueUpdated *time.Time) *mode
 		IssueUpdated:     issueUpdated,
 	}
 	if w.Author != nil {
-		result.AuthorId = w.Author.EmailAddress
+		result.AuthorId = w.Author.getAccountId()
 	}
 	if w.UpdateAuthor != nil {
-		result.UpdateAuthorId = w.UpdateAuthor.EmailAddress
+		result.UpdateAuthorId = w.UpdateAuthor.getAccountId()
 	}
 	return result
 }

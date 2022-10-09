@@ -18,10 +18,12 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom'
-
 import App from './App'
+import { UIContextProvider } from '@/store/UIContext'
 
 ReactDOM.render(
-  <App />,
+  <UIContextProvider>
+    <App />
+  </UIContextProvider>,
   document.getElementById('app')
 )

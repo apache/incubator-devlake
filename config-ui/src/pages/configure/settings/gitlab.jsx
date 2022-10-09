@@ -18,52 +18,48 @@
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { DataEntityTypes } from '@/data/DataEntities'
+import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
 
-export default function GitlabSettings (props) {
+export default function GitlabSettings(props) {
   const {
     connection,
     entities = [],
-    // eslint-disable-next-line max-len
     transformation = {},
+    entityIdKey,
     provider,
+    projects,
+    configuredProject,
+    isSaving = false,
+    isSavingConnection = false,
     onSettingsChange = () => {}
   } = props
-  const history = useHistory()
 
   useEffect(() => {
-    const settings = {
-      // no additional settings
-    }
-    onSettingsChange(settings)
-    console.log('>> GITLAB INSTANCE SETTINGS FIELDS CHANGED!', settings)
-  }, [
-    onSettingsChange
-  ])
-
-  // eslint-disable-next-line max-len
-  const cancel = () => {
-    history.push(`/integrations/${provider.id}`)
-  }
-
-  useEffect(() => {
-    if (connection && connection.id) {
-      console.log('>> GITLAB CONNECTION OBJECT RECEIVED...', connection)
-    } else {
-      console.log('>>>> WARNING!! NO CONNECTION OBJECT', connection)
-    }
-  }, [connection])
+    console.log(
+      '>>>> GITLAB: TRANSFORMATION SETTINGS OBJECT....',
+      transformation
+    )
+  }, [transformation])
 
   return (
     <>
-      <div className='headlineContainer'>
-        <h5>No Additional Settings</h5>
-        <p className='description'>
-          This project doesn’t require any configuration.
-        </p>
-      </div>
+      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) &&
+      configuredProject ? (
+        <Deployment
+          provider={provider}
+          entities={entities}
+          entityIdKey={entityIdKey}
+          transformation={transformation}
+          connection={connection}
+          onSettingsChange={onSettingsChange}
+          isSaving={isSaving || isSavingConnection}
+        />
+      ) : (
+        <></>
+      )}
     </>
   )
 }

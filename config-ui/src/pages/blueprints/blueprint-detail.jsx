@@ -42,7 +42,13 @@ import {
 import { NullBlueprint } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
 import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
-import { StageStatus, TaskStatus, TaskStatusLabels, StatusColors, StatusBgColors } from '@/data/Task'
+import {
+  StageStatus,
+  TaskStatus,
+  TaskStatusLabels,
+  StatusColors,
+  StatusBgColors
+} from '@/data/Task'
 
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
@@ -114,7 +120,7 @@ const BlueprintDetail = (props) => {
     saveBlueprint,
     deleteBlueprint,
     saveComplete,
-    deleteComplete,
+    deleteComplete
   } = useBlueprintManager()
 
   const {
@@ -145,10 +151,10 @@ const BlueprintDetail = (props) => {
   const buildPipelineStages = useCallback((tasks = []) => {
     let stages = {}
     console.log('>>>> RECEIVED PIPELINE TASKS FOR STAGE...', tasks)
-    tasks?.forEach(tS => {
+    tasks?.forEach((tS) => {
       stages = {
         ...stages,
-        [tS.pipelineRow]: tasks?.filter(t => t.pipelineRow === tS.pipelineRow)
+        [tS.pipelineRow]: tasks?.filter((t) => t.pipelineRow === tS.pipelineRow)
       }
     })
     console.log('>>> BUILDING PIPELINE STAGES...', stages)
@@ -161,15 +167,18 @@ const BlueprintDetail = (props) => {
     }
   }, [activeBlueprint, runPipeline])
 
-  const handleBlueprintActivation = useCallback((blueprint) => {
-    if (blueprint.enable) {
-      deactivateBlueprint(blueprint)
-    } else {
-      activateBlueprint(blueprint)
-    }
-    // fetchBlueprint(blueprint?.id)
-    // fetchAllPipelines()
-  }, [activateBlueprint, deactivateBlueprint])
+  const handleBlueprintActivation = useCallback(
+    (blueprint) => {
+      if (blueprint.enable) {
+        deactivateBlueprint(blueprint)
+      } else {
+        activateBlueprint(blueprint)
+      }
+      // fetchBlueprint(blueprint?.id)
+      // fetchAllPipelines()
+    },
+    [activateBlueprint, deactivateBlueprint]
+  )
 
   const handlePipelineDialogClose = useCallback(() => {
     setExpandRun(null)
@@ -180,18 +189,23 @@ const BlueprintDetail = (props) => {
     setShowInspector(true)
   }, [])
 
-  const viewPipelineRun = useCallback((pipelineRun) => {
-    const fetchPipelineTasks = async () => {
-      const t = await request.get(`${DEVLAKE_ENDPOINT}/pipelines/${pipelineRun?.id}/tasks`)
-      setExpandRun({
-        ...pipelineRun,
-        tasks: t.data?.tasks || []
-      })
-    }
-    if (pipelineRun?.id !== null) {
-      fetchPipelineTasks()
-    }
-  }, [setExpandRun])
+  const viewPipelineRun = useCallback(
+    (pipelineRun) => {
+      const fetchPipelineTasks = async () => {
+        const t = await request.get(
+          `${DEVLAKE_ENDPOINT}/pipelines/${pipelineRun?.id}/tasks`
+        )
+        setExpandRun({
+          ...pipelineRun,
+          tasks: t.data?.tasks || []
+        })
+      }
+      if (pipelineRun?.id !== null) {
+        fetchPipelineTasks()
+      }
+    },
+    [setExpandRun]
+  )
 
   const handleInspectorClose = useCallback(() => {
     setInspectedPipeline(NullPipelineRun)
@@ -223,30 +237,41 @@ const BlueprintDetail = (props) => {
     return icon
   }
 
-  const downloadPipelineLog = useCallback((pipeline) => {
-    console.log(`>>> DOWNLOADING PIPELINE #${pipeline?.id}  LOG...`, getPipelineLogfile(pipeline?.id))
-    setIsDownloading(true)
-    ToastNotification.clear()
-    let downloadStatus = 404
-    const checkStatusAndDownload = async (pipeline) => {
-      const d = await request.get(getPipelineLogfile(pipeline?.id))
-      downloadStatus = d?.status
-      if (pipeline?.id && downloadStatus === 200) {
-        saveAs(
-          getPipelineLogfile(pipeline?.id),
-          pipelineLogFilename
-        )
-        setIsDownloading(false)
-      } else if (pipeline?.id && downloadStatus === 404) {
-        ToastNotification.show({ message: d?.message || 'Logfile not available', intent: 'danger', icon: 'error' })
-        setIsDownloading(false)
-      } else {
-        ToastNotification.show({ message: 'Pipeline Invalid or Missing', intent: 'danger', icon: 'error' })
-        setIsDownloading(false)
+  const downloadPipelineLog = useCallback(
+    (pipeline) => {
+      console.log(
+        `>>> DOWNLOADING PIPELINE #${pipeline?.id}  LOG...`,
+        getPipelineLogfile(pipeline?.id)
+      )
+      setIsDownloading(true)
+      ToastNotification.clear()
+      let downloadStatus = 404
+      const checkStatusAndDownload = async (pipeline) => {
+        const d = await request.get(getPipelineLogfile(pipeline?.id))
+        downloadStatus = d?.status
+        if (pipeline?.id && downloadStatus === 200) {
+          saveAs(getPipelineLogfile(pipeline?.id), pipelineLogFilename)
+          setIsDownloading(false)
+        } else if (pipeline?.id && downloadStatus === 404) {
+          ToastNotification.show({
+            message: d?.message || 'Logfile not available',
+            intent: 'danger',
+            icon: 'error'
+          })
+          setIsDownloading(false)
+        } else {
+          ToastNotification.show({
+            message: 'Pipeline Invalid or Missing',
+            intent: 'danger',
+            icon: 'error'
+          })
+          setIsDownloading(false)
+        }
       }
-    }
-    checkStatusAndDownload(pipeline)
-  }, [getPipelineLogfile, pipelineLogFilename])
+      checkStatusAndDownload(pipeline)
+    },
+    [getPipelineLogfile, pipelineLogFilename]
+  )
 
   useEffect(() => {
     setBlueprintId(bId)
@@ -267,7 +292,7 @@ const BlueprintDetail = (props) => {
         ...b,
         ...blueprint,
         id: blueprint.id,
-        name: blueprint.name,
+        name: blueprint.name
       }))
       setBlueprintConnections(
         blueprint?.settings?.connections.map((connection, cIdx) => ({
@@ -279,13 +304,13 @@ const BlueprintDetail = (props) => {
           dataScope: connection?.scope
             .map((s) => [`${s.options?.owner}/${s?.options?.repo}`])
             .join(', '),
-          dataEntities: [],
+          dataEntities: []
         }))
       )
       setPipelineSettings({
         name: `${blueprint?.name} ${Date.now()}`,
         blueprintId: blueprint?.id,
-        plan: blueprint?.plan,
+        plan: blueprint?.plan
       })
     }
   }, [blueprint, setPipelineSettings])
@@ -311,13 +336,24 @@ const BlueprintDetail = (props) => {
         duration:
           p.beganAt && p.finishedAt
             ? dayjs(p.beganAt).from(p.finishedAt, true)
-            : (p.beganAt ? dayjs(p.beganAt).toNow(true) : ' - '),
+            : p.beganAt &&
+              [TaskStatus.RUNNING, TaskStatus.CREATED].includes(p?.status)
+            ? dayjs(p.beganAt).toNow(true)
+            : ' - '
       }))
     )
   }, [blueprintPipelines, setHistoricalRuns])
 
   useEffect(() => {
-    if (lastPipeline?.id && [TaskStatus.CREATED, TaskStatus.RUNNING, TaskStatus.COMPLETE, TaskStatus.FAILED].includes(lastPipeline.status)) {
+    if (
+      lastPipeline?.id &&
+      [
+        TaskStatus.CREATED,
+        TaskStatus.RUNNING,
+        TaskStatus.COMPLETE,
+        TaskStatus.FAILED
+      ].includes(lastPipeline.status)
+    ) {
       fetchPipeline(lastPipeline?.id)
       setCurrentRun((cR) => ({
         ...cR,
@@ -325,24 +361,24 @@ const BlueprintDetail = (props) => {
         status: lastPipeline.status,
         statusLabel: TaskStatusLabels[lastPipeline.status],
         icon: getTaskStatusIcon(lastPipeline.status),
-        startedAt: lastPipeline.beganAt ? dayjs(lastPipeline.beganAt).format('L LTS') : '-',
-        duration:
-          [TaskStatus.CREATED, TaskStatus.RUNNING].includes(lastPipeline.status)
-            ? dayjs(lastPipeline.beganAt || lastPipeline.createdAt).toNow(true)
-            : dayjs(lastPipeline.beganAt).from(
+        startedAt: lastPipeline.beganAt
+          ? dayjs(lastPipeline.beganAt).format('L LTS')
+          : '-',
+        duration: [TaskStatus.CREATED, TaskStatus.RUNNING].includes(
+          lastPipeline.status
+        )
+          ? dayjs(lastPipeline.beganAt || lastPipeline.createdAt).toNow(true)
+          : dayjs(lastPipeline.beganAt).from(
               lastPipeline.finishedAt || lastPipeline.updatedAt,
               true
             ),
         stage: `Stage ${lastPipeline.stage}`,
         tasksFinished: Number(lastPipeline.finishedTasks),
         tasksTotal: Number(lastPipeline.totalTasks),
-        error: lastPipeline.message || null,
+        error: lastPipeline.message || null
       }))
     }
-  }, [
-    fetchPipeline,
-    lastPipeline
-  ])
+  }, [fetchPipeline, lastPipeline])
 
   useEffect(() => {
     fetchAllPipelines()
@@ -351,14 +387,20 @@ const BlueprintDetail = (props) => {
   useEffect(() => {
     if (activePipeline?.id && activePipeline?.id !== null) {
       setCurrentStages(buildPipelineStages(activePipeline.tasks))
-      setAutoRefresh([TaskStatus.RUNNING, TaskStatus.CREATED].includes(activePipeline?.status))
+      setAutoRefresh(
+        [TaskStatus.RUNNING, TaskStatus.CREATED].includes(
+          activePipeline?.status
+        )
+      )
       setCurrentRun((cR) => ({
         ...cR,
-        startedAt: activePipeline?.beganAt ? dayjs(activePipeline?.beganAt).format('L LTS') : '-',
+        startedAt: activePipeline?.beganAt
+          ? dayjs(activePipeline?.beganAt).format('L LTS')
+          : '-',
         stage: `Stage ${activePipeline.stage}`,
         status: activePipeline?.status,
         statusLabel: TaskStatusLabels[activePipeline?.status],
-        icon: getTaskStatusIcon(activePipeline?.status),
+        icon: getTaskStatusIcon(activePipeline?.status)
       }))
     }
   }, [activePipeline, buildPipelineStages])
@@ -382,7 +424,13 @@ const BlueprintDetail = (props) => {
         fetchAllPipelines()
       }
     }
-  }, [autoRefresh, fetchPipeline, fetchAllPipelines, activePipeline?.id, pollTimer])
+  }, [
+    autoRefresh,
+    fetchPipeline,
+    fetchAllPipelines,
+    activePipeline?.id,
+    pollTimer
+  ])
 
   // useEffect(() => {
   //   console.log('>> VIEW PIPELINE RUN....', expandRun)
@@ -401,7 +449,7 @@ const BlueprintDetail = (props) => {
                 display: 'flex',
                 width: '100%',
                 justifyContent: 'space-between',
-                marginBottom: '10px',
+                marginBottom: '10px'
               }}
             >
               <div className='blueprint-name' style={{}}>
@@ -424,16 +472,16 @@ const BlueprintDetail = (props) => {
                   </span>{' '}
                   &nbsp;{' '}
                   <span className='blueprint-schedule-nextrun'>
-                    {activeBlueprint?.isManual
-                      ? <strong>Manual Mode</strong>
-                      : (
-                        <>
-                          Next Run{' '}
-                          {dayjs(
-                            getNextRunDate(activeBlueprint?.cronConfig)
-                          ).fromNow()}
-                        </>
-                        )}
+                    {activeBlueprint?.isManual ? (
+                      <strong>Manual Mode</strong>
+                    ) : (
+                      <>
+                        Next Run{' '}
+                        {dayjs(
+                          getNextRunDate(activeBlueprint?.cronConfig)
+                        ).fromNow()}
+                      </>
+                    )}
                   </span>
                 </div>
                 <div
@@ -445,7 +493,12 @@ const BlueprintDetail = (props) => {
                     small
                     text='Run Now'
                     onClick={runBlueprint}
-                    disabled={!activeBlueprint?.enable || currentRun?.status === TaskStatus.RUNNING}
+                    disabled={
+                      !activeBlueprint?.enable ||
+                      [TaskStatus.CREATED, TaskStatus.RUNNING].includes(
+                        currentRun?.status
+                      )
+                    }
                   />
                 </div>
                 <div className='blueprint-enabled'>
@@ -459,7 +512,11 @@ const BlueprintDetail = (props) => {
                         : 'Blueprint Disabled'
                     }
                     onChange={() => handleBlueprintActivation(activeBlueprint)}
-                    style={{ marginBottom: 0, marginTop: 0, color: !activeBlueprint?.enable ? Colors.GRAY3 : 'inherit' }}
+                    style={{
+                      marginBottom: 0,
+                      marginTop: 0,
+                      color: !activeBlueprint?.enable ? Colors.GRAY3 : 'inherit'
+                    }}
                     disabled={currentRun?.status === TaskStatus.RUNNING}
                   />
                 </div>
@@ -475,16 +532,14 @@ const BlueprintDetail = (props) => {
               </div>
             </div>
 
-            <BlueprintNavigationLinks
-              blueprint={activeBlueprint}
-            />
+            <BlueprintNavigationLinks blueprint={activeBlueprint} />
 
             <div
               className='blueprint-run'
               style={{
                 width: '100%',
                 alignSelf: 'flex-start',
-                minWidth: '750px',
+                minWidth: '750px'
               }}
             >
               <h3>Current Run</h3>
@@ -534,15 +589,14 @@ const BlueprintDetail = (props) => {
                         Tasks Completed
                       </label>
                       <h4 style={{ fontSize: '15px', margin: 0, padding: 0 }}>
-                        {currentRun?.tasksFinished} /{' '}
-                        {currentRun?.tasksTotal}
+                        {currentRun?.tasksFinished} / {currentRun?.tasksTotal}
                       </h4>
                     </div>
                     <div
                       style={{
                         display: 'flex',
                         justifyContent: 'center',
-                        alignItems: 'center',
+                        alignItems: 'center'
                       }}
                     >
                       <div style={{ display: 'block' }}>
@@ -569,7 +623,7 @@ const BlueprintDetail = (props) => {
                               style={{
                                 fontSize: '12px',
                                 padding: '12px',
-                                maxWidth: '200px',
+                                maxWidth: '200px'
                               }}
                             >
                               <p>
@@ -580,7 +634,7 @@ const BlueprintDetail = (props) => {
                                 style={{
                                   display: 'flex',
                                   width: '100%',
-                                  justifyContent: 'flex-end',
+                                  justifyContent: 'flex-end'
                                 }}
                               >
                                 <Button
@@ -590,7 +644,7 @@ const BlueprintDetail = (props) => {
                                   className={Classes.POPOVER_DISMISS}
                                   style={{
                                     marginLeft: 'auto',
-                                    marginRight: '3px',
+                                    marginRight: '3px'
                                   }}
                                 />
                                 <Button
@@ -634,19 +688,25 @@ const BlueprintDetail = (props) => {
                     style={{ display: 'flex', width: '100%' }}
                   >
                     <div
-                      className='pipeline-task-activity' style={{
+                      className='pipeline-task-activity'
+                      style={{
                         flex: 1,
-                        padding: Object.keys(currentStages).length === 1 ? '0' : 0,
+                        padding:
+                          Object.keys(currentStages).length === 1 ? '0' : 0,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis'
                       }}
                     >
                       {Object.keys(currentStages).length > 0 && (
-                        <div
-                          className='pipeline-multistage-activity'
-                        >
+                        <div className='pipeline-multistage-activity'>
                           {Object.keys(currentStages).map((sK, sIdx) => (
-                            <StageLane key={`stage-lane-key-${sIdx}`} stages={currentStages} sK={sK} sIdx={sIdx} showStageTasks={showCurrentRunTasks} />
+                            <StageLane
+                              key={`stage-lane-key-${sIdx}`}
+                              stages={currentStages}
+                              sK={sK}
+                              sIdx={sIdx}
+                              showStageTasks={showCurrentRunTasks}
+                            />
                           ))}
                         </div>
                       )}
@@ -664,7 +724,7 @@ const BlueprintDetail = (props) => {
                         display: 'block',
                         float: 'right',
                         margin: '0 10px',
-                        marginBottom: 'auto',
+                        marginBottom: 'auto'
                       }}
                       onClick={() => setShowCurrentRunTasks((s) => !s)}
                     />
@@ -678,7 +738,7 @@ const BlueprintDetail = (props) => {
               style={{
                 width: '100%',
                 alignSelf: 'flex-start',
-                minWidth: '750px',
+                minWidth: '750px'
               }}
             >
               <h3>Historical Runs</h3>
@@ -714,14 +774,14 @@ const BlueprintDetail = (props) => {
                           style={{
                             width: '15%',
                             whiteSpace: 'nowrap',
-                            borderBottom: '1px solid #f0f0f0',
+                            borderBottom: '1px solid #f0f0f0'
                           }}
                         >
                           <span
                             style={{
                               display: 'inline-block',
                               float: 'left',
-                              marginRight: '5px',
+                              marginRight: '5px'
                             }}
                           >
                             {run.statusIcon}
@@ -732,7 +792,7 @@ const BlueprintDetail = (props) => {
                           style={{
                             width: '25%',
                             whiteSpace: 'nowrap',
-                            borderBottom: '1px solid #f0f0f0',
+                            borderBottom: '1px solid #f0f0f0'
                           }}
                         >
                           {run.startedAt}
@@ -741,7 +801,7 @@ const BlueprintDetail = (props) => {
                           style={{
                             width: '25%',
                             whiteSpace: 'nowrap',
-                            borderBottom: '1px solid #f0f0f0',
+                            borderBottom: '1px solid #f0f0f0'
                           }}
                         >
                           {run.completedAt}
@@ -750,7 +810,7 @@ const BlueprintDetail = (props) => {
                           style={{
                             width: '15%',
                             whiteSpace: 'nowrap',
-                            borderBottom: '1px solid #f0f0f0',
+                            borderBottom: '1px solid #f0f0f0'
                           }}
                         >
                           {run.duration}
@@ -759,7 +819,7 @@ const BlueprintDetail = (props) => {
                           style={{
                             textAlign: 'right',
                             borderBottom: '1px solid #f0f0f0',
-                            whiteSpace: 'nowrap',
+                            whiteSpace: 'nowrap'
                           }}
                         >
                           <Tooltip intent={Intent.PRIMARY} content='View JSON'>
@@ -768,7 +828,13 @@ const BlueprintDetail = (props) => {
                               minimal
                               small
                               icon='code'
-                              onClick={() => inspectRun(blueprintPipelines.find(p => p.id === run.id))}
+                              onClick={() =>
+                                inspectRun(
+                                  blueprintPipelines.find(
+                                    (p) => p.id === run.id
+                                  )
+                                )
+                              }
                             />
                           </Tooltip>
                           <Tooltip
@@ -782,7 +848,13 @@ const BlueprintDetail = (props) => {
                               small
                               icon='document'
                               style={{ marginLeft: '10px' }}
-                              onClick={() => downloadPipelineLog(blueprintPipelines.find(p => p.id === run.id))}
+                              onClick={() =>
+                                downloadPipelineLog(
+                                  blueprintPipelines.find(
+                                    (p) => p.id === run.id
+                                  )
+                                )
+                              }
                             />
                           </Tooltip>
                           <Tooltip
@@ -793,9 +865,19 @@ const BlueprintDetail = (props) => {
                               intent={Intent.PRIMARY}
                               minimal
                               small
-                              icon={expandRun?.id === run.id ? 'chevron-down' : 'chevron-right'}
+                              icon={
+                                expandRun?.id === run.id
+                                  ? 'chevron-down'
+                                  : 'chevron-right'
+                              }
                               style={{ marginLeft: '10px' }}
-                              onClick={() => viewPipelineRun(blueprintPipelines.find(p => p.id === run.id))}
+                              onClick={() =>
+                                viewPipelineRun(
+                                  blueprintPipelines.find(
+                                    (p) => p.id === run.id
+                                  )
+                                )
+                              }
                             />
                           </Tooltip>
                         </td>
@@ -813,11 +895,19 @@ const BlueprintDetail = (props) => {
                 </table>
               </Card>
             </div>
-            {historicalRuns.length > 0 && <div style={{ alignSelf: 'flex-end', padding: '10px' }}>{renderPagnationControls()}</div>}
+            {historicalRuns.length > 0 && (
+              <div style={{ alignSelf: 'flex-end', padding: '10px' }}>
+                {renderPagnationControls()}
+              </div>
+            )}
           </main>
         </Content>
       </div>
-      <CodeInspector isOpen={showInspector} activePipeline={inspectedPipeline} onClose={handleInspectorClose} />
+      <CodeInspector
+        isOpen={showInspector}
+        activePipeline={inspectedPipeline}
+        onClose={handleInspectorClose}
+      />
       <Dialog
         className='dialog-view-pipeline'
         // icon=
@@ -830,12 +920,18 @@ const BlueprintDetail = (props) => {
       >
         <div className={Classes.DIALOG_BODY}>
           {Object.keys(buildPipelineStages(expandRun?.tasks)).length > 0 && (
-            <div
-              className='pipeline-multistage-activity'
-            >
-              {Object.keys(buildPipelineStages(expandRun?.tasks)).map((sK, sIdx) => (
-                <StageLane key={`stage-lane-key-${sIdx}`} stages={buildPipelineStages(expandRun?.tasks)} sK={sK} sIdx={sIdx} showStageTasks={true} />
-              ))}
+            <div className='pipeline-multistage-activity'>
+              {Object.keys(buildPipelineStages(expandRun?.tasks)).map(
+                (sK, sIdx) => (
+                  <StageLane
+                    key={`stage-lane-key-${sIdx}`}
+                    stages={buildPipelineStages(expandRun?.tasks)}
+                    sK={sK}
+                    sIdx={sIdx}
+                    showStageTasks={true}
+                  />
+                )
+              )}
             </div>
           )}
         </div>

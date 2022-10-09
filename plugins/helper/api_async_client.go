@@ -219,6 +219,17 @@ func (apiClient *ApiAsyncClient) DoGetAsync(
 	apiClient.DoAsync(http.MethodGet, path, query, nil, header, handler, 0)
 }
 
+// DoPostAsync Enqueue an api post request, the request may be sent sometime in future in parallel with other api requests
+func (apiClient *ApiAsyncClient) DoPostAsync(
+	path string,
+	query url.Values,
+	body interface{},
+	header http.Header,
+	handler common.ApiAsyncCallback,
+) {
+	apiClient.DoAsync(http.MethodPost, path, query, body, header, handler, 0)
+}
+
 // WaitAsync blocks until all async requests were done
 func (apiClient *ApiAsyncClient) WaitAsync() errors.Error {
 	return apiClient.scheduler.Wait()
@@ -247,6 +258,7 @@ func (apiClient *ApiAsyncClient) Release() {
 // RateLimitedApiClient FIXME ...
 type RateLimitedApiClient interface {
 	DoGetAsync(path string, query url.Values, header http.Header, handler common.ApiAsyncCallback)
+	DoPostAsync(path string, query url.Values, body interface{}, header http.Header, handler common.ApiAsyncCallback)
 	WaitAsync() errors.Error
 	HasError() bool
 	NextTick(task func() errors.Error)

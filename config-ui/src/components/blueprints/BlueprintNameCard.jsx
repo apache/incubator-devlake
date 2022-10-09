@@ -39,12 +39,11 @@ const BlueprintNameCard = (props) => {
       elevation={elevation}
       style={{ width: '100%', ...cardStyle }}
     >
-
       <h3>
         {advancedMode ? 'Advanced' : ''} Blueprint Name{' '}
         <span className='required-star'>*</span>
       </h3>
-      {enableDivider && (<Divider className='section-divider' />)}
+      {enableDivider && <Divider className='section-divider' />}
       <p>
         Give your Blueprint a unique name to help you identify it in the future.
       </p>

@@ -29,6 +29,8 @@ import (
 
 // CreateDbPipeline returns a NewPipeline
 func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, errors.Error) {
+	cronLocker.Lock()
+	defer cronLocker.Unlock()
 	planByte, err := errors.Convert01(json.Marshal(newPipeline.Plan))
 	if err != nil {
 		return nil, err

@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/impl"
+	"sync"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
@@ -40,6 +41,7 @@ var db *gorm.DB
 var basicRes core.BasicRes
 var migrator core.Migrator
 var cronManager *cron.Cron
+var cronLocker sync.Mutex
 
 const failToCreateCronJob = "created cron job failed"
 

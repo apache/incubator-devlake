@@ -31,11 +31,19 @@ func main() {
 	cmd := &cobra.Command{Use: "dora"}
 
 	repoId := cmd.Flags().StringP("repoId", "r", "", "repo id")
-	_ = cmd.MarkFlagRequired("repoId")
+	//_ = cmd.MarkFlagRequired("repoId")
+	productionPattern := cmd.Flags().String("productionPattern", "(?i)production", "environment production name")
+	stagingPattern := cmd.Flags().String("stagingPattern", "(?i)stag", "environment stag name")
+	testingPattern := cmd.Flags().String("testingPattern", "(?i)test", "environment test name")
+	prefix := cmd.Flags().StringP("prefix", "p", "", "id prefix")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"repoId": *repoId,
+			"repoId":            *repoId,
+			"prefix":            *prefix,
+			"productionPattern": *productionPattern,
+			"stagingPattern":    *stagingPattern,
+			"testingPattern":    *testingPattern,
 		})
 	}
 	runner.RunCmd(cmd)

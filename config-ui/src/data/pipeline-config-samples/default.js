@@ -48,6 +48,4 @@ const defaultConfig = [
   ]
 ]
 
-export {
-  defaultConfig
-}
+export { defaultConfig }

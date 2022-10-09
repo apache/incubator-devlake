@@ -18,11 +18,11 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/dora/impl"
 	"github.com/apache/incubator-devlake/plugins/dora/tasks"
@@ -36,8 +36,9 @@ func TestCalculateCLTimeDataFlow(t *testing.T) {
 		Options: &tasks.DoraOptions{
 			RepoId: "github:GithubRepo:1:384111310",
 			TransformationRules: tasks.TransformationRules{
-				Environment:      "staging",
-				EnvironmentRegex: "deploy",
+				ProductionPattern: "(?i)deploy",
+				StagingPattern:    "(?i)stag",
+				TestingPattern:    "(?i)test",
 			},
 		},
 	}
@@ -49,6 +50,7 @@ func TestCalculateCLTimeDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_request_comments.csv", &code.PullRequestComment{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_request_commits.csv", &code.PullRequestCommit{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/commits.csv", &code.Commit{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/repos.csv", &code.Repo{})
 
 	// verify converter
 	dataflowTester.Subtask(tasks.CalculateChangeLeadTimeMeta, taskData)

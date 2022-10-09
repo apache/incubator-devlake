@@ -274,7 +274,8 @@ func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan
 	if err != nil {
 		return nil, err
 	}
-
+	hasDoraEnrich := false
+	doraRules := make(map[string]interface{})
 	plans := make([]core.PipelinePlan, len(connections))
 	for i, connection := range connections {
 		if len(connection.Scope) == 0 {
@@ -292,9 +293,28 @@ func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan
 		} else {
 			return nil, errors.Default.New(fmt.Sprintf("plugin %s does not support blueprint protocol version 1.0.0", connection.Plugin))
 		}
+		for _, stage := range plans[i] {
+			for _, task := range stage {
+				if task.Plugin == "dora" {
+					hasDoraEnrich = true
+					for k, v := range task.Options {
+						doraRules[k] = v
+					}
+				}
+			}
+		}
 	}
-
 	mergedPipelinePlan := MergePipelinePlans(plans...)
+	if hasDoraEnrich {
+		plan := core.PipelineStage{
+			&core.PipelineTask{
+				Plugin:   "dora",
+				Subtasks: []string{"calculateChangeLeadTime", "ConnectIssueDeploy"},
+				Options:  doraRules,
+			},
+		}
+		mergedPipelinePlan = append(mergedPipelinePlan, plan)
+	}
 	return FormatPipelinePlans(settings.BeforePlan, mergedPipelinePlan, settings.AfterPlan)
 }
 

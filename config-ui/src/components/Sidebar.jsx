@@ -15,10 +15,10 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import {
   // BrowserRouter as Router,
-  useRouteMatch,
+  useRouteMatch
 } from 'react-router-dom'
 import { Card, Elevation } from '@blueprintjs/core'
 import request from '@/utils/request'
@@ -29,9 +29,11 @@ import { ReactComponent as Logo } from '@/images/devlake-logo.svg'
 import { ReactComponent as LogoText } from '@/images/devlake-textmark.svg'
 
 import '@/styles/sidebar.scss'
+import UIContext from '../store/UIContext'
 
 const Sidebar = () => {
   const activeRoute = useRouteMatch()
+  const uiContext = useContext(UIContext)
 
   const [menu, setMenu] = useState(MenuConfiguration(activeRoute))
   const [versionTag, setVersionTag] = useState('')
@@ -44,7 +46,7 @@ const Sidebar = () => {
     const fetchVersion = async () => {
       try {
         const versionUrl = `${DEVLAKE_ENDPOINT}/version`
-        const res = await request.get(versionUrl).catch(e => {
+        const res = await request.get(versionUrl).catch((e) => {
           console.log('>>> API VERSION ERROR...', e)
           setVersionTag('')
         })
@@ -56,8 +58,12 @@ const Sidebar = () => {
     fetchVersion()
   }, [])
 
-  return (
-    <Card interactive={false} elevation={Elevation.ZERO} className='card sidebar-card'>
+  return uiContext.sidebarVisible ? (
+    <Card
+      interactive={false}
+      elevation={Elevation.ZERO}
+      className='card sidebar-card'
+    >
       <div className='devlake-logo'>
         <Logo width={48} height={48} className='logo' />
         <LogoText width={100} height={13} className='logo-textmark' />
@@ -82,9 +88,12 @@ const Sidebar = () => {
       <SidebarMenu menu={menu} />
       <span className='copyright-tag'>
         {/* <span className='version-tag'>{versionTag || ''}</span><br /> */}
-        <strong>Apache 2.0 License</strong><br />
+        <strong>Apache 2.0 License</strong>
+        <br />
       </span>
     </Card>
+  ) : (
+    <></>
   )
 }
 

@@ -103,7 +103,7 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertMrLabelsMeta,
 		tasks.ConvertCommitsMeta,
 		tasks.ConvertPipelineMeta,
-		tasks.ConvertPipelineProjectMeta,
+		tasks.ConvertPipelineCommitMeta,
 		tasks.ConvertJobMeta,
 	}
 }

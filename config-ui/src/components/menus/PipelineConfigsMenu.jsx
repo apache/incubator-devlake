@@ -31,7 +31,7 @@ import { starRocksConfig as sampleStarRocksConfigPipelineConfig } from '@/data/p
 const PipelineConfigsMenu = (props) => {
   const {
     setRawConfiguration = () => {},
-    showTitle = false,
+    showTitle = false
     // advancedMode = false
   } = props
   return (
@@ -43,7 +43,7 @@ const PipelineConfigsMenu = (props) => {
             fontWeight: 800,
             textTransform: 'uppercase',
             padding: '6px 8px',
-            display: 'block',
+            display: 'block'
           }}
         >
           SAMPLE PIPELINE CONFIGURATIONS
@@ -53,7 +53,8 @@ const PipelineConfigsMenu = (props) => {
         icon='code'
         text='Load General Configuration'
         onClick={() =>
-          setRawConfiguration(JSON.stringify(samplePipelineConfig, null, '  '))}
+          setRawConfiguration(JSON.stringify(samplePipelineConfig, null, '  '))
+        }
       />
       <Menu.Item
         icon='code'
@@ -61,7 +62,8 @@ const PipelineConfigsMenu = (props) => {
         onClick={() =>
           setRawConfiguration(
             JSON.stringify(sampleRefdiffPipelineConfig, null, '  ')
-          )}
+          )
+        }
       />
       <Menu.Item
         icon='code'
@@ -69,7 +71,8 @@ const PipelineConfigsMenu = (props) => {
         onClick={() =>
           setRawConfiguration(
             JSON.stringify(sampleGitextractorPipelineConfig, null, '  ')
-          )}
+          )
+        }
       />
       <Menu.Item
         icon='code'
@@ -77,7 +80,8 @@ const PipelineConfigsMenu = (props) => {
         onClick={() =>
           setRawConfiguration(
             JSON.stringify(sampleGithubPipelineConfig, null, '  ')
-          )}
+          )
+        }
       />
       <Menu.Item
         icon='code'
@@ -85,7 +89,8 @@ const PipelineConfigsMenu = (props) => {
         onClick={() =>
           setRawConfiguration(
             JSON.stringify(sampleGitlabPipelineConfig, null, '  ')
-          )}
+          )
+        }
       />
       <Menu.Item
         icon='code'
@@ -93,7 +98,8 @@ const PipelineConfigsMenu = (props) => {
         onClick={() =>
           setRawConfiguration(
             JSON.stringify(sampleJiraPipelineConfig, null, '  ')
-          )}
+          )
+        }
       />
       <Menu.Item
         icon='code'
@@ -101,7 +107,8 @@ const PipelineConfigsMenu = (props) => {
         onClick={() =>
           setRawConfiguration(
             JSON.stringify(sampleJenkinsPipelineConfig, null, '  ')
-          )}
+          )
+        }
       />
       <Menu.Item
         icon='code'
@@ -109,7 +116,8 @@ const PipelineConfigsMenu = (props) => {
         onClick={() =>
           setRawConfiguration(
             JSON.stringify(sampleFeishuPipelineConfig, null, '  ')
-          )}
+          )
+        }
       />
       <Menu.Item
         icon='code'
@@ -117,7 +125,8 @@ const PipelineConfigsMenu = (props) => {
         onClick={() =>
           setRawConfiguration(
             JSON.stringify(sampleDbtPipelineConfig, null, '  ')
-          )}
+          )
+        }
       />
       <Menu.Item
         icon='code'
@@ -125,7 +134,8 @@ const PipelineConfigsMenu = (props) => {
         onClick={() =>
           setRawConfiguration(
             JSON.stringify(sampleStarRocksConfigPipelineConfig, null, '  ')
-          )}
+          )
+        }
       />
     </Menu>
   )

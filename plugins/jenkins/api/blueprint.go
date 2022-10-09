@@ -19,6 +19,7 @@ package api
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -30,12 +31,20 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
+		transformationRules := make(map[string]interface{})
+		if len(scopeElem.Transformation) > 0 {
+			err = errors.Convert(json.Unmarshal(scopeElem.Transformation, &transformationRules))
+			if err != nil {
+				return nil, err
+			}
+		}
 		taskOptions := make(map[string]interface{})
 		err = errors.Convert(json.Unmarshal(scopeElem.Options, &taskOptions))
 		if err != nil {
 			return nil, err
 		}
 		taskOptions["connectionId"] = connectionId
+		taskOptions["transformationRules"] = transformationRules
 		_, err := tasks.DecodeAndValidateTaskOptions(taskOptions)
 		if err != nil {
 			return nil, err
@@ -52,7 +61,37 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 				Options:  taskOptions,
 			},
 		}
-
+		if productionPattern, ok := transformationRules["productionPattern"]; ok && productionPattern != nil {
+			j := i + 1
+			if j == len(plan) {
+				plan = append(plan, nil)
+			}
+			// add a new task to next stage
+			if plan[j] != nil {
+				j++
+			}
+			if j == len(plan) {
+				plan = append(plan, nil)
+			}
+			if err != nil {
+				return nil, err
+			}
+			doraOption := make(map[string]interface{})
+			doraOption["tasks"] = []string{"EnrichTaskEnv"}
+			doraOption["prefix"] = "jenkins"
+			doraRules := make(map[string]interface{})
+			doraRules["productionPattern"] = productionPattern
+			doraOption["transformationRules"] = doraRules
+			plan[j] = core.PipelineStage{
+				{
+					Plugin:   "dora",
+					Subtasks: []string{"EnrichTaskEnv"},
+					Options:  doraOption,
+				},
+			}
+			// remove it from github transformationRules
+			delete(transformationRules, "productionPattern")
+		}
 		plan[i] = stage
 	}
 	return plan, nil

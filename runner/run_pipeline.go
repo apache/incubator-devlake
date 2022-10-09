@@ -18,8 +18,10 @@ limitations under the License.
 package runner
 
 import (
-	"github.com/apache/incubator-devlake/errors"
+	"fmt"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -47,6 +49,9 @@ func RunPipeline(
 	err = db.Where("pipeline_id = ?", dbPipeline.ID).Order("pipeline_row, pipeline_col").Find(&tasks).Error
 	if err != nil {
 		return errors.Convert(err)
+	}
+	if len(tasks) != dbPipeline.TotalTasks {
+		return errors.Internal.New(fmt.Sprintf("expected total tasks to be %v, got %v", dbPipeline.TotalTasks, len(tasks)))
 	}
 	// convert to 2d array
 	taskIds := make([][]uint64, 0)

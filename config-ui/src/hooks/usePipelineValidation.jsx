@@ -16,10 +16,10 @@
  *
  */
 import { useCallback, useEffect, useState } from 'react'
-import { Providers, } from '@/data/Providers'
+import { Providers } from '@/data/Providers'
 import { BlueprintMode } from '@/data/NullBlueprint'
 
-function usePipelineValidation ({
+function usePipelineValidation({
   activeStep,
   enabledProviders = [],
   pipelineName,
@@ -93,7 +93,7 @@ function usePipelineValidation ({
     setErrors(errs)
   }, [
     // enabledProviders,
-    pipelineName,
+    pipelineName
     // projectId,
     // boardId,
     // owner,
@@ -112,11 +112,22 @@ function usePipelineValidation ({
     const errs = []
     const parsed = []
     if (advancedMode) {
-      console.log('>> VALIDATING ADVANCED PIPELINE RUN ', tasksAdvanced, pipelineName)
+      console.log(
+        '>> VALIDATING ADVANCED PIPELINE RUN ',
+        tasksAdvanced,
+        pipelineName
+      )
 
       if (Array.isArray(tasksAdvanced)) {
         // eslint-disable-next-line max-len
-        setDetectedProviders([...new Set(tasksAdvanced?.flat().filter(aT => allowedProviders.includes(aT.Plugin || aT.plugin)).map(p => p.Plugin || p.plugin))])
+        setDetectedProviders([
+          ...new Set(
+            tasksAdvanced
+              ?.flat()
+              .filter((aT) => allowedProviders.includes(aT.Plugin || aT.plugin))
+              .map((p) => p.Plugin || p.plugin)
+          )
+        ])
       }
 
       if (!pipelineName || pipelineName.length <= 2) {
@@ -136,10 +147,6 @@ function usePipelineValidation ({
 
       if (!Array.isArray(tasksAdvanced) || !Array.isArray(tasksAdvanced[0])) {
         errs.push('Advanced Pipeline: Invalid Tasks Array Structure!')
-      }
-
-      if (Array.isArray(tasksAdvanced) && !tasksAdvanced?.flat().every(aT => allowedProviders.includes(aT.Plugin || aT.plugin))) {
-        errs.push('Advanced Pipeline: Unsupported Data Provider Plugin Detected!')
       }
 
       console.log('>>> Advanced Pipeline Validation Errors? ...', errs)

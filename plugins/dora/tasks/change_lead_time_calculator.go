@@ -19,6 +19,9 @@ package tasks
 
 import (
 	goerror "errors"
+	"reflect"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
@@ -26,17 +29,19 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
-	"reflect"
-	"time"
 )
 
 func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
-	data := taskCtx.GetData().(*DoraTaskData)
 	db := taskCtx.GetDal()
-	repoId := data.Options.RepoId
+	repoIdList := make([]string, 0)
+	repoClause := dal.From(&code.Repo{})
+	err := db.Pluck("id", &repoIdList, repoClause)
+	if err != nil {
+		return err
+	}
 	clauses := []dal.Clause{
 		dal.From(&code.PullRequest{}),
-		dal.Where("merged_date IS NOT NULL and head_repo_id = ?", repoId),
+		dal.Where("merged_date IS NOT NULL and head_repo_id in ?", repoIdList),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -78,7 +83,7 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 				pr.OrigReviewLag = int64(firstReviewTime.Sub(pr.CreatedDate).Minutes())
 				pr.OrigReviewTimespan = int64(pr.MergedDate.Sub(*firstReviewTime).Minutes())
 			}
-			deployTime, err := getDeployTime(repoId, data.Options.Environment, *pr.MergedDate, db)
+			deployTime, err := getDeployTime(devops.PRODUCTION, *pr.MergedDate, db)
 			if err != nil {
 				return nil, err
 			}
@@ -148,16 +153,15 @@ func getFirstReviewTime(prId string, prCreator string, db dal.Dal) (*time.Time, 
 	return &review.CreatedDate, nil
 }
 
-func getDeployTime(repoId string, environment string, mergeDate time.Time, db dal.Dal) (*time.Time, errors.Error) {
+func getDeployTime(environment string, mergeDate time.Time, db dal.Dal) (*time.Time, errors.Error) {
 	cicdTask := &devops.CICDTask{}
 	cicdTaskClauses := []dal.Clause{
 		dal.From(&devops.CICDTask{}),
 		dal.Join("left join cicd_pipeline_commits on cicd_tasks.pipeline_id = cicd_pipeline_commits.pipeline_id"),
-		dal.Where(`cicd_pipeline_commits.repo_id = ? 
-			and cicd_tasks.environment = ? 
+		dal.Where(`cicd_tasks.environment = ? 
 			and cicd_tasks.result = ?
 			and cicd_tasks.started_date > ?`,
-			repoId, environment, "SUCCESS", mergeDate),
+			environment, "SUCCESS", mergeDate),
 		dal.Orderby("cicd_tasks.started_date ASC"),
 	}
 	err := db.First(cicdTask, cicdTaskClauses...)

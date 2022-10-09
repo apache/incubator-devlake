@@ -19,11 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"time"
 )
 
 var ExtractApiPullRequestsMeta = core.SubTaskMeta{
@@ -44,38 +45,46 @@ type BitbucketApiPullRequest struct {
 	Title        string `json:"title"`
 	Description  string `json:"description"`
 	MergeCommit  *struct {
-		Type  string
+		Type  string `json:"type"`
 		Hash  string `json:"hash"`
 		Links *struct {
-			Self struct{ Href string }
-			Html struct{ Href string }
-		}
+			Self struct {
+				Href string `json:"href"`
+			} `json:"self"`
+			Html struct {
+				Href string `json:"href"`
+			} `json:"html"`
+		} `json:"links"`
 	} `json:"merge_commit"`
 	Links *struct {
-		Self struct{ Href string }
-		Html struct{ Href string }
-	}
+		Self struct {
+			Href string `json:"href"`
+		} `json:"self"`
+		Html struct {
+			Href string `json:"href"`
+		} `json:"html"`
+	} `json:"links"`
 	ClosedBy           *BitbucketAccountResponse `json:"closed_by"`
 	Author             *BitbucketAccountResponse `json:"author"`
 	BitbucketCreatedAt time.Time                 `json:"created_on"`
 	BitbucketUpdatedAt time.Time                 `json:"updated_on"`
 	BaseRef            *struct {
 		Branch struct {
-			Name string
+			Name string `json:"name"`
 		} `json:"branch"`
 		Commit struct {
-			Type string
-			Hash string
+			Type string `json:"type"`
+			Hash string `json:"hash"`
 		} `json:"commit"`
 		Repo *BitbucketApiRepo `json:"repository"`
 	} `json:"destination"`
 	HeadRef *struct {
 		Branch struct {
-			Name string
+			Name string `json:"name"`
 		} `json:"branch"`
 		Commit struct {
-			Type string
-			Hash string
+			Type string `json:"type"`
+			Hash string `json:"hash"`
 		} `json:"commit"`
 		Repo *BitbucketApiRepo `json:"repository"`
 	} `json:"source"`

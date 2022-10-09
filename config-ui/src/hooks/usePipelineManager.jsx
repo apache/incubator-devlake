@@ -24,9 +24,14 @@ import { Providers } from '@/data/Providers'
 import { Intent } from '@blueprintjs/core'
 // import { integrationsData } from '@/data/integrations'
 
-function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initialTasks = []) {
+function usePipelineManager(
+  myPipelineName = `COLLECTION ${Date.now()}`,
+  initialTasks = []
+) {
   // const [integrations, setIntegrations] = useState(integrationsData)
-  const [pipelineName, setPipelineName] = useState(myPipelineName ?? `COLLECTION ${Date.now()}`)
+  const [pipelineName, setPipelineName] = useState(
+    myPipelineName ?? `COLLECTION ${Date.now()}`
+  )
   const [isFetching, setIsFetching] = useState(false)
   const [isFetchingAll, setIsFetchingAll] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
@@ -34,9 +39,7 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
   const [errors, setErrors] = useState([])
   const [settings, setSettings] = useState({
     name: pipelineName,
-    plan: [
-      [...initialTasks]
-    ]
+    plan: [[...initialTasks]]
   })
 
   const [pipelines, setPipelines] = useState([])
@@ -60,44 +63,69 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
   const PIPELINES_ENDPOINT = useMemo(() => `${DEVLAKE_ENDPOINT}/pipelines`, [])
   const [logfile, setLogfile] = useState('logging.tar.gz')
 
-  const runPipeline = useCallback((runSettings = null) => {
-    console.log('>> RUNNING PIPELINE....')
-    try {
-      setIsRunning(true)
-      setErrors([])
-      ToastNotification.clear()
-      console.log('>> DISPATCHING PIPELINE REQUEST', runSettings || settings)
-      const run = async () => {
-        // @todo: remove "ID" fallback key when no longer needed
-        const p = await request.post(`${DEVLAKE_ENDPOINT}/pipelines`, runSettings || settings)
-        const t = await request.get(`${DEVLAKE_ENDPOINT}/pipelines/${p.data?.ID || p.data?.id}/tasks`)
-        console.log('>> RAW PIPELINE DATA FROM API...', p.data)
-        setPipelineRun({ ...p.data, ID: p.data?.ID || p.data?.id, tasks: [...t.data.tasks] })
-        setLastRunId(p.data?.ID || p.data?.id)
-        ToastNotification.show({ message: `Created New Pipeline - ${pipelineName}.`, intent: Intent.SUCCESS, icon: 'small-tick' })
-        setTimeout(() => {
-          setIsRunning(false)
-        }, 500)
+  const runPipeline = useCallback(
+    (runSettings = null) => {
+      console.log('>> RUNNING PIPELINE....')
+      try {
+        setIsRunning(true)
+        setErrors([])
+        ToastNotification.clear()
+        console.log('>> DISPATCHING PIPELINE REQUEST', runSettings || settings)
+        const run = async () => {
+          // @todo: remove "ID" fallback key when no longer needed
+          const p = await request.post(
+            `${DEVLAKE_ENDPOINT}/pipelines`,
+            runSettings || settings
+          )
+          const t = await request.get(
+            `${DEVLAKE_ENDPOINT}/pipelines/${p.data?.ID || p.data?.id}/tasks`
+          )
+          console.log('>> RAW PIPELINE DATA FROM API...', p.data)
+          setPipelineRun({
+            ...p.data,
+            ID: p.data?.ID || p.data?.id,
+            tasks: [...t.data.tasks]
+          })
+          setLastRunId(p.data?.ID || p.data?.id)
+          ToastNotification.show({
+            message: `Created New Pipeline - ${pipelineName}.`,
+            intent: Intent.SUCCESS,
+            icon: 'small-tick'
+          })
+          setTimeout(() => {
+            setIsRunning(false)
+          }, 500)
+        }
+        run()
+      } catch (e) {
+        setIsRunning(false)
+        setErrors([e.message])
+        console.log('>> FAILED TO RUN PIPELINE!!', e)
       }
-      run()
-    } catch (e) {
-      setIsRunning(false)
-      setErrors([e.message])
-      console.log('>> FAILED TO RUN PIPELINE!!', e)
-    }
-  }, [pipelineName, settings])
+    },
+    [pipelineName, settings]
+  )
 
   const cancelPipeline = useCallback((pipelineID) => {
     try {
       setIsCancelling(true)
       setErrors([])
       ToastNotification.clear()
-      console.log('>> DISPATCHING CANCEL PIPELINE REQUEST, RUN ID =', pipelineID)
+      console.log(
+        '>> DISPATCHING CANCEL PIPELINE REQUEST, RUN ID =',
+        pipelineID
+      )
       const cancel = async () => {
-        const c = await request.delete(`${DEVLAKE_ENDPOINT}/pipelines/${pipelineID}`)
+        const c = await request.delete(
+          `${DEVLAKE_ENDPOINT}/pipelines/${pipelineID}`
+        )
         console.log('>> RAW PIPELINE CANCEL RUN RESPONSE FROM API...', c)
         setPipelineRun(NullPipelineRun)
-        ToastNotification.show({ message: `Pipeline RUN ID - ${pipelineID} Cancelled`, intent: 'danger', icon: 'small-tick' })
+        ToastNotification.show({
+          message: `Pipeline RUN ID - ${pipelineID} Cancelled`,
+          intent: 'danger',
+          icon: 'small-tick'
+        })
         setTimeout(() => {
           setIsCancelling(false)
         }, 500)
@@ -121,8 +149,12 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
       ToastNotification.clear()
       console.log('>> FETCHING PIPELINE RUN DETAILS...')
       const fetch = async () => {
-        const p = await request.get(`${DEVLAKE_ENDPOINT}/pipelines/${pipelineID}`)
-        const t = await request.get(`${DEVLAKE_ENDPOINT}/pipelines/${pipelineID}/tasks`)
+        const p = await request.get(
+          `${DEVLAKE_ENDPOINT}/pipelines/${pipelineID}`
+        )
+        const t = await request.get(
+          `${DEVLAKE_ENDPOINT}/pipelines/${pipelineID}/tasks`
+        )
         console.log('>> RAW PIPELINE RUN DATA FROM API...', p.data)
         console.log('>> RAW PIPELINE TASKS DATA FROM API...', t.data)
         setActivePipeline({
@@ -130,8 +162,10 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
           id: p.data.id,
           tasks: [...t.data.tasks]
         })
-        setPipelineRun((pR) => refresh ? { ...p.data, ID: p.data.id, tasks: [...t.data.tasks] } : pR)
-        setLastRunId((lrId) => refresh ? p.data?.id : lrId)
+        setPipelineRun((pR) =>
+          refresh ? { ...p.data, ID: p.data.id, tasks: [...t.data.tasks] } : pR
+        )
+        setLastRunId((lrId) => (refresh ? p.data?.id : lrId))
         setTimeout(() => {
           setIsFetching(false)
         }, 500)
@@ -165,14 +199,18 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
       console.log('>> FETCHING ALL PIPELINE RUNS...')
       const fetchAll = async () => {
         let queryParams = '?'
-        queryParams += status && ['TASK_COMPLETED', 'TASK_RUNNING', 'TASK_FAILED'].includes(status)
-          ? `status=${status}&`
-          : ''
-        const p = await request.get(`${DEVLAKE_ENDPOINT}/pipelines${queryParams}`)
+        queryParams +=
+          status &&
+          ['TASK_COMPLETED', 'TASK_RUNNING', 'TASK_FAILED'].includes(status)
+            ? `status=${status}&`
+            : ''
+        const p = await request.get(
+          `${DEVLAKE_ENDPOINT}/pipelines${queryParams}`
+        )
         console.log('>> RAW PIPELINES RUN DATA FROM API...', p.data?.pipelines)
         let pipelines = p.data && p.data.pipelines ? [...p.data.pipelines] : []
         // @todo: remove "ID" fallback key when no longer needed
-        pipelines = pipelines.map(p => ({ ...p, ID: p.id }))
+        pipelines = pipelines.map((p) => ({ ...p, ID: p.id }))
         setPipelines(pipelines)
         setPipelineCount(p.data ? p.data.count : 0)
         setTimeout(() => {
@@ -192,10 +230,10 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
   const buildPipelineStages = useCallback((tasks = [], outputArray = false) => {
     let stages = {}
     let stagesArray = []
-    tasks?.forEach(tS => {
+    tasks?.forEach((tS) => {
       stages = {
         ...stages,
-        [tS.pipelineRow]: tasks?.filter(t => t.pipelineRow === tS.pipelineRow)
+        [tS.pipelineRow]: tasks?.filter((t) => t.pipelineRow === tS.pipelineRow)
       }
     })
     stagesArray = Object.values(stages)
@@ -203,21 +241,30 @@ function usePipelineManager (myPipelineName = `COLLECTION ${Date.now()}`, initia
     return outputArray ? stagesArray : stages
   }, [])
 
-  const detectPipelineProviders = useCallback((tasks, providers = allowedProviders) => {
-    return [...tasks?.flat().filter(aT => providers.includes(aT.Plugin || aT.plugin)).map(p => p.Plugin || p.plugin)]
-  }, [allowedProviders])
+  const detectPipelineProviders = useCallback(
+    (tasks, providers = allowedProviders) => {
+      return [
+        ...tasks
+          ?.flat()
+          .filter((aT) => providers.includes(aT.Plugin || aT.plugin))
+          .map((p) => p.Plugin || p.plugin)
+      ]
+    },
+    [allowedProviders]
+  )
 
   useEffect(() => {
     console.log('>> PIPELINE MANAGER - RECEIVED RUN/TASK SETTINGS', settings)
   }, [settings])
 
-  useEffect(() => {
+  useEffect(() => {}, [pipelineName, initialTasks])
 
-  }, [pipelineName, initialTasks])
-
-  const getPipelineLogfile = useCallback((pipelineId = 0) => {
-    return `${PIPELINES_ENDPOINT}/${pipelineId}/${logfile}`
-  }, [PIPELINES_ENDPOINT, logfile])
+  const getPipelineLogfile = useCallback(
+    (pipelineId = 0) => {
+      return `${PIPELINES_ENDPOINT}/${pipelineId}/${logfile}`
+    },
+    [PIPELINES_ENDPOINT, logfile]
+  )
 
   return {
     errors,

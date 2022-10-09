@@ -22,10 +22,11 @@ import (
 	"encoding/json"
 	goerror "errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"regexp"
 	"strconv"
 	"sync"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
@@ -278,14 +279,23 @@ func runTaskStandalone(parentLog core.Logger, taskId uint64) errors.Error {
 	return err
 }
 
+func getRunningTaskById(taskId uint64) *RunningTaskData {
+	runningTasks.mu.Lock()
+	defer runningTasks.mu.Unlock()
+
+	return runningTasks.tasks[taskId]
+}
+
 func updateTaskProgress(taskId uint64, progress chan core.RunningProgress) {
-	data := runningTasks.tasks[taskId]
+	data := getRunningTaskById(taskId)
 	if data == nil {
 		return
 	}
 	progressDetail := data.ProgressDetail
 	for p := range progress {
+		runningTasks.mu.Lock()
 		runner.UpdateProgressDetail(db, log, taskId, progressDetail, &p)
+		runningTasks.mu.Unlock()
 	}
 }
 

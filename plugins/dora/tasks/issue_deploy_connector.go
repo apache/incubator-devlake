@@ -19,6 +19,8 @@ package tasks
 
 import (
 	goerror "errors"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -26,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
-	"reflect"
 )
 
 var ConnectIssueDeployMeta = core.SubTaskMeta{
@@ -39,18 +40,12 @@ var ConnectIssueDeployMeta = core.SubTaskMeta{
 
 func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*DoraTaskData)
-
 	issue := &ticket.Issue{}
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
 		dal.From(issue),
-		dal.Join(`left join board_issues 
-			on issues.id = board_issues.issue_id`),
-		dal.Join("left join board_repos on board_repos.board_id = board_issues.board_id"),
 		dal.Where(
-			"board_repos.repo_id = ? and issues.type = ?",
-			data.Options.RepoId, "INCIDENT",
+			"issues.type = ?", "INCIDENT",
 		),
 	}
 	cursor, err := db.Cursor(clauses...)
@@ -76,9 +71,9 @@ func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
 				dal.From(cicdTask),
 				dal.Join("left join cicd_pipeline_commits on cicd_tasks.pipeline_id = cicd_pipeline_commits.pipeline_id"),
 				dal.Where(
-					`cicd_pipeline_commits.repo_id = ? and cicd_tasks.finished_date < ? 
+					`cicd_tasks.finished_date < ? 
 								and cicd_tasks.result = ? and cicd_tasks.environment = ?`,
-					data.Options.RepoId, issueToBeUpdate.CreatedDate, "SUCCESS", data.Options.Environment,
+					issueToBeUpdate.CreatedDate, "SUCCESS", devops.PRODUCTION,
 				),
 				dal.Orderby("cicd_tasks.finished_date DESC"),
 			}

@@ -22,9 +22,7 @@ const NullPipelineRun = {
   updatedAt: null,
   name: null,
   blueprintId: 0,
-  plan: [
-    []
-  ],
+  plan: [[]],
   totalTasks: 0,
   finishedTasks: 0,
   beganAt: null,
@@ -35,6 +33,4 @@ const NullPipelineRun = {
   stage: 1
 }
 
-export {
-  NullPipelineRun
-}
+export { NullPipelineRun }

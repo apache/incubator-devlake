@@ -19,7 +19,6 @@ package api
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strings"
 
@@ -96,14 +95,14 @@ func handlePluginCall(pluginName string, handler core.ApiResourceHandler) func(c
 			} else {
 				err = c.ShouldBindJSON(&input.Body)
 				if err != nil && err.Error() != "EOF" {
-					shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("could not bind input of plugin %s to JSON", pluginName)))
+					shared.ApiOutputError(c, err)
 					return
 				}
 			}
 		}
 		output, err := handler(input)
 		if err != nil {
-			shared.ApiOutputError(c, errors.BadInput.Wrap(err, fmt.Sprintf("error executing the requested resource for plugin %s", pluginName)))
+			shared.ApiOutputError(c, err)
 		} else if output != nil {
 			status := output.Status
 			if status < http.StatusContinue {
@@ -113,7 +112,11 @@ func handlePluginCall(pluginName string, handler core.ApiResourceHandler) func(c
 				c.Data(status, output.File.ContentType, output.File.Data)
 				return
 			}
-			shared.ApiOutputSuccess(c, output.Body, status)
+			if blob, ok := output.Body.([]byte); ok && output.ContentType != "" {
+				c.Data(status, output.ContentType, blob)
+			} else {
+				shared.ApiOutputSuccess(c, output.Body, status)
+			}
 		} else {
 			shared.ApiOutputSuccess(c, nil, http.StatusOK)
 		}

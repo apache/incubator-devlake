@@ -53,7 +53,7 @@ const WorkflowSteps = [
     complete: false,
     icon: null,
     errors: []
-  },
+  }
 ]
 
 const WorkflowAdvancedSteps = [
@@ -83,7 +83,7 @@ const WorkflowAdvancedSteps = [
     complete: false,
     icon: null,
     errors: []
-  },
+  }
 ]
 
 const DEFAULT_DATA_ENTITIES = [
@@ -91,30 +91,34 @@ const DEFAULT_DATA_ENTITIES = [
     id: 1,
     name: 'source-code-management',
     title: 'Source Code Management',
-    value: DataEntityTypes.CODE,
+    value: DataEntityTypes.CODE
   },
   {
     id: 2,
     name: 'issue-tracking',
     title: 'Issue Tracking',
-    value: DataEntityTypes.TICKET,
+    value: DataEntityTypes.TICKET
   },
   {
     id: 3,
     name: 'code-review',
     title: 'Code Review',
-    value: DataEntityTypes.CODE_REVIEW,
+    value: DataEntityTypes.CODE_REVIEW
   },
   {
     id: 4,
     name: 'cross-domain',
     title: 'Crossdomain',
-    value: DataEntityTypes.CROSSDOMAIN,
+    value: DataEntityTypes.CROSSDOMAIN
   },
-  { id: 5, name: 'ci-cd', title: 'CI/CD', value: DataEntityTypes.DEVOPS },
+  { id: 5, name: 'ci-cd', title: 'CI/CD', value: DataEntityTypes.DEVOPS }
 ]
 
-const DEFAULT_BOARDS = [
-]
+const DEFAULT_BOARDS = []
 
-export { WorkflowSteps, WorkflowAdvancedSteps, DEFAULT_DATA_ENTITIES, DEFAULT_BOARDS }
+export {
+  WorkflowSteps,
+  WorkflowAdvancedSteps,
+  DEFAULT_DATA_ENTITIES,
+  DEFAULT_BOARDS
+}

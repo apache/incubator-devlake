@@ -23,6 +23,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"regexp"
+	"sort"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -41,6 +43,7 @@ type GitRepo struct {
 	cleanup func()
 }
 
+// CollectAll The main parser subtask
 func (r *GitRepo) CollectAll(subtaskCtx core.SubTaskContext) errors.Error {
 	subtaskCtx.SetProgress(0, -1)
 	err := r.CollectTags(subtaskCtx)
@@ -51,9 +54,14 @@ func (r *GitRepo) CollectAll(subtaskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	return r.CollectCommits(subtaskCtx)
+	err = r.CollectCommits(subtaskCtx)
+	if err != nil {
+		return err
+	}
+	return r.CollectDiffLine(subtaskCtx)
 }
 
+// Close resources
 func (r *GitRepo) Close() errors.Error {
 	defer func() {
 		if r.cleanup != nil {
@@ -63,6 +71,7 @@ func (r *GitRepo) Close() errors.Error {
 	return r.store.Close()
 }
 
+// CountTags Count git tags subtask
 func (r *GitRepo) CountTags() (int, errors.Error) {
 	tags, err := r.repo.Tags.List()
 	if err != nil {
@@ -71,6 +80,7 @@ func (r *GitRepo) CountTags() (int, errors.Error) {
 	return len(tags), nil
 }
 
+// CountBranches count the number of branches in a git repo
 func (r *GitRepo) CountBranches(ctx context.Context) (int, errors.Error) {
 	var branchIter *git.BranchIterator
 	branchIter, err := r.repo.NewBranchIterator(git.BranchAll)
@@ -92,6 +102,7 @@ func (r *GitRepo) CountBranches(ctx context.Context) (int, errors.Error) {
 	return count, errors.Convert(err)
 }
 
+// CountCommits count the number of commits in a git repo
 func (r *GitRepo) CountCommits(ctx context.Context) (int, errors.Error) {
 	odb, err := r.repo.Odb()
 	if err != nil {
@@ -113,6 +124,7 @@ func (r *GitRepo) CountCommits(ctx context.Context) (int, errors.Error) {
 	return count, errors.Convert(err)
 }
 
+// CollectTags Collect Tags data
 func (r *GitRepo) CollectTags(subtaskCtx core.SubTaskContext) errors.Error {
 	return errors.Convert(r.repo.Tags.Foreach(func(name string, id *git.Oid) error {
 		select {
@@ -148,6 +160,7 @@ func (r *GitRepo) CollectTags(subtaskCtx core.SubTaskContext) errors.Error {
 	}))
 }
 
+// CollectBranches Collect branch data
 func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) errors.Error {
 	var repoInter *git.BranchIterator
 	repoInter, err := r.repo.NewBranchIterator(git.BranchAll)
@@ -188,9 +201,9 @@ func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) errors.Error {
 	}))
 }
 
+// CollectCommits Collect data from each commit, we can also get the diff line
 func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) errors.Error {
 	opts, err := getDiffOpts()
-
 	if err != nil {
 		return err
 	}
@@ -208,7 +221,6 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-
 	return errors.Convert(odb.ForEach(func(id *git.Oid) error {
 		select {
 		case <-subtaskCtx.GetContext().Done():
@@ -348,8 +360,6 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 			}
 		}
 		commitFileComponent.CommitFileId = commitFile.Id
-		//commitFileComponent.FilePath = file.NewFile.Path
-		//commitFileComponent.CommitSha = commitSha
 		if commitFileComponent.ComponentName == "" {
 			commitFileComponent.ComponentName = "Default"
 		}
@@ -378,6 +388,137 @@ func (r *GitRepo) storeCommitFilesFromDiff(commitSha string, diff *git.Diff, com
 		}
 	}
 	return errors.Convert(err)
+}
+
+// CollectDiffLine get line diff data from a specific branch
+func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
+	//Using this subtask,we can get every line change in every commit.
+	//We maintain a snapshot structure to get which commit each deleted line belongs to
+	snapshot := make(map[string] /*file path*/ *models.FileBlame)
+	repo := r.repo
+	//step 1. get the reverse commit list
+	commitList := make([]git.Commit, 0)
+	//get currently head commitsha, dafault is master branch
+	// check branch, if not master, checkout to branch's head
+	commitOid, _ := repo.Head()
+	//get head commit object and add into commitList
+	commit, _ := repo.LookupCommit(commitOid.Target())
+	commitList = append(commitList, *commit)
+	// if current head has parents, get parent commitsha
+	for commit != nil && commit.ParentCount() > 0 {
+		pid := commit.ParentId(0)
+		commit, _ = repo.LookupCommit(pid)
+		commitList = append(commitList, *commit)
+	}
+	// reverse commitList
+	for i, j := 0, len(commitList)-1; i < j; i, j = i+1, j-1 {
+		commitList[i], commitList[j] = commitList[j], commitList[i]
+	}
+	//step 2. get the diff of each commit
+	// for each commit, get the diff
+	for _, commitsha := range commitList {
+		curcommit, err := repo.LookupCommit(commitsha.Id())
+		if err != nil {
+			return errors.Convert(err)
+		}
+		if curcommit.ParentCount() == 0 || curcommit.ParentCount() > 0 {
+			var parentTree, tree *git.Tree
+			tree, err = curcommit.Tree()
+			if err != nil {
+				return errors.Convert(err)
+			}
+			var diff *git.Diff
+			//FIXME error type convert
+			opts, err := git.DefaultDiffOptions()
+			opts.NotifyCallback = func(diffSoFar *git.Diff, delta git.DiffDelta, matchedPathSpec string) error {
+				return nil
+			}
+			if err != nil {
+				return errors.Convert(err)
+			}
+			if curcommit.ParentCount() > 0 {
+				parent := curcommit.Parent(0)
+				parentTree, err = parent.Tree()
+			}
+			diff, err = repo.DiffTreeToTree(parentTree, tree, &opts)
+			if err != nil {
+				return errors.Convert(err)
+			}
+			deleted := make(models.DiffLines, 0)
+			added := make(models.DiffLines, 0)
+			var lastFile string
+			lastFile = ""
+			err = diff.ForEach(func(file git.DiffDelta, progress float64) (git.DiffForEachHunkCallback, error) {
+				//if doesn't exist in snapshot, create a new one
+				if _, ok := snapshot[file.OldFile.Path]; !ok {
+					fileBlame, err := models.NewFileBlame()
+					if err != nil {
+						r.logger.Info("Create FileBlame Error")
+						return nil, err
+					}
+					snapshot[file.OldFile.Path] = (*models.FileBlame)(fileBlame)
+				}
+				if lastFile == "" {
+					lastFile = file.NewFile.Path
+				} else if lastFile != file.NewFile.Path {
+					updateSnapshotFileBlame(curcommit, deleted, added, lastFile, snapshot)
+					//reset the deleted and added,last_file now is current file
+					deleted = make([]git.DiffLine, 0)
+					added = make([]git.DiffLine, 0)
+					lastFile = file.NewFile.Path
+				}
+				hunkNum := 0
+				return func(hunk git.DiffHunk) (git.DiffForEachLineCallback, error) {
+					hunkNum++
+					return func(line git.DiffLine) error {
+						commitLineChange := &code.CommitLineChange{}
+						commitLineChange.CommitSha = curcommit.Id().String()
+						commitLineChange.ChangedType = line.Origin.String()
+						commitLineChange.LineNoNew = line.NewLineno
+						commitLineChange.LineNoOld = line.OldLineno
+						commitLineChange.OldFilePath = file.OldFile.Path
+						commitLineChange.NewFilePath = file.NewFile.Path
+						commitLineChange.HunkNum = hunkNum
+						commitLineChange.Id = curcommit.Id().String() + ":" + file.NewFile.Path + ":" + strconv.Itoa(line.OldLineno) + ":" + strconv.Itoa(line.NewLineno)
+						if line.Origin == git.DiffLineAddition {
+							added = append(added, line)
+						} else if line.Origin == git.DiffLineDeletion {
+							fb := snapshot[file.OldFile.Path]
+							l := fb.Find(line.OldLineno)
+							if l != nil && l.Value != nil {
+								temp := snapshot[file.OldFile.Path].Find(line.OldLineno)
+								commitLineChange.PrevCommit = temp.Value.(string)
+							} else {
+								r.logger.Info("err", file.OldFile.Path, line.OldLineno, curcommit.Id().String())
+							}
+							deleted = append(deleted, line)
+						}
+						err = r.store.CommitLineChange(commitLineChange)
+						if err != nil {
+							return errors.Convert(err)
+						}
+						return nil
+					}, nil
+				}, nil
+			}, git.DiffDetailLines)
+			if err != nil {
+				return errors.Convert(err)
+			}
+			//finally,process the last file in diff
+			updateSnapshotFileBlame(curcommit, deleted, added, lastFile, snapshot)
+		}
+	}
+	return nil
+}
+
+func updateSnapshotFileBlame(currentCommit *git.Commit, deleted models.DiffLines, added models.DiffLines, lastFile string, snapshot map[string]*models.FileBlame) {
+	sort.Sort(deleted)
+	for _, line := range deleted {
+		snapshot[lastFile].RemoveLine(line.OldLineno)
+	}
+	for _, line := range added {
+		snapshot[lastFile].AddLine(line.NewLineno, currentCommit.Id().String())
+	}
 }
 
 func getDiffOpts() (*git.DiffOptions, errors.Error) {

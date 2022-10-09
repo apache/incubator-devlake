@@ -5,7 +5,8 @@
     "standard",
     "standard-jsx",
     "standard-react",
-    "plugin:react-hooks/recommended"
+    "plugin:react-hooks/recommended",
+    "prettier"
   ],
   "ignorePatterns": [
     "dist/*",
@@ -21,8 +22,15 @@
   "plugins": [
     "unicorn",
     "babel",
-    "header"
+    "header",
+    "prettier"
   ],
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
   "settings": {
     "import/resolver": {
       "alias": {
@@ -45,9 +53,24 @@
     }
   },
   "rules": {
+    "prettier/prettier": ["warn"],
     "camelcase": "off",
+    "semi": ["error", "never"],
     "max-len": [1, 140, 2],
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
     "react/jsx-indent": ["error", 2],
+    "react/jsx-wrap-multilines": 0,
+    "react/jsx-first-prop-new-line": [2, "multiline"],
+    "react/jsx-max-props-per-line": [
+      2,
+      { "maximum": 1, "when": "multiline" }
+    ],
+    "react/jsx-indent-props": [2, 2],
+    "react/jsx-closing-bracket-location": [
+      2,
+      "tag-aligned"
+    ],
     "import/no-named-as-default": "off",
     "comma-dangle": "off",
     "react/prop-types": "off",

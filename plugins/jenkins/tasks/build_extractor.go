@@ -20,11 +20,10 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	"strconv"
 	"strings"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -95,7 +94,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 					if a.MercurialRevisionNumber != "" {
 						sha = a.MercurialRevisionNumber
 					}
-					build.CommitSha = sha
+
 					if len(a.LastBuiltRevision.Branches) > 0 {
 						branch = a.LastBuiltRevision.Branches[0].Name
 					}
@@ -119,10 +118,6 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 							}
 						}
 					}
-				}
-			} else if vcs == "svn" {
-				if len(body.ChangeSet.Revisions) > 0 {
-					build.CommitSha = strconv.Itoa(body.ChangeSet.Revisions[0].Revision)
 				}
 			}
 

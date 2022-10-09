@@ -25,7 +25,9 @@ const ConnectionsUtil = {
     const errors = []
     for (const plugin of PLUGINS) {
       try {
-        const res = await request.get(`${DEVLAKE_ENDPOINT}/plugins/${plugin}/connections`)
+        const res = await request.get(
+          `${DEVLAKE_ENDPOINT}/plugins/${plugin}/connections`
+        )
         if (res?.data?.length > 0) {
           pluginsToSet.push(plugin)
         }

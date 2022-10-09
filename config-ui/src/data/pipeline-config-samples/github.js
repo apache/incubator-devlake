@@ -15,15 +15,17 @@
  * limitations under the License.
  *
  */
-const githubConfig = [[{
-  plugin: 'github',
-  options: {
-    repo: 'lake',
-    owner: 'merico-dev',
-    connectionId: 1
-  }
-}]]
+const githubConfig = [
+  [
+    {
+      plugin: 'github',
+      options: {
+        repo: 'lake',
+        owner: 'merico-dev',
+        connectionId: 1
+      }
+    }
+  ]
+]
 
-export {
-  githubConfig
-}
+export { githubConfig }

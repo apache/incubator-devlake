@@ -19,11 +19,14 @@ package dal
 
 import (
 	"database/sql"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
-	"gorm.io/gorm/schema"
+	"github.com/apache/incubator-devlake/errors"
 )
+
+type Tabler interface {
+	TableName() string
+}
 
 // Clause represents SQL Clause
 type Clause struct {
@@ -92,7 +95,7 @@ type Dal interface {
 	// RenameTable renames table name
 	RenameTable(oldName, newName string) errors.Error
 	// GetColumns returns table columns in database
-	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
+	GetColumns(dst Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
 	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
 	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
 	// RenameColumn renames column name for specified table
@@ -100,7 +103,7 @@ type Dal interface {
 }
 
 // GetColumnNames returns table Column Names in database
-func GetColumnNames(d Dal, dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (names []string, err errors.Error) {
+func GetColumnNames(d Dal, dst Tabler, filter func(columnMeta ColumnMeta) bool) (names []string, err errors.Error) {
 	columns, err := d.GetColumns(dst, filter)
 	if err != nil {
 		return
@@ -112,7 +115,7 @@ func GetColumnNames(d Dal, dst schema.Tabler, filter func(columnMeta ColumnMeta)
 }
 
 // GetPrimarykeyColumns get returns PrimaryKey table Meta in database
-func GetPrimarykeyColumns(d Dal, dst schema.Tabler) ([]ColumnMeta, errors.Error) {
+func GetPrimarykeyColumns(d Dal, dst Tabler) ([]ColumnMeta, errors.Error) {
 	return d.GetColumns(dst, func(columnMeta ColumnMeta) bool {
 		isPrimaryKey, ok := columnMeta.PrimaryKey()
 		return isPrimaryKey && ok
@@ -120,7 +123,7 @@ func GetPrimarykeyColumns(d Dal, dst schema.Tabler) ([]ColumnMeta, errors.Error)
 }
 
 // GetPrimarykeyColumnNames get returns PrimaryKey Column Names in database
-func GetPrimarykeyColumnNames(d Dal, dst schema.Tabler) (names []string, err errors.Error) {
+func GetPrimarykeyColumnNames(d Dal, dst Tabler) (names []string, err errors.Error) {
 	pkColumns, err := GetPrimarykeyColumns(d, dst)
 	if err != nil {
 		return

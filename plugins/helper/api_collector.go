@@ -78,6 +78,8 @@ type ApiCollectorArgs struct {
 	Concurrency    int
 	ResponseParser func(res *http.Response) ([]json.RawMessage, errors.Error)
 	AfterResponse  common.ApiClientAfterResponse
+	RequestBody    func(reqData *RequestData) map[string]interface{}
+	Method         string
 }
 
 // ApiCollector FIXME ...
@@ -96,8 +98,8 @@ func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Couldn't resolve raw subtask args")
 	}
-	// TODO: check if args.Table is valid
-	if args.UrlTemplate == "" {
+	// TODO: check if args.Table is valid when this is a http GET request
+	if args.UrlTemplate == "" && args.Method == "" {
 		return nil, errors.Default.New("UrlTemplate is required")
 	}
 	tpl, err := errors.Convert01(template.New(args.Table).Parse(args.UrlTemplate))
@@ -335,6 +337,13 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 			panic(err)
 		}
 	}
+	var reqBody interface{}
+	if collector.args.RequestBody != nil {
+		reqBody = collector.args.RequestBody(reqData)
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	apiHeader := (http.Header)(nil)
 	if collector.args.Header != nil {
@@ -345,8 +354,8 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 	}
 	logger := collector.args.Ctx.GetLogger()
 	logger.Debug("fetchAsync <<< enqueueing for %s %v", apiUrl, apiQuery)
-	collector.args.ApiClient.DoGetAsync(apiUrl, apiQuery, apiHeader, func(res *http.Response) errors.Error {
-		defer logger.Debug("fetchAsync >>> done for %s %v", apiUrl, apiQuery)
+	responseHandler := func(res *http.Response) errors.Error {
+		defer logger.Debug("fetchAsync >>> done for %s %v %v", apiUrl, apiQuery, collector.args.RequestBody)
 		logger := collector.args.Ctx.GetLogger()
 		// read body to buffer
 		body, err := io.ReadAll(res.Body)
@@ -367,13 +376,13 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 			return nil
 		}
 		db := collector.args.Ctx.GetDal()
-		url := res.Request.URL.String()
+		urlString := res.Request.URL.String()
 		rows := make([]*RawData, count)
 		for i, msg := range items {
 			rows[i] = &RawData{
 				Params: collector.params,
 				Data:   msg,
-				Url:    url,
+				Url:    urlString,
 				Input:  reqData.InputJSON,
 			}
 		}
@@ -389,7 +398,12 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 			return handler(count, body, res)
 		}
 		return nil
-	})
+	}
+	if collector.args.Method == http.MethodPost {
+		collector.args.ApiClient.DoPostAsync(apiUrl, apiQuery, reqBody, apiHeader, responseHandler)
+	} else {
+		collector.args.ApiClient.DoGetAsync(apiUrl, apiQuery, apiHeader, responseHandler)
+	}
 	logger.Debug("fetchAsync === enqueued for %s %v", apiUrl, apiQuery)
 }
 

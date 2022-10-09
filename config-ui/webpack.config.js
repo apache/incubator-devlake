@@ -129,7 +129,8 @@ module.exports = (env = {}) => {
         ],
       }),
       new ESLintPlugin({
-        fix: true,
+        // Do NOT auto-fix w/ eslint on webpack startup!
+        fix: false,
         context: path.resolve(__dirname, './'),
         exclude: ['dist', 'packages', 'cypress', 'config', 'node_modules']
       }),

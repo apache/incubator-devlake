@@ -26,14 +26,16 @@ type DoraApiParams struct {
 }
 
 type TransformationRules struct {
-	Environment      string `mapstructure:"environment" json:"environment"`
-	EnvironmentRegex string `mapstructure:"environmentRegex" json:"environmentRegex"`
+	ProductionPattern string `mapstructure:"productionPattern" json:"productionPattern"`
+	StagingPattern    string `mapstructure:"stagingPattern" json:"stagingPattern"`
+	TestingPattern    string `mapstructure:"testingPattern" json:"testingPattern"`
 }
 
 type DoraOptions struct {
 	Tasks               []string `json:"tasks,omitempty"`
 	Since               string
 	RepoId              string `json:"repoId"`
+	Prefix              string `json:"prefix"`
 	TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 

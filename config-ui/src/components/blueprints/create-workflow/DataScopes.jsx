@@ -16,13 +16,21 @@
  *
  */
 import React, { useEffect, useMemo } from 'react'
-import { Button, Card, Divider, Elevation, Intent, TagInput, } from '@blueprintjs/core'
-import { ProviderIcons, Providers, } from '@/data/Providers'
+import {
+  Button,
+  Card,
+  Divider,
+  Elevation,
+  Intent,
+  TagInput
+} from '@blueprintjs/core'
+import { ProviderIcons, Providers } from '@/data/Providers'
 import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import BoardsSelector from '@/components/blueprints/BoardsSelector'
 import DataEntitiesSelector from '@/components/blueprints/DataEntitiesSelector'
 import NoData from '@/components/NoData'
 import GitlabProjectsSelector from '@/components/blueprints/GitlabProjectsSelector'
+import GitHubProject from '@/models/GithubProject'
 
 const DataScopes = (props) => {
   const {
@@ -43,6 +51,7 @@ const DataScopes = (props) => {
     setDataEntities = () => {},
     setProjects = () => {},
     setBoards = () => {},
+    setBoardSearch = () => {},
     prevStep = () => {},
     fieldHasError = () => {},
     getFieldError = () => {},
@@ -54,8 +63,14 @@ const DataScopes = (props) => {
     cardStyle = {}
   } = props
 
-  const selectedBoards = useMemo(() => boards[configuredConnection.id], [boards, configuredConnection?.id])
-  const selectedProjects = useMemo(() => projects[configuredConnection.id], [projects, configuredConnection?.id])
+  const selectedBoards = useMemo(
+    () => boards[configuredConnection.id],
+    [boards, configuredConnection?.id]
+  )
+  const selectedProjects = useMemo(
+    () => projects[configuredConnection.id],
+    [projects, configuredConnection?.id]
+  )
 
   useEffect(() => {
     console.log('>> OVER HERE!!!', selectedBoards)
@@ -66,7 +81,10 @@ const DataScopes = (props) => {
   }, [selectedProjects])
 
   return (
-    <div className='workflow-step workflow-step-data-scope' data-step={activeStep?.id}>
+    <div
+      className='workflow-step workflow-step-data-scope'
+      data-step={activeStep?.id}
+    >
       {blueprintConnections.length > 0 && (
         <div style={{ display: 'flex' }}>
           {enableConnectionTabs && (
@@ -101,13 +119,11 @@ const DataScopes = (props) => {
                 <>
                   <h3>
                     <span style={{ float: 'left', marginRight: '8px' }}>
-                      {ProviderIcons[configuredConnection.provider]
-                        ? (
-                            ProviderIcons[configuredConnection.provider](24, 24)
-                          )
-                        : (
-                          <></>
-                          )}
+                      {ProviderIcons[configuredConnection.provider] ? (
+                        ProviderIcons[configuredConnection.provider](24, 24)
+                      ) : (
+                        <></>
+                      )}
                     </span>{' '}
                     {configuredConnection.title}
                   </h3>
@@ -123,19 +139,29 @@ const DataScopes = (props) => {
                         id='project-id'
                         disabled={isRunning}
                         placeholder='username/repo, username/another-repo'
-                        values={projects[configuredConnection.id]?.map(p => p.value) || []}
+                        values={
+                          projects[configuredConnection.id]?.map(
+                            (p) => p.value
+                          ) || []
+                        }
                         fill={true}
                         onChange={(values) =>
                           setProjects((p) => ({
                             ...p,
-                            [configuredConnection.id]: [...values.map((v, vIdx) => ({
-                              id: v,
-                              key: v,
-                              title: v,
-                              value: v,
-                              type: 'string'
-                            }))],
-                          }))}
+                            [configuredConnection.id]: [
+                              ...values.map(
+                                (v, vIdx) =>
+                                  new GitHubProject({
+                                    id: v,
+                                    key: v,
+                                    title: v,
+                                    value: v,
+                                    type: 'string'
+                                  })
+                              )
+                            ]
+                          }))
+                        }
                         addOnPaste={true}
                         addOnBlur={true}
                         rightElement={
@@ -146,15 +172,21 @@ const DataScopes = (props) => {
                             onClick={() =>
                               setProjects((p) => ({
                                 ...p,
-                                [configuredConnection.id]: [],
-                              }))}
+                                [configuredConnection.id]: []
+                              }))
+                            }
                           />
                         }
                         onKeyDown={(e) =>
-                          e.key === 'Enter' && e.preventDefault()}
+                          e.key === 'Enter' && e.preventDefault()
+                        }
                         tagProps={{
-                          intent: validationErrors.some(e => e.startsWith('Projects:')) ? Intent.WARNING : Intent.PRIMARY,
-                          minimal: true,
+                          intent: validationErrors.some((e) =>
+                            e.startsWith('Projects:')
+                          )
+                            ? Intent.WARNING
+                            : Intent.PRIMARY,
+                          minimal: true
                         }}
                         className='input-project-id tagInput'
                       />
@@ -168,6 +200,7 @@ const DataScopes = (props) => {
                       <BoardsSelector
                         items={boardsList}
                         selectedItems={selectedBoards}
+                        onQueryChange={setBoardSearch}
                         onItemSelect={setBoards}
                         onClear={setBoards}
                         onRemove={setBoards}
@@ -178,7 +211,9 @@ const DataScopes = (props) => {
                     </>
                   )}
 
-                  {[Providers.GITLAB].includes(configuredConnection.provider) && (
+                  {[Providers.GITLAB].includes(
+                    configuredConnection.provider
+                  ) && (
                     <>
                       <h4>Projects *</h4>
                       <p>Select the project you would like to sync.</p>

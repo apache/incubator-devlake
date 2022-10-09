@@ -17,10 +17,7 @@
  */
 
 import React, { useEffect, useState, useCallback } from 'react'
-import {
-  BrowserRouter as Router,
-  Route
-} from 'react-router-dom'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
 
 import 'normalize.css'
 import '@/styles/app.scss'
@@ -35,35 +32,26 @@ import '@fontsource/inter/variable-full.css'
 import useDatabaseMigrations from '@/hooks/useDatabaseMigrations'
 
 import ErrorBoundary from '@/components/ErrorBoundary'
-// import Configure from './pages/configure/index'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
 import AddConnection from '@/pages/configure/connections/AddConnection'
-// import EditConnection from '@/pages/configure/connections/EditConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
-// import Triggers from '@/pages/triggers/index'
 import Offline from '@/pages/offline/index'
-// import Pipelines from '@/pages/pipelines/index'
-// import CreatePipeline from '@/pages/pipelines/create'
-// import PipelineActivity from '@/pages/pipelines/activity'
 import Blueprints from '@/pages/blueprints/index'
 import CreateBlueprint from '@/pages/blueprints/create-blueprint'
 import BlueprintDetail from '@/pages/blueprints/blueprint-detail'
 import BlueprintSettings from '@/pages/blueprints/blueprint-settings'
 import Connections from '@/pages/connections/index'
+import { IncomingWebhook as IncomingWebhookConnection } from '@/pages/connections/incoming-webhook'
 import MigrationAlertDialog from '@/components/MigrationAlertDialog'
 
-function App (props) {
+function App(props) {
   const {
     isProcessing,
     migrationWarning,
     migrationAlertOpened,
     wasMigrationSuccessful,
     hasMigrationFailed,
-    setMigrationWarning,
-    setMigrationAlertOpened,
-    setWasMigrationSuccessful,
-    setHasMigrationFailed,
     handleConfirmMigration,
     handleCancelMigration,
     handleMigrationDialogClose
@@ -119,6 +107,9 @@ function App (props) {
       <Route exact path='/connections'>
         <Connections />
       </Route>
+      <Route exact path='/connections/incoming-webhook'>
+        <IncomingWebhookConnection />
+      </Route>
       <Route exact path='/offline'>
         <Offline />
       </Route>
@@ -128,11 +119,10 @@ function App (props) {
         onCancel={handleCancelMigration}
         onConfirm={handleConfirmMigration}
         isMigrating={isProcessing}
-        wasSuccesful={wasMigrationSuccessful}
+        wasSuccessful={wasMigrationSuccessful}
         hasFailed={hasMigrationFailed}
       />
     </Router>
-
   )
 }
 

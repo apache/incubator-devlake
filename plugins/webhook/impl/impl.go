@@ -63,13 +63,16 @@ func (plugin Webhook) ApiResources() map[string]map[string]core.ApiResourceHandl
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
-		":connectionId/cicd_pipelines": {
-			"POST": api.PostCicdPipeline,
+		":connectionId/cicd_tasks": {
+			"POST": api.PostCicdTask,
+		},
+		":connectionId/cicd_pipeline/:pipelineName/finish": {
+			"POST": api.PostPipelineFinish,
 		},
 		":connectionId/issues": {
 			"POST": api.PostIssue,
 		},
-		":connectionId/issue/:boardKey/:issueId/close": {
+		":connectionId/issue/:boardKey/:issueKey/close": {
 			"POST": api.CloseIssue,
 		},
 	}

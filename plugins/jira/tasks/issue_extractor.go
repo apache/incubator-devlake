@@ -123,8 +123,9 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, ignoreBoard bool,
 		}
 
 	}
-	issue.Type = mappings.typeIdMappings[issue.Type]
 	issue.StdStoryPoint = int64(issue.StoryPoint)
+	// code in next line will set issue.Type to issueType.Name
+	issue.Type = mappings.typeIdMappings[issue.Type]
 	issue.StdType = mappings.stdTypeMappings[issue.Type]
 	if issue.StdType == "" {
 		issue.StdType = strings.ToUpper(issue.Type)
@@ -185,11 +186,7 @@ func getTypeMappings(data *JiraTaskData, db dal.Dal) (*typeMappings, errors.Erro
 		return nil, err
 	}
 	for _, issueType := range issueTypes {
-		if issueType.UntranslatedName == "" {
-			typeIdMapping[issueType.Id] = issueType.Name
-		} else {
-			typeIdMapping[issueType.Id] = issueType.UntranslatedName
-		}
+		typeIdMapping[issueType.Id] = issueType.Name
 	}
 	stdTypeMappings := make(map[string]string)
 	standardStatusMappings := make(map[string]StatusMappings)

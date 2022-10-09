@@ -16,12 +16,7 @@
  *
  */
 import React from 'react'
-import {
-  Breadcrumbs,
-  Breadcrumb,
-  Icon,
-  Colors,
-} from '@blueprintjs/core'
+import { Breadcrumbs, Breadcrumb, Icon, Colors } from '@blueprintjs/core'
 import '@/styles/breadcrumbs.scss'
 
 const AppCrumbs = (props) => {
@@ -32,7 +27,11 @@ const AppCrumbs = (props) => {
   }
 
   const renderCurrentBreadcrumb = ({ text, ...restProps }) => {
-    return <Breadcrumb {...restProps}>{text} <Icon icon='symbol-circle' size={4} color={Colors.GREEN3} /></Breadcrumb>
+    return (
+      <Breadcrumb {...restProps}>
+        {text} <Icon icon='symbol-circle' size={4} color={Colors.GREEN3} />
+      </Breadcrumb>
+    )
   }
 
   return (

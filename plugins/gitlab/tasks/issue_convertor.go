@@ -74,7 +74,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) errors.Error {
 				Description:             issue.Body,
 				Priority:                issue.Priority,
 				Type:                    issue.Type,
-				LeadTimeMinutes:         issue.LeadTimeMinutes,
+				LeadTimeMinutes:         int64(issue.LeadTimeMinutes),
 				Url:                     issue.Url,
 				CreatedDate:             &issue.GitlabCreatedAt,
 				UpdatedDate:             &issue.GitlabUpdatedAt,

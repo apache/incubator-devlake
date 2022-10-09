@@ -38,6 +38,4 @@ const starRocksConfig = [
   ]
 ]
 
-export {
-  starRocksConfig
-}
+export { starRocksConfig }

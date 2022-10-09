@@ -20,14 +20,15 @@ package migrationscripts
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/api"
 	"gorm.io/gorm"
-	"reflect"
-	"strings"
-	"time"
 )
 
 type modifyJenkinsBuild struct{}
@@ -136,7 +137,7 @@ func (*modifyJenkinsBuild) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		} else {
 			newBuild.FullDisplayName = fmt.Sprintf("%s %s", build.JobName, build.DisplayName)
 		}
-		err = batch.Add(&newBuild)
+		err = batch.Add(newBuild)
 		if err != nil {
 			return errors.Convert(err)
 		}

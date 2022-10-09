@@ -19,10 +19,9 @@ package parser
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	git "github.com/libgit2/git2go/v33"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
+	git "github.com/libgit2/git2go/v33"
 )
 
 const (
@@ -42,6 +41,7 @@ func NewGitRepoCreator(store models.Store, logger core.Logger) *GitRepoCreator {
 	}
 }
 
+// LocalRepo open a local repository
 func (l *GitRepoCreator) LocalRepo(repoPath, repoId string) (*GitRepo, errors.Error) {
 	repo, err := git.OpenRepository(repoPath)
 	if err != nil {

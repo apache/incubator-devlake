@@ -78,6 +78,7 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 			gitlabApiPipeline.Duration = duration
 			gitlabPipeline := &models.GitlabPipeline{
 				GitlabId:        gitlabApiPipeline.Id,
+				ProjectId:       data.Options.ProjectId,
 				WebUrl:          gitlabApiPipeline.WebUrl,
 				Status:          gitlabApiPipeline.Status,
 				GitlabCreatedAt: helper.Iso8601TimeToTime(gitlabApiPipeline.CreatedAt),

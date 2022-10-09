@@ -20,4 +20,6 @@ export const DEVLAKE_ENDPOINT = '/api'
 export const GRAFANA_BASE_URL = '/grafana'
 export const LOCAL_BASE_URL = `http://${window.location.hostname}:3002`
 export const GRAFANA_ENDPOINT = '/d/0Rjxknc7z/demo-homepage?orgId=1'
-export const GRAFANA_URL = process.env.LOCAL ? LOCAL_BASE_URL + GRAFANA_ENDPOINT : GRAFANA_BASE_URL + GRAFANA_ENDPOINT
+export const GRAFANA_URL = process.env.LOCAL
+  ? LOCAL_BASE_URL + GRAFANA_ENDPOINT
+  : GRAFANA_BASE_URL + GRAFANA_ENDPOINT

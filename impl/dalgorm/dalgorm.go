@@ -19,9 +19,10 @@ package dalgorm
 
 import (
 	"database/sql"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strings"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/utils"
@@ -244,4 +245,22 @@ func (d *Dalgorm) RenameTable(oldName, newName string) errors.Error {
 // NewDalgorm FIXME ...
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}
+}
+
+// RenameTable rename the oldName table to newName
+func (d *Dalgorm) RenameTable(oldName interface{}, newName interface{}) errors.Error {
+	err := d.db.Migrator().RenameTable(oldName, newName)
+	if err != nil {
+		return errors.Default.New(err.Error())
+	}
+	return nil
+}
+
+// DropTable drop the table
+func (d *Dalgorm) DropTable(dst ...interface{}) errors.Error {
+	err := d.db.Migrator().DropTable(dst)
+	if err != nil {
+		return errors.Default.New(err.Error())
+	}
+	return nil
 }

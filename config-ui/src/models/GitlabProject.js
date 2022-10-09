@@ -50,7 +50,7 @@
  * @property {project|board?} variant
  */
 class GitlabProject {
-  constructor (data = {}) {
+  constructor(data = {}) {
     this.id = data?.id || data?.projectId || null
     this.key = data?.key || this.id || null
     this.projectId = data?.projectId || this.id || null
@@ -88,16 +88,16 @@ class GitlabProject {
     this.variant = data?.variant || 'project'
   }
 
-  get (property) {
+  get(property) {
     return this[property]
   }
 
-  set (property, value) {
+  set(property, value) {
     this[property] = value
     return this.property
   }
 
-  getConfiguredEntityId () {
+  getConfiguredEntityId() {
     return this.id
   }
 }
