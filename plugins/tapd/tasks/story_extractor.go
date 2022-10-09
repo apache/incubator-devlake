@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"strings"
 
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -40,7 +41,7 @@ var ExtractStoryMeta = core.SubTaskMeta{
 }
 
 func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, true)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
 	db := taskCtx.GetDal()
 	statusList := make([]*models.TapdStoryStatus, 0)
 	clauses := []dal.Clause{
@@ -52,9 +53,21 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	statusMap := make(map[string]string, len(statusList))
+	lastStatusMap := make(map[string]bool, len(statusList))
 	for _, v := range statusList {
 		statusMap[v.EnglishName] = v.ChineseName
+		lastStatusMap[v.ChineseName] = v.IsLastStep
 	}
+	getStdStatus := func(statusKey string) string {
+		if lastStatusMap[statusKey] {
+			return ticket.DONE
+		} else if statusKey == "草稿" {
+			return ticket.TODO
+		} else {
+			return ticket.IN_PROGRESS
+		}
+	}
+
 	mappings, err := getTypeMappings(data, db, "story")
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
