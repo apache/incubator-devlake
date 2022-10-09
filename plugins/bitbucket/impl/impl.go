@@ -52,20 +52,30 @@ func (plugin Bitbucket) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
 		tasks.CollectApiRepoMeta,
 		tasks.ExtractApiRepoMeta,
-		tasks.CollectApiPullRequestsMeta,
-		tasks.ExtractApiPullRequestsMeta,
-		tasks.CollectApiIssuesMeta,
-		tasks.ExtractApiIssuesMeta,
-		tasks.CollectApiPrCommentsMeta,
-		tasks.ExtractApiPrCommentsMeta,
+
+		//tasks.CollectApiPullRequestsMeta,
+		//tasks.ExtractApiPullRequestsMeta,
+
+		//tasks.CollectApiPrCommentsMeta,
+		//tasks.ExtractApiPrCommentsMeta,
+
+		tasks.CollectApiPullRequestCommitsMeta,
+		tasks.ExtractApiPullRequestCommitsMeta,
+
+		//tasks.CollectApiIssuesMeta,
+		//tasks.ExtractApiIssuesMeta,
+
 		tasks.CollectApiIssueCommentsMeta,
 		tasks.ExtractApiIssueCommentsMeta,
+
 		tasks.CollectApiPipelinesMeta,
 		tasks.ExtractApiPipelinesMeta,
+
 		tasks.ConvertRepoMeta,
 		tasks.ConvertAccountsMeta,
 		tasks.ConvertPullRequestsMeta,
 		tasks.ConvertPrCommentsMeta,
+		tasks.ConvertPullRequestCommitsMeta,
 		tasks.ConvertIssuesMeta,
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertPipelineMeta,
