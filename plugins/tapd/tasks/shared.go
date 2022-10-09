@@ -22,7 +22,6 @@ import (
 	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"gorm.io/gorm"
 	"io"
 	"net/http"
@@ -140,16 +139,6 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string, useC
 		Table:  rawTable,
 	}
 	return rawDataSubTaskArgs, &filteredData
-}
-
-func getStdStatus(statusKey string) string {
-	if statusKey == "已实现" || statusKey == "已拒绝" || statusKey == "关闭" || statusKey == "已取消" || statusKey == "已解决" {
-		return ticket.DONE
-	} else if statusKey == "草稿" {
-		return ticket.TODO
-	} else {
-		return ticket.IN_PROGRESS
-	}
 }
 
 func getTypeMappings(data *TapdTaskData, db dal.Dal, system string) (*typeMappings, errors.Error) {
