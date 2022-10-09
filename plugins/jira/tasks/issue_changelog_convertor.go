@@ -58,7 +58,7 @@ func ConvertIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger.Info("covert changelog")
 	var allStatus []models.JiraStatus
-	err := db.All(&allStatus)
+	err := db.All(&allStatus, dal.Where("connection_id = ?", connectionId))
 	if err != nil {
 		return err
 	}
