@@ -112,7 +112,11 @@ func handlePluginCall(pluginName string, handler core.ApiResourceHandler) func(c
 				c.Data(status, output.File.ContentType, output.File.Data)
 				return
 			}
-			shared.ApiOutputSuccess(c, output.Body, status)
+			if blob, ok := output.Body.([]byte); ok && output.ContentType != "" {
+				c.Data(status, output.ContentType, blob)
+			} else {
+				shared.ApiOutputSuccess(c, output.Body, status)
+			}
 		} else {
 			shared.ApiOutputSuccess(c, nil, http.StatusOK)
 		}
