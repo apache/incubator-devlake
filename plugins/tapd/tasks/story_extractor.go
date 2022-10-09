@@ -40,7 +40,7 @@ var ExtractStoryMeta = core.SubTaskMeta{
 }
 
 func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, true)
 	db := taskCtx.GetDal()
 	statusList := make([]*models.TapdStoryStatus, 0)
 	clauses := []dal.Clause{
@@ -55,7 +55,7 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 	for _, v := range statusList {
 		statusMap[v.EnglishName] = v.ChineseName
 	}
-	mappings, err := getTypeMappings(data, db)
+	mappings, err := getTypeMappings(data, db, "story")
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -64,7 +64,7 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 			var storyBody struct {
 				Story models.TapdStory
 			}
-			err := errors.Convert(json.Unmarshal(row.Data, &storyBody))
+			err = errors.Convert(json.Unmarshal(row.Data, &storyBody))
 			if err != nil {
 				return nil, err
 			}

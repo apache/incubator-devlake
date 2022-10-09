@@ -127,7 +127,6 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string, useC
 	*filteredData.Options = *data.Options
 	var params = TapdApiParams{
 		ConnectionId: data.Options.ConnectionId,
-		CompanyId:    data.Options.CompanyId,
 		WorkspaceId:  data.Options.WorkspaceId,
 	}
 	if data.Options.CompanyId != 0 && useCompanyId {
@@ -153,12 +152,13 @@ func getStdStatus(statusKey string) string {
 	}
 }
 
-func getTypeMappings(data *TapdTaskData, db dal.Dal) (*typeMappings, errors.Error) {
+func getTypeMappings(data *TapdTaskData, db dal.Dal, system string) (*typeMappings, errors.Error) {
 	typeIdMapping := make(map[uint64]string)
 	issueTypes := make([]models.TapdWorkitemType, 0)
 	clauses := []dal.Clause{
 		dal.From(&models.TapdWorkitemType{}),
-		dal.Where("connection_id = ?", data.Options.ConnectionId),
+		dal.Where("connection_id = ? and workspace_id = ? and entity_type = ?",
+			data.Options.ConnectionId, data.Options.WorkspaceId, system),
 	}
 	err := db.All(&issueTypes, clauses...)
 	if err != nil {
