@@ -53,12 +53,13 @@ func ExtractBugs(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	statusMap := make(map[string]string, len(statusList))
+	lastStatusMap := make(map[string]bool, len(statusList))
 	for _, v := range statusList {
 		statusMap[v.EnglishName] = v.ChineseName
+		lastStatusMap[v.ChineseName] = v.IsLastStep
 	}
-
 	getStdStatus := func(statusKey string) string {
-		if statusKey == "已关闭" || statusKey == "不处理" {
+		if lastStatusMap[statusKey] {
 			return ticket.DONE
 		} else if statusKey == "新建" {
 			return ticket.TODO
@@ -66,6 +67,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) errors.Error {
 			return ticket.IN_PROGRESS
 		}
 	}
+
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
