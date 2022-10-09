@@ -1,0 +1,2 @@
+id,params,data,url,input,created_at
+11,"{""ConnectionId"":1,""CompanyId"":0,""WorkspaceId"":991}","{""status"":1,""data"":{""resolved"":""已解决"",""rejected"":""已拒绝""},""info"":""success""}",https://api.tapd.cn/workflows/status_map?system=bug&workspace_id=991,null,2022-06-21 13:06:31.335
