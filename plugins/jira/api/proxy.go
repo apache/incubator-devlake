@@ -19,19 +19,14 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-)
-
-const (
-	TimeOut = 10 * time.Second
 )
 
 func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
@@ -63,11 +58,5 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error)
 	if err != nil {
 		return nil, err
 	}
-	// verify response body is json
-	var tmp interface{}
-	err = errors.Convert(json.Unmarshal(body, &tmp))
-	if err != nil {
-		return nil, err
-	}
-	return &core.ApiResourceOutput{Status: resp.StatusCode, Body: json.RawMessage(body)}, nil
+	return &core.ApiResourceOutput{Status: resp.StatusCode, ContentType: resp.Header.Get("Content-Type"), Body: body}, nil
 }
