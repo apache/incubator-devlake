@@ -25,11 +25,12 @@ import (
 )
 
 type TapdOptions struct {
-	ConnectionId uint64   `mapstruct:"connectionId"`
-	WorkspaceId  uint64   `mapstruct:"workspaceId"`
-	CompanyId    uint64   `mapstruct:"companyId"`
-	Tasks        []string `mapstruct:"tasks,omitempty"`
-	Since        string
+	ConnectionId        uint64   `mapstruct:"connectionId"`
+	WorkspaceId         uint64   `mapstruct:"workspaceId"`
+	CompanyId           uint64   `mapstruct:"companyId"`
+	Tasks               []string `mapstruct:"tasks,omitempty"`
+	Since               string
+	TransformationRules TransformationRules `json:"transformationRules"`
 }
 
 type TapdTaskData struct {
@@ -37,4 +38,17 @@ type TapdTaskData struct {
 	ApiClient  *helper.ApiAsyncClient
 	Since      *time.Time
 	Connection *models.TapdConnection
+}
+
+type TypeMapping struct {
+	StandardType string `json:"standardType"`
+}
+
+type TypeMappings map[string]TypeMapping
+
+type TransformationRules struct {
+	EpicKeyField               string       `json:"epicKeyField"`
+	StoryPointField            string       `json:"storyPointField"`
+	RemotelinkCommitShaPattern string       `json:"remotelinkCommitShaPattern"`
+	TypeMappings               TypeMappings `json:"typeMappings"`
 }
