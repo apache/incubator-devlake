@@ -44,6 +44,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 		"_raw_tapd_api_story_status")
 
 	// verify extraction
+	dataflowTester.FlushTabler(&models.TapdWorkitemType{})
 	dataflowTester.FlushTabler(&models.TapdStoryStatus{})
 	dataflowTester.Subtask(tasks.ExtractStoryStatusMeta, taskData)
 	dataflowTester.VerifyTable(
