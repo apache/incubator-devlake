@@ -113,6 +113,8 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractStoryCategoriesMeta,
 		tasks.CollectStoryStatusMeta,
 		tasks.ExtractStoryStatusMeta,
+		tasks.CollectStoryStatusLastStepMeta,
+		tasks.EnrichStoryStatusLastStepMeta,
 		tasks.CollectBugStatusMeta,
 		tasks.ExtractBugStatusMeta,
 		tasks.CollectAccountsMeta,
