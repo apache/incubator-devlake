@@ -19,15 +19,16 @@ package tasks
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"net/url"
 )
 
 const RAW_PULL_REQUEST_COMMITS_TABLE = "bitbucket_api_pull_request_commits"
 
-var CollectApiPullRequestCommitsMeta = core.SubTaskMeta{
+var CollectApiPrCommitsMeta = core.SubTaskMeta{
 	Name:             "collectApiPullRequestCommits",
 	EntryPoint:       CollectApiPullRequestCommits,
 	EnabledByDefault: true,

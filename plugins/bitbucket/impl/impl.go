@@ -53,17 +53,17 @@ func (plugin Bitbucket) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectApiRepoMeta,
 		tasks.ExtractApiRepoMeta,
 
-		//tasks.CollectApiPullRequestsMeta,
-		//tasks.ExtractApiPullRequestsMeta,
+		tasks.CollectApiPullRequestsMeta,
+		tasks.ExtractApiPullRequestsMeta,
 
-		//tasks.CollectApiPrCommentsMeta,
-		//tasks.ExtractApiPrCommentsMeta,
+		tasks.CollectApiPrCommentsMeta,
+		tasks.ExtractApiPrCommentsMeta,
 
-		tasks.CollectApiPullRequestCommitsMeta,
-		tasks.ExtractApiPullRequestCommitsMeta,
+		tasks.CollectApiPrCommitsMeta,
+		tasks.ExtractApiPrCommitsMeta,
 
-		//tasks.CollectApiIssuesMeta,
-		//tasks.ExtractApiIssuesMeta,
+		tasks.CollectApiIssuesMeta,
+		tasks.ExtractApiIssuesMeta,
 
 		tasks.CollectApiIssueCommentsMeta,
 		tasks.ExtractApiIssueCommentsMeta,
@@ -75,7 +75,7 @@ func (plugin Bitbucket) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ConvertAccountsMeta,
 		tasks.ConvertPullRequestsMeta,
 		tasks.ConvertPrCommentsMeta,
-		tasks.ConvertPullRequestCommitsMeta,
+		tasks.ConvertPrCommitsMeta,
 		tasks.ConvertIssuesMeta,
 		tasks.ConvertIssueCommentsMeta,
 		tasks.ConvertPipelineMeta,

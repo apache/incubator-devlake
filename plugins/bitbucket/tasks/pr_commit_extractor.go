@@ -28,7 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ExtractApiPullRequestCommitsMeta = core.SubTaskMeta{
+var ExtractApiPrCommitsMeta = core.SubTaskMeta{
 	Name:             "extractApiPullRequestCommits",
 	EntryPoint:       ExtractApiPullRequestCommits,
 	EnabledByDefault: true,
@@ -146,14 +146,12 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 
 func convertPullRequestCommit(prCommit *ApiPrCommitsResponse, connId uint64) (*models.BitbucketCommit, errors.Error) {
 	bitbucketCommit := &models.BitbucketCommit{
-		Sha:          prCommit.Hash,
-		Message:      prCommit.Message,
-		AuthorId:     prCommit.Author.User.AccountId,
-		AuthorName:   prCommit.Author.User.UserName,
-		AuthorEmail:  prCommit.Author.Raw,
-		AuthoredDate: prCommit.Date,
-		//CommitterName:  prCommit.Commit.Committer.Name,
-		//CommitterEmail: prCommit.Commit.Committer.Email,
+		Sha:           prCommit.Hash,
+		Message:       prCommit.Message,
+		AuthorId:      prCommit.Author.User.AccountId,
+		AuthorName:    prCommit.Author.User.UserName,
+		AuthorEmail:   prCommit.Author.Raw,
+		AuthoredDate:  prCommit.Date,
 		CommittedDate: prCommit.Date,
 		Url:           prCommit.Links.Self.Href,
 	}

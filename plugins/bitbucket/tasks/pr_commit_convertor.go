@@ -29,7 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertPullRequestCommitsMeta = core.SubTaskMeta{
+var ConvertPrCommitsMeta = core.SubTaskMeta{
 	Name:             "convertPullRequestCommits",
 	EntryPoint:       ConvertPullRequestCommits,
 	EnabledByDefault: true,
