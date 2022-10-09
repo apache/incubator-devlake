@@ -33,19 +33,18 @@ Apache DevLake is designed for developer teams looking to make better sense of t
 
 ## 💪 Supported Data Sources
 
-| Data Source  | Domain(s)                                           |Supoorted Versions                    | Plugins |
-|--------------|-----------------------------------------------------|--------------------------------------|-------- |
-| GitHub       | Source Code Management, Code Review, Issue Tracking | Cloud                                |`github`, `gitextractor`, `refdiff` |
-| GitLab       | Source Code Management, Code Review, Issue Tracking | Cloud, Community Edition 13.x+       |`gitlab`, `gitextractor`, `refdiff` |
-| BitBucket    | Source Code Management, Code Review, Issue Tracking | Cloud                                |`bitbucket`, `gitextractor`, `refdiff` |
-| Gitee        | Source Code Management, Code Review, Issue Tracking | Cloud                                |`gitee`, `gitextractor`, `refdiff` |
-| Jira         | Issue Tracking                                      | Cloud, Server 8.x+, Data Center 8.x+ |`jira` |
-| TAPD         | Issue Tracking                                      | Cloud                                | `tapd` |
-| Jenkins      | CI/CD                                               | 2.263.x+                             |`jenkins` |
-| GitHub Action| CI/CD                                               | Cloud                                |`github`|
-| GitLab CI    | CI/CD                                               | Cloud, Community Edition 13.x+       |`gitlab`|
-| Feishu       | Calendar                                            | Cloud                                |`feishu` |
-| AE           | Source Code Management                              |                                      | `ae`    |
+| Data Source                   | Domain(s)                                                  | Supported Versions                   | Triggered Plugins           | Collection Mode       |
+|-------------------------------|------------------------------------------------------------|--------------------------------------|---------------------------- | --------------------- |
+| GitHub (include GitHub Action)| Source Code Management, Code Review, Issue Tracking, CI/CD | Cloud                                |`github`, `gitextractor`     | Full Refresh, Incremental Sync(for `issues`, `PRs`) |
+| GitLab (include GitLabCI)     | Source Code Management, Code Review, Issue Tracking, CI/CD | Cloud, Community Edition 13.x+       |`gitlab`, `gitextractor`     | Full Refresh, Incremental Sync(for `issues`)|
+| Gitee                         | Source Code Management, Code Review, Issue Tracking        | Cloud                                |`gitee`, `gitextractor`      | Incremental Sync      |
+| BitBucket                     | Source Code Management, Code Review                        | Cloud                                |`bitbucket`, `gitextractor`  | Full Refresh          |
+| Jira                          | Issue Tracking                                             | Cloud, Server 8.x+, Data Center 8.x+ |`jira`                       | Full Refresh, Incremental Sync(for `issues`, `changelogs`, `worklogs`) |
+| TAPD                          | Issue Tracking                                             | Cloud                                |`tapd`                       | Full Refresh, Incremental Sync(for `stories`, `bugs`, `tasks`)          |
+| Jenkins                       | CI/CD                                                      | 2.263.x+                             |`jenkins`                    | Full Refresh          |
+| Feishu                        | Calendar                                                   | Cloud                                |`feishu`                     | Full Refresh          |
+| AE                            | Source Code Management                                     |                                      | `ae`                        | Full Refresh          |
+
 
 ## 🚀 Getting Started
 
