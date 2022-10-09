@@ -15,13 +15,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
+	"context"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
+	"gorm.io/gorm"
 )
 
-type Snapshot struct {
+type RepoSnapshot struct {
 	common.NoPKModel
 	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha string `gorm:"primaryKey;type:varchar(40);"`
@@ -29,6 +32,24 @@ type Snapshot struct {
 	LineNo    int    `gorm:"primaryKey;type:int;"`
 }
 
-func (Snapshot) TableName() string {
+func (RepoSnapshot) TableName() string {
 	return "repo_snapshot"
+}
+
+type addRepoSnapshot struct{}
+
+func (*addRepoSnapshot) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	err := db.Migrator().AutoMigrate(RepoSnapshot{})
+	if err != nil {
+		return errors.Convert(err)
+	}
+	return nil
+}
+
+func (*addRepoSnapshot) Version() uint64 {
+	return 20221009111241
+}
+
+func (*addRepoSnapshot) Name() string {
+	return "add snapshot table"
 }

@@ -23,7 +23,5 @@ import (
 
 // All return all the migration scripts
 func All() []migration.Script {
-	return []migration.Script{
-		new(addSnapshot20220927),
-	}
+	return []migration.Script{}
 }

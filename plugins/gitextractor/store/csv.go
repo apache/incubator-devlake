@@ -21,7 +21,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -127,7 +126,7 @@ func NewCsvStore(dir string) (*CsvStore, errors.Error) {
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
-	s.snapshotWriter, err = newCsvWriter(filepath.Join(dir, "snapshot.csv"), models.Snapshot{})
+	s.snapshotWriter, err = newCsvWriter(filepath.Join(dir, "repo_snapshot.csv"), code.RepoSnapshot{})
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
@@ -158,7 +157,7 @@ func (c *CsvStore) CommitLineChange(commitLineChange *code.CommitLineChange) err
 	return c.commitLineChangeWriter.Write(commitLineChange)
 }
 
-func (c *CsvStore) Snapshot(ss *models.Snapshot) errors.Error {
+func (c *CsvStore) RepoSnapshot(ss *code.RepoSnapshot) errors.Error {
 	return c.commitLineChangeWriter.Write(ss)
 }
 

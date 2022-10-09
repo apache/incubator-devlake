@@ -20,7 +20,6 @@ package store
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -101,7 +100,7 @@ func (d *Database) CommitFileComponents(commitFileComponent *code.CommitFileComp
 	return batch.Add(commitFileComponent)
 }
 
-func (d *Database) Snapshot(snapshotElement *models.Snapshot) errors.Error {
+func (d *Database) RepoSnapshot(snapshotElement *code.RepoSnapshot) errors.Error {
 	batch, err := d.driver.ForType(reflect.TypeOf(snapshotElement))
 	if err != nil {
 		return err
