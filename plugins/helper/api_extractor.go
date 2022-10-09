@@ -117,7 +117,7 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 			}
 			// set raw data origin field
 			origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
-			if origin.IsValid() {
+			if origin.IsValid() && origin.IsZero() {
 				origin.Set(reflect.ValueOf(common.RawDataOrigin{
 					RawDataTable:  extractor.table,
 					RawDataId:     row.ID,
