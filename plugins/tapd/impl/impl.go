@@ -101,6 +101,8 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractCompanyMeta,
 		tasks.CollectSubWorkspaceMeta,
 		tasks.ExtractSubWorkspaceMeta,
+		tasks.CollectWorkitemTypesMeta,
+		tasks.ExtractWorkitemTypesMeta,
 		tasks.CollectStoryCustomFieldsMeta,
 		tasks.ExtractStoryCustomFieldsMeta,
 		tasks.CollectTaskCustomFieldsMeta,

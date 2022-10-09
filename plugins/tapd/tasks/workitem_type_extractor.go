@@ -25,41 +25,34 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractStoryStatus
+var _ core.SubTaskEntryPoint = ExtractWorkitemTypes
 
-var ExtractStoryStatusMeta = core.SubTaskMeta{
-	Name:             "extractStoryStatus",
-	EntryPoint:       ExtractStoryStatus,
+var ExtractWorkitemTypesMeta = core.SubTaskMeta{
+	Name:             "extractWorkitemTypes",
+	EntryPoint:       ExtractWorkitemTypes,
 	EnabledByDefault: true,
-	Description:      "Extract raw workspace data into tool layer table _tool_tapd_bugStatus",
+	Description:      "Extract raw company data into tool layer table _tool_tapd_story_category",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractStoryStatus(taskCtx core.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_STATUS_TABLE, true)
+func ExtractWorkitemTypes(taskCtx core.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_WORKITEM_TYPE_TABLE, false)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
-			var storyStatusRes struct {
-				Data map[string]string
+			var workitemType struct {
+				WorkitemType models.TapdWorkitemType
 			}
-			err := errors.Convert(json.Unmarshal(row.Data, &storyStatusRes))
+			err := errors.Convert(json.Unmarshal(row.Data, &workitemType))
 			if err != nil {
 				return nil, err
 			}
-			results := make([]interface{}, 0)
-			for k, v := range storyStatusRes.Data {
-				toolL := &models.TapdStoryStatus{
-					ConnectionId: data.Options.ConnectionId,
-					WorkspaceId:  data.Options.WorkspaceId,
-					EnglishName:  k,
-					ChineseName:  v,
-					IsLastStep:   false,
-				}
-				results = append(results, toolL)
-			}
+			toolL := workitemType.WorkitemType
 
-			return results, nil
+			toolL.ConnectionId = data.Options.ConnectionId
+			return []interface{}{
+				&toolL,
+			}, nil
 		},
 	})
 

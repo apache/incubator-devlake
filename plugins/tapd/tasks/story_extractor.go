@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"strings"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -41,7 +40,7 @@ var ExtractStoryMeta = core.SubTaskMeta{
 }
 
 func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, true)
 	db := taskCtx.GetDal()
 	statusList := make([]*models.TapdStoryStatus, 0)
 	clauses := []dal.Clause{
@@ -56,15 +55,8 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 	for _, v := range statusList {
 		statusMap[v.EnglishName] = v.ChineseName
 	}
-	getStdStatus := func(statusKey string) string {
-		if statusKey == "已实现" || statusKey == "已拒绝" || statusKey == "关闭" || statusKey == "已取消" || statusKey == "已解决" {
-			return ticket.DONE
-		} else if statusKey == "草稿" {
-			return ticket.TODO
-		} else {
-			return ticket.IN_PROGRESS
-		}
-	}
+	mappings, err := getTypeMappings(data, db, "story")
+
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
@@ -72,15 +64,22 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 			var storyBody struct {
 				Story models.TapdStory
 			}
-			err := errors.Convert(json.Unmarshal(row.Data, &storyBody))
+			err = errors.Convert(json.Unmarshal(row.Data, &storyBody))
 			if err != nil {
 				return nil, err
 			}
 			toolL := storyBody.Story
 			toolL.Status = statusMap[toolL.Status]
-			toolL.ConnectionId = data.Options.ConnectionId
-			toolL.StdType = "REQUIREMENT"
 			toolL.StdStatus = getStdStatus(toolL.Status)
+
+			toolL.ConnectionId = data.Options.ConnectionId
+
+			toolL.Type = mappings.typeIdMappings[toolL.WorkitemTypeId]
+			toolL.StdType = mappings.stdTypeMappings[toolL.Type]
+			if toolL.StdType == "" {
+				toolL.StdType = "REQUIREMENT"
+			}
+
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
@@ -122,4 +121,9 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
+}
+
+type typeMappings struct {
+	typeIdMappings  map[uint64]string
+	stdTypeMappings map[string]string
 }

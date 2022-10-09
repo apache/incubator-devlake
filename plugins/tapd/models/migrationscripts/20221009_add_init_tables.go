@@ -49,6 +49,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		"_raw_tapd_api_task_custom_fields",
 		"_raw_tapd_api_users",
 		"_raw_tapd_api_worklogs",
+		"_raw_tapd_api_workitem_types",
 		"_raw_tapd_api_sub_workspaces",
 		"_tool_tapd_users",
 		&archived.TapdWorkspace{},
@@ -86,6 +87,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		&archived.TapdTaskCustomFields{},
 		&archived.TapdStoryCategory{},
 		&archived.TapdStoryBug{},
+		&archived.TapdWorkitemType{},
 	)
 	if err != nil {
 		return errors.Convert(err)
@@ -128,11 +130,12 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		&archived.TapdTaskCustomFields{},
 		&archived.TapdStoryCategory{},
 		&archived.TapdStoryBug{},
+		&archived.TapdWorkitemType{},
 	))
 }
 
 func (*addInitTables) Version() uint64 {
-	return 20220714201138
+	return 20221009201138
 }
 
 func (*addInitTables) Name() string {

@@ -22,10 +22,12 @@ import (
 	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"gorm.io/gorm"
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -138,4 +140,39 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string, useC
 		Table:  rawTable,
 	}
 	return rawDataSubTaskArgs, &filteredData
+}
+
+func getStdStatus(statusKey string) string {
+	if statusKey == "已实现" || statusKey == "已拒绝" || statusKey == "关闭" || statusKey == "已取消" || statusKey == "已解决" {
+		return ticket.DONE
+	} else if statusKey == "草稿" {
+		return ticket.TODO
+	} else {
+		return ticket.IN_PROGRESS
+	}
+}
+
+func getTypeMappings(data *TapdTaskData, db dal.Dal, system string) (*typeMappings, errors.Error) {
+	typeIdMapping := make(map[uint64]string)
+	issueTypes := make([]models.TapdWorkitemType, 0)
+	clauses := []dal.Clause{
+		dal.From(&models.TapdWorkitemType{}),
+		dal.Where("connection_id = ? and workspace_id = ? and entity_type = ?",
+			data.Options.ConnectionId, data.Options.WorkspaceId, system),
+	}
+	err := db.All(&issueTypes, clauses...)
+	if err != nil {
+		return nil, err
+	}
+	for _, issueType := range issueTypes {
+		typeIdMapping[issueType.Id] = issueType.Name
+	}
+	stdTypeMappings := make(map[string]string)
+	for userType, stdType := range data.Options.TransformationRules.TypeMappings {
+		stdTypeMappings[userType] = strings.ToUpper(stdType.StandardType)
+	}
+	return &typeMappings{
+		typeIdMappings:  typeIdMapping,
+		stdTypeMappings: stdTypeMappings,
+	}, nil
 }
