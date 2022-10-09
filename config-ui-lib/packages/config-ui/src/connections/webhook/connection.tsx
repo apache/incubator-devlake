@@ -130,7 +130,7 @@ export const WebhookConnection = () => {
         data={data}
       />
       <Modal
-        open={visible}
+        visible={visible}
         title={title}
         footer={null}
         onCancel={handleHideModal}

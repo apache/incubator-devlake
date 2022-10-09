@@ -20,7 +20,7 @@ import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-import { dependencies } from './package.json';
+import { peerDependencies } from './package.json';
 
 export default defineConfig({
   plugins: [react()],
@@ -29,10 +29,12 @@ export default defineConfig({
     outDir: '_build',
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'config-ui',
+      name: '@devlake-ui/config',
+      fileName: (format) => `index.${format}.js`,
+      formats: ['es'],
     },
     rollupOptions: {
-      external: [...Object.keys(dependencies)],
+      external: [...Object.keys(peerDependencies)],
     },
   },
 });

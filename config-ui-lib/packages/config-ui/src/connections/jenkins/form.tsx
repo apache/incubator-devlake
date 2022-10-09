@@ -83,7 +83,10 @@ export const JenkinsConnectionForm = ({
       <Form.Item label="Rate Limit" name="rateLimitPerHour">
         <InputNumber min={0} />
       </Form.Item>
-      <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+      <Form.Item
+        wrapperCol={{ offset: 6, span: 16 }}
+        style={{ marginBottom: 0 }}
+      >
         <Button type="primary" onClick={handleSubmit}>
           Submit
         </Button>
