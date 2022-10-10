@@ -51,7 +51,7 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.Select("tjj.name,tjj.path"),
 		dal.From("_tool_jenkins_jobs tjj"),
-		dal.Where(`tjj.connection_id = ?`, data.Options.ConnectionId),
+		dal.Where(`tjj.connection_id = ? and tjj.name = ?`, data.Options.ConnectionId, data.Options.JobName),
 	}
 
 	cursor, err := db.Cursor(clauses...)
