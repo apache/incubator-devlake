@@ -19,6 +19,7 @@ import { Link } from 'react-router-dom';
 
 import * as S from './styled';
 
+import GitLabIcon from '@/images/icons/gitlab.svg';
 import JenkinsIcon from '@/images/icons/jenkins.svg';
 import WebhookIcon from '@/images/icons/webhook.svg';
 
@@ -37,6 +38,12 @@ export const Connections = () => {
           your Blueprints.
         </h4>
         <ul className="list">
+          <li>
+            <Link to="/connections/gitlab">
+              <img src={GitLabIcon} width={60} alt="" />
+              <span>GitLab</span>
+            </Link>
+          </li>
           <li>
             <Link to="/connections/jenkins">
               <img src={JenkinsIcon} width={60} alt="" />

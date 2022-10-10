@@ -16,12 +16,18 @@
  *
  */
 import { useParams } from 'react-router-dom';
-import { JenkinsConnection, WebhookConnection } from '@devlake/config-ui';
+import {
+  GitLabConnection,
+  JenkinsConnection,
+  WebhookConnection,
+} from '@devlake-ui/config';
 
 export const Connection = () => {
   const { type } = useParams();
 
   switch (type) {
+    case 'gitlab':
+      return <GitLabConnection />;
     case 'jenkins':
       return <JenkinsConnection />;
     case 'webhook':
