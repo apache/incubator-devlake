@@ -30,10 +30,9 @@ export type ReuqestConfig = {
   headers?: Record<string, string>;
 };
 
-const request = (
-  path: string,
-  { method, data, timeout, headers, signal }: ReuqestConfig,
-) => {
+const request = (path: string, config?: ReuqestConfig) => {
+  const { method = 'GET', data, timeout, headers, signal } = config || {};
+
   const cancelTokenSource = axios.CancelToken.source();
   const promise = instance
     .request({
