@@ -69,7 +69,7 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 		}
 		err := db.First(&latestUpdated, clauses...)
 		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
-			return errors.NotFound.Wrap(err, "failed to get latest jira issue record: %w")
+			return errors.NotFound.Wrap(err, "failed to get latest jira issue record")
 		}
 		if latestUpdated.IssueId > 0 {
 			since = &latestUpdated.Updated
