@@ -15,16 +15,10 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState } from 'react'
-import {
-  Checkbox,
-  Intent,
-  MenuItem,
-  Position,
-  Tooltip
-} from '@blueprintjs/core'
-import { MultiSelect } from '@blueprintjs/select'
-import GitlabProject from '@/models/GitlabProject'
+import React, {useEffect, useState} from 'react'
+import {Intent, MenuItem, Position, Tooltip} from '@blueprintjs/core'
+import {MultiSelect} from '@blueprintjs/select'
+import JenkinsJob from "@/models/JenkinsJob";
 
 const JenkinsJobsSelector = (props) => {
   const {
@@ -141,7 +135,7 @@ const JenkinsJobsSelector = (props) => {
                     ...rT,
                     [configuredConnection.id]: [
                       ...rT[configuredConnection.id],
-                      item
+                      new JenkinsJob(item)
                     ]
                   }
                 : { ...rT }

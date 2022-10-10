@@ -15,19 +15,17 @@
  * limitations under the License.
  *
  */
-import { useCallback, useEffect, useState, useMemo } from 'react'
-import { ToastNotification } from '@/components/Toast'
-import { DEVLAKE_ENDPOINT } from '@/utils/config'
-import request from '@/utils/request'
-import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
-import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
-import { integrationsData } from '@/data/integrations'
+import {useCallback, useEffect, useMemo, useState} from 'react'
+import {BlueprintMode} from '@/data/NullBlueprint'
+import {DEFAULT_DATA_ENTITIES} from '@/data/BlueprintWorkflow'
+import {integrationsData} from '@/data/integrations'
 import TransformationSettings from '@/models/TransformationSettings'
 import JiraBoard from '@/models/JiraBoard'
 import GitHubProject from '@/models/GithubProject'
 import GitlabProject from '@/models/GitlabProject'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
-import { DataScopeModes } from '@/data/DataScopes'
+import {ProviderIcons, ProviderLabels, Providers} from '@/data/Providers'
+import {DataScopeModes} from '@/data/DataScopes'
+import JenkinsJob from "@/models/JenkinsJob";
 
 function useDataScopesManager({
   mode = DataScopeModes.CREATE,
@@ -397,7 +395,7 @@ function useDataScopesManager({
     (c) =>
       c.scope.map(
         (s) =>
-          new GitlabProject({
+          new JenkinsJob({
             id: s.options?.jobName,
             key: s.options?.jobName,
             value: s.options?.jobName,
