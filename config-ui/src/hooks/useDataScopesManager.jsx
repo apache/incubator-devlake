@@ -543,7 +543,7 @@ function useDataScopesManager({
       boardsList: boardsList,
       transformations: c.scope.map((s) => ({ ...s.transformation })),
       transformationStates: c.scope.map((s) =>
-        Object.values(s.transformation).some((v) =>
+        Object.values(s.transformation ?? {}).some((v) =>
           Array.isArray(v)
             ? v.length > 0
             : v && typeof v === 'object'
