@@ -31,7 +31,7 @@ import DataEntitiesSelector from '@/components/blueprints/DataEntitiesSelector'
 import NoData from '@/components/NoData'
 import GitlabProjectsSelector from '@/components/blueprints/GitlabProjectsSelector'
 import GitHubProject from '@/models/GithubProject'
-import JenkinsJobsSelector from "@/components/blueprints/JenkinsJobsSelector";
+import JenkinsJobsSelector from '@/components/blueprints/JenkinsJobsSelector'
 
 const DataScopes = (props) => {
   const {

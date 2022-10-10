@@ -27,46 +27,45 @@ const useJenkins = (
   const [jobs, setJobs] = useState([])
   const [error, setError] = useState()
 
-  const fetchJobs = useCallback(
-    async () => {
-      try {
-        if (apiProxyPath.includes('null')) {
-          throw new Error('Connection ID is Null')
-        }
-        setError(null)
-        setIsFetching(true)
-        // only search when type more than 2 chars
-        const endpoint = jobsEndpoint
-          .replace('[:connectionId:]', activeConnection?.connectionId)
-        const jobsResponse = await request.get(endpoint)
-        if (
-          jobsResponse &&
-          jobsResponse.status === 200 &&
-          jobsResponse.data &&
-          jobsResponse.data.jobs
-        ) {
-          setJobs(createListData(jobsResponse.data?.jobs))
-        } else {
-          throw new Error('request jobs fail')
-        }
-      } catch (e) {
-        setError(e)
-        ToastNotification.show({
-          message: e.message,
-          intent: 'danger',
-          icon: 'error'
-        })
-      } finally {
-        setIsFetching(false)
+  const fetchJobs = useCallback(async () => {
+    try {
+      if (apiProxyPath.includes('null')) {
+        throw new Error('Connection ID is Null')
       }
-    },
-    [jobsEndpoint, activeConnection, apiProxyPath]
-  )
+      setError(null)
+      setIsFetching(true)
+      // only search when type more than 2 chars
+      const endpoint = jobsEndpoint.replace(
+        '[:connectionId:]',
+        activeConnection?.connectionId
+      )
+      const jobsResponse = await request.get(endpoint)
+      if (
+        jobsResponse &&
+        jobsResponse.status === 200 &&
+        jobsResponse.data &&
+        jobsResponse.data.jobs
+      ) {
+        setJobs(createListData(jobsResponse.data?.jobs))
+      } else {
+        throw new Error('request jobs fail')
+      }
+    } catch (e) {
+      setError(e)
+      ToastNotification.show({
+        message: e.message,
+        intent: 'danger',
+        icon: 'error'
+      })
+    } finally {
+      setIsFetching(false)
+    }
+  }, [jobsEndpoint, activeConnection, apiProxyPath])
 
   const createListData = (
     data = [],
     titleProperty = 'name',
-    valueProperty = 'name',
+    valueProperty = 'name'
   ) => {
     return data.map((d, dIdx) => ({
       id: d[valueProperty],

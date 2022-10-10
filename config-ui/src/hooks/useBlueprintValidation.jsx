@@ -161,7 +161,9 @@ function useBlueprintValidation({
             errs.push('Boards: No Boards selected.')
           }
           if (
-            [Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(activeProvider?.id) &&
+            [Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(
+              activeProvider?.id
+            ) &&
             projects[activeConnection?.id]?.length === 0
           ) {
             if (activeProvider?.id === Providers.JENKINS) {

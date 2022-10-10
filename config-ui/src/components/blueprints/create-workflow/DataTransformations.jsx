@@ -53,7 +53,6 @@ import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import NoData from '@/components/NoData'
 import StandardStackedList from '@/components/blueprints/StandardStackedList'
 import ProviderTransformationSettings from '@/components/blueprints/ProviderTransformationSettings'
-import GithubSettings from '@/pages/configure/settings/github'
 
 const DataTransformations = (props) => {
   const {
@@ -253,7 +252,8 @@ const DataTransformations = (props) => {
                     [
                       Providers.JIRA,
                       Providers.GITHUB,
-                      Providers.GITLAB
+                      Providers.GITLAB,
+                      Providers.JENKINS
                     ].includes(configuredConnection.provider) && (
                       <div
                         className='project-or-board-select'
@@ -265,9 +265,6 @@ const DataTransformations = (props) => {
                             : 'Project'}
                         </h4>
                         <Select
-                          disabled={
-                            configuredConnection.provider === Providers.JENKINS
-                          }
                           popoverProps={{ usePortal: false }}
                           className='selector-entity'
                           id='selector-entity'
@@ -301,10 +298,6 @@ const DataTransformations = (props) => {
                           }}
                         >
                           <Button
-                            disabled={
-                              configuredConnection.provider ===
-                              Providers.JENKINS
-                            }
                             className='btn-select-entity'
                             intent={Intent.PRIMARY}
                             outlined
@@ -327,9 +320,11 @@ const DataTransformations = (props) => {
                       </div>
                     )}
 
-                  {[Providers.GITLAB, Providers.GITHUB, Providers.JENKINS].includes(
-                    configuredConnection.provider
-                  ) &&
+                  {[
+                    Providers.GITLAB,
+                    Providers.GITHUB,
+                    Providers.JENKINS
+                  ].includes(configuredConnection.provider) &&
                     !useDropdownSelector &&
                     !configuredProject && (
                       <>

@@ -79,8 +79,8 @@ import {
   GITLAB_API_PROXY_ENDPOINT,
   PROJECTS_ENDPOINT
 } from '@/config/gitlabApiProxy'
-import useJenkins from "@/hooks/useJenkins";
-import {JENKINS_JOBS_ENDPOINT} from "@/config/jenkinsApiProxy";
+import useJenkins from '@/hooks/useJenkins'
+import {JENKINS_API_PROXY_ENDPOINT, JENKINS_JOBS_ENDPOINT} from '@/config/jenkinsApiProxy'
 
 // import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 
@@ -296,7 +296,7 @@ const CreateBlueprint = (props) => {
     error: jenkinsProxyError
   } = useJenkins(
     {
-      apiProxyPath: JIRA_API_PROXY_ENDPOINT,
+      apiProxyPath: JENKINS_API_PROXY_ENDPOINT,
       jobsEndpoint: JENKINS_JOBS_ENDPOINT
     },
     configuredConnection

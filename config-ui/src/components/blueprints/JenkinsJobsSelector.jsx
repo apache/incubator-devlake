@@ -84,7 +84,7 @@ const JenkinsJobsSelector = (props) => {
   }, [onFetch, configuredConnection?.id])
 
   useEffect(() => {
-    setFiltedItems(items.filter(v => v.title.includes(query)))
+    setFiltedItems(items.filter((v) => v.title.includes(query)))
   }, [items, query])
 
   return (
@@ -118,7 +118,9 @@ const JenkinsJobsSelector = (props) => {
             }
           }}
           noResults={
-            isFetching ? <MenuItem disabled={true} text='Fetching...' /> : (
+            isFetching ? (
+              <MenuItem disabled={true} text='Fetching...' />
+            ) : (
               <MenuItem disabled={true} text='No Jobs Available.' />
             )
           }

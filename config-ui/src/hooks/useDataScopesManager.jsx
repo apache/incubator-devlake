@@ -365,36 +365,62 @@ function useDataScopesManager({
 
   const getGithubProjects = useCallback(
     (c) =>
-      [Providers.GITHUB].includes(c.plugin)
-        ? c.scope.map(
-            (s) =>
-              new GitHubProject({
-                id: `${s.options?.owner}/${s.options?.repo}`,
-                key: `${s.options?.owner}/${s.options?.repo}`,
-                owner: s.options?.owner,
-                repo: s.options?.repo,
-                value: `${s.options?.owner}/${s.options?.repo}`,
-                title: `${s.options?.owner}/${s.options?.repo}`
-              })
-          )
-        : [],
+      c.scope.map(
+        (s) =>
+          new GitHubProject({
+            id: `${s.options?.owner}/${s.options?.repo}`,
+            key: `${s.options?.owner}/${s.options?.repo}`,
+            owner: s.options?.owner,
+            repo: s.options?.repo,
+            value: `${s.options?.owner}/${s.options?.repo}`,
+            title: `${s.options?.owner}/${s.options?.repo}`
+          })
+      ),
     []
   )
 
   const getGitlabProjects = useCallback(
     (c) =>
-      [Providers.GITLAB].includes(c.plugin)
-        ? c.scope.map(
-            (s) =>
-              new GitlabProject({
-                id: s.options?.projectId,
-                key: s.options?.projectId,
-                value: s.options?.projectId,
-                title: s.options?.title || `Project ${s.options?.projectId}`
-              })
-          )
-        : [],
+      c.scope.map(
+        (s) =>
+          new GitlabProject({
+            id: s.options?.projectId,
+            key: s.options?.projectId,
+            value: s.options?.projectId,
+            title: s.options?.title || `Project ${s.options?.projectId}`
+          })
+      ),
     []
+  )
+
+  const getJenkinsProjects = useCallback(
+    (c) =>
+      c.scope.map(
+        (s) =>
+          new GitlabProject({
+            id: s.options?.jobName,
+            key: s.options?.jobName,
+            value: s.options?.jobName,
+            title: s.options?.jobName
+          })
+      ),
+    []
+  )
+
+  const getProjects = useCallback(
+    (c) => {
+      switch (c.plugin) {
+        case Providers.GITHUB:
+          return getGithubProjects(c)
+        case Providers.GITLAB:
+          return getGitlabProjects(c)
+        case Providers.JENKINS:
+          return getJenkinsProjects(c)
+        default:
+          return []
+      }
+    },
+    [getGithubProjects, getGitlabProjects, getJenkinsProjects]
   )
 
   const getAdvancedGithubProjects = useCallback(
@@ -531,9 +557,7 @@ function useDataScopesManager({
       entityList: c.scope[0]?.entities?.map((e) =>
         DEFAULT_DATA_ENTITIES.find((de) => de.value === e)
       ),
-      projects: [Providers.GITLAB].includes(c.plugin)
-        ? getGitlabProjects(c)
-        : getGithubProjects(c),
+      projects: getProjects(c),
       boards: [Providers.JIRA].includes(c.plugin)
         ? c.scope.map((s) => `Board ${s.options?.boardId}`)
         : [],
@@ -562,7 +586,7 @@ function useDataScopesManager({
       stage: 1,
       totalStages: 1
     }),
-    [getGithubProjects, getGitlabProjects]
+    [getProjects]
   )
 
   const createAdvancedConnection = useCallback(
@@ -655,6 +679,7 @@ function useDataScopesManager({
     switch (connection?.provider?.id) {
       case Providers.GITHUB:
       case Providers.GITLAB:
+      case Providers.JENKINS:
         setProjects((p) => ({
           ...p,
           [connection?.id]: connection?.projects || []
@@ -683,16 +708,6 @@ function useDataScopesManager({
           setTransformationSettings(connection.transformations[bIdx], bId)
         )
         break
-      case Providers.JENKINS:
-        setEntities((e) => ({
-          ...e,
-          [connection?.id]: connection?.entityList || []
-        }))
-        setTransformationSettings(
-          connection.transformations[0],
-          `C#${connection?.id}`
-        )
-        break
     }
   }, [connection, setTransformationSettings])
 
@@ -707,45 +722,6 @@ function useDataScopesManager({
     transformations,
     modifyConnectionSettings
   ])
-
-  useEffect(() => {
-    console.log('>>>>> DATA SCOPES MANAGER: PROVIDER...', provider)
-    switch (provider?.id) {
-      case Providers.GITHUB:
-        break
-      case Providers.GITLAB:
-        break
-      case Providers.JIRA:
-        break
-      case Providers.JENKINS:
-        break
-      case Providers.TAPD:
-        break
-    }
-  }, [provider])
-
-  useEffect(() => {
-    console.log(
-      '>>>>> DATA SCOPES MANAGER: INITIALIZE NEW CONNECTION TRANSFORMATIONS...',
-      newConnections
-    )
-    // @note: jenkins has no "project/board" entity associated!
-    // transformations are based on the main connection scope...
-    const jenkinsTransformations = newConnections
-      .filter((c) => c.plugin === Providers.JENKINS)
-      .map((c) => `C#${c?.id}`)
-    console.log(
-      '>>>>> DATA SCOPES MANAGER: JENKINS TRANSFORMATIONS SCOPES...',
-      jenkinsTransformations
-    )
-    if (Array.isArray(jenkinsTransformations)) {
-      setTransformations((cT) => ({
-        ...jenkinsTransformations.reduce(initializeTransformations, {}),
-        // Spread Current/Existing Transformations Settings
-        ...cT
-      }))
-    }
-  }, [newConnections, initializeTransformations])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: INITIALIZE BOARDS...', boards)
