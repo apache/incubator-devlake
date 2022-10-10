@@ -15,21 +15,41 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
+	"context"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/common"
+	"gorm.io/gorm"
 )
 
-type Store interface {
-	RepoCommits(repoCommit *code.RepoCommit) errors.Error
-	Commits(commit *code.Commit) errors.Error
-	Refs(ref *code.Ref) errors.Error
-	CommitFiles(file *code.CommitFile) errors.Error
-	CommitParents(pp []*code.CommitParent) errors.Error
-	CommitFileComponents(commitFileComponent *code.CommitFileComponent) errors.Error
-	CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error
-	RepoSnapshot(snapshot *code.RepoSnapshot) errors.Error
-	Close() errors.Error
+type RepoSnapshot struct {
+	common.NoPKModel
+	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
+	CommitSha string `gorm:"primaryKey;type:varchar(40);"`
+	FilePath  string `gorm:"primaryKey;type:varchar(255);"`
+	LineNo    int    `gorm:"primaryKey;type:int;"`
+}
+
+func (RepoSnapshot) TableName() string {
+	return "repo_snapshot"
+}
+
+type addRepoSnapshot struct{}
+
+func (*addRepoSnapshot) Up(ctx context.Context, db *gorm.DB) errors.Error {
+	err := db.Migrator().AutoMigrate(RepoSnapshot{})
+	if err != nil {
+		return errors.Convert(err)
+	}
+	return nil
+}
+
+func (*addRepoSnapshot) Version() uint64 {
+	return 20221009111241
+}
+
+func (*addRepoSnapshot) Name() string {
+	return "add snapshot table"
 }

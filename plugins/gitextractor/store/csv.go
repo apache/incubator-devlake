@@ -86,6 +86,7 @@ type CsvStore struct {
 	commitParentWriter        *csvWriter
 	commitFileComponentWriter *csvWriter
 	commitLineChangeWriter    *csvWriter
+	snapshotWriter            *csvWriter
 }
 
 func NewCsvStore(dir string) (*CsvStore, errors.Error) {
@@ -125,6 +126,10 @@ func NewCsvStore(dir string) (*CsvStore, errors.Error) {
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
+	s.snapshotWriter, err = newCsvWriter(filepath.Join(dir, "repo_snapshot.csv"), code.RepoSnapshot{})
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
 	return s, nil
 }
 
@@ -150,6 +155,10 @@ func (c *CsvStore) CommitFileComponents(commitFileComponent *code.CommitFileComp
 
 func (c *CsvStore) CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error {
 	return c.commitLineChangeWriter.Write(commitLineChange)
+}
+
+func (c *CsvStore) RepoSnapshot(ss *code.RepoSnapshot) errors.Error {
+	return c.commitLineChangeWriter.Write(ss)
 }
 
 func (c *CsvStore) CommitParents(pp []*code.CommitParent) errors.Error {
@@ -178,6 +187,9 @@ func (c *CsvStore) Close() errors.Error {
 	}
 	if c.commitParentWriter != nil {
 		c.commitParentWriter.Close()
+	}
+	if c.snapshotWriter != nil {
+		c.snapshotWriter.Close()
 	}
 	return nil
 }
