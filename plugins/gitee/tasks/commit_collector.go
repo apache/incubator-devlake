@@ -56,7 +56,7 @@ func CollectApiCommits(taskCtx core.SubTaskContext) errors.Error {
 		)
 
 		if err != nil {
-			return errors.Default.Wrap(err, "failed to get latest gitee commit record: %w")
+			return errors.Default.Wrap(err, "failed to get latest gitee commit record")
 		}
 		if latestUpdated.Sha != "" {
 			since = &latestUpdated.CommittedDate

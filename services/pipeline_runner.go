@@ -73,7 +73,7 @@ func (p *pipelineRunner) runPipelineViaTemporal() errors.Error {
 	}
 	err = workflow.Get(context.Background(), nil)
 	if err != nil {
-		p.logger.Info("failed to execute pipeline #%d via temporal: %w", p.pipeline.ID, err)
+		p.logger.Info("failed to execute pipeline #%d via temporal: %v", p.pipeline.ID, err)
 	}
 	p.logger.Info("pipeline #%d finished by temporal", p.pipeline.ID)
 	return errors.Convert(err)
