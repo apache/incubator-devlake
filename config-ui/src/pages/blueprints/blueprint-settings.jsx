@@ -79,7 +79,10 @@ import {
   PROJECTS_ENDPOINT
 } from '@/config/gitlabApiProxy'
 import useJenkins from '@/hooks/useJenkins'
-import {JENKINS_API_PROXY_ENDPOINT, JENKINS_JOBS_ENDPOINT} from '@/config/jenkinsApiProxy'
+import {
+  JENKINS_API_PROXY_ENDPOINT,
+  JENKINS_JOBS_ENDPOINT
+} from '@/config/jenkinsApiProxy'
 
 const BlueprintSettings = (props) => {
   // eslint-disable-next-line no-unused-vars

@@ -15,17 +15,17 @@
  * limitations under the License.
  *
  */
-import {useCallback, useEffect, useMemo, useState} from 'react'
-import {BlueprintMode} from '@/data/NullBlueprint'
-import {DEFAULT_DATA_ENTITIES} from '@/data/BlueprintWorkflow'
-import {integrationsData} from '@/data/integrations'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { BlueprintMode } from '@/data/NullBlueprint'
+import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
+import { integrationsData } from '@/data/integrations'
 import TransformationSettings from '@/models/TransformationSettings'
 import JiraBoard from '@/models/JiraBoard'
 import GitHubProject from '@/models/GithubProject'
 import GitlabProject from '@/models/GitlabProject'
-import {ProviderIcons, ProviderLabels, Providers} from '@/data/Providers'
-import {DataScopeModes} from '@/data/DataScopes'
-import JenkinsJob from "@/models/JenkinsJob";
+import { ProviderIcons, ProviderLabels, Providers } from '@/data/Providers'
+import { DataScopeModes } from '@/data/DataScopes'
+import JenkinsJob from '@/models/JenkinsJob'
 
 function useDataScopesManager({
   mode = DataScopeModes.CREATE,

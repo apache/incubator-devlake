@@ -15,10 +15,10 @@
  * limitations under the License.
  *
  */
-import React, {useEffect, useState} from 'react'
-import {Intent, MenuItem, Position, Tooltip} from '@blueprintjs/core'
-import {MultiSelect} from '@blueprintjs/select'
-import JenkinsJob from "@/models/JenkinsJob";
+import React, { useEffect, useState } from 'react'
+import { Intent, MenuItem, Position, Tooltip } from '@blueprintjs/core'
+import { MultiSelect } from '@blueprintjs/select'
+import JenkinsJob from '@/models/JenkinsJob'
 
 const JenkinsJobsSelector = (props) => {
   const {

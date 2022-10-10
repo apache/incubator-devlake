@@ -35,6 +35,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	taskData := &tasks.JenkinsTaskData{
 		Options: &tasks.JenkinsOptions{
 			ConnectionId: 1,
+			JobName:      `devlake`,
 		},
 	}
 
