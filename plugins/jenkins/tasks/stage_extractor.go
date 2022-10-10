@@ -42,6 +42,7 @@ func ExtractApiStages(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
+				JobName:      data.Options.JobName,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_STAGE_TABLE,

@@ -27,6 +27,7 @@ import (
 
 type JenkinsApiParams struct {
 	ConnectionId uint64
+	JobName      string
 }
 
 type JenkinsOptions struct {
