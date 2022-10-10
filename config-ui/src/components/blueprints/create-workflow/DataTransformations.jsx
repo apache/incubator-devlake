@@ -104,15 +104,6 @@ const DataTransformations = (props) => {
     setInitializeTransformations(transformations)
   }, [])
 
-  const isTransformationSupported = useMemo(
-    () =>
-      configuredProject ||
-      configuredBoard ||
-      (configuredConnection?.provider === Providers.JENKINS &&
-        configuredConnection),
-    [configuredProject, configuredBoard, configuredConnection]
-  )
-
   const noTransformationsAvailable = useMemo(
     () =>
       [Providers.TAPD].includes(configuredConnection?.provider) ||
@@ -150,9 +141,6 @@ const DataTransformations = (props) => {
     (item) => {
       const initializeTransform = initializeTransformations[item?.id]
       const storedTransform = transformations[item?.id]
-
-      console.log(initializeTransform)
-      console.log(storedTransform)
       return (
         initializeTransform &&
         storedTransform &&
@@ -339,7 +327,7 @@ const DataTransformations = (props) => {
                       </div>
                     )}
 
-                  {[Providers.GITLAB, Providers.GITHUB].includes(
+                  {[Providers.GITLAB, Providers.GITHUB, Providers.JENKINS].includes(
                     configuredConnection.provider
                   ) &&
                     !useDropdownSelector &&
@@ -391,7 +379,7 @@ const DataTransformations = (props) => {
                       </>
                     )}
 
-                  {isTransformationSupported && (
+                  {(configuredProject || configuredBoard) && (
                     <div>
                       {!useDropdownSelector &&
                         (configuredProject || configuredBoard) && (

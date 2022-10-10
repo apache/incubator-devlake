@@ -62,12 +62,12 @@ function useDataScopesManager({
     switch (connection?.providerId) {
       case Providers.GITHUB:
       case Providers.GITLAB:
+      case Providers.JENKINS:
         key = configuredProject?.id
         break
       case Providers.JIRA:
         key = configuredBoard?.id
         break
-      case Providers.JENKINS:
       case 'default':
         key = `C#${connection?.id}`
         break
@@ -254,13 +254,13 @@ function useDataScopesManager({
           }))
           break
         case Providers.JENKINS:
-          newScope = {
+          newScope = projects[connection.id]?.map((p) => ({
             ...newScope,
-            // options: {
-            // },
-            // NOTE: Jenkins has no concept of projects/boards. Transformations Key'ed by Conn *INDEX* ID!
-            transformation: { ...transformations[`C#${connection?.id}`] }
-          }
+            options: {
+              jobName: p.value
+            },
+            transformation: { ...transformations[p?.id] }
+          }))
           break
         case Providers.GITHUB:
           newScope = projects[connection.id]?.map((p) => ({

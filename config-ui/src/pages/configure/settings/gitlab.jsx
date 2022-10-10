@@ -30,7 +30,6 @@ export default function GitlabSettings(props) {
     transformation = {},
     entityIdKey,
     provider,
-    projects,
     configuredProject,
     isSaving = false,
     isSavingConnection = false,

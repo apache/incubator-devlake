@@ -137,6 +137,9 @@ func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandl
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
+		"connections/:connectionId/proxy/rest/*path": {
+			"GET": api.Proxy,
+		},
 	}
 }
 

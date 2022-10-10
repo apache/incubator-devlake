@@ -21,13 +21,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
 const (
@@ -35,7 +35,7 @@ const (
 )
 
 func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	connection := &models.GitlabConnection{}
+	connection := &models.JenkinsConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error)
 		context.TODO(),
 		connection.Endpoint,
 		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
+			"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 		},
 		TimeOut,
 		connection.Proxy,

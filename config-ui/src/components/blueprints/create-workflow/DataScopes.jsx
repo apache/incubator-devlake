@@ -31,6 +31,7 @@ import DataEntitiesSelector from '@/components/blueprints/DataEntitiesSelector'
 import NoData from '@/components/NoData'
 import GitlabProjectsSelector from '@/components/blueprints/GitlabProjectsSelector'
 import GitHubProject from '@/models/GithubProject'
+import JenkinsJobsSelector from "@/components/blueprints/JenkinsJobsSelector";
 
 const DataScopes = (props) => {
   const {
@@ -42,6 +43,9 @@ const DataScopes = (props) => {
     fetchGitlabProjects = () => [],
     isFetchingGitlab = false,
     gitlabProjects = [],
+    fetchJenkinsJobs = () => [],
+    isFetchingJenkins = false,
+    jenkinsJobs = [],
     dataEntities = [],
     projects = [],
     boards = [],
@@ -221,6 +225,27 @@ const DataScopes = (props) => {
                         onFetch={fetchGitlabProjects}
                         isFetching={isFetchingGitlab}
                         items={gitlabProjects}
+                        selectedItems={selectedProjects}
+                        onItemSelect={setProjects}
+                        onClear={setProjects}
+                        onRemove={setProjects}
+                        disabled={isSaving}
+                        configuredConnection={configuredConnection}
+                        isLoading={isFetching}
+                      />
+                    </>
+                  )}
+
+                  {[Providers.JENKINS].includes(
+                    configuredConnection.provider
+                  ) && (
+                    <>
+                      <h4>Jobs *</h4>
+                      <p>Select the job you would like to sync.</p>
+                      <JenkinsJobsSelector
+                        onFetch={fetchJenkinsJobs}
+                        isFetching={isFetchingJenkins}
+                        items={jenkinsJobs}
                         selectedItems={selectedProjects}
                         onItemSelect={setProjects}
                         onClear={setProjects}
