@@ -20,7 +20,7 @@ import { Table } from 'antd';
 
 import type { JenkinsItemType } from './typed';
 
-export interface JenkinsListProps {
+export interface JenkinsConnectionListProps {
   style?: React.CSSProperties;
   extraColumn?: TableColumnType<any>[];
   loading: boolean;
@@ -32,7 +32,7 @@ export const JenkinsConnectionList = ({
   loading,
   data,
   ...props
-}: JenkinsListProps) => {
+}: JenkinsConnectionListProps) => {
   const columns: TableColumnType<any>[] = [
     {
       title: 'ID',

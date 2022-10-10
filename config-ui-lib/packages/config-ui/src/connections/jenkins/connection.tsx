@@ -26,7 +26,6 @@ import { JenkinsConnectionForm } from './form';
 import { JenkinsConnectionList } from './list';
 import type { JenkinsPayloadType } from './typed';
 import * as API from './api';
-
 import * as S from './styled';
 
 export const JenkinsConnection = () => {

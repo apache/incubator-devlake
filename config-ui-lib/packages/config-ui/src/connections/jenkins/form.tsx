@@ -20,7 +20,7 @@ import { Form, Input, InputNumber, Button } from 'antd';
 
 import type { JenkinsItemType, JenkinsPayloadType } from './typed';
 
-export interface JenkinsFormProps {
+export interface JenkinsConnectionFormProps {
   initialValues?: JenkinsItemType;
   onSubmit: (values: JenkinsPayloadType) => void;
 }
@@ -28,7 +28,7 @@ export interface JenkinsFormProps {
 export const JenkinsConnectionForm = ({
   initialValues,
   onSubmit,
-}: JenkinsFormProps) => {
+}: JenkinsConnectionFormProps) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
