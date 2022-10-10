@@ -17,7 +17,7 @@
  */
 
 /**
- * @typedef {object} GitlabProject
+ * @typedef {object} JenkinsJob
  * @property {number?} id
  * @property {number?} key
  * @property {number?} projectId
