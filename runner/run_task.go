@@ -297,7 +297,7 @@ func UpdateProgressDetail(db *gorm.DB, log core.Logger, taskId uint64, progressD
 		pct := float32(p.Current) / float32(p.Total)
 		err := db.Model(task).Update("progress", pct).Error
 		if err != nil {
-			log.Error(err, "failed to update progress: %w")
+			log.Error(err, "failed to update progress")
 		}
 	case core.SubTaskSetProgress:
 		progressDetail.TotalRecords = p.Total

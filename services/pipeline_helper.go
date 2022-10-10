@@ -53,7 +53,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	}
 	// save pipeline to database
 	if err := db.Create(&dbPipeline).Error; err != nil {
-		globalPipelineLog.Error(err, "create pipline failed: %w", err)
+		globalPipelineLog.Error(err, "create pipline failed: %v", err)
 		return nil, errors.Internal.Wrap(err, "create pipline failed")
 	}
 
@@ -69,7 +69,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 			}
 			_, err := CreateTask(newTask)
 			if err != nil {
-				globalPipelineLog.Error(err, "create task for pipeline failed: %w", err)
+				globalPipelineLog.Error(err, "create task for pipeline failed: %v", err)
 				return nil, err
 			}
 			// sync task state back to pipeline
@@ -77,7 +77,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 		}
 	}
 	if err != nil {
-		globalPipelineLog.Error(err, "save tasks for pipeline failed: %w", err)
+		globalPipelineLog.Error(err, "save tasks for pipeline failed: %v", err)
 		return nil, errors.Internal.Wrap(err, "save tasks for pipeline failed")
 	}
 	if dbPipeline.TotalTasks == 0 {
@@ -88,7 +88,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	if err := db.Model(dbPipeline).Updates(map[string]interface{}{
 		"total_tasks": dbPipeline.TotalTasks,
 	}).Error; err != nil {
-		globalPipelineLog.Error(err, "update pipline state failed: %w", err)
+		globalPipelineLog.Error(err, "update pipline state failed: %v", err)
 		return nil, errors.Internal.Wrap(err, "update pipline state failed")
 	}
 

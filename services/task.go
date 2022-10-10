@@ -225,7 +225,7 @@ func runTasksStandalone(parentLogger core.Logger, taskIds []uint64) errors.Error
 	for _, taskId := range taskIds {
 		taskId := taskId
 		go func() {
-			taskLog.Info("run task in background ", taskId)
+			taskLog.Info("run task #%d in background ", taskId)
 			var err errors.Error
 			taskErr := runTaskStandalone(parentLogger, taskId)
 			if taskErr != nil {

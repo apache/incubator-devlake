@@ -213,7 +213,7 @@ func watchTemporalPipelines() {
 					"",
 				)
 				if err != nil {
-					globalPipelineLog.Error(err, "failed to query workflow execution: %w", err)
+					globalPipelineLog.Error(err, "failed to query workflow execution: %v", err)
 					continue
 				}
 				// workflow is terminated by outsider
@@ -233,7 +233,7 @@ func watchTemporalPipelines() {
 						for hisIter.HasNext() {
 							his, err := hisIter.Next()
 							if err != nil {
-								globalPipelineLog.Error(err, "failed to get next from workflow history iterator: %w", err)
+								globalPipelineLog.Error(err, "failed to get next from workflow history iterator: %v", err)
 								continue
 							}
 							rp.Message = fmt.Sprintf("temporal event type: %v", his.GetEventType())
@@ -246,7 +246,7 @@ func watchTemporalPipelines() {
 						"finished_at": rp.FinishedAt,
 					}).Error
 					if err != nil {
-						globalPipelineLog.Error(err, "failed to update db: %w", err)
+						globalPipelineLog.Error(err, "failed to update db: %v", err)
 					}
 					continue
 				}
@@ -270,7 +270,7 @@ func watchTemporalPipelines() {
 					}
 					lastPayload := payloads[len(payloads)-1]
 					if err := dc.FromPayload(lastPayload, progressDetail); err != nil {
-						globalPipelineLog.Error(err, "failed to unmarshal heartbeat payload: %w", err)
+						globalPipelineLog.Error(err, "failed to unmarshal heartbeat payload: %v", err)
 						continue
 					}
 				}
@@ -303,7 +303,7 @@ func NotifyExternal(pipelineId uint64) errors.Error {
 		Status:     pipeline.Status,
 	})
 	if err != nil {
-		globalPipelineLog.Error(err, "failed to send notification: %w", err)
+		globalPipelineLog.Error(err, "failed to send notification: %v", err)
 		return err
 	}
 	return nil
