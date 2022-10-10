@@ -100,6 +100,14 @@ func (d *Database) CommitFileComponents(commitFileComponent *code.CommitFileComp
 	return batch.Add(commitFileComponent)
 }
 
+func (d *Database) RepoSnapshot(snapshotElement *code.RepoSnapshot) errors.Error {
+	batch, err := d.driver.ForType(reflect.TypeOf(snapshotElement))
+	if err != nil {
+		return err
+	}
+	return batch.Add(snapshotElement)
+}
+
 func (d *Database) CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error {
 	batch, err := d.driver.ForType(reflect.TypeOf(commitLineChange))
 	if err != nil {

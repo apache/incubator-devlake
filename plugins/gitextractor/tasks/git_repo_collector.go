@@ -101,14 +101,6 @@ func getGitRepo(subTaskCtx core.SubTaskContext) *parser.GitRepo {
 	return repo
 }
 
-var CollectGitDiffLineMeta = core.SubTaskMeta{
-	Name:             "collectDiffLine",
-	EntryPoint:       CollectGitDiffLines,
-	EnabledByDefault: false,
-	Description:      "collect git commit diff line into Domain Layer Tables",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
-}
-
 var CollectGitCommitMeta = core.SubTaskMeta{
 	Name:             "collectGitCommits",
 	EntryPoint:       CollectGitCommits,
@@ -130,5 +122,13 @@ var CollectGitTagMeta = core.SubTaskMeta{
 	EntryPoint:       CollectGitTags,
 	EnabledByDefault: true,
 	Description:      "collect git tag into Domain Layer Tables",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+}
+
+var CollectGitDiffLineMeta = core.SubTaskMeta{
+	Name:             "collectDiffLine",
+	EntryPoint:       CollectGitDiffLines,
+	EnabledByDefault: false,
+	Description:      "collect git commit diff line into Domain Layer Tables",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
 }
