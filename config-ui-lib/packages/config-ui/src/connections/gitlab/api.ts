@@ -15,6 +15,18 @@
  * limitations under the License.
  *
  */
-export * from './gitlab';
-export * from './jenkins';
-export * from './webhook';
+import request from '../../utils/request';
+
+export const getList = () => request('/plugins/gitlab/connections');
+
+export const create = (payload: any) =>
+  request('/plugins/gitlab/connections', { method: 'POST', data: payload });
+
+export const remove = (id: number) =>
+  request(`/plugins/gitlab/connections/${id}`, { method: 'DELETE' });
+
+export const update = (id: number, payload: any) =>
+  request(`/plugins/gitlab/connections/${id}`, {
+    method: 'PATCH',
+    data: payload,
+  });

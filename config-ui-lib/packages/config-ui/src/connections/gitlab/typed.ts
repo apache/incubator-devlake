@@ -15,6 +15,13 @@
  * limitations under the License.
  *
  */
-export * from './gitlab';
-export * from './jenkins';
-export * from './webhook';
+export type GitLabItemType = {
+  id: number;
+  name: string;
+  endpoint: string;
+  token: string;
+  proxy: string;
+  rateLimitPerHour: number;
+};
+
+export type GitLabPayloadType = {};

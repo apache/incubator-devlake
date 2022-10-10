@@ -15,6 +15,6 @@
  * limitations under the License.
  *
  */
-export * from './gitlab';
-export * from './jenkins';
-export * from './webhook';
+import styled from '@emotion/styled';
+
+export const PageContainer = styled.div``;
