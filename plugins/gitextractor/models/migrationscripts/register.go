@@ -15,21 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/migration"
 )
 
-type Store interface {
-	RepoCommits(repoCommit *code.RepoCommit) errors.Error
-	Commits(commit *code.Commit) errors.Error
-	Refs(ref *code.Ref) errors.Error
-	CommitFiles(file *code.CommitFile) errors.Error
-	CommitParents(pp []*code.CommitParent) errors.Error
-	CommitFileComponents(commitFileComponent *code.CommitFileComponent) errors.Error
-	CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error
-	RepoSnapshot(snapshot *code.RepoSnapshot) errors.Error
-	Close() errors.Error
+// All return all the migration scripts
+func All() []migration.Script {
+	return []migration.Script{}
 }
