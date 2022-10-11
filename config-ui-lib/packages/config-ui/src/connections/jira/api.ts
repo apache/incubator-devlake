@@ -15,7 +15,20 @@
  * limitations under the License.
  *
  */
-export * from './gitlab';
-export * from './jira';
-export * from './jenkins';
-export * from './webhook';
+
+import request from '../../utils/request';
+
+export const getList = () =>
+  request('/plugins/jira/connections', { method: 'GET' });
+
+export const create = (payload: any) =>
+  request('/plugins/jira/connections', { method: 'POST', data: payload });
+
+export const remove = (id: string) =>
+  request(`/plugins/jira/connections/${id}`, { method: 'DELETE' });
+
+export const update = (id: string, payload: any) =>
+  request(`/plugins/jira/connections/${id}`, {
+    method: 'PATCH',
+    data: payload,
+  });

@@ -15,7 +15,22 @@
  * limitations under the License.
  *
  */
-export * from './gitlab';
-export * from './jira';
-export * from './jenkins';
-export * from './webhook';
+
+export type JiraItemType = {
+  id: number;
+  name: string;
+  endpoint: string;
+  username: string;
+  password: string;
+  proxy: string;
+  rateLimitPerHour: number;
+};
+
+export type JiraPayloadType = {
+  name: string;
+  endpoint: string;
+  username: string;
+  password: string;
+  proxy?: string;
+  rateLimitPerHour?: number;
+};

@@ -15,7 +15,4 @@
  * limitations under the License.
  *
  */
-export * from './gitlab';
-export * from './jira';
-export * from './jenkins';
-export * from './webhook';
+export * from './connection';
