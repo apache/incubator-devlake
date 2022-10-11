@@ -36,7 +36,7 @@ import SlackLogo from '@/images/slack-logo.svg';
 
 const { Header, Sider, Content, Footer } = Layout;
 
-const items = [
+const menuItems = [
   {
     label: <Link to="/connections">Connections</Link>,
     key: 'connections',
@@ -66,10 +66,15 @@ export const Base = () => {
         <Menu
           theme="dark"
           mode="inline"
-          items={items}
           selectedKeys={[selectedKeys]}
           onClick={handleChangeMenu}
-        />
+        >
+          {menuItems.map((it) => (
+            <Menu.Item key={it.key} icon={it.icon}>
+              {it.label}
+            </Menu.Item>
+          ))}
+        </Menu>
       </Sider>
       <Layout>
         <Header>

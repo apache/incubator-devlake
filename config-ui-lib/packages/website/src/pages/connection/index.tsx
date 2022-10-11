@@ -18,6 +18,7 @@
 import { useParams } from 'react-router-dom';
 import {
   GitLabConnection,
+  JiraConnection,
   JenkinsConnection,
   WebhookConnection,
 } from '@devlake-ui/config';
@@ -28,6 +29,8 @@ export const Connection = () => {
   switch (type) {
     case 'gitlab':
       return <GitLabConnection />;
+    case 'jira':
+      return <JiraConnection />;
     case 'jenkins':
       return <JenkinsConnection />;
     case 'webhook':
