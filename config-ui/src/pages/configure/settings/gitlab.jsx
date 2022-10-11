@@ -36,13 +36,6 @@ export default function GitlabSettings(props) {
     onSettingsChange = () => {}
   } = props
 
-  useEffect(() => {
-    console.log(
-      '>>>> GITLAB: TRANSFORMATION SETTINGS OBJECT....',
-      transformation
-    )
-  }, [transformation])
-
   return (
     <>
       {entities.some((e) => e.value === DataEntityTypes.DEVOPS) &&
