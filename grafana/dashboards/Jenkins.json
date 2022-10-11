@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 12,
-  "iteration": 1665471722652,
+  "iteration": 1665481244736,
   "links": [],
   "panels": [
     {
@@ -168,7 +168,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS time,\n  1.0 * count(case when t.status = 'SUCCESS' then 1 else null end)/count(*)\nFROM cicd_tasks t\n  join cicd_pipelines p on t.pipeline_id = p.id \nWHERE\n  $__timeFilter(t.started_date)\n  and t.id like \"%jenkins%\"\n  and p.name in ($job_id)\nORDER BY 1",
+          "rawSql": "SELECT\n  now() AS time,\n  1.0 * count(case when t.result = 'SUCCESS' then 1 else null end)/count(*)\nFROM cicd_tasks t\n  join cicd_pipelines p on t.pipeline_id = p.id \nWHERE\n  $__timeFilter(t.started_date)\n  and t.id like \"%jenkins%\"\n  and p.name in ($job_id)\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -286,7 +286,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS time,\n  t.status,\n  count(*) as build_count\nFROM cicd_tasks t\n  join cicd_pipelines p on t.pipeline_id = p.id \nWHERE\n  $__timeFilter(t.started_date)\n  and t.id like \"%jenkins%\"\n  and p.name in ($job_id)\nGROUP BY 1,2\nORDER BY 1",
+          "rawSql": "SELECT\n  now() AS time,\n  t.result,\n  count(*) as build_count\nFROM cicd_tasks t\n  join cicd_pipelines p on t.pipeline_id = p.id \nWHERE\n  $__timeFilter(t.started_date)\n  and t.id like \"%jenkins%\"\n  and p.name in ($job_id)\nGROUP BY 1,2\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -578,7 +578,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(t.started_date), INTERVAL -DAYOFMONTH(date(t.started_date))+1 DAY) as time,\r\n    t.status\r\n  FROM\r\n    cicd_tasks t\r\n  join cicd_pipelines p on t.pipeline_id = p.id \r\nWHERE\r\n  $__timeFilter(t.started_date)\r\n  and t.id like \"%jenkins%\"\r\n  and p.name in ($job_id)\r\n)\r\n\r\nSELECT \r\n  date_format(time,'%M %Y') as month,\r\n  1.0 * sum(case when status = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Build Success Rate\"\r\nFROM _build_success_rate\r\ngroup by 1\r\norder by 1",
+          "rawSql": "with _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(t.started_date), INTERVAL -DAYOFMONTH(date(t.started_date))+1 DAY) as time,\r\n    t.result as result\r\n  FROM\r\n    cicd_tasks t\r\n  join cicd_pipelines p on t.pipeline_id = p.id \r\nWHERE\r\n  $__timeFilter(t.started_date)\r\n  and t.id like \"%jenkins%\"\r\n  and p.name in ($job_id)\r\n)\r\n\r\nSELECT \r\n  date_format(time,'%M %Y') as month,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Build Success Rate\"\r\nFROM _build_success_rate\r\ngroup by 1\r\norder by 1",
           "refId": "A",
           "select": [
             [
@@ -718,7 +718,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(t.started_date), INTERVAL -DAYOFMONTH(date(t.started_date))+1 DAY) as time,\n  count(distinct case when t.status = 'SUCCESS' then t.id else null end) as successful_build_count,\n  count(distinct case when t.status != 'SUCCESS' then t.id else null end) as failed_build_count\nFROM cicd_tasks t\n  join cicd_pipelines p on t.pipeline_id = p.id\nWHERE\n  $__timeFilter(t.started_date)\n  and t.id like \"%jenkins%\"\n  and p.name in ($job_id)\ngroup by 1",
+          "rawSql": "SELECT\n  DATE_ADD(date(t.started_date), INTERVAL -DAYOFMONTH(date(t.started_date))+1 DAY) as time,\n  count(distinct case when t.result = 'SUCCESS' then t.id else null end) as successful_build_count,\n  count(distinct case when t.result != 'SUCCESS' then t.id else null end) as failed_build_count\nFROM cicd_tasks t\n  join cicd_pipelines p on t.pipeline_id = p.id\nWHERE\n  $__timeFilter(t.started_date)\n  and t.id like \"%jenkins%\"\n  and p.name in ($job_id)\ngroup by 1",
           "refId": "A",
           "select": [
             [
@@ -890,13 +890,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "mysql",
         "definition": "select distinct concat(name, '--', name) as text from cicd_pipelines where id like \"%jenkins%\" ",
@@ -925,5 +921,5 @@
   "timezone": "",
   "title": "Jenkins",
   "uid": "W8AiDFQnk",
-  "version": 34
+  "version": 41
 }
