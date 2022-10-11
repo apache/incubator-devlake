@@ -44,11 +44,15 @@ type TypeMapping struct {
 	StandardType string `json:"standardType"`
 }
 
+type StatusMappings struct {
+	TodoStatus       []string `json:"todoStatus"`
+	InProgressStatus []string `json:"inprogressStatus"`
+	DoneStatus       []string `json:"doneStatus"`
+}
+
 type TypeMappings map[string]TypeMapping
 
 type TransformationRules struct {
-	EpicKeyField               string       `json:"epicKeyField"`
-	StoryPointField            string       `json:"storyPointField"`
-	RemotelinkCommitShaPattern string       `json:"remotelinkCommitShaPattern"`
-	TypeMappings               TypeMappings `json:"typeMappings"`
+	TypeMappings   TypeMappings   `json:"typeMappings"`
+	StatusMappings StatusMappings `json:"statusMappings"`
 }
