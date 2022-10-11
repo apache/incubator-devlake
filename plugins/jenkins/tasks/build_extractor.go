@@ -45,15 +45,9 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
+				JobName:      data.Options.JobName,
 			},
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
-			/*
-				Table store raw data
-			*/
+			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {

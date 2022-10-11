@@ -15,28 +15,9 @@
  * limitations under the License.
  *
  */
-import React, { useState } from 'react'
+// @todo: add string replacer for [:connectionId] or refactor this const
+const JENKINS_API_PROXY_ENDPOINT =
+  '/api/plugins/jenkins/connections/[:connectionId:]/proxy/rest'
+const JENKINS_JOBS_ENDPOINT = `${JENKINS_API_PROXY_ENDPOINT}/api/json?tree=jobs[name]{0,10000}`
 
-const UIContext = React.createContext({
-  sidebarVisible: false,
-  desktopBreakpointWidth: 850,
-  changeSidebarVisibility: () => {}
-})
-
-export const UIContextProvider = (props) => {
-  const [sidebarVisible, setSidebarVisible] = useState(false)
-
-  const contextValue = {
-    sidebarVisible: sidebarVisible,
-    changeSidebarVisibility: setSidebarVisible,
-    desktopBreakpointWidth: 850
-  }
-
-  return (
-    <UIContext.Provider value={contextValue}>
-      {props.children}
-    </UIContext.Provider>
-  )
-}
-
-export default UIContext
+export { JENKINS_API_PROXY_ENDPOINT, JENKINS_JOBS_ENDPOINT }
