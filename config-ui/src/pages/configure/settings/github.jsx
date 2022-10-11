@@ -47,26 +47,15 @@ export default function GithubSettings(props) {
     onSettingsChange = () => {},
     configuredProject
   } = props
-
-  // eslint-disable-next-line no-unused-vars
-  const [errors, setErrors] = useState([])
   const [enableAdditionalCalculations, setEnableAdditionalCalculations] =
     useState(false)
 
-  // eslint-disable-next-line no-unused-vars
-  const handleSettingsChange = useCallback(
-    (setting) => {
-      onSettingsChange(setting, configuredProject?.id)
-    },
-    [onSettingsChange, configuredProject]
-  )
-
-  const handleAdditionalSettings = useCallback(
-    (setting) => {
-      setEnableAdditionalCalculations(setting)
+  const handleAdditionalEnable = useCallback(
+    (enable) => {
+      setEnableAdditionalCalculations(enable)
       onSettingsChange(
         {
-          refdiff: setting
+          refdiff: enable
             ? { tagsOrder: '', tagsPattern: '', tagsLimit: 10 }
             : null
         },
@@ -442,7 +431,7 @@ export default function GithubSettings(props) {
               checked={enableAdditionalCalculations}
               label='Enable calculation of commit and issue difference'
               onChange={(e) =>
-                handleAdditionalSettings(!enableAdditionalCalculations)
+                handleAdditionalEnable(!enableAdditionalCalculations)
               }
             />
             {enableAdditionalCalculations && (
