@@ -43,11 +43,9 @@ export default function JenkinsSettings(props) {
     connection,
     entities = [],
     transformation = {},
-    entityIdKey,
     isSaving = false,
     isSavingConnection = false,
-    onSettingsChange = () => {},
-    configuredProject
+    onSettingsChange = () => {}
   } = props
 
   return (
@@ -56,7 +54,6 @@ export default function JenkinsSettings(props) {
         <Deployment
           provider={provider}
           entities={entities}
-          entityIdKey={entityIdKey}
           transformation={transformation}
           connection={connection}
           onSettingsChange={onSettingsChange}

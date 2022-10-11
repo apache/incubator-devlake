@@ -15,10 +15,11 @@
  * limitations under the License.
  *
  */
-import {useCallback, useState} from 'react'
-import {Providers} from '@/data/Providers'
-import useDataScopesManager from "@/hooks/useDataScopesManager";
-import TransformationSettings from "@/models/TransformationSettings";
+import { useCallback, useState } from 'react'
+import { Providers } from '@/data/Providers'
+import useDataScopesManager from '@/hooks/useDataScopesManager'
+import TransformationSettings from '@/models/TransformationSettings'
+import { isEqual } from 'lodash'
 
 // TODO separate to each plugin
 const getDefaultTransformations = (provider) => {
@@ -94,14 +95,11 @@ const getDefaultTransformations = (provider) => {
 const useTransformationsManager = () => {
   const [transformations, setTransformations] = useState({})
 
-  const generateKey = (connectionProvider, connectionId, projectNameOrBoard) => {
-    console.debug(
-      '>> useTransformationsManager.generateKey',
-      connectionProvider,
-      connectionId,
-      projectNameOrBoard
-    )
-
+  const generateKey = (
+    connectionProvider,
+    connectionId,
+    projectNameOrBoard
+  ) => {
     let key = `not-distinguish`
     switch (connectionProvider) {
       case Providers.GITHUB:
@@ -116,65 +114,123 @@ const useTransformationsManager = () => {
     return `${connectionProvider}/${connectionId}/${key}`
   }
 
-  const changeTransformationSettings = useCallback((settings, connectionProvider, connectionId, projectNameOrBoard) => {
-    const key = generateKey(connectionProvider, connectionId, projectNameOrBoard)
-    console.log(
-      '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
-      key,
-      settings
-    )
-    setTransformations((existingTransformations) => ({
-      ...existingTransformations,
-      [key]: {
-        ...existingTransformations[key],
-        ...settings,
-      },
-    }))
-  }, [setTransformations])
-
-  const initializeDefaultTransformationSettingsIfNotExist = useCallback((connectionProvider, connectionId, projectNameOrBoard) => {
-    const key = generateKey(connectionProvider, connectionId, projectNameOrBoard)
-    console.log(
-      '>> INIT DEFAULT TRANSFORMATION SETTINGS PROJECT/BOARD...',
-      key,
-    )
-    if (!transformations[key]) {
-      setTransformations(old => ({
-        ...old,
-        [key]: new TransformationSettings(getDefaultTransformations(connectionProvider)),
+  // change some setting in specific connection's specific transformation
+  const changeTransformationSettings = useCallback(
+    (connectionProvider, connectionId, projectNameOrBoard, settings) => {
+      const key = generateKey(
+        connectionProvider,
+        connectionId,
+        projectNameOrBoard
+      )
+      console.info(
+        '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
+        key,
+        settings
+      )
+      setTransformations((existingTransformations) => ({
+        ...existingTransformations,
+        [key]: new TransformationSettings({
+          ...existingTransformations[key],
+          ...settings
+        })
       }))
-    }
-  }, [setTransformations, transformations])
+    },
+    [setTransformations]
+  )
 
-  const getTransformation = useCallback((connectionProvider, connectionId, projectNameOrBoard) => {
-    const key = generateKey(connectionProvider, connectionId, projectNameOrBoard)
-    return transformations[key]
-  }, [transformations])
+  // set a default value for connection's specific transformation
+  const initializeDefaultTransformationSettingsIfNotExist = useCallback(
+    (connectionProvider, connectionId, projectNameOrBoard) => {
+      const key = generateKey(
+        connectionProvider,
+        connectionId,
+        projectNameOrBoard
+      )
+      console.info(
+        '>> INIT DEFAULT TRANSFORMATION SETTINGS PROJECT/BOARD...',
+        key
+      )
+      if (!transformations[key]) {
+        setTransformations((old) => ({
+          ...old,
+          [key]: new TransformationSettings(
+            getDefaultTransformations(connectionProvider)
+          )
+        }))
+      }
+    },
+    [setTransformations, transformations]
+  )
 
-  const clearTransformationSettings = useCallback((connectionProvider, connectionId, projectNameOrBoard) => {
-    const key = generateKey(connectionProvider, connectionId, projectNameOrBoard)
-    console.log(
-      '>> CLEAR TRANSFORMATION SETTINGS PROJECT/BOARD...',
-      key,
-    )
-    setTransformations((existingTransformations) => ({
-      ...existingTransformations,
-      [key]: null,
-    }))
-  }, [setTransformations])
+  // get specific connection's specific transformation
+  const getTransformation = useCallback(
+    (connectionProvider, connectionId, projectNameOrBoard) => {
+      const key = generateKey(
+        connectionProvider,
+        connectionId,
+        projectNameOrBoard
+      )
+      console.debug(
+        '>> useTransformationsManager.getTransformation...',
 
-  const checkTransformationIsExist = useCallback((connectionProvider, connectionId, projectNameOrBoard) => {
-    const key = generateKey(connectionProvider, connectionId, projectNameOrBoard)
-    const storedTransform = transformations[key]
-    return Object.values(storedTransform).some(v => v && v.length > 0)
-  }, [transformations])
+        connectionProvider,
+        connectionId,
+        projectNameOrBoard
+      )
+      return transformations[key]
+    },
+    [transformations]
+  )
+
+  // clear connection's transformation
+  const clearTransformationSettings = useCallback(
+    (connectionProvider, connectionId, projectNameOrBoard) => {
+      if (!projectNameOrBoard) {
+        return
+      }
+      const key = generateKey(
+        connectionProvider,
+        connectionId,
+        projectNameOrBoard
+      )
+      console.info('>> CLEAR TRANSFORMATION SETTINGS PROJECT/BOARD...', key)
+      setTransformations((existingTransformations) => ({
+        ...existingTransformations,
+        [key]: null
+      }))
+    },
+    [setTransformations]
+  )
+
+  // check connection's transformation is changed
+  const checkTransformationIsChanged = useCallback(
+    (connectionProvider, connectionId, projectNameOrBoard) => {
+      const key = generateKey(
+        connectionProvider,
+        connectionId,
+        projectNameOrBoard
+      )
+      const storedTransform = transformations[key]
+      const defaultTransform = new TransformationSettings(
+        getDefaultTransformations(connectionProvider)
+      )
+      console.debug(
+        '>> useTransformationsManager.checkTransformationIsChanged ...',
+        key,
+        storedTransform,
+        defaultTransform
+      )
+      return !isEqual(defaultTransform, storedTransform)
+    },
+    [transformations]
+  )
 
   return {
     getTransformation,
     changeTransformationSettings,
     initializeDefaultTransformationSettingsIfNotExist,
     clearTransformationSettings,
-    checkTransformationIsExist,
+    checkTransformationIsChanged
   }
 }
 

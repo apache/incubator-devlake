@@ -59,8 +59,6 @@ export default function JiraSettings(props) {
     entities = [],
     configuredBoard,
     transformation = {},
-    entityIdKey,
-    transformations = {},
     isSaving,
     onSettingsChange = () => {},
     issueTypes = [],
@@ -171,10 +169,8 @@ export default function JiraSettings(props) {
   const [fieldsList, setFieldsList] = useState(fields)
 
   useEffect(() => {
-    if (configuredBoard?.id) {
-      onSettingsChange({ typeMappings: typeMappingAll }, configuredBoard?.id)
-    }
-  }, [typeMappingAll, onSettingsChange, configuredBoard?.id])
+    onSettingsChange({ typeMappings: typeMappingAll })
+  }, [typeMappingAll, onSettingsChange])
 
   useEffect(() => {
     setTypeMappingAll((ma) => ({
@@ -207,10 +203,9 @@ export default function JiraSettings(props) {
     if (configuredBoard?.id) {
       setTypeMappingAll({})
       setTypeMappingRequirement(requirementTags[configuredBoard?.id])
-      onSettingsChange(
-        { requirementTags: requirementTags[configuredBoard?.id] },
-        configuredBoard?.id
-      )
+      onSettingsChange({
+        requirementTags: requirementTags[configuredBoard?.id]
+      })
     }
   }, [requirementTags, configuredBoard?.id, onSettingsChange])
 
@@ -218,10 +213,7 @@ export default function JiraSettings(props) {
     if (configuredBoard?.id) {
       setTypeMappingAll({})
       setTypeMappingBug(bugTags[configuredBoard?.id])
-      onSettingsChange(
-        { bugTags: bugTags[configuredBoard?.id] },
-        configuredBoard?.id
-      )
+      onSettingsChange({ bugTags: bugTags[configuredBoard?.id] })
     }
   }, [bugTags, configuredBoard?.id, onSettingsChange])
 
@@ -229,10 +221,7 @@ export default function JiraSettings(props) {
     if (configuredBoard?.id) {
       setTypeMappingAll({})
       setTypeMappingIncident(incidentTags[configuredBoard?.id])
-      onSettingsChange(
-        { incidentTags: incidentTags[configuredBoard?.id] },
-        configuredBoard?.id
-      )
+      onSettingsChange({ incidentTags: incidentTags[configuredBoard?.id] })
     }
   }, [incidentTags, configuredBoard?.id, onSettingsChange])
 
@@ -773,10 +762,7 @@ export default function JiraSettings(props) {
                   }
                   onItemSelect={(item) => {
                     setJiraIssueEpicKeyField(item)
-                    onSettingsChange(
-                      { epicKeyField: item?.value },
-                      configuredBoard?.id
-                    )
+                    onSettingsChange({ epicKeyField: item?.value })
                   }}
                   popoverProps={{
                     position: Position.TOP
@@ -808,7 +794,7 @@ export default function JiraSettings(props) {
                   minimal={false}
                   onClick={() => {
                     setJiraIssueEpicKeyField('')
-                    onSettingsChange({ epicKeyField: '' }, configuredBoard?.id)
+                    onSettingsChange({ epicKeyField: '' })
                   }}
                 />
               </ButtonGroup>
@@ -895,10 +881,7 @@ export default function JiraSettings(props) {
                   }
                   onItemSelect={(item) => {
                     setJiraIssueStoryPointField(item)
-                    onSettingsChange(
-                      { storyPointField: item?.value },
-                      configuredBoard?.id
-                    )
+                    onSettingsChange({ storyPointField: item?.value })
                   }}
                   popoverProps={{
                     position: Position.TOP
@@ -931,10 +914,7 @@ export default function JiraSettings(props) {
                   minimal={false}
                   onClick={() => {
                     setJiraIssueStoryPointField('')
-                    onSettingsChange(
-                      { storyPointField: '' },
-                      configuredBoard?.id
-                    )
+                    onSettingsChange({ storyPointField: '' })
                   }}
                 />
               </ButtonGroup>
@@ -974,10 +954,9 @@ export default function JiraSettings(props) {
                 placeholder='/commit/([0-9a-f]{40})$'
                 value={remoteLinkCommitSha}
                 onChange={(e) =>
-                  onSettingsChange(
-                    { remotelinkCommitShaPattern: e.target.value },
-                    configuredBoard?.id
-                  )
+                  onSettingsChange({
+                    remotelinkCommitShaPattern: e.target.value
+                  })
                 }
                 disabled={isSaving}
                 className='input'

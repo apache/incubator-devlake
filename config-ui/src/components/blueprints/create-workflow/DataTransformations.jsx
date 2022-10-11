@@ -15,38 +15,20 @@
  * limitations under the License.
  *
  */
-import React, {
-  Fragment,
-  useEffect,
-  useState,
-  useCallback,
-  useMemo
-} from 'react'
-import { isEqual } from 'lodash'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Button,
-  Icon,
-  Intent,
-  InputGroup,
-  MenuItem,
+  Card,
   Divider,
   Elevation,
-  Card,
-  Colors,
-  Spinner,
-  Tooltip,
-  Position
+  Icon,
+  Intent,
+  MenuItem
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import { integrationsData } from '@/data/integrations'
-import {
-  Providers,
-  ProviderTypes,
-  ProviderIcons,
-  ConnectionStatus,
-  ConnectionStatusLabels
-} from '@/data/Providers'
-import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
+import { ProviderIcons, Providers } from '@/data/Providers'
+import { DataEntityTypes } from '@/data/DataEntities'
 import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 
 import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
@@ -66,18 +48,16 @@ const DataTransformations = (props) => {
     boards = {},
     issueTypes = [],
     fields = [],
-    transformations = {},
     configuredConnection,
     configuredProject,
     configuredBoard,
-    configurationKey,
     handleConnectionTabChange = () => {},
     prevStep = () => {},
     addBoardTransformation = () => {},
     addProjectTransformation = () => {},
     activeTransformation = {},
-    setTransformations = () => {},
-    setTransformationSettings = () => {},
+    checkTransformationIsChanged = () => false,
+    changeTransformationSettings = () => {},
     onSave = () => {},
     onCancel = () => {},
     onClear = () => {},
@@ -95,13 +75,6 @@ const DataTransformations = (props) => {
     elevation = Elevation.TWO,
     cardStyle = {}
   } = props
-
-  // Used to determine whether to display edit transformation or add transformation
-  const [initializeTransformations, setInitializeTransformations] = useState({})
-
-  useEffect(() => {
-    setInitializeTransformations(transformations)
-  }, [])
 
   const noTransformationsAvailable = useMemo(
     () =>
@@ -136,17 +109,47 @@ const DataTransformations = (props) => {
   )
   const [activeEntity, setActiveEntity] = useState()
 
-  const transformationHasChanged = useCallback(
+  const checkCurrentTransformationIsChanged = useCallback(
     (item) => {
-      const initializeTransform = initializeTransformations[item?.id]
-      const storedTransform = transformations[item?.id]
-      return (
-        initializeTransform &&
-        storedTransform &&
-        !isEqual(initializeTransform, storedTransform)
+      return checkTransformationIsChanged(
+        configuredConnection?.provider,
+        configuredConnection?.id,
+        item
       )
     },
-    [initializeTransformations, transformations]
+    [
+      configuredConnection?.provider,
+      configuredConnection?.id,
+      checkTransformationIsChanged
+    ]
+  )
+
+  const changeCurrentTransformationSettings = useCallback(
+    (settings) => {
+      if (configuredBoard) {
+        return changeTransformationSettings(
+          configuredConnection?.provider,
+          configuredConnection?.id,
+          configuredBoard,
+          settings
+        )
+      } else {
+        console.log(configuredProject)
+        return changeTransformationSettings(
+          configuredConnection?.provider,
+          configuredConnection?.id,
+          configuredProject,
+          settings
+        )
+      }
+    },
+    [
+      configuredConnection?.provider,
+      configuredConnection?.id,
+      configuredBoard,
+      configuredProject,
+      changeTransformationSettings
+    ]
   )
 
   useEffect(() => {
@@ -162,6 +165,7 @@ const DataTransformations = (props) => {
           addBoardTransformation(activeEntity?.entity)
           break
         case 'project':
+        default:
           addProjectTransformation(activeEntity?.entity)
           break
       }
@@ -172,13 +176,6 @@ const DataTransformations = (props) => {
     addProjectTransformation,
     useDropdownSelector
   ])
-
-  useEffect(() => {
-    console.log(
-      '>>> DATA TRANSFORMATIONS: DSM $configurationKey',
-      configurationKey
-    )
-  }, [configurationKey])
 
   return (
     <div
@@ -330,13 +327,12 @@ const DataTransformations = (props) => {
                       <>
                         <StandardStackedList
                           items={projects}
-                          transformations={transformations}
                           className='selected-items-list selected-projects-list'
                           connection={configuredConnection}
                           activeItem={configuredProject}
                           onAdd={addProjectTransformation}
                           onChange={addProjectTransformation}
-                          isEditing={transformationHasChanged}
+                          isEditing={checkCurrentTransformationIsChanged}
                         />
                         {projects[configuredConnection.id].length === 0 && (
                           <NoData
@@ -355,13 +351,12 @@ const DataTransformations = (props) => {
                       <>
                         <StandardStackedList
                           items={boards}
-                          transformations={transformations}
                           className='selected-items-list selected-boards-list'
                           connection={configuredConnection}
                           activeItem={configuredBoard}
                           onAdd={addBoardTransformation}
                           onChange={addBoardTransformation}
-                          isEditing={transformationHasChanged}
+                          isEditing={checkCurrentTransformationIsChanged}
                         />
                         {boards[configuredConnection.id].length === 0 && (
                           <NoData
@@ -413,15 +408,12 @@ const DataTransformations = (props) => {
                           connection={configuredConnection}
                           configuredProject={configuredProject}
                           configuredBoard={configuredBoard}
-                          entityIdKey={configurationKey}
                           issueTypes={issueTypes}
                           fields={fields}
                           boards={boards}
-                          projects={projects}
                           entities={dataEntities}
                           transformation={activeTransformation}
-                          transformations={transformations}
-                          onSettingsChange={setTransformationSettings}
+                          onSettingsChange={changeCurrentTransformationSettings}
                           isSaving={isSaving}
                           isFetchingJIRA={isFetchingJIRA}
                           isSavingConnection={isSavingConnection}

@@ -170,13 +170,11 @@ const BlueprintSettings = (props) => {
     boards,
     projects,
     entities,
-    transformations,
     scopeConnection,
     activeTransformation,
     configuredConnection,
     configuredBoard,
     configuredProject,
-    configurationKey,
     enabledProviders,
     setConfiguredConnection,
     setConfiguredBoard,
@@ -184,14 +182,16 @@ const BlueprintSettings = (props) => {
     setBoards,
     setProjects,
     setEntities,
-    setTransformations,
-    setTransformationSettings,
+    getTransformation,
+    changeTransformationSettings,
+    initializeDefaultTransformationSettingsIfNotExist,
+    clearTransformationSettings,
+    checkTransformationIsChanged,
     // setActiveTransformation,
     setConnections,
     setScopeConnection,
     setEnabledProviders,
     createProviderConnections,
-    createProviderScopes,
     createNormalConnection,
     createAdvancedConnection,
     getJiraMappedBoards,
@@ -817,7 +817,6 @@ const BlueprintSettings = (props) => {
     activeSetting?.id,
     getCronPreset,
     blueprintSettings,
-    transformations,
     runTasksAdvanced
   ])
 
@@ -1437,7 +1436,6 @@ const BlueprintSettings = (props) => {
         configuredConnection={configuredConnection}
         configuredProject={configuredProject}
         configuredBoard={configuredBoard}
-        configurationKey={configurationKey}
         scopeConnection={scopeConnection}
         activeTransformation={activeTransformation}
         addProjectTransformation={addProjectTransformation}
@@ -1460,12 +1458,12 @@ const BlueprintSettings = (props) => {
         jenkinsJobs={jenkinsJobs}
         isFetchingJenkins={isFetchingJenkins}
         jenkinsProxyError={jenkinsProxyError}
-        setConfiguredProject={setConfiguredProject}
         setConfiguredBoard={setConfiguredBoard}
         setBoards={setBoards}
         setProjects={setProjects}
         setEntities={setEntities}
-        setTransformationSettings={setTransformationSettings}
+        checkTransformationIsChanged={checkTransformationIsChanged}
+        changeTransformationSettings={changeTransformationSettings}
         onOpening={handleBlueprintScopesDialogOpening}
         onSave={handleBlueprintSave}
         isSaving={isSaving}
