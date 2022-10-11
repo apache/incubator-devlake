@@ -27,13 +27,12 @@ const SidebarMenu = (props) => {
 
   useEffect(() => {}, [menu])
 
-  const handleProviderClick = (route) => {
-    if (route) {
-      if (route.includes('//')) {
-        window.location.href = route
-      } else {
-        history.push(route)
-      }
+  const handleProviderClick = (e, route) => {
+    // use history when route is not absolute url.
+    if (route && !route.includes('//')) {
+      e.preventDefault()
+      e.stopPropagation()
+      history.push(route)
     }
   }
 
@@ -47,7 +46,8 @@ const SidebarMenu = (props) => {
               key={`menu-item-key${mIdx}`}
               icon={m.icon}
               text={m.label}
-              onClick={() => handleProviderClick(m.route)}
+              href={m.route}
+              onClick={(e) => handleProviderClick(e, m.route)}
               target={m.target}
               disabled={m.disabled}
             />
@@ -58,14 +58,16 @@ const SidebarMenu = (props) => {
               key={`menu-item-key${mIdx}`}
               text={m.label}
               icon={m.icon}
-              onClick={() => handleProviderClick(m.route)}
+              href={m.route}
+              onClick={(e) => handleProviderClick(e, m.route)}
               disabled={m.disabled}
             >
               {m.children.map((mS, mSidx) => (
                 <Menu.Item
                   active={mS.active}
                   key={`submenu-${mIdx}-item-key${mSidx}`}
-                  onClick={() => handleProviderClick(mS.route)}
+                  href={m.route}
+                  onClick={(e) => handleProviderClick(e, mS.route)}
                   icon={mS.icon}
                   text={mS.label}
                   disabled={mS.disabled}
