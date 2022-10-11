@@ -184,7 +184,7 @@ const BlueprintSettings = (props) => {
     setEntities,
     getTransformation,
     changeTransformationSettings,
-    initializeDefaultTransformationSettingsIfNotExist,
+    initializeDefaultTransformation,
     clearTransformationSettings,
     checkTransformationIsChanged,
     // setActiveTransformation,

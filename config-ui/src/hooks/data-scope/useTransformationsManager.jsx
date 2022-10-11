@@ -139,7 +139,7 @@ const useTransformationsManager = () => {
   )
 
   // set a default value for connection's specific transformation
-  const initializeDefaultTransformationSettingsIfNotExist = useCallback(
+  const initializeDefaultTransformation = useCallback(
     (connectionProvider, connectionId, projectNameOrBoard) => {
       const key = generateKey(
         connectionProvider,
@@ -228,7 +228,7 @@ const useTransformationsManager = () => {
   return {
     getTransformation,
     changeTransformationSettings,
-    initializeDefaultTransformationSettingsIfNotExist,
+    initializeDefaultTransformation,
     clearTransformationSettings,
     checkTransformationIsChanged
   }

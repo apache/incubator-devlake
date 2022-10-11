@@ -54,7 +54,7 @@ function useDataScopesManager({
   const {
     getTransformation,
     changeTransformationSettings,
-    initializeDefaultTransformationSettingsIfNotExist,
+    initializeDefaultTransformation,
     clearTransformationSettings,
     checkTransformationIsChanged
   } = useTransformationsManager()
@@ -608,7 +608,7 @@ function useDataScopesManager({
     const boardArray = boards[connection?.id]
     if (Array.isArray(boardArray)) {
       for (const board of boardArray) {
-        initializeDefaultTransformationSettingsIfNotExist(
+        initializeDefaultTransformation(
           connection?.providerId,
           connection?.id,
           board
@@ -619,7 +619,7 @@ function useDataScopesManager({
     boards,
     connection?.providerId,
     connection?.id,
-    initializeDefaultTransformationSettingsIfNotExist
+    initializeDefaultTransformation
   ])
 
   useEffect(() => {
@@ -627,7 +627,7 @@ function useDataScopesManager({
     const projectArray = projects[connection?.id]
     if (Array.isArray(projectArray)) {
       for (const project of projectArray) {
-        initializeDefaultTransformationSettingsIfNotExist(
+        initializeDefaultTransformation(
           connection?.providerId,
           connection?.id,
           project
@@ -638,7 +638,7 @@ function useDataScopesManager({
     projects,
     connection?.providerId,
     connection?.id,
-    initializeDefaultTransformationSettingsIfNotExist
+    initializeDefaultTransformation
   ])
 
   useEffect(() => {
@@ -693,7 +693,7 @@ function useDataScopesManager({
     setEntities,
     getTransformation,
     changeTransformationSettings,
-    initializeDefaultTransformationSettingsIfNotExist,
+    initializeDefaultTransformation,
     clearTransformationSettings,
     checkTransformationIsChanged,
     createProviderConnections,

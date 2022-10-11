@@ -202,7 +202,7 @@ const CreateBlueprint = (props) => {
     setEntities: setDataEntities,
     getTransformation,
     changeTransformationSettings,
-    initializeDefaultTransformationSettingsIfNotExist,
+    initializeDefaultTransformation,
     clearTransformationSettings,
     checkTransformationIsChanged,
     configuredConnection,
