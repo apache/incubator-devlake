@@ -172,8 +172,6 @@ const BlueprintSettings = (props) => {
     entities,
     transformations,
     scopeConnection,
-    activeBoardTransformation,
-    activeProjectTransformation,
     activeTransformation,
     configuredConnection,
     configuredBoard,
@@ -367,24 +365,7 @@ const BlueprintSettings = (props) => {
     )
     setBlueprintScopesDialogIsOpen(false)
     setScopeConnection(null)
-    // restore/revert data scope + settings on close (cancel)
-    // setTransformations({})
-    // switch (scopeConnection?.provider?.id) {
-    //   case Providers.GITHUB:
-    //     setActiveTransformation(activeProjectTransformation)
-    //     setProjects(p => ({ ...p, [configuredConnection?.id]: scopeConnection?.projects }))
-    //     setEntities(e => ({ ...e, [configuredConnection?.id]: scopeConnection?.entityList }))
-    //     break
-    //   case Providers.JIRA:
-    //     setActiveTransformation(activeBoardTransformation)
-    //     setBoards(b => ({...b, [configuredConnection?.id]: scopeConnection?.boardsList }))
-    //     setEntities(e => ({ ...e, [configuredConnection?.id]: scopeConnection?.entityList }))
-    //     break
-    // }
   }, [
-    // activeProjectTransformation,
-    // activeBoardTransformation,
-    // configuredConnection,
     setScopeConnection
     // scopeConnection
   ])

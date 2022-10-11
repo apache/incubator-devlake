@@ -15,17 +15,18 @@
  * limitations under the License.
  *
  */
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BlueprintMode } from '@/data/NullBlueprint'
-import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
-import { integrationsData } from '@/data/integrations'
+import {useCallback, useEffect, useMemo, useState} from 'react'
+import {BlueprintMode} from '@/data/NullBlueprint'
+import {DEFAULT_DATA_ENTITIES} from '@/data/BlueprintWorkflow'
+import {integrationsData} from '@/data/integrations'
 import TransformationSettings from '@/models/TransformationSettings'
 import JiraBoard from '@/models/JiraBoard'
 import GitHubProject from '@/models/GithubProject'
 import GitlabProject from '@/models/GitlabProject'
-import { ProviderIcons, ProviderLabels, Providers } from '@/data/Providers'
-import { DataScopeModes } from '@/data/DataScopes'
+import {ProviderIcons, ProviderLabels, Providers} from '@/data/Providers'
+import {DataScopeModes} from '@/data/DataScopes'
 import JenkinsJob from '@/models/JenkinsJob'
+import useTransformationsManager from "@/hooks/data-scope/useTransformationsManager";
 
 function useDataScopesManager({
   mode = DataScopeModes.CREATE,
@@ -50,6 +51,13 @@ function useDataScopesManager({
   const [boards, setBoards] = useState({})
   const [projects, setProjects] = useState({})
   const [entities, setEntities] = useState({})
+  const {
+    getTransformation,
+    changeTransformationSettings,
+    initializeDefaultTransformationSettingsIfNotExist,
+    clearTransformationSettings,
+    checkTransformationIsExist,
+  } = useTransformationsManager()
   const [transformations, setTransformations] = useState({})
   const [enabledProviders, setEnabledProviders] = useState([])
 
@@ -79,9 +87,6 @@ function useDataScopesManager({
     configuredBoard?.id
   ])
 
-  const activeProject = useMemo(() => configuredProject, [configuredProject])
-  const activeBoard = useMemo(() => configuredBoard, [configuredBoard])
-
   const selectedProjects = useMemo(
     () => projects[connection?.id]?.map((p) => p && p?.id),
     [projects, connection?.id]
@@ -108,14 +113,6 @@ function useDataScopesManager({
     [connection, configuredBoard?.id]
   )
 
-  const activeProjectTransformation = useMemo(
-    () => transformations[activeProject?.id],
-    [transformations, activeProject?.id]
-  )
-  const activeBoardTransformation = useMemo(
-    () => transformations[activeBoard?.id],
-    [transformations, activeBoard?.id]
-  )
   const activeTransformation = useMemo(
     () => transformations[configurationKey],
     [configurationKey, transformations]
@@ -196,16 +193,6 @@ function useDataScopesManager({
     )
     return transforms
   }, [])
-
-  const initializeTransformations = useCallback(
-    (pV, cV, iDx) => ({
-      ...pV,
-      [cV]: new TransformationSettings(
-        getDefaultTransformations(connection?.providerId, iDx)
-      )
-    }),
-    [connection?.providerId, getDefaultTransformations]
-  )
 
   // @todo: generate scopes dynamically from $integrationsData (in future Integrations Hook [plugin registry])
   const createProviderScopes = useCallback(
@@ -670,7 +657,7 @@ function useDataScopesManager({
       '>>>>> DATA SCOPES MANAGER: INITIALIZING TRANSFORMATION RULES...',
       selectedBoards
     )
-  }, [selectedProjects, selectedBoards, initializeTransformations])
+  }, [selectedProjects, selectedBoards])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: CONFIGURED CONNECTION', connection)
@@ -723,30 +710,26 @@ function useDataScopesManager({
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: INITIALIZE BOARDS...', boards)
-    const boardTransformations = boards[connection?.id]
+    // FIXME: boards is board[][], rename it to boardsMap
+    const boardArray = boards[connection?.id]
     if (
-      Array.isArray(boardTransformations) &&
-      boardTransformations?.length > 0
+      Array.isArray(boardArray)
     ) {
-      setTransformations((cT) => ({
-        ...boardTransformations.reduce(initializeTransformations, {}),
-        // Spread Current/Existing Transformations Settings
-        ...cT
-      }))
+      for (let board of boardArray) {
+        initializeDefaultTransformationSettingsIfNotExist(connection?.providerId, connection?.id, board)
+      }
     }
-  }, [boards, connection?.id, initializeTransformations])
+  }, [boards, connection?.providerId, connection?.id])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: INITIALIZE PROJECTS...', projects)
-    const projectTransformations = projects[connection?.id]
-    if (Array.isArray(projectTransformations)) {
-      setTransformations((cT) => ({
-        ...projectTransformations.reduce(initializeTransformations, {}),
-        // Spread Current/Existing Transformations Settings
-        ...cT
-      }))
+    const projectArray = projects[connection?.id]
+    if (Array.isArray(projectArray)) {
+      for (let project of projectArray) {
+        initializeDefaultTransformationSettingsIfNotExist(connection?.providerId, connection?.id, project)
+      }
     }
-  }, [projects, connection?.id, initializeTransformations])
+  }, [projects, connection?.providerId, connection?.id])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: DATA ENTITIES...', entities)
@@ -779,20 +762,6 @@ function useDataScopesManager({
 
   useEffect(() => {
     console.log(
-      '>>>>> DATA SCOPES MANAGER: ACTIVE PROJECT TRANSFORMATION RULES...',
-      activeProjectTransformation
-    )
-  }, [activeProjectTransformation])
-
-  useEffect(() => {
-    console.log(
-      '>>>>> DATA SCOPES MANAGER: ACTIVE BOARD TRANSFORMATION RULES...',
-      activeBoardTransformation
-    )
-  }, [activeBoardTransformation])
-
-  useEffect(() => {
-    console.log(
       '>>>>> DATA SCOPES MANAGER: MEMOIZED ACTIVE CONNECTION...',
       connection
     )
@@ -812,8 +781,6 @@ function useDataScopesManager({
     configurationKey,
     storedProjectTransformation,
     storedBoardTransformation,
-    activeBoardTransformation,
-    activeProjectTransformation,
     activeTransformation,
     scopeConnection,
     enabledProviders,
@@ -830,8 +797,6 @@ function useDataScopesManager({
     setEntities,
     setTransformations,
     setTransformationSettings,
-    initializeTransformations,
-    getDefaultTransformations,
     createProviderConnections,
     createProviderScopes,
     getJiraMappedBoards,
