@@ -40,13 +40,14 @@ import '@/styles/connections.scss'
 export default function JenkinsSettings(props) {
   const {
     provider,
-    transformation,
-    entityIdKey,
     connection,
     entities = [],
-    onSettingsChange = () => {},
+    transformation = {},
+    entityIdKey,
     isSaving = false,
-    isSavingConnection = false
+    isSavingConnection = false,
+    onSettingsChange = () => {},
+    configuredProject
   } = props
   const history = useHistory()
   const { providerId, connectionId } = useParams()

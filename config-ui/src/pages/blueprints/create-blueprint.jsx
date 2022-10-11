@@ -79,6 +79,11 @@ import {
   GITLAB_API_PROXY_ENDPOINT,
   PROJECTS_ENDPOINT
 } from '@/config/gitlabApiProxy'
+import useJenkins from '@/hooks/useJenkins'
+import {
+  JENKINS_API_PROXY_ENDPOINT,
+  JENKINS_JOBS_ENDPOINT
+} from '@/config/jenkinsApiProxy'
 
 // import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 
@@ -283,6 +288,19 @@ const CreateBlueprint = (props) => {
     {
       apiProxyPath: GITLAB_API_PROXY_ENDPOINT,
       projectsEndpoint: PROJECTS_ENDPOINT
+    },
+    configuredConnection
+  )
+
+  const {
+    fetchJobs: fetchJenkinsJobs,
+    jobs: jenkinsJobs,
+    isFetching: isFetchingJenkins,
+    error: jenkinsProxyError
+  } = useJenkins(
+    {
+      apiProxyPath: JENKINS_API_PROXY_ENDPOINT,
+      jobsEndpoint: JENKINS_JOBS_ENDPOINT
     },
     configuredConnection
   )
@@ -1137,6 +1155,9 @@ const CreateBlueprint = (props) => {
                       fetchGitlabProjects={fetchGitlabProjects}
                       isFetchingGitlab={isFetchingGitlab}
                       gitlabProjects={gitlabProjects}
+                      fetchJenkinsJobs={fetchJenkinsJobs}
+                      isFetchingJenkins={isFetchingJenkins}
+                      jenkinsJobs={jenkinsJobs}
                       boards={boards}
                       dataEntities={dataEntities}
                       projects={projects}
@@ -1156,6 +1177,7 @@ const CreateBlueprint = (props) => {
                       isFetching={
                         isFetchingJIRA ||
                         isFetchingGitlab ||
+                        isFetchingJenkins ||
                         isFetchingConnection
                       }
                     />
@@ -1234,6 +1256,7 @@ const CreateBlueprint = (props) => {
                 isSaving ||
                 isFetchingJIRA ||
                 isFetchingGitlab ||
+                isFetchingJenkins ||
                 isFetchingConnection ||
                 isTestingConnection
               }
