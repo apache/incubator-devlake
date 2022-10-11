@@ -65,7 +65,6 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={connection}
           configuredProject={configuredProject}
-          projects={projects}
           transformation={transformation}
           entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
@@ -80,7 +79,6 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={connection}
           configuredProject={configuredProject}
-          projects={projects}
           transformation={transformation}
           entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
@@ -115,6 +113,7 @@ const ProviderTransformationSettings = (props) => {
         <JenkinsSettings
           provider={provider}
           connection={connection}
+          configuredProject={configuredProject}
           transformation={transformation}
           entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}

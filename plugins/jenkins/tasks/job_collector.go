@@ -49,14 +49,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) errors.Error {
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
 			},
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
-			/*
-				Table store raw data
-			*/
+			Ctx:   taskCtx,
 			Table: RAW_JOB_TABLE,
 		},
 		ApiClient:   data.ApiClient,

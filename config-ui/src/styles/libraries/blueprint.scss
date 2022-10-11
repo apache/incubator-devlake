@@ -156,6 +156,13 @@ button, .bp3-button {
 }
 
 .bp3-multi-select-popover {
+  .bp3-menu {
+    max-height: calc(10 * 32px);
+    overflow: auto;
+  }
+}
+
+.bp3-multi-select-popover {
   max-width: 600px;
   overflow: auto;
   text-overflow: ellipsis;

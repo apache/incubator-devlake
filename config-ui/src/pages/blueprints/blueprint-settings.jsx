@@ -78,6 +78,11 @@ import {
   GITLAB_API_PROXY_ENDPOINT,
   PROJECTS_ENDPOINT
 } from '@/config/gitlabApiProxy'
+import useJenkins from '@/hooks/useJenkins'
+import {
+  JENKINS_API_PROXY_ENDPOINT,
+  JENKINS_JOBS_ENDPOINT
+} from '@/config/jenkinsApiProxy'
 
 const BlueprintSettings = (props) => {
   // eslint-disable-next-line no-unused-vars
@@ -322,6 +327,19 @@ const BlueprintSettings = (props) => {
     {
       apiProxyPath: GITLAB_API_PROXY_ENDPOINT,
       projectsEndpoint: PROJECTS_ENDPOINT
+    },
+    configuredConnection
+  )
+
+  const {
+    fetchJobs: fetchJenkinsJobs,
+    jobs: jenkinsJobs,
+    isFetching: isFetchingJenkins,
+    error: jenkinsProxyError
+  } = useJenkins(
+    {
+      apiProxyPath: JENKINS_API_PROXY_ENDPOINT,
+      jobsEndpoint: JENKINS_JOBS_ENDPOINT
     },
     configuredConnection
   )
@@ -1281,7 +1299,8 @@ const BlueprintSettings = (props) => {
                         loading={
                           isFetchingBlueprint ||
                           isFetchingJIRA ||
-                          isFetchingGitlab
+                          isFetchingGitlab ||
+                          isFetchingJenkins
                         }
                       />
                     </div>
@@ -1322,7 +1341,8 @@ const BlueprintSettings = (props) => {
                       loading={
                         isFetchingBlueprint ||
                         isFetchingJIRA ||
-                        isFetchingGitlab
+                        isFetchingGitlab ||
+                        isFetchingJenkins
                       }
                     />
                   </div>
@@ -1455,6 +1475,10 @@ const BlueprintSettings = (props) => {
         gitlabProjects={gitlabProjects}
         isFetchingGitlab={isFetchingGitlab}
         gitlabProxyError={gitlabProxyError}
+        fetchJenkinsJobs={fetchJenkinsJobs}
+        jenkinsJobs={jenkinsJobs}
+        isFetchingJenkins={isFetchingJenkins}
+        jenkinsProxyError={jenkinsProxyError}
         setConfiguredProject={setConfiguredProject}
         setConfiguredBoard={setConfiguredBoard}
         setBoards={setBoards}

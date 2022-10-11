@@ -161,10 +161,16 @@ function useBlueprintValidation({
             errs.push('Boards: No Boards selected.')
           }
           if (
-            activeProvider?.id === Providers.GITHUB &&
+            [Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(
+              activeProvider?.id
+            ) &&
             projects[activeConnection?.id]?.length === 0
           ) {
-            errs.push('Projects: No Project Repsitories entered.')
+            if (activeProvider?.id === Providers.JENKINS) {
+              errs.push('Jobs: No Job entered.')
+            } else {
+              errs.push('Projects: No Project Repsitories entered.')
+            }
           }
           if (
             activeProvider?.id === Providers.GITHUB &&
@@ -190,12 +196,6 @@ function useBlueprintValidation({
           }
           if (entities[activeConnection?.id]?.length === 0) {
             errs.push('Data Entities: No Data Entities selected.')
-          }
-          if (
-            activeProvider?.id === Providers.GITLAB &&
-            projects[activeConnection?.id]?.length === 0
-          ) {
-            errs.push('Projects: No Project IDs entered.')
           }
           if (
             activeProvider?.id === Providers.GITLAB &&
