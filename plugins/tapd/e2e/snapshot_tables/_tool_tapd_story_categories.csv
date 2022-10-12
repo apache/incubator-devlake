@@ -1,4 +1,4 @@
 connection_id,id,name,description,parent_id,created,modified,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
-1,11991001000175,test111test111test111test111,test111test111test111test111,0,2020-02-13T02:16:20.000+00:00,2020-02-13T02:16:20.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_story_categories,6,
-1,11991001000176,test111test111test111test111,test111test111test111test111,0,2020-02-13T02:16:20.000+00:00,2020-02-13T02:16:20.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_story_categories,5,
-1,11991001000179,None Category,test111test111test111,0,2020-02-13T02:16:27.000+00:00,2020-02-13T02:16:27.000+00:00,"{""ConnectionId"":1,""CompanyId"":99,""WorkspaceId"":991}",_raw_tapd_api_story_categories,4,
+1,11991001000175,test111test111test111test111,test111test111test111test111,0,2020-02-13T02:16:20.000+00:00,2020-02-13T02:16:20.000+00:00,"{""ConnectionId"":1,""CompanyId"":0,""WorkspaceId"":991}",_raw_tapd_api_story_categories,6,
+1,11991001000176,test111test111test111test111,test111test111test111test111,0,2020-02-13T02:16:20.000+00:00,2020-02-13T02:16:20.000+00:00,"{""ConnectionId"":1,""CompanyId"":0,""WorkspaceId"":991}",_raw_tapd_api_story_categories,5,
+1,11991001000179,None Category,test111test111test111,0,2020-02-13T02:16:27.000+00:00,2020-02-13T02:16:27.000+00:00,"{""ConnectionId"":1,""CompanyId"":0,""WorkspaceId"":991}",_raw_tapd_api_story_categories,4,

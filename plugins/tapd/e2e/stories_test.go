@@ -42,10 +42,13 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	}
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_status.csv",
 		"_raw_tapd_api_story_status")
-
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_status_last_steps.csv",
+		"_raw_tapd_api_story_status_last_steps")
 	// verify extraction
+	dataflowTester.FlushTabler(&models.TapdWorkitemType{})
 	dataflowTester.FlushTabler(&models.TapdStoryStatus{})
 	dataflowTester.Subtask(tasks.ExtractStoryStatusMeta, taskData)
+	dataflowTester.Subtask(tasks.EnrichStoryStatusLastStepMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdStoryStatus{},
 		"./snapshot_tables/_tool_tapd_story_statuses.csv",

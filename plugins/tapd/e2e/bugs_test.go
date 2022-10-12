@@ -45,10 +45,13 @@ func TestTapdBugDataFlow(t *testing.T) {
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status.csv",
 		"_raw_tapd_api_bug_status")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status_last_steps.csv",
+		"_raw_tapd_api_bug_status_last_steps")
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.TapdBugStatus{})
 	dataflowTester.Subtask(tasks.ExtractBugStatusMeta, taskData)
+	dataflowTester.Subtask(tasks.EnrichBugStatusLastStepMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdBugStatus{},
 		"./snapshot_tables/_tool_tapd_bug_statuses.csv",
