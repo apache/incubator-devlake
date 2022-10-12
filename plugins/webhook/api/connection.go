@@ -83,10 +83,11 @@ func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, er
 
 type WebhookConnectionResponse struct {
 	models.WebhookConnection
-	PostIssuesEndpoint       string `json:"postIssuesEndpoint"`
-	CloseIssuesEndpoint      string `json:"closeIssuesEndpoint"`
-	PostPipelineTaskEndpoint string `json:"postPipelineTaskEndpoint"`
-	ClosePipelineEndpoint    string `json:"closePipelineEndpoint"`
+	PostIssuesEndpoint             string `json:"postIssuesEndpoint"`
+	CloseIssuesEndpoint            string `json:"closeIssuesEndpoint"`
+	PostPipelineTaskEndpoint       string `json:"postPipelineTaskEndpoint"`
+	PostPipelineDeployTaskEndpoint string `json:"postPipelineDeployTaskEndpoint"`
+	ClosePipelineEndpoint          string `json:"closePipelineEndpoint"`
 }
 
 // ListConnections
@@ -130,6 +131,7 @@ func formatConnection(connection *models.WebhookConnection) *WebhookConnectionRe
 	response.PostIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/%d/issues`, connection.ID)
 	response.CloseIssuesEndpoint = fmt.Sprintf(`/plugins/webhook/%d/issue/:boardKey/:issueKey/close`, connection.ID)
 	response.PostPipelineTaskEndpoint = fmt.Sprintf(`/plugins/webhook/%d/cicd_tasks`, connection.ID)
+	response.PostPipelineDeployTaskEndpoint = fmt.Sprintf(`/plugins/webhook/%d/cicd_deploy_tasks`, connection.ID)
 	response.ClosePipelineEndpoint = fmt.Sprintf(`/plugins/webhook/%d/cicd_pipeline/:pipelineName/finish`, connection.ID)
 	return response
 }
