@@ -54,6 +54,7 @@ func (plugin Coding) SubTaskMetas() []core.SubTaskMeta {
 	// TODO add your sub task here
 	return []core.SubTaskMeta{
 		tasks.CollectDepotMeta,
+		tasks.ExtractDepotMeta,
 	}
 }
 

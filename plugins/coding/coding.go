@@ -31,13 +31,13 @@ func main() {
 	cmd := &cobra.Command{Use: "coding"}
 
 	// TODO add your cmd flag if necessary
-	depotId := cmd.Flags().IntP("depotId", "d", 1, "depotId")
-	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "coding connection id")
+	//depotId := cmd.Flags().Int64P("depotId", "d", 9748559, "depotId")
+	//connectionId := cmd.Flags().Int64P("connectionId", "c", 1, "coding connection id")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"connectionId": *connectionId,
-			"depotId":      *depotId,
+			"connectionId": 1,
+			"depotId":      9748559,
 		})
 	}
 	runner.RunCmd(cmd)

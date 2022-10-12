@@ -15,29 +15,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/coding/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type addInitTables struct{}
-
-func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(
-		//archived.CodingConnection{},
-		archived.CodingDepot{},
-	)
-	return errors.Convert(err)
+type CodingDepot struct {
+	archived.NoPKModel
+	ConnectionId uint64 `gorm:"primaryKey" json:"connectionId"`
+	ID           int64  `gorm:"primaryKey;type:BIGINT" json:"Id"`
+	Name         string `gorm:"type:varchar(255)" json:"Name"`
+	HTTPSURL     string `json:"HttpsUrl"`
+	ProjectID    int64  `json:"ProjectId"`
+	SSHURL       string `json:"SshUrl"`
+	WebURL       string `json:"WebUrl"`
+	VcsType      string `json:"VcsType"`
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20221012000001
-}
-
-func (*addInitTables) Name() string {
-	return "coding init schemas"
+func (CodingDepot) TableName() string {
+	return "_tool_coding_depots"
 }

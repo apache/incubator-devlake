@@ -20,19 +20,16 @@ package tasks
 import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/coding/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"net/http"
 )
 
-const RAW_DEPOT_TABLE = "coding_depot"
+var _ core.SubTaskEntryPoint = ExtractDepot
 
-var _ core.SubTaskEntryPoint = CollectDepot
-
-func CollectDepot(taskCtx core.SubTaskContext) errors.Error {
+func ExtractDepot(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*CodingTaskData)
-
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: CodingApiParams{
@@ -41,41 +38,28 @@ func CollectDepot(taskCtx core.SubTaskContext) errors.Error {
 			},
 			Table: RAW_DEPOT_TABLE,
 		},
-		ApiClient:   data.ApiClient,
-		Incremental: false,
-		//PageSize: 100,
-		// TODO write which api would you want request
-		UrlTemplate: "",
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var resData struct {
-				Response struct {
-					Depot json.RawMessage `json:"Depot"`
-				} `json:"Response"`
+		Extract: func(resData *helper.RawData) ([]interface{}, errors.Error) {
+			extractedModels := make([]interface{}, 0)
+			toolL := &models.CodingDepot{}
+			err := errors.Convert(json.Unmarshal(resData.Data, &toolL))
+			if err != nil {
+				return nil, err
 			}
-			err := helper.UnmarshalResponse(res, &resData)
-
-			return []json.RawMessage{resData.Response.Depot}, err
+			toolL.ConnectionId = data.Options.ConnectionId
+			extractedModels = append(extractedModels, toolL)
+			return extractedModels, nil
 		},
-		RequestBody: func(reqData *helper.RequestData) map[string]interface{} {
-			body := make(map[string]interface{})
-			body["Action"] = "DescribeGitDepot"
-			body["DepotId"] = data.Options.DepotId
-			//body["PageNumber"] = reqData.Pager.Page
-			//body["PageSize"] = reqData.Pager.Size
-			return body
-		},
-		Method: http.MethodPost,
 	})
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	return extractor.Execute()
 }
 
-var CollectDepotMeta = core.SubTaskMeta{
-	Name:             "CollectDepot",
-	EntryPoint:       CollectDepot,
+var ExtractDepotMeta = core.SubTaskMeta{
+	Name:             "ExtractDepot",
+	EntryPoint:       ExtractDepot,
 	EnabledByDefault: true,
-	Description:      "Collect Depot data from Coding api",
+	Description:      "Extract raw data into tool layer table coding_depot",
 }

@@ -24,7 +24,7 @@ import (
 
 type CodingApiParams struct {
 	ConnectionId uint64
-	DepotId      uint64
+	DepotId      int64
 }
 
 type CodingOptions struct {
@@ -34,7 +34,7 @@ type CodingOptions struct {
 	// You can use it in sub tasks and you need pass it in main.go and pipelines.
 	ConnectionId uint64   `json:"connectionId"`
 	Tasks        []string `json:"tasks,omitempty"`
-	DepotId      uint64
+	DepotId      int64
 	Since        string
 }
 
