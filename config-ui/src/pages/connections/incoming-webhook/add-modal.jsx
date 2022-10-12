@@ -54,8 +54,7 @@ export const AddModal = ({ onSubmit, onCancel }) => {
     setRecord({
       postIssuesEndpoint: `${postUrlPrefix}${res.postIssuesEndpoint}`,
       closeIssuesEndpoint: `${postUrlPrefix}${res.closeIssuesEndpoint}`,
-      postPipelineTaskEndpoint: `${postUrlPrefix}${res.postPipelineTaskEndpoint}`,
-      closePipelineEndpoint: `${postUrlPrefix}${res.closePipelineEndpoint}`
+      postDeploymentsEndpoint: `${postUrlPrefix}${res.postPipelineDeployTaskEndpoint}`
     })
   }
 
@@ -106,7 +105,7 @@ export const AddModal = ({ onSubmit, onCancel }) => {
                 DevLake.
               </p>
               <h3>Incident</h3>
-              <p>Send incident opened and reopened events</p>
+              <p>POST to register an incident</p>
               <div className='block'>
                 <span>{record.postIssuesEndpoint}</span>
                 <CopyToClipboard
@@ -121,7 +120,7 @@ export const AddModal = ({ onSubmit, onCancel }) => {
                   <CopyIcon width={16} height={16} />
                 </CopyToClipboard>
               </div>
-              <p>Send incident resolved events</p>
+              <p>POST to close a registered incident</p>
               <div className='block'>
                 <span>{record.closeIssuesEndpoint}</span>
                 <CopyToClipboard
@@ -137,17 +136,10 @@ export const AddModal = ({ onSubmit, onCancel }) => {
                 </CopyToClipboard>
               </div>
               <h3>Deployment</h3>
-              <p>Trigger after the "deployment" jobs/builds finished</p>
+              <p>POST to register a deployment</p>
               <div className='block'>
-                <span>{record.postPipelineTaskEndpoint}</span>
-                <CopyToClipboard text={record.postPipelineTaskEndpoint}>
-                  <CopyIcon width={16} height={16} />
-                </CopyToClipboard>
-              </div>
-              <p>Trigger after all CI jobs/builds finished</p>
-              <div className='block'>
-                <span>{record.closePipelineEndpoint}</span>
-                <CopyToClipboard text={record.closePipelineEndpoint}>
+                <span>{record.postDeploymentsEndpoint}</span>
+                <CopyToClipboard text={record.postDeploymentsEndpoint}>
                   <CopyIcon width={16} height={16} />
                 </CopyToClipboard>
               </div>
