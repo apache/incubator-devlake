@@ -39,7 +39,7 @@ func (*modifyLeadTimeMinutes) Up(ctx context.Context, db *gorm.DB) errors.Error 
 	if err != nil {
 		return errors.Convert(err)
 	}
-	err = db.Migrator().AutoMigrate(&newIssue{})
+	err = db.Migrator().AddColumn(newIssue{}, "lead_time_minutes")
 	if err != nil {
 		return errors.Convert(err)
 	}
