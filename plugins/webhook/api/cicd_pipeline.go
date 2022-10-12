@@ -307,7 +307,7 @@ func PostDeploymentCicdTask(input *core.ApiResourceInput) (*core.ApiResourceOutp
 			Id: taskId,
 		},
 		PipelineId:  pipelineId,
-		Name:        request.CommitSha,
+		Name:        fmt.Sprintf(`deployment for %s`, request.CommitSha),
 		Result:      devops.SUCCESS,
 		Status:      devops.DONE,
 		Type:        devops.DEPLOYMENT,
@@ -315,7 +315,9 @@ func PostDeploymentCicdTask(input *core.ApiResourceInput) (*core.ApiResourceOutp
 	}
 	now := time.Now()
 	if request.StartedDate != nil {
+		domainCicdTask.StartedDate = *request.StartedDate
 		if request.FinishedDate != nil {
+			domainCicdTask.FinishedDate = request.FinishedDate
 			domainCicdTask.DurationSec = uint64(domainCicdTask.FinishedDate.Sub(domainCicdTask.StartedDate).Seconds())
 		} else {
 			domainCicdTask.FinishedDate = &now
@@ -335,6 +337,7 @@ func PostDeploymentCicdTask(input *core.ApiResourceInput) (*core.ApiResourceOutp
 		CreatedDate:  domainCicdTask.StartedDate,
 		FinishedDate: domainCicdTask.FinishedDate,
 		DurationSec:  domainCicdTask.DurationSec,
+		Environment:  domainCicdTask.Environment,
 	}
 
 	domainPipelineCommit := &devops.CiCDPipelineCommit{
