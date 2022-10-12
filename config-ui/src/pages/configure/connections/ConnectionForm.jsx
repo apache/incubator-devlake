@@ -280,6 +280,10 @@ export default function ConnectionForm(props) {
     )
   }, [allTestResponses, personalAccessTokens, getValidityStatus])
 
+  useEffect(() => {
+    onRateLimitChange((rL) => !enableRateLimit ? 0 : rL)
+  }, [enableRateLimit])
+
   return (
     <>
       <form className='form form-add-connection'>
