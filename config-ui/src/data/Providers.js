@@ -22,6 +22,10 @@ import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jen
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
 import { ReactComponent as TapdProviderIcon } from '@/images/integrations/tapd.svg'
+// @todo: add new provider svg icons
+// import { ReactComponent as AzureProviderIcon } from '@/images/integrations/azure.svg'
+// import { ReactComponent as BitbucketProviderIcon } from '@/images/integrations/bitbucket.svg'
+// import { ReactComponent as GiteeProviderIcon } from '@/images/integrations/gitee.svg'
 // import GitExtractorIcon from '@/images/git.png'
 // import RefDiffIcon from '@/images/git-diff.png'
 import FeishuIcon from '@/images/feishu.png'
@@ -41,7 +45,9 @@ const Providers = {
   DBT: 'dbt',
   STARROCKS: 'starrocks',
   TAPD: 'tapd',
-  DORA: 'dora'
+  AZURE: 'azure',
+  BITBUCKET: 'bitbucket',
+  GITEE: 'gitee'
 }
 
 const ProviderTypes = {
@@ -63,7 +69,9 @@ const ProviderLabels = {
   DBT: 'Data Build Tool (DBT)',
   STARROCKS: 'StarRocks',
   TAPD: 'TAPD',
-  DORA: 'DORA'
+  AZURE: 'Azure',
+  BITBUCKET: 'BitBucket',
+  GITEE: 'Gitee'
 }
 
 const ProviderConnectionLimits = {
@@ -202,6 +210,45 @@ const ProviderFormLabels = {
         Rate Limit <sup>(per hour)</sup>
       </>
     )
+  },
+  azure: {
+    name: 'Connection Name',
+    endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
+    token: 'Basic Auth Token',
+    username: 'Username',
+    password: 'Password',
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+      </>
+    )
+  },
+  bitbucket: {
+    name: 'Connection Name',
+    endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
+    token: 'Basic Auth Token',
+    username: 'Username',
+    password: 'Password',
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+      </>
+    )
+  },
+  gitee: {
+    name: 'Connection Name',
+    endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
+    token: 'Basic Auth Token',
+    username: 'Username',
+    password: 'Password',
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+      </>
+    )
   }
 }
 
@@ -259,6 +306,33 @@ const ProviderFormPlaceholders = {
     username: 'eg. admin',
     password: 'eg. ************',
     rateLimitPerHour: '1000'
+  },
+  azure: {
+    name: 'eg. Azure',
+    endpoint: 'eg. https://api.azure.com/',
+    proxy: 'eg. http://proxy.localhost:8080',
+    token: 'eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
+    username: 'eg. admin',
+    password: 'eg. ************',
+    rateLimitPerHour: '1000'
+  },
+  bitbucket: {
+    name: 'eg. Bitbucket',
+    endpoint: 'eg. https://api.bitbucket.com/',
+    proxy: 'eg. http://proxy.localhost:8080',
+    token: 'eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
+    username: 'eg. admin',
+    password: 'eg. ************',
+    rateLimitPerHour: '1000'
+  },
+  gitee: {
+    name: 'eg. Gitee',
+    endpoint: 'eg. https://api.gitee.com/',
+    proxy: 'eg. http://proxy.localhost:8080',
+    token: 'eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
+    username: 'eg. admin',
+    password: 'eg. ************',
+    rateLimitPerHour: '1000'
   }
 }
 
@@ -284,7 +358,11 @@ const ProviderIcons = {
     <img src={FeishuIcon} width={w || 24} height={h || 24} />
   ),
   [Providers.AE]: (w, h) => <Icon icon='box' size={w || 24} />,
-  [Providers.DBT]: (w, h) => <Icon icon='box' size={w || 24} />
+  [Providers.DBT]: (w, h) => <Icon icon='box' size={w || 24} />,
+  // @todo: update with svg icons
+  [Providers.AZURE]: (w, h) => <Icon icon='box' size={w || 24} />,
+  [Providers.BITBUCKET]: (w, h) => <Icon icon='box' size={w || 24} />,
+  [Providers.GITEE]: (w, h) => <Icon icon='box' size={w || 24} />
 }
 
 const ConnectionStatus = {
