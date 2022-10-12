@@ -21,7 +21,6 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -94,10 +93,6 @@ func TestAccountDataFlow(t *testing.T) {
 	// verify converter
 	dataflowTester.FlushTabler(&crossdomain.Account{})
 	dataflowTester.Subtask(tasks.ConvertAccountsMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&crossdomain.Account{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/account.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}.CreatedAt, common.NoPKModel{}.UpdatedAt},
-	})
 	dataflowTester.VerifyTable(
 		crossdomain.Account{},
 		"./snapshot_tables/account.csv",
