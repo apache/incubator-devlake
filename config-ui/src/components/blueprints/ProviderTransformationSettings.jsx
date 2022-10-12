@@ -29,6 +29,9 @@ import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
 import TapdSettings from '@/pages/configure/settings/tapd'
 import GithubSettings from '@/pages/configure/settings/github'
+import AzureSettings from '@/pages/configure/settings/azure'
+import BitbucketSettings from '@/pages/configure/settings/bitbucket'
+import GiteeSettings from '@/pages/configure/settings/gitee'
 
 const ProviderTransformationSettings = (props) => {
   const {
@@ -104,6 +107,42 @@ const ProviderTransformationSettings = (props) => {
         <TapdSettings
           provider={provider}
           connection={connection}
+          onSettingsChange={onSettingsChange}
+          entities={entities[connection?.id]}
+          isSaving={isSaving}
+          isSavingConnection={isSavingConnection}
+        />
+      )}
+      {provider?.id === Providers.AZURE && (
+        <AzureSettings
+          provider={provider}
+          connection={connection}
+          transformation={transformation}
+          entityIdKey={entityIdKey}
+          onSettingsChange={onSettingsChange}
+          entities={entities[connection?.id]}
+          isSaving={isSaving}
+          isSavingConnection={isSavingConnection}
+        />
+      )}
+      {provider?.id === Providers.BITBUCKET && (
+        <BitbucketSettings
+          provider={provider}
+          connection={connection}
+          transformation={transformation}
+          entityIdKey={entityIdKey}
+          onSettingsChange={onSettingsChange}
+          entities={entities[connection?.id]}
+          isSaving={isSaving}
+          isSavingConnection={isSavingConnection}
+        />
+      )}
+      {provider?.id === Providers.GITEE && (
+        <GiteeSettings
+          provider={provider}
+          connection={connection}
+          transformation={transformation}
+          entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}
