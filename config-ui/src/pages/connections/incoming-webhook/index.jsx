@@ -53,8 +53,7 @@ export const IncomingWebhook = () => {
             ...r,
             postIssuesEndpoint: `${postUrlPrefix}${r.postIssuesEndpoint}`,
             closeIssuesEndpoint: `${postUrlPrefix}${r.closeIssuesEndpoint}`,
-            postPipelineTaskEndpoint: `${postUrlPrefix}${r.postPipelineTaskEndpoint}`,
-            closePipelineEndpoint: `${postUrlPrefix}${r.closePipelineEndpoint}`
+            postDeploymentsEndpoint: `${postUrlPrefix}${r.postPipelineDeployTaskEndpoint}`
           }
         : existingRecord
     )
