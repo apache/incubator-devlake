@@ -54,7 +54,11 @@ export const AddModal = ({ onSubmit, onCancel }) => {
     setRecord({
       postIssuesEndpoint: `${postUrlPrefix}${res.postIssuesEndpoint}`,
       closeIssuesEndpoint: `${postUrlPrefix}${res.closeIssuesEndpoint}`,
-      postDeploymentsEndpoint: `${postUrlPrefix}${res.postPipelineDeployTaskEndpoint}`
+      postDeploymentsCurl: `curl ${postUrlPrefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -d "{
+  \\"repo_url\\":\\"$CIRCLE_REPOSITORY_URL\\",
+  \\"commit_sha\\":\\"$CIRCLE_SHA1\\",
+  \\"start_time\\":\\"$start_time\\"
+}"`
     })
   }
 
@@ -138,8 +142,8 @@ export const AddModal = ({ onSubmit, onCancel }) => {
               <h3>Deployment</h3>
               <p>POST to register a deployment</p>
               <div className='block'>
-                <span>{record.postDeploymentsEndpoint}</span>
-                <CopyToClipboard text={record.postDeploymentsEndpoint}>
+                <span style={{ flex: '1 0' }}>{record.postDeploymentsCurl}</span>
+                <CopyToClipboard text={record.postDeploymentsCurl}>
                   <CopyIcon width={16} height={16} />
                 </CopyToClipboard>
               </div>
