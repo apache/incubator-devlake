@@ -54,8 +54,7 @@ export const AddModal = ({ onSubmit, onCancel }) => {
     setRecord({
       postIssuesEndpoint: `${postUrlPrefix}${res.postIssuesEndpoint}`,
       closeIssuesEndpoint: `${postUrlPrefix}${res.closeIssuesEndpoint}`,
-      postPipelineTaskEndpoint: `${postUrlPrefix}${res.postPipelineTaskEndpoint}`,
-      closePipelineEndpoint: `${postUrlPrefix}${res.closePipelineEndpoint}`
+      postDeploymentsEndpoint: `${postUrlPrefix}${res.postPipelineDeployTaskEndpoint}`
     })
   }
 
@@ -137,17 +136,10 @@ export const AddModal = ({ onSubmit, onCancel }) => {
                 </CopyToClipboard>
               </div>
               <h3>Deployment</h3>
-              <p>Trigger after the "deployment" jobs/builds finished</p>
+              <p>Trigger after the "deployment" jobs/builds successfully finished</p>
               <div className='block'>
-                <span>{record.postPipelineTaskEndpoint}</span>
-                <CopyToClipboard text={record.postPipelineTaskEndpoint}>
-                  <CopyIcon width={16} height={16} />
-                </CopyToClipboard>
-              </div>
-              <p>Trigger after all CI jobs/builds finished</p>
-              <div className='block'>
-                <span>{record.closePipelineEndpoint}</span>
-                <CopyToClipboard text={record.closePipelineEndpoint}>
+                <span>{record.postDeploymentsEndpoint}</span>
+                <CopyToClipboard text={record.postDeploymentsEndpoint}>
                   <CopyIcon width={16} height={16} />
                 </CopyToClipboard>
               </div>
