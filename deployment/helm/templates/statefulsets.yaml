@@ -68,7 +68,6 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: {{ include "devlake.fullname" . }}-mysql-data
-          volumeMounts:
             {{- if ne .Values.option.localtime "" }}
             - name: {{ include "devlake.fullname" . }}-mysql-localtime
               mountPath: /etc/localtime
