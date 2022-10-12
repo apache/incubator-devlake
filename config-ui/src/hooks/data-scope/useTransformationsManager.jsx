@@ -100,7 +100,7 @@ const useTransformationsManager = () => {
     connectionId,
     projectNameOrBoard
   ) => {
-    let key = `not-distinguish`
+    let key = `not-distinguished`
     switch (connectionProvider) {
       case Providers.GITHUB:
       case Providers.GITLAB:
