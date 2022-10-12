@@ -101,6 +101,8 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractCompanyMeta,
 		tasks.CollectSubWorkspaceMeta,
 		tasks.ExtractSubWorkspaceMeta,
+		tasks.CollectWorkitemTypesMeta,
+		tasks.ExtractWorkitemTypesMeta,
 		tasks.CollectStoryCustomFieldsMeta,
 		tasks.ExtractStoryCustomFieldsMeta,
 		tasks.CollectTaskCustomFieldsMeta,
@@ -111,8 +113,12 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractStoryCategoriesMeta,
 		tasks.CollectStoryStatusMeta,
 		tasks.ExtractStoryStatusMeta,
+		tasks.CollectStoryStatusLastStepMeta,
+		tasks.EnrichStoryStatusLastStepMeta,
 		tasks.CollectBugStatusMeta,
 		tasks.ExtractBugStatusMeta,
+		tasks.CollectBugStatusLastStepMeta,
+		tasks.EnrichBugStatusLastStepMeta,
 		tasks.CollectAccountsMeta,
 		tasks.ExtractAccountsMeta,
 		tasks.CollectIterationMeta,
@@ -227,6 +233,9 @@ func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
+		},
+		"connections/:connectionId/proxy/rest/*path": {
+			"GET": api.Proxy,
 		},
 	}
 }

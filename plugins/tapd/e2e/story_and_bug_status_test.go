@@ -46,6 +46,7 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&models.TapdStoryStatus{})
 	dataflowTester.Subtask(tasks.ExtractStoryStatusMeta, taskData)
+	dataflowTester.Subtask(tasks.EnrichStoryStatusLastStepMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdStoryStatus{},
 		"./snapshot_tables/_tool_tapd_story_statuses.csv",
@@ -70,6 +71,7 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&models.TapdBugStatus{})
 	dataflowTester.Subtask(tasks.ExtractBugStatusMeta, taskData)
+	dataflowTester.Subtask(tasks.EnrichBugStatusLastStepMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdBugStatus{},
 		"./snapshot_tables/_tool_tapd_bug_statuses.csv",

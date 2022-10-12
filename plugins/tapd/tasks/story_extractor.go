@@ -52,12 +52,14 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	statusMap := make(map[string]string, len(statusList))
+	statusLanguageMap := make(map[string]string, len(statusList))
+	statusLastStepMap := make(map[string]bool, len(statusList))
 	for _, v := range statusList {
-		statusMap[v.EnglishName] = v.ChineseName
+		statusLanguageMap[v.EnglishName] = v.ChineseName
+		statusLastStepMap[v.ChineseName] = v.IsLastStep
 	}
 	getStdStatus := func(statusKey string) string {
-		if statusKey == "已实现" || statusKey == "已拒绝" || statusKey == "关闭" || statusKey == "已取消" || statusKey == "已解决" {
+		if statusLastStepMap[statusKey] {
 			return ticket.DONE
 		} else if statusKey == "草稿" {
 			return ticket.TODO
@@ -65,6 +67,9 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 			return ticket.IN_PROGRESS
 		}
 	}
+	customStatusMap := getStatusMapping(data)
+	typeMap, err := getTypeMappings(data, db, "story")
+
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
@@ -72,15 +77,26 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 			var storyBody struct {
 				Story models.TapdStory
 			}
-			err := errors.Convert(json.Unmarshal(row.Data, &storyBody))
+			err = errors.Convert(json.Unmarshal(row.Data, &storyBody))
 			if err != nil {
 				return nil, err
 			}
 			toolL := storyBody.Story
-			toolL.Status = statusMap[toolL.Status]
+			toolL.Status = statusLanguageMap[toolL.Status]
+			if len(customStatusMap) != 0 {
+				toolL.StdStatus = customStatusMap[toolL.Status]
+			} else {
+				toolL.StdStatus = getStdStatus(toolL.Status)
+			}
+
 			toolL.ConnectionId = data.Options.ConnectionId
-			toolL.StdType = "REQUIREMENT"
-			toolL.StdStatus = getStdStatus(toolL.Status)
+
+			toolL.Type = typeMap.typeIdMappings[toolL.WorkitemTypeId]
+			toolL.StdType = typeMap.stdTypeMappings[toolL.Type]
+			if toolL.StdType == "" {
+				toolL.StdType = "REQUIREMENT"
+			}
+
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
@@ -122,4 +138,9 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
+}
+
+type typeMappings struct {
+	typeIdMappings  map[uint64]string
+	stdTypeMappings map[string]string
 }

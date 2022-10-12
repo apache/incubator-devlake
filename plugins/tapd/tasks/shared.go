@@ -22,10 +22,12 @@ import (
 	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"gorm.io/gorm"
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -40,6 +42,8 @@ type Page struct {
 type Data struct {
 	Count int `json:"count"`
 }
+
+var statusMapping map[string]string
 
 var UserIdGen *didgen.DomainIdGenerator
 var WorkspaceIdGen *didgen.DomainIdGenerator
@@ -138,4 +142,47 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string, useC
 		Table:  rawTable,
 	}
 	return rawDataSubTaskArgs, &filteredData
+}
+
+func getTypeMappings(data *TapdTaskData, db dal.Dal, system string) (*typeMappings, errors.Error) {
+	typeIdMapping := make(map[uint64]string)
+	issueTypes := make([]models.TapdWorkitemType, 0)
+	clauses := []dal.Clause{
+		dal.From(&models.TapdWorkitemType{}),
+		dal.Where("connection_id = ? and workspace_id = ? and entity_type = ?",
+			data.Options.ConnectionId, data.Options.WorkspaceId, system),
+	}
+	err := db.All(&issueTypes, clauses...)
+	if err != nil {
+		return nil, err
+	}
+	for _, issueType := range issueTypes {
+		typeIdMapping[issueType.Id] = issueType.Name
+	}
+	stdTypeMappings := make(map[string]string)
+	for userType, stdType := range data.Options.TransformationRules.TypeMappings {
+		stdTypeMappings[userType] = strings.ToUpper(stdType.StandardType)
+	}
+	return &typeMappings{
+		typeIdMappings:  typeIdMapping,
+		stdTypeMappings: stdTypeMappings,
+	}, nil
+}
+
+func getStatusMapping(data *TapdTaskData) map[string]string {
+	if len(statusMapping) != 0 {
+		return statusMapping
+	}
+	statusMapping = make(map[string]string)
+	mapping := data.Options.TransformationRules.StatusMappings
+	for _, v := range mapping.DoneStatus {
+		statusMapping[v] = ticket.DONE
+	}
+	for _, v := range mapping.InProgressStatus {
+		statusMapping[v] = ticket.IN_PROGRESS
+	}
+	for _, v := range mapping.TodoStatus {
+		statusMapping[v] = ticket.TODO
+	}
+	return statusMapping
 }

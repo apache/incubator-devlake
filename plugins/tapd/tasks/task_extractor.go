@@ -41,7 +41,7 @@ var ExtractTaskMeta = core.SubTaskMeta{
 
 func ExtractTasks(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_TABLE, false)
-	getStdStatus := func(statusKey string) string {
+	getTaskStdStatus := func(statusKey string) string {
 		if statusKey == "done" {
 			return ticket.DONE
 		} else if statusKey == "progressing" {
@@ -67,7 +67,7 @@ func ExtractTasks(taskCtx core.SubTaskContext) errors.Error {
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "TASK"
 			toolL.StdType = "TASK"
-			toolL.StdStatus = getStdStatus(toolL.Status)
+			toolL.StdStatus = getTaskStdStatus(toolL.Status)
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
 			}
