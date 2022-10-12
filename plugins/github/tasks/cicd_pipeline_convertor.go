@@ -47,7 +47,7 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 
 	pipeline := &models.GithubRun{}
 	cursor, err := db.Cursor(
-		dal.Select("id, repo_id, connection_id, name, head_sha, head_branch, status, conclusion, github_created_at, github_updated_at"),
+		dal.Select("id, repo_id, connection_id, name, head_sha, head_branch, status, conclusion, github_created_at, github_updated_at,_raw_data_remark, _raw_data_id, _raw_data_table, _raw_data_params"),
 		dal.From(pipeline),
 		dal.Where("repo_id = ? and connection_id=?", repoId, data.Options.ConnectionId),
 	)
