@@ -116,6 +116,10 @@ func TestIssueDataFlow(t *testing.T) {
 			"account_id",
 			"repo_github_id",
 			"login",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 
@@ -153,12 +157,23 @@ func TestIssueDataFlow(t *testing.T) {
 			"assignee_name",
 			"severity",
 			"component",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 	dataflowTester.VerifyTable(
 		ticket.BoardIssue{},
 		"./snapshot_tables/board_issues.csv",
-		[]string{"board_id", "issue_id"},
+		[]string{
+			"board_id",
+			"issue_id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
 	)
 
 	// verify issue labels conversion
@@ -167,6 +182,13 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.IssueLabel{},
 		"./snapshot_tables/issue_labels.csv",
-		[]string{"issue_id", "label_name"},
+		[]string{
+			"issue_id",
+			"label_name",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
 	)
 }

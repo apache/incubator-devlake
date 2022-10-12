@@ -20,10 +20,9 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/plugins/github/models"
-
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
@@ -93,6 +92,10 @@ func TestPrReviewDataFlow(t *testing.T) {
 			"account_id",
 			"repo_github_id",
 			"login",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 }

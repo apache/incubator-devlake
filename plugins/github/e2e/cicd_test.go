@@ -107,6 +107,10 @@ func TestGithubCICDDataFlow(t *testing.T) {
 			"environment",
 			"created_date",
 			"finished_date",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 
@@ -119,6 +123,10 @@ func TestGithubCICDDataFlow(t *testing.T) {
 			"branch",
 			"repo_id",
 			"repo_url",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 
@@ -175,6 +183,10 @@ func TestGithubCICDDataFlow(t *testing.T) {
 			"duration_sec",
 			"started_date",
 			"finished_date",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 }

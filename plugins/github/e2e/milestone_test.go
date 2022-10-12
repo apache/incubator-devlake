@@ -18,14 +18,14 @@ limitations under the License.
 package e2e
 
 import (
+	"testing"
+	"time"
+
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
-	"testing"
-	"time"
 )
 
 func TestMilestoneDataFlow(t *testing.T) {
@@ -69,8 +69,7 @@ func TestMilestoneDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.Subtask(tasks.ExtractMilestonesMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.GithubMilestone{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/_tool_github_milestones.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
+		CSVRelPath: "./snapshot_tables/_tool_github_milestones.csv",
 	})
 
 	dataflowTester.FlushTabler(&ticket.Sprint{})
@@ -79,15 +78,12 @@ func TestMilestoneDataFlow(t *testing.T) {
 
 	dataflowTester.Subtask(tasks.ConvertMilestonesMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&ticket.Sprint{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/sprints.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
+		CSVRelPath: "./snapshot_tables/sprints.csv",
 	})
 	dataflowTester.VerifyTableWithOptions(&ticket.BoardSprint{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/board_sprint.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
+		CSVRelPath: "./snapshot_tables/board_sprint.csv",
 	})
 	dataflowTester.VerifyTableWithOptions(&ticket.SprintIssue{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/sprint_issue.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
+		CSVRelPath: "./snapshot_tables/sprint_issue.csv",
 	})
 }
