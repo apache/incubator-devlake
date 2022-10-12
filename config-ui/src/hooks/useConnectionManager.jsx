@@ -364,6 +364,15 @@ function useConnectionManager(
             ),
             request.get(
               `${DEVLAKE_ENDPOINT}/plugins/${Providers.TAPD}/connections`
+            ),
+            request.get(
+              `${DEVLAKE_ENDPOINT}/plugins/${Providers.AZURE}/connections`
+            ),
+            request.get(
+              `${DEVLAKE_ENDPOINT}/plugins/${Providers.BITBUCKET}/connections`
+            ),
+            request.get(
+              `${DEVLAKE_ENDPOINT}/plugins/${Providers.GITEE}/connections`
             )
           ])
           const builtConnections = aC.map((providerResponse) =>

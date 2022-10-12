@@ -68,7 +68,7 @@ const ProviderLabels = {
   DBT: 'Data Build Tool (DBT)',
   STARROCKS: 'StarRocks',
   TAPD: 'TAPD',
-  AZURE: 'Azure',
+  AZURE: 'Azure CI',
   BITBUCKET: 'BitBucket',
   GITEE: 'Gitee'
 }
