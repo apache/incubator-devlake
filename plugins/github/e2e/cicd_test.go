@@ -93,7 +93,7 @@ func TestGithubCICDDataFlow(t *testing.T) {
 		},
 	)
 
-	dataflowTester.Subtask(tasks.ConvertPipelinesMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertRunsMeta, taskData)
 
 	dataflowTester.VerifyTable(
 		&devops.CICDPipeline{},
@@ -170,7 +170,7 @@ func TestGithubCICDDataFlow(t *testing.T) {
 		},
 	)
 
-	dataflowTester.Subtask(tasks.ConvertTasksMeta, taskData)
+	dataflowTester.Subtask(tasks.ConvertJobsMeta, taskData)
 	dataflowTester.VerifyTable(
 		devops.CICDTask{},
 		"./snapshot_tables/cicd_tasks.csv",
