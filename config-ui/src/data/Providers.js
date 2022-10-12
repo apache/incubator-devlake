@@ -22,10 +22,9 @@ import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jen
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
 import { ReactComponent as TapdProviderIcon } from '@/images/integrations/tapd.svg'
-// @todo: add new provider svg icons
-// import { ReactComponent as AzureProviderIcon } from '@/images/integrations/azure.svg'
-// import { ReactComponent as BitbucketProviderIcon } from '@/images/integrations/bitbucket.svg'
-// import { ReactComponent as GiteeProviderIcon } from '@/images/integrations/gitee.svg'
+import { ReactComponent as AzureProviderIcon } from '@/images/integrations/azure.svg'
+import { ReactComponent as BitbucketProviderIcon } from '@/images/integrations/bitbucket.svg'
+import { ReactComponent as GiteeProviderIcon } from '@/images/integrations/gitee.svg'
 // import GitExtractorIcon from '@/images/git.png'
 // import RefDiffIcon from '@/images/git-diff.png'
 import FeishuIcon from '@/images/feishu.png'
@@ -360,9 +359,15 @@ const ProviderIcons = {
   [Providers.AE]: (w, h) => <Icon icon='box' size={w || 24} />,
   [Providers.DBT]: (w, h) => <Icon icon='box' size={w || 24} />,
   // @todo: update with svg icons
-  [Providers.AZURE]: (w, h) => <Icon icon='box' size={w || 24} />,
-  [Providers.BITBUCKET]: (w, h) => <Icon icon='box' size={w || 24} />,
-  [Providers.GITEE]: (w, h) => <Icon icon='box' size={w || 24} />
+  [Providers.AZURE]: (w, h) => (
+    <AzureProviderIcon width={w || 24} height={h || 24} />
+  ),
+  [Providers.BITBUCKET]: (w, h) => (
+    <BitbucketProviderIcon width={w || 24} height={h || 24} />
+  ),
+  [Providers.GITEE]: (w, h) => (
+    <GiteeProviderIcon width={w || 24} height={h || 24} />
+  )
 }
 
 const ConnectionStatus = {
