@@ -45,23 +45,25 @@ func main() {
 	issueTypeBug := cmd.Flags().String("issueTypeBug", "^(bug|failure|error)$", "issue type bug")
 	issueTypeIncident := cmd.Flags().String("issueTypeIncident", "", "issue type incident")
 	issueTypeRequirement := cmd.Flags().String("issueTypeRequirement", "^(feat|feature|proposal|requirement)$", "issue type requirement")
-	deployTagPattern := cmd.Flags().String("deployTagPattern", "(?i)deploy", "deploy tag name")
+	deploymentPattern := cmd.Flags().String("deploymentPattern", "(?i)deploy", "deploy tag name")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"connectionId":         *connectionId,
-			"owner":                *owner,
-			"repo":                 *repo,
-			"prType":               *prType,
-			"prComponent":          *prComponent,
-			"prBodyClosePattern":   *prBodyClosePattern,
-			"issueSeverity":        *issueSeverity,
-			"issuePriority":        *issuePriority,
-			"issueComponent":       *issueComponent,
-			"issueTypeBug":         *issueTypeBug,
-			"issueTypeIncident":    *issueTypeIncident,
-			"issueTypeRequirement": *issueTypeRequirement,
-			"deployTagPattern":     *deployTagPattern,
+			"connectionId": *connectionId,
+			"owner":        *owner,
+			"repo":         *repo,
+			"transformationRules": map[string]interface{}{
+				"prType":               *prType,
+				"prComponent":          *prComponent,
+				"prBodyClosePattern":   *prBodyClosePattern,
+				"issueSeverity":        *issueSeverity,
+				"issuePriority":        *issuePriority,
+				"issueComponent":       *issueComponent,
+				"issueTypeBug":         *issueTypeBug,
+				"issueTypeIncident":    *issueTypeIncident,
+				"issueTypeRequirement": *issueTypeRequirement,
+				"deploymentPattern":    *deploymentPattern,
+			},
 		})
 	}
 	runner.RunCmd(cmd)
