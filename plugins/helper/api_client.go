@@ -40,6 +40,15 @@ import (
 // ErrIgnoreAndContinue is a error which should be ignored
 var ErrIgnoreAndContinue = errors.Default.New("ignore and continue")
 
+// ApiClientGetter will be used for uint test
+type ApiClientGetter interface {
+	Get(
+		path string,
+		query url.Values,
+		headers http.Header,
+	) (*http.Response, errors.Error)
+}
+
 // ApiClient is designed for simple api requests
 type ApiClient struct {
 	client        *http.Client
