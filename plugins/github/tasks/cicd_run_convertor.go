@@ -30,15 +30,15 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertPipelinesMeta = core.SubTaskMeta{
-	Name:             "convertPipelines",
-	EntryPoint:       ConvertPipelines,
+var ConvertRunsMeta = core.SubTaskMeta{
+	Name:             "convertRuns",
+	EntryPoint:       ConvertRuns,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_runs into  domain layer table cicd_pipeline",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
+func ConvertRuns(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
