@@ -33,15 +33,9 @@ import (
 
 func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	repoIdList := make([]string, 0)
-	repoClause := dal.From(&code.Repo{})
-	err := db.Pluck("id", &repoIdList, repoClause)
-	if err != nil {
-		return err
-	}
 	clauses := []dal.Clause{
 		dal.From(&code.PullRequest{}),
-		dal.Where("merged_date IS NOT NULL and head_repo_id in ?", repoIdList),
+		dal.Where("merged_date IS NOT NULL"),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
