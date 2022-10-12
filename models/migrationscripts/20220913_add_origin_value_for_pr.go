@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/errors"
 	"gorm.io/gorm"
 )
@@ -26,9 +27,23 @@ import (
 type addOriginChangeValueForPr struct{}
 
 func (*addOriginChangeValueForPr) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(
-		&PullRequest0913{},
-	)
+	err := db.Migrator().AddColumn(PullRequest0913{}, "orig_coding_timespan")
+	if err != nil {
+		return errors.Convert(err)
+	}
+	err = db.Migrator().AddColumn(PullRequest0913{}, "orig_review_lag")
+	if err != nil {
+		return errors.Convert(err)
+	}
+	err = db.Migrator().AddColumn(PullRequest0913{}, "orig_review_timespan")
+	if err != nil {
+		return errors.Convert(err)
+	}
+	err = db.Migrator().AddColumn(PullRequest0913{}, "orig_deploy_timespan")
+	if err != nil {
+		return errors.Convert(err)
+	}
+
 	if err != nil {
 		return errors.Convert(err)
 	}
