@@ -68,8 +68,8 @@ func ConvertApiMergeRequests(taskCtx core.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: domainMrIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.GitlabId),
 				},
-				BaseRepoId:     domainRepoIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.SourceProjectId),
-				HeadRepoId:     domainRepoIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.TargetProjectId),
+				HeadRepoId:     domainRepoIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.SourceProjectId),
+				BaseRepoId:     domainRepoIdGenerator.Generate(data.Options.ConnectionId, gitlabMr.TargetProjectId),
 				Status:         gitlabMr.State,
 				PullRequestKey: gitlabMr.Iid,
 				Title:          gitlabMr.Title,
