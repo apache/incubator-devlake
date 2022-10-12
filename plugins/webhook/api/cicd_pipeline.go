@@ -260,15 +260,15 @@ type WebhookDeployTaskRequest struct {
 	// start_time and end_time is more readable for users,
 	// StartedDate and FinishedDate is same as columns in db.
 	// So they all keep.
-	StartedDate  *time.Time `mapstructure:"start_time"`
+	StartedDate  *time.Time `mapstructure:"start_time" validate:"required_with=FinishedDate"`
 	FinishedDate *time.Time `mapstructure:"end_time"`
-	Environment  string     `validate:"oneof=PRODUCTION STAGING TESTING DEVELOPMENT"`
+	Environment  string     `validate:"omitempty,oneof=PRODUCTION STAGING TESTING DEVELOPMENT"`
 }
 
 // PostCicdTask
 // @Summary create deployment pipeline by webhook
 // @Description Create deployment pipeline by webhook.<br/>
-// @Description example1: {"repo_url":"devlake","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d","name":"unit-test","deployment_id":"1","start_time":"2020-01-01T12:00:00+00:00","end_time":"2020-01-01T12:59:59+00:00","environment":"PRODUCTION"}<br/>
+// @Description example1: {"repo_url":"devlake","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d","start_time":"2020-01-01T12:00:00+00:00","end_time":"2020-01-01T12:59:59+00:00","environment":"PRODUCTION"}<br/>
 // @Description So we suggest request before task after deployment pipeline finish.
 // @Description Both cicd_pipeline and cicd_task will be created
 // @Tags plugins/webhook
@@ -318,12 +318,15 @@ func PostDeploymentCicdTask(input *core.ApiResourceInput) (*core.ApiResourceOutp
 		domainCicdTask.StartedDate = *request.StartedDate
 		if request.FinishedDate != nil {
 			domainCicdTask.FinishedDate = request.FinishedDate
-			domainCicdTask.DurationSec = uint64(domainCicdTask.FinishedDate.Sub(domainCicdTask.StartedDate).Seconds())
 		} else {
 			domainCicdTask.FinishedDate = &now
 		}
+		domainCicdTask.DurationSec = uint64(domainCicdTask.FinishedDate.Sub(domainCicdTask.StartedDate).Seconds())
 	} else {
 		domainCicdTask.StartedDate = now
+	}
+	if domainCicdTask.Environment == `` {
+		domainCicdTask.Environment = devops.PRODUCTION
 	}
 
 	domainPipeline := &devops.CICDPipeline{
