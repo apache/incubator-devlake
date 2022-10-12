@@ -116,6 +116,10 @@ func TestCommentDataFlow(t *testing.T) {
 			"account_id",
 			"repo_github_id",
 			"login",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 
@@ -131,6 +135,10 @@ func TestCommentDataFlow(t *testing.T) {
 			"body",
 			"account_id",
 			"created_date",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 

@@ -110,6 +110,10 @@ func TestPrDataFlow(t *testing.T) {
 			"account_id",
 			"repo_github_id",
 			"login",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 
@@ -141,6 +145,10 @@ func TestPrDataFlow(t *testing.T) {
 			"base_ref",
 			"base_commit_sha",
 			"head_commit_sha",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 
@@ -150,6 +158,13 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequestLabel{},
 		"./snapshot_tables/pull_request_labels.csv",
-		[]string{"pull_request_id", "label_name"},
+		[]string{
+			"pull_request_id",
+			"label_name",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
 	)
 }
