@@ -33,15 +33,10 @@ import (
 
 func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	repoIdList := make([]string, 0)
-	repoClause := dal.From(&code.Repo{})
-	err := db.Pluck("id", &repoIdList, repoClause)
-	if err != nil {
-		return err
-	}
+	log := taskCtx.GetLogger()
 	clauses := []dal.Clause{
 		dal.From(&code.PullRequest{}),
-		dal.Where("merged_date IS NOT NULL and head_repo_id in ?", repoIdList),
+		dal.Where("merged_date IS NOT NULL"),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -83,12 +78,15 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 				pr.OrigReviewLag = int64(firstReviewTime.Sub(pr.CreatedDate).Minutes())
 				pr.OrigReviewTimespan = int64(pr.MergedDate.Sub(*firstReviewTime).Minutes())
 			}
-			deployTime, err := getDeployTime(devops.PRODUCTION, *pr.MergedDate, db)
+			deployment, err := getDeployment(devops.PRODUCTION, *pr.MergedDate, db)
 			if err != nil {
 				return nil, err
 			}
-			if deployTime != nil {
-				pr.OrigDeployTimespan = int64(deployTime.Sub(*pr.MergedDate).Minutes())
+			if deployment != nil && deployment.FinishedDate != nil {
+				timespan := deployment.FinishedDate.Sub(*pr.MergedDate)
+				pr.OrigDeployTimespan = int64(timespan.Minutes())
+			} else {
+				log.Debug("deploy time of pr %v is nil\n", pr.PullRequestKey)
 			}
 			processNegativeValue(pr)
 			pr.ChangeTimespan = nil
@@ -153,16 +151,23 @@ func getFirstReviewTime(prId string, prCreator string, db dal.Dal) (*time.Time, 
 	return &review.CreatedDate, nil
 }
 
-func getDeployTime(environment string, mergeDate time.Time, db dal.Dal) (*time.Time, errors.Error) {
+func getDeployment(environment string, mergeDate time.Time, db dal.Dal) (*devops.CICDTask, errors.Error) {
+	// ignore environment at this point because detecting it by name is obviously not engouh
+	// take https://github.com/apache/incubator-devlake/actions/workflows/build.yml for example
+	// one can not distingush testing/production by looking at the job name solely.
 	cicdTask := &devops.CICDTask{}
 	cicdTaskClauses := []dal.Clause{
 		dal.From(&devops.CICDTask{}),
-		dal.Join("left join cicd_pipeline_commits on cicd_tasks.pipeline_id = cicd_pipeline_commits.pipeline_id"),
-		dal.Where(`cicd_tasks.environment = ? 
-			and cicd_tasks.result = ?
-			and cicd_tasks.started_date > ?`,
-			environment, "SUCCESS", mergeDate),
+		dal.Where(`
+			type = ?
+			AND cicd_tasks.result = ?
+			AND cicd_tasks.started_date > ?`,
+			"DEPLOYMENT",
+			"SUCCESS",
+			mergeDate,
+		),
 		dal.Orderby("cicd_tasks.started_date ASC"),
+		dal.Limit(1),
 	}
 	err := db.First(cicdTask, cicdTaskClauses...)
 	if goerror.Is(err, gorm.ErrRecordNotFound) {
@@ -171,7 +176,7 @@ func getDeployTime(environment string, mergeDate time.Time, db dal.Dal) (*time.T
 	if err != nil {
 		return nil, err
 	}
-	return cicdTask.FinishedDate, nil
+	return cicdTask, nil
 }
 
 func processNegativeValue(pr *code.PullRequest) {
