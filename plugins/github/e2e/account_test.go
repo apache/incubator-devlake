@@ -20,11 +20,11 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/plugins/github/models"
-
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
@@ -51,7 +51,8 @@ func TestAccountDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.GithubAccount{})
 	dataflowTester.Subtask(tasks.ExtractAccountsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.GithubAccount{}, e2ehelper.TableOptions{
-		CSVRelPath: "./snapshot_tables/_tool_github_account.csv",
+		CSVRelPath:  "./snapshot_tables/_tool_github_account.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}.CreatedAt, common.NoPKModel{}.UpdatedAt},
 	})
 
 	// import raw data table
@@ -60,13 +61,15 @@ func TestAccountDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.GithubAccountOrg{})
 	dataflowTester.Subtask(tasks.ExtractAccountOrgMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&models.GithubAccountOrg{}, e2ehelper.TableOptions{
-		CSVRelPath: "./snapshot_tables/_tool_github_account_orgs.csv",
+		CSVRelPath:  "./snapshot_tables/_tool_github_account_orgs.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}.CreatedAt, common.NoPKModel{}.UpdatedAt},
 	})
 
 	// verify converter
 	dataflowTester.FlushTabler(&crossdomain.Account{})
 	dataflowTester.Subtask(tasks.ConvertAccountsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&crossdomain.Account{}, e2ehelper.TableOptions{
-		CSVRelPath: "./snapshot_tables/account.csv",
+		CSVRelPath:  "./snapshot_tables/account.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}.CreatedAt, common.NoPKModel{}.UpdatedAt},
 	})
 }
