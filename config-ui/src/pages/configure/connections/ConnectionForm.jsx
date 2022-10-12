@@ -282,7 +282,7 @@ export default function ConnectionForm(props) {
 
   useEffect(() => {
     onRateLimitChange((rL) => !enableRateLimit ? 0 : rL)
-  }, [enableRateLimit])
+  }, [enableRateLimit, onRateLimitChange])
 
   return (
     <>
