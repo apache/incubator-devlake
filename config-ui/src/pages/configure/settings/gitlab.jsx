@@ -29,7 +29,6 @@ export default function GitlabSettings(props) {
     entities = [],
     transformation = {},
     provider,
-    configuredProject,
     isSaving = false,
     isSavingConnection = false,
     onSettingsChange = () => {}
@@ -37,8 +36,7 @@ export default function GitlabSettings(props) {
 
   return (
     <>
-      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) &&
-      configuredProject ? (
+      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) ? (
         <Deployment
           provider={provider}
           entities={entities}

@@ -204,7 +204,7 @@ const CreateBlueprint = (props) => {
     changeTransformationSettings,
     initializeDefaultTransformation,
     clearTransformationSettings,
-    checkTransformationIsChanged,
+    checkTransformationHasChanged,
     configuredConnection,
     configuredProject,
     configuredBoard,
@@ -609,10 +609,11 @@ const CreateBlueprint = (props) => {
 
   const handleTransformationSave = useCallback(
     (settings, entity) => {
-      console.log('>> SAVING / CLOSING Transformation Settings')
-      // FIXME what's this???
-      // manual @save disabled, reactive auto-saving writes settings to transform object...
-      // setTransformationSettings(settings, entity)
+      console.log(
+        '>> SAVING / CLOSING Transformation Settings',
+        settings,
+        entity
+      )
       setConfiguredProject(null)
       setConfiguredBoard(null)
       ToastNotification.clear()
@@ -822,7 +823,6 @@ const CreateBlueprint = (props) => {
           setDataEntitiesList(
             DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
           )
-          // setConfiguredProject(projects.length > 0 ? projects[0] : null)
           break
         case Providers.JIRA:
           setDataEntitiesList(
@@ -1139,8 +1139,8 @@ const CreateBlueprint = (props) => {
                       addBoardTransformation={addBoardTransformation}
                       addProjectTransformation={addProjectTransformation}
                       activeTransformation={activeTransformation}
-                      checkTransformationIsChanged={
-                        checkTransformationIsChanged
+                      checkTransformationHasChanged={
+                        checkTransformationHasChanged
                       }
                       changeTransformationSettings={
                         changeTransformationSettings

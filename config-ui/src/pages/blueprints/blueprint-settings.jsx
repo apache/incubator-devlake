@@ -186,7 +186,7 @@ const BlueprintSettings = (props) => {
     changeTransformationSettings,
     initializeDefaultTransformation,
     clearTransformationSettings,
-    checkTransformationIsChanged,
+    checkTransformationHasChanged,
     // setActiveTransformation,
     setConnections,
     setScopeConnection,
@@ -879,23 +879,7 @@ const BlueprintSettings = (props) => {
     // isFetchingJIRA,
     // jiraApiBoards,
     scopeConnection
-    // configuredProject, configuredBoard
   ])
-
-  // useEffect(() => {
-  //   if (allJiraResources?.boards?.length > 0) {
-  //     // setBlueprintScopesDialogIsOpen(true)
-  //   }
-  // }, [allJiraResources])
-
-  // useEffect(() => {
-  //   console.log('>>> CONFIGURING / MODIFYING CONNECTION', configuredConnection)
-  //   if (configuredConnection?.id) {
-  //     // setBoards({ [configuredConnection?.id]: [] })
-  //     // setProjects({ [configuredConnection?.id]: [] })
-  //     // setEntities({ [configuredConnection?.id]: [] })
-  //   }
-  // }, [configuredConnection])
 
   useEffect(() => {
     if (
@@ -1462,7 +1446,7 @@ const BlueprintSettings = (props) => {
         setBoards={setBoards}
         setProjects={setProjects}
         setEntities={setEntities}
-        checkTransformationIsChanged={checkTransformationIsChanged}
+        checkTransformationHasChanged={checkTransformationHasChanged}
         changeTransformationSettings={changeTransformationSettings}
         onOpening={handleBlueprintScopesDialogOpening}
         onSave={handleBlueprintSave}

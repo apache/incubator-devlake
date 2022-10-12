@@ -99,7 +99,7 @@ const BlueprintDataScopesDialog = (props) => {
     setProjects = () => {},
     setBoards = () => {},
     setEntities = () => {},
-    checkTransformationIsChanged = () => false,
+    checkTransformationHasChanged = () => false,
     changeTransformationSettings = () => {},
     addBoardTransformation = () => {},
     addProjectTransformation = () => {},
@@ -232,7 +232,7 @@ const BlueprintDataScopesDialog = (props) => {
                 addBoardTransformation={addBoardTransformation}
                 addProjectTransformation={addProjectTransformation}
                 isSaving={isSaving}
-                checkTransformationIsChanged={checkTransformationIsChanged}
+                checkTransformationHasChanged={checkTransformationHasChanged}
                 changeTransformationSettings={changeTransformationSettings}
                 // onSave={handleTransformationSave}
                 // onCancel={handleTransformationCancel}

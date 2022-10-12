@@ -56,7 +56,7 @@ const DataTransformations = (props) => {
     addBoardTransformation = () => {},
     addProjectTransformation = () => {},
     activeTransformation = {},
-    checkTransformationIsChanged = () => false,
+    checkTransformationHasChanged = () => false,
     changeTransformationSettings = () => {},
     onSave = () => {},
     onCancel = () => {},
@@ -109,9 +109,9 @@ const DataTransformations = (props) => {
   )
   const [activeEntity, setActiveEntity] = useState()
 
-  const checkCurrentTransformationIsChanged = useCallback(
+  const checkCurrentTransformationHasChanged = useCallback(
     (item) => {
-      return checkTransformationIsChanged(
+      return checkTransformationHasChanged(
         configuredConnection?.provider,
         configuredConnection?.id,
         item
@@ -120,28 +120,18 @@ const DataTransformations = (props) => {
     [
       configuredConnection?.provider,
       configuredConnection?.id,
-      checkTransformationIsChanged
+      checkTransformationHasChanged
     ]
   )
 
   const changeCurrentTransformationSettings = useCallback(
     (settings) => {
-      if (configuredBoard) {
-        return changeTransformationSettings(
-          configuredConnection?.provider,
-          configuredConnection?.id,
-          configuredBoard,
-          settings
-        )
-      } else {
-        console.log(configuredProject)
-        return changeTransformationSettings(
-          configuredConnection?.provider,
-          configuredConnection?.id,
-          configuredProject,
-          settings
-        )
-      }
+      return changeTransformationSettings(
+        configuredConnection?.provider,
+        configuredConnection?.id,
+        configuredBoard || configuredProject,
+        settings
+      )
     },
     [
       configuredConnection?.provider,
@@ -332,7 +322,7 @@ const DataTransformations = (props) => {
                           activeItem={configuredProject}
                           onAdd={addProjectTransformation}
                           onChange={addProjectTransformation}
-                          isEditing={checkCurrentTransformationIsChanged}
+                          isEditing={checkCurrentTransformationHasChanged}
                         />
                         {projects[configuredConnection.id].length === 0 && (
                           <NoData
@@ -356,7 +346,7 @@ const DataTransformations = (props) => {
                           activeItem={configuredBoard}
                           onAdd={addBoardTransformation}
                           onChange={addBoardTransformation}
-                          isEditing={checkCurrentTransformationIsChanged}
+                          isEditing={checkCurrentTransformationHasChanged}
                         />
                         {boards[configuredConnection.id].length === 0 && (
                           <NoData
@@ -406,7 +396,6 @@ const DataTransformations = (props) => {
                           )}
                           blueprint={blueprint}
                           connection={configuredConnection}
-                          configuredProject={configuredProject}
                           configuredBoard={configuredBoard}
                           issueTypes={issueTypes}
                           fields={fields}

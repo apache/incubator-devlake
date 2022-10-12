@@ -203,7 +203,7 @@ const useTransformationsManager = () => {
   )
 
   // check connection's transformation is changed
-  const checkTransformationIsChanged = useCallback(
+  const checkTransformationHasChanged = useCallback(
     (connectionProvider, connectionId, projectNameOrBoard) => {
       const key = generateKey(
         connectionProvider,
@@ -215,7 +215,7 @@ const useTransformationsManager = () => {
         getDefaultTransformations(connectionProvider)
       )
       console.debug(
-        '>> useTransformationsManager.checkTransformationIsChanged ...',
+        '>> useTransformationsManager.checkTransformationHasChanged ...',
         key,
         storedTransform,
         defaultTransform
@@ -230,7 +230,7 @@ const useTransformationsManager = () => {
     changeTransformationSettings,
     initializeDefaultTransformation,
     clearTransformationSettings,
-    checkTransformationIsChanged
+    checkTransformationHasChanged
   }
 }
 

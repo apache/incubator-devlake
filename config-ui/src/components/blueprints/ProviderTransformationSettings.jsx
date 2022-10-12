@@ -35,7 +35,6 @@ const ProviderTransformationSettings = (props) => {
     provider,
     blueprint,
     connection,
-    configuredProject,
     configuredBoard,
     transformation = {},
     boards = {},
@@ -67,7 +66,6 @@ const ProviderTransformationSettings = (props) => {
         <GitlabSettings
           provider={provider}
           connection={connection}
-          configuredProject={configuredProject}
           transformation={transformation}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}

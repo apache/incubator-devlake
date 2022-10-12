@@ -43,8 +43,7 @@ export default function GithubSettings(props) {
     transformation = {},
     isSaving,
     isSavingConnection,
-    onSettingsChange = () => {},
-    configuredProject
+    onSettingsChange = () => {}
   } = props
   const [enableAdditionalCalculations, setEnableAdditionalCalculations] =
     useState(false)

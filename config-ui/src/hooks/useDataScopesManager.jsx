@@ -56,7 +56,7 @@ function useDataScopesManager({
     changeTransformationSettings,
     initializeDefaultTransformation,
     clearTransformationSettings,
-    checkTransformationIsChanged
+    checkTransformationHasChanged
   } = useTransformationsManager()
   const [enabledProviders, setEnabledProviders] = useState([])
 
@@ -70,23 +70,6 @@ function useDataScopesManager({
   const selectedBoards = useMemo(
     () => boards[connection?.id]?.map((b) => b && b?.id),
     [boards, connection?.id]
-  )
-
-  const storedProjectTransformation = useMemo(
-    () =>
-      connection?.transformations &&
-      connection?.transformations[
-        connection?.projects?.findIndex((p) => p === configuredProject?.id)
-      ],
-    [connection, configuredProject?.id]
-  )
-  const storedBoardTransformation = useMemo(
-    () =>
-      connection?.transformations &&
-      connection?.transformations[
-        connection?.boardIds?.findIndex((b) => b === configuredBoard?.id)
-      ],
-    [connection, configuredBoard?.id]
   )
 
   const activeTransformation = useMemo(
@@ -676,8 +659,6 @@ function useDataScopesManager({
     configuredConnection,
     configuredBoard,
     configuredProject,
-    storedProjectTransformation,
-    storedBoardTransformation,
     activeTransformation,
     scopeConnection,
     enabledProviders,
@@ -695,7 +676,7 @@ function useDataScopesManager({
     changeTransformationSettings,
     initializeDefaultTransformation,
     clearTransformationSettings,
-    checkTransformationIsChanged,
+    checkTransformationHasChanged,
     createProviderConnections,
     createProviderScopes,
     getJiraMappedBoards,
