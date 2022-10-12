@@ -69,6 +69,9 @@ func (plugin Webhook) ApiResources() map[string]map[string]core.ApiResourceHandl
 		":connectionId/cicd_pipeline/:pipelineName/finish": {
 			"POST": api.PostPipelineFinish,
 		},
+		":connectionId/deployments": {
+			"POST": api.PostDeploymentCicdTask,
+		},
 		":connectionId/issues": {
 			"POST": api.PostIssue,
 		},
