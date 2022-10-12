@@ -68,22 +68,74 @@ func TestMilestoneDataFlow(t *testing.T) {
 
 	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.Subtask(tasks.ExtractMilestonesMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&models.GithubMilestone{}, e2ehelper.TableOptions{
-		CSVRelPath: "./snapshot_tables/_tool_github_milestones.csv",
-	})
+	dataflowTester.VerifyTable(
+		models.GithubMilestone{},
+		"./snapshot_tables/_tool_github_milestones.csv",
+		[]string{
+			"connection_id",
+			"milestone_id",
+			"repo_id",
+			"number",
+			"url",
+			"title",
+			"open_issues",
+			"closed_issues",
+			"state",
+			"closed_at",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
 
 	dataflowTester.FlushTabler(&ticket.Sprint{})
 	dataflowTester.FlushTabler(&ticket.BoardSprint{})
 	dataflowTester.FlushTabler(&ticket.SprintIssue{})
 
 	dataflowTester.Subtask(tasks.ConvertMilestonesMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&ticket.Sprint{}, e2ehelper.TableOptions{
-		CSVRelPath: "./snapshot_tables/sprints.csv",
-	})
-	dataflowTester.VerifyTableWithOptions(&ticket.BoardSprint{}, e2ehelper.TableOptions{
-		CSVRelPath: "./snapshot_tables/board_sprint.csv",
-	})
-	dataflowTester.VerifyTableWithOptions(&ticket.SprintIssue{}, e2ehelper.TableOptions{
-		CSVRelPath: "./snapshot_tables/sprint_issue.csv",
-	})
+	dataflowTester.VerifyTable(
+		ticket.Sprint{},
+		"./snapshot_tables/sprints.csv",
+		[]string{
+			"id",
+			"name",
+			"url",
+			"status",
+			"started_date",
+			"ended_date",
+			"completed_date",
+			"original_board_id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
+	dataflowTester.VerifyTable(
+		ticket.BoardSprint{},
+		"./snapshot_tables/board_sprint.csv",
+		[]string{
+			"board_id",
+			"sprint_id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
+
+	dataflowTester.VerifyTable(
+		ticket.SprintIssue{},
+		"./snapshot_tables/sprint_issue.csv",
+		[]string{
+			"issue_id",
+			"sprint_id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
+	)
 }
