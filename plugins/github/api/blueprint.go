@@ -55,14 +55,25 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		connection.Proxy,
 		basicRes,
 	)
-	plan, err := makePipelinePlan(subtaskMetas, connectionId, scope, apiClient, connection)
+	if err != nil {
+		return nil, err
+	}
+	plan, err := makePipelinePlan(subtaskMetas, scope, apiClient, connection)
 	if err != nil {
 		return nil, err
 	}
 	return plan, nil
 }
-func makePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100, apiClient *helper.ApiClient, connection *models.GithubConnection) (core.PipelinePlan, errors.Error) {
+
+func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintScopeV100, apiClient helper.ApiClientGetter, connection *models.GithubConnection) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
+	var repo *tasks.GithubApiRepo
+	getApiRepoIfNil := func(op *tasks.GithubOptions) (*tasks.GithubApiRepo, errors.Error) {
+		if repo == nil {
+			repo, err = getApiRepo(op, apiClient)
+		}
+		return repo, err
+	}
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
@@ -95,7 +106,7 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		if err != nil {
 			return nil, err
 		}
-		options["connectionId"] = connectionId
+		options["connectionId"] = connection.ID
 		options["transformationRules"] = transformationRules
 		// make sure task options is valid
 		op, err := tasks.DecodeAndValidateTaskOptions(options)
@@ -119,20 +130,12 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		// collect git data by gitextractor if CODE was requested
 		if utils.StringsContains(scopeElem.Entities, core.DOMAIN_TYPE_CODE) {
 			// here is the tricky part, we have to obtain the repo id beforehand
-			if connection == nil {
-				connection = new(models.GithubConnection)
-				err = connectionHelper.FirstById(connection, connectionId)
-				if err != nil {
-					return nil, err
-				}
-			}
 			token := strings.Split(connection.Token, ",")[0]
-			apiRepo, err := getApiRepo(op, apiClient)
+			repo, err = getApiRepoIfNil(op)
 			if err != nil {
 				return nil, err
 			}
-
-			cloneUrl, err := errors.Convert01(url.Parse(apiRepo.CloneUrl))
+			cloneUrl, err := errors.Convert01(url.Parse(repo.CloneUrl))
 			if err != nil {
 				return nil, err
 			}
@@ -141,7 +144,7 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"url":    cloneUrl.String(),
-					"repoId": didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connectionId, apiRepo.GithubId),
+					"repoId": didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, repo.GithubId),
 					"proxy":  connection.Proxy,
 				},
 			})
@@ -162,14 +165,13 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			if err != nil {
 				return nil, err
 			}
-
-			apiRepo, err := getApiRepo(op, apiClient)
+			repo, err = getApiRepoIfNil(op)
 			if err != nil {
 				return nil, err
 			}
 
 			doraOption := make(map[string]interface{})
-			doraOption["repoId"] = didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connectionId, apiRepo.GithubId)
+			doraOption["repoId"] = didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, repo.GithubId)
 			doraRules := make(map[string]interface{})
 			doraRules["productionPattern"] = productionPattern
 			doraOption["transformationRules"] = doraRules
@@ -191,13 +193,13 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 	return plan, nil
 }
 
-func getApiRepo(op *tasks.GithubOptions, apiClient *helper.ApiClient) (*tasks.GithubApiRepo, errors.Error) {
-	apiRepo := new(tasks.GithubApiRepo)
+func getApiRepo(op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tasks.GithubApiRepo, errors.Error) {
+	apiRepo := &tasks.GithubApiRepo{}
 	res, err := apiClient.Get(fmt.Sprintf("repos/%s/%s", op.Owner, op.Repo), nil, nil)
 	if err != nil {
 		return nil, err
 	}
-	//defer res.Body.Close()
+	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code when requesting repo detail from %s", res.Request.URL.String()))
 	}

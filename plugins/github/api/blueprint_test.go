@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/models/common"
@@ -26,6 +27,9 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"io"
+	"net/http"
 	"testing"
 )
 
@@ -46,9 +50,20 @@ func TestProcessScope(t *testing.T) {
 			Token: "123",
 		},
 	}
+	mockApiCLient := mocks.NewApiClientGetter(t)
+	repo := &tasks.GithubApiRepo{
+		GithubId: 12345,
+		CloneUrl: "*this is cloneUrl*",
+	}
+	js, err := json.Marshal(repo)
+	assert.Nil(t, err)
+	res := &http.Response{}
+	res.Body = io.NopCloser(bytes.NewBuffer(js))
+	res.StatusCode = http.StatusOK
+	mockApiCLient.On("Get", "repos/test/testRepo", mock.Anything, mock.Anything).Return(res, nil)
 	mockMeta := mocks.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/github")
-	err := core.RegisterPlugin("github", mockMeta)
+	err = core.RegisterPlugin("github", mockMeta)
 	assert.Nil(t, err)
 	bs := &core.BlueprintScopeV100{
 		Entities: []string{"CODE"},
@@ -66,19 +81,58 @@ func TestProcessScope(t *testing.T) {
               "productionPattern": "xxxx"
             }`),
 	}
-	apiRepo := &tasks.GithubApiRepo{
-		GithubId: 123,
-		CloneUrl: "HttpUrlToRepo",
-	}
 	scopes := make([]*core.BlueprintScopeV100, 0)
 	scopes = append(scopes, bs)
-	plan := make(core.PipelinePlan, len(scopes))
-	for i, scopeElem := range scopes {
-		plan, err = processScope(nil, 1, scopeElem, i, plan, apiRepo, connection)
-		assert.Nil(t, err)
+	plan, err := makePipelinePlan(nil, scopes, mockApiCLient, connection)
+	assert.Nil(t, err)
+
+	//planJson, err1 := json.Marshal(plan)
+	//assert.Nil(t, err1)
+	expectPlan := core.PipelinePlan{
+		core.PipelineStage{
+			{
+				Plugin:   "github",
+				Subtasks: []string{},
+				Options: map[string]interface{}{
+					"connectionId": uint64(1),
+					"owner":        "test",
+					"repo":         "testRepo",
+					"transformationRules": map[string]interface{}{
+						"prType": "hey,man,wasup",
+					},
+				},
+			},
+			{
+				Plugin: "gitextractor",
+				Options: map[string]interface{}{
+					"proxy":  "",
+					"repoId": "github:GithubRepo:1:12345",
+					"url":    "//git:123@%2Athis%20is%20cloneUrl%2A",
+				},
+			},
+		},
+		core.PipelineStage{
+			{
+				Plugin: "refdiff",
+				Options: map[string]interface{}{
+					"tagsLimit":   float64(10),
+					"tagsOrder":   "reverse semver",
+					"tagsPattern": "pattern",
+				},
+			},
+		},
+		core.PipelineStage{
+			{
+				Plugin:   "dora",
+				Subtasks: []string{"EnrichTaskEnv"},
+				Options: map[string]interface{}{
+					"repoId": "github:GithubRepo:1:12345",
+					"transformationRules": map[string]interface{}{
+						"productionPattern": "xxxx",
+					},
+				},
+			},
+		},
 	}
-	planJson, err1 := json.Marshal(plan)
-	assert.Nil(t, err1)
-	expectPlan := `[[{"plugin":"github","subtasks":[],"options":{"connectionId":1,"owner":"test","repo":"testRepo","transformationRules":{"prType":"hey,man,wasup"}}},{"plugin":"gitextractor","subtasks":null,"options":{"proxy":"","repoId":"github:GithubRepo:1:123","url":"//git:123@HttpUrlToRepo"}}],[{"plugin":"refdiff","subtasks":null,"options":{"tagsLimit":10,"tagsOrder":"reverse semver","tagsPattern":"pattern"}}],[{"plugin":"dora","subtasks":["EnrichTaskEnv"],"options":{"repoId":"github:GithubRepo:1:123","transformationRules":{"productionPattern":"xxxx"}}}]]`
-	assert.Equal(t, expectPlan, string(planJson))
+	assert.Equal(t, expectPlan, plan)
 }
