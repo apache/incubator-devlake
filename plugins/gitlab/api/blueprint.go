@@ -183,6 +183,7 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 			delete(transformationRules, "productionPattern")
 		}
 		plan[i] = stage
+		repo = nil
 	}
 	return plan, nil
 }
