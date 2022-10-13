@@ -18,19 +18,81 @@ limitations under the License.
 package api
 
 import (
+	"bytes"
+	"encoding/json"
 	"github.com/apache/incubator-devlake/mocks"
-	"testing"
-
-	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"io"
+	"net/http"
+	"path"
+	"testing"
 )
 
 func TestMakePipelinePlan(t *testing.T) {
-	var mockGetter repoGetter
-	mockGetter = func(connectionId uint64, owner, repo string) (string, string, errors.Error) {
-		return "https://thenicetgp@bitbucket.org/thenicetgp/lake.git", "secret", nil
+	connection := &models.BitbucketConnection{
+		RestConnection: helper.RestConnection{
+			BaseConnection: helper.BaseConnection{
+				Name: "github-test",
+				Model: common.Model{
+					ID: 1,
+				},
+			},
+			Endpoint:         "https://TestBitBucket/",
+			Proxy:            "",
+			RateLimitPerHour: 0,
+		},
+		BasicAuth: helper.BasicAuth{
+			Username: "Username",
+			Password: "Password",
+		},
 	}
+
+	mockApiCLient := mocks.NewApiClientGetter(t)
+	repo := &tasks.BitbucketApiRepo{
+		Links: struct {
+			Clone []struct {
+				Href string `json:"href"`
+				Name string `json:"name"`
+			} `json:"clone"`
+			Self struct {
+				Href string `json:"href"`
+			} `json:"self"`
+			Html struct {
+				Href string `json:"href"`
+			} `json:"html"`
+		}{
+			Clone: []struct {
+				Href string `json:"href"`
+				Name string `json:"name"`
+			}{
+				{
+					Href: "https://bitbucket.org/thenicetgp/lake.git",
+					Name: "https",
+				},
+			},
+			Self: struct {
+				Href string `json:"href"`
+			}{},
+			Html: struct {
+				Href string `json:"href"`
+			}{},
+		},
+	}
+	js, err := json.Marshal(repo)
+	assert.Nil(t, err)
+	res := &http.Response{}
+	res.Body = io.NopCloser(bytes.NewBuffer(js))
+	res.StatusCode = http.StatusOK
+	mockApiCLient.On("Get", path.Join("repositories", "thenicetgp", "lake"), mock.Anything, mock.Anything).Return(res, nil)
+	mockMeta := mocks.NewPluginMeta(t)
+	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/bitbucket")
+	err = core.RegisterPlugin("bitbucket", mockMeta)
 	scope := &core.BlueprintScopeV100{
 		Entities: []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_CROSS},
 		Options: []byte(`{
@@ -39,19 +101,32 @@ func TestMakePipelinePlan(t *testing.T) {
                         }`),
 		Transformation: nil,
 	}
-	mockMeta := mocks.NewPluginMeta(t)
-	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/bitbucket")
-	err := core.RegisterPlugin("bitbucket", mockMeta)
+	scopes := make([]*core.BlueprintScopeV100, 0)
+	scopes = append(scopes, scope)
 	assert.Nil(t, err)
-	plan, err := makePipelinePlan(nil, 1, mockGetter, []*core.BlueprintScopeV100{scope})
+	plan, err := makePipelinePlan(nil, scopes, mockApiCLient, connection)
 	assert.Nil(t, err)
-	for _, stage := range plan {
-		for _, task := range stage {
-			if task.Plugin == "gitextractor" {
-				assert.Equal(t, task.Options["url"], "https://thenicetgp:secret@bitbucket.org/thenicetgp/lake.git")
-				return
-			}
-		}
+
+	expectPlan := core.PipelinePlan{
+		core.PipelineStage{
+			{
+				Plugin:   "bitbucket",
+				Subtasks: []string{},
+				Options: map[string]interface{}{
+					"connectionId":        uint64(1),
+					"owner":               "thenicetgp",
+					"repo":                "lake",
+					"transformationRules": map[string]interface{}{},
+				},
+			},
+			{
+				Plugin: "gitextractor",
+				Options: map[string]interface{}{
+					"repoId": "bitbucket:BitbucketRepo:1:thenicetgp/lake",
+					"url":    "https://thenicetgp:Password@bitbucket.org/thenicetgp/lake.git",
+				},
+			},
+		},
 	}
-	t.Fatal("no gitextractor plugin")
+	assert.Equal(t, expectPlan, plan)
 }

@@ -45,10 +45,7 @@ func TestProcessScope(t *testing.T) {
 			Password: "Password",
 		},
 	}
-	//mockMeta := mocks.NewPluginMeta(t)
-	//mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/jenkins")
-	//err := core.RegisterPlugin("jenkins", mockMeta)
-	//assert.Nil(t, err)
+
 	bs := &core.BlueprintScopeV100{
 		Entities: []string{"CICD"},
 		Options: json.RawMessage(`{

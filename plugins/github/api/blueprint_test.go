@@ -53,7 +53,7 @@ func TestProcessScope(t *testing.T) {
 	mockApiCLient := mocks.NewApiClientGetter(t)
 	repo := &tasks.GithubApiRepo{
 		GithubId: 12345,
-		CloneUrl: "*this is cloneUrl*",
+		CloneUrl: "https://this_is_cloneUrl",
 	}
 	js, err := json.Marshal(repo)
 	assert.Nil(t, err)
@@ -105,7 +105,7 @@ func TestProcessScope(t *testing.T) {
 				Options: map[string]interface{}{
 					"proxy":  "",
 					"repoId": "github:GithubRepo:1:12345",
-					"url":    "//git:123@%2Athis%20is%20cloneUrl%2A",
+					"url":    "https://git:123@this_is_cloneUrl",
 				},
 			},
 		},
