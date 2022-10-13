@@ -202,9 +202,10 @@ const CreateBlueprint = (props) => {
     setEntities: setDataEntities,
     getTransformation,
     changeTransformationSettings,
-    initializeDefaultTransformation,
     clearTransformationSettings,
     checkTransformationHasChanged,
+    checkConfiguredProjectTransformationHasChanged,
+    changeConfiguredProjectTransformationSettings,
     configuredConnection,
     configuredProject,
     configuredBoard,
@@ -1144,6 +1145,12 @@ const CreateBlueprint = (props) => {
                       }
                       changeTransformationSettings={
                         changeTransformationSettings
+                      }
+                      checkConfiguredProjectTransformationHasChanged={
+                        checkConfiguredProjectTransformationHasChanged
+                      }
+                      changeConfiguredProjectTransformationSettings={
+                        changeConfiguredProjectTransformationSettings
                       }
                       onSave={handleTransformationSave}
                       onCancel={handleTransformationCancel}

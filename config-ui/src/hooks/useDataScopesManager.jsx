@@ -525,6 +525,39 @@ function useDataScopesManager({
     ]
   )
 
+  const checkConfiguredProjectTransformationHasChanged = useCallback(
+    (item) => {
+      return checkTransformationHasChanged(
+        configuredConnection?.provider,
+        configuredConnection?.id,
+        item
+      )
+    },
+    [
+      configuredConnection?.provider,
+      configuredConnection?.id,
+      checkTransformationHasChanged
+    ]
+  )
+
+  const changeConfiguredProjectTransformationSettings = useCallback(
+    (settings) => {
+      return changeTransformationSettings(
+        configuredConnection?.provider,
+        configuredConnection?.id,
+        configuredBoard || configuredProject,
+        settings
+      )
+    },
+    [
+      configuredConnection?.provider,
+      configuredConnection?.id,
+      configuredBoard,
+      configuredProject,
+      changeTransformationSettings
+    ]
+  )
+
   useEffect(() => {
     console.log(
       '>>>>> DATA SCOPES MANAGER: INITIALIZING TRANSFORMATION RULES...',
@@ -677,6 +710,8 @@ function useDataScopesManager({
     initializeDefaultTransformation,
     clearTransformationSettings,
     checkTransformationHasChanged,
+    checkConfiguredProjectTransformationHasChanged,
+    changeConfiguredProjectTransformationSettings,
     createProviderConnections,
     createProviderScopes,
     getJiraMappedBoards,

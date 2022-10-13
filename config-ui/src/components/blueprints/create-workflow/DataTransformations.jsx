@@ -58,6 +58,8 @@ const DataTransformations = (props) => {
     activeTransformation = {},
     checkTransformationHasChanged = () => false,
     changeTransformationSettings = () => {},
+    checkConfiguredProjectTransformationHasChanged = () => false,
+    changeConfiguredProjectTransformationSettings = () => {},
     onSave = () => {},
     onCancel = () => {},
     onClear = () => {},
@@ -108,39 +110,6 @@ const DataTransformations = (props) => {
     }))
   )
   const [activeEntity, setActiveEntity] = useState()
-
-  const checkCurrentTransformationHasChanged = useCallback(
-    (item) => {
-      return checkTransformationHasChanged(
-        configuredConnection?.provider,
-        configuredConnection?.id,
-        item
-      )
-    },
-    [
-      configuredConnection?.provider,
-      configuredConnection?.id,
-      checkTransformationHasChanged
-    ]
-  )
-
-  const changeCurrentTransformationSettings = useCallback(
-    (settings) => {
-      return changeTransformationSettings(
-        configuredConnection?.provider,
-        configuredConnection?.id,
-        configuredBoard || configuredProject,
-        settings
-      )
-    },
-    [
-      configuredConnection?.provider,
-      configuredConnection?.id,
-      configuredBoard,
-      configuredProject,
-      changeTransformationSettings
-    ]
-  )
 
   useEffect(() => {
     console.log('>>> PROJECT/BOARD SELECT LIST DATA...', entityList)
@@ -322,7 +291,9 @@ const DataTransformations = (props) => {
                           activeItem={configuredProject}
                           onAdd={addProjectTransformation}
                           onChange={addProjectTransformation}
-                          isEditing={checkCurrentTransformationHasChanged}
+                          isEditing={
+                            checkConfiguredProjectTransformationHasChanged
+                          }
                         />
                         {projects[configuredConnection.id].length === 0 && (
                           <NoData
@@ -346,7 +317,9 @@ const DataTransformations = (props) => {
                           activeItem={configuredBoard}
                           onAdd={addBoardTransformation}
                           onChange={addBoardTransformation}
-                          isEditing={checkCurrentTransformationHasChanged}
+                          isEditing={
+                            checkConfiguredProjectTransformationHasChanged
+                          }
                         />
                         {boards[configuredConnection.id].length === 0 && (
                           <NoData
@@ -402,7 +375,9 @@ const DataTransformations = (props) => {
                           boards={boards}
                           entities={dataEntities}
                           transformation={activeTransformation}
-                          onSettingsChange={changeCurrentTransformationSettings}
+                          onSettingsChange={
+                            changeConfiguredProjectTransformationSettings
+                          }
                           isSaving={isSaving}
                           isFetchingJIRA={isFetchingJIRA}
                           isSavingConnection={isSavingConnection}
