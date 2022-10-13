@@ -31,28 +31,28 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertPipelineMeta = core.SubTaskMeta{
-	Name:             "convertPipelines",
-	EntryPoint:       ConvertPipelines,
+var ConvertDeploymentMeta = core.SubTaskMeta{
+	Name:             "convertDeployments",
+	EntryPoint:       ConvertDeployments,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table bitbucket_pipeline into domain layer table pipeline",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
-func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
+func ConvertDeployments(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*BitbucketTaskData)
 
-	cursor, err := db.Cursor(dal.From(bitbucketModels.BitbucketPipeline{}))
+	cursor, err := db.Cursor(dal.From(bitbucketModels.BitbucketDeployment{}))
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 
-	pipelineIdGen := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketPipeline{})
+	pipelineIdGen := didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketDeployment{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(bitbucketModels.BitbucketPipeline{}),
+		InputRowType: reflect.TypeOf(bitbucketModels.BitbucketDeployment{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -61,41 +61,49 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 				Owner:        data.Options.Owner,
 				Repo:         data.Options.Repo,
 			},
-			Table: RAW_PIPELINE_TABLE,
+			Table: RAW_DEPLOYMENT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			bitbucketPipeline := inputRow.(*bitbucketModels.BitbucketPipeline)
+			bitbucketDeployment := inputRow.(*bitbucketModels.BitbucketDeployment)
 
-			createdAt := time.Now()
-			if bitbucketPipeline.BitbucketCreatedOn != nil {
-				createdAt = *bitbucketPipeline.BitbucketCreatedOn
+			startedAt := bitbucketDeployment.CreatedOn
+			if bitbucketDeployment.StartedOn != nil {
+				startedAt = bitbucketDeployment.StartedOn
 			}
-
-			domainPipeline := &devops.CICDPipeline{
+			domainDeployment := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId),
+					Id: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketDeployment.BitbucketId),
 				},
 				Name: didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketPipeline{}).
-					Generate(data.Options.ConnectionId, bitbucketPipeline.RefName),
+					Generate(data.Options.ConnectionId, bitbucketDeployment.Name),
+				PipelineId: bitbucketDeployment.PipelineId,
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"FAILED", "ERROR"},
+					Failed:  []string{"FAILED", "ERROR", "UNDEPLOYED"},
 					Abort:   []string{"STOPPED", "SKIPPED"},
-					Success: []string{"SUCCESSFUL", "PASSED"},
+					Success: []string{"SUCCESSFUL", "COMPLETED"},
 					Manual:  []string{"PAUSED", "HALTED"},
 					Default: devops.SUCCESS,
-				}, bitbucketPipeline.Result),
+				}, bitbucketDeployment.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
 					InProgress: []string{"IN_PROGRESS", "PENDING", "BUILDING"},
 					Default:    devops.DONE,
-				}, bitbucketPipeline.Status),
-				Type:         "CI/CD",
-				CreatedDate:  createdAt,
-				DurationSec:  bitbucketPipeline.DurationInSeconds,
-				FinishedDate: bitbucketPipeline.BitbucketCompleteOn,
+				}, bitbucketDeployment.Status),
+				Type:         bitbucketDeployment.Type,
+				StartedDate:  *startedAt,
+				FinishedDate: bitbucketDeployment.CompletedOn,
 			}
+			// rebuild the FinishedDate and DurationSec by Status
+			finishedAt := time.Now()
+			if domainDeployment.Status != devops.DONE {
+				domainDeployment.FinishedDate = nil
+			} else if bitbucketDeployment.CompletedOn != nil {
+				finishedAt = *bitbucketDeployment.CompletedOn
+			}
+			durationTime := finishedAt.Sub(*startedAt)
+			domainDeployment.DurationSec = uint64(durationTime.Seconds())
 
 			return []interface{}{
-				domainPipeline,
+				domainDeployment,
 			}, nil
 		},
 	})
