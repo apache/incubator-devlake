@@ -21,7 +21,6 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/dora/impl"
@@ -37,25 +36,59 @@ func TestCalculateCLTimeDataFlow(t *testing.T) {
 			RepoId: "github:GithubRepo:1:384111310",
 			TransformationRules: tasks.TransformationRules{
 				ProductionPattern: "(?i)deploy",
-				StagingPattern:    "(?i)stag",
-				TestingPattern:    "(?i)test",
 			},
 		},
 	}
+
 	dataflowTester.FlushTabler(&code.PullRequest{})
+
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_pipeline_commits.csv", &devops.CiCDPipelineCommit{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_tasks_for_other_jobs.csv", &devops.CICDTask{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_tasks.csv", &devops.CICDTask{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_requests.csv", &code.PullRequest{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_request_comments.csv", &code.PullRequestComment{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_request_commits.csv", &code.PullRequestCommit{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/commits.csv", &code.Commit{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/repos.csv", &code.Repo{})
 
 	// verify converter
 	dataflowTester.Subtask(tasks.CalculateChangeLeadTimeMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&code.PullRequest{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/pull_requests.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})
+	dataflowTester.VerifyTable(
+		code.PullRequest{},
+		"./snapshot_tables/pull_requests.csv",
+		[]string{
+			"id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+			"base_repo_id",
+			"head_repo_id",
+			"status",
+			"title",
+			"description",
+			"url",
+			"author_name",
+			"author_id",
+			"parent_pr_id",
+			"pull_request_key",
+			"created_date",
+			"merged_date",
+			"closed_date",
+			"type",
+			"component",
+			"merge_commit_sha",
+			"head_ref",
+			"base_ref",
+			"base_commit_sha",
+			"head_commit_sha",
+			"coding_timespan",
+			"review_lag",
+			"review_timespan",
+			"deploy_timespan",
+			"change_timespan",
+			"orig_coding_timespan",
+			"orig_review_lag",
+			"orig_review_timespan",
+			"orig_deploy_timespan",
+		},
+	)
 }
