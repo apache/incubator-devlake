@@ -20,6 +20,7 @@ import {
   GitLabConnection,
   JiraConnection,
   JenkinsConnection,
+  GiteeConnection,
   WebhookConnection,
 } from '@devlake-ui/config';
 
@@ -33,6 +34,8 @@ export const Connection = () => {
       return <JiraConnection />;
     case 'jenkins':
       return <JenkinsConnection />;
+    case 'gitee':
+      return <GiteeConnection />;
     case 'webhook':
       return <WebhookConnection />;
     default:

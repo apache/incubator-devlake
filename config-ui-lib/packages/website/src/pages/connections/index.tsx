@@ -22,6 +22,7 @@ import * as S from './styled';
 import GitLabIcon from '@/images/icons/gitlab.svg';
 import JiraIcon from '@/images/icons/jira.svg';
 import JenkinsIcon from '@/images/icons/jenkins.svg';
+import GiteeIcon from '@/images/icons/gitee.svg';
 import WebhookIcon from '@/images/icons/webhook.svg';
 
 export const Connections = () => {
@@ -55,6 +56,12 @@ export const Connections = () => {
             <Link to="/connections/jenkins">
               <img src={JenkinsIcon} width={60} alt="" />
               <span>Jenkins</span>
+            </Link>
+          </li>
+          <li>
+            <Link to="/connections/gitee">
+              <img src={GiteeIcon} width={60} alt="" />
+              <span>Gitee</span>
             </Link>
           </li>
         </ul>
