@@ -43,7 +43,7 @@ func All() []core.MigrationScript {
 		new(encryptBlueprint),
 		new(encryptPipeline),
 		new(modifyCicdPipeline),
-		// new(modifyCICDTasks),
+		new(modifyCICDTasks),
 		// new(modifyBoardRepos),
 		// new(addOriginChangeValueForPr),
 		// new(addCommitFilePathLength),
