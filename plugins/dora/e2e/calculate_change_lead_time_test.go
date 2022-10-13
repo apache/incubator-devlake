@@ -36,20 +36,18 @@ func TestCalculateCLTimeDataFlow(t *testing.T) {
 			RepoId: "github:GithubRepo:1:384111310",
 			TransformationRules: tasks.TransformationRules{
 				ProductionPattern: "(?i)deploy",
-				StagingPattern:    "(?i)stag",
-				TestingPattern:    "(?i)test",
 			},
 		},
 	}
+
 	dataflowTester.FlushTabler(&code.PullRequest{})
+
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_pipeline_commits.csv", &devops.CiCDPipelineCommit{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/lake_cicd_tasks.csv", &devops.CICDTask{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_requests.csv", &code.PullRequest{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_request_comments.csv", &code.PullRequestComment{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/pull_request_commits.csv", &code.PullRequestCommit{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/commits.csv", &code.Commit{})
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/repos.csv", &code.Repo{})
 
 	// verify converter
 	dataflowTester.Subtask(tasks.CalculateChangeLeadTimeMeta, taskData)
