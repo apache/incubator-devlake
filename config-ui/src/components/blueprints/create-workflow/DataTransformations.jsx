@@ -391,12 +391,12 @@ const DataTransformations = (props) => {
                         DEFAULT_DATA_ENTITIES.some((dE) => dE.value === e.value)
                       ) && (
                         <ProviderTransformationSettings
+                          key={configuredProject?.id || configuredBoard?.id}
                           provider={integrationsData.find(
                             (i) => i.id === configuredConnection?.provider
                           )}
                           blueprint={blueprint}
                           connection={configuredConnection}
-                          configuredBoard={configuredBoard}
                           issueTypes={issueTypes}
                           fields={fields}
                           boards={boards}

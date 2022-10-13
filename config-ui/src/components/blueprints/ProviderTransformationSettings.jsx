@@ -35,7 +35,6 @@ const ProviderTransformationSettings = (props) => {
     provider,
     blueprint,
     connection,
-    configuredBoard,
     transformation = {},
     boards = {},
     entities = {},
@@ -77,10 +76,7 @@ const ProviderTransformationSettings = (props) => {
       {provider?.id === Providers.JIRA && (
         <JiraSettings
           provider={provider}
-          blueprint={blueprint}
           connection={connection}
-          configuredBoard={configuredBoard}
-          boards={boards}
           issueTypes={issueTypes}
           fields={fields}
           transformation={transformation}

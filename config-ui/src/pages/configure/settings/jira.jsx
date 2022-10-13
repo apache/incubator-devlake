@@ -55,180 +55,50 @@ export default function JiraSettings(props) {
   const {
     provider,
     connection,
-    blueprint,
-    entities = [],
-    configuredBoard,
-    transformation = {},
-    isSaving,
-    onSettingsChange = () => {},
     issueTypes = [],
-    fields = [],
-    // eslint-disable-next-line no-unused-vars
-    boards = {},
+    fields: fieldsList = [],
+    transformation = {},
+    onSettingsChange = () => {},
+    entities = [],
+    isSaving,
+    isSavingConnection = false,
     jiraProxyError,
     isFetchingJIRA = false
   } = props
 
-  const [typeMappingBug, setTypeMappingBug] = useState([])
-  const [typeMappingIncident, setTypeMappingIncident] = useState([])
-  const [typeMappingRequirement, setTypeMappingRequirement] = useState([])
-  const [typeMappingAll, setTypeMappingAll] = useState({})
   // eslint-disable-next-line no-unused-vars
   const [statusMappings, setStatusMappings] = useState()
   const [jiraIssueEpicKeyField, setJiraIssueEpicKeyField] = useState('')
   const [jiraIssueStoryPointField, setJiraIssueStoryPointField] = useState('')
   const [remoteLinkCommitSha, setRemoteLinkCommitSha] = useState('')
 
-  // eslint-disable-next-line max-len
-  // const savedRequirementTags = useMemo(() => transformation?.requirementTags || [], [transformation?.requirementTags, configuredBoard?.id])
-  // eslint-disable-next-line max-len
-  // const savedBugTags = useMemo(() => transformation?.bugTags || [], [transformation?.bugTags, configuredBoard?.id])
-  // eslint-disable-next-line max-len
-  // const savedIncidentTags = useMemo(() => transformation?.incidentTags || [], [transformation?.incidentTags, configuredBoard?.id])
-
-  // @todo: lift higher to dsm hook
-  const savedRequirementTags = useMemo(
-    () =>
-      boards[connection?.id]
-        ? boards[connection?.id].reduce(
-            (pV, cV, iDx) => ({
-              ...pV,
-              [cV?.id]: connection?.transformations
-                ? connection?.transformations[iDx]?.requirementTags
-                : transformation?.requirementTags
-            }),
-            {}
-          )
-        : {},
-    [
-      connection?.id,
-      boards,
-      connection?.transformations,
-      transformation?.requirementTags
-    ]
-  )
-  const savedBugTags = useMemo(
-    () =>
-      boards[connection?.id]
-        ? boards[connection?.id].reduce(
-            (pV, cV, iDx) => ({
-              ...pV,
-              [cV?.id]: connection?.transformations
-                ? connection?.transformations[iDx]?.bugTags
-                : transformation?.bugTags
-            }),
-            {}
-          )
-        : {},
-    [
-      connection?.id,
-      boards,
-      connection?.transformations,
-      transformation?.bugTags
-    ]
-  )
-  const savedIncidentTags = useMemo(
-    () =>
-      boards[connection?.id]
-        ? boards[connection?.id].reduce(
-            (pV, cV, iDx) => ({
-              ...pV,
-              [cV?.id]: connection?.transformations
-                ? connection?.transformations[iDx]?.incidentTags
-                : transformation?.incidentTags
-            }),
-            {}
-          )
-        : {},
-    [
-      connection?.id,
-      boards,
-      connection?.transformations,
-      transformation?.incidentTags
-    ]
-  )
-
-  const [requirementTags, setRequirementTags] = useState(savedRequirementTags)
-  const [bugTags, setBugTags] = useState(savedBugTags)
-  const [incidentTags, setIncidentTags] = useState(savedIncidentTags)
+  const [requirementTags, setRequirementTags] = useState([])
+  const [bugTags, setBugTags] = useState([])
+  const [incidentTags, setIncidentTags] = useState([])
   const allChosenTagsInThisBoard = useMemo(
     () => [
-      ...(Array.isArray(requirementTags[configuredBoard?.id])
-        ? requirementTags[configuredBoard?.id]
-        : []),
-      ...(Array.isArray(bugTags[configuredBoard?.id])
-        ? bugTags[configuredBoard?.id]
-        : []),
-      ...(Array.isArray(incidentTags[configuredBoard?.id])
-        ? incidentTags[configuredBoard?.id]
-        : [])
+      ...(Array.isArray(requirementTags) ? requirementTags : []),
+      ...(Array.isArray(bugTags) ? bugTags : []),
+      ...(Array.isArray(incidentTags) ? incidentTags : [])
     ],
-    [configuredBoard?.id, requirementTags, bugTags, incidentTags]
+    [requirementTags, bugTags, incidentTags]
   )
 
-  const [fieldsList, setFieldsList] = useState(fields)
+  useEffect(() => {
+    console.log('>>> JIRA SETTINGS :: FIELDS LIST DATA CHANGED!', fieldsList)
+  }, [fieldsList])
 
   useEffect(() => {
-    onSettingsChange({ typeMappings: typeMappingAll })
-  }, [typeMappingAll, onSettingsChange])
+    setBugTags(transformation?.bugTags || [])
+  }, [transformation?.bugTags])
 
   useEffect(() => {
-    setTypeMappingAll((ma) => ({
-      ...ma,
-      ...(typeMappingBug || [])
-        .map((r) => createTypeMapObject(r.value, MAPPING_TYPES.Bug))
-        .reduce((c, p) => ({ ...c, ...p }), {})
-    }))
-  }, [typeMappingBug])
+    setIncidentTags(transformation?.incidentTags || [])
+  }, [transformation?.incidentTags])
 
   useEffect(() => {
-    setTypeMappingAll((ma) => ({
-      ...ma,
-      ...(typeMappingIncident || [])
-        .map((r) => createTypeMapObject(r.value, MAPPING_TYPES.Incident))
-        .reduce((c, p) => ({ ...c, ...p }), {})
-    }))
-  }, [typeMappingIncident])
-
-  useEffect(() => {
-    setTypeMappingAll((ma) => ({
-      ...ma,
-      ...(typeMappingRequirement || [])
-        .map((r) => createTypeMapObject(r.value, MAPPING_TYPES.Requirement))
-        .reduce((c, p) => ({ ...c, ...p }), {})
-    }))
-  }, [typeMappingRequirement])
-
-  useEffect(() => {
-    if (configuredBoard?.id) {
-      setTypeMappingAll({})
-      setTypeMappingRequirement(requirementTags[configuredBoard?.id])
-      onSettingsChange({
-        requirementTags: requirementTags[configuredBoard?.id]
-      })
-    }
-  }, [requirementTags, configuredBoard?.id, onSettingsChange])
-
-  useEffect(() => {
-    if (configuredBoard?.id) {
-      setTypeMappingAll({})
-      setTypeMappingBug(bugTags[configuredBoard?.id])
-      onSettingsChange({ bugTags: bugTags[configuredBoard?.id] })
-    }
-  }, [bugTags, configuredBoard?.id, onSettingsChange])
-
-  useEffect(() => {
-    if (configuredBoard?.id) {
-      setTypeMappingAll({})
-      setTypeMappingIncident(incidentTags[configuredBoard?.id])
-      onSettingsChange({ incidentTags: incidentTags[configuredBoard?.id] })
-    }
-  }, [incidentTags, configuredBoard?.id, onSettingsChange])
-
-  useEffect(() => {
-    console.log('>>> JIRA SETTINGS :: FIELDS LIST DATA CHANGED!', fields)
-    setFieldsList(fields)
-  }, [fields])
+    setRequirementTags(transformation?.requirementTags || [])
+  }, [transformation?.requirementTags])
 
   useEffect(() => {
     setJiraIssueEpicKeyField(
@@ -244,31 +114,29 @@ export default function JiraSettings(props) {
 
   useEffect(() => {
     setRemoteLinkCommitSha(transformation?.remotelinkCommitShaPattern || '')
-  }, [fieldsList, transformation?.remotelinkCommitShaPattern])
-
-  useEffect(() => {
-    console.log('>>>> CONFIGURING BOARD....', configuredBoard)
-  }, [configuredBoard])
-
-  useEffect(() => {
-    console.log('>>>> MY SAVED JIRA REQUIREMENT TAGS...', savedRequirementTags)
-  }, [savedRequirementTags])
-
-  useEffect(() => {
-    console.log('>>>> MY SAVED JIRA BUG TAGS...', savedBugTags)
-  }, [savedBugTags])
-
-  useEffect(() => {
-    console.log('>>>> MY SAVED JIRA INCIDENT TAGS...', savedIncidentTags)
-  }, [savedIncidentTags])
-
-  useEffect(() => {
-    console.log('>>> JIRA SETTINGS :: CONNECTION OBJECT!', connection)
-  }, [connection])
+  }, [transformation?.remotelinkCommitShaPattern])
 
   useEffect(() => {
     console.log('>>> JIRA SETTINGS :: TRANSFORMATION OBJECT!', transformation)
   }, [transformation])
+
+  const typeMappingAll = useMemo(
+    () =>
+      [
+        ...bugTags.map((r) => createTypeMapObject(r.value, MAPPING_TYPES.Bug)),
+        ...(incidentTags || []).map((r) =>
+          createTypeMapObject(r.value, MAPPING_TYPES.Incident)
+        ),
+        ...requirementTags.map((r) =>
+          createTypeMapObject(r.value, MAPPING_TYPES.Requirement)
+        )
+      ].reduce((c, p) => ({ ...c, ...p }), {}),
+    [bugTags, incidentTags, requirementTags]
+  )
+
+  useEffect(() => {
+    onSettingsChange({ typeMappings: typeMappingAll })
+  }, [typeMappingAll, onSettingsChange])
 
   return (
     <>
@@ -313,9 +181,7 @@ export default function JiraSettings(props) {
                 inline={true}
                 fill={true}
                 items={issueTypes}
-                // selectedItems={savedTags}
-                // selectedItems={requirementTags[configuredBoard?.id]}
-                selectedItems={requirementTags[configuredBoard?.id]}
+                selectedItems={requirementTags}
                 activeItem={null}
                 itemPredicate={(query, item) =>
                   item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0
@@ -329,9 +195,7 @@ export default function JiraSettings(props) {
                     key={item.value}
                     onClick={handleClick}
                     text={
-                      requirementTags[configuredBoard?.id]?.some(
-                        (t) => t.value === item.value
-                      ) ? (
+                      requirementTags.some((t) => t.value === item.value) ? (
                         <>
                           <img src={item.iconUrl} width={12} height={12} />{' '}
                           {item.title}{' '}
@@ -346,7 +210,7 @@ export default function JiraSettings(props) {
                     }
                     style={{
                       marginBottom: '2px',
-                      fontWeight: requirementTags[configuredBoard?.id]?.some(
+                      fontWeight: requirementTags.some(
                         (t) => t.value === item.value
                       )
                         ? 700
@@ -364,34 +228,18 @@ export default function JiraSettings(props) {
                 }}
                 noResults={<MenuItem disabled={true} text='No results.' />}
                 onRemove={(item) => {
-                  // setRequirementTags((rT) => rT.filter(t => t.id !== item.id))
-                  setRequirementTags((rT) => ({
-                    ...rT,
-                    [configuredBoard?.id]: rT[configuredBoard?.id]?.filter(
-                      (t) => t.id !== item.id
-                    )
-                  }))
+                  const newValue = requirementTags.filter(
+                    (t) => t.id !== item.id
+                  )
+                  setRequirementTags(newValue)
+                  onSettingsChange({ requirementTags: newValue })
                 }}
                 onItemSelect={(item) => {
-                  // setRequirementTags((rT) => !rT.includes(item) ? [...rT, item] : [...rT])
-                  setRequirementTags((rT) =>
-                    !rT[configuredBoard?.id]?.some(
-                      (t) => t.value === item.value
-                    )
-                      ? {
-                          ...rT,
-                          [configuredBoard?.id]: [
-                            ...(rT[configuredBoard?.id] || []),
-                            item
-                          ]
-                        }
-                      : {
-                          ...rT,
-                          [configuredBoard?.id]: [
-                            ...(rT[configuredBoard?.id] || [])
-                          ]
-                        }
-                  )
+                  const newValue = !requirementTags.includes(item)
+                    ? [...requirementTags, item]
+                    : [...requirementTags]
+                  setRequirementTags(newValue)
+                  onSettingsChange({ requirementTags: newValue })
                 }}
               />
             </div>
@@ -404,12 +252,10 @@ export default function JiraSettings(props) {
                 disabled={requirementTags?.length === 0 || isSaving}
                 intent={Intent.NONE}
                 minimal={false}
-                onClick={() =>
-                  setRequirementTags((rT) => ({
-                    ...rT,
-                    [configuredBoard?.id]: []
-                  }))
-                }
+                onClick={() => {
+                  setRequirementTags([])
+                  onSettingsChange({ requirementTags: [] })
+                }}
                 style={{
                   borderTopLeftRadius: 0,
                   borderBottomLeftRadius: 0,
@@ -450,7 +296,7 @@ export default function JiraSettings(props) {
                 inline={true}
                 fill={true}
                 items={issueTypes}
-                selectedItems={bugTags[configuredBoard?.id]}
+                selectedItems={bugTags}
                 activeItem={null}
                 itemPredicate={(query, item) =>
                   item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0
@@ -464,9 +310,7 @@ export default function JiraSettings(props) {
                     key={item.value}
                     onClick={handleClick}
                     text={
-                      bugTags[configuredBoard?.id]?.some(
-                        (t) => t.value === item.value
-                      ) ? (
+                      bugTags.some((t) => t.value === item.value) ? (
                         <>
                           <img src={item.iconUrl} width={12} height={12} />{' '}
                           {item.title}{' '}
@@ -481,9 +325,7 @@ export default function JiraSettings(props) {
                     }
                     style={{
                       marginBottom: '2px',
-                      fontWeight: bugTags[configuredBoard?.id]?.some(
-                        (t) => t.value === item.value
-                      )
+                      fontWeight: bugTags.some((t) => t.value === item.value)
                         ? 700
                         : 'normal'
                     }}
@@ -499,34 +341,16 @@ export default function JiraSettings(props) {
                 }}
                 noResults={<MenuItem disabled={true} text='No results.' />}
                 onRemove={(item) => {
-                  // setBugTags((bT) => bT.filter(t => t.id !== item.id))
-                  setBugTags((bT) => ({
-                    ...bT,
-                    [configuredBoard?.id]: bT[configuredBoard?.id]?.filter(
-                      (t) => t.id !== item.id
-                    )
-                  }))
+                  const newValue = bugTags.filter((t) => t.id !== item.id)
+                  setBugTags(newValue)
+                  onSettingsChange({ bugTags: newValue })
                 }}
                 onItemSelect={(item) => {
-                  // setBugTags((bT) => !bT.includes(item) ? [...bT, item] : [...bT])
-                  setBugTags((bT) =>
-                    !bT[configuredBoard?.id]?.some(
-                      (t) => t.value === item.value
-                    )
-                      ? {
-                          ...bT,
-                          [configuredBoard?.id]: [
-                            ...(bT[configuredBoard?.id] || []),
-                            item
-                          ]
-                        }
-                      : {
-                          ...bT,
-                          [configuredBoard?.id]: [
-                            ...(bT[configuredBoard?.id] || [])
-                          ]
-                        }
-                  )
+                  const newValue = !bugTags.includes(item)
+                    ? [...bugTags, item]
+                    : [...bugTags]
+                  setBugTags(newValue)
+                  onSettingsChange({ bugTags: newValue })
                 }}
               />
             </div>
@@ -539,9 +363,10 @@ export default function JiraSettings(props) {
                 disabled={bugTags.length === 0 || isSaving}
                 intent={Intent.NONE}
                 minimal={false}
-                onClick={() =>
-                  setBugTags((bT) => ({ ...bT, [configuredBoard?.id]: [] }))
-                }
+                onClick={() => {
+                  setBugTags([])
+                  onSettingsChange({ bugTags: [] })
+                }}
                 style={{
                   borderTopLeftRadius: 0,
                   borderBottomLeftRadius: 0,
@@ -591,7 +416,7 @@ export default function JiraSettings(props) {
                 inline={true}
                 fill={true}
                 items={issueTypes}
-                selectedItems={incidentTags[configuredBoard?.id]}
+                selectedItems={incidentTags}
                 activeItem={null}
                 itemPredicate={(query, item) =>
                   item?.title.toLowerCase().indexOf(query.toLowerCase()) >= 0
@@ -605,9 +430,7 @@ export default function JiraSettings(props) {
                     key={item.value}
                     onClick={handleClick}
                     text={
-                      incidentTags[configuredBoard?.id]?.some(
-                        (t) => t.value === item.value
-                      ) ? (
+                      incidentTags.some((t) => t.value === item.value) ? (
                         <>
                           <img src={item.iconUrl} width={12} height={12} />{' '}
                           {item.title}{' '}
@@ -622,7 +445,7 @@ export default function JiraSettings(props) {
                     }
                     style={{
                       marginBottom: '2px',
-                      fontWeight: incidentTags[configuredBoard?.id]?.some(
+                      fontWeight: incidentTags.some(
                         (t) => t.value === item.value
                       )
                         ? 700
@@ -640,34 +463,16 @@ export default function JiraSettings(props) {
                 }}
                 noResults={<MenuItem disabled={true} text='No results.' />}
                 onRemove={(item) => {
-                  // setIncidentTags((iT) => iT.filter(t => t.id !== item.id))
-                  setIncidentTags((iT) => ({
-                    ...iT,
-                    [configuredBoard?.id]: iT[configuredBoard?.id]?.filter(
-                      (t) => t.id !== item.id
-                    )
-                  }))
+                  const newValue = incidentTags.filter((t) => t.id !== item.id)
+                  setIncidentTags(newValue)
+                  onSettingsChange({ incidentTags: newValue })
                 }}
                 onItemSelect={(item) => {
-                  // setIncidentTags((iT) => !iT.includes(item) ? [...iT, item] : [...iT])
-                  setIncidentTags((iT) =>
-                    !iT[configuredBoard?.id]?.some(
-                      (t) => t.value === item.value
-                    )
-                      ? {
-                          ...iT,
-                          [configuredBoard?.id]: [
-                            ...(iT[configuredBoard?.id] || []),
-                            item
-                          ]
-                        }
-                      : {
-                          ...iT,
-                          [configuredBoard?.id]: [
-                            ...(iT[configuredBoard?.id] || [])
-                          ]
-                        }
-                  )
+                  const newValue = !incidentTags.includes(item)
+                    ? [...incidentTags, item]
+                    : incidentTags
+                  setIncidentTags(newValue)
+                  onSettingsChange({ incidentTags: newValue })
                 }}
               />
             </div>
@@ -680,12 +485,10 @@ export default function JiraSettings(props) {
                 disabled={incidentTags.length === 0 || isSaving}
                 intent={Intent.NONE}
                 minimal={false}
-                onClick={() =>
-                  setIncidentTags((iT) => ({
-                    ...iT,
-                    [configuredBoard?.id]: []
-                  }))
-                }
+                onClick={() => {
+                  setIncidentTags([])
+                  onSettingsChange({ incidentTags: [] })
+                }}
                 style={{
                   borderTopLeftRadius: 0,
                   borderBottomLeftRadius: 0,
