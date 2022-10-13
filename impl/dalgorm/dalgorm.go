@@ -206,7 +206,12 @@ func (d *Dalgorm) RenameColumn(table, oldColumnName, newColumnName string) error
 	defer func() {
 		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
 	}()
-	return errors.Convert(d.db.Migrator().RenameColumn(table, oldColumnName, newColumnName))
+	return d.Exec(
+		"ALTER TABLE ? RENAME COLUMN ? TO ?",
+		clause.Table{Name: table},
+		clause.Column{Name: oldColumnName},
+		clause.Column{Name: newColumnName},
+	)
 }
 
 // AllTables returns all tables in the database

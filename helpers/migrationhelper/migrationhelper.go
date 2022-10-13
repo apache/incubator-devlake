@@ -42,6 +42,92 @@ func AutoMigrateTables(basicRes core.BasicRes, dst ...interface{}) errors.Error 
 	return nil
 }
 
+// TransformTable can be used when we need to change the table structure and reprocess all the data in the table.
+func TransformTable[S any, D any](
+	basicRes core.BasicRes,
+	script core.MigrationScript,
+	tableName string,
+	transform func(*S) (*D, errors.Error),
+) (err errors.Error) {
+	db := basicRes.GetDal()
+	tmpTableName := fmt.Sprintf("%s_%s", tableName, hashScript(script))
+
+	// rename the src to tmp in case of failure
+	err = db.RenameTable(tableName, tmpTableName)
+	if err != nil {
+		return errors.Default.Wrap(
+			err,
+			fmt.Sprintf("failed to rename rename src table [%s] to [%s]", tableName, tmpTableName),
+		)
+	}
+	// rollback for error
+	defer func() {
+		if err != nil {
+			err = db.RenameTable(tmpTableName, tableName)
+			if err != nil {
+				msg := fmt.Sprintf(
+					"fail to rollback table [%s] to [%s], you may have to do it manually",
+					tmpTableName,
+					tableName,
+				)
+				err = errors.Default.Wrap(err, msg)
+			}
+		}
+	}()
+
+	// create new table with the same name
+	err = db.AutoMigrate(new(D), dal.From(tableName))
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("error on auto migrate [%s]", tableName))
+	}
+	// rollback for error
+	defer func() {
+		if err != nil {
+			err = db.DropTables(tableName)
+			if err != nil {
+				msg := fmt.Sprintf(
+					"fail to drop table [%s], you may have to do it manually",
+					tableName,
+				)
+				err = errors.Default.Wrap(err, msg)
+			}
+		}
+	}()
+
+	// transform data from temp table to new table
+	cursor, err := db.Cursor(dal.From(tmpTableName))
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", tmpTableName))
+	}
+	defer cursor.Close()
+	batch, err := helper.NewBatchSave(basicRes, reflect.TypeOf(new(D)), 200, tableName)
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("failed to instantiate BatchSave for table [%s]", tableName))
+	}
+	defer batch.Close()
+	src := new(S)
+	for cursor.Next() {
+		err = db.Fetch(cursor, src)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("fail to load record from table [%s]", tmpTableName))
+		}
+		dst, err := transform(src)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to transform row %v", src))
+		}
+		err = batch.Add(dst)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("push to BatchSave failed %v", dst))
+		}
+	}
+
+	// drop the temp table: we can safely ignore the error because it doesn't matter and there will be nothing we
+	// can do in terms of rollback or anything in that nature.
+	_ = db.DropTables(tmpTableName)
+
+	return err
+}
+
 func hashScript(script core.MigrationScript) string {
 	hasher := md5.New()
 	_, err := hasher.Write([]byte(fmt.Sprintf("%s:%v", script.Name(), script.Version())))
@@ -49,130 +135,4 @@ func hashScript(script core.MigrationScript) string {
 		panic(err)
 	}
 	return strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
-}
-
-// TransformTable can be used when we need to change the table structure and reprocess all the data in the table.
-func TransformTable[S dal.Tabler, T dal.Tabler, D dal.Tabler](
-	basicRes core.BasicRes,
-	script core.MigrationScript,
-	src S,
-	dst D,
-	transform func(S) (D, errors.Error),
-) (err errors.Error) {
-	db := basicRes.GetDal()
-	srcTableName := src.TableName()
-	tmpTableName := fmt.Sprintf("%s_%s", srcTableName, hashScript(script))
-	// rename the src to tmp in case of failure
-	err = db.RenameTable(srcTableName, tmpTableName)
-	if err != nil {
-		return errors.Default.Wrap(
-			err,
-			fmt.Sprintf("failed to rename rename src table [%s] to [%s]", srcTableName, tmpTableName),
-		)
-	}
-
-	// rollback for error
-	defer func() {
-		if err != nil {
-			err = db.RenameTable(tmpTableName, srcTableName)
-			if err != nil {
-				msg := fmt.Sprintf(
-					"fail to rollback table [%s] to [%s], you may have to do it manually",
-					tmpTableName,
-					srcTableName,
-				)
-				err = errors.Default.Wrap(err, msg)
-			}
-		}
-	}()
-
-	err = MoveTable(basicRes, src, dst, transform, srcTableName, "")
-	return err
-}
-
-// MoveTable can be used when we need to change the table structure and reprocess all the data in the table.
-// It request the src table and the dst table with different table name.
-func MoveTable[S dal.Tabler, D dal.Tabler](
-	basicRes core.BasicRes,
-	src S,
-	dst D,
-	transform func(S) (D, errors.Error),
-	tableNames ...string,
-) (err errors.Error) {
-	db := basicRes.GetDal()
-	srcTableName := src.TableName()
-	dstTableName := dst.TableName()
-
-	// overwrite src/dst table names optionally
-	if len(tableNames) > 0 {
-		srcTableName = tableNames[0]
-	}
-	if len(tableNames) > 1 {
-		dstTableName = tableNames[1]
-	}
-
-	if srcTableName == dstTableName {
-		err = errors.Default.New(fmt.Sprintf("src and dst are the same table %s", srcTableName))
-		return err
-	}
-
-	// create new table
-	err = db.AutoMigrate(dst)
-	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error on auto migrate [%s]", dst.TableName()))
-	}
-
-	// drop newly created table if any error
-	defer func() {
-		if err != nil {
-			err = db.DropTables(dstTableName)
-			if err != nil {
-				msg := fmt.Sprintf(
-					"fail to drop table [%s], you may have to do it manually",
-					dstTableName,
-				)
-				err = errors.Default.Wrap(err, msg)
-			}
-		}
-	}()
-
-	// update src id to dst id and write to the dst table
-	cursor, err := db.Cursor(
-		dal.From(srcTableName),
-	)
-	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", srcTableName))
-	}
-	defer cursor.Close()
-
-	// caculate and save the data to new table
-	batch, err := helper.NewBatchSave(basicRes, reflect.TypeOf(dst), 200, dstTableName)
-	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("failed to instantiate BatchSave for table [%s]", dstTableName))
-	}
-
-	defer batch.Close()
-	for cursor.Next() {
-		err = db.Fetch(cursor, src)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("fail to load record from table [%s]", srcTableName))
-		}
-
-		cf, err := transform(src)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("failed to transform row %v", src))
-		}
-
-		err = batch.Add(cf)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("push to BatchSave failed %v", cf))
-		}
-	}
-
-	// drop the src table
-	err = db.DropTables(srcTableName)
-	if err != nil {
-		err = errors.Default.Wrap(err, fmt.Sprintf("fail to drop src table %s", srcTableName))
-	}
-	return err
 }

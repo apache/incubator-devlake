@@ -19,7 +19,6 @@ package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
@@ -28,7 +27,7 @@ var _ core.MigrationScript = (*renamePipelineStepToStage)(nil)
 type renamePipelineStepToStage struct{}
 
 func (*renamePipelineStepToStage) Up(basicRes core.BasicRes) errors.Error {
-	return errors.Convert(basicRes.GetDal().RenameColumn(archived.Pipeline{}.TableName(), "step", "stage"))
+	return errors.Convert(basicRes.GetDal().RenameColumn("_devlake_pipelines", "step", "stage"))
 }
 
 func (*renamePipelineStepToStage) Version() uint64 {
