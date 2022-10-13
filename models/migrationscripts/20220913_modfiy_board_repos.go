@@ -18,21 +18,25 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
+
+var _ core.MigrationScript = (*modifyBoardRepos)(nil)
 
 type modifyBoardRepos struct{}
 
-func (*modifyBoardRepos) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(BoardRepo0913{})
-	if err != nil {
-		return errors.Convert(err)
-	}
-	return nil
+type boardRepo20220913 struct {
+	archived.NoPKModel
+}
+
+func (boardRepo20220913) TableName() string {
+	return "board_repos"
+}
+
+func (*modifyBoardRepos) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&boardRepo20220913{})
 }
 
 func (*modifyBoardRepos) Version() uint64 {
@@ -41,12 +45,4 @@ func (*modifyBoardRepos) Version() uint64 {
 
 func (*modifyBoardRepos) Name() string {
 	return "modify board repos"
-}
-
-type BoardRepo0913 struct {
-	archived.NoPKModel
-}
-
-func (BoardRepo0913) TableName() string {
-	return "board_repos"
 }
