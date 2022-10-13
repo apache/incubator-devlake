@@ -53,7 +53,11 @@ export const IncomingWebhook = () => {
             ...r,
             postIssuesEndpoint: `${postUrlPrefix}${r.postIssuesEndpoint}`,
             closeIssuesEndpoint: `${postUrlPrefix}${r.closeIssuesEndpoint}`,
-            postDeploymentsEndpoint: `${postUrlPrefix}${r.postPipelineDeployTaskEndpoint}`
+            postDeploymentsCurl: `curl ${postUrlPrefix}${r.postPipelineDeployTaskEndpoint} -X 'POST' -d "{
+  \\"commit_sha\\":\\"the sha of deployment commit\\",
+  \\"repo_url\\":\\"the repo URL of the deployment commit\\",
+  \\"start_time\\":\\"Optional, eg. 2020-01-01T12:00:00+00:00\\"
+}"`
           }
         : existingRecord
     )
