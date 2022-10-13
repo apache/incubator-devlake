@@ -177,58 +177,35 @@ export default function JiraSettings(props) {
   }, [typeMappingAll, onSettingsChange, configuredBoard?.id])
 
   useEffect(() => {
-    if (typeMappingBug && typeMappingIncident && typeMappingRequirement) {
-      const RequirementMappings =
-        typeMappingRequirement !== ''
-          ? typeMappingRequirement.map((r) =>
-              createTypeMapObject(r.value, MAPPING_TYPES.Requirement)
-            )
-          : []
-      const IncidentMappings =
-        typeMappingIncident !== ''
-          ? typeMappingIncident.map((i) =>
-              createTypeMapObject(i.value, MAPPING_TYPES.Incident)
-            )
-          : []
-      const BugMappings =
-        typeMappingBug !== ''
-          ? typeMappingBug.map((b) =>
-              createTypeMapObject(b.value, MAPPING_TYPES.Bug)
-            )
-          : []
-      const CombinedMappings = [
-        ...RequirementMappings,
-        ...IncidentMappings,
-        ...BugMappings
-      ].filter((m) => m !== null)
-      const MappingTypeObjects = CombinedMappings.reduce((pV, cV) => {
-        return { ...cV, ...pV }
-      }, {})
-      setTypeMappingAll(MappingTypeObjects)
-      console.log(
-        '>> INCIDENT TYPE MAPPING OBJECTS....',
-        RequirementMappings,
-        IncidentMappings,
-        BugMappings
-      )
-      console.log('>> ALL MAPPINGS COMBINED...', CombinedMappings)
-      console.log(
-        '>> FINAL MAPPING OBJECTS FOR API REQUEST...',
-        MappingTypeObjects
-      )
-    }
-  }, [typeMappingBug, typeMappingIncident, typeMappingRequirement])
+    setTypeMappingAll((ma) => ({
+      ...ma,
+      ...(typeMappingBug || [])
+        .map((r) => createTypeMapObject(r.value, MAPPING_TYPES.Bug))
+        .reduce((c, p) => ({ ...c, ...p }), {})
+    }))
+  }, [typeMappingBug])
 
   useEffect(() => {
-    console.log('>> CONN SETTINGS OBJECT ', connection)
-    if (connection && connection.id) {
-      // Parse Type Mappings (V2)
-      // setStatusMappings([])
-    }
-  }, [connection])
+    setTypeMappingAll((ma) => ({
+      ...ma,
+      ...(typeMappingIncident || [])
+        .map((r) => createTypeMapObject(r.value, MAPPING_TYPES.Incident))
+        .reduce((c, p) => ({ ...c, ...p }), {})
+    }))
+  }, [typeMappingIncident])
+
+  useEffect(() => {
+    setTypeMappingAll((ma) => ({
+      ...ma,
+      ...(typeMappingRequirement || [])
+        .map((r) => createTypeMapObject(r.value, MAPPING_TYPES.Requirement))
+        .reduce((c, p) => ({ ...c, ...p }), {})
+    }))
+  }, [typeMappingRequirement])
 
   useEffect(() => {
     if (configuredBoard?.id) {
+      setTypeMappingAll({})
       setTypeMappingRequirement(requirementTags[configuredBoard?.id])
       onSettingsChange(
         { requirementTags: requirementTags[configuredBoard?.id] },
@@ -239,6 +216,7 @@ export default function JiraSettings(props) {
 
   useEffect(() => {
     if (configuredBoard?.id) {
+      setTypeMappingAll({})
       setTypeMappingBug(bugTags[configuredBoard?.id])
       onSettingsChange(
         { bugTags: bugTags[configuredBoard?.id] },
@@ -249,6 +227,7 @@ export default function JiraSettings(props) {
 
   useEffect(() => {
     if (configuredBoard?.id) {
+      setTypeMappingAll({})
       setTypeMappingIncident(incidentTags[configuredBoard?.id])
       onSettingsChange(
         { incidentTags: incidentTags[configuredBoard?.id] },
