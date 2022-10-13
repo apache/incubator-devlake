@@ -19,6 +19,7 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -27,6 +28,20 @@ import (
 )
 
 func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
+	var err errors.Error
+	connection := new(models.JenkinsConnection)
+	err = connectionHelper.FirstById(connection, connectionId)
+	if err != nil {
+		return nil, err
+	}
+	plan, err := makePipelinePlan(subtaskMetas, scope, nil, connection)
+	if err != nil {
+		return nil, err
+	}
+	return plan, nil
+}
+
+func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintScopeV100, apiClient helper.ApiClientGetter, connection *models.JenkinsConnection) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
@@ -43,7 +58,7 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		if err != nil {
 			return nil, err
 		}
-		taskOptions["connectionId"] = connectionId
+		taskOptions["connectionId"] = connection.ID
 		taskOptions["transformationRules"] = transformationRules
 		_, err := tasks.DecodeAndValidateTaskOptions(taskOptions)
 		if err != nil {
@@ -77,7 +92,6 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 				return nil, err
 			}
 			doraOption := make(map[string]interface{})
-			doraOption["tasks"] = []string{"EnrichTaskEnv"}
 			doraOption["prefix"] = "jenkins"
 			doraRules := make(map[string]interface{})
 			doraRules["productionPattern"] = productionPattern
