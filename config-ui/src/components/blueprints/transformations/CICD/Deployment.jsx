@@ -100,21 +100,21 @@ const Deployment = (props) => {
           'A Jenkins build with a name that matches the given regEx will be considered as a Deployment.'
         hint2 =
           // eslint-disable-next-line max-len
-          'A Jenkins build that matches the given regEx will be considered as a build in the Production environment. If you leave this field empty, all data will be tagged as in the Production environment.'
+          'A Jenkins build with a name that matches the given regEx will be considered as a build in the Production environment. If you leave this field empty, all data will be tagged as in the Production environment.'
         break
       case Providers.GITHUB:
         hint1 =
           'A GitHub Action job with a name that matches the given regEx will be considered as a Deployment.'
         hint2 =
           // eslint-disable-next-line max-len
-          'A GitHub Action job that matches the given regEx will be considered as a job in the Production environment. If you leave this field empty, all data will be tagged as in the Production environment.'
+          'A GitHub Action job with a name that matches the given regEx will be considered as a job in the Production environment. If you leave this field empty, all data will be tagged as in the Production environment.'
         break
       case Providers.GITLAB:
         hint1 =
           'A GitLab CI job with a name that matches the given regEx will be considered as a Deployment.'
         hint2 =
           // eslint-disable-next-line max-len
-          'A GitLab CI job that matches the given regEx will be considered as a job in the Production environment. If you leave this field empty, all data will be tagged as in the Production environment.'
+          'A GitLab CI job that with a name matches the given regEx will be considered as a job in the Production environment. If you leave this field empty, all data will be tagged as in the Production environment.'
         break
     }
 
