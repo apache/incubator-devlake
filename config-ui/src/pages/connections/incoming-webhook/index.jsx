@@ -53,8 +53,11 @@ export const IncomingWebhook = () => {
             ...r,
             postIssuesEndpoint: `${postUrlPrefix}${r.postIssuesEndpoint}`,
             closeIssuesEndpoint: `${postUrlPrefix}${r.closeIssuesEndpoint}`,
-            postPipelineTaskEndpoint: `${postUrlPrefix}${r.postPipelineTaskEndpoint}`,
-            closePipelineEndpoint: `${postUrlPrefix}${r.closePipelineEndpoint}`
+            postDeploymentsCurl: `curl ${postUrlPrefix}${r.postPipelineDeployTaskEndpoint} -X 'POST' -d "{
+  \\"repo_url\\":\\"$CIRCLE_REPOSITORY_URL\\",
+  \\"commit_sha\\":\\"$CIRCLE_SHA1\\",
+  \\"start_time\\":\\"$start_time\\"
+}"`
           }
         : existingRecord
     )
