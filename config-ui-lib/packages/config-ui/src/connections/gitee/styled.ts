@@ -15,8 +15,15 @@
  * limitations under the License.
  *
  */
-export * from './gitlab';
-export * from './jira';
-export * from './jenkins';
-export * from './gitee';
-export * from './webhook';
+import styled from '@emotion/styled';
+
+export const PageContainer = styled.div``;
+
+export const BtnContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+
+  .ant-btn + .ant-btn {
+    margin-left: 10px;
+  }
+`;

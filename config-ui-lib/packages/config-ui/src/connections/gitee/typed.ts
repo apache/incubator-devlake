@@ -15,8 +15,19 @@
  * limitations under the License.
  *
  */
-export * from './gitlab';
-export * from './jira';
-export * from './jenkins';
-export * from './gitee';
-export * from './webhook';
+export type GiteeItemType = {
+  id: number;
+  name: string;
+  endpoint: string;
+  token: string;
+  proxy: string;
+  rateLimitPerHour: number;
+};
+
+export type GiteePayloadType = {
+  name: string;
+  endpoint: string;
+  token: string;
+  proxy?: string;
+  rateLimitPerHour?: number;
+};

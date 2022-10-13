@@ -15,8 +15,38 @@
  * limitations under the License.
  *
  */
-export * from './gitlab';
-export * from './jira';
-export * from './jenkins';
-export * from './gitee';
-export * from './webhook';
+import { useState } from 'react';
+import { Switch, InputNumber } from 'antd';
+
+import * as S from './styled';
+
+interface Props {
+  value?: number;
+  onChange?: (value?: number) => void;
+}
+
+export const RateLimit = ({ value, onChange }: Props) => {
+  const [enable, setEnable] = useState(false);
+
+  const handleChangeEnable = (checked: boolean) => {
+    setEnable(checked);
+    onChange?.();
+  };
+
+  const handleChangeValue = (number: number) => {
+    onChange?.(number);
+  };
+
+  return (
+    <S.Container>
+      {enable && (
+        <InputNumber
+          style={{ marginRight: 10 }}
+          value={value}
+          onChange={handleChangeValue}
+        />
+      )}
+      <Switch checked={enable} onChange={handleChangeEnable} />
+    </S.Container>
+  );
+};

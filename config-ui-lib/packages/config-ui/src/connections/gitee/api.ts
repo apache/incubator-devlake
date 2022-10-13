@@ -15,8 +15,21 @@
  * limitations under the License.
  *
  */
-export * from './gitlab';
-export * from './jira';
-export * from './jenkins';
-export * from './gitee';
-export * from './webhook';
+import request from '../../utils/request';
+
+export const getList = () => request('/plugins/gitee/connections');
+
+export const test = (payload: any) =>
+  request('/plugins/gitee/test', { method: 'POST', data: payload });
+
+export const create = (payload: any) =>
+  request('/plugins/gitee/connections', { method: 'POST', data: payload });
+
+export const remove = (id: number) =>
+  request(`/plugins/gitee/connections/${id}`, { method: 'DELETE' });
+
+export const update = (id: number, payload: any) =>
+  request(`/plugins/gitee/connections/${id}`, {
+    method: 'PATCH',
+    data: payload,
+  });
