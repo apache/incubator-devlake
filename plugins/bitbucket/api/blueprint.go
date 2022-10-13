@@ -37,21 +37,15 @@ import (
 	"github.com/apache/incubator-devlake/utils"
 )
 
-type repoGetter func(connectionId uint64, owner, repo string) (string, string, errors.Error)
-
 func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
-	return makePipelinePlan(subtaskMetas, connectionId, getBitbucketApiRepo, scope)
-}
-func getBitbucketApiRepo(connectionId uint64, owner, repo string) (string, string, errors.Error) {
-	// here is the tricky part, we have to obtain the repo id beforehand
 	connection := new(models.BitbucketConnection)
 	err := connectionHelper.FirstById(connection, connectionId)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 	tokens := strings.Split(connection.GetEncodedToken(), ",")
 	if len(tokens) == 0 {
-		return "", "", errors.Default.New("no token")
+		return nil, errors.Default.New("no token")
 	}
 	token := tokens[0]
 	apiClient, err := helper.NewApiClient(
@@ -65,40 +59,15 @@ func getBitbucketApiRepo(connectionId uint64, owner, repo string) (string, strin
 		basicRes,
 	)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
-
-	res, err := apiClient.Get(path.Join("repositories", owner, repo), nil, nil)
-	if err != nil {
-		return "", "", err
-	}
-	defer res.Body.Close()
-	if res.StatusCode != http.StatusOK {
-		return "", "", errors.Default.New(fmt.Sprintf(
-			"unexpected status code when requesting repo detail %d %s",
-			res.StatusCode, res.Request.URL.String(),
-		))
-	}
-	body, err := errors.Convert01(io.ReadAll(res.Body))
-	if err != nil {
-		return "", "", err
-	}
-	apiRepo := new(tasks.BitbucketApiRepo)
-	err = errors.Convert(json.Unmarshal(body, apiRepo))
-	if err != nil {
-		return "", "", err
-	}
-	for _, u := range apiRepo.Links.Clone {
-		if u.Name == "https" {
-			return u.Href, connection.Password, nil
-		}
-	}
-	return "", "", errors.Default.New("no clone url")
+	return makePipelinePlan(subtaskMetas, scope, apiClient, connection)
 }
 
-func makePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, getter repoGetter, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
+func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintScopeV100, apiClient helper.ApiClientGetter, connection *models.BitbucketConnection) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
 	plan := make(core.PipelinePlan, len(scope))
+	var repo *tasks.BitbucketApiRepo
 	for i, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
 		transformationRules := make(map[string]interface{})
@@ -130,12 +99,18 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, gett
 		if err != nil {
 			return nil, err
 		}
-		options["connectionId"] = connectionId
+		options["connectionId"] = connection.ID
 		options["transformationRules"] = transformationRules
 		// make sure task options is valid
 		op, err := tasks.DecodeAndValidateTaskOptions(options)
 		if err != nil {
 			return nil, err
+		}
+		memorizedGetApiRepo := func() (*tasks.BitbucketApiRepo, errors.Error) {
+			if repo == nil {
+				repo, err = getApiRepo(op, apiClient)
+			}
+			return repo, err
 		}
 		// construct subtasks
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
@@ -153,25 +128,61 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, gett
 		})
 		// collect git data by gitextractor if CODE was requested
 		if utils.StringsContains(scopeElem.Entities, core.DOMAIN_TYPE_CODE) {
-			original, password, err1 := getter(connectionId, op.Owner, op.Repo)
-			if err1 != nil {
-				return nil, err1
-			}
-			cloneUrl, err := errors.Convert01(url.Parse(original))
+			repo, err = memorizedGetApiRepo()
 			if err != nil {
 				return nil, err
 			}
-			cloneUrl.User = url.UserPassword(op.Owner, password)
+			originalUrl := ""
+			for _, u := range repo.Links.Clone {
+				if u.Name == "https" {
+					originalUrl = u.Href
+				}
+			}
+			cloneUrl, err := errors.Convert01(url.Parse(originalUrl))
+			if err != nil {
+				return nil, err
+			}
+			cloneUrl.User = url.UserPassword(op.Owner, connection.Password)
 			stage = append(stage, &core.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"url":    cloneUrl.String(),
-					"repoId": didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connectionId, fmt.Sprintf("%s/%s", op.Owner, op.Repo)),
+					"repoId": didgen.NewDomainIdGenerator(&models.BitbucketRepo{}).Generate(connection.ID, fmt.Sprintf("%s/%s", op.Owner, op.Repo)),
 				},
 			})
 
 		}
 		plan[i] = stage
+		repo = nil
 	}
 	return plan, nil
+}
+
+func getApiRepo(op *tasks.BitbucketOptions, apiClient helper.ApiClientGetter) (*tasks.BitbucketApiRepo, errors.Error) {
+	res, err := apiClient.Get(path.Join("repositories", op.Owner, op.Repo), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.Default.New(fmt.Sprintf(
+			"unexpected status code when requesting repo detail %d %s",
+			res.StatusCode, res.Request.URL.String(),
+		))
+	}
+	body, err := errors.Convert01(io.ReadAll(res.Body))
+	if err != nil {
+		return nil, err
+	}
+	apiRepo := new(tasks.BitbucketApiRepo)
+	err = errors.Convert(json.Unmarshal(body, apiRepo))
+	if err != nil {
+		return nil, err
+	}
+	for _, u := range apiRepo.Links.Clone {
+		if u.Name == "https" {
+			return apiRepo, nil
+		}
+	}
+	return nil, errors.Default.New("no clone url")
 }

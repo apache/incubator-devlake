@@ -53,7 +53,7 @@ func TestProcessScope(t *testing.T) {
 	mockApiCLient := mocks.NewApiClientGetter(t)
 	repo := &tasks.GitlabApiProject{
 		GitlabId:      12345,
-		HttpUrlToRepo: "*this is HttpUrlToRepo*",
+		HttpUrlToRepo: "https://this_is_HttpUrlToRepo",
 	}
 	js, err := json.Marshal(repo)
 	assert.Nil(t, err)
@@ -104,7 +104,7 @@ func TestProcessScope(t *testing.T) {
 				Options: map[string]interface{}{
 					"proxy":  "",
 					"repoId": "gitlab:GitlabProject:1:12345",
-					"url":    "//git:123@%2Athis%20is%20HttpUrlToRepo%2A",
+					"url":    "https://git:123@this_is_HttpUrlToRepo",
 				},
 			},
 		},
