@@ -55,9 +55,9 @@ export const AddModal = ({ onSubmit, onCancel }) => {
       postIssuesEndpoint: `${postUrlPrefix}${res.postIssuesEndpoint}`,
       closeIssuesEndpoint: `${postUrlPrefix}${res.closeIssuesEndpoint}`,
       postDeploymentsCurl: `curl ${postUrlPrefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -d "{
-  \\"repo_url\\":\\"you need fill your repo URL or other unique string here\\",
   \\"commit_sha\\":\\"the sha of deployment commit\\",
-  \\"start_time\\":\\"Optional, Format should be 2020-01-01T12:00:00+00:00\\"
+  \\"repo_url\\":\\"the repo URL of the deployment commit\\",
+  \\"start_time\\":\\"Optional, eg. 2020-01-01T12:00:00+00:00\\"
 }"`
     })
   }
