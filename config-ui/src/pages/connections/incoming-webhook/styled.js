@@ -144,7 +144,6 @@ export const FormWrapper = styled.div`
       align-items: center;
       justify-content: space-between;
       padding: 10px;
-      height: auto;
       background-color: #f0f4fe;
 
       & > span {
