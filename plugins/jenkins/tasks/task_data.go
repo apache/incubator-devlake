@@ -32,7 +32,7 @@ type JenkinsApiParams struct {
 
 type JenkinsOptions struct {
 	ConnectionId               uint64 `json:"connectionId"`
-	JobName                    string `json:"JobName"`
+	JobName                    string `json:"jobName"`
 	Since                      string
 	Tasks                      []string `json:"tasks,omitempty"`
 	models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
