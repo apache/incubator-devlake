@@ -28,7 +28,7 @@ type TapdWorkitemType struct {
 	EnglishName    string          `gorm:"type:varchar(255)" json:"english_name"`
 	Status         string          `gorm:"type:varchar(255)" json:"status"`
 	Color          string          `gorm:"type:varchar(255)" json:"color"`
-	WorkflowID     uint64          `json:"workflow_id"`
+	WorkflowID     uint64          `json:"workflow_id,string"`
 	Icon           string          `json:"icon"`
 	IconSmall      string          `json:"icon_small"`
 	Creator        string          `gorm:"type:varchar(255)" json:"creator"`
