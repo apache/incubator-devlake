@@ -163,9 +163,6 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 			if j == len(plan) {
 				plan = append(plan, nil)
 			}
-			if err != nil {
-				return nil, err
-			}
 			repo, err = memorizedGetApiRepo()
 			if err != nil {
 				return nil, err
