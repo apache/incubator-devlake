@@ -246,6 +246,17 @@ func (d *Dalgorm) RenameTable(oldName, newName string) errors.Error {
 	return errors.Convert(d.db.Migrator().RenameTable(oldName, newName))
 }
 
+// DropIndexes drops indexes for specified table
+func (d *Dalgorm) DropIndexes(tableName string, indexNames ...string) errors.Error {
+	for _, indexName := range indexNames {
+		err := d.db.Migrator().DropIndex(tableName, indexName)
+		if err != nil {
+			return errors.Convert(err)
+		}
+	}
+	return nil
+}
+
 // NewDalgorm FIXME ...
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}

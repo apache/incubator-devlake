@@ -47,7 +47,7 @@ func All() []core.MigrationScript {
 		new(addOriginChangeValueForPr),
 		new(fixCommitFileIdTooLong),
 		new(modifyBoardRepos),
-		// new(renamePipelineCommits),
+		new(renamePipelineCommits),
 		// new(commitLineChange),
 		// new(modifyLeadTimeMinutes),
 	}

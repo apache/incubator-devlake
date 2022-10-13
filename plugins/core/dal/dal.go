@@ -100,6 +100,8 @@ type Dal interface {
 	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
 	// RenameColumn renames column name for specified table
 	RenameColumn(table, oldColumnName, newColumnName string) errors.Error
+	// DropIndexes drops all specified tables
+	DropIndexes(table string, indexes ...string) errors.Error
 }
 
 // GetColumnNames returns table Column Names in database
