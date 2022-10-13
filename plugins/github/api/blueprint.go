@@ -68,12 +68,6 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintScopeV100, apiClient helper.ApiClientGetter, connection *models.GithubConnection) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
 	var repo *tasks.GithubApiRepo
-	getApiRepoIfNil := func(op *tasks.GithubOptions) (*tasks.GithubApiRepo, errors.Error) {
-		if repo == nil {
-			repo, err = getApiRepo(op, apiClient)
-		}
-		return repo, err
-	}
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
@@ -113,6 +107,13 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 		if err != nil {
 			return nil, err
 		}
+		memorizedGetApiRepo := func() (*tasks.GithubApiRepo, errors.Error) {
+			if repo == nil {
+				repo, err = getApiRepo(op, apiClient)
+			}
+			return repo, err
+		}
+
 		// construct subtasks
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
 		if err != nil {
@@ -131,7 +132,7 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 		if utils.StringsContains(scopeElem.Entities, core.DOMAIN_TYPE_CODE) {
 			// here is the tricky part, we have to obtain the repo id beforehand
 			token := strings.Split(connection.Token, ",")[0]
-			repo, err = getApiRepoIfNil(op)
+			repo, err = memorizedGetApiRepo()
 			if err != nil {
 				return nil, err
 			}
@@ -165,21 +166,21 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 			if err != nil {
 				return nil, err
 			}
-			repo, err = getApiRepoIfNil(op)
+			repo, err = memorizedGetApiRepo()
 			if err != nil {
 				return nil, err
 			}
 
-			doraOption := make(map[string]interface{})
-			doraOption["repoId"] = didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, repo.GithubId)
-			doraRules := make(map[string]interface{})
-			doraRules["productionPattern"] = productionPattern
-			doraOption["transformationRules"] = doraRules
 			plan[j] = core.PipelineStage{
 				{
 					Plugin:   "dora",
 					Subtasks: []string{"EnrichTaskEnv"},
-					Options:  doraOption,
+					Options: map[string]interface{}{
+						"repoId": didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, repo.GithubId),
+						"transformationRules": map[string]interface{}{
+							"productionPattern": productionPattern,
+						},
+					},
 				},
 			}
 			// remove it from github transformationRules
@@ -189,6 +190,7 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 		if err != nil {
 			return nil, err
 		}
+		repo = nil
 	}
 	return plan, nil
 }

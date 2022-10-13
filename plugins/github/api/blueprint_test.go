@@ -86,8 +86,6 @@ func TestProcessScope(t *testing.T) {
 	plan, err := makePipelinePlan(nil, scopes, mockApiCLient, connection)
 	assert.Nil(t, err)
 
-	//planJson, err1 := json.Marshal(plan)
-	//assert.Nil(t, err1)
 	expectPlan := core.PipelinePlan{
 		core.PipelineStage{
 			{
