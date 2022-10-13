@@ -53,7 +53,7 @@ func TestTapdTaskDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdTask{},
 		"./snapshot_tables/_tool_tapd_tasks.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"name",
@@ -139,52 +139,36 @@ func TestTapdTaskDataFlow(t *testing.T) {
 			"custom_field48",
 			"custom_field49",
 			"custom_field50",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.TapdWorkSpaceTask{},
 		"./snapshot_tables/_tool_tapd_workspace_tasks.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"workspace_id",
 			"task_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.TapdIterationTask{},
 		"./snapshot_tables/_tool_tapd_iteration_tasks.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"workspace_id",
 			"iteration_id",
 			"task_id",
 			"resolution_date",
 			"task_created_date",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.TapdTaskLabel{},
 		"./snapshot_tables/_tool_tapd_task_labels.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"label_name",
 			"task_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.FlushTabler(&ticket.Issue{})
@@ -195,12 +179,8 @@ func TestTapdTaskDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		"./snapshot_tables/issues_task.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"url",
 			"issue_key",
 			"title",
@@ -226,44 +206,32 @@ func TestTapdTaskDataFlow(t *testing.T) {
 			"component",
 			"icon_url",
 			"creator_name",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		ticket.BoardIssue{},
 		"./snapshot_tables/board_issues_task.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"board_id",
 			"issue_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		ticket.SprintIssue{},
 		"./snapshot_tables/sprint_issues_task.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"issue_id",
 			"sprint_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.Subtask(tasks.ConvertTaskLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueLabel{},
 		"./snapshot_tables/issue_labels_task.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"issue_id",
 			"label_name",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 }

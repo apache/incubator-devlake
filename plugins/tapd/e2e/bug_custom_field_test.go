@@ -48,7 +48,7 @@ func TestTapdBugCustomFieldDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdBugCustomFields{},
 		"./snapshot_tables/_tool_tapd_bug_custom_fields.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"workspace_id",
@@ -59,11 +59,7 @@ func TestTapdBugCustomFieldDataFlow(t *testing.T) {
 			"options",
 			"enabled",
 			"sort",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 }

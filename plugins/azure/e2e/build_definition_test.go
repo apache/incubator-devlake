@@ -47,7 +47,7 @@ func TestAzureBuildDefinitionDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.AzureBuildDefinition{},
 		"./snapshot_tables/_tool_azure_build_definitions.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"project_id",
 			"azure_id",
@@ -60,11 +60,6 @@ func TestAzureBuildDefinitionDataFlow(t *testing.T) {
 			"queue_status",
 			"revision",
 			"azure_created_date",
-
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

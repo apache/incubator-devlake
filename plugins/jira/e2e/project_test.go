@@ -46,15 +46,11 @@ func TestProjectDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraProject{},
 		"./snapshot_tables/_tool_jira_projects.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"project_key",
 			"name",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

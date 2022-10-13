@@ -51,7 +51,7 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdStoryChangelog{},
 		"./snapshot_tables/_tool_tapd_story_changelogs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"workspace_id",
@@ -63,17 +63,13 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 			"entity_type",
 			"change_type",
 			"story_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		models.TapdStoryChangelogItem{},
 		"./snapshot_tables/_tool_tapd_story_changelog_items.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"changelog_id",
 			"field",
@@ -81,11 +77,7 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 			"value_after_parsed",
 			"iteration_id_from",
 			"iteration_id_to",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.FlushTabler(&ticket.IssueChangelogs{})
@@ -93,12 +85,8 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.IssueChangelogs{},
 		"./snapshot_tables/issue_changelogs_story.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"issue_id",
 			"author_id",
 			"author_name",
@@ -109,6 +97,6 @@ func TestTapdStoryChangelogDataFlow(t *testing.T) {
 			"created_date",
 			"original_from_value",
 			"original_to_value",
-		},
+		),
 	)
 }

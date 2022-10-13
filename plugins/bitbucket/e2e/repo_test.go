@@ -59,7 +59,7 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.BitbucketRepo{},
 		"./snapshot_tables/_tool_bitbucket_repos.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"bitbucket_id",
 			"name",
@@ -67,16 +67,12 @@ func TestRepoDataFlow(t *testing.T) {
 			"description",
 			"owner_id",
 			"language",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.BitbucketAccount{},
 		"./snapshot_tables/_tool_bitbucket_accounts.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"user_name",
 			"account_id",
@@ -86,11 +82,7 @@ func TestRepoDataFlow(t *testing.T) {
 			"html_url",
 			"uuid",
 			"has2_fa_enabled",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify extraction
@@ -100,12 +92,8 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.Repo{},
 		"./snapshot_tables/repos.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"name",
 			"url",
 			"description",
@@ -113,21 +101,17 @@ func TestRepoDataFlow(t *testing.T) {
 			"language",
 			"forked_from",
 			"deleted",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		ticket.Board{},
 		"./snapshot_tables/boards.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"name",
 			"description",
 			"url",
 			"created_date",
-		},
+		),
 	)
 }
