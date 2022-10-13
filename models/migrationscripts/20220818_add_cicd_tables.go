@@ -77,8 +77,8 @@ func (cicdPipelineRepo) TableName() string {
 type addCICDTables struct{}
 
 func (*addCICDTables) Up(basicRes core.BasicRes) errors.Error {
-	migrationHelper := migrationhelper.NewMigrationHelper(basicRes)
-	return migrationHelper.AutoMigrateTables(
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
 		&cicdPipelineRepo{},
 		&cicdPipeline{},
 		&cicdTask{},

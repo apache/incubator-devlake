@@ -67,8 +67,8 @@ func (addCommitFileComponent) Up(basicRes core.BasicRes) errors.Error {
 		return err
 	}
 
-	migrationHelper := migrationhelper.NewMigrationHelper(basicRes)
-	return migrationHelper.AutoMigrateTables(
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
 		component20220722{},
 		commitFile20220722{},
 		commitFileComponent20220722{},

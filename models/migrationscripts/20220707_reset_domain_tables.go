@@ -69,8 +69,8 @@ func (*resetDomainTables) Up(basicRes core.BasicRes) errors.Error {
 		return err
 	}
 
-	migrationHelper := migrationhelper.NewMigrationHelper(basicRes)
-	return migrationHelper.AutoMigrateTables(
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
 		&archived.Repo{},
 		&archived.Commit{},
 		&archived.CommitParent{},

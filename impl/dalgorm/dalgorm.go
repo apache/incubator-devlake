@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/utils"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"gorm.io/gorm/schema"
 )
 
 // Dalgorm FIXME ...
@@ -158,7 +157,7 @@ func (d *Dalgorm) UpdateColumns(entity interface{}, clauses ...dal.Clause) error
 }
 
 // GetColumns FIXME ...
-func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, _ errors.Error) {
+func (d *Dalgorm) GetColumns(dst dal.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, _ errors.Error) {
 	columnTypes, err := d.db.Migrator().ColumnTypes(dst.TableName())
 	if err != nil {
 		return nil, errors.Convert(err)
@@ -245,22 +244,4 @@ func (d *Dalgorm) RenameTable(oldName, newName string) errors.Error {
 // NewDalgorm FIXME ...
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}
-}
-
-// RenameTable rename the oldName table to newName
-func (d *Dalgorm) RenameTable(oldName interface{}, newName interface{}) errors.Error {
-	err := d.db.Migrator().RenameTable(oldName, newName)
-	if err != nil {
-		return errors.Default.New(err.Error())
-	}
-	return nil
-}
-
-// DropTable drop the table
-func (d *Dalgorm) DropTable(dst ...interface{}) errors.Error {
-	err := d.db.Migrator().DropTable(dst)
-	if err != nil {
-		return errors.Default.New(err.Error())
-	}
-	return nil
 }

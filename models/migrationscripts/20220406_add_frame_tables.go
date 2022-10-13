@@ -30,8 +30,8 @@ var _ core.MigrationScript = (*addFrameworkTables)(nil)
 type addFrameworkTables struct{}
 
 func (*addFrameworkTables) Up(basicRes core.BasicRes) errors.Error {
-	migrationHelper := migrationhelper.NewMigrationHelper(basicRes)
-	return migrationHelper.AutoMigrateTables(
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
 		&archived.Task{},
 		&archived.Notification{},
 		&archived.Pipeline{},

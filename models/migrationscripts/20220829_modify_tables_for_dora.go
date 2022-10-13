@@ -56,8 +56,8 @@ func (cicdPipeline20220829) TableName() string {
 type modifyTablesForDora struct{}
 
 func (*modifyTablesForDora) Up(basicRes core.BasicRes) errors.Error {
-	migrationHelper := migrationhelper.NewMigrationHelper(basicRes)
-	return migrationHelper.AutoMigrateTables(
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
 		&cicdPipeline20220829{},
 		&pullRequest20220829{},
 		&issue20220829{},
