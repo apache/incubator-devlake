@@ -183,13 +183,20 @@ func (d *Dalgorm) AddColumn(table, columnName, columnType string) errors.Error {
 }
 
 // DropColumn drop one column from the table
-func (d *Dalgorm) DropColumn(table, columnName string) errors.Error {
+func (d *Dalgorm) DropColumns(table string, columnNames ...string) errors.Error {
 	// work around the error `cached plan must not change result type` for postgres
 	// wrap in func(){} to make the linter happy
 	defer func() {
 		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
 	}()
-	return d.Exec("ALTER TABLE ? DROP COLUMN ?", clause.Table{Name: table}, clause.Column{Name: columnName})
+	for _, columnName := range columnNames {
+		// return d.Exec("ALTER TABLE ? DROP COLUMN ?", clause.Table{Name: tableN}, clause.Column{Name: columnName})
+		err := d.db.Migrator().DropColumn(table, columnName)
+		if err != nil {
+			return errors.Convert(err)
+		}
+	}
+	return nil
 }
 
 // GetPrimaryKeyFields get the PrimaryKey from `gorm` tag
@@ -247,9 +254,9 @@ func (d *Dalgorm) RenameTable(oldName, newName string) errors.Error {
 }
 
 // DropIndexes drops indexes for specified table
-func (d *Dalgorm) DropIndexes(tableName string, indexNames ...string) errors.Error {
+func (d *Dalgorm) DropIndexes(table string, indexNames ...string) errors.Error {
 	for _, indexName := range indexNames {
-		err := d.db.Migrator().DropIndex(tableName, indexName)
+		err := d.db.Migrator().DropIndex(table, indexName)
 		if err != nil {
 			return errors.Convert(err)
 		}

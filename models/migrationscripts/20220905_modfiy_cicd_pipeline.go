@@ -41,7 +41,7 @@ func (CICDPipelineRelationship20220905) TableName() string {
 
 func (*modifyCicdPipeline) Up(basicRes core.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	err := migrationhelper.DropColumns(basicRes, "cicd_pipelines", "commit_sha", "branch", "repo")
+	err := db.DropColumns("cicd_pipelines", "commit_sha", "branch", "repo")
 	if err != nil {
 		return err
 	}

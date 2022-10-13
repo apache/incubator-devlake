@@ -42,18 +42,6 @@ func AutoMigrateTables(basicRes core.BasicRes, dst ...interface{}) errors.Error 
 	return nil
 }
 
-// DropColumns drops multiple columns for specified table
-func DropColumns(basicRes core.BasicRes, tableName string, columnNames ...string) errors.Error {
-	db := basicRes.GetDal()
-	for _, columnName := range columnNames {
-		err := db.DropColumn(tableName, columnName)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // TransformTable can be used when we need to change the table structure and reprocess all the data in the table.
 func TransformTable[S any, D any](
 	basicRes core.BasicRes,

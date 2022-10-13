@@ -56,8 +56,8 @@ type Dal interface {
 	AutoMigrate(entity interface{}, clauses ...Clause) errors.Error
 	// AddColumn add column for the table
 	AddColumn(table, columnName, columnType string) errors.Error
-	// DropColumn drop column from the table
-	DropColumn(table, columnName string) errors.Error
+	// DropColumns drop column from the table
+	DropColumns(table string, columnName ...string) errors.Error
 	// Exec executes raw sql query
 	Exec(query string, params ...interface{}) errors.Error
 	// RawCursor executes raw sql query and returns a database cursor
