@@ -26,7 +26,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type Blueprint0903Before struct {
+var _ core.MigrationScript = (*encryptBlueprint)(nil)
+
+type encryptBlueprint struct{}
+
+type Blueprint20220903Before struct {
 	Name           string          `json:"name" validate:"required"`
 	Mode           string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
 	Plan           json.RawMessage `json:"plan"`
@@ -37,7 +41,7 @@ type Blueprint0903Before struct {
 	archived.Model `swaggerignore:"true"`
 }
 
-type Blueprint0903After struct {
+type Blueprint20220903After struct {
 	/* unchanged part */
 	Name           string `json:"name" validate:"required"`
 	Mode           string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
@@ -50,21 +54,17 @@ type Blueprint0903After struct {
 	Settings string `json:"settings"`
 }
 
-var _ core.MigrationScript = (*encryptBlueprint)(nil)
-
-type encryptBlueprint struct{}
-
 func (script *encryptBlueprint) Up(basicRes core.BasicRes) errors.Error {
 	encKey := basicRes.GetConfig(core.EncodeKeyEnvStr)
 	if encKey == "" {
 		return errors.BadInput.New("invalid encKey")
 	}
 
-	return migrationhelper.TransformTable[Blueprint0903Before, Blueprint0903After](
+	return migrationhelper.TransformTable(
 		basicRes,
 		script,
 		"_devlake_blueprints",
-		func(s *Blueprint0903Before) (*Blueprint0903After, errors.Error) {
+		func(s *Blueprint20220903Before) (*Blueprint20220903After, errors.Error) {
 			encryptedPlan, err := core.Encrypt(encKey, string(s.Plan))
 			if err != nil {
 				return nil, err
@@ -74,7 +74,7 @@ func (script *encryptBlueprint) Up(basicRes core.BasicRes) errors.Error {
 				return nil, err
 			}
 
-			dst := &Blueprint0903After{
+			dst := &Blueprint20220903After{
 				Name:       s.Name,
 				Mode:       s.Mode,
 				Enable:     s.Enable,

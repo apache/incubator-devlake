@@ -18,42 +18,25 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"time"
 
-	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/datatypes"
-	"gorm.io/gorm"
 )
 
-type Pipeline0904Temp struct {
-	common.Model
-	Name          string     `json:"name" gorm:"index"`
-	BlueprintId   uint64     `json:"blueprintId"`
-	Plan          string     `json:"plan" encrypt:"yes"`
-	TotalTasks    int        `json:"totalTasks"`
-	FinishedTasks int        `json:"finishedTasks"`
-	BeganAt       *time.Time `json:"beganAt"`
-	FinishedAt    *time.Time `json:"finishedAt" gorm:"index"`
-	Status        string     `json:"status"`
-	Message       string     `json:"message"`
-	SpentSeconds  int        `json:"spentSeconds"`
-	Stage         int        `json:"stage"`
-}
+var _ core.MigrationScript = (*encryptPipeline)(nil)
 
-func (Pipeline0904Temp) TableName() string {
-	return "_devlake_pipeline_0904_tmp"
-}
+type encryptPipeline struct{}
 
-type PipelineOldVersion struct {
+type Pipeline20220904Before struct {
 	archived.Model
 	Name          string         `json:"name" gorm:"index"`
 	BlueprintId   uint64         `json:"blueprintId"`
-	Plan          datatypes.JSON `json:"plan"`
+	Plan          datatypes.JSON `json:"plan"` // target field
 	TotalTasks    int            `json:"totalTasks"`
 	FinishedTasks int            `json:"finishedTasks"`
 	BeganAt       *time.Time     `json:"beganAt"`
@@ -64,68 +47,57 @@ type PipelineOldVersion struct {
 	Stage         int            `json:"stage"`
 }
 
-func (PipelineOldVersion) TableName() string {
+type Pipeline0904After struct {
+	common.Model
+	Name          string     `json:"name" gorm:"index"`
+	BlueprintId   uint64     `json:"blueprintId"`
+	Plan          string     `json:"plan" encrypt:"yes"` // target field
+	TotalTasks    int        `json:"totalTasks"`
+	FinishedTasks int        `json:"finishedTasks"`
+	BeganAt       *time.Time `json:"beganAt"`
+	FinishedAt    *time.Time `json:"finishedAt" gorm:"index"`
+	Status        string     `json:"status"`
+	Message       string     `json:"message"`
+	SpentSeconds  int        `json:"spentSeconds"`
+	Stage         int        `json:"stage"`
+}
+
+func (Pipeline20220904Before) TableName() string {
 	return "_devlake_pipelines"
 }
 
-type encryptPipeline struct{}
-
-func (*encryptPipeline) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().CreateTable(&Pipeline0904Temp{})
-	if err != nil {
-		return errors.Convert(err)
-	}
-	//nolint:errcheck
-	defer db.Migrator().DropTable(&Pipeline0904Temp{})
-
-	var result *gorm.DB
-	var pipelineList []PipelineOldVersion
-	result = db.Find(&pipelineList)
-
-	if result.Error != nil {
-		return errors.Convert(result.Error)
+func (script *encryptPipeline) Up(basicRes core.BasicRes) errors.Error {
+	encKey := basicRes.GetConfig(core.EncodeKeyEnvStr)
+	if encKey == "" {
+		return errors.BadInput.New("invalid encKey")
 	}
 
-	// Encrypt all pipelines.plan which had been stored before v0.14
-	for _, v := range pipelineList {
-		c := config.GetConfig()
-		encKey := c.GetString(core.EncodeKeyEnvStr)
-		if encKey == "" {
-			return errors.BadInput.New("invalid encKey")
-		}
-		encryptedPlan, err := core.Encrypt(encKey, string(v.Plan))
-		if err != nil {
-			return err
-		}
-		newPipeline := &Pipeline0904Temp{
-			Name:          v.Name,
-			BlueprintId:   v.BlueprintId,
-			FinishedTasks: v.FinishedTasks,
-			BeganAt:       v.BeganAt,
-			FinishedAt:    v.FinishedAt,
-			Status:        v.Status,
-			Message:       v.Message,
-			SpentSeconds:  v.SpentSeconds,
-			Stage:         v.Stage,
-			Plan:          encryptedPlan,
-		}
-		err = errors.Convert(db.Create(newPipeline).Error)
-		if err != nil {
-			return err
-		}
-	}
+	return migrationhelper.TransformTable(
+		basicRes,
+		script,
+		"_devlake_blueprints",
+		func(s *Pipeline20220904Before) (*Pipeline0904After, errors.Error) {
+			encryptedPlan, err := core.Encrypt(encKey, string(s.Plan))
+			if err != nil {
+				return nil, err
+			}
 
-	err = db.Migrator().DropTable(&PipelineOldVersion{})
-	if err != nil {
-		return errors.Convert(err)
-	}
+			dst := &Pipeline0904After{
+				Name:          s.Name,
+				BlueprintId:   s.BlueprintId,
+				FinishedTasks: s.FinishedTasks,
+				BeganAt:       s.BeganAt,
+				FinishedAt:    s.FinishedAt,
+				Status:        s.Status,
+				Message:       s.Message,
+				SpentSeconds:  s.SpentSeconds,
+				Stage:         s.Stage,
+				Plan:          encryptedPlan,
+			}
+			return dst, nil
+		},
+	)
 
-	err = db.Migrator().RenameTable(Pipeline0904Temp{}, PipelineOldVersion{})
-	if err != nil {
-		return errors.Convert(err)
-	}
-
-	return nil
 }
 
 func (*encryptPipeline) Version() uint64 {
