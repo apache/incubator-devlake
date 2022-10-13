@@ -48,7 +48,7 @@ func All() []core.MigrationScript {
 		new(fixCommitFileIdTooLong),
 		new(modifyBoardRepos),
 		new(renamePipelineCommits),
-		// new(commitLineChange),
-		// new(modifyLeadTimeMinutes),
+		new(commitLineChange),
+		new(modifyLeadTimeMinutes),
 	}
 }

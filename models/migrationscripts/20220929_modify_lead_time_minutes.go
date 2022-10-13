@@ -21,37 +21,43 @@ import (
 	"context"
 
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"gorm.io/gorm"
 )
 
+var _ core.MigrationScript = (*modifyLeadTimeMinutes)(nil)
+
 type modifyLeadTimeMinutes struct{}
 
-type newIssue struct {
+type Issues20220929 struct {
 	LeadTimeMinutes int64
 }
 
-func (newIssue) TableName() string {
+func (Issues20220929) TableName() string {
 	return "issues"
 }
 
-func (*modifyLeadTimeMinutes) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().RenameColumn(&newIssue{}, "lead_time_minutes", "lead_time_minutes_bak")
+func (*modifyLeadTimeMinutes) Up(basicRes core.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	bakColumnName := "lead_time_minutes_20220929"
+	err := db.RenameColumn("issues", "lead_time_minutes", bakColumnName)
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	err = db.Migrator().AutoMigrate(&newIssue{})
+	err = db.AutoMigrate(&Issues20220929{})
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	err = db.Model(&newIssue{}).Where("lead_time_minutes_bak > 0").UpdateColumn("lead_time_minutes", gorm.Expr("lead_time_minutes_bak")).Error
+	err = db.UpdateColumn("issues", "lead_time_minutes", dal.DalClause{Expr: bakColumnName})
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	err = db.Migrator().DropColumn(&newIssue{}, "lead_time_minutes_bak")
+	err = db.DropColumns("issues", "lead_time_minutes_bak")
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	db.First(&newIssue{})
+	db.First(&Issues20220929{})
 	return nil
 }
 

@@ -18,13 +18,16 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type CommitLineChange struct {
+var _ core.MigrationScript = (*commitLineChange)(nil)
+
+type commitLineChange struct{}
+
+type commitLineChange20220918 struct {
 	domainlayer.DomainEntity
 	Id          string `gorm:"type:varchar(255);primaryKey"`
 	CommitSha   string `gorm:"type:varchar(40);"`
@@ -37,18 +40,12 @@ type CommitLineChange struct {
 	PrevCommit  string `gorm:"type:varchar(255)"`
 }
 
-func (CommitLineChange) TableName() string {
+func (commitLineChange20220918) TableName() string {
 	return "commit_line_change"
 }
 
-type commitLineChange struct{}
-
-func (*commitLineChange) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(CommitLineChange{})
-	if err != nil {
-		return errors.Convert(err)
-	}
-	return nil
+func (*commitLineChange) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&commitLineChange20220918{})
 
 }
 

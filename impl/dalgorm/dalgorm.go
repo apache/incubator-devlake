@@ -23,6 +23,7 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
+	expr "github.com/gogo/googleapis/google/api/expr/v1alpha1"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/utils"
@@ -148,6 +149,9 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) errors.Error
 
 // UpdateColumn allows you to update mulitple records
 func (d *Dalgorm) UpdateColumn(entity interface{}, columnName string, value interface{}, clauses ...dal.Clause) errors.Error {
+	if expr, ok := value.(dal.DalClause); ok {
+		value = gorm.Expr(expr.Expr, expr.Params...)
+	}
 	return errors.Convert(buildTx(d.db, clauses).Model(entity).Update(columnName, value).Error)
 }
 
@@ -182,7 +186,7 @@ func (d *Dalgorm) AddColumn(table, columnName, columnType string) errors.Error {
 	return d.Exec("ALTER TABLE ? ADD ? ?", clause.Table{Name: table}, clause.Column{Name: columnName}, clause.Expr{SQL: columnType})
 }
 
-// DropColumn drop one column from the table
+// DropColumns drop one column from the table
 func (d *Dalgorm) DropColumns(table string, columnNames ...string) errors.Error {
 	// work around the error `cached plan must not change result type` for postgres
 	// wrap in func(){} to make the linter happy
