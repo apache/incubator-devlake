@@ -1,7 +1,7 @@
-id,author_id,comment,time_spent_minutes,logged_date,started_date,issue_id
-jira:JiraWorklog:2:10076:10006,jira:JiraAccount:2:5ecfbd0a47d31e0c2a15fd87,,600,2020-06-15T08:59:51.302+00:00,2020-06-05T20:59:00.000+00:00,jira:JiraIssue:2:10076
-jira:JiraWorklog:2:10077:10007,jira:JiraAccount:2:5ecfbd0a47d31e0c2a15fd87,,240,2020-06-15T09:00:26.952+00:00,2020-06-15T09:00:00.000+00:00,jira:JiraIssue:2:10077
-jira:JiraWorklog:2:10077:10008,jira:JiraAccount:2:5ecfbd0a47d31e0c2a15fd87,,240,2020-06-15T09:01:06.211+00:00,2020-06-15T05:00:42.836+00:00,jira:JiraIssue:2:10077
-jira:JiraWorklog:2:10078:10009,jira:JiraAccount:2:5ecfbd0a47d31e0c2a15fd87,,60,2020-06-15T09:01:44.154+00:00,2020-06-15T09:01:00.000+00:00,jira:JiraIssue:2:10078
-jira:JiraWorklog:2:10079:10218,jira:JiraAccount:2:5ecfbd0a47d31e0c2a15fd87,,120,2020-07-22T07:25:29.102+00:00,2020-07-22T07:24:00.000+00:00,jira:JiraIssue:2:10079
-jira:JiraWorklog:2:10085:10010,jira:JiraAccount:2:5ecfbd0a47d31e0c2a15fd87,,60,2020-06-15T09:07:56.793+00:00,2020-06-15T09:07:00.000+00:00,jira:JiraIssue:2:10085
+id,author_id,comment,time_spent_minutes,logged_date,started_date,issue_id,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+jira:JiraWorklog:2:10076:10006,jira:JiraAccount:2:5ecfbd0a47d31e0c2a15fd87,,600,2020-06-15T08:59:51.302+00:00,2020-06-05T20:59:00.000+00:00,jira:JiraIssue:2:10076,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_worklogs,1252,
+jira:JiraWorklog:2:10077:10007,jira:JiraAccount:2:5ecfbd0a47d31e0c2a15fd87,,240,2020-06-15T09:00:26.952+00:00,2020-06-15T09:00:00.000+00:00,jira:JiraIssue:2:10077,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_worklogs,1250,
+jira:JiraWorklog:2:10077:10008,jira:JiraAccount:2:5ecfbd0a47d31e0c2a15fd87,,240,2020-06-15T09:01:06.211+00:00,2020-06-15T05:00:42.836+00:00,jira:JiraIssue:2:10077,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_worklogs,1251,
+jira:JiraWorklog:2:10078:10009,jira:JiraAccount:2:5ecfbd0a47d31e0c2a15fd87,,60,2020-06-15T09:01:44.154+00:00,2020-06-15T09:01:00.000+00:00,jira:JiraIssue:2:10078,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_worklogs,1253,
+jira:JiraWorklog:2:10079:10218,jira:JiraAccount:2:5ecfbd0a47d31e0c2a15fd87,,120,2020-07-22T07:25:29.102+00:00,2020-07-22T07:24:00.000+00:00,jira:JiraIssue:2:10079,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_worklogs,1249,
+jira:JiraWorklog:2:10085:10010,jira:JiraAccount:2:5ecfbd0a47d31e0c2a15fd87,,60,2020-06-15T09:07:56.793+00:00,2020-06-15T09:07:00.000+00:00,jira:JiraIssue:2:10085,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_worklogs,1248,

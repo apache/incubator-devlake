@@ -45,17 +45,13 @@ func TestMeetingDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.FeishuMeetingTopUserItem{},
 		"./snapshot_tables/_tool_feishu_meeting_top_user_items.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"start_time",
 			"name",
 			"meeting_count",
 			"meeting_duration",
 			"user_type",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

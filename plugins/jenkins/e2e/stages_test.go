@@ -53,7 +53,7 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JenkinsStage{},
 		"./snapshot_tables/_tool_jenkins_stages.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"name",
@@ -64,11 +64,7 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 			"pause_duration_millis",
 			"build_name",
 			"type",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.FlushTabler(&devops.CICDTask{})
@@ -76,7 +72,7 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		devops.CICDTask{},
 		"./snapshot_tables/cicd_tasks_after_stages.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"name",
 			"pipeline_id",
@@ -87,10 +83,6 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 			"started_date",
 			"finished_date",
 			"environment",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

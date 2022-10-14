@@ -52,7 +52,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JenkinsBuild{},
 		"./snapshot_tables/_tool_jenkins_builds.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"job_name",
 			"duration",
@@ -62,27 +62,19 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"result",
 			"timestamp",
 			"start_time",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		models.JenkinsBuildCommit{},
 		"./snapshot_tables/_tool_jenkins_build_commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"build_name",
 			"commit_sha",
 			"branch",
 			"repo_url",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.FlushTabler(&devops.CICDTask{})
@@ -96,7 +88,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		devops.CICDTask{},
 		"./snapshot_tables/cicd_tasks.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"name",
 			"pipeline_id",
 			"result",
@@ -106,13 +98,13 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"duration_sec",
 			"started_date",
 			"finished_date",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		devops.CICDPipeline{},
 		"./snapshot_tables/cicd_pipelines.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"name",
 			"result",
 			"status",
@@ -121,27 +113,27 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"environment",
 			"created_date",
 			"finished_date",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		devops.CICDPipelineRelationship{},
 		"./snapshot_tables/cicd_pipeline_relationships.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"parent_pipeline_id",
 			"child_pipeline_id",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		devops.CiCDPipelineCommit{},
 		"./snapshot_tables/cicd_pipeline_commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"pipeline_id",
 			"repo_id",
 			"repo_url",
 			"branch",
 			"commit_sha",
-		},
+		),
 	)
 }

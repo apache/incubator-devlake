@@ -76,7 +76,7 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraIssueType{},
 		"./snapshot_tables/_tool_jira_issue_types.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"self",
 			"id",
@@ -87,17 +87,13 @@ func TestIssueDataFlow(t *testing.T) {
 			"subtask",
 			"avatar_id",
 			"hierarchy_level",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		models.JiraIssue{},
 		"./snapshot_tables/_tool_jira_issues.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"issue_id",
 			"project_id",
@@ -132,23 +128,23 @@ func TestIssueDataFlow(t *testing.T) {
 			"std_story_point",
 			"std_type",
 			"std_status",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"icon_url",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		models.JiraBoardIssue{},
 		"./snapshot_tables/_tool_jira_board_issues.csv",
-		[]string{"connection_id", "board_id", "issue_id"},
+		e2ehelper.ColumnWithRawData(
+			"connection_id",
+			"board_id",
+			"issue_id",
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.JiraIssueChangelogs{},
 		"./snapshot_tables/_tool_jira_issue_changelogs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"changelog_id",
 			"issue_id",
@@ -157,12 +153,12 @@ func TestIssueDataFlow(t *testing.T) {
 			"author_active",
 			"created",
 			"issue_updated",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.JiraIssueChangelogItems{},
 		"./snapshot_tables/_tool_jira_issue_changelog_items.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"changelog_id",
 			"field",
@@ -171,7 +167,8 @@ func TestIssueDataFlow(t *testing.T) {
 			"from_value",
 			"from_string",
 			"to_value",
-			"to_string"},
+			"to_string",
+		),
 	)
 
 	// verify issue conversion

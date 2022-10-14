@@ -47,11 +47,7 @@ func TestJiraAccountDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraAccount{},
 		"./snapshot_tables/_tool_jira_accounts.csv",
-		[]string{
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"account_id",
 			"account_type",
@@ -59,7 +55,7 @@ func TestJiraAccountDataFlow(t *testing.T) {
 			"email",
 			"avatar_url",
 			"timezone",
-		},
+		),
 	)
 
 	// verify board conversion
@@ -68,12 +64,8 @@ func TestJiraAccountDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		crossdomain.Account{},
 		"./snapshot_tables/accounts.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"email",
 			"full_name",
 			"user_name",
@@ -81,7 +73,7 @@ func TestJiraAccountDataFlow(t *testing.T) {
 			"organization",
 			"created_date",
 			"status",
-		},
+		),
 	)
 
 }

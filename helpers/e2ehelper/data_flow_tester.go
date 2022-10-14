@@ -22,13 +22,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper"
@@ -347,6 +348,22 @@ func formatDbValue(value interface{}) string {
 		}
 	}
 	return ``
+}
+
+// ColumnWithRawData create an Column string with _raw_data_* appending
+func ColumnWithRawData(column ...string) []string {
+	return append(
+		column,
+		"_raw_data_params",
+		"_raw_data_table",
+		"_raw_data_id",
+		"_raw_data_remark",
+	)
+}
+
+// VerifyTableWithRawData use VerifyTable and append the _raw_data_* checking after targetFields
+func (t *DataFlowTester) VerifyTableWithRawData(dst schema.Tabler, csvRelPath string, targetFields []string) {
+	t.VerifyTable(dst, csvRelPath, ColumnWithRawData(targetFields...))
 }
 
 // VerifyTable reads rows from csv file and compare with records from database one by one. You must specify the
