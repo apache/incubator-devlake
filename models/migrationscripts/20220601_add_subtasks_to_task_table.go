@@ -37,7 +37,7 @@ func (tasks20220601) TableName() string {
 type addSubtaskToTaskTable struct{}
 
 func (*addSubtaskToTaskTable) Up(basicRes core.BasicRes) errors.Error {
-	return errors.Convert(basicRes.GetDal().AutoMigrate(&tasks20220601{}))
+	return basicRes.GetDal().AutoMigrate(&tasks20220601{})
 }
 
 func (*addSubtaskToTaskTable) Version() uint64 {

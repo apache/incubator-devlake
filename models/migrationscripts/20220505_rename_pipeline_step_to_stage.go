@@ -27,7 +27,7 @@ var _ core.MigrationScript = (*renamePipelineStepToStage)(nil)
 type renamePipelineStepToStage struct{}
 
 func (*renamePipelineStepToStage) Up(basicRes core.BasicRes) errors.Error {
-	return errors.Convert(basicRes.GetDal().RenameColumn("_devlake_pipelines", "step", "stage"))
+	return basicRes.GetDal().RenameColumn("_devlake_pipelines", "step", "stage")
 }
 
 func (*renamePipelineStepToStage) Version() uint64 {

@@ -18,12 +18,9 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"gorm.io/gorm"
 )
 
 var _ core.MigrationScript = (*modifyLeadTimeMinutes)(nil)
@@ -53,7 +50,7 @@ func (*modifyLeadTimeMinutes) Up(basicRes core.BasicRes) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = db.DropColumns("issues", "lead_time_minutes_bak")
+	err = db.DropColumns("issues", bakColumnName)
 	if err != nil {
 		return err
 	}

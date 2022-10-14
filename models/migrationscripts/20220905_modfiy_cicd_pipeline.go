@@ -19,7 +19,6 @@ package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"

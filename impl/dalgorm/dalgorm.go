@@ -23,7 +23,6 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
-	expr "github.com/gogo/googleapis/google/api/expr/v1alpha1"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/utils"
