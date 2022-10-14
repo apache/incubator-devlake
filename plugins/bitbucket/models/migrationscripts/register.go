@@ -27,5 +27,6 @@ func All() []migration.Script {
 		new(addInitTables),
 		new(addPipeline20220914),
 		new(addDeployment20221013),
+		new(addRepoIdAndCommitShaField),
 	}
 }
