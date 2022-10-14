@@ -28,6 +28,8 @@ type BitbucketPipeline struct {
 	Status            string `gorm:"type:varchar(100)"`
 	Result            string `gorm:"type:varchar(100)"`
 	RefName           string `gorm:"type:varchar(255)"`
+	RepoId            string `gorm:"type:varchar(255)"`
+	CommitSha         string `gorm:"type:varchar(255)"`
 	WebUrl            string `gorm:"type:varchar(255)"`
 	DurationInSeconds uint64
 
