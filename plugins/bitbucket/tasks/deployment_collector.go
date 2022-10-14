@@ -23,25 +23,25 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-const RAW_PIPELINE_TABLE = "bitbucket_api_pipelines"
+const RAW_DEPLOYMENT_TABLE = "bitbucket_api_deployments"
 
-var CollectApiPipelinesMeta = core.SubTaskMeta{
-	Name:             "collectApiPipelines",
-	EntryPoint:       CollectApiPipelines,
+var CollectApiDeploymentsMeta = core.SubTaskMeta{
+	Name:             "collectApiDeployments",
+	EntryPoint:       CollectApiDeployments,
 	EnabledByDefault: true,
-	Description:      "Collect pipeline data from bitbucket api",
+	Description:      "Collect deployment data from bitbucket api",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func CollectApiPipelines(taskCtx core.SubTaskContext) errors.Error {
-	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
+func CollectApiDeployments(taskCtx core.SubTaskContext) errors.Error {
+	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_DEPLOYMENT_TABLE)
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		PageSize:           50,
 		Incremental:        false,
-		UrlTemplate:        "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pipelines/",
+		UrlTemplate:        "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/deployments/",
 		Query:              GetQuery,
 		ResponseParser:     GetRawMessageFromResponse,
 		GetTotalPages:      GetTotalPagesFromResponse,
