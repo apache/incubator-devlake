@@ -65,7 +65,7 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.BitbucketIssue{},
 		"./snapshot_tables/_tool_bitbucket_issues.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"bitbucket_id",
 			"repo_id",
@@ -85,17 +85,13 @@ func TestIssueDataFlow(t *testing.T) {
 			"closed_at",
 			"severity",
 			"component",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		models.BitbucketAccount{},
 		"./snapshot_tables/_tool_bitbucket_accounts_in_issue.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"user_name",
 			"account_id",
@@ -105,11 +101,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"html_url",
 			"uuid",
 			"has2_fa_enabled",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify issue conversion
@@ -119,12 +111,8 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		"./snapshot_tables/issues.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"url",
 			"icon_url",
 			"issue_key",
@@ -148,12 +136,15 @@ func TestIssueDataFlow(t *testing.T) {
 			"assignee_name",
 			"severity",
 			"component",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		ticket.BoardIssue{},
 		"./snapshot_tables/board_issues.csv",
-		[]string{"board_id", "issue_id"},
+		e2ehelper.ColumnWithRawData(
+			"board_id",
+			"issue_id",
+		),
 	)
 
 }

@@ -50,7 +50,7 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabMergeRequest{},
 		"./snapshot_tables/_tool_gitlab_merge_requests_for_mr_notes_test.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"gitlab_id",
 			"iid",
@@ -75,11 +75,7 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 			"component",
 			"first_comment_time",
 			"review_rounds",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_merge_request_notes.csv",
@@ -92,7 +88,7 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabMrNote{},
 		"./snapshot_tables/_tool_gitlab_mr_notes.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"gitlab_id",
 			"merge_request_id",
@@ -104,16 +100,12 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 			"confidential",
 			"resolvable",
 			"is_system",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.GitlabMrComment{},
 		"./snapshot_tables/_tool_gitlab_mr_comments.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"gitlab_id",
 			"merge_request_id",
@@ -123,11 +115,7 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 			"author_user_id",
 			"gitlab_created_at",
 			"resolvable",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify conversion
@@ -136,11 +124,7 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequestComment{},
 		"./snapshot_tables/pull_request_comments.csv",
-		[]string{
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"pull_request_id",
 			"body",
@@ -148,6 +132,6 @@ func TestGitlabMrNoteDataFlow(t *testing.T) {
 			"created_date",
 			"commit_sha",
 			"position",
-		},
+		),
 	)
 }

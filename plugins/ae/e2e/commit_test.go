@@ -47,17 +47,13 @@ func TestAECommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.AECommit{},
 		"./snapshot_tables/_tool_ae_commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"hex_sha",
 			"analysis_id",
 			"author_email",
 			"dev_eq",
 			"ae_project_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify conversion
@@ -68,12 +64,8 @@ func TestAECommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.Commit{},
 		"./snapshot_tables/commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"sha",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"additions",
 			"deletions",
 			"dev_eq",
@@ -86,6 +78,6 @@ func TestAECommitDataFlow(t *testing.T) {
 			"committer_email",
 			"committed_date",
 			"committer_id",
-		},
+		),
 	)
 }

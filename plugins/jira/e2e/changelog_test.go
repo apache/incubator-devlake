@@ -48,7 +48,7 @@ func TestIssueChangelogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.IssueChangelogs{},
 		"./snapshot_tables/issue_changelogs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"issue_id",
 			"author_id",
@@ -60,6 +60,6 @@ func TestIssueChangelogDataFlow(t *testing.T) {
 			"from_value",
 			"to_value",
 			"created_date",
-		},
+		),
 	)
 }

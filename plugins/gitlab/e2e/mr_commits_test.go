@@ -51,7 +51,7 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabMergeRequest{},
 		"./snapshot_tables/_tool_gitlab_merge_requests_for_mr_commit_test.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"gitlab_id",
 			"iid",
@@ -76,11 +76,7 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 			"component",
 			"first_comment_time",
 			"review_rounds",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// import raw data table
@@ -95,7 +91,7 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabCommit{},
 		"./snapshot_tables/_tool_gitlab_commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"sha",
 			"title",
 			"message",
@@ -110,38 +106,26 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 			"additions",
 			"deletions",
 			"total",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.GitlabProjectCommit{},
 		"./snapshot_tables/_tool_gitlab_project_commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"gitlab_project_id",
 			"commit_sha",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		models.GitlabMrCommit{},
 		"./snapshot_tables/_tool_gitlab_mr_commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"merge_request_id",
 			"commit_sha",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify conversion
@@ -150,14 +134,10 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequestCommit{},
 		"./snapshot_tables/pull_request_commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"commit_sha",
 			"pull_request_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify conversion
@@ -167,12 +147,8 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.Commit{},
 		"./snapshot_tables/commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"sha",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"additions",
 			"deletions",
 			"dev_eq",
@@ -185,19 +161,15 @@ func TestGitlabMrCommitDataFlow(t *testing.T) {
 			"committer_email",
 			"committed_date",
 			"committer_id",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		code.RepoCommit{},
 		"./snapshot_tables/repo_commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"repo_id",
 			"commit_sha",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

@@ -46,17 +46,13 @@ func TestAEProjectDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.AEProject{},
 		"./snapshot_tables/_tool_ae_projects.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"git_url",
 			"priority",
 			"ae_create_time",
 			"ae_update_time",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

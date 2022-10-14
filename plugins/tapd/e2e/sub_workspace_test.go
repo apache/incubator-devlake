@@ -50,7 +50,7 @@ func TestTapdWorkspaceDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdSubWorkspace{},
 		"./snapshot_tables/_tool_tapd_sub_workspaces.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"name",
@@ -63,11 +63,7 @@ func TestTapdWorkspaceDataFlow(t *testing.T) {
 			"external_on",
 			"parent_id",
 			"creator",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.FlushTabler(&ticket.Board{})
@@ -75,17 +71,13 @@ func TestTapdWorkspaceDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Board{},
 		"./snapshot_tables/boards.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"name",
 			"description",
 			"url",
 			"created_date",
-		},
+		),
 	)
 
 }
