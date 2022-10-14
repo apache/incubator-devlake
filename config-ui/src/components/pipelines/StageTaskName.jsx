@@ -72,7 +72,8 @@ const StageTaskName = (props) => {
           {task.plugin === Providers.GITLAB && (
             <>Project ID {task.options.projectId}</>
           )}
-          {task.plugin === Providers.GITEXTRACTOR && <>{task.options.repoId}</>}
+          {task.plugin === Providers.GITEXTRACTOR ||
+            (task.plugin === Providers.DORA && <>{task.options.repoId}</>)}
         </span>
         <>
           <div
