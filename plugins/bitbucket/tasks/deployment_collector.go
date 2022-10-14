@@ -45,7 +45,6 @@ func CollectApiDeployments(taskCtx core.SubTaskContext) errors.Error {
 		Query:              GetQuery,
 		ResponseParser:     GetRawMessageFromResponse,
 		GetTotalPages:      GetTotalPagesFromResponse,
-		AfterResponse:      ignoreHTTPStatus403, // ignore 403 for CI/CD disable
 	})
 
 	if err != nil {

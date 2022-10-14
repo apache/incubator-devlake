@@ -40,3 +40,18 @@ type BitbucketPipeline struct {
 func (BitbucketPipeline) TableName() string {
 	return "_tool_bitbucket_pipelines"
 }
+
+const (
+	FAILED      = "FAILED"
+	ERROR       = "ERROR"
+	UNDEPLOYED  = "UNDEPLOYED"
+	STOPPED     = "STOPPED"
+	SKIPPED     = "SKIPPED"
+	SUCCESSFUL  = "SUCCESSFUL"
+	COMPLETED   = "COMPLETED"
+	PAUSED      = "COMPLETED"
+	HALTED      = "HALTED"
+	IN_PROGRESS = "IN_PROGRESS"
+	PENDING     = "PENDING"
+	BUILDING    = "BUILDING"
+)
