@@ -96,8 +96,6 @@ func ExecuteMigration() errors.Error {
 	if err != nil {
 		return err
 	}
-	// call service init
-	pipelineServiceInit()
 
 	// cronjob for blueprint triggering
 	location := cron.WithLocation(time.UTC)
@@ -105,6 +103,8 @@ func ExecuteMigration() errors.Error {
 	if err != nil {
 		panic(err)
 	}
+	// call service init
+	pipelineServiceInit()
 	return nil
 }
 

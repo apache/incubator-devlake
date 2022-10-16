@@ -75,7 +75,7 @@ func (script *encryptPipeline) Up(basicRes core.BasicRes) errors.Error {
 	return migrationhelper.TransformTable(
 		basicRes,
 		script,
-		"_devlake_blueprints",
+		"_devlake_pipelines",
 		func(s *Pipeline20220904Before) (*Pipeline0904After, errors.Error) {
 			encryptedPlan, err := core.Encrypt(encKey, string(s.Plan))
 			if err != nil {

@@ -67,7 +67,7 @@ func (*renamePipelineCommits) Up(basicRes core.BasicRes) errors.Error {
 	}
 	err = db.AutoMigrate(CiCDPipelineRepo20220915After{})
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 	return nil
 }

@@ -193,8 +193,8 @@ func (d *Dalgorm) DropColumns(table string, columnNames ...string) errors.Error 
 		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
 	}()
 	for _, columnName := range columnNames {
-		// return d.Exec("ALTER TABLE ? DROP COLUMN ?", clause.Table{Name: tableN}, clause.Column{Name: columnName})
-		err := d.db.Migrator().DropColumn(table, columnName)
+		err := d.Exec("ALTER TABLE ? DROP COLUMN ?", clause.Table{Name: table}, clause.Column{Name: columnName})
+		// err := d.db.Migrator().DropColumn(table, columnName)
 		if err != nil {
 			return errors.Convert(err)
 		}

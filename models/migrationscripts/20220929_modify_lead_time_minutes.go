@@ -39,6 +39,11 @@ func (*modifyLeadTimeMinutes) Up(basicRes core.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 	bakColumnName := "lead_time_minutes_20220929"
 	err := db.RenameColumn("issues", "lead_time_minutes", bakColumnName)
+	defer func() {
+		if err != nil {
+			_ = db.RenameColumn("issues", bakColumnName, "lead_time_minutes")
+		}
+	}()
 	if err != nil {
 		return err
 	}
@@ -46,7 +51,17 @@ func (*modifyLeadTimeMinutes) Up(basicRes core.BasicRes) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = db.UpdateColumn("issues", "lead_time_minutes", dal.DalClause{Expr: bakColumnName})
+	defer func() {
+		if err != nil {
+			_ = db.DropColumns("issues", "lead_time_minutes")
+		}
+	}()
+	err = db.UpdateColumn(
+		&Issues20220929{},
+		"lead_time_minutes",
+		dal.DalClause{Expr: bakColumnName},
+		dal.Where("lead_time_minutes != 0"),
+	)
 	if err != nil {
 		return err
 	}
@@ -54,7 +69,7 @@ func (*modifyLeadTimeMinutes) Up(basicRes core.BasicRes) errors.Error {
 	if err != nil {
 		return err
 	}
-	db.First(&Issues20220929{})
+	_ = db.First(&Issues20220929{})
 	return nil
 }
 

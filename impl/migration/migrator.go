@@ -84,7 +84,10 @@ func (m *migratorImpl) Execute() errors.Error {
 	})
 	// execute them one by one
 	db := m.basicRes.GetDal()
+	log := m.basicRes.GetLogger().Nested("migrator")
 	for _, swc := range m.pending {
+		scriptId := fmt.Sprintf("%d-%s", swc.script.Version(), swc.script.Name())
+		log.Info("applying migratin script %s", scriptId)
 		err := swc.script.Up(m.basicRes)
 		if err != nil {
 			return err
@@ -95,9 +98,9 @@ func (m *migratorImpl) Execute() errors.Error {
 			Comment:       swc.comment,
 		})
 		if err != nil {
-			return errors.Convert(err)
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to execute migration script %s", scriptId))
 		}
-		m.executed[fmt.Sprintf("%s:%d", swc.script.Name(), swc.script.Version())] = true
+		m.executed[scriptId] = true
 		m.pending = m.pending[1:]
 	}
 	return nil
