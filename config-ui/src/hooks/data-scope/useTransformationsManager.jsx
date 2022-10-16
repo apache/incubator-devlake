@@ -17,7 +17,6 @@
  */
 import { useCallback, useState } from 'react'
 import { Providers } from '@/data/Providers'
-import useDataScopesManager from '@/hooks/useDataScopesManager'
 import TransformationSettings from '@/models/TransformationSettings'
 import { isEqual } from 'lodash'
 
