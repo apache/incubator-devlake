@@ -292,12 +292,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 		offset += len(data)
 	}
 
-	// step4: drop starrocksOldTable table
-	_, err = starrocks.Exec(fmt.Sprintf("drop table if exists %s", starrocksOldTable))
-	if err != nil {
-		return err
-	}
-	// step5: renmae starrocksNewTable to starrocksTable
+	// step4: renmae starrocksNewTable to starrocksTable
 	_, err = starrocks.Exec(fmt.Sprintf("alter table %s rename %s", starrocksNewTable, starrocksTable))
 	if err != nil {
 		return err
