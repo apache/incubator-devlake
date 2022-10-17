@@ -3,6 +3,6 @@ connection_id,changelog_id,field,value_before_parsed,value_after_parsed,iteratio
 1,11991001000093,owner,--,u5d14u6600;,0,0,"{""ConnectionId"":1,""CompanyId"":0,""WorkspaceId"":991}",_raw_tapd_api_story_changelogs,2,
 1,11991001000095,comment,--,test-11test-11test-11test-11,0,0,"{""ConnectionId"":1,""CompanyId"":0,""WorkspaceId"":991}",_raw_tapd_api_story_changelogs,3,
 1,11991001000095,owner,u5d14u6600;,u5d14u6600;u9648u5fd7u9274;,0,0,"{""ConnectionId"":1,""CompanyId"":0,""WorkspaceId"":991}",_raw_tapd_api_story_changelogs,3,
-1,11991001000095,status,test-11test-11test-11,test-11test-11test-11,0,0,"{""ConnectionId"":1,""CompanyId"":0,""WorkspaceId"":991}",_raw_tapd_api_story_changelogs,3,
+1,11991001000095,status,test-11test-11test-11,test-11test-11test-12,0,0,"{""ConnectionId"":1,""CompanyId"":0,""WorkspaceId"":991}",_raw_tapd_api_story_changelogs,3,
 1,11991001000096,due,2019-12-13,2020-01-08,0,0,"{""ConnectionId"":1,""CompanyId"":0,""WorkspaceId"":991}",_raw_tapd_api_story_changelogs,4,
 1,11991001000103,name,test-11test-11test-11test-11,test-11test-11test-11test-11,0,0,"{""ConnectionId"":1,""CompanyId"":0,""WorkspaceId"":991}",_raw_tapd_api_story_changelogs,5,
