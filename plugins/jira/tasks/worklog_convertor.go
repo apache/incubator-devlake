@@ -50,7 +50,9 @@ func ConvertWorklogs(taskCtx core.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.From(&models.JiraWorklog{}),
 		dal.Select("_tool_jira_worklogs.*"),
-		dal.Join(`left join _tool_jira_board_issues on (_tool_jira_board_issues.issue_id = _tool_jira_worklogs.issue_id)`),
+		dal.Join(`LEFT JOIN _tool_jira_board_issues
+              ON _tool_jira_board_issues.connection_id = _tool_jira_worklogs.connection_id
+                   AND _tool_jira_board_issues.issue_id = _tool_jira_worklogs.issue_id`),
 		dal.Where("_tool_jira_board_issues.connection_id = ? AND _tool_jira_board_issues.board_id = ?", connectionId, boardId),
 	}
 	cursor, err := db.Cursor(clauses...)
