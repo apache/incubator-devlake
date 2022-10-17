@@ -20,10 +20,57 @@ import { Link } from 'react-router-dom';
 import * as S from './styled';
 
 import GitLabIcon from '@/images/icons/gitlab.svg';
-import JiraIcon from '@/images/icons/jira.svg';
 import JenkinsIcon from '@/images/icons/jenkins.svg';
+import TapdIcon from '@/images/icons/tapd.svg';
+import JiraIcon from '@/images/icons/jira.svg';
+import GitHubIcon from '@/images/icons/github.svg';
+import AzureIcon from '@/images/icons/azure.svg';
+import BitBucketIcon from '@/images/icons/bitbucket.svg';
 import GiteeIcon from '@/images/icons/gitee.svg';
 import WebhookIcon from '@/images/icons/webhook.svg';
+
+const connections = [
+  {
+    name: 'Gitlab',
+    icon: GitLabIcon,
+    link: '/gitlab',
+  },
+  {
+    name: 'Jenkins',
+    icon: JenkinsIcon,
+    link: '/jenkins',
+  },
+  {
+    name: 'TAPD',
+    icon: TapdIcon,
+    link: '/tapd',
+  },
+  {
+    name: 'JIRA',
+    icon: JiraIcon,
+    link: '/jira',
+  },
+  {
+    name: 'GitHub',
+    icon: GitHubIcon,
+    link: '/github',
+  },
+  {
+    name: 'Azure',
+    icon: AzureIcon,
+    link: '/azure',
+  },
+  {
+    name: 'BitBucket',
+    icon: BitBucketIcon,
+    link: '/bitbucket',
+  },
+  {
+    name: 'Gitee',
+    icon: GiteeIcon,
+    link: '/gitee',
+  },
+];
 
 export const Connections = () => {
   return (
@@ -40,30 +87,14 @@ export const Connections = () => {
           your Blueprints.
         </h4>
         <ul className="list">
-          <li>
-            <Link to="/connections/gitlab">
-              <img src={GitLabIcon} width={60} alt="" />
-              <span>GitLab</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/connections/jira">
-              <img src={JiraIcon} width={60} alt="" />
-              <span>JIRA</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/connections/jenkins">
-              <img src={JenkinsIcon} width={60} alt="" />
-              <span>Jenkins</span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/connections/gitee">
-              <img src={GiteeIcon} width={60} alt="" />
-              <span>Gitee</span>
-            </Link>
-          </li>
+          {connections.map((c) => (
+            <li>
+              <Link to={`/connections${c.link}`}>
+                <img src={c.icon} alt="" />
+                <span>{c.name}</span>
+              </Link>
+            </li>
+          ))}
         </ul>
       </div>
       <div className="item">
@@ -76,7 +107,7 @@ export const Connections = () => {
         <ul className="list">
           <li>
             <Link to="/connections/webhook">
-              <img src={WebhookIcon} width={60} alt="" />
+              <img src={WebhookIcon} alt="" />
               <span>Issue/Deployment Webhook</span>
             </Link>
           </li>

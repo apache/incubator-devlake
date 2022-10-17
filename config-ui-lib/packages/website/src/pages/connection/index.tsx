@@ -16,29 +16,9 @@
  *
  */
 import { useParams } from 'react-router-dom';
-import {
-  GitLabConnection,
-  JiraConnection,
-  JenkinsConnection,
-  GiteeConnection,
-  WebhookConnection,
-} from '@devlake-ui/config';
+import { Connection as DevLakeConnection } from '@devlake-ui/config';
 
 export const Connection = () => {
   const { type } = useParams();
-
-  switch (type) {
-    case 'gitlab':
-      return <GitLabConnection />;
-    case 'jira':
-      return <JiraConnection />;
-    case 'jenkins':
-      return <JenkinsConnection />;
-    case 'gitee':
-      return <GiteeConnection />;
-    case 'webhook':
-      return <WebhookConnection />;
-    default:
-      return null;
-  }
+  return <DevLakeConnection type={type} />;
 };
