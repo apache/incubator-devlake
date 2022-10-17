@@ -81,7 +81,12 @@ func (d *Dalgorm) Exec(query string, params ...interface{}) errors.Error {
 
 // AutoMigrate runs auto migration for given models
 func (d *Dalgorm) AutoMigrate(entity interface{}, clauses ...dal.Clause) errors.Error {
-	return errors.Convert(buildTx(d.db, clauses).AutoMigrate(entity))
+	err := errors.Convert(buildTx(d.db, clauses).AutoMigrate(entity))
+	if err == nil {
+		// fix pg cache plan error
+		_ = d.db.Limit(1).Find(entity)
+	}
+	return err
 }
 
 // Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
