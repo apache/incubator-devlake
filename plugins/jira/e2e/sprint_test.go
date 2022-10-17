@@ -70,6 +70,8 @@ func TestSprintDataFlow(t *testing.T) {
 	// verify sprint conversion
 	dataflowTester.FlushTabler(&ticket.Sprint{})
 	dataflowTester.FlushTabler(&ticket.BoardSprint{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_sprints_for_convertor.csv", &models.JiraBoardSprint{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_sprints_for_convertor.csv", &models.JiraSprint{})
 	dataflowTester.Subtask(tasks.ConvertSprintsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Sprint{},

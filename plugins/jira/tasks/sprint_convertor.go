@@ -49,8 +49,10 @@ func ConvertSprints(taskCtx core.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.Select("*"),
 		dal.From(&models.JiraSprint{}),
-		dal.Join("left join _tool_jira_board_sprints on _tool_jira_board_sprints.sprint_id = _tool_jira_sprints.sprint_id"),
-		dal.Where("_tool_jira_board_sprints.connection_id = ? AND _tool_jira_board_sprints.board_id = ?", connectionId, boardId),
+		dal.Join(`LEFT JOIN _tool_jira_board_sprints
+              ON _tool_jira_board_sprints.sprint_id = _tool_jira_sprints.sprint_id
+                 AND _tool_jira_board_sprints.connection_id = _tool_jira_sprints.connection_id`),
+		dal.Where("_tool_jira_sprints.connection_id = ? AND _tool_jira_board_sprints.board_id = ?", connectionId, boardId),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
