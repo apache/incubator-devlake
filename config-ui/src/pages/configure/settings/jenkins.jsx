@@ -43,37 +43,10 @@ export default function JenkinsSettings(props) {
     connection,
     entities = [],
     transformation = {},
-    entityIdKey,
     isSaving = false,
     isSavingConnection = false,
-    onSettingsChange = () => {},
-    configuredProject
+    onSettingsChange = () => {}
   } = props
-  const history = useHistory()
-  const { providerId, connectionId } = useParams()
-
-  // eslint-disable-next-line max-len
-  const [errors, setErrors] = useState([])
-
-  const cancel = () => {
-    history.push(`/integrations/${provider.id}`)
-  }
-
-  // useEffect(() => {
-  //   setErrors(['This integration doesn’t require any configuration.'])
-  // }, [])
-
-  useEffect(() => {
-    onSettingsChange({
-      errors,
-      providerId,
-      connectionId
-    })
-  }, [errors, onSettingsChange, connectionId, providerId])
-
-  useEffect(() => {
-    console.log('>>> JENKINS: DATA ENTITIES...', entities)
-  }, [entities])
 
   return (
     <>
@@ -81,7 +54,6 @@ export default function JenkinsSettings(props) {
         <Deployment
           provider={provider}
           entities={entities}
-          entityIdKey={entityIdKey}
           transformation={transformation}
           connection={connection}
           onSettingsChange={onSettingsChange}

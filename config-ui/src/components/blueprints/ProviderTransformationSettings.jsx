@@ -35,28 +35,17 @@ const ProviderTransformationSettings = (props) => {
     provider,
     blueprint,
     connection,
-    configuredProject,
-    configuredBoard,
-    transformations = {},
     transformation = {},
-    entityIdKey,
-    newTransformation = {},
     boards = {},
-    projects = {},
     entities = {},
     issueTypes = [],
     fields = [],
     onSettingsChange = () => {},
-    changeTransformation = () => {},
     isSaving = false,
     isSavingConnection = false,
     jiraProxyError,
     isFetchingJIRA = false
   } = props
-
-  useEffect(() => {
-    console.log('OVER HERE!!!', entityIdKey)
-  }, [entityIdKey])
 
   return (
     <div className='transformation-settings' data-provider={provider?.id}>
@@ -64,9 +53,7 @@ const ProviderTransformationSettings = (props) => {
         <GithubSettings
           provider={provider}
           connection={connection}
-          configuredProject={configuredProject}
           transformation={transformation}
-          entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}
@@ -78,9 +65,7 @@ const ProviderTransformationSettings = (props) => {
         <GitlabSettings
           provider={provider}
           connection={connection}
-          configuredProject={configuredProject}
           transformation={transformation}
-          entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}
@@ -91,15 +76,10 @@ const ProviderTransformationSettings = (props) => {
       {provider?.id === Providers.JIRA && (
         <JiraSettings
           provider={provider}
-          blueprint={blueprint}
           connection={connection}
-          configuredBoard={configuredBoard}
-          boards={boards}
           issueTypes={issueTypes}
           fields={fields}
           transformation={transformation}
-          entityIdKey={entityIdKey}
-          transformations={transformations}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}
@@ -113,9 +93,7 @@ const ProviderTransformationSettings = (props) => {
         <JenkinsSettings
           provider={provider}
           connection={connection}
-          configuredProject={configuredProject}
           transformation={transformation}
-          entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}
@@ -126,8 +104,6 @@ const ProviderTransformationSettings = (props) => {
         <TapdSettings
           provider={provider}
           connection={connection}
-          transformation={transformation}
-          entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}

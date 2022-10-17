@@ -30,26 +30,10 @@ export default function TapdSettings(props) {
     onSettingsChange = () => {}
   } = props
   const history = useHistory()
-  const { providerId, connectionId } = useParams()
-
-  // eslint-disable-next-line max-len
-  const [errors, setErrors] = useState([])
 
   const cancel = () => {
     history.push(`/integrations/${provider.id}`)
   }
-
-  // useEffect(() => {
-  //   setErrors(['This integration doesn’t require any configuration.'])
-  // }, [])
-
-  useEffect(() => {
-    onSettingsChange({
-      errors,
-      providerId,
-      connectionId
-    })
-  }, [errors, onSettingsChange, connectionId, providerId])
 
   return (
     <>

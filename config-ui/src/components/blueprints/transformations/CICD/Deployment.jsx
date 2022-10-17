@@ -30,7 +30,6 @@ const Deployment = (props) => {
   const {
     provider,
     transformation,
-    entityIdKey,
     isSaving = false,
     onSettingsChange = () => {}
   } = props
@@ -49,16 +48,13 @@ const Deployment = (props) => {
   }, [transformation?.deploymentPattern, transformation?.productionPattern])
 
   const handleChangeSelectValue = (sv) => {
-    if (entityIdKey && sv === 0) {
-      onSettingsChange(
-        { deploymentPattern: undefined, productionPattern: undefined },
-        entityIdKey
-      )
-    } else if (entityIdKey && sv === 1) {
-      onSettingsChange(
-        { deploymentPattern: '', productionPattern: '' },
-        entityIdKey
-      )
+    if (sv === 0) {
+      onSettingsChange({
+        deploymentPattern: undefined,
+        productionPattern: undefined
+      })
+    } else if (sv === 1) {
+      onSettingsChange({ deploymentPattern: '', productionPattern: '' })
     }
     setSelectValue(sv)
   }
@@ -164,10 +160,7 @@ const Deployment = (props) => {
                   placeholder='(?i)deploy'
                   value={transformation?.deploymentPattern}
                   onChange={(e) =>
-                    onSettingsChange(
-                      { deploymentPattern: e.target.value },
-                      entityIdKey
-                    )
+                    onSettingsChange({ deploymentPattern: e.target.value })
                   }
                   disabled={isSaving}
                   className='input'
@@ -196,10 +189,7 @@ const Deployment = (props) => {
                 placeholder='(?i)production'
                 value={transformation?.productionPattern}
                 onChange={(e) =>
-                  onSettingsChange(
-                    { productionPattern: e.target.value },
-                    entityIdKey
-                  )
+                  onSettingsChange({ productionPattern: e.target.value })
                 }
                 disabled={isSaving}
                 className='input'

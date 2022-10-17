@@ -30,7 +30,6 @@ import {
 const StandardStackedList = (props) => {
   const {
     items = [],
-    transformations = {},
     className = 'selected-items-list',
     connection,
     activeItem,

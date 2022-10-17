@@ -67,7 +67,6 @@ const BlueprintDataScopesDialog = (props) => {
     configuredConnection,
     configuredProject,
     configuredBoard,
-    configurationKey,
     scopeConnection,
     dataEntitiesList = [],
     boardsList = [],
@@ -100,9 +99,10 @@ const BlueprintDataScopesDialog = (props) => {
     setProjects = () => {},
     setBoards = () => {},
     setEntities = () => {},
-    setConfiguredProject = () => {},
-    setConfiguredBoard = () => {},
-    setTransformationSettings = () => {},
+    checkTransformationHasChanged = () => false,
+    changeTransformationSettings = () => {},
+    checkConfiguredProjectTransformationHasChanged = () => false,
+    changeConfiguredProjectTransformationSettings = () => {},
     addBoardTransformation = () => {},
     addProjectTransformation = () => {},
     fieldHasError = () => {},
@@ -231,11 +231,17 @@ const BlueprintDataScopesDialog = (props) => {
                 configuredConnection={configuredConnection}
                 configuredProject={configuredProject}
                 configuredBoard={configuredBoard}
-                configurationKey={configurationKey}
                 addBoardTransformation={addBoardTransformation}
                 addProjectTransformation={addProjectTransformation}
                 isSaving={isSaving}
-                setTransformationSettings={setTransformationSettings}
+                checkTransformationHasChanged={checkTransformationHasChanged}
+                changeTransformationSettings={changeTransformationSettings}
+                checkConfiguredProjectTransformationHasChanged={
+                  checkConfiguredProjectTransformationHasChanged
+                }
+                changeConfiguredProjectTransformationSettings={
+                  changeConfiguredProjectTransformationSettings
+                }
                 // onSave={handleTransformationSave}
                 // onCancel={handleTransformationCancel}
                 // onClear={handleTransformationClear}

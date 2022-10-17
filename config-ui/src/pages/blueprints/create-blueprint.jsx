@@ -192,7 +192,6 @@ const CreateBlueprint = (props) => {
     boards,
     projects,
     entities: dataEntities,
-    transformations,
     activeTransformation,
     setNewConnections: setBlueprintConnections,
     setConfiguredConnection,
@@ -201,17 +200,18 @@ const CreateBlueprint = (props) => {
     setBoards,
     setProjects,
     setEntities: setDataEntities,
-    setTransformations,
-    setTransformationSettings,
+    getTransformation,
+    changeTransformationSettings,
+    clearTransformationSettings,
+    checkTransformationHasChanged,
+    checkConfiguredProjectTransformationHasChanged,
+    changeConfiguredProjectTransformationSettings,
     configuredConnection,
     configuredProject,
     configuredBoard,
-    configurationKey,
     createProviderScopes,
     createProviderConnections,
-    getDefaultTransformations,
-    getDefaultEntities,
-    initializeTransformations
+    getDefaultEntities
   } = useDataScopesManager({ settings: blueprintSettings })
 
   const {
@@ -397,18 +397,6 @@ const CreateBlueprint = (props) => {
     password
   })
 
-  // const [configuredProject, setConfiguredProject] = useState(
-  //   // projects.length > 0 ? projects[0] : null
-  //   null
-  // )
-  // const [configuredBoard, setConfiguredBoard] = useState(
-  //   // boards.length > 0 ? boards[0] : null
-  //   null
-  // )
-
-  // eslint-disable-next-line max-len
-  // const activeTransformation = useMemo(() => transformations[configuredProject?.id || configuredBoard?.id], [transformations, configuredProject?.id, configuredBoard?.id])
-
   // eslint-disable-next-line no-unused-vars
   const isValidStep = useCallback((stepId) => {}, [])
 
@@ -530,15 +518,22 @@ const CreateBlueprint = (props) => {
       '==> BOARD =',
       configuredBoard
     )
-    setTransformations((existingTransformations) => ({
-      ...existingTransformations,
-      [configuredProject?.id]: {},
-      [configuredBoard?.id]: {}
-    }))
+    clearTransformationSettings(
+      configuredConnection?.provider,
+      configuredConnection?.id,
+      configuredProject
+    )
+    clearTransformationSettings(
+      configuredConnection?.provider,
+      configuredConnection?.id,
+      configuredBoard
+    )
     setConfiguredProject(null)
     setConfiguredBoard(null)
   }, [
-    setTransformations,
+    configuredConnection?.provider,
+    configuredConnection?.id,
+    clearTransformationSettings,
     setConfiguredBoard,
     setConfiguredProject,
     configuredProject,
@@ -613,30 +608,13 @@ const CreateBlueprint = (props) => {
     setConnectionDialogIsOpen(true)
   }, [])
 
-  // @note: replaced by definition in dsm hook!
-  // const setTransformationSettings = useCallback(
-  //   (settings, configuredEntity) => {
-  //     console.log(
-  //       '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
-  //       configuredEntity,
-  //       settings
-  //     )
-  //     setTransformations((existingTransformations) => ({
-  //       ...existingTransformations,
-  //       [configuredEntity]: {
-  //         ...existingTransformations[configuredEntity],
-  //         ...settings,
-  //       },
-  //     }))
-  //   },
-  //   [setTransformations]
-  // )
-
   const handleTransformationSave = useCallback(
     (settings, entity) => {
-      console.log('>> SAVING / CLOSING Transformation Settings')
-      // manual @save disabled, reactive auto-saving writes settings to transform object...
-      // setTransformationSettings(settings, entity)
+      console.log(
+        '>> SAVING / CLOSING Transformation Settings',
+        settings,
+        entity
+      )
       setConfiguredProject(null)
       setConfiguredBoard(null)
       ToastNotification.clear()
@@ -846,7 +824,6 @@ const CreateBlueprint = (props) => {
           setDataEntitiesList(
             DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
           )
-          // setConfiguredProject(projects.length > 0 ? projects[0] : null)
           break
         case Providers.JIRA:
           setDataEntitiesList(
@@ -893,8 +870,7 @@ const CreateBlueprint = (props) => {
           cIdx,
           dataEntities,
           boards,
-          projects,
-          transformations
+          projects
         )
       }))
     }))
@@ -904,57 +880,18 @@ const CreateBlueprint = (props) => {
     dataEntities,
     boards,
     projects,
-    transformations,
     validatePipeline,
     createProviderScopes,
     setBlueprintSettings
   ])
 
   useEffect(() => {
-    console.log('>> PROJECTS LIST', projects)
-    console.log('>> BOARDS LIST', boards)
-
-    const projectTransformation = projects[configuredConnection?.id]?.map(
-      (p) => p.id
-    )
-    const boardTransformation = boards[configuredConnection?.id]?.map(
-      (b) => b.id
-    )
-    if (projectTransformation) {
-      setTransformations((cT) => ({
-        ...projectTransformation.reduce(initializeTransformations, {}),
-        // Spread Current/Existing Transformations Settings
-        ...cT
-      }))
-    }
-    if (boardTransformation) {
-      setTransformations((cT) => ({
-        ...boardTransformation.reduce(initializeTransformations, {}),
-        // Spread Current/Existing Transformations Settings
-        ...cT
-      }))
-    }
-  }, [
-    projects,
-    boards,
-    configuredConnection,
-    initializeTransformations,
-    setTransformations
-  ])
-
-  useEffect(() => {
     console.log('>>> SELECTED PROJECT TO CONFIGURE...', configuredProject)
-    // setActiveTransformation((aT) =>
-    //   configuredProject !== null ? transformations[configuredProject] : {}
-    // )
     setCanAdvanceNext(!configuredProject)
   }, [configuredProject, setCanAdvanceNext])
 
   useEffect(() => {
-    console.log('>>> SELECTED BOARD TO CONFIGURE...', configuredBoard?.id)
-    // setActiveTransformation((aT) =>
-    //   configuredBoard ? transformations[configuredBoard?.id] : aT
-    // )
+    console.log('>>> SELECTED BOARD TO CONFIGURE...', configuredBoard)
     setCanAdvanceNext(!configuredBoard)
   }, [configuredBoard, setCanAdvanceNext])
 
@@ -1198,21 +1135,29 @@ const CreateBlueprint = (props) => {
                       configuredConnection={configuredConnection}
                       configuredProject={configuredProject}
                       configuredBoard={configuredBoard}
-                      configurationKey={configurationKey}
                       handleConnectionTabChange={handleConnectionTabChange}
                       prevStep={prevStep}
                       addBoardTransformation={addBoardTransformation}
                       addProjectTransformation={addProjectTransformation}
-                      transformations={transformations}
                       activeTransformation={activeTransformation}
-                      setTransformations={setTransformations}
-                      setTransformationSettings={setTransformationSettings}
-                      isSaving={isSaving}
-                      isSavingConnection={isSavingConnection}
-                      isRunning={isRunning}
+                      checkTransformationHasChanged={
+                        checkTransformationHasChanged
+                      }
+                      changeTransformationSettings={
+                        changeTransformationSettings
+                      }
+                      checkConfiguredProjectTransformationHasChanged={
+                        checkConfiguredProjectTransformationHasChanged
+                      }
+                      changeConfiguredProjectTransformationSettings={
+                        changeConfiguredProjectTransformationSettings
+                      }
                       onSave={handleTransformationSave}
                       onCancel={handleTransformationCancel}
                       onClear={handleTransformationClear}
+                      isSaving={isSaving}
+                      isSavingConnection={isSavingConnection}
+                      isRunning={isRunning}
                       fieldHasError={fieldHasError}
                       getFieldError={getFieldError}
                       jiraProxyError={jiraProxyError}
