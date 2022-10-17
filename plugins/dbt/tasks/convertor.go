@@ -115,7 +115,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	dbtExecParams = append(dbtExecParams, "--select")
 	dbtExecParams = append(dbtExecParams, models...)
 	cmd := exec.Command(dbtExecParams[0], dbtExecParams[1:]...)
-	log.Info("dbt run script: ", cmd)
+	log.Info("dbt run script: %v", cmd)
 	stdout, _ := cmd.StdoutPipe()
 	err = errors.Convert(cmd.Start())
 	if err != nil {

@@ -18,12 +18,23 @@
 import React, { useEffect, Fragment } from 'react'
 import { Menu } from '@blueprintjs/core'
 import '@/styles/sidebar-menu.scss'
+import { useHistory } from 'react-router-dom'
 
 const SidebarMenu = (props) => {
+  const history = useHistory()
   const { menu } = props
   // const activeRoute = useRouteMatch()
 
   useEffect(() => {}, [menu])
+
+  const handleProviderClick = (e, route) => {
+    // use history when route is not absolute url.
+    if (route && !route.includes('//')) {
+      e.preventDefault()
+      e.stopPropagation()
+      history.push(route)
+    }
+  }
 
   return (
     <>
@@ -36,6 +47,7 @@ const SidebarMenu = (props) => {
               icon={m.icon}
               text={m.label}
               href={m.route}
+              onClick={(e) => handleProviderClick(e, m.route)}
               target={m.target}
               disabled={m.disabled}
             />
@@ -47,13 +59,15 @@ const SidebarMenu = (props) => {
               text={m.label}
               icon={m.icon}
               href={m.route}
+              onClick={(e) => handleProviderClick(e, m.route)}
               disabled={m.disabled}
             >
               {m.children.map((mS, mSidx) => (
                 <Menu.Item
                   active={mS.active}
                   key={`submenu-${mIdx}-item-key${mSidx}`}
-                  href={mS.route}
+                  href={m.route}
+                  onClick={(e) => handleProviderClick(e, mS.route)}
                   icon={mS.icon}
                   text={mS.label}
                   disabled={mS.disabled}

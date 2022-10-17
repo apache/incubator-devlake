@@ -28,30 +28,18 @@ export default function GitlabSettings(props) {
     connection,
     entities = [],
     transformation = {},
-    entityIdKey,
     provider,
-    projects,
-    configuredProject,
     isSaving = false,
     isSavingConnection = false,
     onSettingsChange = () => {}
   } = props
 
-  useEffect(() => {
-    console.log(
-      '>>>> GITLAB: TRANSFORMATION SETTINGS OBJECT....',
-      transformation
-    )
-  }, [transformation])
-
   return (
     <>
-      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) &&
-      configuredProject ? (
+      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) ? (
         <Deployment
           provider={provider}
           entities={entities}
-          entityIdKey={entityIdKey}
           transformation={transformation}
           connection={connection}
           onSettingsChange={onSettingsChange}

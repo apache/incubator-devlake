@@ -18,8 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -85,6 +86,10 @@ func TestRepoDataFlow(t *testing.T) {
 			"account_id",
 			"repo_github_id",
 			"login",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 
@@ -107,6 +112,10 @@ func TestRepoDataFlow(t *testing.T) {
 			"created_date",
 			"updated_date",
 			"deleted",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 	dataflowTester.VerifyTable(
@@ -118,6 +127,10 @@ func TestRepoDataFlow(t *testing.T) {
 			"description",
 			"url",
 			"created_date",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 
@@ -127,6 +140,10 @@ func TestRepoDataFlow(t *testing.T) {
 		[]string{
 			"board_id",
 			"repo_id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 }

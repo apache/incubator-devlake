@@ -40,7 +40,8 @@ const Providers = {
   AE: 'ae',
   DBT: 'dbt',
   STARROCKS: 'starrocks',
-  TAPD: 'tapd'
+  TAPD: 'tapd',
+  DORA: 'dora'
 }
 
 const ProviderTypes = {
@@ -61,7 +62,8 @@ const ProviderLabels = {
   AE: 'Analysis Engine (AE)',
   DBT: 'Data Build Tool (DBT)',
   STARROCKS: 'StarRocks',
-  TAPD: 'TAPD'
+  TAPD: 'TAPD',
+  DORA: 'DORA'
 }
 
 const ProviderConnectionLimits = {

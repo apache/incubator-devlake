@@ -18,36 +18,34 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/helper"
-
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-var ConvertPipelinesMeta = core.SubTaskMeta{
-	Name:             "convertPipelines",
-	EntryPoint:       ConvertPipelines,
+var ConvertRunsMeta = core.SubTaskMeta{
+	Name:             "convertRuns",
+	EntryPoint:       ConvertRuns,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_runs into  domain layer table cicd_pipeline",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
+func ConvertRuns(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
 
 	pipeline := &models.GithubRun{}
 	cursor, err := db.Cursor(
-		dal.Select("id, repo_id, connection_id, name, head_sha, head_branch, status, conclusion, github_created_at, github_updated_at"),
+		dal.Select("id, repo_id, connection_id, name, head_sha, head_branch, status, conclusion, github_created_at, github_updated_at,_raw_data_remark, _raw_data_id, _raw_data_table, _raw_data_params"),
 		dal.From(pipeline),
 		dal.Where("repo_id = ? and connection_id=?", repoId, data.Options.ConnectionId),
 	)

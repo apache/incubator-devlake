@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"crypto/md5"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -250,4 +251,118 @@ func getTypeAndResultFromTasks(domainTasks []devops.CICDTask) (pipelineType, res
 		}
 	}
 	return
+}
+
+type WebhookDeployTaskRequest struct {
+	// RepoUrl should be unique string, fill url or other unique data
+	RepoUrl   string `mapstructure:"repo_url" validate:"required"`
+	CommitSha string `mapstructure:"commit_sha" validate:"required"`
+	// start_time and end_time is more readable for users,
+	// StartedDate and FinishedDate is same as columns in db.
+	// So they all keep.
+	StartedDate  *time.Time `mapstructure:"start_time" validate:"required_with=FinishedDate"`
+	FinishedDate *time.Time `mapstructure:"end_time"`
+	Environment  string     `validate:"omitempty,oneof=PRODUCTION STAGING TESTING DEVELOPMENT"`
+}
+
+// PostCicdTask
+// @Summary create deployment pipeline by webhook
+// @Description Create deployment pipeline by webhook.<br/>
+// @Description example1: {"repo_url":"devlake","commit_sha":"015e3d3b480e417aede5a1293bd61de9b0fd051d","start_time":"2020-01-01T12:00:00+00:00","end_time":"2020-01-01T12:59:59+00:00","environment":"PRODUCTION"}<br/>
+// @Description So we suggest request before task after deployment pipeline finish.
+// @Description Both cicd_pipeline and cicd_task will be created
+// @Tags plugins/webhook
+// @Param body body WebhookDeployTaskRequest true "json body"
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Failure 403  {string} errcode.Error "Forbidden"
+// @Failure 500  {string} errcode.Error "Internal Error"
+// @Router /plugins/webhook/:connectionId/deployments [POST]
+func PostDeploymentCicdTask(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+	connection := &models.WebhookConnection{}
+	err := connectionHelper.First(connection, input.Params)
+	if err != nil {
+		return nil, err
+	}
+	// get request
+	request := &WebhookDeployTaskRequest{}
+	err = helper.DecodeMapStruct(input.Body, request)
+	if err != nil {
+		return &core.ApiResourceOutput{Body: err.Error(), Status: http.StatusBadRequest}, nil
+	}
+	// validate
+	vld = validator.New()
+	err = errors.Convert(vld.Struct(request))
+	if err != nil {
+		return nil, errors.BadInput.Wrap(vld.Struct(request), `input json error`)
+	}
+
+	db := basicRes.GetDal()
+	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(request.RepoUrl)))[:16]
+	pipelineId := fmt.Sprintf("%s:%d:%s:%s:%s", "webhook", connection.ID, `pipeline`, urlHash16, request.CommitSha)
+
+	taskId := fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, urlHash16, request.CommitSha)
+	domainCicdTask := &devops.CICDTask{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: taskId,
+		},
+		PipelineId:  pipelineId,
+		Name:        fmt.Sprintf(`deployment for %s`, request.CommitSha),
+		Result:      devops.SUCCESS,
+		Status:      devops.DONE,
+		Type:        devops.DEPLOYMENT,
+		Environment: request.Environment,
+	}
+	now := time.Now()
+	if request.StartedDate != nil {
+		domainCicdTask.StartedDate = *request.StartedDate
+		if request.FinishedDate != nil {
+			domainCicdTask.FinishedDate = request.FinishedDate
+		} else {
+			domainCicdTask.FinishedDate = &now
+		}
+		domainCicdTask.DurationSec = uint64(domainCicdTask.FinishedDate.Sub(domainCicdTask.StartedDate).Seconds())
+	} else {
+		domainCicdTask.StartedDate = now
+	}
+	if domainCicdTask.Environment == `` {
+		domainCicdTask.Environment = devops.PRODUCTION
+	}
+
+	domainPipeline := &devops.CICDPipeline{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: pipelineId,
+		},
+		Name:         fmt.Sprintf(`pipeline for %s`, request.CommitSha),
+		Result:       devops.SUCCESS,
+		Status:       devops.DONE,
+		Type:         devops.DEPLOYMENT,
+		CreatedDate:  domainCicdTask.StartedDate,
+		FinishedDate: domainCicdTask.FinishedDate,
+		DurationSec:  domainCicdTask.DurationSec,
+		Environment:  domainCicdTask.Environment,
+	}
+
+	domainPipelineCommit := &devops.CiCDPipelineCommit{
+		PipelineId: pipelineId,
+		CommitSha:  request.CommitSha,
+		Branch:     ``,
+		RepoId:     request.RepoUrl,
+	}
+
+	// save
+	err = db.CreateOrUpdate(domainCicdTask)
+	if err != nil {
+		return nil, err
+	}
+	err = db.CreateOrUpdate(domainPipeline)
+	if err != nil {
+		return nil, err
+	}
+	err = db.CreateOrUpdate(domainPipelineCommit)
+	if err != nil {
+		return nil, err
+	}
+
+	return &core.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 }

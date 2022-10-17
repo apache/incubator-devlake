@@ -113,7 +113,7 @@ func GetPullRequestsIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIter
 		dal.From("_tool_bitbucket_pull_requests bpr"),
 		dal.Where(
 			`bpr.repo_id = ? and bpr.connection_id = ?`,
-			"repositories/"+data.Options.Owner+"/"+data.Options.Repo, data.Options.ConnectionId,
+			fmt.Sprintf("%s/%s", data.Options.Owner, data.Options.Repo), data.Options.ConnectionId,
 		),
 	}
 	// construct the input iterator
@@ -133,7 +133,7 @@ func GetIssuesIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, 
 		dal.From("_tool_bitbucket_issues bpr"),
 		dal.Where(
 			`bpr.repo_id = ? and bpr.connection_id = ?`,
-			"repositories/"+data.Options.Owner+"/"+data.Options.Repo, data.Options.ConnectionId,
+			fmt.Sprintf("%s/%s", data.Options.Owner, data.Options.Repo), data.Options.ConnectionId,
 		),
 	}
 	// construct the input iterator
@@ -150,13 +150,6 @@ func ignoreHTTPStatus404(res *http.Response) errors.Error {
 		return errors.Unauthorized.New("authentication failed, please check your AccessToken")
 	}
 	if res.StatusCode == http.StatusNotFound {
-		return helper.ErrIgnoreAndContinue
-	}
-	return nil
-}
-
-func ignoreHTTPStatus403(res *http.Response) errors.Error {
-	if res.StatusCode == http.StatusForbidden {
 		return helper.ErrIgnoreAndContinue
 	}
 	return nil

@@ -1,2 +1,2 @@
-connection_id,milestone_id,repo_id,number,url,title,open_issues,closed_issues,state,closed_at
-1,7856149,134018330,7,https://api.github.com/repos/apache/incubator-devlake/milestones/7,v0.11.0,2,118,open,
+connection_id,milestone_id,repo_id,number,url,title,open_issues,closed_issues,state,created_at,updated_at,closed_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+1,7856149,134018330,7,https://api.github.com/repos/apache/incubator-devlake/milestones/7,v0.11.0,2,118,open,2022-04-08T02:05:35.000+00:00,2022-06-24T01:34:37.000+00:00,,"{""ConnectionId"":1,""Owner"":""panjf2000"",""Repo"":""ants""}",_raw_github_milestones,109,

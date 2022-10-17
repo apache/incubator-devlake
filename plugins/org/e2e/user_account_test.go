@@ -18,8 +18,9 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/org/impl"
@@ -48,9 +49,9 @@ func TestUserAccountDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		crossdomain.UserAccount{},
 		"./snapshot_tables/user_accounts.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"user_id",
 			"account_id",
-		},
+		),
 	)
 }

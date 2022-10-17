@@ -208,9 +208,7 @@ export default function ManageIntegration() {
                       </>
                     )}
                   </h1>
-                  <p className='page-description'>
-                    Manage connections.
-                  </p>
+                  <p className='page-description'>Manage connections.</p>
                 </div>
               </div>
             </div>

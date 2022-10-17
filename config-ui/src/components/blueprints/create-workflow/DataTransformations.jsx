@@ -15,45 +15,26 @@
  * limitations under the License.
  *
  */
-import React, {
-  Fragment,
-  useEffect,
-  useState,
-  useCallback,
-  useMemo
-} from 'react'
-import { isEqual } from 'lodash'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Button,
-  Icon,
-  Intent,
-  InputGroup,
-  MenuItem,
+  Card,
   Divider,
   Elevation,
-  Card,
-  Colors,
-  Spinner,
-  Tooltip,
-  Position
+  Icon,
+  Intent,
+  MenuItem
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import { integrationsData } from '@/data/integrations'
-import {
-  Providers,
-  ProviderTypes,
-  ProviderIcons,
-  ConnectionStatus,
-  ConnectionStatusLabels
-} from '@/data/Providers'
-import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
+import { ProviderIcons, Providers } from '@/data/Providers'
+import { DataEntityTypes } from '@/data/DataEntities'
 import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 
 import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import NoData from '@/components/NoData'
 import StandardStackedList from '@/components/blueprints/StandardStackedList'
 import ProviderTransformationSettings from '@/components/blueprints/ProviderTransformationSettings'
-import GithubSettings from '@/pages/configure/settings/github'
 
 const DataTransformations = (props) => {
   const {
@@ -67,18 +48,18 @@ const DataTransformations = (props) => {
     boards = {},
     issueTypes = [],
     fields = [],
-    transformations = {},
     configuredConnection,
     configuredProject,
     configuredBoard,
-    configurationKey,
     handleConnectionTabChange = () => {},
     prevStep = () => {},
     addBoardTransformation = () => {},
     addProjectTransformation = () => {},
     activeTransformation = {},
-    setTransformations = () => {},
-    setTransformationSettings = () => {},
+    checkTransformationHasChanged = () => false,
+    changeTransformationSettings = () => {},
+    checkConfiguredProjectTransformationHasChanged = () => false,
+    changeConfiguredProjectTransformationSettings = () => {},
     onSave = () => {},
     onCancel = () => {},
     onClear = () => {},
@@ -96,22 +77,6 @@ const DataTransformations = (props) => {
     elevation = Elevation.TWO,
     cardStyle = {}
   } = props
-
-  // Used to determine whether to display edit transformation or add transformation
-  const [initializeTransformations, setInitializeTransformations] = useState({})
-
-  useEffect(() => {
-    setInitializeTransformations(transformations)
-  }, [])
-
-  const isTransformationSupported = useMemo(
-    () =>
-      configuredProject ||
-      configuredBoard ||
-      (configuredConnection?.provider === Providers.JENKINS &&
-        configuredConnection),
-    [configuredProject, configuredBoard, configuredConnection]
-  )
 
   const noTransformationsAvailable = useMemo(
     () =>
@@ -146,22 +111,6 @@ const DataTransformations = (props) => {
   )
   const [activeEntity, setActiveEntity] = useState()
 
-  const transformationHasChanged = useCallback(
-    (item) => {
-      const initializeTransform = initializeTransformations[item?.id]
-      const storedTransform = transformations[item?.id]
-
-      console.log(initializeTransform)
-      console.log(storedTransform)
-      return (
-        initializeTransform &&
-        storedTransform &&
-        !isEqual(initializeTransform, storedTransform)
-      )
-    },
-    [initializeTransformations, transformations]
-  )
-
   useEffect(() => {
     console.log('>>> PROJECT/BOARD SELECT LIST DATA...', entityList)
     setActiveEntity(Array.isArray(entityList) ? entityList[0] : null)
@@ -175,6 +124,7 @@ const DataTransformations = (props) => {
           addBoardTransformation(activeEntity?.entity)
           break
         case 'project':
+        default:
           addProjectTransformation(activeEntity?.entity)
           break
       }
@@ -185,13 +135,6 @@ const DataTransformations = (props) => {
     addProjectTransformation,
     useDropdownSelector
   ])
-
-  useEffect(() => {
-    console.log(
-      '>>> DATA TRANSFORMATIONS: DSM $configurationKey',
-      configurationKey
-    )
-  }, [configurationKey])
 
   return (
     <div
@@ -265,7 +208,8 @@ const DataTransformations = (props) => {
                     [
                       Providers.JIRA,
                       Providers.GITHUB,
-                      Providers.GITLAB
+                      Providers.GITLAB,
+                      Providers.JENKINS
                     ].includes(configuredConnection.provider) && (
                       <div
                         className='project-or-board-select'
@@ -277,9 +221,6 @@ const DataTransformations = (props) => {
                             : 'Project'}
                         </h4>
                         <Select
-                          disabled={
-                            configuredConnection.provider === Providers.JENKINS
-                          }
                           popoverProps={{ usePortal: false }}
                           className='selector-entity'
                           id='selector-entity'
@@ -313,10 +254,6 @@ const DataTransformations = (props) => {
                           }}
                         >
                           <Button
-                            disabled={
-                              configuredConnection.provider ===
-                              Providers.JENKINS
-                            }
                             className='btn-select-entity'
                             intent={Intent.PRIMARY}
                             outlined
@@ -339,21 +276,24 @@ const DataTransformations = (props) => {
                       </div>
                     )}
 
-                  {[Providers.GITLAB, Providers.GITHUB].includes(
-                    configuredConnection.provider
-                  ) &&
+                  {[
+                    Providers.GITLAB,
+                    Providers.GITHUB,
+                    Providers.JENKINS
+                  ].includes(configuredConnection.provider) &&
                     !useDropdownSelector &&
                     !configuredProject && (
                       <>
                         <StandardStackedList
                           items={projects}
-                          transformations={transformations}
                           className='selected-items-list selected-projects-list'
                           connection={configuredConnection}
                           activeItem={configuredProject}
                           onAdd={addProjectTransformation}
                           onChange={addProjectTransformation}
-                          isEditing={transformationHasChanged}
+                          isEditing={
+                            checkConfiguredProjectTransformationHasChanged
+                          }
                         />
                         {projects[configuredConnection.id].length === 0 && (
                           <NoData
@@ -372,13 +312,14 @@ const DataTransformations = (props) => {
                       <>
                         <StandardStackedList
                           items={boards}
-                          transformations={transformations}
                           className='selected-items-list selected-boards-list'
                           connection={configuredConnection}
                           activeItem={configuredBoard}
                           onAdd={addBoardTransformation}
                           onChange={addBoardTransformation}
-                          isEditing={transformationHasChanged}
+                          isEditing={
+                            checkConfiguredProjectTransformationHasChanged
+                          }
                         />
                         {boards[configuredConnection.id].length === 0 && (
                           <NoData
@@ -391,7 +332,7 @@ const DataTransformations = (props) => {
                       </>
                     )}
 
-                  {isTransformationSupported && (
+                  {(configuredProject || configuredBoard) && (
                     <div>
                       {!useDropdownSelector &&
                         (configuredProject || configuredBoard) && (
@@ -423,22 +364,20 @@ const DataTransformations = (props) => {
                         DEFAULT_DATA_ENTITIES.some((dE) => dE.value === e.value)
                       ) && (
                         <ProviderTransformationSettings
+                          key={configuredProject?.id || configuredBoard?.id}
                           provider={integrationsData.find(
                             (i) => i.id === configuredConnection?.provider
                           )}
                           blueprint={blueprint}
                           connection={configuredConnection}
-                          configuredProject={configuredProject}
-                          configuredBoard={configuredBoard}
-                          entityIdKey={configurationKey}
                           issueTypes={issueTypes}
                           fields={fields}
                           boards={boards}
-                          projects={projects}
                           entities={dataEntities}
                           transformation={activeTransformation}
-                          transformations={transformations}
-                          onSettingsChange={setTransformationSettings}
+                          onSettingsChange={
+                            changeConfiguredProjectTransformationSettings
+                          }
                           isSaving={isSaving}
                           isFetchingJIRA={isFetchingJIRA}
                           isSavingConnection={isSavingConnection}

@@ -67,7 +67,6 @@ const BlueprintDataScopesDialog = (props) => {
     configuredConnection,
     configuredProject,
     configuredBoard,
-    configurationKey,
     scopeConnection,
     dataEntitiesList = [],
     boardsList = [],
@@ -77,6 +76,8 @@ const BlueprintDataScopesDialog = (props) => {
     setBoardSearch = () => {},
     gitlabProjects = [],
     fetchGitlabProjects = () => [],
+    fetchJenkinsJobs = () => [],
+    jenkinsJobs = [],
     entities = {},
     projects = {},
     mode = Modes.EDIT,
@@ -98,9 +99,10 @@ const BlueprintDataScopesDialog = (props) => {
     setProjects = () => {},
     setBoards = () => {},
     setEntities = () => {},
-    setConfiguredProject = () => {},
-    setConfiguredBoard = () => {},
-    setTransformationSettings = () => {},
+    checkTransformationHasChanged = () => false,
+    changeTransformationSettings = () => {},
+    checkConfiguredProjectTransformationHasChanged = () => false,
+    changeConfiguredProjectTransformationSettings = () => {},
     addBoardTransformation = () => {},
     addProjectTransformation = () => {},
     fieldHasError = () => {},
@@ -112,6 +114,8 @@ const BlueprintDataScopesDialog = (props) => {
     jiraProxyError,
     isFetchingGitlab,
     gitlabProxyError,
+    isFetchingJenkins,
+    jenkinsProxyError,
     errors = [],
     content = null,
     backButtonProps = {
@@ -119,28 +123,32 @@ const BlueprintDataScopesDialog = (props) => {
       intent: Intent.PRIMARY,
       text: 'Previous Step',
       outlined: true,
-      loading: isFetchingJIRA || isFetchingGitlab || isSaving
+      loading:
+        isFetchingJIRA || isFetchingGitlab || isFetchingJenkins || isSaving
     },
     nextButtonProps = {
       disabled: !isValid,
       intent: Intent.PRIMARY,
       text: 'Next Step',
       outlined: true,
-      loading: isFetchingJIRA || isFetchingGitlab || isSaving
+      loading:
+        isFetchingJIRA || isFetchingGitlab || isFetchingJenkins || isSaving
     },
     finalButtonProps = {
       disabled: !isValid,
       intent: Intent.PRIMARY,
       onClick: onSave,
       text: 'Save Changes',
-      loading: isFetchingJIRA || isFetchingGitlab || isSaving
+      loading:
+        isFetchingJIRA || isFetchingGitlab || isFetchingJenkins || isSaving
     },
     closeButtonProps = {
       // disabled:
       intent: Intent.PRIMARY,
       text: 'Cancel',
       outlined: true,
-      loading: isFetchingJIRA || isFetchingGitlab || isSaving
+      loading:
+        isFetchingJIRA || isFetchingGitlab || isFetchingJenkins || isSaving
     }
   } = props
 
@@ -184,6 +192,10 @@ const BlueprintDataScopesDialog = (props) => {
                 gitlabProjects={gitlabProjects}
                 isFetchingGitlab={isFetchingGitlab}
                 gitlabProxyError={gitlabProxyError}
+                fetchJenkinsJobs={fetchJenkinsJobs}
+                jenkinsJobs={jenkinsJobs}
+                isFetchingJenkins={isFetchingJenkins}
+                jenkinsProxyError={jenkinsProxyError}
                 dataEntities={entities}
                 projects={projects}
                 configuredConnection={configuredConnection}
@@ -219,11 +231,17 @@ const BlueprintDataScopesDialog = (props) => {
                 configuredConnection={configuredConnection}
                 configuredProject={configuredProject}
                 configuredBoard={configuredBoard}
-                configurationKey={configurationKey}
                 addBoardTransformation={addBoardTransformation}
                 addProjectTransformation={addProjectTransformation}
                 isSaving={isSaving}
-                setTransformationSettings={setTransformationSettings}
+                checkTransformationHasChanged={checkTransformationHasChanged}
+                changeTransformationSettings={changeTransformationSettings}
+                checkConfiguredProjectTransformationHasChanged={
+                  checkConfiguredProjectTransformationHasChanged
+                }
+                changeConfiguredProjectTransformationSettings={
+                  changeConfiguredProjectTransformationSettings
+                }
                 // onSave={handleTransformationSave}
                 // onCancel={handleTransformationCancel}
                 // onClear={handleTransformationClear}

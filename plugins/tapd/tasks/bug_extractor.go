@@ -52,13 +52,14 @@ func ExtractBugs(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	statusMap := make(map[string]string, len(statusList))
+	statusLanguageMap := make(map[string]string, len(statusList))
+	statusLastStepMap := make(map[string]bool, len(statusList))
 	for _, v := range statusList {
-		statusMap[v.EnglishName] = v.ChineseName
+		statusLanguageMap[v.EnglishName] = v.ChineseName
+		statusLastStepMap[v.ChineseName] = v.IsLastStep
 	}
-
 	getStdStatus := func(statusKey string) string {
-		if statusKey == "已关闭" || statusKey == "不处理" {
+		if statusLastStepMap[statusKey] {
 			return ticket.DONE
 		} else if statusKey == "新建" {
 			return ticket.TODO
@@ -66,6 +67,8 @@ func ExtractBugs(taskCtx core.SubTaskContext) errors.Error {
 			return ticket.IN_PROGRESS
 		}
 	}
+	customStatusMap := getStatusMapping(data)
+
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
@@ -79,10 +82,15 @@ func ExtractBugs(taskCtx core.SubTaskContext) errors.Error {
 			}
 			toolL := bugBody.Bug
 
-			toolL.Status = statusMap[toolL.Status]
+			toolL.Status = statusLanguageMap[toolL.Status]
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "BUG"
 			toolL.StdType = "BUG"
+			if len(customStatusMap) != 0 {
+				toolL.StdStatus = customStatusMap[toolL.Status]
+			} else {
+				toolL.StdStatus = getStdStatus(toolL.Status)
+			}
 			toolL.StdStatus = getStdStatus(toolL.Status)
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)
 			if strings.Contains(toolL.CurrentOwner, ";") {

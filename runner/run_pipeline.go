@@ -102,6 +102,6 @@ func RunPipeline(
 		}
 	}
 	endTime := time.Now()
-	log.Info("pipeline finished in %d ms: %w", endTime.UnixMilli()-startTime.UnixMilli(), err)
+	log.Info("pipeline finished in %d ms: %v", endTime.UnixMilli()-startTime.UnixMilli(), err)
 	return errors.Convert(err)
 }

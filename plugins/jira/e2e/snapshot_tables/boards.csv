@@ -1,2 +1,2 @@
-id,name,description,url,created_date,type
-jira:JiraBoard:2:8,迭代开发看板（停用）,,https://merico.atlassian.net/rest/agile/1.0/board/8,,scrum
+id,name,description,url,created_date,type,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+jira:JiraBoard:2:8,迭代开发看板（停用）,,https://merico.atlassian.net/rest/agile/1.0/board/8,,scrum,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_boards,7,

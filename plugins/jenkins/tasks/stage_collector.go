@@ -53,8 +53,8 @@ func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.Select("tjj.path,tjb.job_name,tjb.number,tjb.full_display_name"),
 		dal.From("_tool_jenkins_builds as tjb,_tool_jenkins_jobs as tjj"),
-		dal.Where(`tjb.connection_id = ? and tjb.class = ? and tjb.job_name = tjj.name`,
-			data.Options.ConnectionId, "WorkflowRun"),
+		dal.Where(`tjb.connection_id = ? and tjj.name = ? and tjb.class = ? and tjb.job_name = tjj.name`,
+			data.Options.ConnectionId, data.Options.JobName, "WorkflowRun"),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -72,6 +72,7 @@ func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
+				JobName:      data.Options.JobName,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_STAGE_TABLE,

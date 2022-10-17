@@ -34,6 +34,7 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	taskData := &tasks.JenkinsTaskData{
 		Options: &tasks.JenkinsOptions{
 			ConnectionId: 1,
+			JobName:      ``,
 		},
 	}
 
@@ -47,17 +48,13 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JenkinsJob{},
 		"./snapshot_tables/_tool_jenkins_jobs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"name",
 			"path",
 			"class",
 			"color",
 			"base",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

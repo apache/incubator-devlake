@@ -50,5 +50,6 @@ func All() []core.MigrationScript {
 		new(renamePipelineCommits),
 		new(commitLineChange),
 		new(modifyLeadTimeMinutes),
+		new(addRepoSnapshot),
 	}
 }

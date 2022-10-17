@@ -34,9 +34,9 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-var ConvertTasksMeta = core.SubTaskMeta{
-	Name:             "convertTasks",
-	EntryPoint:       ConvertTasks,
+var ConvertJobsMeta = core.SubTaskMeta{
+	Name:             "convertJobs",
+	EntryPoint:       ConvertJobs,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_jobs into  domain layer table cicd_tasks",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
@@ -46,7 +46,7 @@ type SimpleBranch struct {
 	HeadBranch string `json:"head_branch" gorm:"type:varchar(255)"`
 }
 
-func ConvertTasks(taskCtx core.SubTaskContext) (err errors.Error) {
+func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId

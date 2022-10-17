@@ -47,18 +47,14 @@ func TestBoardDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraBoard{},
 		"./snapshot_tables/_tool_jira_boards.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"board_id",
 			"project_id",
 			"name",
 			"self",
 			"type",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify board conversion
@@ -67,13 +63,13 @@ func TestBoardDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Board{},
 		"./snapshot_tables/boards.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"name",
 			"description",
 			"url",
 			"created_date",
 			"type",
-		},
+		),
 	)
 }

@@ -69,7 +69,6 @@ func (*modifyLeadTimeMinutes) Up(basicRes core.BasicRes) errors.Error {
 	if err != nil {
 		return err
 	}
-	_ = db.First(&Issues20220929{})
 	return nil
 }
 

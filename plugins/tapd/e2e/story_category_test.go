@@ -48,7 +48,7 @@ func TestTapdStoryCategoriesDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdStoryCategory{},
 		"./snapshot_tables/_tool_tapd_story_categories.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"name",
@@ -56,11 +56,7 @@ func TestTapdStoryCategoriesDataFlow(t *testing.T) {
 			"parent_id",
 			"created",
 			"modified",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 }

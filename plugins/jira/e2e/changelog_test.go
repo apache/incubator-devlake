@@ -41,13 +41,14 @@ func TestIssueChangelogDataFlow(t *testing.T) {
 	// verify changelog conversion
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_changelogs.csv", &models.JiraIssueChangelogs{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_changelog_items.csv", &models.JiraIssueChangelogItems{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_statuses.csv", &models.JiraStatus{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_statuses_for_changelog.csv", &models.JiraStatus{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues_for_changelog.csv", &models.JiraBoardIssue{})
 	dataflowTester.FlushTabler(&ticket.IssueChangelogs{})
 	dataflowTester.Subtask(tasks.ConvertIssueChangelogsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueChangelogs{},
 		"./snapshot_tables/issue_changelogs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"issue_id",
 			"author_id",
@@ -59,6 +60,6 @@ func TestIssueChangelogDataFlow(t *testing.T) {
 			"from_value",
 			"to_value",
 			"created_date",
-		},
+		),
 	)
 }

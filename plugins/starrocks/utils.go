@@ -88,10 +88,8 @@ func stringIn(s string, l ...string) bool {
 	return false
 }
 func getDataType(dataType string) string {
-	starrocksDatatype := dataType
-	if hasPrefixes(dataType, "varchar", "varying", "character", "bytea") {
-		starrocksDatatype = "string"
-	} else if hasPrefixes(dataType, "datetime", "timestamp") {
+	starrocksDatatype := "string"
+	if hasPrefixes(dataType, "datetime", "timestamp") {
 		starrocksDatatype = "datetime"
 	} else if strings.HasPrefix(dataType, "bigint") {
 		starrocksDatatype = "bigint"

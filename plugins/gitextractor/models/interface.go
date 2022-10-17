@@ -30,5 +30,6 @@ type Store interface {
 	CommitParents(pp []*code.CommitParent) errors.Error
 	CommitFileComponents(commitFileComponent *code.CommitFileComponent) errors.Error
 	CommitLineChange(commitLineChange *code.CommitLineChange) errors.Error
+	RepoSnapshot(snapshot *code.RepoSnapshot) errors.Error
 	Close() errors.Error
 }

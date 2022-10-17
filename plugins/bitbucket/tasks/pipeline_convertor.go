@@ -70,7 +70,15 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 			if bitbucketPipeline.BitbucketCreatedOn != nil {
 				createdAt = *bitbucketPipeline.BitbucketCreatedOn
 			}
-
+			results := make([]interface{}, 0, 2)
+			domainPipelineCommit := &devops.CiCDPipelineCommit{
+				PipelineId: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId),
+				RepoId: didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketRepo{}).
+					Generate(bitbucketPipeline.ConnectionId, bitbucketPipeline.RepoId),
+				CommitSha: bitbucketPipeline.CommitSha,
+				Branch:    bitbucketPipeline.RefName,
+				RepoUrl:   bitbucketPipeline.WebUrl,
+			}
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: pipelineIdGen.Generate(data.Options.ConnectionId, bitbucketPipeline.BitbucketId),
@@ -78,14 +86,14 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 				Name: didgen.NewDomainIdGenerator(&bitbucketModels.BitbucketPipeline{}).
 					Generate(data.Options.ConnectionId, bitbucketPipeline.RefName),
 				Result: devops.GetResult(&devops.ResultRule{
-					Failed:  []string{"FAILED", "ERROR"},
-					Abort:   []string{"STOPPED", "SKIPPED"},
-					Success: []string{"SUCCESSFUL", "PASSED"},
-					Manual:  []string{"PAUSED", "HALTED"},
+					Failed:  []string{bitbucketModels.FAILED, bitbucketModels.ERROR, bitbucketModels.UNDEPLOYED},
+					Abort:   []string{bitbucketModels.STOPPED, bitbucketModels.SKIPPED},
+					Success: []string{bitbucketModels.SUCCESSFUL, bitbucketModels.COMPLETED},
+					Manual:  []string{bitbucketModels.PAUSED, bitbucketModels.HALTED},
 					Default: devops.SUCCESS,
 				}, bitbucketPipeline.Result),
 				Status: devops.GetStatus(&devops.StatusRule{
-					InProgress: []string{"IN_PROGRESS"},
+					InProgress: []string{bitbucketModels.IN_PROGRESS, bitbucketModels.PENDING, bitbucketModels.BUILDING},
 					Default:    devops.DONE,
 				}, bitbucketPipeline.Status),
 				Type:         "CI/CD",
@@ -93,10 +101,8 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 				DurationSec:  bitbucketPipeline.DurationInSeconds,
 				FinishedDate: bitbucketPipeline.BitbucketCompleteOn,
 			}
-
-			return []interface{}{
-				domainPipeline,
-			}, nil
+			results = append(results, domainPipelineCommit, domainPipeline)
+			return results, nil
 		},
 	})
 
