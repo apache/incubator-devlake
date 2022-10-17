@@ -86,7 +86,7 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{
-				BoardId: workspaceIdGen.Generate(toolL.WorkspaceId),
+				BoardId: workspaceIdGen.Generate(toolL.ConnectionId, toolL.WorkspaceId),
 				IssueId: domainL.Id,
 			}
 			sprintIssue := &ticket.SprintIssue{
