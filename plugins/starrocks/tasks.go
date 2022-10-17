@@ -109,8 +109,11 @@ func LoadData(c core.SubTaskContext) errors.Error {
 		var columnMap map[string]string
 		columnMap, err = createTable(starrocks, db, starrocksTable, table, c, config.Extra)
 		if err != nil {
-			c.GetLogger().Error(err, "create table %s in starrocks error", table)
-			return errors.Convert(err)
+			columnMap, err = createTable(starrocks, db, starrocksTable, table, c, config.Extra)
+			if err != nil {
+				c.GetLogger().Error(err, "create table %s in starrocks error", table)
+				return errors.Convert(err)
+			}
 		}
 		err = loadData(starrocks, c, starrocksTable, table, columnMap, db, config)
 		if err != nil {
@@ -122,10 +125,11 @@ func LoadData(c core.SubTaskContext) errors.Error {
 }
 func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table string, c core.SubTaskContext, extra string) (map[string]string, errors.Error) {
 	columeMetas, err := db.GetColumns(&Table{name: table}, nil)
-	columnMap := make(map[string]string)
 	if err != nil {
-		return columnMap, err
+		c.GetLogger().Warn(err, "skip err: cached plan must not change result type")
 	}
+
+	columnMap := make(map[string]string)
 	var pks []string
 	var columns []string
 	firstcm := ""
@@ -163,27 +167,13 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 
 func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, table string, columnMap map[string]string, db dal.Dal, config *StarRocksConfig) error {
 	offset := 0
-	var err error
-
-	// step1: create starrocksNewTable
-	starrocksNewTable := starrocksTable + "_new"
-	_, execErr := starrocks.Exec(fmt.Sprintf("drop table if exists %s; create table %s like %s", starrocksNewTable, starrocksNewTable, starrocksTable))
+	starrocksTmpTable := starrocksTable + "_tmp"
+	// create tmp table in starrocks
+	_, execErr := starrocks.Exec(fmt.Sprintf("drop table if exists %s; create table %s like %s", starrocksTmpTable, starrocksTmpTable, starrocksTable))
 	if execErr != nil {
 		return execErr
 	}
-
-	// step2: renmae starrocksTable to starrocksOldTable
-	starrocksOldTable := starrocksTable + "_old"
-	_, err = starrocks.Exec(fmt.Sprintf("alter table %s rename %s", starrocksTable, starrocksOldTable))
-	defer func() {
-		if err != nil {
-			_, err = starrocks.Exec(fmt.Sprintf("alter table %s rename %s", starrocksTable, starrocksOldTable))
-		} else {
-			_, err = starrocks.Exec(fmt.Sprintf("drop table if exists %s", starrocksOldTable))
-		}
-	}()
-
-	// step3: select data from table and insert date to starrocksNewTable
+	var err error
 	for {
 		var rows *sql.Rows
 		var data []map[string]interface{}
@@ -224,7 +214,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 			break
 		}
 		// insert data to tmp table
-		loadURL := fmt.Sprintf("http://%s:%d/api/%s/%s/_stream_load", config.BeHost, config.BePort, config.Database, starrocksNewTable)
+		loadURL := fmt.Sprintf("http://%s:%d/api/%s/%s/_stream_load", config.BeHost, config.BePort, config.Database, starrocksTmpTable)
 		headers := map[string]string{
 			"format":            "json",
 			"strip_outer_array": "true",
@@ -291,9 +281,13 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 		}
 		offset += len(data)
 	}
-
-	// step4: renmae starrocksNewTable to starrocksTable
-	_, err = starrocks.Exec(fmt.Sprintf("alter table %s rename %s", starrocksNewTable, starrocksTable))
+	// drop old table
+	_, err = starrocks.Exec(fmt.Sprintf("drop table if exists %s", starrocksTable))
+	if err != nil {
+		return err
+	}
+	// rename tmp table to old table
+	_, err = starrocks.Exec(fmt.Sprintf("alter table %s rename %s", starrocksTmpTable, starrocksTable))
 	if err != nil {
 		return err
 	}
