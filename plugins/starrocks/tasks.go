@@ -109,11 +109,8 @@ func LoadData(c core.SubTaskContext) errors.Error {
 		var columnMap map[string]string
 		columnMap, err = createTable(starrocks, db, starrocksTable, table, c, config.Extra)
 		if err != nil {
-			columnMap, err = createTable(starrocks, db, starrocksTable, table, c, config.Extra)
-			if err != nil {
-				c.GetLogger().Error(err, "create table %s in starrocks error", table)
-				return errors.Convert(err)
-			}
+			c.GetLogger().Error(err, "create table %s in starrocks error", table)
+			return errors.Convert(err)
 		}
 		err = loadData(starrocks, c, starrocksTable, table, columnMap, db, config)
 		if err != nil {
@@ -125,11 +122,15 @@ func LoadData(c core.SubTaskContext) errors.Error {
 }
 func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table string, c core.SubTaskContext, extra string) (map[string]string, errors.Error) {
 	columeMetas, err := db.GetColumns(&Table{name: table}, nil)
+	columnMap := make(map[string]string)
 	if err != nil {
 		c.GetLogger().Warn(err, "skip err: cached plan must not change result type")
+		columeMetas, _ = db.GetColumns(&Table{name: table}, nil)
+		if err != nil {
+			return columnMap, err
+		}
 	}
 
-	columnMap := make(map[string]string)
 	var pks []string
 	var columns []string
 	firstcm := ""
