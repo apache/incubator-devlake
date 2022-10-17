@@ -78,7 +78,7 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	if err != nil {
 		panic(err)
 	}
-	if migratable, ok := pluginTask.(core.Migratable); ok {
+	if migratable, ok := pluginTask.(core.PluginMigration); ok {
 		migrator.Register(migratable.MigrationScripts(), cmd.Use)
 	}
 	err = migration.Execute(context.Background())

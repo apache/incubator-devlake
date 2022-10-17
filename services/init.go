@@ -75,7 +75,7 @@ func Init() {
 		panic(err)
 	}
 	for pluginName, pluginInst := range core.AllPlugins() {
-		if migratable, ok := pluginInst.(core.Migratable); ok {
+		if migratable, ok := pluginInst.(core.PluginMigration); ok {
 			migrator.Register(migratable.MigrationScripts(), pluginName)
 		}
 	}
