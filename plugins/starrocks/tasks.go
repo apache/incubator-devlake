@@ -22,6 +22,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"regexp"
+	"strings"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -30,11 +36,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"io"
-	"net/http"
-	"net/url"
-	"regexp"
-	"strings"
 )
 
 type Table struct {
@@ -162,13 +163,27 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 
 func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, table string, columnMap map[string]string, db dal.Dal, config *StarRocksConfig) error {
 	offset := 0
-	starrocksTmpTable := starrocksTable + "_tmp"
-	// create tmp table in starrocks
-	_, execErr := starrocks.Exec(fmt.Sprintf("drop table if exists %s; create table %s like %s", starrocksTmpTable, starrocksTmpTable, starrocksTable))
+	var err error
+
+	// step1: create starrocksNewTable
+	starrocksNewTable := starrocksTable + "_new"
+	_, execErr := starrocks.Exec(fmt.Sprintf("drop table if exists %s; create table %s like %s", starrocksNewTable, starrocksNewTable, starrocksTable))
 	if execErr != nil {
 		return execErr
 	}
-	var err error
+
+	// step2: renmae starrocksTable to starrocksOldTable
+	starrocksOldTable := starrocksTable + "_old"
+	_, err = starrocks.Exec(fmt.Sprintf("alter table %s rename %s", starrocksTable, starrocksOldTable))
+	defer func() {
+		if err != nil {
+			_, err = starrocks.Exec(fmt.Sprintf("alter table %s rename %s", starrocksTable, starrocksOldTable))
+		} else {
+			_, err = starrocks.Exec(fmt.Sprintf("drop table if exists %s", starrocksOldTable))
+		}
+	}()
+
+	// step3: select data from table and insert date to starrocksNewTable
 	for {
 		var rows *sql.Rows
 		var data []map[string]interface{}
@@ -209,7 +224,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 			break
 		}
 		// insert data to tmp table
-		loadURL := fmt.Sprintf("http://%s:%d/api/%s/%s/_stream_load", config.BeHost, config.BePort, config.Database, starrocksTmpTable)
+		loadURL := fmt.Sprintf("http://%s:%d/api/%s/%s/_stream_load", config.BeHost, config.BePort, config.Database, starrocksNewTable)
 		headers := map[string]string{
 			"format":            "json",
 			"strip_outer_array": "true",
@@ -276,13 +291,14 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 		}
 		offset += len(data)
 	}
-	// drop old table
-	_, err = starrocks.Exec(fmt.Sprintf("drop table if exists %s", starrocksTable))
+
+	// step4: drop starrocksOldTable table
+	_, err = starrocks.Exec(fmt.Sprintf("drop table if exists %s", starrocksOldTable))
 	if err != nil {
 		return err
 	}
-	// rename tmp table to old table
-	_, err = starrocks.Exec(fmt.Sprintf("alter table %s rename %s", starrocksTmpTable, starrocksTable))
+	// step5: renmae starrocksNewTable to starrocksTable
+	_, err = starrocks.Exec(fmt.Sprintf("alter table %s rename %s", starrocksNewTable, starrocksTable))
 	if err != nil {
 		return err
 	}
