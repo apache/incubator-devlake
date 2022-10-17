@@ -99,10 +99,10 @@ const BlueprintDataScopesDialog = (props) => {
     setProjects = () => {},
     setBoards = () => {},
     setEntities = () => {},
-    checkTransformationHasChanged = () => false,
+    hasTransformationChanged = () => false,
     changeTransformationSettings = () => {},
-    checkConfiguredProjectTransformationHasChanged = () => false,
-    changeConfiguredProjectTransformationSettings = () => {},
+    hasConfiguredEntityTransformationChanged = () => false,
+    changeConfiguredEntityTransformation = () => {},
     addBoardTransformation = () => {},
     addProjectTransformation = () => {},
     fieldHasError = () => {},
@@ -234,13 +234,13 @@ const BlueprintDataScopesDialog = (props) => {
                 addBoardTransformation={addBoardTransformation}
                 addProjectTransformation={addProjectTransformation}
                 isSaving={isSaving}
-                checkTransformationHasChanged={checkTransformationHasChanged}
+                hasTransformationChanged={hasTransformationChanged}
                 changeTransformationSettings={changeTransformationSettings}
-                checkConfiguredProjectTransformationHasChanged={
-                  checkConfiguredProjectTransformationHasChanged
+                hasConfiguredEntityTransformationChanged={
+                  hasConfiguredEntityTransformationChanged
                 }
-                changeConfiguredProjectTransformationSettings={
-                  changeConfiguredProjectTransformationSettings
+                changeConfiguredEntityTransformation={
+                  changeConfiguredEntityTransformation
                 }
                 // onSave={handleTransformationSave}
                 // onCancel={handleTransformationCancel}

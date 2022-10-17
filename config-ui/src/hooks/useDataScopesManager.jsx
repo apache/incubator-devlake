@@ -64,7 +64,7 @@ function useDataScopesManager({
     changeTransformationSettings,
     initializeDefaultTransformation,
     clearTransformationSettings,
-    checkTransformationHasChanged
+    hasTransformationChanged
   } = useTransformationsManager()
   const [enabledProviders, setEnabledProviders] = useState([])
 
@@ -545,9 +545,9 @@ function useDataScopesManager({
     ]
   )
 
-  const checkConfiguredProjectTransformationHasChanged = useCallback(
+  const hasConfiguredEntityTransformationChanged = useCallback(
     (item) => {
-      return checkTransformationHasChanged(
+      return hasTransformationChanged(
         configuredConnection?.provider,
         configuredConnection?.id,
         item
@@ -556,11 +556,11 @@ function useDataScopesManager({
     [
       configuredConnection?.provider,
       configuredConnection?.id,
-      checkTransformationHasChanged
+      hasTransformationChanged
     ]
   )
 
-  const changeConfiguredProjectTransformationSettings = useCallback(
+  const changeConfiguredEntityTransformation = useCallback(
     (settings) => {
       return changeTransformationSettings(
         configuredConnection?.provider,
@@ -736,9 +736,9 @@ function useDataScopesManager({
     changeTransformationSettings,
     initializeDefaultTransformation,
     clearTransformationSettings,
-    checkTransformationHasChanged,
-    checkConfiguredProjectTransformationHasChanged,
-    changeConfiguredProjectTransformationSettings,
+    hasTransformationChanged,
+    hasConfiguredEntityTransformationChanged,
+    changeConfiguredEntityTransformation,
     createProviderConnections,
     createProviderScopes,
     getJiraMappedBoards,

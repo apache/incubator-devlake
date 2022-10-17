@@ -64,10 +64,10 @@ const DataTransformations = (props) => {
     addBoardTransformation = () => {},
     addProjectTransformation = () => {},
     activeTransformation = {},
-    checkTransformationHasChanged = () => false,
+    hasTransformationChanged = () => false,
     changeTransformationSettings = () => {},
-    checkConfiguredProjectTransformationHasChanged = () => false,
-    changeConfiguredProjectTransformationSettings = () => {},
+    hasConfiguredEntityTransformationChanged = () => false,
+    changeConfiguredEntityTransformation = () => {},
     onSave = () => {},
     onCancel = () => {},
     onClear = () => {},
@@ -309,7 +309,7 @@ const DataTransformations = (props) => {
                           onAdd={addProjectTransformation}
                           onChange={addProjectTransformation}
                           isEditing={
-                            checkConfiguredProjectTransformationHasChanged
+                            hasConfiguredEntityTransformationChanged
                           }
                         />
                         {projects[configuredConnection.id].length === 0 && (
@@ -335,7 +335,7 @@ const DataTransformations = (props) => {
                           onAdd={addBoardTransformation}
                           onChange={addBoardTransformation}
                           isEditing={
-                            checkConfiguredProjectTransformationHasChanged
+                            hasConfiguredEntityTransformationChanged
                           }
                         />
                         {boards[configuredConnection.id].length === 0 && (
@@ -396,7 +396,7 @@ const DataTransformations = (props) => {
                           entities={dataEntities}
                           transformation={activeTransformation}
                           onSettingsChange={
-                            changeConfiguredProjectTransformationSettings
+                            changeConfiguredEntityTransformation
                           }
                           isSaving={isSaving}
                           isFetchingJIRA={isFetchingJIRA}

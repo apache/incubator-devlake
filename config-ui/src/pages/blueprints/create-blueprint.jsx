@@ -236,9 +236,9 @@ const CreateBlueprint = (props) => {
     getTransformation,
     changeTransformationSettings,
     clearTransformationSettings,
-    checkTransformationHasChanged,
-    checkConfiguredProjectTransformationHasChanged,
-    changeConfiguredProjectTransformationSettings,
+    hasTransformationChanged,
+    hasConfiguredEntityTransformationChanged,
+    changeConfiguredEntityTransformation,
     configuredConnection,
     configuredProject,
     configuredBoard,
@@ -1145,17 +1145,17 @@ const CreateBlueprint = (props) => {
                       addBoardTransformation={addBoardTransformation}
                       addProjectTransformation={addProjectTransformation}
                       activeTransformation={activeTransformation}
-                      checkTransformationHasChanged={
-                        checkTransformationHasChanged
+                      hasTransformationChanged={
+                        hasTransformationChanged
                       }
                       changeTransformationSettings={
                         changeTransformationSettings
                       }
-                      checkConfiguredProjectTransformationHasChanged={
-                        checkConfiguredProjectTransformationHasChanged
+                      hasConfiguredEntityTransformationChanged={
+                        hasConfiguredEntityTransformationChanged
                       }
-                      changeConfiguredProjectTransformationSettings={
-                        changeConfiguredProjectTransformationSettings
+                      changeConfiguredEntityTransformation={
+                        changeConfiguredEntityTransformation
                       }
                       onSave={handleTransformationSave}
                       onCancel={handleTransformationCancel}

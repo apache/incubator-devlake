@@ -16,6 +16,8 @@
  *
  */
 
+import Entity from '@/models/Entity'
+
 /**
  * @typedef {object} GitHubProject
  * @property {number|string?} id
@@ -28,11 +30,12 @@
  * @property {string?} owner
  * @property {string?} repo
  * @property {boolean?} useApi
- * @property {project|board?} variant
+ * @property {'project'|'board'|'job'} variant
  * @property {string?} providerId
  */
-class GitHubProject {
+class GitHubProject extends Entity {
   constructor(data = {}) {
+    super(data)
     this.id = data?.id || null
     this.key = data?.key || this.id || null
     this.owner = data?.owner || null
@@ -44,20 +47,9 @@ class GitHubProject {
     this.shortTitle = data?.shortTitle || null
     this.icon = data?.icon || null
 
-    // @todo: add github api specfic props
-
     this.useApi = data?.useApi || false
     this.variant = data?.variant || 'project'
     this.providerId = 'github'
-  }
-
-  get(property) {
-    return this[property]
-  }
-
-  set(property, value) {
-    this[property] = value
-    return this.property
   }
 
   getConfiguredEntityId() {

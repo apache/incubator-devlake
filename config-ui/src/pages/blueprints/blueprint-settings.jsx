@@ -196,9 +196,9 @@ const BlueprintSettings = (props) => {
     getTransformation,
     changeTransformationSettings,
     clearTransformationSettings,
-    checkTransformationHasChanged,
-    checkConfiguredProjectTransformationHasChanged,
-    changeConfiguredProjectTransformationSettings,
+    hasTransformationChanged,
+    hasConfiguredEntityTransformationChanged,
+    changeConfiguredEntityTransformation,
     // setActiveTransformation,
     setConnections,
     setScopeConnection,
@@ -1467,7 +1467,7 @@ const BlueprintSettings = (props) => {
         setBoards={setBoards}
         setProjects={setProjects}
         setEntities={setEntities}
-        checkTransformationHasChanged={checkTransformationHasChanged}
+        hasTransformationChanged={hasTransformationChanged}
         changeTransformationSettings={changeTransformationSettings}
         onOpening={handleBlueprintScopesDialogOpening}
         onSave={handleBlueprintSave}

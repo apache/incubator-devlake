@@ -16,43 +16,52 @@
  *
  */
 
-import Entity from '@/models/Entity'
-
 /**
- * @typedef {object} JenkinsJob
- * @property {number?} id
+ * @typedef {object} GitHubProject
+ * @property {number|string?} id
  * @property {number?} key
- * @property {number?} projectId
- * @property {string|number?} name
  * @property {string|number?} value
+ * @property {string|number?} name
  * @property {string|number?} title
+ * @property {string?} shortTitle
+ * @property {string?} icon
+ * @property {string?} owner
+ * @property {string?} repo
  * @property {boolean?} useApi
- * @property {project|board|job?} variant
- * @property {string?} providerId
+ * @property {'project'|'board'|'job'} variant
  */
-class JenkinsJob extends Entity {
+class Entity {
   constructor(data = {}) {
-    super(data)
     this.id = data?.id || null
-    this.key = data?.key || this.id || null
-    this.name = data?.name || null
-    this.value = data?.value || this.name || this.id || null
-    this.title = data?.title || this.name || this.id || null
+    this.owner = data?.owner || null
+    this.repo = data?.repo || null
+    this.name =
+      data?.owner && data?.repo ? `${data?.owner}/${data?.repo}` : null
 
-    this.useApi = data?.useApi || true
-    this.variant = data?.variant || 'job'
-    this.providerId = 'jenkins'
+    this.key = data?.key || this.id || null
+    this.value = data?.value || this.name || this.id || null
+
+    this.title = data.title
+    this.icon = data?.icon || null
+
+    // @todo: add github api specfic props
+
+    this.useApi = data?.useApi || false
+    this.variant = data?.variant || 'project'
+  }
+
+  get(property) {
+    return this[property]
+  }
+
+  set(property, value) {
+    this[property] = value
+    return this.property
   }
 
   getConfiguredEntityId() {
-    return this.name?.toString() || this.id
-  }
-
-  getTransformationScopeOptions() {
-    return {
-      jobName: this.value
-    }
+    return this.name.toString() || this.id
   }
 }
 
-export default JenkinsJob
+export default Entity
