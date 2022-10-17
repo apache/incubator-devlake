@@ -170,15 +170,11 @@ const BlueprintSettings = (props) => {
     boards,
     projects,
     entities,
-    transformations,
     scopeConnection,
-    activeBoardTransformation,
-    activeProjectTransformation,
     activeTransformation,
     configuredConnection,
     configuredBoard,
     configuredProject,
-    configurationKey,
     enabledProviders,
     setConfiguredConnection,
     setConfiguredBoard,
@@ -186,14 +182,17 @@ const BlueprintSettings = (props) => {
     setBoards,
     setProjects,
     setEntities,
-    setTransformations,
-    setTransformationSettings,
+    getTransformation,
+    changeTransformationSettings,
+    clearTransformationSettings,
+    checkTransformationHasChanged,
+    checkConfiguredProjectTransformationHasChanged,
+    changeConfiguredProjectTransformationSettings,
     // setActiveTransformation,
     setConnections,
     setScopeConnection,
     setEnabledProviders,
     createProviderConnections,
-    createProviderScopes,
     createNormalConnection,
     createAdvancedConnection,
     getJiraMappedBoards,
@@ -367,24 +366,7 @@ const BlueprintSettings = (props) => {
     )
     setBlueprintScopesDialogIsOpen(false)
     setScopeConnection(null)
-    // restore/revert data scope + settings on close (cancel)
-    // setTransformations({})
-    // switch (scopeConnection?.provider?.id) {
-    //   case Providers.GITHUB:
-    //     setActiveTransformation(activeProjectTransformation)
-    //     setProjects(p => ({ ...p, [configuredConnection?.id]: scopeConnection?.projects }))
-    //     setEntities(e => ({ ...e, [configuredConnection?.id]: scopeConnection?.entityList }))
-    //     break
-    //   case Providers.JIRA:
-    //     setActiveTransformation(activeBoardTransformation)
-    //     setBoards(b => ({...b, [configuredConnection?.id]: scopeConnection?.boardsList }))
-    //     setEntities(e => ({ ...e, [configuredConnection?.id]: scopeConnection?.entityList }))
-    //     break
-    // }
   }, [
-    // activeProjectTransformation,
-    // activeBoardTransformation,
-    // configuredConnection,
     setScopeConnection
     // scopeConnection
   ])
@@ -836,7 +818,6 @@ const BlueprintSettings = (props) => {
     activeSetting?.id,
     getCronPreset,
     blueprintSettings,
-    transformations,
     runTasksAdvanced
   ])
 
@@ -899,23 +880,7 @@ const BlueprintSettings = (props) => {
     // isFetchingJIRA,
     // jiraApiBoards,
     scopeConnection
-    // configuredProject, configuredBoard
   ])
-
-  // useEffect(() => {
-  //   if (allJiraResources?.boards?.length > 0) {
-  //     // setBlueprintScopesDialogIsOpen(true)
-  //   }
-  // }, [allJiraResources])
-
-  // useEffect(() => {
-  //   console.log('>>> CONFIGURING / MODIFYING CONNECTION', configuredConnection)
-  //   if (configuredConnection?.id) {
-  //     // setBoards({ [configuredConnection?.id]: [] })
-  //     // setProjects({ [configuredConnection?.id]: [] })
-  //     // setEntities({ [configuredConnection?.id]: [] })
-  //   }
-  // }, [configuredConnection])
 
   useEffect(() => {
     if (
@@ -1456,7 +1421,6 @@ const BlueprintSettings = (props) => {
         configuredConnection={configuredConnection}
         configuredProject={configuredProject}
         configuredBoard={configuredBoard}
-        configurationKey={configurationKey}
         scopeConnection={scopeConnection}
         activeTransformation={activeTransformation}
         addProjectTransformation={addProjectTransformation}
@@ -1479,12 +1443,12 @@ const BlueprintSettings = (props) => {
         jenkinsJobs={jenkinsJobs}
         isFetchingJenkins={isFetchingJenkins}
         jenkinsProxyError={jenkinsProxyError}
-        setConfiguredProject={setConfiguredProject}
         setConfiguredBoard={setConfiguredBoard}
         setBoards={setBoards}
         setProjects={setProjects}
         setEntities={setEntities}
-        setTransformationSettings={setTransformationSettings}
+        checkTransformationHasChanged={checkTransformationHasChanged}
+        changeTransformationSettings={changeTransformationSettings}
         onOpening={handleBlueprintScopesDialogOpening}
         onSave={handleBlueprintSave}
         isSaving={isSaving}
