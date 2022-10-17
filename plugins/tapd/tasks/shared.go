@@ -22,6 +22,7 @@ import (
 	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"gorm.io/gorm"
 	"io"
 	"net/http"
@@ -41,8 +42,6 @@ type Page struct {
 type Data struct {
 	Count int `json:"count"`
 }
-
-var statusMapping map[string]string
 
 var UserIdGen *didgen.DomainIdGenerator
 var WorkspaceIdGen *didgen.DomainIdGenerator
@@ -169,10 +168,7 @@ func getTypeMappings(data *TapdTaskData, db dal.Dal, system string) (*typeMappin
 }
 
 func getStatusMapping(data *TapdTaskData) map[string]string {
-	if len(statusMapping) != 0 {
-		return statusMapping
-	}
-	statusMapping = make(map[string]string)
+	statusMapping := make(map[string]string)
 	mapping := data.Options.TransformationRules.StatusMappings
 	for std, orig := range mapping {
 		for _, v := range orig {
@@ -181,4 +177,32 @@ func getStatusMapping(data *TapdTaskData) map[string]string {
 	}
 
 	return statusMapping
+}
+
+func getDefaltStdStatusMapping[S models.TapdStatus](data *TapdTaskData, db dal.Dal, statusList []S) (map[string]string, func(statusKey string) string, errors.Error) {
+	clauses := []dal.Clause{
+		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
+	}
+	err := db.All(&statusList, clauses...)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	statusLanguageMap := make(map[string]string, len(statusList))
+	statusLastStepMap := make(map[string]bool, len(statusList))
+
+	for _, v := range statusList {
+		statusLanguageMap[v.GetEnglish()] = v.GetChinese()
+		statusLastStepMap[v.GetChinese()] = v.GetIsLastStep()
+	}
+	getStdStatus := func(statusKey string) string {
+		if statusLastStepMap[statusKey] {
+			return ticket.DONE
+		} else if statusKey == "草稿" {
+			return ticket.TODO
+		} else {
+			return ticket.IN_PROGRESS
+		}
+	}
+	return statusLanguageMap, getStdStatus, nil
 }

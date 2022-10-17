@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 
@@ -62,15 +63,15 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: issueIdGen.Generate(toolL.ConnectionId, toolL.Id),
 				},
-				Url:      toolL.Url,
-				IssueKey: strconv.FormatUint(toolL.Id, 10),
-				Title:    toolL.Title,
-				EpicKey:  toolL.EpicKey,
-				Type:     "BUG",
-				Status:   toolL.StdStatus,
-				//ResolutionDate: (*time.Time)(toolL.Resolved),
-				//CreatedDate:    (*time.Time)(toolL.Created),
-				//UpdatedDate:    (*time.Time)(toolL.Modified),
+				Url:            toolL.Url,
+				IssueKey:       strconv.FormatUint(toolL.Id, 10),
+				Title:          toolL.Title,
+				EpicKey:        toolL.EpicKey,
+				Type:           "BUG",
+				Status:         toolL.StdStatus,
+				ResolutionDate: (*time.Time)(toolL.Resolved),
+				CreatedDate:    (*time.Time)(toolL.Created),
+				UpdatedDate:    (*time.Time)(toolL.Modified),
 				ParentIssueId:  issueIdGen.Generate(toolL.ConnectionId, toolL.IssueId),
 				Priority:       toolL.Priority,
 				CreatorId:      accountIdGen.Generate(data.Options.ConnectionId, toolL.Reporter),
@@ -86,7 +87,7 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{
-				BoardId: workspaceIdGen.Generate(toolL.WorkspaceId),
+				BoardId: workspaceIdGen.Generate(toolL.ConnectionId, toolL.WorkspaceId),
 				IssueId: domainL.Id,
 			}
 			sprintIssue := &ticket.SprintIssue{
