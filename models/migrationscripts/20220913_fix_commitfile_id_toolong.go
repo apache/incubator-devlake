@@ -36,16 +36,12 @@ type commitFile20220913Before struct {
 	archived.DomainEntity
 	CommitSha string `gorm:"type:varchar(40)"`
 	FilePath  string `gorm:"type:varchar(255)"` // target field
-	Additions int
-	Deletions int
 }
 
 type commitFile20220913After struct {
 	archived.DomainEntity
 	CommitSha string `gorm:"type:varchar(40)"`
 	FilePath  string `gorm:"type:text"` // target field
-	Additions int
-	Deletions int
 }
 
 type commitFileComponent20220913 struct {
