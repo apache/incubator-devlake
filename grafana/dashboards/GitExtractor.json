@@ -16,8 +16,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 13,
-  "iteration": 1663230599102,
+  "id": 12,
+  "iteration": 1665554394618,
   "links": [],
   "panels": [
     {
@@ -810,8 +810,176 @@
       },
       "id": 26,
       "panels": [],
-      "title": "component dimension",
+      "title": "lineage dimension",
       "type": "row"
+    },
+    {
+      "datasource": "mysql",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 36
+      },
+      "id": 28,
+      "options": {
+        "barWidth": 0.97,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {},
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT    CASE cast(dayofweek(commits.committed_date) AS char)\n              WHEN '1' THEN\n                  '1.Monday'\n              WHEN '2' THEN\n                  '2.Tuesday'\n              WHEN '3' THEN\n                  '3.Wednesday'\n              WHEN '4' THEN\n                  '4.Thursday'\n              WHEN '5' THEN\n                  '5.Friday'\n              WHEN '6' THEN\n                  '6.Saturday'\n              WHEN '7' THEN\n                  '7.Sunday'\n              END AS wd,\n          count(*) as lived_lines\nFROM repo_snapshot\n         JOIN commits\n              ON commits.sha=repo_snapshot.commit_sha\nWHERE repo_snapshot.repo_id IN ($repo_id)\n  AND $__timeFilter(commits.committed_date)\nGROUP BY  wd\nORDER BY  wd ;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "In which day the code has highest chance to stay in repository.",
+      "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 36
+      },
+      "id": 30,
+      "options": {
+        "showHeader": true
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "SELECT file_path,\n        avg(timestampdiff(day,\n        commits.committed_date,\n        now())) AS line_age\nFROM repo_snapshot\nJOIN commits\n    ON repo_snapshot.commit_sha = commits.sha\nWHERE repo_snapshot.repo_id IN ($repo_id)\n    AND $__timeFilter(commits.committed_date)\nGROUP BY  file_path\nORDER BY  line_age desc \nLIMIT 20;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "id"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_blueprints",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Which file has the longest average line age?",
+      "type": "table"
     }
   ],
   "refresh": "",
@@ -825,12 +993,10 @@
         "current": {
           "selected": true,
           "text": [
-            "hypertrons/hypertrons-crx",
-            "datawhalechina/wonderful-sql"
+            "All"
           ],
           "value": [
-            "github:GithubRepo:1:259035151",
-            "github:GithubRepo:1:382057179"
+            "$__all"
           ]
         },
         "datasource": "mysql",
@@ -893,7 +1059,7 @@
     ]
   },
   "timezone": "",
-  "title": "Gitextractor Metrics Dashboard",
-  "uid": "L4dp9mn4z",
-  "version": 3
+  "title": "Gitextractor Metrics",
+  "uid": "KxUh7IG4z",
+  "version": 16
 }
