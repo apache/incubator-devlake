@@ -41,7 +41,7 @@ type PluginMigration interface {
 	MigrationScripts() []MigrationScript
 }
 
-// Deprcated: Migratable is implemented by the plugin to declare all migration script that have to be applied to the database
+// TODO: remove this interface
 type Migratable interface {
 	MigrationScripts() []migration.Script
 }
