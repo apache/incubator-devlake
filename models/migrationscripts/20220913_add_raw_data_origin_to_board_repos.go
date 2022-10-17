@@ -23,9 +23,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-var _ core.MigrationScript = (*modifyBoardRepos)(nil)
+var _ core.MigrationScript = (*addRawDataOriginToBoardRepos)(nil)
 
-type modifyBoardRepos struct{}
+// addRawDataOriginToBoardRepos add raw data fields to board_repos
+type addRawDataOriginToBoardRepos struct{}
 
 type boardRepo20220913 struct {
 	archived.NoPKModel
@@ -35,14 +36,14 @@ func (boardRepo20220913) TableName() string {
 	return "board_repos"
 }
 
-func (*modifyBoardRepos) Up(basicRes core.BasicRes) errors.Error {
+func (*addRawDataOriginToBoardRepos) Up(basicRes core.BasicRes) errors.Error {
 	return basicRes.GetDal().AutoMigrate(&boardRepo20220913{})
 }
 
-func (*modifyBoardRepos) Version() uint64 {
+func (*addRawDataOriginToBoardRepos) Version() uint64 {
 	return 20220913232735
 }
 
-func (*modifyBoardRepos) Name() string {
+func (*addRawDataOriginToBoardRepos) Name() string {
 	return "modify board repos"
 }
