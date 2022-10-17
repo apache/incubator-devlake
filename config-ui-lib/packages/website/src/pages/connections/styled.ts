@@ -35,14 +35,19 @@ export const Container = styled.div`
       text-align: center;
 
       & > a {
-        display: flex;
+        display: inline-flex;
         flex-direction: column;
         align-items: center;
-        padding: 4px 6px;
+        padding: 16px 24px;
         transition: all 0.3s ease;
 
         &:hover {
           box-shadow: 1px 1px 6px rgb(0 0 0 / 10%);
+        }
+
+        span {
+          margin-top: 6px;
+          color: #777;
         }
       }
     }
