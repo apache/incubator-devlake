@@ -123,7 +123,15 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 	columeMetas, err := db.GetColumns(&Table{name: table}, nil)
 	columnMap := make(map[string]string)
 	if err != nil {
-		return columnMap, err
+		if strings.Contains(err.Error(), "cached plan must not change result type") {
+			c.GetLogger().Warn(err, "skip err: cached plan must not change result type")
+			columeMetas, err = db.GetColumns(&Table{name: table}, nil)
+			if err != nil {
+				return nil, errors.Convert(err)
+			}
+		} else {
+			return nil, errors.Convert(err)
+		}
 	}
 	var pks []string
 	var columns []string
