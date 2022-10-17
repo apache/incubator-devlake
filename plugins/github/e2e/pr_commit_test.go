@@ -50,6 +50,7 @@ func TestPrCommitDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubCommit{})
 	dataflowTester.FlushTabler(&models.GithubPrCommit{})
+	dataflowTester.FlushTabler(&models.GithubRepoCommit{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestCommitsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubCommit{},
