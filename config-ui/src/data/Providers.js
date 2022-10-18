@@ -72,7 +72,7 @@ const ProviderLabels = {
   AZURE: 'Azure CI',
   BITBUCKET: 'BitBucket',
   GITEE: 'Gitee',
-  DORA: 'dora' // (not a true provider)
+  DORA: 'DORA' // (not a true provider)
 }
 
 const ProviderConnectionLimits = {
