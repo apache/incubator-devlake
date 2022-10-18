@@ -18,58 +18,19 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
-
-type JiraConnectionV010 struct {
-	archived.Model
-	Name                       string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
-	Endpoint                   string `json:"endpoint" validate:"required"`
-	BasicAuthEncoded           string `json:"basicAuthEncoded" validate:"required"`
-	EpicKeyField               string `gorm:"type:varchar(50);" json:"epicKeyField"`
-	StoryPointField            string `gorm:"type:varchar(50);" json:"storyPointField"`
-	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
-	Proxy                      string `json:"proxy"`
-	RateLimit                  int    `comment:"api request rate limt per hour" json:"rateLimit"`
-}
-
-func (JiraConnectionV010) TableName() string {
-	return "_tool_jira_connections"
-}
-
-type JiraSource struct {
-	archived.Model
-	Name                       string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
-	Endpoint                   string `json:"endpoint" validate:"required"`
-	BasicAuthEncoded           string `json:"basicAuthEncoded" validate:"required"`
-	EpicKeyField               string `gorm:"type:varchar(50);" json:"epicKeyField"`
-	StoryPointField            string `gorm:"type:varchar(50);" json:"storyPointField"`
-	RemotelinkCommitShaPattern string `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
-	Proxy                      string `json:"proxy"`
-	RateLimit                  int    `comment:"api request rate limt per second"`
-}
-
-func (JiraSource) TableName() string {
-	return "_tool_jira_sources"
-}
 
 type renameSourceTable struct{}
 
-func (*renameSourceTable) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().RenameTable(JiraSource{}, JiraConnectionV010{})
+func (*renameSourceTable) Up(basicRes core.BasicRes) errors.Error {
+	err := basicRes.GetDal().RenameTable("_tool_jira_sources", "_tool_jira_connections")
 	return errors.Convert(err)
 }
 
 func (*renameSourceTable) Version() uint64 {
 	return 20220505212344
-}
-
-func (*renameSourceTable) Owner() string {
-	return "Jira"
 }
 
 func (*renameSourceTable) Name() string {

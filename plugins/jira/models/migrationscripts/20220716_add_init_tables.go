@@ -18,30 +18,29 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"encoding/base64"
 	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
-	"gorm.io/gorm"
 )
 
-type JiraConnectionNew struct {
+type jiraConnectionNew struct {
 	archived.RestConnection `mapstructure:",squash"`
 	archived.BasicAuth      `mapstructure:",squash"`
 }
 
-func (JiraConnectionNew) TableName() string {
+func (jiraConnectionNew) TableName() string {
 	return "_tool_jira_connections_new"
 }
 
 const JiraConnectionV011 = "_tool_jira_connections"
 
-type JiraConnectionV011Old struct {
+type jiraConnectionV011Old struct {
 	ID                         uint64    `gorm:"primaryKey" json:"id"`
 	CreatedAt                  time.Time `json:"createdAt"`
 	UpdatedAt                  time.Time `json:"updatedAt"`
@@ -55,15 +54,15 @@ type JiraConnectionV011Old struct {
 	RateLimit                  int       `comment:"api request rate limt per hour" json:"rateLimit"`
 }
 
-func (JiraConnectionV011Old) TableName() string {
+func (jiraConnectionV011Old) TableName() string {
 	return "_tool_jira_connections_old"
 }
 
 type addInitTables struct{}
 
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	var err error
-	if err = db.Migrator().DropTable(
+func (*addInitTables) Up(basicRes core.BasicRes) errors.Error {
+	var err errors.Error
+	if err = basicRes.GetDal().DropTables(
 		// history table
 		"_raw_jira_api_users",
 		"_raw_jira_api_boards",
@@ -90,46 +89,38 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		&archived.JiraSprintIssue{},
 		&archived.JiraWorklog{},
 	); err != nil {
-		return errors.Convert(err)
+		return err
 	}
-
-	// In order to avoid postgres reporting "cached plan must not change result type",
-	// we have to avoid loading the _tool_jira_connections table before our migration. The trick is to rename it before loading.
-	// so need to use JiraConnectionOld, JiraConnectionNew and JiraConnection to operate.
-	// step1: create _tool_jira_connections_new table
-	// step2: rename _tool_jira_connections to _tool_jira_connections_old
-	// step3: select data from _tool_jira_connections_old and insert date to _tool_jira_connections_new
-	// step4: rename _tool_jira_connections_new to _tool_jira_connections
+	dal := basicRes.GetDal()
 
 	// step1
-	if err = db.Migrator().CreateTable(&JiraConnectionNew{}); err != nil {
-		return errors.Convert(err)
+	if err = migrationhelper.AutoMigrateTables(basicRes, &jiraConnectionNew{}); err != nil {
+		return err
 	}
 	//nolint:errcheck
-	defer db.Migrator().DropTable(&JiraConnectionNew{})
+	defer dal.DropTables(&jiraConnectionNew{})
 
 	// step2
-	if err = db.Migrator().RenameTable("_tool_jira_connections", "_tool_jira_connections_old"); err != nil {
-		return errors.Convert(err)
+	if err = dal.RenameTable("_tool_jira_connections", "_tool_jira_connections_old"); err != nil {
+		return err
 	}
 	defer func() {
 		if err != nil {
-			err = db.Migrator().RenameTable("_tool_jira_connections_old", "_tool_jira_connections")
+			err = dal.RenameTable("_tool_jira_connections_old", "_tool_jira_connections")
 		} else {
-			err = db.Migrator().DropTable(&JiraConnectionV011Old{})
+			err = dal.DropTables(&jiraConnectionV011Old{})
 		}
 	}()
 
 	// step3
-	var result *gorm.DB
-	var jiraConns []JiraConnectionV011Old
-	result = db.Find(&jiraConns)
-	if result.Error != nil {
-		return errors.Convert(result.Error)
+	var jiraConns []jiraConnectionV011Old
+	err = dal.All(&jiraConns)
+	if err != nil {
+		return err
 	}
 
 	for _, v := range jiraConns {
-		conn := &JiraConnectionNew{}
+		conn := &jiraConnectionNew{}
 		conn.ID = v.ID
 		conn.Name = v.Name
 		conn.Endpoint = v.Endpoint
@@ -145,39 +136,39 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		if auth, err = core.Decrypt(encKey, v.BasicAuthEncoded); err != nil {
 			return errors.Convert(err)
 		}
-		var pk []byte
-		pk, err = base64.StdEncoding.DecodeString(auth)
-		if err != nil {
-			return errors.Convert(err)
+		//var pk []byte
+		pk, err1 := base64.StdEncoding.DecodeString(auth)
+		if err1 != nil {
+			return errors.Convert(err1)
 		}
 		originInfo := strings.Split(string(pk), ":")
 		if len(originInfo) == 2 {
 			conn.Username = originInfo[0]
 			conn.Password, err = core.Encrypt(encKey, originInfo[1])
 			if err != nil {
-				return errors.Convert(err)
+				return err
 			}
 			// create
-			tx := db.Create(&conn)
-			if tx.Error != nil {
-				return errors.Default.Wrap(tx.Error, "error adding connection to DB")
+			err = dal.Create(&conn)
+			if err != nil {
+				return err
 			}
 		}
 	}
 
 	// step4
-	err = db.Migrator().RenameTable("_tool_jira_connections_new", "_tool_jira_connections")
+	err = dal.RenameTable("_tool_jira_connections_new", "_tool_jira_connections")
 	if err != nil {
 		return errors.Convert(err)
 	}
 
-	return errors.Convert(db.Migrator().AutoMigrate(
+	return errors.Convert(migrationhelper.AutoMigrateTables(
+		basicRes,
 		&archived.JiraAccount{},
 		&archived.JiraBoardIssue{},
 		&archived.JiraBoard{},
 		&archived.JiraIssueChangelogItems{},
 		&archived.JiraIssueChangelogs{},
-		//&archived.JiraConnection{},
 		&archived.JiraIssueCommit{},
 		&archived.JiraIssueLabel{},
 		&archived.JiraIssue{},
