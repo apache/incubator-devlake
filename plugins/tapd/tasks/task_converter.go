@@ -78,8 +78,10 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				Priority:       toolL.Priority,
 				CreatorId:      accountIdGen.Generate(data.Options.ConnectionId, toolL.Creator),
 				CreatorName:    toolL.Creator,
-				AssigneeId:     accountIdGen.Generate(data.Options.ConnectionId, toolL.Owner),
 				AssigneeName:   toolL.Owner,
+			}
+			if domainL.AssigneeName != "" {
+				domainL.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, toolL.Owner)
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
 				domainL.LeadTimeMinutes = int64(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
