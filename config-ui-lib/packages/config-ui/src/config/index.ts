@@ -15,6 +15,24 @@
  * limitations under the License.
  *
  */
-import styled from '@emotion/styled';
+import { GitLabConfig } from './gitlab';
+import { JenkinsConfig } from './jenkins';
+import { TAPDConfig } from './tapd';
+import { JIRAConfig } from './jira';
+import { GitHubConfig } from './github';
+import { AzureConfig } from './azure';
+import { BitBucketConfig } from './bitbucket';
+import { GiteeConfig } from './gitee';
 
-export const PageContainer = styled.div``;
+const config = {
+  gitlab: GitLabConfig,
+  jenkins: JenkinsConfig,
+  tapd: TAPDConfig,
+  jira: JIRAConfig,
+  github: GitHubConfig,
+  azure: AzureConfig,
+  bitbucket: BitBucketConfig,
+  gitee: GiteeConfig,
+};
+
+export default config;

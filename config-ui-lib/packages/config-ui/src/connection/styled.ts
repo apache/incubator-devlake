@@ -15,7 +15,16 @@
  * limitations under the License.
  *
  */
-
 import styled from '@emotion/styled';
 
 export const PageContainer = styled.div``;
+
+export const BtnContainer = styled.div<{ align?: 'left' | 'right' }>`
+  display: flex;
+  justify-content: flex-start;
+  ${({ align }) => (align === 'right' ? 'justify-content: flex-end' : '')};
+
+  .ant-btn + .ant-btn {
+    margin-left: 10px;
+  }
+`;

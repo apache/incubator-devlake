@@ -15,15 +15,33 @@
  * limitations under the License.
  *
  */
-import styled from '@emotion/styled';
+export enum ConnectionType {
+  GitLab = 'gitlab',
+  Jenkins = 'jenkins',
+  TAPD = 'tapd',
+  JIRA = 'jira',
+  GitHub = 'github',
+  Azure = 'azure',
+  BitBucket = 'bitbucket',
+  Gitee = 'gitee',
+}
 
-export const PageContainer = styled.div``;
+export type ItemType = {
+  id: number;
+  name: string;
+  username?: string;
+  password?: string;
+  token?: string;
+  proxy: string;
+  rateLimitPerHour: number;
+};
 
-export const BtnContainer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-
-  .ant-btn + .ant-btn {
-    margin-left: 10px;
-  }
-`;
+export interface IPaylod {
+  name: string;
+  endpoint: string;
+  username?: string;
+  password?: string;
+  token?: string;
+  proxy?: string;
+  rateLimitPerHour?: number;
+}

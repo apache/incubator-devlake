@@ -15,6 +15,24 @@
  * limitations under the License.
  *
  */
-import styled from '@emotion/styled';
+import request from '../utils/request';
 
-export const PageContainer = styled.div``;
+import { ConnectionType } from './typed';
+
+export const getList = (type: ConnectionType) =>
+  request(`/plugins/${type}/connections`);
+
+export const test = (type: ConnectionType, payload: any) =>
+  request(`/plugins/${type}/test`, { method: 'POST', data: payload });
+
+export const create = (type: ConnectionType, payload: any) =>
+  request(`/plugins/${type}/connections`, { method: 'POST', data: payload });
+
+export const remove = (type: ConnectionType, id: number) =>
+  request(`/plugins/${type}/connections/${id}`, { method: 'DELETE' });
+
+export const update = (type: ConnectionType, id: number, payload: any) =>
+  request(`/plugins/${type}/connections/${id}`, {
+    method: 'PATCH',
+    data: payload,
+  });

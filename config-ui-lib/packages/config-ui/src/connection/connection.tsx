@@ -15,26 +15,34 @@
  * limitations under the License.
  *
  */
-import { useMemo, useState } from 'react';
-import type { TableColumnType } from 'antd';
+import { useState, useMemo } from 'react';
+import { message, TableColumnType } from 'antd';
 import { Button, Modal, Popconfirm } from 'antd';
 
-import { useRefreshData } from '../../hooks';
-import { operate } from '../../utils/operate';
+import { useRefreshData } from '../hooks';
+import { operate } from '../utils/operate';
 
-import { JiraConnectionForm } from './form';
-import { JiraConnectionList } from './list';
-import type { JiraPayloadType } from './typed';
+import { ConnectionList } from './list';
+import { ConnectionForm } from './form';
+import type { ConnectionType, ItemType, IPaylod } from './typed';
 import * as API from './api';
 import * as S from './styled';
 
-export const JiraConnection = () => {
+interface IConnectionProps {
+  type: ConnectionType;
+}
+
+export const Connection = ({ type }: IConnectionProps) => {
   const [version, setVersion] = useState(0);
   const [visible, setVisible] = useState(false);
   const [modalType, setModalType] = useState<'add' | 'edit'>();
   const [updateObj, setUpdateObj] = useState<any>();
 
-  const { ready, data } = useRefreshData(API.getList, [version]);
+  const { ready, data } = useRefreshData(() => API.getList(type), [version]);
+
+  const handleRefresh = () => {
+    setVersion((v) => v + 1);
+  };
 
   const handleShowModal = () => {
     setVisible(true);
@@ -50,24 +58,33 @@ export const JiraConnection = () => {
     handleShowModal();
   };
 
-  const handleDelete = async (row: any) => {
-    const [success] = await operate(() => API.remove(row.id));
+  const handleDelete = async (row: ItemType) => {
+    const [success] = await operate(() => API.remove(type, row.id));
     if (success) {
       setVersion((v) => v + 1);
     }
   };
 
-  const handleUpdate = (row: any) => {
+  const handleUpdate = (row: ItemType) => {
     setUpdateObj(row);
     setModalType('edit');
     handleShowModal();
   };
 
-  const handleSubmit = async (values: JiraPayloadType) => {
+  const handleTest = async (values: IPaylod) => {
+    try {
+      await API.test(type, values);
+    } catch (err) {
+      message.error((err as any).response?.data.message);
+    } finally {
+    }
+  };
+
+  const handleSubmit = async (values: IPaylod) => {
     const request =
       modalType === 'add'
-        ? () => API.create(values)
-        : () => API.update(updateObj?.id, values);
+        ? () => API.create(type, values)
+        : () => API.update(type, updateObj?.id, values);
     const [success] = await operate(request);
     if (success) {
       setVersion((v) => v + 1);
@@ -109,10 +126,13 @@ export const JiraConnection = () => {
 
   return (
     <S.PageContainer>
-      <Button type="primary" onClick={handleCreate}>
-        Add Connection
-      </Button>
-      <JiraConnectionList
+      <S.BtnContainer>
+        <Button type="primary" onClick={handleCreate}>
+          Add Connection
+        </Button>
+        <Button onClick={handleRefresh}>Refresh Connection</Button>
+      </S.BtnContainer>
+      <ConnectionList
         style={{ marginTop: 12 }}
         extraColumn={extraColumn}
         loading={!ready}
@@ -121,15 +141,16 @@ export const JiraConnection = () => {
       <Modal
         visible={visible}
         title={title}
-        width={600}
         footer={null}
         onCancel={handleHideModal}
       >
-        <JiraConnectionForm initialValues={updateObj} onSubmit={handleSubmit} />
+        <ConnectionForm
+          type={type}
+          initialValues={updateObj}
+          onTest={handleTest}
+          onSubmit={handleSubmit}
+        />
       </Modal>
     </S.PageContainer>
   );
 };
-
-JiraConnection.Form = JiraConnectionForm;
-JiraConnection.List = JiraConnectionList;
