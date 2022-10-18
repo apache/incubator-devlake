@@ -76,11 +76,13 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 				Priority:       toolL.Priority,
 				CreatorId:      accountIdGen.Generate(data.Options.ConnectionId, toolL.Reporter),
 				CreatorName:    toolL.Reporter,
-				AssigneeId:     accountIdGen.Generate(data.Options.ConnectionId, toolL.CurrentOwner),
 				AssigneeName:   toolL.CurrentOwner,
 				Severity:       toolL.Severity,
 				Component:      toolL.Feature, // todo not sure about this
 				OriginalStatus: toolL.Status,
+			}
+			if domainL.AssigneeName != "" {
+				domainL.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, toolL.CurrentOwner)
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
 				domainL.LeadTimeMinutes = int64(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
