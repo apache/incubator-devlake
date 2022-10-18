@@ -18,12 +18,13 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/errors"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/core"
+
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
 )
 
 type modifyGitlabCI struct{}
@@ -77,15 +78,16 @@ func (GitlabJob20220729) TableName() string {
 	return "_tool_gitlab_jobs"
 }
 
-func (*modifyGitlabCI) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AddColumn(&GitlabPipeline20220729{}, "gitlab_updated_at")
+func (*modifyGitlabCI) Up(baseRes core.BasicRes) errors.Error {
+	db := baseRes.GetDal()
+	err := db.AddTablerColumn(&GitlabPipeline20220729{}, "gitlab_updated_at")
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
-	err = db.Migrator().AutoMigrate(&GitlabJob20220729{})
+	err = migrationhelper.AutoMigrateTables(baseRes, &GitlabJob20220729{})
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
 	return nil

@@ -18,19 +18,18 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type addInitTables struct{}
 
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().DropTable(
+func (*addInitTables) Up(baseRes core.BasicRes) errors.Error {
+	db := baseRes.GetDal()
+	err := db.DropTables(
 		&archived.GitlabProject{},
 		&archived.GitlabMergeRequest{},
 		&archived.GitlabCommit{},
@@ -61,10 +60,11 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	)
 
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
-	err = db.Migrator().AutoMigrate(
+	err = migrationhelper.AutoMigrateTables(
+		baseRes,
 		&archived.GitlabProject{},
 		&archived.GitlabMergeRequest{},
 		&archived.GitlabCommit{},
@@ -83,7 +83,7 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	)
 
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
 	v := config.GetConfig()
@@ -100,15 +100,15 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	conn.Endpoint = endPoint
 	conn.Token, err = core.Encrypt(encKey, gitlabAuth)
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 	conn.Proxy = v.GetString("GITLAB_PROXY")
 	conn.RateLimitPerHour = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
 
-	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
+	err = db.CreateIfNotExist(conn)
 
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
 	return nil

@@ -18,12 +18,12 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/gitlab/api"
-	"github.com/apache/incubator-devlake/plugins/helper"
-	"gorm.io/gorm"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type fixDurationToFloat8 struct{}
@@ -40,40 +40,46 @@ func (GitlabJob20220906) TableName() string {
 	return "_tool_gitlab_jobs"
 }
 
-func (*fixDurationToFloat8) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AddColumn(&GitlabJob20220906{}, `duration2`)
+func (*fixDurationToFloat8) Up(baseRes core.BasicRes) errors.Error {
+	db := baseRes.GetDal()
+	err := db.AddTablerColumn(&GitlabJob20220906{}, `duration2`)
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	cursor, err := db.Model(&GitlabJob20220906{}).Select([]string{"connection_id", "gitlab_id", "duration"}).Rows()
+	cursor, err := db.Cursor(
+		dal.Select("connection_id, gitlab_id, duration"),
+		dal.From(&GitlabJob20220906{}),
+	)
+
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	batch, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&GitlabJob20220906{}), 500)
+
+	batch, err := helper.NewBatchSave(baseRes, reflect.TypeOf(&GitlabJob20220906{}), 500)
 	if err != nil {
 		return errors.Default.Wrap(err, "error getting batch from table")
 	}
 	defer batch.Close()
 	for cursor.Next() {
 		job := GitlabJob20220906{}
-		err = db.ScanRows(cursor, &job)
+		err = db.Fetch(cursor, &job)
 		if err != nil {
-			return errors.Convert(err)
+			return err
 		}
 		job.Duration2 = job.Duration
 		err = batch.Add(&job)
 		if err != nil {
-			return errors.Convert(err)
+			return err
 		}
 	}
 
-	err = db.Migrator().DropColumn(&GitlabJob20220906{}, `duration`)
+	err = db.DropTablerColumn(&GitlabJob20220906{}, `duration`)
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	err = db.Migrator().RenameColumn(&GitlabJob20220906{}, `duration2`, `duration`)
+	err = db.RenameColumn(GitlabJob20220906{}.TableName(), `duration2`, `duration`)
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 	return nil
 }

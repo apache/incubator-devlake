@@ -18,11 +18,11 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/core"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
 )
 
 type addPipelineProjects struct{}
@@ -40,10 +40,10 @@ func (GitlabPipelineProjects20220907) TableName() string {
 	return "_tool_gitlab_pipeline_projects"
 }
 
-func (*addPipelineProjects) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().CreateTable(&GitlabPipelineProjects20220907{})
+func (*addPipelineProjects) Up(baseRes core.BasicRes) errors.Error {
+	err := migrationhelper.AutoMigrateTables(baseRes, &GitlabPipelineProjects20220907{})
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 	return nil
 }
