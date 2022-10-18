@@ -43,7 +43,6 @@ export default function AzureSettings(props) {
     connection,
     entities = [],
     transformation = {},
-    entityIdKey,
     isSaving = false,
     isSavingConnection = false,
     onSettingsChange = () => {}
@@ -63,7 +62,6 @@ export default function AzureSettings(props) {
         <Deployment
           provider={provider}
           entities={entities}
-          entityIdKey={entityIdKey}
           transformation={transformation}
           connection={connection}
           onSettingsChange={onSettingsChange}

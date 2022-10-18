@@ -43,7 +43,6 @@ export default function BitbucketSettings(props) {
     connection,
     entities = [],
     transformation = {},
-    entityIdKey,
     isSaving = false,
     isSavingConnection = false,
     onSettingsChange = () => {}
@@ -63,7 +62,6 @@ export default function BitbucketSettings(props) {
         <Deployment
           provider={provider}
           entities={entities}
-          entityIdKey={entityIdKey}
           transformation={transformation}
           connection={connection}
           onSettingsChange={onSettingsChange}
