@@ -51,6 +51,10 @@ type commitFileComponent20220913 struct {
 }
 
 func (script *fixCommitFileIdTooLong) Up(basicRes core.BasicRes) errors.Error {
+	// To recalculate the primary key values for the `commit_files` since
+	// we used the `FilePath` as part of the primary key which would exceed
+	// the maximum length of the column in some cases.
+	// The purpose of this script is to replace the `FilePath` with its sha1
 	// migrate main table
 	err := migrationhelper.TransformTable(
 		basicRes,
