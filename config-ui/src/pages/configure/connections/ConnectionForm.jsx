@@ -281,7 +281,7 @@ export default function ConnectionForm(props) {
   }, [allTestResponses, personalAccessTokens, getValidityStatus])
 
   useEffect(() => {
-    onRateLimitChange((rL) => !enableRateLimit ? 0 : rL)
+    onRateLimitChange((rL) => (!enableRateLimit ? 0 : rL))
   }, [enableRateLimit, onRateLimitChange])
 
   return (
@@ -751,7 +751,10 @@ export default function ConnectionForm(props) {
           Providers.GITLAB,
           Providers.JIRA,
           Providers.JENKINS,
-          Providers.TAPD
+          Providers.TAPD,
+          Providers.AZURE,
+          Providers.BITBUCKET,
+          Providers.GITEE
         ].includes(activeProvider?.id) && (
           <>
             <div className='formContainer'>
