@@ -18,20 +18,24 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
-
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
+
+var _ core.MigrationScript = (*modifyCICDTasks)(nil)
 
 type modifyCICDTasks struct{}
 
-func (*modifyCICDTasks) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(CICDTask0905{})
-	if err != nil {
-		return errors.Convert(err)
-	}
-	return nil
+type CICDTask0905 struct {
+	Environment string `gorm:"type:varchar(255)"`
+}
+
+func (CICDTask0905) TableName() string {
+	return "cicd_tasks"
+}
+
+func (*modifyCICDTasks) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&CICDTask0905{})
 }
 
 func (*modifyCICDTasks) Version() uint64 {
@@ -40,12 +44,4 @@ func (*modifyCICDTasks) Version() uint64 {
 
 func (*modifyCICDTasks) Name() string {
 	return "modify cicd tasks"
-}
-
-type CICDTask0905 struct {
-	Environment string `gorm:"type:varchar(255)"`
-}
-
-func (CICDTask0905) TableName() string {
-	return "cicd_tasks"
 }

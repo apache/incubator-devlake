@@ -18,13 +18,14 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type RepoSnapshot struct {
+var _ core.MigrationScript = (*addRepoSnapshot)(nil)
+
+type repoSnapshot20220918 struct {
 	common.NoPKModel
 	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha string `gorm:"primaryKey;type:varchar(40);"`
@@ -32,18 +33,14 @@ type RepoSnapshot struct {
 	LineNo    int    `gorm:"primaryKey;type:int;"`
 }
 
-func (RepoSnapshot) TableName() string {
+func (repoSnapshot20220918) TableName() string {
 	return "repo_snapshot"
 }
 
 type addRepoSnapshot struct{}
 
-func (*addRepoSnapshot) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(RepoSnapshot{})
-	if err != nil {
-		return errors.Convert(err)
-	}
-	return nil
+func (*addRepoSnapshot) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(repoSnapshot20220918{})
 }
 
 func (*addRepoSnapshot) Version() uint64 {

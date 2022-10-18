@@ -18,22 +18,32 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type renameStepToStage struct{}
+var _ core.MigrationScript = (*addRawDataOriginToBoardRepos)(nil)
 
-func (*renameStepToStage) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	return errors.Convert(db.Migrator().RenameColumn(archived.Pipeline{}, "step", "stage"))
+// addRawDataOriginToBoardRepos add raw data fields to board_repos
+type addRawDataOriginToBoardRepos struct{}
+
+type boardRepo20220913 struct {
+	archived.NoPKModel
 }
 
-func (*renameStepToStage) Version() uint64 {
-	return 20220505212344
+func (boardRepo20220913) TableName() string {
+	return "board_repos"
 }
 
-func (*renameStepToStage) Name() string {
-	return "Rename step to stage "
+func (*addRawDataOriginToBoardRepos) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&boardRepo20220913{})
+}
+
+func (*addRawDataOriginToBoardRepos) Version() uint64 {
+	return 20220913232735
+}
+
+func (*addRawDataOriginToBoardRepos) Name() string {
+	return "modify board repos"
 }

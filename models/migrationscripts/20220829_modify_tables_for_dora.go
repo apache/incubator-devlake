@@ -18,20 +18,50 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
+
+var _ core.MigrationScript = (*modifyTablesForDora)(nil)
+
+type pullRequest20220829 struct {
+	CodingTimespan int64
+	ReviewLag      int64
+	ReviewTimespan int64
+	DeployTimespan int64
+	ChangeTimespan int64
+}
+
+func (pullRequest20220829) TableName() string {
+	return "pull_requests"
+}
+
+type issue20220829 struct {
+	DeploymentId string `gorm:"type:varchar(255)"`
+}
+
+func (issue20220829) TableName() string {
+	return "issues"
+}
+
+type cicdPipeline20220829 struct {
+	Environment string `gorm:"type:varchar(255)"`
+}
+
+func (cicdPipeline20220829) TableName() string {
+	return "cicd_pipelines"
+}
 
 type modifyTablesForDora struct{}
 
-func (*modifyTablesForDora) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(
-		&CICDPipeline0829{},
-		&PullRequest0829{},
-		&Issue0829{},
+func (*modifyTablesForDora) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&cicdPipeline20220829{},
+		&pullRequest20220829{},
+		&issue20220829{},
 	)
-	return errors.Convert(err)
 }
 
 func (*modifyTablesForDora) Version() uint64 {
@@ -40,32 +70,4 @@ func (*modifyTablesForDora) Version() uint64 {
 
 func (*modifyTablesForDora) Name() string {
 	return "modify tables for dora"
-}
-
-type PullRequest0829 struct {
-	CodingTimespan int64
-	ReviewLag      int64
-	ReviewTimespan int64
-	DeployTimespan int64
-	ChangeTimespan int64
-}
-
-func (PullRequest0829) TableName() string {
-	return "pull_requests"
-}
-
-type Issue0829 struct {
-	DeploymentId string `gorm:"type:varchar(255)"`
-}
-
-func (Issue0829) TableName() string {
-	return "issues"
-}
-
-type CICDPipeline0829 struct {
-	Environment string `gorm:"type:varchar(255)"`
-}
-
-func (CICDPipeline0829) TableName() string {
-	return "cicd_pipelines"
 }

@@ -18,23 +18,23 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
+
+var _ core.MigrationScript = (*renameColumnsOfPullRequestIssue)(nil)
 
 type renameColumnsOfPullRequestIssue struct{}
 
-func (*renameColumnsOfPullRequestIssue) Up(ctx context.Context, db *gorm.DB) errors.Error {
-
-	err := db.Migrator().RenameColumn(&archived.PullRequestIssue{}, "pull_request_number", "pull_request_key")
+func (*renameColumnsOfPullRequestIssue) Up(basicRes core.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.RenameColumn("pull_request_issues", "pull_request_number", "pull_request_key")
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	err = db.Migrator().RenameColumn(&archived.PullRequestIssue{}, "issue_number", "issue_key")
+	err = db.RenameColumn("pull_request_issues", "issue_number", "issue_key")
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 	return nil
 }

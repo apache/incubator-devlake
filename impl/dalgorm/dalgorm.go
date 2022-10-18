@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/utils"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
-	"gorm.io/gorm/schema"
 )
 
 // Dalgorm FIXME ...
@@ -82,7 +81,12 @@ func (d *Dalgorm) Exec(query string, params ...interface{}) errors.Error {
 
 // AutoMigrate runs auto migration for given models
 func (d *Dalgorm) AutoMigrate(entity interface{}, clauses ...dal.Clause) errors.Error {
-	return errors.Convert(buildTx(d.db, clauses).AutoMigrate(entity))
+	err := errors.Convert(buildTx(d.db, clauses).AutoMigrate(entity))
+	if err == nil {
+		// fix pg cache plan error
+		_ = d.db.Limit(1).Find(entity)
+	}
+	return err
 }
 
 // Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
@@ -147,13 +151,21 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) errors.Error
 	return errors.Convert(buildTx(d.db, clauses).Delete(entity).Error)
 }
 
-// UpdateColumns batch records in database
+// UpdateColumn allows you to update mulitple records
+func (d *Dalgorm) UpdateColumn(entity interface{}, columnName string, value interface{}, clauses ...dal.Clause) errors.Error {
+	if expr, ok := value.(dal.DalClause); ok {
+		value = gorm.Expr(expr.Expr, expr.Params...)
+	}
+	return errors.Convert(buildTx(d.db, clauses).Model(entity).Update(columnName, value).Error)
+}
+
+// UpdateColumns allows you to update multiple columns of mulitple records
 func (d *Dalgorm) UpdateColumns(entity interface{}, clauses ...dal.Clause) errors.Error {
 	return errors.Convert(buildTx(d.db, clauses).UpdateColumns(entity).Error)
 }
 
 // GetColumns FIXME ...
-func (d *Dalgorm) GetColumns(dst schema.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, _ errors.Error) {
+func (d *Dalgorm) GetColumns(dst dal.Tabler, filter func(columnMeta dal.ColumnMeta) bool) (cms []dal.ColumnMeta, _ errors.Error) {
 	columnTypes, err := d.db.Migrator().ColumnTypes(dst.TableName())
 	if err != nil {
 		return nil, errors.Convert(err)
@@ -178,14 +190,21 @@ func (d *Dalgorm) AddColumn(table, columnName, columnType string) errors.Error {
 	return d.Exec("ALTER TABLE ? ADD ? ?", clause.Table{Name: table}, clause.Column{Name: columnName}, clause.Expr{SQL: columnType})
 }
 
-// DropColumn drop one column from the table
-func (d *Dalgorm) DropColumn(table, columnName string) errors.Error {
+// DropColumns drop one column from the table
+func (d *Dalgorm) DropColumns(table string, columnNames ...string) errors.Error {
 	// work around the error `cached plan must not change result type` for postgres
 	// wrap in func(){} to make the linter happy
 	defer func() {
 		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
 	}()
-	return d.Exec("ALTER TABLE ? DROP COLUMN ?", clause.Table{Name: table}, clause.Column{Name: columnName})
+	for _, columnName := range columnNames {
+		err := d.Exec("ALTER TABLE ? DROP COLUMN ?", clause.Table{Name: table}, clause.Column{Name: columnName})
+		// err := d.db.Migrator().DropColumn(table, columnName)
+		if err != nil {
+			return errors.Convert(err)
+		}
+	}
+	return nil
 }
 
 // GetPrimaryKeyFields get the PrimaryKey from `gorm` tag
@@ -193,6 +212,21 @@ func (d *Dalgorm) GetPrimaryKeyFields(t reflect.Type) []reflect.StructField {
 	return utils.WalkFields(t, func(field *reflect.StructField) bool {
 		return strings.Contains(strings.ToLower(field.Tag.Get("gorm")), "primarykey")
 	})
+}
+
+// RenameColumn renames column name for specified table
+func (d *Dalgorm) RenameColumn(table, oldColumnName, newColumnName string) errors.Error {
+	// work around the error `cached plan must not change result type` for postgres
+	// wrap in func(){} to make the linter happy
+	defer func() {
+		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: table})
+	}()
+	return d.Exec(
+		"ALTER TABLE ? RENAME COLUMN ? TO ?",
+		clause.Table{Name: table},
+		clause.Column{Name: oldColumnName},
+		clause.Column{Name: newColumnName},
+	)
 }
 
 // AllTables returns all tables in the database
@@ -217,25 +251,28 @@ func (d *Dalgorm) AllTables() ([]string, errors.Error) {
 	return filteredTables, nil
 }
 
+// DropTables drop multiple tables by Model Pointer or Table Name
+func (d *Dalgorm) DropTables(dst ...interface{}) errors.Error {
+	return errors.Convert(d.db.Migrator().DropTable(dst...))
+}
+
+// RenameTable renames table name
+func (d *Dalgorm) RenameTable(oldName, newName string) errors.Error {
+	return errors.Convert(d.db.Migrator().RenameTable(oldName, newName))
+}
+
+// DropIndexes drops indexes for specified table
+func (d *Dalgorm) DropIndexes(table string, indexNames ...string) errors.Error {
+	for _, indexName := range indexNames {
+		err := d.db.Migrator().DropIndex(table, indexName)
+		if err != nil {
+			return errors.Convert(err)
+		}
+	}
+	return nil
+}
+
 // NewDalgorm FIXME ...
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}
-}
-
-// RenameTable rename the oldName table to newName
-func (d *Dalgorm) RenameTable(oldName interface{}, newName interface{}) errors.Error {
-	err := d.db.Migrator().RenameTable(oldName, newName)
-	if err != nil {
-		return errors.Default.New(err.Error())
-	}
-	return nil
-}
-
-// DropTable drop the table
-func (d *Dalgorm) DropTable(dst ...interface{}) errors.Error {
-	err := d.db.Migrator().DropTable(dst)
-	if err != nil {
-		return errors.Default.New(err.Error())
-	}
-	return nil
 }

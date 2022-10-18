@@ -18,34 +18,18 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/errors"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/core"
+
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
 )
 
-type addCICD struct{}
+var _ core.MigrationScript = (*addCICDTables)(nil)
 
-func (*addCICD) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(
-		&CICDPipelineRepo{},
-		&CICDPipeline{},
-		&CICDTask{},
-	)
-	return errors.Convert(err)
-}
-
-func (*addCICD) Version() uint64 {
-	return 20220818232735
-}
-
-func (*addCICD) Name() string {
-	return "add cicd models"
-}
-
-type CICDPipeline struct {
+type cicdPipeline struct {
 	archived.DomainEntity
 	Name         string `gorm:"type:varchar(255)"`
 	CommitSha    string `gorm:"type:varchar(255);index"`
@@ -59,11 +43,11 @@ type CICDPipeline struct {
 	FinishedDate *time.Time
 }
 
-func (CICDPipeline) TableName() string {
+func (cicdPipeline) TableName() string {
 	return "cicd_pipelines"
 }
 
-type CICDTask struct {
+type cicdTask struct {
 	archived.DomainEntity
 	Name         string `gorm:"type:varchar(255)"`
 	PipelineId   string `gorm:"index;type:varchar(255)"`
@@ -75,17 +59,36 @@ type CICDTask struct {
 	FinishedDate *time.Time
 }
 
-func (CICDTask) TableName() string {
+func (cicdTask) TableName() string {
 	return "cicd_tasks"
 }
 
-type CICDPipelineRepo struct {
+type cicdPipelineRepo struct {
 	archived.DomainEntity
 	CommitSha string `gorm:"primaryKey;type:varchar(255)"`
 	Branch    string `gorm:"type:varchar(255)"`
 	RepoUrl   string `gorm:"type:varchar(255)"`
 }
 
-func (CICDPipelineRepo) TableName() string {
+func (cicdPipelineRepo) TableName() string {
 	return "cicd_pipeline_repos"
+}
+
+type addCICDTables struct{}
+
+func (*addCICDTables) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&cicdPipelineRepo{},
+		&cicdPipeline{},
+		&cicdTask{},
+	)
+}
+
+func (*addCICDTables) Version() uint64 {
+	return 20220818232735
+}
+
+func (*addCICDTables) Name() string {
+	return "add cicd models"
 }

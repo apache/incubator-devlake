@@ -17,34 +17,36 @@ limitations under the License.
 
 package migrationscripts
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"github.com/apache/incubator-devlake/plugins/core"
+)
 
 // All return all the migration scripts of framework
-func All() []migration.Script {
-	return []migration.Script{
-		new(addFrameTables),
-		new(renameStepToStage),
-		new(addSubtasksField),
-		new(updateBlueprintMode),
+func All() []core.MigrationScript {
+	return []core.MigrationScript{
+		new(addFrameworkTables),
+		new(renamePipelineStepToStage),
+		new(addSubtaskToTaskTable),
+		new(addBlueprintMode),
 		new(renameTasksToPlan),
-		new(addDomainTables),
-		new(commitfileComponent),
+		new(resetDomainTables),
+		new(addCommitFileComponent),
 		new(removeNotes),
 		new(addProjectMapping),
 		new(renameColumnsOfPullRequestIssue),
 		new(addNoPKModelToCommitParent),
 		new(addSubtasksTable),
-		new(addCICD),
+		new(addCICDTables),
 		new(renameColumnsOfPrCommentIssueComment),
 		new(modifyTablesForDora),
-		new(addTypeFieldInBoard),
-		new(modifyPipeline),
-		new(encryptBLueprint),
+		new(addTypeToBoard),
+		new(encryptBlueprint),
 		new(encryptPipeline),
+		new(modifyCicdPipeline),
 		new(modifyCICDTasks),
-		new(modifyBoardRepos),
 		new(addOriginChangeValueForPr),
-		new(addCommitFilePathLength),
+		new(fixCommitFileIdTooLong),
+		new(addRawDataOriginToBoardRepos),
 		new(renamePipelineCommits),
 		new(commitLineChange),
 		new(modifyLeadTimeMinutes),

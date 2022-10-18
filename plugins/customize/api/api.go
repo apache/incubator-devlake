@@ -87,7 +87,7 @@ func deleteField(d dal.Dal, table, field string) errors.Error {
 	if !exists {
 		return nil
 	}
-	err = d.DropColumn(table, field)
+	err = d.DropColumns(table, field)
 	if err != nil {
 		return errors.Default.Wrap(err, "DropColumn error")
 	}

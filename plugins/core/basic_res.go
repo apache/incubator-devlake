@@ -15,33 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package core
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
-var _ core.MigrationScript = (*addTypeToBoard)(nil)
-
-type boards20220830 struct {
-	Type string `gorm:"type:varchar(255)"`
-}
-
-func (boards20220830) TableName() string {
-	return "boards"
-}
-
-type addTypeToBoard struct{}
-
-func (*addTypeToBoard) Up(basicRes core.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(&boards20220830{})
-}
-
-func (*addTypeToBoard) Version() uint64 {
-	return 20220830142321
-}
-
-func (*addTypeToBoard) Name() string {
-	return "add column `type` at boards"
+// BasicRes defines a set of fundamental resources that needed pretty much everywhere in our system
+type BasicRes interface {
+	GetConfig(name string) string
+	GetLogger() Logger
+	GetDal() dal.Dal
 }

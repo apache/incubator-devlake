@@ -15,38 +15,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package core
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/migration"
 )
 
-type modifyBoardRepos struct{}
-
-func (*modifyBoardRepos) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(BoardRepo0913{})
-	if err != nil {
-		return errors.Convert(err)
-	}
-	return nil
+// MigrationScript upgrades database to a newer version
+type MigrationScript interface {
+	Up(basicRes BasicRes) errors.Error
+	Version() uint64
+	Name() string
 }
 
-func (*modifyBoardRepos) Version() uint64 {
-	return 20220913232735
+// Migrator is responsible for making sure the registered scripts get applied to database and only once
+type Migrator interface {
+	Register(scripts []MigrationScript, comment string)
+	Execute() errors.Error
+	HasPendingScripts() bool
 }
 
-func (*modifyBoardRepos) Name() string {
-	return "modify board repos"
+// PluginMigration is implemented by the plugin to declare all migration script that have to be applied to the database
+type PluginMigration interface {
+	MigrationScripts() []MigrationScript
 }
 
-type BoardRepo0913 struct {
-	archived.NoPKModel
-}
-
-func (BoardRepo0913) TableName() string {
-	return "board_repos"
+// TODO: remove this interface
+type Migratable interface {
+	MigrationScripts() []migration.Script
 }

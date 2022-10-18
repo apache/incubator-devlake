@@ -15,33 +15,45 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package impl
 
 import (
-	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/spf13/viper"
 )
 
-var _ core.MigrationScript = (*addTypeToBoard)(nil)
-
-type boards20220830 struct {
-	Type string `gorm:"type:varchar(255)"`
+// DefaultBasicRes offers a common implementation for the  BasisRes interface
+type DefaultBasicRes struct {
+	cfg    *viper.Viper
+	logger core.Logger
+	db     dal.Dal
 }
 
-func (boards20220830) TableName() string {
-	return "boards"
+// GetConfig returns the value of the specificed name
+func (c *DefaultBasicRes) GetConfig(name string) string {
+	return c.cfg.GetString(name)
 }
 
-type addTypeToBoard struct{}
-
-func (*addTypeToBoard) Up(basicRes core.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(&boards20220830{})
+// GetDal returns the Dal instance
+func (c *DefaultBasicRes) GetDal() dal.Dal {
+	return c.db
 }
 
-func (*addTypeToBoard) Version() uint64 {
-	return 20220830142321
+// GetLogger returns the Logger instance
+func (c *DefaultBasicRes) GetLogger() core.Logger {
+	return c.logger
 }
 
-func (*addTypeToBoard) Name() string {
-	return "add column `type` at boards"
+// NewDefaultBasicRes creates a new DefaultBasicRes instance
+func NewDefaultBasicRes(
+	cfg *viper.Viper,
+	logger core.Logger,
+	db dal.Dal,
+) *DefaultBasicRes {
+	return &DefaultBasicRes{
+		cfg:    cfg,
+		logger: logger,
+		db:     db,
+	}
 }

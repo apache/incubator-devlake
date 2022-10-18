@@ -41,10 +41,11 @@ type BatchSave struct {
 	size       int
 	valueIndex map[string]int
 	primaryKey []reflect.StructField
+	tableName  string
 }
 
 // NewBatchSave creates a new BatchSave instance
-func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*BatchSave, errors.Error) {
+func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int, tableName ...string) (*BatchSave, errors.Error) {
 	if slotType.Kind() != reflect.Ptr {
 		return nil, errors.Default.New("slotType must be a pointer")
 	}
@@ -53,6 +54,10 @@ func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*Bat
 	// check if it have primaryKey
 	if len(primaryKey) == 0 {
 		return nil, errors.Default.New(fmt.Sprintf("%s no primary key", slotType.String()))
+	}
+	tn := ""
+	if len(tableName) == 1 {
+		tn = tableName[0]
 	}
 
 	log := basicRes.GetLogger().Nested(slotType.String())
@@ -65,6 +70,7 @@ func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int) (*Bat
 		size:       size,
 		valueIndex: make(map[string]int),
 		primaryKey: primaryKey,
+		tableName:  tn,
 	}, nil
 }
 
@@ -101,7 +107,11 @@ func (c *BatchSave) Add(slot interface{}) errors.Error {
 
 // Flush save cached records into database
 func (c *BatchSave) Flush() errors.Error {
-	err := c.db.CreateOrUpdate(c.slots.Slice(0, c.current).Interface())
+	clauses := make([]dal.Clause, 0)
+	if c.tableName != "" {
+		clauses = append(clauses, dal.From(c.tableName))
+	}
+	err := c.db.CreateOrUpdate(c.slots.Slice(0, c.current).Interface(), clauses...)
 	if err != nil {
 		return err
 	}

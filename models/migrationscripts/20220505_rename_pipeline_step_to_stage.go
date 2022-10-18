@@ -15,10 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package core
+package migrationscripts
 
-import "github.com/apache/incubator-devlake/migration"
+import (
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
+)
 
-type Migratable interface {
-	MigrationScripts() []migration.Script
+var _ core.MigrationScript = (*renamePipelineStepToStage)(nil)
+
+type renamePipelineStepToStage struct{}
+
+func (*renamePipelineStepToStage) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().RenameColumn("_devlake_pipelines", "step", "stage")
+}
+
+func (*renamePipelineStepToStage) Version() uint64 {
+	return 20220505212344
+}
+
+func (*renamePipelineStepToStage) Name() string {
+	return "Rename step to stage "
 }

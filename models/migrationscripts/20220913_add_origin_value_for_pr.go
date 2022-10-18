@@ -18,45 +18,13 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-
 	"github.com/apache/incubator-devlake/errors"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
+var _ core.MigrationScript = (*addOriginChangeValueForPr)(nil)
+
 type addOriginChangeValueForPr struct{}
-
-func (*addOriginChangeValueForPr) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AddColumn(PullRequest0913{}, "orig_coding_timespan")
-	if err != nil {
-		return errors.Convert(err)
-	}
-	err = db.Migrator().AddColumn(PullRequest0913{}, "orig_review_lag")
-	if err != nil {
-		return errors.Convert(err)
-	}
-	err = db.Migrator().AddColumn(PullRequest0913{}, "orig_review_timespan")
-	if err != nil {
-		return errors.Convert(err)
-	}
-	err = db.Migrator().AddColumn(PullRequest0913{}, "orig_deploy_timespan")
-	if err != nil {
-		return errors.Convert(err)
-	}
-
-	if err != nil {
-		return errors.Convert(err)
-	}
-	return nil
-}
-
-func (*addOriginChangeValueForPr) Version() uint64 {
-	return 20220913235535
-}
-
-func (*addOriginChangeValueForPr) Name() string {
-	return "add origin change lead time for pr"
-}
 
 type PullRequest0913 struct {
 	OrigCodingTimespan int64
@@ -67,4 +35,16 @@ type PullRequest0913 struct {
 
 func (PullRequest0913) TableName() string {
 	return "pull_requests"
+}
+
+func (*addOriginChangeValueForPr) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&PullRequest0913{})
+}
+
+func (*addOriginChangeValueForPr) Version() uint64 {
+	return 20220913235535
+}
+
+func (*addOriginChangeValueForPr) Name() string {
+	return "add origin change lead time for pr"
 }

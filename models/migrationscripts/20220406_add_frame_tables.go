@@ -18,32 +18,35 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/core"
 
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
 )
 
-type addFrameTables struct{}
+var _ core.MigrationScript = (*addFrameworkTables)(nil)
 
-func (*addFrameTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	return errors.Convert(db.Migrator().AutoMigrate(
+type addFrameworkTables struct{}
+
+func (*addFrameworkTables) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
 		&archived.Task{},
 		&archived.Notification{},
 		&archived.Pipeline{},
 		&archived.Blueprint{},
-	))
+	)
 }
 
-func (*addFrameTables) Version() uint64 {
+func (*addFrameworkTables) Version() uint64 {
 	return 20220406212344
 }
 
-func (*addFrameTables) Owner() string {
+func (*addFrameworkTables) Owner() string {
 	return "Framework"
 }
 
-func (*addFrameTables) Name() string {
+func (*addFrameworkTables) Name() string {
 	return "create init schemas"
 }

@@ -15,33 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package migration
 
-import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
-)
+import "time"
 
-var _ core.MigrationScript = (*addTypeToBoard)(nil)
-
-type boards20220830 struct {
-	Type string `gorm:"type:varchar(255)"`
+type MigrationHistory struct {
+	CreatedAt     time.Time
+	ScriptVersion uint64 `gorm:"primarykey"`
+	ScriptName    string `gorm:"primarykey;type:varchar(255)"`
+	Comment       string
 }
 
-func (boards20220830) TableName() string {
-	return "boards"
-}
-
-type addTypeToBoard struct{}
-
-func (*addTypeToBoard) Up(basicRes core.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(&boards20220830{})
-}
-
-func (*addTypeToBoard) Version() uint64 {
-	return 20220830142321
-}
-
-func (*addTypeToBoard) Name() string {
-	return "add column `type` at boards"
+func (MigrationHistory) TableName() string {
+	return "_devlake_migration_history"
 }

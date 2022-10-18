@@ -28,6 +28,8 @@ import (
 	"syscall"
 
 	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/impl"
+	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -72,9 +74,12 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	}
 
 	// collect migration and run
-	migration.Init(db)
-	if migratable, ok := pluginTask.(core.Migratable); ok {
-		RegisterMigrationScripts(migratable.MigrationScripts(), cmd.Use, cfg, log)
+	migrator, err := InitMigrator(impl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(db)))
+	if err != nil {
+		panic(err)
+	}
+	if migratable, ok := pluginTask.(core.PluginMigration); ok {
+		migrator.Register(migratable.MigrationScripts(), cmd.Use)
 	}
 	err = migration.Execute(context.Background())
 	if err != nil {

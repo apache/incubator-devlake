@@ -18,10 +18,36 @@ limitations under the License.
 package runner
 
 import (
-	"github.com/apache/incubator-devlake/migration"
+	"sync"
+
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/impl/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
+var migrator core.Migrator
+
+var lock sync.Mutex
+
+// InitMigrator a Migrator singleton
+func InitMigrator(basicRes core.BasicRes) (core.Migrator, errors.Error) {
+	lock.Lock()
+	defer lock.Unlock()
+
+	if migrator != nil {
+		return nil, errors.Internal.New("migrator singleton has already been initialized")
+	}
+	var err errors.Error
+	migrator, err = migration.NewMigrator(basicRes)
+	return migrator, err
+}
+
+// GetMigrator returns the shared Migrator singleton
+func GetMigrator() core.Migrator {
+	return migrator
+}
+
+/*
 // RegisterMigrationScripts FIXME ...
 func RegisterMigrationScripts(scripts []migration.Script, comment string, config core.ConfigGetter, logger core.Logger) {
 	for _, script := range scripts {
@@ -34,3 +60,4 @@ func RegisterMigrationScripts(scripts []migration.Script, comment string, config
 	}
 	migration.Register(scripts, comment)
 }
+*/

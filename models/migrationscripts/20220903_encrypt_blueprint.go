@@ -18,113 +18,81 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"encoding/json"
-	"github.com/apache/incubator-devlake/config"
+
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"gorm.io/gorm"
 )
 
-type Blueprint0903Temp struct {
-	Name   string `json:"name" validate:"required"`
-	Mode   string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Enable bool   `json:"enable"`
-	//please check this https://crontab.guru/ for detail
-	CronConfig     string `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
-	IsManual       bool   `json:"isManual"`
-	archived.Model `swaggerignore:"true"`
-	Plan           string `json:"plan"`
-	Settings       string `json:"settings"`
-}
+var _ core.MigrationScript = (*encryptBlueprint)(nil)
 
-func (Blueprint0903Temp) TableName() string {
-	return "_devlake_blueprints_tmp"
-}
+type encryptBlueprint struct{}
 
-type BlueprintOldVersion struct {
-	Name   string          `json:"name" validate:"required"`
-	Mode   string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Plan   json.RawMessage `json:"plan"`
-	Enable bool            `json:"enable"`
-	//please check this https://crontab.guru/ for detail
+type Blueprint20220903Before struct {
+	Name           string          `json:"name" validate:"required"`
+	Mode           string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+	Plan           json.RawMessage `json:"plan"`
+	Enable         bool            `json:"enable"`
 	CronConfig     string          `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
 	IsManual       bool            `json:"isManual"`
 	Settings       json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
 	archived.Model `swaggerignore:"true"`
 }
 
-func (BlueprintOldVersion) TableName() string {
-	return "_devlake_blueprints"
+type Blueprint20220903After struct {
+	/* unchanged part */
+	Name           string `json:"name" validate:"required"`
+	Mode           string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+	Enable         bool   `json:"enable"`
+	CronConfig     string `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
+	IsManual       bool   `json:"isManual"`
+	archived.Model `swaggerignore:"true"`
+	/* changed part */
+	Plan     string `json:"plan"`
+	Settings string `json:"settings"`
 }
 
-type encryptBLueprint struct{}
-
-func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().CreateTable(&Blueprint0903Temp{})
-	if err != nil {
-		return errors.Convert(err)
-	}
-	//nolint:errcheck
-	defer db.Migrator().DropTable(&Blueprint0903Temp{})
-
-	var result *gorm.DB
-	var blueprintList []BlueprintOldVersion
-	result = db.Find(&blueprintList)
-
-	if result.Error != nil {
-		return errors.Convert(result.Error)
+func (script *encryptBlueprint) Up(basicRes core.BasicRes) errors.Error {
+	encKey := basicRes.GetConfig(core.EncodeKeyEnvStr)
+	if encKey == "" {
+		return errors.BadInput.New("invalid encKey")
 	}
 
-	// Encrypt all blueprints.plan&settings which had been stored before v0.14
-	for _, v := range blueprintList {
-		c := config.GetConfig()
-		encKey := c.GetString(core.EncodeKeyEnvStr)
-		if encKey == "" {
-			return errors.BadInput.New("invalid encKey")
-		}
-		encryptedPlan, err := core.Encrypt(encKey, string(v.Plan))
-		if err != nil {
-			return err
-		}
-		encryptedSettings, err := core.Encrypt(encKey, string(v.Settings))
-		if err != nil {
-			return err
-		}
-		newBlueprint := &Blueprint0903Temp{
-			Name:       v.Name,
-			Mode:       v.Mode,
-			Enable:     v.Enable,
-			CronConfig: v.CronConfig,
-			IsManual:   v.IsManual,
-			Model:      archived.Model{ID: v.ID},
-			Plan:       encryptedPlan,
-			Settings:   encryptedSettings,
-		}
-		err = errors.Convert(db.Create(newBlueprint).Error)
-		if err != nil {
-			return err
-		}
-	}
+	return migrationhelper.TransformTable(
+		basicRes,
+		script,
+		"_devlake_blueprints",
+		func(s *Blueprint20220903Before) (*Blueprint20220903After, errors.Error) {
+			encryptedPlan, err := core.Encrypt(encKey, string(s.Plan))
+			if err != nil {
+				return nil, err
+			}
+			encryptedSettings, err := core.Encrypt(encKey, string(s.Settings))
+			if err != nil {
+				return nil, err
+			}
 
-	err = db.Migrator().DropTable(&BlueprintOldVersion{})
-	if err != nil {
-		return errors.Convert(err)
-	}
-
-	err = db.Migrator().RenameTable(Blueprint0903Temp{}, BlueprintOldVersion{})
-	if err != nil {
-		return errors.Convert(err)
-	}
-
-	return nil
+			dst := &Blueprint20220903After{
+				Name:       s.Name,
+				Mode:       s.Mode,
+				Enable:     s.Enable,
+				CronConfig: s.CronConfig,
+				IsManual:   s.IsManual,
+				Model:      archived.Model{ID: s.ID},
+				Plan:       encryptedPlan,
+				Settings:   encryptedSettings,
+			}
+			return dst, nil
+		},
+	)
 }
 
-func (*encryptBLueprint) Version() uint64 {
+func (*encryptBlueprint) Version() uint64 {
 	return 20220904142321
 }
 
-func (*encryptBLueprint) Name() string {
+func (*encryptBlueprint) Name() string {
 	return "encrypt Blueprint"
 }
