@@ -118,7 +118,6 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={connection}
           transformation={transformation}
-          entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}
@@ -130,7 +129,6 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={connection}
           transformation={transformation}
-          entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}
@@ -142,7 +140,6 @@ const ProviderTransformationSettings = (props) => {
           provider={provider}
           connection={connection}
           transformation={transformation}
-          entityIdKey={entityIdKey}
           onSettingsChange={onSettingsChange}
           entities={entities[connection?.id]}
           isSaving={isSaving}
