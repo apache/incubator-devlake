@@ -38,6 +38,7 @@ func (Issues20220929) TableName() string {
 func (*changeLeadTimeMinutesToInt64) Up(basicRes core.BasicRes) errors.Error {
 	// Yes, issues.lead_time_minutes might be negative, we ought to change the type
 	// for the column from `uint` to `int64`
+	// related issue: https://github.com/apache/incubator-devlake/issues/3224
 	db := basicRes.GetDal()
 	bakColumnName := "lead_time_minutes_20220929"
 	err := db.RenameColumn("issues", "lead_time_minutes", bakColumnName)
