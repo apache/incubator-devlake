@@ -82,6 +82,36 @@ const MenuConfiguration = (activeRoute) => {
         },
         {
           id: 5,
+          label: `${ProviderLabels.AZURE}`,
+          route: '/integrations/azure',
+          active:
+            activeRoute.url.endsWith('/integrations/azure') ||
+            activeRoute.url.endsWith('/azure'),
+          icon: 'layers',
+          classNames: []
+        },
+        {
+          id: 6,
+          label: `${ProviderLabels.BITBUCKET}`,
+          route: '/integrations/bitbucket',
+          active:
+            activeRoute.url.endsWith('/integrations/bitbucket') ||
+            activeRoute.url.endsWith('/bitbucket'),
+          icon: 'layers',
+          classNames: []
+        },
+        {
+          id: 7,
+          label: `${ProviderLabels.GITEE}`,
+          route: '/integrations/gitee',
+          active:
+            activeRoute.url.endsWith('/integrations/gitee') ||
+            activeRoute.url.endsWith('/gitee'),
+          icon: 'layers',
+          classNames: []
+        },
+        {
+          id: 8,
           label: 'Incoming Webhook',
           route: '/connections/incoming-webhook',
           active:

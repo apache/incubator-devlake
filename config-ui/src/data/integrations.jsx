@@ -30,6 +30,9 @@ import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins
 import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProvider } from '@/images/integrations/github.svg'
 import { ReactComponent as TapdProvider } from '@/images/integrations/tapd.svg'
+import { ReactComponent as AzureProvider } from '@/images/integrations/azure.svg'
+import { ReactComponent as BitbucketProvider } from '@/images/integrations/bitbucket.svg'
+import { ReactComponent as GiteeProvider } from '@/images/integrations/gitee.svg'
 // import GitExtractorProvider from '@/images/git.png'
 // import RefDiffProvider from '@/images/git-diff.png'
 // import { ReactComponent as NullProvider } from '@/images/integrations/null.svg'
@@ -136,6 +139,69 @@ const integrationsData = [
     ),
     iconDashboard: (
       <GitHubProvider className='providerIconSvg' width='40' height='40' />
+    ),
+    // relocated to ProviderTransformationSettings since v0.12.0
+    settings: {}
+  },
+  {
+    id: Providers.AZURE,
+    type: ProviderTypes.INTEGRATION,
+    enabled: true,
+    multiConnection: true,
+    isBeta: false,
+    name: ProviderLabels.AZURE,
+    icon: (
+      <AzureProvider
+        className='providerIconSvg'
+        width='30'
+        height='30'
+        style={{ float: 'left', marginTop: '5px' }}
+      />
+    ),
+    iconDashboard: (
+      <AzureProvider className='providerIconSvg' width='40' height='40' />
+    ),
+    // relocated to ProviderTransformationSettings since v0.12.0
+    settings: {}
+  },
+  {
+    id: Providers.BITBUCKET,
+    type: ProviderTypes.INTEGRATION,
+    enabled: true,
+    multiConnection: true,
+    isBeta: false,
+    name: ProviderLabels.BITBUCKET,
+    icon: (
+      <BitbucketProvider
+        className='providerIconSvg'
+        width='30'
+        height='30'
+        style={{ float: 'left', marginTop: '5px' }}
+      />
+    ),
+    iconDashboard: (
+      <BitbucketProvider className='providerIconSvg' width='40' height='40' />
+    ),
+    // relocated to ProviderTransformationSettings since v0.12.0
+    settings: {}
+  },
+  {
+    id: Providers.GITEE,
+    type: ProviderTypes.INTEGRATION,
+    enabled: true,
+    multiConnection: true,
+    isBeta: false,
+    name: ProviderLabels.GITEE,
+    icon: (
+      <GiteeProvider
+        className='providerIconSvg'
+        width='30'
+        height='30'
+        style={{ float: 'left', marginTop: '5px' }}
+      />
+    ),
+    iconDashboard: (
+      <GiteeProvider className='providerIconSvg' width='40' height='40' />
     ),
     // relocated to ProviderTransformationSettings since v0.12.0
     settings: {}
