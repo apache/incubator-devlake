@@ -46,7 +46,8 @@ const Providers = {
   TAPD: 'tapd',
   AZURE: 'azure',
   BITBUCKET: 'bitbucket',
-  GITEE: 'gitee'
+  GITEE: 'gitee',
+  DORA: 'dora' // (not a true provider)
 }
 
 const ProviderTypes = {
@@ -70,7 +71,8 @@ const ProviderLabels = {
   TAPD: 'TAPD',
   AZURE: 'Azure CI',
   BITBUCKET: 'BitBucket',
-  GITEE: 'Gitee'
+  GITEE: 'Gitee',
+  DORA: 'dora' // (not a true provider)
 }
 
 const ProviderConnectionLimits = {
