@@ -25,6 +25,7 @@ import { ReactComponent as TapdProviderIcon } from '@/images/integrations/tapd.s
 import { ReactComponent as AzureProviderIcon } from '@/images/integrations/azure.svg'
 import { ReactComponent as BitbucketProviderIcon } from '@/images/integrations/bitbucket.svg'
 import { ReactComponent as GiteeProviderIcon } from '@/images/integrations/gitee.svg'
+import { RateLimitTooltip } from '@/data/ConnectionTooltips.js'
 // import GitExtractorIcon from '@/images/git.png'
 // import RefDiffIcon from '@/images/git-diff.png'
 import FeishuIcon from '@/images/feishu.png'
@@ -105,6 +106,7 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   },
@@ -118,6 +120,7 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   },
@@ -131,6 +134,7 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   },
@@ -170,6 +174,7 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   },
@@ -209,6 +214,7 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   },
@@ -222,6 +228,7 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   },
@@ -235,6 +242,7 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   },
@@ -248,6 +256,7 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   }
