@@ -37,6 +37,7 @@ func (blueprint20220616) TableName() string {
 type addBlueprintMode struct{}
 
 func (*addBlueprintMode) Up(basicRes core.BasicRes) errors.Error {
+	// Add column `mode` and `is_manual` with default value "ADVANCED" and false to `_devlake_blueprints`
 	db := basicRes.GetDal()
 	err := db.AutoMigrate(&blueprint20220616{})
 	if err != nil {
