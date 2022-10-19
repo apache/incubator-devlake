@@ -229,15 +229,7 @@ export default function AddConnection() {
                   allTestResponses={allTestResponses}
                   errors={errors}
                   showError={showError}
-                  authType={
-                    [
-                      Providers.JENKINS,
-                      Providers.JIRA,
-                      Providers.TAPD
-                    ].includes(activeProvider?.id)
-                      ? 'plain'
-                      : 'token'
-                  }
+                  authType={activeProvider?.getAuthenticationType()}
                   sourceLimits={ProviderConnectionLimits}
                   labels={ProviderFormLabels[activeProvider?.id]}
                   placeholders={ProviderFormPlaceholders[activeProvider?.id]}

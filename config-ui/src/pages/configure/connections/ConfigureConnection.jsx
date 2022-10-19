@@ -23,21 +23,24 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ContentLoader from '@/components/loaders/ContentLoader'
+import useIntegrations from '@/hooks/useIntegrations'
 import useConnectionManager from '@/hooks/useConnectionManager'
-import useSettingsManager from '@/hooks/useSettingsManager'
+// import useSettingsManager from '@/hooks/useSettingsManager'
 import useConnectionValidation from '@/hooks/useConnectionValidation'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import DeleteAction from '@/components/actions/DeleteAction'
 import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
 
-import { integrationsData } from '@/data/integrations'
+// @todo: Replace with Integrations Hook
+// import { integrationsData } from '@/data/integrations'
 import { NullSettings } from '@/data/NullSettings'
-import {
-  ProviderConnectionLimits,
-  ProviderFormLabels,
-  ProviderFormPlaceholders,
-  Providers
-} from '@/data/Providers'
+// @todo: Replace with Integrations Hook
+// import {
+//   ProviderConnectionLimits,
+//   ProviderFormLabels,
+//   ProviderFormPlaceholders,
+//   Providers
+// } from '@/data/Providers'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -47,9 +50,22 @@ export default function ConfigureConnection() {
   const history = useHistory()
   const { providerId, connectionId } = useParams()
 
-  const [activeProvider, setActiveProvider] = useState(
-    integrationsData.find((p) => p.id === providerId)
-  )
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider,
+    Providers,
+    ProviderFormLabels,
+    ProviderFormPlaceholders,
+    ProviderConnectionLimits,
+    setActiveProvider
+  } = useIntegrations()
+
+  // @todo: Replace with Integrations Hook
+  // const [activeProvider, setActiveProvider] = useState(
+  //   integrationsData.find((p) => p.id === providerId)
+  // )
   // const [activeConnection, setActiveConnection] = useState(NullConnection)
   const [showConnectionSettings, setShowConnectionSettings] = useState(true)
   const [deleteId, setDeleteId] = useState(null)
@@ -97,17 +113,17 @@ export default function ConfigureConnection() {
     true
   )
 
-  const {
-    saveSettings,
-    // errors: settingsErrors,
-    isSaving
-    // isTesting,
-    // showError,
-  } = useSettingsManager({
-    activeProvider,
-    activeConnection,
-    settings
-  })
+  // const {
+  //   saveSettings,
+  //   // errors: settingsErrors,
+  //   isSaving
+  //   // isTesting,
+  //   // showError,
+  // } = useSettingsManager({
+  //   activeProvider,
+  //   activeConnection,
+  //   settings
+  // })
 
   const {
     validate,
@@ -125,42 +141,43 @@ export default function ConfigureConnection() {
   })
 
   const cancel = () => {
-    history.push(`/integrations/${activeProvider.id}`)
+    history.push(`/integrations/${activeProvider?.id}`)
   }
 
-  const renderProviderSettings = useCallback(
-    (providerId, activeProvider) => {
-      console.log('>>> RENDERING PROVIDER SETTINGS...')
-      let settingsComponent = null
-      if (activeProvider && activeProvider.settings) {
-        settingsComponent = activeProvider.settings({
-          activeProvider,
-          activeConnection,
-          isSaving,
-          isSavingConnection,
-          setSettings
-        })
-      } else {
-        // @todo create & display "fallback/empty settings" view
-        console.log(
-          '>> WARNING: NO PROVIDER SETTINGS RENDERED, PROVIDER = ',
-          activeProvider
-        )
-      }
-      return settingsComponent
-    },
-    [activeConnection, isSaving, isSavingConnection]
-  )
+  // @todo: cleanup unused render helper
+  // const renderProviderSettings = useCallback(
+  //   (providerId, activeProvider) => {
+  //     console.log('>>> RENDERING PROVIDER SETTINGS...')
+  //     let settingsComponent = null
+  //     if (activeProvider && activeProvider.settings) {
+  //       settingsComponent = activeProvider.settings({
+  //         activeProvider,
+  //         activeConnection,
+  //         isSaving,
+  //         isSavingConnection,
+  //         setSettings
+  //       })
+  //     } else {
+  //       // @todo create & display "fallback/empty settings" view
+  //       console.log(
+  //         '>> WARNING: NO PROVIDER SETTINGS RENDERED, PROVIDER = ',
+  //         activeProvider
+  //       )
+  //     }
+  //     return settingsComponent
+  //   },
+  //   [activeConnection, isSaving, isSavingConnection]
+  // )
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER ID = ', providerId)
     console.log('>>>> DETECTED CONNECTION ID = ', connectionId)
     if (connectionId && providerId) {
-      setActiveProvider(integrationsData.find((p) => p.id === providerId))
+      setActiveProvider(Integrations.find((p) => p.id === providerId))
     } else {
       console.log('NO PARAMS!')
     }
-  }, [connectionId, providerId])
+  }, [connectionId, providerId, Integrations, setActiveProvider])
 
   useEffect(() => {}, [settings])
 
@@ -187,12 +204,12 @@ export default function ConfigureConnection() {
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/integrations', icon: false, text: 'Connections' },
                 {
-                  href: `/integrations/${activeProvider.id}`,
+                  href: `/integrations/${activeProvider?.id}`,
                   icon: false,
-                  text: `${activeProvider.name}`
+                  text: `${activeProvider?.name}`
                 },
                 {
-                  href: `/connections/configure/${activeProvider.id}/${activeConnection?.id}`,
+                  href: `/connections/configure/${activeProvider?.id}/${activeConnection?.id}`,
                   icon: false,
                   text: `${
                     activeConnection ? activeConnection.name : 'Configure'
@@ -209,7 +226,7 @@ export default function ConfigureConnection() {
                     marginLeft: '10px',
                     color: '#777777'
                   }}
-                  to={`/integrations/${activeProvider.id}`}
+                  to={`/integrations/${activeProvider?.id}`}
                 >
                   <Icon icon='fast-backward' size={16} /> Connection List
                 </Link>
@@ -217,7 +234,13 @@ export default function ConfigureConnection() {
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <div>
                   <span style={{ marginRight: '10px' }}>
-                    {activeProvider.icon}
+                    <img
+                      className='providerIconSvg'
+                      src={'/' + activeProvider?.icon}
+                      width={40}
+                      height={40}
+                      style={{ width: '40px', height: '40px' }}
+                    />
                   </span>
                 </div>
                 {isLoadingConnection && (
@@ -232,11 +255,11 @@ export default function ConfigureConnection() {
                       <h1 style={{ margin: 0 }}>
                         Manage{' '}
                         <strong style={{ fontWeight: 900 }}>
-                          {activeProvider.name}
+                          {activeProvider?.name}
                         </strong>{' '}
                         Settings
                       </h1>
-                      {activeProvider.multiConnection && (
+                      {activeProvider?.multiConnection && (
                         <div style={{ paddingTop: '5px' }}>
                           <DeleteAction
                             id={deleteId}
@@ -263,7 +286,7 @@ export default function ConfigureConnection() {
                           Providers.GITLAB,
                           Providers.JIRA,
                           Providers.TAPD
-                        ].includes(activeProvider.id) && (
+                        ].includes(activeProvider?.id) && (
                           <h2 style={{ margin: 0 }}>
                             #{activeConnection?.id} {activeConnection.name}
                           </h2>
@@ -337,20 +360,12 @@ export default function ConfigureConnection() {
                           allTestResponses={allTestResponses}
                           errors={errors}
                           showError={showConnectionError}
-                          authType={
-                            [
-                              Providers.JENKINS,
-                              Providers.JIRA,
-                              Providers.TAPD
-                            ].includes(activeProvider.id)
-                              ? 'plain'
-                              : 'token'
-                          }
+                          authType={activeProvider?.getAuthenticationType()}
                           showLimitWarning={false}
                           sourceLimits={ProviderConnectionLimits}
-                          labels={ProviderFormLabels[activeProvider.id]}
+                          labels={ProviderFormLabels[activeProvider?.id]}
                           placeholders={
-                            ProviderFormPlaceholders[activeProvider.id]
+                            ProviderFormPlaceholders[activeProvider?.id]
                           }
                         />
                       </div>
