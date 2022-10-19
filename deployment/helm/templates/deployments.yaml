@@ -42,9 +42,11 @@ spec:
             - 'sh'
             - '-c'
             - |
-              until nc -z -w 2 {{ include "devlake.fullname" . }}-mysql 3306 && echo mysql is ready ; do
+              until nc -z -w 2 {{ include "devlake.fullname" . }}-mysql 3306 ; do
+                echo wait for mysql ready ...
                 sleep 2
               done
+              echo mysql is ready
       containers:
         - name: grafana
           image: "{{ .Values.grafana.image.repository }}:{{ .Values.grafana.image.tag }}"
@@ -113,10 +115,6 @@ spec:
               value: {{ include "devlake.fullname" . }}-lake.{{ .Release.Namespace }}.svc.cluster.local:8080
             - name: GRAFANA_ENDPOINT
               value: {{ include "devlake.fullname" . }}-grafana.{{ .Release.Namespace }}.svc.cluster.local:3000
-            # - name: ADMIN_USER
-            #   value: "admin"
-            # - name: ADMIN_PASS
-            #   value: "admin"
           volumeMounts:
             {{- if ne .Values.option.localtime "" }}
             - name: {{ include "devlake.fullname" . }}-ui-localtime
