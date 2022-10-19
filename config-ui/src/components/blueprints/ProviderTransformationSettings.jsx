@@ -73,9 +73,10 @@ const ProviderTransformationSettings = (props) => {
 
   // Dynamic Transformation Settings via HOC
   const TransformationWithProviderSettings = withTransformationSettings(
-    provider?.id
+    provider?.id && TransformationComponents[provider?.id]
       ? TransformationComponents[provider?.id]
-      : TransformationComponents[Providers.GITHUB],
+      // @todo Create <NoTransformations /> Message Component
+      : null,
     { ...props, entities: props.entities[props?.connection?.id] }
   )
 
