@@ -96,7 +96,7 @@ spec:
     - metadata:
         name: {{ include "devlake.fullname" . }}-mysql-data
       spec:
-        accessModes: [ "ReadWriteOnce" ]
+        accessModes: ["ReadWriteOnce"]
         {{- with .Values.mysql.storage.class }}
         storageClassName: "{{ . }}"
         {{- end }}
@@ -133,9 +133,11 @@ spec:
             - 'sh'
             - '-c'
             - |
-              until nc -z -w 2 {{ include "devlake.fullname" . }}-mysql 3306 && echo mysql is ready ; do
+              until nc -z -w 2 {{ include "devlake.fullname" . }}-mysql 3306 ; do
+                echo wait for mysql ready ..
                 sleep 2
               done
+              echo mysql is ready
       containers:
         - name: lake
           image: "{{ .Values.lake.image.repository }}:{{ .Values.lake.image.tag }}"
@@ -154,6 +156,7 @@ spec:
                 name: {{ include "devlake.fullname" . }}-config
           env:
             - name: DB_URL
+              # yamllint disable-line rule:line-length
               value: mysql://{{ .Values.mysql.username }}:{{ .Values.mysql.password }}@{{ include "devlake.fullname" . }}-mysql:3306/{{ .Values.mysql.database }}?charset=utf8mb4&parseTime=True
             - name: ENV_PATH
               value: /app/config/.env
@@ -176,7 +179,7 @@ spec:
     - metadata:
         name: {{ include "devlake.fullname" . }}-lake-config
       spec:
-        accessModes: [ "ReadWriteOnce" ]
+        accessModes: ["ReadWriteOnce"]
         {{- with .Values.lake.storage.class }}
         storageClassName: "{{ . }}"
         {{- end }}

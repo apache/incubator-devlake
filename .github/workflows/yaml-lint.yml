@@ -14,18 +14,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ include "devlake.fullname" . }}-config
-data:
-  MYSQL_USER: "{{ .Values.mysql.username }}"
-  MYSQL_PASSWORD: "{{ .Values.mysql.password }}"
-  MYSQL_DATABASE: "{{ .Values.mysql.database }}"
-  MYSQL_ROOT_PASSWORD: "{{ .Values.mysql.rootPassword }}"
-  LOGGING_DIR: "{{ .Values.lake.loggingDir }}"
-{{- if .Values.ui.basicAuth.enabled }}
-  ADMIN_USER: "{{ .Values.ui.basicAuth.user }}"
-  ADMIN_PASS: "{{ .Values.ui.basicAuth.password }}"
-{{- end }}
+
+name: yaml-lint
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  yamlint-helm:
+    name: lint for helm chart
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: install latest helm
+        run: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      - name: helm template for chart
+        run: helm template test deployment/helm > helm-deployment.yaml
+      - name: yamllint
+        uses: karancode/yamllint-github-action@master
+        with:
+          yamllint_file_or_dir: helm-deployment.yaml
+          yamllint_strict: false
+          yamllint_comment: true
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
