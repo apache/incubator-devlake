@@ -89,7 +89,7 @@ func (script *addInitTables20220716) Up(basicRes core.BasicRes) errors.Error {
 	); err != nil {
 		return err
 	}
-	migrationhelper.TransformTable(
+	err = migrationhelper.TransformTable(
 		basicRes,
 		script,
 		"_tool_jira_connections",
@@ -125,7 +125,9 @@ func (script *addInitTables20220716) Up(basicRes core.BasicRes) errors.Error {
 			}
 			return nil, errors.Default.New("invalid BasicAuthEncoded")
 		})
-
+	if err != nil {
+		return err
+	}
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		&archived.JiraAccount{},
