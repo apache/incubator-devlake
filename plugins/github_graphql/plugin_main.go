@@ -71,6 +71,22 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 		githubTasks.ExtractApiPrReviewCommentsMeta,
 
 		tasks.CollectAccountMeta,
+
+		githubTasks.ConvertJobsMeta,
+		githubTasks.EnrichPullRequestIssuesMeta,
+		githubTasks.ConvertRepoMeta,
+		githubTasks.ConvertIssuesMeta,
+		githubTasks.ConvertCommitsMeta,
+		githubTasks.ConvertIssueLabelsMeta,
+		githubTasks.ConvertPullRequestCommitsMeta,
+		githubTasks.ConvertPullRequestsMeta,
+		githubTasks.ConvertPullRequestReviewsMeta,
+		githubTasks.ConvertPullRequestLabelsMeta,
+		githubTasks.ConvertPullRequestIssuesMeta,
+		githubTasks.ConvertIssueCommentsMeta,
+		githubTasks.ConvertPullRequestCommentsMeta,
+		githubTasks.ConvertMilestonesMeta,
+		githubTasks.ConvertAccountsMeta,
 	}
 }
 
