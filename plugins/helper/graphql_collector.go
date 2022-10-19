@@ -259,11 +259,15 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	}
 	db := collector.args.Ctx.GetDal()
 	queryStr, _ := graphql.ConstructQuery(query, variables)
+	variablesJson, err := json.Marshal(variables)
+	if err != nil {
+		panic(err)
+	}
 	row := &RawData{
 		Params: collector.params,
 		Data:   paramsBytes,
 		Url:    queryStr,
-		Input:  reqData.InputJSON,
+		Input:  variablesJson,
 	}
 	err = db.Create(row, dal.From(collector.table))
 	if err != nil {
