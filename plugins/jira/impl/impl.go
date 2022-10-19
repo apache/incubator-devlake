@@ -23,7 +23,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/api"
@@ -38,7 +37,7 @@ var _ core.PluginMeta = (*Jira)(nil)
 var _ core.PluginInit = (*Jira)(nil)
 var _ core.PluginTask = (*Jira)(nil)
 var _ core.PluginApi = (*Jira)(nil)
-var _ core.Migratable = (*Jira)(nil)
+var _ core.PluginMigration = (*Jira)(nil)
 var _ core.PluginBlueprintV100 = (*Jira)(nil)
 var _ core.CloseablePluginTask = (*Jira)(nil)
 
@@ -189,7 +188,7 @@ func (plugin Jira) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/jira"
 }
 
-func (plugin Jira) MigrationScripts() []migration.Script {
+func (plugin Jira) MigrationScripts() []core.MigrationScript {
 	return migrationscripts.All()
 }
 

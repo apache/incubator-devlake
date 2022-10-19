@@ -18,30 +18,23 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"encoding/base64"
 	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
-	"gorm.io/gorm"
 )
 
-type JiraConnectionNew struct {
+type jiraConnection20220716After struct {
 	archived.RestConnection `mapstructure:",squash"`
 	archived.BasicAuth      `mapstructure:",squash"`
 }
 
-func (JiraConnectionNew) TableName() string {
-	return "_tool_jira_connections_new"
-}
-
-const JiraConnectionV011 = "_tool_jira_connections"
-
-type JiraConnectionV011Old struct {
+type jiraConnection20220716Before struct {
 	ID                         uint64    `gorm:"primaryKey" json:"id"`
 	CreatedAt                  time.Time `json:"createdAt"`
 	UpdatedAt                  time.Time `json:"updatedAt"`
@@ -55,15 +48,11 @@ type JiraConnectionV011Old struct {
 	RateLimit                  int       `comment:"api request rate limt per hour" json:"rateLimit"`
 }
 
-func (JiraConnectionV011Old) TableName() string {
-	return "_tool_jira_connections_old"
-}
+type addInitTables20220716 struct{}
 
-type addInitTables struct{}
-
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	var err error
-	if err = db.Migrator().DropTable(
+func (script *addInitTables20220716) Up(basicRes core.BasicRes) errors.Error {
+	var err errors.Error
+	if err = basicRes.GetDal().DropTables(
 		// history table
 		"_raw_jira_api_users",
 		"_raw_jira_api_boards",
@@ -90,94 +79,53 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		&archived.JiraSprintIssue{},
 		&archived.JiraWorklog{},
 	); err != nil {
-		return errors.Convert(err)
+		return err
 	}
-
-	// In order to avoid postgres reporting "cached plan must not change result type",
-	// we have to avoid loading the _tool_jira_connections table before our migration. The trick is to rename it before loading.
-	// so need to use JiraConnectionOld, JiraConnectionNew and JiraConnection to operate.
-	// step1: create _tool_jira_connections_new table
-	// step2: rename _tool_jira_connections to _tool_jira_connections_old
-	// step3: select data from _tool_jira_connections_old and insert date to _tool_jira_connections_new
-	// step4: rename _tool_jira_connections_new to _tool_jira_connections
-
-	// step1
-	if err = db.Migrator().CreateTable(&JiraConnectionNew{}); err != nil {
-		return errors.Convert(err)
+	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
+	if encKey == "" {
+		return errors.BadInput.New("jira v0.11 invalid encKey")
 	}
-	//nolint:errcheck
-	defer db.Migrator().DropTable(&JiraConnectionNew{})
+	err = migrationhelper.TransformTable(
+		basicRes,
+		script,
+		"_tool_jira_connections",
+		func(old *jiraConnection20220716Before) (*jiraConnection20220716After, errors.Error) {
+			conn := &jiraConnection20220716After{}
+			conn.ID = old.ID
+			conn.Name = old.Name
+			conn.Endpoint = old.Endpoint
+			conn.Proxy = old.Proxy
+			conn.RateLimitPerHour = old.RateLimit
 
-	// step2
-	if err = db.Migrator().RenameTable("_tool_jira_connections", "_tool_jira_connections_old"); err != nil {
-		return errors.Convert(err)
-	}
-	defer func() {
-		if err != nil {
-			err = db.Migrator().RenameTable("_tool_jira_connections_old", "_tool_jira_connections")
-		} else {
-			err = db.Migrator().DropTable(&JiraConnectionV011Old{})
-		}
-	}()
-
-	// step3
-	var result *gorm.DB
-	var jiraConns []JiraConnectionV011Old
-	result = db.Find(&jiraConns)
-	if result.Error != nil {
-		return errors.Convert(result.Error)
-	}
-
-	for _, v := range jiraConns {
-		conn := &JiraConnectionNew{}
-		conn.ID = v.ID
-		conn.Name = v.Name
-		conn.Endpoint = v.Endpoint
-		conn.Proxy = v.Proxy
-		conn.RateLimitPerHour = v.RateLimit
-
-		c := config.GetConfig()
-		encKey := c.GetString(core.EncodeKeyEnvStr)
-		if encKey == "" {
-			return errors.BadInput.New("jira v0.11 invalid encKey")
-		}
-		var auth string
-		if auth, err = core.Decrypt(encKey, v.BasicAuthEncoded); err != nil {
-			return errors.Convert(err)
-		}
-		var pk []byte
-		pk, err = base64.StdEncoding.DecodeString(auth)
-		if err != nil {
-			return errors.Convert(err)
-		}
-		originInfo := strings.Split(string(pk), ":")
-		if len(originInfo) == 2 {
-			conn.Username = originInfo[0]
-			conn.Password, err = core.Encrypt(encKey, originInfo[1])
-			if err != nil {
-				return errors.Convert(err)
+			var auth string
+			if auth, err = core.Decrypt(encKey, old.BasicAuthEncoded); err != nil {
+				return nil, err
 			}
-			// create
-			tx := db.Create(&conn)
-			if tx.Error != nil {
-				return errors.Default.Wrap(tx.Error, "error adding connection to DB")
+			pk, err1 := base64.StdEncoding.DecodeString(auth)
+			if err1 != nil {
+				return nil, errors.Convert(err1)
 			}
-		}
-	}
-
-	// step4
-	err = db.Migrator().RenameTable("_tool_jira_connections_new", "_tool_jira_connections")
+			originInfo := strings.Split(string(pk), ":")
+			if len(originInfo) == 2 {
+				conn.Username = originInfo[0]
+				conn.Password, err = core.Encrypt(encKey, originInfo[1])
+				if err != nil {
+					return nil, err
+				}
+				return conn, nil
+			}
+			return nil, errors.Default.New("invalid BasicAuthEncoded")
+		})
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-
-	return errors.Convert(db.Migrator().AutoMigrate(
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
 		&archived.JiraAccount{},
 		&archived.JiraBoardIssue{},
 		&archived.JiraBoard{},
 		&archived.JiraIssueChangelogItems{},
 		&archived.JiraIssueChangelogs{},
-		//&archived.JiraConnection{},
 		&archived.JiraIssueCommit{},
 		&archived.JiraIssueLabel{},
 		&archived.JiraIssue{},
@@ -189,13 +137,13 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		&archived.JiraStatus{},
 		&archived.JiraWorklog{},
 		&archived.JiraIssueType{},
-	))
+	)
 }
 
-func (*addInitTables) Version() uint64 {
+func (*addInitTables20220716) Version() uint64 {
 	return 20220716201138
 }
 
-func (*addInitTables) Name() string {
+func (*addInitTables20220716) Name() string {
 	return "Jira init schemas"
 }

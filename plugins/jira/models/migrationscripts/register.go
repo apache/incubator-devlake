@@ -18,14 +18,14 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 // All return all the migration scripts
-func All() []migration.Script {
-	return []migration.Script{
-		new(InitSchemas),
-		new(renameSourceTable),
-		new(addInitTables),
+func All() []core.MigrationScript {
+	return []core.MigrationScript{
+		new(addSourceTable20220407),
+		new(renameSourceTable20220505),
+		new(addInitTables20220716),
 	}
 }

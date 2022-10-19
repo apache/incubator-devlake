@@ -18,28 +18,22 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
-	"gorm.io/gorm"
 )
 
-type InitSchemas struct{}
+type addSourceTable20220407 struct{}
 
-func (*InitSchemas) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	m := db.Migrator()
-	if m.HasTable(&archived.JiraConnection{}) {
-		return nil
-	}
-	return errors.Convert(db.Migrator().AutoMigrate(
-		&archived.JiraSource{},
-	))
+func (*addSourceTable20220407) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &archived.JiraSource{})
 }
 
-func (*InitSchemas) Version() uint64 {
+func (*addSourceTable20220407) Version() uint64 {
 	return 20220407201138
 }
 
-func (*InitSchemas) Name() string {
+func (*addSourceTable20220407) Name() string {
 	return "Jira init schemas"
 }
