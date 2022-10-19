@@ -30,7 +30,7 @@ func Git(taskCtx core.SubTaskContext) errors.Error {
 	if data.Options.ProjectGitURL == "" {
 		return nil
 	}
-	cmd := exec.Command("git", "clone", data.Options.ProjectGitURL, data.Options.ProjectPath)
+	cmd := exec.Command("git", "clone", data.Options.ProjectGitURL)
 	logger.Info("start clone dbt project: %v", cmd)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
