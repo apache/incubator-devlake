@@ -78,8 +78,6 @@ func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 				Body:            string(prReviewComment.Body),
 				CommitSha:       prReviewComment.CommitId,
 				ReviewId:        prReviewComment.PrReviewId,
-				AuthorUsername:  prReviewComment.User.Login,
-				AuthorUserId:    prReviewComment.User.Id,
 				GithubCreatedAt: prReviewComment.GithubCreatedAt.ToTime(),
 				GithubUpdatedAt: prReviewComment.GithubUpdatedAt.ToTime(),
 				Type:            "DIFF",
@@ -96,12 +94,19 @@ func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 			if prId != 0 {
 				githubPrComment.PullRequestId = prId
 			}
-			results = append(results, githubPrComment)
+
+			if prReviewComment.User != nil {
+				githubPrComment.AuthorUserId = prReviewComment.User.Id
+				githubPrComment.AuthorUsername = prReviewComment.User.Login
+
 			githubAccount, err := convertAccount(prReviewComment.User, data.Repo.GithubId, data.Options.ConnectionId)
 			if err != nil {
 				return nil, err
 			}
 			results = append(results, githubAccount)
+			}
+
+			results = append(results, githubPrComment)
 			return results, nil
 		},
 	})

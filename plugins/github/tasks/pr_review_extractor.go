@@ -85,8 +85,6 @@ func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 
 			githubReviewer := &models.GithubReviewer{
 				ConnectionId:  data.Options.ConnectionId,
-				GithubId:      apiPullRequestReview.User.Id,
-				Login:         apiPullRequestReview.User.Login,
 				PullRequestId: pull.GithubId,
 			}
 
@@ -97,19 +95,25 @@ func ExtractApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 				State:          apiPullRequestReview.State,
 				CommitSha:      apiPullRequestReview.CommitId,
 				GithubSubmitAt: apiPullRequestReview.SubmittedAt.ToNullableTime(),
-
 				PullRequestId:  pull.GithubId,
-				AuthorUsername: apiPullRequestReview.User.Login,
-				AuthorUserId:   apiPullRequestReview.User.Id,
+			}
+
+			if apiPullRequestReview.User != nil {
+				githubReviewer.GithubId = apiPullRequestReview.User.Id
+				githubReviewer.Login = apiPullRequestReview.User.Login
+
+				githubPrReview.AuthorUserId = apiPullRequestReview.User.Id
+				githubPrReview.AuthorUsername = apiPullRequestReview.User.Login
+
+				githubUser, err := convertAccount(apiPullRequestReview.User, data.Repo.GithubId, data.Options.ConnectionId)
+				if err != nil {
+					return nil, err
+				}
+				results = append(results, githubUser)
 			}
 
 			results = append(results, githubReviewer)
 			results = append(results, githubPrReview)
-			githubUser, err := convertAccount(apiPullRequestReview.User, data.Repo.GithubId, data.Options.ConnectionId)
-			if err != nil {
-				return nil, err
-			}
-			results = append(results, githubUser)
 
 			return results, nil
 		},
