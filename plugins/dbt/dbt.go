@@ -58,14 +58,9 @@ func (plugin Dbt) PrepareTaskData(taskCtx core.TaskContext, options map[string]i
 	if op.ProjectPath == "" {
 		return nil, errors.Default.New("projectPath is required for dbt plugin")
 	}
-	if op.ProjectName == "" {
-		return nil, errors.Default.New("projectName is required for dbt plugin")
-	}
+
 	if op.ProjectTarget == "" {
 		op.ProjectTarget = "dev"
-	}
-	if op.SelectedModels == nil {
-		return nil, errors.Default.New("selectedModels is required for dbt plugin")
 	}
 
 	return &tasks.DbtTaskData{
