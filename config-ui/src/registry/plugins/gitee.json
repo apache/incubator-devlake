@@ -1,0 +1,41 @@
+{
+  "id": "gitee",
+  "name": "Gitee",
+  "type": "integration",
+  "enabled": true,
+  "multiConnection": true,
+  "isBeta": false,
+  "isProvider": true,
+  "icon": "src/images/integrations/gitee.svg",
+  "private": false,
+  "connection": {
+    "authentication": "token",
+    "fields": {
+      "name": { "enable": true, "required": true, "readonly": false },
+      "endpoint": { },
+      "proxy": { },
+      "username": { },
+      "password": { },
+      "rateLimitPerHour": { }
+    },
+    "labels": {
+      "name": "Connection Name",
+      "endpoint": "Endpoint URL",
+      "proxy": "Proxy URL",
+      "username": "Username",
+      "password": "Password",
+      "rateLimitPerHour": "Rate Limit (per hour)"
+    },
+    "placeholders": {
+      "name": "eg. Gitee",
+      "endpoint": "URL eg. https://api.gitee.io/",
+      "proxy": "eg. http://proxy.localhost:8080",
+      "username": "eg. admin",
+      "password": "eg. ************",
+      "rateLimitPerHour": "1000"
+    },
+    "tooltips": {
+    }
+  },
+  "entities": ["CICD"]
+}

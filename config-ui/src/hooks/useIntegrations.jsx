@@ -28,6 +28,9 @@ import JenkinsPlugin from '@/registry/plugins/jenkins.json'
 import TapdPlugin from '@/registry/plugins/tapd.json'
 // "plugin" Plugins (Backend / Advanced Mode Plugins)
 import AePlugin from '@/registry/plugins/ae.json'
+import AzurePlugin from '@/registry/plugins/azure.json'
+import BitbucketPlugin from '@/registry/plugins/bitbucket.json'
+import GiteePlugin from '@/registry/plugins/gitee.json'
 // @todo: import additional backend plugins
 // import RefdiffPlugin from '@/registry/plugins/refdiff.json'
 
@@ -44,7 +47,10 @@ function useIntegrations(
     GitLabPlugin,
     JenkinsPlugin,
     TapdPlugin,
-    AePlugin
+    AePlugin,
+    AzurePlugin,
+    BitbucketPlugin,
+    GiteePlugin
   ]
 ) {
   const [registry, setRegistry] = useState(pluginRegistry || [])
@@ -214,6 +220,7 @@ function useIntegrations(
     ProviderFormPlaceholders,
     ProviderIcons,
     ProviderConnectionLimits,
+    ProviderTypes,
     setRegistry,
     setApiRegistry,
     setActiveProvider,
