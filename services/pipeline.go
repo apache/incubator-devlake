@@ -157,14 +157,14 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 	sema := semaphore.NewWeighted(pipelineMaxParallel)
 	startedPipelineIds := []uint64{}
 	for {
-		globalPipelineLog.Info("wait for new pipeline")
+		globalPipelineLog.Info("acquire lock")
 		// start goroutine when sema lock ready and pipeline exist.
 		// to avoid read old pipeline, acquire lock before read exist pipeline
 		err := sema.Acquire(context.TODO(), 1)
 		if err != nil {
 			panic(err)
 		}
-		globalPipelineLog.Info("get lock and wait pipeline")
+		globalPipelineLog.Info("get lock and wait next pipeline")
 		dbPipeline := &models.DbPipeline{}
 		for {
 			cronLocker.Lock()
