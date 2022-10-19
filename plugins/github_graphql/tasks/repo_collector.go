@@ -96,6 +96,10 @@ func CollectRepo(taskCtx core.SubTaskContext) errors.Error {
 			query := iQuery.(*GraphqlQueryRepo)
 			repository := query.Repository
 			results := make([]interface{}, 0, 1)
+			language := ``
+			if len(repository.Languages.Nodes) > 0 {
+				language = repository.Languages.Nodes[0].Name
+			}
 			githubRepository := &models.GithubRepo{
 				ConnectionId: data.Options.ConnectionId,
 				GithubId:     repository.GithubId,
@@ -104,7 +108,7 @@ func CollectRepo(taskCtx core.SubTaskContext) errors.Error {
 				Description:  repository.Description,
 				OwnerId:      repository.Owner.Id,
 				OwnerLogin:   repository.Owner.Login,
-				Language:     repository.Languages.Nodes[0].Name,
+				Language:     language,
 				CreatedDate:  repository.CreatedDate,
 				UpdatedDate:  repository.UpdatedDate,
 			}
