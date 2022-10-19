@@ -218,8 +218,6 @@ func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 					if apiPullRequestReview.State != "PENDING" {
 						githubReviewer := &models.GithubReviewer{
 							ConnectionId:  data.Options.ConnectionId,
-							GithubId:      apiPullRequestReview.Author.Id,
-							Login:         apiPullRequestReview.Author.Login,
 							PullRequestId: githubPr.GithubId,
 						}
 
@@ -231,18 +229,25 @@ func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 							CommitSha:      apiPullRequestReview.Commit.Oid,
 							GithubSubmitAt: apiPullRequestReview.SubmittedAt,
 
-							PullRequestId:  githubPr.GithubId,
-							AuthorUsername: apiPullRequestReview.Author.Login,
-							AuthorUserId:   apiPullRequestReview.Author.Id,
+							PullRequestId: githubPr.GithubId,
+						}
+
+						if apiPullRequestReview.Author != nil {
+							githubReviewer.GithubId = apiPullRequestReview.Author.Id
+							githubReviewer.Login = apiPullRequestReview.Author.Login
+
+							githubPrReview.AuthorUserId = apiPullRequestReview.Author.Id
+							githubPrReview.AuthorUsername = apiPullRequestReview.Author.Login
+
+							githubUser, err := convertGraphqlPreAccount(*apiPullRequestReview.Author, data.Repo.GithubId, data.Options.ConnectionId)
+							if err != nil {
+								return nil, err
+							}
+							results = append(results, githubUser)
 						}
 
 						results = append(results, githubReviewer)
 						results = append(results, githubPrReview)
-						githubUser, err := convertGraphqlPreAccount(*apiPullRequestReview.Author, data.Repo.GithubId, data.Options.ConnectionId)
-						if err != nil {
-							return nil, err
-						}
-						results = append(results, githubUser)
 					}
 				}
 
