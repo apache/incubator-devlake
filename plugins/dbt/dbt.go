@@ -27,8 +27,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var _ core.PluginMeta = (*Dbt)(nil)
-var _ core.PluginTask = (*Dbt)(nil)
+var (
+	_ core.PluginMeta = (*Dbt)(nil)
+	_ core.PluginTask = (*Dbt)(nil)
+)
 
 type Dbt struct{}
 
@@ -38,6 +40,7 @@ func (plugin Dbt) Description() string {
 
 func (plugin Dbt) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
+		tasks.GitMeta,
 		tasks.DbtConverterMeta,
 	}
 }
@@ -81,16 +84,12 @@ func main() {
 	dbtCmd := &cobra.Command{Use: "dbt"}
 	_ = dbtCmd.MarkFlagRequired("projectPath")
 	projectPath := dbtCmd.Flags().StringP("projectPath", "p", "/Users/abeizn/demoapp", "user dbt project directory.")
-
-	_ = dbtCmd.MarkFlagRequired("projectName")
+	projectGitURL := dbtCmd.Flags().StringP("projectGitURL", "g", "", "user dbt project git url.")
 	projectName := dbtCmd.Flags().StringP("projectName", "n", "demoapp", "user dbt project name.")
-
 	projectTarget := dbtCmd.Flags().StringP("projectTarget", "o", "dev", "this is the default target your dbt project will use.")
-
-	_ = dbtCmd.MarkFlagRequired("selectedModels")
 	modelsSlice := []string{"my_first_dbt_model", "my_second_dbt_model"}
 	selectedModels := dbtCmd.Flags().StringSliceP("models", "m", modelsSlice, "dbt select models")
-
+	dbtArgs := dbtCmd.Flags().StringSliceP("args", "a", []string{}, "dbt run args")
 	projectVars := make(map[string]string)
 	projectVars["event_min_id"] = "7581"
 	projectVars["event_max_id"] = "7582"
@@ -107,6 +106,8 @@ func main() {
 			"projectTarget":  *projectTarget,
 			"selectedModels": *selectedModels,
 			"projectVars":    projectVarsConvert,
+			"projectGitURL":  *projectGitURL,
+			"args":           dbtArgs,
 		})
 	}
 	runner.RunCmd(dbtCmd)

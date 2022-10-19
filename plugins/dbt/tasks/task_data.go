@@ -18,12 +18,17 @@ limitations under the License.
 package tasks
 
 type DbtOptions struct {
-	ProjectPath    string                 `json:"projectPath"`
-	ProjectName    string                 `json:"projectName"`
-	ProjectTarget  string                 `json:"projectTarget"`
+	ProjectPath   string `json:"projectPath"`
+	ProjectName   string `json:"projectName"`
+	ProjectTarget string `json:"projectTarget"`
+	// clone from git to projectPath if projectGitURL is not empty
+	ProjectGitURL string `json:"projectGitURL"`
+	// deprecated, use args instead
 	ProjectVars    map[string]interface{} `json:"projectVars"`
 	SelectedModels []string               `json:"selectedModels"`
-	Tasks          []string               `json:"tasks,omitempty"`
+	// dbt run args
+	Args  []string `json:"args"`
+	Tasks []string `json:"tasks,omitempty"`
 }
 
 type DbtTaskData struct {
