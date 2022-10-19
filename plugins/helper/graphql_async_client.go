@@ -131,12 +131,15 @@ func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error) {
 	// to make sure task will be enqueued
 	apiClient.waitGroup.Add(1)
 	go func() {
-		defer apiClient.waitGroup.Done()
 		select {
 		case <-apiClient.ctx.Done():
 			return
 		default:
 			go func() {
+				// if set waitGroup done here, a serial of goruntine will block until son goruntine finish.
+				// But if done out of this go func, so task will run after waitGroup finish
+				// I have no idea about this now...
+				defer apiClient.waitGroup.Done()
 				apiClient.checkError(task())
 			}()
 		}
