@@ -88,7 +88,7 @@ services:
       DEVLAKE_ENDPOINT: devlake:8080
       GRAFANA_ENDPOINT: grafana:3000
       #ADMIN_USER: devlake
-      #ADMIN_PASS: merico
+      #ADMIN_PASS: letsdivein
     depends_on:
       - devlake
 
