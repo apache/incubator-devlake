@@ -30,7 +30,7 @@ import (
 
 type modifyJenkinsBuild struct{}
 
-type jenkinsBuildBefore struct {
+type jenkinsBuild20220916Before struct {
 	archived.NoPKModel
 	// collected fields
 	ConnectionId      uint64    `gorm:"primaryKey"`
@@ -49,11 +49,11 @@ type jenkinsBuildBefore struct {
 	HasStages         bool
 }
 
-func (jenkinsBuildBefore) TableName() string {
+func (jenkinsBuild20220916Before) TableName() string {
 	return "_tool_jenkins_builds"
 }
 
-type jenkinsBuilAfter struct {
+type jenkinsBuild20220916After struct {
 	archived.NoPKModel
 	// collected fields
 	ConnectionId      uint64    `gorm:"primaryKey"`
@@ -72,7 +72,7 @@ type jenkinsBuilAfter struct {
 	HasStages         bool
 }
 
-func (jenkinsBuilAfter) TableName() string {
+func (jenkinsBuild20220916After) TableName() string {
 	return "_tool_jenkins_builds"
 }
 
@@ -91,9 +91,9 @@ func (script *modifyJenkinsBuild) Up(basicRes core.BasicRes) errors.Error {
 		basicRes,
 		script,
 		"_tool_jenkins_builds",
-		func(s *jenkinsBuildBefore) (*jenkinsBuilAfter, errors.Error) {
+		func(s *jenkinsBuild20220916Before) (*jenkinsBuild20220916After, errors.Error) {
 			// copy data
-			dst := jenkinsBuilAfter(*s)
+			dst := jenkinsBuild20220916After(*s)
 			if strings.Contains(s.FullDisplayName, s.JobName) {
 				dst.FullDisplayName = s.FullDisplayName
 			} else {
