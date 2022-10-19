@@ -38,28 +38,16 @@ type commitFile20220913Before struct {
 	FilePath  string `gorm:"type:varchar(255)"` // target field
 }
 
-func (commitFile20220913Before) TableName() string {
-	return "commit_files"
-}
-
 type commitFile20220913After struct {
 	archived.DomainEntity
 	CommitSha string `gorm:"type:varchar(40)"`
 	FilePath  string `gorm:"type:text"` // target field
 }
 
-func (commitFile20220913After) TableName() string {
-	return "commit_files"
-}
-
 type commitFileComponent20220913 struct {
 	archived.NoPKModel
 	CommitFileId  string `gorm:"primaryKey;type:varchar(255)"`
 	ComponentName string `gorm:"type:varchar(255)"`
-}
-
-func (commitFileComponent20220913) TableName() string {
-	return "commit_file_components"
 }
 
 func (script *fixCommitFileIdTooLong) Up(basicRes core.BasicRes) errors.Error {

@@ -84,7 +84,7 @@ func (d *Dalgorm) AutoMigrate(entity interface{}, clauses ...dal.Clause) errors.
 	err := errors.Convert(buildTx(d.db, clauses).AutoMigrate(entity))
 	if err == nil {
 		// fix pg cache plan error
-		_ = d.db.Limit(1).Find(entity)
+		_ = d.First(entity, clauses...)
 	}
 	return err
 }

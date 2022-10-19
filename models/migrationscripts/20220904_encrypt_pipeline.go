@@ -47,10 +47,6 @@ type Pipeline20220904Before struct {
 	Stage         int            `json:"stage"`
 }
 
-func (Pipeline20220904Before) TableName() string {
-	return "_devlake_pipelines"
-}
-
 type Pipeline0904After struct {
 	common.Model
 	Name          string     `json:"name" gorm:"index"`
@@ -64,10 +60,6 @@ type Pipeline0904After struct {
 	Message       string     `json:"message"`
 	SpentSeconds  int        `json:"spentSeconds"`
 	Stage         int        `json:"stage"`
-}
-
-func (Pipeline0904After) TableName() string {
-	return "_devlake_pipelines"
 }
 
 func (script *encryptPipeline) Up(basicRes core.BasicRes) errors.Error {
