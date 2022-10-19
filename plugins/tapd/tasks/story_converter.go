@@ -79,17 +79,19 @@ func ConvertStory(taskCtx core.SubTaskContext) errors.Error {
 				TimeRemainingMinutes: int64(toolL.Remain),
 				CreatorId:            accountIdGen.Generate(data.Options.ConnectionId, toolL.Creator),
 				CreatorName:          toolL.Creator,
-				AssigneeId:           accountIdGen.Generate(data.Options.ConnectionId, toolL.Owner),
 				AssigneeName:         toolL.Owner,
 				Severity:             "",
 				Component:            toolL.Feature,
+			}
+			if domainL.AssigneeName != "" {
+				domainL.AssigneeId = accountIdGen.Generate(data.Options.ConnectionId, toolL.Owner)
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
 				domainL.LeadTimeMinutes = int64(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{
-				BoardId: workspaceIdGen.Generate(toolL.WorkspaceId),
+				BoardId: workspaceIdGen.Generate(toolL.ConnectionId, toolL.WorkspaceId),
 				IssueId: domainL.Id,
 			}
 			sprintIssue := &ticket.SprintIssue{

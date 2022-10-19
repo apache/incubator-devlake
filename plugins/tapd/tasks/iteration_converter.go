@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -50,6 +49,13 @@ func ConvertIteration(taskCtx core.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
+	getStdSprintStatus := func(original string) string {
+		if original == "open" {
+			return "CLOSED"
+		} else {
+			return ""
+		}
+	}
 	workspaceIdGen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
@@ -61,7 +67,7 @@ func ConvertIteration(taskCtx core.SubTaskContext) errors.Error {
 			domainIter := &ticket.Sprint{
 				DomainEntity:    domainlayer.DomainEntity{Id: iterIdGen.Generate(data.Options.ConnectionId, iter.Id)},
 				Url:             fmt.Sprintf("https://www.tapd.cn/%d/prong/iterations/view/%d", iter.WorkspaceId, iter.Id),
-				Status:          strings.ToUpper(iter.Status),
+				Status:          getStdSprintStatus(iter.Status),
 				Name:            iter.Name,
 				StartedDate:     (*time.Time)(iter.Startdate),
 				EndedDate:       (*time.Time)(iter.Enddate),

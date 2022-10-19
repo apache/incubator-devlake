@@ -80,6 +80,24 @@ const DATA_SOURCES_LIST = [
     name: Providers.TAPD,
     title: ProviderLabels[Providers.TAPD.toUpperCase()],
     value: Providers.TAPD
+  },
+  {
+    id: 6,
+    name: Providers.AZURE,
+    title: ProviderLabels[Providers.AZURE.toUpperCase()],
+    value: Providers.AZURE
+  },
+  {
+    id: 7,
+    name: Providers.BITBUCKET,
+    title: ProviderLabels[Providers.BITBUCKET.toUpperCase()],
+    value: Providers.BITBUCKET
+  },
+  {
+    id: 8,
+    name: Providers.GITEE,
+    title: ProviderLabels[Providers.GITEE.toUpperCase()],
+    value: Providers.GITEE
   }
 ]
 

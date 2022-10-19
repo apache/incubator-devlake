@@ -59,6 +59,12 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_CHANGELOG_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
+	statusList := make([]models.TapdStoryStatus, 0)
+	_, getStdStatus, err := getDefaltStdStatusMapping(data, db, statusList)
+	if err != nil {
+		return err
+	}
+	customStatusMap := getStatusMapping(data)
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdStoryChangelog{})
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
@@ -95,6 +101,15 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) errors.Error {
 				OriginalFromValue: cl.ValueBeforeParsed,
 				OriginalToValue:   cl.ValueAfterParsed,
 				CreatedDate:       *cl.Created,
+			}
+			if domainCl.FieldName == "status" {
+				if len(customStatusMap) != 0 {
+					domainCl.FromValue = customStatusMap[domainCl.OriginalFromValue]
+					domainCl.ToValue = customStatusMap[domainCl.OriginalToValue]
+				} else {
+					domainCl.FromValue = getStdStatus(domainCl.OriginalFromValue)
+					domainCl.ToValue = getStdStatus(domainCl.OriginalToValue)
+				}
 			}
 
 			return []interface{}{

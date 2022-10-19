@@ -31,3 +31,15 @@ type TapdStoryStatus struct {
 func (TapdStoryStatus) TableName() string {
 	return "_tool_tapd_story_statuses"
 }
+
+func (s TapdStoryStatus) GetChinese() string {
+	return s.ChineseName
+}
+
+func (s TapdStoryStatus) GetEnglish() string {
+	return s.EnglishName
+}
+
+func (s TapdStoryStatus) GetIsLastStep() bool {
+	return s.IsLastStep
+}

@@ -49,7 +49,7 @@ func All() []core.MigrationScript {
 		new(addRawDataOriginToBoardRepos),
 		new(renamePipelineCommits),
 		new(commitLineChange),
-		new(modifyLeadTimeMinutes),
+		new(changeLeadTimeMinutesToInt64),
 		new(addRepoSnapshot),
 	}
 }

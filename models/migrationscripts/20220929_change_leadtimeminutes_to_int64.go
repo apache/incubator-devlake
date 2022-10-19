@@ -23,9 +23,9 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
-var _ core.MigrationScript = (*modifyLeadTimeMinutes)(nil)
+var _ core.MigrationScript = (*changeLeadTimeMinutesToInt64)(nil)
 
-type modifyLeadTimeMinutes struct{}
+type changeLeadTimeMinutesToInt64 struct{}
 
 type Issues20220929 struct {
 	LeadTimeMinutes int64
@@ -35,7 +35,10 @@ func (Issues20220929) TableName() string {
 	return "issues"
 }
 
-func (*modifyLeadTimeMinutes) Up(basicRes core.BasicRes) errors.Error {
+func (*changeLeadTimeMinutesToInt64) Up(basicRes core.BasicRes) errors.Error {
+	// Yes, issues.lead_time_minutes might be negative, we ought to change the type
+	// for the column from `uint` to `int64`
+	// related issue: https://github.com/apache/incubator-devlake/issues/3224
 	db := basicRes.GetDal()
 	bakColumnName := "lead_time_minutes_20220929"
 	err := db.RenameColumn("issues", "lead_time_minutes", bakColumnName)
@@ -72,10 +75,10 @@ func (*modifyLeadTimeMinutes) Up(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (*modifyLeadTimeMinutes) Version() uint64 {
+func (*changeLeadTimeMinutesToInt64) Version() uint64 {
 	return 20220929145125
 }
 
-func (*modifyLeadTimeMinutes) Name() string {
+func (*changeLeadTimeMinutesToInt64) Name() string {
 	return "modify lead_time_minutes"
 }

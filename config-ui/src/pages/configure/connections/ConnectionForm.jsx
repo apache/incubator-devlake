@@ -31,7 +31,8 @@ import {
   // PopoverInteractionKind,
   Intent,
   PopoverInteractionKind,
-  NumericInput
+  NumericInput,
+  Switch
 } from '@blueprintjs/core'
 import { Providers } from '@/data/Providers'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
@@ -100,6 +101,7 @@ export default function ConnectionForm(props) {
   const [tokenStore, setTokenStore] = useState(initialTokenStore)
   const [personalAccessTokens, setPersonalAccessTokens] = useState([])
   const [tokenTests, setTokenTests] = useState([])
+  const [enableRateLimit, setEnableRateLimit] = useState(rateLimitPerHour > 0)
 
   const patTestPayload = useMemo(
     () => ({ endpoint: endpointUrl, proxy }),
@@ -277,6 +279,10 @@ export default function ConnectionForm(props) {
         })
     )
   }, [allTestResponses, personalAccessTokens, getValidityStatus])
+
+  useEffect(() => {
+    onRateLimitChange((rL) => (!enableRateLimit ? 0 : rL))
+  }, [enableRateLimit, onRateLimitChange])
 
   return (
     <>
@@ -745,7 +751,10 @@ export default function ConnectionForm(props) {
           Providers.GITLAB,
           Providers.JIRA,
           Providers.JENKINS,
-          Providers.TAPD
+          Providers.TAPD,
+          Providers.AZURE,
+          Providers.BITBUCKET,
+          Providers.GITEE
         ].includes(activeProvider?.id) && (
           <>
             <div className='formContainer'>
@@ -789,31 +798,54 @@ export default function ConnectionForm(props) {
                 <Label>
                   {labels ? labels.rateLimitPerHour : <>Rate&nbsp;Limit</>}
                 </Label>
-                <NumericInput
-                  id='connection-ratelimit'
-                  ref={connectionRateLimitRef}
-                  disabled={isTesting || isSaving || isLocked}
-                  min={0}
-                  max={1000000000}
-                  clampValueOnBlur={true}
-                  className={`input input-ratelimit ${
-                    fieldHasError('RateLimit') ? 'invalid-field' : ''
-                  }`}
-                  fill={false}
-                  placeholder={
-                    placeholders.rateLimitPerHour
-                      ? placeholders.rateLimitPerHour
-                      : '1000'
-                  }
-                  allowNumericCharactersOnly={true}
-                  onValueChange={(rateLimitPerHour) => {
-                    onRateLimitChange(rateLimitPerHour)
-                  }}
-                  value={rateLimitPerHour}
-                  rightElement={
-                    <InputValidationError error={getFieldError('RateLimit')} />
-                  }
-                />
+                <div
+                  className='ratelimit-options'
+                  style={{ display: 'flex', float: 'left' }}
+                >
+                  {enableRateLimit && (
+                    <div style={{ marginRight: '10px' }}>
+                      <NumericInput
+                        id='connection-ratelimit'
+                        ref={connectionRateLimitRef}
+                        disabled={isTesting || isSaving || isLocked}
+                        min={0}
+                        max={1000000000}
+                        clampValueOnBlur={true}
+                        className={`input input-ratelimit ${
+                          fieldHasError('RateLimit') ? 'invalid-field' : ''
+                        }`}
+                        fill={false}
+                        placeholder={
+                          placeholders.rateLimitPerHour
+                            ? placeholders.rateLimitPerHour
+                            : '1000'
+                        }
+                        allowNumericCharactersOnly={true}
+                        onValueChange={(rateLimitPerHour) => {
+                          onRateLimitChange(rateLimitPerHour)
+                        }}
+                        value={rateLimitPerHour}
+                        rightElement={
+                          <InputValidationError
+                            error={getFieldError('RateLimit')}
+                          />
+                        }
+                      />
+                    </div>
+                  )}
+                  <Switch
+                    checked={enableRateLimit}
+                    label={
+                      enableRateLimit ? (
+                        <>Enabled &mdash; {rateLimitPerHour} Requests/hr</>
+                      ) : (
+                        'Disabled'
+                      )
+                    }
+                    onChange={() => setEnableRateLimit(!enableRateLimit)}
+                    style={{ marginBottom: '0' }}
+                  />
+                </div>
               </FormGroup>
             </div>
           </>
