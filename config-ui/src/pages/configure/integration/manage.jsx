@@ -33,9 +33,10 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import { ToastNotification } from '@/components/Toast'
+import useIntegrations from '@/hooks/useIntegrations'
 import useConnectionManager from '@/hooks/useConnectionManager'
 
-import { integrationsData } from '@/data/integrations'
+// import { integrationsData } from '@/data/integrations'
 import DeleteAction from '@/components/actions/DeleteAction'
 import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
 import ContentLoader from '@/components/loaders/ContentLoader'
@@ -47,10 +48,18 @@ export default function ManageIntegration() {
 
   const { providerId } = useParams()
 
-  const [integrations, setIntegrations] = useState(integrationsData)
-  const [activeProvider, setActiveProvider] = useState(
-    integrations.find((p) => p.id === providerId)
-  )
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider,
+    setActiveProvider
+  } = useIntegrations()
+
+  // const [integrations, setIntegrations] = useState(integrationsData)
+  // const [activeProvider, setActiveProvider] = useState(
+  //   integrations.find((p) => p.id === providerId)
+  // )
   const [isRunningDelete, setIsRunningDelete] = useState(false)
 
   const [deleteId, setDeleteId] = useState(null)
@@ -65,13 +74,14 @@ export default function ManageIntegration() {
     fetchAllConnections,
     errors,
     deleteComplete,
-    testAllConnections
+    testAllConnections,
+    setProvider: setConnectionProvider
   } = useConnectionManager({
     activeProvider
   })
 
   const addConnection = () => {
-    history.push(`/connections/add/${activeProvider.id}`)
+    history.push(`/connections/add/${activeProvider?.id}`)
   }
 
   const editConnection = (connection, e) => {
@@ -81,13 +91,13 @@ export default function ManageIntegration() {
       (!e.target.classList.contains('cell-actions') ||
         !e.target.classList.contains('actions-link'))
     ) {
-      history.push(`/connections/edit/${activeProvider.id}/${connection.id}`)
+      history.push(`/connections/edit/${activeProvider?.id}/${connection.id}`)
     }
   }
 
   const configureConnection = (connection) => {
     const { id, ID, endpoint } = connection
-    history.push(`/connections/configure/${activeProvider.id}/${id || ID}`)
+    history.push(`/connections/configure/${activeProvider?.id}/${id || ID}`)
     console.log('>> editing/modifying connection: ', id, endpoint)
   }
 
@@ -140,14 +150,16 @@ export default function ManageIntegration() {
   }
 
   useEffect(() => {
-    fetchAllConnections(false)
+    if (activeProvider) {
+      fetchAllConnections(false)
+    }
   }, [activeProvider, fetchAllConnections])
 
   useEffect(() => {
     console.log('>> ACTIVE PROVIDER = ', providerId)
-    setIntegrations(integrations)
-    setActiveProvider(integrations.find((p) => p.id === providerId))
-  }, [integrations, providerId])
+    setActiveProvider(Integrations.find((p) => p.id === providerId))
+    setConnectionProvider(Integrations.find((p) => p.id === providerId))
+  }, [Integrations, providerId, setActiveProvider, setConnectionProvider])
 
   useEffect(() => {
     let flushTimeout
@@ -171,7 +183,7 @@ export default function ManageIntegration() {
     <>
       <div className='container'>
         <Nav />
-        <Sidebar />
+        <Sidebar key={Integrations} integrations={Integrations} />
         <Content>
           <main className='main'>
             <AppCrumbs
@@ -179,9 +191,9 @@ export default function ManageIntegration() {
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/integrations', icon: false, text: 'Connections' },
                 {
-                  href: `/integrations/${activeProvider.id}`,
+                  href: `/integrations/${activeProvider?.id}`,
                   icon: false,
-                  text: `${activeProvider.name}`,
+                  text: `${activeProvider?.name}`,
                   current: true
                 }
               ]}
@@ -196,13 +208,19 @@ export default function ManageIntegration() {
               <div style={{ display: 'flex' }}>
                 <div>
                   <span style={{ marginRight: '10px' }}>
-                    {activeProvider.icon}
+                    <img
+                      className='providerIconSvg'
+                      src={'/' + activeProvider?.icon}
+                      width={40}
+                      height={40}
+                      style={{ width: '40px', height: '40px' }}
+                    />
                   </span>
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
-                    {activeProvider.name} Connections{' '}
-                    {activeProvider.isBeta && (
+                    {activeProvider?.name} Connections{' '}
+                    {activeProvider?.isBeta && (
                       <>
                         <sup>(beta)</sup>
                       </>
@@ -490,7 +508,7 @@ export default function ManageIntegration() {
                     }}
                   >
                     Fetched <strong>{connections.length}</strong> connection(s)
-                    from Lake API for <strong>{activeProvider.name}</strong>
+                    from Lake API for <strong>{activeProvider?.name}</strong>
                   </p>
                 </>
               )}

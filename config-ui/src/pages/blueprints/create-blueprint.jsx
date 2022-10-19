@@ -1038,7 +1038,7 @@ const CreateBlueprint = (props) => {
     <>
       <div className='container'>
         <Nav />
-        <Sidebar />
+        <Sidebar integrations={Integrations} />
         <Content>
           <main className='main'>
             <WorkflowStepsBar activeStep={activeStep} steps={blueprintSteps} />

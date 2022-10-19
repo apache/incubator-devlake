@@ -23,9 +23,8 @@ import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 // @todo: replace with Integrations Hook
 // import { integrationsData } from '@/data/integrations'
-import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/incoming-webhook.svg'
-
 import useIntegrations from '@/hooks/useIntegrations'
+import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/incoming-webhook.svg'
 
 import '@/styles/integration.scss'
 
@@ -62,7 +61,7 @@ export default function Integration() {
     <>
       <div className='container'>
         <Nav />
-        <Sidebar />
+        <Sidebar key={Integrations} integrations={Integrations} />
         <Content>
           <main className='main'>
             <AppCrumbs

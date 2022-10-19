@@ -75,8 +75,8 @@ const ProviderTransformationSettings = (props) => {
   const TransformationWithProviderSettings = withTransformationSettings(
     provider?.id && TransformationComponents[provider?.id]
       ? TransformationComponents[provider?.id]
-      // @todo Create <NoTransformations /> Message Component
-      : null,
+      : // @todo Create <NoTransformations /> Message Component
+        null,
     { ...props, entities: props.entities[props?.connection?.id] }
   )
 

@@ -31,16 +31,18 @@ import { ReactComponent as LogoText } from '@/images/devlake-textmark.svg'
 import '@/styles/sidebar.scss'
 import UIContext from '../store/UIContext'
 
-const Sidebar = () => {
+const Sidebar = (props) => {
   const activeRoute = useRouteMatch()
   const uiContext = useContext(UIContext)
+
+  const { integrations = [] } = props
 
   const [menu, setMenu] = useState(MenuConfiguration(activeRoute))
   const [versionTag, setVersionTag] = useState('')
 
   useEffect(() => {
-    setMenu(MenuConfiguration(activeRoute))
-  }, [activeRoute])
+    setMenu(MenuConfiguration(activeRoute, integrations))
+  }, [activeRoute, integrations])
 
   useEffect(() => {
     const fetchVersion = async () => {
@@ -57,6 +59,8 @@ const Sidebar = () => {
     }
     fetchVersion()
   }, [])
+
+  // useEffect(() => {}, [integrations])
 
   return uiContext.sidebarVisible ? (
     <Card

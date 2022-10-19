@@ -31,6 +31,7 @@ import {
   NonIdealState,
   Elevation
 } from '@blueprintjs/core'
+import useIntegrations from '@/hooks/useIntegrations'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import useBlueprintValidation from '@/hooks/useBlueprintValidation'
@@ -45,6 +46,14 @@ import BlueprintsGrid from '@/components/blueprints/BlueprintsGrid'
 
 const Blueprints = (props) => {
   const history = useHistory()
+
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider,
+    setActiveProvider
+  } = useIntegrations()
 
   const {
     // eslint-disable-next-line no-unused-vars
@@ -340,7 +349,7 @@ const Blueprints = (props) => {
     <>
       <div className='container'>
         <Nav />
-        <Sidebar />
+        <Sidebar key={Integrations} integrations={Integrations} />
         <Content>
           <main className='main'>
             {/* <AppCrumbs
