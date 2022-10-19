@@ -28,7 +28,7 @@ import (
 
 type addPipelineID struct{}
 
-type GitlabJob20220804 struct {
+type gitlabJob20220804 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
 	GitlabId     int     `gorm:"primaryKey"`
@@ -50,13 +50,13 @@ type GitlabJob20220804 struct {
 	archived.NoPKModel
 }
 
-func (GitlabJob20220804) TableName() string {
+func (gitlabJob20220804) TableName() string {
 	return "_tool_gitlab_jobs"
 }
 
 func (*addPipelineID) Up(baseRes core.BasicRes) errors.Error {
 	db := baseRes.GetDal()
-	err := db.AddTablerColumn(&GitlabJob20220804{}, "pipeline_id")
+	err := db.AutoMigrate(&gitlabJob20220804{})
 	if err != nil {
 		return err
 	}

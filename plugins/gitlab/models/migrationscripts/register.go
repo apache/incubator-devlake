@@ -25,7 +25,7 @@ import (
 func All() []core.MigrationScript {
 	return []core.MigrationScript{
 		new(addInitTables),
-		new(modifyGitlabCI),
+		new(addGitlabCI),
 		new(addPipelineID),
 		new(addPipelineProjects),
 		new(fixDurationToFloat8),

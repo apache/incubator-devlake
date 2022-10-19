@@ -27,7 +27,7 @@ import (
 
 type addPipelineProjects struct{}
 
-type GitlabPipelineProjects20220907 struct {
+type gitlabPipelineProjects20220907 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	PipelineId   int    `gorm:"primaryKey"`
 	ProjectId    int    `gorm:"primaryKey"`
@@ -36,12 +36,12 @@ type GitlabPipelineProjects20220907 struct {
 	archived.NoPKModel
 }
 
-func (GitlabPipelineProjects20220907) TableName() string {
+func (gitlabPipelineProjects20220907) TableName() string {
 	return "_tool_gitlab_pipeline_projects"
 }
 
 func (*addPipelineProjects) Up(baseRes core.BasicRes) errors.Error {
-	err := migrationhelper.AutoMigrateTables(baseRes, &GitlabPipelineProjects20220907{})
+	err := migrationhelper.AutoMigrateTables(baseRes, &gitlabPipelineProjects20220907{})
 	if err != nil {
 		return err
 	}

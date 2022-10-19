@@ -28,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"gorm.io/gorm/clause"
 )
 
 // AutoMigrateTables runs AutoMigrate for muliple tables
@@ -39,6 +40,75 @@ func AutoMigrateTables(basicRes core.BasicRes, dst ...interface{}) errors.Error 
 			return err
 		}
 	}
+	return nil
+}
+
+// ChangeColumnsType change some Columns type for one table
+func ChangeColumnsType(
+	basicRes core.BasicRes,
+	script core.MigrationScript,
+	newTable core.Tabler,
+	Columns []string,
+	update func(tmpColumnsNames []string) errors.Error,
+) (err errors.Error) {
+	db := basicRes.GetDal()
+	tmpColumnsNames := make([]string, len(Columns))
+	for i, v := range Columns {
+		tmpColumnsNames[i] = fmt.Sprintf("%s_%s", v, hashScript(script))
+		err = db.RenameColumn(newTable.TableName(), v, tmpColumnsNames[i])
+		if err != nil {
+			return err
+		}
+
+		defer func(tmpColumnName string, ColumnsName string) {
+			if err != nil {
+				err1 := db.RenameColumn(newTable.TableName(), tmpColumnName, ColumnsName)
+				if err1 != nil {
+					err = errors.Default.Wrap(err, fmt.Sprintf("RollBack by RenameColum failed.Relevant data needs to be repaired manually.%s", err1.Error()))
+				}
+			}
+		}(tmpColumnsNames[i], v)
+	}
+
+	err = db.AutoMigrate(newTable)
+	if err != nil {
+		return errors.Default.Wrap(err, "AutoMigrate for Add Colume Error")
+	}
+
+	defer func() {
+		if err != nil {
+			err1 := db.DropColumns(newTable.TableName(), Columns...)
+			if err1 != nil {
+				err = errors.Default.Wrap(err, fmt.Sprintf("RollBack by DropColume failed.Relevant data needs to be repaired manually.%s", err1.Error()))
+			}
+		}
+	}()
+
+	if update == nil {
+		params := make([]interface{}, 0, len(Columns)*2+1)
+		params = append(params, clause.Table{Name: newTable.TableName()})
+		updateStr := "UPDATE ? SET "
+		for i, v := range Columns {
+			if i > 0 {
+				updateStr += " AND "
+			}
+			updateStr += "? = ?"
+			params = append(params, clause.Column{Name: v})
+			params = append(params, clause.Column{Name: tmpColumnsNames[i]})
+		}
+		err = db.Exec(updateStr, params...)
+	} else {
+		err = update(tmpColumnsNames)
+	}
+	if err != nil {
+		return err
+	}
+
+	err = db.DropColumns(newTable.TableName(), tmpColumnsNames...)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

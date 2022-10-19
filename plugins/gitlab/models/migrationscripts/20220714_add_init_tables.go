@@ -18,7 +18,8 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/config"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -86,10 +87,9 @@ func (*addInitTables) Up(baseRes core.BasicRes) errors.Error {
 		return err
 	}
 
-	v := config.GetConfig()
-	encKey := v.GetString("ENCODE_KEY")
-	endPoint := v.GetString("GITLAB_ENDPOINT")
-	gitlabAuth := v.GetString("GITLAB_AUTH")
+	encKey := baseRes.GetConfig("ENCODE_KEY")
+	endPoint := baseRes.GetConfig("GITLAB_ENDPOINT")
+	gitlabAuth := baseRes.GetConfig("GITLAB_AUTH")
 
 	if encKey == "" || endPoint == "" || gitlabAuth == "" {
 		return nil
@@ -102,9 +102,12 @@ func (*addInitTables) Up(baseRes core.BasicRes) errors.Error {
 	if err != nil {
 		return err
 	}
-	conn.Proxy = v.GetString("GITLAB_PROXY")
-	conn.RateLimitPerHour = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
-
+	conn.Proxy = baseRes.GetConfig("GITLAB_PROXY")
+	var err1 error
+	conn.RateLimitPerHour, err1 = strconv.Atoi(baseRes.GetConfig("GITLAB_API_REQUESTS_PER_HOUR"))
+	if err1 != nil {
+		conn.RateLimitPerHour = 1000
+	}
 	err = db.CreateIfNotExist(conn)
 
 	if err != nil {

@@ -27,9 +27,11 @@ import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type modifyGitlabCI struct{}
+// Add gitlab job file for GitlabCI
+// Add gitlab_updated_at on gitlab pipeline for GitlabCI
+type addGitlabCI struct{}
 
-type GitlabPipeline20220729 struct {
+type gitlabPipeline20220729 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
 	GitlabId  int    `gorm:"primaryKey"`
@@ -49,11 +51,11 @@ type GitlabPipeline20220729 struct {
 	archived.NoPKModel
 }
 
-func (GitlabPipeline20220729) TableName() string {
+func (gitlabPipeline20220729) TableName() string {
 	return "_tool_gitlab_pipelines"
 }
 
-type GitlabJob20220729 struct {
+type gitlabJob20220729 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
 	GitlabId     int     `gorm:"primaryKey"`
@@ -74,18 +76,18 @@ type GitlabJob20220729 struct {
 	archived.NoPKModel
 }
 
-func (GitlabJob20220729) TableName() string {
+func (gitlabJob20220729) TableName() string {
 	return "_tool_gitlab_jobs"
 }
 
-func (*modifyGitlabCI) Up(baseRes core.BasicRes) errors.Error {
+func (*addGitlabCI) Up(baseRes core.BasicRes) errors.Error {
 	db := baseRes.GetDal()
-	err := db.AddTablerColumn(&GitlabPipeline20220729{}, "gitlab_updated_at")
+	err := db.AutoMigrate(&gitlabPipeline20220729{})
 	if err != nil {
 		return err
 	}
 
-	err = migrationhelper.AutoMigrateTables(baseRes, &GitlabJob20220729{})
+	err = migrationhelper.AutoMigrateTables(baseRes, &gitlabJob20220729{})
 	if err != nil {
 		return err
 	}
@@ -93,10 +95,10 @@ func (*modifyGitlabCI) Up(baseRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (*modifyGitlabCI) Version() uint64 {
+func (*addGitlabCI) Version() uint64 {
 	return 20220729231236
 }
 
-func (*modifyGitlabCI) Name() string {
+func (*addGitlabCI) Name() string {
 	return "pipeline and job"
 }

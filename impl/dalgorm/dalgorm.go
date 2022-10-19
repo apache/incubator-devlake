@@ -190,21 +190,6 @@ func (d *Dalgorm) AddColumn(table, columnName, columnType string) errors.Error {
 	return d.Exec("ALTER TABLE ? ADD ? ?", clause.Table{Name: table}, clause.Column{Name: columnName}, clause.Expr{SQL: columnType})
 }
 
-// AddTablerColumn add colume with Tabler args
-func (d *Dalgorm) AddTablerColumn(dst dal.Tabler, field string) errors.Error {
-	// work around the error `cached plan must not change result type` for postgres
-	// wrap in func(){} to make the linter happy
-	defer func() {
-		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: dst.TableName()})
-	}()
-
-	err := d.db.Migrator().AddColumn(dst, field)
-	if err != nil {
-		return errors.Default.Wrap(err, "AddTablerColumn Error")
-	}
-	return nil
-}
-
 // DropColumns drop one column from the table
 func (d *Dalgorm) DropColumns(table string, columnNames ...string) errors.Error {
 	// work around the error `cached plan must not change result type` for postgres
@@ -218,21 +203,6 @@ func (d *Dalgorm) DropColumns(table string, columnNames ...string) errors.Error 
 		if err != nil {
 			return errors.Convert(err)
 		}
-	}
-	return nil
-}
-
-// DropTablerColumn drop colume with Tabler args
-func (d *Dalgorm) DropTablerColumn(dst dal.Tabler, field string) errors.Error {
-	// work around the error `cached plan must not change result type` for postgres
-	// wrap in func(){} to make the linter happy
-	defer func() {
-		_ = d.Exec("SELECT * FROM ? LIMIT 1", clause.Table{Name: dst.TableName()})
-	}()
-
-	err := d.db.Migrator().DropColumn(dst, field)
-	if err != nil {
-		return errors.Default.Wrap(err, "DropTablerColumn Error")
 	}
 	return nil
 }
