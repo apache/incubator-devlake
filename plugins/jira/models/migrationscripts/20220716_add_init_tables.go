@@ -34,10 +34,6 @@ type jiraConnection20220716After struct {
 	archived.BasicAuth      `mapstructure:",squash"`
 }
 
-func (jiraConnection20220716After) TableName() string {
-	return "_tool_jira_connections"
-}
-
 type jiraConnection20220716Before struct {
 	ID                         uint64    `gorm:"primaryKey" json:"id"`
 	CreatedAt                  time.Time `json:"createdAt"`
@@ -50,10 +46,6 @@ type jiraConnection20220716Before struct {
 	RemotelinkCommitShaPattern string    `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
 	Proxy                      string    `json:"proxy"`
 	RateLimit                  int       `comment:"api request rate limt per hour" json:"rateLimit"`
-}
-
-func (jiraConnection20220716Before) TableName() string {
-	return "_tool_jira_connections"
 }
 
 type addInitTables20220716 struct{}
