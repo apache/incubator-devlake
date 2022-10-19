@@ -22,17 +22,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type renameSourceTable struct{}
+type renameSourceTable20220505 struct{}
 
-func (*renameSourceTable) Up(basicRes core.BasicRes) errors.Error {
-	err := basicRes.GetDal().RenameTable("_tool_jira_sources", "_tool_jira_connections")
-	return errors.Convert(err)
+func (*renameSourceTable20220505) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().RenameTable("_tool_jira_sources", "_tool_jira_connections")
 }
 
-func (*renameSourceTable) Version() uint64 {
+func (*renameSourceTable20220505) Version() uint64 {
 	return 20220505212344
 }
 
-func (*renameSourceTable) Name() string {
+func (*renameSourceTable20220505) Name() string {
 	return "Rename source to connection "
 }

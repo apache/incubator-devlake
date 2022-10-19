@@ -24,8 +24,8 @@ import (
 // All return all the migration scripts
 func All() []core.MigrationScript {
 	return []core.MigrationScript{
-		new(addSourceTable),
-		new(renameSourceTable),
-		new(addInitTables),
+		new(addSourceTable20220407),
+		new(renameSourceTable20220505),
+		new(addInitTables20220716),
 	}
 }

@@ -24,16 +24,16 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 )
 
-type addSourceTable struct{}
+type addSourceTable20220407 struct{}
 
-func (*addSourceTable) Up(basicRes core.BasicRes) errors.Error {
-	return errors.Convert(migrationhelper.AutoMigrateTables(basicRes, &archived.JiraSource{}))
+func (*addSourceTable20220407) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &archived.JiraSource{})
 }
 
-func (*addSourceTable) Version() uint64 {
+func (*addSourceTable20220407) Version() uint64 {
 	return 20220407201138
 }
 
-func (*addSourceTable) Name() string {
+func (*addSourceTable20220407) Name() string {
 	return "Jira init schemas"
 }
