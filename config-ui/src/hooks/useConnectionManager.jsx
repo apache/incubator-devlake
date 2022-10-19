@@ -23,12 +23,13 @@ import request from '@/utils/request'
 import Connection from '@/models/Connection'
 import ProviderListConnection from '@/models/ProviderListConnection'
 import {
-  Providers,
+  // Providers,
   ProviderConnectionLimits,
   ConnectionStatus,
   ConnectionStatusLabels
 } from '@/data/Providers'
 
+import useIntegrations from '@/hooks/useIntegrations'
 import useNetworkOfflineMode from '@/hooks/useNetworkOfflineMode'
 
 function useConnectionManager(
@@ -37,6 +38,19 @@ function useConnectionManager(
 ) {
   const history = useHistory()
   const { handleOfflineMode } = useNetworkOfflineMode()
+
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider: IntegrationActiveProvider,
+    Providers,
+    ProviderFormLabels,
+    ProviderFormPlaceholders,
+    // @todo: fix usage
+    // ProviderConnectionLimits,
+    setActiveProvider: setIntegrationActiveProvider
+  } = useIntegrations()
 
   const [provider, setProvider] = useState(activeProvider)
   const [name, setName] = useState()
@@ -165,7 +179,7 @@ function useConnectionManager(
       }
       runTest()
     },
-    [provider?.id, connectionTestPayload]
+    [provider?.id, connectionTestPayload, Providers.GITHUB]
   )
 
   const notifyConnectionSaveSuccess = useCallback(
@@ -348,33 +362,12 @@ function useConnectionManager(
         console.log('>> FETCHING ALL CONNECTION SOURCES')
         let c = null
         if (allSources) {
-          // @todo: build promises dynamically from $integrationsData
-          const aC = await Promise.all([
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.JIRA}/connections`
-            ),
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.GITLAB}/connections`
-            ),
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.JENKINS}/connections`
-            ),
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.GITHUB}/connections`
-            ),
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.TAPD}/connections`
-            ),
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.AZURE}/connections`
-            ),
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.BITBUCKET}/connections`
-            ),
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.GITEE}/connections`
+          // Fetch All Provider Integrations from IM Hook
+          const aC = await Promise.all(
+            Integrations.map((p) =>
+              request.get(`${DEVLAKE_ENDPOINT}/plugins/${p?.id}/connections`)
             )
-          ])
+          )
           const builtConnections = aC.map((providerResponse) =>
             []
               .concat(
@@ -441,7 +434,7 @@ function useConnectionManager(
         handleOfflineMode(e.response?.status, e.response)
       }
     },
-    [provider?.id, handleOfflineMode]
+    [provider?.id, handleOfflineMode, Integrations]
   )
 
   const deleteConnection = useCallback(

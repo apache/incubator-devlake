@@ -16,6 +16,7 @@
       "proxy": { },
       "username": { },
       "password": { },
+      "token": { },
       "rateLimitPerHour": { }
     },
     "labels": {
@@ -24,6 +25,7 @@
       "proxy": "Proxy URL",
       "username": "Username",
       "password": "Password",
+      "token": "Access Token",
       "rateLimitPerHour": "Rate Limit (per hour)"
     },
     "placeholders": {
@@ -32,6 +34,7 @@
       "proxy": "eg. http://proxy.localhost:8080",
       "username": "eg. admin",
       "password": "eg. ************",
+      "token": "eg. ff9d1ad0e5c04f1f98fa",
       "rateLimitPerHour": "1000"
     },
     "tooltips": {
