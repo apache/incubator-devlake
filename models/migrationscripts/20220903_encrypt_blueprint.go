@@ -41,6 +41,10 @@ type Blueprint20220903Before struct {
 	archived.Model `swaggerignore:"true"`
 }
 
+func (Blueprint20220903Before) TableName() string {
+	return "_devlake_blueprints"
+}
+
 type Blueprint20220903After struct {
 	/* unchanged part */
 	Name           string `json:"name" validate:"required"`
@@ -52,6 +56,10 @@ type Blueprint20220903After struct {
 	/* changed part */
 	Plan     string `json:"plan"`
 	Settings string `json:"settings"`
+}
+
+func (Blueprint20220903After) TableName() string {
+	return "_devlake_blueprints"
 }
 
 func (script *encryptBlueprint) Up(basicRes core.BasicRes) errors.Error {

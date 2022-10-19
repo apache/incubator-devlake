@@ -47,6 +47,10 @@ type Pipeline20220904Before struct {
 	Stage         int            `json:"stage"`
 }
 
+func (Pipeline20220904Before) TableName() string {
+	return "_devlake_pipelines"
+}
+
 type Pipeline0904After struct {
 	common.Model
 	Name          string     `json:"name" gorm:"index"`
@@ -62,7 +66,7 @@ type Pipeline0904After struct {
 	Stage         int        `json:"stage"`
 }
 
-func (Pipeline20220904Before) TableName() string {
+func (Pipeline0904After) TableName() string {
 	return "_devlake_pipelines"
 }
 
