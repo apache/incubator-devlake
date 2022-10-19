@@ -27,17 +27,21 @@ import GitLabPlugin from '@/registry/plugins/gitlab.json'
 import JenkinsPlugin from '@/registry/plugins/jenkins.json'
 import TapdPlugin from '@/registry/plugins/tapd.json'
 // "plugin" Plugins (Backend / Advanced Mode Plugins)
-import AePlugin from '@/registry/plugins/ae.json'
 import AzurePlugin from '@/registry/plugins/azure.json'
 import BitbucketPlugin from '@/registry/plugins/bitbucket.json'
 import GiteePlugin from '@/registry/plugins/gitee.json'
 // @todo: import additional backend plugins
-// import RefdiffPlugin from '@/registry/plugins/refdiff.json'
+import AePlugin from '@/registry/plugins/ae.json'
+import RefdiffPlugin from '@/registry/plugins/refdiff.json'
+import DbtPlugin from '@/registry/plugins/dbt.json'
+import StarrocksPlugin from '@/registry/plugins/starrocks.json'
+import DoraPlugin from '@/registry/plugins/dora.json'
 
 const ProviderTypes = {
   PLUGIN: 'plugin',
   INTEGRATION: 'integration',
-  PIPELINE: 'pipeline'
+  PIPELINE: 'pipeline',
+  WEBHOOK: 'webhook'
 }
 
 function useIntegrations(
@@ -47,10 +51,14 @@ function useIntegrations(
     GitLabPlugin,
     JenkinsPlugin,
     TapdPlugin,
-    AePlugin,
     AzurePlugin,
     BitbucketPlugin,
-    GiteePlugin
+    GiteePlugin,
+    AePlugin,
+    RefdiffPlugin,
+    DbtPlugin,
+    StarrocksPlugin,
+    DoraPlugin
   ]
 ) {
   const [registry, setRegistry] = useState(pluginRegistry || [])
