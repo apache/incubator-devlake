@@ -29,6 +29,7 @@ const MenuConfiguration = (activeRoute) => {
         activeRoute.url.startsWith('/integrations') || activeRoute.url === '/',
       icon: 'data-connection',
       classNames: [],
+      // @todo: build dynamically from Integrations Hook
       children: [
         {
           id: 0,

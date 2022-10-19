@@ -1,0 +1,41 @@
+{
+  "id": "jira",
+  "name": "JIRA",
+  "type": "integration",
+  "enabled": true,
+  "multiConnection": true,
+  "isBeta": false,
+  "isProvider": true,
+  "icon": "src/images/integrations/jira.svg",
+  "private": false,
+  "connection": {
+    "authentication": "plain",
+    "fields": {
+      "name": { 
+      },
+      "endpoint": { },
+      "username": { },
+      "password": { },
+      "proxy": { },
+      "rateLimitPerHour": { }
+   },
+   "labels": {
+      "name": "Connection Name",
+      "endpoint": "Endpoint URL",
+      "username": "Username / E-mail",
+      "password": "Password",
+      "proxy": "Proxy URL",
+      "rateLimitPerHour": "Rate Limit (per hour)"
+   },
+   "placeholders": {
+    "name": "eg. JIRA",
+    "endpoint": "eg. https://your-domain.atlassian.net/rest/",
+    "username": "eg. admin",
+    "password": "eg. ************",
+    "proxy": "eg. http://proxy.localhost:8080",
+    "rateLimit": "1000"
+  },
+  "tooltips": {}
+ },
+ "entities": ["CODE", "TICKET", "CROSS"]
+}

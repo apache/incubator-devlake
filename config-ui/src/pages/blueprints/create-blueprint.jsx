@@ -31,7 +31,7 @@ import {
   ISSUE_FIELDS_ENDPOINT,
   BOARDS_ENDPOINT
 } from '@/config/jiraApiProxy'
-import { integrationsData } from '@/data/integrations'
+// import { integrationsData } from '@/data/integrations'
 import { Intent } from '@blueprintjs/core'
 import { Providers } from '@/data/Providers'
 import Nav from '@/components/Nav'
@@ -51,6 +51,7 @@ import {
   DEFAULT_DATA_ENTITIES
 } from '@/data/BlueprintWorkflow'
 
+import useIntegrations from '@/hooks/useIntegrations'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -91,6 +92,19 @@ const CreateBlueprint = (props) => {
   const history = useHistory()
   // const dispatch = useDispatch()
 
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider,
+    DataSources: DataSourcesList,
+    Providers,
+    ProviderFormLabels,
+    ProviderFormPlaceholders,
+    ProviderConnectionLimits,
+    setActiveProvider
+  } = useIntegrations()
+
   const [blueprintAdvancedSteps, setBlueprintAdvancedSteps] = useState(
     WorkflowAdvancedSteps
   )
@@ -101,7 +115,9 @@ const CreateBlueprint = (props) => {
   const [activeStep, setActiveStep] = useState(
     blueprintSteps.find((s) => s.id === 1)
   )
-  const [activeProvider, setActiveProvider] = useState(integrationsData[0])
+
+  // @todo: Replace with Integrations Hook
+  // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
 
   const [enabledProviders, setEnabledProviders] = useState([])
   const [runTasks, setRunTasks] = useState([])
@@ -116,6 +132,15 @@ const CreateBlueprint = (props) => {
   const [connectionDialogIsOpen, setConnectionDialogIsOpen] = useState(false)
   const [managedConnection, setManagedConnection] = useState(
     NullBlueprintConnection
+  )
+
+  const ConnectionFormLabels = useMemo(
+    () => ProviderFormLabels[activeProvider?.id],
+    [ProviderFormLabels, activeProvider?.id]
+  )
+  const ConnectionFormPlaceholders = useMemo(
+    () => ProviderFormPlaceholders[activeProvider?.id],
+    [ProviderFormPlaceholders, activeProvider?.id]
   )
 
   const [dataEntitiesList, setDataEntitiesList] = useState([
@@ -462,14 +487,20 @@ const CreateBlueprint = (props) => {
       )
       setActiveConnectionTab(tab)
       setActiveProvider(
-        integrationsData.find((p) => p.id === selectedConnection.provider)
+        Integrations.find((p) => p.id === selectedConnection.provider)
       )
       setProvider(
-        integrationsData.find((p) => p.id === selectedConnection.provider)
+        Integrations.find((p) => p.id === selectedConnection.provider)
       )
       setConfiguredConnection(selectedConnection)
     },
-    [blueprintConnections, setProvider, setConfiguredConnection]
+    [
+      blueprintConnections,
+      setProvider,
+      setActiveProvider,
+      setConfiguredConnection,
+      Integrations
+    ]
   )
 
   const handleConnectionDialogOpen = useCallback(() => {
@@ -565,16 +596,16 @@ const CreateBlueprint = (props) => {
         break
     }
     return items
-  }, [dataEntitiesList, configuredConnection])
+  }, [dataEntitiesList, configuredConnection, Providers])
 
   const manageConnection = useCallback(
     (connection) => {
       console.log('>> MANAGE CONNECTION...', connection)
       if (connection?.id !== null) {
         setActiveProvider(
-          integrationsData.find((p) => p.id === connection.provider)
+          Integrations.find((p) => p.id === connection.provider)
         )
-        setProvider(integrationsData.find((p) => p.id === connection.provider))
+        setProvider(Integrations.find((p) => p.id === connection.provider))
         setManagedConnection(connection)
         setConnectionDialogIsOpen(true)
       }
@@ -583,7 +614,8 @@ const CreateBlueprint = (props) => {
       setProvider,
       setActiveProvider,
       setManagedConnection,
-      setConnectionDialogIsOpen
+      setConnectionDialogIsOpen,
+      Integrations
     ]
   )
 
@@ -683,7 +715,8 @@ const CreateBlueprint = (props) => {
     fetchFields,
     fetchIssueTypes,
     enabledProviders,
-    mode
+    mode,
+    Providers.JIRA
   ])
 
   useEffect(() => {
@@ -757,11 +790,9 @@ const CreateBlueprint = (props) => {
       setConfiguredConnection(someConnection)
       setActiveConnectionTab(`connection-${someConnection?.id}`)
       setActiveProvider(
-        integrationsData.find((p) => p.id === someConnection.provider)
+        Integrations.find((p) => p.id === someConnection.provider)
       )
-      setProvider(
-        integrationsData.find((p) => p.id === someConnection.provider)
-      )
+      setProvider(Integrations.find((p) => p.id === someConnection.provider))
     }
     // const getDefaultEntities = (providerId) => {
     //   let entities = []
@@ -807,10 +838,12 @@ const CreateBlueprint = (props) => {
     getDefaultEntities,
     setConfiguredConnection,
     setProvider,
+    setActiveProvider,
     setBoards,
     setDataEntities,
     setProjects,
-    testSelectedConnections
+    testSelectedConnections,
+    Integrations
   ])
 
   useEffect(() => {
@@ -846,7 +879,8 @@ const CreateBlueprint = (props) => {
     configuredConnection,
     setActiveConnectionTab,
     setConfiguredBoard,
-    setConfiguredProject
+    setConfiguredProject,
+    Providers
   ])
 
   useEffect(() => {
@@ -1217,7 +1251,8 @@ const CreateBlueprint = (props) => {
       </div>
 
       <ConnectionDialog
-        integrations={integrationsData}
+        integrations={Integrations}
+        dataSourcesList={DataSourcesList}
         activeProvider={activeProvider}
         setProvider={setActiveProvider}
         setTestStatus={setTestStatus}
@@ -1252,6 +1287,8 @@ const CreateBlueprint = (props) => {
         testStatus={testStatus}
         testResponse={testResponse}
         allTestResponses={allTestResponses}
+        labels={ConnectionFormLabels}
+        placeholders={ConnectionFormPlaceholders}
       />
 
       <CodeInspector

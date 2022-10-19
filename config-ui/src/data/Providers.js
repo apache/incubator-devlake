@@ -32,6 +32,7 @@ import FeishuIcon from '@/images/feishu.png'
 // import DBTIcon from '@/images/dbt.png'
 // import AEIcon from '@/images/ae.png'
 
+// @todo: replace with Integrations Hook
 const Providers = {
   NULL: 'null',
   GITLAB: 'gitlab',
@@ -51,12 +52,14 @@ const Providers = {
   DORA: 'dora' // (not a true provider)
 }
 
+// @todo: replace with Integrations Hook
 const ProviderTypes = {
   PLUGIN: 'plugin',
   INTEGRATION: 'integration',
   PIPELINE: 'pipeline'
 }
 
+// @todo: replace with Integrations Hook
 const ProviderLabels = {
   NULL: 'NullProvider',
   GITLAB: 'GitLab',
@@ -76,6 +79,7 @@ const ProviderLabels = {
   DORA: 'DORA' // (not a true provider)
 }
 
+// @todo: replace with Integrations Hook and/or delete
 const ProviderConnectionLimits = {
   // (All providers are mult-connection, no source limits defined)
   // jenkins: null,
@@ -84,8 +88,8 @@ const ProviderConnectionLimits = {
   // gitlab: null
 }
 
-// NOTE: Not all fields may be referenced/displayed for a provider,
-// ie. JIRA prefers $token over $username and $password
+// @todo: replace with Integrations Hook
+// @todo: handle tooltips dynamically at form layer
 const ProviderFormLabels = {
   null: {
     name: 'Connection Name',
@@ -262,6 +266,7 @@ const ProviderFormLabels = {
   }
 }
 
+// @todo: replace with Integrations Hook
 const ProviderFormPlaceholders = {
   null: {
     name: 'eg. Enter Instance Name',
@@ -346,6 +351,7 @@ const ProviderFormPlaceholders = {
   }
 }
 
+// @todo: replace with Integrations Hook
 const ProviderIcons = {
   [Providers.GITLAB]: (w, h) => (
     <GitlabProviderIcon width={w || 24} height={h || 24} />
@@ -381,6 +387,7 @@ const ProviderIcons = {
   )
 }
 
+// @todo: migrate to Model
 const ConnectionStatus = {
   OFFLINE: 0,
   ONLINE: 1,
@@ -388,6 +395,7 @@ const ConnectionStatus = {
   TESTING: 3
 }
 
+// @todo: migrate to Model
 const ConnectionStatusLabels = {
   [ConnectionStatus.OFFLINE]: 'Offline',
   [ConnectionStatus.ONLINE]: 'Online',

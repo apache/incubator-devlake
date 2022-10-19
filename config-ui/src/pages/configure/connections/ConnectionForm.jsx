@@ -80,8 +80,8 @@ export default function ConnectionForm(props) {
     authType = 'token',
     sourceLimits = {},
     showLimitWarning = true,
-    labels,
-    placeholders,
+    labels = {},
+    placeholders = {},
     enableActions = true,
     formGroupClassName = 'formGroup',
     showHeadline = true

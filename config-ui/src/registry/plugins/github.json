@@ -1,0 +1,37 @@
+{
+  "id": "github",
+  "name": "GitHub",
+  "type": "integration",
+  "enabled": true,
+  "multiConnection": true,
+  "isBeta": false,
+  "isProvider": true,
+  "icon": "src/images/integrations/github.svg",
+  "private": false,
+  "connection": {
+    "authentication": "token",
+    "fields": {
+      "name": { "enable": true, "required": true, "readonly": false },
+      "endpoint": { },
+      "proxy": { },
+      "token": { },
+      "rateLimitPerHour": { }
+    },
+    "labels": {
+        "name": "Connection Name",
+        "endpoint": "Endpoint URL",
+        "proxy": "Proxy URL",
+        "token": "Basic Auth Token",
+        "rateLimitPerHour": "Rate Limit (per hour)"
+    },
+    "placeholders": {
+        "name": "eg. GitHub",
+        "endpoint": "eg. https://api.github.com/",
+        "proxy": "eg. http://proxy.localhost:8080",
+        "token": "eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2",
+        "rateLimitPerHour": "1000"
+    },
+    "tooltips": {}
+ },
+ "entities": ["CODE", "TICKET", "CROSS"]
+}

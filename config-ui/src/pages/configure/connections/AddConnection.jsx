@@ -24,14 +24,15 @@ import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import { integrationsData } from '@/data/integrations'
-import {
-  ProviderConnectionLimits,
-  ProviderFormLabels,
-  ProviderFormPlaceholders,
-  ProviderLabels,
-  Providers
-} from '@/data/Providers'
+// import {
+//   ProviderConnectionLimits,
+//   ProviderFormLabels,
+//   ProviderFormPlaceholders,
+//   ProviderLabels,
+//   Providers
+// } from '@/data/Providers'
 
+import useIntegrations from '@/hooks/useIntegrations'
 import useConnectionManager from '@/hooks/useConnectionManager'
 import useConnectionValidation from '@/hooks/useConnectionValidation'
 
@@ -42,9 +43,22 @@ export default function AddConnection() {
   const history = useHistory()
   const { providerId } = useParams()
 
-  const [activeProvider, setActiveProvider] = useState(
-    integrationsData.find((p) => p.id === providerId)
-  )
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider,
+    Providers,
+    ProviderFormLabels,
+    ProviderFormPlaceholders,
+    ProviderConnectionLimits,
+    setActiveProvider
+  } = useIntegrations()
+
+  // @todo: Replace with Integrations Hook
+  // const [activeProvider, setActiveProvider] = useState(
+  //   integrationsData.find((p) => p.id === providerId)
+  // )
 
   const {
     testConnection,
@@ -95,7 +109,7 @@ export default function AddConnection() {
   })
 
   const cancel = () => {
-    history.push(`/integrations/${activeProvider.id}`)
+    history.push(`/integrations/${activeProvider?.id}`)
   }
 
   // const resetForm = () => {
@@ -107,28 +121,29 @@ export default function AddConnection() {
   // }
 
   useEffect(() => {
+    // @todo: Cleanup Restricted Provider Names (Legacy Feature)
     // Selected Provider
-    if (activeProvider?.id) {
-      fetchAllConnections()
-      switch (activeProvider.id) {
-        case Providers.JENKINS:
-          // setName(ProviderLabels.JENKINS)
-          break
-        case Providers.GITHUB:
-        case Providers.GITLAB:
-        case Providers.JIRA:
-        case Providers.TAPD:
-        default:
-          setName('')
-          break
-      }
-    }
-  }, [activeProvider.id, fetchAllConnections, setName])
+    // if (activeProvider?.id) {
+    //   fetchAllConnections()
+    //   switch (activeProvider?.id) {
+    //     case Providers.JENKINS:
+    //       // setName(ProviderLabels.JENKINS)
+    //       break
+    //     case Providers.GITHUB:
+    //     case Providers.GITLAB:
+    //     case Providers.JIRA:
+    //     case Providers.TAPD:
+    //     default:
+    //       setName('')
+    //       break
+    //   }
+    // }
+  }, [activeProvider?.id, fetchAllConnections, setName])
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER = ', providerId)
-    setActiveProvider(integrationsData.find((p) => p.id === providerId))
-  }, [providerId])
+    setActiveProvider(Integrations.find((p) => p.id === providerId))
+  }, [providerId, setActiveProvider, Integrations])
 
   return (
     <>
@@ -142,12 +157,12 @@ export default function AddConnection() {
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/integrations', icon: false, text: 'Connections' },
                 {
-                  href: `/integrations/${activeProvider.id}`,
+                  href: `/integrations/${activeProvider?.id}`,
                   icon: false,
-                  text: `${activeProvider.name}`
+                  text: `${activeProvider?.name}`
                 },
                 {
-                  href: `/connections/add/${activeProvider.id}`,
+                  href: `/connections/add/${activeProvider?.id}`,
                   icon: false,
                   text: 'Add Connection',
                   current: true
@@ -157,19 +172,25 @@ export default function AddConnection() {
             <div style={{ width: '100%' }}>
               <Link
                 style={{ float: 'right', marginLeft: '10px', color: '#777777' }}
-                to={`/integrations/${activeProvider.id}`}
+                to={`/integrations/${activeProvider?.id}`}
               >
                 <Icon icon='undo' size={16} /> Go Back
               </Link>
               <div style={{ display: 'flex' }}>
                 <div>
                   <span style={{ marginRight: '10px' }}>
-                    {activeProvider.icon}
+                    <img
+                      className='providerIconSvg'
+                      src={'/' + activeProvider?.icon}
+                      width={40}
+                      height={40}
+                      style={{ width: '40px', height: '40px' }}
+                    />
                   </span>
                 </div>
                 <div>
                   <h1 style={{ margin: 0 }}>
-                    {activeProvider.name} Add Connection
+                    {activeProvider?.name} Add Connection
                   </h1>
                   <p className='page-description'>
                     Create a new connection for this provider.
@@ -213,13 +234,13 @@ export default function AddConnection() {
                       Providers.JENKINS,
                       Providers.JIRA,
                       Providers.TAPD
-                    ].includes(activeProvider.id)
+                    ].includes(activeProvider?.id)
                       ? 'plain'
                       : 'token'
                   }
                   sourceLimits={ProviderConnectionLimits}
-                  labels={ProviderFormLabels[activeProvider.id]}
-                  placeholders={ProviderFormPlaceholders[activeProvider.id]}
+                  labels={ProviderFormLabels[activeProvider?.id]}
+                  placeholders={ProviderFormPlaceholders[activeProvider?.id]}
                 />
               </div>
               {/* {validationErrors.length > 0 && (

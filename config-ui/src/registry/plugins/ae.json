@@ -1,0 +1,13 @@
+{
+  "id": "ae",
+  "name": "AE",
+  "type": "plugin",
+  "enabled": true,
+  "multiConnection": false,
+  "isBeta": false,
+  "isProvider": false,
+  "icon": "src/images/integrations/ae.svg",
+  "private": false,
+  "connection": null,
+  "entities": []
+}

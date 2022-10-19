@@ -21,32 +21,42 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-import { integrationsData } from '@/data/integrations'
+// @todo: replace with Integrations Hook
+// import { integrationsData } from '@/data/integrations'
 import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/incoming-webhook.svg'
+
+import useIntegrations from '@/hooks/useIntegrations'
 
 import '@/styles/integration.scss'
 
 export default function Integration() {
   const history = useHistory()
 
-  const [activeProvider, setActiveProvider] = useState(integrationsData[0])
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider,
+    setActiveProvider
+  } = useIntegrations()
+  // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
 
   const handleProviderClick = (providerId) => {
-    const theProvider = integrationsData.find((p) => p.id === providerId)
+    const theProvider = Plugins.find((p) => p.id === providerId)
     if (theProvider) {
       setActiveProvider(theProvider)
       history.push(`/integrations/${theProvider.id}`)
     } else {
-      setActiveProvider(integrationsData[0])
+      setActiveProvider(Plugins.find[0])
     }
   }
 
-  useEffect(() => {
-    // Selected Provider
-    console.log(activeProvider)
-  }, [activeProvider, history])
+  // useEffect(() => {
+  //   // Selected Provider
+  //   console.log(activeProvider)
+  // }, [activeProvider, history])
 
-  useEffect(() => {}, [])
+  // useEffect(() => {}, [])
 
   return (
     <>
@@ -69,18 +79,26 @@ export default function Integration() {
             <div className='headlineContainer'>
               <h1>Data Connections</h1>
               <p className='page-description'>
-                {integrationsData.length} connections are available for data
+                {Integrations.length} connections are available for data
                 collection.
               </p>
             </div>
             <div className='integrationProviders'>
-              {integrationsData.map((provider) => (
+              {Integrations.map((provider) => (
                 <div
                   className='iProvider'
                   key={`provider-${provider.id}`}
                   onClick={() => handleProviderClick(provider.id)}
                 >
-                  <div className='providerIcon'>{provider.iconDashboard}</div>
+                  <div className='providerIcon'>
+                    <img
+                      className='providerIconSvg'
+                      src={provider.icon}
+                      width={40}
+                      height={40}
+                      style={{ width: '40px', height: '40px' }}
+                    />
+                  </div>
                   <div className='providerName'>
                     {provider.name}{' '}
                     {provider.isBeta && (
