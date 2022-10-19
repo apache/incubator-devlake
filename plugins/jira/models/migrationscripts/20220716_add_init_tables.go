@@ -29,16 +29,12 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 )
 
-type jiraConnection20220716 struct {
+type jiraConnection20220716After struct {
 	archived.RestConnection `mapstructure:",squash"`
 	archived.BasicAuth      `mapstructure:",squash"`
 }
 
-func (jiraConnection20220716) TableName() string {
-	return "_tool_jira_connections"
-}
-
-type jiraConnectionV011Old struct {
+type jiraConnection20220716Before struct {
 	ID                         uint64    `gorm:"primaryKey" json:"id"`
 	CreatedAt                  time.Time `json:"createdAt"`
 	UpdatedAt                  time.Time `json:"updatedAt"`
@@ -50,10 +46,6 @@ type jiraConnectionV011Old struct {
 	RemotelinkCommitShaPattern string    `gorm:"type:varchar(255);comment='golang regexp, the first group will be recognized as commit sha, ref https://github.com/google/re2/wiki/Syntax'" json:"remotelinkCommitShaPattern"`
 	Proxy                      string    `json:"proxy"`
 	RateLimit                  int       `comment:"api request rate limt per hour" json:"rateLimit"`
-}
-
-func (jiraConnectionV011Old) TableName() string {
-	return "_tool_jira_connections"
 }
 
 type addInitTables20220716 struct{}
@@ -89,23 +81,22 @@ func (script *addInitTables20220716) Up(basicRes core.BasicRes) errors.Error {
 	); err != nil {
 		return err
 	}
+	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
+	if encKey == "" {
+		return errors.BadInput.New("jira v0.11 invalid encKey")
+	}
 	err = migrationhelper.TransformTable(
 		basicRes,
 		script,
 		"_tool_jira_connections",
-		func(old *jiraConnectionV011Old) (*jiraConnection20220716, errors.Error) {
-			conn := &jiraConnection20220716{}
+		func(old *jiraConnection20220716Before) (*jiraConnection20220716After, errors.Error) {
+			conn := &jiraConnection20220716After{}
 			conn.ID = old.ID
 			conn.Name = old.Name
 			conn.Endpoint = old.Endpoint
 			conn.Proxy = old.Proxy
 			conn.RateLimitPerHour = old.RateLimit
 
-			c := config.GetConfig()
-			encKey := c.GetString(core.EncodeKeyEnvStr)
-			if encKey == "" {
-				return nil, errors.BadInput.New("jira v0.11 invalid encKey")
-			}
 			var auth string
 			if auth, err = core.Decrypt(encKey, old.BasicAuthEncoded); err != nil {
 				return nil, err
