@@ -33,6 +33,27 @@ import AzureSettings from '@/pages/configure/settings/azure'
 import BitbucketSettings from '@/pages/configure/settings/bitbucket'
 import GiteeSettings from '@/pages/configure/settings/gitee'
 
+// Transformation Higher-Order Component (HOC) Settings Loader
+const withTransformationSettings = (
+  TransformationComponent,
+  TransformationProps
+) =>
+  TransformationComponent ? (
+    <TransformationComponent {...TransformationProps} />
+  ) : null
+
+// Provider Transformation Components (LOCAL)
+const TransformationComponents = {
+  [Providers.GITHUB]: GithubSettings,
+  [Providers.GITLAB]: GitlabSettings,
+  [Providers.JIRA]: JiraSettings,
+  [Providers.JENKINS]: JenkinsSettings,
+  [Providers.TAPD]: TapdSettings,
+  [Providers.AZURE]: AzureSettings,
+  [Providers.BITBUCKET]: BitbucketSettings,
+  [Providers.GITEE]: GiteeSettings
+}
+
 const ProviderTransformationSettings = (props) => {
   const {
     provider,
@@ -50,9 +71,18 @@ const ProviderTransformationSettings = (props) => {
     isFetchingJIRA = false
   } = props
 
+  // Dynamic Transformation Settings via HOC
+  const TransformationWithProviderSettings = withTransformationSettings(
+    provider?.id
+      ? TransformationComponents[provider?.id]
+      : TransformationComponents[Providers.GITHUB],
+    { ...props, entities: props.entities[props?.connection?.id] }
+  )
+
   return (
     <div className='transformation-settings' data-provider={provider?.id}>
-      {provider?.id === Providers.GITHUB && (
+      {TransformationWithProviderSettings}
+      {/* {provider?.id === Providers.GITHUB && (
         <GithubSettings
           provider={provider}
           connection={connection}
@@ -145,7 +175,7 @@ const ProviderTransformationSettings = (props) => {
           isSaving={isSaving}
           isSavingConnection={isSavingConnection}
         />
-      )}
+      )} */}
     </div>
   )
 }
