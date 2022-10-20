@@ -40,7 +40,7 @@ import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-import AddBlueprintDialog from '@/components/blueprints/AddBlueprintDialog'
+// import AddBlueprintDialog from '@/components/blueprints/AddBlueprintDialog'
 import { ReactComponent as NoBlueprintsIcon } from '@/images/no-blueprints.svg'
 import BlueprintsGrid from '@/components/blueprints/BlueprintsGrid'
 
@@ -226,31 +226,31 @@ const Blueprints = (props) => {
     console.log('>>> ACTIVE/EXPANDED BLUEPRINT', activeBlueprint)
   }, [activeBlueprint, getSchedule, pipelines])
 
-  useEffect(() => {
-    if (draftBlueprint && draftBlueprint.id) {
-      console.log('>>> DRAFT = ', draftBlueprint)
-      setBlueprintName(draftBlueprint.name)
-      setCronConfig(
-        !isStandardCronPreset(draftBlueprint.cronConfig)
-          ? 'custom'
-          : draftBlueprint.cronConfig
-      )
-      setCustomCronConfig(draftBlueprint.cronConfig)
-      setBlueprintTasks(draftBlueprint.tasks)
-      setEnableBlueprint(draftBlueprint.enable)
-      setDetectedProviderTasks(draftBlueprint.tasks.flat())
-      setBlueprintDialogIsOpen(true)
-    }
-  }, [
-    draftBlueprint,
-    setBlueprintName,
-    setCronConfig,
-    isStandardCronPreset,
-    setBlueprintTasks,
-    setEnableBlueprint,
-    setCustomCronConfig,
-    setDetectedProviderTasks
-  ])
+  // useEffect(() => {
+  //   if (draftBlueprint && draftBlueprint.id) {
+  //     console.log('>>> DRAFT = ', draftBlueprint)
+  //     setBlueprintName(draftBlueprint.name)
+  //     setCronConfig(
+  //       !isStandardCronPreset(draftBlueprint.cronConfig)
+  //         ? 'custom'
+  //         : draftBlueprint.cronConfig
+  //     )
+  //     setCustomCronConfig(draftBlueprint.cronConfig)
+  //     setBlueprintTasks(draftBlueprint.tasks)
+  //     setEnableBlueprint(draftBlueprint.enable)
+  //     setDetectedProviderTasks(draftBlueprint.tasks.flat())
+  //     setBlueprintDialogIsOpen(true)
+  //   }
+  // }, [
+  //   draftBlueprint,
+  //   setBlueprintName,
+  //   setCronConfig,
+  //   isStandardCronPreset,
+  //   setBlueprintTasks,
+  //   setEnableBlueprint,
+  //   setCustomCronConfig,
+  //   setDetectedProviderTasks
+  // ])
 
   useEffect(() => {
     if (saveComplete?.id) {
@@ -471,7 +471,7 @@ const Blueprints = (props) => {
         </Content>
       </div>
 
-      <AddBlueprintDialog
+      {/* <AddBlueprintDialog
         isLoading={isFetchingAllPipelines}
         isOpen={blueprintDialogIsOpen}
         setIsOpen={setBlueprintDialogIsOpen}
@@ -499,7 +499,7 @@ const Blueprints = (props) => {
         detectedProviders={detectedProviderTasks}
         getCronPreset={getCronPreset}
         getCronPresetByConfig={getCronPresetByConfig}
-      />
+      /> */}
     </>
   )
 }
