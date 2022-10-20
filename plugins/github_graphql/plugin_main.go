@@ -72,7 +72,8 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 
 		tasks.CollectAccountMeta,
 
-		githubTasks.ConvertJobsMeta,
+		githubTasks.ConvertPipelinesMeta,
+		githubTasks.ConvertTasksMeta,
 		githubTasks.EnrichPullRequestIssuesMeta,
 		githubTasks.ConvertRepoMeta,
 		githubTasks.ConvertIssuesMeta,
