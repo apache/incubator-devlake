@@ -172,7 +172,7 @@ function useIntegrations(
     )
     setPlugins((aP) => [
       // ...aP,
-      ...registry.map((p) => registerPlugin(p))
+      ...registry.filter((p) => p.enabled).map((p) => registerPlugin(p))
     ])
   }, [registry, setPlugins, registerPlugin])
 
