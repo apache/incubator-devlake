@@ -158,6 +158,7 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 	var orders []string
 	var columns []string
 	firstcm := ""
+	firstcmName := ""
 	for _, cm := range columeMetas {
 		name := cm.Name()
 		starrocksDatatype, ok := cm.ColumnType()
@@ -175,6 +176,7 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 		}
 		if firstcm == "" {
 			firstcm = fmt.Sprintf("`%s`", name)
+			firstcmName = name
 		}
 	}
 
@@ -186,6 +188,9 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 		if v, ok := config.OrderBy[table]; ok {
 			orderBy = v
 		}
+	}
+	if orderBy == "" {
+		orderBy = firstcmName
 	}
 	extra := fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "1")`, strings.Join(pks, ", "))
 	if config.Extra != nil {
