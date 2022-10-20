@@ -15,14 +15,13 @@
  * limitations under the License.
  *
  */
-import React, { useEffect } from 'react'
-import {
-  Providers
-  // ProviderTypes,
-  // ProviderIcons,
-  // ConnectionStatus,
-  // ConnectionStatusLabels,
-} from '@/data/Providers'
+import React, { useEffect, useCallback, useMemo } from 'react'
+import // Providers
+// ProviderTypes,
+// ProviderIcons,
+// ConnectionStatus,
+// ConnectionStatusLabels,
+'@/data/Providers'
 // import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
@@ -42,20 +41,10 @@ const withTransformationSettings = (
     <TransformationComponent {...TransformationProps} />
   ) : null
 
-// Provider Transformation Components (LOCAL)
-const TransformationComponents = {
-  [Providers.GITHUB]: GithubSettings,
-  [Providers.GITLAB]: GitlabSettings,
-  [Providers.JIRA]: JiraSettings,
-  [Providers.JENKINS]: JenkinsSettings,
-  [Providers.TAPD]: TapdSettings,
-  [Providers.AZURE]: AzureSettings,
-  [Providers.BITBUCKET]: BitbucketSettings,
-  [Providers.GITEE]: GiteeSettings
-}
-
 const ProviderTransformationSettings = (props) => {
   const {
+    Providers = {},
+    ProviderIcons = {},
     provider,
     blueprint,
     connection,
@@ -70,6 +59,21 @@ const ProviderTransformationSettings = (props) => {
     jiraProxyError,
     isFetchingJIRA = false
   } = props
+
+  // Provider Transformation Components (LOCAL)
+  const TransformationComponents = useMemo(
+    () => ({
+      [Providers.GITHUB]: GithubSettings,
+      [Providers.GITLAB]: GitlabSettings,
+      [Providers.JIRA]: JiraSettings,
+      [Providers.JENKINS]: JenkinsSettings,
+      [Providers.TAPD]: TapdSettings,
+      [Providers.AZURE]: AzureSettings,
+      [Providers.BITBUCKET]: BitbucketSettings,
+      [Providers.GITEE]: GiteeSettings
+    }),
+    [Providers]
+  )
 
   // Dynamic Transformation Settings via HOC
   const TransformationWithProviderSettings = withTransformationSettings(

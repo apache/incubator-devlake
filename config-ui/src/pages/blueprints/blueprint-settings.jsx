@@ -45,7 +45,7 @@ import JiraBoard from '@/models/JiraBoard'
 import DataScopeConnection from '@/models/DataScopeConnection'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+// import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import { TaskStatus } from '@/data/Task'
 
 import Nav from '@/components/Nav'
@@ -94,6 +94,7 @@ const BlueprintSettings = (props) => {
     plugins: Plugins,
     integrations: Integrations,
     Providers,
+    ProviderIcons,
     activeProvider,
     setActiveProvider
   } = useIntegrations()
@@ -586,7 +587,8 @@ const BlueprintSettings = (props) => {
     entities,
     configuredConnection,
     activeProvider?.id,
-    activeBlueprint?.mode
+    activeBlueprint?.mode,
+    Providers
   ])
 
   // @note: lifted higher to dsm hook
@@ -773,7 +775,8 @@ const BlueprintSettings = (props) => {
     getJiraMappedBoards,
     setRawConfiguration,
     createAdvancedConnection,
-    createNormalConnection
+    createNormalConnection,
+    Providers.JIRA
   ])
 
   useEffect(() => {
@@ -890,7 +893,8 @@ const BlueprintSettings = (props) => {
     // activeProvider,
     // isFetchingJIRA,
     // jiraApiBoards,
-    scopeConnection
+    scopeConnection,
+    Providers.JIRA
   ])
 
   useEffect(() => {
@@ -924,7 +928,8 @@ const BlueprintSettings = (props) => {
     scopeConnection?.connectionId,
     scopeConnection?.providerId,
     getJiraMappedBoards,
-    setConnections
+    setConnections,
+    Providers.JIRA
   ])
 
   useEffect(() => {
@@ -956,7 +961,8 @@ const BlueprintSettings = (props) => {
     scopeConnection?.providerId,
     getJiraMappedBoards,
     setConnections,
-    boardSearch
+    boardSearch,
+    Providers.JIRA
   ])
 
   useEffect(() => {
@@ -1426,6 +1432,9 @@ const BlueprintSettings = (props) => {
       />
 
       <BlueprintDataScopesDialog
+        Integrations={Integrations}
+        Providers={Providers}
+        ProviderIcons={ProviderIcons}
         isOpen={blueprintScopesDialogIsOpen}
         title={activeSetting?.title}
         dataEntitiesList={dataEntitiesList}

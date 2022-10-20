@@ -24,10 +24,12 @@ import {
   Radio,
   Tag
 } from '@blueprintjs/core'
-import { Providers, ProviderLabels } from '@/data/Providers'
+// import { Providers, ProviderLabels } from '@/data/Providers'
 
 const Deployment = (props) => {
   const {
+    Providers = {},
+    ProviderLabels = {},
     provider,
     transformation,
     isSaving = false,
@@ -82,7 +84,13 @@ const Deployment = (props) => {
     }
 
     return [radio1, radio2]
-  }, [provider])
+  }, [
+    provider,
+    ProviderLabels,
+    Providers.JENKINS,
+    Providers.GITHUB,
+    Providers.GITLAB
+  ])
 
   const tagHints = useMemo(() => {
     let hint1
@@ -115,7 +123,7 @@ const Deployment = (props) => {
     }
 
     return [hint1, hint2]
-  }, [provider])
+  }, [provider, Providers.JENKINS, Providers.GITHUB, Providers.GITLAB])
 
   return (
     <>

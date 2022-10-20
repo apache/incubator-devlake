@@ -23,9 +23,10 @@ import TransformationSettings from '@/models/TransformationSettings'
 import JiraBoard from '@/models/JiraBoard'
 import GitHubProject from '@/models/GithubProject'
 import GitlabProject from '@/models/GitlabProject'
-import { ProviderIcons, ProviderLabels, Providers } from '@/data/Providers'
+// import { ProviderIcons, ProviderLabels, Providers } from '@/data/Providers'
 import { DataScopeModes } from '@/data/DataScopes'
 import JenkinsJob from '@/models/JenkinsJob'
+import useIntegrations from '@/hooks/useIntegrations'
 import useTransformationsManager from '@/hooks/data-scope/useTransformationsManager'
 
 function useDataScopesManager({
@@ -35,6 +36,19 @@ function useDataScopesManager({
   /* connection, */ settings = {},
   setSettings = () => {}
 }) {
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider: IntegrationActiveProvider,
+    Providers,
+    ProviderLabels,
+    ProviderIcons,
+    ProviderFormLabels,
+    ProviderFormPlaceholders,
+    setActiveProvider: setIntegrationActiveProvider
+  } = useIntegrations()
+
   const [connections, setConnections] = useState([])
   const [newConnections, setNewConnections] = useState([])
 
@@ -169,7 +183,7 @@ function useDataScopesManager({
       }
       return Array.isArray(newScope) ? newScope.flat() : [newScope]
     },
-    [getTransformation]
+    [getTransformation, Providers]
   )
 
   const createProviderConnections = useCallback(
@@ -282,7 +296,7 @@ function useDataScopesManager({
           return []
       }
     },
-    [getGithubProjects, getGitlabProjects, getJenkinsProjects]
+    [getGithubProjects, getGitlabProjects, getJenkinsProjects, Providers]
   )
 
   const getAdvancedGithubProjects = useCallback(
@@ -297,7 +311,7 @@ function useDataScopesManager({
             })
           ]
         : [],
-    []
+    [Providers.GITHUB]
   )
 
   const getAdvancedGitlabProjects = useCallback(
@@ -312,7 +326,7 @@ function useDataScopesManager({
             })
           ]
         : [],
-    []
+    [Providers.GITLAB]
   )
 
   const getAdvancedJiraBoards = useCallback(
@@ -327,7 +341,7 @@ function useDataScopesManager({
             })
           ]
         : [],
-    []
+    [Providers.JIRA]
   )
 
   // (altered version from PR No. 2926)
@@ -363,27 +377,31 @@ function useDataScopesManager({
     []
   )
 
-  const getDefaultEntities = useCallback((providerId) => {
-    let entities = []
-    switch (providerId) {
-      case Providers.GITHUB:
-      case Providers.GITLAB:
-        entities = DEFAULT_DATA_ENTITIES
-        break
-      case Providers.JIRA:
-        entities = DEFAULT_DATA_ENTITIES.filter(
-          (d) => d.name === 'issue-tracking' || d.name === 'cross-domain'
-        )
-        break
-      case Providers.JENKINS:
-        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-        break
-      case Providers.TAPD:
-        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-        break
-    }
-    return entities
-  }, [])
+  const getDefaultEntities = useCallback(
+    (providerId) => {
+      console.log('GET ENTITIES FOR PROVIDER =', providerId)
+      let entities = []
+      switch (providerId) {
+        case Providers.GITHUB:
+        case Providers.GITLAB:
+          entities = DEFAULT_DATA_ENTITIES
+          break
+        case Providers.JIRA:
+          entities = DEFAULT_DATA_ENTITIES.filter(
+            (d) => d.name === 'issue-tracking' || d.name === 'cross-domain'
+          )
+          break
+        case Providers.JENKINS:
+          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+          break
+        case Providers.TAPD:
+          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+          break
+      }
+      return entities
+    },
+    [Providers]
+  )
 
   const createNormalConnection = useCallback(
     (
@@ -448,7 +466,7 @@ function useDataScopesManager({
       stage: 1,
       totalStages: 1
     }),
-    [getProjects]
+    [getProjects, ProviderLabels, ProviderIcons, Providers.JIRA]
   )
 
   const createAdvancedConnection = useCallback(
@@ -521,7 +539,11 @@ function useDataScopesManager({
       getAdvancedGithubProjects,
       getAdvancedGitlabProjects,
       getAdvancedJiraBoards,
-      getDefaultEntities
+      getDefaultEntities,
+      ProviderIcons,
+      ProviderLabels,
+      Providers.GITLAB,
+      Providers.JIRA
     ]
   )
 
@@ -611,7 +633,7 @@ function useDataScopesManager({
         )
         break
     }
-  }, [connection, changeTransformationSettings])
+  }, [connection, changeTransformationSettings, Providers])
 
   useEffect(() => {
     console.log('>>>>> DATA SCOPES MANAGER: Connection List...', connections)
@@ -681,6 +703,13 @@ function useDataScopesManager({
       connection
     )
   }, [connection])
+
+  useEffect(() => {
+    console.log(
+      '>>>>> DATA SCOPES MANAGER: SELECTED NEW CONNECTIONS...',
+      newConnections
+    )
+  }, [newConnections])
 
   return {
     connections,

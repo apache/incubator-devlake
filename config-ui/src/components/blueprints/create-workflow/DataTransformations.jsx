@@ -26,8 +26,8 @@ import {
   MenuItem
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
-import { integrationsData } from '@/data/integrations'
-import { ProviderIcons, Providers } from '@/data/Providers'
+// import { integrationsData } from '@/data/integrations'
+// import { ProviderIcons, Providers } from '@/data/Providers'
 import { DataEntityTypes } from '@/data/DataEntities'
 import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 import { Variants } from '@/data/Variants'
@@ -39,6 +39,9 @@ import ProviderTransformationSettings from '@/components/blueprints/ProviderTran
 
 const DataTransformations = (props) => {
   const {
+    Integrations = [],
+    Providers = {},
+    ProviderIcons = {},
     provider,
     blueprint,
     activeStep,
@@ -86,7 +89,13 @@ const DataTransformations = (props) => {
         dataEntities[configuredConnection?.id].every(
           (e) => e.value !== DataEntityTypes.DEVOPS
         )),
-    [configuredConnection?.provider, configuredConnection?.id, dataEntities]
+    [
+      configuredConnection?.provider,
+      configuredConnection?.id,
+      dataEntities,
+      Providers.TAPD,
+      Providers.GITLAB
+    ]
   )
 
   const boardsAndProjects = useMemo(
@@ -366,7 +375,9 @@ const DataTransformations = (props) => {
                       ) && (
                         <ProviderTransformationSettings
                           key={configuredProject?.id || configuredBoard?.id}
-                          provider={integrationsData.find(
+                          Providers={Providers}
+                          ProviderIcons={ProviderIcons}
+                          provider={Integrations.find(
                             (i) => i.id === configuredConnection?.provider
                           )}
                           blueprint={blueprint}

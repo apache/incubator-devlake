@@ -33,5 +33,5 @@
     },
     "tooltips": {}
   },
-  "entities": ["CODE", "TICKET", "CROSS"]
+  "entities": ["CODE", "TICKET", "CROSS", "CICD"]
 }

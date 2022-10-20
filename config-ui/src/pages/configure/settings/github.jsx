@@ -37,6 +37,8 @@ import '@/styles/connections.scss'
 
 export default function GithubSettings(props) {
   const {
+    Providers,
+    ProviderLabels,
     provider,
     connection,
     entities = [],
@@ -234,6 +236,8 @@ export default function GithubSettings(props) {
 
       {entities.some((e) => e.value === DataEntityTypes.DEVOPS) && (
         <Deployment
+          Providers={Providers}
+          ProviderLabels={ProviderLabels}
           provider={provider}
           entities={entities}
           transformation={transformation}

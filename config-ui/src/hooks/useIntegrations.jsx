@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 
 import Plugin from '@/models/Plugin'
 
@@ -88,17 +88,17 @@ function useIntegrations(
 
   const Providers = useMemo(
     () =>
-      integrations
+      plugins
         .map((P) => P.id)
         .reduce(
           (pV, cV, iDx) => ({ ...pV, [cV.toString()?.toUpperCase()]: cV }),
           {}
         ),
-    [integrations]
+    [plugins]
   )
   const ProviderLabels = useMemo(
     () =>
-      integrations
+      plugins
         .map((P) => P)
         .reduce(
           (pV, cV, iDx) => ({
@@ -107,7 +107,7 @@ function useIntegrations(
           }),
           {}
         ),
-    [integrations]
+    [plugins]
   )
   const ProviderFormLabels = useMemo(
     () =>
@@ -127,7 +127,18 @@ function useIntegrations(
     () =>
       integrations
         .map((p) => p.icon)
-        .reduce((pV, cV, iDx) => ({ ...pV, [integrations[iDx]?.id]: cV }), {}),
+        .reduce(
+          (pV, cV, iDx) => ({
+            ...pV,
+            [integrations[iDx]?.id]: (w, h) => (
+              <img
+                src={'/' + cV}
+                style={{ width: `${w}px`, height: `${h}px` }}
+              />
+            )
+          }),
+          {}
+        ),
     [integrations]
   )
   const ProviderConnectionLimits = useMemo(() => {}, [])

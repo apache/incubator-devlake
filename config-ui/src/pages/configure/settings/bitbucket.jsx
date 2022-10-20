@@ -39,6 +39,8 @@ import '@/styles/connections.scss'
 
 export default function BitbucketSettings(props) {
   const {
+    Providers,
+    ProviderLabels,
     provider,
     connection,
     entities = [],
@@ -60,6 +62,8 @@ export default function BitbucketSettings(props) {
     <>
       {entities.some((e) => e.value === DataEntityTypes.DEVOPS) ? (
         <Deployment
+          Providers={Providers}
+          ProviderLabels={ProviderLabels}
           provider={provider}
           entities={entities}
           transformation={transformation}

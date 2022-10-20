@@ -41,7 +41,7 @@ import {
 } from '@blueprintjs/core'
 import { NullBlueprint } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+// import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import {
   StageStatus,
   TaskStatus,
@@ -72,6 +72,9 @@ const BlueprintDetail = (props) => {
     registry,
     plugins: Plugins,
     integrations: Integrations,
+    Providers,
+    ProviderIcons,
+    ProviderLabels,
     activeProvider,
     setActiveProvider
   } = useIntegrations()
@@ -323,7 +326,7 @@ const BlueprintDetail = (props) => {
         plan: blueprint?.plan
       })
     }
-  }, [blueprint, setPipelineSettings])
+  }, [blueprint, setPipelineSettings, ProviderLabels])
 
   useEffect(() => {
     console.log('>>>> FETCHED ALL PIPELINES..', pipelines, activeBlueprint?.id)

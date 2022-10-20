@@ -33,7 +33,7 @@ import {
 } from '@/config/jiraApiProxy'
 // import { integrationsData } from '@/data/integrations'
 import { Intent } from '@blueprintjs/core'
-import { Providers } from '@/data/Providers'
+// import { Providers } from '@/data/Providers'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 // import AppCrumbs from '@/components/Breadcrumbs'
@@ -99,6 +99,7 @@ const CreateBlueprint = (props) => {
     activeProvider,
     DataSources: DataSourcesList,
     Providers,
+    ProviderIcons,
     ProviderFormLabels,
     ProviderFormPlaceholders,
     ProviderConnectionLimits,
@@ -794,25 +795,6 @@ const CreateBlueprint = (props) => {
       )
       setProvider(Integrations.find((p) => p.id === someConnection.provider))
     }
-    // const getDefaultEntities = (providerId) => {
-    //   let entities = []
-    //   switch (providerId) {
-    //     case Providers.GITHUB:
-    //     case Providers.GITLAB:
-    //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
-    //       break
-    //     case Providers.JIRA:
-    //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
-    //       break
-    //     case Providers.JENKINS:
-    //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-    //       break
-    //     case Providers.TAPD:
-    //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-    //       break
-    //   }
-    //   return entities
-    // }
     const initializeEntities = (pV, cV) => ({
       ...pV,
       [cV.id]: !pV[cV.id] ? getDefaultEntities(cV?.provider) : []
@@ -1156,6 +1138,9 @@ const CreateBlueprint = (props) => {
 
                   {activeStep?.id === 3 && (
                     <DataTransformations
+                      Integrations={Integrations}
+                      Providers={Providers}
+                      ProviderIcons={ProviderIcons}
                       provider={provider}
                       activeStep={activeStep}
                       advancedMode={advancedMode}

@@ -62,6 +62,9 @@ const BlueprintDataScopesDialog = (props) => {
     title = 'Change Data Scope',
     blueprintConnections = [],
     blueprint = NullBlueprint,
+    Integrations = {},
+    Providers = {},
+    ProviderIcons = {},
     provider,
     activeTransformation,
     configuredConnection,
@@ -218,6 +221,9 @@ const BlueprintDataScopesDialog = (props) => {
           panel={
             <DialogPanel>
               <DataTransformations
+                Integrations={Integrations}
+                Providers={Providers}
+                ProviderIcons={ProviderIcons}
                 provider={provider}
                 blueprint={blueprint}
                 activeTransformation={activeTransformation}
