@@ -210,7 +210,8 @@ const DataTransformations = (props) => {
                       Providers.JIRA,
                       Providers.GITHUB,
                       Providers.GITLAB,
-                      Providers.JENKINS
+                      Providers.JENKINS,
+                      Providers.GITEE
                     ].includes(configuredConnection.provider) && (
                       <div
                         className='project-or-board-select'
@@ -280,7 +281,8 @@ const DataTransformations = (props) => {
                   {[
                     Providers.GITLAB,
                     Providers.GITHUB,
-                    Providers.JENKINS
+                    Providers.JENKINS,
+                    Providers.GITEE
                   ].includes(configuredConnection.provider) &&
                     !useDropdownSelector &&
                     !configuredProject && (

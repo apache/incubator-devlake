@@ -88,6 +88,7 @@ function useConnectionValidation({
     switch (activeProvider?.id) {
       case Providers.GITHUB:
       case Providers.GITLAB:
+      case Providers.GITEE:
         if (!token || token.length <= 2) {
           errs.push('Authentication token(s) are required')
         }

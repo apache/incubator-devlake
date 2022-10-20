@@ -32,6 +32,7 @@ import NoData from '@/components/NoData'
 import GitlabProjectsSelector from '@/components/blueprints/GitlabProjectsSelector'
 import GitHubProject from '@/models/GithubProject'
 import JenkinsJobsSelector from '@/components/blueprints/JenkinsJobsSelector'
+import GiteeProject from '@/models/GiteeProject'
 
 const DataScopes = (props) => {
   const {
@@ -253,6 +254,70 @@ const DataScopes = (props) => {
                         disabled={isSaving}
                         configuredConnection={configuredConnection}
                         isLoading={isFetching}
+                      />
+                    </>
+                  )}
+
+                  {[Providers.GITEE].includes(
+                    configuredConnection.provider
+                  ) && (
+                    <>
+                      <h4>Projects *</h4>
+                      <p>Enter the project names you would like to sync.</p>
+                      <TagInput
+                        id='project-id'
+                        disabled={isRunning}
+                        placeholder='username/repo, username/another-repo'
+                        values={
+                          projects[configuredConnection.id]?.map(
+                            (p) => p.value
+                          ) || []
+                        }
+                        fill={true}
+                        onChange={(values) =>
+                          setProjects((p) => ({
+                            ...p,
+                            [configuredConnection.id]: [
+                              ...values.map(
+                                (v) =>
+                                  new GiteeProject({
+                                    id: v,
+                                    key: v,
+                                    title: v,
+                                    value: v,
+                                    type: 'string'
+                                  })
+                              )
+                            ]
+                          }))
+                        }
+                        addOnPaste={true}
+                        addOnBlur={true}
+                        rightElement={
+                          <Button
+                            disabled={isRunning}
+                            icon='eraser'
+                            minimal
+                            onClick={() =>
+                              setProjects((p) => ({
+                                ...p,
+                                [configuredConnection.id]: []
+                              }))
+                            }
+                          />
+                        }
+                        onKeyDown={(e) =>
+                          e.key === 'Enter' && e.preventDefault()
+                        }
+                        tagProps={{
+                          intent: validationErrors.some((e) =>
+                            e.startsWith('Projects:')
+                          )
+                            ? Intent.WARNING
+                            : Intent.PRIMARY,
+                          minimal: true
+                        }}
+                        className='input-project-id tagInput'
                       />
                     </>
                   )}

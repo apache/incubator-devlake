@@ -74,6 +74,20 @@ const getDefaultTransformations = (provider) => {
         // testingPattern: ''
       }
       break
+    case Providers.GITEE:
+      transforms = {
+        prType: '',
+        prComponent: '',
+        prBodyClosePattern: '',
+        issueSeverity: '',
+        issueComponent: '',
+        issuePriority: '',
+        issueTypeRequirement: '',
+        issueTypeBug: '',
+        issueTypeIncident: '',
+        refdiff: null
+      }
+      break
     case Providers.TAPD:
       // @todo: complete tapd transforms #2673
       transforms = {
@@ -104,6 +118,7 @@ const useTransformationsManager = () => {
       case Providers.GITHUB:
       case Providers.GITLAB:
       case Providers.JENKINS:
+      case Providers.GITEE:
         key = projectNameOrBoard?.id
         break
       case Providers.JIRA:

@@ -337,9 +337,9 @@ const ProviderFormPlaceholders = {
   },
   gitee: {
     name: 'eg. Gitee',
-    endpoint: 'eg. https://api.gitee.com/',
+    endpoint: 'eg. https://gitee.com/api/v5/',
     proxy: 'eg. http://proxy.localhost:8080',
-    token: 'eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
+    token: 'eg. acec730fe17613b64c10bcddcdaaaf37',
     username: 'eg. admin',
     password: 'eg. ************',
     rateLimitPerHour: '1000'

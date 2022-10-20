@@ -161,9 +161,12 @@ function useBlueprintValidation({
             errs.push('Boards: No Boards selected.')
           }
           if (
-            [Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(
-              activeProvider?.id
-            ) &&
+            [
+              Providers.GITHUB,
+              Providers.GITLAB,
+              Providers.JENKINS,
+              Providers.GITEE
+            ].includes(activeProvider?.id) &&
             projects[activeConnection?.id]?.length === 0
           ) {
             if (activeProvider?.id === Providers.JENKINS) {
@@ -173,7 +176,7 @@ function useBlueprintValidation({
             }
           }
           if (
-            activeProvider?.id === Providers.GITHUB &&
+            [Providers.GITHUB, Providers.GITEE].includes(activeProvider?.id) &&
             !validateRepositoryName(projects[activeConnection?.id])
           ) {
             errs.push(
@@ -181,7 +184,7 @@ function useBlueprintValidation({
             )
           }
           if (
-            activeProvider?.id === Providers.GITHUB &&
+            [Providers.GITHUB, Providers.GITEE].includes(activeProvider?.id) &&
             !validateUniqueObjectSet(projects[activeConnection?.id])
           ) {
             errs.push('Projects: Duplicate project detected.')
@@ -189,25 +192,19 @@ function useBlueprintValidation({
           if (entities[activeConnection?.id]?.length === 0) {
             errs.push('Data Entities: No Data Entities selected.')
           }
-          if (
-            activeProvider?.id === Providers.GITLAB &&
-            !validateUniqueObjectSet(projects[activeConnection?.id])
-          ) {
-            errs.push('Projects: Duplicate project detected.')
-          }
 
           connections.forEach((c) => {
             if (c.provider === Providers.JIRA && boards[c?.id]?.length === 0) {
               errs.push(`${c.name} requires a Board`)
             }
             if (
-              c.provider === Providers.GITHUB &&
+              [Providers.GITHUB, Providers.GITEE].includes(c.provider) &&
               projects[c?.id]?.length === 0
             ) {
               errs.push(`${c.name} requires Project Names`)
             }
             if (
-              c.provider === Providers.GITHUB &&
+              [Providers.GITHUB, Providers.GITEE].includes(c.provider) &&
               !validateRepositoryName(projects[c?.id])
             ) {
               errs.push(`${c.name} has Invalid Project Repository`)
