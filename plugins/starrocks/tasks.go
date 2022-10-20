@@ -107,7 +107,8 @@ func LoadData(c core.SubTaskContext) errors.Error {
 	for _, table := range starrocksTables {
 		starrocksTable := strings.TrimLeft(table, "_")
 		var columnMap map[string]string
-		columnMap, err = createTable(starrocks, db, starrocksTable, table, c, config)
+		var orderBy string
+		columnMap, orderBy, err = createTable(starrocks, db, starrocksTable, table, c, config)
 		if err != nil {
 			c.GetLogger().Error(err, "create table %s in starrocks error", table)
 			return errors.Convert(err)
@@ -126,7 +127,7 @@ func LoadData(c core.SubTaskContext) errors.Error {
 			}
 
 		}
-		err = errors.Convert(loadData(starrocks, c, starrocksTable, table, columnMap, db, config))
+		err = errors.Convert(loadData(starrocks, c, starrocksTable, table, columnMap, db, config, orderBy))
 		if err != nil {
 			return errors.Convert(err)
 		}
@@ -138,7 +139,7 @@ func LoadData(c core.SubTaskContext) errors.Error {
 	return nil
 }
 
-func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table string, c core.SubTaskContext, config *StarRocksConfig) (map[string]string, errors.Error) {
+func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table string, c core.SubTaskContext, config *StarRocksConfig) (map[string]string, string, errors.Error) {
 	columeMetas, err := db.GetColumns(&Table{name: table}, nil)
 	columnMap := make(map[string]string)
 	if err != nil {
@@ -146,22 +147,22 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 			c.GetLogger().Warn(err, "skip err: cached plan must not change result type")
 			columeMetas, err = db.GetColumns(&Table{name: table}, nil)
 			if err != nil {
-				return nil, errors.Convert(err)
+				return nil, "", errors.Convert(err)
 			}
 		} else {
-			return nil, errors.Convert(err)
+			return nil, "", errors.Convert(err)
 		}
 	}
 
 	var pks []string
+	var orders []string
 	var columns []string
-	var orderBy string
 	firstcm := ""
 	for _, cm := range columeMetas {
 		name := cm.Name()
 		starrocksDatatype, ok := cm.ColumnType()
 		if !ok {
-			return columnMap, errors.Default.New(fmt.Sprintf("Get [%s] ColumeType Failed", name))
+			return columnMap, "", errors.Default.New(fmt.Sprintf("Get [%s] ColumeType Failed", name))
 		}
 		dataType := getDataType(starrocksDatatype)
 		columnMap[name] = dataType
@@ -170,7 +171,7 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 		isPrimaryKey, ok := cm.PrimaryKey()
 		if isPrimaryKey && ok {
 			pks = append(pks, fmt.Sprintf("`%s`", name))
-			orderBy = name
+			orders = append(orders, name)
 		}
 		if firstcm == "" {
 			firstcm = fmt.Sprintf("`%s`", name)
@@ -180,19 +181,25 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 	if len(pks) == 0 {
 		pks = append(pks, firstcm)
 	}
-	if config.OrderBy == "" {
-		config.OrderBy = orderBy
+	orderBy := strings.Join(orders, ",")
+	if config.OrderBy != nil {
+		if v, ok := config.OrderBy[table]; ok {
+			orderBy = v
+		}
 	}
-	if config.Extra == "" {
-		config.Extra = fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "1")`, strings.Join(pks, ", "))
+	extra := fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "1")`, strings.Join(pks, ", "))
+	if config.Extra != nil {
+		if v, ok := config.Extra[table]; ok {
+			extra = v
+		}
 	}
-	tableSql := fmt.Sprintf("create table if not exists `%s` ( %s ) %s", starrocksTable, strings.Join(columns, ","), config.Extra)
+	tableSql := fmt.Sprintf("create table if not exists `%s` ( %s ) %s", starrocksTable, strings.Join(columns, ","), extra)
 	c.GetLogger().Info(tableSql)
 	_, err = errors.Convert01(starrocks.Exec(tableSql))
-	return columnMap, err
+	return columnMap, orderBy, err
 }
 
-func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, table string, columnMap map[string]string, db dal.Dal, config *StarRocksConfig) error {
+func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, table string, columnMap map[string]string, db dal.Dal, config *StarRocksConfig, orderBy string) error {
 	offset := 0
 	starrocksTmpTable := starrocksTable + "_tmp"
 	// create tmp table in starrocks
@@ -205,7 +212,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 		var rows *sql.Rows
 		var data []map[string]interface{}
 		// select data from db
-		rows, err = db.RawCursor(fmt.Sprintf("select * from %s order by %s limit %d offset %d", table, config.OrderBy, config.BatchSize, offset))
+		rows, err = db.RawCursor(fmt.Sprintf("select * from %s order by %s limit %d offset %d", table, orderBy, config.BatchSize, offset))
 		if err != nil {
 			return err
 		}

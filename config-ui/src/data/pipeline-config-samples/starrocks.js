@@ -31,8 +31,8 @@ const starRocksConfig = [
         be_port: 8040,
         tables: ['_tool_.*'], // support regexp
         batch_size: 10000,
-        order_by: 'id',
-        extra: '', // will append to create table sql
+        order_by: {},
+        extra: {}, // will append to create table sql
         domain_layer: '' // priority over tables
       }
     }
