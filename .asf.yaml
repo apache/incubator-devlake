@@ -75,6 +75,7 @@ github:
   # without giving them write access to the code.
   collaborators:
     - mintsweet
+    - keon94
 
 notifications:
   commits: commits@devlake.apache.org
