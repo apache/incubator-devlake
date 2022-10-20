@@ -59,6 +59,7 @@ import StageLane from '@/components/pipelines/StageLane'
 import { ToastNotification } from '@/components/Toast'
 import BlueprintNavigationLinks from '@/components/blueprints/BlueprintNavigationLinks'
 
+import useIntegrations from '@/hooks/useIntegrations'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import usePaginator from '@/hooks/usePaginator'
@@ -66,6 +67,15 @@ import usePaginator from '@/hooks/usePaginator'
 const BlueprintDetail = (props) => {
   // eslint-disable-next-line no-unused-vars
   const history = useHistory()
+
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider,
+    setActiveProvider
+  } = useIntegrations()
+
   const { bId } = useParams()
 
   const [blueprintId, setBlueprintId] = useState()
@@ -440,7 +450,7 @@ const BlueprintDetail = (props) => {
     <>
       <div className='container'>
         <Nav />
-        <Sidebar />
+        <Sidebar key={Integrations} integrations={Integrations} />
         <Content>
           <main className='main'>
             <div

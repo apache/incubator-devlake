@@ -23,7 +23,7 @@ import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
-import { integrationsData } from '@/data/integrations'
+// import { integrationsData } from '@/data/integrations'
 // import {
 //   ProviderConnectionLimits,
 //   ProviderFormLabels,
@@ -149,7 +149,7 @@ export default function AddConnection() {
     <>
       <div className='container'>
         <Nav />
-        <Sidebar />
+        <Sidebar key={Integrations} integrations={Integrations} />
         <Content>
           <main className='main'>
             <AppCrumbs

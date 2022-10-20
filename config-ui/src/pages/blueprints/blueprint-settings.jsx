@@ -39,8 +39,8 @@ import {
   Classes,
   Popover
 } from '@blueprintjs/core'
-
-import { integrationsData } from '@/data/integrations'
+import useIntegrations from '@/hooks/useIntegrations'
+// import { integrationsData } from '@/data/integrations'
 import JiraBoard from '@/models/JiraBoard'
 import DataScopeConnection from '@/models/DataScopeConnection'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
@@ -89,7 +89,15 @@ const BlueprintSettings = (props) => {
   const history = useHistory()
   const { bId } = useParams()
 
-  const [activeProvider, setActiveProvider] = useState(integrationsData[0])
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider,
+    setActiveProvider
+  } = useIntegrations()
+
+  // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
   // @disabled Provided By Data Scopes Manager
   // const [activeTransformation, setActiveTransformation] = useState()
 
@@ -482,7 +490,7 @@ const BlueprintSettings = (props) => {
       console.log('>>> MODIFYING DATA CONNECTION SCOPE...', connectionWithScope)
       setActiveProvider((aP) =>
         connection
-          ? integrationsData.find((i) => i.id === connection?.provider)
+          ? Integrations.find((i) => i.id === connection?.provider)
           : aP
       )
       setActiveSetting((aS) => ({
@@ -501,7 +509,9 @@ const BlueprintSettings = (props) => {
       connectionsList,
       connections,
       setScopeConnection,
-      setConfiguredConnection
+      setConfiguredConnection,
+      setActiveProvider,
+      Integrations
     ]
   )
 
@@ -1037,7 +1047,7 @@ const BlueprintSettings = (props) => {
     <>
       <div className='container'>
         <Nav />
-        <Sidebar />
+        <Sidebar key={Integrations} integrations={Integrations} />
         <Content>
           <main className='main'>
             {activeBlueprint?.id !== null && blueprintErrors.length === 0 && (

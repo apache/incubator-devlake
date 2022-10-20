@@ -196,7 +196,7 @@ export default function ConfigureConnection() {
     <>
       <div className='container'>
         <Nav />
-        <Sidebar />
+        <Sidebar key={Integrations} integrations={Integrations} />
         <Content>
           <main className='main'>
             <AppCrumbs
