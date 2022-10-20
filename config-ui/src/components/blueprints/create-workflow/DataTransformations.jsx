@@ -41,6 +41,7 @@ const DataTransformations = (props) => {
   const {
     Integrations = [],
     Providers = {},
+    ProviderLabels = {},
     ProviderIcons = {},
     provider,
     blueprint,
@@ -376,6 +377,7 @@ const DataTransformations = (props) => {
                         <ProviderTransformationSettings
                           key={configuredProject?.id || configuredBoard?.id}
                           Providers={Providers}
+                          ProviderLabels={ProviderLabels}
                           ProviderIcons={ProviderIcons}
                           provider={Integrations.find(
                             (i) => i.id === configuredConnection?.provider

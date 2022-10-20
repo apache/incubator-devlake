@@ -201,6 +201,10 @@ function useIntegrations(
       Providers
     )
     console.log(
+      '>>> INTEGRATIONS HOOK: PROVIDER LABELS CONFIGURATION LIST ...',
+      ProviderLabels
+    )
+    console.log(
       '>>> INTEGRATIONS HOOK: PROVIDER CONFIGURATION CONNECTION FORM LABELS..',
       ProviderFormLabels
     )
@@ -219,6 +223,7 @@ function useIntegrations(
   }, [
     activeProvider,
     Providers,
+    ProviderLabels,
     ProviderFormLabels,
     ProviderFormPlaceholders,
     ProviderIcons,

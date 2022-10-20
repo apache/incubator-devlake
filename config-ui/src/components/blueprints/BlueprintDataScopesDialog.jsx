@@ -64,6 +64,7 @@ const BlueprintDataScopesDialog = (props) => {
     blueprint = NullBlueprint,
     Integrations = {},
     Providers = {},
+    ProviderLabels = {},
     ProviderIcons = {},
     provider,
     activeTransformation,
@@ -223,6 +224,7 @@ const BlueprintDataScopesDialog = (props) => {
               <DataTransformations
                 Integrations={Integrations}
                 Providers={Providers}
+                ProviderLabels={ProviderLabels}
                 ProviderIcons={ProviderIcons}
                 provider={provider}
                 blueprint={blueprint}

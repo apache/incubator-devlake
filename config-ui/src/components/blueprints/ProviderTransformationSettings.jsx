@@ -44,6 +44,7 @@ const withTransformationSettings = (
 const ProviderTransformationSettings = (props) => {
   const {
     Providers = {},
+    ProviderLabels = {},
     ProviderIcons = {},
     provider,
     blueprint,

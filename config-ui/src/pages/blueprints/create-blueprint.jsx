@@ -99,6 +99,7 @@ const CreateBlueprint = (props) => {
     activeProvider,
     DataSources: DataSourcesList,
     Providers,
+    ProviderLabels,
     ProviderIcons,
     ProviderFormLabels,
     ProviderFormPlaceholders,
@@ -1140,6 +1141,7 @@ const CreateBlueprint = (props) => {
                     <DataTransformations
                       Integrations={Integrations}
                       Providers={Providers}
+                      ProviderLabels={ProviderLabels}
                       ProviderIcons={ProviderIcons}
                       provider={provider}
                       activeStep={activeStep}

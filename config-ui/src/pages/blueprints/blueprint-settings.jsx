@@ -94,6 +94,7 @@ const BlueprintSettings = (props) => {
     plugins: Plugins,
     integrations: Integrations,
     Providers,
+    ProviderLabels,
     ProviderIcons,
     activeProvider,
     setActiveProvider
@@ -1434,6 +1435,7 @@ const BlueprintSettings = (props) => {
       <BlueprintDataScopesDialog
         Integrations={Integrations}
         Providers={Providers}
+        ProviderLabels={ProviderLabels}
         ProviderIcons={ProviderIcons}
         isOpen={blueprintScopesDialogIsOpen}
         title={activeSetting?.title}
