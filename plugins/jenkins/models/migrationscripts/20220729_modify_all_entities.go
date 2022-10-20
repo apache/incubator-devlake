@@ -82,24 +82,14 @@ func (jenkinsStage20200729) TableName() string {
 }
 
 func (*modifyAllEntities) Up(basicRes core.BasicRes) errors.Error {
-	db := basicRes.GetDal()
 
-	err := db.AutoMigrate(&jenkinsBuild20220729{})
-	if err != nil {
-		return err
-	}
-
-	err = migrationhelper.AutoMigrateTables(
+	return migrationhelper.AutoMigrateTables(
 		basicRes,
+		jenkinsBuild20220729{},
 		jenkinsJobDag20220729{},
 		jenkinsBuildRepo20220729{},
 		jenkinsStage20200729{},
 	)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (*modifyAllEntities) Version() uint64 {
