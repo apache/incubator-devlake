@@ -107,20 +107,28 @@ func LoadData(c core.SubTaskContext) errors.Error {
 	for _, table := range starrocksTables {
 		starrocksTable := strings.TrimLeft(table, "_")
 		var columnMap map[string]string
-		columnMap, err = createTable(starrocks, db, starrocksTable, table, c, config.Extra)
+		columnMap, err = createTable(starrocks, db, starrocksTable, table, c, config)
 		if err != nil {
 			c.GetLogger().Error(err, "create table %s in starrocks error", table)
 			return errors.Convert(err)
 		}
-		err = loadData(starrocks, c, starrocksTable, table, columnMap, db, config)
+		err := errors.Convert(db.Exec("start transaction repeatable read"))
 		if err != nil {
-			c.GetLogger().Error(err, "load data %s error", table)
+			return err
+		}
+		err = errors.Convert(loadData(starrocks, c, starrocksTable, table, columnMap, db, config))
+		if err != nil {
+			return errors.Convert(err)
+		}
+		err = errors.Convert(db.Exec("commit"))
+		if err != nil {
 			return errors.Convert(err)
 		}
 	}
 	return nil
 }
-func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table string, c core.SubTaskContext, extra string) (map[string]string, errors.Error) {
+
+func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table string, c core.SubTaskContext, config *StarRocksConfig) (map[string]string, errors.Error) {
 	columeMetas, err := db.GetColumns(&Table{name: table}, nil)
 	columnMap := make(map[string]string)
 	if err != nil {
@@ -137,6 +145,7 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 
 	var pks []string
 	var columns []string
+	var orderBy string
 	firstcm := ""
 	for _, cm := range columeMetas {
 		name := cm.Name()
@@ -151,6 +160,7 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 		isPrimaryKey, ok := cm.PrimaryKey()
 		if isPrimaryKey && ok {
 			pks = append(pks, fmt.Sprintf("`%s`", name))
+			orderBy = name
 		}
 		if firstcm == "" {
 			firstcm = fmt.Sprintf("`%s`", name)
@@ -160,11 +170,13 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 	if len(pks) == 0 {
 		pks = append(pks, firstcm)
 	}
-
-	if extra == "" {
-		extra = fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "1")`, strings.Join(pks, ", "))
+	if config.OrderBy == "" {
+		config.OrderBy = orderBy
 	}
-	tableSql := fmt.Sprintf("create table if not exists `%s` ( %s ) %s", starrocksTable, strings.Join(columns, ","), extra)
+	if config.Extra == "" {
+		config.Extra = fmt.Sprintf(`engine=olap distributed by hash(%s) properties("replication_num" = "1")`, strings.Join(pks, ", "))
+	}
+	tableSql := fmt.Sprintf("create table if not exists `%s` ( %s ) %s", starrocksTable, strings.Join(columns, ","), config.Extra)
 	c.GetLogger().Info(tableSql)
 	_, err = errors.Convert01(starrocks.Exec(tableSql))
 	return columnMap, err
@@ -183,7 +195,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 		var rows *sql.Rows
 		var data []map[string]interface{}
 		// select data from db
-		rows, err = db.RawCursor(fmt.Sprintf("select * from %s limit %d offset %d", table, config.BatchSize, offset))
+		rows, err = db.RawCursor(fmt.Sprintf("select * from %s limit %d offset %d ordey by %s", table, config.BatchSize, offset, config.OrderBy))
 		if err != nil {
 			return err
 		}
@@ -300,11 +312,9 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 	return nil
 }
 
-var (
-	LoadDataTaskMeta = core.SubTaskMeta{
-		Name:             "LoadData",
-		EntryPoint:       LoadData,
-		EnabledByDefault: true,
-		Description:      "Load data to StarRocks",
-	}
-)
+var LoadDataTaskMeta = core.SubTaskMeta{
+	Name:             "LoadData",
+	EntryPoint:       LoadData,
+	EnabledByDefault: true,
+	Description:      "Load data to StarRocks",
+}
