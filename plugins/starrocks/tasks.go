@@ -113,10 +113,10 @@ func LoadData(c core.SubTaskContext) errors.Error {
 			c.GetLogger().Error(err, "create table %s in starrocks error", table)
 			return errors.Convert(err)
 		}
-		// try postgre syntax, because we can get dialect this
+		// try postgre syntax, because we can't get dialect here
 		err := errors.Convert(db.Exec("begin transaction isolation level repeatable read"))
 		if err != nil {
-			// try mysql
+			// try mysql syntax
 			err = errors.Convert(db.Exec("set session transaction isolation level repeatable read"))
 			if err != nil {
 				return err
