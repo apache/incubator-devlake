@@ -93,6 +93,7 @@ const BlueprintSettings = (props) => {
     registry,
     plugins: Plugins,
     integrations: Integrations,
+    Providers,
     activeProvider,
     setActiveProvider
   } = useIntegrations()
@@ -1267,6 +1268,7 @@ const BlueprintSettings = (props) => {
                         Data Scope and Transformation
                       </h2>
                       <DataScopesGrid
+                        providers={Providers}
                         connections={connections}
                         blueprint={activeBlueprint}
                         onModify={modifyConnection}
@@ -1308,6 +1310,7 @@ const BlueprintSettings = (props) => {
                       </div>
                     </div>
                     <DataScopesGrid
+                      providers={Providers}
                       connections={connections}
                       blueprint={activeBlueprint}
                       onModify={() => modifySetting('plan')}
