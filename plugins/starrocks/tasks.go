@@ -205,7 +205,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, t
 		var rows *sql.Rows
 		var data []map[string]interface{}
 		// select data from db
-		rows, err = db.RawCursor(fmt.Sprintf("select * from %s limit %d offset %d ordey by %s", table, config.BatchSize, offset, config.OrderBy))
+		rows, err = db.RawCursor(fmt.Sprintf("select * from %s order by %s limit %d offset %d", table, config.OrderBy, config.BatchSize, offset))
 		if err != nil {
 			return err
 		}
