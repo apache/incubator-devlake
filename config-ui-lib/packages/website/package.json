@@ -1,7 +1,7 @@
 {
   "name": "@devlake-ui/website",
-  "version": "0.0.0-rc.0",
-  "description": "config ui website for devlake",
+  "version": "0.0.0",
+  "description": "website for devlake ui",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
