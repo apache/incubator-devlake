@@ -105,9 +105,10 @@ func LoadData(c core.SubTaskContext) errors.Error {
 
 	for _, table := range starrocksTables {
 		starrocksTable := strings.TrimLeft(table, "_")
+		starrocksTmpTable := fmt.Sprintf("%s_tmp", starrocksTable)
 		var columnMap map[string]string
 		var orderBy string
-		columnMap, orderBy, err = createTable(starrocks, db, starrocksTable, table, c, config)
+		columnMap, orderBy, err = createTmpTable(starrocks, db, starrocksTmpTable, table, c, config)
 		if err != nil {
 			c.GetLogger().Error(err, "create table %s in starrocks error", table)
 			return errors.Convert(err)
@@ -126,7 +127,7 @@ func LoadData(c core.SubTaskContext) errors.Error {
 			}
 
 		}
-		err = errors.Convert(loadData(starrocks, c, starrocksTable, table, columnMap, db, config, orderBy))
+		err = errors.Convert(loadData(starrocks, c, starrocksTable, starrocksTmpTable, table, columnMap, db, config, orderBy))
 		if err != nil {
 			return errors.Convert(err)
 		}
@@ -138,7 +139,7 @@ func LoadData(c core.SubTaskContext) errors.Error {
 	return nil
 }
 
-func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table string, c core.SubTaskContext, config *StarRocksConfig) (map[string]string, string, errors.Error) {
+func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTmpTable string, table string, c core.SubTaskContext, config *StarRocksConfig) (map[string]string, string, errors.Error) {
 	columeMetas, err := db.GetColumns(&Table{name: table}, nil)
 	columnMap := make(map[string]string)
 	if err != nil {
@@ -196,20 +197,14 @@ func createTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, table str
 			extra = v
 		}
 	}
-	tableSql := fmt.Sprintf("create table if not exists `%s` ( %s ) %s", starrocksTable, strings.Join(columns, ","), extra)
+	tableSql := fmt.Sprintf("drop table if exists %s; create table if not exists `%s` ( %s ) %s", starrocksTmpTable, starrocksTmpTable, strings.Join(columns, ","), extra)
 	c.GetLogger().Info(tableSql)
 	_, err = errors.Convert01(starrocks.Exec(tableSql))
 	return columnMap, orderBy, err
 }
 
-func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable string, table string, columnMap map[string]string, db dal.Dal, config *StarRocksConfig, orderBy string) error {
+func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrocksTmpTable, table string, columnMap map[string]string, db dal.Dal, config *StarRocksConfig, orderBy string) error {
 	offset := 0
-	starrocksTmpTable := starrocksTable + "_tmp"
-	// create tmp table in starrocks
-	_, execErr := starrocks.Exec(fmt.Sprintf("drop table if exists %s; create table %s like %s", starrocksTmpTable, starrocksTmpTable, starrocksTable))
-	if execErr != nil {
-		return execErr
-	}
 	var err error
 	for {
 		var rows *sql.Rows
