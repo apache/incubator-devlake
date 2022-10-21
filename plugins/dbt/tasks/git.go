@@ -17,20 +17,33 @@ limitations under the License.
 
 package tasks
 
-type DbtOptions struct {
-	ProjectPath   string `json:"projectPath"`
-	ProjectName   string `json:"projectName"`
-	ProjectTarget string `json:"projectTarget"`
-	// clone from git to projectPath if projectGitURL is not empty
-	ProjectGitURL string `json:"projectGitURL"`
-	// deprecated, use args instead
-	ProjectVars    map[string]interface{} `json:"projectVars"`
-	SelectedModels []string               `json:"selectedModels"`
-	// dbt run args
-	Args  []string `json:"args"`
-	Tasks []string `json:"tasks,omitempty"`
+import (
+	"os/exec"
+
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
+)
+
+func Git(taskCtx core.SubTaskContext) errors.Error {
+	logger := taskCtx.GetLogger()
+	data := taskCtx.GetData().(*DbtTaskData)
+	if data.Options.ProjectGitURL == "" {
+		return nil
+	}
+	cmd := exec.Command("git", "clone", data.Options.ProjectGitURL)
+	logger.Info("start clone dbt project: %v", cmd)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		logger.Error(err, "clone dbt project failed")
+		return errors.Convert(err)
+	}
+	logger.Info("clone dbt project success: %v", string(out))
+	return nil
 }
 
-type DbtTaskData struct {
-	Options *DbtOptions
+var GitMeta = core.SubTaskMeta{
+	Name:             "Git",
+	EntryPoint:       Git,
+	EnabledByDefault: true,
+	Description:      "Clone dbt project from git",
 }
