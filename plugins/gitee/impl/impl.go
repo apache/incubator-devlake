@@ -209,6 +209,10 @@ func (plugin Gitee) ApiResources() map[string]map[string]core.ApiResourceHandler
 	}
 }
 
+func (plugin Gitee) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
+	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
+}
+
 func (plugin Gitee) Close(taskCtx core.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.GiteeTaskData)
 	if !ok {
