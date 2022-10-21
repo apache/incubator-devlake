@@ -116,6 +116,9 @@ func LoadData(c core.SubTaskContext) errors.Error {
 		}
 		if db.Dialect() == "postgres" {
 			err = db.Exec("begin transaction isolation level repeatable read")
+			if err != nil {
+				return errors.Convert(err)
+			}
 		} else if db.Dialect() == "mysql" {
 			err = db.Exec("set session transaction isolation level repeatable read")
 			if err != nil {
