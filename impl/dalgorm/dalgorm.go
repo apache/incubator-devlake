@@ -216,6 +216,11 @@ func (d *Dalgorm) AllTables() ([]string, errors.Error) {
 	return filteredTables, nil
 }
 
+// Dialect returns the dialect of the database
+func (d *Dalgorm) Dialect() string {
+	return d.db.Dialector.Name()
+}
+
 // NewDalgorm FIXME ...
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}
