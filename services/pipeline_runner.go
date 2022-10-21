@@ -122,7 +122,10 @@ func runPipeline(pipelineId uint64) errors.Error {
 	// finished, update database
 	finishedAt := time.Now()
 	pipeline.FinishedAt = &finishedAt
-	pipeline.SpentSeconds = int(finishedAt.Unix() - pipeline.BeganAt.Unix())
+	if pipeline.BeganAt != nil {
+		// BeganAt may be nil caused by err
+		pipeline.SpentSeconds = int(finishedAt.Unix() - pipeline.BeganAt.Unix())
+	}
 	if err != nil {
 		pipeline.Status = models.TASK_FAILED
 		if lakeErr := errors.AsLakeErrorType(err); lakeErr != nil {
