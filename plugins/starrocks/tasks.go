@@ -113,19 +113,19 @@ func LoadData(c core.SubTaskContext) errors.Error {
 			c.GetLogger().Error(err, "create table %s in starrocks error", table)
 			return errors.Convert(err)
 		}
-		// try postgre syntax, because we can't get dialect here
-		err := errors.Convert(db.Exec("begin transaction isolation level repeatable read"))
-		if err != nil {
-			// try mysql syntax
-			err = errors.Convert(db.Exec("set session transaction isolation level repeatable read"))
+		if db.Dialect() == "postgres" {
+			err = db.Exec("begin transaction isolation level repeatable read")
+		} else if db.Dialect() == "mysql" {
+			err = db.Exec("set session transaction isolation level repeatable read")
 			if err != nil {
-				return err
+				return errors.Convert(err)
 			}
 			err = errors.Convert(db.Exec("start transaction"))
 			if err != nil {
-				return err
+				return errors.Convert(err)
 			}
-
+		} else {
+			return errors.NotFound.New(fmt.Sprintf("unsupported dialect %s", db.Dialect()))
 		}
 		err = errors.Convert(loadData(starrocks, c, starrocksTable, starrocksTmpTable, table, columnMap, db, config, orderBy))
 		if err != nil {
@@ -156,6 +156,14 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTmpTable string, tab
 	var pks []string
 	var orders []string
 	var columns []string
+	var separator string
+	if db.Dialect() == "postgres" {
+		separator = "\""
+	} else if db.Dialect() == "mysql" {
+		separator = "`"
+	} else {
+		return nil, "", errors.NotFound.New(fmt.Sprintf("unsupported dialect %s", db.Dialect()))
+	}
 	firstcm := ""
 	firstcmName := ""
 	for _, cm := range columeMetas {
@@ -171,18 +179,18 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTmpTable string, tab
 		isPrimaryKey, ok := cm.PrimaryKey()
 		if isPrimaryKey && ok {
 			pks = append(pks, fmt.Sprintf("`%s`", name))
-			orders = append(orders, name)
+			orders = append(orders, fmt.Sprintf("%s%s%s", separator, name, separator))
 		}
 		if firstcm == "" {
 			firstcm = fmt.Sprintf("`%s`", name)
-			firstcmName = name
+			firstcmName = fmt.Sprintf("%s%s%s", separator, name, separator)
 		}
 	}
 
 	if len(pks) == 0 {
 		pks = append(pks, firstcm)
 	}
-	orderBy := strings.Join(orders, ",")
+	orderBy := strings.Join(orders, ", ")
 	if config.OrderBy != nil {
 		if v, ok := config.OrderBy[table]; ok {
 			orderBy = v

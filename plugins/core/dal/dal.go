@@ -88,6 +88,8 @@ type Dal interface {
 	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
 	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
 	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
+	// Dialect returns the dialect of current database
+	Dialect() string
 }
 
 // GetColumnNames returns table Column Names in database
