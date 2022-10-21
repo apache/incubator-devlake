@@ -112,6 +112,65 @@ func ChangeColumnsType(
 	return nil
 }
 
+// ChangeColumnsTypeOneByOne change some Columns type for one table
+func ChangeColumnsTypeOneByOne[S any, D core.Tabler](
+	basicRes core.BasicRes,
+	script core.MigrationScript,
+	Columns []string,
+	update func(src *S) (D, errors.Error),
+) (err errors.Error) {
+	db := basicRes.GetDal()
+	tmp := new(D)
+	return ChangeColumnsType(
+		basicRes,
+		script,
+		*tmp,
+		Columns,
+		func(tmpColumnsNames []string) errors.Error {
+			// create selectStr for transform tmpColumnsNames
+			params := make([]interface{}, 0, len(Columns)*2+1)
+			selectStr := "SELECT * "
+			for i, v := range Columns {
+				selectStr += ",? as ?"
+				params = append(params, clause.Column{Name: tmpColumnsNames[i]})
+				params = append(params, clause.Column{Name: v})
+			}
+			selectStr += " FROM ? "
+			params = append(params, clause.Table{Name: (*tmp).TableName()})
+
+			cursor, err := db.RawCursor(selectStr, params...)
+			if err != nil {
+				return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", (*tmp).TableName()))
+			}
+
+			defer cursor.Close()
+			batch, err := helper.NewBatchSave(basicRes, reflect.TypeOf(*tmp), 200, (*tmp).TableName())
+			if err != nil {
+				return errors.Default.Wrap(err, fmt.Sprintf("failed to instantiate BatchSave for table [%s]", (*tmp).TableName()))
+			}
+			defer batch.Close()
+			src := new(S)
+			for cursor.Next() {
+				err = db.Fetch(cursor, src)
+				if err != nil {
+					return errors.Default.Wrap(err, fmt.Sprintf("fail to load record from table [%s]", (*tmp).TableName()))
+				}
+
+				dst, err := update(src)
+
+				if err != nil {
+					return errors.Default.Wrap(err, fmt.Sprintf("failed to update row %v", src))
+				}
+				err = batch.Add(dst)
+				if err != nil {
+					return errors.Default.Wrap(err, fmt.Sprintf("push to BatchSave failed %v", dst))
+				}
+			}
+			return nil
+		},
+	)
+}
+
 // TransformTable can be used when we need to change the table structure and reprocess all the data in the table.
 func TransformTable[S any, D any](
 	basicRes core.BasicRes,

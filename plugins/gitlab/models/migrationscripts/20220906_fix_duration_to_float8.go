@@ -25,6 +25,12 @@ import (
 
 type fixDurationToFloat8 struct{}
 
+type gitlabJob20220906_old struct {
+	ConnectionId uint64 `gorm:"primaryKey"`
+	GitlabId     int    `gorm:"primaryKey"`
+
+	Duration float64 `gorm:"type:text"`
+}
 type gitlabJob20220906 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	GitlabId     int    `gorm:"primaryKey"`
@@ -37,12 +43,17 @@ func (*gitlabJob20220906) TableName() string {
 }
 
 func (*fixDurationToFloat8) Up(baseRes core.BasicRes) errors.Error {
-	err := migrationhelper.ChangeColumnsType(
+	err := migrationhelper.ChangeColumnsTypeOneByOne(
 		baseRes,
 		&fixDurationToFloat8{},
-		&gitlabJob20220906{},
 		[]string{"duration"},
-		nil,
+		func(src *gitlabJob20220906_old) (*gitlabJob20220906, errors.Error) {
+			return &gitlabJob20220906{
+				ConnectionId: src.ConnectionId,
+				GitlabId:     src.GitlabId,
+				Duration:     src.Duration,
+			}, nil
+		},
 	)
 
 	if err != nil {
