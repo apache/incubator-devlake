@@ -9,8 +9,8 @@
     "postpack": "pinst --enable",
     "prettier": "prettier . --write",
     "start": "yarn workspace @devlake-ui/website dev",
-    "build": "yarn workspace @devlake-ui/config build",
-    "publish": "yarn workspace @devlake-ui/config npm publish --access public"
+    "build": "yarn workspace @devlake-ui/connection build",
+    "publish": "yarn workspace @devlake-ui/connection npm publish --access public"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

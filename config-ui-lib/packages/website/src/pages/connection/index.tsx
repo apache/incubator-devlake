@@ -16,9 +16,17 @@
  *
  */
 import { useParams } from 'react-router-dom';
-import { Connection as DevLakeConnection } from '@devlake-ui/config';
+import {
+  Connection as DevLakeConnection,
+  ConnectionType,
+} from '@devlake-ui/connection';
 
 export const Connection = () => {
-  const { type } = useParams();
+  const { type } = useParams<{ type: ConnectionType }>();
+
+  if (!type) {
+    return <div>something error.</div>;
+  }
+
   return <DevLakeConnection type={type} />;
 };

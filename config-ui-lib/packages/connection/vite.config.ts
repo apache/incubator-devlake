@@ -29,7 +29,7 @@ export default defineConfig({
     outDir: '_build',
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: '@devlake-ui/config',
+      name: '@devlake-ui/connection',
       fileName: (format) => `index.${format}.js`,
       formats: ['es'],
     },

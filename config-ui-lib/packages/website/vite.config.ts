@@ -44,7 +44,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
-      '@devlake-ui/config': resolve(__dirname, '../config-ui/src/index.ts'),
     },
   },
 

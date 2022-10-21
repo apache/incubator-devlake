@@ -1628,9 +1628,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@devlake-ui/config@workspace:packages/config-ui":
+"@devlake-ui/connection@workspace:^, @devlake-ui/connection@workspace:packages/connection":
   version: 0.0.0-use.local
-  resolution: "@devlake-ui/config@workspace:packages/config-ui"
+  resolution: "@devlake-ui/connection@workspace:packages/connection"
   dependencies:
     "@types/lodash": ^4.14.185
     "@types/node": ^18.7.18
@@ -1658,6 +1658,7 @@ __metadata:
   resolution: "@devlake-ui/website@workspace:packages/website"
   dependencies:
     "@ant-design/icons": 4.2.1
+    "@devlake-ui/connection": "workspace:^"
     "@emotion/react": 11.8.2
     "@emotion/styled": 11.8.1
     "@types/lodash": ^4.14.185

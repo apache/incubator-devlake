@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "4.2.1",
+    "@devlake-ui/connection": "workspace:^",
     "@emotion/react": "11.8.2",
     "@emotion/styled": "11.8.1",
     "antd": "4.13.0",

@@ -1,7 +1,7 @@
 {
-  "name": "@devlake-ui/config",
+  "name": "@devlake-ui/connection",
   "version": "0.0.1-alpha.0",
-  "description": "config for devlake ui",
+  "description": "connection for devlake ui",
   "files": [
     "_build",
     "_types"
