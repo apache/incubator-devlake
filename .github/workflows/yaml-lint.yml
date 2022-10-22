@@ -32,11 +32,8 @@ jobs:
       - name: helm template for chart
         run: helm template test deployment/helm > helm-deployment.yaml
       - name: yamllint
-        uses: karancode/yamllint-github-action@master
+        uses: ibiqlik/action-yamllint@v3
         with:
-          yamllint_file_or_dir: helm-deployment.yaml
-          yamllint_strict: false
-          yamllint_comment: true
-        env:
-          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          file_or_dir: helm-deployment.yaml
+          strict: false
 
