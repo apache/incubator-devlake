@@ -16,6 +16,7 @@
 #
 # mysql services
 ---
+{{- if not .Values.mysql.useExternal }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -31,6 +32,7 @@ spec:
       name: mysql
       port: 3306
       targetPort: 3306
+{{- end }}
 
 # grafana services
 ---

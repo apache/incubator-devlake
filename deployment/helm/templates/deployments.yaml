@@ -42,7 +42,7 @@ spec:
             - 'sh'
             - '-c'
             - |
-              until nc -z -w 2 {{ include "devlake.fullname" . }}-mysql 3306 ; do
+              until nc -z -w 2 {{ include "mysql.server" . }} {{ include "mysql.port" . }} ; do
                 echo wait for mysql ready ...
                 sleep 2
               done
@@ -72,7 +72,7 @@ spec:
             - name: GF_SERVER_ROOT_URL
               value: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
             - name: MYSQL_URL
-              value: {{ include "devlake.fullname" . }}-mysql:3306
+              value: {{ include "mysql.server" . }}:{{ include "mysql.port" . }}
       volumes:
         {{- if ne .Values.option.localtime "" }}
         - name: {{ include "devlake.fullname" . }}-grafana-localtime

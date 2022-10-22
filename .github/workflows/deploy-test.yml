@@ -35,6 +35,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      matrix:
+        database_type: ["mysql-builtin", "mysql-external"]
     steps:
       - name: Creating kind cluster
         uses: container-tools/kind-action@v1
@@ -62,6 +64,21 @@ jobs:
       #     docker push kind-registry:5000/deploy-test-ui:latest
 
       - name: Helm install devlake
+        if: matrix.database_type == 'mysql-external'
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm install mysql bitnami/mysql --set auth.rootPassword=admin --set auth.database=lake --set auth.username=merico --set auth.password=merico
+          # external mysql at service: mysql
+          helm install --wait --timeout 300s deploy-test deployment/helm \
+            --set service.uiPort=30000 \
+            --set mysql.useExternal=true \
+            --set mysql.externalServer=mysql \
+            --set option.localtime=""
+          kubectl get pods -o wide
+          kubectl get services -o wide
+
+      - name: Helm install devlake
+        if: matrix.database_type == 'mysql-builtin'
         run: |
           export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
           echo Node IP: ${NODE_IP}

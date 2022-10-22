@@ -21,7 +21,6 @@ replicaCount: 1
 mysql:
   # if use external mysql server, please set true
   #   by default using false, chart will create a single mysql instance
-  # TODO(matrixji): add support external mysql server
   useExternal: false
 
   # the external mysql server address
