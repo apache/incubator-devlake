@@ -22,21 +22,21 @@ on:
       - main
   pull_request:
 jobs:
-  yamlint-helm:
+  helm-lint:
     name: lint for helm chart
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: install latest helm
         run: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-      - name: helm template for chart
-        run: helm template test deployment/helm > helm-deployment.yaml
-      - name: yamllint
-        uses: karancode/yamllint-github-action@master
-        with:
-          yamllint_file_or_dir: helm-deployment.yaml
-          yamllint_strict: false
-          yamllint_comment: true
+      - name: lint helm chart
+        run: helm lint deployment/helm --strict
+  yaml-lint:
+    name: lint for yamls
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: github/super-linter/slim@v4
         env:
-          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILTER_REGEX_INCLUDE: workspace/(docker-compose.yml|deployment/k8s/k8s-deploy.yaml)
 
