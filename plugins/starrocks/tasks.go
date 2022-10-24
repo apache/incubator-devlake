@@ -22,6 +22,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"regexp"
+	"strings"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -30,11 +36,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"io"
-	"net/http"
-	"net/url"
-	"regexp"
-	"strings"
 )
 
 type Table struct {
@@ -333,6 +334,32 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrock
 	_, err = starrocks.Exec(fmt.Sprintf("alter table %s rename %s", starrocksTmpTable, starrocksTable))
 	if err != nil {
 		return err
+	}
+	// check data count
+	rows, err := db.RawCursor(fmt.Sprintf("select count(*) from %s", table))
+	if err != nil {
+		return err
+	}
+	var sourceCount int
+	for rows.Next() {
+		err = rows.Scan(&sourceCount)
+		if err != nil {
+			return err
+		}
+	}
+	rows, err = starrocks.Query(fmt.Sprintf("select count(*) from %s", starrocksTable))
+	if err != nil {
+		return err
+	}
+	var starrocksCount int
+	for rows.Next() {
+		err = rows.Scan(&starrocksCount)
+		if err != nil {
+			return err
+		}
+	}
+	if sourceCount != starrocksCount {
+		c.GetLogger().Warn(nil, "source count %d not equal to starrocks count %d", sourceCount, starrocksCount)
 	}
 	c.GetLogger().Info("load %s to starrocks success", table)
 	return nil
