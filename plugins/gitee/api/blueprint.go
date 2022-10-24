@@ -124,7 +124,7 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 			stage = core.PipelineStage{}
 		}
 		stage = append(stage, &core.PipelineTask{
-			Plugin:   "github",
+			Plugin:   "gitee",
 			Subtasks: subtasks,
 			Options:  options,
 		})
