@@ -28,12 +28,12 @@ import (
 
 // GraphqlAsyncClient send graphql one by one
 type GraphqlAsyncClient struct {
-	ctx          context.Context
-	cancel       context.CancelFunc
-	client       *graphql.Client
-	logger       core.Logger
-	mu           sync.Mutex
-	waitGroup    sync.WaitGroup
+	ctx       context.Context
+	cancel    context.CancelFunc
+	client    *graphql.Client
+	logger    core.Logger
+	mu        sync.Mutex
+	waitGroup sync.WaitGroup
 
 	rateExhaustCond  *sync.Cond
 	rateRemaining    int
@@ -79,12 +79,16 @@ func (apiClient *GraphqlAsyncClient) updateRateRemaining(rateRemaining int, rese
 		if resetAt != nil && resetAt.After(time.Now()) {
 			nextDuring = time.Until(*resetAt)
 		}
-		<-time.After(nextDuring)
-		newRateRemaining, newResetAt, err := apiClient.getRateRemaining(apiClient.ctx, apiClient.client, apiClient.logger)
-		if err != nil {
-			panic(err)
+		select {
+		case <-apiClient.ctx.Done():
+			return
+		case <-time.After(nextDuring):
+			newRateRemaining, newResetAt, err := apiClient.getRateRemaining(apiClient.ctx, apiClient.client, apiClient.logger)
+			if err != nil {
+				panic(err)
+			}
+			apiClient.updateRateRemaining(newRateRemaining, newResetAt)
 		}
-		apiClient.updateRateRemaining(newRateRemaining, newResetAt)
 	}()
 }
 
@@ -148,4 +152,9 @@ func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error, taskErro
 // Wait blocks until all async requests were done
 func (apiClient *GraphqlAsyncClient) Wait() {
 	apiClient.waitGroup.Wait()
+}
+
+// Release will release the ApiAsyncClient with scheduler
+func (apiClient *GraphqlAsyncClient) Release() {
+	apiClient.cancel()
 }

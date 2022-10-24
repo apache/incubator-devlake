@@ -19,6 +19,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -162,6 +163,16 @@ func (plugin GithubGraphql) RootPkgPath() string {
 }
 
 func (plugin GithubGraphql) ApiResources() map[string]map[string]core.ApiResourceHandler {
+	return nil
+}
+
+func (plugin GithubGraphql) Close(taskCtx core.TaskContext) errors.Error {
+	data, ok := taskCtx.GetData().(*githubTasks.GithubTaskData)
+	if !ok {
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
+	}
+	data.ApiClient.Release()
+	data.GraphqlClient.Release()
 	return nil
 }
 
