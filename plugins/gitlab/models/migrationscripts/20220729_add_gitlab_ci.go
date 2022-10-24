@@ -81,13 +81,11 @@ func (gitlabJob20220729) TableName() string {
 }
 
 func (*addGitlabCI) Up(baseRes core.BasicRes) errors.Error {
-	db := baseRes.GetDal()
-	err := db.AutoMigrate(&gitlabPipeline20220729{})
-	if err != nil {
-		return err
-	}
-
-	err = migrationhelper.AutoMigrateTables(baseRes, &gitlabJob20220729{})
+	err := migrationhelper.AutoMigrateTables(
+		baseRes,
+		&gitlabJob20220729{},
+		&gitlabPipeline20220729{},
+	)
 	if err != nil {
 		return err
 	}
