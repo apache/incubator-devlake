@@ -42,6 +42,132 @@ Server will listen on `http://localhost:9000`
 
 For actual production use, the **Docker Image** for Config-UI should be used as outlined in the main project README.md
 
+## Plugin Registration
+
+### Step 1. Create Registry JSON Configuration
+Depending on the nature of the plugin, see a similar integration in `registry/plugins/` folder and copy as base template. For example, to model after GitHub copy `registry/plugins/github.json` to a uniquely named JSON registry file.
+
+```
+# Example "Merico"
+$> cp registry/plugins/github.json registry/plugins/merico.json"
+```
+
+**Configure Plugin Options**
+The newly created registry file needs to customized with **Name** and **Type** (`Default="integration"`), and all related **Connection** property fields (_Labels_, Tooltips, etc)
+
+Since not all Plugins created may have **UI** capabilities, the `type` property is used to distinguish _variance_ in behavior.
+
+- integration
+- plugin
+- pipeline
+- webhook
+
+The **Enabled** property (`enabled`) must be set to `true` to allow the plugin the be registered. 
+
+```
+# Sample Config for "Merico" Plugin
+{
+  "id": "merico",
+  "name": "Merico",
+  "type": "integration",
+  "enabled": true,
+  "multiConnection": true,
+  "isBeta": false,
+  "isProvider": true,
+  "icon": "src/images/integrations/merico.svg",
+  ...
+  ...
+  ...
+}
+```
+
+### Step 2. Register the JSON Configuration
+Next, the new plugin needs to be registered with the **Integrations Manager Hook** (`@hooks/useIntegrations.jsx`). 
+1. Import the new Plugin JSON File
+2. Add Plugin to the bottom of `pluginRegistry` Array
+
+```
+$> vi hooks/useIntegrations.jsx`
+....
+....
+import DbtPlugin from '@/registry/plugins/dbt.json'
+import StarrocksPlugin from '@/registry/plugins/starrocks.json'
+import DoraPlugin from '@/registry/plugins/dora.json'
+# Register Merico Plugin
++ import MericoPlugin from '@/registry/plugins/merico.json'
+
+function useIntegrations(
+  pluginRegistry = [
+    JiraPlugin,
+    GitHubPlugin,
+    ...
+    ...
+    # Load Merico Plugin
+    + MericoPlugin
+
+```
+
+### Step 3. Define & Register Transformation Settings Component (Optional)
+
+If this new Plugin requires **Transformation Settings**, the transformation settings component must be created and imported. You may use an existing transformation settings file as a reference. In the future there will be support to create transformation settings dynamically from configuration.
+
+1. Create and Design React Transformation **JSX Component** in `settings/[my-plugin.jsx]`
+
+```jsx
+# Example Transformation Settings Template for "Merico"
+export default function MericoSettings(props) {
+  const {
+    Providers,
+    ProviderLabels,
+    provider,
+    connection,
+    entities = [],
+    transformation = {},
+    isSaving = false,
+    isSavingConnection = false,
+    onSettingsChange = () => {}
+  } = props
+
+  return (
+    <>
+     
+    </>
+  )
+}
+```
+
+3. Import & **Register Provider Transformation Settings** in `components/blueprints/ProviderTransformationSettings.jsx`.  Update the `TransformationComponents` Map to Load the Plugin
+
+```jsx
+# components/blueprints/ProviderTransformationSettings.jsx
+import AzureSettings from '@/pages/configure/settings/azure'
+import BitbucketSettings from '@/pages/configure/settings/bitbucket'
+import GiteeSettings from '@/pages/configure/settings/gitee'
+# Import/Register Merico Plugin
++ import MericoSettings from '@/pages/configure/settings/merico'
+
+const ProviderTransformationSettings = (props) => { 
+  ...
+  ...
+  ...
+  // Provider Transformation Components (LOCAL)
+  const TransformationComponents = useMemo(
+    () => ({
+      ...
+      ...
+      [Providers.AZURE]: AzureSettings,
+      [Providers.BITBUCKET]: BitbucketSettings,
+      [Providers.GITEE]: GiteeSettings
+      # Load Merico Plugin
+      + [Providers.MERICO]: MericoSettings
+    }),
+    [Providers]
+  )
+
+}
+```
+
+
 ## Testing
 
 ### Cypress E2E Tests
