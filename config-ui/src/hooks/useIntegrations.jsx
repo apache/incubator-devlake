@@ -96,6 +96,7 @@ function useIntegrations(
         ),
     [plugins]
   )
+
   const ProviderLabels = useMemo(
     () =>
       plugins
@@ -109,6 +110,7 @@ function useIntegrations(
         ),
     [plugins]
   )
+
   const ProviderFormLabels = useMemo(
     () =>
       integrations
@@ -116,6 +118,7 @@ function useIntegrations(
         .reduce((pV, cV, iDx) => ({ ...pV, [integrations[iDx]?.id]: cV }), {}),
     [integrations]
   )
+
   const ProviderFormPlaceholders = useMemo(
     () =>
       integrations
@@ -123,6 +126,15 @@ function useIntegrations(
         .reduce((pV, cV, iDx) => ({ ...pV, [integrations[iDx]?.id]: cV }), {}),
     [integrations]
   )
+
+  const ProviderFormTooltips = useMemo(
+    () =>
+      integrations
+        .map((P) => P.getConnectionFormTooltips())
+        .reduce((pV, cV, iDx) => ({ ...pV, [integrations[iDx]?.id]: cV }), {}),
+    [integrations]
+  )
+
   const ProviderIcons = useMemo(
     () =>
       integrations
@@ -141,6 +153,7 @@ function useIntegrations(
         ),
     [integrations]
   )
+
   const ProviderConnectionLimits = useMemo(() => {}, [])
 
   const registerPlugin = useCallback((pluginConfig) => {
@@ -213,6 +226,10 @@ function useIntegrations(
       ProviderFormPlaceholders
     )
     console.log(
+      '>>> INTEGRATIONS HOOK: PROVIDER CONFIGURATION CONNECTION  FORM TOOLTIPS..',
+      ProviderFormTooltips
+    )
+    console.log(
       '>>> INTEGRATIONS HOOK: PROVIDER CONFIGURATION PROVIDER ICONS..',
       ProviderIcons
     )
@@ -226,6 +243,7 @@ function useIntegrations(
     ProviderLabels,
     ProviderFormLabels,
     ProviderFormPlaceholders,
+    ProviderFormTooltips,
     ProviderIcons,
     DataSources
   ])
@@ -242,6 +260,7 @@ function useIntegrations(
     ProviderLabels,
     ProviderFormLabels,
     ProviderFormPlaceholders,
+    ProviderFormTooltips,
     ProviderIcons,
     ProviderConnectionLimits,
     ProviderTypes,

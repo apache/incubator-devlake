@@ -35,7 +35,11 @@
     "proxy": "eg. http://proxy.localhost:8080",
     "rateLimit": "1000"
   },
-  "tooltips": {}
+  "tooltips": {
+    "password": "If you are using JIRA Cloud or JIRA Server,\nyour API Token should be used as password.",
+    "rateLimitPerHour": "Rate Limit requests per hour,\nEnter a numeric value > 0 to enable."
+    
+  }
  },
  "entities": ["CODE", "TICKET", "CROSS"]
 }

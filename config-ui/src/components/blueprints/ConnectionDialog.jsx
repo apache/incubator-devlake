@@ -66,6 +66,7 @@ const ConnectionDialog = (props) => {
     dataSourcesList = [],
     labels,
     placeholders,
+    tooltips,
     sourceLimits,
     onTest = () => {},
     onSave = () => {},
@@ -276,6 +277,7 @@ const ConnectionDialog = (props) => {
                     sourceLimits={sourceLimits}
                     labels={labels}
                     placeholders={placeholders}
+                    tooltips={tooltips}
                     enableActions={false}
                     // formGroupClassName='formGroup-inline'
                     showHeadline={false}

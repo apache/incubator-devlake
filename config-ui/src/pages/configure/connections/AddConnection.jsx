@@ -51,6 +51,7 @@ export default function AddConnection() {
     Providers,
     ProviderFormLabels,
     ProviderFormPlaceholders,
+    ProviderFormTooltips,
     ProviderConnectionLimits,
     setActiveProvider
   } = useIntegrations()
@@ -233,6 +234,7 @@ export default function AddConnection() {
                   sourceLimits={ProviderConnectionLimits}
                   labels={ProviderFormLabels[activeProvider?.id]}
                   placeholders={ProviderFormPlaceholders[activeProvider?.id]}
+                  tooltips={ProviderFormTooltips[activeProvider?.id]}
                 />
               </div>
               {/* {validationErrors.length > 0 && (

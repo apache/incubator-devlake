@@ -31,7 +31,10 @@
         "token": "eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2",
         "rateLimitPerHour": "1000"
     },
-    "tooltips": {}
+    "tooltips": {
+      "token": "Due to Github's rate limit, input more tokens, \ncomma separated, to accelerate data collection.",
+      "rateLimitPerHour": "Rate Limit requests per hour,\nEnter a numeric value > 0 to enable."
+    }
  },
  "entities": ["CODE", "TICKET", "CROSS"]
 }

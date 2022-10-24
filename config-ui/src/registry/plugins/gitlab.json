@@ -31,7 +31,9 @@
       "token": "eg. ff9d1ad0e5c04f1f98fa",
       "rateLimitPerHour": "1000"
     },
-    "tooltips": {}
+    "tooltips": {
+      "rateLimitPerHour": "Rate Limit requests per hour,\nEnter a numeric value > 0 to enable."
+    }
   },
   "entities": ["CODE", "TICKET", "CROSS", "CICD"]
 }

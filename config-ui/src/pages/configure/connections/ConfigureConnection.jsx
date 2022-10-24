@@ -58,6 +58,7 @@ export default function ConfigureConnection() {
     Providers,
     ProviderFormLabels,
     ProviderFormPlaceholders,
+    ProviderFormTooltips,
     ProviderConnectionLimits,
     setActiveProvider
   } = useIntegrations()
@@ -367,6 +368,7 @@ export default function ConfigureConnection() {
                           placeholders={
                             ProviderFormPlaceholders[activeProvider?.id]
                           }
+                          tooltips={ProviderFormTooltips[activeProvider?.id]}
                         />
                       </div>
                     ) : (

@@ -32,7 +32,8 @@ import {
   Intent,
   PopoverInteractionKind,
   NumericInput,
-  Switch
+  Switch,
+  Tooltip
 } from '@blueprintjs/core'
 import { Providers } from '@/data/Providers'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
@@ -40,6 +41,22 @@ import InputValidationError from '@/components/validation/InputValidationError'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
+
+const TooltipIcon = (props) => (
+  <Icon
+    icon='info-sign'
+    size={12}
+    style={{
+      float: 'left',
+      display: 'inline-block',
+      alignContent: 'center',
+      marginBottom: '4px',
+      marginLeft: '8px',
+      color: '#999'
+    }}
+    {...props}
+  />
+)
 
 export default function ConnectionForm(props) {
   const {
@@ -82,6 +99,7 @@ export default function ConnectionForm(props) {
     showLimitWarning = true,
     labels = {},
     placeholders = {},
+    tooltips = {},
     enableActions = true,
     formGroupClassName = 'formGroup',
     showHeadline = true
@@ -435,6 +453,15 @@ export default function ConnectionForm(props) {
             >
               <Label>
                 {labels ? labels.token : <>Basic&nbsp;Auth&nbsp;Token</>}
+                {tooltips?.token ? (
+                  <Tooltip
+                    className='connection-tooltip'
+                    intent={Intent.PRIMARY}
+                    content={tooltips?.token}
+                  >
+                    <TooltipIcon />
+                  </Tooltip>
+                ) : null}
                 <span className='requiredStar'>*</span>
               </Label>
               {[Providers.GITHUB].includes(activeProvider?.id) ? (
@@ -716,6 +743,15 @@ export default function ConnectionForm(props) {
               >
                 <Label>
                   {labels ? labels.password : <>Password</>}
+                  {tooltips?.password ? (
+                    <Tooltip
+                      className='connection-tooltip'
+                      intent={Intent.PRIMARY}
+                      content={tooltips?.password}
+                    >
+                      <TooltipIcon />
+                    </Tooltip>
+                  ) : null}
                   <span className='requiredStar'>*</span>
                 </Label>
                 <InputGroup
@@ -797,6 +833,15 @@ export default function ConnectionForm(props) {
               >
                 <Label>
                   {labels ? labels.rateLimitPerHour : <>Rate&nbsp;Limit</>}
+                  {tooltips?.rateLimitPerHour ? (
+                    <Tooltip
+                      className='connection-tooltip'
+                      intent={Intent.PRIMARY}
+                      content={tooltips?.rateLimitPerHour}
+                    >
+                      <TooltipIcon />
+                    </Tooltip>
+                  ) : null}
                 </Label>
                 <div
                   className='ratelimit-options'
