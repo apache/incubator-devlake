@@ -27,18 +27,7 @@ var _ core.MigrationScript = (*renamePipelineCommits)(nil)
 
 type renamePipelineCommits struct{}
 
-type CiCDPipelineRepo20220915Before struct {
-	archived.DomainEntity
-	CommitSha string `gorm:"primaryKey;type:varchar(255)"`
-	Branch    string `gorm:"type:varchar(255)"`
-	Repo      string `gorm:"type:varchar(255)"`
-}
-
-func (CiCDPipelineRepo20220915Before) TableName() string {
-	return "cicd_pipeline_repos"
-}
-
-type CiCDPipelineRepo20220915After struct {
+type cicdPipelineRepo20220915After struct {
 	archived.NoPKModel
 	PipelineId string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha  string `gorm:"primaryKey;type:varchar(255)"`
@@ -47,7 +36,7 @@ type CiCDPipelineRepo20220915After struct {
 	RepoUrl    string
 }
 
-func (CiCDPipelineRepo20220915After) TableName() string {
+func (cicdPipelineRepo20220915After) TableName() string {
 	return "cicd_pipeline_commits"
 }
 
@@ -65,7 +54,7 @@ func (*renamePipelineCommits) Up(basicRes core.BasicRes) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(CiCDPipelineRepo20220915After{})
+	err = db.AutoMigrate(cicdPipelineRepo20220915After{})
 	if err != nil {
 		return err
 	}

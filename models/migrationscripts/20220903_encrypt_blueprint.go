@@ -30,7 +30,7 @@ var _ core.MigrationScript = (*encryptBlueprint)(nil)
 
 type encryptBlueprint struct{}
 
-type Blueprint20220903Before struct {
+type blueprint20220903Before struct {
 	Name           string          `json:"name" validate:"required"`
 	Mode           string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
 	Plan           json.RawMessage `json:"plan"`
@@ -41,7 +41,7 @@ type Blueprint20220903Before struct {
 	archived.Model `swaggerignore:"true"`
 }
 
-type Blueprint20220903After struct {
+type blueprint20220903After struct {
 	/* unchanged part */
 	Name           string `json:"name" validate:"required"`
 	Mode           string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
@@ -64,7 +64,7 @@ func (script *encryptBlueprint) Up(basicRes core.BasicRes) errors.Error {
 		basicRes,
 		script,
 		"_devlake_blueprints",
-		func(s *Blueprint20220903Before) (*Blueprint20220903After, errors.Error) {
+		func(s *blueprint20220903Before) (*blueprint20220903After, errors.Error) {
 			encryptedPlan, err := core.Encrypt(encKey, string(s.Plan))
 			if err != nil {
 				return nil, err
@@ -74,7 +74,7 @@ func (script *encryptBlueprint) Up(basicRes core.BasicRes) errors.Error {
 				return nil, err
 			}
 
-			dst := &Blueprint20220903After{
+			dst := &blueprint20220903After{
 				Name:       s.Name,
 				Mode:       s.Mode,
 				Enable:     s.Enable,

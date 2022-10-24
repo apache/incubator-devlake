@@ -32,7 +32,7 @@ var _ core.MigrationScript = (*encryptPipeline)(nil)
 
 type encryptPipeline struct{}
 
-type Pipeline20220904Before struct {
+type pipeline20220904Before struct {
 	archived.Model
 	Name          string         `json:"name" gorm:"index"`
 	BlueprintId   uint64         `json:"blueprintId"`
@@ -47,7 +47,7 @@ type Pipeline20220904Before struct {
 	Stage         int            `json:"stage"`
 }
 
-type Pipeline0904After struct {
+type pipeline0904After struct {
 	common.Model
 	Name          string     `json:"name" gorm:"index"`
 	BlueprintId   uint64     `json:"blueprintId"`
@@ -72,13 +72,13 @@ func (script *encryptPipeline) Up(basicRes core.BasicRes) errors.Error {
 		basicRes,
 		script,
 		"_devlake_pipelines",
-		func(s *Pipeline20220904Before) (*Pipeline0904After, errors.Error) {
+		func(s *pipeline20220904Before) (*pipeline0904After, errors.Error) {
 			encryptedPlan, err := core.Encrypt(encKey, string(s.Plan))
 			if err != nil {
 				return nil, err
 			}
 
-			dst := &Pipeline0904After{
+			dst := &pipeline0904After{
 				Name:          s.Name,
 				BlueprintId:   s.BlueprintId,
 				FinishedTasks: s.FinishedTasks,

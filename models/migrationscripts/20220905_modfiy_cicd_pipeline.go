@@ -28,13 +28,13 @@ var _ core.MigrationScript = (*modifyCicdPipeline)(nil)
 
 type modifyCicdPipeline struct{}
 
-type CICDPipelineRelationship20220905 struct {
+type cicdPipelineRelationship20220905 struct {
 	ParentPipelineId string `gorm:"primaryKey;type:varchar(255)"`
 	ChildPipelineId  string `gorm:"primaryKey;type:varchar(255)"`
 	archived.NoPKModel
 }
 
-func (CICDPipelineRelationship20220905) TableName() string {
+func (cicdPipelineRelationship20220905) TableName() string {
 	return "cicd_pipeline_relationships"
 }
 
@@ -48,7 +48,7 @@ func (*modifyCicdPipeline) Up(basicRes core.BasicRes) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(&CICDPipelineRelationship20220905{})
+	err = db.AutoMigrate(&cicdPipelineRelationship20220905{})
 	if err != nil {
 		return errors.Convert(err)
 	}

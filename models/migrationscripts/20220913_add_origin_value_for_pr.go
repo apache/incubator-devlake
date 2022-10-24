@@ -26,19 +26,19 @@ var _ core.MigrationScript = (*addOriginChangeValueForPr)(nil)
 
 type addOriginChangeValueForPr struct{}
 
-type PullRequest0913 struct {
+type pullRequest0913 struct {
 	OrigCodingTimespan int64
 	OrigReviewLag      int64
 	OrigReviewTimespan int64
 	OrigDeployTimespan int64
 }
 
-func (PullRequest0913) TableName() string {
+func (pullRequest0913) TableName() string {
 	return "pull_requests"
 }
 
 func (*addOriginChangeValueForPr) Up(basicRes core.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(&PullRequest0913{})
+	return basicRes.GetDal().AutoMigrate(&pullRequest0913{})
 }
 
 func (*addOriginChangeValueForPr) Version() uint64 {

@@ -43,26 +43,26 @@ func AutoMigrateTables(basicRes core.BasicRes, dst ...interface{}) errors.Error 
 	return nil
 }
 
-// ChangeColumnsType change some Columns type for one table
-func ChangeColumnsType(
+// ChangeColumnsType change the type of specified columns for the table
+func ChangeColumnsType[D any](
 	basicRes core.BasicRes,
 	script core.MigrationScript,
-	newTable core.Tabler,
-	Columns []string,
-	update func(tmpColumnsNames []string) errors.Error,
+	tableName string,
+	columns []string,
+	update func(tmpColumnParams []interface{}) errors.Error,
 ) (err errors.Error) {
 	db := basicRes.GetDal()
-	tmpColumnsNames := make([]string, len(Columns))
-	for i, v := range Columns {
+	tmpColumnsNames := make([]string, len(columns))
+	for i, v := range columns {
 		tmpColumnsNames[i] = fmt.Sprintf("%s_%s", v, hashScript(script))
-		err = db.RenameColumn(newTable.TableName(), v, tmpColumnsNames[i])
+		err = db.RenameColumn(tableName, v, tmpColumnsNames[i])
 		if err != nil {
 			return err
 		}
 
 		defer func(tmpColumnName string, ColumnsName string) {
 			if err != nil {
-				err1 := db.RenameColumn(newTable.TableName(), tmpColumnName, ColumnsName)
+				err1 := db.RenameColumn(tableName, tmpColumnName, ColumnsName)
 				if err1 != nil {
 					err = errors.Default.Wrap(err, fmt.Sprintf("RollBack by RenameColum failed.Relevant data needs to be repaired manually.%s", err1.Error()))
 				}
@@ -70,14 +70,14 @@ func ChangeColumnsType(
 		}(tmpColumnsNames[i], v)
 	}
 
-	err = db.AutoMigrate(newTable)
+	err = db.AutoMigrate(new(D), dal.From(tableName))
 	if err != nil {
 		return errors.Default.Wrap(err, "AutoMigrate for Add Colume Error")
 	}
 
 	defer func() {
 		if err != nil {
-			err1 := db.DropColumns(newTable.TableName(), Columns...)
+			err1 := db.DropColumns(tableName, columns...)
 			if err1 != nil {
 				err = errors.Default.Wrap(err, fmt.Sprintf("RollBack by DropColume failed.Relevant data needs to be repaired manually.%s", err1.Error()))
 			}
@@ -85,10 +85,10 @@ func ChangeColumnsType(
 	}()
 
 	if update == nil {
-		params := make([]interface{}, 0, len(Columns)*2+1)
-		params = append(params, clause.Table{Name: newTable.TableName()})
+		params := make([]interface{}, 0, len(columns)*2+1)
+		params = append(params, clause.Table{Name: tableName})
 		updateStr := "UPDATE ? SET "
-		for i, v := range Columns {
+		for i, v := range columns {
 			if i > 0 {
 				updateStr += " AND "
 			}
@@ -98,13 +98,17 @@ func ChangeColumnsType(
 		}
 		err = db.Exec(updateStr, params...)
 	} else {
-		err = update(tmpColumnsNames)
+		params := make([]interface{}, 0, len(tmpColumnsNames))
+		for _, v := range tmpColumnsNames {
+			params = append(params, clause.Column{Name: v})
+		}
+		err = update(params)
 	}
 	if err != nil {
 		return err
 	}
 
-	err = db.DropColumns(newTable.TableName(), tmpColumnsNames...)
+	err = db.DropColumns(tableName, tmpColumnsNames...)
 	if err != nil {
 		return err
 	}
@@ -112,51 +116,51 @@ func ChangeColumnsType(
 	return nil
 }
 
-// ChangeColumnsTypeOneByOne change some Columns type for one table
-func ChangeColumnsTypeOneByOne[S any, D core.Tabler](
+// TransformColumns change the type of specified columns for the table and transform data one by one
+func TransformColumns[S any, D any](
 	basicRes core.BasicRes,
 	script core.MigrationScript,
-	Columns []string,
-	update func(src *S) (D, errors.Error),
+	tableName string,
+	columns []string,
+	transform func(src *S) (*D, errors.Error),
 ) (err errors.Error) {
 	db := basicRes.GetDal()
-	tmp := new(D)
-	return ChangeColumnsType(
+	return ChangeColumnsType[D](
 		basicRes,
 		script,
-		*tmp,
-		Columns,
-		func(tmpColumnsNames []string) errors.Error {
+		tableName,
+		columns,
+		func(tmpColumnParams []interface{}) errors.Error {
 			// create selectStr for transform tmpColumnsNames
-			params := make([]interface{}, 0, len(Columns)*2+1)
+			params := make([]interface{}, 0, len(columns)*2+1)
 			selectStr := "SELECT * "
-			for i, v := range Columns {
+			for i, v := range columns {
 				selectStr += ",? as ?"
-				params = append(params, clause.Column{Name: tmpColumnsNames[i]})
+				params = append(params, tmpColumnParams[i])
 				params = append(params, clause.Column{Name: v})
 			}
 			selectStr += " FROM ? "
-			params = append(params, clause.Table{Name: (*tmp).TableName()})
+			params = append(params, clause.Table{Name: tableName})
 
 			cursor, err := db.RawCursor(selectStr, params...)
 			if err != nil {
-				return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", (*tmp).TableName()))
+				return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", tableName))
 			}
 
 			defer cursor.Close()
-			batch, err := helper.NewBatchSave(basicRes, reflect.TypeOf(*tmp), 200, (*tmp).TableName())
+			batch, err := helper.NewBatchSave(basicRes, reflect.TypeOf(new(D)), 200, tableName)
 			if err != nil {
-				return errors.Default.Wrap(err, fmt.Sprintf("failed to instantiate BatchSave for table [%s]", (*tmp).TableName()))
+				return errors.Default.Wrap(err, fmt.Sprintf("failed to instantiate BatchSave for table [%s]", tableName))
 			}
 			defer batch.Close()
 			src := new(S)
 			for cursor.Next() {
 				err = db.Fetch(cursor, src)
 				if err != nil {
-					return errors.Default.Wrap(err, fmt.Sprintf("fail to load record from table [%s]", (*tmp).TableName()))
+					return errors.Default.Wrap(err, fmt.Sprintf("fail to load record from table [%s]", tableName))
 				}
 
-				dst, err := update(src)
+				dst, err := transform(src)
 
 				if err != nil {
 					return errors.Default.Wrap(err, fmt.Sprintf("failed to update row %v", src))

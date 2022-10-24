@@ -38,14 +38,11 @@ type gitlabJob20220906 struct {
 	Duration float64 `gorm:"type:float8"`
 }
 
-func (*gitlabJob20220906) TableName() string {
-	return "_tool_gitlab_jobs"
-}
-
 func (*fixDurationToFloat8) Up(baseRes core.BasicRes) errors.Error {
-	err := migrationhelper.ChangeColumnsTypeOneByOne(
+	err := migrationhelper.TransformColumns(
 		baseRes,
 		&fixDurationToFloat8{},
+		"_tool_gitlab_jobs",
 		[]string{"duration"},
 		func(src *gitlabJob20220906_old) (*gitlabJob20220906, errors.Error) {
 			return &gitlabJob20220906{
