@@ -24,10 +24,6 @@ function usePipelineValidation({
   activeStep,
   enabledProviders = [],
   pipelineName,
-  projectId,
-  projects = [],
-  boardId,
-  boards = [],
   owner,
   repositoryName,
   gitExtractorUrl,
@@ -95,8 +91,6 @@ function usePipelineValidation({
     // refDiffTasks,
     // refDiffPairs,
     // connectionId,
-    // boards,
-    // projects
   ])
 
   const validateAdvanced = useCallback(() => {

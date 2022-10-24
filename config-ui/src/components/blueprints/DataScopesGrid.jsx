@@ -144,9 +144,12 @@ const DataScopesGrid = (props) => {
                 whiteSpace: 'nowrap'
               }}
             >
-              {[Providers.GITLAB, Providers.GITHUB].includes(
-                c.provider?.id
-              ) && (
+              {[
+                Providers.GITLAB,
+                Providers.GITHUB,
+                Providers.JENKINS,
+                Providers.JIRA
+              ].includes(c.provider?.id) && (
                 <ul
                   style={{
                     listStyle: 'none',
@@ -161,19 +164,6 @@ const DataScopesGrid = (props) => {
                     >
                       {scopeEntity.title}
                     </li>
-                  ))}
-                </ul>
-              )}
-              {[Providers.JIRA].includes(c.provider?.id) && (
-                <ul
-                  style={{
-                    listStyle: 'none',
-                    margin: 0,
-                    padding: 0
-                  }}
-                >
-                  {c.boardsList.map((board, bIdx) => (
-                    <li key={`list-item-key-${bIdx}`}>{board.title}</li>
                   ))}
                 </ul>
               )}

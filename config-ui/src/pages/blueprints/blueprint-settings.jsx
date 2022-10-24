@@ -174,20 +174,16 @@ const BlueprintSettings = (props) => {
 
   const {
     connections,
-    boards,
-    projects,
+    scopeEntitiesGroup,
     dataDomainsGroup,
     scopeConnection,
     activeTransformation,
     configuredConnection,
-    configuredBoard,
-    configuredProject,
+    configuredScopeEntity,
     enabledProviders,
     setConfiguredConnection,
-    setConfiguredBoard,
-    setConfiguredProject,
-    setBoards,
-    setProjects,
+    setConfiguredScopeEntity,
+    setScopeEntitiesGroup,
     setDataDomainsGroup,
     getTransformation,
     changeTransformationSettings,
@@ -266,16 +262,13 @@ const BlueprintSettings = (props) => {
     validateNumericSet
   } = useBlueprintValidation({
     name: blueprintName,
-    boards,
-    projects,
+    scopeEntitiesGroup,
     cronConfig,
     customCronConfig,
     enable,
     tasks: blueprintTasks,
     mode,
     activeStep
-    // activeProvider: provider,
-    // activeConnection: configuredConnection
   })
 
   const {
@@ -289,8 +282,6 @@ const BlueprintSettings = (props) => {
   } = usePipelineValidation({
     enabledProviders,
     pipelineName: activeBlueprint?.name,
-    projects,
-    boards,
     connectionId: scopeConnection?.id,
     tasks: runTasks,
     tasksAdvanced: runTasksAdvanced,
@@ -530,30 +521,25 @@ const BlueprintSettings = (props) => {
           switch (activeProvider?.id) {
             case Providers.GITHUB:
               isValid =
-                Array.isArray(projects[configuredConnection?.id]) &&
-                validateRepositoryName(projects[configuredConnection?.id]) &&
-                projects[configuredConnection?.id]?.length > 0 &&
-                Array.isArray(entities[configuredConnection?.id]) &&
-                entities[configuredConnection?.id]?.length > 0
+                Array.isArray(scopeEntitiesGroup[configuredConnection?.id]) &&
+                validateRepositoryName(
+                  scopeEntitiesGroup[configuredConnection?.id]
+                ) &&
+                scopeEntitiesGroup[configuredConnection?.id]?.length > 0 &&
+                Array.isArray(dataDomainsGroup[configuredConnection?.id]) &&
+                dataDomainsGroup[configuredConnection?.id]?.length > 0
               break
             case Providers.GITLAB:
-              isValid =
-                Array.isArray(projects[configuredConnection?.id]) &&
-                projects[configuredConnection?.id]?.length > 0 &&
-                entities[configuredConnection?.id]?.length > 0
-              break
             case Providers.JIRA:
-              isValid =
-                Array.isArray(boards[configuredConnection?.id]) &&
-                boards[configuredConnection?.id]?.length > 0 &&
-                Array.isArray(entities[configuredConnection?.id]) &&
-                entities[configuredConnection?.id]?.length > 0
-              break
             case Providers.JENKINS:
-              isValid = entities[configuredConnection?.id]?.length > 0
+              isValid =
+                Array.isArray(scopeEntitiesGroup[configuredConnection?.id]) &&
+                scopeEntitiesGroup[configuredConnection?.id]?.length > 0 &&
+                Array.isArray(dataDomainsGroup[configuredConnection?.id]) &&
+                dataDomainsGroup[configuredConnection?.id]?.length > 0
               break
             case Providers.TAPD:
-              isValid = entities[configuredConnection?.id]?.length > 0
+              isValid = dataDomainsGroup[configuredConnection?.id]?.length > 0
               break
             default:
               isValid = true
@@ -576,70 +562,13 @@ const BlueprintSettings = (props) => {
     isValidCronExpression,
     isValidBlueprint,
     isValidPipeline,
-    projects,
-    boards,
+    scopeEntitiesGroup,
     dataDomainsGroup,
     configuredConnection,
     activeProvider?.id,
     activeBlueprint?.mode,
     Providers
   ])
-
-  // @note: lifted higher to dsm hook
-  // const getDefaultEntities = useCallback((providerId) => {
-  //   let entities = []
-  //   switch (providerId) {
-  //     case Providers.GITHUB:
-  //     case Providers.GITLAB:
-  //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
-  //       break
-  //     case Providers.JIRA:
-  //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking' || d.name === 'cross-domain')
-  //       break
-  //     case Providers.JENKINS:
-  //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-  //       break
-  //     case Providers.TAPD:
-  //       entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-  //       break
-  //   }
-  //   return entities
-  // }, [])
-
-  const addProjectTransformation = useCallback(
-    (project) => {
-      setConfiguredProject(project)
-      // ToastNotification.clear()
-    },
-    [setConfiguredProject]
-  )
-
-  const addBoardTransformation = useCallback(
-    (board) => {
-      setConfiguredBoard(board)
-      // ToastNotification.clear()
-    },
-    [setConfiguredBoard]
-  )
-
-  // @todo: lift higher to dsm hook
-  // const getJiraMappedBoards = useCallback((options = []) => {
-  //   return options.map(({ boardId, title }, sIdx) => {
-  //     return {
-  //       id: boardId,
-  //       key: boardId,
-  //       value: boardId,
-  //       title: title || `Board ${boardId}`,
-  //     }
-  //   })
-  // }, [scopeConnection?.endpoint])
-
-  useEffect(() => {
-    console.log('>>> ACTIVE PROVIDER!', activeProvider)
-    setDataEntitiesList((deList) =>
-      activeProvider ? getDefaultEntities(activeProvider?.id) : deList
-    )
-  }, [activeProvider, getDefaultEntities, setDataEntitiesList])
 
   useEffect(() => {
     setBlueprintId(bId)
@@ -954,41 +883,6 @@ const BlueprintSettings = (props) => {
     boardSearch,
     Providers.JIRA
   ])
-
-  useEffect(() => {
-    console.log('>>> PROJECTS SELECTED...', projects)
-    if (configuredConnection?.id) {
-      setNewConnectionScopes((cS) => ({
-        ...cS,
-        [configuredConnection?.id]: {
-          ...cS[[configuredConnection?.id]],
-          projects: projects[configuredConnection?.id] || []
-        }
-      }))
-    }
-  }, [projects, configuredConnection?.id])
-
-  useEffect(() => {
-    console.log('>>> BOARDS SELECTED...', boards)
-    if (configuredConnection?.id) {
-      setNewConnectionScopes((cS) => ({
-        ...cS,
-        [configuredConnection?.id]: {
-          ...cS[[configuredConnection?.id]],
-          boards: boards[configuredConnection?.id] || []
-        }
-      }))
-    }
-  }, [boards, configuredConnection?.id])
-
-  useEffect(() => {
-    console.log('>>> NEW CONNECTION SCOPES', newConnectionScopes)
-    // setScopeConnection(sC => ({...sC, projects: newConnectionScopes[configuredConnection?.id]?.projects }))
-  }, [newConnectionScopes, configuredConnection?.id])
-
-  useEffect(() => {
-    console.log('>>>> SELECTED BOARDS!', boards)
-  }, [boards])
 
   useEffect(() => {
     console.log(
@@ -1414,18 +1308,15 @@ const BlueprintSettings = (props) => {
         blueprint={activeBlueprint}
         blueprintConnections={blueprintConnections}
         configuredConnection={configuredConnection}
-        configuredProject={configuredProject}
-        configuredBoard={configuredBoard}
+        configuredScopeEntity={configuredScopeEntity}
         scopeConnection={scopeConnection}
         activeTransformation={activeTransformation}
-        addProjectTransformation={addProjectTransformation}
-        addBoardTransformation={addBoardTransformation}
+        setConfiguredScopeEntity={setConfiguredScopeEntity}
         provider={activeProvider}
-        boards={boards}
         dataDomainsGroup={dataDomainsGroup}
+        scopeEntitiesGroup={scopeEntitiesGroup}
         setBoardSearch={setBoardSearch}
         boardsList={jiraApiBoards}
-        projects={projects}
         issueTypesList={jiraApiIssueTypes}
         fieldsList={jiraApiFields}
         isFetching={isFetchingBlueprint}
@@ -1438,9 +1329,7 @@ const BlueprintSettings = (props) => {
         jenkinsJobs={jenkinsJobs}
         isFetchingJenkins={isFetchingJenkins}
         jenkinsProxyError={jenkinsProxyError}
-        setConfiguredBoard={setConfiguredBoard}
-        setBoards={setBoards}
-        setProjects={setProjects}
+        setScopeEntitiesGroup={setScopeEntitiesGroup}
         setDataDomainsGroup={setDataDomainsGroup}
         hasTransformationChanged={hasTransformationChanged}
         changeTransformationSettings={changeTransformationSettings}

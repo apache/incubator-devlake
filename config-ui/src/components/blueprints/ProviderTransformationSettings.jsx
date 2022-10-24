@@ -17,7 +17,6 @@
  */
 import React, { useMemo } from 'react'
 import NoData from '@/components/NoData'
-
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'

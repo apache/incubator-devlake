@@ -222,16 +222,13 @@ const CreateBlueprint = (props) => {
 
   const {
     newConnections: blueprintConnections,
-    boards,
-    projects,
+    scopeEntitiesGroup,
     dataDomainsGroup,
     activeTransformation,
     setNewConnections: setBlueprintConnections,
     setConfiguredConnection,
-    setConfiguredBoard,
-    setConfiguredProject,
-    setBoards,
-    setProjects,
+    setConfiguredScopeEntity,
+    setScopeEntitiesGroup,
     setDataDomainsGroup,
     getTransformation,
     changeTransformationSettings,
@@ -240,8 +237,7 @@ const CreateBlueprint = (props) => {
     hasConfiguredEntityTransformationChanged,
     changeConfiguredEntityTransformation,
     configuredConnection,
-    configuredProject,
-    configuredBoard,
+    configuredScopeEntity,
     createProviderScopes,
     createProviderConnections,
     getDefaultDataDomains
@@ -281,8 +277,6 @@ const CreateBlueprint = (props) => {
   } = usePipelineValidation({
     enabledProviders,
     pipelineName,
-    projects,
-    boards,
     connectionId,
     tasks: runTasks,
     tasksAdvanced: runTasksAdvanced,
@@ -400,8 +394,7 @@ const CreateBlueprint = (props) => {
     getFieldError
   } = useBlueprintValidation({
     name,
-    boards,
-    projects,
+    scopeEntitiesGroup,
     cronConfig,
     customCronConfig,
     enable,
@@ -444,9 +437,8 @@ const CreateBlueprint = (props) => {
     setActiveStep((aS) =>
       blueprintSteps.find((s) => s.id === Math.max(aS.id - 1, 1))
     )
-    setConfiguredProject(null)
-    setConfiguredBoard(null)
-  }, [blueprintSteps, setConfiguredBoard, setConfiguredProject])
+    setConfiguredScopeEntity(null)
+  }, [blueprintSteps, setConfiguredScopeEntity])
 
   const testSelectedConnections = useCallback(
     (connections, savedConnection = {}, callback = () => {}) => {
@@ -543,39 +535,28 @@ const CreateBlueprint = (props) => {
   )
 
   const handleTransformationCancel = useCallback(() => {
-    setConfiguredProject(null)
-    setConfiguredBoard(null)
+    setConfiguredScopeEntity(null)
     console.log('>> Cancel Modify - Transformation Settings')
-  }, [setConfiguredProject, setConfiguredBoard])
+  }, [setConfiguredScopeEntity])
 
   const handleTransformationClear = useCallback(() => {
     console.log(
       '>>> CLEARING TRANSFORMATION RULES!',
-      '==> PROJECT =',
-      configuredProject,
-      '==> BOARD =',
-      configuredBoard
+      '==> SCOPE ENTITY =',
+      configuredScopeEntity
     )
     clearTransformationSettings(
       configuredConnection?.provider,
       configuredConnection?.id,
-      configuredProject
+      configuredScopeEntity
     )
-    clearTransformationSettings(
-      configuredConnection?.provider,
-      configuredConnection?.id,
-      configuredBoard
-    )
-    setConfiguredProject(null)
-    setConfiguredBoard(null)
+    setConfiguredScopeEntity(null)
   }, [
     configuredConnection?.provider,
     configuredConnection?.id,
     clearTransformationSettings,
-    setConfiguredBoard,
-    setConfiguredProject,
-    configuredProject,
-    configuredBoard
+    setConfiguredScopeEntity,
+    configuredScopeEntity
   ])
 
   const handleBlueprintSave = useCallback(() => {
@@ -611,22 +592,6 @@ const CreateBlueprint = (props) => {
     ]
   )
 
-  const addProjectTransformation = useCallback(
-    (project) => {
-      setConfiguredProject(project)
-      ToastNotification.clear()
-    },
-    [setConfiguredProject]
-  )
-
-  const addBoardTransformation = useCallback(
-    (board) => {
-      setConfiguredBoard(board)
-      ToastNotification.clear()
-    },
-    [setConfiguredBoard]
-  )
-
   const addConnection = useCallback(() => {
     setManagedConnection(NullBlueprintConnection)
     setConnectionDialogIsOpen(true)
@@ -639,8 +604,7 @@ const CreateBlueprint = (props) => {
         settings,
         entity
       )
-      setConfiguredProject(null)
-      setConfiguredBoard(null)
+      setConfiguredScopeEntity(null)
       ToastNotification.clear()
       ToastNotification.show({
         message: 'Transformation Rules Added.',
@@ -648,7 +612,7 @@ const CreateBlueprint = (props) => {
         icon: 'small-tick'
       })
     },
-    [setConfiguredProject, setConfiguredBoard]
+    [setConfiguredScopeEntity]
   )
 
   const handleAdvancedMode = (enableAdvanced = true) => {
@@ -791,16 +755,12 @@ const CreateBlueprint = (props) => {
       [cV.id]: !pV[cV.id] ? getDefaultDataDomains(cV?.provider) : []
     })
     const initializeProjects = (pV, cV) => ({ ...pV, [cV.id]: [] })
-    const initializeBoards = (pV, cV) => ({ ...pV, [cV.id]: [] })
     setDataDomainsGroup({
       ...blueprintConnections.reduce(initializeDataDomains, {})
     })
-    setProjects((p) => ({
+    setScopeEntitiesGroup({
       ...blueprintConnections.reduce(initializeProjects, {})
-    }))
-    setBoards((b) => ({
-      ...blueprintConnections.reduce(initializeBoards, {})
-    }))
+    })
     setEnabledProviders([
       ...new Set(blueprintConnections.map((c) => c.provider))
     ])
@@ -812,40 +772,19 @@ const CreateBlueprint = (props) => {
     setConfiguredConnection,
     setProvider,
     setActiveProvider,
-    setBoards,
-    setProjects,
     testSelectedConnections,
     Integrations,
     setDataDomainsGroup,
+    setScopeEntitiesGroup,
     testSelectedConnections
   ])
 
   useEffect(() => {
     console.log('>> CONFIGURING CONNECTION', configuredConnection)
     if (configuredConnection) {
-      setConfiguredProject(null)
-      setConfiguredBoard(null)
-      const plugin = Integrations.find(
-        (p) => p.id === configuredConnection?.provider
-      )
-      setDataEntitiesList((dL) => (plugin ? plugin?.getDataEntities() : dL))
+      setConfiguredScopeEntity(null)
     }
-  }, [
-    configuredConnection,
-    setActiveConnectionTab,
-    setConfiguredBoard,
-    setConfiguredProject,
-    Providers,
-    Integrations
-  ])
-
-  useEffect(() => {
-    console.log('>> DATA ENTITIES', dataEntities)
-  }, [dataEntities])
-
-  useEffect(() => {
-    console.log('>> BOARDS', boards)
-  }, [boards])
+  }, [configuredConnection, setActiveConnectionTab, setConfiguredScopeEntity])
 
   useEffect(() => {
     setBlueprintSettings((currentSettings) => ({
@@ -867,23 +806,17 @@ const CreateBlueprint = (props) => {
     // validatePipeline()
   }, [
     blueprintConnections,
-    boards,
-    projects,
     dataDomainsGroup,
+    scopeEntitiesGroup,
     validatePipeline,
     createProviderScopes,
     setBlueprintSettings
   ])
 
   useEffect(() => {
-    console.log('>>> SELECTED PROJECT TO CONFIGURE...', configuredProject)
-    setCanAdvanceNext(!configuredProject)
-  }, [configuredProject, setCanAdvanceNext])
-
-  useEffect(() => {
-    console.log('>>> SELECTED BOARD TO CONFIGURE...', configuredBoard)
-    setCanAdvanceNext(!configuredBoard)
-  }, [configuredBoard, setCanAdvanceNext])
+    console.log('>>> SELECTED PROJECT TO CONFIGURE...', configuredScopeEntity)
+    setCanAdvanceNext(!configuredScopeEntity)
+  }, [configuredScopeEntity, setCanAdvanceNext])
 
   useEffect(() => {
     console.log('>>> BLUEPRINT WORKFLOW STEPS...', blueprintSteps)
@@ -1084,14 +1017,12 @@ const CreateBlueprint = (props) => {
                       fetchJenkinsJobs={fetchJenkinsJobs}
                       isFetchingJenkins={isFetchingJenkins}
                       jenkinsJobs={jenkinsJobs}
-                      boards={boards}
-                      projects={projects}
                       dataDomainsGroup={dataDomainsGroup}
+                      scopeEntitiesGroup={scopeEntitiesGroup}
                       configuredConnection={configuredConnection}
                       handleConnectionTabChange={handleConnectionTabChange}
-                      setProjects={setProjects}
-                      setBoards={setBoards}
                       setDataDomainsGroup={setDataDomainsGroup}
+                      setScopeEntitiesGroup={setScopeEntitiesGroup}
                       setBoardSearch={setBoardSearch}
                       prevStep={prevStep}
                       isSaving={isSaving}
@@ -1116,22 +1047,17 @@ const CreateBlueprint = (props) => {
                       advancedMode={advancedMode}
                       activeConnectionTab={activeConnectionTab}
                       blueprintConnections={blueprintConnections}
-                      projects={projects}
-                      boards={boards}
                       dataDomainsGroup={dataDomainsGroup}
+                      scopeEntitiesGroup={scopeEntitiesGroup}
                       issueTypes={jiraApiIssueTypes}
                       fields={jiraApiFields}
                       configuredConnection={configuredConnection}
-                      configuredProject={configuredProject}
-                      configuredBoard={configuredBoard}
+                      configuredScopeEntity={configuredScopeEntity}
                       handleConnectionTabChange={handleConnectionTabChange}
                       prevStep={prevStep}
-                      addBoardTransformation={addBoardTransformation}
-                      addProjectTransformation={addProjectTransformation}
+                      setConfiguredScopeEntity={setConfiguredScopeEntity}
                       activeTransformation={activeTransformation}
-                      hasTransformationChanged={
-                        hasTransformationChanged
-                      }
+                      hasTransformationChanged={hasTransformationChanged}
                       changeTransformationSettings={
                         changeTransformationSettings
                       }

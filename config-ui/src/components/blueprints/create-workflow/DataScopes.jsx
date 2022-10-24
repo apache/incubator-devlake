@@ -47,15 +47,13 @@ const DataScopes = (props) => {
     fetchJenkinsJobs = () => [],
     isFetchingJenkins = false,
     jenkinsJobs = [],
-    projects = [],
-    boards = [],
     dataDomainsGroup = [],
+    scopeEntitiesGroup = [],
     validationErrors = [],
     configuredConnection,
     handleConnectionTabChange = () => {},
-    setProjects = () => {},
-    setBoards = () => {},
     setDataDomainsGroup = () => {},
+    setScopeEntitiesGroup = () => {},
     setBoardSearch = () => {},
     prevStep = () => {},
     fieldHasError = () => {},
@@ -70,22 +68,20 @@ const DataScopes = (props) => {
 
   const { Providers, ProviderIcons } = useContext(IntegrationsContext)
 
-  const selectedBoards = useMemo(
-    () => boards[configuredConnection.id],
-    [boards, configuredConnection?.id]
-  )
-  const selectedProjects = useMemo(
-    () => projects[configuredConnection.id],
-    [projects, configuredConnection?.id]
+  const selectedScopeEntities = useMemo(
+    () => scopeEntitiesGroup[configuredConnection.id],
+    [scopeEntitiesGroup, configuredConnection?.id]
   )
 
-  useEffect(() => {
-    console.log('>> OVER HERE!!!', selectedBoards)
-  }, [selectedBoards])
-
-  useEffect(() => {
-    console.log('>> OVER HERE FOR Projects!!!', selectedProjects)
-  }, [selectedProjects])
+  const setScopeEntities = useCallback(
+    (scopeEntities) => {
+      setScopeEntitiesGroup((g) => ({
+        ...g,
+        [configuredConnection.id]: scopeEntities
+      }))
+    },
+    [setScopeEntitiesGroup, configuredConnection?.id]
+  )
 
   return (
     <div
@@ -147,15 +143,11 @@ const DataScopes = (props) => {
                         disabled={isRunning}
                         placeholder='username/repo, username/another-repo'
                         values={
-                          projects[configuredConnection.id]?.map(
-                            (p) => p.value
-                          ) || []
+                          selectedScopeEntities?.map((p) => p.value) || []
                         }
                         fill={true}
                         onChange={(values) =>
-                          setProjects((p) => ({
-                            ...p,
-                            [configuredConnection.id]: [
+                          setScopeEntities([
                               ...values.map(
                                 (v, vIdx) =>
                                   new GitHubProject({
@@ -166,8 +158,7 @@ const DataScopes = (props) => {
                                     type: 'string'
                                   })
                               )
-                            ]
-                          }))
+                          ])
                         }
                         addOnPaste={true}
                         addOnBlur={true}
@@ -176,12 +167,7 @@ const DataScopes = (props) => {
                             disabled={isRunning}
                             icon='eraser'
                             minimal
-                            onClick={() =>
-                              setProjects((p) => ({
-                                ...p,
-                                [configuredConnection.id]: []
-                              }))
-                            }
+                            onClick={() => setScopeEntities([])}
                           />
                         }
                         onKeyDown={(e) =>
@@ -205,12 +191,12 @@ const DataScopes = (props) => {
                       <h4>Boards *</h4>
                       <p>Select the boards you would like to sync.</p>
                       <BoardsSelector
-                        items={boardsList}
-                        selectedItems={selectedBoards}
+                        items={jiraBoards}
+                        selectedItems={selectedScopeEntities}
                         onQueryChange={setBoardSearch}
-                        onItemSelect={setBoards}
-                        onClear={setBoards}
-                        onRemove={setBoards}
+                        onItemSelect={setScopeEntities}
+                        onClear={setScopeEntities}
+                        onRemove={setScopeEntities}
                         disabled={isSaving}
                         configuredConnection={configuredConnection}
                         isLoading={isFetching}
@@ -228,10 +214,10 @@ const DataScopes = (props) => {
                         onFetch={fetchGitlabProjects}
                         isFetching={isFetchingGitlab}
                         items={gitlabProjects}
-                        selectedItems={selectedProjects}
-                        onItemSelect={setProjects}
-                        onClear={setProjects}
-                        onRemove={setProjects}
+                        selectedItems={selectedScopeEntities}
+                        onItemSelect={setScopeEntities}
+                        onClear={setScopeEntities}
+                        onRemove={setScopeEntities}
                         disabled={isSaving}
                         configuredConnection={configuredConnection}
                         isLoading={isFetching}
@@ -249,10 +235,10 @@ const DataScopes = (props) => {
                         onFetch={fetchJenkinsJobs}
                         isFetching={isFetchingJenkins}
                         items={jenkinsJobs}
-                        selectedItems={selectedProjects}
-                        onItemSelect={setProjects}
-                        onClear={setProjects}
-                        onRemove={setProjects}
+                        selectedItems={selectedScopeEntities}
+                        onItemSelect={setScopeEntities}
+                        onClear={setScopeEntities}
+                        onRemove={setScopeEntities}
                         disabled={isSaving}
                         configuredConnection={configuredConnection}
                         isLoading={isFetching}
