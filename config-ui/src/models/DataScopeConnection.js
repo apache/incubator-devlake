@@ -29,12 +29,11 @@
  * @property {object?} plugin
  * @property {object?} provider
  * @property {object|string?} icon
- * @property {<Array<object>>?} entities
- * @property {<Array<object>>?} entityList
  * @property {<Array<object>>?} projects
  * @property {<Array<string|object>>?} boards
  * @property {<Array<number>>?} boardIds
  * @property {<Array<object>>?} boardsList
+ * @property {<Array<object>>?} dataDomains
  * @property {<Array<object>>?} transformations
  * @property {<Array<object>>?} transformationStates
  * @property {object?} scope
@@ -57,12 +56,11 @@ class DataScopeConnection {
     this.providerId = data?.providerId || null
     this.plugin = data?.plugin || null
     this.icon = data?.icon || null
-    this.entities = data?.entities || []
-    this.entityList = data?.entityList || []
     this.projects = data?.projects || []
     this.boards = data?.boards || []
     this.boardIds = data?.boardIds || []
     this.boardsList = data?.boardsList || []
+    this.dataDomains = data?.dataDomains || []
     this.transformations = data?.transformations || []
     this.transformationStates = data?.transformationStates || []
     this.scope = data?.scope || null

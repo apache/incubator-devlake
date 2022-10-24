@@ -68,7 +68,6 @@ const BlueprintDataScopesDialog = (props) => {
     configuredProject,
     configuredBoard,
     scopeConnection,
-    dataEntitiesList = [],
     boardsList = [],
     issueTypesList = [],
     fieldsList = [],
@@ -78,8 +77,8 @@ const BlueprintDataScopesDialog = (props) => {
     fetchGitlabProjects = () => [],
     fetchJenkinsJobs = () => [],
     jenkinsJobs = [],
-    entities = {},
     projects = {},
+    dataDomainsGroup = {},
     mode = Modes.EDIT,
     canOutsideClickClose = false,
     showCloseButtonInFooter = true,
@@ -95,10 +94,9 @@ const BlueprintDataScopesDialog = (props) => {
     onClose = () => {},
     onCancel = () => {},
     onSave = () => {},
-    setDataEntities = () => {},
     setProjects = () => {},
     setBoards = () => {},
-    setEntities = () => {},
+    setDataDomainsGroup = () => {},
     hasTransformationChanged = () => false,
     changeTransformationSettings = () => {},
     hasConfiguredEntityTransformationChanged = () => false,
@@ -184,7 +182,6 @@ const BlueprintDataScopesDialog = (props) => {
                 provider={provider}
                 activeStep={activeStep}
                 blueprintConnections={blueprintConnections}
-                dataEntitiesList={dataEntitiesList}
                 boardsList={boardsList}
                 boards={boards}
                 setBoardSearch={setBoardSearch}
@@ -196,12 +193,12 @@ const BlueprintDataScopesDialog = (props) => {
                 jenkinsJobs={jenkinsJobs}
                 isFetchingJenkins={isFetchingJenkins}
                 jenkinsProxyError={jenkinsProxyError}
-                dataEntities={entities}
                 projects={projects}
+                dataDomainsGroup={dataDomainsGroup}
                 configuredConnection={configuredConnection}
-                setDataEntities={setEntities}
                 setProjects={setProjects}
                 setBoards={setBoards}
+                setDataDomainsGroup={setDataDomainsGroup}
                 isSaving={isSaving}
                 isLoading={isFetchingJIRA}
                 validationErrors={[]}
@@ -222,10 +219,10 @@ const BlueprintDataScopesDialog = (props) => {
                 blueprint={blueprint}
                 activeTransformation={activeTransformation}
                 blueprintConnections={blueprintConnections}
-                dataEntities={entities}
                 projects={projects}
                 boards={boards}
                 boardsList={boardsList}
+                dataDomainsGroup={dataDomainsGroup}
                 issueTypes={issueTypesList}
                 fields={fieldsList}
                 configuredConnection={configuredConnection}

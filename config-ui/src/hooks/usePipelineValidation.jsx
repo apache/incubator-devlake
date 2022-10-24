@@ -41,7 +41,6 @@ function usePipelineValidation({
   advancedMode,
   mode = null,
   connection,
-  entities = [],
   rawConfiguration
 }) {
   const { Providers } = useContext(IntegrationsContext)

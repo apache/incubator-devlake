@@ -28,18 +28,18 @@ import IntegrationsContext from '@/store/integrations-context'
 // import { ProviderIcons, Providers } from '@/data/Providers'
 import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import BoardsSelector from '@/components/blueprints/BoardsSelector'
-import DataEntitiesSelector from '@/components/blueprints/DataEntitiesSelector'
+import DataDomainsSelector from '@/components/blueprints/DataDomainsSelector'
 import NoData from '@/components/NoData'
 import GitlabProjectsSelector from '@/components/blueprints/GitlabProjectsSelector'
 import GitHubProject from '@/models/GithubProject'
 import JenkinsJobsSelector from '@/components/blueprints/JenkinsJobsSelector'
+import { ProviderAvailableDataDomain } from '@/data/DataDomains'
 
 const DataScopes = (props) => {
   const {
     activeStep,
     activeConnectionTab,
     blueprintConnections = [],
-    dataEntitiesList = [],
     boardsList = [],
     fetchGitlabProjects = () => [],
     isFetchingGitlab = false,
@@ -47,15 +47,15 @@ const DataScopes = (props) => {
     fetchJenkinsJobs = () => [],
     isFetchingJenkins = false,
     jenkinsJobs = [],
-    dataEntities = [],
     projects = [],
     boards = [],
+    dataDomainsGroup = [],
     validationErrors = [],
     configuredConnection,
     handleConnectionTabChange = () => {},
-    setDataEntities = () => {},
     setProjects = () => {},
     setBoards = () => {},
+    setDataDomainsGroup = () => {},
     setBoardSearch = () => {},
     prevStep = () => {},
     fieldHasError = () => {},
@@ -272,15 +272,20 @@ const DataScopes = (props) => {
                       Learn about data entities
                     </a>
                   </p>
-                  <DataEntitiesSelector
-                    items={dataEntitiesList}
-                    selectedItems={dataEntities[configuredConnection.id] || []}
-                    // restrictedItems={getRestrictedDataEntities()}
-                    onItemSelect={setDataEntities}
-                    onClear={setDataEntities}
+                  <DataDomainsSelector
+                    items={
+                      ProviderAvailableDataDomain[
+                        configuredConnection.provider
+                      ] || []
+                    }
+                    selectedItems={
+                      dataDomainsGroup[configuredConnection.id] || []
+                    }
+                    onItemSelect={setDataDomainsGroup}
+                    onClear={setDataDomainsGroup}
                     fieldHasError={fieldHasError}
                     getFieldError={getFieldError}
-                    onRemove={setDataEntities}
+                    onRemove={setDataDomainsGroup}
                     disabled={isSaving}
                     configuredConnection={configuredConnection}
                     isSaving={isSaving}

@@ -17,9 +17,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BlueprintMode } from '@/data/NullBlueprint'
-import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 import { integrationsData } from '@/data/integrations'
-// import TransformationSettings from '@/models/TransformationSettings'
 import JiraBoard from '@/models/JiraBoard'
 import GitHubProject from '@/models/GithubProject'
 import GitlabProject from '@/models/GitlabProject'
@@ -57,7 +55,9 @@ function useDataScopesManager({
   // const [blueprint, setBlueprint] = useState(NullBlueprint)
   const [boards, setBoards] = useState({})
   const [projects, setProjects] = useState({})
-  const [entities, setEntities] = useState({})
+  // this is son set of ALL_DATA_DOMAINS
+  // https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema/
+  const [dataDomainsGroup, setDataDomainsGroup] = useState({})
   const {
     getTransformation,
     getTransformationScopeOptions,
@@ -101,7 +101,6 @@ function useDataScopesManager({
       providerId,
       connection,
       connectionIdx,
-      entities = {},
       boards = {},
       projects = {},
       defaultScope = { transformation: {}, options: {}, entities: [] }
@@ -112,8 +111,8 @@ function useDataScopesManager({
         connection
       )
       let newScope = {
-        ...defaultScope,
-        entities: entities[connection.id]?.map((entity) => entity.value) || []
+        // FIXME: entities kept here because it have saved in db like Line#389
+        entities: dataDomainsGroup[connection.id]?.map((d) => d.value) || []
       }
       // Generate scopes Dynamically for all Project/Board/Job/... Entities
       // @todo: refactor again when boards & projects get merged...
@@ -212,13 +211,11 @@ function useDataScopesManager({
           typeof c.provider === 'object' ? c.provider?.id : c.provider,
           c,
           cIdx,
-          entities,
-          boards,
-          projects
+          dataDomainsGroup
         )
       }))
     },
-    [boards, projects, entities, createProviderScopes]
+    [dataDomainsGroup, createProviderScopes]
   )
 
   const modifyConnectionSettings = useCallback(() => {
@@ -244,9 +241,6 @@ function useDataScopesManager({
   }, [
     connection,
     connections,
-    boards,
-    projects,
-    entities,
     blueprint?.settings?.connections,
     setSettings,
     createProviderConnections
@@ -406,7 +400,7 @@ function useDataScopesManager({
       blueprint,
       c,
       cIdx,
-      DEFAULT_DATA_ENTITIES,
+      ALL_DATA_DOMAINS,
       connections = [],
       connectionsList = [],
       boardsList = []
@@ -429,11 +423,10 @@ function useDataScopesManager({
           (pC) => pC.connectionId === c.connectionId && pC.plugin === c.plugin
         )?.name ||
         `${ProviderLabels[c.plugin?.toUpperCase()]} #${c.connectionId || cIdx}`,
-      entities: c.scope[0]?.entities?.map(
-        (e) => DEFAULT_DATA_ENTITIES.find((de) => de.value === e)?.title
-      ),
-      entityList: c.scope[0]?.entities?.map((e) =>
-        DEFAULT_DATA_ENTITIES.find((de) => de.value === e)
+      // FIXME: entities in `c.scope[0]?.entities` means one of ALL_DATA_DOMAINS and is saved in db,
+      // So it kept here.
+      dataDomains: c.scope[0]?.entities?.map((e) =>
+        ALL_DATA_DOMAINS.find((de) => de.value === e)
       ),
       projects: getProjects(c),
       boards: [Providers.JIRA].includes(c.plugin)
@@ -499,8 +492,6 @@ function useDataScopesManager({
       projects: [Providers.GITLAB].includes(c.plugin)
         ? getAdvancedGitlabProjects(c, c.plugin)
         : getAdvancedGithubProjects(c, c.plugin),
-      entities: ['-'],
-      entitityList: getDefaultEntities(c.plugin),
       boards: [Providers.JIRA].includes(c.plugin)
         ? getAdvancedJiraBoards(c, c.plugin).map((bId) => `Board ${bId}`)
         : [],
@@ -510,6 +501,7 @@ function useDataScopesManager({
       boardsList: [Providers.JIRA].includes(c.plugin)
         ? getAdvancedJiraBoards(c, c.plugin).map((bId) => `Board ${bId}`)
         : [],
+      dataDomains: getDefaultDataDomains(c.plugin),
       transformations: [],
       transformationStates:
         typeof c.options?.transformationRules === 'object' &&
@@ -678,8 +670,8 @@ function useDataScopesManager({
   ])
 
   useEffect(() => {
-    console.log('>>>>> DATA SCOPES MANAGER: DATA ENTITIES...', entities)
-  }, [entities])
+    console.log('>>>>> DATA SCOPES MANAGER: DATA ENTITIES...', dataDomainsGroup)
+  }, [dataDomainsGroup])
 
   useEffect(() => {
     console.log(
@@ -715,7 +707,7 @@ function useDataScopesManager({
     // blueprint,
     boards,
     projects,
-    entities,
+    dataDomainsGroup,
     configuredConnection,
     configuredBoard,
     configuredProject,
@@ -731,7 +723,7 @@ function useDataScopesManager({
     // setBlueprint,
     setBoards,
     setProjects,
-    setEntities,
+    setDataDomainsGroup,
     getTransformation,
     changeTransformationSettings,
     initializeDefaultTransformation,

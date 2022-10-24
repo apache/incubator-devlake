@@ -130,8 +130,8 @@ const DataScopesGrid = (props) => {
                   padding: 0
                 }}
               >
-                {c.entities.map((entityLabel, eIdx) => (
-                  <li key={`list-item-key-${eIdx}`}>{entityLabel}</li>
+                {c.dataDomains.map((dataDomain, eIdx) => (
+                  <li key={`list-item-key-${eIdx}`}>{dataDomain.title}</li>
                 ))}
               </ul>
             </div>
@@ -154,12 +154,12 @@ const DataScopesGrid = (props) => {
                     padding: 0
                   }}
                 >
-                  {c.projects.map((project, pIdx) => (
+                  {c.scopeEntities.map((scopeEntity, pIdx) => (
                     <li
                       key={`list-item-key-${pIdx}`}
                       style={{ whiteSpace: 'break-spaces' }}
                     >
-                      {project.title}
+                      {scopeEntity.title}
                     </li>
                   ))}
                 </ul>

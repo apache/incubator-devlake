@@ -109,7 +109,7 @@ const useTransformationsManager = () => {
      * @return {string}
      */
     (connectionProvider, connectionId, entity) => {
-      let key = entity ? entity.getConfiguredEntityId() : `not-distinguished`
+      const key = entity ? entity.getConfiguredEntityId() : `not-distinguished`
       return `${connectionProvider}/${connectionId}/${key}`
     },
     []

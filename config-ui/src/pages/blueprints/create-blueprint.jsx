@@ -224,7 +224,7 @@ const CreateBlueprint = (props) => {
     newConnections: blueprintConnections,
     boards,
     projects,
-    entities: dataEntities,
+    dataDomainsGroup,
     activeTransformation,
     setNewConnections: setBlueprintConnections,
     setConfiguredConnection,
@@ -232,7 +232,7 @@ const CreateBlueprint = (props) => {
     setConfiguredProject,
     setBoards,
     setProjects,
-    setEntities: setDataEntities,
+    setDataDomainsGroup,
     getTransformation,
     changeTransformationSettings,
     clearTransformationSettings,
@@ -244,7 +244,7 @@ const CreateBlueprint = (props) => {
     configuredBoard,
     createProviderScopes,
     createProviderConnections,
-    getDefaultEntities
+    getDefaultDataDomains
   } = useDataScopesManager({ settings: blueprintSettings })
 
   const {
@@ -289,7 +289,6 @@ const CreateBlueprint = (props) => {
     advancedMode,
     mode,
     connection: configuredConnection,
-    entities: dataEntities,
     rawConfiguration
   })
 
@@ -409,7 +408,7 @@ const CreateBlueprint = (props) => {
     tasks: blueprintTasks,
     mode,
     connections: blueprintConnections,
-    entities: dataEntities,
+    dataDomainsGroup,
     activeStep,
     activeProvider: provider,
     activeConnection: configuredConnection
@@ -590,21 +589,6 @@ const CreateBlueprint = (props) => {
     setRunNow(true)
     saveBlueprint()
   }, [saveBlueprint])
-
-  const getRestrictedDataEntities = useCallback(() => {
-    let items = []
-    switch (configuredConnection.provider) {
-      case Providers.GITLAB:
-      case Providers.JIRA:
-      case Providers.GITHUB:
-        items = dataEntitiesList.filter((d) => d.name !== 'ci-cd')
-        break
-      case Providers.JENKINS:
-        items = dataEntitiesList.filter((d) => d.name === 'ci-cd')
-        break
-    }
-    return items
-  }, [dataEntitiesList, configuredConnection, Providers])
 
   const manageConnection = useCallback(
     (connection) => {
@@ -802,15 +786,15 @@ const CreateBlueprint = (props) => {
       )
       setProvider(Integrations.find((p) => p.id === someConnection.provider))
     }
-    const initializeEntities = (pV, cV) => ({
+    const initializeDataDomains = (pV, cV) => ({
       ...pV,
-      [cV.id]: !pV[cV.id] ? getDefaultEntities(cV?.provider) : []
+      [cV.id]: !pV[cV.id] ? getDefaultDataDomains(cV?.provider) : []
     })
     const initializeProjects = (pV, cV) => ({ ...pV, [cV.id]: [] })
     const initializeBoards = (pV, cV) => ({ ...pV, [cV.id]: [] })
-    setDataEntities((dE) => ({
-      ...blueprintConnections.reduce(initializeEntities, {})
-    }))
+    setDataDomainsGroup({
+      ...blueprintConnections.reduce(initializeDataDomains, {})
+    })
     setProjects((p) => ({
       ...blueprintConnections.reduce(initializeProjects, {})
     }))
@@ -824,15 +808,16 @@ const CreateBlueprint = (props) => {
     testSelectedConnections(blueprintConnections)
   }, [
     blueprintConnections,
-    getDefaultEntities,
+    getDefaultDataDomains,
     setConfiguredConnection,
     setProvider,
     setActiveProvider,
     setBoards,
-    setDataEntities,
     setProjects,
     testSelectedConnections,
-    Integrations
+    Integrations,
+    setDataDomainsGroup,
+    testSelectedConnections
   ])
 
   useEffect(() => {
@@ -882,9 +867,9 @@ const CreateBlueprint = (props) => {
     // validatePipeline()
   }, [
     blueprintConnections,
-    dataEntities,
     boards,
     projects,
+    dataDomainsGroup,
     validatePipeline,
     createProviderScopes,
     setBlueprintSettings
@@ -1092,7 +1077,6 @@ const CreateBlueprint = (props) => {
                       advancedMode={advancedMode}
                       activeConnectionTab={activeConnectionTab}
                       blueprintConnections={blueprintConnections}
-                      dataEntitiesList={dataEntitiesList}
                       boardsList={boardsList}
                       fetchGitlabProjects={fetchGitlabProjects}
                       isFetchingGitlab={isFetchingGitlab}
@@ -1101,13 +1085,13 @@ const CreateBlueprint = (props) => {
                       isFetchingJenkins={isFetchingJenkins}
                       jenkinsJobs={jenkinsJobs}
                       boards={boards}
-                      dataEntities={dataEntities}
                       projects={projects}
+                      dataDomainsGroup={dataDomainsGroup}
                       configuredConnection={configuredConnection}
                       handleConnectionTabChange={handleConnectionTabChange}
-                      setDataEntities={setDataEntities}
                       setProjects={setProjects}
                       setBoards={setBoards}
+                      setDataDomainsGroup={setDataDomainsGroup}
                       setBoardSearch={setBoardSearch}
                       prevStep={prevStep}
                       isSaving={isSaving}
@@ -1132,9 +1116,9 @@ const CreateBlueprint = (props) => {
                       advancedMode={advancedMode}
                       activeConnectionTab={activeConnectionTab}
                       blueprintConnections={blueprintConnections}
-                      dataEntities={dataEntities}
                       projects={projects}
                       boards={boards}
+                      dataDomainsGroup={dataDomainsGroup}
                       issueTypes={jiraApiIssueTypes}
                       fields={jiraApiFields}
                       configuredConnection={configuredConnection}

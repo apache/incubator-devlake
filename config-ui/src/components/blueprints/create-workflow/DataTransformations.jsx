@@ -15,13 +15,7 @@
  * limitations under the License.
  *
  */
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useContext
-} from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import {
   Button,
   Card,
@@ -33,11 +27,8 @@ import {
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
 import IntegrationsContext from '@/store/integrations-context'
-// import { integrationsData } from '@/data/integrations'
-// import { ProviderIcons, Providers } from '@/data/Providers'
-import { DataEntityTypes } from '@/data/DataEntities'
-import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 import { Variants } from '@/data/Variants'
+import { ALL_DATA_DOMAINS, DataDomainTypes } from '@/data/DataDomains'
 
 import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import NoData from '@/components/NoData'
@@ -51,9 +42,9 @@ const DataTransformations = (props) => {
     activeStep,
     activeConnectionTab,
     blueprintConnections = [],
-    dataEntities = {},
     projects = {},
     boards = {},
+    dataDomainsGroup = {},
     issueTypes = [],
     fields = [],
     configuredConnection,
@@ -93,13 +84,13 @@ const DataTransformations = (props) => {
     () =>
       [Providers.TAPD].includes(configuredConnection?.provider) ||
       ([Providers.GITLAB].includes(configuredConnection?.provider) &&
-        dataEntities[configuredConnection?.id].every(
-          (e) => e.value !== DataEntityTypes.DEVOPS
+        dataDomainsGroup[configuredConnection?.id].every(
+          (e) => e.value !== DataDomainTypes.DEVOPS
         )),
     [
       configuredConnection?.provider,
       configuredConnection?.id,
-      dataEntities,
+      dataDomainsGroup,
       Providers.TAPD,
       Providers.GITLAB
     ]
@@ -308,9 +299,7 @@ const DataTransformations = (props) => {
                           activeItem={configuredProject}
                           onAdd={addProjectTransformation}
                           onChange={addProjectTransformation}
-                          isEditing={
-                            hasConfiguredEntityTransformationChanged
-                          }
+                          isEditing={hasConfiguredEntityTransformationChanged}
                         />
                         {projects[configuredConnection.id].length === 0 && (
                           <NoData
@@ -334,9 +323,7 @@ const DataTransformations = (props) => {
                           activeItem={configuredBoard}
                           onAdd={addBoardTransformation}
                           onChange={addBoardTransformation}
-                          isEditing={
-                            hasConfiguredEntityTransformationChanged
-                          }
+                          isEditing={hasConfiguredEntityTransformationChanged}
                         />
                         {boards[configuredConnection.id].length === 0 && (
                           <NoData
@@ -373,12 +360,12 @@ const DataTransformations = (props) => {
                         <div />
                       </div>
 
-                      {!dataEntities[configuredConnection.id] ||
-                        (dataEntities[configuredConnection.id]?.length ===
+                      {!dataDomainsGroup[configuredConnection.id] ||
+                        (dataDomainsGroup[configuredConnection.id]?.length ===
                           0 && <p>(No Data Entities Selected)</p>)}
 
-                      {dataEntities[configuredConnection.id]?.find((e) =>
-                        DEFAULT_DATA_ENTITIES.some((dE) => dE.value === e.value)
+                      {dataDomainsGroup[configuredConnection.id]?.find((e) =>
+                        ALL_DATA_DOMAINS.some((dE) => dE.value === e.value)
                       ) && (
                         <ProviderTransformationSettings
                           key={configuredProject?.id || configuredBoard?.id}
@@ -393,7 +380,7 @@ const DataTransformations = (props) => {
                           issueTypes={issueTypes}
                           fields={fields}
                           boards={boards}
-                          entities={dataEntities}
+                          dataDomainsGroup={dataDomainsGroup}
                           transformation={activeTransformation}
                           onSettingsChange={
                             changeConfiguredEntityTransformation

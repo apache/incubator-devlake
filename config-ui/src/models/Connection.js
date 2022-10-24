@@ -35,7 +35,7 @@
  * @property {string|object?} plugin
  * @property {string|object?} provider
  * @property {string?} providerId
- * @property {<Array<DataEntity>>} entities
+ * @property {<Array[DataDomain]>} dataDomains
  * @property {boolean} multiConnection
  * @property {number|string?} status
  * @property {<Array<object>>?} transformations
@@ -63,7 +63,7 @@ class Connection {
     // @todo: will be replaced out by $this.plugin
     this.provider = data?.provider || null
     this.providerId = data?.providerId || null
-    this.entities = data?.entities || []
+    this.dataDomains = data?.dataDomains || []
     this.multiConnection = data?.multiConnection || true
     this.status = data?.status || null
 

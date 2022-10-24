@@ -29,7 +29,7 @@ import {
   Position,
   Intent
 } from '@blueprintjs/core'
-import { DataEntityTypes } from '@/data/DataEntities'
+import { DataDomainTypes } from '@/data/DataDomains'
 import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 
 import '@/styles/integration.scss'
@@ -41,7 +41,7 @@ export default function GithubSettings(props) {
     ProviderLabels,
     provider,
     connection,
-    entities = [],
+    dataDomains = [],
     transformation = {},
     isSaving,
     isSavingConnection,
@@ -72,7 +72,7 @@ export default function GithubSettings(props) {
 
   return (
     <>
-      {entities.some((e) => e.value === DataEntityTypes.TICKET) && (
+      {dataDomains.some((e) => e.value === DataDomainTypes.TICKET) && (
         <>
           <h5>
             Issue Tracking{' '}
@@ -234,18 +234,16 @@ export default function GithubSettings(props) {
         </>
       )}
 
-      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) && (
+      {dataDomains.some((e) => e.value === DataDomainTypes.DEVOPS) && (
         <Deployment
           provider={provider}
-          entities={entities}
           transformation={transformation}
-          connection={connection}
           onSettingsChange={onSettingsChange}
           isSaving={isSaving || isSavingConnection}
         />
       )}
 
-      {entities.some((e) => e.value === DataEntityTypes.CODE_REVIEW) && (
+      {dataDomains.some((e) => e.value === DataDomainTypes.CODE_REVIEW) && (
         <>
           <h5>
             Code Review{' '}
@@ -482,8 +480,8 @@ export default function GithubSettings(props) {
         </>
       )}
 
-      {(entities?.length === 0 ||
-        entities.every((e) => e.value === DataEntityTypes.CROSSDOMAIN)) && (
+      {(dataDomains?.length === 0 ||
+        dataDomains.every((e) => e.value === DataDomainTypes.CROSSDOMAIN)) && (
         <div className='headlineContainer'>
           <h5>No Data Entities</h5>
           <p className='description'>

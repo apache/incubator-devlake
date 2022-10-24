@@ -29,9 +29,9 @@ function useBlueprintValidation({
   tasks = [],
   mode = null,
   connections = [],
-  entities = {},
   boards = {},
   projects = {},
+  dataDomainsGroup = {},
   activeStep = null,
   activeProvider = null,
   activeConnection = null
@@ -189,7 +189,7 @@ function useBlueprintValidation({
           ) {
             errs.push('Projects: Duplicate project detected.')
           }
-          if (entities[activeConnection?.id]?.length === 0) {
+          if (dataDomainsGroup[activeConnection?.id]?.length === 0) {
             errs.push('Data Entities: No Data Entities selected.')
           }
           if (
@@ -221,7 +221,7 @@ function useBlueprintValidation({
             ) {
               errs.push(`${c.name} requires Project IDs`)
             }
-            if (entities[c?.id]?.length === 0) {
+            if (dataDomainsGroup[c?.id]?.length === 0) {
               errs.push(`${c.name} is missing Data Entities`)
             }
           })
@@ -241,8 +241,8 @@ function useBlueprintValidation({
     mode,
     connections,
     boards,
-    entities,
     projects,
+    dataDomainsGroup,
     activeStep,
     activeProvider?.id,
     activeConnection,

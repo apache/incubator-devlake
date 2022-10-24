@@ -56,8 +56,6 @@ import BlueprintNameCard from '@/components/blueprints/BlueprintNameCard'
 import DataSync from '@/components/blueprints/create-workflow/DataSync'
 import CodeInspector from '@/components/pipelines/CodeInspector'
 
-// import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
-import { DEFAULT_DATA_ENTITIES } from '@/data/BlueprintWorkflow'
 import { DataScopeModes } from '@/data/DataScopes'
 
 import useBlueprintManager from '@/hooks/useBlueprintManager'
@@ -83,6 +81,7 @@ import {
   JENKINS_API_PROXY_ENDPOINT,
   JENKINS_JOBS_ENDPOINT
 } from '@/config/jenkinsApiProxy'
+import { ALL_DATA_DOMAINS } from '@/data/DataDomains'
 
 const BlueprintSettings = (props) => {
   // eslint-disable-next-line no-unused-vars
@@ -107,9 +106,6 @@ const BlueprintSettings = (props) => {
   const [blueprintId, setBlueprintId] = useState()
   const [activeBlueprint, setActiveBlueprint] = useState(NullBlueprint)
   const [currentRun, setCurrentRun] = useState(NullPipelineRun)
-  const [dataEntitiesList, setDataEntitiesList] = useState([
-    ...DEFAULT_DATA_ENTITIES
-  ])
 
   // @disabled Provided By Data Scopes Manager
   // const [connections, setConnections] = useState([])
@@ -180,7 +176,7 @@ const BlueprintSettings = (props) => {
     connections,
     boards,
     projects,
-    entities,
+    dataDomainsGroup,
     scopeConnection,
     activeTransformation,
     configuredConnection,
@@ -192,7 +188,7 @@ const BlueprintSettings = (props) => {
     setConfiguredProject,
     setBoards,
     setProjects,
-    setEntities,
+    setDataDomainsGroup,
     getTransformation,
     changeTransformationSettings,
     clearTransformationSettings,
@@ -277,8 +273,6 @@ const BlueprintSettings = (props) => {
     enable,
     tasks: blueprintTasks,
     mode,
-    // connections: blueprintConnections,
-    // entities: dataEntities,
     activeStep
     // activeProvider: provider,
     // activeConnection: configuredConnection
@@ -303,7 +297,6 @@ const BlueprintSettings = (props) => {
     advancedMode: activeBlueprint?.mode === BlueprintMode.ADVANCED,
     mode,
     connection: configuredConnection,
-    entities: entities,
     rawConfiguration
   })
 
@@ -585,7 +578,7 @@ const BlueprintSettings = (props) => {
     isValidPipeline,
     projects,
     boards,
-    entities,
+    dataDomainsGroup,
     configuredConnection,
     activeProvider?.id,
     activeBlueprint?.mode,
@@ -682,7 +675,7 @@ const BlueprintSettings = (props) => {
                 activeBlueprint,
                 c,
                 cIdx,
-                DEFAULT_DATA_ENTITIES,
+                ALL_DATA_DOMAINS,
                 allProviderConnections,
                 connectionsList,
                 [Providers.JIRA].includes(c.plugin)
@@ -710,7 +703,7 @@ const BlueprintSettings = (props) => {
                 activeBlueprint,
                 c,
                 cIdx,
-                DEFAULT_DATA_ENTITIES,
+                ALL_DATA_DOMAINS,
                 allProviderConnections,
                 connectionsList,
                 [Providers.JIRA].includes(c.plugin)
@@ -869,10 +862,6 @@ const BlueprintSettings = (props) => {
   }, [connections, connectionsList])
 
   useEffect(() => {
-    console.log('>>> AVAILABLE DATA ENTITIES...', dataEntitiesList)
-  }, [dataEntitiesList])
-
-  useEffect(() => {
     console.log('>>> SELECTED BLUEPRINT CONNECTIONS...', blueprintConnections)
   }, [blueprintConnections])
 
@@ -991,19 +980,6 @@ const BlueprintSettings = (props) => {
       }))
     }
   }, [boards, configuredConnection?.id])
-
-  useEffect(() => {
-    console.log('>>> ENTITIES SELECTED...', entities)
-    if (configuredConnection?.id) {
-      setNewConnectionScopes((cS) => ({
-        ...cS,
-        [configuredConnection?.id]: {
-          ...cS[[configuredConnection?.id]],
-          entities: entities[configuredConnection?.id] || []
-        }
-      }))
-    }
-  }, [entities, configuredConnection?.id])
 
   useEffect(() => {
     console.log('>>> NEW CONNECTION SCOPES', newConnectionScopes)
@@ -1435,7 +1411,6 @@ const BlueprintSettings = (props) => {
       <BlueprintDataScopesDialog
         isOpen={blueprintScopesDialogIsOpen}
         title={activeSetting?.title}
-        dataEntitiesList={dataEntitiesList}
         blueprint={activeBlueprint}
         blueprintConnections={blueprintConnections}
         configuredConnection={configuredConnection}
@@ -1446,8 +1421,8 @@ const BlueprintSettings = (props) => {
         addProjectTransformation={addProjectTransformation}
         addBoardTransformation={addBoardTransformation}
         provider={activeProvider}
-        entities={entities}
         boards={boards}
+        dataDomainsGroup={dataDomainsGroup}
         setBoardSearch={setBoardSearch}
         boardsList={jiraApiBoards}
         projects={projects}
@@ -1466,7 +1441,7 @@ const BlueprintSettings = (props) => {
         setConfiguredBoard={setConfiguredBoard}
         setBoards={setBoards}
         setProjects={setProjects}
-        setEntities={setEntities}
+        setDataDomainsGroup={setDataDomainsGroup}
         hasTransformationChanged={hasTransformationChanged}
         changeTransformationSettings={changeTransformationSettings}
         onOpening={handleBlueprintScopesDialogOpening}

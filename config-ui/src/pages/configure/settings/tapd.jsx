@@ -17,7 +17,7 @@
  */
 import React, { useEffect, useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
-import { DataEntityTypes } from '@/data/DataEntities'
+import { DataDomainTypes } from '@/data/DataDomains'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -28,7 +28,7 @@ export default function TapdSettings(props) {
     ProviderLabels,
     provider,
     connection,
-    entities = [],
+    dataDomains = [],
     onSettingsChange = () => {}
   } = props
   const history = useHistory()

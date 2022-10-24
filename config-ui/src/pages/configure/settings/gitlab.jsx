@@ -17,7 +17,7 @@
  */
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import { DataEntityTypes } from '@/data/DataEntities'
+import { DataDomainTypes } from '@/data/DataDomains'
 import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 
 import '@/styles/integration.scss'
@@ -26,7 +26,7 @@ import '@/styles/connections.scss'
 export default function GitlabSettings(props) {
   const {
     connection,
-    entities = [],
+    dataDomains = [],
     transformation = {},
     provider,
     isSaving = false,
@@ -36,12 +36,10 @@ export default function GitlabSettings(props) {
 
   return (
     <>
-      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) ? (
+      {dataDomains.some((e) => e.value === DataDomainTypes.DEVOPS) ? (
         <Deployment
           provider={provider}
-          entities={entities}
           transformation={transformation}
-          connection={connection}
           onSettingsChange={onSettingsChange}
           isSaving={isSaving || isSavingConnection}
         />
