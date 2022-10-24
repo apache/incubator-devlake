@@ -34,7 +34,6 @@ type GraphqlAsyncClient struct {
 	logger       core.Logger
 	mu           sync.Mutex
 	waitGroup    sync.WaitGroup
-	workerErrors []error
 
 	rateExhaustCond  *sync.Cond
 	rateRemaining    int
@@ -127,7 +126,7 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 }
 
 // NextTick to return the NextTick of scheduler
-func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error) {
+func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error, taskErrorChecker func(err errors.Error)) {
 	// to make sure task will be enqueued
 	apiClient.waitGroup.Add(1)
 	go func() {
@@ -140,29 +139,13 @@ func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error) {
 				// But if done out of this go func, so task will run after waitGroup finish
 				// I have no idea about this now...
 				defer apiClient.waitGroup.Done()
-				apiClient.checkError(task())
+				taskErrorChecker(task())
 			}()
 		}
 	}()
 }
 
 // Wait blocks until all async requests were done
-func (apiClient *GraphqlAsyncClient) Wait() errors.Error {
+func (apiClient *GraphqlAsyncClient) Wait() {
 	apiClient.waitGroup.Wait()
-	if len(apiClient.workerErrors) > 0 {
-		return errors.Default.Combine(apiClient.workerErrors)
-	}
-	return nil
-}
-
-func (apiClient *GraphqlAsyncClient) checkError(err errors.Error) {
-	if err == nil {
-		return
-	}
-	apiClient.workerErrors = append(apiClient.workerErrors, err)
-}
-
-// HasError return if any error occurred
-func (apiClient *GraphqlAsyncClient) HasError() bool {
-	return len(apiClient.workerErrors) > 0
 }

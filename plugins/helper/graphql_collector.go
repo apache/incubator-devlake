@@ -76,7 +76,8 @@ type GraphqlCollectorArgs struct {
 // GraphqlCollector help you collect data from Graphql services
 type GraphqlCollector struct {
 	*RawDataSubTask
-	args *GraphqlCollectorArgs
+	args         *GraphqlCollectorArgs
+	workerErrors []error
 }
 
 // NewGraphqlCollector allocates a new GraphqlCollector with the given args.
@@ -143,11 +144,11 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 	if collector.args.Input != nil {
 		iterator := collector.args.Input
 		defer iterator.Close()
-		apiClient := collector.args.GraphqlClient
-		for iterator.HasNext() && !apiClient.HasError() {
+		for iterator.HasNext() && !collector.HasError() {
 			if collector.args.InputStep == 1 {
 				input, err := iterator.Fetch()
 				if err != nil {
+					collector.checkError(err)
 					break
 				}
 				collector.exec(divider, input)
@@ -156,6 +157,7 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 				for i := 0; i < collector.args.InputStep && iterator.HasNext(); i++ {
 					input, err := iterator.Fetch()
 					if err != nil {
+						collector.checkError(err)
 						break
 					}
 					inputs = append(inputs, input)
@@ -169,11 +171,12 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 	}
 
 	logger.Debug("wait for all async api to finished")
+	collector.args.GraphqlClient.Wait()
 
-	err = collector.args.GraphqlClient.Wait()
-	if err != nil {
-		err = errors.Default.Wrap(err, "ended API collector execution with error")
-		logger.Error(err, "")
+	if collector.HasError() {
+		err = errors.Default.Combine(collector.workerErrors)
+		logger.Error(err, "ended Graphql collector execution with error")
+		logger.Error(collector.workerErrors[0], "the first error of them")
 	} else {
 		logger.Info("ended api collection without error")
 	}
@@ -185,7 +188,7 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 func (collector *GraphqlCollector) exec(divider *BatchSaveDivider, input interface{}) {
 	inputJson, err := json.Marshal(input)
 	if err != nil {
-		panic(err)
+		collector.checkError(errors.Default.Wrap(err, `input can not be marshal to json`))
 	}
 	reqData := new(GraphqlRequestData)
 	reqData.Input = input
@@ -210,6 +213,9 @@ func (collector *GraphqlCollector) fetchOneByOne(divider *BatchSaveDivider, reqD
 		if err != nil {
 			return errors.Default.Wrap(err, "fetchPagesDetermined get totalPages failed")
 		}
+		if pageInfo == nil {
+			return errors.Default.New("fetchPagesDetermined got pageInfo is nil")
+		}
 		if pageInfo.HasNextPage {
 			collector.args.GraphqlClient.NextTick(func() errors.Error {
 				reqDataTemp := &GraphqlRequestData{
@@ -222,7 +228,7 @@ func (collector *GraphqlCollector) fetchOneByOne(divider *BatchSaveDivider, reqD
 				}
 				collector.fetchAsync(divider, reqDataTemp, fetchNextPage)
 				return nil
-			})
+			}, collector.checkError)
 		}
 		return nil
 	}
@@ -245,10 +251,10 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	err = collector.args.GraphqlClient.Query(query, variables)
 	if err != nil {
 		if collector.args.IgnoreQueryErr {
-			logger.Error(err, "fetchAsync failed")
+			logger.Error(err, `graphql query failed`)
 			return
 		} else {
-			panic(err)
+			collector.checkError(errors.Default.Wrap(err, `graphql query failed`))
 		}
 	}
 	defer logger.Debug("fetchAsync >>> done for %v %v", query, variables)
@@ -261,7 +267,8 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	queryStr, _ := graphql.ConstructQuery(query, variables)
 	variablesJson, err := json.Marshal(variables)
 	if err != nil {
-		panic(err)
+		collector.checkError(errors.Default.Wrap(err, `variables in graphql query can not marshal to json`))
+		return
 	}
 	row := &RawData{
 		Params: collector.params,
@@ -271,12 +278,14 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	}
 	err = db.Create(row, dal.From(collector.table))
 	if err != nil {
-		panic(err)
+		collector.checkError(errors.Default.Wrap(err, `not created row table in graphql collector`))
+		return
 	}
 
 	results, err := collector.args.ResponseParser(query, variables)
 	if err != nil {
-		panic(err)
+		collector.checkError(errors.Default.Wrap(err, `not parsed response in graphql collector`))
+		return
 	}
 
 	RAW_DATA_ORIGIN := "RawDataOrigin"
@@ -285,7 +294,8 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 		// get the batch operator for the specific type
 		batch, err := divider.ForType(reflect.TypeOf(result))
 		if err != nil {
-			panic(err)
+			collector.checkError(err)
+			return
 		}
 		// set raw data origin field
 		origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
@@ -299,20 +309,31 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 		// records get saved into db when slots were max outed
 		err = batch.Add(result)
 		if err != nil {
-			panic(err)
+			collector.checkError(err)
+			return
 		}
 		collector.args.Ctx.IncProgress(1)
-	}
-	if err != nil {
-		panic(err)
 	}
 	collector.args.Ctx.IncProgress(1)
 	if handler != nil {
 		err = handler(query)
 		if err != nil {
-			panic(err)
+			collector.checkError(errors.Default.Wrap(err, `handle failed in graphql collector`))
+			return
 		}
 	}
 }
 
-var _ core.SubTask = (*ApiCollector)(nil)
+func (collector *GraphqlCollector) checkError(err errors.Error) {
+	if err == nil {
+		return
+	}
+	collector.workerErrors = append(collector.workerErrors, err)
+}
+
+// HasError return if any error occurred
+func (collector *GraphqlCollector) HasError() bool {
+	return len(collector.workerErrors) > 0
+}
+
+var _ core.SubTask = (*GraphqlCollector)(nil)
