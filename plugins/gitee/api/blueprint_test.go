@@ -63,7 +63,7 @@ func TestMakePipelinePlan(t *testing.T) {
 	mockApiCLient.On("Get", "repos/test/testRepo", mock.Anything, mock.Anything).Return(res, nil)
 	mockMeta := mocks.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/gitee")
-	err = core.RegisterPlugin("github", mockMeta)
+	err = core.RegisterPlugin("gitee", mockMeta)
 	assert.Nil(t, err)
 	bs := &core.BlueprintScopeV100{
 		Entities: []string{"CODE"},
@@ -89,7 +89,7 @@ func TestMakePipelinePlan(t *testing.T) {
 	expectPlan := core.PipelinePlan{
 		core.PipelineStage{
 			{
-				Plugin:   "github",
+				Plugin:   "gitee",
 				Subtasks: []string{},
 				Options: map[string]interface{}{
 					"connectionId": uint64(1),
@@ -104,7 +104,7 @@ func TestMakePipelinePlan(t *testing.T) {
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"proxy":  "",
-					"repoId": "github:GiteeRepo:1:12345",
+					"repoId": "gitee:GiteeRepo:1:12345",
 					"url":    "https://git:123@this_is_cloneUrl",
 				},
 			},
@@ -124,7 +124,7 @@ func TestMakePipelinePlan(t *testing.T) {
 				Plugin:   "dora",
 				Subtasks: []string{"EnrichTaskEnv"},
 				Options: map[string]interface{}{
-					"repoId": "github:GiteeRepo:1:12345",
+					"repoId": "gitee:GiteeRepo:1:12345",
 					"transformationRules": map[string]interface{}{
 						"productionPattern": "xxxx",
 					},
