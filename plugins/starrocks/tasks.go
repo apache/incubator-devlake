@@ -336,6 +336,32 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrock
 	if err != nil {
 		return err
 	}
+	// check data count
+	rows, err := db.RawCursor(fmt.Sprintf("select count(*) from %s", table))
+	if err != nil {
+		return err
+	}
+	var sourceCount int
+	for rows.Next() {
+		err = rows.Scan(&sourceCount)
+		if err != nil {
+			return err
+		}
+	}
+	rows, err = starrocks.Query(fmt.Sprintf("select count(*) from %s", starrocksTable))
+	if err != nil {
+		return err
+	}
+	var starrocksCount int
+	for rows.Next() {
+		err = rows.Scan(&starrocksCount)
+		if err != nil {
+			return err
+		}
+	}
+	if sourceCount != starrocksCount {
+		c.GetLogger().Warn(nil, "source count %d not equal to starrocks count %d", sourceCount, starrocksCount)
+	}
 	c.GetLogger().Info("load %s to starrocks success", table)
 	return nil
 }
