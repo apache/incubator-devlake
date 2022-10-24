@@ -15,14 +15,9 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useCallback, useMemo } from 'react'
-import // Providers
-// ProviderTypes,
-// ProviderIcons,
-// ConnectionStatus,
-// ConnectionStatusLabels,
-'@/data/Providers'
-// import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
+import React, { useMemo } from 'react'
+import NoData from '@/components/NoData'
+
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
@@ -39,7 +34,15 @@ const withTransformationSettings = (
 ) =>
   TransformationComponent ? (
     <TransformationComponent {...TransformationProps} />
-  ) : null
+  ) : (
+    <NoData
+      title='No Transformations'
+      icon='disable'
+      message='This provider does not have additional transformation settings'
+      onClick={null}
+      actionText={null}
+    />
+  )
 
 const ProviderTransformationSettings = (props) => {
   const {
@@ -80,108 +83,13 @@ const ProviderTransformationSettings = (props) => {
   const TransformationWithProviderSettings = withTransformationSettings(
     provider?.id && TransformationComponents[provider?.id]
       ? TransformationComponents[provider?.id]
-      : // @todo Create <NoTransformations /> Message Component
-        null,
+      : null,
     { ...props, entities: props.entities[props?.connection?.id] }
   )
 
   return (
     <div className='transformation-settings' data-provider={provider?.id}>
       {TransformationWithProviderSettings}
-      {/* {provider?.id === Providers.GITHUB && (
-        <GithubSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-
-      {provider?.id === Providers.GITLAB && (
-        <GitlabSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-
-      {provider?.id === Providers.JIRA && (
-        <JiraSettings
-          provider={provider}
-          connection={connection}
-          issueTypes={issueTypes}
-          fields={fields}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-          jiraProxyError={jiraProxyError}
-          isFetchingJIRA={isFetchingJIRA}
-        />
-      )}
-
-      {provider?.id === Providers.JENKINS && (
-        <JenkinsSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-      {provider?.id === Providers.TAPD && (
-        <TapdSettings
-          provider={provider}
-          connection={connection}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-      {provider?.id === Providers.AZURE && (
-        <AzureSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-      {provider?.id === Providers.BITBUCKET && (
-        <BitbucketSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-      {provider?.id === Providers.GITEE && (
-        <GiteeSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )} */}
     </div>
   )
 }
