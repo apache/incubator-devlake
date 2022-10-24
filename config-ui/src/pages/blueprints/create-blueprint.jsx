@@ -103,6 +103,7 @@ const CreateBlueprint = (props) => {
     ProviderIcons,
     ProviderFormLabels,
     ProviderFormPlaceholders,
+    ProviderFormTooltips,
     ProviderConnectionLimits,
     setActiveProvider
   } = useIntegrations()
@@ -143,6 +144,11 @@ const CreateBlueprint = (props) => {
   const ConnectionFormPlaceholders = useMemo(
     () => ProviderFormPlaceholders[activeProvider?.id],
     [ProviderFormPlaceholders, activeProvider?.id]
+  )
+
+  const ConnectionFormTooltips = useMemo(
+    () => ProviderFormTooltips[activeProvider?.id],
+    [ProviderFormTooltips, activeProvider?.id]
   )
 
   const [dataEntitiesList, setDataEntitiesList] = useState([
@@ -1276,6 +1282,7 @@ const CreateBlueprint = (props) => {
         allTestResponses={allTestResponses}
         labels={ConnectionFormLabels}
         placeholders={ConnectionFormPlaceholders}
+        tooltips={ConnectionFormTooltips}
       />
 
       <CodeInspector
