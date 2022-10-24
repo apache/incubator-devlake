@@ -94,8 +94,6 @@ const BlueprintDataScopesDialog = (props) => {
     onSave = () => {},
     setDataDomainsGroup = () => {},
     setScopeEntitiesGroup = () => {},
-    hasTransformationChanged = () => false,
-    changeTransformationSettings = () => {},
     hasConfiguredEntityTransformationChanged = () => false,
     changeConfiguredEntityTransformation = () => {},
     setConfiguredScopeEntity = () => {},
@@ -221,8 +219,6 @@ const BlueprintDataScopesDialog = (props) => {
                 configuredScopeEntity={configuredScopeEntity}
                 setConfiguredScopeEntity={setConfiguredScopeEntity}
                 isSaving={isSaving}
-                hasTransformationChanged={hasTransformationChanged}
-                changeTransformationSettings={changeTransformationSettings}
                 hasConfiguredEntityTransformationChanged={
                   hasConfiguredEntityTransformationChanged
                 }

@@ -1274,8 +1274,8 @@ const BlueprintSettings = (props) => {
         jenkinsProxyError={jenkinsProxyError}
         setScopeEntitiesGroup={setScopeEntitiesGroup}
         setDataDomainsGroup={setDataDomainsGroup}
-        hasTransformationChanged={hasTransformationChanged}
-        changeTransformationSettings={changeTransformationSettings}
+        hasConfiguredEntityTransformationChanged={hasConfiguredEntityTransformationChanged}
+        changeConfiguredEntityTransformation={changeConfiguredEntityTransformation}
         onOpening={handleBlueprintScopesDialogOpening}
         onSave={handleBlueprintSave}
         isSaving={isSaving}

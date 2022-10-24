@@ -1020,10 +1020,6 @@ const CreateBlueprint = (props) => {
                       prevStep={prevStep}
                       setConfiguredScopeEntity={setConfiguredScopeEntity}
                       activeTransformation={activeTransformation}
-                      hasTransformationChanged={hasTransformationChanged}
-                      changeTransformationSettings={
-                        changeTransformationSettings
-                      }
                       hasConfiguredEntityTransformationChanged={
                         hasConfiguredEntityTransformationChanged
                       }

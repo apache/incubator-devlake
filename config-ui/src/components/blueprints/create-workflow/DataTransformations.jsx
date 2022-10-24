@@ -51,8 +51,6 @@ const DataTransformations = (props) => {
     prevStep = () => {},
     setConfiguredScopeEntity = () => {},
     activeTransformation = {},
-    hasTransformationChanged = () => false,
-    changeTransformationSettings = () => {},
     hasConfiguredEntityTransformationChanged = () => false,
     changeConfiguredEntityTransformation = () => {},
     onSave = () => {},

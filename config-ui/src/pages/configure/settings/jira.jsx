@@ -773,11 +773,12 @@ export default function JiraSettings(props) {
                 fill={true}
                 placeholder='/commit/([0-9a-f]{40})$'
                 value={remoteLinkCommitSha}
-                onChange={(e) =>
+                onChange={(e) => {
+                  setRemoteLinkCommitSha(e.target.value)
                   onSettingsChange({
                     remotelinkCommitShaPattern: e.target.value
                   })
-                }
+                }}
                 disabled={isSaving}
                 className='input'
               />
