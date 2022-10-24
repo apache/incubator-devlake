@@ -253,13 +253,14 @@ function useDataScopesManager({
 
   const getJenkinsProjects = useCallback(
     (c) =>
-      c.scope.map(
+      // when s.options?.jobName is empty, it's old jenkins config which collect all job data
+      c.scope.filter(s => s.options?.jobName).map(
         (s) =>
           new JenkinsJob({
-            id: s.options?.jobName,
-            key: s.options?.jobName,
-            value: s.options?.jobName,
-            title: s.options?.jobName
+            id: s.options.jobName,
+            key: s.options.jobName,
+            value: s.options.jobName,
+            title: s.options.jobName
           })
       ),
     []
