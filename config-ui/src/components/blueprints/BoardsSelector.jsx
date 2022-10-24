@@ -15,9 +15,9 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useMemo } from 'react'
-import { Intent, MenuItem } from '@blueprintjs/core'
-import { MultiSelect, Select } from '@blueprintjs/select'
+import React from 'react'
+import { Colors, Icon, Intent, MenuItem } from '@blueprintjs/core'
+import { MultiSelect } from '@blueprintjs/select'
 import JiraBoard from '@/models/JiraBoard'
 
 const BoardsSelector = (props) => {
@@ -46,11 +46,12 @@ const BoardsSelector = (props) => {
         text={
           selectedItems.find((i) => i?.id === item?.id) ? (
             <>
-              <input type='checkbox' checked readOnly /> {item?.title}
+              <img src={item.icon} width={12} height={12} /> {item?.title}{' '}
+              <Icon icon='small-tick' color={Colors.GREEN5} />
             </>
           ) : (
             <span style={{ fontWeight: 700 }}>
-              <input type='checkbox' readOnly /> {item?.title}
+              <img src={item.icon} width={12} height={12} /> {item?.title}
             </span>
           )
         }
@@ -75,7 +76,6 @@ const BoardsSelector = (props) => {
         >
           <MultiSelect
             disabled={disabled || isSaving || isLoading}
-            openOnKeyDown={true}
             resetOnSelect={true}
             placeholder={placeholder}
             popoverProps={{ usePortal: false, minimal: true }}

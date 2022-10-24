@@ -95,9 +95,7 @@ function useDataScopesManager({
       }
       // Generate scopes Dynamically for all Project/Board/Job/... Entities
       // @todo: refactor again when boards & projects get merged...
-      newScope = [
-        ...scopeEntitiesGroup[connection.id]
-      ].map((e) => ({
+      newScope = [...scopeEntitiesGroup[connection.id]].map((e) => ({
         ...newScope,
         options: {
           ...getTransformationScopeOptions(connection?.providerId, e)
@@ -168,6 +166,7 @@ function useDataScopesManager({
       return Array.isArray(newScope) ? newScope.flat() : [newScope]
     },
     [
+      scopeEntitiesGroup,
       getTransformation,
       getTransformationScopeOptions
       // Providers
@@ -266,6 +265,20 @@ function useDataScopesManager({
     []
   )
 
+  const getJiraBoard = useCallback(
+    (c) =>
+      c.scope.map(
+        (s) =>
+          new JenkinsJob({
+            id: s.options?.boardId,
+            key: s.options?.jobName,
+            value: s.options?.boardId,
+            title: s.options?.title || `Board ${s.options?.boardId}`
+          })
+      ),
+    []
+  )
+
   const getProjects = useCallback(
     (c) => {
       switch (c.plugin) {
@@ -275,100 +288,103 @@ function useDataScopesManager({
           return getGitlabProjects(c)
         case Providers.JENKINS:
           return getJenkinsProjects(c)
+        case Providers.JIRA:
+          return getJiraBoard(c)
         default:
           return []
       }
     },
-    [getGithubProjects, getGitlabProjects, getJenkinsProjects, Providers]
+    [
+      getGithubProjects,
+      getGitlabProjects,
+      getJenkinsProjects,
+      getJiraBoard,
+      Providers
+    ]
   )
 
   const getAdvancedGithubProjects = useCallback(
-    (t, providerId) =>
-      [Providers.GITHUB].includes(providerId)
-        ? [
-            new GitHubProject({
-              id: `${t.options?.owner}/${t.options?.repo}`,
-              key: `${t.options?.owner}/${t.options?.repo}`,
-              value: `${t.options?.owner}/${t.options?.repo}`,
-              title: `${t.options?.owner}/${t.options?.repo}`
-            })
-          ]
-        : [],
-    [Providers.GITHUB]
-  )
-
-  const getAdvancedGitlabProjects = useCallback(
-    (t, providerId) =>
-      [Providers.GITLAB].includes(providerId)
-        ? [
-            new GitlabProject({
-              id: t.options?.projectId,
-              key: t.options?.projectId,
-              value: t.options?.projectId,
-              title: t.options?.title || `Project ${t.options?.projectId}`
-            })
-          ]
-        : [],
-    [Providers.GITLAB]
-  )
-
-  const getAdvancedJiraBoards = useCallback(
-    (t, providerId) =>
-      [Providers.JIRA].includes(providerId)
-        ? [
-            new JiraBoard({
-              id: t.options?.boardId,
-              key: t.options?.boardId,
-              value: t.options?.boardId,
-              title: t.options?.title || `Board ${t.options?.boardId}`
-            })
-          ]
-        : [],
-    [Providers.JIRA]
-  )
-
-  // (altered version from PR No. 2926)
-  // const getJiraMappedBoards = useCallback((options = []) => {
-  //   return options.map(({ boardId, title }, sIdx) => {
-  //     return {
-  //       id: boardId,
-  //       key: boardId,
-  //       value: boardId,
-  //       title: title || `Board ${boardId}`,
-  //     }
-  //   })
-  // }, [])
-
-  const getJiraMappedBoards = useCallback(
-    (boardIds = [], boardListItems = []) => {
-      return boardIds.map((bId, sIdx) => {
-        const boardObject = boardListItems.find(
-          (apiBoard) =>
-            Number(apiBoard.id) === Number(bId) || +apiBoard.boardId === +bId
-        )
-        return new JiraBoard({
-          ...boardObject,
-          id: boardObject?.id || bId || sIdx + 1,
-          key: sIdx,
-          value: bId,
-          title: boardObject?.name || boardObject?.title || `Board ${bId}`,
-          type: boardObject?.type || 'scrum',
-          location: { ...boardObject?.location }
-        })
+    (t) => [
+      new GitHubProject({
+        id: `${t.options?.owner}/${t.options?.repo}`,
+        key: `${t.options?.owner}/${t.options?.repo}`,
+        value: `${t.options?.owner}/${t.options?.repo}`,
+        title: `${t.options?.owner}/${t.options?.repo}`
       })
-    },
+    ],
     []
   )
 
-  const getDefaultEntities = useCallback(
+  const getAdvancedGitlabProjects = useCallback(
+    (t) => [
+      new GitlabProject({
+        id: t.options?.projectId,
+        key: t.options?.projectId,
+        value: t.options?.projectId,
+        title: `Project ${t.options?.projectId}`
+      })
+    ],
+    []
+  )
+
+  const getAdvancedJenkinsProjects = useCallback(
+    (t) => [
+      new JenkinsJob({
+        id: t.options?.jobName,
+        key: t.options?.jobName,
+        value: t.options?.jobName,
+        title: t.options?.jobName
+      })
+    ],
+    []
+  )
+
+  const getAdvancedJiraBoards = useCallback(
+    (t) => [
+      new JiraBoard({
+        id: t.options?.boardId,
+        key: t.options?.boardId,
+        value: t.options?.boardId,
+        title: `Board ${t.options?.boardId}`
+      })
+    ],
+    []
+  )
+
+  const getDefaultDataDomains = useCallback(
     (providerId) => {
       console.log('GET ENTITIES FOR PROVIDER =', providerId)
-      let entities = []
       const plugin = Integrations.find((p) => p.id === providerId)
-      entities = plugin ? plugin?.getDataEntities() : []
-      return entities
+      return plugin ? plugin.getDataEntities() : []
     },
     [Integrations]
+  )
+
+  const getAdvancedScopeEntity = useCallback(
+    (c) => {
+      switch (c.plugin) {
+        case Providers.GITHUB:
+          return getAdvancedGithubProjects(c)
+        case Providers.GITLAB:
+          return getAdvancedGitlabProjects(c)
+        case Providers.JENKINS:
+          return getAdvancedJenkinsProjects(c)
+        case Providers.JIRA:
+          return getAdvancedJiraBoards(c)
+        default:
+          return []
+      }
+    },
+    [
+      getAdvancedGithubProjects,
+      getAdvancedGitlabProjects,
+      getAdvancedJiraBoards,
+      getAdvancedJenkinsProjects,
+      Providers.GITHUB,
+      Providers.GITLAB,
+      Providers.JENKINS,
+      Providers.JIRA
+    ]
   )
 
   const createNormalConnection = useCallback(
@@ -426,7 +442,7 @@ function useDataScopesManager({
       stage: 1,
       totalStages: 1
     }),
-    [getProjects, ProviderLabels, ProviderIcons, Providers.JIRA]
+    [getProjects, ProviderLabels, ProviderIcons]
   )
 
   const createAdvancedConnection = useCallback(
@@ -486,9 +502,7 @@ function useDataScopesManager({
       getAdvancedScopeEntity,
       getDefaultDataDomains,
       ProviderIcons,
-      ProviderLabels,
-      Providers.GITLAB,
-      Providers.JIRA
+      ProviderLabels
     ]
   )
 

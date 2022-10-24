@@ -115,7 +115,7 @@ const useJIRA = (
   }, [fieldsEndpoint, activeConnection, apiProxyPath])
 
   const fetchBoards = useCallback(
-    async (search, callback = () => {}) => {
+    async (search) => {
       try {
         if (apiProxyPath.includes('null') || !activeConnection?.connectionId) {
           throw new Error('Connection ID is Null')
@@ -125,12 +125,9 @@ const useJIRA = (
         const fetchApiBoards = async () => {
           const boards = await request
             .get(
-              activeConnection?.connectionId
-                ? `${boardsEndpoint.replace(
-                    '[:connectionId:]',
-                    activeConnection?.connectionId
-                  )}?name=${search}`
-                : `${boardsEndpoint}?name=${search}`
+              boardsEndpoint
+                .replace('[:connectionId:]', activeConnection?.connectionId)
+                .replace('[:name:]', search)
             )
             .catch((e) => setError(e))
           console.log('>>> JIRA API PROXY: Boards Response...', boards)
@@ -144,8 +141,7 @@ const useJIRA = (
           // }, 1000)
           return boards.data.values
         }
-        const res = await fetchApiBoards()
-        if (callback) callback(res)
+        await fetchApiBoards()
       } catch (e) {
         setIsFetching(false)
         setError(e)
@@ -233,7 +229,8 @@ const useJIRA = (
       key: d[idProperty],
       title: d[titleProperty],
       value: d[valueProperty],
-      icon: d?.location?.avatarURI,
+      icon: d?.location?.avatarURI || d?.iconUrl,
+      description: d?.description,
       type: d.schema?.type || 'string'
     }))
   }

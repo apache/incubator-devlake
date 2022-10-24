@@ -15,15 +15,24 @@
  * limitations under the License.
  *
  */
-import React, {useContext, useEffect, useMemo} from 'react'
-import {Button, Card, Divider, Elevation, Icon, Intent, MenuItem} from '@blueprintjs/core'
-import {Select} from '@blueprintjs/select'
+import React, { useContext, useEffect, useMemo } from 'react'
+import {
+  Button,
+  Card,
+  Divider,
+  Elevation,
+  Icon,
+  Intent,
+  MenuItem
+} from '@blueprintjs/core'
+import { Select } from '@blueprintjs/select'
 import IntegrationsContext from '@/store/integrations-context'
-import {DataDomainTypes} from '@/data/DataDomains'
+import { ALL_DATA_DOMAINS, DataDomainTypes } from '@/data/DataDomains'
 
 import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import NoData from '@/components/NoData'
 import StandardStackedList from '@/components/blueprints/StandardStackedList'
+import ProviderTransformationSettings from '@/components/blueprints/ProviderTransformationSettings'
 
 const DataTransformations = (props) => {
   const {
@@ -252,7 +261,7 @@ const DataTransformations = (props) => {
                     !configuredScopeEntity && (
                       <>
                         <StandardStackedList
-                        items={scopeEntities}
+                          items={scopeEntities}
                           className='selected-items-list selected-projects-list'
                           connection={configuredConnection}
                           activeItem={configuredScopeEntity}
@@ -274,14 +283,14 @@ const DataTransformations = (props) => {
                   {configuredScopeEntity && (
                     <div>
                       {!useDropdownSelector && (
-                          <>
-                            <h4>Project</h4>
-                            <p style={{ color: '#292B3F' }}>
+                        <>
+                          <h4>Project</h4>
+                          <p style={{ color: '#292B3F' }}>
                             {configuredScopeEntity?.title ||
-                                '< select a project >'}
-                            </p>
-                          </>
-                        )}
+                              '< select a project >'}
+                          </p>
+                        </>
+                      )}
                       <div
                         style={{
                           display: 'flex',
@@ -329,15 +338,15 @@ const DataTransformations = (props) => {
                         style={{ display: 'flex', justifyContent: 'flex-end' }}
                       >
                         {enableGoBack && (
-                            <Button
-                              text='Finish'
-                              intent={Intent.PRIMARY}
-                              small
-                              outlined
-                              onClick={() => onSave()}
-                              style={{ marginLeft: '5px' }}
-                            />
-                          )}
+                          <Button
+                            text='Finish'
+                            intent={Intent.PRIMARY}
+                            small
+                            outlined
+                            onClick={() => onSave()}
+                            style={{ marginLeft: '5px' }}
+                          />
+                        )}
                       </div>
                     </div>
                   )}

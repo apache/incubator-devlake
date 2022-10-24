@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useEffect, useState, useCallback } from 'react'
+import React from 'react'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 
 import 'normalize.css'
@@ -28,7 +28,6 @@ import '@fontsource/inter/600.css'
 import '@fontsource/inter/variable-full.css'
 // Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
 // import '@/styles/theme.scss'
-
 import useDatabaseMigrations from '@/hooks/useDatabaseMigrations'
 
 import ErrorBoundary from '@/components/ErrorBoundary'
@@ -41,7 +40,6 @@ import Blueprints from '@/pages/blueprints/index'
 import CreateBlueprint from '@/pages/blueprints/create-blueprint'
 import BlueprintDetail from '@/pages/blueprints/blueprint-detail'
 import BlueprintSettings from '@/pages/blueprints/blueprint-settings'
-import Connections from '@/pages/connections/index'
 import { IncomingWebhook as IncomingWebhookConnection } from '@/pages/connections/incoming-webhook'
 import MigrationAlertDialog from '@/components/MigrationAlertDialog'
 
@@ -103,9 +101,6 @@ function App(props) {
         <ErrorBoundary>
           <Blueprints />
         </ErrorBoundary>
-      </Route>
-      <Route exact path='/connections'>
-        <Connections />
       </Route>
       <Route exact path='/connections/incoming-webhook'>
         <IncomingWebhookConnection />

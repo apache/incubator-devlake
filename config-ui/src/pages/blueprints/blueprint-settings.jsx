@@ -15,37 +15,30 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useHistory, useParams } from 'react-router-dom'
 import { ENVIRONMENT } from '@/config/environment'
 import dayjs from '@/utils/time'
 import {
-  JIRA_API_PROXY_ENDPOINT,
-  ISSUE_TYPES_ENDPOINT,
+  BOARDS_ENDPOINT,
   ISSUE_FIELDS_ENDPOINT,
-  BOARDS_ENDPOINT
+  ISSUE_TYPES_ENDPOINT,
+  JIRA_API_PROXY_ENDPOINT
 } from '@/config/jiraApiProxy'
-import request from '@/utils/request'
 import {
   Button,
+  Colors,
   Elevation,
+  Icon,
   Intent,
   Switch,
-  Tag,
-  Tooltip,
-  Icon,
-  Colors,
-  Spinner,
-  Classes,
-  Popover
+  Tag
 } from '@blueprintjs/core'
 import useIntegrations from '@/hooks/useIntegrations'
 // import { integrationsData } from '@/data/integrations'
-import JiraBoard from '@/models/JiraBoard'
 import DataScopeConnection from '@/models/DataScopeConnection'
-import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
+import { BlueprintMode, NullBlueprint } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
-// import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import { TaskStatus } from '@/data/Task'
 
 import Nav from '@/components/Nav'
@@ -129,7 +122,7 @@ const BlueprintSettings = (props) => {
   const [runTasks, setRunTasks] = useState([])
   const [runTasksAdvanced, setRunTasksAdvanced] = useState([])
 
-  const [boardSearch, setBoardSearch] = useState()
+  const [boardSearch, setBoardSearch] = useState('')
 
   const {
     // eslint-disable-next-line no-unused-vars
@@ -198,8 +191,7 @@ const BlueprintSettings = (props) => {
     createProviderConnections,
     createNormalConnection,
     createAdvancedConnection,
-    getJiraMappedBoards,
-    getDefaultEntities
+    getDefaultDataDomains
   } = useDataScopesManager({
     mode: DataScopeModes.EDIT,
     blueprint: activeBlueprint,
@@ -606,16 +598,7 @@ const BlueprintSettings = (props) => {
                 cIdx,
                 ALL_DATA_DOMAINS,
                 allProviderConnections,
-                connectionsList,
-                [Providers.JIRA].includes(c.plugin)
-                  ? getJiraMappedBoards(
-                      c.scope?.map((s) => s.options?.boardId),
-                      [
-                        ...allJiraResources?.boards,
-                        ...c.scope.map((s) => s.options)
-                      ]
-                    )
-                  : []
+                connectionsList
               )
             )
         )
@@ -625,28 +608,21 @@ const BlueprintSettings = (props) => {
       activeBlueprint?.mode === BlueprintMode.ADVANCED
     ) {
       setConnections(
-        activeBlueprint?.plan?.flat().map(
-          (c, cIdx) =>
-            new DataScopeConnection(
-              createAdvancedConnection(
-                activeBlueprint,
-                c,
-                cIdx,
-                ALL_DATA_DOMAINS,
-                allProviderConnections,
-                connectionsList,
-                [Providers.JIRA].includes(c.plugin)
-                  ? getJiraMappedBoards(
-                      c.scope?.map((s) => s.options?.boardId),
-                      [
-                        ...allJiraResources?.boards,
-                        ...c.scope.map((s) => s.options)
-                      ]
-                    )
-                  : []
+        activeBlueprint?.plan
+          ?.flat()
+          .map(
+            (c, cIdx) =>
+              new DataScopeConnection(
+                createAdvancedConnection(
+                  activeBlueprint,
+                  c,
+                  cIdx,
+                  ALL_DATA_DOMAINS,
+                  allProviderConnections,
+                  connectionsList
+                )
               )
-            )
-        )
+          )
       )
     }
     setBlueprintName(activeBlueprint?.name)
@@ -694,8 +670,7 @@ const BlueprintSettings = (props) => {
     allProviderConnections,
     isFetchingJIRA,
     connectionsList,
-    getDefaultEntities,
-    getJiraMappedBoards,
+    getDefaultDataDomains,
     setRawConfiguration,
     createAdvancedConnection,
     createNormalConnection,
@@ -824,30 +799,13 @@ const BlueprintSettings = (props) => {
     ) {
       fetchIssueTypes()
       fetchFields()
-      fetchBoards(undefined, (boards) =>
-        setConnections((Cs) =>
-          Cs.map(
-            (c) =>
-              new DataScopeConnection({
-                ...c,
-                boardsList: getJiraMappedBoards(c.boardIds, [
-                  ...(boards ?? []),
-                  ...c.scope.map((s) => s.options)
-                ])
-              })
-          )
-        )
-      )
     }
   }, [
     activeBlueprint?.mode,
     fetchIssueTypes,
     fetchFields,
-    fetchBoards,
     scopeConnection?.connectionId,
     scopeConnection?.providerId,
-    getJiraMappedBoards,
-    setConnections,
     Providers.JIRA
   ])
 
@@ -855,30 +813,15 @@ const BlueprintSettings = (props) => {
     if (
       scopeConnection?.providerId === Providers.JIRA &&
       scopeConnection?.connectionId &&
-      activeBlueprint?.mode === BlueprintMode.NORMAL &&
-      boardSearch
+      activeBlueprint?.mode === BlueprintMode.NORMAL
     ) {
-      fetchBoards(boardSearch, (boards) =>
-        setConnections((Cs) =>
-          Cs.map(
-            (c) =>
-              new DataScopeConnection({
-                ...c,
-                boardsList: getJiraMappedBoards(c.boardIds, [
-                  ...(boards ?? []),
-                  ...c.scope.map((s) => s.options)
-                ])
-              })
-          )
-        )
-      )
+      fetchBoards(boardSearch)
     }
   }, [
     activeBlueprint?.mode,
     fetchBoards,
     scopeConnection?.connectionId,
     scopeConnection?.providerId,
-    getJiraMappedBoards,
     setConnections,
     boardSearch,
     Providers.JIRA
@@ -1316,7 +1259,7 @@ const BlueprintSettings = (props) => {
         dataDomainsGroup={dataDomainsGroup}
         scopeEntitiesGroup={scopeEntitiesGroup}
         setBoardSearch={setBoardSearch}
-        boardsList={jiraApiBoards}
+        jiraBoards={jiraApiBoards}
         issueTypesList={jiraApiIssueTypes}
         fieldsList={jiraApiFields}
         isFetching={isFetchingBlueprint}

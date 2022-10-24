@@ -67,7 +67,7 @@ const BlueprintDataScopesDialog = (props) => {
     configuredConnection,
     configuredScopeEntity,
     scopeConnection,
-    boardsList = [],
+    jiraBoards = [],
     issueTypesList = [],
     fieldsList = [],
     setBoardSearch = () => {},
@@ -178,8 +178,8 @@ const BlueprintDataScopesDialog = (props) => {
                 provider={provider}
                 activeStep={activeStep}
                 blueprintConnections={blueprintConnections}
-                boardsList={boardsList}
                 scopeEntitiesGroup={scopeEntitiesGroup}
+                jiraBoards={jiraBoards}
                 setBoardSearch={setBoardSearch}
                 fetchGitlabProjects={fetchGitlabProjects}
                 gitlabProjects={gitlabProjects}

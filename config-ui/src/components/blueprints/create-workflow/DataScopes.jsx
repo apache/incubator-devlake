@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useMemo, useContext } from 'react'
+import React, { useCallback, useContext, useMemo } from 'react'
 import {
   Button,
   Card,
@@ -40,7 +40,7 @@ const DataScopes = (props) => {
     activeStep,
     activeConnectionTab,
     blueprintConnections = [],
-    boardsList = [],
+    jiraBoards = [],
     fetchGitlabProjects = () => [],
     isFetchingGitlab = false,
     gitlabProjects = [],
@@ -148,16 +148,16 @@ const DataScopes = (props) => {
                         fill={true}
                         onChange={(values) =>
                           setScopeEntities([
-                              ...values.map(
-                                (v, vIdx) =>
-                                  new GitHubProject({
-                                    id: v,
-                                    key: v,
-                                    title: v,
-                                    value: v,
-                                    type: 'string'
-                                  })
-                              )
+                            ...values.map(
+                              (v, vIdx) =>
+                                new GitHubProject({
+                                  id: v,
+                                  key: v,
+                                  title: v,
+                                  value: v,
+                                  type: 'string'
+                                })
+                            )
                           ])
                         }
                         addOnPaste={true}

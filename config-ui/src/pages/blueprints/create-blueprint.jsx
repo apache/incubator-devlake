@@ -15,28 +15,19 @@
  * limitations under the License.
  *
  */
-import React, {
-  Fragment,
-  useEffect,
-  useState,
-  useCallback,
-  useMemo
-} from 'react'
-import { CSSTransition } from 'react-transition-group'
-import { useHistory, useLocation, Link } from 'react-router-dom'
-import dayjs from '@/utils/time'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import {
-  JIRA_API_PROXY_ENDPOINT,
-  ISSUE_TYPES_ENDPOINT,
+  BOARDS_ENDPOINT,
   ISSUE_FIELDS_ENDPOINT,
-  BOARDS_ENDPOINT
+  ISSUE_TYPES_ENDPOINT,
+  JIRA_API_PROXY_ENDPOINT
 } from '@/config/jiraApiProxy'
 // import { integrationsData } from '@/data/integrations'
 import { Intent } from '@blueprintjs/core'
 // import { Providers } from '@/data/Providers'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
-// import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
 import { ToastNotification } from '@/components/Toast'
 
@@ -44,12 +35,18 @@ import { BlueprintMode } from '@/data/NullBlueprint'
 import { NullBlueprintConnection } from '@/data/NullBlueprintConnection'
 import Connection from '@/models/Connection'
 import ProviderListConnection from '@/models/ProviderListConnection'
+import { WorkflowAdvancedSteps, WorkflowSteps } from '@/data/BlueprintWorkflow'
 
+import { DEVLAKE_ENDPOINT } from '@/utils/config'
+import request from '@/utils/request'
 import {
-  WorkflowSteps,
-  WorkflowAdvancedSteps,
-  DEFAULT_DATA_ENTITIES
-} from '@/data/BlueprintWorkflow'
+  GITLAB_API_PROXY_ENDPOINT,
+  PROJECTS_ENDPOINT
+} from '@/config/gitlabApiProxy'
+import {
+  JENKINS_API_PROXY_ENDPOINT,
+  JENKINS_JOBS_ENDPOINT
+} from '@/config/jenkinsApiProxy'
 
 import useIntegrations from '@/hooks/useIntegrations'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
@@ -60,33 +57,18 @@ import useBlueprintValidation from '@/hooks/useBlueprintValidation'
 import usePipelineValidation from '@/hooks/usePipelineValidation'
 import useConnectionValidation from '@/hooks/useConnectionValidation'
 import useJIRA from '@/hooks/useJIRA'
+import useJenkins from '@/hooks/useJenkins'
+import useGitlab from '@/hooks/useGitlab'
 
 import WorkflowStepsBar from '@/components/blueprints/WorkflowStepsBar'
 import WorkflowActions from '@/components/blueprints/WorkflowActions'
 import ConnectionDialog from '@/components/blueprints/ConnectionDialog'
 import CodeInspector from '@/components/pipelines/CodeInspector'
-// import NoData from '@/components/NoData'
-
 import DataConnections from '@/components/blueprints/create-workflow/DataConnections'
 import DataScopes from '@/components/blueprints/create-workflow/DataScopes'
 import DataTransformations from '@/components/blueprints/create-workflow/DataTransformations'
 import DataSync from '@/components/blueprints/create-workflow/DataSync'
 import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
-
-import { DEVLAKE_ENDPOINT } from '@/utils/config'
-import request from '@/utils/request'
-import useGitlab from '@/hooks/useGitlab'
-import {
-  GITLAB_API_PROXY_ENDPOINT,
-  PROJECTS_ENDPOINT
-} from '@/config/gitlabApiProxy'
-import useJenkins from '@/hooks/useJenkins'
-import {
-  JENKINS_API_PROXY_ENDPOINT,
-  JENKINS_JOBS_ENDPOINT
-} from '@/config/jenkinsApiProxy'
-
-// import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 
 const CreateBlueprint = (props) => {
   const history = useHistory()
@@ -151,11 +133,6 @@ const CreateBlueprint = (props) => {
     [ProviderFormTooltips, activeProvider?.id]
   )
 
-  const [dataEntitiesList, setDataEntitiesList] = useState([
-    ...DEFAULT_DATA_ENTITIES
-  ])
-  const [boardsList, setBoardsList] = useState([])
-
   // @note: lifted to dsm hook
   // const [blueprintConnections, setBlueprintConnections] = useState([])
   // const [configuredConnection, setConfiguredConnection] = useState()
@@ -172,7 +149,7 @@ const CreateBlueprint = (props) => {
   // eslint-disable-next-line no-unused-vars
   const [canAdvancePrev, setCanAdvancePrev] = useState(true)
 
-  const [boardSearch, setBoardSearch] = useState()
+  const [boardSearch, setBoardSearch] = useState('')
 
   const {
     activeConnection,
@@ -290,7 +267,7 @@ const CreateBlueprint = (props) => {
     fetchIssueTypes,
     fetchFields,
     fetchBoards,
-    boards: jiraApiBoards,
+    boards: jiraBoards,
     issueTypes: jiraApiIssueTypes,
     fields: jiraApiFields,
     isFetching: isFetchingJIRA,
@@ -646,7 +623,6 @@ const CreateBlueprint = (props) => {
       [2, 3].includes(activeStep?.id) &&
       enabledProviders.includes(Providers.JIRA)
     ) {
-      fetchBoards()
       fetchIssueTypes()
       fetchFields()
     }
@@ -676,10 +652,10 @@ const CreateBlueprint = (props) => {
   ])
 
   useEffect(() => {
-    if (boardSearch) {
+    if (configuredConnection) {
       fetchBoards(boardSearch)
     }
-  }, [fetchBoards, boardSearch])
+  }, [configuredConnection, fetchBoards, boardSearch])
 
   useEffect(() => {
     console.log(
@@ -775,8 +751,7 @@ const CreateBlueprint = (props) => {
     testSelectedConnections,
     Integrations,
     setDataDomainsGroup,
-    setScopeEntitiesGroup,
-    testSelectedConnections
+    setScopeEntitiesGroup
   ])
 
   useEffect(() => {
@@ -793,14 +768,7 @@ const CreateBlueprint = (props) => {
         ...NullBlueprintConnection,
         connectionId: c.value,
         plugin: c.plugin || c.provider,
-        scope: createProviderScopes(
-          c.provider,
-          c,
-          cIdx,
-          dataEntities,
-          boards,
-          projects
-        )
+        scope: createProviderScopes(c.provider, c, cIdx, dataDomainsGroup)
       }))
     }))
     // validatePipeline()
@@ -870,11 +838,6 @@ const CreateBlueprint = (props) => {
       history.push(`/blueprints/detail/${saveBlueprintComplete?.id}`)
     }
   }, [runNow, saveBlueprintComplete, newBlueprintId, runPipeline, history])
-
-  useEffect(() => {
-    console.log('>>> FETCHED JIRA API BOARDS FROM PROXY...', jiraApiBoards)
-    setBoardsList(jiraApiBoards)
-  }, [jiraApiBoards])
 
   useEffect(() => {
     if (saveConnectionComplete?.id && connectionDialogIsOpen) {
@@ -1010,7 +973,7 @@ const CreateBlueprint = (props) => {
                       advancedMode={advancedMode}
                       activeConnectionTab={activeConnectionTab}
                       blueprintConnections={blueprintConnections}
-                      boardsList={boardsList}
+                      jiraBoards={jiraBoards}
                       fetchGitlabProjects={fetchGitlabProjects}
                       isFetchingGitlab={isFetchingGitlab}
                       gitlabProjects={gitlabProjects}
