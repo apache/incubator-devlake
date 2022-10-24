@@ -25,11 +25,10 @@ import (
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/mitchellh/hashstructure"
 	"os"
-	"os/exec"
 	"path/filepath"
 )
 
-const singerPropertiesDir = "SINGER_PROPERTIES_DIR"
+const singerPropertiesDir = "TAP_PROPERTIES_DIR"
 
 type (
 	// SingerTap the Singer implementation of Tap
@@ -58,12 +57,14 @@ func NewSingerTap(cfg *SingerTapConfig) (*SingerTap, errors.Error) {
 	if err != nil {
 		return nil, err
 	}
-	tapName := filepath.Base(cfg.Cmd)
+	tapName := filepath.Base(cfg.TapExecutable)
 	return &SingerTap{
-		cmd:             cfg.Cmd,
+		cmd:             cfg.TapExecutable,
 		name:            tapName,
 		tempLocation:    tempDir,
 		propertiesFile:  propsFile,
+		stateFile:       new(fileData[[]byte]),
+		configFile:      new(fileData[[]byte]),
 		SingerTapConfig: cfg,
 	}, nil
 }
@@ -127,15 +128,14 @@ func (t *SingerTap) GetName() string {
 
 // Run implements Tap.Run
 func (t *SingerTap) Run() (<-chan *utils.ProcessResponse[Output[json.RawMessage]], errors.Error) {
-	catalogCmd := "--catalog"
-	if t.IsLegacy {
-		catalogCmd = "--properties"
-	}
-	args := []string{"--config", t.configFile.path, catalogCmd, t.propertiesFile.path}
-	if t.stateFile != nil {
-		args = append(args, []string{"--state", t.stateFile.path}...)
-	}
-	cmd := exec.Command(t.cmd, args...)
+	cmd := utils.CreateCmd(
+		t.cmd,
+		"--config",
+		t.configFile.path,
+		ifElse(t.IsLegacy, "--properties", "--catalog"),
+		t.propertiesFile.path,
+		ifElse(t.stateFile.path != "", "--state "+t.stateFile.path, ""),
+	)
 	stream, err := utils.StreamProcess(cmd, func(b []byte) (Output[json.RawMessage], error) {
 		var output Output[json.RawMessage]
 		output, err := NewSingerTapOutput(b)
@@ -196,15 +196,14 @@ func hash(x any) (uint64, errors.Error) {
 	return version, nil
 }
 
-var _ Tap[SingerTapStream] = (*SingerTap)(nil)
-
 func (t *SingerTap) modifyProperties(streamName string, propsModifier func(props *SingerTapStream) bool) *SingerTapStream {
 	properties := t.propertiesFile.content
 	for i := 0; i < len(properties.Streams); i++ {
 		stream := properties.Streams[i]
-		if !defaultSingerStreamSetter(streamName, stream) {
+		if stream.Stream != streamName {
 			continue
 		}
+		setSingerStream(stream)
 		if propsModifier != nil && propsModifier(stream) {
 			return stream
 		}
@@ -212,13 +211,19 @@ func (t *SingerTap) modifyProperties(streamName string, propsModifier func(props
 	return nil
 }
 
-func defaultSingerStreamSetter(name string, stream *SingerTapStream) bool {
-	if stream.Stream != name {
-		return false
-	}
+func setSingerStream(stream *SingerTapStream) {
 	for _, meta := range stream.Metadata {
 		innerMeta := meta["metadata"].(map[string]any)
 		innerMeta["selected"] = true
 	}
-	return true
 }
+
+// ternary if-else so we can inline
+func ifElse(cond bool, onTrue string, onFalse string) string {
+	if cond {
+		return onTrue
+	}
+	return onFalse
+}
+
+var _ Tap[SingerTapStream] = (*SingerTap)(nil)

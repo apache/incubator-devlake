@@ -70,6 +70,7 @@ func setDefaultValue(v *viper.Viper) {
 	v.SetDefault("PORT", ":8080")
 	v.SetDefault("PLUGIN_DIR", "bin/plugins")
 	v.SetDefault("TEMPORAL_TASK_QUEUE", "DEVLAKE_TASK_QUEUE")
+	v.SetDefault("TAP_PROPERTIES_DIR", "config/tap")
 }
 
 // replaceNewEnvItemInOldContent replace old config to new config in env file content

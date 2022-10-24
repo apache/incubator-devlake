@@ -141,8 +141,10 @@ func (c *Collector[Stream]) Execute() (err errors.Error) {
 	ctx := c.ctx.GetContext()
 	var batchedResults []json.RawMessage
 	defer func() {
-		// push whatever is left
-		err = c.pushResults(batchedResults)
+		if err == nil {
+			// push whatever is left
+			err = c.pushResults(batchedResults)
+		}
 	}()
 	for result := range resultStream {
 		if result.Err != nil {
