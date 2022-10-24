@@ -15,13 +15,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []migration.Script {
-	return []migration.Script{}
+type IclaCommitter struct {
+	UserName string `gorm:"primaryKey;type:varchar(255)"`
+	Name     string `gorm:"primaryKey;type:varchar(255)"`
+	archived.NoPKModel
+}
+
+func (IclaCommitter) TableName() string {
+	return "_tool_icla_committer"
 }
