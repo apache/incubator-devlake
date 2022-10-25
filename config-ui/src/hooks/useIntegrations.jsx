@@ -169,10 +169,37 @@ function useIntegrations(
     return new Plugin(pluginConfig)
   }, [])
 
-  const validatePlugin = useCallback(() => {
-    // @todo: Validate JSON Syntax
-    // @todo: Validate Required Plugin Property Keys Exist
-    // @todo: Validate Property data types
+  const validatePlugin = useCallback((pluginConfig) => {
+    let isValid = false
+    const requiredProperties = [
+      'id',
+      'name',
+      'type',
+      'enabled',
+      'multiConnection',
+      'icon'
+    ]
+    // todo: enhance plugin validation
+    try {
+      console.log('>>> INTEGRATIONS HOOK: VALIDATING PLUGIN...', pluginConfig)
+      JSON.parse(JSON.stringify(pluginConfig))
+      isValid = requiredProperties.every((p) =>
+        Object.prototype.hasOwnProperty.call(pluginConfig, p)
+      )
+      if (!isValid) {
+        console.log(
+          '>>> INTEGRATIONS HOOK: PLUGIN SCHEMA INCOMPLETE, MISSING REQUIRED PROPERTIES!',
+          pluginConfig
+        )
+      }
+    } catch (e) {
+      console.log(
+        '>>> INTEGRATIONS HOOK: PLUGIN VALIDATION FAILED!',
+        e,
+        pluginConfig
+      )
+    }
+    return isValid
   }, [])
 
   const getPlugin = useCallback(
@@ -189,9 +216,12 @@ function useIntegrations(
     )
     setPlugins((aP) => [
       // ...aP,
-      ...registry.filter((p) => p.enabled).map((p) => registerPlugin(p))
+      ...registry
+        .filter((p) => p.enabled)
+        .filter((p) => validatePlugin(p))
+        .map((p) => registerPlugin(p))
     ])
-  }, [registry, setPlugins, registerPlugin])
+  }, [registry, setPlugins, validatePlugin, registerPlugin])
 
   useEffect(() => {
     console.log(
