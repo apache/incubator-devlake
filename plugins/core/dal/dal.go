@@ -34,6 +34,21 @@ type Clause struct {
 	Data interface{}
 }
 
+// ClauseColumn quote with name
+type ClauseColumn struct {
+	Table string
+	Name  string
+	Alias string
+	Raw   bool
+}
+
+// ClauseTable quote with name
+type ClauseTable struct {
+	Name  string
+	Alias string
+	Raw   bool
+}
+
 // ColumnMeta column type interface
 type ColumnMeta interface {
 	Name() string
@@ -60,8 +75,6 @@ type Dal interface {
 	DropColumns(table string, columnName ...string) errors.Error
 	// Exec executes raw sql query
 	Exec(query string, params ...interface{}) errors.Error
-	// RawCursor executes raw sql query and returns a database cursor
-	RawCursor(query string, params ...interface{}) (*sql.Rows, errors.Error)
 	// Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
 	Cursor(clauses ...Clause) (*sql.Rows, errors.Error)
 	// Fetch loads row data from `cursor` into `dst`
@@ -81,7 +94,9 @@ type Dal interface {
 	// UpdateColumn allows you to update mulitple records
 	UpdateColumn(entity interface{}, columnName string, value interface{}, clauses ...Clause) errors.Error
 	// UpdateColumn allows you to update multiple columns of mulitple records
-	UpdateColumns(entity interface{}, clauses ...Clause) errors.Error
+	UpdateColumns(entity interface{}, set []DalSet, clauses ...Clause) errors.Error
+	// UpdateAllColumn updated all Columns of entity
+	UpdateAllColumn(entity interface{}, clauses ...Clause) errors.Error
 	// CreateOrUpdate tries to create the record, or fallback to update all if failed
 	CreateOrUpdate(entity interface{}, clauses ...Clause) errors.Error
 	// CreateIfNotExist tries to create the record if not exist
@@ -143,6 +158,11 @@ type DalClause struct {
 	Params []interface{}
 }
 
+type DalSet struct {
+	ColumnName string
+	Value      interface{}
+}
+
 const JoinClause string = "Join"
 
 // Join creates a new JoinClause
@@ -174,15 +194,19 @@ func Offset(offset int) Clause {
 const FromClause string = "From"
 
 // From creates a new TableClause
-func From(table interface{}) Clause {
-	return Clause{Type: FromClause, Data: table}
+func From(table interface{}, params ...interface{}) Clause {
+	if len(params) == 0 {
+		return Clause{Type: FromClause, Data: table}
+	} else {
+		return Clause{Type: FromClause, Data: DalClause{table.(string), params}}
+	}
 }
 
 const SelectClause string = "Select"
 
 // Select creates a new TableClause
-func Select(fields string) Clause {
-	return Clause{Type: SelectClause, Data: fields}
+func Select(clause string, params ...interface{}) Clause {
+	return Clause{Type: SelectClause, Data: DalClause{clause, params}}
 }
 
 const OrderbyClause string = "OrderBy"

@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"gorm.io/gorm/clause"
 )
 
 // AutoMigrateTables runs AutoMigrate for muliple tables
@@ -85,22 +84,21 @@ func ChangeColumnsType[D any](
 	}()
 
 	if update == nil {
-		params := make([]interface{}, 0, len(columns)*2+1)
-		params = append(params, clause.Table{Name: tableName})
-		updateStr := "UPDATE ? SET "
+		dalSet := make([]dal.DalSet, 0, len(columns))
 		for i, v := range columns {
-			if i > 0 {
-				updateStr += " AND "
-			}
-			updateStr += "? = ?"
-			params = append(params, clause.Column{Name: v})
-			params = append(params, clause.Column{Name: tmpColumnsNames[i]})
+			dalSet = append(dalSet, dal.DalSet{
+				ColumnName: v,
+				Value:      dal.ClauseColumn{Name: tmpColumnsNames[i]},
+			})
 		}
-		err = db.Exec(updateStr, params...)
+		err = db.UpdateColumns(
+			new(D),
+			dalSet,
+		)
 	} else {
 		params := make([]interface{}, 0, len(tmpColumnsNames))
 		for _, v := range tmpColumnsNames {
-			params = append(params, clause.Column{Name: v})
+			params = append(params, dal.ClauseColumn{Name: v})
 		}
 		err = update(params)
 	}
@@ -132,17 +130,18 @@ func TransformColumns[S any, D any](
 		columns,
 		func(tmpColumnParams []interface{}) errors.Error {
 			// create selectStr for transform tmpColumnsNames
-			params := make([]interface{}, 0, len(columns)*2+1)
-			selectStr := "SELECT * "
+			params := make([]interface{}, 0, len(columns)*2)
+			selectStr := " * "
 			for i, v := range columns {
 				selectStr += ",? as ?"
 				params = append(params, tmpColumnParams[i])
-				params = append(params, clause.Column{Name: v})
+				params = append(params, dal.ClauseColumn{Name: v})
 			}
-			selectStr += " FROM ? "
-			params = append(params, clause.Table{Name: tableName})
 
-			cursor, err := db.RawCursor(selectStr, params...)
+			cursor, err := db.Cursor(
+				dal.Select(selectStr, params...),
+				dal.From(dal.ClauseTable{Name: tableName}),
+			)
 			if err != nil {
 				return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", tableName))
 			}

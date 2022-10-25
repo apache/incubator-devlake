@@ -35,15 +35,41 @@ type Dalgorm struct {
 	db *gorm.DB
 }
 
+func transformParams(params []interface{}) []interface{} {
+	tp := make([]interface{}, 0, len(params))
+
+	for _, v := range params {
+		switch p := v.(type) {
+		case dal.ClauseColumn:
+			tp = append(tp, clause.Column{
+				Table: p.Table,
+				Name:  p.Name,
+				Alias: p.Alias,
+				Raw:   p.Raw,
+			})
+		case dal.ClauseTable:
+			tp = append(tp, clause.Table{
+				Name:  p.Name,
+				Alias: p.Alias,
+				Raw:   p.Raw,
+			})
+		default:
+			tp = append(tp, p)
+		}
+	}
+
+	return tp
+}
+
 func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 	for _, c := range clauses {
 		t := c.Type
 		d := c.Data
 		switch t {
 		case dal.JoinClause:
-			tx = tx.Joins(d.(dal.DalClause).Expr, d.(dal.DalClause).Params...)
+			tx = tx.Joins(d.(dal.DalClause).Expr, transformParams(d.(dal.DalClause).Params)...)
 		case dal.WhereClause:
-			tx = tx.Where(d.(dal.DalClause).Expr, d.(dal.DalClause).Params...)
+			tx = tx.Where(d.(dal.DalClause).Expr, transformParams(d.(dal.DalClause).Params)...)
 		case dal.OrderbyClause:
 			tx = tx.Order(d.(string))
 		case dal.LimitClause:
@@ -51,17 +77,26 @@ func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 		case dal.OffsetClause:
 			tx = tx.Offset(d.(int))
 		case dal.FromClause:
-			if str, ok := d.(string); ok {
-				tx = tx.Table(str)
-			} else {
+			switch dd := d.(type) {
+			case string:
+				tx = tx.Table(dd)
+			case dal.DalClause:
+				tx = tx.Table(dd.Expr, transformParams(dd.Params)...)
+			case dal.ClauseTable:
+				tx = tx.Table(" ? ", clause.Table{
+					Name:  dd.Name,
+					Alias: dd.Alias,
+					Raw:   dd.Raw,
+				})
+			default:
 				tx = tx.Model(d)
 			}
 		case dal.SelectClause:
-			tx = tx.Select(d.(string))
+			tx = tx.Select(d.(dal.DalClause).Expr, transformParams(d.(dal.DalClause).Params)...)
 		case dal.GroupbyClause:
 			tx = tx.Group(d.(string))
 		case dal.HavingClause:
-			tx = tx.Having(d.(dal.DalClause).Expr, d.(dal.DalClause).Params...)
+			tx = tx.Having(d.(dal.DalClause).Expr, transformParams(d.(dal.DalClause).Params)...)
 		}
 	}
 	return tx
@@ -69,14 +104,9 @@ func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 
 var _ dal.Dal = (*Dalgorm)(nil)
 
-// RawCursor executes raw sql query and returns a database cursor
-func (d *Dalgorm) RawCursor(query string, params ...interface{}) (*sql.Rows, errors.Error) {
-	return errors.Convert01(d.db.Raw(query, params...).Rows())
-}
-
 // Exec executes raw sql query
 func (d *Dalgorm) Exec(query string, params ...interface{}) errors.Error {
-	return errors.Convert(d.db.Exec(query, params...).Error)
+	return errors.Convert(d.db.Exec(query, transformParams(params)...).Error)
 }
 
 // AutoMigrate runs auto migration for given models
@@ -154,13 +184,27 @@ func (d *Dalgorm) Delete(entity interface{}, clauses ...dal.Clause) errors.Error
 // UpdateColumn allows you to update mulitple records
 func (d *Dalgorm) UpdateColumn(entity interface{}, columnName string, value interface{}, clauses ...dal.Clause) errors.Error {
 	if expr, ok := value.(dal.DalClause); ok {
-		value = gorm.Expr(expr.Expr, expr.Params...)
+		value = gorm.Expr(expr.Expr, transformParams(expr.Params)...)
 	}
 	return errors.Convert(buildTx(d.db, clauses).Model(entity).Update(columnName, value).Error)
 }
 
 // UpdateColumns allows you to update multiple columns of mulitple records
-func (d *Dalgorm) UpdateColumns(entity interface{}, clauses ...dal.Clause) errors.Error {
+func (d *Dalgorm) UpdateColumns(entity interface{}, set []dal.DalSet, clauses ...dal.Clause) errors.Error {
+	updatesSet := make(map[string]interface{})
+
+	for _, s := range set {
+		if expr, ok := s.Value.(dal.DalClause); ok {
+			s.Value = gorm.Expr(expr.Expr, transformParams(expr.Params)...)
+		}
+		updatesSet[s.ColumnName] = s.Value
+	}
+
+	return errors.Convert(buildTx(d.db, clauses).Model(entity).Updates(updatesSet).Error)
+}
+
+// UpdateAllColumn updated all Columns of entity
+func (d *Dalgorm) UpdateAllColumn(entity interface{}, clauses ...dal.Clause) errors.Error {
 	return errors.Convert(buildTx(d.db, clauses).UpdateColumns(entity).Error)
 }
 

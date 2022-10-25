@@ -223,7 +223,12 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrock
 		var rows *sql.Rows
 		var data []map[string]interface{}
 		// select data from db
-		rows, err = db.RawCursor(fmt.Sprintf("select * from %s order by %s limit %d offset %d", table, orderBy, config.BatchSize, offset))
+		rows, err = db.Cursor(
+			dal.From(table),
+			dal.Orderby(orderBy),
+			dal.Limit(config.BatchSize),
+			dal.Offset(offset),
+		)
 		if err != nil {
 			return err
 		}
@@ -337,7 +342,10 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrock
 		return err
 	}
 	// check data count
-	rows, err := db.RawCursor(fmt.Sprintf("select count(*) from %s", table))
+	rows, err := db.Cursor(
+		dal.Select("count(*)"),
+		dal.From(table),
+	)
 	if err != nil {
 		return err
 	}

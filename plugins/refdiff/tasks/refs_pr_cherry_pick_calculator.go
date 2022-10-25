@@ -18,11 +18,12 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -114,25 +115,27 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) errors.Error {
 		taskCtx.IncProgress(1)
 	}
 
-	cursor2, err := db.RawCursor(
-		`
-			SELECT pr2.pull_request_key                 AS parent_pr_key,
-			       pr1.parent_pr_id                     AS parent_pr_id,
-			       pr1.base_ref                         AS cherrypick_base_branch,
-			       pr1.pull_request_key                 AS cherrypick_pr_key,
-			       repos.NAME                           AS repo_name,
-			       Concat(repos.url, '/pull/', pr2.pull_request_key) AS parent_pr_url,
- 				   pr2.created_date
-			FROM   pull_requests pr1
-			       LEFT JOIN pull_requests pr2
-			              ON pr1.parent_pr_id = pr2.id
-			       LEFT JOIN repos
-			              ON pr2.base_repo_id = repos.id
-			WHERE  pr1.parent_pr_id != ''
-			ORDER  BY pr1.parent_pr_id,
-			          pr2.created_date,
-					  pr1.base_ref ASC
-			`)
+	cursor2, err := db.Cursor(
+		dal.Select(`
+			pr2.pull_request_key                 AS parent_pr_key,
+			pr1.parent_pr_id                     AS parent_pr_id,
+			pr1.base_ref                         AS cherrypick_base_branch,
+			pr1.pull_request_key                 AS cherrypick_pr_key,
+			repos.NAME                           AS repo_name,
+			Concat(repos.url, '/pull/', pr2.pull_request_key) AS parent_pr_url,
+			pr2.created_date
+		`),
+		dal.From(`pull_requests pr1`),
+		dal.Join(`LEFT JOIN pull_requests pr2 ON pr1.parent_pr_id = pr2.id`),
+		dal.Join(`LEFT JOIN repos ON pr2.base_repo_id = repos.id`),
+
+		dal.Where("pr1.parent_pr_id != ''"),
+		dal.Orderby(`
+			pr1.parent_pr_id,
+			pr2.created_date,
+			pr1.base_ref ASC
+		`),
+	)
 	if err != nil {
 		return errors.Convert(err)
 	}
