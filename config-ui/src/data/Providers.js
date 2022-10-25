@@ -391,7 +391,7 @@ const ProviderIcons = {
   )
 }
 
-// @todo: migrate to Model
+// @note: migrated to @data/ConnectionStatus
 const ConnectionStatus = {
   OFFLINE: 0,
   ONLINE: 1,
@@ -399,7 +399,7 @@ const ConnectionStatus = {
   TESTING: 3
 }
 
-// @todo: migrate to Model
+// @note: migrated to @data/ConnectionStatus
 const ConnectionStatusLabels = {
   [ConnectionStatus.OFFLINE]: 'Offline',
   [ConnectionStatus.ONLINE]: 'Online',

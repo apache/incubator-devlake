@@ -33,13 +33,13 @@ import {
   Card,
   Colors
 } from '@blueprintjs/core'
-import {
-  Providers,
-  ProviderTypes,
-  ProviderIcons,
-  ConnectionStatus,
-  ConnectionStatusLabels
-} from '@/data/Providers'
+// import {
+//   Providers,
+//   ProviderTypes,
+//   ProviderIcons,
+//   ConnectionStatus,
+//   ConnectionStatusLabels
+// } from '@/data/Providers'
 
 import InputValidationError from '@/components/validation/InputValidationError'
 

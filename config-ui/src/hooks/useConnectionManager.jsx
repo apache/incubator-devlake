@@ -23,11 +23,9 @@ import request from '@/utils/request'
 import Connection from '@/models/Connection'
 import ProviderListConnection from '@/models/ProviderListConnection'
 import {
-  // Providers,
-  // ProviderConnectionLimits,
   ConnectionStatus,
   ConnectionStatusLabels
-} from '@/data/Providers'
+} from '@/data/ConnectionStatus'
 
 import useIntegrations from '@/hooks/useIntegrations'
 import useNetworkOfflineMode from '@/hooks/useNetworkOfflineMode'
