@@ -300,6 +300,7 @@ export default function ManageIntegration() {
                     </p>
                     <p>
                       <Button
+                        disabled={connectionLimitReached}
                         onClick={addConnection}
                         rightIcon='add'
                         intent='primary'
@@ -479,7 +480,7 @@ export default function ManageIntegration() {
                         ))}
                       </tbody>
                     </table>
-                    {connectionLimitReached && (
+                    {connectionLimitReached ? (
                       <p
                         style={{
                           margin: 0,
@@ -497,7 +498,7 @@ export default function ManageIntegration() {
                         You have reached the maximum number of allowed
                         connections for this provider.
                       </p>
-                    )}
+                    ) : null}
                   </Card>
                   <p
                     style={{

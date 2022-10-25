@@ -4,6 +4,7 @@
   "type": "integration",
   "enabled": true,
   "multiConnection": true,
+  "connectionLimit": 0,
   "isBeta": true,
   "isProvider": true,
   "icon": "src/images/integrations/tapd.svg",

@@ -24,7 +24,7 @@ import Connection from '@/models/Connection'
 import ProviderListConnection from '@/models/ProviderListConnection'
 import {
   // Providers,
-  ProviderConnectionLimits,
+  // ProviderConnectionLimits,
   ConnectionStatus,
   ConnectionStatusLabels
 } from '@/data/Providers'
@@ -47,8 +47,7 @@ function useConnectionManager(
     Providers,
     ProviderFormLabels,
     ProviderFormPlaceholders,
-    // @todo: fix usage
-    // ProviderConnectionLimits,
+    ProviderConnectionLimits,
     setActiveProvider: setIntegrationActiveProvider
   } = useIntegrations()
 
@@ -85,9 +84,9 @@ function useConnectionManager(
   const connectionCount = useMemo(() => allConnections.length, [allConnections])
   const connectionLimitReached = useMemo(
     () =>
-      sourceLimits[provider?.id] &&
-      connectionCount >= sourceLimits[provider?.id],
-    [provider?.id, sourceLimits, connectionCount]
+      ProviderConnectionLimits[provider?.id] &&
+      connectionCount >= ProviderConnectionLimits[provider?.id],
+    [provider?.id, ProviderConnectionLimits, connectionCount]
   )
   const [connectionsList, setConnectionsList] = useState([])
 

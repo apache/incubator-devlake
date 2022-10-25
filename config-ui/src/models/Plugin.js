@@ -45,6 +45,7 @@ class Plugin {
     this.multiConnection = data?.multiConnection || false
     this.icon = data?.icon || null
     this.connection = data?.connection || null
+    this.connectionLimit = data?.connectionLimit || 0
     this.entities = data?.entities?.map((e) => new DataEntity({ type: e })) || [
       new DataEntity({ type: 'CODE' })
     ]

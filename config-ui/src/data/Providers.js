@@ -26,11 +26,15 @@ import { ReactComponent as AzureProviderIcon } from '@/images/integrations/azure
 import { ReactComponent as BitbucketProviderIcon } from '@/images/integrations/bitbucket.svg'
 import { ReactComponent as GiteeProviderIcon } from '@/images/integrations/gitee.svg'
 import { RateLimitTooltip } from '@/data/ConnectionTooltips.js'
-// import GitExtractorIcon from '@/images/git.png'
-// import RefDiffIcon from '@/images/git-diff.png'
 import FeishuIcon from '@/images/feishu.png'
-// import DBTIcon from '@/images/dbt.png'
-// import AEIcon from '@/images/ae.png'
+
+/**
+ *  !! WARNING !! DO NOT USE (DEVELOPMENT USE ONLY)
+ *  Provider Configuration now managed by Plugin Registry,
+ *  This functionality is being replaced by the Integrations Manager Hook!
+ *  see src/hooks/useIntegrations.jsx for more information.
+ *  ---------------------------------------------------------------
+ */
 
 // @todo: replace with Integrations Hook
 const Providers = {

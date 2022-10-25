@@ -26,11 +26,9 @@ import GitHubPlugin from '@/registry/plugins/github.json'
 import GitLabPlugin from '@/registry/plugins/gitlab.json'
 import JenkinsPlugin from '@/registry/plugins/jenkins.json'
 import TapdPlugin from '@/registry/plugins/tapd.json'
-// "plugin" Plugins (Backend / Advanced Mode Plugins)
 import AzurePlugin from '@/registry/plugins/azure.json'
 import BitbucketPlugin from '@/registry/plugins/bitbucket.json'
 import GiteePlugin from '@/registry/plugins/gitee.json'
-// @todo: import additional backend plugins
 import AePlugin from '@/registry/plugins/ae.json'
 import RefdiffPlugin from '@/registry/plugins/refdiff.json'
 import DbtPlugin from '@/registry/plugins/dbt.json'
@@ -154,7 +152,13 @@ function useIntegrations(
     [integrations]
   )
 
-  const ProviderConnectionLimits = useMemo(() => {}, [])
+  const ProviderConnectionLimits = useMemo(
+    () =>
+      integrations
+        .map((P) => parseInt(P.connectionLimit, 10))
+        .reduce((pV, cV, iDx) => ({ ...pV, [integrations[iDx]?.id]: cV }), {}),
+    [integrations]
+  )
 
   const registerPlugin = useCallback((pluginConfig) => {
     console.log(
@@ -234,6 +238,10 @@ function useIntegrations(
       ProviderIcons
     )
     console.log(
+      '>>> INTEGRATIONS HOOK: PROVIDER CONNECTION LIMITS...',
+      ProviderConnectionLimits
+    )
+    console.log(
       '>>> INTEGRATIONS HOOK: PROVIDER DATA SOURCES LIST...',
       DataSources
     )
@@ -243,6 +251,7 @@ function useIntegrations(
     ProviderLabels,
     ProviderFormLabels,
     ProviderFormPlaceholders,
+    ProviderConnectionLimits,
     ProviderFormTooltips,
     ProviderIcons,
     DataSources
