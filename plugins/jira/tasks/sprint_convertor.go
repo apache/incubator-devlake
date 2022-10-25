@@ -18,15 +18,15 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"strings"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
@@ -47,12 +47,12 @@ func ConvertSprints(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger.Info("convert sprints")
 	clauses := []dal.Clause{
-		dal.Select("*"),
-		dal.From(&models.JiraSprint{}),
-		dal.Join(`LEFT JOIN _tool_jira_board_sprints
-              ON _tool_jira_board_sprints.sprint_id = _tool_jira_sprints.sprint_id
-                 AND _tool_jira_board_sprints.connection_id = _tool_jira_sprints.connection_id`),
-		dal.Where("_tool_jira_sprints.connection_id = ? AND _tool_jira_board_sprints.board_id = ?", connectionId, boardId),
+		dal.Select("tjs.connection_id, tjs.sprint_id, self, state, name, start_date, end_date, complete_date, origin_board_id, tjs.created_at, tjs.updated_at, tjs._raw_data_params, tjs._raw_data_table, tjs._raw_data_id, tjs._raw_data_remark, board_id"),
+		dal.From("_tool_jira_sprints tjs"),
+		dal.Join(`LEFT JOIN _tool_jira_board_sprints tjbs
+              ON tjbs.sprint_id = tjs.sprint_id
+                 AND tjbs.connection_id = tjs.connection_id`),
+		dal.Where("tjs.connection_id = ? AND tjbs.board_id = ?", connectionId, boardId),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
