@@ -69,8 +69,6 @@ github:
       whatever: Just a placehold to make it in protection
     release-v0.14:
       whatever: Just a placehold to make it in protection
-    release-v0.15:
-      whatever: Just a placehold to make it in protection
   # The triage role allows people to assign, edit, and close issues and pull requests,
   # without giving them write access to the code.
   collaborators:
