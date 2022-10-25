@@ -77,7 +77,7 @@ Some useful parameters for the chart, you could also check them in values.yaml
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | replicaCount  | Replica Count for devlake, currently not used  | 1  |
-| mysql.useExternal  | If use external mysql server, currently not used  |  false  |
+| mysql.useExternal  | If use external mysql server, set true |  false  |
 | mysql.externalServer  | External mysql server address  | 127.0.0.1  |
 | mysql.externalPort  | External mysql server port  | 3306  |
 | mysql.username  | username for mysql | merico  |

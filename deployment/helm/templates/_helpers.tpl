@@ -95,3 +95,26 @@ The ui endpoint
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+The mysql server
+*/}}
+{{- define "mysql.server" -}}
+{{- if .Values.mysql.useExternal }}
+{{- .Values.mysql.externalServer }}
+{{- else }}
+{{- print (include "devlake.fullname" . ) "-mysql" }}
+{{- end }}
+{{- end }}
+
+
+{{/*
+The mysql port
+*/}}
+{{- define "mysql.port" -}}
+{{- if .Values.mysql.useExternal }}
+{{- .Values.mysql.externalPort }}
+{{- else }}
+{{- 3306 }}
+{{- end }}
+{{- end }}
