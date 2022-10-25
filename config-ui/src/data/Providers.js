@@ -36,7 +36,7 @@ import FeishuIcon from '@/images/feishu.png'
  *  ---------------------------------------------------------------
  */
 
-// @todo: replace with Integrations Hook
+// @note: replaced by Integrations Hook
 const Providers = {
   NULL: 'null',
   GITLAB: 'gitlab',
@@ -56,14 +56,14 @@ const Providers = {
   DORA: 'dora' // (not a true provider)
 }
 
-// @todo: replace with Integrations Hook
+// @note: replaced by Integrations Hook
 const ProviderTypes = {
   PLUGIN: 'plugin',
   INTEGRATION: 'integration',
   PIPELINE: 'pipeline'
 }
 
-// @todo: replace with Integrations Hook
+// @note: replaced by Integrations Hook
 const ProviderLabels = {
   NULL: 'NullProvider',
   GITLAB: 'GitLab',
@@ -83,7 +83,7 @@ const ProviderLabels = {
   DORA: 'DORA' // (not a true provider)
 }
 
-// @todo: replace with Integrations Hook and/or delete
+// @note: replaced by Integrations Hook and/or delete
 const ProviderConnectionLimits = {
   // (All providers are mult-connection, no source limits defined)
   // jenkins: null,
@@ -92,7 +92,7 @@ const ProviderConnectionLimits = {
   // gitlab: null
 }
 
-// @todo: replace with Integrations Hook
+// @note: replaced by Integrations Hook
 // @todo: handle tooltips dynamically at form layer
 const ProviderFormLabels = {
   null: {
@@ -270,7 +270,7 @@ const ProviderFormLabels = {
   }
 }
 
-// @todo: replace with Integrations Hook
+// @note: replaced by Integrations Hook
 const ProviderFormPlaceholders = {
   null: {
     name: 'eg. Enter Instance Name',
@@ -355,7 +355,7 @@ const ProviderFormPlaceholders = {
   }
 }
 
-// @todo: replace with Integrations Hook
+// @note: replaced by Integrations Hook
 const ProviderIcons = {
   [Providers.GITLAB]: (w, h) => (
     <GitlabProviderIcon width={w || 24} height={h || 24} />
