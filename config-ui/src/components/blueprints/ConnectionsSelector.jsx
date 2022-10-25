@@ -18,7 +18,8 @@
 import React from 'react'
 import { Button, Intent, MenuItem } from '@blueprintjs/core'
 import { MultiSelect } from '@blueprintjs/select'
-import { ProviderIcons } from '@/data/Providers'
+import IntegrationsContext from '@/store/integrations-context'
+// import { ProviderIcons } from '@/data/Providers'
 
 const ConnectionsSelector = (props) => {
   const {
@@ -41,22 +42,26 @@ const ConnectionsSelector = (props) => {
         }
         key={item.id}
         label={
-          <span style={{ marginLeft: '20px' }}>
-            <span
-              style={{
-                display: 'inline-block',
-                marginTop: '2px',
-                width: '14px',
-                height: '14px'
-              }}
-            >
-              {ProviderIcons[item.provider] ? (
-                ProviderIcons[item.provider](14, 14)
-              ) : (
-                <></>
-              )}
-            </span>
-          </span>
+          <IntegrationsContext.Consumer>
+            {({ ProviderIcons }) => (
+              <span style={{ marginLeft: '20px' }}>
+                <span
+                  style={{
+                    display: 'inline-block',
+                    marginTop: '2px',
+                    width: '14px',
+                    height: '14px'
+                  }}
+                >
+                  {ProviderIcons[item.provider] ? (
+                    ProviderIcons[item.provider](14, 14)
+                  ) : (
+                    <></>
+                  )}
+                </span>
+              </span>
+            )}
+          </IntegrationsContext.Consumer>
         }
         onClick={handleClick}
         text={
