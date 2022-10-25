@@ -47,7 +47,7 @@ func ConvertSprints(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger.Info("convert sprints")
 	clauses := []dal.Clause{
-		dal.Select("tjs.connection_id, tjs.sprint_id, self, state, name, start_date, end_date, complete_date, origin_board_id, tjs.created_at, tjs.updated_at, tjs._raw_data_params, tjs._raw_data_table, tjs._raw_data_id, tjs._raw_data_remark, board_id"),
+		dal.Select("tjs.*, board_id"),
 		dal.From("_tool_jira_sprints tjs"),
 		dal.Join(`LEFT JOIN _tool_jira_board_sprints tjbs
               ON tjbs.sprint_id = tjs.sprint_id
