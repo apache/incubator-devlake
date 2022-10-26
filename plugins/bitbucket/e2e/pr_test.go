@@ -37,14 +37,10 @@ func TestPrDataFlow(t *testing.T) {
 	}
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
-			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
-			TransformationRules: models.TransformationRules{
-				PrType:             "type/(.*)$",
-				PrComponent:        "component/(.*)$",
-				PrBodyClosePattern: "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/api.bitbucket.org\\/2.0\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)",
-			},
+			ConnectionId:        1,
+			Owner:               "panjf2000",
+			Repo:                "ants",
+			TransformationRules: models.TransformationRules{},
 		},
 		Repo: bitbucketRepository,
 	}
