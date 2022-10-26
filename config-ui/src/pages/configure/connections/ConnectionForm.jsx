@@ -15,7 +15,14 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+  useContext
+} from 'react'
 import {
   Button,
   Colors,
@@ -35,7 +42,8 @@ import {
   Switch,
   Tooltip
 } from '@blueprintjs/core'
-import { Providers } from '@/data/Providers'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers } from '@/data/Providers'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import InputValidationError from '@/components/validation/InputValidationError'
 
@@ -104,6 +112,8 @@ export default function ConnectionForm(props) {
     formGroupClassName = 'formGroup',
     showHeadline = true
   } = props
+
+  const { Providers } = useContext(IntegrationsContext)
 
   const connectionNameRef = useRef()
   const connectionEndpointRef = useRef()
@@ -258,7 +268,12 @@ export default function ConnectionForm(props) {
       console.log('>> PERSONAL ACCESS TOKENS ENTERED...', personalAccessTokens)
       syncPersonalAcessTokens()
     }
-  }, [activeProvider?.id, personalAccessTokens, syncPersonalAcessTokens])
+  }, [
+    activeProvider?.id,
+    personalAccessTokens,
+    syncPersonalAcessTokens,
+    Providers.GITHUB
+  ])
 
   useEffect(() => {
     console.log(
