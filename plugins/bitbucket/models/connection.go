@@ -39,9 +39,9 @@ type BoardResponse struct {
 	Value string
 }
 type TransformationRules struct {
-	IssueStatusTODO       []string `mapstructure:"issueStatusTodo" json:"IssueStatusTodo"`
-	IssueStatusINPROGRESS []string `mapstructure:"issueStatusInProgress" json:"IssueStatusInprogress"`
-	IssueStatusDONE       []string `mapstructure:"issueStatusDone" json:"IssueStatusDone"`
+	IssueStatusTODO       []string `mapstructure:"issueStatusTodo" json:"issueStatusTodo"`
+	IssueStatusINPROGRESS []string `mapstructure:"issueStatusInProgress" json:"issueStatusInProgress"`
+	IssueStatusDONE       []string `mapstructure:"issueStatusDone" json:"issueStatusDone"`
 }
 
 type BitbucketConnection struct {
