@@ -41,7 +41,7 @@ type MergeRequestRes struct {
 	SourceBranch    string              `json:"source_branch"`
 	TargetBranch    string              `json:"target_branch"`
 	GitlabCreatedAt helper.Iso8601Time  `json:"created_at"`
-	GitlabUpdatedAt helper.Iso8601Time  `json:"created_at"`
+	GitlabUpdatedAt helper.Iso8601Time  `json:"updated_at"`
 	MergedAt        *helper.Iso8601Time `json:"merged_at"`
 	ClosedAt        *helper.Iso8601Time `json:"closed_at"`
 	MergeCommitSha  string              `json:"merge_commit_sha"`
