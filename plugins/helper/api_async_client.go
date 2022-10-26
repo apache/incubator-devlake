@@ -45,7 +45,7 @@ type ApiAsyncClient struct {
 	numOfWorkers int
 }
 
-const defaultTimeout = 10 * time.Second
+const defaultTimeout = 120 * time.Second
 
 // CreateAsyncApiClient creates a new ApiAsyncClient
 func CreateAsyncApiClient(
