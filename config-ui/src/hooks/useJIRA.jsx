@@ -15,10 +15,11 @@
  * limitations under the License.
  *
  */
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useContext } from 'react'
 import request from '@/utils/request'
 import { ToastNotification } from '@/components/Toast'
-import { Providers } from '@/data/Providers'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers } from '@/data/Providers'
 import DataScopeConnection from '@/models/DataScopeConnection'
 
 const useJIRA = (
@@ -26,6 +27,7 @@ const useJIRA = (
   activeConnection = null,
   setConnections = () => []
 ) => {
+  const { Providers } = useContext(IntegrationsContext)
   const [isFetching, setIsFetching] = useState(false)
   const [issueTypes, setIssueTypes] = useState([])
   const [fields, setFields] = useState([])

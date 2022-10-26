@@ -15,8 +15,9 @@
  * limitations under the License.
  *
  */
-import { useCallback, useEffect, useState } from 'react'
-import { Providers } from '@/data/Providers'
+import { useCallback, useEffect, useState, useContext } from 'react'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers } from '@/data/Providers'
 import { BlueprintMode } from '@/data/NullBlueprint'
 
 function usePipelineValidation({
@@ -43,22 +44,13 @@ function usePipelineValidation({
   entities = [],
   rawConfiguration
 }) {
+  const { Providers } = useContext(IntegrationsContext)
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
   const [detectedProviders, setDetectedProviders] = useState([])
-  const [allowedProviders, setAllowedProviders] = useState([
-    Providers.JIRA,
-    Providers.GITLAB,
-    Providers.JENKINS,
-    Providers.GITHUB,
-    Providers.REFDIFF,
-    Providers.GITEXTRACTOR,
-    Providers.FEISHU,
-    Providers.AE,
-    Providers.DBT,
-    Providers.STARROCKS,
-    Providers.TAPD
-  ])
+  const [allowedProviders, setAllowedProviders] = useState(
+    Object.keys(Providers)
+  )
 
   const clear = () => {
     setErrors([])
