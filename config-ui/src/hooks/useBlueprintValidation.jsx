@@ -15,10 +15,11 @@
  * limitations under the License.
  *
  */
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useContext } from 'react'
 import parser from 'cron-parser'
 import { BlueprintMode } from '@/data/NullBlueprint'
-import { Providers } from '@/data/Providers'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers } from '@/data/Providers'
 
 function useBlueprintValidation({
   name,
@@ -35,6 +36,8 @@ function useBlueprintValidation({
   activeProvider = null,
   activeConnection = null
 }) {
+  const { Providers } = useContext(IntegrationsContext)
+
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
 

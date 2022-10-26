@@ -19,6 +19,7 @@ import React from 'react'
 import { Icon } from '@blueprintjs/core'
 import { Providers, ProviderLabels } from '@/data/Providers'
 
+// -- warning -- legacy constant will be removed in a future release
 const NullProvider = {
   id: Providers.NULL, // Unique ID, for a Provider (alphanumeric, lowercase)
   enabled: false, // Enabled Flag

@@ -16,7 +16,7 @@
  *
  */
 import React from 'react'
-import { ProviderLabels } from '@/data/Providers'
+// import { ProviderLabels } from '@/data/Providers'
 import { GRAFANA_URL } from '@/utils/config'
 import MenuItem from '@/models/MenuItem'
 
