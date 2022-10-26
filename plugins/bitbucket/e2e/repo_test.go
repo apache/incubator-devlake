@@ -38,13 +38,10 @@ func TestRepoDataFlow(t *testing.T) {
 	}
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
-			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
-			TransformationRules: models.TransformationRules{
-				PrType:      "type/(.*)$",
-				PrComponent: "component/(.*)$",
-			},
+			ConnectionId:        1,
+			Owner:               "panjf2000",
+			Repo:                "ants",
+			TransformationRules: models.TransformationRules{},
 		},
 		Repo: bitbucketRepository,
 	}

@@ -39,15 +39,9 @@ type BoardResponse struct {
 	Value string
 }
 type TransformationRules struct {
-	PrType               string `mapstructure:"prType" json:"prType"`
-	PrComponent          string `mapstructure:"prComponent" json:"prComponent"`
-	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern"`
-	IssueSeverity        string `mapstructure:"issueSeverity" json:"issueSeverity"`
-	IssuePriority        string `mapstructure:"issuePriority" json:"issuePriority"`
-	IssueComponent       string `mapstructure:"issueComponent" json:"issueComponent"`
-	IssueTypeBug         string `mapstructure:"issueTypeBug" json:"issueTypeBug"`
-	IssueTypeIncident    string `mapstructure:"issueTypeIncident" json:"issueTypeIncident"`
-	IssueTypeRequirement string `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement"`
+	IssueStatusTODO       []string `mapstructure:"issueStatusTodo" json:"issueStatusTodo"`
+	IssueStatusINPROGRESS []string `mapstructure:"issueStatusInProgress" json:"issueStatusInProgress"`
+	IssueStatusDONE       []string `mapstructure:"issueStatusDone" json:"issueStatusDone"`
 }
 
 type BitbucketConnection struct {
