@@ -33,6 +33,7 @@ import DataEntity from './DataEntity'
  * @property {object?} settings
  * @property {number?} connectionLimit
  * @property {<Array<DataEntity>>?} entities
+ * @property {object?} transformations
  */
 class Plugin {
   constructor(data = {}) {
@@ -51,6 +52,7 @@ class Plugin {
     this.entities = data?.entities?.map((e) => new DataEntity({ type: e })) || [
       new DataEntity({ type: 'CODE' })
     ]
+    this.transformations = data?.transformations || { default: {} }
   }
 
   get(property) {
@@ -76,6 +78,10 @@ class Plugin {
 
   getConnectionFormTooltips() {
     return this.connection ? this.connection?.tooltips : []
+  }
+
+  getDefaultTransformations() {
+    return this.transformations?.default || {}
   }
 }
 

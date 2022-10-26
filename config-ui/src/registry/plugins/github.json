@@ -37,5 +37,21 @@
       "rateLimitPerHour": "Rate Limit requests per hour,\nEnter a numeric value > 0 to enable."
     }
  },
- "entities": ["CODE", "TICKET", "CROSS"]
+ "entities": ["CODE", "TICKET", "CROSS"],
+ "transformations": {
+  "default": {
+    "prType": "",
+    "prComponent": "",
+    "prBodyClosePattern": "",
+    "issueSeverity": "",
+    "issueComponent": "",
+    "issuePriority": "",
+    "issueTypeRequirement": "",
+    "issueTypeBug": "",
+    "issueTypeIncident": "",
+    "refdiff": null,
+    "productionPattern": "",
+    "deploymentPattern": ""
+  }
+ }
 }

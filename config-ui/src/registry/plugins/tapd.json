@@ -38,5 +38,14 @@
     "tooltips": {
     }
   },
-  "entities": ["CODE", "TICKET"]
+  "entities": ["CODE", "TICKET"],
+  "transformations": {
+    "default": {
+      "issueTypeRequirement": "",
+      "issueTypeBug": "",
+      "issueTypeIncident": "",
+      "productionPattern": "",
+      "deploymentPattern": ""
+    }
+   }
 }

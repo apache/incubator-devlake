@@ -23,80 +23,81 @@ import { isEqual } from 'lodash'
 
 // manage transformations in one place
 const useTransformationsManager = () => {
-  const { Providers } = useContext(IntegrationsContext)
+  const { Providers, ProviderTransformations } = useContext(IntegrationsContext)
   const [transformations, setTransformations] = useState({})
 
-  // TODO separate to each plugin
   const getDefaultTransformations = useCallback(
     (provider) => {
-      let transforms = {}
-      switch (provider) {
-        case Providers.GITHUB:
-          transforms = {
-            prType: '',
-            prComponent: '',
-            prBodyClosePattern: '',
-            issueSeverity: '',
-            issueComponent: '',
-            issuePriority: '',
-            issueTypeRequirement: '',
-            issueTypeBug: '',
-            issueTypeIncident: '',
-            refdiff: null,
-            productionPattern: '',
-            deploymentPattern: ''
-            // stagingPattern: '',
-            // testingPattern: ''
-          }
-          break
-        case Providers.JIRA:
-          transforms = {
-            epicKeyField: '',
-            typeMappings: {},
-            storyPointField: '',
-            remotelinkCommitShaPattern: '',
-            bugTags: [],
-            incidentTags: [],
-            requirementTags: [],
-            // @todo: verify if jira utilizes deploy tag(s)?
-            productionPattern: '',
-            deploymentPattern: ''
-            // stagingPattern: '',
-            // testingPattern: ''
-          }
-          break
-        case Providers.JENKINS:
-          transforms = {
-            productionPattern: '',
-            deploymentPattern: ''
-            // stagingPattern: '',
-            // testingPattern: ''
-          }
-          break
-        case Providers.GITLAB:
-          transforms = {
-            productionPattern: '',
-            deploymentPattern: ''
-            // stagingPattern: '',
-            // testingPattern: ''
-          }
-          break
-        case Providers.TAPD:
-          // @todo: complete tapd transforms #2673
-          transforms = {
-            issueTypeRequirement: '',
-            issueTypeBug: '',
-            issueTypeIncident: '',
-            productionPattern: '',
-            deploymentPattern: ''
-            // stagingPattern: '',
-            // testingPattern: ''
-          }
-          break
-      }
+      // let transforms = {}
+      const transforms = ProviderTransformations[provider] || {}
+      // @note: Default Transformations configured in Plugin Registry! (see @src/registry/plugins)
+      // switch (provider) {
+      //   case Providers.GITHUB:
+      //     transforms = {
+      //       prType: '',
+      //       prComponent: '',
+      //       prBodyClosePattern: '',
+      //       issueSeverity: '',
+      //       issueComponent: '',
+      //       issuePriority: '',
+      //       issueTypeRequirement: '',
+      //       issueTypeBug: '',
+      //       issueTypeIncident: '',
+      //       refdiff: null,
+      //       productionPattern: '',
+      //       deploymentPattern: ''
+      //       // stagingPattern: '',
+      //       // testingPattern: ''
+      //     }
+      //     break
+      //   case Providers.JIRA:
+      //     transforms = {
+      //       epicKeyField: '',
+      //       typeMappings: {},
+      //       storyPointField: '',
+      //       remotelinkCommitShaPattern: '',
+      //       bugTags: [],
+      //       incidentTags: [],
+      //       requirementTags: [],
+      //       // @todo: verify if jira utilizes deploy tag(s)?
+      //       productionPattern: '',
+      //       deploymentPattern: ''
+      //       // stagingPattern: '',
+      //       // testingPattern: ''
+      //     }
+      //     break
+      //   case Providers.JENKINS:
+      //     transforms = {
+      //       productionPattern: '',
+      //       deploymentPattern: ''
+      //       // stagingPattern: '',
+      //       // testingPattern: ''
+      //     }
+      //     break
+      //   case Providers.GITLAB:
+      //     transforms = {
+      //       productionPattern: '',
+      //       deploymentPattern: ''
+      //       // stagingPattern: '',
+      //       // testingPattern: ''
+      //     }
+      //     break
+      //   case Providers.TAPD:
+      //     // @todo: complete tapd transforms #2673
+      //     transforms = {
+      //       issueTypeRequirement: '',
+      //       issueTypeBug: '',
+      //       issueTypeIncident: '',
+      //       productionPattern: '',
+      //       deploymentPattern: ''
+      //       // stagingPattern: '',
+      //       // testingPattern: ''
+      //     }
+      //     break
+      // }
       return transforms
     },
-    [Providers]
+    [ProviderTransformations]
   )
 
   const generateKey = useCallback(

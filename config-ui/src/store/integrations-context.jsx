@@ -28,6 +28,7 @@ const IntegrationsContext = React.createContext({
   ProviderFormLabels: {},
   ProviderFormPlaceholders: {},
   ProviderConnectionLimits: {},
+  ProviderTransformations: {},
   setActiveProvider: () => {}
 })
 
@@ -43,6 +44,7 @@ export const IntegrationsContextProvider = (props) => {
     ProviderFormLabels,
     ProviderFormPlaceholders,
     ProviderConnectionLimits,
+    ProviderTransformations,
     setActiveProvider
   } = useIntegrations()
 
@@ -57,6 +59,7 @@ export const IntegrationsContextProvider = (props) => {
     ProviderFormLabels,
     ProviderFormPlaceholders,
     ProviderConnectionLimits,
+    ProviderTransformations,
     setActiveProvider
   }
 

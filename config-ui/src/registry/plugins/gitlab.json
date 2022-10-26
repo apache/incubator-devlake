@@ -36,5 +36,11 @@
       "rateLimitPerHour": "Rate Limit requests per hour,\nEnter a numeric value > 0 to enable."
     }
   },
-  "entities": ["CODE", "TICKET", "CROSS", "CICD"]
+  "entities": ["CODE", "TICKET", "CROSS", "CICD"],
+  "transformations": {
+    "default": {
+      "productionPattern": "",
+      "deploymentPattern": ""
+    }
+   }
 }

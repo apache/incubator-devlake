@@ -42,5 +42,18 @@
     
   }
  },
- "entities": ["CODE", "TICKET", "CROSS"]
+ "entities": ["CODE", "TICKET", "CROSS"],
+ "transformations": {
+  "default": {
+    "epicKeyField": "",
+    "typeMappings": {},
+    "storyPointField": "",
+    "remotelinkCommitShaPattern": "",
+    "bugTags": [],
+    "incidentTags": [],
+    "requirementTags": [],
+    "productionPattern": "",
+    "deploymentPattern": ""
+  }
+ }
 }

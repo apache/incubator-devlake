@@ -160,6 +160,14 @@ function useIntegrations(
     [integrations]
   )
 
+  const ProviderTransformations = useMemo(
+    () =>
+      integrations
+        .map((P) => P.getDefaultTransformations())
+        .reduce((pV, cV, iDx) => ({ ...pV, [integrations[iDx]?.id]: cV }), {}),
+    [integrations]
+  )
+
   const registerPlugin = useCallback((pluginConfig) => {
     console.log(
       '>>> REGISTERING PLUGIN...',
@@ -303,6 +311,7 @@ function useIntegrations(
     ProviderIcons,
     ProviderConnectionLimits,
     ProviderTypes,
+    ProviderTransformations,
     setRegistry,
     setApiRegistry,
     setActiveProvider,
