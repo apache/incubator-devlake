@@ -31,7 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/impl"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/logger"
-	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/cobra"
 )
@@ -81,7 +80,7 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	if migratable, ok := pluginTask.(core.PluginMigration); ok {
 		migrator.Register(migratable.MigrationScripts(), cmd.Use)
 	}
-	err = migration.Execute(context.Background())
+	err = migrator.Execute()
 	if err != nil {
 		panic(err)
 	}
