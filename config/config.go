@@ -19,12 +19,13 @@ package config
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	goerror "github.com/cockroachdb/errors"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/apache/incubator-devlake/errors"
+	goerror "github.com/cockroachdb/errors"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
@@ -69,9 +70,6 @@ func setDefaultValue(v *viper.Viper) {
 	v.SetDefault("PORT", ":8080")
 	v.SetDefault("PLUGIN_DIR", "bin/plugins")
 	v.SetDefault("TEMPORAL_TASK_QUEUE", "DEVLAKE_TASK_QUEUE")
-	v.SetDefault("GITLAB_ENDPOINT", "https://gitlab.com/api/v4/")
-	v.SetDefault("GITHUB_ENDPOINT", "https://api.github.com/")
-	v.SetDefault("GITEE_ENDPOINT", "https://gitee.com/api/v5/")
 }
 
 // replaceNewEnvItemInOldContent replace old config to new config in env file content

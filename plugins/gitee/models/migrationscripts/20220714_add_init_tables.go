@@ -92,10 +92,15 @@ func (*addInitTables) Up(baseRes core.BasicRes) errors.Error {
 	conn.Name = "init gitee connection"
 	conn.ID = 1
 	conn.Endpoint = baseRes.GetConfig("GITEE_ENDPOINT")
+	if encKey == "" || conn.Endpoint == "" {
+		return nil
+	}
+
 	conn.Token, err = core.Encrypt(encKey, baseRes.GetConfig("GITEE_AUTH"))
 	if err != nil {
 		return err
 	}
+
 	conn.Proxy = baseRes.GetConfig("GITEE_PROXY")
 
 	var err1 error
