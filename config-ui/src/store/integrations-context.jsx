@@ -34,9 +34,9 @@ const IntegrationsContext = React.createContext({
 
 export const IntegrationsContextProvider = (props) => {
   const {
-    registry,
-    plugins,
-    integrations,
+    registry: Registry,
+    plugins: Plugins,
+    integrations: Integrations,
     activeProvider,
     Providers,
     ProviderLabels,
@@ -49,9 +49,9 @@ export const IntegrationsContextProvider = (props) => {
   } = useIntegrations()
 
   const contextValue = {
-    registry,
-    plugins,
-    integrations,
+    Registry,
+    Plugins,
+    Integrations,
     activeProvider,
     Providers,
     ProviderLabels,

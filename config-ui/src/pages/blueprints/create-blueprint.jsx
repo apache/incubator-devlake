@@ -1145,10 +1145,6 @@ const CreateBlueprint = (props) => {
 
                   {activeStep?.id === 3 && (
                     <DataTransformations
-                      Integrations={Integrations}
-                      Providers={Providers}
-                      ProviderLabels={ProviderLabels}
-                      ProviderIcons={ProviderIcons}
                       provider={provider}
                       activeStep={activeStep}
                       advancedMode={advancedMode}

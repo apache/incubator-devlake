@@ -15,7 +15,13 @@
  * limitations under the License.
  *
  */
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useContext
+} from 'react'
 import {
   Button,
   Card,
@@ -26,6 +32,7 @@ import {
   MenuItem
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
+import IntegrationsContext from '@/store/integrations-context'
 // import { integrationsData } from '@/data/integrations'
 // import { ProviderIcons, Providers } from '@/data/Providers'
 import { DataEntityTypes } from '@/data/DataEntities'
@@ -39,10 +46,6 @@ import ProviderTransformationSettings from '@/components/blueprints/ProviderTran
 
 const DataTransformations = (props) => {
   const {
-    Integrations = [],
-    Providers = {},
-    ProviderLabels = {},
-    ProviderIcons = {},
     provider,
     blueprint,
     activeStep,
@@ -82,6 +85,9 @@ const DataTransformations = (props) => {
     elevation = Elevation.TWO,
     cardStyle = {}
   } = props
+
+  const { Integrations, Providers, ProviderIcons, ProviderLabels } =
+    useContext(IntegrationsContext)
 
   const noTransformationsAvailable = useMemo(
     () =>
