@@ -36,8 +36,6 @@ var _ core.PluginMeta = (*Github)(nil)
 var _ core.PluginInit = (*Github)(nil)
 var _ core.PluginTask = (*Github)(nil)
 var _ core.PluginApi = (*Github)(nil)
-
-// var _ core.Migratable = (*Github)(nil)
 var _ core.PluginBlueprintV100 = (*Github)(nil)
 var _ core.CloseablePluginTask = (*Github)(nil)
 
