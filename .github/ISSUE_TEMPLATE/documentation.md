@@ -1,6 +1,6 @@
 ---
-name: Documentation Issue
-about: Help improve our documentation
+name: Documentation
+about: Help improve the documentation
 title: '[Doc][Module Name] Documentation title'
 labels: type/docs
 assignees: ''
@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 ## Documentation Scope
-Briefly explain what is the documentation is referencing (main README, a specific plugin etc.)
+Briefly explain what the documentation is referencing. For instance, the main README, website, API doc, etc.
 
 ## Describe the Change
 A clear and concise description of what is being updated in the documentation
