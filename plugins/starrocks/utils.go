@@ -91,21 +91,28 @@ func stringIn(s string, l ...string) bool {
 }
 
 func getStarRocksDataType(dataType string) string {
+	dataType = strings.ToLower(dataType)
 	starrocksDatatype := "string"
 	if hasPrefixes(dataType, "datetime", "timestamp") {
 		starrocksDatatype = "datetime"
-	} else if strings.HasPrefix(dataType, "bigint") {
+	} else if stringIn(dataType, "date") {
+		starrocksDatatype = "date"
+	} else if strings.HasPrefix(dataType, "bigint") || stringIn(dataType, "bigserial") {
 		starrocksDatatype = "bigint"
-	} else if stringIn(dataType, "longtext", "text", "longblob") {
-		starrocksDatatype = "string"
-	} else if stringIn(dataType, "int", "integer") {
+	} else if stringIn(dataType, "char") {
+		starrocksDatatype = "char"
+	} else if stringIn(dataType, "int", "integer", "serial") {
 		starrocksDatatype = "int"
-	} else if dataType == "tinyint(1)" {
+	} else if stringIn(dataType, "tinyint(1)", "boolean") {
 		starrocksDatatype = "boolean"
-	} else if dataType == "smallint" {
+	} else if stringIn(dataType, "smallint", "smallserial") {
 		starrocksDatatype = "smallint"
+	} else if stringIn(dataType, "real") {
+		starrocksDatatype = "float"
 	} else if stringIn(dataType, "numeric", "double precision") {
 		starrocksDatatype = "double"
+	} else if stringIn(dataType, "decimal") {
+		starrocksDatatype = "decimal"
 	} else if stringIn(dataType, "json", "jsonb") {
 		starrocksDatatype = "json"
 	} else if dataType == "uuid" {
