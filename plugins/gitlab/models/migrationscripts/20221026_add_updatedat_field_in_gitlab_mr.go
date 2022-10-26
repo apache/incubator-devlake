@@ -18,17 +18,33 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"time"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addInitTables),
-		new(addGitlabCI),
-		new(addPipelineID),
-		new(addPipelineProjects),
-		new(fixDurationToFloat8),
-		new(addGitlabUpdateAtInGitlabMr),
+type mergeRequest20221026 struct {
+	GitlabUpdatedAt time.Time
+}
+
+func (mergeRequest20221026) TableName() string {
+	return "_tool_gitlab_merge_requests"
+}
+
+type addGitlabUpdateAtInGitlabMr struct{}
+
+func (*addGitlabUpdateAtInGitlabMr) Up(basicRes core.BasicRes) errors.Error {
+	err := basicRes.GetDal().AutoMigrate(&mergeRequest20221026{})
+	if err != nil {
+		return err
 	}
+	return nil
+}
+
+func (*addGitlabUpdateAtInGitlabMr) Version() uint64 {
+	return 20221026145320
+}
+
+func (*addGitlabUpdateAtInGitlabMr) Name() string {
+	return "add column `gitlab_updated_at` at _tool_gitlab_merge_requests"
 }
