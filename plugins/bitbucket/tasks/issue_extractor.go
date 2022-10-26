@@ -68,16 +68,13 @@ var ExtractApiIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-type IssueStatus struct {
-	IssueStatusTODO       []string
-	IssueStatusINPROGRESS []string
-	IssueStatusDONE       []string
-}
-
 func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*BitbucketTaskData)
 	config := data.Options.TransformationRules
 	issueStatusMap, err := newIssueStatusMap(config)
+	if err != nil {
+		return nil
+	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
