@@ -15,8 +15,9 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useRef } from 'react'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+import React, { useEffect, useRef, useContext } from 'react'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import {
   Icon,
   Colors,
@@ -31,6 +32,11 @@ import dayjs from '@/utils/time'
 
 const StageTaskName = (props) => {
   const { task, showDetails = null, onClose = () => {} } = props
+  const {
+    Providers = {},
+    ProviderIcons = {},
+    ProviderLabels = {}
+  } = useContext(IntegrationsContext)
 
   const popoverTriggerRef = useRef()
 
