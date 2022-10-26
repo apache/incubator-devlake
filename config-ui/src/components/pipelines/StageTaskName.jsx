@@ -32,11 +32,8 @@ import dayjs from '@/utils/time'
 
 const StageTaskName = (props) => {
   const { task, showDetails = null, onClose = () => {} } = props
-  const {
-    Providers = {},
-    ProviderIcons = {},
-    ProviderLabels = {}
-  } = useContext(IntegrationsContext)
+  const { Providers, ProviderIcons, ProviderLabels } =
+    useContext(IntegrationsContext)
 
   const popoverTriggerRef = useRef()
 
