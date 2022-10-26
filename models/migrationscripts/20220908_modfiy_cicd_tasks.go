@@ -26,16 +26,16 @@ var _ core.MigrationScript = (*modifyCICDTasks)(nil)
 
 type modifyCICDTasks struct{}
 
-type CICDTask0905 struct {
+type cicdTask0905 struct {
 	Environment string `gorm:"type:varchar(255)"`
 }
 
-func (CICDTask0905) TableName() string {
+func (cicdTask0905) TableName() string {
 	return "cicd_tasks"
 }
 
 func (*modifyCICDTasks) Up(basicRes core.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(&CICDTask0905{})
+	return basicRes.GetDal().AutoMigrate(&cicdTask0905{})
 }
 
 func (*modifyCICDTasks) Version() uint64 {

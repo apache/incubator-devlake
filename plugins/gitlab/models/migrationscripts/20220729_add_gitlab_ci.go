@@ -18,17 +18,20 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/errors"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/core"
+
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
 )
 
-type modifyGitlabCI struct{}
+// Add gitlab job file for GitlabCI
+// Add gitlab_updated_at on gitlab pipeline for GitlabCI
+type addGitlabCI struct{}
 
-type GitlabPipeline20220729 struct {
+type gitlabPipeline20220729 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
 	GitlabId  int    `gorm:"primaryKey"`
@@ -48,11 +51,11 @@ type GitlabPipeline20220729 struct {
 	archived.NoPKModel
 }
 
-func (GitlabPipeline20220729) TableName() string {
+func (gitlabPipeline20220729) TableName() string {
 	return "_tool_gitlab_pipelines"
 }
 
-type GitlabJob20220729 struct {
+type gitlabJob20220729 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
 	GitlabId     int     `gorm:"primaryKey"`
@@ -73,28 +76,27 @@ type GitlabJob20220729 struct {
 	archived.NoPKModel
 }
 
-func (GitlabJob20220729) TableName() string {
+func (gitlabJob20220729) TableName() string {
 	return "_tool_gitlab_jobs"
 }
 
-func (*modifyGitlabCI) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AddColumn(&GitlabPipeline20220729{}, "gitlab_updated_at")
+func (*addGitlabCI) Up(baseRes core.BasicRes) errors.Error {
+	err := migrationhelper.AutoMigrateTables(
+		baseRes,
+		&gitlabJob20220729{},
+		&gitlabPipeline20220729{},
+	)
 	if err != nil {
-		return errors.Convert(err)
-	}
-
-	err = db.Migrator().AutoMigrate(&GitlabJob20220729{})
-	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
 	return nil
 }
 
-func (*modifyGitlabCI) Version() uint64 {
+func (*addGitlabCI) Version() uint64 {
 	return 20220729231236
 }
 
-func (*modifyGitlabCI) Name() string {
+func (*addGitlabCI) Name() string {
 	return "pipeline and job"
 }

@@ -19,9 +19,9 @@ package impl
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/errors"
 
-	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -37,7 +37,7 @@ var _ core.PluginInit = (*Gitlab)(nil)
 var _ core.PluginModel = (*Gitlab)(nil)
 var _ core.PluginTask = (*Gitlab)(nil)
 var _ core.PluginApi = (*Gitlab)(nil)
-var _ core.Migratable = (*Gitlab)(nil)
+var _ core.PluginMigration = (*Gitlab)(nil)
 var _ core.PluginBlueprintV100 = (*Gitlab)(nil)
 var _ core.CloseablePluginTask = (*Gitlab)(nil)
 
@@ -144,7 +144,7 @@ func (plugin Gitlab) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/gitlab"
 }
 
-func (plugin Gitlab) MigrationScripts() []migration.Script {
+func (plugin Gitlab) MigrationScripts() []core.MigrationScript {
 	return migrationscripts.All()
 }
 
