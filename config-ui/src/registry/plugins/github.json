@@ -39,19 +39,19 @@
  },
  "entities": ["CODE", "TICKET", "CROSS"],
  "transformations": {
-  "default": {
-    "prType": "",
-    "prComponent": "",
-    "prBodyClosePattern": "",
-    "issueSeverity": "",
-    "issueComponent": "",
-    "issuePriority": "",
-    "issueTypeRequirement": "",
-    "issueTypeBug": "",
-    "issueTypeIncident": "",
-    "refdiff": null,
-    "productionPattern": "",
-    "deploymentPattern": ""
+    "default": {
+      "prType": "",
+      "prComponent": "",
+      "prBodyClosePattern": "",
+      "issueSeverity": "",
+      "issueComponent": "",
+      "issuePriority": "",
+      "issueTypeRequirement": "",
+      "issueTypeBug": "",
+      "issueTypeIncident": "",
+      "refdiff": null,
+      "productionPattern": "",
+      "deploymentPattern": ""
+    }
   }
- }
 }

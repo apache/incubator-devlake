@@ -39,5 +39,11 @@
       "rateLimitPerHour": "Rate Limit requests per hour,\nEnter a numeric value > 0 to enable."
     }
   },
-  "entities": ["CICD"]
+  "entities": ["CICD"],
+  "transformations": {
+    "default": {
+      "productionPattern": "",
+      "deploymentPattern": ""
+    }
+  }
 }
