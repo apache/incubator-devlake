@@ -173,11 +173,11 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTmpTable string, tab
 	firstcmName := ""
 	for _, cm := range columeMetas {
 		name := cm.Name()
-		starrocksDatatype, ok := cm.ColumnType()
+		columnDatatype, ok := cm.ColumnType()
 		if !ok {
 			return columnMap, "", errors.Default.New(fmt.Sprintf("Get [%s] ColumeType Failed", name))
 		}
-		dataType := getDataType(starrocksDatatype)
+		dataType := getStarRocksDataType(columnDatatype)
 		columnMap[name] = dataType
 		column := fmt.Sprintf("`%s` %s", name, dataType)
 		columns = append(columns, column)

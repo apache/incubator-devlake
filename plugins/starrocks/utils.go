@@ -71,6 +71,7 @@ func getTablesByDomainLayer(domainLayer string) []string {
 	}
 	return nil
 }
+
 func hasPrefixes(s string, prefixes ...string) bool {
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(s, prefix) {
@@ -79,6 +80,7 @@ func hasPrefixes(s string, prefixes ...string) bool {
 	}
 	return false
 }
+
 func stringIn(s string, l ...string) bool {
 	for _, item := range l {
 		if s == item {
@@ -87,24 +89,36 @@ func stringIn(s string, l ...string) bool {
 	}
 	return false
 }
-func getDataType(dataType string) string {
+
+func getStarRocksDataType(dataType string) string {
+	dataType = strings.ToLower(dataType)
 	starrocksDatatype := "string"
 	if hasPrefixes(dataType, "datetime", "timestamp") {
 		starrocksDatatype = "datetime"
-	} else if strings.HasPrefix(dataType, "bigint") {
+	} else if stringIn(dataType, "date") {
+		starrocksDatatype = "date"
+	} else if strings.HasPrefix(dataType, "bigint") || stringIn(dataType, "bigserial") {
 		starrocksDatatype = "bigint"
-	} else if stringIn(dataType, "longtext", "text", "longblob") {
-		starrocksDatatype = "string"
-	} else if dataType == "tinyint(1)" {
+	} else if stringIn(dataType, "char") {
+		starrocksDatatype = "char"
+	} else if stringIn(dataType, "int", "integer", "serial") {
+		starrocksDatatype = "int"
+	} else if stringIn(dataType, "tinyint(1)", "boolean") {
 		starrocksDatatype = "boolean"
+	} else if stringIn(dataType, "smallint", "smallserial") {
+		starrocksDatatype = "smallint"
+	} else if stringIn(dataType, "real") {
+		starrocksDatatype = "float"
 	} else if stringIn(dataType, "numeric", "double precision") {
 		starrocksDatatype = "double"
+	} else if stringIn(dataType, "decimal") {
+		starrocksDatatype = "decimal"
 	} else if stringIn(dataType, "json", "jsonb") {
 		starrocksDatatype = "json"
 	} else if dataType == "uuid" {
 		starrocksDatatype = "char(36)"
 	} else if strings.HasSuffix(dataType, "[]") {
-		starrocksDatatype = fmt.Sprintf("array<%s>", getDataType(strings.Split(dataType, "[]")[0]))
+		starrocksDatatype = fmt.Sprintf("array<%s>", getStarRocksDataType(strings.Split(dataType, "[]")[0]))
 	}
 	return starrocksDatatype
 }
