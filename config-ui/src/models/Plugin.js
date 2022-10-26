@@ -27,6 +27,7 @@ import DataEntity from './DataEntity'
  * @property {bool} isBeta
  * @property {bool} isProvider
  * @property {bool} multiConnection
+ * @property {bool} private
  * @property {object?} icon
  * @property {object?} connection
  * @property {object?} settings
@@ -43,6 +44,7 @@ class Plugin {
     this.isBeta = data?.isBeta || false
     this.isProvider = data?.isProvider || false
     this.multiConnection = data?.multiConnection || false
+    this.private = data?.private || false
     this.icon = data?.icon || null
     this.connection = data?.connection || null
     this.connectionLimit = data?.connectionLimit || 0

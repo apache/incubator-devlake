@@ -17,6 +17,7 @@
  */
 import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
+import { Colors, Icon } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
@@ -88,7 +89,31 @@ export default function Integration() {
                   className='iProvider'
                   key={`provider-${provider.id}`}
                   onClick={() => handleProviderClick(provider.id)}
+                  style={{ position: 'relative' }}
                 >
+                  {provider?.private && (
+                    <span
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        position: 'absolute',
+                        top: '-5px',
+                        right: '-5px',
+                        textAlign: 'center',
+                        lineHeight: '16px',
+                        backgroundColor: '#fff',
+                        display: 'block',
+                        borderRadius: '50%',
+                        border: '1px solid #eee'
+                      }}
+                    >
+                      <Icon
+                        icon='lock'
+                        size={10}
+                        style={{ color: Colors.RED5 }}
+                      />
+                    </span>
+                  )}
                   <div className='providerIcon'>
                     <img
                       className='providerIconSvg'
