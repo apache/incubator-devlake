@@ -71,6 +71,7 @@ func getTablesByDomainLayer(domainLayer string) []string {
 	}
 	return nil
 }
+
 func hasPrefixes(s string, prefixes ...string) bool {
 	for _, prefix := range prefixes {
 		if strings.HasPrefix(s, prefix) {
@@ -79,6 +80,7 @@ func hasPrefixes(s string, prefixes ...string) bool {
 	}
 	return false
 }
+
 func stringIn(s string, l ...string) bool {
 	for _, item := range l {
 		if s == item {
@@ -87,7 +89,8 @@ func stringIn(s string, l ...string) bool {
 	}
 	return false
 }
-func getDataType(dataType string) string {
+
+func getStarRocksDataType(dataType string) string {
 	starrocksDatatype := "string"
 	if hasPrefixes(dataType, "datetime", "timestamp") {
 		starrocksDatatype = "datetime"
@@ -95,8 +98,12 @@ func getDataType(dataType string) string {
 		starrocksDatatype = "bigint"
 	} else if stringIn(dataType, "longtext", "text", "longblob") {
 		starrocksDatatype = "string"
+	} else if stringIn(dataType, "int", "integer") {
+		starrocksDatatype = "int"
 	} else if dataType == "tinyint(1)" {
 		starrocksDatatype = "boolean"
+	} else if dataType == "smallint" {
+		starrocksDatatype = "smallint"
 	} else if stringIn(dataType, "numeric", "double precision") {
 		starrocksDatatype = "double"
 	} else if stringIn(dataType, "json", "jsonb") {
@@ -104,7 +111,7 @@ func getDataType(dataType string) string {
 	} else if dataType == "uuid" {
 		starrocksDatatype = "char(36)"
 	} else if strings.HasSuffix(dataType, "[]") {
-		starrocksDatatype = fmt.Sprintf("array<%s>", getDataType(strings.Split(dataType, "[]")[0]))
+		starrocksDatatype = fmt.Sprintf("array<%s>", getStarRocksDataType(strings.Split(dataType, "[]")[0]))
 	}
 	return starrocksDatatype
 }
