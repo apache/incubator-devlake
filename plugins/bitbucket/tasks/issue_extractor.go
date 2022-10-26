@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -67,9 +68,16 @@ var ExtractApiIssuesMeta = core.SubTaskMeta{
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
+type IssueStatus struct {
+	IssueStatusTODO       []string
+	IssueStatusINPROGRESS []string
+	IssueStatusDONE       []string
+}
+
 func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*BitbucketTaskData)
-
+	config := data.Options.TransformationRules
+	issueStatusMap, err := newIssueStatusMap(config)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -127,6 +135,9 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 				}
 				results = append(results, relatedUser)
 			}
+			if status, ok := issueStatusMap[bitbucketIssue.State]; ok {
+				bitbucketIssue.State = status
+			}
 			return results, nil
 		},
 	})
@@ -167,4 +178,18 @@ func convertBitbucketIssue(issue *IssuesResponse, connectionId uint64, repositor
 	}
 
 	return bitbucketIssue, nil
+}
+
+func newIssueStatusMap(config models.TransformationRules) (map[string]string, errors.Error) {
+	issueStatusMap := make(map[string]string, 3)
+	for _, state := range config.IssueStatusTODO {
+		issueStatusMap[state] = ticket.TODO
+	}
+	for _, state := range config.IssueStatusINPROGRESS {
+		issueStatusMap[state] = ticket.IN_PROGRESS
+	}
+	for _, state := range config.IssueStatusDONE {
+		issueStatusMap[state] = ticket.DONE
+	}
+	return issueStatusMap, nil
 }
