@@ -71,16 +71,20 @@ class Plugin {
     return this.connection?.authentication || 'plain'
   }
 
+  getConnectionFields() {
+    return this.connection ? this.connection?.fields : {}
+  }
+
   getConnectionFormLabels() {
-    return this.connection ? this.connection?.labels : []
+    return this.connection ? this.connection?.labels : {}
   }
 
   getConnectionFormPlaceholders() {
-    return this.connection ? this.connection?.placeholders : []
+    return this.connection ? this.connection?.placeholders : {}
   }
 
   getConnectionFormTooltips() {
-    return this.connection ? this.connection?.tooltips : []
+    return this.connection ? this.connection?.tooltips : {}
   }
 
   getDefaultTransformations() {
