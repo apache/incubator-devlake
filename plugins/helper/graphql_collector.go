@@ -65,12 +65,12 @@ type GraphqlCollectorArgs struct {
 	Input Iterator
 	// how many times fetched from input, default 1 means only fetch once
 	// NOTICE: InputStep=1 will fill value as item and InputStep>1 will fill value as []item
-	InputStep      int
+	InputStep int
 	// GetPageInfo is to tell `GraphqlCollector` is page information
-	GetPageInfo    func(query interface{}, args *GraphqlCollectorArgs) (*GraphqlQueryPageInfo, error)
-	BatchSize      int
+	GetPageInfo func(query interface{}, args *GraphqlCollectorArgs) (*GraphqlQueryPageInfo, error)
+	BatchSize   int
 	// one of ResponseParser and ResponseParserEvenWhenDataErrors is required to parse response
-	ResponseParser func(query interface{}, variables map[string]interface{}) ([]interface{}, error)
+	ResponseParser               func(query interface{}, variables map[string]interface{}) ([]interface{}, error)
 	ResponseParserWithDataErrors func(query interface{}, variables map[string]interface{}, dataErrors []graphql.DataError) ([]interface{}, error)
 }
 
@@ -145,15 +145,18 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 	if collector.args.Input != nil {
 		iterator := collector.args.Input
 		defer iterator.Close()
-		for iterator.HasNext() && !collector.HasError() {
-			if collector.args.InputStep == 1 {
+		// the comment about difference is written at GraphqlCollectorArgs.InputStep
+		if collector.args.InputStep == 1 {
+			for iterator.HasNext() && !collector.HasError() {
 				input, err := iterator.Fetch()
 				if err != nil {
 					collector.checkError(err)
 					break
 				}
 				collector.exec(divider, input)
-			} else {
+			}
+		} else {
+			for !collector.HasError() {
 				var inputs []interface{}
 				for i := 0; i < collector.args.InputStep && iterator.HasNext(); i++ {
 					input, err := iterator.Fetch()
@@ -162,6 +165,9 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 						break
 					}
 					inputs = append(inputs, input)
+				}
+				if inputs == nil {
+					break
 				}
 				collector.exec(divider, inputs)
 			}
