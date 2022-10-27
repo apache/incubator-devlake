@@ -212,7 +212,8 @@ export default function AddConnection() {
                     [
                       Providers.JENKINS,
                       Providers.JIRA,
-                      Providers.TAPD
+                      Providers.TAPD,
+                      Providers.BITBUCKET
                     ].includes(activeProvider.id)
                       ? 'plain'
                       : 'token'

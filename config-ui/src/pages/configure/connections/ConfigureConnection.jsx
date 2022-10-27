@@ -341,7 +341,8 @@ export default function ConfigureConnection() {
                             [
                               Providers.JENKINS,
                               Providers.JIRA,
-                              Providers.TAPD
+                              Providers.TAPD,
+                              Providers.BITBUCKET
                             ].includes(activeProvider.id)
                               ? 'plain'
                               : 'token'

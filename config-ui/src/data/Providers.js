@@ -238,7 +238,7 @@ const ProviderFormLabels = {
     proxy: 'Proxy URL',
     token: 'Basic Auth Token',
     username: 'Username',
-    password: 'Password',
+    password: 'App Password',
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>

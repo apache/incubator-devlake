@@ -86,6 +86,16 @@ const getDefaultTransformations = (provider) => {
         // testingPattern: ''
       }
       break
+    case Providers.BITBUCKET:
+      transforms = {
+        IssueStatusTODO: ['new', 'open'],
+        IssueStatusINPROGRESS: [],
+        IssueStatusDONE: ['resolved', 'closed'],
+        IssueStatusOTHER: ['on hold', 'wontfix', 'duplicate', 'invalid'],
+        refdiff: null,
+        productionPattern: '',
+        deploymentPattern: ''
+      }
   }
   return transforms
 }
@@ -104,6 +114,7 @@ const useTransformationsManager = () => {
       case Providers.GITHUB:
       case Providers.GITLAB:
       case Providers.JENKINS:
+      case Providers.BITBUCKET:
         key = projectNameOrBoard?.id
         break
       case Providers.JIRA:

@@ -31,6 +31,7 @@ import DataEntitiesSelector from '@/components/blueprints/DataEntitiesSelector'
 import NoData from '@/components/NoData'
 import GitlabProjectsSelector from '@/components/blueprints/GitlabProjectsSelector'
 import GitHubProject from '@/models/GithubProject'
+import BitBucketProject from '@/models/BitBucketProject'
 import JenkinsJobsSelector from '@/components/blueprints/JenkinsJobsSelector'
 
 const DataScopes = (props) => {
@@ -133,7 +134,7 @@ const DataScopes = (props) => {
                   </h3>
                   <Divider className='section-divider' />
 
-                  {[Providers.GITHUB].includes(
+                  {[Providers.GITHUB, Providers.BITBUCKET].includes(
                     configuredConnection.provider
                   ) && (
                     <>
@@ -153,16 +154,28 @@ const DataScopes = (props) => {
                           setProjects((p) => ({
                             ...p,
                             [configuredConnection.id]: [
-                              ...values.map(
-                                (v, vIdx) =>
-                                  new GitHubProject({
-                                    id: v,
-                                    key: v,
-                                    title: v,
-                                    value: v,
-                                    type: 'string'
-                                  })
-                              )
+                              ...values.map((v, vIdx) => {
+                                switch (configuredConnection.provider) {
+                                  case Providers.GITHUB:
+                                    return new GitHubProject({
+                                      id: v,
+                                      key: v,
+                                      title: v,
+                                      value: v,
+                                      type: 'string'
+                                    })
+                                  case Providers.BITBUCKET:
+                                    return new BitBucketProject({
+                                      id: v,
+                                      key: v,
+                                      title: v,
+                                      value: v,
+                                      type: 'string'
+                                    })
+                                  default:
+                                    return {}
+                                }
+                              })
                             ]
                           }))
                         }

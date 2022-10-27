@@ -23,6 +23,7 @@ import TransformationSettings from '@/models/TransformationSettings'
 import JiraBoard from '@/models/JiraBoard'
 import GitHubProject from '@/models/GithubProject'
 import GitlabProject from '@/models/GitlabProject'
+import BitBucketProject from '@/models/BitBucketProject'
 import { ProviderIcons, ProviderLabels, Providers } from '@/data/Providers'
 import { DataScopeModes } from '@/data/DataScopes'
 import JenkinsJob from '@/models/JenkinsJob'
@@ -166,6 +167,18 @@ function useDataScopesManager({
             // transformation: {},
           }
           break
+        case Providers.BITBUCKET:
+          newScope = projects[connection.id]?.map((p) => ({
+            ...newScope,
+            options: {
+              owner: p.value.split('/')[0],
+              repo: p.value.split('/')[1]
+            },
+            transformation: {
+              ...getTransformation(connection?.providerId, connection?.id, p)
+            }
+          }))
+          break
       }
       return Array.isArray(newScope) ? newScope.flat() : [newScope]
     },
@@ -269,6 +282,19 @@ function useDataScopesManager({
     []
   )
 
+  const getBitBucketProjects = (c) =>
+    c.scope.map(
+      (s) =>
+        new BitBucketProject({
+          id: `${s.options?.owner}/${s.options?.repo}`,
+          key: `${s.options?.owner}/${s.options?.repo}`,
+          owner: s.options?.owner,
+          repo: s.options?.repo,
+          value: `${s.options?.owner}/${s.options?.repo}`,
+          title: `${s.options?.owner}/${s.options?.repo}`
+        })
+    )
+
   const getProjects = useCallback(
     (c) => {
       switch (c.plugin) {
@@ -278,6 +304,8 @@ function useDataScopesManager({
           return getGitlabProjects(c)
         case Providers.JENKINS:
           return getJenkinsProjects(c)
+        case Providers.BITBUCKET:
+          return getBitBucketProjects(c)
         default:
           return []
       }
@@ -368,6 +396,7 @@ function useDataScopesManager({
     switch (providerId) {
       case Providers.GITHUB:
       case Providers.GITLAB:
+      case Providers.BITBUCKET:
         entities = DEFAULT_DATA_ENTITIES
         break
       case Providers.JIRA:
@@ -572,6 +601,7 @@ function useDataScopesManager({
       case Providers.GITHUB:
       case Providers.GITLAB:
       case Providers.JENKINS:
+      case Providers.BITBUCKET:
         setProjects((p) => ({
           ...p,
           [connection?.id]: connection?.projects || []

@@ -552,21 +552,6 @@ const CreateBlueprint = (props) => {
     saveBlueprint()
   }, [saveBlueprint])
 
-  const getRestrictedDataEntities = useCallback(() => {
-    let items = []
-    switch (configuredConnection.provider) {
-      case Providers.GITLAB:
-      case Providers.JIRA:
-      case Providers.GITHUB:
-        items = dataEntitiesList.filter((d) => d.name !== 'ci-cd')
-        break
-      case Providers.JENKINS:
-        items = dataEntitiesList.filter((d) => d.name === 'ci-cd')
-        break
-    }
-    return items
-  }, [dataEntitiesList, configuredConnection])
-
   const manageConnection = useCallback(
     (connection) => {
       console.log('>> MANAGE CONNECTION...', connection)

@@ -60,12 +60,13 @@ const StageTaskName = (props) => {
         >
           <strong>Task ID {task.id}</strong>{' '}
           {ProviderLabels[task?.plugin?.toUpperCase()]}{' '}
-          {task.plugin === Providers.GITHUB &&
-            task.plugin !== Providers.JENKINS && (
-              <>
-                @{task.options.owner}/{task.options.repo}
-              </>
-            )}
+          {[Providers.GITHUB, Providers.JENKINS, Providers.BITBUCKET].includes(
+            task.plugin
+          ) && (
+            <>
+              @{task.options.owner}/{task.options.repo}
+            </>
+          )}
           {task.plugin === Providers.JIRA && (
             <>Board ID {task.options.boardId}</>
           )}

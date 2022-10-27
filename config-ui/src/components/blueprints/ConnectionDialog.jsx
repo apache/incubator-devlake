@@ -332,9 +332,11 @@ const ConnectionDialog = (props) => {
                     errors={errors}
                     showError={showConnectionError}
                     authType={
-                      [Providers.JENKINS, Providers.JIRA].includes(
-                        activeProvider?.id
-                      )
+                      [
+                        Providers.JENKINS,
+                        Providers.JIRA,
+                        Providers.BITBUCKET
+                      ].includes(activeProvider?.id)
                         ? 'plain'
                         : 'token'
                     }

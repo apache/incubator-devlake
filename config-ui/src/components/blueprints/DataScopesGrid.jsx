@@ -143,9 +143,11 @@ const DataScopesGrid = (props) => {
                 whiteSpace: 'nowrap'
               }}
             >
-              {[Providers.GITLAB, Providers.GITHUB].includes(
-                c.provider?.id
-              ) && (
+              {[
+                Providers.GITLAB,
+                Providers.GITHUB,
+                Providers.BITBUCKET
+              ].includes(c.provider?.id) && (
                 <ul
                   style={{
                     listStyle: 'none',
