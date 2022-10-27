@@ -177,11 +177,12 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 		err = errors.Default.Combine(collector.workerErrors)
 		logger.Error(err, "ended Graphql collector execution with error")
 		logger.Error(collector.workerErrors[0], "the first error of them")
+		return err
 	} else {
 		logger.Info("ended api collection without error")
 	}
-	err = divider.Close()
 
+	err = divider.Close()
 	return err
 }
 

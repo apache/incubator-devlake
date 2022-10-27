@@ -128,7 +128,7 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 	)
 	httpClient := oauth2.NewClient(taskCtx.GetContext(), src)
 	client := graphql.NewClient(connection.Endpoint+`graphql`, httpClient)
-	graphqlClient := helper.CreateAsyncGraphqlClient(taskCtx.GetContext(), client, taskCtx.GetLogger(),
+	graphqlClient, err := helper.CreateAsyncGraphqlClient(taskCtx, client, taskCtx.GetLogger(),
 		func(ctx context.Context, client *graphql.Client, logger core.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error) {
 			var query GraphQueryRateLimit
 			err = errors.Convert(client.Query(taskCtx.GetContext(), &query, nil))
@@ -139,6 +139,9 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 				query.RateLimit.Remaining, query.RateLimit.Limit, query.RateLimit.ResetAt)
 			return int(query.RateLimit.Remaining), &query.RateLimit.ResetAt, nil
 		})
+	if err != nil {
+		return nil, err
+	}
 
 	graphqlClient.SetGetRateCost(func(q interface{}) int {
 		v := reflect.ValueOf(q)
