@@ -23,7 +23,8 @@ import { isEqual } from 'lodash'
 
 // manage transformations in one place
 const useTransformationsManager = () => {
-  const { Providers, ProviderTransformations } = useContext(IntegrationsContext)
+  const { Providers, ProviderTransformations, Integrations } =
+    useContext(IntegrationsContext)
   const [transformations, setTransformations] = useState({})
 
   const getDefaultTransformations = useCallback(
@@ -191,6 +192,27 @@ const useTransformationsManager = () => {
     [transformations, generateKey]
   )
 
+  // get provider's specific scope options
+  // @todo: refactor "projectNameOrBoard" to "entity" in all areas
+  const getTransformationScopeOptions = useCallback(
+    (connectionProvider, projectNameOrBoard) => {
+      const key = generateKey(connectionProvider, projectNameOrBoard)
+      const plugin = Integrations.find((p) => p.id === connectionProvider)
+      console.log('>>>> INTEGRATIONS??', plugin)
+      console.debug(
+        '>> useTransformationsManager.getScopeOptions...',
+
+        connectionProvider,
+        projectNameOrBoard
+      )
+      return plugin &&
+        typeof plugin?.getDefaultTransformationScopeOptions === 'function'
+        ? plugin.getDefaultTransformationScopeOptions(projectNameOrBoard)
+        : {}
+    },
+    [Integrations, generateKey]
+  )
+
   // clear connection's transformation
   const clearTransformationSettings = useCallback(
     (connectionProvider, connectionId, projectNameOrBoard) => {
@@ -236,6 +258,7 @@ const useTransformationsManager = () => {
 
   return {
     getTransformation,
+    getTransformationScopeOptions,
     changeTransformationSettings,
     initializeDefaultTransformation,
     clearTransformationSettings,

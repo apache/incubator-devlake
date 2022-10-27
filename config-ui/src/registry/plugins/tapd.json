@@ -40,6 +40,10 @@
   },
   "entities": ["CODE", "TICKET"],
   "transformations": {
+    "scopes": {
+      "options": {
+      }
+    },
     "default": {
       "issueTypeRequirement": "",
       "issueTypeBug": "",

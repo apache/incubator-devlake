@@ -63,6 +63,13 @@ class GitHubProject {
   getConfiguredEntityId() {
     return this.name.toString() || this.id
   }
+
+  getTransformationScopeOptions() {
+    return {
+      owner: this.owner,
+      repo: this.repo
+    }
+  }
 }
 
 export default GitHubProject

@@ -44,6 +44,12 @@
  },
  "entities": ["CODE", "TICKET", "CROSS"],
  "transformations": {
+    "scopes": {
+      "options": {
+        "boardId": null,
+        "title": null
+      }
+    },
     "default": {
       "epicKeyField": "",
       "typeMappings": {},

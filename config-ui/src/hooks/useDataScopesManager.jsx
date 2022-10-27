@@ -67,6 +67,7 @@ function useDataScopesManager({
   const [entities, setEntities] = useState({})
   const {
     getTransformation,
+    getTransformationScopeOptions,
     changeTransformationSettings,
     initializeDefaultTransformation,
     clearTransformationSettings,
@@ -102,7 +103,6 @@ function useDataScopesManager({
     ]
   )
 
-  // @todo: generate scopes dynamically from $integrationsData (in future Integrations Hook [plugin registry])
   const createProviderScopes = useCallback(
     (
       providerId,
@@ -122,68 +122,88 @@ function useDataScopesManager({
         ...defaultScope,
         entities: entities[connection.id]?.map((entity) => entity.value) || []
       }
-      switch (providerId) {
-        case Providers.JIRA:
-          newScope = boards[connection.id]?.map((b) => ({
-            ...newScope,
-            options: {
-              boardId: Number(b?.value),
-              title: b.title
-              // @todo: verify initial value of since date for jira provider
-              // since: new Date(),
-            },
-            transformation: {
-              ...getTransformation(connection?.providerId, connection?.id, b)
-            }
-          }))
-          break
-        case Providers.GITLAB:
-          newScope = projects[connection.id]?.map((p) => ({
-            ...newScope,
-            options: {
-              projectId: Number(p.value),
-              title: p.title
-            },
-            transformation: {
-              ...getTransformation(connection?.providerId, connection?.id, p)
-            }
-          }))
-          break
-        case Providers.JENKINS:
-          newScope = projects[connection.id]?.map((p) => ({
-            ...newScope,
-            options: {
-              jobName: p.value
-            },
-            transformation: {
-              ...getTransformation(connection?.providerId, connection?.id, p)
-            }
-          }))
-          break
-        case Providers.GITHUB:
-          newScope = projects[connection.id]?.map((p) => ({
-            ...newScope,
-            options: {
-              owner: p.value.split('/')[0],
-              repo: p.value.split('/')[1]
-            },
-            transformation: {
-              ...getTransformation(connection?.providerId, connection?.id, p)
-            }
-          }))
-          break
-        case Providers.TAPD:
-          newScope = {
-            ...newScope
-            // options: {
-            // },
-            // transformation: {},
-          }
-          break
-      }
+      // Generate scopes Dynamically for all Project/Board/Job/... Entities
+      // @todo: refactor again when boards & projects get merged...
+      newScope = [
+        ...(Array.isArray(boards[connection.id]) ? boards[connection.id] : []),
+        ...(Array.isArray(projects[connection.id])
+          ? projects[connection.id]
+          : [])
+      ].map((e) => ({
+        ...newScope,
+        options: {
+          ...getTransformationScopeOptions(connection?.providerId, e)
+        },
+        transformation: {
+          ...getTransformation(connection?.providerId, connection?.id, e)
+        }
+      }))
+      // switch (providerId) {
+      //   case Providers.JIRA:
+      //     newScope = boards[connection.id]?.map((b) => ({
+      //       ...newScope,
+      //       options: {
+      //         boardId: Number(b?.value),
+      //         title: b.title
+      //         // @todo: verify initial value of since date for jira provider
+      //         // since: new Date(),
+      //       },
+      //       transformation: {
+      //         ...getTransformation(connection?.providerId, connection?.id, b)
+      //       }
+      //     }))
+      //     break
+      //   case Providers.GITLAB:
+      //     newScope = projects[connection.id]?.map((p) => ({
+      //       ...newScope,
+      //       options: {
+      //         projectId: Number(p.value),
+      //         title: p.title
+      //       },
+      //       transformation: {
+      //         ...getTransformation(connection?.providerId, connection?.id, p)
+      //       }
+      //     }))
+      //     break
+      //   case Providers.JENKINS:
+      //     newScope = projects[connection.id]?.map((p) => ({
+      //       ...newScope,
+      //       options: {
+      //         jobName: p.value
+      //       },
+      //       transformation: {
+      //         ...getTransformation(connection?.providerId, connection?.id, p)
+      //       }
+      //     }))
+      //     break
+      //   case Providers.GITHUB:
+      //     newScope = projects[connection.id]?.map((p) => ({
+      //       ...newScope,
+      //       options: {
+      //         owner: p.value.split('/')[0],
+      //         repo: p.value.split('/')[1]
+      //       },
+      //       transformation: {
+      //         ...getTransformation(connection?.providerId, connection?.id, p)
+      //       }
+      //     }))
+      //     break
+      //   case Providers.TAPD:
+      //     newScope = {
+      //       ...newScope
+      //       // options: {
+      //       // },
+      //       // transformation: {},
+      //     }
+      //     break
+      // }
       return Array.isArray(newScope) ? newScope.flat() : [newScope]
     },
-    [getTransformation, Providers]
+    [
+      getTransformation,
+      getTransformationScopeOptions
+      // Providers
+    ]
   )
 
   const createProviderConnections = useCallback(

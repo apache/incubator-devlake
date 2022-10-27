@@ -38,6 +38,12 @@
   },
   "entities": ["CODE", "TICKET", "CROSS", "CICD"],
   "transformations": {
+    "scopes": {
+      "options": {
+        "projectId": null,
+        "title": null
+      }
+    },
     "default": {
       "productionPattern": "",
       "deploymentPattern": ""

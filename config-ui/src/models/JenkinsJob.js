@@ -53,6 +53,12 @@ class JenkinsJob {
   getConfiguredEntityId() {
     return this.name.toString() || this.id
   }
+
+  getTransformationScopeOptions() {
+    return {
+      jobName: this.value
+    }
+  }
 }
 
 export default JenkinsJob

@@ -72,6 +72,13 @@ class JiraBoard {
   getConfiguredEntityId() {
     return this.id
   }
+
+  getTransformationScopeOptions() {
+    return {
+      boardId: this.id,
+      title: this.title
+    }
+  }
 }
 
 export default JiraBoard

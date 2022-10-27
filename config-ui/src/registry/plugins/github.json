@@ -39,6 +39,12 @@
  },
  "entities": ["CODE", "TICKET", "CROSS"],
  "transformations": {
+    "scopes": {
+      "options": {
+        "owner": null,
+        "repo": null
+      }
+    },
     "default": {
       "prType": "",
       "prComponent": "",

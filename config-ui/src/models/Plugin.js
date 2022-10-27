@@ -52,7 +52,10 @@ class Plugin {
     this.entities = data?.entities?.map((e) => new DataEntity({ type: e })) || [
       new DataEntity({ type: 'CODE' })
     ]
-    this.transformations = data?.transformations || { default: {} }
+    this.transformations = data?.transformations || {
+      scopes: { options: {} },
+      default: {}
+    }
   }
 
   get(property) {
@@ -82,6 +85,16 @@ class Plugin {
 
   getDefaultTransformations() {
     return this.transformations?.default || {}
+  }
+
+  getDefaultTransformationScopeOptions(entity) {
+    const scopeOptions = {
+      ...(this.transformations?.scopes?.options || {}),
+      ...(entity && typeof entity.getTransformationScopeOptions === 'function'
+        ? entity.getTransformationScopeOptions()
+        : {})
+    }
+    return scopeOptions
   }
 }
 

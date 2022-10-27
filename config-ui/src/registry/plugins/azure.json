@@ -41,6 +41,10 @@
   },
   "entities": ["CICD"],
   "transformations": {
+    "scopes": {
+      "options": {
+      }
+    },
     "default": {
       "productionPattern": "",
       "deploymentPattern": ""
