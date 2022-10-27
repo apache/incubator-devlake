@@ -66,11 +66,12 @@ type GraphqlCollectorArgs struct {
 	// how many times fetched from input, default 1 means only fetch once
 	// NOTICE: InputStep=1 will fill value as item and InputStep>1 will fill value as []item
 	InputStep      int
-	IgnoreQueryErr bool
 	// GetPageInfo is to tell `GraphqlCollector` is page information
 	GetPageInfo    func(query interface{}, args *GraphqlCollectorArgs) (*GraphqlQueryPageInfo, error)
 	BatchSize      int
+	// one of ResponseParser and ResponseParserEvenWhenDataErrors is required to parse response
 	ResponseParser func(query interface{}, variables map[string]interface{}) ([]interface{}, error)
+	ResponseParserWithDataErrors func(query interface{}, variables map[string]interface{}, dataErrors []graphql.DataError) ([]interface{}, error)
 }
 
 // GraphqlCollector help you collect data from Graphql services
@@ -95,8 +96,8 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, errors.E
 	if args.GraphqlClient == nil {
 		return nil, errors.Default.New("ApiClient is required")
 	}
-	if args.ResponseParser == nil {
-		return nil, errors.Default.New("ResponseParser is required")
+	if args.ResponseParser == nil && args.ResponseParserWithDataErrors == nil {
+		return nil, errors.Default.New("one of ResponseParser and ResponseParserWithDataErrors is required")
 	}
 	apicllector := &GraphqlCollector{
 		RawDataSubTask: rawDataSubTask,
@@ -245,24 +246,30 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	}
 	query, variables, err := collector.args.BuildQuery(reqData)
 	if err != nil {
-		panic(err)
+		collector.checkError(errors.Default.Wrap(err, `graphql collector BuildQuery failed`))
+		return
 	}
 
 	logger := collector.args.Ctx.GetLogger()
-	err = collector.args.GraphqlClient.Query(query, variables)
+	dataErrors, err := collector.args.GraphqlClient.Query(query, variables)
 	if err != nil {
-		if collector.args.IgnoreQueryErr {
-			logger.Error(err, `graphql query failed`)
+		collector.checkError(errors.Default.Wrap(err, `graphql query failed`))
+		return
+	}
+	if dataErrors != nil && len(dataErrors) > 0 {
+		if collector.args.ResponseParserWithDataErrors == nil {
+			collector.checkError(errors.Default.Wrap(err, `graphql query got error`))
 			return
 		} else {
-			collector.checkError(errors.Default.Wrap(err, `graphql query failed`))
+			// error will deal by ResponseParserWithDataErrors
 		}
 	}
 	defer logger.Debug("fetchAsync >>> done for %v %v", query, variables)
 
 	paramsBytes, err := json.Marshal(query)
 	if err != nil {
-		panic(err)
+		collector.checkError(errors.Default.Wrap(err, `graphql collector marshal query failed`))
+		return
 	}
 	db := collector.args.Ctx.GetDal()
 	queryStr, _ := graphql.ConstructQuery(query, variables)
@@ -283,7 +290,14 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 		return
 	}
 
-	results, err := collector.args.ResponseParser(query, variables)
+	var (
+		results []interface{}
+	)
+	if dataErrors != nil && len(dataErrors) > 0 || collector.args.ResponseParser == nil {
+		results, err = collector.args.ResponseParserWithDataErrors(query, variables, dataErrors)
+	} else {
+		results, err = collector.args.ResponseParser(query, variables)
+	}
 	if err != nil {
 		collector.checkError(errors.Default.Wrap(err, `not parsed response in graphql collector`))
 		return

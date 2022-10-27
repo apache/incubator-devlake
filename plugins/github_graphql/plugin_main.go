@@ -72,7 +72,7 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 		githubTasks.ExtractApiPrReviewCommentsMeta,
 
 		tasks.CollectAccountMeta,
-
+		
 		githubTasks.ConvertJobsMeta,
 		githubTasks.EnrichPullRequestIssuesMeta,
 		githubTasks.ConvertRepoMeta,
@@ -131,9 +131,12 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 	graphqlClient, err := helper.CreateAsyncGraphqlClient(taskCtx, client, taskCtx.GetLogger(),
 		func(ctx context.Context, client *graphql.Client, logger core.Logger) (rateRemaining int, resetAt *time.Time, err errors.Error) {
 			var query GraphQueryRateLimit
-			err = errors.Convert(client.Query(taskCtx.GetContext(), &query, nil))
+			dataErrors, err := errors.Convert01(client.Query(taskCtx.GetContext(), &query, nil))
 			if err != nil {
 				return 0, nil, err
+			}
+			if dataErrors != nil && len(dataErrors) > 0 {
+				return 0, nil, errors.Default.Wrap(dataErrors[0], `query rate limit fail`)
 			}
 			logger.Info(`github graphql init success with remaining %d/%d and will reset at %s`,
 				query.RateLimit.Remaining, query.RateLimit.Limit, query.RateLimit.ResetAt)

@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/utils"
@@ -138,7 +138,9 @@ func (apiClient *GraphqlAsyncClient) SetGetRateCost(getRateCost func(q interface
 }
 
 // Query send a graphql request when get lock
-func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]interface{}) errors.Error {
+// []graphql.DataError are the errors returned in response body
+// errors.Error is other error
+func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]interface{}) ([]graphql.DataError, errors.Error) {
 	apiClient.waitGroup.Add(1)
 	defer apiClient.waitGroup.Done()
 	apiClient.mu.Lock()
@@ -157,14 +159,18 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 	for retryTime < apiClient.maxRetry {
 		select {
 		case <-apiClient.ctx.Done():
-			return nil
+			return nil, nil
 		default:
-			err = apiClient.client.Query(apiClient.ctx, q, variables)
+			var dataErrors []graphql.DataError
+			dataErrors, err := apiClient.client.Query(apiClient.ctx, q, variables)
 			if err != nil {
 				apiClient.logger.Warn(err, "retry #%d graphql calling after %ds", retryTime, apiClient.waitBeforeRetry/time.Second)
 				retryTime++
 				<-time.After(apiClient.waitBeforeRetry)
 				continue
+			}
+			if dataErrors != nil {
+				return dataErrors, nil
 			}
 			cost := 1
 			if apiClient.getRateCost != nil {
@@ -172,10 +178,10 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 			}
 			apiClient.rateRemaining -= cost
 			apiClient.logger.Debug(`query cost %d in %v`, cost, variables)
-			return nil
+			return nil, nil
 		}
 	}
-	return errors.Default.Wrap(err, fmt.Sprintf("got error when querying GraphQL (from the %dth retry)", retryTime))
+	return nil, errors.Default.Wrap(err, fmt.Sprintf("got error when querying GraphQL (from the %dth retry)", retryTime))
 }
 
 // NextTick to return the NextTick of scheduler
