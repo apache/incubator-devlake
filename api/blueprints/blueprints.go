@@ -212,14 +212,18 @@ func Trigger(c *gin.Context) {
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /blueprints/{blueprintId}/pipelines [get]
 func GetBlueprintPipelines(c *gin.Context) {
-	blueprintId := c.Param("blueprintId")
-	id, err := strconv.ParseUint(blueprintId, 10, 64)
+	var query services.PipelineQuery
+	err := c.ShouldBindQuery(&query)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad blueprintID at supplied"))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
-	var query services.PipelineQuery
-	query.BlueprintId = id
+	err = c.ShouldBindUri(&query)
+	if err != nil {
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request URI format"))
+		return
+	}
+
 	pipelines, count, err := services.GetPipelines(&query)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipelines"))
