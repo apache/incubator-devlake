@@ -132,12 +132,7 @@ export const Connection = ({ type }: IConnectionProps) => {
         </Button>
         <Button onClick={handleRefresh}>Refresh Connection</Button>
       </S.BtnContainer>
-      <ConnectionList
-        style={{ marginTop: 12 }}
-        extraColumn={extraColumn}
-        loading={!ready}
-        data={data}
-      />
+      <ConnectionList loading={!ready} data={data} extraColumn={extraColumn} />
       <Modal
         visible={visible}
         title={title}
