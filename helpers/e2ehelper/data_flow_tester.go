@@ -426,9 +426,11 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 
 	csvIter := pluginhelper.NewCsvFileIterator(opts.CSVRelPath)
 	defer csvIter.Close()
-	expectedTotal := int64(0)
+
+	var expectedTotal int64
 	csvMap := map[string]map[string]interface{}{}
 	for csvIter.HasNext() {
+		expectedTotal++
 		expected := csvIter.Fetch()
 		pkValues := make([]string, 0, len(pkColumns))
 		for _, pkc := range pkColumns {
@@ -442,12 +444,15 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 		}
 		csvMap[pkValueStr] = expected
 	}
+
+	var actualTotal int64
 	dbRows := &[]map[string]interface{}{}
 	err = t.Db.Table(dst.TableName()).Find(dbRows).Error
 	if err != nil {
 		panic(err)
 	}
 	for _, actual := range *dbRows {
+		actualTotal++
 		pkValues := make([]string, 0, len(pkColumns))
 		for _, pkc := range pkColumns {
 			pkValues = append(pkValues, formatDbValue(actual[pkc.Name()]))
@@ -460,12 +465,7 @@ func (t *DataFlowTester) VerifyTableWithOptions(dst schema.Tabler, opts TableOpt
 		for _, field := range targetFields {
 			assert.Equal(t.T, expected[field], formatDbValue(actual[field]), fmt.Sprintf(`%s.%s not match (with params from csv %s)`, dst.TableName(), field, pkValues))
 		}
-		expectedTotal++
 	}
-	var actualTotal int64
-	err = t.Db.Table(dst.TableName()).Count(&actualTotal).Error
-	if err != nil {
-		panic(err)
-	}
-	assert.Equal(t.T, expectedTotal, actualTotal, fmt.Sprintf(`%s count not match`, dst.TableName()))
+
+	assert.Equal(t.T, expectedTotal, actualTotal, fmt.Sprintf(`%s count not match count,[expected:%d][actual:%d]`, dst.TableName(), expectedTotal, actualTotal))
 }
