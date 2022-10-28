@@ -100,6 +100,10 @@ class Plugin {
     }
     return scopeOptions
   }
+
+  getDataEntities() {
+    return this.entities || []
+  }
 }
 
 export default Plugin

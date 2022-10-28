@@ -840,36 +840,18 @@ const CreateBlueprint = (props) => {
     if (configuredConnection) {
       setConfiguredProject(null)
       setConfiguredBoard(null)
-      switch (configuredConnection.provider) {
-        case Providers.GITLAB:
-        case Providers.GITHUB:
-          setDataEntitiesList(
-            DEFAULT_DATA_ENTITIES.filter((d) => d.name !== 'ci-cd')
-          )
-          break
-        case Providers.JIRA:
-          setDataEntitiesList(
-            DEFAULT_DATA_ENTITIES.filter(
-              (d) => d.name === 'issue-tracking' || d.name === 'cross-domain'
-            )
-          )
-          break
-        case Providers.JENKINS:
-          setDataEntitiesList(
-            DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-          )
-          break
-        default:
-          setDataEntitiesList(DEFAULT_DATA_ENTITIES)
-          break
-      }
+      const plugin = Integrations.find(
+        (p) => p.id === configuredConnection?.provider
+      )
+      setDataEntitiesList((dL) => (plugin ? plugin?.getDataEntities() : dL))
     }
   }, [
     configuredConnection,
     setActiveConnectionTab,
     setConfiguredBoard,
     setConfiguredProject,
-    Providers
+    Providers,
+    Integrations
   ])
 
   useEffect(() => {

@@ -42,7 +42,7 @@
     
   }
  },
- "entities": ["CODE", "TICKET", "CROSS"],
+ "entities": ["TICKET", "CROSS"],
  "transformations": {
     "scopes": {
       "options": {

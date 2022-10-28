@@ -401,26 +401,11 @@ function useDataScopesManager({
     (providerId) => {
       console.log('GET ENTITIES FOR PROVIDER =', providerId)
       let entities = []
-      switch (providerId) {
-        case Providers.GITHUB:
-        case Providers.GITLAB:
-          entities = DEFAULT_DATA_ENTITIES
-          break
-        case Providers.JIRA:
-          entities = DEFAULT_DATA_ENTITIES.filter(
-            (d) => d.name === 'issue-tracking' || d.name === 'cross-domain'
-          )
-          break
-        case Providers.JENKINS:
-          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-          break
-        case Providers.TAPD:
-          entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
-          break
-      }
+      const plugin = Integrations.find((p) => p.id === providerId)
+      entities = plugin ? plugin?.getDataEntities() : []
       return entities
     },
-    [Providers]
+    [Integrations]
   )
 
   const createNormalConnection = useCallback(
