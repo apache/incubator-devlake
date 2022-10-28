@@ -46,7 +46,7 @@ type PipelineQuery struct {
 	Pending     int    `form:"pending"`
 	Page        int    `form:"page"`
 	PageSize    int    `form:"pageSize"`
-	BlueprintId uint64 `form:"blueprint_id"`
+	BlueprintId uint64 `uri:"blueprintId" form:"blueprint_id"`
 }
 
 func pipelineServiceInit() {
