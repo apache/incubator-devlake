@@ -23,7 +23,6 @@ import TransformationSettings from '@/models/TransformationSettings'
 import JiraBoard from '@/models/JiraBoard'
 import GitHubProject from '@/models/GithubProject'
 import GitlabProject from '@/models/GitlabProject'
-// import { ProviderIcons, ProviderLabels, Providers } from '@/data/Providers'
 import { DataScopeModes } from '@/data/DataScopes'
 import JenkinsJob from '@/models/JenkinsJob'
 import useIntegrations from '@/hooks/useIntegrations'
@@ -37,16 +36,10 @@ function useDataScopesManager({
   setSettings = () => {}
 }) {
   const {
-    registry,
-    plugins: Plugins,
     integrations: Integrations,
-    activeProvider: IntegrationActiveProvider,
     Providers,
     ProviderLabels,
     ProviderIcons,
-    ProviderFormLabels,
-    ProviderFormPlaceholders,
-    setActiveProvider: setIntegrationActiveProvider
   } = useIntegrations()
 
   const [connections, setConnections] = useState([])
