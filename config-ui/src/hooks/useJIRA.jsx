@@ -15,19 +15,15 @@
  * limitations under the License.
  *
  */
-import { useEffect, useState, useCallback, useContext } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import request from '@/utils/request'
 import { ToastNotification } from '@/components/Toast'
-import IntegrationsContext from '@/store/integrations-context'
-// import { Providers } from '@/data/Providers'
-import DataScopeConnection from '@/models/DataScopeConnection'
 
 const useJIRA = (
   { apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint },
   activeConnection = null,
   setConnections = () => []
 ) => {
-  const { Providers } = useContext(IntegrationsContext)
   const [isFetching, setIsFetching] = useState(false)
   const [issueTypes, setIssueTypes] = useState([])
   const [fields, setFields] = useState([])
@@ -43,9 +39,6 @@ const useJIRA = (
   const [error, setError] = useState()
 
   const fetchIssueTypes = useCallback(() => {
-    // if (activeConnection?.plugin !== Providers.JIRA) {
-    //   return
-    // }
     try {
       if (apiProxyPath.includes('null') || !activeConnection?.connectionId) {
         throw new Error('Connection ID is Null')
@@ -84,9 +77,6 @@ const useJIRA = (
   }, [issuesEndpoint, activeConnection, apiProxyPath])
 
   const fetchFields = useCallback(() => {
-    // if (activeConnection?.plugin !== Providers.JIRA) {
-    //   return
-    // }
     try {
       if (apiProxyPath.includes('null') || !activeConnection?.connectionId) {
         throw new Error('Connection ID is Null')
@@ -126,9 +116,6 @@ const useJIRA = (
 
   const fetchBoards = useCallback(
     async (search, callback = () => {}) => {
-      // if (activeConnection?.plugin !== Providers.JIRA) {
-      //   return
-      // }
       try {
         if (apiProxyPath.includes('null') || !activeConnection?.connectionId) {
           throw new Error('Connection ID is Null')
@@ -275,10 +262,6 @@ const useJIRA = (
     )
   }, [boardsResponse])
 
-  // useEffect(() => {
-  //   console.log('>>> ALL JIRA RESOURCES!', allResources)
-  // }, [allResources])
-
   useEffect(() => {
     console.log('>>> JIRA API PROXY: FIELD SELECTOR LIST DATA', fields)
   }, [fields])
@@ -292,10 +275,6 @@ const useJIRA = (
       console.log('>>> JIRA PROXY API ERROR!', error)
     }
   }, [error])
-
-  // useEffect(() => {
-  //   console.log('>>> JIRA PROXY ACTIVE CONNECTION...', activeConnection)
-  // }, [activeConnection])
 
   return {
     isFetching,
