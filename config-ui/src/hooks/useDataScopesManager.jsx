@@ -39,7 +39,7 @@ function useDataScopesManager({
     integrations: Integrations,
     Providers,
     ProviderLabels,
-    ProviderIcons,
+    ProviderIcons
   } = useIntegrations()
 
   const [connections, setConnections] = useState([])

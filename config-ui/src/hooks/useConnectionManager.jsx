@@ -38,15 +38,9 @@ function useConnectionManager(
   const { handleOfflineMode } = useNetworkOfflineMode()
 
   const {
-    registry,
-    plugins: Plugins,
     integrations: Integrations,
-    activeProvider: IntegrationActiveProvider,
     Providers,
-    ProviderFormLabels,
-    ProviderFormPlaceholders,
-    ProviderConnectionLimits,
-    setActiveProvider: setIntegrationActiveProvider
+    ProviderConnectionLimits
   } = useIntegrations()
 
   const [provider, setProvider] = useState(activeProvider)
