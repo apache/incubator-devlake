@@ -22,12 +22,28 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 )
 
-// PluginBlueprint is used to support Blueprint Normal model
+// PipelineTask represents a smallest unit of execution inside a PipelinePlan
+type PipelineTask struct {
+	// Plugin name
+	Plugin   string                 `json:"plugin" binding:"required"`
+	Subtasks []string               `json:"subtasks"`
+	Options  map[string]interface{} `json:"options"`
+}
+
+// PipelineStage consist of multiple PipelineTasks, they will be executed in parallel
+type PipelineStage []*PipelineTask
+
+// PipelinePlan consist of multiple PipelineStages, they will be executed in sequential order
+type PipelinePlan []PipelineStage
+
+// PluginBlueprintV100 is used to support Blueprint Normal model, for Plugin and Blueprint to
+// collaboarte and generate a sophisticated Pipeline Plan based on User Settings.
+// V100 doesn't support Project, and being deprecated, please use PluginBlueprintV200 instead
 type PluginBlueprintV100 interface {
 	// MakePipelinePlan generates `pipeline.tasks` based on `version` and `scope`
 	//
 	// `version` semver from `blueprint.settings.version`
-	// `scope` arbitrary json.RawMessage, depends on `version`, for v0.0.1, it is an Array of Objects
+	// `scope` arbitrary json.RawMessage, depends on `version`, for v1.0.0, it is an Array of Objects
 	MakePipelinePlan(connectionId uint64, scope []*BlueprintScopeV100) (PipelinePlan, errors.Error)
 }
 
@@ -45,16 +61,28 @@ type BlueprintScopeV100 struct {
 	Transformation json.RawMessage `json:"transformation"`
 }
 
-// PipelineTask represents a smallest unit of execution inside a PipelinePlan
-type PipelineTask struct {
-	// Plugin name
-	Plugin   string                 `json:"plugin" binding:"required"`
-	Subtasks []string               `json:"subtasks"`
-	Options  map[string]interface{} `json:"options"`
+/* PluginBlueprintV200 for project support */
+
+// Scope represents the top level entity for a data source, i.e. github repo, gitlab project, jira board.
+// They turn into repo, board in Domain Layer.
+// In Apache Devlake, a Project is essentially a set of these top level entities, for the framework to
+// maintain these relationships dynamically and automatically, all Domain Layer Top Level Entities should
+// implement this interface
+type Scope interface {
+	ScopeId() string
+	ScopeName() string
+	TableName() string
 }
 
-// PipelineStage consist of multiple PipelineTasks, they will be executed in parallel
-type PipelineStage []*PipelineTask
+// PluginBlueprintV200 extends the V100 to provide support for Project to support complex metrics
+// like DORA
+type PluginBlueprintV200 interface {
+	MakePipelinePlan(scopes []*BlueprintScopeV200) (PipelinePlan, []Scope, errors.Error)
+}
 
-// PipelinePlan consist of multiple PipelineStages, they will be executed in sequential order
-type PipelinePlan []PipelineStage
+// BlueprintScopeV200 contains the Plugin name and related ScopeIds, connectionId and transformationRuleId should be
+// deduced by the ScopeId
+type BlueprintScopeV200 struct {
+	Plugin   string `json:"plugin" validate:"required"`
+	ScopeIds []string
+}

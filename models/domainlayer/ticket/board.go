@@ -18,11 +18,15 @@ limitations under the License.
 package ticket
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/plugins/core"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
 )
+
+var _ core.Scope = (*Board)(nil)
 
 type Board struct {
 	domainlayer.DomainEntity
@@ -35,6 +39,14 @@ type Board struct {
 
 func (Board) TableName() string {
 	return "boards"
+}
+
+func (r *Board) ScopeId() string {
+	return r.Id
+}
+
+func (r *Board) ScopeName() string {
+	return r.Name
 }
 
 type BoardSprint struct {
