@@ -94,6 +94,9 @@ lake:
     class: ""
     size: 100Mi
 
+  ## If hostNetwork is true, then dnsPolicy is set to ClusterFirstWithHostNet
+  hostNetwork: false
+
   resources: {}
 
   nodeSelector: {}

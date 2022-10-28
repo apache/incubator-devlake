@@ -73,6 +73,22 @@ spec:
               value: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
             - name: MYSQL_URL
               value: {{ include "mysql.server" . }}:{{ include "mysql.port" . }}
+          {{- with .Values.grafana.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.grafana.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.grafana.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.grafana.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
         {{- if ne .Values.option.localtime "" }}
         - name: {{ include "devlake.fullname" . }}-grafana-localtime
@@ -121,6 +137,22 @@ spec:
               mountPath: /etc/localtime
               readOnly: true
             {{- end }}
+          {{- with .Values.ui.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.ui.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ui.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.ui.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
         {{- if ne .Values.option.localtime "" }}
         - name: {{ include "devlake.fullname" . }}-ui-localtime
