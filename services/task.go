@@ -182,10 +182,9 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, errors.Error) {
 	if err != nil {
 		return nil, 0, errors.Convert(err)
 	}
-	if query.Page > 0 && query.PageSize > 0 {
-		offset := query.PageSize * (query.Page - 1)
-		db = db.Limit(query.PageSize).Offset(offset)
-	}
+
+	db = processDbClausesWithPager(db, query.PageSize, query.Page)
+
 	tasks := make([]models.Task, 0)
 	err = db.Find(&tasks).Error
 	if err != nil {
