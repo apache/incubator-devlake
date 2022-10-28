@@ -15,7 +15,8 @@
  * limitations under the License.
  *
  */
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useContext } from 'react'
+import IntegrationsContext from '@/store/integrations-context'
 import {
   Intent,
   FormGroup,
@@ -24,17 +25,16 @@ import {
   Radio,
   Tag
 } from '@blueprintjs/core'
-// import { Providers, ProviderLabels } from '@/data/Providers'
 
 const Deployment = (props) => {
   const {
-    Providers = {},
-    ProviderLabels = {},
     provider,
     transformation,
     isSaving = false,
     onSettingsChange = () => {}
   } = props
+
+  const { Providers, ProviderLabels } = useContext(IntegrationsContext)
 
   const [selectValue, setSelectValue] = useState(1)
 

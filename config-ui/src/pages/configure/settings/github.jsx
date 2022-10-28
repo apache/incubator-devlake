@@ -236,8 +236,6 @@ export default function GithubSettings(props) {
 
       {entities.some((e) => e.value === DataEntityTypes.DEVOPS) && (
         <Deployment
-          Providers={Providers}
-          ProviderLabels={ProviderLabels}
           provider={provider}
           entities={entities}
           transformation={transformation}

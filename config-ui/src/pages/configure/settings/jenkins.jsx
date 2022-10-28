@@ -39,8 +39,6 @@ import '@/styles/connections.scss'
 
 export default function JenkinsSettings(props) {
   const {
-    Providers,
-    ProviderLabels,
     provider,
     connection,
     entities = [],
@@ -54,8 +52,6 @@ export default function JenkinsSettings(props) {
     <>
       {entities.some((e) => e.value === DataEntityTypes.DEVOPS) ? (
         <Deployment
-          Providers={Providers}
-          ProviderLabels={ProviderLabels}
           provider={provider}
           entities={entities}
           transformation={transformation}

@@ -25,8 +25,6 @@ import '@/styles/connections.scss'
 
 export default function GitlabSettings(props) {
   const {
-    Providers,
-    ProviderLabels,
     connection,
     entities = [],
     transformation = {},
@@ -40,8 +38,6 @@ export default function GitlabSettings(props) {
     <>
       {entities.some((e) => e.value === DataEntityTypes.DEVOPS) ? (
         <Deployment
-          Providers={Providers}
-          ProviderLabels={ProviderLabels}
           provider={provider}
           entities={entities}
           transformation={transformation}
