@@ -18,6 +18,7 @@ limitations under the License.
 package tap
 
 import (
+	"encoding/json"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/utils"
 )
@@ -25,13 +26,13 @@ import (
 // Tap the abstract interface for Taps. Consumer code should not use concrete implementations directly.
 type Tap interface {
 	// Run runs the tap and returns a stream of results. Expected to be called after all the other Setters.
-	Run() (<-chan *utils.ProcessResponse[Result], errors.Error)
+	Run() (<-chan *utils.ProcessResponse[json.RawMessage], errors.Error)
 	// GetName the name of this tap
 	GetName() string
 	// SetProperties enables the passed in required stream and may modify its properties at runtime. Returns a unique hash representing the properties object.
 	SetProperties(requiredStream string) (uint64, errors.Error)
 	// SetState sets state on this tap
-	SetState(state interface{}) errors.Error
+	SetState(state any) errors.Error
 	// SetConfig sets the config of this tap
-	SetConfig() errors.Error
+	SetConfig(config any) errors.Error
 }

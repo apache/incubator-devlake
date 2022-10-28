@@ -86,7 +86,7 @@ type GraphqlCollector struct {
 // of response we want to save, GraphqlCollector will collect them from remote server and store them into database.
 func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, errors.Error) {
 	// process args
-	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
+	rawDataSubTask, err := NewRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error processing raw subtask args")
 	}
@@ -129,17 +129,17 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 
 	// make sure table is created
 	db := collector.args.Ctx.GetDal()
-	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
+	err := db.AutoMigrate(&RawData{}, dal.From(collector.Table))
 	if err != nil {
 		return errors.Default.Wrap(err, "error running auto-migrate")
 	}
 
 	// flush data if not incremental collection
-	err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
+	err = db.Delete(&RawData{}, dal.From(collector.Table), dal.Where("params = ?", collector.Params))
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting from collector table")
 	}
-	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.table, collector.params)
+	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.Table, collector.Params)
 
 	collector.args.Ctx.SetProgress(0, -1)
 	if collector.args.Input != nil {
@@ -286,12 +286,12 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 		return
 	}
 	row := &RawData{
-		Params: collector.params,
+		Params: collector.Params,
 		Data:   paramsBytes,
 		Url:    queryStr,
 		Input:  variablesJson,
 	}
-	err = db.Create(row, dal.From(collector.table))
+	err = db.Create(row, dal.From(collector.Table))
 	if err != nil {
 		collector.checkError(errors.Default.Wrap(err, `not created row table in graphql collector`))
 		return
@@ -323,7 +323,7 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 		origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
 		if origin.IsValid() {
 			origin.Set(reflect.ValueOf(common.RawDataOrigin{
-				RawDataTable:  collector.table,
+				RawDataTable:  collector.Table,
 				RawDataId:     row.ID,
 				RawDataParams: row.Params,
 			}))

@@ -35,12 +35,11 @@ type BatchSaveDivider struct {
 	db        dal.Dal
 	batches   map[reflect.Type]*BatchSave
 	batchSize int
-	rawTable  string
-	rawParams string
-	isRaw     bool
+	table     string
+	params    string
 }
 
-// NewBatchSaveDivider create a new BatchInsertDivider instance. The table param cannot be empty.
+// NewBatchSaveDivider create a new BatchInsertDivider instance
 func NewBatchSaveDivider(basicRes core.BasicRes, batchSize int, table string, params string) *BatchSaveDivider {
 	log := basicRes.GetLogger().Nested("batch divider")
 	return &BatchSaveDivider{
@@ -49,21 +48,8 @@ func NewBatchSaveDivider(basicRes core.BasicRes, batchSize int, table string, pa
 		db:        basicRes.GetDal(),
 		batches:   make(map[reflect.Type]*BatchSave),
 		batchSize: batchSize,
-		rawTable:  table,
-		rawParams: params,
-		isRaw:     true,
-	}
-}
-
-// NewNonRawBatchSaveDivider create a new BatchInsertDivider instance with no raw associations
-func NewNonRawBatchSaveDivider(basicRes core.BasicRes, batchSize int) *BatchSaveDivider {
-	log := basicRes.GetLogger().Nested("batch divider")
-	return &BatchSaveDivider{
-		basicRes:  basicRes,
-		log:       log,
-		db:        basicRes.GetDal(),
-		batches:   make(map[reflect.Type]*BatchSave),
-		batchSize: batchSize,
+		table:     table,
+		params:    params,
 	}
 }
 
@@ -79,30 +65,26 @@ func (d *BatchSaveDivider) ForType(rowType reflect.Type) (*BatchSave, errors.Err
 			return nil, err
 		}
 		d.batches[rowType] = batch
-		if d.isRaw {
-			if err = d.handleRawOrigin(rowType); err != nil {
-				return nil, err
-			}
+		// delete outdated records if rowType was not PartialUpdate
+		rowElemType := rowType.Elem()
+		d.log.Debug("missing BatchSave for type %s", rowElemType.Name())
+		row := reflect.New(rowElemType).Interface()
+		// check if rowType had RawDataOrigin embeded
+		field, hasField := rowElemType.FieldByName("RawDataOrigin")
+		if !hasField || field.Type != reflect.TypeOf(common.RawDataOrigin{}) {
+			return nil, errors.Default.New(fmt.Sprintf("type %s must have RawDataOrigin embeded", rowElemType.Name()))
+		}
+		// all good, delete outdated records before we insertion
+		d.log.Debug("deleting outdate records for %s", rowElemType.Name())
+		err = d.db.Delete(
+			row,
+			dal.Where("_raw_data_table = ? AND _raw_data_params = ?", d.table, d.params),
+		)
+		if err != nil {
+			return nil, err
 		}
 	}
 	return batch, nil
-}
-
-func (d *BatchSaveDivider) handleRawOrigin(rowType reflect.Type) errors.Error {
-	// delete outdated records if rowType was not PartialUpdate
-	rowElemType := rowType.Elem()
-	row := reflect.New(rowElemType).Interface()
-	field, hasField := rowElemType.FieldByName("RawDataOrigin")
-	if !hasField || field.Type != reflect.TypeOf(common.RawDataOrigin{}) {
-		return errors.Default.New(fmt.Sprintf("type %s must have RawDataOrigin embeded", rowElemType.Name()))
-	}
-	// all good, delete outdated records before we insertion
-	d.log.Debug("deleting outdated records for %s", rowElemType.Name())
-	err := d.db.Delete(
-		row,
-		dal.Where("_raw_data_table = ? AND _raw_data_params = ?", d.rawTable, d.rawParams),
-	)
-	return err
 }
 
 // Close all batches so the rest records get saved into db

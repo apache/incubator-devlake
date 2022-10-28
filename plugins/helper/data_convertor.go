@@ -59,7 +59,7 @@ type DataConverter struct {
 // NewDataConverter function helps you create a DataConverter using DataConverterArgs.
 // You can see the usage in plugins/github/tasks/pr_issue_convertor.go or other convertor file.
 func NewDataConverter(args DataConverterArgs) (*DataConverter, errors.Error) {
-	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
+	rawDataSubTask, err := NewRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (converter *DataConverter) Execute() errors.Error {
 
 	// batch save divider
 	RAW_DATA_ORIGIN := "RawDataOrigin"
-	divider := NewBatchSaveDivider(converter.args.Ctx, converter.args.BatchSize, converter.table, converter.params)
+	divider := NewBatchSaveDivider(converter.args.Ctx, converter.args.BatchSize, converter.Table, converter.Params)
 
 	// set progress
 	converter.args.Ctx.SetProgress(0, -1)

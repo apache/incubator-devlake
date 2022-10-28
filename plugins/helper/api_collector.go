@@ -94,7 +94,7 @@ type ApiCollector struct {
 // of response we want to save, ApiCollector will collect them from remote server and store them into database.
 func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 	// process args
-	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
+	rawDataSubTask, err := NewRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Couldn't resolve raw subtask args")
 	}
@@ -137,14 +137,14 @@ func (collector *ApiCollector) Execute() errors.Error {
 
 	// make sure table is created
 	db := collector.args.Ctx.GetDal()
-	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
+	err := db.AutoMigrate(&RawData{}, dal.From(collector.Table))
 	if err != nil {
 		return errors.Default.Wrap(err, "error auto-migrating collector")
 	}
 
 	// flush data if not incremental collection
 	if !collector.args.Incremental {
-		err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
+		err = db.Delete(&RawData{}, dal.From(collector.Table), dal.Where("params = ?", collector.Params))
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting data from collector")
 		}
@@ -380,15 +380,15 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 		rows := make([]*RawData, count)
 		for i, msg := range items {
 			rows[i] = &RawData{
-				Params: collector.params,
+				Params: collector.Params,
 				Data:   msg,
 				Url:    urlString,
 				Input:  reqData.InputJSON,
 			}
 		}
-		err = db.Create(rows, dal.From(collector.table))
+		err = db.Create(rows, dal.From(collector.Table))
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error inserting raw rows into %s", collector.table))
+			return errors.Default.Wrap(err, fmt.Sprintf("error inserting raw rows into %s", collector.Table))
 		}
 		logger.Debug("fetchAsync === total %d rows were saved into database", count)
 		// increase progress only when it was not nested

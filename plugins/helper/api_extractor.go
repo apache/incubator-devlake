@@ -48,7 +48,7 @@ type ApiExtractor struct {
 // NewApiExtractor creates a new ApiExtractor
 func NewApiExtractor(args ApiExtractorArgs) (*ApiExtractor, errors.Error) {
 	// process args
-	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
+	rawDataSubTask, err := NewRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
 		return nil, err
 	}
@@ -68,8 +68,8 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 	log := extractor.args.Ctx.GetLogger()
 
 	clauses := []dal.Clause{
-		dal.From(extractor.table),
-		dal.Where("params = ?", extractor.params),
+		dal.From(extractor.Table),
+		dal.Where("params = ?", extractor.Params),
 		dal.Orderby("id ASC"),
 	}
 
@@ -81,13 +81,13 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error running DB query")
 	}
-	log.Info("get data from %s where params=%s and got %d", extractor.table, extractor.params, count)
+	log.Info("get data from %s where params=%s and got %d", extractor.Table, extractor.Params, count)
 	defer cursor.Close()
 	row := &RawData{}
 
 	// batch save divider
 	RAW_DATA_ORIGIN := "RawDataOrigin"
-	divider := NewBatchSaveDivider(extractor.args.Ctx, extractor.args.BatchSize, extractor.table, extractor.params)
+	divider := NewBatchSaveDivider(extractor.args.Ctx, extractor.args.BatchSize, extractor.Table, extractor.Params)
 
 	// prgress
 	extractor.args.Ctx.SetProgress(0, -1)
@@ -119,7 +119,7 @@ func (extractor *ApiExtractor) Execute() errors.Error {
 			origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
 			if origin.IsValid() && origin.IsZero() {
 				origin.Set(reflect.ValueOf(common.RawDataOrigin{
-					RawDataTable:  extractor.table,
+					RawDataTable:  extractor.Table,
 					RawDataId:     row.ID,
 					RawDataParams: row.Params,
 				}))

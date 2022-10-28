@@ -29,6 +29,8 @@ import (
 	"path/filepath"
 )
 
+const singerPropertiesDir = "SINGER_PROPERTIES_DIR"
+
 type (
 	// SingerTapImpl the Singer implementation of Tap
 	SingerTapImpl struct {
@@ -67,8 +69,8 @@ func NewSingerTap(cfg *SingerTapConfig) (*SingerTapImpl, errors.Error) {
 }
 
 // SetConfig implements Tap.SetConfig
-func (t *SingerTapImpl) SetConfig() errors.Error {
-	b, err := json.Marshal(t.Config)
+func (t *SingerTapImpl) SetConfig(cfg any) errors.Error {
+	b, err := json.Marshal(cfg)
 	if err != nil {
 		return errors.Default.Wrap(err, "error reading singer-tap mappings")
 	}
@@ -88,7 +90,7 @@ func (t *SingerTapImpl) SetConfig() errors.Error {
 }
 
 // SetState implements Tap.SetState
-func (t *SingerTapImpl) SetState(state interface{}) errors.Error {
+func (t *SingerTapImpl) SetState(state any) errors.Error {
 	b, err := json.Marshal(state)
 	if err != nil {
 		return errors.Default.Wrap(err, "error serializing singer-tap state")
@@ -124,18 +126,18 @@ func (t *SingerTapImpl) GetName() string {
 }
 
 // Run implements Tap.Run
-func (t *SingerTapImpl) Run() (<-chan *utils.ProcessResponse[Result], errors.Error) {
-	args := []string{"--config", t.configFile.path, "--catalog", t.propertiesFile.path}
+func (t *SingerTapImpl) Run() (<-chan *utils.ProcessResponse[json.RawMessage], errors.Error) {
+	catalogCmd := "--catalog"
+	if t.IsLegacy {
+		catalogCmd = "--properties"
+	}
+	args := []string{"--config", t.configFile.path, catalogCmd, t.propertiesFile.path}
 	if t.stateFile != nil {
 		args = append(args, []string{"--state", t.stateFile.path}...)
 	}
 	cmd := exec.Command(t.cmd, args...)
-	stream, err := utils.StreamProcess[Result](cmd, func(b []byte) (Result, error) {
-		result := Result{}
-		if err := json.Unmarshal(b, &result); err != nil {
-			return result, errors.Default.WrapRaw(err)
-		}
-		return result, nil
+	stream, err := utils.StreamProcess(cmd, func(b []byte) (json.RawMessage, error) {
+		return b, nil //data is expected to be JSON
 	})
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error starting process stream from singer-tap")
@@ -144,7 +146,7 @@ func (t *SingerTapImpl) Run() (<-chan *utils.ProcessResponse[Result], errors.Err
 }
 
 func readProperties(tempDir string, cfg *SingerTapConfig) (*fileData[SingerTapProperties], errors.Error) {
-	globalDir := config.GetConfig().GetString("SINGER_PROPERTIES_DIR")
+	globalDir := config.GetConfig().GetString(singerPropertiesDir)
 	_, err := os.Stat(globalDir)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error getting singer props directory")
@@ -186,7 +188,7 @@ func (t *SingerTapImpl) selectStream(requiredStream string) *SingerTapStream {
 	for i := 0; i < len(properties.Streams); i++ {
 		stream := properties.Streams[i]
 		if stream.Stream == requiredStream {
-			t.TapSchemaSetter(stream)
+			t.TapStreamModifier(stream)
 			return stream
 		}
 	}

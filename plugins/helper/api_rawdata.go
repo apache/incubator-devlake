@@ -52,11 +52,12 @@ type RawDataSubTaskArgs struct {
 // RawDataSubTask is Common features for raw data sub-tasks
 type RawDataSubTask struct {
 	args   *RawDataSubTaskArgs
-	table  string
-	params string
+	Table  string
+	Params string
 }
 
-func newRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, errors.Error) {
+// NewRawDataSubTask constructor for RawDataSubTask
+func NewRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, errors.Error) {
 	if args.Ctx == nil {
 		return nil, errors.Default.New("Ctx is required for RawDataSubTask")
 	}
@@ -76,7 +77,7 @@ func newRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, errors.Error) 
 	}
 	return &RawDataSubTask{
 		args:   &args,
-		table:  fmt.Sprintf("_raw_%s", args.Table),
-		params: paramsString,
+		Table:  fmt.Sprintf("_raw_%s", args.Table),
+		Params: paramsString,
 	}, nil
 }

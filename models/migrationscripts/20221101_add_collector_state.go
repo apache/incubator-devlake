@@ -19,38 +19,31 @@ package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/errors"
+	commonArchived "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/datatypes"
-	"time"
 )
 
-type createTapState struct{}
+type createCollectorState struct{}
 
-type SingerTapState20221015 struct {
-	Id           string `gorm:"primaryKey;type:varchar(255)"`
-	ConnectionId uint64
-	Type         string
-	Value        datatypes.JSON
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+type CollectorState20221101 struct {
+	commonArchived.GenericModel[string]
+	Type  string
+	Value datatypes.JSON
 }
 
-func (SingerTapState20221015) TableName() string {
-	return "tap_state"
+func (CollectorState20221101) TableName() string {
+	return "_devlake_collector_state"
 }
 
-func (*createTapState) Up(basicRes core.BasicRes) errors.Error {
-	err := basicRes.GetDal().AutoMigrate(SingerTapState20221015{})
-	if err != nil {
-		return errors.Convert(err)
-	}
-	return nil
+func (*createCollectorState) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(CollectorState20221101{})
 }
 
-func (*createTapState) Version() uint64 {
-	return 20221015000001
+func (*createCollectorState) Version() uint64 {
+	return 20221101000001
 }
 
-func (*createTapState) Name() string {
-	return "Create tap state table"
+func (*createCollectorState) Name() string {
+	return "Create collector state table"
 }

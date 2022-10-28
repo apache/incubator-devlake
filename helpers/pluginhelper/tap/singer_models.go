@@ -20,23 +20,23 @@ package tap
 // singer-tap specific types
 type (
 	// SingerTapSchema the structure of this is determined by the catalog/properties JSON of a singer tap
-	SingerTapSchema map[string]interface{}
+	SingerTapSchema map[string]any
 	// SingerTapMetadata the structure of this is determined by the catalog/properties JSON of a singer tap
-	SingerTapMetadata map[string]interface{}
+	SingerTapMetadata map[string]any
 	// SingerTapStream the deserialized version of each stream entry in the catalog/properties JSON of a singer tap
 	SingerTapStream struct {
 		Stream        string              `json:"stream"`
 		TapStreamId   string              `json:"tap_stream_id"`
 		Schema        SingerTapSchema     `json:"schema"`
 		Metadata      []SingerTapMetadata `json:"metadata"`
-		KeyProperties interface{}         `json:"key_properties"`
+		KeyProperties any                 `json:"key_properties"`
 	}
 	// SingerTapConfig the set of variables needed to initialize a SingerTapImpl
 	SingerTapConfig struct {
-		Config               interface{}
 		Cmd                  string
 		StreamPropertiesFile string
-		TapSchemaSetter      func(stream *SingerTapStream)
+		TapStreamModifier    func(stream *SingerTapStream)
+		IsLegacy             bool
 	}
 
 	// SingerTapProperties wraps SingerTapStreams

@@ -24,14 +24,14 @@ import (
 
 // SingerTapArgs the args needed to instantiate tap.Tap for singer-taps
 type SingerTapArgs struct {
-	// The struct that represents the config.json of the tap
-	Config interface{}
 	// Name of the env variable that expands to the tap binary path
 	TapClass string
 	// The name of the properties/catalog JSON file of the tap
 	StreamPropertiesFile string
-	// Optional - use for any extra tweaking of streams at runtime
-	AdditionalSchemaSetter func(stream *SingerTapStream)
+	// Optional - Use for any extra tweaking of the required stream at plugin runtime. Usually not needed.
+	StreamModifier func(stream *SingerTapStream)
+	// IsLegacy - set to true if this is an old tap that uses the "--properties" flag
+	IsLegacy bool
 }
 
 // NewSingerTapClient returns an instance of tap.Tap for singer-taps
@@ -42,18 +42,18 @@ func NewSingerTapClient(args *SingerTapArgs) (Tap, errors.Error) {
 		return nil, errors.Default.New("singer tap command not provided")
 	}
 	return NewSingerTap(&SingerTapConfig{
-		Config:               args.Config,
 		Cmd:                  cmd,
 		StreamPropertiesFile: args.StreamPropertiesFile,
+		IsLegacy:             args.IsLegacy,
 		// This function is called for the selected streams at runtime.
-		TapSchemaSetter: func(stream *SingerTapStream) {
+		TapStreamModifier: func(stream *SingerTapStream) {
 			// default behavior
 			for _, meta := range stream.Metadata {
 				innerMeta := meta["metadata"].(map[string]any)
 				innerMeta["selected"] = true
 			}
-			if args.AdditionalSchemaSetter != nil {
-				args.AdditionalSchemaSetter(stream)
+			if args.StreamModifier != nil {
+				args.StreamModifier(stream)
 			}
 		},
 	})
