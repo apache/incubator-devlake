@@ -188,5 +188,8 @@ func newIssueStatusMap(config models.TransformationRules) (map[string]string, er
 	for _, state := range config.IssueStatusDONE {
 		issueStatusMap[state] = ticket.DONE
 	}
+	for _, state := range config.IssueStatusOTHER {
+		issueStatusMap[state] = ticket.OTHER
+	}
 	return issueStatusMap, nil
 }

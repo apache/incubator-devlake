@@ -42,6 +42,7 @@ type TransformationRules struct {
 	IssueStatusTODO       []string `mapstructure:"issueStatusTodo" json:"issueStatusTodo"`
 	IssueStatusINPROGRESS []string `mapstructure:"issueStatusInProgress" json:"issueStatusInProgress"`
 	IssueStatusDONE       []string `mapstructure:"issueStatusDone" json:"issueStatusDone"`
+	IssueStatusOTHER      []string `mapstructure:"issueStatusOther" json:"issueStatusOther"`
 }
 
 type BitbucketConnection struct {
