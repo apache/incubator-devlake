@@ -18,11 +18,10 @@ limitations under the License.
 package services
 
 import (
-	"time"
+	"sync"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/impl"
-	"sync"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
@@ -98,8 +97,8 @@ func ExecuteMigration() errors.Error {
 	}
 
 	// cronjob for blueprint triggering
-	location := cron.WithLocation(time.UTC)
-	cronManager = cron.New(location)
+	// Using local timezone for cron job
+	cronManager = cron.New()
 	if err != nil {
 		panic(err)
 	}

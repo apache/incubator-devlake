@@ -324,9 +324,9 @@ function useBlueprintManager(
   }, [])
 
   const createCronExpression = (cronExpression = '0 0 * * *') => {
-    let newCron = parseCronExpression('0 0 * * *')
+    let newCron = parseCronExpression('0 0 * * *', false)
     try {
-      newCron = parseCronExpression(cronExpression)
+      newCron = parseCronExpression(cronExpression, false)
     } catch (e) {
       console.log('>> INVALID CRON EXPRESSION INPUT!', e)
     }
@@ -368,8 +368,8 @@ function useBlueprintManager(
       let schedule = []
       try {
         const cS = cron(cronExpression).isValid()
-          ? parseCronExpression(cronExpression)
-          : parseCronExpression('0 0 * * *')
+          ? parseCronExpression(cronExpression, false)
+          : parseCronExpression('0 0 * * *', false)
         schedule = cS
           ? new Array(events)
               .fill(cS, 0, events)
@@ -387,7 +387,7 @@ function useBlueprintManager(
   const getNextRunDate = useCallback(
     (cronExpression) => {
       return (
-        cronExpression && parseCronExpression(cronExpression).next().toString()
+        cronExpression && parseCronExpression(cronExpression, false).next().toString()
       )
     },
     [parseCronExpression]
