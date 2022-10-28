@@ -113,10 +113,9 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.E
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error getting DB pipelines count")
 	}
-	if query.Page > 0 && query.PageSize > 0 {
-		offset := query.PageSize * (query.Page - 1)
-		db = db.Limit(query.PageSize).Offset(offset)
-	}
+
+	db = processDbClausesWithPager(db, query.PageSize, query.Page)
+
 	err = db.Find(&dbPipelines).Error
 	if err != nil {
 		return nil, count, errors.Default.Wrap(err, "error finding DB pipelines")
