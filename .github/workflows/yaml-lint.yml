@@ -22,15 +22,6 @@ on:
       - main
   pull_request:
 jobs:
-  helm-lint:
-    name: lint for helm chart
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: install latest helm
-        run: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-      - name: lint helm chart
-        run: helm lint deployment/helm --strict
   yaml-lint:
     name: lint for yamls
     runs-on: ubuntu-latest
