@@ -102,21 +102,20 @@ const useTransformationsManager = () => {
   )
 
   const generateKey = useCallback(
-    (connectionProvider, connectionId, projectNameOrBoard) => {
+    (connectionProvider, connectionId, entity) => {
       let key = `not-distinguished`
-      switch (connectionProvider) {
-        case Providers.GITHUB:
-        case Providers.GITLAB:
-        case Providers.JENKINS:
-          key = projectNameOrBoard?.id
-          break
-        case Providers.JIRA:
-          key = projectNameOrBoard?.id
-          break
-      }
+      key = entity ? entity?.getConfiguredEntityId() : key
+      console.info(
+        '>> GENERATING TRANSFORMATION KEY FOR ENTITY...',
+        connectionProvider,
+        connectionId,
+        entity,
+        key,
+        `${connectionProvider}/${connectionId}/${key}`
+      )
       return `${connectionProvider}/${connectionId}/${key}`
     },
-    [Providers]
+    []
   )
 
   // change some setting in specific connection's specific transformation
@@ -198,7 +197,6 @@ const useTransformationsManager = () => {
     (connectionProvider, projectNameOrBoard) => {
       const key = generateKey(connectionProvider, projectNameOrBoard)
       const plugin = Integrations.find((p) => p.id === connectionProvider)
-      console.log('>>>> INTEGRATIONS??', plugin)
       console.debug(
         '>> useTransformationsManager.getScopeOptions...',
 
