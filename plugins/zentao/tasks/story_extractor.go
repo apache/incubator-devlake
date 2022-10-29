@@ -25,17 +25,17 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractStories
+var _ core.SubTaskEntryPoint = ExtractStory
 
-var ExtractStoriesMeta = core.SubTaskMeta{
-	Name:             "extractStories",
-	EntryPoint:       ExtractStories,
+var ExtractStoryMeta = core.SubTaskMeta{
+	Name:             "extractStory",
+	EntryPoint:       ExtractStory,
 	EnabledByDefault: true,
-	Description:      "extract Zentao stories",
+	Description:      "extract Zentao story",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
+func ExtractStory(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -45,18 +45,18 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 				ExecutionId: data.Options.ExecutionId,
 				ProjectId:   data.Options.ProjectId,
 			},
-			Table: RAW_STORIES_TABLE,
+			Table: RAW_STORY_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
-			stories := &models.ZentaoStories{}
-			err := json.Unmarshal(row.Data, stories)
+			story := &models.ZentaoStory{}
+			err := json.Unmarshal(row.Data, story)
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
-			stories.ConnectionId = data.Options.ConnectionId
-			stories.ExecutionId = data.Options.ExecutionId
+			story.ConnectionId = data.Options.ConnectionId
+			story.ExecutionId = data.Options.ExecutionId
 			results := make([]interface{}, 0)
-			results = append(results, stories)
+			results = append(results, story)
 			return results, nil
 		},
 	})

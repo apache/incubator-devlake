@@ -15,15 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package models
 
 import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-type ZentaoStories struct {
-	archived.NoPKModel
+type ZentaoStory struct {
+	common.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	ExecutionId  uint64 `json:"execution_id"`
 	Project      int    `json:"project"`
@@ -88,12 +88,12 @@ type ZentaoStories struct {
 }
 
 type AssignedTo struct {
-	ID       int    `json:"id"`
-	Account  string `json:"account"`
-	Avatar   string `json:"avatar"`
-	Realname string `json:"realname"`
+	AssignedToID       int    `json:"id"`
+	AssignedToAccount  string `json:"account"`
+	AssignedToAvatar   string `json:"avatar"`
+	AssignedToRealname string `json:"realname"`
 }
 
-func (ZentaoStories) TableName() string {
+func (ZentaoStory) TableName() string {
 	return "_tool_zentao_stories"
 }
