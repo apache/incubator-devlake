@@ -6,7 +6,7 @@ The ASF licenses this file to You under the Apache License, Version 2.0
 (the "License"); you may not use this file except in compliance with
 the License.  You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+   http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,31 +29,31 @@ import (
 	"reflect"
 )
 
-var _ core.SubTaskEntryPoint = ConvertStories
+var _ core.SubTaskEntryPoint = ConvertTask
 
-var ConvertStoriesMeta = core.SubTaskMeta{
-	Name:             "convertStories",
-	EntryPoint:       ConvertStories,
+var ConvertTaskMeta = core.SubTaskMeta{
+	Name:             "convertTask",
+	EntryPoint:       ConvertTask,
 	EnabledByDefault: true,
-	Description:      "convert Zentao stories",
+	Description:      "convert Zentao task",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertStories(taskCtx core.SubTaskContext) errors.Error {
+func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
-	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStories{})
+	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoTask{})
 	cursor, err := db.Cursor(
-		dal.From(&models.ZentaoStories{}),
-		dal.Where(`_tool_zentao_stories.execution_id = ? and 
-			_tool_zentao_stories.connection_id = ?`, data.Options.ExecutionId, data.Options.ConnectionId),
+		dal.From(&models.ZentaoTask{}),
+		dal.Where(`_tool_zentao_tasks.execution_id = ? and 
+			_tool_zentao_tasks.connection_id = ?`, data.Options.ExecutionId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 	convertor, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.ZentaoStories{}),
+		InputRowType: reflect.TypeOf(models.ZentaoTask{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -62,38 +62,37 @@ func ConvertStories(taskCtx core.SubTaskContext) errors.Error {
 				ExecutionId: data.Options.ExecutionId,
 				ProjectId:   data.Options.ProjectId,
 			},
-			Table: RAW_STORIES_TABLE,
+			Table: RAW_TASK_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			toolStories := inputRow.(*models.ZentaoStories)
+			toolTask := inputRow.(*models.ZentaoTask)
 
 			domainBoard := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: boardIdGen.Generate(toolStories.ConnectionId, toolStories.ID),
+					Id: boardIdGen.Generate(toolTask.ConnectionId, toolTask.ID),
 				},
-				Url:      "",
-				IconURL:  "",
-				IssueKey: "",
-				Title:    toolStories.Title,
-				//Description:             toolStories.Spec,
+				Url:                     "",
+				IconURL:                 "",
+				IssueKey:                "",
+				Title:                   toolTask.Name,
+				Description:             toolTask.Desc,
 				EpicKey:                 "",
-				Type:                    toolStories.Type,
-				Status:                  toolStories.Status,
+				Type:                    toolTask.Type,
+				Status:                  toolTask.Status,
 				OriginalStatus:          "",
-				StoryPoint:              0,
-				ResolutionDate:          nil,
-				CreatedDate:             toolStories.OpenedDate.ToNullableTime(),
-				UpdatedDate:             toolStories.LastEditedDate.ToNullableTime(),
+				ResolutionDate:          toolTask.FinishedDate.ToNullableTime(),
+				CreatedDate:             toolTask.OpenedDate.ToNullableTime(),
+				UpdatedDate:             toolTask.LastEditedDate.ToNullableTime(),
 				LeadTimeMinutes:         0,
 				ParentIssueId:           "",
 				Priority:                "",
 				OriginalEstimateMinutes: 0,
 				TimeSpentMinutes:        0,
 				TimeRemainingMinutes:    0,
-				CreatorId:               "",
-				CreatorName:             toolStories.OpenedBy.OpenedByRealname,
-				AssigneeId:              "",
-				AssigneeName:            toolStories.AssignedTo.Realname,
+				CreatorId:               string(toolTask.OpenedBy.OpenedByID),
+				CreatorName:             toolTask.OpenedBy.OpenedByRealname,
+				AssigneeId:              string(toolTask.AssignedTo.AssignedToID),
+				AssigneeName:            toolTask.AssignedTo.AssignedToRealname,
 				Severity:                "",
 				Component:               "",
 				DeploymentId:            "",
