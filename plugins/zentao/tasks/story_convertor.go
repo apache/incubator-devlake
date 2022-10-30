@@ -6,7 +6,7 @@ The ASF licenses this file to You under the Apache License, Version 2.0
 (the "License"); you may not use this file except in compliance with
 the License.  You may obtain a copy of the License at
 
-  http://www.apache.org/licenses/LICENSE-2.0
+    http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,31 +29,31 @@ import (
 	"reflect"
 )
 
-var _ core.SubTaskEntryPoint = ConvertBug
+var _ core.SubTaskEntryPoint = ConvertStory
 
-var ConvertBugMeta = core.SubTaskMeta{
-	Name:             "convertBug",
-	EntryPoint:       ConvertBug,
+var ConvertStoryMeta = core.SubTaskMeta{
+	Name:             "convertStory",
+	EntryPoint:       ConvertStory,
 	EnabledByDefault: true,
-	Description:      "convert Zentao bug",
+	Description:      "convert Zentao story",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
+func ConvertStory(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
-	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoBug{})
+	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
 	cursor, err := db.Cursor(
-		dal.From(&models.ZentaoBug{}),
-		dal.Where(`_tool_zentao_bugs.product = ? and
-			_tool_zentao_bugs.connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
+		dal.From(&models.ZentaoStory{}),
+		dal.Where(`_tool_zentao_stories.execution_id = ? and 
+			_tool_zentao_stories.connection_id = ?`, data.Options.ExecutionId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 	convertor, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.ZentaoBug{}),
+		InputRowType: reflect.TypeOf(models.ZentaoStory{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -62,41 +62,43 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 				ExecutionId: data.Options.ExecutionId,
 				ProjectId:   data.Options.ProjectId,
 			},
-			Table: RAW_BUG_TABLE,
+			Table: RAW_STORY_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			toolBug := inputRow.(*models.ZentaoBug)
+			toolStory := inputRow.(*models.ZentaoStory)
+
 			domainBoard := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: boardIdGen.Generate(toolBug.ConnectionId, toolBug.ID),
+					Id: boardIdGen.Generate(toolStory.ConnectionId, toolStory.ID),
 				},
-				Url:                     "",
-				IconURL:                 "",
-				IssueKey:                toolBug.IssueKey,
-				Title:                   toolBug.Title,
-				Description:             "",
+				Url:      "",
+				IconURL:  "",
+				IssueKey: "",
+				Title:    toolStory.Title,
+				//Description:             toolStory.Spec,
 				EpicKey:                 "",
-				Type:                    toolBug.Type,
-				Status:                  toolBug.Status,
+				Type:                    toolStory.Type,
+				Status:                  toolStory.Status,
 				OriginalStatus:          "",
 				StoryPoint:              0,
-				ResolutionDate:          toolBug.ResolvedDate.ToNullableTime(),
-				CreatedDate:             toolBug.OpenedDate.ToNullableTime(),
-				UpdatedDate:             toolBug.LastEditedDate.ToNullableTime(),
+				ResolutionDate:          nil,
+				CreatedDate:             toolStory.OpenedDate.ToNullableTime(),
+				UpdatedDate:             toolStory.LastEditedDate.ToNullableTime(),
 				LeadTimeMinutes:         0,
 				ParentIssueId:           "",
-				Priority:                string(toolBug.Pri),
+				Priority:                "",
 				OriginalEstimateMinutes: 0,
 				TimeSpentMinutes:        0,
 				TimeRemainingMinutes:    0,
-				CreatorId:               string(toolBug.OpenedBy.OpenedByID),
-				CreatorName:             toolBug.OpenedBy.OpenedByRealname,
-				AssigneeId:              string(toolBug.AssignedTo.AssignedToID),
-				AssigneeName:            toolBug.AssignedTo.AssignedToRealname,
-				Severity:                string(toolBug.Severity),
+				CreatorId:               string(toolStory.OpenedBy.OpenedByID),
+				CreatorName:             toolStory.OpenedBy.OpenedByRealname,
+				AssigneeId:              string(toolStory.AssignedTo.AssignedToID),
+				AssigneeName:            toolStory.AssignedTo.AssignedToRealname,
+				Severity:                "",
 				Component:               "",
 				DeploymentId:            "",
 			}
+
 			results := make([]interface{}, 0)
 			results = append(results, domainBoard)
 			return results, nil

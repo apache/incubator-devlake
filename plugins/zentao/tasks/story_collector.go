@@ -28,11 +28,11 @@ import (
 	"net/url"
 )
 
-const RAW_STORIES_TABLE = "zentao_stories"
+const RAW_STORY_TABLE = "zentao_stories"
 
-var _ core.SubTaskEntryPoint = CollectStories
+var _ core.SubTaskEntryPoint = CollectStory
 
-func CollectStories(taskCtx core.SubTaskContext) errors.Error {
+func CollectStory(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -42,7 +42,7 @@ func CollectStories(taskCtx core.SubTaskContext) errors.Error {
 				ExecutionId: data.Options.ExecutionId,
 				ProjectId:   data.Options.ProjectId,
 			},
-			Table: RAW_STORIES_TABLE,
+			Table: RAW_STORY_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		Incremental: false,
@@ -58,7 +58,7 @@ func CollectStories(taskCtx core.SubTaskContext) errors.Error {
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
-				Stories []json.RawMessage `json:"stories"`
+				Story []json.RawMessage `json:"stories"`
 			}
 			body, err := io.ReadAll(res.Body)
 			err = json.Unmarshal(body, &data)
@@ -66,7 +66,7 @@ func CollectStories(taskCtx core.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao story collector")
 			}
-			return data.Stories, nil
+			return data.Story, nil
 		},
 	})
 	if err != nil {
@@ -76,9 +76,9 @@ func CollectStories(taskCtx core.SubTaskContext) errors.Error {
 	return collector.Execute()
 }
 
-var CollectStoriesMeta = core.SubTaskMeta{
-	Name:             "CollectStories",
-	EntryPoint:       CollectStories,
+var CollectStoryMeta = core.SubTaskMeta{
+	Name:             "CollectStory",
+	EntryPoint:       CollectStory,
 	EnabledByDefault: true,
-	Description:      "Collect Stories data from Zentao api",
+	Description:      "Collect Story data from Zentao api",
 }
