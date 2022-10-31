@@ -61,7 +61,45 @@ type BlueprintScopeV100 struct {
 	Transformation json.RawMessage `json:"transformation"`
 }
 
-/* PluginBlueprintV200 for project support */
+/*
+PluginBlueprintV200 for project support
+
+
+step 1: blueprint.settings like
+	{
+		"version": "2.0.0",
+		"scopes": [
+			{
+				"plugin": "github",
+				"scopes": [
+					{ "id": null, "name": "apache/incubator-devlake" }
+				]
+			}
+		]
+	}
+
+step 2: call plugin PluginBlueprintV200.MakePipelinePlan with
+	[
+		{ "id": "1", "name": "apache/incubator-devlake" }
+	]
+	plugin would return PipelinePlan like the following json, and config-ui should use scopeName for displaying
+	[
+		[
+			{ "plugin": "github", "options": { "scopeId": "1", "scopeName": "apache/incubator-devlake" } }
+		]
+	]
+	and []Scope for project_mapping:
+	[
+		&Repo{ "id": "github:GithubRepo:1:1", "name": "apache/incubator-devlake" },
+		&Board{ "id": "github:GithubRepo:1:1", "name": "apache/incubator-devlake" }
+	]
+
+step 3: framework should maintain the project_mapping table based on the []Scope array
+	[
+		{ "projectName": "xxx", "table": "repos", "rowId": "github:GithubRepo:1:1" },
+		{ "projectName": "xxx", "table": "boards", "rowId": "github:GithubRepo:1:1" },
+	]
+*/
 
 // Scope represents the top level entity for a data source, i.e. github repo, gitlab project, jira board.
 // They turn into repo, board in Domain Layer.
@@ -83,6 +121,9 @@ type PluginBlueprintV200 interface {
 // BlueprintScopeV200 contains the Plugin name and related ScopeIds, connectionId and transformationRuleId should be
 // deduced by the ScopeId
 type BlueprintScopeV200 struct {
-	Plugin   string `json:"plugin" validate:"required"`
-	ScopeIds []string
+	Plugin string `json:"plugin" validate:"required"`
+	Scopes []struct {
+		Id   string
+		Name string
+	}
 }
