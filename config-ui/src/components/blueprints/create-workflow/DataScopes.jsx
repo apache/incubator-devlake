@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useContext } from 'react'
 import {
   Button,
   Card,
@@ -24,7 +24,8 @@ import {
   Intent,
   TagInput
 } from '@blueprintjs/core'
-import { ProviderIcons, Providers } from '@/data/Providers'
+import IntegrationsContext from '@/store/integrations-context'
+// import { ProviderIcons, Providers } from '@/data/Providers'
 import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import BoardsSelector from '@/components/blueprints/BoardsSelector'
 import DataEntitiesSelector from '@/components/blueprints/DataEntitiesSelector'
@@ -66,6 +67,8 @@ const DataScopes = (props) => {
     elevation = Elevation.TWO,
     cardStyle = {}
   } = props
+
+  const { Providers, ProviderIcons } = useContext(IntegrationsContext)
 
   const selectedBoards = useMemo(
     () => boards[configuredConnection.id],

@@ -17,11 +17,14 @@
  */
 import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
+import { Colors, Icon } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
 import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
 import Content from '@/components/Content'
-import { integrationsData } from '@/data/integrations'
+// @todo: replace with Integrations Hook
+// import { integrationsData } from '@/data/integrations'
+import useIntegrations from '@/hooks/useIntegrations'
 import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/incoming-webhook.svg'
 
 import '@/styles/integration.scss'
@@ -29,30 +32,37 @@ import '@/styles/integration.scss'
 export default function Integration() {
   const history = useHistory()
 
-  const [activeProvider, setActiveProvider] = useState(integrationsData[0])
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider,
+    setActiveProvider
+  } = useIntegrations()
+  // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
 
   const handleProviderClick = (providerId) => {
-    const theProvider = integrationsData.find((p) => p.id === providerId)
+    const theProvider = Plugins.find((p) => p.id === providerId)
     if (theProvider) {
       setActiveProvider(theProvider)
       history.push(`/integrations/${theProvider.id}`)
     } else {
-      setActiveProvider(integrationsData[0])
+      setActiveProvider(Plugins.find[0])
     }
   }
 
-  useEffect(() => {
-    // Selected Provider
-    console.log(activeProvider)
-  }, [activeProvider, history])
+  // useEffect(() => {
+  //   // Selected Provider
+  //   console.log(activeProvider)
+  // }, [activeProvider, history])
 
-  useEffect(() => {}, [])
+  // useEffect(() => {}, [])
 
   return (
     <>
       <div className='container'>
         <Nav />
-        <Sidebar />
+        <Sidebar key={Integrations} integrations={Integrations} />
         <Content>
           <main className='main'>
             <AppCrumbs
@@ -69,18 +79,50 @@ export default function Integration() {
             <div className='headlineContainer'>
               <h1>Data Connections</h1>
               <p className='page-description'>
-                {integrationsData.length} connections are available for data
+                {Integrations.length} connections are available for data
                 collection.
               </p>
             </div>
             <div className='integrationProviders'>
-              {integrationsData.map((provider) => (
+              {Integrations.map((provider) => (
                 <div
                   className='iProvider'
                   key={`provider-${provider.id}`}
                   onClick={() => handleProviderClick(provider.id)}
+                  style={{ position: 'relative' }}
                 >
-                  <div className='providerIcon'>{provider.iconDashboard}</div>
+                  {provider?.private && (
+                    <span
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        position: 'absolute',
+                        top: '-5px',
+                        right: '-5px',
+                        textAlign: 'center',
+                        lineHeight: '16px',
+                        backgroundColor: '#fff',
+                        display: 'block',
+                        borderRadius: '50%',
+                        border: '1px solid #eee'
+                      }}
+                    >
+                      <Icon
+                        icon='lock'
+                        size={10}
+                        style={{ color: Colors.RED5 }}
+                      />
+                    </span>
+                  )}
+                  <div className='providerIcon'>
+                    <img
+                      className='providerIconSvg'
+                      src={provider.icon}
+                      width={40}
+                      height={40}
+                      style={{ width: '40px', height: '40px' }}
+                    />
+                  </div>
                   <div className='providerName'>
                     {provider.name}{' '}
                     {provider.isBeta && (

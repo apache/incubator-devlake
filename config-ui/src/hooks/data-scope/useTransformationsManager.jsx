@@ -15,103 +15,108 @@
  * limitations under the License.
  *
  */
-import { useCallback, useState } from 'react'
-import { Providers } from '@/data/Providers'
+import { useCallback, useState, useContext } from 'react'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers } from '@/data/Providers'
 import TransformationSettings from '@/models/TransformationSettings'
 import { isEqual } from 'lodash'
 
-// TODO separate to each plugin
-const getDefaultTransformations = (provider) => {
-  let transforms = {}
-  switch (provider) {
-    case Providers.GITHUB:
-      transforms = {
-        prType: '',
-        prComponent: '',
-        prBodyClosePattern: '',
-        issueSeverity: '',
-        issueComponent: '',
-        issuePriority: '',
-        issueTypeRequirement: '',
-        issueTypeBug: '',
-        issueTypeIncident: '',
-        refdiff: null,
-        productionPattern: '',
-        deploymentPattern: ''
-        // stagingPattern: '',
-        // testingPattern: ''
-      }
-      break
-    case Providers.JIRA:
-      transforms = {
-        epicKeyField: '',
-        typeMappings: {},
-        storyPointField: '',
-        remotelinkCommitShaPattern: '',
-        bugTags: [],
-        incidentTags: [],
-        requirementTags: [],
-        // @todo: verify if jira utilizes deploy tag(s)?
-        productionPattern: '',
-        deploymentPattern: ''
-        // stagingPattern: '',
-        // testingPattern: ''
-      }
-      break
-    case Providers.JENKINS:
-      transforms = {
-        productionPattern: '',
-        deploymentPattern: ''
-        // stagingPattern: '',
-        // testingPattern: ''
-      }
-      break
-    case Providers.GITLAB:
-      transforms = {
-        productionPattern: '',
-        deploymentPattern: ''
-        // stagingPattern: '',
-        // testingPattern: ''
-      }
-      break
-    case Providers.TAPD:
-      // @todo: complete tapd transforms #2673
-      transforms = {
-        issueTypeRequirement: '',
-        issueTypeBug: '',
-        issueTypeIncident: '',
-        productionPattern: '',
-        deploymentPattern: ''
-        // stagingPattern: '',
-        // testingPattern: ''
-      }
-      break
-  }
-  return transforms
-}
-
 // manage transformations in one place
 const useTransformationsManager = () => {
+  const { Providers, ProviderTransformations, Integrations } =
+    useContext(IntegrationsContext)
   const [transformations, setTransformations] = useState({})
 
-  const generateKey = (
-    connectionProvider,
-    connectionId,
-    projectNameOrBoard
-  ) => {
-    let key = `not-distinguished`
-    switch (connectionProvider) {
-      case Providers.GITHUB:
-      case Providers.GITLAB:
-      case Providers.JENKINS:
-        key = projectNameOrBoard?.id
-        break
-      case Providers.JIRA:
-        key = projectNameOrBoard?.id
-        break
-    }
-    return `${connectionProvider}/${connectionId}/${key}`
-  }
+  const getDefaultTransformations = useCallback(
+    (provider) => {
+      // let transforms = {}
+      const transforms = ProviderTransformations[provider] || {}
+      // @note: Default Transformations configured in Plugin Registry! (see @src/registry/plugins)
+      // switch (provider) {
+      //   case Providers.GITHUB:
+      //     transforms = {
+      //       prType: '',
+      //       prComponent: '',
+      //       prBodyClosePattern: '',
+      //       issueSeverity: '',
+      //       issueComponent: '',
+      //       issuePriority: '',
+      //       issueTypeRequirement: '',
+      //       issueTypeBug: '',
+      //       issueTypeIncident: '',
+      //       refdiff: null,
+      //       productionPattern: '',
+      //       deploymentPattern: ''
+      //       // stagingPattern: '',
+      //       // testingPattern: ''
+      //     }
+      //     break
+      //   case Providers.JIRA:
+      //     transforms = {
+      //       epicKeyField: '',
+      //       typeMappings: {},
+      //       storyPointField: '',
+      //       remotelinkCommitShaPattern: '',
+      //       bugTags: [],
+      //       incidentTags: [],
+      //       requirementTags: [],
+      //       // @todo: verify if jira utilizes deploy tag(s)?
+      //       productionPattern: '',
+      //       deploymentPattern: ''
+      //       // stagingPattern: '',
+      //       // testingPattern: ''
+      //     }
+      //     break
+      //   case Providers.JENKINS:
+      //     transforms = {
+      //       productionPattern: '',
+      //       deploymentPattern: ''
+      //       // stagingPattern: '',
+      //       // testingPattern: ''
+      //     }
+      //     break
+      //   case Providers.GITLAB:
+      //     transforms = {
+      //       productionPattern: '',
+      //       deploymentPattern: ''
+      //       // stagingPattern: '',
+      //       // testingPattern: ''
+      //     }
+      //     break
+      //   case Providers.TAPD:
+      //     // @todo: complete tapd transforms #2673
+      //     transforms = {
+      //       issueTypeRequirement: '',
+      //       issueTypeBug: '',
+      //       issueTypeIncident: '',
+      //       productionPattern: '',
+      //       deploymentPattern: ''
+      //       // stagingPattern: '',
+      //       // testingPattern: ''
+      //     }
+      //     break
+      // }
+      return transforms
+    },
+    [ProviderTransformations]
+  )
+
+  const generateKey = useCallback(
+    (connectionProvider, connectionId, entity) => {
+      let key = `not-distinguished`
+      key = entity ? entity?.getConfiguredEntityId() : key
+      console.info(
+        '>> GENERATING TRANSFORMATION KEY FOR ENTITY...',
+        connectionProvider,
+        connectionId,
+        entity,
+        key,
+        `${connectionProvider}/${connectionId}/${key}`
+      )
+      return `${connectionProvider}/${connectionId}/${key}`
+    },
+    []
+  )
 
   // change some setting in specific connection's specific transformation
   const changeTransformationSettings = useCallback(
@@ -134,7 +139,7 @@ const useTransformationsManager = () => {
         })
       }))
     },
-    [setTransformations]
+    [setTransformations, generateKey]
   )
 
   // set a default value for connection's specific transformation
@@ -158,7 +163,12 @@ const useTransformationsManager = () => {
         }))
       }
     },
-    [setTransformations, transformations]
+    [
+      setTransformations,
+      generateKey,
+      getDefaultTransformations,
+      transformations
+    ]
   )
 
   // get specific connection's specific transformation
@@ -178,7 +188,27 @@ const useTransformationsManager = () => {
       )
       return transformations[key]
     },
-    [transformations]
+    [transformations, generateKey]
+  )
+
+  // get provider's specific scope options
+  // @todo: refactor "projectNameOrBoard" to "entity" in all areas
+  const getTransformationScopeOptions = useCallback(
+    (connectionProvider, projectNameOrBoard) => {
+      const key = generateKey(connectionProvider, projectNameOrBoard)
+      const plugin = Integrations.find((p) => p.id === connectionProvider)
+      console.debug(
+        '>> useTransformationsManager.getScopeOptions...',
+
+        connectionProvider,
+        projectNameOrBoard
+      )
+      return plugin &&
+        typeof plugin?.getDefaultTransformationScopeOptions === 'function'
+        ? plugin.getDefaultTransformationScopeOptions(projectNameOrBoard)
+        : {}
+    },
+    [Integrations, generateKey]
   )
 
   // clear connection's transformation
@@ -198,7 +228,7 @@ const useTransformationsManager = () => {
         [key]: null
       }))
     },
-    [setTransformations]
+    [setTransformations, generateKey]
   )
 
   // check connection's transformation is changed
@@ -221,11 +251,12 @@ const useTransformationsManager = () => {
       )
       return !isEqual(defaultTransform, storedTransform)
     },
-    [transformations]
+    [transformations, generateKey, getDefaultTransformations]
   )
 
   return {
     getTransformation,
+    getTransformationScopeOptions,
     changeTransformationSettings,
     initializeDefaultTransformation,
     clearTransformationSettings,

@@ -41,7 +41,7 @@ import {
 } from '@blueprintjs/core'
 import { NullBlueprint } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+// import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import {
   StageStatus,
   TaskStatus,
@@ -59,6 +59,7 @@ import StageLane from '@/components/pipelines/StageLane'
 import { ToastNotification } from '@/components/Toast'
 import BlueprintNavigationLinks from '@/components/blueprints/BlueprintNavigationLinks'
 
+import useIntegrations from '@/hooks/useIntegrations'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import usePaginator from '@/hooks/usePaginator'
@@ -66,6 +67,18 @@ import usePaginator from '@/hooks/usePaginator'
 const BlueprintDetail = (props) => {
   // eslint-disable-next-line no-unused-vars
   const history = useHistory()
+
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    Providers,
+    ProviderIcons,
+    ProviderLabels,
+    activeProvider,
+    setActiveProvider
+  } = useIntegrations()
+
   const { bId } = useParams()
 
   const [blueprintId, setBlueprintId] = useState()
@@ -313,7 +326,7 @@ const BlueprintDetail = (props) => {
         plan: blueprint?.plan
       })
     }
-  }, [blueprint, setPipelineSettings])
+  }, [blueprint, setPipelineSettings, ProviderLabels])
 
   useEffect(() => {
     console.log('>>>> FETCHED ALL PIPELINES..', pipelines, activeBlueprint?.id)
@@ -440,7 +453,7 @@ const BlueprintDetail = (props) => {
     <>
       <div className='container'>
         <Nav />
-        <Sidebar />
+        <Sidebar key={Integrations} integrations={Integrations} />
         <Content>
           <main className='main'>
             <div

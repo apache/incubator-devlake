@@ -30,15 +30,6 @@ import {
   MenuItem
 } from '@blueprintjs/core'
 import { Select } from '@blueprintjs/select'
-import {
-  Providers,
-  // ProviderTypes,
-  ProviderLabels,
-  ProviderFormLabels,
-  ProviderFormPlaceholders,
-  ProviderConnectionLimits
-  // ProviderIcons,
-} from '@/data/Providers'
 import { NullBlueprintConnection } from '@/data/NullBlueprintConnection'
 import InputValidationError from '@/components/validation/InputValidationError'
 import ContentLoader from '@/components/loaders/ContentLoader'
@@ -48,58 +39,6 @@ const Modes = {
   CREATE: 'create',
   EDIT: 'edit'
 }
-
-// @todo: lift data sources list to configuration level, requires expansion when more providers are added..
-const DATA_SOURCES_LIST = [
-  {
-    id: 1,
-    name: Providers.JIRA,
-    title: ProviderLabels[Providers.JIRA.toUpperCase()],
-    value: Providers.JIRA
-  },
-  {
-    id: 2,
-    name: Providers.GITHUB,
-    title: ProviderLabels[Providers.GITHUB.toUpperCase()],
-    value: Providers.GITHUB
-  },
-  {
-    id: 3,
-    name: Providers.GITLAB,
-    title: ProviderLabels[Providers.GITLAB.toUpperCase()],
-    value: Providers.GITLAB
-  },
-  {
-    id: 4,
-    name: Providers.JENKINS,
-    title: ProviderLabels[Providers.JENKINS.toUpperCase()],
-    value: Providers.JENKINS
-  },
-  {
-    id: 5,
-    name: Providers.TAPD,
-    title: ProviderLabels[Providers.TAPD.toUpperCase()],
-    value: Providers.TAPD
-  },
-  {
-    id: 6,
-    name: Providers.AZURE,
-    title: ProviderLabels[Providers.AZURE.toUpperCase()],
-    value: Providers.AZURE
-  },
-  {
-    id: 7,
-    name: Providers.BITBUCKET,
-    title: ProviderLabels[Providers.BITBUCKET.toUpperCase()],
-    value: Providers.BITBUCKET
-  },
-  {
-    id: 8,
-    name: Providers.GITEE,
-    title: ProviderLabels[Providers.GITEE.toUpperCase()],
-    value: Providers.GITEE
-  }
-]
 
 const ConnectionDialog = (props) => {
   const {
@@ -124,9 +63,11 @@ const ConnectionDialog = (props) => {
     isSaving = false,
     isValid = false,
     // editMode = false,
-    dataSourcesList = DATA_SOURCES_LIST,
-    labels = ProviderLabels[connection.provider],
-    placeholders = ProviderFormPlaceholders[connection.provider],
+    dataSourcesList = [],
+    labels,
+    placeholders,
+    tooltips,
+    sourceLimits,
     onTest = () => {},
     onSave = () => {},
     onClose = () => {},
@@ -242,7 +183,7 @@ const ConnectionDialog = (props) => {
                     contentClassName='formGroupContent'
                   >
                     <Label style={{ display: 'inline', marginRight: 0 }}>
-                      {labels ? labels.datasource : <>Data Source</>}
+                      <>Data Source</>
                       <span className='requiredStar'>*</span>
                     </Label>
                     <Select
@@ -331,17 +272,12 @@ const ConnectionDialog = (props) => {
                     allTestResponses={allTestResponses}
                     errors={errors}
                     showError={showConnectionError}
-                    authType={
-                      [Providers.JENKINS, Providers.JIRA].includes(
-                        activeProvider?.id
-                      )
-                        ? 'plain'
-                        : 'token'
-                    }
+                    authType={activeProvider?.getAuthenticationType()}
                     showLimitWarning={false}
-                    sourceLimits={ProviderConnectionLimits}
-                    labels={ProviderFormLabels[activeProvider?.id]}
-                    placeholders={ProviderFormPlaceholders[activeProvider?.id]}
+                    sourceLimits={sourceLimits}
+                    labels={labels}
+                    placeholders={placeholders}
+                    tooltips={tooltips}
                     enableActions={false}
                     // formGroupClassName='formGroup-inline'
                     showHeadline={false}

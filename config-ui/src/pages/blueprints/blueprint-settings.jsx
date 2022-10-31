@@ -39,13 +39,13 @@ import {
   Classes,
   Popover
 } from '@blueprintjs/core'
-
-import { integrationsData } from '@/data/integrations'
+import useIntegrations from '@/hooks/useIntegrations'
+// import { integrationsData } from '@/data/integrations'
 import JiraBoard from '@/models/JiraBoard'
 import DataScopeConnection from '@/models/DataScopeConnection'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+// import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import { TaskStatus } from '@/data/Task'
 
 import Nav from '@/components/Nav'
@@ -89,7 +89,18 @@ const BlueprintSettings = (props) => {
   const history = useHistory()
   const { bId } = useParams()
 
-  const [activeProvider, setActiveProvider] = useState(integrationsData[0])
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    Providers,
+    ProviderLabels,
+    ProviderIcons,
+    activeProvider,
+    setActiveProvider
+  } = useIntegrations()
+
+  // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
   // @disabled Provided By Data Scopes Manager
   // const [activeTransformation, setActiveTransformation] = useState()
 
@@ -482,7 +493,7 @@ const BlueprintSettings = (props) => {
       console.log('>>> MODIFYING DATA CONNECTION SCOPE...', connectionWithScope)
       setActiveProvider((aP) =>
         connection
-          ? integrationsData.find((i) => i.id === connection?.provider)
+          ? Integrations.find((i) => i.id === connection?.provider)
           : aP
       )
       setActiveSetting((aS) => ({
@@ -501,7 +512,9 @@ const BlueprintSettings = (props) => {
       connectionsList,
       connections,
       setScopeConnection,
-      setConfiguredConnection
+      setConfiguredConnection,
+      setActiveProvider,
+      Integrations
     ]
   )
 
@@ -575,7 +588,8 @@ const BlueprintSettings = (props) => {
     entities,
     configuredConnection,
     activeProvider?.id,
-    activeBlueprint?.mode
+    activeBlueprint?.mode,
+    Providers
   ])
 
   // @note: lifted higher to dsm hook
@@ -762,7 +776,8 @@ const BlueprintSettings = (props) => {
     getJiraMappedBoards,
     setRawConfiguration,
     createAdvancedConnection,
-    createNormalConnection
+    createNormalConnection,
+    Providers.JIRA
   ])
 
   useEffect(() => {
@@ -879,7 +894,8 @@ const BlueprintSettings = (props) => {
     // activeProvider,
     // isFetchingJIRA,
     // jiraApiBoards,
-    scopeConnection
+    scopeConnection,
+    Providers.JIRA
   ])
 
   useEffect(() => {
@@ -913,7 +929,8 @@ const BlueprintSettings = (props) => {
     scopeConnection?.connectionId,
     scopeConnection?.providerId,
     getJiraMappedBoards,
-    setConnections
+    setConnections,
+    Providers.JIRA
   ])
 
   useEffect(() => {
@@ -945,7 +962,8 @@ const BlueprintSettings = (props) => {
     scopeConnection?.providerId,
     getJiraMappedBoards,
     setConnections,
-    boardSearch
+    boardSearch,
+    Providers.JIRA
   ])
 
   useEffect(() => {
@@ -1037,7 +1055,7 @@ const BlueprintSettings = (props) => {
     <>
       <div className='container'>
         <Nav />
-        <Sidebar />
+        <Sidebar key={Integrations} integrations={Integrations} />
         <Content>
           <main className='main'>
             {activeBlueprint?.id !== null && blueprintErrors.length === 0 && (
@@ -1257,6 +1275,7 @@ const BlueprintSettings = (props) => {
                         Data Scope and Transformation
                       </h2>
                       <DataScopesGrid
+                        providers={Providers}
                         connections={connections}
                         blueprint={activeBlueprint}
                         onModify={modifyConnection}
@@ -1298,6 +1317,7 @@ const BlueprintSettings = (props) => {
                       </div>
                     </div>
                     <DataScopesGrid
+                      providers={Providers}
                       connections={connections}
                       blueprint={activeBlueprint}
                       onModify={() => modifySetting('plan')}

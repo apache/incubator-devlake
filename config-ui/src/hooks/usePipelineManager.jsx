@@ -15,12 +15,13 @@
  * limitations under the License.
  *
  */
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useContext } from 'react'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
 import { ToastNotification } from '@/components/Toast'
-import { Providers } from '@/data/Providers'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers } from '@/data/Providers'
 import { Intent } from '@blueprintjs/core'
 // import { integrationsData } from '@/data/integrations'
 
@@ -28,6 +29,7 @@ function usePipelineManager(
   myPipelineName = `COLLECTION ${Date.now()}`,
   initialTasks = []
 ) {
+  const { Providers } = useContext(IntegrationsContext)
   // const [integrations, setIntegrations] = useState(integrationsData)
   const [pipelineName, setPipelineName] = useState(
     myPipelineName ?? `COLLECTION ${Date.now()}`
@@ -47,18 +49,9 @@ function usePipelineManager(
   const [activePipeline, setActivePipeline] = useState(NullPipelineRun)
   const [lastRunId, setLastRunId] = useState(null)
   const [pipelineRun, setPipelineRun] = useState(NullPipelineRun)
-  const [allowedProviders, setAllowedProviders] = useState([
-    Providers.JIRA,
-    Providers.GITLAB,
-    Providers.JENKINS,
-    Providers.GITHUB,
-    Providers.REFDIFF,
-    Providers.GITEXTRACTOR,
-    Providers.FEISHU,
-    Providers.AE,
-    Providers.DBT,
-    Providers.TAPD
-  ])
+  const [allowedProviders, setAllowedProviders] = useState(
+    Object.keys(Providers)
+  )
 
   const PIPELINES_ENDPOINT = useMemo(() => `${DEVLAKE_ENDPOINT}/pipelines`, [])
   const [logfile, setLogfile] = useState('logging.tar.gz')

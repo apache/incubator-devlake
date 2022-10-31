@@ -18,7 +18,7 @@
 import React from 'react'
 import { Colors } from '@blueprintjs/core'
 import dayjs from '@/utils/time'
-import { Providers } from '@/data/Providers'
+// import { Providers } from '@/data/Providers'
 
 const StageTaskCaption = (props) => {
   const { task, options } = props

@@ -102,6 +102,13 @@ class GitlabProject {
   getConfiguredEntityId() {
     return this.id
   }
+
+  getTransformationScopeOptions() {
+    return {
+      projectId: this.id,
+      title: this.title
+    }
+  }
 }
 
 export default GitlabProject

@@ -1,0 +1,56 @@
+{
+  "id": "gitee",
+  "name": "Gitee",
+  "type": "integration",
+  "enabled": true,
+  "multiConnection": true,
+  "connectionLimit": 0,
+  "isBeta": false,
+  "isProvider": true,
+  "icon": "src/images/integrations/gitee.svg",
+  "private": false,
+  "connection": {
+    "authentication": "token",
+    "fields": {
+      "name": { "enable": true, "required": true, "readonly": false },
+      "endpoint": { },
+      "proxy": { },
+      "username": { },
+      "password": { },
+      "token": { },
+      "rateLimitPerHour": { }
+    },
+    "labels": {
+      "name": "Connection Name",
+      "endpoint": "Endpoint URL",
+      "proxy": "Proxy URL",
+      "username": "Username",
+      "password": "Password",
+      "token": "Access Token",
+      "rateLimitPerHour": "Rate Limit (per hour)"
+    },
+    "placeholders": {
+      "name": "eg. Gitee",
+      "endpoint": "URL eg. https://api.gitee.io/",
+      "proxy": "eg. http://proxy.localhost:8080",
+      "username": "eg. admin",
+      "password": "eg. ************",
+      "token": "eg. ff9d1ad0e5c04f1f98fa",
+      "rateLimitPerHour": "1000"
+    },
+    "tooltips": {
+      "rateLimitPerHour": "Rate Limit requests per hour,\nEnter a numeric value > 0 to enable."
+    }
+  },
+  "entities": ["CICD"],
+  "transformations": {
+    "scopes": {
+      "options": {
+      }
+    },
+    "default": {
+      "productionPattern": "",
+      "deploymentPattern": ""
+    }
+  }
+}

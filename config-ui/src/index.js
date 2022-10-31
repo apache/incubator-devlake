@@ -20,10 +20,13 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import App from './App'
 import { UIContextProvider } from '@/store/UIContext'
+import { IntegrationsContextProvider } from '@/store/integrations-context'
 
 ReactDOM.render(
   <UIContextProvider>
-    <App />
+    <IntegrationsContextProvider>
+      <App />
+    </IntegrationsContextProvider>
   </UIContextProvider>,
   document.getElementById('app')
 )

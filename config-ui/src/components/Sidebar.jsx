@@ -15,7 +15,13 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState, useContext } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useContext,
+  useMemo,
+  useCallback
+} from 'react'
 import {
   // BrowserRouter as Router,
   useRouteMatch
@@ -29,34 +35,45 @@ import { ReactComponent as Logo } from '@/images/devlake-logo.svg'
 import { ReactComponent as LogoText } from '@/images/devlake-textmark.svg'
 
 import '@/styles/sidebar.scss'
-import UIContext from '../store/UIContext'
+import UIContext from '@/store/UIContext'
 
-const Sidebar = () => {
+const Sidebar = (props) => {
+  const { integrations = [] } = props
   const activeRoute = useRouteMatch()
   const uiContext = useContext(UIContext)
 
-  const [menu, setMenu] = useState(MenuConfiguration(activeRoute))
+  const getMenu = useCallback(
+    () => MenuConfiguration(activeRoute, integrations),
+    [activeRoute, integrations]
+  )
+
+  const ActiveMenu = useMemo(() => getMenu(), [getMenu])
+
+  const [menu, setMenu] = useState(ActiveMenu)
   const [versionTag, setVersionTag] = useState('')
 
-  useEffect(() => {
-    setMenu(MenuConfiguration(activeRoute))
-  }, [activeRoute])
+  // useEffect(() => {
+  //   setMenu(ActiveMenu)
+  // }, [ActiveMenu])
 
   useEffect(() => {
-    const fetchVersion = async () => {
-      try {
-        const versionUrl = `${DEVLAKE_ENDPOINT}/version`
-        const res = await request.get(versionUrl).catch((e) => {
-          console.log('>>> API VERSION ERROR...', e)
-          setVersionTag('')
-        })
-        setVersionTag(res?.data ? res.data?.version : '')
-      } catch (e) {
-        setVersionTag('')
-      }
-    }
-    fetchVersion()
+    // @todo: re-enable version fetch
+    // const fetchVersion = async () => {
+    //   try {
+    //     const versionUrl = `${DEVLAKE_ENDPOINT}/version`
+    //     const res = await request.get(versionUrl).catch((e) => {
+    //       console.log('>>> API VERSION ERROR...', e)
+    //       setVersionTag('')
+    //     })
+    //     setVersionTag(res?.data ? res.data?.version : '')
+    //   } catch (e) {
+    //     setVersionTag('')
+    //   }
+    // }
+    // fetchVersion()
   }, [])
+
+  // useEffect(() => {}, [integrations])
 
   return uiContext.sidebarVisible ? (
     <Card
@@ -85,7 +102,7 @@ const Sidebar = () => {
       >
         <sup style={{ fontSize: '9px', color: '#cccccc', marginLeft: '-30px' }}>DEV</sup>LAKE
       </h3> */}
-      <SidebarMenu menu={menu} />
+      <SidebarMenu menu={ActiveMenu} />
       <span className='copyright-tag'>
         {/* <span className='version-tag'>{versionTag || ''}</span><br /> */}
         <strong>Apache 2.0 License</strong>

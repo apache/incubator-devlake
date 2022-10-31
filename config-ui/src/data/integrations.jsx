@@ -37,6 +37,7 @@ import { ReactComponent as GiteeProvider } from '@/images/integrations/gitee.svg
 // import RefDiffProvider from '@/images/git-diff.png'
 // import { ReactComponent as NullProvider } from '@/images/integrations/null.svg'
 
+// @todo: TO-BE replaced with Integrations Hook
 const integrationsData = [
   {
     id: Providers.GITLAB,
@@ -208,6 +209,7 @@ const integrationsData = [
   }
 ]
 
+// @todo: deprecate this var, used for legacy V11 Pipeline
 const pluginsData = [
   {
     id: Providers.GITEXTRACTOR,

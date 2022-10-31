@@ -53,6 +53,8 @@ const createTypeMapObject = (customType, standardType) => {
 
 export default function JiraSettings(props) {
   const {
+    Providers,
+    ProviderLabels,
     provider,
     connection,
     issueTypes = [],

@@ -17,11 +17,12 @@
  */
 import React from 'react'
 import { Button, Intent, Card, Elevation, Tag } from '@blueprintjs/core'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+// import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
 
 const DataScopesGrid = (props) => {
   const {
+    providers: Providers = {},
     connections = [],
     blueprint = NullBlueprint,
     mode = BlueprintMode.NORMAL,

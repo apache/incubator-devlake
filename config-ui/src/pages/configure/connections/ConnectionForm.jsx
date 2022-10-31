@@ -15,7 +15,14 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+  useContext
+} from 'react'
 import {
   Button,
   Colors,
@@ -32,14 +39,32 @@ import {
   Intent,
   PopoverInteractionKind,
   NumericInput,
-  Switch
+  Switch,
+  Tooltip
 } from '@blueprintjs/core'
-import { Providers } from '@/data/Providers'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers } from '@/data/Providers'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import InputValidationError from '@/components/validation/InputValidationError'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
+
+const TooltipIcon = (props) => (
+  <Icon
+    icon='info-sign'
+    size={12}
+    style={{
+      float: 'left',
+      display: 'inline-block',
+      alignContent: 'center',
+      marginBottom: '4px',
+      marginLeft: '8px',
+      color: '#999'
+    }}
+    {...props}
+  />
+)
 
 export default function ConnectionForm(props) {
   const {
@@ -80,12 +105,15 @@ export default function ConnectionForm(props) {
     authType = 'token',
     sourceLimits = {},
     showLimitWarning = true,
-    labels,
-    placeholders,
+    labels = {},
+    placeholders = {},
+    tooltips = {},
     enableActions = true,
     formGroupClassName = 'formGroup',
     showHeadline = true
   } = props
+
+  const { Providers } = useContext(IntegrationsContext)
 
   const connectionNameRef = useRef()
   const connectionEndpointRef = useRef()
@@ -240,7 +268,12 @@ export default function ConnectionForm(props) {
       console.log('>> PERSONAL ACCESS TOKENS ENTERED...', personalAccessTokens)
       syncPersonalAcessTokens()
     }
-  }, [activeProvider?.id, personalAccessTokens, syncPersonalAcessTokens])
+  }, [
+    activeProvider?.id,
+    personalAccessTokens,
+    syncPersonalAcessTokens,
+    Providers.GITHUB
+  ])
 
   useEffect(() => {
     console.log(
@@ -435,6 +468,15 @@ export default function ConnectionForm(props) {
             >
               <Label>
                 {labels ? labels.token : <>Basic&nbsp;Auth&nbsp;Token</>}
+                {tooltips?.token ? (
+                  <Tooltip
+                    className='connection-tooltip'
+                    intent={Intent.PRIMARY}
+                    content={tooltips?.token}
+                  >
+                    <TooltipIcon />
+                  </Tooltip>
+                ) : null}
                 <span className='requiredStar'>*</span>
               </Label>
               {[Providers.GITHUB].includes(activeProvider?.id) ? (
@@ -716,6 +758,15 @@ export default function ConnectionForm(props) {
               >
                 <Label>
                   {labels ? labels.password : <>Password</>}
+                  {tooltips?.password ? (
+                    <Tooltip
+                      className='connection-tooltip'
+                      intent={Intent.PRIMARY}
+                      content={tooltips?.password}
+                    >
+                      <TooltipIcon />
+                    </Tooltip>
+                  ) : null}
                   <span className='requiredStar'>*</span>
                 </Label>
                 <InputGroup
@@ -797,6 +848,15 @@ export default function ConnectionForm(props) {
               >
                 <Label>
                   {labels ? labels.rateLimitPerHour : <>Rate&nbsp;Limit</>}
+                  {tooltips?.rateLimitPerHour ? (
+                    <Tooltip
+                      className='connection-tooltip'
+                      intent={Intent.PRIMARY}
+                      content={tooltips?.rateLimitPerHour}
+                    >
+                      <TooltipIcon />
+                    </Tooltip>
+                  ) : null}
                 </Label>
                 <div
                   className='ratelimit-options'

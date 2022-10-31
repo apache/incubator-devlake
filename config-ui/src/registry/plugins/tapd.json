@@ -1,0 +1,55 @@
+{
+  "id": "tapd",
+  "name": "TAPD",
+  "type": "integration",
+  "enabled": true,
+  "multiConnection": true,
+  "connectionLimit": 0,
+  "isBeta": true,
+  "isProvider": true,
+  "icon": "src/images/integrations/tapd.svg",
+  "private": false,
+  "connection": {
+    "authentication": "plain",
+    "fields": {
+      "name": { "enable": true, "required": true, "readonly": false },
+      "endpoint": { },
+      "proxy": { },
+      "username": { },
+      "password": { },
+      "rateLimitPerHour": { }
+    },
+    "labels": {
+      "name": "Connection Name",
+      "endpoint": "Endpoint URL",
+      "proxy": "Proxy URL",
+      "username": "Username",
+      "password": "Password",
+      "rateLimitPerHour": "Rate Limit (per hour)"
+    },
+    "placeholders": {
+      "name": "eg. Tapd",
+      "endpoint": "URL eg. https://api.tapd.cn/",
+      "proxy": "eg. http://proxy.localhost:8080",
+      "username": "eg. admin",
+      "password": "eg. ************",
+      "rateLimit": "1000"
+    },
+    "tooltips": {
+    }
+  },
+  "entities": ["CODE", "TICKET"],
+  "transformations": {
+    "scopes": {
+      "options": {
+      }
+    },
+    "default": {
+      "issueTypeRequirement": "",
+      "issueTypeBug": "",
+      "issueTypeIncident": "",
+      "productionPattern": "",
+      "deploymentPattern": ""
+    }
+  }
+}

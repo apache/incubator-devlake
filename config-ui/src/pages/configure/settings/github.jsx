@@ -37,6 +37,8 @@ import '@/styles/connections.scss'
 
 export default function GithubSettings(props) {
   const {
+    Providers,
+    ProviderLabels,
     provider,
     connection,
     entities = [],

@@ -15,15 +15,9 @@
  * limitations under the License.
  *
  */
-import React, { useEffect } from 'react'
-import {
-  Providers
-  // ProviderTypes,
-  // ProviderIcons,
-  // ConnectionStatus,
-  // ConnectionStatusLabels,
-} from '@/data/Providers'
-// import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
+import React, { useMemo } from 'react'
+import NoData from '@/components/NoData'
+
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
@@ -33,8 +27,28 @@ import AzureSettings from '@/pages/configure/settings/azure'
 import BitbucketSettings from '@/pages/configure/settings/bitbucket'
 import GiteeSettings from '@/pages/configure/settings/gitee'
 
+// Transformation Higher-Order Component (HOC) Settings Loader
+const withTransformationSettings = (
+  TransformationComponent,
+  TransformationProps
+) =>
+  TransformationComponent ? (
+    <TransformationComponent {...TransformationProps} />
+  ) : (
+    <NoData
+      title='No Transformations'
+      icon='disable'
+      message='This provider does not have additional transformation settings'
+      onClick={null}
+      actionText={null}
+    />
+  )
+
 const ProviderTransformationSettings = (props) => {
   const {
+    Providers = {},
+    ProviderLabels = {},
+    ProviderIcons = {},
     provider,
     blueprint,
     connection,
@@ -50,102 +64,32 @@ const ProviderTransformationSettings = (props) => {
     isFetchingJIRA = false
   } = props
 
+  // Provider Transformation Components (LOCAL)
+  const TransformationComponents = useMemo(
+    () => ({
+      [Providers.GITHUB]: GithubSettings,
+      [Providers.GITLAB]: GitlabSettings,
+      [Providers.JIRA]: JiraSettings,
+      [Providers.JENKINS]: JenkinsSettings,
+      [Providers.TAPD]: TapdSettings,
+      [Providers.AZURE]: AzureSettings,
+      [Providers.BITBUCKET]: BitbucketSettings,
+      [Providers.GITEE]: GiteeSettings
+    }),
+    [Providers]
+  )
+
+  // Dynamic Transformation Settings via HOC
+  const TransformationWithProviderSettings = withTransformationSettings(
+    provider?.id && TransformationComponents[provider?.id]
+      ? TransformationComponents[provider?.id]
+      : null,
+    { ...props, entities: props.entities[props?.connection?.id] }
+  )
+
   return (
     <div className='transformation-settings' data-provider={provider?.id}>
-      {provider?.id === Providers.GITHUB && (
-        <GithubSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-
-      {provider?.id === Providers.GITLAB && (
-        <GitlabSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-
-      {provider?.id === Providers.JIRA && (
-        <JiraSettings
-          provider={provider}
-          connection={connection}
-          issueTypes={issueTypes}
-          fields={fields}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-          jiraProxyError={jiraProxyError}
-          isFetchingJIRA={isFetchingJIRA}
-        />
-      )}
-
-      {provider?.id === Providers.JENKINS && (
-        <JenkinsSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-      {provider?.id === Providers.TAPD && (
-        <TapdSettings
-          provider={provider}
-          connection={connection}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-      {provider?.id === Providers.AZURE && (
-        <AzureSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-      {provider?.id === Providers.BITBUCKET && (
-        <BitbucketSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-      {provider?.id === Providers.GITEE && (
-        <GiteeSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
+      {TransformationWithProviderSettings}
     </div>
   )
 }

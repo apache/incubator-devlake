@@ -1,0 +1,54 @@
+{
+  "id": "jenkins",
+  "name": "Jenkins",
+  "type": "integration",
+  "enabled": true,
+  "multiConnection": true,
+  "connectionLimit": 0,
+  "isBeta": false,
+  "isProvider": true,
+  "icon": "src/images/integrations/jenkins.svg",
+  "private": false,
+  "connection": {
+    "authentication": "plain",
+    "fields": {
+      "name": { "enable": true, "required": true, "readonly": false },
+      "endpoint": { },
+      "proxy": { },
+      "username": { },
+      "password": { },
+      "rateLimitPerHour": { }
+    },
+    "labels": {
+      "name": "Connection Name",
+      "endpoint": "Endpoint URL",
+      "proxy": "Proxy URL",
+      "username": "Username",
+      "password": "Password",
+      "rateLimitPerHour": "Rate Limit (per hour)"
+    },
+    "placeholders": {
+      "name": "eg. Jenkins",
+      "endpoint": "URL eg. https://api.jenkins.io/",
+      "proxy": "eg. http://proxy.localhost:8080",
+      "username": "eg. admin",
+      "password": "eg. ************",
+      "rateLimitPerHour": "1000"
+    },
+    "tooltips": {
+      "rateLimitPerHour": "Rate Limit requests per hour,\nEnter a numeric value > 0 to enable."
+    }
+  },
+  "entities": ["CICD"],
+  "transformations": {
+    "scopes": {
+      "options": {
+        "jobName": null
+      }
+    },
+    "default": {
+      "productionPattern": "",
+      "deploymentPattern": ""
+    }
+  }
+}

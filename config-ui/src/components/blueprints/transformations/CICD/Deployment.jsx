@@ -15,7 +15,8 @@
  * limitations under the License.
  *
  */
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useContext } from 'react'
+import IntegrationsContext from '@/store/integrations-context'
 import {
   Intent,
   FormGroup,
@@ -24,7 +25,6 @@ import {
   Radio,
   Tag
 } from '@blueprintjs/core'
-import { Providers, ProviderLabels } from '@/data/Providers'
 
 const Deployment = (props) => {
   const {
@@ -33,6 +33,8 @@ const Deployment = (props) => {
     isSaving = false,
     onSettingsChange = () => {}
   } = props
+
+  const { Providers, ProviderLabels } = useContext(IntegrationsContext)
 
   const [selectValue, setSelectValue] = useState(1)
 
@@ -82,7 +84,13 @@ const Deployment = (props) => {
     }
 
     return [radio1, radio2]
-  }, [provider])
+  }, [
+    provider,
+    ProviderLabels,
+    Providers.JENKINS,
+    Providers.GITHUB,
+    Providers.GITLAB
+  ])
 
   const tagHints = useMemo(() => {
     let hint1
@@ -115,7 +123,7 @@ const Deployment = (props) => {
     }
 
     return [hint1, hint2]
-  }, [provider])
+  }, [provider, Providers.JENKINS, Providers.GITHUB, Providers.GITLAB])
 
   return (
     <>

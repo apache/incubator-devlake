@@ -17,28 +17,27 @@
  */
 
 /**
- * @typedef {object} JenkinsJob
+ * @typedef {object} MenuItem
  * @property {number?} id
- * @property {number?} key
- * @property {number?} projectId
- * @property {string|number?} name
- * @property {string|number?} value
- * @property {string|number?} title
- * @property {boolean?} useApi
- * @property {project|board|job?} variant
- * @property {string?} providerId
+ * @property {boolean?} disabled
+ * @property {string?} label
+ * @property {string|Object?} route
+ * @property {boolean?} active
+ * @property {string|Object} icon
+ * @property {<Array<string>>?} classNames
+ * @property {<Array<MenuItem>>?} children
+ * @property {string?} target
  */
-class JenkinsJob {
+class MenuItem {
   constructor(data = {}) {
     this.id = data?.id || null
-    this.key = data?.key || this.id || null
-    this.name = data?.name || null
-    this.value = data?.value || this.name || this.id || null
-    this.title = data?.title || this.name || this.id || null
-
-    this.useApi = data?.useApi || true
-    this.variant = data?.variant || 'job'
-    this.providerId = 'jenkins'
+    this.disabled = !!data?.disabled
+    this.label = data?.label || null
+    this.route = data?.route || '#'
+    this.active = !!data?.active
+    this.icon = data?.icon || null
+    this.classNames = Array.isArray(data?.classNames) ? data?.classNames : []
+    this.target = data?.target || null
   }
 
   get(property) {
@@ -49,16 +48,6 @@ class JenkinsJob {
     this[property] = value
     return this.property
   }
-
-  getConfiguredEntityId() {
-    return this.name.toString() || this.id
-  }
-
-  getTransformationScopeOptions() {
-    return {
-      jobName: this.value
-    }
-  }
 }
 
-export default JenkinsJob
+export default MenuItem
