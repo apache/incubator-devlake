@@ -51,7 +51,6 @@ func TestRepoDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BitbucketRepo{})
-	dataflowTester.FlushTabler(&models.BitbucketAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiRepoMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BitbucketRepo{},
@@ -64,21 +63,6 @@ func TestRepoDataFlow(t *testing.T) {
 			"description",
 			"owner_id",
 			"language",
-		),
-	)
-	dataflowTester.VerifyTable(
-		models.BitbucketAccount{},
-		"./snapshot_tables/_tool_bitbucket_accounts.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"user_name",
-			"account_id",
-			"account_status",
-			"display_name",
-			"avatar_url",
-			"html_url",
-			"uuid",
-			"has2_fa_enabled",
 		),
 	)
 
