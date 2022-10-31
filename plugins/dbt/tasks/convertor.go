@@ -110,7 +110,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 			return err
 		}
 	}
-	dbtExecParams := []string{"dbt", "run", "--profiles-dir", projectPath}
+	dbtExecParams := []string{"dbt", "run", "--project-dir", projectPath}
 	if projectVars != nil {
 		jsonProjectVars, err := json.Marshal(projectVars)
 		if err != nil {
