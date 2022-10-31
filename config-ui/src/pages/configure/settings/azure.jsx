@@ -57,7 +57,6 @@ export default function AzureSettings(props) {
       {dataDomains.some((e) => e.value === DataDomainTypes.DEVOPS) ? (
         <Deployment
           provider={provider}
-          entities={dataDomains}
           transformation={transformation}
           onSettingsChange={onSettingsChange}
           isSaving={isSaving || isSavingConnection}

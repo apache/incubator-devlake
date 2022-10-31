@@ -87,6 +87,7 @@ function useDataScopesManager({
       console.log(
         '>>> DATA SCOPES MANAGER: CREATING PROVIDER SCOPE FOR CONNECTION...',
         connectionIdx,
+        scopeEntitiesGroup,
         connection
       )
       let newScope = {
@@ -94,16 +95,16 @@ function useDataScopesManager({
         entities: dataDomainsGroup[connection.id]?.map((d) => d.value) || []
       }
       // Generate scopes Dynamically for all Project/Board/Job/... Entities
-      // @todo: refactor again when boards & projects get merged...
-      newScope = [...scopeEntitiesGroup[connection.id]].map((e) => ({
-        ...newScope,
-        options: {
-          ...getTransformationScopeOptions(connection?.providerId, e)
-        },
-        transformation: {
-          ...getTransformation(connection?.providerId, connection?.id, e)
-        }
-      }))
+      newScope =
+        scopeEntitiesGroup[connection.id]?.map((e) => ({
+          ...newScope,
+          options: {
+            ...getTransformationScopeOptions(connection?.providerId, e)
+          },
+          transformation: {
+            ...getTransformation(connection?.providerId, connection?.id, e)
+          }
+        })) || []
       // switch (providerId) {
       //   case Providers.JIRA:
       //     newScope = boards[connection.id]?.map((b) => ({
@@ -254,15 +255,17 @@ function useDataScopesManager({
   const getJenkinsProjects = useCallback(
     (c) =>
       // when s.options?.jobName is empty, it's old jenkins config which collect all job data
-      c.scope.filter(s => s.options?.jobName).map(
-        (s) =>
-          new JenkinsJob({
-            id: s.options.jobName,
-            key: s.options.jobName,
-            value: s.options.jobName,
-            title: s.options.jobName
-          })
-      ),
+      c.scope
+        .filter((s) => s.options?.jobName)
+        .map(
+          (s) =>
+            new JenkinsJob({
+              id: s.options.jobName,
+              key: s.options.jobName,
+              value: s.options.jobName,
+              title: s.options.jobName
+            })
+        ),
     []
   )
 
@@ -270,9 +273,9 @@ function useDataScopesManager({
     (c) =>
       c.scope.map(
         (s) =>
-          new JenkinsJob({
+          new JiraBoard({
             id: s.options?.boardId,
-            key: s.options?.jobName,
+            key: s.options?.boardId,
             value: s.options?.boardId,
             title: s.options?.title || `Board ${s.options?.boardId}`
           })
@@ -309,6 +312,8 @@ function useDataScopesManager({
       new GitHubProject({
         id: `${t.options?.owner}/${t.options?.repo}`,
         key: `${t.options?.owner}/${t.options?.repo}`,
+        owner: s.options?.owner,
+        repo: s.options?.repo,
         value: `${t.options?.owner}/${t.options?.repo}`,
         title: `${t.options?.owner}/${t.options?.repo}`
       })
@@ -356,7 +361,7 @@ function useDataScopesManager({
     (providerId) => {
       console.log('GET ENTITIES FOR PROVIDER =', providerId)
       const plugin = Integrations.find((p) => p.id === providerId)
-      return plugin ? plugin.getDataEntities() : []
+      return plugin ? plugin.getAvailableDataDomains() : []
     },
     [Integrations]
   )

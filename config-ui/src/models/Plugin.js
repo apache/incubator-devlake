@@ -32,7 +32,7 @@ import DataEntity from './DataEntity'
  * @property {object?} connection
  * @property {object?} settings
  * @property {number?} connectionLimit
- * @property {<Array<DataEntity>>?} entities
+ * @property {Array<DataEntity>?} entities
  * @property {object?} transformations
  */
 class Plugin {
@@ -49,9 +49,9 @@ class Plugin {
     this.icon = data?.icon || null
     this.connection = data?.connection || null
     this.connectionLimit = data?.connectionLimit || 0
-    this.entities = data?.entities?.map((e) => new DataEntity({ type: e })) || [
-      new DataEntity({ type: 'CODE' })
-    ]
+    this.availableDataDomains = data?.availableDataDomains?.map(
+      (e) => new DataEntity({ type: e })
+    ) || [new DataEntity({ type: 'CODE' })]
     this.transformations = data?.transformations || {
       scopes: { options: {} },
       default: {}
@@ -101,8 +101,8 @@ class Plugin {
     return scopeOptions
   }
 
-  getDataEntities() {
-    return this.entities || []
+  getAvailableDataDomains() {
+    return this.availableDataDomains || []
   }
 }
 

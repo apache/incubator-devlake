@@ -66,7 +66,7 @@ const ProviderTransformationSettings = (props) => {
     provider?.id && TransformationComponents[provider?.id]
       ? TransformationComponents[provider?.id]
       : null,
-    { ...props, entities: props.entities[props?.connection?.id] }
+    { ...props, dataDomains: props.dataDomainsGroup[props?.connection?.id] }
   )
 
   return (

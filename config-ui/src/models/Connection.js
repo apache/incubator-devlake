@@ -31,15 +31,15 @@
  * @property {number?} rateLimitPerHour
  * @property {Date?} createdAt
  * @property {Date?} updatedAt
- * @property {plain|token?} authentication
+ * @property {'plain'|'token'?} authentication
  * @property {string|object?} plugin
  * @property {string|object?} provider
  * @property {string?} providerId
- * @property {<Array[DataDomain]>} dataDomains
+ * @property {Array<DataDomain>} dataDomains
  * @property {boolean} multiConnection
  * @property {number|string?} status
- * @property {<Array<object>>?} transformations
- * @property {<Array<string>>?} errors
+ * @property {Array<object>?} transformations
+ * @property {Array<string>?} errors
  */
 class Connection {
   constructor(data = {}) {

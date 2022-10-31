@@ -45,7 +45,7 @@ class JenkinsJob extends Entity {
   }
 
   getConfiguredEntityId() {
-    return this.name?.toString() || this.id
+    return this.id
   }
 
   getTransformationScopeOptions() {

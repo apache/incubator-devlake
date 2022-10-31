@@ -33,7 +33,6 @@ import NoData from '@/components/NoData'
 import GitlabProjectsSelector from '@/components/blueprints/GitlabProjectsSelector'
 import GitHubProject from '@/models/GithubProject'
 import JenkinsJobsSelector from '@/components/blueprints/JenkinsJobsSelector'
-import { ProviderAvailableDataDomain } from '@/data/DataDomains'
 
 const DataScopes = (props) => {
   const {
@@ -66,7 +65,11 @@ const DataScopes = (props) => {
     cardStyle = {}
   } = props
 
-  const { Providers, ProviderIcons } = useContext(IntegrationsContext)
+  const {
+    Integrations,
+    Providers,
+    ProviderIcons
+  } = useContext(IntegrationsContext)
 
   const selectedScopeEntities = useMemo(
     () => scopeEntitiesGroup[configuredConnection.id],
@@ -153,6 +156,8 @@ const DataScopes = (props) => {
                                 new GitHubProject({
                                   id: v,
                                   key: v,
+                                  owner: v.includes('/') ? v.split('/')[0] : '',
+                                  repo: v.includes('/') ? v.split('/')[1] : '',
                                   title: v,
                                   value: v,
                                   type: 'string'
@@ -260,9 +265,9 @@ const DataScopes = (props) => {
                   </p>
                   <DataDomainsSelector
                     items={
-                      ProviderAvailableDataDomain[
-                        configuredConnection.provider
-                      ] || []
+                      Integrations.find(
+                        (p) => p.id === configuredConnection.provider
+                      )?.getAvailableDataDomains() || []
                     }
                     selectedItems={
                       dataDomainsGroup[configuredConnection.id] || []

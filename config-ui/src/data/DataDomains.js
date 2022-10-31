@@ -16,8 +16,9 @@
  *
  */
 
-import { Providers } from '@/data/Providers'
-
+/**
+ * @type {Record<string, string>}
+ */
 const DataDomainTypes = {
   CODE: 'CODE',
   TICKET: 'TICKET',
@@ -36,6 +37,9 @@ const DataDomains = [
   // ScopeEntityTypes.USER,
 ]
 
+/**
+ * @type {Array<Object>}
+ */
 const ALL_DATA_DOMAINS = [
   {
     id: 1,
@@ -64,22 +68,4 @@ const ALL_DATA_DOMAINS = [
   { id: 5, name: 'ci-cd', title: 'CI/CD', value: DataDomainTypes.DEVOPS }
 ]
 
-const ProviderAvailableDataDomain = {
-  [Providers.GITHUB]: ALL_DATA_DOMAINS,
-  [Providers.GITLAB]: ALL_DATA_DOMAINS,
-  [Providers.JIRA]: ALL_DATA_DOMAINS.filter(
-    (d) => d.name === 'issue-tracking' || d.name === 'cross-domain'
-  ),
-  [Providers.JENKINS]: ALL_DATA_DOMAINS.filter((d) => d.name === 'ci-cd'),
-  [Providers.TAPD]: ALL_DATA_DOMAINS.filter((d) => d.name === 'ci-cd')
-}
-
-const ProviderDefaultDataDomain = ProviderAvailableDataDomain
-
-export {
-  DataDomainTypes,
-  DataDomains,
-  ALL_DATA_DOMAINS,
-  ProviderDefaultDataDomain,
-  ProviderAvailableDataDomain
-}
+export { DataDomainTypes, DataDomains, ALL_DATA_DOMAINS }

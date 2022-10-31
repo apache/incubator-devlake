@@ -822,7 +822,6 @@ const BlueprintSettings = (props) => {
     fetchBoards,
     scopeConnection?.connectionId,
     scopeConnection?.providerId,
-    setConnections,
     boardSearch,
     Providers.JIRA
   ])
@@ -1274,8 +1273,12 @@ const BlueprintSettings = (props) => {
         jenkinsProxyError={jenkinsProxyError}
         setScopeEntitiesGroup={setScopeEntitiesGroup}
         setDataDomainsGroup={setDataDomainsGroup}
-        hasConfiguredEntityTransformationChanged={hasConfiguredEntityTransformationChanged}
-        changeConfiguredEntityTransformation={changeConfiguredEntityTransformation}
+        hasConfiguredEntityTransformationChanged={
+          hasConfiguredEntityTransformationChanged
+        }
+        changeConfiguredEntityTransformation={
+          changeConfiguredEntityTransformation
+        }
         onOpening={handleBlueprintScopesDialogOpening}
         onSave={handleBlueprintSave}
         isSaving={isSaving}
