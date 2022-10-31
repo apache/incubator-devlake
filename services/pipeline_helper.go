@@ -106,7 +106,7 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.E
 		db = db.Where("status = ?", query.Status)
 	}
 	if query.Pending > 0 {
-		db = db.Where("finished_at is null")
+		db = db.Where("finished_at is null and status != TASK_FAILED")
 	}
 	var count int64
 	err := db.Count(&count).Error
