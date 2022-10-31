@@ -262,13 +262,12 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 		collector.checkError(errors.Default.Wrap(err, `graphql query failed`))
 		return
 	}
-	if dataErrors != nil && len(dataErrors) > 0 {
+	if len(dataErrors) > 0 {
 		if collector.args.ResponseParserWithDataErrors == nil {
 			collector.checkError(errors.Default.Wrap(err, `graphql query got error`))
 			return
-		} else {
-			// error will deal by ResponseParserWithDataErrors
 		}
+		// else: error will deal by ResponseParserWithDataErrors
 	}
 	defer logger.Debug("fetchAsync >>> done for %v %v", query, variables)
 
@@ -299,7 +298,7 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	var (
 		results []interface{}
 	)
-	if dataErrors != nil && len(dataErrors) > 0 || collector.args.ResponseParser == nil {
+	if len(dataErrors) > 0 || collector.args.ResponseParser == nil {
 		results, err = collector.args.ResponseParserWithDataErrors(query, variables, dataErrors)
 	} else {
 		results, err = collector.args.ResponseParser(query, variables)
