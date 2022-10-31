@@ -19,9 +19,9 @@ import React, { useState } from 'react'
 import useIntegrations from '@/hooks/useIntegrations'
 
 const IntegrationsContext = React.createContext({
-  registry: {},
-  plugins: {},
-  integrations: {},
+  Registry: {},
+  Plugins: {},
+  Integrations: {},
   activeProvider: null,
   Providers: {},
   ProviderIcons: {},
@@ -34,9 +34,9 @@ const IntegrationsContext = React.createContext({
 
 export const IntegrationsContextProvider = (props) => {
   const {
-    registry: Registry,
-    plugins: Plugins,
-    integrations: Integrations,
+    Registry,
+    Plugins,
+    Integrations,
     activeProvider,
     Providers,
     ProviderLabels,
