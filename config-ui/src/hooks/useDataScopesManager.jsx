@@ -312,8 +312,8 @@ function useDataScopesManager({
       new GitHubProject({
         id: `${t.options?.owner}/${t.options?.repo}`,
         key: `${t.options?.owner}/${t.options?.repo}`,
-        owner: s.options?.owner,
-        repo: s.options?.repo,
+        owner: t.options?.owner,
+        repo: t.options?.repo,
         value: `${t.options?.owner}/${t.options?.repo}`,
         title: `${t.options?.owner}/${t.options?.repo}`
       })

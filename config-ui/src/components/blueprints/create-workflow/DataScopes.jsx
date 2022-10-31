@@ -65,11 +65,8 @@ const DataScopes = (props) => {
     cardStyle = {}
   } = props
 
-  const {
-    Integrations,
-    Providers,
-    ProviderIcons
-  } = useContext(IntegrationsContext)
+  const { Integrations, Providers, ProviderIcons } =
+    useContext(IntegrationsContext)
 
   const selectedScopeEntities = useMemo(
     () => scopeEntitiesGroup[configuredConnection.id],

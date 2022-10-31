@@ -40,8 +40,7 @@ class GitHubProject extends Entity {
     this.key = data?.key || this.id || null
     this.owner = data.owner || null
     this.repo = data.repo || null
-    this.name =
-      data.owner && data.repo ? `${data.owner}/${data.repo}` : null
+    this.name = data.owner && data.repo ? `${data.owner}/${data.repo}` : null
     this.value = data?.value || this.name || this.id || null
     this.title = data?.title || this.name || this.id || null
     this.shortTitle = data?.shortTitle || null
