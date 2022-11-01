@@ -65,6 +65,9 @@ func TestAccountDataFlow(t *testing.T) {
 		IgnoreTypes: []interface{}{common.NoPKModel{}},
 	})
 
+	// ConvertAccountsMeta only convert the account in this repo
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_repo_accounts.csv", &models.GithubRepoAccount{})
+
 	// verify converter
 	dataflowTester.FlushTabler(&crossdomain.Account{})
 	dataflowTester.Subtask(tasks.ConvertAccountsMeta, taskData)
