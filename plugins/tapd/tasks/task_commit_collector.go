@@ -47,7 +47,6 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issueCommits")
-	num := 0
 	since := data.Since
 	incremental := false
 	if since == nil {
@@ -102,11 +101,6 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) errors.Error {
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Stories []json.RawMessage `json:"data"`
-			}
-			if len(data.Stories) > 0 {
-				fmt.Println(len(data.Stories))
-				num += len(data.Stories)
-				fmt.Printf("num is %d", num)
 			}
 			err := helper.UnmarshalResponse(res, &data)
 			return data.Stories, err
