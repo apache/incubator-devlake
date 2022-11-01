@@ -49,9 +49,9 @@ export const IntegrationsContextProvider = (props) => {
   } = useIntegrations()
 
   const contextValue = {
-    Registry,
-    Plugins,
-    Integrations,
+    registry: Registry,
+    plugins: Plugins,
+    integrations: Integrations,
     activeProvider,
     Providers,
     ProviderLabels,
