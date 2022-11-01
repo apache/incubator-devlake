@@ -28,14 +28,12 @@ type SingerTapArgs struct {
 	TapClass string
 	// The name of the properties/catalog JSON file of the tap
 	StreamPropertiesFile string
-	// Optional - Use for any extra tweaking of the required stream at plugin runtime. Usually not needed.
-	StreamModifier func(stream *SingerTapStream)
 	// IsLegacy - set to true if this is an old tap that uses the "--properties" flag
 	IsLegacy bool
 }
 
 // NewSingerTapClient returns an instance of tap.Tap for singer-taps
-func NewSingerTapClient(args *SingerTapArgs) (Tap, errors.Error) {
+func NewSingerTapClient(args *SingerTapArgs) (*SingerTap, errors.Error) {
 	env := config.GetConfig()
 	cmd := env.GetString(args.TapClass)
 	if cmd == "" {
@@ -45,16 +43,5 @@ func NewSingerTapClient(args *SingerTapArgs) (Tap, errors.Error) {
 		Cmd:                  cmd,
 		StreamPropertiesFile: args.StreamPropertiesFile,
 		IsLegacy:             args.IsLegacy,
-		// This function is called for the selected streams at runtime.
-		TapStreamModifier: func(stream *SingerTapStream) {
-			// default behavior
-			for _, meta := range stream.Metadata {
-				innerMeta := meta["metadata"].(map[string]any)
-				innerMeta["selected"] = true
-			}
-			if args.StreamModifier != nil {
-				args.StreamModifier(stream)
-			}
-		},
 	})
 }

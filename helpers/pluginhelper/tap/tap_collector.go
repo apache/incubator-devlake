@@ -31,7 +31,9 @@ import (
 type CollectorArgs struct {
 	helper.RawDataSubTaskArgs
 	// The function that creates and returns a tap client
-	TapProvider func() (Tap, errors.Error)
+	TapClient Tap[SingerTapStream]
+	// Optional - This function is called for the selected streams at runtime.
+	TapStreamModifier func(stream *SingerTapStream)
 	// The config the tap needs at runtime
 	TapConfig any
 	// The specific tap stream to invoke at runtime
@@ -43,14 +45,15 @@ type CollectorArgs struct {
 
 // Collector the collector that communicates with singer taps
 type Collector struct {
-	ctx           core.SubTaskContext
-	rawSubtask    *helper.RawDataSubTask
-	tapClient     Tap
-	tapConfig     any
-	streamVersion uint64
-	streamName    string
-	connectionId  uint64
-	incremental   bool
+	ctx               core.SubTaskContext
+	rawSubtask        *helper.RawDataSubTask
+	tapClient         Tap[SingerTapStream]
+	tapStreamModifier func(stream *SingerTapStream)
+	tapConfig         any
+	streamVersion     uint64
+	streamName        string
+	connectionId      uint64
+	incremental       bool
 }
 
 // NewTapCollector constructor for Collector
@@ -59,18 +62,15 @@ func NewTapCollector(args *CollectorArgs) (*Collector, errors.Error) {
 	if err != nil {
 		return nil, err
 	}
-	tapClient, err := args.TapProvider()
-	if err != nil {
-		return nil, err
-	}
 	collector := &Collector{
-		ctx:          args.Ctx,
-		rawSubtask:   rawDataSubTask,
-		tapClient:    tapClient,
-		streamName:   args.StreamName,
-		tapConfig:    args.TapConfig,
-		connectionId: args.ConnectionId,
-		incremental:  args.Incremental,
+		ctx:               args.Ctx,
+		rawSubtask:        rawDataSubTask,
+		tapClient:         args.TapClient,
+		tapStreamModifier: args.TapStreamModifier,
+		streamName:        args.StreamName,
+		tapConfig:         args.TapConfig,
+		connectionId:      args.ConnectionId,
+		incremental:       args.Incremental,
 	}
 	if err = collector.prepareTap(); err != nil {
 		return nil, err
@@ -110,7 +110,7 @@ func (c *Collector) prepareTap() errors.Error {
 	if err != nil {
 		return err
 	}
-	c.streamVersion, err = c.tapClient.SetProperties(c.streamName)
+	c.streamVersion, err = c.tapClient.SetProperties(c.modifyStream)
 	if err != nil {
 		return err
 	}
@@ -210,6 +210,20 @@ func (c *Collector) prepareDB() errors.Error {
 		}
 	}
 	return nil
+}
+
+func (c *Collector) modifyStream(stream *SingerTapStream) bool {
+	if stream.Stream != c.streamName {
+		return false
+	}
+	for _, meta := range stream.Metadata {
+		innerMeta := meta["metadata"].(map[string]any)
+		innerMeta["selected"] = true
+	}
+	if c.tapStreamModifier != nil {
+		c.tapStreamModifier(stream)
+	}
+	return true
 }
 
 var _ core.SubTask = (*Collector)(nil)

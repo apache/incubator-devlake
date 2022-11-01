@@ -31,11 +31,10 @@ type (
 		Metadata      []SingerTapMetadata `json:"metadata"`
 		KeyProperties any                 `json:"key_properties"`
 	}
-	// SingerTapConfig the set of variables needed to initialize a SingerTapImpl
+	// SingerTapConfig the set of variables needed to initialize a SingerTap
 	SingerTapConfig struct {
 		Cmd                  string
 		StreamPropertiesFile string
-		TapStreamModifier    func(stream *SingerTapStream)
 		IsLegacy             bool
 	}
 

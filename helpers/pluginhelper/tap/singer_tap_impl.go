@@ -32,8 +32,8 @@ import (
 const singerPropertiesDir = "SINGER_PROPERTIES_DIR"
 
 type (
-	// SingerTapImpl the Singer implementation of Tap
-	SingerTapImpl struct {
+	// SingerTap the Singer implementation of Tap
+	SingerTap struct {
 		*SingerTapConfig
 		cmd            string
 		name           string
@@ -48,8 +48,8 @@ type (
 	}
 )
 
-// NewSingerTap the constructor for SingerTapImpl
-func NewSingerTap(cfg *SingerTapConfig) (*SingerTapImpl, errors.Error) {
+// NewSingerTap the constructor for SingerTap
+func NewSingerTap(cfg *SingerTapConfig) (*SingerTap, errors.Error) {
 	tempDir, err := errors.Convert01(os.MkdirTemp("", "singer"+"_*"))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "couldn't create temp directory for singer-tap")
@@ -59,7 +59,7 @@ func NewSingerTap(cfg *SingerTapConfig) (*SingerTapImpl, errors.Error) {
 		return nil, err
 	}
 	tapName := filepath.Base(cfg.Cmd)
-	return &SingerTapImpl{
+	return &SingerTap{
 		cmd:             cfg.Cmd,
 		name:            tapName,
 		tempLocation:    tempDir,
@@ -69,7 +69,7 @@ func NewSingerTap(cfg *SingerTapConfig) (*SingerTapImpl, errors.Error) {
 }
 
 // SetConfig implements Tap.SetConfig
-func (t *SingerTapImpl) SetConfig(cfg any) errors.Error {
+func (t *SingerTap) SetConfig(cfg any) errors.Error {
 	b, err := json.Marshal(cfg)
 	if err != nil {
 		return errors.Default.Wrap(err, "error reading singer-tap mappings")
@@ -90,7 +90,7 @@ func (t *SingerTapImpl) SetConfig(cfg any) errors.Error {
 }
 
 // SetState implements Tap.SetState
-func (t *SingerTapImpl) SetState(state any) errors.Error {
+func (t *SingerTap) SetState(state any) errors.Error {
 	b, err := json.Marshal(state)
 	if err != nil {
 		return errors.Default.Wrap(err, "error serializing singer-tap state")
@@ -111,22 +111,22 @@ func (t *SingerTapImpl) SetState(state any) errors.Error {
 }
 
 // SetProperties implements Tap.SetProperties
-func (t *SingerTapImpl) SetProperties(requiredStream string) (uint64, errors.Error) {
-	selected := t.selectStream(requiredStream)
+func (t *SingerTap) SetProperties(propsModifier func(props *SingerTapStream) bool) (uint64, errors.Error) {
+	modified := t.modifyProperties(propsModifier)
 	err := t.writeProperties()
 	if err != nil {
 		return 0, errors.Default.Wrap(err, "error trying to modify singer-tap properties")
 	}
-	return hash(selected)
+	return hash(modified)
 }
 
 // GetName implements Tap.GetName
-func (t *SingerTapImpl) GetName() string {
+func (t *SingerTap) GetName() string {
 	return t.name
 }
 
 // Run implements Tap.Run
-func (t *SingerTapImpl) Run() (<-chan *utils.ProcessResponse[json.RawMessage], errors.Error) {
+func (t *SingerTap) Run() (<-chan *utils.ProcessResponse[json.RawMessage], errors.Error) {
 	catalogCmd := "--catalog"
 	if t.IsLegacy {
 		catalogCmd = "--properties"
@@ -167,7 +167,7 @@ func readProperties(tempDir string, cfg *SingerTapConfig) (*fileData[SingerTapPr
 	}, nil
 }
 
-func (t *SingerTapImpl) writeProperties() error {
+func (t *SingerTap) writeProperties() error {
 	file, err := os.OpenFile(t.propertiesFile.path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		return err
@@ -183,18 +183,6 @@ func (t *SingerTapImpl) writeProperties() error {
 	return writer.Flush()
 }
 
-func (t *SingerTapImpl) selectStream(requiredStream string) *SingerTapStream {
-	properties := t.propertiesFile.content
-	for i := 0; i < len(properties.Streams); i++ {
-		stream := properties.Streams[i]
-		if stream.Stream == requiredStream {
-			t.TapStreamModifier(stream)
-			return stream
-		}
-	}
-	return nil
-}
-
 func hash(x any) (uint64, errors.Error) {
 	version, err := hashstructure.Hash(x, nil)
 	if err != nil {
@@ -203,4 +191,17 @@ func hash(x any) (uint64, errors.Error) {
 	return version, nil
 }
 
-var _ Tap = (*SingerTapImpl)(nil)
+var _ Tap[SingerTapStream] = (*SingerTap)(nil)
+
+func (t *SingerTap) modifyProperties(propsModifier func(props *SingerTapStream) bool) *SingerTapStream {
+	if propsModifier != nil {
+		properties := t.propertiesFile.content
+		for i := 0; i < len(properties.Streams); i++ {
+			stream := properties.Streams[i]
+			if propsModifier(stream) {
+				return stream
+			}
+		}
+	}
+	return nil
+}
