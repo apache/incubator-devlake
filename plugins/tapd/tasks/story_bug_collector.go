@@ -18,10 +18,13 @@ limitations under the License.
 package tasks
 
 import (
+	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"gorm.io/gorm"
 	"net/url"
 	"reflect"
+	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -38,10 +41,32 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect storyBugs")
+	since := data.Since
+	incremental := false
+	if since == nil {
+		// user didn't specify a time range to sync, try load from database
+		var latestUpdated models.TapdStoryCommit
+		clauses := []dal.Clause{
+			dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
+			dal.Orderby("created DESC"),
+		}
+		err := db.First(&latestUpdated, clauses...)
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+			return errors.NotFound.Wrap(err, "failed to get latest tapd changelog record")
+		}
+		if latestUpdated.Id > 0 {
+			since = (*time.Time)(latestUpdated.Created)
+			incremental = true
+		}
+	}
 
 	clauses := []dal.Clause{
+		dal.Select("id"),
 		dal.From(&models.TapdStory{}),
 		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
+	}
+	if since != nil {
+		clauses = append(clauses, dal.Where("modified > ?", since))
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -55,6 +80,7 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) errors.Error {
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
+		Incremental:        incremental,
 		Input:              iterator,
 		UrlTemplate:        "stories/get_related_bugs",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
