@@ -32,6 +32,17 @@ type Options struct {
 	ProjectTarget  string   `json:"projectTarget"`
 	SelectedModels []string `json:"selectedModels"`
 	Args           []string `json:"args"`
+	FailFast       bool     `json:"failFast"`
+	ProfilesPath   string   `json:"profilesPath"`
+	Profile        string   `json:"profile"`
+	Threads        int      `json:"threads"`
+	NoVersionCheck bool     `json:"noVersionCheck"`
+	ExcludeModels  []string `json:"excludeModels"`
+	Selector       string   `json:"selector"`
+	State          string   `json:"state"`
+	Defer          bool     `json:"defer"`
+	NoDefer        bool     `json:"noDefer"`
+	FullRefresh    bool     `json:"fullRefresh"`
 	ProjectVars    struct {
 		Demokey1 string `json:"demokey1"`
 		Demokey2 string `json:"demokey2"`
