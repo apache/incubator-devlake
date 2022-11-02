@@ -22,11 +22,21 @@ type DbtOptions struct {
 	ProjectName   string `json:"projectName"`
 	ProjectTarget string `json:"projectTarget"`
 	// clone from git to projectPath if projectGitURL is not empty
-	ProjectGitURL string `json:"projectGitURL"`
-	// deprecated, use args instead
+	ProjectGitURL  string                 `json:"projectGitURL"`
 	ProjectVars    map[string]interface{} `json:"projectVars"`
 	SelectedModels []string               `json:"selectedModels"`
-	// dbt run args
+	FailFast       bool                   `json:"failFast"`
+	ProfilesPath   string                 `json:"profilesPath"`
+	Profile        string                 `json:"profile"`
+	Threads        int                    `json:"threads"`
+	NoVersionCheck bool                   `json:"noVersionCheck"`
+	ExcludeModels  []string               `json:"excludeModels"`
+	Selector       string                 `json:"selector"`
+	State          string                 `json:"state"`
+	Defer          bool                   `json:"defer"`
+	NoDefer        bool                   `json:"noDefer"`
+	FullRefresh    bool                   `json:"fullRefresh"`
+	// deprecated, dbt run args
 	Args  []string `json:"args"`
 	Tasks []string `json:"tasks,omitempty"`
 }
