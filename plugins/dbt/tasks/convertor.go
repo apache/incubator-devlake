@@ -43,6 +43,18 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	projectTarget := data.Options.ProjectTarget
 	projectVars := data.Options.ProjectVars
 	args := data.Options.Args
+	failFast := data.Options.FailFast
+	threads := data.Options.Threads
+	noVersionCheck := data.Options.NoVersionCheck
+	excludeModels := data.Options.ExcludeModels
+	selector := data.Options.Selector
+	state := data.Options.State
+	deferFlag := data.Options.Defer
+	noDefer := data.Options.NoDefer
+	fullRefresh := data.Options.FullRefresh
+	profilesPath := data.Options.ProfilesPath
+	profile := data.Options.Profile
+
 	err := errors.Convert(os.Chdir(projectPath))
 	if err != nil {
 		return err
@@ -126,6 +138,45 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	if args != nil {
 		dbtExecParams = append(dbtExecParams, args...)
 	}
+	if failFast {
+		dbtExecParams = append(dbtExecParams, "--fail-fast")
+	}
+	if threads != 0 {
+		dbtExecParams = append(dbtExecParams, "--threads")
+		dbtExecParams = append(dbtExecParams, strconv.Itoa(threads))
+	}
+	if noVersionCheck {
+		dbtExecParams = append(dbtExecParams, "--no-version-check")
+	}
+	if excludeModels != nil {
+		dbtExecParams = append(dbtExecParams, "--exclude")
+		dbtExecParams = append(dbtExecParams, excludeModels...)
+	}
+	if selector != "" {
+		dbtExecParams = append(dbtExecParams, "--selector")
+		dbtExecParams = append(dbtExecParams, selector)
+	}
+	if state != "" {
+		dbtExecParams = append(dbtExecParams, "--state")
+		dbtExecParams = append(dbtExecParams, state)
+	}
+	if deferFlag {
+		dbtExecParams = append(dbtExecParams, "--defer")
+	}
+	if noDefer {
+		dbtExecParams = append(dbtExecParams, "--no-defer")
+	}
+	if fullRefresh {
+		dbtExecParams = append(dbtExecParams, "--full-refresh")
+	}
+	if profilesPath != "" {
+		dbtExecParams = append(dbtExecParams, "--profiles-dir")
+		dbtExecParams = append(dbtExecParams, profilesPath)
+	}
+	if profile != "" {
+		dbtExecParams = append(dbtExecParams, "--profile")
+		dbtExecParams = append(dbtExecParams, profile)
+	}
 	cmd := exec.Command(dbtExecParams[0], dbtExecParams[1:]...)
 	log.Info("dbt run script: %v", cmd)
 	stdout, _ := cmd.StdoutPipe()
@@ -138,7 +189,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	for scanner.Scan() {
 		line := scanner.Text()
 		log.Info(line)
-		if strings.Contains(line, "ERROR") || errStr != "" {
+		if strings.Contains(line, "Encountered an error") || errStr != "" {
 			errStr += line + "\n"
 		}
 		if strings.Contains(line, "of") && strings.Contains(line, "OK") {
