@@ -189,7 +189,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	for scanner.Scan() {
 		line := scanner.Text()
 		log.Info(line)
-		if strings.Contains(line, "ERROR") || errStr != "" {
+		if strings.Contains(line, "Encountered an error") || errStr != "" {
 			errStr += line + "\n"
 		}
 		if strings.Contains(line, "of") && strings.Contains(line, "OK") {
