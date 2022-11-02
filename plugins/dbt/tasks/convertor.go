@@ -119,8 +119,10 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		dbtExecParams = append(dbtExecParams, "--vars")
 		dbtExecParams = append(dbtExecParams, string(jsonProjectVars))
 	}
-	dbtExecParams = append(dbtExecParams, "--select")
-	dbtExecParams = append(dbtExecParams, models...)
+	if models != nil {
+		dbtExecParams = append(dbtExecParams, "--select")
+		dbtExecParams = append(dbtExecParams, models...)
+	}
 	if args != nil {
 		dbtExecParams = append(dbtExecParams, args...)
 	}
@@ -132,9 +134,13 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	scanner := bufio.NewScanner(stdout)
+	var errStr string
 	for scanner.Scan() {
 		line := scanner.Text()
 		log.Info(line)
+		if strings.Contains(line, "ERROR") || errStr != "" {
+			errStr += line + "\n"
+		}
 		if strings.Contains(line, "of") && strings.Contains(line, "OK") {
 			taskCtx.IncProgress(1)
 		}
@@ -144,7 +150,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}
 	err = errors.Convert(cmd.Wait())
 	if err != nil {
-		return err
+		return errors.Internal.New(errStr)
 	}
 	if !cmd.ProcessState.Success() {
 		log.Error(nil, "dbt run task error, please check!!!")
