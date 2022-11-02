@@ -119,7 +119,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		dbtExecParams = append(dbtExecParams, "--vars")
 		dbtExecParams = append(dbtExecParams, string(jsonProjectVars))
 	}
-	if models != nil {
+	if len(models) > 0 {
 		dbtExecParams = append(dbtExecParams, "--select")
 		dbtExecParams = append(dbtExecParams, models...)
 	}
