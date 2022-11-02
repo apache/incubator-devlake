@@ -182,12 +182,13 @@ func (c *Collector) pushResults(results []json.RawMessage) errors.Error {
 	}
 	c.ctx.GetLogger().Info("%s flushing %d records", c.tapClient.GetName(), len(results))
 	rows := make([]*helper.RawData, len(results))
+	defaultInput, _ := json.Marshal(nil)
 	for i, result := range results {
 		rows[i] = &helper.RawData{
 			Params: c.rawSubtask.Params,
 			Data:   result,
-			Url:    "",  // n/a
-			Input:  nil, // n/a
+			Url:    "",           // n/a
+			Input:  defaultInput, // n/a
 		}
 	}
 	err := c.ctx.GetDal().Create(rows, dal.From(c.rawSubtask.Table))
