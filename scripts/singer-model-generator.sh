@@ -73,3 +73,12 @@ if [ $exitcode != 0 ]; then
 fi
 
 gojsonschema -v -p "$package" "$json_schema_path" -o "$output_path"
+
+echo "$output_path"
+
+# prepend the license text to the generated files
+cp "$output_path" "$output_path".bak
+license_header="$(printf "/*\n%s\n/*\n" "$(cat .golangci-goheader.template)")"
+echo "$license_header" > "$output_path"
+cat "$output_path".bak >> "$output_path"
+rm "$output_path".bak
