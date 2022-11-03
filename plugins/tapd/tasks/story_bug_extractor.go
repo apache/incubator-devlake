@@ -30,7 +30,7 @@ var _ core.SubTaskEntryPoint = ExtractStoryBugs
 var ExtractStoryBugsMeta = core.SubTaskMeta{
 	Name:             "extractStoryBugs",
 	EntryPoint:       ExtractStoryBugs,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Extract raw company data into tool layer table _tool_tapd_story_bugs",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

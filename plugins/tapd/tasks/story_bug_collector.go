@@ -20,13 +20,12 @@ package tasks
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"net/url"
-	"reflect"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"net/url"
+	"reflect"
 )
 
 const RAW_STORY_BUG_TABLE = "tapd_api_story_bugs"
@@ -40,6 +39,7 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) errors.Error {
 	logger.Info("collect storyBugs")
 
 	clauses := []dal.Clause{
+		dal.Select("id"),
 		dal.From(&models.TapdStory{}),
 		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
@@ -76,7 +76,7 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) errors.Error {
 var CollectStoryBugMeta = core.SubTaskMeta{
 	Name:             "collectStoryBugs",
 	EntryPoint:       CollectStoryBugs,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "collect Tapd storyBugs",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
