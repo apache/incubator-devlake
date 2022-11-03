@@ -92,15 +92,13 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 			}
 
 			// rebuild the FinishedDate and DurationSec by Status
-			finishedAt := time.Now()
 			if domainPipeline.Status != devops.DONE {
 				domainPipeline.FinishedDate = nil
-			} else if gitlabPipeline.GitlabUpdatedAt != nil {
-				finishedAt = *gitlabPipeline.GitlabUpdatedAt
+				domainPipeline.DurationSec = 0
+			} else if domainPipeline.FinishedDate != nil {
+				durationTime := domainPipeline.FinishedDate.Sub(createdAt)
+				domainPipeline.DurationSec = uint64(durationTime.Seconds())
 			}
-			durationTime := finishedAt.Sub(createdAt)
-
-			domainPipeline.DurationSec = uint64(durationTime.Seconds())
 
 			return []interface{}{
 				domainPipeline,

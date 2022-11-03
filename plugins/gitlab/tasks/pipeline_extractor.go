@@ -74,8 +74,9 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 				return nil, err
 			}
 
-			duration := int(gitlabApiPipeline.UpdatedAt.ToTime().Sub(gitlabApiPipeline.CreatedAt.ToTime()).Seconds())
-			gitlabApiPipeline.Duration = duration
+			if gitlabApiPipeline.UpdatedAt != nil && gitlabApiPipeline.CreatedAt != nil {
+				gitlabApiPipeline.Duration = int(gitlabApiPipeline.UpdatedAt.ToTime().Sub(gitlabApiPipeline.CreatedAt.ToTime()).Seconds())
+			}
 			gitlabPipeline := &models.GitlabPipeline{
 				GitlabId:        gitlabApiPipeline.Id,
 				ProjectId:       data.Options.ProjectId,
