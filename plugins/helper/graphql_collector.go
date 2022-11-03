@@ -264,7 +264,9 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	}
 	if len(dataErrors) > 0 {
 		if collector.args.ResponseParserWithDataErrors == nil {
-			collector.checkError(errors.Default.Wrap(err, `graphql query got error`))
+			for _, dataError := range dataErrors {
+				collector.checkError(errors.Default.Wrap(dataError, `graphql query got error`))
+			}
 			return
 		}
 		// else: error will deal by ResponseParserWithDataErrors
