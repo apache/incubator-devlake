@@ -28,13 +28,13 @@ import (
 )
 
 // CollectorArgs args to initialize a Collector
-type CollectorArgs struct {
+type CollectorArgs[Stream any] struct {
 	helper.RawDataSubTaskArgs
 	// The function that creates and returns a tap client
-	TapClient Tap[SingerTapStream]
-	// Optional - This function is called for the selected streams at runtime.
-	TapStreamModifier func(stream *SingerTapStream)
-	// The config the tap needs at runtime
+	TapClient Tap[Stream]
+	// Optional - This function is called for the selected streams at runtime. Use this if any runtime modification is needed.
+	TapStreamModifier func(stream *Stream) bool
+	// The config the tap needs at runtime in order to execute
 	TapConfig any
 	// The specific tap stream to invoke at runtime
 	StreamName   string
@@ -44,11 +44,11 @@ type CollectorArgs struct {
 }
 
 // Collector the collector that communicates with singer taps
-type Collector struct {
+type Collector[Stream any] struct {
 	ctx               core.SubTaskContext
 	rawSubtask        *helper.RawDataSubTask
-	tapClient         Tap[SingerTapStream]
-	tapStreamModifier func(stream *SingerTapStream)
+	tapClient         Tap[Stream]
+	tapStreamModifier func(stream *Stream) bool
 	tapConfig         any
 	streamVersion     uint64
 	streamName        string
@@ -57,12 +57,12 @@ type Collector struct {
 }
 
 // NewTapCollector constructor for Collector
-func NewTapCollector(args *CollectorArgs) (*Collector, errors.Error) {
+func NewTapCollector[Stream any](args *CollectorArgs[Stream]) (*Collector[Stream], errors.Error) {
 	rawDataSubTask, err := helper.NewRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
 		return nil, err
 	}
-	collector := &Collector{
+	collector := &Collector[Stream]{
 		ctx:               args.Ctx,
 		rawSubtask:        rawDataSubTask,
 		tapClient:         args.TapClient,
@@ -78,7 +78,7 @@ func NewTapCollector(args *CollectorArgs) (*Collector, errors.Error) {
 	return collector, nil
 }
 
-func (c *Collector) getState() (*State, errors.Error) {
+func (c *Collector[Stream]) getState() (*State, errors.Error) {
 	db := c.ctx.GetDal()
 	rawState := RawState{}
 	rawState.ID = c.getStateId()
@@ -91,18 +91,18 @@ func (c *Collector) getState() (*State, errors.Error) {
 	return ToState(&rawState), nil
 }
 
-func (c *Collector) pushState(state *State) errors.Error {
+func (c *Collector[Stream]) pushState(state *State) errors.Error {
 	db := c.ctx.GetDal()
 	rawState := FromState(state)
 	rawState.ID = c.getStateId()
 	return db.CreateOrUpdate(rawState)
 }
 
-func (c *Collector) getStateId() string {
+func (c *Collector[Stream]) getStateId() string {
 	return fmt.Sprintf("{%s:%d:%d}", fmt.Sprintf("%s::%s", c.tapClient.GetName(), c.streamName), c.connectionId, c.streamVersion)
 }
 
-func (c *Collector) prepareTap() errors.Error {
+func (c *Collector[Stream]) prepareTap() errors.Error {
 	if c.tapConfig == nil {
 		return errors.Default.New("no tap config is set")
 	}
@@ -110,7 +110,7 @@ func (c *Collector) prepareTap() errors.Error {
 	if err != nil {
 		return err
 	}
-	c.streamVersion, err = c.tapClient.SetProperties(c.modifyStream)
+	c.streamVersion, err = c.tapClient.SetProperties(c.streamName, c.tapStreamModifier)
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func (c *Collector) prepareTap() errors.Error {
 }
 
 // Execute executes the collector
-func (c *Collector) Execute() (err errors.Error) {
+func (c *Collector[Stream]) Execute() (err errors.Error) {
 	initialState, err := c.getState()
 	if err != nil && err.GetType() != errors.NotFound {
 		return err
@@ -155,11 +155,7 @@ func (c *Collector) Execute() (err errors.Error) {
 			return err
 		default:
 		}
-		var output *RawOutput[json.RawMessage]
-		output, err = NewRawTapOutput[json.RawMessage](result.Data)
-		if err != nil {
-			return err
-		}
+		output := result.Data
 		if tapRecord, ok := output.AsTapRecord(); ok {
 			batchedResults = append(batchedResults, tapRecord.Record)
 			c.ctx.IncProgress(1)
@@ -181,7 +177,7 @@ func (c *Collector) Execute() (err errors.Error) {
 	return nil
 }
 
-func (c *Collector) pushResults(results []json.RawMessage) errors.Error {
+func (c *Collector[Stream]) pushResults(results []json.RawMessage) errors.Error {
 	if len(results) == 0 {
 		return nil
 	}
@@ -203,7 +199,7 @@ func (c *Collector) pushResults(results []json.RawMessage) errors.Error {
 	return nil
 }
 
-func (c *Collector) prepareDB() errors.Error {
+func (c *Collector[Stream]) prepareDB() errors.Error {
 	db := c.ctx.GetDal()
 	err := db.AutoMigrate(&helper.RawData{}, dal.From(c.rawSubtask.GetTable()))
 	if err != nil {
@@ -218,18 +214,4 @@ func (c *Collector) prepareDB() errors.Error {
 	return nil
 }
 
-func (c *Collector) modifyStream(stream *SingerTapStream) bool {
-	if stream.Stream != c.streamName {
-		return false
-	}
-	for _, meta := range stream.Metadata {
-		innerMeta := meta["metadata"].(map[string]any)
-		innerMeta["selected"] = true
-	}
-	if c.tapStreamModifier != nil {
-		c.tapStreamModifier(stream)
-	}
-	return true
-}
-
-var _ core.SubTask = (*Collector)(nil)
+var _ core.SubTask = (*Collector[any])(nil)

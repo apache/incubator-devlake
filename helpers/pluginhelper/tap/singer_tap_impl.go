@@ -111,8 +111,8 @@ func (t *SingerTap) SetState(state any) errors.Error {
 }
 
 // SetProperties implements Tap.SetProperties
-func (t *SingerTap) SetProperties(propsModifier func(props *SingerTapStream) bool) (uint64, errors.Error) {
-	modified := t.modifyProperties(propsModifier)
+func (t *SingerTap) SetProperties(streamName string, propsModifier func(props *SingerTapStream) bool) (uint64, errors.Error) {
+	modified := t.modifyProperties(streamName, propsModifier)
 	err := t.writeProperties()
 	if err != nil {
 		return 0, errors.Default.Wrap(err, "error trying to modify singer-tap properties")
@@ -126,7 +126,7 @@ func (t *SingerTap) GetName() string {
 }
 
 // Run implements Tap.Run
-func (t *SingerTap) Run() (<-chan *utils.ProcessResponse[json.RawMessage], errors.Error) {
+func (t *SingerTap) Run() (<-chan *utils.ProcessResponse[Output[json.RawMessage]], errors.Error) {
 	catalogCmd := "--catalog"
 	if t.IsLegacy {
 		catalogCmd = "--properties"
@@ -136,8 +136,13 @@ func (t *SingerTap) Run() (<-chan *utils.ProcessResponse[json.RawMessage], error
 		args = append(args, []string{"--state", t.stateFile.path}...)
 	}
 	cmd := exec.Command(t.cmd, args...)
-	stream, err := utils.StreamProcess(cmd, func(b []byte) (json.RawMessage, error) {
-		return b, nil //data is expected to be JSON
+	stream, err := utils.StreamProcess(cmd, func(b []byte) (Output[json.RawMessage], error) {
+		var output Output[json.RawMessage]
+		output, err := NewSingerTapOutput(b)
+		if err != nil {
+			return nil, err
+		}
+		return output, nil //data is expected to be JSON
 	})
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error starting process stream from singer-tap")
@@ -193,15 +198,27 @@ func hash(x any) (uint64, errors.Error) {
 
 var _ Tap[SingerTapStream] = (*SingerTap)(nil)
 
-func (t *SingerTap) modifyProperties(propsModifier func(props *SingerTapStream) bool) *SingerTapStream {
-	if propsModifier != nil {
-		properties := t.propertiesFile.content
-		for i := 0; i < len(properties.Streams); i++ {
-			stream := properties.Streams[i]
-			if propsModifier(stream) {
-				return stream
-			}
+func (t *SingerTap) modifyProperties(streamName string, propsModifier func(props *SingerTapStream) bool) *SingerTapStream {
+	properties := t.propertiesFile.content
+	for i := 0; i < len(properties.Streams); i++ {
+		stream := properties.Streams[i]
+		if !defaultSingerStreamSetter(streamName, stream) {
+			continue
+		}
+		if propsModifier != nil && propsModifier(stream) {
+			return stream
 		}
 	}
 	return nil
+}
+
+func defaultSingerStreamSetter(name string, stream *SingerTapStream) bool {
+	if stream.Stream != name {
+		return false
+	}
+	for _, meta := range stream.Metadata {
+		innerMeta := meta["metadata"].(map[string]any)
+		innerMeta["selected"] = true
+	}
+	return true
 }

@@ -19,7 +19,6 @@ package tap
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/datatypes"
@@ -48,24 +47,18 @@ type (
 		Value datatypes.JSON
 	}
 
-	// RawOutput raw data from a tap. One of these fields can ever be non-nil
-	RawOutput[R any] struct {
-		state  *State
-		record *Record[R]
+	// Output raw data from a tap. One of these fields can ever be non-nil
+	Output[R any] interface {
+		// AsTapState tries to convert the map object to a State. Returns false if it can't be done.
+		AsTapState() (*State, bool)
+		// AsTapRecord tries to convert the map object to a Record. Returns false if it can't be done.
+		AsTapRecord() (*Record[R], bool)
 	}
 )
 
 // TableName the table name
 func (*RawState) TableName() string {
 	return "_devlake_collector_state"
-}
-
-// NewTapState creates a new tap State variable
-func NewTapState(v map[string]any) *State {
-	return &State{
-		Type:  "STATE",
-		Value: v,
-	}
 }
 
 // FromState converts State to RawState
@@ -91,48 +84,6 @@ func ToState(raw *RawState) *State {
 		Type:  raw.Type,
 		Value: *val,
 	}
-}
-
-// NewRawTapOutput construct for RawOutput. The src is the raw data coming from the tap
-func NewRawTapOutput[R any](src json.RawMessage) (*RawOutput[R], errors.Error) {
-	srcMap := map[string]any{}
-	err := convert(src, &srcMap)
-	if err != nil {
-		return nil, err
-	}
-	ret := &RawOutput[R]{}
-	srcType := srcMap["type"]
-	if srcType == "STATE" {
-		state := State{}
-		if err = convert(src, &state); err != nil {
-			return nil, err
-		}
-		ret.state = &state
-	} else if srcType == "RECORD" {
-		record := Record[R]{}
-		if err = convert(src, &record); err != nil {
-			return nil, err
-		}
-		ret.record = &record
-	}
-	return ret, nil
-}
-
-// AsTapState tries to convert the map object to a State. Returns false if it can't be done.
-func (r *RawOutput[R]) AsTapState() (*State, bool) {
-	return r.state, r.state != nil
-}
-
-// AsTapRecord tries to convert the map object to a Record. Returns false if it can't be done.
-func (r *RawOutput[R]) AsTapRecord() (*Record[R], bool) {
-	return r.record, r.record != nil
-}
-
-func convert(src json.RawMessage, dest any) errors.Error {
-	if err := json.Unmarshal(src, dest); err != nil {
-		return errors.Default.Wrap(err, "error converting type")
-	}
-	return nil
 }
 
 var _ core.Tabler = (*RawState)(nil)

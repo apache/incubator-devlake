@@ -26,12 +26,12 @@ import (
 // Tap the abstract interface for Taps. Consumer code should not use concrete implementations directly.
 type Tap[Stream any] interface {
 	// Run runs the tap and returns a stream of results. Expected to be called after all the other Setters.
-	Run() (<-chan *utils.ProcessResponse[json.RawMessage], errors.Error)
+	Run() (<-chan *utils.ProcessResponse[Output[json.RawMessage]], errors.Error)
 	// GetName the name of this tap
 	GetName() string
 	// SetProperties Sets the properties of the tap and allows you to modify the properties at runtime.
 	// Returns a unique hash representing the properties object.
-	SetProperties(propsModifier func(props *Stream) bool) (uint64, errors.Error)
+	SetProperties(streamName string, propsModifier func(props *Stream) bool) (uint64, errors.Error)
 	// SetState sets state on this tap
 	SetState(state any) errors.Error
 	// SetConfig sets the config of this tap
