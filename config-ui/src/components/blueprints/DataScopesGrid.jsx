@@ -144,12 +144,7 @@ const DataScopesGrid = (props) => {
                 whiteSpace: 'nowrap'
               }}
             >
-              {[
-                Providers.GITLAB,
-                Providers.GITHUB,
-                Providers.JENKINS,
-                Providers.JIRA
-              ].includes(c.provider?.id) && (
+              {c?.hasScopeEntities() && (
                 <ul
                   style={{
                     listStyle: 'none',

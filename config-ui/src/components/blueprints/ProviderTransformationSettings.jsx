@@ -83,18 +83,9 @@ const ProviderTransformationSettings = (props) => {
       ? TransformationComponents[provider?.id]
       : null,
     {
-      dataDomains: dataDomainsGroup[connection?.id],
-      provider,
-      blueprint,
-      connection,
-      transformation,
-      issueTypes,
-      fields,
-      onSettingsChange,
-      isSaving,
-      isSavingConnection,
-      jiraProxyError,
-      isFetchingJIRA
+      // pass all props but notice default values in Line#47~63 have no effect
+      ...props,
+      dataDomains: dataDomainsGroup[connection?.id]
     }
   )
 

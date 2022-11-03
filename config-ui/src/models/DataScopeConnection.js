@@ -66,6 +66,10 @@ class DataScopeConnection {
     this.totalStages = data?.totalStages || 1
   }
 
+  hasScopeEntities() {
+    return this.scopeEntities > 0
+  }
+
   get(property) {
     return this[property]
   }
