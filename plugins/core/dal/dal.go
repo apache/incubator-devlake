@@ -79,11 +79,11 @@ type Dal interface {
 	Cursor(clauses ...Clause) (*sql.Rows, errors.Error)
 	// Fetch loads row data from `cursor` into `dst`
 	Fetch(cursor *sql.Rows, dst interface{}) errors.Error
-	// All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
+	// All loads matched rows from database to `dst`, USE IT WITH CAUTIOUS!!
 	All(dst interface{}, clauses ...Clause) errors.Error
 	// First loads first matched row from database to `dst`, error will be returned if no records were found
 	First(dst interface{}, clauses ...Clause) errors.Error
-	// All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
+	// Count matched rows from database
 	Count(clauses ...Clause) (int64, errors.Error)
 	// Pluck used to query single column
 	Pluck(column string, dest interface{}, clauses ...Clause) errors.Error
@@ -91,9 +91,9 @@ type Dal interface {
 	Create(entity interface{}, clauses ...Clause) errors.Error
 	// Update updates record
 	Update(entity interface{}, clauses ...Clause) errors.Error
-	// UpdateColumn allows you to update mulitple records
+	// UpdateColumn allows you to update multiple records
 	UpdateColumn(entity interface{}, columnName string, value interface{}, clauses ...Clause) errors.Error
-	// UpdateColumn allows you to update multiple columns of mulitple records
+	// UpdateColumns allows you to update multiple columns of multiple records
 	UpdateColumns(entity interface{}, set []DalSet, clauses ...Clause) errors.Error
 	// UpdateAllColumn updated all Columns of entity
 	UpdateAllColumn(entity interface{}, clauses ...Clause) errors.Error
@@ -111,7 +111,7 @@ type Dal interface {
 	RenameTable(oldName, newName string) errors.Error
 	// GetColumns returns table columns in database
 	GetColumns(dst Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
-	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
+	// GetPrimaryKeyFields get the PrimaryKey from `gorm` tag
 	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
 	// RenameColumn renames column name for specified table
 	RenameColumn(table, oldColumnName, newColumnName string) errors.Error
