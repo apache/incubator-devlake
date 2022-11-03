@@ -15,7 +15,6 @@
  * limitations under the License.
  *
  */
-import { DataEntityTypes } from '@/data/DataEntities'
 
 const WorkflowSteps = [
   {
@@ -86,39 +85,4 @@ const WorkflowAdvancedSteps = [
   }
 ]
 
-const DEFAULT_DATA_ENTITIES = [
-  {
-    id: 1,
-    name: 'source-code-management',
-    title: 'Source Code Management',
-    value: DataEntityTypes.CODE
-  },
-  {
-    id: 2,
-    name: 'issue-tracking',
-    title: 'Issue Tracking',
-    value: DataEntityTypes.TICKET
-  },
-  {
-    id: 3,
-    name: 'code-review',
-    title: 'Code Review',
-    value: DataEntityTypes.CODE_REVIEW
-  },
-  {
-    id: 4,
-    name: 'cross-domain',
-    title: 'Crossdomain',
-    value: DataEntityTypes.CROSSDOMAIN
-  },
-  { id: 5, name: 'ci-cd', title: 'CI/CD', value: DataEntityTypes.DEVOPS }
-]
-
-const DEFAULT_BOARDS = []
-
-export {
-  WorkflowSteps,
-  WorkflowAdvancedSteps,
-  DEFAULT_DATA_ENTITIES,
-  DEFAULT_BOARDS
-}
+export { WorkflowSteps, WorkflowAdvancedSteps }

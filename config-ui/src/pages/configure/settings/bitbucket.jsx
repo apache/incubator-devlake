@@ -31,7 +31,7 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 
-import { DataEntityTypes } from '@/data/DataEntities'
+import { DataDomainTypes } from '@/data/DataDomains'
 import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 
 import '@/styles/integration.scss'
@@ -41,29 +41,21 @@ export default function BitbucketSettings(props) {
   const {
     provider,
     connection,
-    entities = [],
+    dataDomains = [],
     transformation = {},
     isSaving = false,
     isSavingConnection = false,
     onSettingsChange = () => {}
-    // configuredProject
-    // configuredBoard
   } = props
 
   // @todo: implement transformations
 
-  useEffect(() => {
-    console.log('>>> BITBUCKET: DATA ENTITIES...', entities)
-  }, [entities])
-
   return (
     <>
-      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) ? (
+      {dataDomains.some((e) => e.value === DataDomainTypes.DEVOPS) ? (
         <Deployment
           provider={provider}
-          entities={entities}
           transformation={transformation}
-          connection={connection}
           onSettingsChange={onSettingsChange}
           isSaving={isSaving || isSavingConnection}
         />

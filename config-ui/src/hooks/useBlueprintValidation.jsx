@@ -29,9 +29,8 @@ function useBlueprintValidation({
   tasks = [],
   mode = null,
   connections = [],
-  entities = {},
-  boards = {},
-  projects = {},
+  dataDomainsGroup = {},
+  scopeEntitiesGroup = {},
   activeStep = null,
   activeProvider = null,
   activeConnection = null
@@ -159,7 +158,7 @@ function useBlueprintValidation({
         case 2:
           if (
             activeProvider?.id === Providers.JIRA &&
-            boards[activeConnection?.id]?.length === 0
+            scopeEntitiesGroup[activeConnection?.id]?.length === 0
           ) {
             errs.push('Boards: No Boards selected.')
           }
@@ -167,7 +166,7 @@ function useBlueprintValidation({
             [Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(
               activeProvider?.id
             ) &&
-            projects[activeConnection?.id]?.length === 0
+            scopeEntitiesGroup[activeConnection?.id]?.length === 0
           ) {
             if (activeProvider?.id === Providers.JENKINS) {
               errs.push('Jobs: No Job entered.')
@@ -177,7 +176,7 @@ function useBlueprintValidation({
           }
           if (
             activeProvider?.id === Providers.GITHUB &&
-            !validateRepositoryName(projects[activeConnection?.id])
+            !validateRepositoryName(scopeEntitiesGroup[activeConnection?.id])
           ) {
             errs.push(
               'Projects: Only Git Repository Names are supported (username/repo).'
@@ -185,43 +184,46 @@ function useBlueprintValidation({
           }
           if (
             activeProvider?.id === Providers.GITHUB &&
-            !validateUniqueObjectSet(projects[activeConnection?.id])
+            !validateUniqueObjectSet(scopeEntitiesGroup[activeConnection?.id])
           ) {
             errs.push('Projects: Duplicate project detected.')
           }
-          if (entities[activeConnection?.id]?.length === 0) {
+          if (dataDomainsGroup[activeConnection?.id]?.length === 0) {
             errs.push('Data Entities: No Data Entities selected.')
           }
           if (
             activeProvider?.id === Providers.GITLAB &&
-            !validateUniqueObjectSet(projects[activeConnection?.id])
+            !validateUniqueObjectSet(scopeEntitiesGroup[activeConnection?.id])
           ) {
             errs.push('Projects: Duplicate project detected.')
           }
 
           connections.forEach((c) => {
-            if (c.provider === Providers.JIRA && boards[c?.id]?.length === 0) {
+            if (
+              c.provider === Providers.JIRA &&
+              scopeEntitiesGroup[c?.id]?.length === 0
+            ) {
               errs.push(`${c.name} requires a Board`)
             }
             if (
               c.provider === Providers.GITHUB &&
-              projects[c?.id]?.length === 0
+              scopeEntitiesGroup[c?.id]?.length === 0
             ) {
               errs.push(`${c.name} requires Project Names`)
             }
             if (
               c.provider === Providers.GITHUB &&
-              !validateRepositoryName(projects[c?.id])
+              !validateRepositoryName(scopeEntitiesGroup[c?.id])
             ) {
               errs.push(`${c.name} has Invalid Project Repository`)
             }
             if (
               c.provider === Providers.GITLAB &&
-              projects[c?.id]?.length === 0
+              scopeEntitiesGroup[c?.id]?.length === 0
             ) {
               errs.push(`${c.name} requires Project IDs`)
             }
-            if (entities[c?.id]?.length === 0) {
+            if (dataDomainsGroup[c?.id]?.length === 0) {
               errs.push(`${c.name} is missing Data Entities`)
             }
           })
@@ -240,9 +242,8 @@ function useBlueprintValidation({
     enable,
     mode,
     connections,
-    boards,
-    entities,
-    projects,
+    scopeEntitiesGroup,
+    dataDomainsGroup,
     activeStep,
     activeProvider?.id,
     activeConnection,

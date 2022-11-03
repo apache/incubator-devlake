@@ -16,6 +16,8 @@
  *
  */
 
+import Entity from '@/models/Entity'
+
 /**
  * @typedef {object} JenkinsJob
  * @property {number?} id
@@ -28,8 +30,9 @@
  * @property {project|board|job?} variant
  * @property {string?} providerId
  */
-class JenkinsJob {
+class JenkinsJob extends Entity {
   constructor(data = {}) {
+    super(data)
     this.id = data?.id || null
     this.key = data?.key || this.id || null
     this.name = data?.name || null
@@ -41,17 +44,8 @@ class JenkinsJob {
     this.providerId = 'jenkins'
   }
 
-  get(property) {
-    return this[property]
-  }
-
-  set(property, value) {
-    this[property] = value
-    return this.property
-  }
-
   getConfiguredEntityId() {
-    return this.name?.toString() || this.id
+    return this.id
   }
 
   getTransformationScopeOptions() {

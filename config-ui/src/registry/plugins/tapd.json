@@ -38,7 +38,7 @@
     "tooltips": {
     }
   },
-  "entities": ["CODE", "TICKET"],
+  "availableDataDomains": ["TICKET", "CROSS"],
   "transformations": {
     "scopes": {
       "options": {

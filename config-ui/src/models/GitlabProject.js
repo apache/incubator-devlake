@@ -16,6 +16,8 @@
  *
  */
 
+import Entity from '@/models/Entity'
+
 /**
  * @typedef {object} GitlabProject
  * @property {number?} id
@@ -50,8 +52,9 @@
  * @property {project|board?} variant
  * @property {string?} providerId
  */
-class GitlabProject {
+class GitlabProject extends Entity {
   constructor(data = {}) {
+    super(data)
     this.id = data?.id || data?.projectId || null
     this.key = data?.key || this.id || null
     this.projectId = data?.projectId || this.id || null
@@ -88,15 +91,6 @@ class GitlabProject {
     this.useApi = data?.useApi || false
     this.variant = data?.variant || 'project'
     this.providerId = 'gitlab'
-  }
-
-  get(property) {
-    return this[property]
-  }
-
-  set(property, value) {
-    this[property] = value
-    return this.property
   }
 
   getConfiguredEntityId() {

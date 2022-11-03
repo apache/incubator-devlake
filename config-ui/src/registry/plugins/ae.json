@@ -9,5 +9,5 @@
   "icon": "src/images/integrations/ae.svg",
   "private": false,
   "connection": null,
-  "entities": []
+  "availableDataDomains": ["CODE", "TICKET"]
 }

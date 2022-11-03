@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import { Button, Card, Elevation, Icon, Intent } from '@blueprintjs/core'
 import Nav from '@/components/Nav'
@@ -25,22 +25,11 @@ import Content from '@/components/Content'
 import ContentLoader from '@/components/loaders/ContentLoader'
 import useIntegrations from '@/hooks/useIntegrations'
 import useConnectionManager from '@/hooks/useConnectionManager'
-// import useSettingsManager from '@/hooks/useSettingsManager'
 import useConnectionValidation from '@/hooks/useConnectionValidation'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 import DeleteAction from '@/components/actions/DeleteAction'
 import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
-
-// @todo: Replace with Integrations Hook
-// import { integrationsData } from '@/data/integrations'
 import { NullSettings } from '@/data/NullSettings'
-// @todo: Replace with Integrations Hook
-// import {
-//   ProviderConnectionLimits,
-//   ProviderFormLabels,
-//   ProviderFormPlaceholders,
-//   Providers
-// } from '@/data/Providers'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -51,8 +40,6 @@ export default function ConfigureConnection() {
   const { providerId, connectionId } = useParams()
 
   const {
-    registry,
-    plugins: Plugins,
     integrations: Integrations,
     activeProvider,
     Providers,

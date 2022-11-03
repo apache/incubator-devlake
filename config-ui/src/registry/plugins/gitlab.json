@@ -36,7 +36,7 @@
       "rateLimitPerHour": "Rate Limit requests per hour,\nEnter a numeric value > 0 to enable."
     }
   },
-  "entities": ["CODE", "TICKET", "CROSS", "CICD"],
+  "availableDataDomains": ["CODE", "TICKET", "CODEREVIEW", "CROSS", "CICD"],
   "transformations": {
     "scopes": {
       "options": {

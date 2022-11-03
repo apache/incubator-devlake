@@ -16,7 +16,10 @@
  *
  */
 
-const DataEntityTypes = {
+/**
+ * @type {Record<string, string>}
+ */
+const DataDomainTypes = {
   CODE: 'CODE',
   TICKET: 'TICKET',
   CODE_REVIEW: 'CODEREVIEW',
@@ -25,13 +28,44 @@ const DataEntityTypes = {
   // USER: 'user',
 }
 
-const DataEntities = [
-  DataEntityTypes.CODE,
-  DataEntityTypes.TICKET,
-  DataEntityTypes.CODE_REVIEW,
-  DataEntityTypes.CROSSDOMAIN,
-  DataEntityTypes.DEVOPS
-  // DataEntityTypes.USER,
+const DataDomains = [
+  DataDomainTypes.CODE,
+  DataDomainTypes.TICKET,
+  DataDomainTypes.CODE_REVIEW,
+  DataDomainTypes.CROSSDOMAIN,
+  DataDomainTypes.DEVOPS
+  // ScopeEntityTypes.USER,
 ]
 
-export { DataEntityTypes, DataEntities }
+/**
+ * @type {Array<Object>}
+ */
+const ALL_DATA_DOMAINS = [
+  {
+    id: 1,
+    name: 'source-code-management',
+    title: 'Source Code Management',
+    value: DataDomainTypes.CODE
+  },
+  {
+    id: 2,
+    name: 'issue-tracking',
+    title: 'Issue Tracking',
+    value: DataDomainTypes.TICKET
+  },
+  {
+    id: 3,
+    name: 'code-review',
+    title: 'Code Review',
+    value: DataDomainTypes.CODE_REVIEW
+  },
+  {
+    id: 4,
+    name: 'cross-domain',
+    title: 'Crossdomain',
+    value: DataDomainTypes.CROSSDOMAIN
+  },
+  { id: 5, name: 'ci-cd', title: 'CI/CD', value: DataDomainTypes.DEVOPS }
+]
+
+export { DataDomainTypes, DataDomains, ALL_DATA_DOMAINS }

@@ -16,10 +16,8 @@
  *
  */
 
-import Entity from '@/models/Entity'
-
 /**
- * @typedef {object} GitHubProject
+ * @typedef {object} Entity
  * @property {number|string?} id
  * @property {number?} key
  * @property {string|number?} value
@@ -31,36 +29,39 @@ import Entity from '@/models/Entity'
  * @property {string?} repo
  * @property {boolean?} useApi
  * @property {'project'|'board'|'job'} variant
- * @property {string?} providerId
  */
-class GitHubProject extends Entity {
+class Entity {
   constructor(data = {}) {
-    super(data)
-    this.id = data.id || null
+    this.id = data?.id || null
+    this.owner = data?.owner || null
+    this.repo = data?.repo || null
+    this.name =
+      data?.owner && data?.repo ? `${data?.owner}/${data?.repo}` : null
+
     this.key = data?.key || this.id || null
-    this.owner = data.owner || null
-    this.repo = data.repo || null
-    this.name = data.owner && data.repo ? `${data.owner}/${data.repo}` : null
     this.value = data?.value || this.name || this.id || null
-    this.title = data?.title || this.name || this.id || null
-    this.shortTitle = data?.shortTitle || null
+
+    this.title = data.title
     this.icon = data?.icon || null
+
+    // @todo: add github api specfic props
 
     this.useApi = data?.useApi || false
     this.variant = data?.variant || 'project'
-    this.providerId = 'github'
+  }
+
+  get(property) {
+    return this[property]
+  }
+
+  set(property, value) {
+    this[property] = value
+    return this.property
   }
 
   getConfiguredEntityId() {
-    return this.name?.toString() || this.id
-  }
-
-  getTransformationScopeOptions() {
-    return {
-      owner: this.owner,
-      repo: this.repo
-    }
+    return this.id
   }
 }
 
-export default GitHubProject
+export default Entity

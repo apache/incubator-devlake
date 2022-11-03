@@ -42,7 +42,7 @@
     
   }
  },
- "entities": ["TICKET", "CROSS"],
+ "availableDataDomains": ["TICKET", "CROSS"],
  "transformations": {
     "scopes": {
       "options": {

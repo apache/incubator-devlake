@@ -34,7 +34,7 @@
  * @property {Date?} updatedAt
  * @property {plain|token?} authentication
  * @property {string|object?} plugin
- * @property {<Array<DataEntity>>} entities
+ * @property {<Array<DataDomain>>} dataDomains
  * @property {boolean} multiConnection
  * @property {string?} status
  * @property {object?} statusResponse
@@ -61,7 +61,7 @@ class ProviderListConnection {
 
     this.authentication = data?.authentication || 'plain'
     this.plugin = data?.plugin || null
-    this.entities = data?.entities || []
+    this.dataDomains = data?.dataDomains || []
     this.multiConnection = data?.multiConnection || true
 
     this.status = data?.status || 0

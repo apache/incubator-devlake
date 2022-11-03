@@ -25,7 +25,7 @@ const NullBlueprintConnection = {
       options: null,
       boardId: null,
       transformation: {},
-      entities: []
+      dataDomains: []
     }
   ]
 }

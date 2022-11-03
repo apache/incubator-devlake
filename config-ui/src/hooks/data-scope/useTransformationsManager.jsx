@@ -102,17 +102,14 @@ const useTransformationsManager = () => {
   )
 
   const generateKey = useCallback(
+    /**
+     * @param {string} connectionProvider
+     * @param {string} connectionId
+     * @param {Entity} entity
+     * @return {string}
+     */
     (connectionProvider, connectionId, entity) => {
-      let key = `not-distinguished`
-      key = entity ? entity?.getConfiguredEntityId() : key
-      console.info(
-        '>> GENERATING TRANSFORMATION KEY FOR ENTITY...',
-        connectionProvider,
-        connectionId,
-        entity,
-        key,
-        `${connectionProvider}/${connectionId}/${key}`
-      )
+      const key = entity ? entity.getConfiguredEntityId() : `not-distinguished`
       return `${connectionProvider}/${connectionId}/${key}`
     },
     []
@@ -120,12 +117,14 @@ const useTransformationsManager = () => {
 
   // change some setting in specific connection's specific transformation
   const changeTransformationSettings = useCallback(
-    (connectionProvider, connectionId, projectNameOrBoard, settings) => {
-      const key = generateKey(
-        connectionProvider,
-        connectionId,
-        projectNameOrBoard
-      )
+    /**
+     * @param {string} connectionProvider
+     * @param {string} connectionId
+     * @param {Entity} entity
+     * @param {Record} settings
+     */
+    (connectionProvider, connectionId, entity, settings) => {
+      const key = generateKey(connectionProvider, connectionId, entity)
       console.info(
         '>> SETTING TRANSFORMATION SETTINGS PROJECT/BOARD...',
         key,
@@ -144,12 +143,13 @@ const useTransformationsManager = () => {
 
   // set a default value for connection's specific transformation
   const initializeDefaultTransformation = useCallback(
-    (connectionProvider, connectionId, projectNameOrBoard) => {
-      const key = generateKey(
-        connectionProvider,
-        connectionId,
-        projectNameOrBoard
-      )
+    /**
+     * @param {string} connectionProvider
+     * @param {string} connectionId
+     * @param {Entity} entity
+     */
+    (connectionProvider, connectionId, entity) => {
+      const key = generateKey(connectionProvider, connectionId, entity)
       console.info(
         '>> INIT DEFAULT TRANSFORMATION SETTINGS PROJECT/BOARD...',
         key
@@ -173,18 +173,19 @@ const useTransformationsManager = () => {
 
   // get specific connection's specific transformation
   const getTransformation = useCallback(
-    (connectionProvider, connectionId, projectNameOrBoard) => {
-      const key = generateKey(
-        connectionProvider,
-        connectionId,
-        projectNameOrBoard
-      )
+    /**
+     * @param {string} connectionProvider
+     * @param {string} connectionId
+     * @param {Entity} entity
+     */
+    (connectionProvider, connectionId, entity) => {
+      const key = generateKey(connectionProvider, connectionId, entity)
       console.debug(
         '>> useTransformationsManager.getTransformation...',
 
         connectionProvider,
         connectionId,
-        projectNameOrBoard
+        entity
       )
       return transformations[key]
     },
@@ -213,15 +214,16 @@ const useTransformationsManager = () => {
 
   // clear connection's transformation
   const clearTransformationSettings = useCallback(
-    (connectionProvider, connectionId, projectNameOrBoard) => {
-      if (!projectNameOrBoard) {
+    /**
+     * @param {string} connectionProvider
+     * @param {string} connectionId
+     * @param {Entity} entity
+     */
+    (connectionProvider, connectionId, entity) => {
+      if (!entity) {
         return
       }
-      const key = generateKey(
-        connectionProvider,
-        connectionId,
-        projectNameOrBoard
-      )
+      const key = generateKey(connectionProvider, connectionId, entity)
       console.info('>> CLEAR TRANSFORMATION SETTINGS PROJECT/BOARD...', key)
       setTransformations((existingTransformations) => ({
         ...existingTransformations,
@@ -232,19 +234,20 @@ const useTransformationsManager = () => {
   )
 
   // check connection's transformation is changed
-  const checkTransformationHasChanged = useCallback(
-    (connectionProvider, connectionId, projectNameOrBoard) => {
-      const key = generateKey(
-        connectionProvider,
-        connectionId,
-        projectNameOrBoard
-      )
+  const hasTransformationChanged = useCallback(
+    /**
+     * @param {string} connectionProvider
+     * @param {string} connectionId
+     * @param {Entity} entity
+     */
+    (connectionProvider, connectionId, entity) => {
+      const key = generateKey(connectionProvider, connectionId, entity)
       const storedTransform = transformations[key]
       const defaultTransform = new TransformationSettings(
         getDefaultTransformations(connectionProvider)
       )
       console.debug(
-        '>> useTransformationsManager.checkTransformationHasChanged ...',
+        '>> useTransformationsManager.hasTransformationChanged ...',
         key,
         storedTransform,
         defaultTransform
@@ -260,7 +263,7 @@ const useTransformationsManager = () => {
     changeTransformationSettings,
     initializeDefaultTransformation,
     clearTransformationSettings,
-    checkTransformationHasChanged
+    hasTransformationChanged
   }
 }
 

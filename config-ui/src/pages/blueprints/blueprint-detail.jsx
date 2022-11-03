@@ -317,7 +317,7 @@ const BlueprintDetail = (props) => {
           dataScope: connection?.scope
             .map((s) => [`${s.options?.owner}/${s?.options?.repo}`])
             .join(', '),
-          dataEntities: []
+          dataDomains: []
         }))
       )
       setPipelineSettings({

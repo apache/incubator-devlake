@@ -20,7 +20,8 @@ const jenkinsConfig = [
     {
       plugin: 'jenkins',
       options: {
-        connectionId: 1
+        connectionId: 1,
+        jobName: 'unit_test'
       }
     }
   ]

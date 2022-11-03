@@ -17,7 +17,6 @@
  */
 import React, { useMemo } from 'react'
 import NoData from '@/components/NoData'
-
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
@@ -46,20 +45,19 @@ const withTransformationSettings = (
 
 const ProviderTransformationSettings = (props) => {
   const {
-    Providers = {},
-    ProviderLabels = {},
-    ProviderIcons = {},
+    Providers,
     provider,
     blueprint,
     connection,
     transformation = {},
-    boards = {},
-    entities = {},
-    issueTypes = [],
-    fields = [],
-    onSettingsChange = () => {},
+    dataDomainsGroup = {},
     isSaving = false,
     isSavingConnection = false,
+    onSettingsChange = () => {},
+
+    // only jira used
+    issueTypes = [],
+    fields = [],
     jiraProxyError,
     isFetchingJIRA = false
   } = props
@@ -84,7 +82,11 @@ const ProviderTransformationSettings = (props) => {
     provider?.id && TransformationComponents[provider?.id]
       ? TransformationComponents[provider?.id]
       : null,
-    { ...props, entities: props.entities[props?.connection?.id] }
+    {
+      // pass all props but notice default values in Line#47~63 have no effect
+      ...props,
+      dataDomains: dataDomainsGroup[connection?.id]
+    }
   )
 
   return (

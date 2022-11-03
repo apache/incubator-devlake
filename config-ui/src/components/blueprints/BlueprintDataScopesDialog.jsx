@@ -65,21 +65,18 @@ const BlueprintDataScopesDialog = (props) => {
     provider,
     activeTransformation,
     configuredConnection,
-    configuredProject,
-    configuredBoard,
+    configuredScopeEntity,
     scopeConnection,
-    dataEntitiesList = [],
-    boardsList = [],
+    jiraBoards = [],
     issueTypesList = [],
     fieldsList = [],
-    boards = {},
     setBoardSearch = () => {},
     gitlabProjects = [],
     fetchGitlabProjects = () => [],
     fetchJenkinsJobs = () => [],
     jenkinsJobs = [],
-    entities = {},
-    projects = {},
+    dataDomainsGroup = {},
+    scopeEntitiesGroup = {},
     mode = Modes.EDIT,
     canOutsideClickClose = false,
     showCloseButtonInFooter = true,
@@ -95,16 +92,11 @@ const BlueprintDataScopesDialog = (props) => {
     onClose = () => {},
     onCancel = () => {},
     onSave = () => {},
-    setDataEntities = () => {},
-    setProjects = () => {},
-    setBoards = () => {},
-    setEntities = () => {},
-    checkTransformationHasChanged = () => false,
-    changeTransformationSettings = () => {},
-    checkConfiguredProjectTransformationHasChanged = () => false,
-    changeConfiguredProjectTransformationSettings = () => {},
-    addBoardTransformation = () => {},
-    addProjectTransformation = () => {},
+    setDataDomainsGroup = () => {},
+    setScopeEntitiesGroup = () => {},
+    hasConfiguredEntityTransformationChanged = () => false,
+    changeConfiguredEntityTransformation = () => {},
+    setConfiguredScopeEntity = () => {},
     fieldHasError = () => {},
     getFieldError = () => {},
     isSaving = false,
@@ -184,9 +176,8 @@ const BlueprintDataScopesDialog = (props) => {
                 provider={provider}
                 activeStep={activeStep}
                 blueprintConnections={blueprintConnections}
-                dataEntitiesList={dataEntitiesList}
-                boardsList={boardsList}
-                boards={boards}
+                scopeEntitiesGroup={scopeEntitiesGroup}
+                jiraBoards={jiraBoards}
                 setBoardSearch={setBoardSearch}
                 fetchGitlabProjects={fetchGitlabProjects}
                 gitlabProjects={gitlabProjects}
@@ -196,12 +187,10 @@ const BlueprintDataScopesDialog = (props) => {
                 jenkinsJobs={jenkinsJobs}
                 isFetchingJenkins={isFetchingJenkins}
                 jenkinsProxyError={jenkinsProxyError}
-                dataEntities={entities}
-                projects={projects}
+                dataDomainsGroup={dataDomainsGroup}
                 configuredConnection={configuredConnection}
-                setDataEntities={setEntities}
-                setProjects={setProjects}
-                setBoards={setBoards}
+                setDataDomainsGroup={setDataDomainsGroup}
+                setScopeEntitiesGroup={setScopeEntitiesGroup}
                 isSaving={isSaving}
                 isLoading={isFetchingJIRA}
                 validationErrors={[]}
@@ -222,25 +211,19 @@ const BlueprintDataScopesDialog = (props) => {
                 blueprint={blueprint}
                 activeTransformation={activeTransformation}
                 blueprintConnections={blueprintConnections}
-                dataEntities={entities}
-                projects={projects}
-                boards={boards}
-                boardsList={boardsList}
+                dataDomainsGroup={dataDomainsGroup}
+                scopeEntitiesGroup={scopeEntitiesGroup}
                 issueTypes={issueTypesList}
                 fields={fieldsList}
                 configuredConnection={configuredConnection}
-                configuredProject={configuredProject}
-                configuredBoard={configuredBoard}
-                addBoardTransformation={addBoardTransformation}
-                addProjectTransformation={addProjectTransformation}
+                configuredScopeEntity={configuredScopeEntity}
+                setConfiguredScopeEntity={setConfiguredScopeEntity}
                 isSaving={isSaving}
-                checkTransformationHasChanged={checkTransformationHasChanged}
-                changeTransformationSettings={changeTransformationSettings}
-                checkConfiguredProjectTransformationHasChanged={
-                  checkConfiguredProjectTransformationHasChanged
+                hasConfiguredEntityTransformationChanged={
+                  hasConfiguredEntityTransformationChanged
                 }
-                changeConfiguredProjectTransformationSettings={
-                  changeConfiguredProjectTransformationSettings
+                changeConfiguredEntityTransformation={
+                  changeConfiguredEntityTransformation
                 }
                 // onSave={handleTransformationSave}
                 // onCancel={handleTransformationCancel}

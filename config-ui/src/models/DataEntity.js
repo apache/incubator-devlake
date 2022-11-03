@@ -16,53 +16,7 @@
  *
  */
 
-/**
- * @type {object}
- */
-const DataEntityTypes = {
-  CODE: 'CODE',
-  TICKET: 'TICKET',
-  CODE_REVIEW: 'CODEREVIEW',
-  CROSSDOMAIN: 'CROSS',
-  DEVOPS: 'CICD'
-  // USER: 'user',
-}
-
-/**
- * @type {<Array<Object>>}
- */
-const DataEntityList = [
-  {
-    id: 1,
-    name: 'source-code-management',
-    title: 'Source Code Management',
-    value: DataEntityTypes.CODE
-  },
-  {
-    id: 2,
-    name: 'issue-tracking',
-    title: 'Issue Tracking',
-    value: DataEntityTypes.TICKET
-  },
-  {
-    id: 3,
-    name: 'code-review',
-    title: 'Code Review',
-    value: DataEntityTypes.CODE_REVIEW
-  },
-  {
-    id: 4,
-    name: 'cross-domain',
-    title: 'Crossdomain',
-    value: DataEntityTypes.CROSSDOMAIN
-  },
-  {
-    id: 5,
-    name: 'ci-cd',
-    title: 'CI/CD',
-    value: DataEntityTypes.DEVOPS
-  }
-]
+import { ALL_DATA_DOMAINS } from '@/data/DataDomains'
 
 /**
  * @typedef {object} DataEntity
@@ -75,18 +29,18 @@ const DataEntityList = [
 class DataEntity {
   constructor(data = {}) {
     this.id = data?.type
-      ? DataEntityList.find((e) => e.value === data?.type)?.id
+      ? ALL_DATA_DOMAINS.find((e) => e.value === data?.type)?.id
       : 0
     this.name = data?.type
-      ? DataEntityList.find((e) => e.value === data?.type)?.name
-      : DataEntityList[0]?.name
+      ? ALL_DATA_DOMAINS.find((e) => e.value === data?.type)?.name
+      : ALL_DATA_DOMAINS[0]?.name
     this.title = data?.type
-      ? DataEntityList.find((e) => e.value === data?.type)?.title
-      : DataEntityList[0]?.title
+      ? ALL_DATA_DOMAINS.find((e) => e.value === data?.type)?.title
+      : ALL_DATA_DOMAINS[0]?.title
     this.value = data?.type
-      ? DataEntityList.find((e) => e.value === data?.type)?.value
-      : DataEntityList[0]?.type
-    this.type = data?.type || DataEntityList[0]?.type
+      ? ALL_DATA_DOMAINS.find((e) => e.value === data?.type)?.value
+      : ALL_DATA_DOMAINS[0]?.type
+    this.type = data?.type || ALL_DATA_DOMAINS[0]?.type
   }
 
   get(property) {

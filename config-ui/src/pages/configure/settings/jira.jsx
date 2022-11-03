@@ -30,7 +30,7 @@ import {
   Tag
 } from '@blueprintjs/core'
 import { MultiSelect, Select } from '@blueprintjs/select'
-import { DataEntityTypes } from '@/data/DataEntities'
+import { DataDomainTypes } from '@/data/DataDomains'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -53,15 +53,13 @@ const createTypeMapObject = (customType, standardType) => {
 
 export default function JiraSettings(props) {
   const {
-    Providers,
-    ProviderLabels,
     provider,
     connection,
     issueTypes = [],
     fields: fieldsList = [],
     transformation = {},
     onSettingsChange = () => {},
-    entities = [],
+    dataDomains = [],
     isSaving,
     isSavingConnection = false,
     jiraProxyError,
@@ -142,7 +140,7 @@ export default function JiraSettings(props) {
 
   return (
     <>
-      {entities.some((e) => e.value === DataEntityTypes.TICKET) && (
+      {dataDomains.some((e) => e.value === DataDomainTypes.TICKET) && (
         <>
           <h5>Issue Tracking</h5>
           <p className=''>
@@ -194,18 +192,23 @@ export default function JiraSettings(props) {
                     disabled={allChosenTagsInThisBoard?.some(
                       (t) => t.value === item.value
                     )}
+                    label={
+                      <span style={{ marginLeft: '20px' }}>
+                        {item.description}
+                      </span>
+                    }
                     key={item.value}
                     onClick={handleClick}
                     text={
                       requirementTags.some((t) => t.value === item.value) ? (
                         <>
-                          <img src={item.iconUrl} width={12} height={12} />{' '}
+                          <img src={item.icon} width={12} height={12} />{' '}
                           {item.title}{' '}
                           <Icon icon='small-tick' color={Colors.GREEN5} />
                         </>
                       ) : (
                         <span style={{ fontWeight: 700 }}>
-                          <img src={item.iconUrl} width={12} height={12} />{' '}
+                          <img src={item.icon} width={12} height={12} />{' '}
                           {item.title}
                         </span>
                       )
@@ -309,18 +312,23 @@ export default function JiraSettings(props) {
                     disabled={allChosenTagsInThisBoard?.some(
                       (t) => t.value === item.value
                     )}
+                    label={
+                      <span style={{ marginLeft: '20px' }}>
+                        {item.description}
+                      </span>
+                    }
                     key={item.value}
                     onClick={handleClick}
                     text={
                       bugTags.some((t) => t.value === item.value) ? (
                         <>
-                          <img src={item.iconUrl} width={12} height={12} />{' '}
+                          <img src={item.icon} width={12} height={12} />{' '}
                           {item.title}{' '}
                           <Icon icon='small-tick' color={Colors.GREEN5} />
                         </>
                       ) : (
                         <span style={{ fontWeight: 700 }}>
-                          <img src={item.iconUrl} width={12} height={12} />{' '}
+                          <img src={item.icon} width={12} height={12} />{' '}
                           {item.title}
                         </span>
                       )
@@ -429,18 +437,23 @@ export default function JiraSettings(props) {
                     disabled={allChosenTagsInThisBoard?.some(
                       (t) => t.value === item.value
                     )}
+                    label={
+                      <span style={{ marginLeft: '20px' }}>
+                        {item.description}
+                      </span>
+                    }
                     key={item.value}
                     onClick={handleClick}
                     text={
                       incidentTags.some((t) => t.value === item.value) ? (
                         <>
-                          <img src={item.iconUrl} width={12} height={12} />{' '}
+                          <img src={item.icon} width={12} height={12} />{' '}
                           {item.title}{' '}
                           <Icon icon='small-tick' color={Colors.GREEN5} />
                         </>
                       ) : (
                         <span style={{ fontWeight: 700 }}>
-                          <img src={item.iconUrl} width={12} height={12} />{' '}
+                          <img src={item.icon} width={12} height={12} />{' '}
                           {item.title}
                         </span>
                       )
@@ -758,11 +771,12 @@ export default function JiraSettings(props) {
                 fill={true}
                 placeholder='/commit/([0-9a-f]{40})$'
                 value={remoteLinkCommitSha}
-                onChange={(e) =>
+                onChange={(e) => {
+                  setRemoteLinkCommitSha(e.target.value)
                   onSettingsChange({
                     remotelinkCommitShaPattern: e.target.value
                   })
-                }
+                }}
                 disabled={isSaving}
                 className='input'
               />
@@ -771,8 +785,8 @@ export default function JiraSettings(props) {
         </>
       )}
 
-      {(entities?.length === 0 ||
-        entities.every((e) => e.value === DataEntityTypes.CROSSDOMAIN)) && (
+      {(dataDomains?.length === 0 ||
+        dataDomains.every((e) => e.value === DataDomainTypes.CROSSDOMAIN)) && (
         <div className='headlineContainer'>
           <h5>No Data Entities</h5>
           <p className='description'>

@@ -129,27 +129,14 @@ const GitlabProjectsSelector = (props) => {
             )
           }
           onRemove={(item) => {
-            onRemove((rT) => {
-              return {
-                ...rT,
-                [configuredConnection.id]: rT[configuredConnection.id].filter(
-                  (t) => t?.id !== item.id
-                )
-              }
-            })
+            onRemove(selectedItems.filter((t) => t?.id !== item.id))
           }}
           onItemSelect={(item) => {
-            onItemSelect((rT) => {
-              return !rT[configuredConnection.id].includes(item)
-                ? {
-                    ...rT,
-                    [configuredConnection.id]: [
-                      ...rT[configuredConnection.id],
-                      new GitlabProject(item)
-                    ]
-                  }
-                : { ...rT }
-            })
+            onItemSelect(
+              !selectedItems.includes(item)
+                ? [...selectedItems, new GitlabProject(item)]
+                : selectedItems
+            )
           }}
           style={{ borderRight: 0 }}
         />

@@ -43,7 +43,7 @@ import {
 import { MultiSelect, Select } from '@blueprintjs/select'
 import InputValidationError from '@/components/validation/InputValidationError'
 
-const DataEntitiesSelector = (props) => {
+const DataDomainsSelector = (props) => {
   const {
     connections = [],
     configuredConnection,
@@ -150,4 +150,4 @@ const DataEntitiesSelector = (props) => {
   )
 }
 
-export default DataEntitiesSelector
+export default DataDomainsSelector

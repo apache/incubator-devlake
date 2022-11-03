@@ -15,23 +15,9 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
-import {
-  Button,
-  ButtonGroup,
-  Classes,
-  Intent,
-  FormGroup,
-  InputGroup,
-  Radio,
-  RadioGroup,
-  Switch,
-  Tag,
-  Tooltip
-} from '@blueprintjs/core'
+import React from 'react'
 
-import { DataEntityTypes } from '@/data/DataEntities'
+import { DataDomainTypes } from '@/data/DataDomains'
 import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 
 import '@/styles/integration.scss'
@@ -41,7 +27,7 @@ export default function JenkinsSettings(props) {
   const {
     provider,
     connection,
-    entities = [],
+    dataDomains = [],
     transformation = {},
     isSaving = false,
     isSavingConnection = false,
@@ -50,12 +36,10 @@ export default function JenkinsSettings(props) {
 
   return (
     <>
-      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) ? (
+      {dataDomains.some((e) => e.value === DataDomainTypes.DEVOPS) ? (
         <Deployment
           provider={provider}
-          entities={entities}
           transformation={transformation}
-          connection={connection}
           onSettingsChange={onSettingsChange}
           isSaving={isSaving || isSavingConnection}
         />
