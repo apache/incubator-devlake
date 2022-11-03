@@ -59,6 +59,10 @@ func (plugin GithubGraphql) Init(config *viper.Viper, logger core.Logger, db *go
 func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
 		tasks.CollectRepoMeta,
+
+		githubTasks.CollectMilestonesMeta,
+		githubTasks.ExtractMilestonesMeta,
+
 		tasks.CollectIssueMeta,
 		tasks.CollectPrMeta,
 
@@ -66,8 +70,6 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 		githubTasks.ExtractApiCommentsMeta,
 		githubTasks.CollectApiEventsMeta,
 		githubTasks.ExtractApiEventsMeta,
-		githubTasks.CollectMilestonesMeta,
-		githubTasks.ExtractMilestonesMeta,
 		githubTasks.CollectApiPrReviewCommentsMeta,
 		githubTasks.ExtractApiPrReviewCommentsMeta,
 

@@ -154,7 +154,7 @@ func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 			Table: RAW_PRS_TABLE,
 		},
 		GraphqlClient: data.GraphqlClient,
-		PageSize:      100,
+		PageSize:      30,
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
