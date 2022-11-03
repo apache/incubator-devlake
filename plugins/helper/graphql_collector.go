@@ -129,17 +129,17 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 
 	// make sure table is created
 	db := collector.args.Ctx.GetDal()
-	err := db.AutoMigrate(&RawData{}, dal.From(collector.Table))
+	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
 	if err != nil {
 		return errors.Default.Wrap(err, "error running auto-migrate")
 	}
 
 	// flush data if not incremental collection
-	err = db.Delete(&RawData{}, dal.From(collector.Table), dal.Where("params = ?", collector.Params))
+	err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 	if err != nil {
 		return errors.Default.Wrap(err, "error deleting from collector table")
 	}
-	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.Table, collector.Params)
+	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.table, collector.params)
 
 	collector.args.Ctx.SetProgress(0, -1)
 	if collector.args.Input != nil {
@@ -286,12 +286,12 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 		return
 	}
 	row := &RawData{
-		Params: collector.Params,
+		Params: collector.params,
 		Data:   paramsBytes,
 		Url:    queryStr,
 		Input:  variablesJson,
 	}
-	err = db.Create(row, dal.From(collector.Table))
+	err = db.Create(row, dal.From(collector.table))
 	if err != nil {
 		collector.checkError(errors.Default.Wrap(err, `not created row table in graphql collector`))
 		return
@@ -323,7 +323,7 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 		origin := reflect.ValueOf(result).Elem().FieldByName(RAW_DATA_ORIGIN)
 		if origin.IsValid() {
 			origin.Set(reflect.ValueOf(common.RawDataOrigin{
-				RawDataTable:  collector.Table,
+				RawDataTable:  collector.table,
 				RawDataId:     row.ID,
 				RawDataParams: row.Params,
 			}))

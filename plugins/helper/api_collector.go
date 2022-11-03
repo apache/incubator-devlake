@@ -137,14 +137,14 @@ func (collector *ApiCollector) Execute() errors.Error {
 
 	// make sure table is created
 	db := collector.args.Ctx.GetDal()
-	err := db.AutoMigrate(&RawData{}, dal.From(collector.Table))
+	err := db.AutoMigrate(&RawData{}, dal.From(collector.table))
 	if err != nil {
 		return errors.Default.Wrap(err, "error auto-migrating collector")
 	}
 
 	// flush data if not incremental collection
 	if !collector.args.Incremental {
-		err = db.Delete(&RawData{}, dal.From(collector.Table), dal.Where("params = ?", collector.Params))
+		err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting data from collector")
 		}
@@ -380,15 +380,15 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 		rows := make([]*RawData, count)
 		for i, msg := range items {
 			rows[i] = &RawData{
-				Params: collector.Params,
+				Params: collector.params,
 				Data:   msg,
 				Url:    urlString,
 				Input:  reqData.InputJSON,
 			}
 		}
-		err = db.Create(rows, dal.From(collector.Table))
+		err = db.Create(rows, dal.From(collector.table))
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error inserting raw rows into %s", collector.Table))
+			return errors.Default.Wrap(err, fmt.Sprintf("error inserting raw rows into %s", collector.table))
 		}
 		logger.Debug("fetchAsync === total %d rows were saved into database", count)
 		// increase progress only when it was not nested

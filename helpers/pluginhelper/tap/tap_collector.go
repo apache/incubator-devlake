@@ -190,13 +190,13 @@ func (c *Collector) pushResults(results []json.RawMessage) errors.Error {
 	defaultInput, _ := json.Marshal(nil)
 	for i, result := range results {
 		rows[i] = &helper.RawData{
-			Params: c.rawSubtask.Params,
+			Params: c.rawSubtask.GetParams(),
 			Data:   result,
 			Url:    "",           // n/a
 			Input:  defaultInput, // n/a
 		}
 	}
-	err := c.ctx.GetDal().Create(rows, dal.From(c.rawSubtask.Table))
+	err := c.ctx.GetDal().Create(rows, dal.From(c.rawSubtask.GetTable()))
 	if err != nil {
 		return errors.Default.Wrap(err, "error pushing records to collector table")
 	}
@@ -205,12 +205,12 @@ func (c *Collector) pushResults(results []json.RawMessage) errors.Error {
 
 func (c *Collector) prepareDB() errors.Error {
 	db := c.ctx.GetDal()
-	err := db.AutoMigrate(&helper.RawData{}, dal.From(c.rawSubtask.Table))
+	err := db.AutoMigrate(&helper.RawData{}, dal.From(c.rawSubtask.GetTable()))
 	if err != nil {
 		return errors.Default.Wrap(err, "error auto-migrating collector")
 	}
 	if !c.incremental {
-		err = c.ctx.GetDal().Delete(&helper.RawData{}, dal.From(c.rawSubtask.Table), dal.Where("params = ?", c.rawSubtask.Params))
+		err = c.ctx.GetDal().Delete(&helper.RawData{}, dal.From(c.rawSubtask.GetTable()), dal.Where("params = ?", c.rawSubtask.GetParams()))
 		if err != nil {
 			return errors.Default.Wrap(err, "error deleting data from collector")
 		}

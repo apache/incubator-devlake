@@ -52,8 +52,8 @@ type RawDataSubTaskArgs struct {
 // RawDataSubTask is Common features for raw data sub-tasks
 type RawDataSubTask struct {
 	args   *RawDataSubTaskArgs
-	Table  string
-	Params string
+	table  string
+	params string
 }
 
 // NewRawDataSubTask constructor for RawDataSubTask
@@ -77,7 +77,17 @@ func NewRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, errors.Error) 
 	}
 	return &RawDataSubTask{
 		args:   &args,
-		Table:  fmt.Sprintf("_raw_%s", args.Table),
-		Params: paramsString,
+		table:  fmt.Sprintf("_raw_%s", args.Table),
+		params: paramsString,
 	}, nil
+}
+
+// GetTable returns the raw table name
+func (r *RawDataSubTask) GetTable() string {
+	return r.table
+}
+
+// GetParams returns the raw params
+func (r *RawDataSubTask) GetParams() string {
+	return r.params
 }

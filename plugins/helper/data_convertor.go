@@ -82,7 +82,7 @@ func (converter *DataConverter) Execute() errors.Error {
 
 	// batch save divider
 	RAW_DATA_ORIGIN := "RawDataOrigin"
-	divider := NewBatchSaveDivider(converter.args.Ctx, converter.args.BatchSize, converter.Table, converter.Params)
+	divider := NewBatchSaveDivider(converter.args.Ctx, converter.args.BatchSize, converter.table, converter.params)
 
 	// set progress
 	converter.args.Ctx.SetProgress(0, -1)
