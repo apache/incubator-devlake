@@ -91,6 +91,10 @@ class Plugin {
     return this.transformations?.default || {}
   }
 
+  getMultiConnection() {
+    return this.multiConnection
+
+
   getDefaultTransformationScopeOptions(entity) {
     const scopeOptions = {
       ...(this.transformations?.scopes?.options || {}),

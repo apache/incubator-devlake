@@ -44,7 +44,23 @@ const withTransformationSettings = (
   )
 
 const ProviderTransformationSettings = (props) => {
-  const { Providers = {}, provider } = props
+  const {
+    Providers,
+    provider,
+    blueprint,
+    connection,
+    transformation = {},
+    dataDomainsGroup = {},
+    isSaving = false,
+    isSavingConnection = false,
+    onSettingsChange = () => {},
+
+    // only jira used
+    issueTypes = [],
+    fields = [],
+    jiraProxyError,
+    isFetchingJIRA = false
+  } = props
 
   // Provider Transformation Components (LOCAL)
   const TransformationComponents = useMemo(
@@ -66,7 +82,20 @@ const ProviderTransformationSettings = (props) => {
     provider?.id && TransformationComponents[provider?.id]
       ? TransformationComponents[provider?.id]
       : null,
-    { ...props, dataDomains: props.dataDomainsGroup[props?.connection?.id] }
+    {
+      dataDomains: dataDomainsGroup[connection?.id],
+      provider,
+      blueprint,
+      connection,
+      transformation,
+      issueTypes,
+      fields,
+      onSettingsChange,
+      isSaving,
+      isSavingConnection,
+      jiraProxyError,
+      isFetchingJIRA
+    }
   )
 
   return (

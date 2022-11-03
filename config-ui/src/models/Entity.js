@@ -17,7 +17,7 @@
  */
 
 /**
- * @typedef {object} GitHubProject
+ * @typedef {object} Entity
  * @property {number|string?} id
  * @property {number?} key
  * @property {string|number?} value
@@ -60,7 +60,7 @@ class Entity {
   }
 
   getConfiguredEntityId() {
-    return this.name.toString() || this.id
+    return this.id
   }
 }
 

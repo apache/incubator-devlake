@@ -46,8 +46,6 @@ export default function AzureSettings(props) {
     isSaving = false,
     isSavingConnection = false,
     onSettingsChange = () => {}
-    // configuredProject
-    // configuredBoard
   } = props
 
   // @todo: implement transformations

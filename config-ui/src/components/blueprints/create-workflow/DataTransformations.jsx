@@ -310,8 +310,6 @@ const DataTransformations = (props) => {
                         <ProviderTransformationSettings
                           key={configuredScopeEntity.id}
                           Providers={Providers}
-                          ProviderLabels={ProviderLabels}
-                          ProviderIcons={ProviderIcons}
                           provider={Integrations.find(
                             (i) => i.id === configuredConnection?.provider
                           )}

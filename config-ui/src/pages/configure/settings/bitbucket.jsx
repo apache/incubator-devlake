@@ -46,8 +46,6 @@ export default function BitbucketSettings(props) {
     isSaving = false,
     isSavingConnection = false,
     onSettingsChange = () => {}
-    // configuredProject
-    // configuredBoard
   } = props
 
   // @todo: implement transformations

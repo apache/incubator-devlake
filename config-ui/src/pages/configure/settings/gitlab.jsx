@@ -25,10 +25,10 @@ import '@/styles/connections.scss'
 
 export default function GitlabSettings(props) {
   const {
+    provider,
     connection,
     dataDomains = [],
     transformation = {},
-    provider,
     isSaving = false,
     isSavingConnection = false,
     onSettingsChange = () => {}

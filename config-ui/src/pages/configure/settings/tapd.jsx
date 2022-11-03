@@ -24,8 +24,6 @@ import '@/styles/connections.scss'
 
 export default function TapdSettings(props) {
   const {
-    Providers,
-    ProviderLabels,
     provider,
     connection,
     dataDomains = [],
