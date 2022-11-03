@@ -140,6 +140,10 @@ func (c *Collector) Execute() (err errors.Error) {
 	c.ctx.SetProgress(0, -1)
 	ctx := c.ctx.GetContext()
 	var batchedResults []json.RawMessage
+	defer func() {
+		// push whatever is left
+		err = c.pushResults(batchedResults)
+	}()
 	for result := range resultStream {
 		if result.Err != nil {
 			err = errors.Default.Wrap(result.Err, "error found in streamed tap result")
@@ -151,7 +155,8 @@ func (c *Collector) Execute() (err errors.Error) {
 			return err
 		default:
 		}
-		output, err := NewRawTapOutput[json.RawMessage](result.Data)
+		var output *RawOutput[json.RawMessage]
+		output, err = NewRawTapOutput[json.RawMessage](result.Data)
 		if err != nil {
 			return err
 		}
