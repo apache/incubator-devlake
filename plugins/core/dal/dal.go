@@ -62,11 +62,11 @@ type Dal interface {
 	Cursor(clauses ...Clause) (*sql.Rows, errors.Error)
 	// Fetch loads row data from `cursor` into `dst`
 	Fetch(cursor *sql.Rows, dst interface{}) errors.Error
-	// All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
+	// All loads matched rows from database to `dst`, USE IT WITH CAUTIOUS!!
 	All(dst interface{}, clauses ...Clause) errors.Error
 	// First loads first matched row from database to `dst`, error will be returned if no records were found
 	First(dst interface{}, clauses ...Clause) errors.Error
-	// All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
+	// Count matched rows from database
 	Count(clauses ...Clause) (int64, errors.Error)
 	// Pluck used to query single column
 	Pluck(column string, dest interface{}, clauses ...Clause) errors.Error
@@ -86,7 +86,7 @@ type Dal interface {
 	AllTables() ([]string, errors.Error)
 	// GetColumns returns table columns in database
 	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
-	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
+	// GetPrimaryKeyFields get the PrimaryKey from `gorm` tag
 	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
 	// Dialect returns the dialect of current database
 	Dialect() string
