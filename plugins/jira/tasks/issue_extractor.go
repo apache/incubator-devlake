@@ -19,10 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/errors"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -153,7 +154,9 @@ func extractIssues(data *JiraTaskData, mappings *typeMappings, ignoreBoard bool,
 		results = append(results, changelogItem)
 	}
 	for _, user := range users {
-		results = append(results, user)
+		if user.AccountId != "" {
+			results = append(results, user)
+		}
 	}
 	if !ignoreBoard {
 		results = append(results, &models.JiraBoardIssue{
