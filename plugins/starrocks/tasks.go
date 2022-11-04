@@ -66,6 +66,11 @@ func LoadData(c core.SubTaskContext) errors.Error {
 			return errors.NotFound.New(fmt.Sprintf("unsupported source type %s", config.SourceType))
 		}
 		db = dalgorm.NewDalgorm(o)
+		sqlDB, err := o.DB()
+		if err != nil {
+			return errors.Convert(err)
+		}
+		defer sqlDB.Close()
 	} else {
 		db = c.GetDal()
 	}
@@ -103,6 +108,7 @@ func LoadData(c core.SubTaskContext) errors.Error {
 	if err != nil {
 		return errors.Convert(err)
 	}
+	defer starrocks.Close()
 
 	for _, table := range starrocksTables {
 		starrocksTable := strings.TrimLeft(table, "_")
