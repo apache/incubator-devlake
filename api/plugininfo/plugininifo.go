@@ -18,10 +18,11 @@ limitations under the License.
 package plugininfo
 
 import (
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"reflect"
 	"sync"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/api/shared"
 	"github.com/apache/incubator-devlake/models/domainlayer/domaininfo"
@@ -177,4 +178,25 @@ func Get(c *gin.Context) {
 	}
 
 	shared.ApiOutputSuccess(c, info, http.StatusOK)
+}
+
+// @Get name list of plugins
+// @Description GET /plugins
+// @Description RETURN SAMPLE
+// @Tags framework/plugins
+// @Success 200
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Router /plugins [get]
+func GetPluginNames(c *gin.Context) {
+	var names []string
+	err := core.TraversalPlugin(func(name string, plugin core.PluginMeta) errors.Error {
+		names = append(names, name)
+		return nil
+	})
+
+	if err != nil {
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting plugin info of plugins"))
+	}
+
+	shared.ApiOutputSuccess(c, names, http.StatusOK)
 }
