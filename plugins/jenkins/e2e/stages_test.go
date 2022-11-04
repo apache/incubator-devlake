@@ -41,9 +41,10 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 	// import raw data table
 	// SELECT * FROM _raw_jenkins_api_stages INTO OUTFILE "/tmp/_raw_jenkins_api_stages.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jenkins_api_stages.csv", "_raw_jenkins_api_stages")
+	dataflowTester.FlushTabler(&models.JenkinsBuild{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_jenkins_builds_for_stages.csv", models.JenkinsBuild{})
 
 	// import tool table
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jenkins_builds.csv", models.JenkinsBuild{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jenkins_build_commits.csv", models.JenkinsBuildCommit{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/cicd_tasks.csv", devops.CICDTask{})
 

@@ -74,14 +74,14 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 	}
 
 	clauses := []dal.Clause{
-		dal.Select(`tjb.connection_id, tjs.build_name, tjs.name, tjs._raw_data_remark, 
+		dal.Select(`tjb.connection_id, tjs.build_name, tjs.id, tjs._raw_data_remark, tjs.name,
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
 			tjs.status, tjs.start_time_millis, tjs.duration_millis, 
 			tjs.pause_duration_millis, tjs.type, 
 			tjb.triggered_by, tjb.building`),
 		dal.From("_tool_jenkins_builds tjb"),
 		dal.Join("left join _tool_jenkins_stages tjs on tjs.build_name = tjb.full_display_name"),
-		dal.Where("tjb.connection_id = ? ", data.Options.ConnectionId),
+		dal.Where("tjb.connection_id = ? and tjb.job_name = ? ", data.Options.ConnectionId, data.Options.JobName),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -129,7 +129,7 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 			jenkinsTask := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: stageIdGen.Generate(body.ConnectionId,
-						body.BuildName, body.Name),
+						body.BuildName, body.ID),
 				},
 				Name: body.Name,
 				PipelineId: buildIdGen.Generate(body.ConnectionId,
