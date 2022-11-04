@@ -18,6 +18,7 @@ limitations under the License.
 package archived
 
 import (
+	"golang.org/x/exp/constraints"
 	"time"
 )
 
@@ -28,6 +29,12 @@ type DomainEntity struct {
 
 type Model struct {
 	ID        uint64    `gorm:"primaryKey" json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+type GenericModel[T string | constraints.Unsigned] struct {
+	ID        T         `gorm:"primaryKey" json:"id"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

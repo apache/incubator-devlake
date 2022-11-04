@@ -86,7 +86,7 @@ type GraphqlCollector struct {
 // of response we want to save, GraphqlCollector will collect them from remote server and store them into database.
 func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, errors.Error) {
 	// process args
-	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
+	rawDataSubTask, err := NewRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error processing raw subtask args")
 	}
