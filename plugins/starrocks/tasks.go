@@ -66,6 +66,8 @@ func LoadData(c core.SubTaskContext) errors.Error {
 			return errors.NotFound.New(fmt.Sprintf("unsupported source type %s", config.SourceType))
 		}
 		db = dalgorm.NewDalgorm(o)
+		sqlDB, _ := o.DB()
+		defer sqlDB.Close()
 	} else {
 		db = c.GetDal()
 	}
@@ -100,6 +102,7 @@ func LoadData(c core.SubTaskContext) errors.Error {
 	}
 
 	starrocks, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.User, config.Password, config.Host, config.Port, config.Database))
+	defer starrocks.Close()
 	if err != nil {
 		return errors.Convert(err)
 	}
