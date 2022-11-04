@@ -41,6 +41,7 @@ func (CICDPipeline) TableName() string {
 
 const (
 	SUCCESS     = "SUCCESS"
+	RUNNING     = "RUNNING"
 	FAILURE     = "FAILURE"
 	ABORT       = "ABORT"
 	IN_PROGRESS = "IN_PROGRESS"

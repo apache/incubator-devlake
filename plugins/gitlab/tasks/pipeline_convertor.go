@@ -81,7 +81,8 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 				Result: devops.GetResult(&devops.ResultRule{
 					Failed:  []string{"failed"},
 					Abort:   []string{"canceled", "skipped"},
-					Default: devops.SUCCESS,
+					Success: []string{"success"},
+					Default: devops.RUNNING,
 				}, gitlabPipeline.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
 					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "manual", "scheduled"},

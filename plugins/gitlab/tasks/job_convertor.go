@@ -91,7 +91,8 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 					Failed:  []string{"failed"},
 					Abort:   []string{"canceled", "skipped"},
 					Manual:  []string{"manual"},
-					Default: devops.SUCCESS,
+					Success: []string{"success"},
+					Default: devops.RUNNING,
 				}, gitlabJob.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
 					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "scheduled"},

@@ -91,6 +91,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 
 			if jenkinsBuild.Building {
 				jenkinsPipelineStatus = devops.IN_PROGRESS
+				jenkinsPipelineResult = devops.RUNNING
 			} else {
 				jenkinsPipelineStatus = devops.DONE
 				finishTime := jenkinsBuild.StartTime.Add(time.Duration(durationSec * int64(time.Second)))

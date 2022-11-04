@@ -104,7 +104,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 			} else if line.Conclusion == "failure" || line.Conclusion == "startup_failure" {
 				domainJob.Result = devops.FAILURE
 			} else {
-				domainJob.Result = devops.ABORT
+				domainJob.Result = devops.RUNNING
 			}
 
 			if line.Status != "completed" {
