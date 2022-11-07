@@ -80,7 +80,6 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&devops.CICDTask{})
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
 	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
-	dataflowTester.FlushTabler(&devops.CICDPipelineRelationship{})
 	dataflowTester.Subtask(tasks.EnrichApiBuildWithStagesMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertBuildsToCICDMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertBuildReposMeta, taskData)
@@ -113,15 +112,6 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"environment",
 			"created_date",
 			"finished_date",
-		),
-	)
-
-	dataflowTester.VerifyTable(
-		devops.CICDPipelineRelationship{},
-		"./snapshot_tables/cicd_pipeline_relationships.csv",
-		e2ehelper.ColumnWithRawData(
-			"parent_pipeline_id",
-			"child_pipeline_id",
 		),
 	)
 

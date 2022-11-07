@@ -52,5 +52,6 @@ func All() []core.MigrationScript {
 		new(changeLeadTimeMinutesToInt64),
 		new(addRepoSnapshot),
 		new(createCollectorState),
+		new(removeCicdPipelineRelation),
 	}
 }
