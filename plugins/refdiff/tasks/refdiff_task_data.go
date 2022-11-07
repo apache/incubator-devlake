@@ -64,8 +64,7 @@ type RefsReverseAlphabetically Refs
 type RefsSemver Refs
 type RefsReverseSemver Refs
 
-type DeploymentCommitPair [10]string
-type DeploymentCommitPairs []DeploymentCommitPair
+type DeploymentCommitPairs []code.DeployCommitsDiff
 
 func (rs Refs) Len() int {
 	return len(rs)

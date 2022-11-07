@@ -33,6 +33,7 @@ type DeploymentCommitPairRev struct {
 	CommitSha   string `gorm:"type:varchar(40)"`
 	PipelineId  string `gorm:"type:varchar(255)"`
 	TaskId      string `gorm:"type:varchar(255)"`
+	TaskName    string `gorm:"type:varchar(255)"`
 	StartedDate *time.Time
 }
 
@@ -104,7 +105,7 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 				if err != nil {
 					return err
 				}
-				commitPairs = append(commitPairs, DeploymentCommitPair{ProjectName: projectName, ScopeId: scope_id, NewPipelineId: dcpr2.PipelineId, OldPipelineId: dcpr1.PipelineId, NewPipelineCommitSha: dcpr2.CommitSha, OldPipelineCommitSha: dcpr1.CommitSha, TaskId: task_id, TaskName: task_name})
+				commitPairs = append(commitPairs, code.DeployCommitsDiff{ProjectName: projectName, ScopeId: scopeId, NewPipelineId: dcpr2.PipelineId, OldPipelineId: dcpr1.PipelineId, NewPipelineCommitSha: dcpr2.CommitSha, OldPipelineCommitSha: dcpr1.CommitSha, TaskId: dcpr1.TaskId, TaskName: dcpr1.TaskName})
 			}
 
 		}
@@ -152,14 +153,14 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 			default:
 			}
 
-			commitsDiff.ProjectName = pair[0]
-			commitsDiff.ScopeId = pair[1]
-			commitsDiff.NewPipelineId = pair[2]
-			commitsDiff.OldPipelineId = pair[3]
-			commitsDiff.NewPipelineCommitSha = pair[5]
-			commitsDiff.OldPipelineCommitSha = pair[6]
-			commitsDiff.TaskId = pair[7]
-			commitsDiff.TaskName = pair[8]
+			commitsDiff.ProjectName = pair.ProjectName
+			commitsDiff.ScopeId = pair.ScopeId
+			commitsDiff.NewPipelineId = pair.NewPipelineId
+			commitsDiff.OldPipelineId = pair.OldPipelineId
+			commitsDiff.NewPipelineCommitSha = pair.NewPipelineCommitSha
+			commitsDiff.OldPipelineCommitSha = pair.OldPipelineCommitSha
+			commitsDiff.TaskId = pair.TaskId
+			commitsDiff.TaskName = pair.TaskName
 
 			// delete records before creation
 			err := db.Delete(&code.DeployCommitsDiff{ProjectName: commitsDiff.ProjectName, TaskId: commitsDiff.TaskId})
