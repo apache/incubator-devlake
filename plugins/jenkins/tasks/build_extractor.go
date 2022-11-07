@@ -75,6 +75,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 				Result:            body.Result,
 				Timestamp:         body.Timestamp,
 				Class:             class,
+				Building:          body.Building,
 				StartTime:         time.Unix(body.Timestamp/1000, 0),
 			}
 			vcs := body.ChangeSet.Kind

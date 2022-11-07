@@ -82,7 +82,7 @@ func ConvertRuns(taskCtx core.SubTaskContext) errors.Error {
 			} else if line.Conclusion == "failure" || line.Conclusion == "startup_failure" {
 				domainPipeline.Result = devops.FAILURE
 			} else {
-				domainPipeline.Result = devops.ABORT
+				domainPipeline.Result = devops.RUNNING
 			}
 
 			if line.Status != "completed" {

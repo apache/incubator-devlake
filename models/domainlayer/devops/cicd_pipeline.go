@@ -39,13 +39,19 @@ func (CICDPipeline) TableName() string {
 	return "cicd_pipelines"
 }
 
+// this is for the field `result` in table.cicd_pipelines and table.cicd_tasks
 const (
-	SUCCESS     = "SUCCESS"
-	FAILURE     = "FAILURE"
-	ABORT       = "ABORT"
+	SUCCESS = "SUCCESS"
+	RUNNING = "RUNNING"
+	FAILURE = "FAILURE"
+	ABORT   = "ABORT"
+	MANUAL  = "MANUAL"
+)
+
+// this is for the field `status` in table.cicd_pipelines and table.cicd_tasks
+const (
 	IN_PROGRESS = "IN_PROGRESS"
 	DONE        = "DONE"
-	MANUAL      = "MANUAL"
 )
 
 type ResultRule struct {
