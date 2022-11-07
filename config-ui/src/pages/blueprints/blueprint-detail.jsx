@@ -151,7 +151,9 @@ const BlueprintDetail = (props) => {
     // eslint-disable-next-line no-unused-vars
     detectPipelineProviders,
     logfile: pipelineLogFilename,
-    getPipelineLogfile
+    getPipelineLogfile,
+    rerunAllFailedTasks,
+    rerunTask
   } = usePipelineManager()
 
   const {
@@ -612,67 +614,77 @@ const BlueprintDetail = (props) => {
                         alignItems: 'center'
                       }}
                     >
-                      <div style={{ display: 'block' }}>
-                        {/* <Button intent={Intent.PRIMARY} outlined text='Cancel' onClick={cancelRun} /> */}
-                        <Popover
-                          key='popover-help-key-cancel-run'
-                          className='trigger-pipeline-cancel'
-                          popoverClassName='popover-pipeline-cancel'
-                          position={Position.BOTTOM}
-                          autoFocus={false}
-                          enforceFocus={false}
-                          usePortal={true}
-                          disabled={currentRun?.status !== 'TASK_RUNNING'}
-                        >
-                          <Button
-                            // icon='stop'
-                            text='Cancel'
-                            intent={Intent.PRIMARY}
-                            outlined
-                            disabled={currentRun?.status !== 'TASK_RUNNING'}
-                          />
-                          <>
-                            <div
-                              style={{
-                                fontSize: '12px',
-                                padding: '12px',
-                                maxWidth: '200px'
-                              }}
-                            >
-                              <p>
-                                Are you Sure you want to cancel this{' '}
-                                <strong>Pipeline Run</strong>?
-                              </p>
+                      {currentRun?.status === 'TASK_RUNNING' && (
+                        <div style={{ display: 'block' }}>
+                          {/* <Button intent={Intent.PRIMARY} outlined text='Cancel' onClick={cancelRun} /> */}
+                          <Popover
+                            key='popover-help-key-cancel-run'
+                            className='trigger-pipeline-cancel'
+                            popoverClassName='popover-pipeline-cancel'
+                            position={Position.BOTTOM}
+                            autoFocus={false}
+                            enforceFocus={false}
+                            usePortal={true}
+                          >
+                            <Button
+                              // icon='stop'
+                              text='Cancel'
+                              intent={Intent.PRIMARY}
+                              outlined
+                            />
+                            <>
                               <div
                                 style={{
-                                  display: 'flex',
-                                  width: '100%',
-                                  justifyContent: 'flex-end'
+                                  fontSize: '12px',
+                                  padding: '12px',
+                                  maxWidth: '200px'
                                 }}
                               >
-                                <Button
-                                  text='NO'
-                                  minimal
-                                  small
-                                  className={Classes.POPOVER_DISMISS}
+                                <p>
+                                  Are you Sure you want to cancel this{' '}
+                                  <strong>Pipeline Run</strong>?
+                                </p>
+                                <div
                                   style={{
-                                    marginLeft: 'auto',
-                                    marginRight: '3px'
+                                    display: 'flex',
+                                    width: '100%',
+                                    justifyContent: 'flex-end'
                                   }}
-                                />
-                                <Button
-                                  className={Classes.POPOVER_DISMISS}
-                                  text='YES'
-                                  icon='small-tick'
-                                  intent={Intent.DANGER}
-                                  small
-                                  onClick={() => cancelPipeline(currentRun?.id)}
-                                />
+                                >
+                                  <Button
+                                    text='NO'
+                                    minimal
+                                    small
+                                    className={Classes.POPOVER_DISMISS}
+                                    style={{
+                                      marginLeft: 'auto',
+                                      marginRight: '3px'
+                                    }}
+                                  />
+                                  <Button
+                                    className={Classes.POPOVER_DISMISS}
+                                    text='YES'
+                                    icon='small-tick'
+                                    intent={Intent.DANGER}
+                                    small
+                                    onClick={() =>
+                                      cancelPipeline(currentRun?.id)
+                                    }
+                                  />
+                                </div>
                               </div>
-                            </div>
-                          </>
-                        </Popover>
-                      </div>
+                            </>
+                          </Popover>
+                        </div>
+                      )}
+                      {currentRun?.status === TaskStatus.COMPLETE && (
+                        <Button
+                          intent={Intent.PRIMARY}
+                          onClick={rerunAllFailedTasks}
+                        >
+                          Run Failed Tasks
+                        </Button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -719,6 +731,7 @@ const BlueprintDetail = (props) => {
                               sK={sK}
                               sIdx={sIdx}
                               showStageTasks={showCurrentRunTasks}
+                              rerunTask={rerunTask}
                             />
                           ))}
                         </div>

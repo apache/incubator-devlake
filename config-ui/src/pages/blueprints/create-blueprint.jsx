@@ -194,7 +194,9 @@ const CreateBlueprint = (props) => {
     deleteBlueprint,
     isDeleting: isDeletingBlueprint,
     isManual: isManualBlueprint,
-    saveComplete: saveBlueprintComplete
+    saveComplete: saveBlueprintComplete,
+    skipOnFail,
+    setSkipOnFail
   } = useBlueprintManager()
 
   const {
@@ -928,6 +930,8 @@ const CreateBlueprint = (props) => {
 
                   {activeStep?.id === 2 && (
                     <DataSync
+                      skipOnFail={skipOnFail}
+                      setSkipOnFail={setSkipOnFail}
                       activeStep={activeStep}
                       advancedMode={advancedMode}
                       cronConfig={cronConfig}
@@ -1041,6 +1045,8 @@ const CreateBlueprint = (props) => {
 
                   {activeStep?.id === 4 && (
                     <DataSync
+                      skipOnFail={skipOnFail}
+                      setSkipOnFail={setSkipOnFail}
                       activeStep={activeStep}
                       advancedMode={advancedMode}
                       cronConfig={cronConfig}

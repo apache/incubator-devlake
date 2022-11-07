@@ -15,10 +15,9 @@
  * limitations under the License.
  *
  */
-import React, { Fragment, useEffect, useState, useCallback } from 'react'
-import dayjs from '@/utils/time'
+import React from 'react'
 import {
-  Button,
+  Checkbox,
   Icon,
   Intent,
   Tooltip,
@@ -33,13 +32,6 @@ import {
   Card,
   Colors
 } from '@blueprintjs/core'
-// import {
-//   Providers,
-//   ProviderTypes,
-//   ProviderIcons,
-//   ConnectionStatus,
-//   ConnectionStatusLabels
-// } from '@/data/Providers'
 
 import InputValidationError from '@/components/validation/InputValidationError'
 
@@ -47,6 +39,8 @@ import CronHelp from '@/images/cron-help.png'
 
 const DataSync = (props) => {
   const {
+    skipOnFail,
+    setSkipOnFail,
     activeStep,
     cronConfig,
     customCronConfig,
@@ -274,38 +268,22 @@ const DataSync = (props) => {
           </div>
         </div>
 
-        {/* {cronConfig !== 'manual' && (
-          <div>
-            <Divider
-              className='section-divider'
-              style={{ marginTop: ' 20px' }}
-            />
-            <div>
-              <h4 style={{ marginRight: 0, marginBottom: 0 }}>Next Run Date</h4>
-            </div>
-            <div style={{ fontSize: '14px', fontWeight: 800 }}>
-              {dayjs(
-                createCron(
-                  cronConfig === 'custom' ? customCronConfig : cronConfig
-                )
-                  .next()
-                  .toString()
-              ).format('L LTS')}{' '}
-              &middot;{' '}
-              <span style={{ color: Colors.GRAY3 }}>
-                (
-                {dayjs(
-                  createCron(
-                    cronConfig === 'custom' ? customCronConfig : cronConfig
-                  )
-                    .next()
-                    .toString()
-                ).fromNow()}
-                )
-              </span>
-            </div>
-          </div>
-        )} */}
+        <h4>Running Policy</h4>
+        <div style={{ marginTop: 20 }}>
+          <Checkbox
+            label='Skip failed tasks (Recommended when collecting large volume of data, eg. 10+ GitHub repos/Jira boards)'
+            checked={skipOnFail}
+            onChange={(e) => setSkipOnFail(e.target.checked)}
+          />
+          <p>
+            A task is a unit of a pipeline. A pipeline is an execution of a
+            blueprint. By default, when a task is failed, the whole pipeline
+            will fail and all the data that has been collected will be
+            discarded. By skipping failed tasks, the pipeline will continue to
+            run, and the data collected by other tasks will not be affected.
+            After the pipeline is finished, you can rerun these failed tasks.
+          </p>
+        </div>
       </Card>
     </div>
   )

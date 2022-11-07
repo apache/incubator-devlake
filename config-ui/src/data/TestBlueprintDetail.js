@@ -143,6 +143,7 @@ const TEST_BLUEPRINT_API_RESPONSE = {
   enable: true,
   cronConfig: '0 0 * * *',
   isManual: false,
+  skipOnFail: false,
   settings: {
     version: '1.0.0',
     connections: [

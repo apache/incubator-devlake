@@ -246,6 +246,34 @@ function usePipelineManager(
     [allowedProviders]
   )
 
+  const rerunAllFailedTasks = async () => {
+    try {
+      const res = await request.post(
+        `${DEVLAKE_ENDPOINT}/pipelines/${activePipeline.id}/tasks`,
+        {
+          taskId: 0
+        }
+      )
+      if (res?.data?.success) {
+        fetchPipeline(activePipeline.id)
+      }
+    } catch (err) {}
+  }
+
+  const rerunTask = async (taskId) => {
+    try {
+      const res = await request.post(
+        `${DEVLAKE_ENDPOINT}/pipelines/${activePipeline.id}/tasks`,
+        {
+          taskId
+        }
+      )
+      if (res?.data?.success) {
+        fetchPipeline(activePipeline.id)
+      }
+    } catch (err) {}
+  }
+
   useEffect(() => {
     console.log('>> PIPELINE MANAGER - RECEIVED RUN/TASK SETTINGS', settings)
   }, [settings])
@@ -284,7 +312,9 @@ function usePipelineManager(
     detectPipelineProviders,
     allowedProviders,
     setAllowedProviders,
-    getPipelineLogfile
+    getPipelineLogfile,
+    rerunAllFailedTasks,
+    rerunTask
   }
 }
 

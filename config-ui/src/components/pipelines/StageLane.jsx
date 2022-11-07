@@ -23,7 +23,7 @@ import StageTask from '@/components/pipelines/StageTask'
 import StageLaneStatus from '@/components/pipelines/StageLaneStatus'
 
 const StageLane = (props) => {
-  const { stages = [], sK = 1, sIdx, showStageTasks = true } = props
+  const { stages = [], sK = 1, sIdx, showStageTasks = true, rerunTask } = props
 
   const [activeStage, setActiveStage] = useState(stages[sK])
   const [readyStageModules, setReadyStageModules] = useState([])
@@ -213,7 +213,11 @@ const StageLane = (props) => {
               classNames='pipeline-task-fx'
               // unmountOnExit
             >
-              <StageTask task={t} key={`stage-task-key-${tIdx}`} />
+              <StageTask
+                task={t}
+                key={`stage-task-key-${tIdx}`}
+                rerunTask={rerunTask}
+              />
             </CSSTransition>
           ))}
         {/* <StageLaneStatus

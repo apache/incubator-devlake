@@ -162,7 +162,9 @@ const BlueprintSettings = (props) => {
     fetchAllBlueprints,
     saveBlueprint,
     saveComplete,
-    errors: blueprintErrors
+    errors: blueprintErrors,
+    skipOnFail,
+    setSkipOnFail
   } = useBlueprintManager()
 
   const {
@@ -696,6 +698,7 @@ const BlueprintSettings = (props) => {
           ...aS,
           payload: {
             isManual: !!isManualCron,
+            skipOnFail,
             cronConfig: isManualCron
               ? getCronPreset('daily').cronConfig
               : isCustomCron
@@ -1193,6 +1196,8 @@ const BlueprintSettings = (props) => {
             case 'cronConfig':
               Settings = (
                 <DataSync
+                  skipOnFail={skipOnFail}
+                  setSkipOnFail={setSkipOnFail}
                   cronConfig={cronConfig}
                   customCronConfig={customCronConfig}
                   createCron={createCron}
