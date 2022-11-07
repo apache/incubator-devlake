@@ -108,16 +108,6 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 				DurationSec:  uint64(durationSec),
 				CreatedDate:  jenkinsBuild.StartTime,
 			}
-
-			if jenkinsBuild.TriggeredBy != "" {
-				domainPipelineRelation := &devops.CICDPipelineRelationship{
-					ParentPipelineId: buildIdGen.Generate(jenkinsBuild.ConnectionId,
-						jenkinsBuild.TriggeredBy),
-					ChildPipelineId: buildIdGen.Generate(jenkinsBuild.ConnectionId,
-						jenkinsBuild.FullDisplayName),
-				}
-				results = append(results, domainPipelineRelation)
-			}
 			jenkinsPipeline.RawDataOrigin = jenkinsBuild.RawDataOrigin
 			results = append(results, jenkinsPipeline)
 

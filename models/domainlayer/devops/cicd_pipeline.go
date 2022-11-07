@@ -20,8 +20,6 @@ package devops
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/models/common"
-
 	"github.com/apache/incubator-devlake/models/domainlayer"
 )
 
@@ -39,16 +37,6 @@ type CICDPipeline struct {
 
 func (CICDPipeline) TableName() string {
 	return "cicd_pipelines"
-}
-
-type CICDPipelineRelationship struct {
-	ParentPipelineId string `gorm:"primaryKey;type:varchar(255)"`
-	ChildPipelineId  string `gorm:"primaryKey;type:varchar(255)"`
-	common.NoPKModel
-}
-
-func (CICDPipelineRelationship) TableName() string {
-	return "cicd_pipeline_relationships"
 }
 
 const (
