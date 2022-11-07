@@ -117,7 +117,7 @@ type Scope interface {
 // Project, so that complex metrics like DORA can be implemented based on a set
 // of Data Scopes
 type DataSourcePluginBlueprintV200 interface {
-	DataSourceMakePipelinePlanV200(scopes []*BlueprintScopeV200) (PipelinePlan, []Scope, errors.Error)
+	MakeDataSourcePipelinePlanV200(scopes []*BlueprintScopeV200) (PipelinePlan, []Scope, errors.Error)
 }
 
 // MetricPluginBlueprintV200 is similar to the DataSourcePluginBlueprintV200
@@ -127,7 +127,7 @@ type DataSourcePluginBlueprintV200 interface {
 // right Deployment keep in mind it would be called IFF the plugin was enabled
 // for the project.
 type MetricPluginBlueprintV200 interface {
-	MetricPluginMakePipelinePlanV200(options json.RawMessage) (PipelinePlan, errors.Error)
+	MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (PipelinePlan, errors.Error)
 }
 
 // BlueprintScopeV200 contains the Plugin name and related ScopeIds,
