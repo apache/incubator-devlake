@@ -17,7 +17,8 @@
  */
 const path = require('path')
 const webpack = require('webpack')
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
@@ -38,16 +39,13 @@ module.exports = (env = {}) => {
     module: {
       rules: [
         {
-          test: /\.jsx?$/,
+          test: /\.(tsx?|jsx?)$/,
           use: ['babel-loader'],
-          exclude: [/node_modules/, /packages/, /cypress/, /^config$/],
+          exclude: [/node_modules/, /packages/, /cypress/, /^config$/]
         },
         {
           test: /\.css$/,
-          use: [
-            'style-loader',
-            'css-loader'
-          ]
+          use: ['style-loader', 'css-loader']
         },
         {
           test: /\.scss$/,
@@ -61,7 +59,7 @@ module.exports = (env = {}) => {
               options: {
                 implementation: require('node-sass'),
                 sourceMap: true,
-                additionalData: '@import "@/styles/theme.scss";',
+                additionalData: '@import "@/styles/theme.scss";'
               }
             }
           ]
@@ -75,20 +73,20 @@ module.exports = (env = {}) => {
           use: {
             loader: 'file-loader',
             options: {
-              name: 'fonts/[hash].[ext]',
-            },
-          },
+              name: 'fonts/[hash].[ext]'
+            }
+          }
         },
         {
           test: /\.(?:png|jpe?g|gif|ttf|woff|woff2)$/,
           loader: 'url-loader',
           options: {
-            limit: 10 * 1024,
-          },
+            limit: 10 * 1024
+          }
         },
         {
           test: /\.svg$/,
-          use: ['@svgr/webpack', 'url-loader'],
+          use: ['@svgr/webpack', 'url-loader']
         },
         {
           test: /\.po$/,
@@ -99,9 +97,9 @@ module.exports = (env = {}) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src/'),
-        '@config': path.resolve(__dirname, './config/'),
+        '@config': path.resolve(__dirname, './config/')
       },
-      extensions: ['*', '.js', '.jsx']
+      extensions: ['*', '.js', '.jsx', '.ts', '.tsx']
     },
     output: {
       path: path.resolve(__dirname, './dist'),
@@ -111,8 +109,8 @@ module.exports = (env = {}) => {
     plugins: [
       new webpack.DefinePlugin({
         'process.env': {
-          LOCAL: true,
-        },
+          LOCAL: true
+        }
       }),
       new Dotenv(),
       new CleanWebpackPlugin(),
@@ -120,13 +118,11 @@ module.exports = (env = {}) => {
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
         filename: 'index.html',
-        favicon: path.resolve(__dirname, './src/images/favicon.ico'),
+        favicon: path.resolve(__dirname, './src/images/favicon.ico')
       }),
       new webpack.EnvironmentPlugin({ ...process.env }),
       new CopyPlugin({
-        patterns: [
-          { from: 'src/images/logo.svg', to: 'logo.svg' },
-        ],
+        patterns: [{ from: 'src/images/logo.svg', to: 'logo.svg' }]
       }),
       new ESLintPlugin({
         // Do NOT auto-fix w/ eslint on webpack startup!
@@ -142,7 +138,11 @@ module.exports = (env = {}) => {
       host: '0.0.0.0',
       historyApiFallback: true,
       proxy: {
-        '/api': { target: 'http://[::1]:8080', pathRewrite: { '^/api': '' }, changeOrigin: true },
+        '/api': {
+          target: 'http://[::1]:8080',
+          pathRewrite: { '^/api': '' },
+          changeOrigin: true
+        }
       }
     },
     devtool: 'source-map'
