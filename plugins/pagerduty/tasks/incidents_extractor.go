@@ -103,4 +103,5 @@ var ExtractIncidentsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractIncidents,
 	EnabledByDefault: true,
 	Description:      "Extract PagerDuty incidents",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }

@@ -58,4 +58,5 @@ var CollectIncidentsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectIncidents,
 	EnabledByDefault: true,
 	Description:      "Collect PagerDuty incidents",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
