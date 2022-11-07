@@ -41,11 +41,23 @@ var ConnectIssueDeployMeta = core.SubTaskMeta{
 func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	issue := &ticket.Issue{}
+	data := taskCtx.GetData().(*DoraTaskData)
+	boardClauses := []dal.Clause{
+		dal.From(&ticket.Board{}),
+		dal.Join(`left join project_mapping dpm on dpm.row_id = boards.id`),
+		dal.Where("dpm.project_name = ?", data.Options.ProjectName),
+	}
+	boardList := make([]string, 0)
+	err := db.Pluck(`id`, boardList, boardClauses...)
+	if err != nil {
+		return err
+	}
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
 		dal.From(issue),
+		dal.Join(`left join board_issues bi on bi.issue_id = issues.id`),
 		dal.Where(
-			"issues.type = ?", "INCIDENT",
+			"issues.type = ? and bi.board_id in ?", "INCIDENT", boardList,
 		),
 	}
 	cursor, err := db.Cursor(clauses...)

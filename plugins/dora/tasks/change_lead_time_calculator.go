@@ -34,9 +34,20 @@ import (
 func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	log := taskCtx.GetLogger()
+	data := taskCtx.GetData().(*DoraTaskData)
+	repoClauses := []dal.Clause{
+		dal.From(&code.Repo{}),
+		dal.Join(`left join project_mapping dpm on dpm.row_id = repos.id`),
+		dal.Where("dpm.project_name = ?", data.Options.ProjectName),
+	}
+	repoList := make([]string, 0)
+	err := db.Pluck(`id`, repoList, repoClauses...)
+	if err != nil {
+		return err
+	}
 	clauses := []dal.Clause{
 		dal.From(&code.PullRequest{}),
-		dal.Where("merged_date IS NOT NULL"),
+		dal.Where("merged_date IS NOT NULL and base_repo_id in ?", repoList),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {

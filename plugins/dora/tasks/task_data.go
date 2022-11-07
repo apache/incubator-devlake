@@ -36,6 +36,7 @@ type DoraOptions struct {
 	Since               string
 	RepoId              string `json:"repoId"`
 	Prefix              string `json:"prefix"`
+	ProjectName         string `json:"projectName"`
 	TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
