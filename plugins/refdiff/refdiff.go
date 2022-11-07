@@ -53,11 +53,20 @@ func (plugin RefDiff) Init(config *viper.Viper, logger core.Logger, db *gorm.DB)
 }
 
 func (plugin RefDiff) SubTaskMetas() []core.SubTaskMeta {
-	return []core.SubTaskMeta{
-		tasks.CalculateCommitsDiffMeta,
-		tasks.CalculateIssuesDiffMeta,
-		tasks.CalculatePrCherryPickMeta,
+	var op tasks.RefdiffOptions
+	projectName := op.ProjectName
+	if projectName != "" {
+		return []core.SubTaskMeta{
+			tasks.CalculateProjectDeploymentCommitsDiffMeta,
+		}
+	} else {
+		return []core.SubTaskMeta{
+			tasks.CalculateCommitsDiffMeta,
+			tasks.CalculateIssuesDiffMeta,
+			tasks.CalculatePrCherryPickMeta,
+		}
 	}
+
 }
 
 func (plugin RefDiff) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {

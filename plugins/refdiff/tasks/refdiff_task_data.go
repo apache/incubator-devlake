@@ -20,15 +20,15 @@ package tasks
 import (
 	goerror "errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	"gorm.io/gorm"
 	"regexp"
 	"sort"
 	"strings"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"gorm.io/gorm"
 )
 
 type RefdiffOptions struct {
@@ -40,7 +40,8 @@ type RefdiffOptions struct {
 	TagsLimit   int    // How many tags be matched should be used.
 	TagsOrder   string // The Rule to Order the tag list
 
-	AllPairs RefCommitPairs // Pairs and TagsPattern Pairs
+	AllPairs    RefCommitPairs // Pairs and TagsPattern Pairs
+	ProjectName string
 }
 
 type RefdiffTaskData struct {
@@ -62,6 +63,9 @@ type RefsAlphabetically Refs
 type RefsReverseAlphabetically Refs
 type RefsSemver Refs
 type RefsReverseSemver Refs
+
+type DeploymentCommitPair [10]string
+type DeploymentCommitPairs []DeploymentCommitPair
 
 func (rs Refs) Len() int {
 	return len(rs)
