@@ -55,12 +55,11 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-	response, err := apiClient.Get("users/me", nil, nil)
+	response, err := apiClient.Get("licenses", nil, nil)
 	if err != nil {
 		return nil, err
 	}
-	if response.StatusCode == http.StatusOK || response.StatusCode == http.StatusBadRequest {
-		// error 400 can happen with a valid but non-user token, i.e. it's OK
+	if response.StatusCode == http.StatusOK {
 		return &core.ApiResourceOutput{Body: nil, Status: http.StatusOK}, nil
 	}
 	return &core.ApiResourceOutput{Body: nil, Status: response.StatusCode}, errors.HttpStatus(response.StatusCode).Wrap(err, "could not validate connection")
