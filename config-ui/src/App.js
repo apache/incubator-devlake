@@ -42,6 +42,7 @@ import BlueprintDetail from '@/pages/blueprints/blueprint-detail'
 import BlueprintSettings from '@/pages/blueprints/blueprint-settings'
 import { IncomingWebhook as IncomingWebhookConnection } from '@/pages/connections/incoming-webhook'
 import MigrationAlertDialog from '@/components/MigrationAlertDialog'
+import { MillerColumns, useTest } from '@/components/miller-columns'
 
 function App(props) {
   const {
@@ -54,6 +55,8 @@ function App(props) {
     handleCancelMigration,
     handleMigrationDialogClose
   } = useDatabaseMigrations()
+
+  const { items, ids, setIds } = useTest()
 
   return (
     <Router>
@@ -104,6 +107,15 @@ function App(props) {
       </Route>
       <Route exact path='/connections/incoming-webhook'>
         <IncomingWebhookConnection />
+      </Route>
+      <Route exact path='/miller-columns'>
+        <MillerColumns
+          height={624}
+          firstColumnTitle='Organizations/Owners'
+          items={items}
+          selectedItemIds={ids}
+          onSelectedItemIds={(ids) => setIds(ids)}
+        />
       </Route>
       <Route exact path='/offline'>
         <Offline />
