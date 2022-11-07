@@ -19,25 +19,44 @@ package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type removeCicdPipelineRelation struct{}
+type addCicdScope struct{}
 
-type CICDPipelineRelationship20221107 struct{}
-
-func (CICDPipelineRelationship20221107) TableName() string {
-	return "cicd_pipeline_relationships"
+type cicdPipeline20221107 struct {
+	CicdScopeId string
 }
 
-func (*removeCicdPipelineRelation) Up(basicRes core.BasicRes) errors.Error {
-	return basicRes.GetDal().DropTables(&CICDPipelineRelationship20221107{})
+func (cicdPipeline20221107) TableName() string {
+	return "cicd_pipelines"
 }
 
-func (*removeCicdPipelineRelation) Version() uint64 {
+type cicdTask20221107 struct {
+	CicdScopeId string
+}
+
+func (cicdTask20221107) TableName() string {
+	return "cicd_tasks"
+}
+
+func (*addCicdScope) Up(basicRes core.BasicRes) errors.Error {
+	err := basicRes.GetDal().AutoMigrate(&cicdPipeline20221107{})
+	if err != nil {
+		return err
+	}
+	err = basicRes.GetDal().AutoMigrate(&cicdTask20221107{})
+	if err != nil {
+		return err
+	}
+	return basicRes.GetDal().AutoMigrate(&archived.CicdScope{})
+}
+
+func (*addCicdScope) Version() uint64 {
 	return 20221107000001
 }
 
-func (*removeCicdPipelineRelation) Name() string {
-	return "Remove cicd_pipeline_relation"
+func (*addCicdScope) Name() string {
+	return "add cicd scope and add cicd_scope_id"
 }

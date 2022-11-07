@@ -15,29 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
+	"time"
 )
 
-type removeCicdPipelineRelation struct{}
-
-type CICDPipelineRelationship20221107 struct{}
-
-func (CICDPipelineRelationship20221107) TableName() string {
-	return "cicd_pipeline_relationships"
+type CicdScope struct {
+	DomainEntity
+	Name        string `gorm:"type:varchar(255)"`
+	Description string
+	Url         string `gorm:"type:varchar(255)"`
+	CreatedDate *time.Time
+	UpdatedDate *time.Time
 }
 
-func (*removeCicdPipelineRelation) Up(basicRes core.BasicRes) errors.Error {
-	return basicRes.GetDal().DropTables(&CICDPipelineRelationship20221107{})
-}
-
-func (*removeCicdPipelineRelation) Version() uint64 {
-	return 20221107000001
-}
-
-func (*removeCicdPipelineRelation) Name() string {
-	return "Remove cicd_pipeline_relation"
+func (CicdScope) TableName() string {
+	return "cicd_scopes"
 }
