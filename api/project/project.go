@@ -127,6 +127,16 @@ func PatchProject(c *gin.Context) {
 	shared.ApiOutputSuccess(c, project, http.StatusCreated)
 }
 
+// @Cancel a project
+// @Description Cancel a project
+// @Tags framework/projects
+// @Success 200
+// @Failure 400  {string} er2rcode.Error "Bad Request"
+// @Failure 500  {string} errcode.Error "Internel Error"
+// @Router /projects/:projectName [delete]
+//func DeleteProject(c *gin.Context) {
+//}
+
 // @Summary Get a ProjectMetrics
 // @Description Get a ProjectMetrics
 // @Tags framework/ProjectMetrics
@@ -205,23 +215,12 @@ func PatchProjectMetrics(c *gin.Context) {
 	shared.ApiOutputSuccess(c, projectMetric, http.StatusCreated)
 }
 
-/*
-// @Cancel a pending ProjectMetrics
-// @Description Cancel a pending ProjectMetrics
+// @delete a ProjectMetrics
+// @Description delete a ProjectMetrics
 // @Tags framework/ProjectMetrics
 // @Success 200
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /project_metrics/:projectName/:pluginName [delete]
-func Delete(c *gin.Context) {
-	projectName := c.Param("projectName")
-	pluginName := c.Param("pluginName")
-
-	err := services.CancelProjectMetrics(id)
-	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error cancelling pipeline"))
-		return
-	}
-	shared.ApiOutputSuccess(c, nil, http.StatusOK)
-}
-*/
+//func DeleteProjectMetrics(c *gin.Context) {
+//}

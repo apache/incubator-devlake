@@ -20,8 +20,8 @@ package models
 import "github.com/apache/incubator-devlake/models/common"
 
 type Project struct {
-	Name     string `gorm:"primaryKey;type:varchar(255)"`
-	Describe string `gorm:"type:text"`
+	Name        string `gorm:"primaryKey;type:varchar(255)"`
+	Description string `gorm:"type:text"`
 
 	common.NoPKModel
 }
@@ -34,21 +34,11 @@ type ProjectMetric struct {
 	ProjectName  string `gorm:"primaryKey;type:varchar(255)"`
 	PluginName   string `gorm:"primaryKey;type:varchar(255)"`
 	PluginOption string `gorm:"type:text"`
+	Enable       bool   `gorm:"type:boolean"`
 
 	common.NoPKModel
 }
 
 func (ProjectMetric) TableName() string {
 	return "_devlake_project_metrics"
-}
-
-type ProjectMapping struct {
-	ProjectName string `gorm:"primaryKey;type:varchar(255)"`
-	Table       string `gorm:"primaryKey;type:varchar(255)"`
-	RowId       string `gorm:"primaryKey;type:varchar(255)"`
-	common.NoPKModel
-}
-
-func (ProjectMapping) TableName() string {
-	return "_devlake_project_mapping"
 }

@@ -32,10 +32,6 @@ var _ core.PluginMeta = (*StarRocks)(nil)
 var _ core.PluginTask = (*StarRocks)(nil)
 var _ core.PluginMetric = (*StarRocks)(nil)
 
-func (plugin StarRocks) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
-}
-
 func (s StarRocks) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
 		LoadDataTaskMeta,
@@ -54,19 +50,23 @@ func (s StarRocks) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	return &op, nil
 }
 
-func (plugin StarRocks) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+func (s StarRocks) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
 	return []map[string]interface{}{}, nil
 }
 
-func (plugin StarRocks) IsProjectMetric() bool {
+func (s StarRocks) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
+}
+
+func (s StarRocks) IsProjectMetric() bool {
 	return false
 }
 
-func (plugin StarRocks) RunAfter() ([]string, errors.Error) {
+func (s StarRocks) RunAfter() ([]string, errors.Error) {
 	return []string{}, nil
 }
 
-func (plugin StarRocks) Settings() interface{} {
+func (s StarRocks) Settings() interface{} {
 	return nil
 }
 

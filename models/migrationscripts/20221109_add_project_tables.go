@@ -29,8 +29,8 @@ var _ core.MigrationScript = (*addProjectTables)(nil)
 type addProjectTables struct{}
 
 type Project struct {
-	Name     string `gorm:"primaryKey;type:varchar(255)"`
-	Describe string `gorm:"type:text"`
+	Name        string `gorm:"primaryKey;type:varchar(255)"`
+	Description string `gorm:"type:text"`
 
 	archived.NoPKModel
 }
@@ -51,29 +51,17 @@ func (ProjectMetric) TableName() string {
 	return "_devlake_project_metrics"
 }
 
-type ProjectMapping struct {
-	ProjectName string `gorm:"primaryKey;type:varchar(255)"`
-	Table       string `gorm:"primaryKey;type:varchar(255)"`
-	RowId       string `gorm:"primaryKey;type:varchar(255)"`
-	archived.NoPKModel
-}
-
-func (ProjectMapping) TableName() string {
-	return "_devlake_project_mapping"
-}
-
 func (script *addProjectTables) Up(basicRes core.BasicRes) errors.Error {
 	// To create multiple tables with migrationhelper
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		&Project{},
 		&ProjectMetric{},
-		&ProjectMapping{},
 	)
 }
 
 func (*addProjectTables) Version() uint64 {
-	return 20221104194734
+	return 20221109194734
 }
 
 func (*addProjectTables) Name() string {

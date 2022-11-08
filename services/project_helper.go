@@ -117,11 +117,11 @@ func GetDbProjectMetric(projectName string, pluginName string) (*models.ProjectM
 func encryptProject(project *models.Project) (*models.Project, errors.Error) {
 	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
 
-	describeEncrypt, err := core.Encrypt(encKey, project.Describe)
+	describeEncrypt, err := core.Encrypt(encKey, project.Description)
 	if err != nil {
 		return nil, err
 	}
-	project.Describe = describeEncrypt
+	project.Description = describeEncrypt
 
 	return project, nil
 }
@@ -143,11 +143,11 @@ func encryptProjectMetric(projectMetric *models.ProjectMetric) (*models.ProjectM
 func decryptProject(project *models.Project) (*models.Project, errors.Error) {
 	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
 
-	describe, err := core.Decrypt(encKey, project.Describe)
+	describe, err := core.Decrypt(encKey, project.Description)
 	if err != nil {
 		return nil, err
 	}
-	project.Describe = describe
+	project.Description = describe
 
 	return project, nil
 }

@@ -23,7 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-// ProjectQuery used to query projects
+// ProjectQuery used to query projects as the api project input
 type ProjectQuery struct {
 	Page     int `form:"page"`
 	PageSize int `form:"pageSize"`

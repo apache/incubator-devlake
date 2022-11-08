@@ -56,5 +56,6 @@ func All() []core.MigrationScript {
 		new(addCicdScope),
 		new(addSkipOnFail),
 		new(modifyCommitsDiffs),
+		new(addProjectTables),
 	}
 }

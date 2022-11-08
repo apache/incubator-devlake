@@ -35,6 +35,7 @@ var _ core.PluginMeta = (*Bitbucket)(nil)
 var _ core.PluginInit = (*Bitbucket)(nil)
 var _ core.PluginTask = (*Bitbucket)(nil)
 var _ core.PluginApi = (*Bitbucket)(nil)
+var _ core.PluginMetric = (*Bitbucket)(nil)
 var _ core.PluginMigration = (*Bitbucket)(nil)
 var _ core.PluginBlueprintV100 = (*Bitbucket)(nil)
 var _ core.CloseablePluginTask = (*Bitbucket)(nil)
@@ -44,6 +45,10 @@ type Bitbucket string
 func (plugin Bitbucket) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
+}
+
+func (plugin Bitbucket) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{}, nil
 }
 
 func (plugin Bitbucket) GetTablesInfo() []core.Tabler {
@@ -59,6 +64,18 @@ func (plugin Bitbucket) GetTablesInfo() []core.Tabler {
 		&models.BitbucketRepo{},
 		&models.BitbucketRepoCommit{},
 	}
+}
+
+func (plugin Bitbucket) IsProjectMetric() bool {
+	return false
+}
+
+func (plugin Bitbucket) RunAfter() ([]string, errors.Error) {
+	return []string{}, nil
+}
+
+func (plugin Bitbucket) Settings() interface{} {
+	return nil
 }
 
 func (plugin Bitbucket) Description() string {
