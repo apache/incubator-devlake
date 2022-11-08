@@ -38,7 +38,7 @@ type CompositeDataSourcePluginBlueprintV200 interface {
 func TestMakePlanV200(t *testing.T) {
 	const projectName = "TestMakePlanV200-project"
 	githubName := "TestMakePlanV200-github" // mimic github
-	// mock plugin foo as a data source plugin
+	// mock github plugin as a data source plugin
 	githubConnId := uint64(1)
 	githubScopes := []*core.BlueprintScopeV200{
 		{Id: "", Name: "apache/incubator-devlake"},
@@ -61,7 +61,7 @@ func TestMakePlanV200(t *testing.T) {
 	github := new(mocks.CompositeDataSourcePluginBlueprintV200)
 	github.On("MakeDataSourcePipelinePlanV200", githubConnId, githubScopes).Return(githubOutputPlan, githubOutputScopes, nil)
 
-	// mock plugin dora as a metric plugin
+	// mock dora plugin as a metric plugin
 	doraName := "TestMakePlanV200-dora"
 	doraOutputPlan := core.PipelinePlan{
 		{
