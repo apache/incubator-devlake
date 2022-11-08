@@ -44,7 +44,8 @@ const NullBlueprint = {
   interval: 'daily',
   enable: BlueprintStatus.DISABLED,
   mode: BlueprintMode.NORMAL,
-  isManual: false
+  isManual: false,
+  skipOnFail: false
 }
 
 export { NullBlueprint, BlueprintMode, BlueprintStatus }
