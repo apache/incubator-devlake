@@ -64,9 +64,7 @@ func ConvertIncidents(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-
 	seenIncidents := map[int]*IncidentWithUser{}
-
 	idGen := didgen.NewDomainIdGenerator(&models.Incident{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -95,32 +93,19 @@ func ConvertIncidents(taskCtx core.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: idGen.Generate(data.Options.ConnectionId, incident.Number),
 				},
-				Url:                     incident.Url,
-				IconURL:                 "",
-				IssueKey:                fmt.Sprintf("%d", incident.Number),
-				Title:                   "",
-				Description:             incident.Summary,
-				EpicKey:                 "",
-				Type:                    ticket.INCIDENT,
-				Status:                  status,
-				OriginalStatus:          string(incident.Status),
-				StoryPoint:              0,
-				ResolutionDate:          resolutionDate,
-				CreatedDate:             &incident.CreatedDate,
-				UpdatedDate:             &incident.UpdatedDate,
-				LeadTimeMinutes:         leadTime,
-				ParentIssueId:           "",
-				Priority:                string(incident.Urgency),
-				OriginalEstimateMinutes: 0,
-				TimeSpentMinutes:        0,
-				TimeRemainingMinutes:    0,
-				CreatorId:               "",
-				CreatorName:             "",
-				AssigneeId:              user.Id,
-				AssigneeName:            user.Name,
-				Severity:                "",
-				Component:               "",
-				DeploymentId:            incident.ServiceId,
+				Url:             incident.Url,
+				IssueKey:        fmt.Sprintf("%d", incident.Number),
+				Description:     incident.Summary,
+				Type:            ticket.INCIDENT,
+				Status:          status,
+				OriginalStatus:  string(incident.Status),
+				ResolutionDate:  resolutionDate,
+				CreatedDate:     &incident.CreatedDate,
+				UpdatedDate:     &incident.UpdatedDate,
+				LeadTimeMinutes: leadTime,
+				Priority:        string(incident.Urgency),
+				AssigneeId:      user.Id,
+				AssigneeName:    user.Name,
 			}
 			seenIncidents[incident.Number] = combined
 			return []interface{}{
@@ -131,7 +116,6 @@ func ConvertIncidents(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-
 	return converter.Execute()
 }
 
