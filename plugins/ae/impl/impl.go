@@ -35,6 +35,7 @@ var _ core.PluginMeta = (*AE)(nil)
 var _ core.PluginInit = (*AE)(nil)
 var _ core.PluginTask = (*AE)(nil)
 var _ core.PluginApi = (*AE)(nil)
+var _ core.PluginMetric = (*AE)(nil)
 var _ core.PluginMigration = (*AE)(nil)
 var _ core.CloseablePluginTask = (*AE)(nil)
 
@@ -44,6 +45,11 @@ func (plugin AE) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) erro
 	api.Init(config, logger, db)
 	return nil
 }
+
+func (plugin AE) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{}, nil
+}
+
 func (plugin AE) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{
 		&models.AECommit{},
@@ -51,6 +57,18 @@ func (plugin AE) GetTablesInfo() []core.Tabler {
 		&models.AeConnection{},
 		&models.AeResponse{},
 	}
+}
+
+func (plugin AE) IsProjectMetric() bool {
+	return false
+}
+
+func (plugin AE) RunAfter() ([]string, errors.Error) {
+	return []string{}, nil
+}
+
+func (plugin AE) Settings() interface{} {
+	return nil
 }
 
 func (plugin AE) Description() string {

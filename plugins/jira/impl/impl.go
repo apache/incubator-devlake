@@ -19,9 +19,10 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -37,6 +38,7 @@ var _ core.PluginMeta = (*Jira)(nil)
 var _ core.PluginInit = (*Jira)(nil)
 var _ core.PluginTask = (*Jira)(nil)
 var _ core.PluginApi = (*Jira)(nil)
+var _ core.PluginMetric = (*Jira)(nil)
 var _ core.PluginMigration = (*Jira)(nil)
 var _ core.PluginBlueprintV100 = (*Jira)(nil)
 var _ core.CloseablePluginTask = (*Jira)(nil)
@@ -47,6 +49,11 @@ func (plugin Jira) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 	api.Init(config, logger, db)
 	return nil
 }
+
+func (plugin Jira) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{}, nil
+}
+
 func (plugin Jira) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{
 		&models.ApiMyselfResponse{},
@@ -69,6 +76,18 @@ func (plugin Jira) GetTablesInfo() []core.Tabler {
 		&models.JiraStatus{},
 		&models.JiraWorklog{},
 	}
+}
+
+func (plugin Jira) IsProjectMetric() bool {
+	return false
+}
+
+func (plugin Jira) RunAfter() ([]string, errors.Error) {
+	return []string{}, nil
+}
+
+func (plugin Jira) Settings() interface{} {
+	return nil
 }
 
 func (plugin Jira) Description() string {

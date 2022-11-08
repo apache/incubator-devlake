@@ -36,6 +36,7 @@ var _ core.PluginMeta = (*Github)(nil)
 var _ core.PluginInit = (*Github)(nil)
 var _ core.PluginTask = (*Github)(nil)
 var _ core.PluginApi = (*Github)(nil)
+var _ core.PluginMeta = (*Github)(nil)
 var _ core.PluginBlueprintV100 = (*Github)(nil)
 var _ core.CloseablePluginTask = (*Github)(nil)
 
@@ -44,6 +45,9 @@ type Github struct{}
 func (plugin Github) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
+}
+func (plugin Github) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{}, nil
 }
 
 func (plugin Github) GetTablesInfo() []core.Tabler {
@@ -71,6 +75,20 @@ func (plugin Github) GetTablesInfo() []core.Tabler {
 		&models.GithubReviewer{},
 		&models.GithubRun{},
 	}
+}
+
+func (plugin Github) IsProjectMetric() bool {
+	return false
+}
+
+func (plugin Github) RunAfter() ([]string, errors.Error) {
+	return []string{
+		"gitextractor",
+	}, nil
+}
+
+func (plugin Github) Settings() interface{} {
+	return nil
 }
 
 func (plugin Github) Description() string {

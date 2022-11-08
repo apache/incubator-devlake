@@ -37,6 +37,7 @@ var _ core.PluginMeta = (*Feishu)(nil)
 var _ core.PluginInit = (*Feishu)(nil)
 var _ core.PluginTask = (*Feishu)(nil)
 var _ core.PluginApi = (*Feishu)(nil)
+var _ core.PluginMetric = (*Feishu)(nil)
 var _ core.PluginMigration = (*Feishu)(nil)
 var _ core.CloseablePluginTask = (*Feishu)(nil)
 
@@ -75,11 +76,27 @@ func (plugin Feishu) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) 
 	return nil
 }
 
+func (plugin Feishu) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{}, nil
+}
+
 func (plugin Feishu) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{
 		&models.FeishuConnection{},
 		&models.FeishuMeetingTopUserItem{},
 	}
+}
+
+func (plugin Feishu) IsProjectMetric() bool {
+	return false
+}
+
+func (plugin Feishu) RunAfter() ([]string, errors.Error) {
+	return []string{}, nil
+}
+
+func (plugin Feishu) Settings() interface{} {
+	return nil
 }
 
 func (plugin Feishu) Description() string {

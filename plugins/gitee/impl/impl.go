@@ -36,6 +36,7 @@ var _ core.PluginMeta = (*Gitee)(nil)
 var _ core.PluginInit = (*Gitee)(nil)
 var _ core.PluginTask = (*Gitee)(nil)
 var _ core.PluginApi = (*Gitee)(nil)
+var _ core.PluginMetric = (*Gitee)(nil)
 var _ core.PluginMigration = (*Gitee)(nil)
 var _ core.CloseablePluginTask = (*Gitee)(nil)
 
@@ -44,6 +45,10 @@ type Gitee string
 func (plugin Gitee) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
+}
+
+func (plugin Gitee) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{}, nil
 }
 
 func (plugin Gitee) GetTablesInfo() []core.Tabler {
@@ -65,6 +70,20 @@ func (plugin Gitee) GetTablesInfo() []core.Tabler {
 		&models.GiteeResponse{},
 		&models.GiteeReviewer{},
 	}
+}
+
+func (plugin Gitee) IsProjectMetric() bool {
+	return false
+}
+
+func (plugin Gitee) RunAfter() ([]string, errors.Error) {
+	return []string{
+		"gitextractor",
+	}, nil
+}
+
+func (plugin Gitee) Settings() interface{} {
+	return nil
 }
 
 func (plugin Gitee) Description() string {

@@ -162,7 +162,7 @@ func Get(c *gin.Context) {
 		}
 
 		// if this plugin has the plugin model info
-		if pm, ok := plugin.(core.PluginModel); ok {
+		if pm, ok := plugin.(core.PluginMetric); ok {
 			tables := pm.GetTablesInfo()
 			for _, table := range tables {
 				TableInfos := NewTableInfos(table)

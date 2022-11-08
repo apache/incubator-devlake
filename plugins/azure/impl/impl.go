@@ -36,6 +36,7 @@ var _ core.PluginMeta = (*Azure)(nil)
 var _ core.PluginInit = (*Azure)(nil)
 var _ core.PluginTask = (*Azure)(nil)
 var _ core.PluginApi = (*Azure)(nil)
+var _ core.PluginMetric = (*Azure)(nil)
 var _ core.CloseablePluginTask = (*Azure)(nil)
 var _ core.PluginMigration = (*Azure)(nil)
 
@@ -50,6 +51,31 @@ func (plugin Azure) Description() string {
 
 func (plugin Azure) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
+	return nil
+}
+
+func (plugin Azure) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{}, nil
+}
+
+func (plugin Azure) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{
+		&models.AzureBuild{},
+		&models.AzureBuildDefinition{},
+		&models.AzureConnection{},
+		&models.AzureRepo{},
+	}
+}
+
+func (plugin Azure) IsProjectMetric() bool {
+	return false
+}
+
+func (plugin Azure) RunAfter() ([]string, errors.Error) {
+	return []string{}, nil
+}
+
+func (plugin Azure) Settings() interface{} {
 	return nil
 }
 

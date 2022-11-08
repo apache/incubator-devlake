@@ -34,9 +34,9 @@ import (
 
 var _ core.PluginMeta = (*Gitlab)(nil)
 var _ core.PluginInit = (*Gitlab)(nil)
-var _ core.PluginModel = (*Gitlab)(nil)
 var _ core.PluginTask = (*Gitlab)(nil)
 var _ core.PluginApi = (*Gitlab)(nil)
+var _ core.PluginMetric = (*Gitlab)(nil)
 var _ core.PluginMigration = (*Gitlab)(nil)
 var _ core.PluginBlueprintV100 = (*Gitlab)(nil)
 var _ core.CloseablePluginTask = (*Gitlab)(nil)
@@ -46,6 +46,10 @@ type Gitlab string
 func (plugin Gitlab) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
+}
+
+func (plugin Gitlab) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{}, nil
 }
 
 func (plugin Gitlab) GetTablesInfo() []core.Tabler {
@@ -68,6 +72,20 @@ func (plugin Gitlab) GetTablesInfo() []core.Tabler {
 		&models.GitlabReviewer{},
 		&models.GitlabTag{},
 	}
+}
+
+func (plugin Gitlab) IsProjectMetric() bool {
+	return false
+}
+
+func (plugin Gitlab) RunAfter() ([]string, errors.Error) {
+	return []string{
+		"gitextractor",
+	}, nil
+}
+
+func (plugin Gitlab) Settings() interface{} {
+	return nil
 }
 
 func (plugin Gitlab) Description() string {

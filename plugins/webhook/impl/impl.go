@@ -30,6 +30,7 @@ import (
 var _ core.PluginMeta = (*Webhook)(nil)
 var _ core.PluginInit = (*Webhook)(nil)
 var _ core.PluginApi = (*Webhook)(nil)
+var _ core.PluginMetric = (*Webhook)(nil)
 var _ core.PluginMigration = (*Webhook)(nil)
 
 type Webhook struct{}
@@ -40,6 +41,35 @@ func (plugin Webhook) Description() string {
 
 func (plugin Webhook) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
+	return nil
+}
+
+func (plugin Webhook) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{
+		{
+			"model":          "cicd_tasks",
+			"requiredFields": map[string]string{},
+		},
+		{
+			"model":          "cicd_pipelines",
+			"requiredFields": map[string]string{},
+		},
+	}, nil
+}
+
+func (plugin Webhook) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
+}
+
+func (plugin Webhook) IsProjectMetric() bool {
+	return false
+}
+
+func (plugin Webhook) RunAfter() ([]string, errors.Error) {
+	return []string{}, nil
+}
+
+func (plugin Webhook) Settings() interface{} {
 	return nil
 }
 

@@ -17,10 +17,33 @@ limitations under the License.
 
 package core
 
+import (
+	"github.com/apache/incubator-devlake/errors"
+)
+
+/*
+ */
 type Tabler interface {
 	TableName() string
 }
 
-type PluginModel interface {
+type PluginMetric interface {
+	// returns a list of required data entities and expected features.
+	// [{ "model": "cicd_tasks", "requiredFields": {"column": "type", "execptedValue": "Deployment"}}, ...]
+	RequiredDataEntities() (data []map[string]interface{}, err errors.Error)
+
+	// This method returns all models of the current plugin
 	GetTablesInfo() []Tabler
+
+	// returns if the metric depends on Project for calculation.
+	// Currently, only dora would return true.
+	IsProjectMetric() bool
+
+	// indicates which plugins must be executed before executing this one.
+	// declare a set of dependencies with this
+	RunAfter() ([]string, errors.Error)
+
+	// returns an empty pointer of the plugin setting struct.
+	// (no concrete usage at this point)
+	Settings() (p interface{})
 }

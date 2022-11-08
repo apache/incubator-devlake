@@ -28,8 +28,9 @@ import (
 )
 
 var (
-	_ core.PluginMeta = (*Dbt)(nil)
-	_ core.PluginTask = (*Dbt)(nil)
+	_ core.PluginMeta   = (*Dbt)(nil)
+	_ core.PluginTask   = (*Dbt)(nil)
+	_ core.PluginMetric = (*Dbt)(nil)
 )
 
 type Dbt struct{}
@@ -45,8 +46,24 @@ func (plugin Dbt) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
+func (plugin Dbt) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{}, nil
+}
+
 func (plugin Dbt) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{}
+}
+
+func (plugin Dbt) IsProjectMetric() bool {
+	return false
+}
+
+func (plugin Dbt) RunAfter() ([]string, errors.Error) {
+	return []string{}, nil
+}
+
+func (plugin Dbt) Settings() interface{} {
+	return nil
 }
 
 func (plugin Dbt) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
