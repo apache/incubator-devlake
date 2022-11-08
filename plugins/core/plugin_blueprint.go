@@ -68,9 +68,10 @@ PluginBlueprintV200 for project support
 step 1: blueprint.settings like
 	{
 		"version": "2.0.0",
-		"scopes": [
+		"connections": [
 			{
 				"plugin": "github",
+				"connectionId": 123,
 				"scopes": [
 					{ "id": null, "name": "apache/incubator-devlake" }
 				]
@@ -117,7 +118,21 @@ type Scope interface {
 // Project, so that complex metrics like DORA can be implemented based on a set
 // of Data Scopes
 type DataSourcePluginBlueprintV200 interface {
-	MakeDataSourcePipelinePlanV200(scopes []*BlueprintScopeV200) (PipelinePlan, []Scope, errors.Error)
+	MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*BlueprintScopeV200) (PipelinePlan, []Scope, errors.Error)
+}
+
+// BlueprintConnectionV200 contains the pluginName/connectionId  and related Scopes,
+type BlueprintConnectionV200 struct {
+	Plugin       string                `json:"plugin" validate:"required"`
+	ConnectionId uint64                `json:"connectionId" validate:"required"`
+	Scopes       []*BlueprintScopeV200 `json:"scopes" validate:"required"`
+}
+
+// BlueprintScopeV200 contains the `id` and `name` for a specific scope
+// transformationRuleId should be deduced by the ScopeId
+type BlueprintScopeV200 struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
 }
 
 // MetricPluginBlueprintV200 is similar to the DataSourcePluginBlueprintV200
@@ -130,12 +145,21 @@ type MetricPluginBlueprintV200 interface {
 	MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (PipelinePlan, errors.Error)
 }
 
-// BlueprintScopeV200 contains the Plugin name and related ScopeIds,
-// connectionId and transformationRuleId should be deduced by the ScopeId
-type BlueprintScopeV200 struct {
-	Plugin string `json:"plugin" validate:"required"`
-	Scopes []struct {
-		Id   string
-		Name string
-	}
+// CompositeDataSourcePluginBlueprintV200 is for unit test
+type CompositeDataSourcePluginBlueprintV200 interface {
+	PluginMeta
+	DataSourcePluginBlueprintV200
+}
+
+// CompositeMetricPluginBlueprintV200 is for unit test
+type CompositeMetricPluginBlueprintV200 interface {
+	PluginMeta
+	MetricPluginBlueprintV200
+}
+
+// CompositeMetricPluginBlueprintV200 is for unit test
+type CompositePluginBlueprintV200 interface {
+	PluginMeta
+	DataSourcePluginBlueprintV200
+	MetricPluginBlueprintV200
 }

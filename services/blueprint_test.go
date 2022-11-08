@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMergePipelineTasks(t *testing.T) {
+func TestParallelizePipelineTasks(t *testing.T) {
 	plan1 := core.PipelinePlan{
 		{
 			{Plugin: "github"},
@@ -55,8 +55,8 @@ func TestMergePipelineTasks(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, plan1, MergePipelinePlans(plan1))
-	assert.Equal(t, plan2, MergePipelinePlans(plan2))
+	assert.Equal(t, plan1, ParallelizePipelinePlans(plan1))
+	assert.Equal(t, plan2, ParallelizePipelinePlans(plan2))
 	assert.Equal(
 		t,
 		core.PipelinePlan{
@@ -70,7 +70,7 @@ func TestMergePipelineTasks(t *testing.T) {
 				{Plugin: "gitextractor2"},
 			},
 		},
-		MergePipelinePlans(plan1, plan2),
+		ParallelizePipelinePlans(plan1, plan2),
 	)
 	assert.Equal(
 		t,
@@ -90,11 +90,11 @@ func TestMergePipelineTasks(t *testing.T) {
 				{Plugin: "jenkins"},
 			},
 		},
-		MergePipelinePlans(plan1, plan2, plan3),
+		ParallelizePipelinePlans(plan1, plan2, plan3),
 	)
 }
 
-func TestFormatPipelinePlans(t *testing.T) {
+func TestWrapPipelinePlans(t *testing.T) {
 	beforePlan2 := json.RawMessage(`[[{"plugin":"github"},{"plugin":"gitlab"}],[{"plugin":"gitextractor1"},{"plugin":"gitextractor2"}]]`)
 
 	mainPlan := core.PipelinePlan{
@@ -105,11 +105,11 @@ func TestFormatPipelinePlans(t *testing.T) {
 
 	afterPlan2 := json.RawMessage(`[[{"plugin":"jenkins"}],[{"plugin":"jenkins"}]]`)
 
-	result1, err1 := FormatPipelinePlans(nil, mainPlan, nil)
+	result1, err1 := WrapPipelinePlans(nil, mainPlan, nil)
 	assert.Nil(t, err1)
 	assert.Equal(t, mainPlan, result1)
 
-	result2, err2 := FormatPipelinePlans(beforePlan2, mainPlan, afterPlan2)
+	result2, err2 := WrapPipelinePlans(beforePlan2, mainPlan, afterPlan2)
 	assert.Nil(t, err2)
 	assert.Equal(t, core.PipelinePlan{
 		{
@@ -131,7 +131,7 @@ func TestFormatPipelinePlans(t *testing.T) {
 		},
 	}, result2)
 
-	result3, err3 := FormatPipelinePlans(json.RawMessage("[]"), mainPlan, json.RawMessage("[]"))
+	result3, err3 := WrapPipelinePlans(json.RawMessage("[]"), mainPlan, json.RawMessage("[]"))
 	assert.Nil(t, err3)
 	assert.Equal(t, mainPlan, result3)
 }

@@ -254,7 +254,7 @@ func GeneratePlanJson(settings json.RawMessage) (json.RawMessage, errors.Error) 
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("settings:%s", string(settings)))
 	}
-	var plan interface{}
+	var plan core.PipelinePlan
 	switch bpSettings.Version {
 	case "1.0.0":
 		plan, err = GeneratePlanJsonV100(bpSettings)
@@ -264,87 +264,37 @@ func GeneratePlanJson(settings json.RawMessage) (json.RawMessage, errors.Error) 
 	if err != nil {
 		return nil, err
 	}
-	return errors.Convert01(json.Marshal(plan))
-}
-
-// GeneratePlanJsonV100 generates pipeline plan according v1.0.0 definition
-func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan, errors.Error) {
-	connections := make([]*core.BlueprintConnectionV100, 0)
-	err := errors.Convert(json.Unmarshal(settings.Connections, &connections))
+	plan, err = WrapPipelinePlans(bpSettings.BeforePlan, plan, bpSettings.AfterPlan)
 	if err != nil {
 		return nil, err
 	}
-	hasDoraEnrich := false
-	doraRules := make(map[string]interface{})
-	plans := make([]core.PipelinePlan, len(connections))
-	for i, connection := range connections {
-		if len(connection.Scope) == 0 {
-			return nil, errors.Default.New(fmt.Sprintf("connections[%d].scope is empty", i))
-		}
-		plugin, err := core.GetPlugin(connection.Plugin)
-		if err != nil {
-			return nil, err
-		}
-		if pluginBp, ok := plugin.(core.PluginBlueprintV100); ok {
-			plans[i], err = pluginBp.MakePipelinePlan(connection.ConnectionId, connection.Scope)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			return nil, errors.Default.New(fmt.Sprintf("plugin %s does not support blueprint protocol version 1.0.0", connection.Plugin))
-		}
-		for _, stage := range plans[i] {
-			for _, task := range stage {
-				if task.Plugin == "dora" {
-					hasDoraEnrich = true
-					for k, v := range task.Options {
-						doraRules[k] = v
-					}
-				}
-			}
-		}
-	}
-	mergedPipelinePlan := MergePipelinePlans(plans...)
-	if hasDoraEnrich {
-		plan := core.PipelineStage{
-			&core.PipelineTask{
-				Plugin:   "dora",
-				Subtasks: []string{"calculateChangeLeadTime", "ConnectIssueDeploy"},
-				Options:  doraRules,
-			},
-		}
-		mergedPipelinePlan = append(mergedPipelinePlan, plan)
-	}
-	return FormatPipelinePlans(settings.BeforePlan, mergedPipelinePlan, settings.AfterPlan)
+	return errors.Convert01(json.Marshal(plan))
 }
 
-// FormatPipelinePlans merges multiple pipelines and append before and after pipeline
-func FormatPipelinePlans(beforePlanJson json.RawMessage, mainPlan core.PipelinePlan, afterPlanJson json.RawMessage) (core.PipelinePlan, errors.Error) {
-	newPipelinePlan := core.PipelinePlan{}
+// WrapPipelinePlans merges multiple pipelines and append before and after pipeline
+func WrapPipelinePlans(beforePlanJson json.RawMessage, mainPlan core.PipelinePlan, afterPlanJson json.RawMessage) (core.PipelinePlan, errors.Error) {
+	beforePipelinePlan := core.PipelinePlan{}
+	afterPipelinePlan := core.PipelinePlan{}
+
 	if beforePlanJson != nil {
-		beforePipelinePlan := core.PipelinePlan{}
 		err := errors.Convert(json.Unmarshal(beforePlanJson, &beforePipelinePlan))
 		if err != nil {
 			return nil, err
 		}
-		newPipelinePlan = append(newPipelinePlan, beforePipelinePlan...)
 	}
-
-	newPipelinePlan = append(newPipelinePlan, mainPlan...)
-
 	if afterPlanJson != nil {
-		afterPipelinePlan := core.PipelinePlan{}
 		err := errors.Convert(json.Unmarshal(afterPlanJson, &afterPipelinePlan))
 		if err != nil {
 			return nil, err
 		}
-		newPipelinePlan = append(newPipelinePlan, afterPipelinePlan...)
 	}
-	return newPipelinePlan, nil
+
+	return SequencializePipelinePlans(beforePipelinePlan, mainPlan, afterPipelinePlan), nil
 }
 
-// MergePipelinePlans merges multiple pipelines into one unified pipeline
-func MergePipelinePlans(plans ...core.PipelinePlan) core.PipelinePlan {
+// ParallelizePipelinePlans merges multiple pipelines into one unified plan
+// by assuming they can be executed in parallel
+func ParallelizePipelinePlans(plans ...core.PipelinePlan) core.PipelinePlan {
 	merged := make(core.PipelinePlan, 0)
 	// iterate all pipelineTasks and try to merge them into `merged`
 	for _, plan := range plans {
@@ -356,6 +306,17 @@ func MergePipelinePlans(plans ...core.PipelinePlan) core.PipelinePlan {
 			// add all tasks from plan to target respectively
 			merged[index] = append(merged[index], stage...)
 		}
+	}
+	return merged
+}
+
+// SequencializePipelinePlans merges multiple pipelines into one unified plan
+// by assuming they must be executed in sequencial order
+func SequencializePipelinePlans(plans ...core.PipelinePlan) core.PipelinePlan {
+	merged := make(core.PipelinePlan, 0)
+	// iterate all pipelineTasks and try to merge them into `merged`
+	for _, plan := range plans {
+		merged = append(merged, plan...)
 	}
 	return merged
 }
