@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 	"regexp"
 	"time"
@@ -54,7 +55,10 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 
 	clauses := []dal.Clause{
 		dal.From("_tool_jenkins_builds"),
-		dal.Where("_tool_jenkins_builds.connection_id = ?", data.Options.ConnectionId),
+		dal.Where(`_tool_jenkins_builds.connection_id = ?
+						and _tool_jenkins_builds.job_path = ? 
+						and _tool_jenkins_builds.job_name = ?`,
+			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -70,6 +74,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				JobName:      data.Options.JobName,
+				JobPath:      data.Options.JobPath,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,
@@ -102,7 +107,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 					Id: buildIdGen.Generate(jenkinsBuild.ConnectionId,
 						jenkinsBuild.FullDisplayName),
 				},
-				Name:         jenkinsBuild.JobName,
+				Name:         fmt.Sprintf(`%s%s`, jenkinsBuild.JobPath, jenkinsBuild.JobName),
 				Result:       jenkinsPipelineResult,
 				Status:       jenkinsPipelineStatus,
 				FinishedDate: jenkinsPipelineFinishedDate,

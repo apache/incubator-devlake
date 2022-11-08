@@ -20,6 +20,7 @@ package tasks
 import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -41,6 +42,8 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
+				JobName:      data.Options.JobName,
+				JobPath:      data.Options.JobPath,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_JOB_TABLE,
@@ -52,22 +55,22 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) errors.Error {
 				return nil, err
 			}
 
-			input := &models.FolderInput{}
-			err = errors.Convert(json.Unmarshal(row.Input, input))
-			if err != nil {
-				return nil, err
-			}
-
 			results := make([]interface{}, 0, 1+len(body.UpstreamProjects))
 
 			job := &models.JenkinsJob{
-				JenkinsJobProps: models.JenkinsJobProps{
-					ConnectionId: data.Options.ConnectionId,
-					Name:         body.Name,
-					Path:         input.Path,
-					Class:        body.Class,
-					Color:        body.Color,
-				},
+				ConnectionId: data.Options.ConnectionId,
+				FullName:     body.FullName,
+				Name:         body.Name,
+				Path:         data.Options.JobPath,
+				Class:        body.Class,
+				Color:        body.Color,
+				Base:         body.Base,
+				Url:          body.URL,
+				Description:  body.Description,
+				NoPKModel:    common.NoPKModel{},
+			}
+			if body.PrimaryView != nil {
+				job.PrimaryView = body.PrimaryView.Name
 			}
 			for _, upstreamProject := range body.UpstreamProjects {
 				upDownJob := models.JenkinsJobDag{

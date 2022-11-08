@@ -15,27 +15,32 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/stretchr/testify/require"
-	"testing"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-func TestFolderInput(t *testing.T) {
-	it := helper.NewQueueIterator()
-	it.Push(NewFolderInput("a"))
-	it.Push(NewFolderInput("b"))
-	require.True(t, it.HasNext())
-	folderRaw, err := it.Fetch()
-	require.NoError(t, err)
-	folder := folderRaw.(*FolderInput)
-	require.Equal(t, "a", folder.Data())
-	require.True(t, it.HasNext())
-	folderRaw, err = it.Fetch()
-	require.NoError(t, err)
-	folder = folderRaw.(*FolderInput)
-	require.Equal(t, "b", folder.Data())
-	require.False(t, it.HasNext())
+type addJobPathForBuilds struct{}
+
+type jenkinsBuild20221108 struct {
+	JobPath string `gorm:"index;type:varchar(255)"`
+}
+
+func (jenkinsBuild20221108) TableName() string {
+	return "_tool_jenkins_builds"
+}
+
+func (script *addJobPathForBuilds) Up(basicRes core.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	return db.AutoMigrate(&jenkinsBuild20221108{})
+}
+
+func (*addJobPathForBuilds) Version() uint64 {
+	return 20221108231237
+}
+
+func (*addJobPathForBuilds) Name() string {
+	return "add job path for builds"
 }

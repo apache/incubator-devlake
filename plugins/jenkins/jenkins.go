@@ -28,13 +28,15 @@ var PluginEntry impl.Jenkins
 func main() {
 	jenkinsCmd := &cobra.Command{Use: "jenkins"}
 	connectionId := jenkinsCmd.Flags().Uint64P("connection", "c", 1, "jenkins connection id")
-	jobName := jenkinsCmd.Flags().StringP("jobName", "j", "", "jenkins job name")
+	jobName := jenkinsCmd.Flags().StringP("jobName", "n", "", "jenkins job name")
+	jobPath := jenkinsCmd.Flags().StringP("jobPath", "p", "", "jenkins job path")
 	deployTagPattern := jenkinsCmd.Flags().String("deployTagPattern", "(?i)deploy", "deploy tag name")
 
 	jenkinsCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"connectionId":     *connectionId,
 			"jobName":          jobName,
+			"jobPath":          jobPath,
 			"deployTagPattern": *deployTagPattern,
 		})
 	}

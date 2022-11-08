@@ -44,7 +44,12 @@ func ConvertBuildRepos(taskCtx core.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.Select("*"),
 		dal.From(&models.JenkinsBuildCommit{}),
-		dal.Where("connection_id = ?", data.Options.ConnectionId),
+		dal.Join(`left join _tool_jenkins_builds tjb 
+						on _tool_jenkins_build_commits.build_name = tjb.full_display_name 
+						and _tool_jenkins_build_commits.connection_id = tjb.connection_id`),
+		dal.Where(`_tool_jenkins_build_commits.connection_id = ?
+							and tjb.job_path = ? and tjb.job_name = ?`,
+			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -60,6 +65,7 @@ func ConvertBuildRepos(taskCtx core.SubTaskContext) errors.Error {
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				JobName:      data.Options.JobName,
+				JobPath:      data.Options.JobPath,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,

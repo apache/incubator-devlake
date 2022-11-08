@@ -15,27 +15,39 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-// JenkinsJob db entity for jenkins job
-type JenkinsJob struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	FullName     string `gorm:"primaryKey;type:varchar(255)"`
-	Name         string `gorm:"index;type:varchar(255)"`
-	Path         string `gorm:"primaryKey;type:varchar(511)"`
-	Class        string `gorm:"type:varchar(255)"`
-	Color        string `gorm:"type:varchar(255)"`
-	Base         string `gorm:"type:varchar(255)"`
-	Url          string
-	Description  string
-	PrimaryView  string `gorm:"type:varchar(255)"`
-	common.NoPKModel
+type addJobFields struct{}
+
+type jenkinsJob20221108 struct {
+	Name        string `gorm:"index;type:varchar(255)"`
+	Url         string
+	Description string
+	PrimaryView string `gorm:"type:varchar(255)"`
 }
 
-func (JenkinsJob) TableName() string {
+func (jenkinsJob20221108) TableName() string {
 	return "_tool_jenkins_jobs"
+}
+
+func (script *addJobFields) Up(basicRes core.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.RenameColumn(`_tool_jenkins_jobs`, `name`, `full_name`)
+	if err != nil {
+		return err
+	}
+	return db.AutoMigrate(&jenkinsJob20221108{})
+}
+
+func (*addJobFields) Version() uint64 {
+	return 20221108231237
+}
+
+func (*addJobFields) Name() string {
+	return "add fields for jenkins jobs"
 }
