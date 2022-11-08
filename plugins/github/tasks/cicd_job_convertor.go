@@ -20,6 +20,7 @@ package tasks
 import (
 	"reflect"
 	"regexp"
+	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -99,12 +100,14 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 					domainJob.Type = devops.DEPLOYMENT
 				}
 			}
-			if line.Conclusion == "success" {
+			if strings.Contains(line.Conclusion, "success") {
 				domainJob.Result = devops.SUCCESS
-			} else if line.Conclusion == "failure" || line.Conclusion == "startup_failure" {
+			} else if strings.Contains(line.Conclusion, "failure") {
 				domainJob.Result = devops.FAILURE
+			} else if strings.Contains(line.Conclusion, "abort") {
+				domainJob.Result = devops.ABORT
 			} else {
-				domainJob.Result = devops.RUNNING
+				domainJob.Result = ""
 			}
 
 			if line.Status != "completed" {

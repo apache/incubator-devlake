@@ -119,7 +119,7 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 			} else if body.Result == "ABORTED" {
 				jenkinsTaskResult = devops.ABORT
 			} else {
-				jenkinsTaskResult = devops.RUNNING
+				jenkinsTaskResult = ""
 				jenkinsTaskStatus = devops.IN_PROGRESS
 			}
 

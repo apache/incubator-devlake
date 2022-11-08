@@ -42,7 +42,6 @@ func (CICDPipeline) TableName() string {
 // this is for the field `result` in table.cicd_pipelines and table.cicd_tasks
 const (
 	SUCCESS = "SUCCESS"
-	RUNNING = "RUNNING"
 	FAILURE = "FAILURE"
 	ABORT   = "ABORT"
 	MANUAL  = "MANUAL"
