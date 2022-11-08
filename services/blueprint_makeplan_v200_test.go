@@ -30,11 +30,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type CompositeDataSourcePluginBlueprintV200 interface {
-	core.PluginMeta
-	core.DataSourcePluginBlueprintV200
-}
-
 func TestMakePlanV200(t *testing.T) {
 	const projectName = "TestMakePlanV200-project"
 	githubName := "TestMakePlanV200-github" // mimic github
