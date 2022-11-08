@@ -1,8 +1,8 @@
 id,name,result,status,type,duration_sec,created_date,finished_date,environment,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
-gitlab:GitlabPipeline:1:457474837,gitlab:GitlabProject:1:12345678,RUNNING,IN_PROGRESS,,0,2022-01-27T10:07:09.429+00:00,,,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_pipeline,152,
+gitlab:GitlabPipeline:1:457474837,gitlab:GitlabProject:1:12345678,,IN_PROGRESS,,0,2022-01-27T10:07:09.429+00:00,,,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_pipeline,152,
 gitlab:GitlabPipeline:1:457474996,gitlab:GitlabProject:1:12345678,FAILURE,DONE,,0,2022-01-27T10:07:18.884+00:00,2022-01-27T10:07:19.043+00:00,,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_pipeline,153,
 gitlab:GitlabPipeline:1:457475160,gitlab:GitlabProject:1:12345678,FAILURE,DONE,,0,2022-01-27T10:07:26.435+00:00,2022-01-27T10:07:26.638+00:00,,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_pipeline,154,
-gitlab:GitlabPipeline:1:457475337,gitlab:GitlabProject:1:12345678,RUNNING,IN_PROGRESS,,0,2022-01-27T10:07:36.502+00:00,,,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_pipeline,155,
+gitlab:GitlabPipeline:1:457475337,gitlab:GitlabProject:1:12345678,,IN_PROGRESS,,0,2022-01-27T10:07:36.502+00:00,,,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_pipeline,155,
 gitlab:GitlabPipeline:1:485811050,gitlab:GitlabProject:1:12345678,FAILURE,DONE,,0,2022-03-07T06:26:42.109+00:00,2022-03-07T06:26:42.109+00:00,,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_pipeline,156,
 gitlab:GitlabPipeline:1:485811059,gitlab:GitlabProject:1:12345678,FAILURE,DONE,,0,2022-03-07T06:26:43.784+00:00,2022-03-07T06:26:43.784+00:00,,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_pipeline,157,
 gitlab:GitlabPipeline:1:485813816,gitlab:GitlabProject:1:12345678,FAILURE,DONE,,0,2022-03-07T06:33:56.824+00:00,2022-03-07T06:33:56.824+00:00,,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_pipeline,158,

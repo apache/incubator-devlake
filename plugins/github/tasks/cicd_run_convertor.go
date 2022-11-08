@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"reflect"
+	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -77,12 +78,14 @@ func ConvertRuns(taskCtx core.SubTaskContext) errors.Error {
 				CreatedDate:  *line.GithubCreatedAt,
 				FinishedDate: line.GithubUpdatedAt,
 			}
-			if line.Conclusion == "success" {
+			if strings.Contains(line.Conclusion, "success") {
 				domainPipeline.Result = devops.SUCCESS
-			} else if line.Conclusion == "failure" || line.Conclusion == "startup_failure" {
+			} else if strings.Contains(line.Conclusion, "failure") {
 				domainPipeline.Result = devops.FAILURE
+			} else if strings.Contains(line.Conclusion, "abort") {
+				domainPipeline.Result = devops.ABORT
 			} else {
-				domainPipeline.Result = devops.RUNNING
+				domainPipeline.Result = ""
 			}
 
 			if line.Status != "completed" {
