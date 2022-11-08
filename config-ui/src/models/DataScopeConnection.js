@@ -67,7 +67,7 @@ class DataScopeConnection {
   }
 
   hasScopeEntities() {
-    return this.scopeEntities > 0
+    return this.scopeEntities.length > 0
   }
 
   get(property) {
