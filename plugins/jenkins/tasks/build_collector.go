@@ -57,7 +57,7 @@ func CollectApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		UrlTemplate: "{{ .Params.JobPath }}job/{{ .Params.JobName }}/api/json",
+		UrlTemplate: "{{ .Params.JobPath }}/job/{{ .Params.JobName }}/api/json",
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
