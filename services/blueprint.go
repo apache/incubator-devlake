@@ -47,7 +47,7 @@ var (
 
 // CreateBlueprint accepts a Blueprint instance and insert it to database
 func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
-	err := validateBlueprint(blueprint)
+	err := validateBlueprintAndMakePlan(blueprint)
 	if err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
 	return blueprint, nil
 }
 
-func validateBlueprint(blueprint *models.Blueprint) errors.Error {
+func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 	// validation
 	err := vld.Struct(blueprint)
 	if err != nil {
@@ -130,9 +130,13 @@ func validateBlueprint(blueprint *models.Blueprint) errors.Error {
 			return errors.Default.New("empty plan")
 		}
 	} else if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
-		blueprint.Plan, err = GeneratePlanJson(blueprint.Settings)
+		plan, err := MakePlanForBlueprint(blueprint)
 		if err != nil {
 			return errors.Default.Wrap(err, "invalid plan")
+		}
+		blueprint.Plan, err = errors.Convert01(json.Marshal(plan))
+		if err != nil {
+			return errors.Default.Wrap(err, "failed to markshal plan")
 		}
 	}
 
@@ -157,7 +161,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 		return nil, errors.Default.New("mode is not updatable")
 	}
 	// validation
-	err = validateBlueprint(blueprint)
+	err = validateBlueprintAndMakePlan(blueprint)
 	if err != nil {
 		return nil, errors.BadInput.WrapRaw(err)
 	}
@@ -246,13 +250,13 @@ func createPipelineByBlueprint(blueprintId uint64, name string, plan core.Pipeli
 	return pipeline, nil
 }
 
-// GeneratePlanJson generates pipeline plan by version
-func GeneratePlanJson(settings json.RawMessage) (json.RawMessage, errors.Error) {
+// MakePlanForBlueprint generates pipeline plan by version
+func MakePlanForBlueprint(blueprint *models.Blueprint) (core.PipelinePlan, errors.Error) {
 	bpSettings := new(models.BlueprintSettings)
-	err := errors.Convert(json.Unmarshal(settings, bpSettings))
+	err := errors.Convert(json.Unmarshal(blueprint.Settings, bpSettings))
 
 	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("settings:%s", string(settings)))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("settings:%s", string(blueprint.Settings)))
 	}
 	var plan core.PipelinePlan
 	switch bpSettings.Version {
@@ -264,11 +268,7 @@ func GeneratePlanJson(settings json.RawMessage) (json.RawMessage, errors.Error) 
 	if err != nil {
 		return nil, err
 	}
-	plan, err = WrapPipelinePlans(bpSettings.BeforePlan, plan, bpSettings.AfterPlan)
-	if err != nil {
-		return nil, err
-	}
-	return errors.Convert01(json.Marshal(plan))
+	return WrapPipelinePlans(bpSettings.BeforePlan, plan, bpSettings.AfterPlan)
 }
 
 // WrapPipelinePlans merges multiple pipelines and append before and after pipeline
