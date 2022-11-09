@@ -19,7 +19,7 @@ package archived
 
 import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type TapdStoryBug struct {
@@ -27,7 +27,7 @@ type TapdStoryBug struct {
 	WorkspaceId  uint64 `gorm:"primaryKey" json:"workspace_id,string"`
 	StoryId      uint64 `gorm:"primaryKey" json:"story_id,string"`
 	BugId        uint64 `gorm:"primaryKey" json:"bug_id,string"`
-	IssueUpdated *time.Time
+	IssueUpdated *helper.CSTTime
 	archived.NoPKModel
 }
 

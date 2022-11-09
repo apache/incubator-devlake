@@ -20,7 +20,6 @@ package archived
 import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"time"
 )
 
 type TapdBugCommit struct {
@@ -41,7 +40,7 @@ type TapdBugCommit struct {
 	FileCommit      string          `json:"file_commit"`
 	CommitTime      *helper.CSTTime `json:"commit_time"`
 	Created         *helper.CSTTime `json:"created"`
-	IssueUpdated    *time.Time
+	IssueUpdated    *helper.CSTTime
 
 	BugId uint64
 	archived.NoPKModel

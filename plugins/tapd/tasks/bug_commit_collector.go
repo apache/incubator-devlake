@@ -41,9 +41,12 @@ func CollectBugCommits(taskCtx core.SubTaskContext) errors.Error {
 	logger.Info("collect issueCommits")
 	since := data.Since
 	clauses := []dal.Clause{
-		dal.Select("_tool_tapd_bugs.id as issue_id, modified as update_time"),
+		dal.Select("id as issue_id, modified as update_time"),
 		dal.From(&models.TapdBug{}),
-		dal.Where("_tool_tapd_bugs.connection_id = ? and _tool_tapd_bugs.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
+		dal.Join("LEFT JOIN _tool_tapd_bug_commits tjbc ON (tjbc.connection_id = i.connection_id AND tjbc.bug_id = _tool_tapd_bugs.id)"),
+		dal.Where("_tool_tapd_bugs.updated > _tool_tapd_bugs.created AND connection_id = ? and workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
+		dal.Groupby("_tool_tapd_bugs.id, _tool_tapd_bugs.modified"),
+		dal.Having("_tool_tapd_bugs.modified > max(tjbc.issue_updated) OR  max(tjbc.issue_updated) IS NULL"),
 	}
 	if since != nil {
 		clauses = append(clauses, dal.Where("modified > ?", since))
