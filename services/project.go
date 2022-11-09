@@ -113,8 +113,13 @@ func PatchProject(name string, body map[string]interface{}) (*models.Project, er
 		return nil, err
 	}
 
+	enProject, err := encryptProject(project)
+	if err != nil {
+		return nil, err
+	}
+
 	// save
-	err = SaveDbProject(project)
+	err = SaveDbProject(enProject)
 	if err != nil {
 		return nil, errors.Internal.Wrap(err, "error saving project")
 	}
@@ -136,8 +141,13 @@ func PatchProjectMetric(projectName string, pluginName string, body map[string]i
 		return nil, err
 	}
 
+	enProjectMetric, err := encryptProjectMetric(projectMetric)
+	if err != nil {
+		return nil, err
+	}
+
 	// save
-	err = SaveDbProjectMetric(projectMetric)
+	err = SaveDbProjectMetric(enProjectMetric)
 	if err != nil {
 		return nil, errors.Internal.Wrap(err, "error saving project")
 	}

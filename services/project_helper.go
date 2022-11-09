@@ -19,6 +19,7 @@ package services
 
 import (
 	goerror "errors"
+	"fmt"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
@@ -86,11 +87,12 @@ func GetDbProjects(query *ProjectQuery) ([]*models.Project, int64, errors.Error)
 // GetDbProject returns the detail of a given project name
 func GetDbProject(name string) (*models.Project, errors.Error) {
 	project := &models.Project{}
+	project.Name = name
 
-	err := db.First(project, name).Error
+	err := db.First(project).Error
 	if err != nil {
 		if goerror.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.NotFound.Wrap(err, "could not find project in DB")
+			return nil, errors.NotFound.Wrap(err, fmt.Sprintf("could not find project [%s] in DB", name))
 		}
 		return nil, errors.Default.Wrap(err, "error getting project from DB")
 	}
@@ -101,11 +103,13 @@ func GetDbProject(name string) (*models.Project, errors.Error) {
 // GetDbProjectMetric returns the detail of a given project name
 func GetDbProjectMetric(projectName string, pluginName string) (*models.ProjectMetric, errors.Error) {
 	projectMetric := &models.ProjectMetric{}
+	projectMetric.ProjectName = projectName
+	projectMetric.PluginName = pluginName
 
-	err := db.First(projectMetric, projectName, pluginName).Error
+	err := db.First(projectMetric).Error
 	if err != nil {
 		if goerror.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.NotFound.Wrap(err, "could not find project metric in DB")
+			return nil, errors.NotFound.Wrap(err, fmt.Sprintf("could not find project metric [%s][%s] in DB", projectName, pluginName))
 		}
 		return nil, errors.Default.Wrap(err, "error getting project metric from DB")
 	}
