@@ -49,7 +49,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) errors.Error {
 			Table: RAW_JOB_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		UrlTemplate: "{{ .Params.JobPath }}/job/{{ .Params.JobName }}/api/json",
+		UrlTemplate: "{{ .Params.JobPath }}job/{{ .Params.JobName }}/api/json",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			if err != nil {

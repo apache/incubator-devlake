@@ -79,7 +79,7 @@ func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
-		UrlTemplate: "{{ .Params.Path }}/job/{{ .Params.JobName }}/{{ .Input.Number }}/wfapi/describe",
+		UrlTemplate: "{{ .Params.Path }}job/{{ .Params.JobName }}/{{ .Input.Number }}/wfapi/describe",
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
