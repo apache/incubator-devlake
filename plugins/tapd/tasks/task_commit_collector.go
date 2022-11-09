@@ -44,7 +44,7 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) errors.Error {
 		dal.Select("_tool_tapd_tasks.id as issue_id, modified as update_time"),
 		dal.From(&models.TapdTask{}),
 		dal.Join("LEFT JOIN _tool_tapd_task_commits tjbc ON (tjbc.connection_id = _tool_tapd_tasks.connection_id AND tjbc.task_id = _tool_tapd_tasks.id)"),
-		dal.Where("_tool_tapd_tasks.modified > _tool_tapd_tasks.created AND tjbc.connection_id = ? and tjbc.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
+		dal.Where("_tool_tapd_tasks.modified > _tool_tapd_tasks.created AND _tool_tapd_tasks.connection_id = ? and _tool_tapd_tasks.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
 		dal.Groupby("_tool_tapd_tasks.id, _tool_tapd_tasks.modified"),
 		dal.Having("_tool_tapd_tasks.modified > max(tjbc.issue_updated) OR  max(tjbc.issue_updated) IS NULL"),
 	}

@@ -18,10 +18,10 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"time"
 )
 
 type Input struct {
-	IssueId    uint64          `json:"issue_id"`
-	UpdateTime *helper.CSTTime `json:"update_time"`
+	IssueId    uint64     `json:"issue_id"`
+	UpdateTime *time.Time `json:"update_time"`
 }

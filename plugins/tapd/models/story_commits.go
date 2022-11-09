@@ -20,6 +20,7 @@ package models
 import (
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"time"
 )
 
 type TapdStoryCommit struct {
@@ -40,7 +41,7 @@ type TapdStoryCommit struct {
 	FileCommit      string          `json:"file_commit"`
 	CommitTime      *helper.CSTTime `json:"commit_time"`
 	Created         *helper.CSTTime `json:"created"`
-	IssueUpdated    *helper.CSTTime
+	IssueUpdated    *time.Time
 
 	StoryId uint64
 	common.NoPKModel

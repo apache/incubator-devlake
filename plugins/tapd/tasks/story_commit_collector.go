@@ -40,11 +40,14 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issueCommits")
 	since := data.Since
+	// this clauses will select two kinds of stories which have been modified after creation:
+	// 1. stories have no story commits
+	// 2. stories have story commits and stories got modified after last time that we collected story commit
 	clauses := []dal.Clause{
 		dal.Select("_tool_tapd_stories.id as issue_id, modified as update_time"),
 		dal.From(&models.TapdStory{}),
 		dal.Join("LEFT JOIN _tool_tapd_story_commits tjbc ON (tjbc.connection_id = _tool_tapd_stories.connection_id AND tjbc.story_id = _tool_tapd_stories.id)"),
-		dal.Where("_tool_tapd_stories.modified > _tool_tapd_stories.created AND tjbc.connection_id = ? and tjbc.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
+		dal.Where("_tool_tapd_stories.modified > _tool_tapd_stories.created AND _tool_tapd_stories.connection_id = ? and _tool_tapd_stories.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
 		dal.Groupby("_tool_tapd_stories.id, _tool_tapd_stories.modified"),
 		dal.Having("_tool_tapd_stories.modified > max(tjbc.issue_updated) OR  max(tjbc.issue_updated) IS NULL"),
 	}
