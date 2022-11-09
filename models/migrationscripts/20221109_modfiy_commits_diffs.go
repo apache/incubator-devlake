@@ -44,8 +44,8 @@ func (RefsCommitsDiff20221109) TableName() string {
 // updated format
 
 type CommitsStatus20221109 struct {
-	NewRefCommitSha string `gorm:"primaryKey;type:varchar(40)"`
-	OldRefCommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
 }
 
 func (CommitsStatus20221109) TableName() string {
@@ -53,17 +53,17 @@ func (CommitsStatus20221109) TableName() string {
 }
 
 type CommitsDiff20221109Before struct {
-	CommitSha       string `gorm:"primaryKey;type:varchar(40)"`
-	NewRefCommitSha string `gorm:"type:varchar(40)"`
-	OldRefCommitSha string `gorm:"type:varchar(40)"`
-	SortingIndex    int
+	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
+	NewCommitSha string `gorm:"type:varchar(40)"`
+	OldCommitSha string `gorm:"type:varchar(40)"`
+	SortingIndex int
 }
 
 type CommitsDiff20221109After struct {
-	CommitSha       string `gorm:"primaryKey;type:varchar(40)"`
-	NewRefCommitSha string `gorm:"primaryKey;type:varchar(40)"`
-	OldRefCommitSha string `gorm:"primaryKey;type:varchar(40)"`
-	SortingIndex    int
+	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
+	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	SortingIndex int
 }
 
 func (script *modifyCommitsDiffs) Up(basicRes core.BasicRes) errors.Error {
