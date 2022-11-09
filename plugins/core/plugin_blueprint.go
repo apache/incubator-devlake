@@ -68,9 +68,10 @@ PluginBlueprintV200 for project support
 step 1: blueprint.settings like
 	{
 		"version": "2.0.0",
-		"scopes": [
+		"connections": [
 			{
 				"plugin": "github",
+				"connectionId": 123,
 				"scopes": [
 					{ "id": null, "name": "apache/incubator-devlake" }
 				]
@@ -101,29 +102,64 @@ step 3: framework should maintain the project_mapping table based on the []Scope
 	]
 */
 
-// Scope represents the top level entity for a data source, i.e. github repo, gitlab project, jira board.
-// They turn into repo, board in Domain Layer.
-// In Apache Devlake, a Project is essentially a set of these top level entities, for the framework to
-// maintain these relationships dynamically and automatically, all Domain Layer Top Level Entities should
-// implement this interface
+// Scope represents the top level entity for a data source, i.e. github repo,
+// gitlab project, jira board. They turn into repo, board in Domain Layer. In
+// Apache Devlake, a Project is essentially a set of these top level entities,
+// for the framework to maintain these relationships dynamically and
+// automatically, all Domain Layer Top Level Entities should implement this
+// interface
 type Scope interface {
 	ScopeId() string
 	ScopeName() string
 	TableName() string
 }
 
-// PluginBlueprintV200 extends the V100 to provide support for Project to support complex metrics
-// like DORA
-type PluginBlueprintV200 interface {
-	MakePipelinePlan(scopes []*BlueprintScopeV200) (PipelinePlan, []Scope, errors.Error)
+// DataSourcePluginBlueprintV200 extends the V100 to provide support for
+// Project, so that complex metrics like DORA can be implemented based on a set
+// of Data Scopes
+type DataSourcePluginBlueprintV200 interface {
+	MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*BlueprintScopeV200) (PipelinePlan, []Scope, errors.Error)
 }
 
-// BlueprintScopeV200 contains the Plugin name and related ScopeIds, connectionId and transformationRuleId should be
-// deduced by the ScopeId
+// BlueprintConnectionV200 contains the pluginName/connectionId  and related Scopes,
+type BlueprintConnectionV200 struct {
+	Plugin       string                `json:"plugin" validate:"required"`
+	ConnectionId uint64                `json:"connectionId" validate:"required"`
+	Scopes       []*BlueprintScopeV200 `json:"scopes" validate:"required"`
+}
+
+// BlueprintScopeV200 contains the `id` and `name` for a specific scope
+// transformationRuleId should be deduced by the ScopeId
 type BlueprintScopeV200 struct {
-	Plugin string `json:"plugin" validate:"required"`
-	Scopes []struct {
-		Id   string
-		Name string
-	}
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// MetricPluginBlueprintV200 is similar to the DataSourcePluginBlueprintV200
+// but for Metric Plugin, take dora as an example, it doens't have any scope,
+// nor does it produce any, however, it does require other plugin to be
+// executed beforehand, like calcuating refdiff before it can connect PR to the
+// right Deployment keep in mind it would be called IFF the plugin was enabled
+// for the project.
+type MetricPluginBlueprintV200 interface {
+	MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (PipelinePlan, errors.Error)
+}
+
+// CompositeDataSourcePluginBlueprintV200 is for unit test
+type CompositeDataSourcePluginBlueprintV200 interface {
+	PluginMeta
+	DataSourcePluginBlueprintV200
+}
+
+// CompositeMetricPluginBlueprintV200 is for unit test
+type CompositeMetricPluginBlueprintV200 interface {
+	PluginMeta
+	MetricPluginBlueprintV200
+}
+
+// CompositeMetricPluginBlueprintV200 is for unit test
+type CompositePluginBlueprintV200 interface {
+	PluginMeta
+	DataSourcePluginBlueprintV200
+	MetricPluginBlueprintV200
 }
