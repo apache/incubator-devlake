@@ -42,6 +42,7 @@ var _ core.PluginMeta = (*GithubGraphql)(nil)
 var _ core.PluginInit = (*GithubGraphql)(nil)
 var _ core.PluginTask = (*GithubGraphql)(nil)
 var _ core.PluginApi = (*GithubGraphql)(nil)
+var _ core.CloseablePluginTask = (*GithubGraphql)(nil)
 
 // PluginEntry exports a symbol for Framework to load
 var PluginEntry GithubGraphql //nolint
@@ -66,6 +67,10 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectIssueMeta,
 		tasks.CollectPrMeta,
 
+		githubTasks.CollectRunsMeta,
+		githubTasks.ExtractRunsMeta,
+		tasks.CollectCheckRunMeta,
+
 		githubTasks.CollectApiCommentsMeta,
 		githubTasks.ExtractApiCommentsMeta,
 		githubTasks.CollectApiEventsMeta,
@@ -75,6 +80,7 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 
 		tasks.CollectAccountMeta,
 
+		githubTasks.ConvertRunsMeta,
 		githubTasks.ConvertJobsMeta,
 		githubTasks.EnrichPullRequestIssuesMeta,
 		githubTasks.ConvertRepoMeta,
