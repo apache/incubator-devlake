@@ -42,8 +42,13 @@ func EnrichApiBuildWithStages(taskCtx core.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.Select("distinct build_name"),
 		dal.From(&models.JenkinsStage{}),
-		dal.Where("connection_id = ?", data.Options.ConnectionId),
-		dal.Groupby("build_name"),
+		dal.Join(`left join _tool_jenkins_builds tjb 
+						on _tool_jenkins_stages.build_name = tjb.full_display_name 
+						and _tool_jenkins_stages.connection_id = tjb.connection_id`),
+		dal.Where(`_tool_jenkins_stages.connection_id = ? 
+							and tjb.job_path = ? and tjb.job_name = ?`,
+			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
+		dal.Groupby("_tool_jenkins_stages.build_name"),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {

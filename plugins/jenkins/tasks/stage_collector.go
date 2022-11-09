@@ -41,8 +41,6 @@ var CollectApiStagesMeta = core.SubTaskMeta{
 }
 
 type SimpleBuild struct {
-	Path            string
-	JobName         string
 	Number          string
 	FullDisplayName string
 }
@@ -51,10 +49,10 @@ func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	clauses := []dal.Clause{
-		dal.Select("tjj.path,tjb.job_name,tjb.number,tjb.full_display_name"),
-		dal.From("_tool_jenkins_builds as tjb,_tool_jenkins_jobs as tjj"),
-		dal.Where(`tjb.connection_id = ? and tjj.name = ? and tjb.class = ? and tjb.job_name = tjj.name`,
-			data.Options.ConnectionId, data.Options.JobName, "WorkflowRun"),
+		dal.Select("tjb.number,tjb.full_display_name"),
+		dal.From("_tool_jenkins_builds as tjb"),
+		dal.Where(`tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? and tjb.class = ? `,
+			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName, "WorkflowRun"),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -73,6 +71,7 @@ func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				JobName:      data.Options.JobName,
+				JobPath:      data.Options.JobPath,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_STAGE_TABLE,
@@ -80,7 +79,7 @@ func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
-		UrlTemplate: "{{ .Input.Path }}/job/{{ .Input.JobName }}/{{ .Input.Number }}/wfapi/describe",
+		UrlTemplate: "{{ .Params.Path }}job/{{ .Params.JobName }}/{{ .Input.Number }}/wfapi/describe",
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/

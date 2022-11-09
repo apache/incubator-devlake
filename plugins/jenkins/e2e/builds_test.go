@@ -36,6 +36,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 		Options: &tasks.JenkinsOptions{
 			ConnectionId: 1,
 			JobName:      `devlake`,
+			JobPath:      `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
 		},
 	}
 
@@ -55,6 +56,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"job_name",
+			"job_path",
 			"duration",
 			"full_display_name",
 			"estimated_duration",

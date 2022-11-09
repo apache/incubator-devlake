@@ -35,6 +35,7 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 		Options: &tasks.JenkinsOptions{
 			ConnectionId: 1,
 			JobName:      `devlake`,
+			JobPath:      `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
 		},
 	}
 

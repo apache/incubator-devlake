@@ -79,9 +79,10 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 			tjs.status, tjs.start_time_millis, tjs.duration_millis, 
 			tjs.pause_duration_millis, tjs.type, 
 			tjb.triggered_by, tjb.building`),
-		dal.From("_tool_jenkins_builds tjb"),
-		dal.Join("left join _tool_jenkins_stages tjs on tjs.build_name = tjb.full_display_name"),
-		dal.Where("tjb.connection_id = ? and tjb.job_name = ? ", data.Options.ConnectionId, data.Options.JobName),
+		dal.From("_tool_jenkins_stages tjs"),
+		dal.Join("left join _tool_jenkins_builds tjb on tjs.build_name = tjb.full_display_name"),
+		dal.Where("tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? ",
+			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -98,6 +99,7 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				JobName:      data.Options.JobName,
+				JobPath:      data.Options.JobPath,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_STAGE_TABLE,

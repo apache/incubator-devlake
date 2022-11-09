@@ -29,6 +29,7 @@ type JenkinsBuild struct {
 	// collected fields
 	ConnectionId      uint64    `gorm:"primaryKey"`
 	JobName           string    `gorm:"index;type:varchar(255)"`
+	JobPath           string    `gorm:"index;type:varchar(255)"`
 	Duration          float64   // build time
 	FullDisplayName   string    `gorm:"primaryKey;type:varchar(255)"` // "job name #7"
 	EstimatedDuration float64   // EstimatedDuration

@@ -38,6 +38,7 @@ func AutoMigrateTables(basicRes core.BasicRes, dst ...interface{}) errors.Error 
 		if err != nil {
 			return err
 		}
+		_ = db.All(entity)
 	}
 	return nil
 }

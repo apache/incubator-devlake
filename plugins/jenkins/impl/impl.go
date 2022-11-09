@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -102,6 +103,9 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, err
+	}
+	if !strings.HasSuffix(op.JobPath, "/") {
+		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
 	}
 	return &tasks.JenkinsTaskData{
 		Options:    op,

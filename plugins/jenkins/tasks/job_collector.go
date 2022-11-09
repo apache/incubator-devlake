@@ -19,14 +19,11 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"net/http"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
+	"io"
+	"net/http"
 )
 
 const RAW_JOB_TABLE = "jenkins_api_jobs"
@@ -40,68 +37,29 @@ var CollectApiJobsMeta = core.SubTaskMeta{
 }
 
 func CollectApiJobs(taskCtx core.SubTaskContext) errors.Error {
-	it := helper.NewQueueIterator()
-	it.Push(models.NewFolderInput(""))
 	data := taskCtx.GetData().(*JenkinsTaskData)
-	incremental := false
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
+				JobName:      data.Options.JobName,
+				JobPath:      data.Options.JobPath,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_JOB_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
-		Incremental: incremental,
-		// jenkins api is special, 1. If the concurrency is larger than 1, then it will report 500.
-		Concurrency: 1,
-
-		UrlTemplate: "{{ .Input.Path }}api/json",
-		Input:       it,
-		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			treeValue := fmt.Sprintf(
-				"jobs[name,class,url,color,base,jobs,upstreamProjects[name]]{%d,%d}",
-				reqData.Pager.Skip, reqData.Pager.Skip+reqData.Pager.Size)
-			query.Set("tree", treeValue)
-			return query, nil
-		},
-		Header: func(reqData *helper.RequestData) (http.Header, errors.Error) {
-			input, ok := reqData.Input.(*models.FolderInput)
-			if ok {
-				return http.Header{
-					"Path": {
-						input.Path,
-					},
-				}, nil
-			} else {
-				return nil, errors.Default.New("empty FolderInput")
-			}
-		},
-
+		UrlTemplate: "{{ .Params.JobPath }}job/{{ .Params.JobName }}/api/json",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data struct {
-				Jobs []json.RawMessage `json:"jobs"`
-			}
-			err := helper.UnmarshalResponse(res, &data)
+			body, err := io.ReadAll(res.Body)
 			if err != nil {
-				return nil, err
+				return nil, errors.Convert(err)
 			}
-			BasePath := res.Request.Header.Get("Path")
-			for _, rawJobs := range data.Jobs {
-				job := &models.Job{}
-				err := errors.Convert(json.Unmarshal(rawJobs, job))
-				if err != nil {
-					return nil, err
-				}
-
-				if job.Jobs != nil {
-					it.Push(models.NewFolderInput(BasePath + "job/" + job.Name + "/"))
-				}
+			err = res.Body.Close()
+			if err != nil {
+				return nil, errors.Convert(err)
 			}
-			return data.Jobs, nil
+			return []json.RawMessage{body}, nil
 		},
 	})
 

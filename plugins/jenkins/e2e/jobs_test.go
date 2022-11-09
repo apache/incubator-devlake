@@ -34,7 +34,8 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	taskData := &tasks.JenkinsTaskData{
 		Options: &tasks.JenkinsOptions{
 			ConnectionId: 1,
-			JobName:      ``,
+			JobName:      `devlake`,
+			JobPath:      `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
 		},
 	}
 
@@ -50,11 +51,15 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 		"./snapshot_tables/_tool_jenkins_jobs.csv",
 		e2ehelper.ColumnWithRawData(
 			"connection_id",
+			"full_name",
 			"name",
 			"path",
 			"class",
 			"color",
 			"base",
+			"url",
+			"description",
+			"primary_view",
 		),
 	)
 }

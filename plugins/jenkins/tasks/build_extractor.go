@@ -46,6 +46,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				JobName:      data.Options.JobName,
+				JobPath:      data.Options.JobPath,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,
@@ -56,18 +57,14 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 			if err != nil {
 				return nil, err
 			}
-			input := &SimpleJob{}
-			err = errors.Convert(json.Unmarshal(row.Input, input))
-			if err != nil {
-				return nil, err
-			}
 
 			results := make([]interface{}, 0)
 			strList := strings.Split(body.Class, ".")
 			class := strList[len(strList)-1]
 			build := &models.JenkinsBuild{
 				ConnectionId:      data.Options.ConnectionId,
-				JobName:           input.Name,
+				JobName:           data.Options.JobName,
+				JobPath:           data.Options.JobPath,
 				Duration:          body.Duration,
 				FullDisplayName:   body.DisplayName,
 				EstimatedDuration: body.EstimatedDuration,

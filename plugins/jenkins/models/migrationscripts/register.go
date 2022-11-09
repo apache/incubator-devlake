@@ -27,5 +27,7 @@ func All() []core.MigrationScript {
 		new(addInitTables),
 		new(modifyAllEntities),
 		new(modifyJenkinsBuild),
+		new(addJobFields),
+		new(addJobPathForBuilds),
 	}
 }
