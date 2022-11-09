@@ -41,8 +41,8 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.Select("id as issue_id, modified as update_time"),
 		dal.From(&models.TapdStory{}),
-		dal.Join("LEFT JOIN _tool_tapd_story_bugs tjbc ON (tjbc.connection_id = i.connection_id AND tjbc.issue_id = _tool_tapd_stories.id)"),
-		dal.Where("_tool_tapd_stories.updated > _tool_tapd_stories.created AND connection_id = ? and workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
+		dal.Join("LEFT JOIN _tool_tapd_story_bugs tjbc ON (tjbc.connection_id = _tool_tapd_stories.connection_id AND tjbc.story_id = _tool_tapd_stories.id)"),
+		dal.Where("_tool_tapd_stories.modified > _tool_tapd_stories.created AND tjbc.connection_id = ? and tjbc.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
 		dal.Groupby("_tool_tapd_stories.id, _tool_tapd_stories.modified"),
 		dal.Having("_tool_tapd_stories.modified > max(tjbc.issue_updated) OR  max(tjbc.issue_updated) IS NULL"),
 	}
