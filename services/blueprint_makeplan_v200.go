@@ -23,11 +23,36 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 // GeneratePlanJsonV200 generates pipeline plan according v2.0.0 definition
 func GeneratePlanJsonV200(
+	projectName string,
+	sources *models.BlueprintSettings,
+	metrics map[string]json.RawMessage,
+) (core.PipelinePlan, errors.Error) {
+	// generate plan and collect scopes
+	plan, scopes, err := genPlanJsonV200(projectName, sources, metrics)
+	if err != nil {
+		return nil, err
+	}
+	// refresh project_mapping table to reflect project/scopes relationship
+	if len(scopes) > 0 {
+		e := db.Where("project_name = ?", projectName).Delete(&crossdomain.ProjectMapping{}).Error
+		if e != nil {
+			return nil, errors.Convert(err)
+		}
+		e = db.Create(scopes).Error
+		if e != nil {
+			return nil, errors.Convert(err)
+		}
+	}
+	return plan, err
+}
+
+func genPlanJsonV200(
 	projectName string,
 	sources *models.BlueprintSettings,
 	metrics map[string]json.RawMessage,
