@@ -27,22 +27,6 @@ var _ core.MigrationScript = (*modifyCommitsDiffs)(nil)
 
 type modifyCommitsDiffs struct{}
 
-// initial format
-type RefsCommitsDiff20221109 struct {
-	NewRefId        string `gorm:"primaryKey;type:varchar(255)"`
-	OldRefId        string `gorm:"primaryKey;type:varchar(255)"`
-	CommitSha       string `gorm:"primaryKey;type:varchar(40)"`
-	NewRefCommitSha string `gorm:"type:varchar(40)"`
-	OldRefCommitSha string `gorm:"type:varchar(40)"`
-	SortingIndex    int
-}
-
-func (RefsCommitsDiff20221109) TableName() string {
-	return "refs_commits_diffs"
-}
-
-// updated format
-
 type CommitsStatus20221109 struct {
 	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
