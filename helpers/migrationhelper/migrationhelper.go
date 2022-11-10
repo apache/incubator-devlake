@@ -268,9 +268,7 @@ func CopyTableColumn[S any, D any](
 	dstTableName string,
 	transform func(*S) (*D, errors.Error),
 ) (err errors.Error) {
-
 	db := basicRes.GetDal()
-
 	cursor, err := db.Cursor(dal.From(srcTableName))
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", srcTableName))
