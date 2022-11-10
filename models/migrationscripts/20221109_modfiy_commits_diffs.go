@@ -73,11 +73,20 @@ func (script *modifyCommitsDiffs) Up(basicRes core.BasicRes) errors.Error {
 		return err
 	}
 
-	srcColumn := []string{"CommitSha", "NewRefCommitSha", "OldRefCommitSha", "SortingIndex"}
-	dstColumn := []string{"CommitSha", "NewCommitSha", "OldCommitSha", "SortingIndex"}
-
 	// copy data
-	err = migrationhelper.CopyTableColumn(basicRes, &RefsCommitsDiff20221109{}, srcColumn, &CommitsDiff20221109{}, dstColumn)
+	err = migrationhelper.CopyTableColumn(
+		basicRes,
+		RefsCommitsDiff20221109{}.TableName(),
+		CommitsDiff20221109{}.TableName(),
+		func(s *RefsCommitsDiff20221109) (*CommitsDiff20221109, errors.Error) {
+			dst := CommitsDiff20221109{}
+			dst.CommitSha = s.CommitSha
+			dst.NewCommitSha = s.NewRefCommitSha
+			dst.OldCommitSha = s.OldRefCommitSha
+
+			return &dst, nil
+		},
+	)
 	if err != nil {
 		return err
 	}

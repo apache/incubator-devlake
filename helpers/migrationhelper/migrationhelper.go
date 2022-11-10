@@ -262,44 +262,40 @@ func TransformTable[S any, D any](
 }
 
 // CopyTableColumn can copy data from src table to dst table
-func CopyTableColumn(
+func CopyTableColumn[S any, D any](
 	basicRes core.BasicRes,
-	srcTable core.Tabler,
-	srcColumn []string,
-	dstTable core.Tabler,
-	dstColumn []string,
+	srcTableName string,
+	dstTableName string,
+	transform func(*S) (*D, errors.Error),
 ) (err errors.Error) {
-	if len(srcColumn) != len(dstColumn) {
-		return errors.Default.Wrap(err, "the srcColumn length should be same to the dstColumn length")
-	}
 
 	db := basicRes.GetDal()
-	cursor, err := db.Cursor(dal.From(srcTable))
+
+	cursor, err := db.Cursor(dal.From(srcTableName))
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", srcTable.TableName()))
+		return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", srcTableName))
 	}
 	defer cursor.Close()
-	batch, err := helper.NewBatchSave(basicRes, reflect.TypeOf(dstTable), 200, dstTable.TableName())
+	batch, err := helper.NewBatchSave(basicRes, reflect.TypeOf(new(D)), 200, dstTableName)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("failed to instantiate BatchSave for table [%s]", dstTable.TableName()))
+		return errors.Default.Wrap(err, fmt.Sprintf("failed to instantiate BatchSave for table [%s]", srcTableName))
 	}
 	defer batch.Close()
 
+	srcTable := new(S)
 	for cursor.Next() {
 		err = db.Fetch(cursor, srcTable)
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("fail to load record from table [%s]", srcTable.TableName()))
+			return errors.Default.Wrap(err, fmt.Sprintf("fail to load record from table [%s]", srcTableName))
 		}
 
-		srcVal := reflect.ValueOf(srcTable).Elem()
-		dstVal := reflect.ValueOf(dstTable).Elem()
-		for i := 0; i < len(srcColumn); i++ {
-			dstVal.FieldByName(dstColumn[i]).Set(srcVal.FieldByName(srcColumn[i]))
-		}
-
-		err := db.CreateOrUpdate(dstTable)
+		dst, err := transform(srcTable)
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("push to CreateOrUpdate failed %v", dstTable.TableName()))
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to transform row %v", srcTable))
+		}
+		err = batch.Add(dst)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("push to BatchSave failed %v", dstTableName))
 		}
 	}
 
