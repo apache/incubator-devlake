@@ -29,21 +29,24 @@ export interface UseMillerColumnsProps {
   items: ItemType[]
   activeItemId?: ItemType['id']
   onActiveItemId?: (id: ItemType['id']) => void
-  selectedItemIds?: Array<ItemType['id']>
+  selectedItemIds: Array<ItemType['id']>
   onSelectedItemIds?: (ids: Array<ItemType['id']>) => void
+  onExpandItem?: (item: ItemType) => void
 }
 
 export const useMillerColumns = ({
   items,
   onActiveItemId,
   onSelectedItemIds,
+  onExpandItem,
   ...props
 }: UseMillerColumnsProps) => {
   const [activeItemId, setActiveItemId] = useState<ItemType['id']>()
-  const [selectedItemIds, setSelectedItemIds] =
-    useState<Array<ItemType['id']>>()
+  const [selectedItemIds, setSelectedItemIds] = useState<Array<ItemType['id']>>(
+    []
+  )
 
-  const itemMap = useItemMap({ items, selectedItemIds })
+  const itemMap = useItemMap({ items })
   const columns = useColumns({ items, itemMap, activeItemId })
 
   useEffect(() => {
@@ -51,8 +54,23 @@ export const useMillerColumns = ({
   }, [props.activeItemId])
 
   useEffect(() => {
-    setSelectedItemIds(props.selectedItemIds)
+    setSelectedItemIds(props.selectedItemIds ?? [])
   }, [props.selectedItemIds])
+
+  useEffect(() => {
+    const newIds = [...selectedItemIds]
+
+    newIds.forEach((id) => {
+      const childNotInSelectedIds = itemMap
+        .getItem(id)
+        .items.map((it) => it.id)
+        .filter((id) => !selectedItemIds.includes(id))
+
+      newIds.push(...(childNotInSelectedIds ?? []))
+    })
+
+    onSelectedItemIds ? onSelectedItemIds(newIds) : setSelectedItemIds(newIds)
+  }, [items])
 
   return useMemo(
     () => ({
@@ -67,15 +85,15 @@ export const useMillerColumns = ({
         return RowStatus.noselected
       },
       getChekecdStatus(item: ItemType) {
-        if (!selectedItemIds?.length) {
+        if (!selectedItemIds.length) {
           return CheckStatus.nochecked
         }
-        if (selectedItemIds?.includes(item.id)) {
+        if (selectedItemIds.includes(item.id)) {
           return CheckStatus.checked
         }
 
         const hasChildCheckedIds = selectedItemIds.filter((id) =>
-          item.items?.map((it) => it.id).includes(id)
+          item.items.map((it) => it.id).includes(id)
         )
 
         if (!hasChildCheckedIds.length) {
@@ -89,9 +107,9 @@ export const useMillerColumns = ({
         return CheckStatus.indeterminate
       },
       getCheckedAllStatus(column: ColumnType) {
-        const itemIds = column.items?.map((it) => it.id) ?? []
+        const itemIds = column.items.map((it) => it.id)
         const colSelectedIds = itemIds.filter((id) =>
-          selectedItemIds?.includes(id)
+          selectedItemIds.includes(id)
         )
         switch (true) {
           case colSelectedIds.length === itemIds.length:
@@ -102,19 +120,17 @@ export const useMillerColumns = ({
             return CheckStatus.nochecked
         }
       },
-      getCheckedCount(item: ItemType) {
-        return itemMap.getItemSelectedChildCount(item.id)
-      },
       onExpandItem(item: ItemType) {
-        if (!item.items?.length) {
+        if (item.type === 'leaf') {
           return
         }
+        onExpandItem?.(item)
         onActiveItemId ? onActiveItemId(item.id) : setActiveItemId(item.id)
       },
       onSelectItem(item: ItemType) {
         let newIds: Array<ItemType['id']>
         let targetIds: Array<ItemType['id']> = [item.id]
-        const itemIds = item.items?.map((it) => it.id) ?? []
+        const itemIds = item.items.map((it) => it.id)
 
         const collect = (id: ItemType['id']) => {
           targetIds.push(id)
@@ -126,21 +142,21 @@ export const useMillerColumns = ({
 
         itemIds.forEach((id) => collect(id))
 
-        const isRemoveExistedItem = !!selectedItemIds?.includes(item.id)
+        const isRemoveExistedItem = !!selectedItemIds.includes(item.id)
 
         if (isRemoveExistedItem) {
           const parentItem = itemMap.getItemParent(item.id)
           const deleteIds = [parentItem?.id, ...targetIds].filter(Boolean)
           newIds =
-            selectedItemIds?.filter((id) => !deleteIds.includes(id)) ?? []
+            selectedItemIds.filter((id) => !deleteIds.includes(id)) ?? []
         } else {
           const parentItem = itemMap.getItemParent(item.id)
           const addIds = targetIds.filter(
-            (id) => !selectedItemIds?.includes(id)
+            (id) => !selectedItemIds.includes(id)
           )
 
           if (parentItem) {
-            const parentChildIds = parentItem.items?.map((it) => it.id) ?? []
+            const parentChildIds = parentItem.items.map((it) => it.id)
             const parentSelectedIds = parentChildIds.filter((id) =>
               [...(selectedItemIds ?? []), item.id].includes(id)
             )
@@ -163,7 +179,7 @@ export const useMillerColumns = ({
       onSelectAllItem(column: ColumnType) {
         let newIds: Array<ItemType['id']>
         let targetIds: Array<ItemType['id']> = []
-        const itemIds = column.items?.map((it) => it.id) ?? []
+        const itemIds = column.items.map((it) => it.id)
 
         const collect = (id: ItemType['id']) => {
           targetIds.push(id)
@@ -176,16 +192,16 @@ export const useMillerColumns = ({
         itemIds.forEach((id) => collect(id))
 
         const isRemoveExistedItems =
-          itemIds.filter((id) => selectedItemIds?.includes(id)).length ===
+          itemIds.filter((id) => selectedItemIds.includes(id)).length ===
           itemIds.length
 
         if (isRemoveExistedItems) {
           const deleteIds = [...targetIds, column.parentId].filter(Boolean)
           newIds =
-            selectedItemIds?.filter((id) => !deleteIds.includes(id)) ?? []
+            selectedItemIds.filter((id) => !deleteIds.includes(id)) ?? []
         } else {
           const addIds = targetIds.filter(
-            (id) => !selectedItemIds?.includes(id)
+            (id) => !selectedItemIds.includes(id)
           )
 
           if (column.parentId) {

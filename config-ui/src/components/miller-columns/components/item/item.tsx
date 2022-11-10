@@ -37,7 +37,6 @@ export const Item = ({
   item,
   status = RowStatus.noselected,
   checkStatus = CheckStatus.nochecked,
-  checkedCount = 0,
   onExpandItem,
   onSelectItem
 }: Props) => {
@@ -57,11 +56,6 @@ export const Item = ({
     >
       <Checkbox status={checkStatus} onClick={handleCheckboxClick} />
       <span className='title'>{item.title}</span>
-      {!!item.total && (
-        <span className='count'>
-          ({checkedCount}/{item.total})
-        </span>
-      )}
     </S.Wrapper>
   )
 }

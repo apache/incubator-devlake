@@ -21,64 +21,62 @@ import React from 'react'
 import { useMillerColumns, UseMillerColumnsProps } from './hooks'
 import { Item, ItemAll } from './components'
 
+import { ColumnType } from './types'
 import * as S from './styled'
 
 interface Props extends UseMillerColumnsProps {
   height?: number
   firstColumnTitle?: React.ReactNode
+  renderColumnBottom?: (col: ColumnType) => React.ReactNode
 }
 
 export const MillerColumns = ({
-  items,
-  activeItemId,
-  onActiveItemId,
-  selectedItemIds,
-  onSelectedItemIds,
   firstColumnTitle,
+  height,
+  renderColumnBottom,
   ...props
 }: Props) => {
   const {
     columns,
     getStatus,
     getChekecdStatus,
-    getCheckedCount,
     onExpandItem,
     onSelectItem,
     getCheckedAllStatus,
     onSelectAllItem
-  } = useMillerColumns({
-    items,
-    activeItemId,
-    onActiveItemId,
-    selectedItemIds,
-    onSelectedItemIds
-  })
+  } = useMillerColumns(props)
 
   return (
-    <S.Container {...props}>
-      {columns.map((col, i) => (
-        <div key={col.parentId} className='items'>
-          {i === 0 && firstColumnTitle && (
-            <div className='title'>{firstColumnTitle}</div>
-          )}
-          <ItemAll
-            column={col}
-            checkStatus={getCheckedAllStatus(col)}
-            onSelectAllItem={onSelectAllItem}
-          />
-          {col.items?.map((it) => (
-            <Item
-              key={it.id}
-              item={it}
-              status={getStatus(it)}
-              checkStatus={getChekecdStatus(it)}
-              checkedCount={getCheckedCount(it)}
-              onExpandItem={onExpandItem}
-              onSelectItem={onSelectItem}
-            />
-          ))}
-        </div>
-      ))}
+    <S.Container>
+      {columns.map((col, i) => {
+        const bottom = renderColumnBottom?.(col)
+
+        return (
+          <S.Column key={col.parentId} height={height}>
+            {i === 0 && firstColumnTitle && (
+              <div className='title'>{firstColumnTitle}</div>
+            )}
+            {!!col.items.length && (
+              <ItemAll
+                column={col}
+                checkStatus={getCheckedAllStatus(col)}
+                onSelectAllItem={onSelectAllItem}
+              />
+            )}
+            {col.items.map((it) => (
+              <Item
+                key={it.id}
+                item={it}
+                status={getStatus(it)}
+                checkStatus={getChekecdStatus(it)}
+                onExpandItem={onExpandItem}
+                onSelectItem={onSelectItem}
+              />
+            ))}
+            {bottom}
+          </S.Column>
+        )
+      })}
     </S.Container>
   )
 }

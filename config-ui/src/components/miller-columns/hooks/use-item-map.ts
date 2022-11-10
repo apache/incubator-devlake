@@ -39,8 +39,7 @@ export const useItemMap = ({ items, selectedItemIds = [] }: Props) => {
       if (!itemMap.has(item.id)) {
         itemMap.set(item.id, {
           item,
-          parentId: parent?.id,
-          selectedChildCount: 0
+          parentId: parent?.id
         })
       }
 
@@ -50,22 +49,10 @@ export const useItemMap = ({ items, selectedItemIds = [] }: Props) => {
     }
 
     items.forEach((it) => collect({ item: it }))
-    selectedItemIds.forEach((id) => {
-      const childTotal = itemMap.get(id)?.item.total ?? 0
-      const addedCount = childTotal + 1
-      const parentId = itemMap.get(id)?.parentId
-      const parent = parentId ? itemMap.get(parentId) : null
-      if (parent) {
-        parent.selectedChildCount += addedCount
-      }
-    })
 
     return {
       getItem(id: ItemType['id']) {
         return (itemMap.get(id) as ItemInfoType).item
-      },
-      getItemSelectedChildCount(id: ItemType['id']) {
-        return (itemMap.get(id) as ItemInfoType).selectedChildCount
       },
       getItemParent(id: ItemType['id']) {
         const parentId = itemMap.get(id)?.parentId
