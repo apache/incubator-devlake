@@ -18,6 +18,7 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/models/common"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
@@ -80,31 +81,13 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 	dataflowTester.Subtask(tasks.ConvertPipelineMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertPipelineCommitMeta, taskData)
-	dataflowTester.VerifyTable(
-		devops.CICDPipeline{},
-		"./snapshot_tables/cicd_pipelines.csv",
-		e2ehelper.ColumnWithRawData(
-			"id",
-			"name",
-			"result",
-			"status",
-			"type",
-			"duration_sec",
-			"created_date",
-			"finished_date",
-			"environment",
-		),
-	)
+	dataflowTester.VerifyTableWithOptions(&devops.CICDPipeline{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_pipelines.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 
-	dataflowTester.VerifyTable(
-		devops.CiCDPipelineCommit{},
-		"./snapshot_tables/cicd_pipeline_commits.csv",
-		e2ehelper.ColumnWithRawData(
-			"pipeline_id",
-			"commit_sha",
-			"branch",
-			"repo_id",
-			"repo_url",
-		),
-	)
+	dataflowTester.VerifyTableWithOptions(&devops.CiCDPipelineCommit{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_pipeline_commits.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

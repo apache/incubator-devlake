@@ -18,6 +18,8 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
@@ -74,6 +76,7 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 	// verify conversion
 	dataflowTester.FlushTabler(&code.Repo{})
 	dataflowTester.FlushTabler(&ticket.Board{})
+	dataflowTester.FlushTabler(&devops.CicdScope{})
 	dataflowTester.FlushTabler(&crossdomain.BoardRepo{})
 	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -111,4 +114,9 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 			"repo_id",
 		),
 	)
+
+	dataflowTester.VerifyTableWithOptions(&devops.CicdScope{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_scopes.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }
