@@ -29,5 +29,6 @@ func All() []core.MigrationScript {
 		new(modifyJenkinsBuild),
 		new(addJobFields),
 		new(addJobPathForBuilds),
+		new(changeIndexOfJobPath),
 	}
 }

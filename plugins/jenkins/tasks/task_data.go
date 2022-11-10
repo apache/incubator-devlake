@@ -45,6 +45,7 @@ type JenkinsTaskData struct {
 	ApiClient  *helper.ApiAsyncClient
 	Connection *models.JenkinsConnection
 	Since      *time.Time
+	Job        *models.JenkinsJob
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptions, errors.Error) {

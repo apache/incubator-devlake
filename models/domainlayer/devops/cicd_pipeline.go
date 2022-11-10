@@ -33,6 +33,7 @@ type CICDPipeline struct {
 	Environment  string `gorm:"type:varchar(255)"`
 	CreatedDate  time.Time
 	FinishedDate *time.Time
+	CicdScopeId  string `gorm:"index;type:varchar(255)"`
 }
 
 func (CICDPipeline) TableName() string {

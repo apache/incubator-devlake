@@ -37,6 +37,7 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 			JobName:      `devlake`,
 			JobPath:      `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
 		},
+		Job: &models.JenkinsJob{FullName: "Test-jenkins-dir » test-jenkins-sub-dir » test-sub-sub-dir » devlake"},
 	}
 
 	// import raw data table
@@ -85,6 +86,7 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 			"started_date",
 			"finished_date",
 			"environment",
+			"cicd_scope_id",
 		),
 	)
 }

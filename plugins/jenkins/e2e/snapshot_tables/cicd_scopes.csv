@@ -1,0 +1,2 @@
+id,name,description,url,created_date,updated_date
+jenkins:JenkinsJob:1:Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/test-job,Test-jenkins-dir/test-jenkins-sub-dir/test-sub-sub-dir/test-job,12121,https://jenkins-zjk.merico.cn/job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/job/test-job/,,
