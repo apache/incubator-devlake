@@ -69,6 +69,7 @@ func TestTapdBugCommitDataFlow(t *testing.T) {
 			"commit_time",
 			"created",
 			"bug_id",
+			"issue_updated",
 		),
 	)
 

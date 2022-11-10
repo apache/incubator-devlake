@@ -44,7 +44,7 @@ func ConvertTaskCommit(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
+	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdTask{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdTaskCommit{}),

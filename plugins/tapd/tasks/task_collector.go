@@ -75,7 +75,7 @@ func CollectTasks(taskCtx core.SubTaskContext) errors.Error {
 			query.Set("fields", "labels")
 			query.Set("order", "created asc")
 			if since != nil {
-				query.Set("modified", fmt.Sprintf(">%v", since.Format("YYYY-MM-DD")))
+				query.Set("modified", fmt.Sprintf(">%s", since.In(data.Options.CstZone).Format("2006-01-02")))
 			}
 			return query, nil
 		},
