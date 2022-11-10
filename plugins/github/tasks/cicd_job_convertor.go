@@ -72,6 +72,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 	defer cursor.Close()
 	jobIdGen := didgen.NewDomainIdGenerator(&models.GithubJob{})
 	runIdGen := didgen.NewDomainIdGenerator(&models.GithubRun{})
+	repoIdGen := didgen.NewDomainIdGenerator(&models.GithubRepo{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -94,6 +95,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 				StartedDate:  *line.StartedAt,
 				FinishedDate: line.CompletedAt,
 				PipelineId:   runIdGen.Generate(data.Options.ConnectionId, line.RepoId, line.RunID),
+				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
 			}
 			if deployTagRegexp != nil {
 				if deployFlag := deployTagRegexp.FindString(line.Name); deployFlag != "" {

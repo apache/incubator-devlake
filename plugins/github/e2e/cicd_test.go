@@ -18,6 +18,7 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/models/common"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -52,83 +53,21 @@ func TestGithubCICDDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 
 	dataflowTester.Subtask(tasks.ExtractRunsMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.GithubRun{},
-		"./snapshot_tables/_tool_github_runs.csv",
-		[]string{
-			"connection_id",
-			"repo_id",
-			"id",
-			"name",
-			"node_id",
-			"head_branch",
-			"head_sha",
-			"path",
-			"run_number",
-			"event",
-			"status",
-			"conclusion",
-			"workflow_id",
-			"check_suite_id",
-			"check_suite_node_id",
-			"url",
-			"html_url",
-			"github_created_at",
-			"github_updated_at",
-			"run_attempt",
-			"run_started_at",
-			"jobs_url",
-			"logs_url",
-			"check_suite_url",
-			"artifacts_url",
-			"cancel_url",
-			"rerun_url",
-			"workflow_url",
-			"type",
-
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
+	dataflowTester.VerifyTableWithOptions(&models.GithubRun{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_github_runs.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 
 	dataflowTester.Subtask(tasks.ConvertRunsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&devops.CICDPipeline{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_pipelines.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 
-	dataflowTester.VerifyTable(
-		&devops.CICDPipeline{},
-		"./snapshot_tables/cicd_pipelines.csv",
-		[]string{
-			"name",
-			"result",
-			"status",
-			"type",
-			"duration_sec",
-			"environment",
-			"created_date",
-			"finished_date",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-
-	dataflowTester.VerifyTable(
-		&devops.CiCDPipelineCommit{},
-		"./snapshot_tables/cicd_pipeline_commits.csv",
-		[]string{
-			"pipeline_id",
-			"commit_sha",
-			"branch",
-			"repo_id",
-			"repo_url",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
+	dataflowTester.VerifyTableWithOptions(&devops.CiCDPipelineCommit{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_pipeline_commits.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 
 	// import raw data table
 	// SELECT * FROM _raw_github_api_jobs INTO OUTFILE "/tmp/_raw_github_api_jobs.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
@@ -139,54 +78,14 @@ func TestGithubCICDDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&devops.CICDTask{})
 
 	dataflowTester.Subtask(tasks.ExtractJobsMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.GithubJob{},
-		"./snapshot_tables/_tool_github_jobs.csv",
-		[]string{
-			"connection_id",
-			"repo_id",
-			"id",
-			"run_id",
-			"run_url",
-			"node_id",
-			"head_sha",
-			"url",
-			"status",
-			"conclusion",
-			"started_at",
-			"completed_at",
-			"name",
-			"steps",
-			"check_run_url",
-			"labels",
-			"runner_id",
-			"runner_name",
-			"runner_group_id",
-			"type",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
+	dataflowTester.VerifyTableWithOptions(&models.GithubJob{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/_tool_github_jobs.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 
 	dataflowTester.Subtask(tasks.ConvertJobsMeta, taskData)
-	dataflowTester.VerifyTable(
-		devops.CICDTask{},
-		"./snapshot_tables/cicd_tasks.csv",
-		[]string{
-			"name",
-			"pipeline_id",
-			"result",
-			"status",
-			"type",
-			"duration_sec",
-			"started_date",
-			"finished_date",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
+	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_tasks.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

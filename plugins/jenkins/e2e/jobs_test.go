@@ -66,7 +66,6 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 		),
 	)
 
-	// verify extraction
 	dataflowTester.FlushTabler(&devops.CicdScope{})
 	dataflowTester.Subtask(tasks.ConvertJobsMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&devops.CicdScope{}, e2ehelper.TableOptions{
