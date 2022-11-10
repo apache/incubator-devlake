@@ -261,6 +261,45 @@ func TransformTable[S any, D any](
 	return err
 }
 
+// CopyTableColumn can copy data from src table to dst table
+func CopyTableColumn[S any, D any](
+	basicRes core.BasicRes,
+	srcTableName string,
+	dstTableName string,
+	transform func(*S) (*D, errors.Error),
+) (err errors.Error) {
+	db := basicRes.GetDal()
+	cursor, err := db.Cursor(dal.From(srcTableName))
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", srcTableName))
+	}
+	defer cursor.Close()
+	batch, err := helper.NewBatchSave(basicRes, reflect.TypeOf(new(D)), 200, dstTableName)
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("failed to instantiate BatchSave for table [%s]", srcTableName))
+	}
+	defer batch.Close()
+
+	srcTable := new(S)
+	for cursor.Next() {
+		err = db.Fetch(cursor, srcTable)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("fail to load record from table [%s]", srcTableName))
+		}
+
+		dst, err := transform(srcTable)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to transform row %v", srcTable))
+		}
+		err = batch.Add(dst)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("push to BatchSave failed %v", dstTableName))
+		}
+	}
+
+	return err
+}
+
 func hashScript(script core.MigrationScript) string {
 	hasher := md5.New()
 	_, err := hasher.Write([]byte(fmt.Sprintf("%s:%v", script.Name(), script.Version())))
