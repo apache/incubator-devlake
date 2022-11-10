@@ -17,4 +17,3 @@
  */
 
 export * from './miller-columns'
-export * from './hooks/use-test'
