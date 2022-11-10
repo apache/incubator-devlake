@@ -42,6 +42,7 @@ var _ core.PluginMeta = (*GithubGraphql)(nil)
 var _ core.PluginInit = (*GithubGraphql)(nil)
 var _ core.PluginTask = (*GithubGraphql)(nil)
 var _ core.PluginApi = (*GithubGraphql)(nil)
+var _ core.CloseablePluginTask = (*GithubGraphql)(nil)
 
 // PluginEntry exports a symbol for Framework to load
 var PluginEntry GithubGraphql //nolint
@@ -60,12 +61,20 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
 		tasks.CollectRepoMeta,
 
+		// collect millstones
 		githubTasks.CollectMilestonesMeta,
 		githubTasks.ExtractMilestonesMeta,
 
+		// collect issue & pr, deps on millstone
 		tasks.CollectIssueMeta,
 		tasks.CollectPrMeta,
 
+		// collect workflow run & job
+		githubTasks.CollectRunsMeta,
+		githubTasks.ExtractRunsMeta,
+		tasks.CollectCheckRunMeta,
+
+		// collect others
 		githubTasks.CollectApiCommentsMeta,
 		githubTasks.ExtractApiCommentsMeta,
 		githubTasks.CollectApiEventsMeta,
@@ -73,8 +82,11 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 		githubTasks.CollectApiPrReviewCommentsMeta,
 		githubTasks.ExtractApiPrReviewCommentsMeta,
 
+		// collect account, deps on all before
 		tasks.CollectAccountMeta,
 
+		// convert to domain layer
+		githubTasks.ConvertRunsMeta,
 		githubTasks.ConvertJobsMeta,
 		githubTasks.EnrichPullRequestIssuesMeta,
 		githubTasks.ConvertRepoMeta,
