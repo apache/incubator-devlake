@@ -19,6 +19,7 @@ package dalgorm
 
 import (
 	"database/sql"
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -120,7 +121,7 @@ func (d *Dalgorm) AutoMigrate(entity interface{}, clauses ...dal.Clause) errors.
 }
 
 // Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
-func (d *Dalgorm) Cursor(clauses ...dal.Clause) (*sql.Rows, errors.Error) {
+func (d *Dalgorm) Cursor(clauses ...dal.Clause) (dal.Rows, errors.Error) {
 	return errors.Convert01(buildTx(d.db, clauses).Rows())
 }
 
@@ -130,8 +131,12 @@ func (d *Dalgorm) CursorTx(clauses ...dal.Clause) *gorm.DB {
 }
 
 // Fetch loads row data from `cursor` into `dst`
-func (d *Dalgorm) Fetch(cursor *sql.Rows, dst interface{}) errors.Error {
-	return errors.Convert(d.db.ScanRows(cursor, dst))
+func (d *Dalgorm) Fetch(cursor dal.Rows, dst interface{}) errors.Error {
+	if rows, ok := cursor.(*sql.Rows); ok {
+		return errors.Convert(d.db.ScanRows(rows, dst))
+	} else {
+		return errors.Default.New(fmt.Sprintf("can not support type %s to be a dal.Rows interface", reflect.TypeOf(cursor).String()))
+	}
 }
 
 // All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!

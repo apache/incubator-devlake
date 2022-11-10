@@ -73,6 +73,7 @@ func (script *fixCommitFileIdTooLong) Up(basicRes core.BasicRes) errors.Error {
 	if err != nil {
 		return err
 	}
+
 	// migrate related table
 	return migrationhelper.TransformTable(
 		basicRes,

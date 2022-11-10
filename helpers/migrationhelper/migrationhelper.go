@@ -196,12 +196,13 @@ func TransformTable[S any, D any](
 	// rollback for error
 	defer func() {
 		if err != nil {
-			err = db.RenameTable(tmpTableName, tableName)
-			if err != nil {
+			err1 := db.RenameTable(tmpTableName, tableName)
+			if err1 != nil {
 				msg := fmt.Sprintf(
-					"fail to rollback table [%s] to [%s], you may have to do it manually",
+					"fail to rollback table [%s] to [%s]:[%s], you may have to do it manually",
 					tmpTableName,
 					tableName,
+					err1.Error(),
 				)
 				err = errors.Default.Wrap(err, msg)
 			}
@@ -216,11 +217,12 @@ func TransformTable[S any, D any](
 	// rollback for error
 	defer func() {
 		if err != nil {
-			err = db.DropTables(tableName)
-			if err != nil {
+			err1 := db.DropTables(tableName)
+			if err1 != nil {
 				msg := fmt.Sprintf(
-					"fail to drop table [%s], you may have to do it manually",
+					"fail to drop table [%s]:[%s], you may have to do it manually",
 					tableName,
+					err1.Error(),
 				)
 				err = errors.Default.Wrap(err, msg)
 			}

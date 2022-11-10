@@ -76,9 +76,9 @@ type Dal interface {
 	// Exec executes raw sql query
 	Exec(query string, params ...interface{}) errors.Error
 	// Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
-	Cursor(clauses ...Clause) (*sql.Rows, errors.Error)
+	Cursor(clauses ...Clause) (Rows, errors.Error)
 	// Fetch loads row data from `cursor` into `dst`
-	Fetch(cursor *sql.Rows, dst interface{}) errors.Error
+	Fetch(cursor Rows, dst interface{}) errors.Error
 	// All loads matched rows from database to `dst`, USE IT WITH CAUTIOUS!!
 	All(dst interface{}, clauses ...Clause) errors.Error
 	// First loads first matched row from database to `dst`, error will be returned if no records were found
@@ -119,6 +119,34 @@ type Dal interface {
 	DropIndexes(table string, indexes ...string) errors.Error
 	// Dialect returns the dialect of current database
 	Dialect() string
+}
+
+type Rows interface {
+	// Next prepares the next result row for reading with the Scan method. It
+	// returns true on success, or false if there is no next result row or an error
+	// happened while preparing it. Err should be consulted to distinguish between
+	// the two cases.
+	//
+	// Every call to Scan, even the first one, must be preceded by a call to Next.
+	Next() bool
+
+	// Close closes the Rows, preventing further enumeration. If Next is called
+	// and returns false and there are no further result sets,
+	// the Rows are closed automatically and it will suffice to check the
+	// result of Err. Close is idempotent and does not affect the result of Err.
+	Close() error
+
+	// Scan copies the columns in the current row into the values pointed at by dest.
+	// The number of values in dest must be the same as the number of columns in Rows.
+	Scan(dest ...any) error
+
+	// Columns returns the column names.
+	// Columns returns an error if the rows are closed.
+	Columns() ([]string, error)
+
+	// ColumnTypes returns column information such as column type, length,
+	// and nullable. Some information may not be available from some drivers.
+	ColumnTypes() ([]*sql.ColumnType, error)
 }
 
 // GetColumnNames returns table Column Names in database
