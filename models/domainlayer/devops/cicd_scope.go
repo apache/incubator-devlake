@@ -19,8 +19,11 @@ package devops
 
 import (
 	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"time"
 )
+
+var _ core.Scope = (*CicdScope)(nil)
 
 type CicdScope struct {
 	domainlayer.DomainEntity
@@ -33,4 +36,12 @@ type CicdScope struct {
 
 func (CicdScope) TableName() string {
 	return "cicd_scopes"
+}
+
+func (r *CicdScope) ScopeId() string {
+	return r.Id
+}
+
+func (r *CicdScope) ScopeName() string {
+	return r.Name
 }

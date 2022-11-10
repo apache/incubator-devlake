@@ -92,6 +92,8 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 	defer cursor.Close()
 	stageIdGen := didgen.NewDomainIdGenerator(&models.JenkinsStage{})
 	buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
+	jobIdGen := didgen.NewDomainIdGenerator(&models.JenkinsJob{})
+
 	convertor, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(JenkinsBuildWithRepoStage{}),
 		Input:        cursor,
@@ -141,6 +143,7 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 				DurationSec:  uint64(body.DurationMillis / 1000),
 				StartedDate:  time.Unix(durationSec, 0),
 				FinishedDate: jenkinsTaskFinishedDate,
+				CicdScopeId:  jobIdGen.Generate(body.ConnectionId, data.Job.FullName),
 			}
 			if deployTagRegexp != nil {
 				if deployFlag := deployTagRegexp.FindString(body.Name); deployFlag != "" {
