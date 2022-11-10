@@ -43,6 +43,9 @@ type GraphqlQueryCheckSuite struct {
 	Id         string
 	Typename   string `graphql:"__typename"`
 	CheckSuite struct {
+		WorkflowRun struct {
+			DatabaseId int
+		}
 		CheckRuns struct {
 			TotalCount int
 			Nodes      []struct {
@@ -63,14 +66,13 @@ type GraphqlQueryCheckSuite struct {
 				Steps struct {
 					TotalCount int
 					Nodes      []struct {
-						CompletedAt         *time.Time
-						Conclusion          string
-						ExternalId          string
-						Name                string
-						Number              int
-						SecondsToCompletion int
-						StartedAt           *time.Time
-						Status              string
+						CompletedAt         *time.Time `json:"completed_at"`
+						Conclusion          string     `json:"conclusion"`
+						Name                string     `json:"name"`
+						Number              int        `json:"number"`
+						SecondsToCompletion int        `json:"seconds_to_completion"`
+						StartedAt           *time.Time `json:"started_at"`
+						Status              string     `json:"status"`
 					}
 				} `graphql:"steps(first: 50)"`
 			}
@@ -120,14 +122,14 @@ func CollectCheckRun(taskCtx core.SubTaskContext) errors.Error {
 			Table: RAW_CHECK_RUNS_TABLE,
 		},
 		Input:         iterator,
-		InputStep:     30,
+		InputStep:     60,
 		GraphqlClient: data.GraphqlClient,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
-			accounts := reqData.Input.([]interface{})
+			workflowRuns := reqData.Input.([]interface{})
 			query := &GraphqlQueryCheckRunWrapper{}
 			checkSuiteIds := []map[string]interface{}{}
-			for _, iAccount := range accounts {
-				workflowRun := iAccount.(*SimpleWorkflowRun)
+			for _, iWorkflowRuns := range workflowRuns {
+				workflowRun := iWorkflowRuns.(*SimpleWorkflowRun)
 				checkSuiteIds = append(checkSuiteIds, map[string]interface{}{
 					`id`: graphql.ID(workflowRun.CheckSuiteNodeID),
 				})
@@ -155,6 +157,7 @@ func CollectCheckRun(taskCtx core.SubTaskContext) errors.Error {
 					}
 					githubJob := &models.GithubJob{
 						ConnectionId: data.Options.ConnectionId,
+						RunID:        node.CheckSuite.WorkflowRun.DatabaseId,
 						RepoId:       data.Repo.GithubId,
 						ID:           checkRun.DatabaseId,
 						NodeID:       checkRun.Id,
@@ -166,7 +169,6 @@ func CollectCheckRun(taskCtx core.SubTaskContext) errors.Error {
 						Name:         checkRun.Name,
 						Steps:        paramsBytes,
 						// these columns can not fill by graphql
-						//RunID:         ``,  // use _tool_github_runs
 						//HeadSha:       ``,  // use _tool_github_runs
 						//RunURL:        ``,
 						//CheckRunURL:   ``,

@@ -61,16 +61,20 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
 		tasks.CollectRepoMeta,
 
+		// collect millstones
 		githubTasks.CollectMilestonesMeta,
 		githubTasks.ExtractMilestonesMeta,
 
+		// collect issue & pr, deps on millstone
 		tasks.CollectIssueMeta,
 		tasks.CollectPrMeta,
 
+		// collect workflow run & job
 		githubTasks.CollectRunsMeta,
 		githubTasks.ExtractRunsMeta,
 		tasks.CollectCheckRunMeta,
 
+		// collect others
 		githubTasks.CollectApiCommentsMeta,
 		githubTasks.ExtractApiCommentsMeta,
 		githubTasks.CollectApiEventsMeta,
@@ -78,8 +82,10 @@ func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 		githubTasks.CollectApiPrReviewCommentsMeta,
 		githubTasks.ExtractApiPrReviewCommentsMeta,
 
+		// collect account, deps on all before
 		tasks.CollectAccountMeta,
 
+		// convert to domain layer
 		githubTasks.ConvertRunsMeta,
 		githubTasks.ConvertJobsMeta,
 		githubTasks.EnrichPullRequestIssuesMeta,
