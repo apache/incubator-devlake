@@ -53,6 +53,7 @@ func TestTapdStoryBugDataFlow(t *testing.T) {
 			"workspace_id",
 			"story_id",
 			"bug_id",
+			"issue_updated",
 		),
 	)
 

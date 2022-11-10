@@ -67,8 +67,7 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) errors.Error {
 	customStatusMap := getStatusMapping(data)
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdStoryChangelog{})
-	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
-	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
+	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdStory{})
 
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.story_id, tc.creator, _tool_tapd_story_changelog_items.*"),
@@ -94,7 +93,7 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) errors.Error {
 					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Options.ConnectionId, cl.Id), cl.Field),
 				},
 				IssueId:           issueIdGen.Generate(data.Options.ConnectionId, cl.StoryId),
-				AuthorId:          accountIdGen.Generate(data.Options.ConnectionId, cl.Creator),
+				AuthorId:          getAccountIdGen().Generate(data.Options.ConnectionId, cl.Creator),
 				AuthorName:        cl.Creator,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,

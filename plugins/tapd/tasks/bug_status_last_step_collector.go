@@ -34,12 +34,11 @@ func CollectBugStatusLastStep(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_STATUS_LAST_STEP_TABLE, false)
 	logger := taskCtx.GetLogger()
 	logger.Info("collect bugStatus")
-
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
-		PageSize:           100,
-		UrlTemplate:        "workflows/last_steps",
+
+		UrlTemplate: "workflows/last_steps",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))

@@ -19,28 +19,20 @@ package tasks
 
 import (
 	"encoding/json"
-	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"gorm.io/gorm"
-	"net/http"
-	"net/url"
-	"reflect"
-	"time"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"net/http"
+	"net/url"
+	"reflect"
 )
 
 const RAW_TASK_COMMIT_TABLE = "tapd_api_task_commits"
 
 var _ core.SubTaskEntryPoint = CollectTaskCommits
-
-type SimpleTask struct {
-	Id uint64
-}
 
 func CollectTaskCommits(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_COMMIT_TABLE, false)
@@ -48,28 +40,10 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issueCommits")
 	since := data.Since
-	incremental := false
-	if since == nil {
-		// user didn't specify a time range to sync, try load from database
-		var latestUpdated models.TapdTaskCommit
-		clauses := []dal.Clause{
-			dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
-			dal.Orderby("created DESC"),
-		}
-		err := db.First(&latestUpdated, clauses...)
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
-			return errors.NotFound.Wrap(err, "failed to get latest tapd changelog record")
-		}
-		if latestUpdated.Id > 0 {
-			since = (*time.Time)(latestUpdated.Created)
-			incremental = true
-		}
-	}
-
 	clauses := []dal.Clause{
-		dal.Select("id"),
+		dal.Select("_tool_tapd_tasks.id as issue_id, modified as update_time"),
 		dal.From(&models.TapdTask{}),
-		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
+		dal.Where("_tool_tapd_tasks.connection_id = ? and _tool_tapd_tasks.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
 	if since != nil {
 		clauses = append(clauses, dal.Where("modified > ?", since))
@@ -78,23 +52,23 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleTask{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.Input{}))
 	if err != nil {
 		return err
 	}
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Incremental:        incremental,
+		Incremental:        since == nil,
 		ApiClient:          data.ApiClient,
 		//PageSize:    100,
 		Input:       iterator,
 		UrlTemplate: "code_commit_infos",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			input := reqData.Input.(*SimpleTask)
+			input := reqData.Input.(*models.Input)
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("type", "task")
-			query.Set("object_id", fmt.Sprintf("%v", input.Id))
+			query.Set("object_id", fmt.Sprintf("%v", input.IssueId))
 			query.Set("order", "created asc")
 			return query, nil
 		},

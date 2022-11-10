@@ -30,6 +30,7 @@ type TapdOptions struct {
 	CompanyId           uint64   `mapstruct:"companyId"`
 	Tasks               []string `mapstruct:"tasks,omitempty"`
 	Since               string
+	CstZone             *time.Location
 	TransformationRules TransformationRules `json:"transformationRules"`
 }
 

@@ -71,7 +71,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) errors.Error {
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("order", "created asc")
 			if since != nil {
-				query.Set("created", fmt.Sprintf(">%v", since.Format("YYYY-MM-DD")))
+				query.Set("created", fmt.Sprintf(">%s", since.In(data.Options.CstZone).Format("2006-01-02")))
 			}
 			return query, nil
 		},

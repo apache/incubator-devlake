@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -54,6 +55,7 @@ func ConvertTaskLabels(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
+	taskIdGen := didgen.NewDomainIdGenerator(&models.TapdTask{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -62,7 +64,7 @@ func ConvertTaskLabels(taskCtx core.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			issueLabel := inputRow.(*models.TapdTaskLabel)
 			domainTaskLabel := &ticket.IssueLabel{
-				IssueId:   IssueIdGen.Generate(issueLabel.TaskId),
+				IssueId:   taskIdGen.Generate(issueLabel.TaskId),
 				LabelName: issueLabel.LabelName,
 			}
 			return []interface{}{

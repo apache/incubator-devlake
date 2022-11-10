@@ -183,7 +183,7 @@ func TransformTable[S any, D any](
 ) (err errors.Error) {
 	db := basicRes.GetDal()
 	tmpTableName := fmt.Sprintf("%s_%s", tableName, hashScript(script))
-
+	db.Dialect()
 	// rename the src to tmp in case of failure
 	err = db.RenameTable(tableName, tmpTableName)
 	if err != nil {
