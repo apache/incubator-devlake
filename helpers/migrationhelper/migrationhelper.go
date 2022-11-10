@@ -261,6 +261,51 @@ func TransformTable[S any, D any](
 	return err
 }
 
+// copy data from src table to dst table
+func CopyformTable(
+	basicRes core.BasicRes,
+	srcTable core.Tabler,
+	srcColumn []string,
+	dstTable core.Tabler,
+	dstColumn []string,
+) (err errors.Error) {
+	if len(srcColumn) != len(dstColumn) {
+		return errors.Default.Wrap(err, "the srcColumn length should be same to the dstColumn length")
+	}
+
+	db := basicRes.GetDal()
+	cursor, err := db.Cursor(dal.From(srcTable))
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", srcTable.TableName()))
+	}
+	defer cursor.Close()
+	batch, err := helper.NewBatchSave(basicRes, reflect.TypeOf(dstTable), 200, dstTable.TableName())
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("failed to instantiate BatchSave for table [%s]", dstTable.TableName()))
+	}
+	defer batch.Close()
+
+	for cursor.Next() {
+		err = db.Fetch(cursor, srcTable)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("fail to load record from table [%s]", srcTable.TableName()))
+		}
+
+		srcVal := reflect.ValueOf(srcTable).Elem()
+		dstVal := reflect.ValueOf(dstTable).Elem()
+		for i := 0; i < len(srcColumn); i++ {
+			dstVal.FieldByName(dstColumn[i]).Set(srcVal.FieldByName(srcColumn[i]))
+		}
+
+		err := db.CreateOrUpdate(dstTable)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("push to CreateOrUpdate failed %v", dstTable.TableName()))
+		}
+	}
+
+	return err
+}
+
 func hashScript(script core.MigrationScript) string {
 	hasher := md5.New()
 	_, err := hasher.Write([]byte(fmt.Sprintf("%s:%v", script.Name(), script.Version())))

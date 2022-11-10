@@ -27,51 +27,62 @@ var _ core.MigrationScript = (*modifyCommitsDiffs)(nil)
 
 type modifyCommitsDiffs struct{}
 
-type CommitsStatus20221109 struct {
+type FinishedCommitsDiffs20221109 struct {
 	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
 }
 
-func (CommitsStatus20221109) TableName() string {
-	return "commits_diffs_status"
+func (FinishedCommitsDiffs20221109) TableName() string {
+	return "finished_commits_diffs"
 }
 
-type CommitsDiff20221109Before struct {
-	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
-	NewCommitSha string `gorm:"type:varchar(40)"`
-	OldCommitSha string `gorm:"type:varchar(40)"`
-	SortingIndex int
+type RefsCommitsDiff20221109 struct {
+	NewRefId        string `gorm:"primaryKey;type:varchar(255)"`
+	OldRefId        string `gorm:"primaryKey;type:varchar(255)"`
+	CommitSha       string `gorm:"primaryKey;type:varchar(40)"`
+	NewRefCommitSha string `gorm:"type:varchar(40)"`
+	OldRefCommitSha string `gorm:"type:varchar(40)"`
+	SortingIndex    int
 }
 
-type CommitsDiff20221109After struct {
+func (RefsCommitsDiff20221109) TableName() string {
+	return "refs_commits_diffs"
+}
+
+type CommitsDiff20221109 struct {
 	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
 	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	SortingIndex int
+}
+
+func (CommitsDiff20221109) TableName() string {
+	return "commits_diffs"
 }
 
 func (script *modifyCommitsDiffs) Up(basicRes core.BasicRes) errors.Error {
 	db := basicRes.GetDal()
-	// rename table
-	err := db.RenameTable("refs_commits_diffs", "commits_diffs")
+	// create table
+	err := db.AutoMigrate(&CommitsDiff20221109{})
 	if err != nil {
 		return err
 	}
+
+	err = db.AutoMigrate(&FinishedCommitsDiffs20221109{})
+	if err != nil {
+		return err
+	}
+
+	srcColumn := []string{"CommitSha", "NewRefCommitSha", "OldRefCommitSha", "SortingIndex"}
+	dstColumn := []string{"CommitSha", "NewCommitSha", "OldCommitSha", "SortingIndex"}
+
 	// copy data
-	err = migrationhelper.TransformTable(
-		basicRes,
-		script,
-		"commits_diffs",
-		func(c *CommitsDiff20221109Before) (*CommitsDiff20221109After, errors.Error) {
-			dst := CommitsDiff20221109After(*c)
-			return &dst, nil
-		},
-	)
+	err = migrationhelper.CopyformTable(basicRes, &RefsCommitsDiff20221109{}, srcColumn, &CommitsDiff20221109{}, dstColumn)
 	if err != nil {
 		return err
 	}
-	// add new table: refs_commits_status
-	return db.AutoMigrate(&CommitsStatus20221109{})
+
+	return db.DropTables(&RefsCommitsDiff20221109{})
 }
 
 func (*modifyCommitsDiffs) Version() uint64 {
