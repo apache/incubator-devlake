@@ -77,7 +77,7 @@ func (script *modifyCommitsDiffs) Up(basicRes core.BasicRes) errors.Error {
 	dstColumn := []string{"CommitSha", "NewCommitSha", "OldCommitSha", "SortingIndex"}
 
 	// copy data
-	err = migrationhelper.CopyformTable(basicRes, &RefsCommitsDiff20221109{}, srcColumn, &CommitsDiff20221109{}, dstColumn)
+	err = migrationhelper.CopyTableColumn(basicRes, &RefsCommitsDiff20221109{}, srcColumn, &CommitsDiff20221109{}, dstColumn)
 	if err != nil {
 		return err
 	}

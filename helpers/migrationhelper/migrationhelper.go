@@ -261,8 +261,8 @@ func TransformTable[S any, D any](
 	return err
 }
 
-// copy data from src table to dst table
-func CopyformTable(
+// Copy data from src table to dst table
+func CopyTableColumn(
 	basicRes core.BasicRes,
 	srcTable core.Tabler,
 	srcColumn []string,
