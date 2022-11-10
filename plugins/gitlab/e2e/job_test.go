@@ -18,6 +18,7 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/models/common"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
@@ -71,20 +72,8 @@ func TestGitlabJobDataFlow(t *testing.T) {
 	// verify conversion
 	dataflowTester.FlushTabler(&devops.CICDTask{})
 	dataflowTester.Subtask(tasks.ConvertJobMeta, taskData)
-	dataflowTester.VerifyTable(
-		devops.CICDTask{},
-		"./snapshot_tables/cicd_tasks.csv",
-		e2ehelper.ColumnWithRawData(
-			"id",
-			"name",
-			"pipeline_id",
-			"result",
-			"status",
-			"type",
-			"duration_sec",
-			"started_date",
-			"finished_date",
-			"environment",
-		),
-	)
+	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_tasks.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }
