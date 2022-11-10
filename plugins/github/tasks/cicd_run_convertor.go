@@ -77,6 +77,7 @@ func ConvertRuns(taskCtx core.SubTaskContext) errors.Error {
 				Name:         line.Name,
 				CreatedDate:  *line.GithubCreatedAt,
 				FinishedDate: line.GithubUpdatedAt,
+				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
 			}
 			if strings.Contains(line.Conclusion, "success") {
 				domainPipeline.Result = devops.SUCCESS
