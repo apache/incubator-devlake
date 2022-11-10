@@ -16,5 +16,4 @@
  *
  */
 
-export * from './miller-columns'
-export * from './custom'
+export * from './gitlab'

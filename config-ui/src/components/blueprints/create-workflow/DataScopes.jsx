@@ -30,7 +30,8 @@ import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import BoardsSelector from '@/components/blueprints/BoardsSelector'
 import DataDomainsSelector from '@/components/blueprints/DataDomainsSelector'
 import NoData from '@/components/NoData'
-import GitlabProjectsSelector from '@/components/blueprints/GitlabProjectsSelector'
+import { GitLabMillerColumns } from '@/components/miller-columns'
+import GitlabProject from '@/models/GitlabProject'
 import GitHubProject from '@/models/GithubProject'
 import JenkinsJobsSelector from '@/components/blueprints/JenkinsJobsSelector'
 
@@ -212,17 +213,13 @@ const DataScopes = (props) => {
                     <>
                       <h4>Projects *</h4>
                       <p>Select the project you would like to sync.</p>
-                      <GitlabProjectsSelector
-                        onFetch={fetchGitlabProjects}
-                        isFetching={isFetchingGitlab}
-                        items={gitlabProjects}
-                        selectedItems={selectedScopeEntities}
-                        onItemSelect={setScopeEntities}
-                        onClear={setScopeEntities}
-                        onRemove={setScopeEntities}
-                        disabled={isSaving}
-                        configuredConnection={configuredConnection}
-                        isLoading={isFetching}
+                      <GitLabMillerColumns
+                        connectionId={configuredConnection.connectionId}
+                        onChangeItems={(items) =>
+                          setScopeEntities(
+                            items.map((it) => new GitlabProject(it))
+                          )
+                        }
                       />
                     </>
                   )}
