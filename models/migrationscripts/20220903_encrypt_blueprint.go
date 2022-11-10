@@ -27,52 +27,54 @@ import (
 	"gorm.io/gorm"
 )
 
+type Blueprint0903Before struct {
+	NewPlan     string `json:"plan"`
+	NewSettings string `json:"settings"`
+}
+
+func (Blueprint0903Before) TableName() string {
+	return "_devlake_blueprints"
+}
+
 type Blueprint0903Temp struct {
-	Name   string `json:"name" validate:"required"`
-	Mode   string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Enable bool   `json:"enable"`
+	NewPlan     string `json:"plan"`
+	NewSettings string `json:"settings"`
+	Name        string `json:"name" validate:"required"`
+	Mode        string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+	Plan        json.RawMessage
+	Enable      bool `json:"enable"`
 	//please check this https://crontab.guru/ for detail
 	CronConfig     string `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
 	IsManual       bool   `json:"isManual"`
+	Settings       json.RawMessage
 	archived.Model `swaggerignore:"true"`
-	Plan           string `json:"plan"`
-	Settings       string `json:"settings"`
 }
 
 func (Blueprint0903Temp) TableName() string {
-	return "_devlake_blueprints_tmp"
+	return "_devlake_blueprints"
 }
 
-type BlueprintOldVersion struct {
-	Name   string          `json:"name" validate:"required"`
-	Mode   string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Plan   json.RawMessage `json:"plan"`
-	Enable bool            `json:"enable"`
-	//please check this https://crontab.guru/ for detail
-	CronConfig     string          `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
-	IsManual       bool            `json:"isManual"`
-	Settings       json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
-	archived.Model `swaggerignore:"true"`
+type Blueprint0903TempAfter struct {
+	Plan        string
+	Settings    string
+	NewPlan     string
+	NewSettings string
 }
 
-func (BlueprintOldVersion) TableName() string {
+func (Blueprint0903TempAfter) TableName() string {
 	return "_devlake_blueprints"
 }
 
 type encryptBLueprint struct{}
 
 func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().CreateTable(&Blueprint0903Temp{})
+	err := db.AutoMigrate(&Blueprint0903Before{})
 	if err != nil {
 		return errors.Convert(err)
 	}
-	//nolint:errcheck
-	defer db.Migrator().DropTable(&Blueprint0903Temp{})
-
 	var result *gorm.DB
-	var blueprintList []BlueprintOldVersion
+	var blueprintList []Blueprint0903Temp
 	result = db.Find(&blueprintList)
-
 	if result.Error != nil {
 		return errors.Convert(result.Error)
 	}
@@ -84,40 +86,37 @@ func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		if encKey == "" {
 			return errors.BadInput.New("invalid encKey")
 		}
-		encryptedPlan, err := core.Encrypt(encKey, string(v.Plan))
+		v.NewPlan, err = core.Encrypt(encKey, string(v.Plan))
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
-		encryptedSettings, err := core.Encrypt(encKey, string(v.Settings))
+		v.NewSettings, err = core.Encrypt(encKey, string(v.Settings))
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
-		newBlueprint := &Blueprint0903Temp{
-			Name:       v.Name,
-			Mode:       v.Mode,
-			Enable:     v.Enable,
-			CronConfig: v.CronConfig,
-			IsManual:   v.IsManual,
-			Model:      archived.Model{ID: v.ID},
-			Plan:       encryptedPlan,
-			Settings:   encryptedSettings,
-		}
-		err = errors.Convert(db.Create(newBlueprint).Error)
+		err = errors.Convert(db.Save(&v).Error)
 		if err != nil {
-			return err
+			return errors.Convert(err)
 		}
 	}
-
-	err = db.Migrator().DropTable(&BlueprintOldVersion{})
+	err = db.Migrator().DropColumn(&Blueprint0903Temp{}, "plan")
 	if err != nil {
 		return errors.Convert(err)
 	}
 
-	err = db.Migrator().RenameTable(Blueprint0903Temp{}, BlueprintOldVersion{})
+	err = db.Migrator().DropColumn(&Blueprint0903Temp{}, "settings")
 	if err != nil {
 		return errors.Convert(err)
 	}
-
+	err = db.Migrator().RenameColumn(&Blueprint0903TempAfter{}, "new_plan", "plan")
+	if err != nil {
+		return errors.Convert(err)
+	}
+	err = db.Migrator().RenameColumn(&Blueprint0903TempAfter{}, "new_settings", "settings")
+	if err != nil {
+		return errors.Convert(err)
+	}
+	_ = db.Find(&blueprintList)
 	return nil
 }
 

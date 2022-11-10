@@ -20,14 +20,11 @@ package migrationscripts
 import (
 	"context"
 	"fmt"
-	"reflect"
 	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/jenkins/api"
 	"gorm.io/gorm"
 )
 
@@ -77,7 +74,7 @@ type JenkinsBuil0916 struct {
 }
 
 func (JenkinsBuil0916) TableName() string {
-	return "_tool_jenkins_builds"
+	return "_tool_jenkins_builds_new"
 }
 
 type JenkinsBuildRepo0916 struct {
@@ -92,23 +89,14 @@ func (*modifyJenkinsBuild) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	if err != nil {
 		return errors.Convert(err)
 	}
-	err = db.Migrator().RenameTable(&JenkinsBuildOld{}, "_tool_jenkins_builds_old")
-	if err != nil {
-		return errors.Default.Wrap(err, "fail to rename _tool_jenkins_builds")
-	}
 	err = db.Migrator().RenameTable(&JenkinsBuildRepo0916{}, "_tool_jenkins_build_commits")
 	if err != nil {
-		return errors.Default.Wrap(err, "fail to rename _tool_jenkins_builds")
+		return errors.Default.Wrap(err, "fail to rename _tool_jenkins_build_commits")
 	}
 	err = db.Migrator().AutoMigrate(&JenkinsBuil0916{})
 	if err != nil {
-		return errors.Default.Wrap(err, "fail to create _tool_jenkins_builds")
+		return errors.Default.Wrap(err, "fail to create _tool_jenkins_builds_new")
 	}
-	batch, err := helper.NewBatchSave(api.BasicRes, reflect.TypeOf(&JenkinsBuil0916{}), 300)
-	if err != nil {
-		return errors.Default.Wrap(err, "error getting batch from table")
-	}
-	defer batch.Close()
 	for cursor.Next() {
 		build := JenkinsBuildOld{}
 		err = db.ScanRows(cursor, &build)
@@ -137,15 +125,19 @@ func (*modifyJenkinsBuild) Up(ctx context.Context, db *gorm.DB) errors.Error {
 		} else {
 			newBuild.FullDisplayName = fmt.Sprintf("%s %s", build.JobName, build.DisplayName)
 		}
-		err = batch.Add(newBuild)
+		err = db.Save(newBuild).Error
 		if err != nil {
 			return errors.Convert(err)
 		}
 	}
+	err = db.Migrator().DropTable(&JenkinsBuildOld{})
 	if err != nil {
 		return errors.Convert(err)
 	}
-
+	err = db.Migrator().RenameTable(&JenkinsBuil0916{}, "_tool_jenkins_builds")
+	if err != nil {
+		return errors.Convert(err)
+	}
 	return nil
 }
 
