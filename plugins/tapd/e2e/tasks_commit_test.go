@@ -69,6 +69,7 @@ func TestTapdTaskCommitDataFlow(t *testing.T) {
 			"commit_time",
 			"created",
 			"task_id",
+			"issue_updated",
 		),
 	)
 

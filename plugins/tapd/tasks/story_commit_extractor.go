@@ -47,12 +47,13 @@ func ExtractStoryCommits(taskCtx core.SubTaskContext) errors.Error {
 			}
 			toolL := issueCommitBody
 			toolL.ConnectionId = data.Options.ConnectionId
-			issue := SimpleStory{}
+			issue := models.Input{}
 			err = errors.Convert(json.Unmarshal(row.Input, &issue))
 			if err != nil {
 				return nil, err
 			}
-			toolL.StoryId = issue.Id
+			toolL.StoryId = issue.IssueId
+			toolL.IssueUpdated = issue.UpdateTime
 			toolL.WorkspaceId = data.Options.WorkspaceId
 			results := make([]interface{}, 0, 1)
 			results = append(results, &toolL)

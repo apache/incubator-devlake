@@ -23,7 +23,6 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/api"
@@ -196,6 +195,11 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "failed to create tapd api client")
 	}
+	cstZone, err1 := time.LoadLocation("Asia/Shanghai")
+	if err1 != nil {
+		return nil, errors.Default.Wrap(err1, "fail to get CST Location")
+	}
+	op.CstZone = cstZone
 	taskData := &tasks.TapdTaskData{
 		Options:    &op,
 		ApiClient:  tapdApiClient,
@@ -204,10 +208,6 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if !since.IsZero() {
 		taskData.Since = &since
 	}
-	tasks.WorkspaceIdGen = didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
-	tasks.IssueIdGen = didgen.NewDomainIdGenerator(&models.TapdIssue{})
-	tasks.IterIdGen = didgen.NewDomainIdGenerator(&models.TapdIteration{})
-
 	return taskData, nil
 }
 

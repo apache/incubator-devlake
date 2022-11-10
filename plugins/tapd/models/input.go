@@ -15,22 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package models
 
 import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"time"
 )
 
-type TapdStoryBug struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	WorkspaceId  uint64 `gorm:"primaryKey" json:"workspace_id,string"`
-	StoryId      uint64 `gorm:"primaryKey" json:"story_id,string"`
-	BugId        uint64 `gorm:"primaryKey" json:"bug_id,string"`
-	IssueUpdated *time.Time
-	archived.NoPKModel
-}
-
-func (TapdStoryBug) TableName() string {
-	return "_tool_tapd_story_bugs"
+type Input struct {
+	IssueId    uint64     `json:"issue_id"`
+	UpdateTime *time.Time `json:"update_time"`
 }
