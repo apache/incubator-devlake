@@ -43,6 +43,7 @@ var _ core.PluginMeta = (*GithubGraphql)(nil)
 var _ core.PluginInit = (*GithubGraphql)(nil)
 var _ core.PluginTask = (*GithubGraphql)(nil)
 var _ core.PluginApi = (*GithubGraphql)(nil)
+var _ core.PluginModel = (*GithubGraphql)(nil)
 var _ core.PluginMetric = (*GithubGraphql)(nil)
 var _ core.CloseablePluginTask = (*GithubGraphql)(nil)
 

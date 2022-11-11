@@ -145,7 +145,7 @@ func PatchProject(c *gin.Context) {
 // @Success 200  {object} models.ProjectMetric
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
-// @Router /project_metrics/:projectName/:pluginName [get]
+// @Router /projects/:projectName/metrics/:pluginName [get]
 func GetProjectMetric(c *gin.Context) {
 	projectName := c.Param("projectName")
 	pluginName := c.Param("pluginName")
@@ -167,9 +167,17 @@ func GetProjectMetric(c *gin.Context) {
 // @Success 200  {object} models.ProjectMetric
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /project_metrics [post]
+// @Router /projects/:projectName/metrics [post]
 func PostProjectMetrics(c *gin.Context) {
 	projectMetric := &models.ProjectMetric{}
+
+	projectName := c.Param("projectName")
+
+	_, err1 := services.GetProject(projectName)
+	if err1 != nil {
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err1, shared.BadRequestBody))
+		return
+	}
 
 	err := c.ShouldBind(projectMetric)
 	if err != nil {
@@ -177,6 +185,7 @@ func PostProjectMetrics(c *gin.Context) {
 		return
 	}
 
+	projectMetric.ProjectName = projectName
 	err = services.CreateProjectMetric(projectMetric)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating project"))
@@ -194,7 +203,7 @@ func PostProjectMetrics(c *gin.Context) {
 // @Success 200  {object} models.ProjectMetric
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
-// @Router /project_metrics/:projectName/:pluginName  [patch]
+// @Router /projects/:projectName/metrics/:pluginName  [patch]
 func PatchProjectMetrics(c *gin.Context) {
 	projectName := c.Param("projectName")
 	pluginName := c.Param("pluginName")

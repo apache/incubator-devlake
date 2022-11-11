@@ -34,6 +34,7 @@ var _ core.PluginMeta = (*RefDiff)(nil)
 var _ core.PluginInit = (*RefDiff)(nil)
 var _ core.PluginTask = (*RefDiff)(nil)
 var _ core.PluginApi = (*RefDiff)(nil)
+var _ core.PluginModel = (*RefDiff)(nil)
 var _ core.PluginMetric = (*RefDiff)(nil)
 
 // PluginEntry is a variable exported for Framework to search and load

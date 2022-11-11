@@ -32,6 +32,7 @@ import (
 var _ core.PluginMeta = (*Dora)(nil)
 var _ core.PluginInit = (*Dora)(nil)
 var _ core.PluginTask = (*Dora)(nil)
+var _ core.PluginModel = (*Dora)(nil)
 var _ core.PluginMetric = (*Dora)(nil)
 var _ core.CloseablePluginTask = (*Dora)(nil)
 var _ core.PluginMigration = (*Dora)(nil)

@@ -72,10 +72,10 @@ func RegisterRouter(r *gin.Engine) {
 	r.GET("/projects", project.GetProjects)
 
 	// project metric api
-	r.GET("/project_metrics/:projectName/:pluginName", project.GetProjectMetric)
-	r.PATCH("/project_metrics/:projectName/:pluginName", project.PatchProjectMetrics)
-	//r.DELETE("/project_metrics/:projectName/:pluginName", project.DeleteProjectMetrics)
-	r.POST("/project_metrics", project.PostProjectMetrics)
+	r.GET("/projects/:projectName/metrics/:pluginName", project.GetProjectMetric)
+	r.PATCH("/projects/:projectName/metrics/:pluginName", project.PatchProjectMetrics)
+	//r.DELETE("/projects/:projectName/metrics/:pluginName", project.DeleteProjectMetrics)
+	r.POST("/projects/:projectName/metrics", project.PostProjectMetrics)
 
 	// mount all api resources for all plugins
 	pluginsApiResources, err := services.GetPluginsApiResources()

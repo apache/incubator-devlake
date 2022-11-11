@@ -30,6 +30,7 @@ import (
 var _ core.PluginMeta = (*Webhook)(nil)
 var _ core.PluginInit = (*Webhook)(nil)
 var _ core.PluginApi = (*Webhook)(nil)
+var _ core.PluginModel = (*Webhook)(nil)
 var _ core.PluginMetric = (*Webhook)(nil)
 var _ core.PluginMigration = (*Webhook)(nil)
 

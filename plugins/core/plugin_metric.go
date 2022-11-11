@@ -32,9 +32,6 @@ type PluginMetric interface {
 	// [{ "model": "cicd_tasks", "requiredFields": {"column": "type", "execptedValue": "Deployment"}}, ...]
 	RequiredDataEntities() (data []map[string]interface{}, err errors.Error)
 
-	// This method returns all models of the current plugin
-	GetTablesInfo() []Tabler
-
 	// returns if the metric depends on Project for calculation.
 	// Currently, only dora would return true.
 	IsProjectMetric() bool

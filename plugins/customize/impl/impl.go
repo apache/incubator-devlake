@@ -32,6 +32,7 @@ import (
 var _ core.PluginMeta = (*Customize)(nil)
 var _ core.PluginInit = (*Customize)(nil)
 var _ core.PluginApi = (*Customize)(nil)
+var _ core.PluginModel = (*Customize)(nil)
 var _ core.PluginMetric = (*Customize)(nil)
 
 type Customize struct {

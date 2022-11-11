@@ -31,6 +31,7 @@ import (
 
 var _ core.PluginMeta = (*GitExtractor)(nil)
 var _ core.PluginTask = (*GitExtractor)(nil)
+var _ core.PluginModel = (*GitExtractor)(nil)
 var _ core.PluginMetric = (*GitExtractor)(nil)
 
 type GitExtractor struct{}

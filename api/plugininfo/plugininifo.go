@@ -18,6 +18,7 @@ limitations under the License.
 package plugininfo
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
 	"sync"
@@ -162,7 +163,7 @@ func Get(c *gin.Context) {
 		}
 
 		// if this plugin has the plugin model info
-		if pm, ok := plugin.(core.PluginMetric); ok {
+		if pm, ok := plugin.(core.PluginModel); ok {
 			tables := pm.GetTablesInfo()
 			for _, table := range tables {
 				TableInfos := NewTableInfos(table)
@@ -188,9 +189,32 @@ func Get(c *gin.Context) {
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Router /plugins [get]
 func GetPluginNames(c *gin.Context) {
-	var names []string
+	var names []map[string]interface{}
 	err := core.TraversalPlugin(func(name string, plugin core.PluginMeta) errors.Error {
-		names = append(names, name)
+
+		pluginSimpleInfo := make(map[string]interface{})
+		pluginSimpleInfo["plugin"] = name
+
+		// if this plugin has the plugin task info
+		if pt, ok := plugin.(core.PluginMetric); ok {
+			var err1 errors.Error
+			metric := make(map[string]interface{})
+
+			metric["requiredDataEntities"], err1 = pt.RequiredDataEntities()
+			if err1 != nil {
+				return errors.Default.Wrap(err1, fmt.Sprintf("failed to get RequiredDataEntities on plugin %s", name))
+			}
+
+			metric["runAfter"], err1 = pt.RunAfter()
+			if err1 != nil {
+				return errors.Default.Wrap(err1, fmt.Sprintf("failed to get RunAfter on plugin %s", name))
+			}
+
+			metric["isProjectMetric"] = pt.IsProjectMetric()
+
+			pluginSimpleInfo["metric"] = metric
+		}
+
 		return nil
 	})
 
