@@ -19,95 +19,71 @@ package migrationscripts
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
-	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
-type Pipeline0904TempBefore struct {
-	NewPlan string
-}
-
-func (Pipeline0904TempBefore) TableName() string {
-	return "_devlake_pipelines"
-}
-
-type Pipeline0904Temp struct {
+type PipelinEncryption0904 struct {
 	common.Model
-	Name          string     `json:"name" gorm:"index"`
-	BlueprintId   uint64     `json:"blueprintId"`
-	NewPlan       string     `json:"plan" encrypt:"yes"`
-	TotalTasks    int        `json:"totalTasks"`
-	FinishedTasks int        `json:"finishedTasks"`
-	BeganAt       *time.Time `json:"beganAt"`
-	FinishedAt    *time.Time `json:"finishedAt" gorm:"index"`
-	Status        string     `json:"status"`
-	Message       string     `json:"message"`
-	SpentSeconds  int        `json:"spentSeconds"`
-	Stage         int        `json:"stage"`
-	Plan          datatypes.JSON
-}
-
-func (Pipeline0904Temp) TableName() string {
-	return "_devlake_pipelines"
-}
-
-type Pipeline0904TempAfter struct {
-	NewPlan string
 	Plan    string
+	RawPlan string
 }
 
-func (Pipeline0904TempAfter) TableName() string {
+func (PipelinEncryption0904) TableName() string {
 	return "_devlake_pipelines"
 }
 
 type encryptPipeline struct{}
 
 func (*encryptPipeline) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.AutoMigrate(&Pipeline0904TempBefore{})
+	c := config.GetConfig()
+	encKey := c.GetString(core.EncodeKeyEnvStr)
+	if encKey == "" {
+		return errors.BadInput.New("invalid encKey")
+	}
+
+	pipeline := &PipelinEncryption0904{}
+	err := db.Migrator().RenameColumn(pipeline, "plan", "raw_plan")
 	if err != nil {
 		return errors.Convert(err)
 	}
-	var result *gorm.DB
-	var pipelineList []Pipeline0904Temp
-	result = db.Find(&pipelineList)
-
-	if result.Error != nil {
-		return errors.Convert(result.Error)
+	err = db.AutoMigrate(pipeline)
+	if err != nil {
+		return errors.Convert(err)
 	}
 
-	// Encrypt all pipelines.plan&settings which had been stored before v0.14
-	for _, v := range pipelineList {
-		c := config.GetConfig()
-		encKey := c.GetString(core.EncodeKeyEnvStr)
-		if encKey == "" {
-			return errors.BadInput.New("invalid encKey")
-		}
-		v.NewPlan, err = core.Encrypt(encKey, string(v.Plan))
+	// Encrypt all pipelines.plan which had been stored before v0.14
+	cursor, err := db.Model(pipeline).Rows()
+	if err != nil {
+		return errors.Convert(err)
+	}
+	defer cursor.Close()
+
+	for cursor.Next() {
+		err = db.ScanRows(cursor, pipeline)
 		if err != nil {
 			return errors.Convert(err)
 		}
-
-		err = errors.Convert(db.Save(&v).Error)
+		pipeline.Plan, err = core.Encrypt(encKey, string(pipeline.RawPlan))
+		if err != nil {
+			return errors.Convert(err)
+		}
+		err = errors.Convert(db.Save(pipeline).Error)
 		if err != nil {
 			return errors.Convert(err)
 		}
 	}
 
-	err = db.Migrator().DropColumn(&Pipeline0904Temp{}, "plan")
+	err = db.Migrator().DropColumn(pipeline, "raw_plan")
 	if err != nil {
 		return errors.Convert(err)
 	}
-	err = db.Migrator().RenameColumn(&Pipeline0904TempAfter{}, "new_plan", "plan")
-	if err != nil {
-		return errors.Convert(err)
-	}
-	_ = db.Find(&pipelineList)
+	_ = db.First(pipeline)
 	return nil
 }
 
