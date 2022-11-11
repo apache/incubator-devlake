@@ -26,7 +26,7 @@ func getTablesByDomainLayer(domainLayer string) []string {
 	switch domainLayer {
 	case "code":
 		return []string{
-			"refs_commits_diffs",
+			"commits_diffs",
 			"pull_requests",
 			"commits",
 			"refs_pr_cherrypicks",

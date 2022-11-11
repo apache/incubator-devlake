@@ -17,15 +17,22 @@ limitations under the License.
 
 package code
 
-type RefsCommitsDiff struct {
-	NewRefId        string `gorm:"primaryKey;type:varchar(255)"`
-	OldRefId        string `gorm:"primaryKey;type:varchar(255)"`
-	CommitSha       string `gorm:"primaryKey;type:varchar(40)"`
-	NewRefCommitSha string `gorm:"type:varchar(40)"`
-	OldRefCommitSha string `gorm:"type:varchar(40)"`
-	SortingIndex    int
+type CommitsDiff struct {
+	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
+	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	SortingIndex int
 }
 
-func (RefsCommitsDiff) TableName() string {
-	return "refs_commits_diffs"
+func (CommitsDiff) TableName() string {
+	return "commits_diffs"
+}
+
+type FinishedCommitsDiffs struct {
+	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
+}
+
+func (FinishedCommitsDiffs) TableName() string {
+	return "finished_commits_diffs"
 }
