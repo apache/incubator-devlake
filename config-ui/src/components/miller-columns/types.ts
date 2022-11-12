@@ -21,30 +21,29 @@ export enum ItemTypeEnum {
   BRANCH = 'branch'
 }
 
-export type ItemType = {
-  id: string | number
-  title: string
-  type: ItemTypeEnum
-  items: ItemType[]
-}
-
 export enum ItemStatusEnum {
   PENDING = 'pending',
   READY = 'ready'
 }
 
-export type ItemHasStatusType = ItemType & {
+export type ItemType = {
+  id: string | number
+  title: string
+  type: ItemTypeEnum
   status: ItemStatusEnum
+  items: ItemType[]
 }
 
 export type ItemInfoType = {
   item: ItemType
   parentId?: ItemType['id']
+  childLoaded: boolean
 }
 
 export type ItemMapType = {
   getItem: (id: ItemType['id']) => ItemType
   getItemParent: (id: ItemType['id']) => ItemType | null
+  getItemChildLoaded: (id: ItemType['id']) => boolean
 }
 
 export type ColumnType = {

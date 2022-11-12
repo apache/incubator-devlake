@@ -18,7 +18,7 @@
 
 import React from 'react'
 
-import { ItemType, RowStatus } from '../../types'
+import { ItemType, ItemTypeEnum, RowStatus } from '../../types'
 
 import { Checkbox, CheckStatus } from '../checkbox'
 
@@ -27,7 +27,7 @@ import * as S from './styled'
 interface Props {
   item: ItemType
   status?: RowStatus
-  checkStatus?: CheckStatus
+  checkStatus?: CheckStatus | Array<CheckStatus>
   checkedCount?: number
   onExpandItem?: (it: ItemType) => void
   onSelectItem?: (it: ItemType) => void
@@ -44,18 +44,20 @@ export const Item = ({
     onExpandItem?.(item)
   }
 
-  const handleCheckboxClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
+  const handleCheckboxClick = () => {
     onSelectItem?.(item)
   }
 
   return (
     <S.Wrapper
+      type={item.type}
       selected={status === RowStatus.selected}
       onClick={handleRowClick}
     >
-      <Checkbox status={checkStatus} onClick={handleCheckboxClick} />
-      <span className='title'>{item.title}</span>
+      <Checkbox status={checkStatus} onClick={handleCheckboxClick}>
+        {item.title}
+      </Checkbox>
+      {item.type === ItemTypeEnum.BRANCH && <span className='indicator' />}
     </S.Wrapper>
   )
 }

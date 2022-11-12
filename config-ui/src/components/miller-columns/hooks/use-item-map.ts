@@ -19,13 +19,23 @@
 import { useMemo } from 'react'
 
 import type { ItemType, ItemInfoType } from '../types'
+import { ItemStatusEnum } from '../types'
 
 interface Props {
   items: ItemType[]
-  selectedItemIds?: Array<ItemType['id']>
 }
 
-export const useItemMap = ({ items, selectedItemIds = [] }: Props) => {
+export const useItemMap = ({ items }: Props) => {
+  const checkChildLoaded = (item: ItemType): boolean => {
+    if (item.status === ItemStatusEnum.PENDING) {
+      return false
+    }
+
+    return item.items.every((it) => {
+      return checkChildLoaded(it)
+    })
+  }
+
   return useMemo(() => {
     const itemMap = new Map<ItemType['id'], ItemInfoType>()
 
@@ -39,7 +49,8 @@ export const useItemMap = ({ items, selectedItemIds = [] }: Props) => {
       if (!itemMap.has(item.id)) {
         itemMap.set(item.id, {
           item,
-          parentId: parent?.id
+          parentId: parent?.id,
+          childLoaded: checkChildLoaded(item)
         })
       }
 
@@ -58,9 +69,9 @@ export const useItemMap = ({ items, selectedItemIds = [] }: Props) => {
         const parentId = itemMap.get(id)?.parentId
         return parentId ? (itemMap.get(parentId) as ItemInfoType).item : null
       },
-      getItemMapSize() {
-        return itemMap.size
+      getItemChildLoaded(id: ItemType['id']) {
+        return (itemMap.get(id) as ItemInfoType).childLoaded
       }
     }
-  }, [items, selectedItemIds])
+  }, [items])
 }

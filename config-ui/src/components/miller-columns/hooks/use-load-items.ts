@@ -18,40 +18,33 @@
 
 import { useState, useEffect, useMemo } from 'react'
 
-import {
-  ItemType,
-  ItemTypeEnum,
-  ItemHasStatusType,
-  ItemStatusEnum
-} from '../types'
+import { ItemType, ItemTypeEnum, ItemStatusEnum } from '../types'
 
 interface Props {
   getInitItems: () => Promise<Array<ItemType>>
   loadMoreItems: (item: ItemType) => Promise<Array<ItemType>>
 }
 
-type TreeType = Record<
-  ItemType['id'],
-  ItemHasStatusType & {
-    nameWithNameSpace?: string
-  }
->
+type TreeType<T> = Record<ItemType['id'], ItemType & T>
 
-export const useLoadItems = ({ getInitItems, loadMoreItems }: Props) => {
-  const [tree, setTree] = useState<TreeType>({})
+export const useLoadItems = <T>({ getInitItems, loadMoreItems }: Props) => {
+  const [tree, setTree] = useState<TreeType<T>>({})
 
   const itemsToTree = (items: Array<ItemType>) => {
     return items.reduce((acc, cur) => {
       acc[cur.id] = {
         ...cur,
         items: [],
-        status: ItemStatusEnum.PENDING
+        status:
+          cur.type === ItemTypeEnum.BRANCH
+            ? ItemStatusEnum.PENDING
+            : ItemStatusEnum.READY
       }
       return acc
-    }, {} as TreeType)
+    }, {} as any)
   }
 
-  const treeToItems = (t: TreeType) => {
+  const treeToItems = (t: TreeType<T>) => {
     if (!t.root) {
       return []
     }
@@ -59,6 +52,7 @@ export const useLoadItems = ({ getInitItems, loadMoreItems }: Props) => {
     const transform = (arr: Array<ItemType>): Array<ItemType> => {
       return arr.map((it) => ({
         ...it,
+        ...t[it.id],
         items: transform(t[it.id].items)
       }))
     }

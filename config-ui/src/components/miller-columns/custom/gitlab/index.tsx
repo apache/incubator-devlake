@@ -35,7 +35,9 @@ interface Props extends UseGitLabMillerColumnsProps {
 export const GitLabMillerColumns = ({ connectionId, onChangeItems }: Props) => {
   const [seletedIds, setSelectedIds] = useState<Array<ItemType['id']>>([])
 
-  const { items, itemTree, onExpandItem } = useGitLabMillerColumns({
+  const { items, itemTree, onExpandItem } = useGitLabMillerColumns<{
+    nameWithNameSpace?: string
+  }>({
     connectionId
   })
 

@@ -18,8 +18,8 @@
 
 import { useState, useMemo, useEffect } from 'react'
 
-import type { ItemType, ColumnType } from '../types'
-import { RowStatus } from '../types'
+import type { ItemType } from '../types'
+import { ItemTypeEnum, RowStatus } from '../types'
 import { CheckStatus } from '../components'
 
 import { useItemMap } from './use-item-map'
@@ -57,20 +57,37 @@ export const useMillerColumns = ({
     setSelectedItemIds(props.selectedItemIds ?? [])
   }, [props.selectedItemIds])
 
-  useEffect(() => {
-    const newIds = [...selectedItemIds]
+  const collectAddParentIds = (item: ItemType) => {
+    let result: Array<ItemType['id']> = []
 
-    newIds.forEach((id) => {
-      const childNotInSelectedIds = itemMap
-        .getItem(id)
-        .items.map((it) => it.id)
-        .filter((id) => !selectedItemIds.includes(id))
+    const parentItem = itemMap.getItemParent(item.id)
 
-      newIds.push(...(childNotInSelectedIds ?? []))
-    })
+    if (parentItem) {
+      const childSelectedIds = parentItem.items
+        .map((it) => it.id)
+        .filter((id) => [...selectedItemIds, item.id].includes(id))
 
-    onSelectedItemIds ? onSelectedItemIds(newIds) : setSelectedItemIds(newIds)
-  }, [items])
+      if (childSelectedIds.length === parentItem.items.length) {
+        result.push(parentItem.id)
+        result.push(...collectAddParentIds(parentItem))
+      }
+    }
+
+    return result
+  }
+
+  const collectRemoveParentIds = (item: ItemType) => {
+    let result: Array<ItemType['id']> = []
+
+    const parentItem = itemMap.getItemParent(item.id)
+
+    if (parentItem) {
+      result.push(parentItem.id)
+      result.push(...collectRemoveParentIds(parentItem))
+    }
+
+    return result
+  }
 
   return useMemo(
     () => ({
@@ -85,130 +102,51 @@ export const useMillerColumns = ({
         return RowStatus.noselected
       },
       getChekecdStatus(item: ItemType) {
-        if (!selectedItemIds.length) {
-          return CheckStatus.nochecked
-        }
-        if (selectedItemIds.includes(item.id)) {
-          return CheckStatus.checked
-        }
+        const childSelectedIds = item.items
+          .map((it) => it.id)
+          .filter((id) => selectedItemIds.includes(id))
 
-        const hasChildCheckedIds = selectedItemIds.filter((id) =>
-          item.items.map((it) => it.id).includes(id)
-        )
-
-        if (!hasChildCheckedIds.length) {
-          return CheckStatus.nochecked
-        }
-
-        if (hasChildCheckedIds.length === item.items?.length) {
-          return CheckStatus.checked
-        }
-
-        return CheckStatus.indeterminate
-      },
-      getCheckedAllStatus(column: ColumnType) {
-        const itemIds = column.items.map((it) => it.id)
-        const colSelectedIds = itemIds.filter((id) =>
-          selectedItemIds.includes(id)
-        )
         switch (true) {
-          case colSelectedIds.length === itemIds.length:
+          case !itemMap.getItemChildLoaded(item.id):
+            return CheckStatus.disabled
+          case selectedItemIds.includes(item.id):
             return CheckStatus.checked
-          case !!colSelectedIds.length:
+          case !!childSelectedIds.length:
             return CheckStatus.indeterminate
           default:
             return CheckStatus.nochecked
         }
       },
       onExpandItem(item: ItemType) {
-        if (item.type === 'leaf') {
+        if (item.type !== ItemTypeEnum.BRANCH) {
           return
         }
         onExpandItem?.(item)
         onActiveItemId ? onActiveItemId(item.id) : setActiveItemId(item.id)
       },
       onSelectItem(item: ItemType) {
-        let newIds: Array<ItemType['id']>
-        let targetIds: Array<ItemType['id']> = [item.id]
-        const itemIds = item.items.map((it) => it.id)
-
-        const collect = (id: ItemType['id']) => {
-          targetIds.push(id)
-          const item = itemMap.getItem(id)
-          if (item.items) {
-            item.items.forEach((it) => collect(it.id))
-          }
-        }
-
-        itemIds.forEach((id) => collect(id))
-
+        let newIds: Array<ItemType['id']> = [item.id]
         const isRemoveExistedItem = !!selectedItemIds.includes(item.id)
 
-        if (isRemoveExistedItem) {
-          const parentItem = itemMap.getItemParent(item.id)
-          const deleteIds = [parentItem?.id, ...targetIds].filter(Boolean)
-          newIds =
-            selectedItemIds.filter((id) => !deleteIds.includes(id)) ?? []
-        } else {
-          const parentItem = itemMap.getItemParent(item.id)
-          const addIds = targetIds.filter(
-            (id) => !selectedItemIds.includes(id)
-          )
-
-          if (parentItem) {
-            const parentChildIds = parentItem.items.map((it) => it.id)
-            const parentSelectedIds = parentChildIds.filter((id) =>
-              [...(selectedItemIds ?? []), item.id].includes(id)
-            )
-
-            const isAllChildSelected =
-              parentSelectedIds.length === parentItem?.items?.length
-
-            if (isAllChildSelected) {
-              addIds.push(parentItem.id)
-            }
-          }
-
-          newIds = [...(selectedItemIds ?? []), ...addIds]
+        const collectChildIds = (it: ItemType) => {
+          newIds.push(it.id)
+          it.items.forEach((it) => collectChildIds(it))
         }
 
-        onSelectedItemIds
-          ? onSelectedItemIds(newIds)
-          : setSelectedItemIds(newIds)
-      },
-      onSelectAllItem(column: ColumnType) {
-        let newIds: Array<ItemType['id']>
-        let targetIds: Array<ItemType['id']> = []
-        const itemIds = column.items.map((it) => it.id)
+        item.items.forEach((it) => collectChildIds(it))
 
-        const collect = (id: ItemType['id']) => {
-          targetIds.push(id)
-          const item = itemMap.getItem(id)
-          if (item.items) {
-            item.items.forEach((it) => collect(it.id))
-          }
-        }
-
-        itemIds.forEach((id) => collect(id))
-
-        const isRemoveExistedItems =
-          itemIds.filter((id) => selectedItemIds.includes(id)).length ===
-          itemIds.length
-
-        if (isRemoveExistedItems) {
-          const deleteIds = [...targetIds, column.parentId].filter(Boolean)
-          newIds =
-            selectedItemIds.filter((id) => !deleteIds.includes(id)) ?? []
+        if (!isRemoveExistedItem) {
+          newIds = [
+            ...new Set([
+              ...newIds,
+              ...selectedItemIds,
+              ...collectAddParentIds(item)
+            ])
+          ]
         } else {
-          const addIds = targetIds.filter(
-            (id) => !selectedItemIds.includes(id)
+          newIds = selectedItemIds.filter(
+            (id) => ![...newIds, ...collectRemoveParentIds(item)].includes(id)
           )
-
-          if (column.parentId) {
-            addIds.push(column.parentId)
-          }
-
-          newIds = [...(selectedItemIds ?? []), ...addIds]
         }
 
         onSelectedItemIds

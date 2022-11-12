@@ -16,12 +16,12 @@
  *
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useMemo, useCallback } from 'react'
 
 import { ItemTypeEnum, ItemType } from '../../types'
+import { useLoadItems } from '../../hooks'
 
 import request from '../request'
-import { useLoadItems } from '../use-load-items'
 
 const getGitLabProxyApiPrefix = (connectionId: string) =>
   `/plugins/gitlab/connections/${connectionId}/proxy/rest`
@@ -30,7 +30,7 @@ export interface UseGitLabMillerColumnsProps {
   connectionId: string
 }
 
-export const useGitLabMillerColumns = ({
+export const useGitLabMillerColumns = <T>({
   connectionId
 }: UseGitLabMillerColumnsProps) => {
   const { apiProjects, apiGroups } = useMemo(() => {
@@ -53,9 +53,9 @@ export const useGitLabMillerColumns = ({
     arr.map((it: any) => ({
       id: it.id,
       title: it.name,
-      nameWithNameSpace: it.name_with_namespace,
       type: ItemTypeEnum.LEAF,
-      items: []
+      items: [],
+      nameWithNameSpace: it.name_with_namespace
     }))
 
   const getInitItems = useCallback(async () => {
@@ -77,7 +77,7 @@ export const useGitLabMillerColumns = ({
     [apiGroups]
   )
 
-  const { items, itemTree, loadItems } = useLoadItems({
+  const { items, itemTree, loadItems } = useLoadItems<T>({
     getInitItems,
     loadMoreItems
   })
