@@ -18,8 +18,6 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"encoding/json"
-
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
@@ -30,28 +28,10 @@ var _ core.MigrationScript = (*encryptBlueprint)(nil)
 
 type encryptBlueprint struct{}
 
-type blueprint20220903Before struct {
-	Name           string          `json:"name" validate:"required"`
-	Mode           string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Plan           json.RawMessage `json:"plan"`
-	Enable         bool            `json:"enable"`
-	CronConfig     string          `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
-	IsManual       bool            `json:"isManual"`
-	Settings       json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
-	archived.Model `swaggerignore:"true"`
-}
-
-type blueprint20220903After struct {
-	/* unchanged part */
-	Name           string `json:"name" validate:"required"`
-	Mode           string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Enable         bool   `json:"enable"`
-	CronConfig     string `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
-	IsManual       bool   `json:"isManual"`
-	archived.Model `swaggerignore:"true"`
-	/* changed part */
-	Plan     string `json:"plan"`
-	Settings string `json:"settings"`
+type BlueprintEncryption0904 struct {
+	archived.Model
+	Plan     string
+	Settings string
 }
 
 func (script *encryptBlueprint) Up(basicRes core.BasicRes) errors.Error {
@@ -59,34 +39,28 @@ func (script *encryptBlueprint) Up(basicRes core.BasicRes) errors.Error {
 	if encKey == "" {
 		return errors.BadInput.New("invalid encKey")
 	}
-
-	return migrationhelper.TransformTable(
+	err := migrationhelper.TransformColumns(
 		basicRes,
 		script,
 		"_devlake_blueprints",
-		func(s *blueprint20220903Before) (*blueprint20220903After, errors.Error) {
-			encryptedPlan, err := core.Encrypt(encKey, string(s.Plan))
+		[]string{"plan", "settings"},
+		func(src *BlueprintEncryption0904) (*BlueprintEncryption0904, errors.Error) {
+			plan, err := core.Encrypt(encKey, src.Plan)
 			if err != nil {
 				return nil, err
 			}
-			encryptedSettings, err := core.Encrypt(encKey, string(s.Settings))
+			settings, err := core.Encrypt(encKey, src.Settings)
 			if err != nil {
 				return nil, err
 			}
-
-			dst := &blueprint20220903After{
-				Name:       s.Name,
-				Mode:       s.Mode,
-				Enable:     s.Enable,
-				CronConfig: s.CronConfig,
-				IsManual:   s.IsManual,
-				Model:      archived.Model{ID: s.ID},
-				Plan:       encryptedPlan,
-				Settings:   encryptedSettings,
-			}
-			return dst, nil
+			return &BlueprintEncryption0904{
+				Model:    src.Model,
+				Plan:     plan,
+				Settings: settings,
+			}, nil
 		},
 	)
+	return err
 }
 
 func (*encryptBlueprint) Version() uint64 {
