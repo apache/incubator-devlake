@@ -28,6 +28,17 @@ type Tabler interface {
 	TableName() string
 }
 
+// Default Table is working for the Tabler interface witch only need TableName
+type DefaultTabler struct {
+	Name string
+}
+
+var _ Tabler = (*DefaultTabler)(nil)
+
+func (d DefaultTabler) TableName() string {
+	return d.Name
+}
+
 // Clause represents SQL Clause
 type Clause struct {
 	Type string

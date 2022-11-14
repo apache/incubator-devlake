@@ -31,6 +31,7 @@ import (
 )
 
 const TestTableNameSrc string = "test_src"
+const TestTableNameDst string = "test_dst"
 const TestColumeName string = "id"
 
 type TestSrcTable struct {
@@ -129,6 +130,12 @@ func TestTransformTable(t *testing.T) {
 		assert.Equal(t, dts[2].Id, "fd61a03af4f77d870fc21e05e7e80678095c92d808cfb3b5c279ee04c74aca1357ef3d346f24f386216563752b0c447a35c041e0b7143f929dc4de27742e3307")
 	}).Return(nil).Once()
 
+	// for Primarykey  autoincrement cheking
+	mockDal.On("GetColumns", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		tableName := args.Get(0).(core.Tabler).TableName()
+		assert.Equal(t, tableName, TestTableNameSrc)
+	}).Return([]dal.ColumnMeta{}, nil).Once()
+
 	mockLog := unithelper.DummyLogger()
 	mockRes := new(mocks.BasicRes)
 
@@ -194,6 +201,12 @@ func TestTransformTable_RollBack(t *testing.T) {
 		assert.Equal(t, oldname, TestTableNameSrc)
 	}).Return(nil).Once()
 
+	// for Primarykey  autoincrement cheking
+	mockDal.On("GetColumns", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		tableName := args.Get(0).(core.Tabler).TableName()
+		assert.Equal(t, tableName, TestTableNameSrc)
+	}).Return([]dal.ColumnMeta{}, nil).Once()
+
 	mockLog := unithelper.DummyLogger()
 	mockRes := new(mocks.BasicRes)
 
@@ -201,6 +214,170 @@ func TestTransformTable_RollBack(t *testing.T) {
 	mockRes.On("GetLogger").Return(mockLog)
 
 	err := TransformTable(mockRes, &TestScript{}, TestTableNameSrc,
+		func(src *TestSrcTable) (*TestDstTable, errors.Error) {
+			shaName := sha256.New()
+			shaName.Write([]byte(src.Name))
+			return &TestDstTable{
+				Id:        hex.EncodeToString(shaName.Sum(nil)) + src.CommitSha,
+				Name:      src.Name,
+				CommitSha: src.CommitSha,
+			}, nil
+		})
+
+	assert.Equal(t, err.Unwrap().Error(), TestError.Unwrap().Error())
+}
+
+func TestCopyTableColumn(t *testing.T) {
+	mockRows := new(mocks.Rows)
+
+	mockRows.On("Next").Return(true).Times(3)
+	mockRows.On("Next").Return(false).Once()
+	mockRows.On("Close").Return(nil).Twice()
+
+	mockDal := new(mocks.Dal)
+	mockDal.On("Cursor", mock.Anything).Return(mockRows, nil).Once()
+	mockDal.On("GetPrimaryKeyFields", mock.Anything).Return(
+		[]reflect.StructField{
+			{Name: "Id", Type: reflect.TypeOf("")},
+		},
+	)
+	// create the test data
+	mockDal.On("Fetch", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		dst := args.Get(1).(*TestSrcTable)
+		dst.Name = "test1"
+		dst.CommitSha = "85d898dab1984d744f99a3a9127aefd43632e000f3ef48c29d0c5b043cf251ed"
+		dst.Id = dst.Name + dst.CommitSha
+	}).Return(nil).Once()
+	mockDal.On("Fetch", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		dst := args.Get(1).(*TestSrcTable)
+		dst.Name = "test2"
+		dst.CommitSha = "85d898dab1984d744f99a3a9127aefd43632e000f3ef48c29d0c5b043cf251ed"
+		dst.Id = dst.Name + dst.CommitSha
+	}).Return(nil).Once()
+	mockDal.On("Fetch", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		dst := args.Get(1).(*TestSrcTable)
+		dst.Name = "test3"
+		dst.CommitSha = "57ef3d346f24f386216563752b0c447a35c041e0b7143f929dc4de27742e3307"
+		dst.Id = dst.Name + dst.CommitSha
+	}).Return(nil).Once()
+
+	// checking if it Create Drop and Rename the right table
+	mockDal.On("AutoMigrate", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		_, ok := args.Get(0).(*TestDstTable)
+		assert.Equal(t, ok, true)
+	}).Return(nil).Once()
+	mockDal.On("DropTables", mock.Anything).Run(func(args mock.Arguments) {
+		tmpname, ok := args.Get(0).([]interface{})[0].(string)
+		assert.Equal(t, ok, true)
+		assert.NotEqual(t, TestTableNameSrc, tmpname)
+	}).Return(nil).Once()
+	mockDal.On("RenameTable", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		oldname, ok := args.Get(0).(string)
+		assert.Equal(t, ok, true)
+		assert.Equal(t, TestTableNameSrc, oldname)
+		tmpname, ok := args.Get(1).(string)
+		assert.Equal(t, ok, true)
+		assert.NotEqual(t, oldname, tmpname)
+	}).Return(nil).Once()
+
+	// checking the test data
+	mockDal.On("CreateOrUpdate", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		dts := args.Get(0).([]*TestDstTable)
+		assert.Equal(t, dts[0].Name, "test1")
+		assert.Equal(t, dts[0].CommitSha, "85d898dab1984d744f99a3a9127aefd43632e000f3ef48c29d0c5b043cf251ed")
+		assert.Equal(t, dts[0].Id, "1b4f0e9851971998e732078544c96b36c3d01cedf7caa332359d6f1d8356701485d898dab1984d744f99a3a9127aefd43632e000f3ef48c29d0c5b043cf251ed")
+		assert.Equal(t, dts[1].Name, "test2")
+		assert.Equal(t, dts[1].CommitSha, "85d898dab1984d744f99a3a9127aefd43632e000f3ef48c29d0c5b043cf251ed")
+		assert.Equal(t, dts[1].Id, "60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c75285d898dab1984d744f99a3a9127aefd43632e000f3ef48c29d0c5b043cf251ed")
+		assert.Equal(t, dts[2].Name, "test3")
+		assert.Equal(t, dts[2].CommitSha, "57ef3d346f24f386216563752b0c447a35c041e0b7143f929dc4de27742e3307")
+		assert.Equal(t, dts[2].Id, "fd61a03af4f77d870fc21e05e7e80678095c92d808cfb3b5c279ee04c74aca1357ef3d346f24f386216563752b0c447a35c041e0b7143f929dc4de27742e3307")
+	}).Return(nil).Once()
+
+	// for Primarykey  autoincrement cheking
+	mockDal.On("GetColumns", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		tableName := args.Get(0).(core.Tabler).TableName()
+		assert.Equal(t, tableName, TestTableNameSrc)
+	}).Return([]dal.ColumnMeta{}, nil).Once()
+
+	mockLog := unithelper.DummyLogger()
+	mockRes := new(mocks.BasicRes)
+
+	mockRes.On("GetDal").Return(mockDal)
+	mockRes.On("GetLogger").Return(mockLog)
+
+	err := CopyTableColumn(mockRes, TestTableNameSrc, TestTableNameDst,
+		func(src *TestSrcTable) (*TestDstTable, errors.Error) {
+			shaName := sha256.New()
+			shaName.Write([]byte(src.Name))
+			return &TestDstTable{
+				Id:        hex.EncodeToString(shaName.Sum(nil)) + src.CommitSha,
+				Name:      src.Name,
+				CommitSha: src.CommitSha,
+			}, nil
+		})
+
+	assert.Nil(t, err)
+}
+
+func TestCopyTableColumn_RollBack(t *testing.T) {
+	mockRows := new(mocks.Rows)
+	mockRows.On("Next").Return(true).Once()
+	mockRows.On("Close").Return(nil).Twice()
+
+	mockDal := new(mocks.Dal)
+	mockDal.On("Cursor", mock.Anything).Return(mockRows, nil).Once()
+	mockDal.On("GetPrimaryKeyFields", mock.Anything).Return(
+		[]reflect.StructField{
+			{Name: "Id", Type: reflect.TypeOf("")},
+		},
+	)
+
+	// retruen the error when fetch for rollback
+	mockDal.On("Fetch", mock.Anything, mock.Anything).Return(TestError).Once()
+
+	// checking if it AutoMigrate and Rename the right table
+	mockDal.On("AutoMigrate", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		_, ok := args.Get(0).(*TestDstTable)
+		assert.Equal(t, ok, true)
+	}).Return(nil).Once()
+	mockDal.On("RenameTable", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		oldname, ok := args.Get(0).(string)
+		assert.Equal(t, ok, true)
+		assert.Equal(t, TestTableNameSrc, oldname)
+		tmpname, ok := args.Get(1).(string)
+		assert.Equal(t, ok, true)
+		assert.NotEqual(t, oldname, tmpname)
+	}).Return(nil).Once()
+
+	// checking if Rename and Drop RollBack working with rigth table
+	mockDal.On("RenameTable", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		tmpname, ok := args.Get(0).(string)
+		assert.Equal(t, ok, true)
+		assert.NotEqual(t, TestTableNameSrc, tmpname)
+		oldname, ok := args.Get(1).(string)
+		assert.Equal(t, ok, true)
+		assert.Equal(t, oldname, TestTableNameSrc)
+	}).Return(nil).Once()
+	mockDal.On("DropTables", mock.Anything).Run(func(args mock.Arguments) {
+		oldname, ok := args.Get(0).([]interface{})[0].(string)
+		assert.Equal(t, ok, true)
+		assert.Equal(t, oldname, TestTableNameSrc)
+	}).Return(nil).Once()
+
+	// for Primarykey  autoincrement cheking
+	mockDal.On("GetColumns", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		tableName := args.Get(0).(core.Tabler).TableName()
+		assert.Equal(t, tableName, TestTableNameSrc)
+	}).Return([]dal.ColumnMeta{}, nil).Once()
+
+	mockLog := unithelper.DummyLogger()
+	mockRes := new(mocks.BasicRes)
+
+	mockRes.On("GetDal").Return(mockDal)
+	mockRes.On("GetLogger").Return(mockLog)
+
+	err := CopyTableColumn(mockRes, TestTableNameSrc, TestTableNameDst,
 		func(src *TestSrcTable) (*TestDstTable, errors.Error) {
 			shaName := sha256.New()
 			shaName.Write([]byte(src.Name))
