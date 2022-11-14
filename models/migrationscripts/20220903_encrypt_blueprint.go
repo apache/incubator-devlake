@@ -19,7 +19,6 @@ package migrationscripts
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
@@ -27,96 +26,76 @@ import (
 	"gorm.io/gorm"
 )
 
-type Blueprint0903Before struct {
-	NewPlan     string `json:"plan"`
-	NewSettings string `json:"settings"`
-}
-
-func (Blueprint0903Before) TableName() string {
-	return "_devlake_blueprints"
-}
-
-type Blueprint0903Temp struct {
-	NewPlan     string `json:"plan"`
-	NewSettings string `json:"settings"`
-	Name        string `json:"name" validate:"required"`
-	Mode        string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Plan        json.RawMessage
-	Enable      bool `json:"enable"`
-	//please check this https://crontab.guru/ for detail
-	CronConfig     string `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
-	IsManual       bool   `json:"isManual"`
-	Settings       json.RawMessage
-	archived.Model `swaggerignore:"true"`
-}
-
-func (Blueprint0903Temp) TableName() string {
-	return "_devlake_blueprints"
-}
-
-type Blueprint0903TempAfter struct {
+type BlueprintEncryption0904 struct {
+	archived.Model
 	Plan        string
+	RawPlan     string
 	Settings    string
-	NewPlan     string
-	NewSettings string
+	RawSettings string
 }
 
-func (Blueprint0903TempAfter) TableName() string {
+func (BlueprintEncryption0904) TableName() string {
 	return "_devlake_blueprints"
 }
 
 type encryptBLueprint struct{}
 
 func (*encryptBLueprint) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.AutoMigrate(&Blueprint0903Before{})
+	c := config.GetConfig()
+	encKey := c.GetString(core.EncodeKeyEnvStr)
+	if encKey == "" {
+		return errors.BadInput.New("invalid encKey")
+	}
+
+	blueprint := &BlueprintEncryption0904{}
+	err := db.Migrator().RenameColumn(blueprint, "plan", "raw_plan")
 	if err != nil {
 		return errors.Convert(err)
 	}
-	var result *gorm.DB
-	var blueprintList []Blueprint0903Temp
-	result = db.Find(&blueprintList)
-	if result.Error != nil {
-		return errors.Convert(result.Error)
+	err = db.Migrator().RenameColumn(blueprint, "settings", "raw_settings")
+	if err != nil {
+		return errors.Convert(err)
 	}
-
-	// Encrypt all blueprints.plan&settings which had been stored before v0.14
-	for _, v := range blueprintList {
-		c := config.GetConfig()
-		encKey := c.GetString(core.EncodeKeyEnvStr)
-		if encKey == "" {
-			return errors.BadInput.New("invalid encKey")
-		}
-		v.NewPlan, err = core.Encrypt(encKey, string(v.Plan))
-		if err != nil {
-			return errors.Convert(err)
-		}
-		v.NewSettings, err = core.Encrypt(encKey, string(v.Settings))
-		if err != nil {
-			return errors.Convert(err)
-		}
-		err = errors.Convert(db.Save(&v).Error)
-		if err != nil {
-			return errors.Convert(err)
-		}
-	}
-	err = db.Migrator().DropColumn(&Blueprint0903Temp{}, "plan")
+	err = db.AutoMigrate(blueprint)
 	if err != nil {
 		return errors.Convert(err)
 	}
 
-	err = db.Migrator().DropColumn(&Blueprint0903Temp{}, "settings")
+	// Encrypt all blueprints.plan which had been stored before v0.14
+	cursor, err := db.Model(blueprint).Rows()
 	if err != nil {
 		return errors.Convert(err)
 	}
-	err = db.Migrator().RenameColumn(&Blueprint0903TempAfter{}, "new_plan", "plan")
+	defer cursor.Close()
+
+	for cursor.Next() {
+		err = db.ScanRows(cursor, blueprint)
+		if err != nil {
+			return errors.Convert(err)
+		}
+		blueprint.Plan, err = core.Encrypt(encKey, blueprint.RawPlan)
+		if err != nil {
+			return errors.Convert(err)
+		}
+		blueprint.Settings, err = core.Encrypt(encKey, blueprint.RawSettings)
+		if err != nil {
+			return errors.Convert(err)
+		}
+		err = errors.Convert(db.Save(blueprint).Error)
+		if err != nil {
+			return errors.Convert(err)
+		}
+	}
+
+	err = db.Migrator().DropColumn(blueprint, "raw_plan")
 	if err != nil {
 		return errors.Convert(err)
 	}
-	err = db.Migrator().RenameColumn(&Blueprint0903TempAfter{}, "new_settings", "settings")
+	err = db.Migrator().DropColumn(blueprint, "raw_settings")
 	if err != nil {
 		return errors.Convert(err)
 	}
-	_ = db.Find(&blueprintList)
+	_ = db.First(blueprint)
 	return nil
 }
 
