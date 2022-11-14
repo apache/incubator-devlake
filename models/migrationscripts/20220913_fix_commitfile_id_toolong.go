@@ -77,7 +77,7 @@ func (script *fixCommitFileIdTooLong) Up(basicRes core.BasicRes) errors.Error {
 	return migrationhelper.TransformTable(
 		basicRes,
 		script,
-		"commit_files",
+		"commit_file_components",
 		func(s *commitFileComponent20220913) (*commitFileComponent20220913, errors.Error) {
 			// copy data
 			dst := commitFileComponent20220913(*s)
