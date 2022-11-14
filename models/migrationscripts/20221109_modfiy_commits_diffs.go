@@ -83,6 +83,7 @@ func (script *modifyCommitsDiffs) Up(basicRes core.BasicRes) errors.Error {
 			dst.CommitSha = s.CommitSha
 			dst.NewCommitSha = s.NewRefCommitSha
 			dst.OldCommitSha = s.OldRefCommitSha
+			dst.SortingIndex = s.SortingIndex
 
 			return &dst, nil
 		},
