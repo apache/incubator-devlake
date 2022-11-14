@@ -61,6 +61,7 @@ var CollectAccountMeta = core.SubTaskMeta{
 	EntryPoint:       CollectAccount,
 	EnabledByDefault: true,
 	Description:      "Collect Account data from GithubGraphql api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 type SimpleAccount struct {

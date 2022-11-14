@@ -89,6 +89,7 @@ var CollectCheckRunMeta = core.SubTaskMeta{
 	EntryPoint:       CollectCheckRun,
 	EnabledByDefault: true,
 	Description:      "Collect CheckRun data from GithubGraphql api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
 var _ core.SubTaskEntryPoint = CollectAccount

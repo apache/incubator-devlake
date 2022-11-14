@@ -55,6 +55,7 @@ class Connection {
     this.username = data?.username || ''
     this.password = data?.password || ''
     this.rateLimitPerHour = data?.rateLimitPerHour || 0
+    this.enableGraphql = data?.enableGraphql || false
     this.createdAt = data?.createdAt || null
     this.updatedAt = data?.updatedAt || null
 

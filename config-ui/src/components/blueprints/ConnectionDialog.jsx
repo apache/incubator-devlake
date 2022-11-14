@@ -53,6 +53,7 @@ const ConnectionDialog = (props) => {
     endpointUrl,
     proxy,
     rateLimitPerHour = 0,
+    enableGraphql = true,
     token,
     initialTokenStore = {},
     username,
@@ -77,6 +78,7 @@ const ConnectionDialog = (props) => {
     onEndpointChange = () => {},
     onProxyChange = () => {},
     onRateLimitChange = () => {},
+    onEnableGraphqlChange = () => {},
     onTokenChange = () => {},
     onUsernameChange = () => {},
     onPasswordChange = () => {},
@@ -250,6 +252,7 @@ const ConnectionDialog = (props) => {
                     endpointUrl={endpointUrl}
                     proxy={proxy}
                     rateLimitPerHour={rateLimitPerHour}
+                    enableGraphql={enableGraphql}
                     token={token}
                     initialTokenStore={initialTokenStore}
                     username={username}
@@ -262,6 +265,7 @@ const ConnectionDialog = (props) => {
                     onEndpointChange={onEndpointChange}
                     onProxyChange={onProxyChange}
                     onRateLimitChange={onRateLimitChange}
+                    onEnableGraphqlChange={onEnableGraphqlChange}
                     onTokenChange={onTokenChange}
                     onUsernameChange={onUsernameChange}
                     onPasswordChange={onPasswordChange}

@@ -54,6 +54,7 @@ function useConnectionManager(
   const [initialTokenStore, setInitialTokenStore] = useState(defaultTokenStore)
   const [username, setUsername] = useState()
   const [password, setPassword] = useState()
+  const [enableGraphql, setEnableGraphql] = useState(true)
 
   const [isSaving, setIsSaving] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
@@ -102,9 +103,19 @@ function useConnectionManager(
       password,
       token,
       proxy,
-      rateLimitPerHour
+      rateLimitPerHour,
+      enableGraphql
     }),
-    [name, endpointUrl, username, password, token, proxy, rateLimitPerHour]
+    [
+      name,
+      endpointUrl,
+      username,
+      password,
+      token,
+      proxy,
+      rateLimitPerHour,
+      enableGraphql
+    ]
   )
 
   const testConnection = useCallback(
@@ -539,6 +550,7 @@ function useConnectionManager(
       setName(activeConnection?.name)
       setEndpointUrl(activeConnection?.endpoint)
       setRateLimitPerHour(activeConnection?.rateLimitPerHour)
+      setEnableGraphql(activeConnection?.enableGraphql)
       setProxy(activeConnection?.proxy)
       setUsername(activeConnection?.username)
       setPassword(activeConnection?.password)
@@ -656,6 +668,7 @@ function useConnectionManager(
     endpointUrl,
     proxy,
     rateLimitPerHour,
+    enableGraphql,
     username,
     password,
     token,
@@ -667,6 +680,7 @@ function useConnectionManager(
     setEndpointUrl,
     setProxy,
     setRateLimitPerHour,
+    setEnableGraphql,
     setToken,
     setInitialTokenStore,
     setUsername,

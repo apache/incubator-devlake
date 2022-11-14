@@ -114,20 +114,42 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 			return repo, err
 		}
 
-		// construct subtasks
-		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
-		if err != nil {
-			return nil, err
-		}
 		stage := plan[i]
 		if stage == nil {
 			stage = core.PipelineStage{}
 		}
-		stage = append(stage, &core.PipelineTask{
-			Plugin:   "github",
-			Subtasks: subtasks,
-			Options:  options,
-		})
+
+		// construct github(graphql) task
+		if connection.EnableGraphql {
+			// FIXME this need fix when 2 plugins merged
+			plugin, err := core.GetPlugin(`github_graphql`)
+			if err != nil {
+				return nil, err
+			}
+			if pluginGq, ok := plugin.(core.PluginTask); ok {
+				subtasks, err := helper.MakePipelinePlanSubtasks(pluginGq.SubTaskMetas(), scopeElem.Entities)
+				if err != nil {
+					return nil, err
+				}
+				stage = append(stage, &core.PipelineTask{
+					Plugin:   "github_graphql",
+					Subtasks: subtasks,
+					Options:  options,
+				})
+			} else {
+				return nil, errors.Default.New("plugin github_graphql does not support SubTaskMetas")
+			}
+		} else {
+			subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
+			if err != nil {
+				return nil, err
+			}
+			stage = append(stage, &core.PipelineTask{
+				Plugin:   "github",
+				Subtasks: subtasks,
+				Options:  options,
+			})
+		}
 		// collect git data by gitextractor if CODE was requested
 		if utils.StringsContains(scopeElem.Entities, core.DOMAIN_TYPE_CODE) {
 			// here is the tricky part, we have to obtain the repo id beforehand

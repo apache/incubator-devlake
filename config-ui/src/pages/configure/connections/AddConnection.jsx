@@ -75,6 +75,7 @@ export default function AddConnection() {
     endpointUrl,
     proxy,
     rateLimitPerHour,
+    enableGraphql,
     token,
     initialTokenStore,
     username,
@@ -83,6 +84,7 @@ export default function AddConnection() {
     setEndpointUrl,
     setProxy,
     setRateLimitPerHour,
+    setEnableGraphql,
     setUsername,
     setPassword,
     setToken,
@@ -208,6 +210,7 @@ export default function AddConnection() {
                   endpointUrl={endpointUrl}
                   proxy={proxy}
                   rateLimitPerHour={rateLimitPerHour}
+                  enableGraphql={enableGraphql}
                   token={token}
                   initialTokenStore={initialTokenStore}
                   username={username}
@@ -220,6 +223,7 @@ export default function AddConnection() {
                   onEndpointChange={setEndpointUrl}
                   onProxyChange={setProxy}
                   onRateLimitChange={setRateLimitPerHour}
+                  onEnableGraphqlChange={setEnableGraphql}
                   onTokenChange={setToken}
                   onUsernameChange={setUsername}
                   onPasswordChange={setPassword}

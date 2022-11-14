@@ -77,6 +77,7 @@ var CollectIssueMeta = core.SubTaskMeta{
 	EntryPoint:       CollectIssue,
 	EnabledByDefault: true,
 	Description:      "Collect Issue data from GithubGraphql api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 var _ core.SubTaskEntryPoint = CollectIssue
