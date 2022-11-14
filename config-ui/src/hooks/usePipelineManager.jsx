@@ -131,9 +131,10 @@ function usePipelineManager(
     }
   }, [])
 
-  const fetchPipeline = useCallback((pipelineID, refresh = false) => {
+  const fetchPipeline = useCallback((pipelineID) => {
     if (!pipelineID) {
       console.log('>> !ABORT! Pipeline ID Missing! Aborting Fetch...')
+      return
       // return ToastNotification.show({ message: 'Pipeline ID Missing! Aborting Fetch...', intent: 'danger', icon: 'warning-sign' })
     }
     try {
@@ -155,10 +156,6 @@ function usePipelineManager(
           id: p.data.id,
           tasks: [...t.data.tasks]
         })
-        setPipelineRun((pR) =>
-          refresh ? { ...p.data, ID: p.data.id, tasks: [...t.data.tasks] } : pR
-        )
-        setLastRunId((lrId) => (refresh ? p.data?.id : lrId))
         setTimeout(() => {
           setIsFetching(false)
         }, 500)
@@ -184,18 +181,18 @@ function usePipelineManager(
     }
   }, [])
 
-  const fetchAllPipelines = useCallback((status = null, fetchTimeout = 500) => {
+  const fetchAllPipelines = useCallback((blueprintId, status = null, fetchTimeout = 500) => {
     try {
       setIsFetchingAll(true)
       setErrors([])
       ToastNotification.clear()
       console.log('>> FETCHING ALL PIPELINE RUNS...')
       const fetchAll = async () => {
-        let queryParams = '?'
+        let queryParams = '?blueprint_id=' + blueprintId
         queryParams +=
           status &&
           ['TASK_COMPLETED', 'TASK_RUNNING', 'TASK_FAILED'].includes(status)
-            ? `status=${status}&`
+            ? `&status=${status}&`
             : ''
         const p = await request.get(
           `${DEVLAKE_ENDPOINT}/pipelines${queryParams}`

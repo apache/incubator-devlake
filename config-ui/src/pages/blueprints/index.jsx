@@ -151,7 +151,7 @@ const Blueprints = (props) => {
       setExpandDetails((opened) =>
         blueprint.id === activeBlueprint?.id && opened ? false : !opened
       )
-      fetchAllPipelines()
+      fetchAllPipelines(blueprint.id)
       setActiveBlueprint(blueprint)
     },
     [
@@ -294,10 +294,6 @@ const Blueprints = (props) => {
   // useEffect(() => {
   //   setSelectedPipelineTemplate(pipelineTemplates.find(pT => pT.tasks?.flat().toString() === tasks.flat().toString()))
   // }, [pipelineTemplates])
-
-  useEffect(() => {
-    fetchAllPipelines()
-  }, [fetchAllPipelines])
 
   useEffect(() => {
     setFilterFunc(() => (activeFilterStatus, blueprint) => {

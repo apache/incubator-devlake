@@ -65,18 +65,9 @@ import usePipelineManager from '@/hooks/usePipelineManager'
 import usePaginator from '@/hooks/usePaginator'
 
 const BlueprintDetail = (props) => {
-  // eslint-disable-next-line no-unused-vars
-  const history = useHistory()
-
   const {
-    registry,
-    plugins: Plugins,
     integrations: Integrations,
-    Providers,
-    ProviderIcons,
     ProviderLabels,
-    activeProvider,
-    setActiveProvider
   } = useIntegrations()
 
   const { bId } = useParams()
@@ -86,7 +77,6 @@ const BlueprintDetail = (props) => {
   // eslint-disable-next-line no-unused-vars
   const [blueprintConnections, setBlueprintConnections] = useState([])
   const [blueprintPipelines, setBlueprintPipelines] = useState([])
-  const [lastPipeline, setLastPipeline] = useState()
   const [inspectedPipeline, setInspectedPipeline] = useState(NullPipelineRun)
   const [currentRun, setCurrentRun] = useState()
   const [showCurrentRunTasks, setShowCurrentRunTasks] = useState(true)
@@ -101,39 +91,11 @@ const BlueprintDetail = (props) => {
   const [isDownloading, setIsDownloading] = useState(false)
 
   const {
-    // eslint-disable-next-line no-unused-vars
     blueprint,
-    blueprints,
-    name,
-    cronConfig,
-    customCronConfig,
-    cronPresets,
-    tasks,
-    detectedProviderTasks,
-    enable,
-    setName: setBlueprintName,
-    setCronConfig,
-    setCustomCronConfig,
-    setTasks: setBlueprintTasks,
-    setDetectedProviderTasks,
-    setEnable: setEnableBlueprint,
-    isFetching: isFetchingBlueprints,
-    isSaving,
-    isDeleting,
-    createCronExpression: createCron,
-    getCronSchedule: getSchedule,
-    getCronPreset,
-    getCronPresetByConfig,
     getNextRunDate,
     activateBlueprint,
     deactivateBlueprint,
-    // eslint-disable-next-line no-unused-vars
     fetchBlueprint,
-    fetchAllBlueprints,
-    saveBlueprint,
-    deleteBlueprint,
-    saveComplete,
-    deleteComplete
   } = useBlueprintManager()
 
   const {
@@ -189,8 +151,6 @@ const BlueprintDetail = (props) => {
       } else {
         activateBlueprint(blueprint)
       }
-      // fetchBlueprint(blueprint?.id)
-      // fetchAllPipelines()
     },
     [activateBlueprint, deactivateBlueprint]
   )
@@ -226,8 +186,6 @@ const BlueprintDetail = (props) => {
     setInspectedPipeline(NullPipelineRun)
     setShowInspector(false)
   }, [])
-
-  const cancelRun = () => {}
 
   const getTaskStatusIcon = (status) => {
     let icon = null
@@ -296,9 +254,9 @@ const BlueprintDetail = (props) => {
   useEffect(() => {
     if (blueprintId) {
       fetchBlueprint(blueprintId)
-      fetchAllPipelines()
+      fetchAllPipelines(blueprintId)
     }
-  }, [blueprintId, fetchBlueprint, fetchAllPipelines])
+  }, [lastRunId, autoRefresh, blueprintId, fetchBlueprint, fetchAllPipelines])
 
   useEffect(() => {
     console.log('>>>> SETTING ACTIVE BLUEPRINT...', blueprint)
@@ -339,7 +297,7 @@ const BlueprintDetail = (props) => {
 
   useEffect(() => {
     console.log('>>>> RELATED BLUEPRINT PIPELINES..', blueprintPipelines)
-    setLastPipeline(blueprintPipelines[0])
+    fetchPipeline(blueprintPipelines[0]?.id)
     setHistoricalRuns(
       blueprintPipelines.map((p, pIdx) => ({
         id: p.id,
@@ -361,46 +319,14 @@ const BlueprintDetail = (props) => {
 
   useEffect(() => {
     if (
-      lastPipeline?.id &&
+      activePipeline?.id &&
       [
         TaskStatus.CREATED,
         TaskStatus.RUNNING,
         TaskStatus.COMPLETE,
         TaskStatus.FAILED
-      ].includes(lastPipeline.status)
+      ].includes(activePipeline.status)
     ) {
-      fetchPipeline(lastPipeline?.id)
-      setCurrentRun((cR) => ({
-        ...cR,
-        id: lastPipeline.id,
-        status: lastPipeline.status,
-        statusLabel: TaskStatusLabels[lastPipeline.status],
-        icon: getTaskStatusIcon(lastPipeline.status),
-        startedAt: lastPipeline.beganAt
-          ? dayjs(lastPipeline.beganAt).format('L LTS')
-          : '-',
-        duration: [TaskStatus.CREATED, TaskStatus.RUNNING].includes(
-          lastPipeline.status
-        )
-          ? dayjs(lastPipeline.beganAt || lastPipeline.createdAt).toNow(true)
-          : dayjs(lastPipeline.beganAt).from(
-              lastPipeline.finishedAt || lastPipeline.updatedAt,
-              true
-            ),
-        stage: `Stage ${lastPipeline.stage}`,
-        tasksFinished: Number(lastPipeline.finishedTasks),
-        tasksTotal: Number(lastPipeline.totalTasks),
-        error: lastPipeline.message || null
-      }))
-    }
-  }, [fetchPipeline, lastPipeline])
-
-  useEffect(() => {
-    fetchAllPipelines()
-  }, [lastRunId, fetchAllPipelines])
-
-  useEffect(() => {
-    if (activePipeline?.id && activePipeline?.id !== null) {
       setCurrentStages(buildPipelineStages(activePipeline.tasks))
       setAutoRefresh(
         [TaskStatus.RUNNING, TaskStatus.CREATED].includes(
@@ -409,40 +335,49 @@ const BlueprintDetail = (props) => {
       )
       setCurrentRun((cR) => ({
         ...cR,
-        startedAt: activePipeline?.beganAt
-          ? dayjs(activePipeline?.beganAt).format('L LTS')
+        id: activePipeline.id,
+        status: activePipeline.status,
+        statusLabel: TaskStatusLabels[activePipeline.status],
+        icon: getTaskStatusIcon(activePipeline.status),
+        startedAt: activePipeline.beganAt
+          ? dayjs(activePipeline.beganAt).format('L LTS')
           : '-',
+        duration: [TaskStatus.CREATED, TaskStatus.RUNNING].includes(
+          activePipeline.status
+        )
+          ? dayjs(activePipeline.beganAt || activePipeline.createdAt).toNow(true)
+          : dayjs(activePipeline.beganAt).from(
+            activePipeline.finishedAt || activePipeline.updatedAt,
+              true
+            ),
         stage: `Stage ${activePipeline.stage}`,
-        status: activePipeline?.status,
-        statusLabel: TaskStatusLabels[activePipeline?.status],
-        icon: getTaskStatusIcon(activePipeline?.status)
+        tasksFinished: Number(activePipeline.finishedTasks),
+        tasksTotal: Number(activePipeline.totalTasks),
+        error: activePipeline.message || null
       }))
     }
-  }, [activePipeline, buildPipelineStages])
+  }, [activePipeline])
 
   useEffect(() => {
     console.log('>> BUILDING CURRENT STAGES...', currentStages)
   }, [currentStages])
 
   useEffect(() => {
-    if (autoRefresh && activePipeline?.id) {
-      console.log('>> ACTIVITY POLLING ENABLED!')
-      pollInterval.current = setInterval(() => {
-        fetchPipeline(activePipeline?.id)
-        // setLastPipeline(activePipeline)
-      }, pollTimer)
-    } else {
-      console.log('>> ACTIVITY POLLING DISABLED!')
-      clearInterval(pollInterval.current)
-      if (activePipeline?.id) {
-        fetchPipeline(activePipeline?.id)
-        fetchAllPipelines()
+    if (activePipeline?.id) {
+      if (autoRefresh) {
+        console.log('>> ACTIVITY POLLING ENABLED!')
+        pollInterval.current = setInterval(() => {
+          fetchPipeline(activePipeline?.id)
+          // setLastPipeline(activePipeline)
+        }, pollTimer)
+        return () => {
+          clearInterval(pollInterval.current)
+        }
       }
     }
   }, [
     autoRefresh,
     fetchPipeline,
-    fetchAllPipelines,
     activePipeline?.id,
     pollTimer
   ])
