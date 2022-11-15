@@ -18,8 +18,12 @@
 
 import React, { useEffect, useState } from 'react'
 
-import { MillerColumns } from '../../miller-columns'
-import { ColumnType, ItemStatusEnum, ItemType, ItemTypeEnum } from '../../types'
+import type { ColumnType, ItemType } from '@/components/miller-columns'
+import {
+  MillerColumns,
+  ItemStatusEnum,
+  ItemTypeEnum
+} from '@/components/miller-columns'
 
 import {
   useGitLabMillerColumns,

@@ -18,8 +18,8 @@
 
 import { useMemo, useCallback } from 'react'
 
-import { ItemTypeEnum, ItemType } from '../../types'
-import { useLoadItems } from '../../hooks'
+import type { ItemType } from '@/components/miller-columns'
+import { useLoadItems, ItemTypeEnum } from '@/components/miller-columns'
 
 import request from '../request'
 
