@@ -23,20 +23,32 @@ import { CheckStatus } from './types'
 import * as S from './styled'
 
 interface Props {
-  status?: CheckStatus
+  status?: CheckStatus | Array<CheckStatus>
   children?: React.ReactNode
-  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void
+  onClick?: (e: React.MouseEvent<HTMLLabelElement>) => void
 }
 
 export const Checkbox = ({ children, status, onClick }: Props) => {
   const checkboxCls = classNames('checkbox', {
-    'checkbox-checked': status === CheckStatus.checked,
-    'checkbox-indeterminate': status === CheckStatus.indeterminate
+    'checkbox-checked':
+      status === CheckStatus.checked ||
+      (Array.isArray(status) && status.includes(CheckStatus.checked)),
+    'checkbox-indeterminate':
+      status === CheckStatus.indeterminate ||
+      (Array.isArray(status) && status.includes(CheckStatus.indeterminate)),
+    'checkbox-disabled':
+      status === CheckStatus.disabled ||
+      (Array.isArray(status) && status?.includes(CheckStatus.disabled))
   })
 
+  const handleClick = (e: React.MouseEvent<HTMLLabelElement>) => {
+    if (status === CheckStatus.disabled) return
+    onClick?.(e)
+  }
+
   return (
-    <S.Wrapper>
-      <span className={checkboxCls} onClick={onClick}>
+    <S.Wrapper onClick={handleClick}>
+      <span className={checkboxCls}>
         <span className='checkbox-inner'></span>
       </span>
       {children && <span className='text'>{children}</span>}

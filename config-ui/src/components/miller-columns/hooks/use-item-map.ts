@@ -19,13 +19,23 @@
 import { useMemo } from 'react'
 
 import type { ItemType, ItemInfoType } from '../types'
+import { ItemStatusEnum } from '../types'
 
 interface Props {
   items: ItemType[]
-  selectedItemIds?: Array<ItemType['id']>
 }
 
-export const useItemMap = ({ items, selectedItemIds = [] }: Props) => {
+export const useItemMap = ({ items }: Props) => {
+  const checkChildLoaded = (item: ItemType): boolean => {
+    if (item.status === ItemStatusEnum.PENDING) {
+      return false
+    }
+
+    return item.items.every((it) => {
+      return checkChildLoaded(it)
+    })
+  }
+
   return useMemo(() => {
     const itemMap = new Map<ItemType['id'], ItemInfoType>()
 
@@ -40,7 +50,7 @@ export const useItemMap = ({ items, selectedItemIds = [] }: Props) => {
         itemMap.set(item.id, {
           item,
           parentId: parent?.id,
-          selectedChildCount: 0
+          childLoaded: checkChildLoaded(item)
         })
       }
 
@@ -50,30 +60,18 @@ export const useItemMap = ({ items, selectedItemIds = [] }: Props) => {
     }
 
     items.forEach((it) => collect({ item: it }))
-    selectedItemIds.forEach((id) => {
-      const childTotal = itemMap.get(id)?.item.total ?? 0
-      const addedCount = childTotal + 1
-      const parentId = itemMap.get(id)?.parentId
-      const parent = parentId ? itemMap.get(parentId) : null
-      if (parent) {
-        parent.selectedChildCount += addedCount
-      }
-    })
 
     return {
       getItem(id: ItemType['id']) {
         return (itemMap.get(id) as ItemInfoType).item
       },
-      getItemSelectedChildCount(id: ItemType['id']) {
-        return (itemMap.get(id) as ItemInfoType).selectedChildCount
-      },
       getItemParent(id: ItemType['id']) {
         const parentId = itemMap.get(id)?.parentId
         return parentId ? (itemMap.get(parentId) as ItemInfoType).item : null
       },
-      getItemMapSize() {
-        return itemMap.size
+      getItemChildLoaded(id: ItemType['id']) {
+        return (itemMap.get(id) as ItemInfoType).childLoaded
       }
     }
-  }, [items, selectedItemIds])
+  }, [items])
 }

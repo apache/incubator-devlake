@@ -18,29 +18,10 @@
 
 import styled from '@emotion/styled'
 
-export const Container = styled.div<{ height?: number }>`
+export const Container = styled.div`
   display: flex;
   width: 100%;
-  ${({ height }) => `height: ${height}px;`}
+  border: 1px solid #dbe4fd;
+  border-radius: 4px;
   overflow-x: auto;
-
-  .items {
-    flex: 1;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    border: 1px solid #dbe4fd;
-    border-right: none;
-    border-radius: 4px;
-
-    &:last-child {
-      border-right: 1px solid #dbe4fd;
-    }
-
-    & > .title {
-      padding: 4px 12px;
-      font-weight: 700;
-      color: #292b3f;
-    }
-  }
 `

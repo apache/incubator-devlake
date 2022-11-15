@@ -64,11 +64,6 @@ import BlueprintDataScopesDialog from '@/components/blueprints/BlueprintDataScop
 import BlueprintNavigationLinks from '@/components/blueprints/BlueprintNavigationLinks'
 import DataScopesGrid from '@/components/blueprints/DataScopesGrid'
 import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
-import useGitlab from '@/hooks/useGitlab'
-import {
-  GITLAB_API_PROXY_ENDPOINT,
-  PROJECTS_ENDPOINT
-} from '@/config/gitlabApiProxy'
 import useJenkins from '@/hooks/useJenkins'
 import {
   JENKINS_API_PROXY_ENDPOINT,
@@ -302,19 +297,6 @@ const BlueprintSettings = (props) => {
       issuesEndpoint: ISSUE_TYPES_ENDPOINT,
       fieldsEndpoint: ISSUE_FIELDS_ENDPOINT,
       boardsEndpoint: BOARDS_ENDPOINT
-    },
-    configuredConnection
-  )
-
-  const {
-    fetchProjects: fetchGitlabProjects,
-    projects: gitlabProjects,
-    isFetching: isFetchingGitlab,
-    error: gitlabProxyError
-  } = useGitlab(
-    {
-      apiProxyPath: GITLAB_API_PROXY_ENDPOINT,
-      projectsEndpoint: PROJECTS_ENDPOINT
     },
     configuredConnection
   )
@@ -727,6 +709,7 @@ const BlueprintSettings = (props) => {
         break
     }
   }, [
+    skipOnFail,
     blueprintName,
     cronConfig,
     customCronConfig,
@@ -1098,7 +1081,6 @@ const BlueprintSettings = (props) => {
                         loading={
                           isFetchingBlueprint ||
                           isFetchingJIRA ||
-                          isFetchingGitlab ||
                           isFetchingJenkins
                         }
                       />
@@ -1141,7 +1123,6 @@ const BlueprintSettings = (props) => {
                       loading={
                         isFetchingBlueprint ||
                         isFetchingJIRA ||
-                        isFetchingGitlab ||
                         isFetchingJenkins
                       }
                     />
@@ -1268,10 +1249,6 @@ const BlueprintSettings = (props) => {
         fieldsList={jiraApiFields}
         isFetching={isFetchingBlueprint}
         isFetchingJIRA={isFetchingJIRA}
-        fetchGitlabProjects={fetchGitlabProjects}
-        gitlabProjects={gitlabProjects}
-        isFetchingGitlab={isFetchingGitlab}
-        gitlabProxyError={gitlabProxyError}
         fetchJenkinsJobs={fetchJenkinsJobs}
         jenkinsJobs={jenkinsJobs}
         isFetchingJenkins={isFetchingJenkins}

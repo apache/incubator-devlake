@@ -16,4 +16,26 @@
  *
  */
 
-export * from './item'
+import React from 'react'
+
+import type { ItemType } from '../../types'
+
+import * as S from './styled'
+
+interface Props {
+  items: Array<ItemType>
+  renderItem: (item: ItemType) => React.ReactNode
+  height?: number
+  title?: string | React.ReactNode
+  bottom?: React.ReactNode
+}
+
+export const Column = ({ items, renderItem, height, title, bottom }: Props) => {
+  return (
+    <S.Container height={height}>
+      {title && <div className='title'>{title}</div>}
+      {items.map((it) => renderItem(it))}
+      {bottom}
+    </S.Container>
+  )
+}

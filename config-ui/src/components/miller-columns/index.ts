@@ -17,4 +17,6 @@
  */
 
 export * from './miller-columns'
-export * from './hooks/use-test'
+export * from './components'
+export * from './hooks'
+export * from './types'

@@ -16,4 +16,8 @@
  *
  */
 
-export * from './item'
+import styled from '@emotion/styled'
+
+export const Placeholder = styled.div`
+  padding: 4px 12px;
+`

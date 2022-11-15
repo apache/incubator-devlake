@@ -30,7 +30,8 @@ import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import BoardsSelector from '@/components/blueprints/BoardsSelector'
 import DataDomainsSelector from '@/components/blueprints/DataDomainsSelector'
 import NoData from '@/components/NoData'
-import GitlabProjectsSelector from '@/components/blueprints/GitlabProjectsSelector'
+import { GitLabMillerColumns, GitLabProjectSelector } from '@/components/gitlab'
+import GitlabProject from '@/models/GitlabProject'
 import GitHubProject from '@/models/GithubProject'
 import JenkinsJobsSelector from '@/components/blueprints/JenkinsJobsSelector'
 
@@ -40,9 +41,6 @@ const DataScopes = (props) => {
     activeConnectionTab,
     blueprintConnections = [],
     jiraBoards = [],
-    fetchGitlabProjects = () => [],
-    isFetchingGitlab = false,
-    gitlabProjects = [],
     fetchJenkinsJobs = () => [],
     isFetchingJenkins = false,
     jenkinsJobs = [],
@@ -211,18 +209,66 @@ const DataScopes = (props) => {
                   ) && (
                     <>
                       <h4>Projects *</h4>
-                      <p>Select the project you would like to sync.</p>
-                      <GitlabProjectsSelector
-                        onFetch={fetchGitlabProjects}
-                        isFetching={isFetchingGitlab}
-                        items={gitlabProjects}
-                        selectedItems={selectedScopeEntities}
-                        onItemSelect={setScopeEntities}
-                        onClear={setScopeEntities}
-                        onRemove={setScopeEntities}
-                        disabled={isSaving}
-                        configuredConnection={configuredConnection}
-                        isLoading={isFetching}
+                      {!!activeStep && (
+                        <>
+                          <p>Select the project you would like to sync.</p>
+                          <GitLabMillerColumns
+                            connectionId={configuredConnection.connectionId}
+                            disabledItemIds={selectedScopeEntities
+                              .filter((it) => it.type !== 'miller-columns')
+                              .map((it) => it.id)}
+                            onChangeItems={(items) =>
+                              setScopeEntities([
+                                ...scopeEntitiesGroup[
+                                  configuredConnection.id
+                                ].filter((it) => it.type !== 'miller-columns'),
+                                ...items.map(
+                                  (it) =>
+                                    new GitlabProject({
+                                      ...it,
+                                      type: 'miller-columns'
+                                    })
+                                )
+                              ])
+                            }
+                          />
+                        </>
+                      )}
+                      <div style={{ margin: '16px 0 8px' }}>
+                        Add repositories outside of your projects
+                      </div>
+                      <p>
+                        Enter the repositories using the format “owner/repo” and
+                        separate multiple repos with a comma.
+                      </p>
+                      <GitLabProjectSelector
+                        connectionId={configuredConnection.connectionId}
+                        disabledItemIds={selectedScopeEntities
+                          .filter((it) => it.type !== 'project-selector')
+                          .map((it) => it.id)}
+                        selectedItems={selectedScopeEntities
+                          .filter((it) => it.type === 'project-selector')
+                          .map((it) => ({
+                            id: it.id,
+                            key: it.id,
+                            title: it.title,
+                            shortTitle: it.shortTitle,
+                            value: it.id
+                          }))}
+                        onChangeItems={(items) =>
+                          setScopeEntities([
+                            ...scopeEntitiesGroup[
+                              configuredConnection.id
+                            ].filter((it) => it.type !== 'project-selector'),
+                            ...items.map(
+                              (it) =>
+                                new GitlabProject({
+                                  ...it,
+                                  type: 'project-selector'
+                                })
+                            )
+                          ])
+                        }
                       />
                     </>
                   )}

@@ -19,7 +19,7 @@
 import { useState, useMemo, useEffect } from 'react'
 
 import type { ItemType, ColumnType } from '../types'
-import { RowStatus } from '../types'
+import { ItemTypeEnum, RowStatus } from '../types'
 import { CheckStatus } from '../components'
 
 import { useItemMap } from './use-item-map'
@@ -29,21 +29,26 @@ export interface UseMillerColumnsProps {
   items: ItemType[]
   activeItemId?: ItemType['id']
   onActiveItemId?: (id: ItemType['id']) => void
-  selectedItemIds?: Array<ItemType['id']>
+  disabledItemIds?: Array<ItemType['id']>
+  selectedItemIds: Array<ItemType['id']>
   onSelectedItemIds?: (ids: Array<ItemType['id']>) => void
+  onExpandItem?: (item: ItemType) => void
 }
 
 export const useMillerColumns = ({
   items,
+  disabledItemIds,
   onActiveItemId,
   onSelectedItemIds,
+  onExpandItem,
   ...props
 }: UseMillerColumnsProps) => {
   const [activeItemId, setActiveItemId] = useState<ItemType['id']>()
-  const [selectedItemIds, setSelectedItemIds] =
-    useState<Array<ItemType['id']>>()
+  const [selectedItemIds, setSelectedItemIds] = useState<Array<ItemType['id']>>(
+    []
+  )
 
-  const itemMap = useItemMap({ items, selectedItemIds })
+  const itemMap = useItemMap({ items })
   const columns = useColumns({ items, itemMap, activeItemId })
 
   useEffect(() => {
@@ -51,8 +56,40 @@ export const useMillerColumns = ({
   }, [props.activeItemId])
 
   useEffect(() => {
-    setSelectedItemIds(props.selectedItemIds)
+    setSelectedItemIds(props.selectedItemIds ?? [])
   }, [props.selectedItemIds])
+
+  const collectAddParentIds = (item: ItemType) => {
+    let result: Array<ItemType['id']> = []
+
+    const parentItem = itemMap.getItemParent(item.id)
+
+    if (parentItem) {
+      const childSelectedIds = parentItem.items
+        .map((it) => it.id)
+        .filter((id) => [...selectedItemIds, item.id].includes(id))
+
+      if (childSelectedIds.length === parentItem.items.length) {
+        result.push(parentItem.id)
+        result.push(...collectAddParentIds(parentItem))
+      }
+    }
+
+    return result
+  }
+
+  const collectRemoveParentIds = (item: ItemType) => {
+    let result: Array<ItemType['id']> = []
+
+    const parentItem = itemMap.getItemParent(item.id)
+
+    if (parentItem) {
+      result.push(parentItem.id)
+      result.push(...collectRemoveParentIds(parentItem))
+    }
+
+    return result
+  }
 
   return useMemo(
     () => ({
@@ -60,139 +97,59 @@ export const useMillerColumns = ({
       itemMap,
       activeItemId,
       selectedItemIds,
-      getStatus(item: ItemType) {
-        if (item.id === activeItemId) {
+      getStatus(item: ItemType, column: ColumnType) {
+        if (column.activeId === item.id) {
           return RowStatus.selected
         }
         return RowStatus.noselected
       },
       getChekecdStatus(item: ItemType) {
-        if (!selectedItemIds?.length) {
-          return CheckStatus.nochecked
-        }
-        if (selectedItemIds?.includes(item.id)) {
-          return CheckStatus.checked
-        }
+        const childSelectedIds = item.items
+          .map((it) => it.id)
+          .filter((id) => selectedItemIds.includes(id))
 
-        const hasChildCheckedIds = selectedItemIds.filter((id) =>
-          item.items?.map((it) => it.id).includes(id)
-        )
-
-        if (!hasChildCheckedIds.length) {
-          return CheckStatus.nochecked
-        }
-
-        if (hasChildCheckedIds.length === item.items?.length) {
-          return CheckStatus.checked
-        }
-
-        return CheckStatus.indeterminate
-      },
-      getCheckedAllStatus(column: ColumnType) {
-        const itemIds = column.items?.map((it) => it.id) ?? []
-        const colSelectedIds = itemIds.filter((id) =>
-          selectedItemIds?.includes(id)
-        )
         switch (true) {
-          case colSelectedIds.length === itemIds.length:
+          case !itemMap.getItemChildLoaded(item.id):
+          case (disabledItemIds ?? []).includes(item.id):
+            return CheckStatus.disabled
+          case selectedItemIds.includes(item.id):
             return CheckStatus.checked
-          case !!colSelectedIds.length:
+          case !!childSelectedIds.length:
             return CheckStatus.indeterminate
           default:
             return CheckStatus.nochecked
         }
       },
-      getCheckedCount(item: ItemType) {
-        return itemMap.getItemSelectedChildCount(item.id)
-      },
       onExpandItem(item: ItemType) {
-        if (!item.items?.length) {
+        if (item.type !== ItemTypeEnum.BRANCH) {
           return
         }
+        onExpandItem?.(item)
         onActiveItemId ? onActiveItemId(item.id) : setActiveItemId(item.id)
       },
       onSelectItem(item: ItemType) {
-        let newIds: Array<ItemType['id']>
-        let targetIds: Array<ItemType['id']> = [item.id]
-        const itemIds = item.items?.map((it) => it.id) ?? []
+        let newIds: Array<ItemType['id']> = [item.id]
+        const isRemoveExistedItem = !!selectedItemIds.includes(item.id)
 
-        const collect = (id: ItemType['id']) => {
-          targetIds.push(id)
-          const item = itemMap.getItem(id)
-          if (item.items) {
-            item.items.forEach((it) => collect(it.id))
-          }
+        const collectChildIds = (it: ItemType) => {
+          newIds.push(it.id)
+          it.items.forEach((it) => collectChildIds(it))
         }
 
-        itemIds.forEach((id) => collect(id))
+        item.items.forEach((it) => collectChildIds(it))
 
-        const isRemoveExistedItem = !!selectedItemIds?.includes(item.id)
-
-        if (isRemoveExistedItem) {
-          const parentItem = itemMap.getItemParent(item.id)
-          const deleteIds = [parentItem?.id, ...targetIds].filter(Boolean)
-          newIds =
-            selectedItemIds?.filter((id) => !deleteIds.includes(id)) ?? []
+        if (!isRemoveExistedItem) {
+          newIds = [
+            ...new Set([
+              ...newIds,
+              ...selectedItemIds,
+              ...collectAddParentIds(item)
+            ])
+          ]
         } else {
-          const parentItem = itemMap.getItemParent(item.id)
-          const addIds = targetIds.filter(
-            (id) => !selectedItemIds?.includes(id)
+          newIds = selectedItemIds.filter(
+            (id) => ![...newIds, ...collectRemoveParentIds(item)].includes(id)
           )
-
-          if (parentItem) {
-            const parentChildIds = parentItem.items?.map((it) => it.id) ?? []
-            const parentSelectedIds = parentChildIds.filter((id) =>
-              [...(selectedItemIds ?? []), item.id].includes(id)
-            )
-
-            const isAllChildSelected =
-              parentSelectedIds.length === parentItem?.items?.length
-
-            if (isAllChildSelected) {
-              addIds.push(parentItem.id)
-            }
-          }
-
-          newIds = [...(selectedItemIds ?? []), ...addIds]
-        }
-
-        onSelectedItemIds
-          ? onSelectedItemIds(newIds)
-          : setSelectedItemIds(newIds)
-      },
-      onSelectAllItem(column: ColumnType) {
-        let newIds: Array<ItemType['id']>
-        let targetIds: Array<ItemType['id']> = []
-        const itemIds = column.items?.map((it) => it.id) ?? []
-
-        const collect = (id: ItemType['id']) => {
-          targetIds.push(id)
-          const item = itemMap.getItem(id)
-          if (item.items) {
-            item.items.forEach((it) => collect(it.id))
-          }
-        }
-
-        itemIds.forEach((id) => collect(id))
-
-        const isRemoveExistedItems =
-          itemIds.filter((id) => selectedItemIds?.includes(id)).length ===
-          itemIds.length
-
-        if (isRemoveExistedItems) {
-          const deleteIds = [...targetIds, column.parentId].filter(Boolean)
-          newIds =
-            selectedItemIds?.filter((id) => !deleteIds.includes(id)) ?? []
-        } else {
-          const addIds = targetIds.filter(
-            (id) => !selectedItemIds?.includes(id)
-          )
-
-          if (column.parentId) {
-            addIds.push(column.parentId)
-          }
-
-          newIds = [...(selectedItemIds ?? []), ...addIds]
         }
 
         onSelectedItemIds
@@ -200,6 +157,6 @@ export const useMillerColumns = ({
           : setSelectedItemIds(newIds)
       }
     }),
-    [columns, itemMap, activeItemId, selectedItemIds]
+    [columns, itemMap, activeItemId, disabledItemIds, selectedItemIds]
   )
 }

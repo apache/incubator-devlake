@@ -18,23 +18,33 @@
 
 import styled from '@emotion/styled'
 
-export const Wrapper = styled.div<{ selected: boolean }>`
+import { ItemTypeEnum } from '../../types'
+
+export const Wrapper = styled.div<{ selected: boolean; type: ItemTypeEnum }>`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 4px 12px;
-  cursor: pointer;
+
+  ${({ type }) =>
+    type === ItemTypeEnum.BRANCH
+      ? `
+    cursor: pointer;
+    &:hover {
+      background-color: #f5f5f7;
+    }
+    `
+      : ''}
 
   ${({ selected }) => (selected ? 'background-color: #f5f5f7;' : '')}
 
-  &:hover {
-    background-color: #f5f5f7;
-  }
-
-  & > span.name {
-    font-size: 14px;
-  }
-
-  & > span.count {
-    font-size: 14px;
+  & > span.indicator {
+    display: table;
+    width: 6px;
+    height: 6px;
+    border: 1px solid #000;
+    border-top: 0;
+    border-left: 0;
+    transform: rotate(-45deg);
   }
 `

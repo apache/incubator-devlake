@@ -16,30 +16,5 @@
  *
  */
 
-import React from 'react'
-
-import type { ColumnType } from '../../types'
-
-import { Checkbox, CheckStatus } from '../checkbox'
-
-import * as S from './styled'
-
-interface Props {
-  column: ColumnType
-  checkStatus?: CheckStatus
-  onSelectAllItem?: (column: ColumnType) => void
-}
-
-export const ItemAll = ({ column, checkStatus, onSelectAllItem }: Props) => {
-  const handleCheckboxClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
-    onSelectAllItem?.(column)
-  }
-
-  return (
-    <S.Wrapper selected={false}>
-      <Checkbox status={checkStatus} onClick={handleCheckboxClick} />
-      <span>All</span>
-    </S.Wrapper>
-  )
-}
+export * from './miller-columns'
+export * from './project-selector'

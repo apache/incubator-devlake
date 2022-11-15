@@ -16,4 +16,5 @@
  *
  */
 
-export * from './item'
+export const getGitLabProxyApiPrefix = (connectionId: string) =>
+  `/plugins/gitlab/connections/${connectionId}/proxy/rest`

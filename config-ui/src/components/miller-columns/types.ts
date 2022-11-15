@@ -16,28 +16,39 @@
  *
  */
 
+export enum ItemTypeEnum {
+  LEAF = 'leaf',
+  BRANCH = 'branch'
+}
+
+export enum ItemStatusEnum {
+  PENDING = 'pending',
+  READY = 'ready'
+}
+
 export type ItemType = {
   id: string | number
   title: string
-  total?: number
-  items?: ItemType[]
+  type: ItemTypeEnum
+  status: ItemStatusEnum
+  items: ItemType[]
 }
 
 export type ItemInfoType = {
   item: ItemType
   parentId?: ItemType['id']
-  selectedChildCount: number
+  childLoaded: boolean
 }
 
 export type ItemMapType = {
   getItem: (id: ItemType['id']) => ItemType
-  getItemSelectedChildCount: (id: ItemType['id']) => number
   getItemParent: (id: ItemType['id']) => ItemType | null
+  getItemChildLoaded: (id: ItemType['id']) => boolean
 }
 
 export type ColumnType = {
   parentId: ItemType['id'] | null
-  items?: ItemType[]
+  items: ItemType[]
   activeId: ItemType['id'] | null
 }
 

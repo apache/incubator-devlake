@@ -59,6 +59,22 @@ export const Wrapper = styled.label`
       }
     }
 
+    &.checkbox-disabled {
+      cursor: not-allowed;
+
+      .checkbox-inner {
+        background-color: #f5f5f5;
+        border-color: #d9d9d9;
+
+        &::after {
+          background-color: #cccccc;
+          border-color: #f5f5f5;
+          border-collapse: separate;
+          animation-name: none;
+        }
+      }
+    }
+
     .checkbox-input {
       position: absolute;
       z-index: 1;

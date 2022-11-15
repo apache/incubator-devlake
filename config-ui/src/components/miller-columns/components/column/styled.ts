@@ -16,4 +16,25 @@
  *
  */
 
-export * from './item'
+import styled from '@emotion/styled'
+
+export const Container = styled.div<{ height?: number }>`
+  flex: 0 0 33.33%;
+  margin: 0;
+  padding: 0;
+  width: 33.33%;
+  ${({ height }) => `height: ${height}px;`}
+  list-style: none;
+  border-left: 1px solid #dbe4fd;
+  overflow-y: auto;
+
+  &:first-child {
+    border-left: none;
+  }
+
+  & > .title {
+    padding: 4px 12px;
+    font-weight: 700;
+    color: #292b3f;
+  }
+`

@@ -15,9 +15,11 @@
  * limitations under the License.
  *
  */
-// @todo: add string replacer for [:connectionId] or refactor this const
-const GITLAB_API_PROXY_ENDPOINT =
-  '/api/plugins/gitlab/connections/[:connectionId:]/proxy/rest'
-const PROJECTS_ENDPOINT = `${GITLAB_API_PROXY_ENDPOINT}/projects?search=[:search:]&membership=[:membership:]`
 
-export { GITLAB_API_PROXY_ENDPOINT, PROJECTS_ENDPOINT }
+import styled from '@emotion/styled'
+
+export const Container = styled.div`
+  .checkbox {
+    margin: 8px 0 0;
+  }
+`

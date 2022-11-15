@@ -19,5 +19,6 @@
 export enum CheckStatus {
   nochecked = 'nochecked',
   checked = 'checked',
-  indeterminate = 'indeterminate'
+  indeterminate = 'indeterminate',
+  disabled = 'disabled'
 }

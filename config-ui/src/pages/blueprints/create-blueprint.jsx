@@ -40,10 +40,6 @@ import { WorkflowAdvancedSteps, WorkflowSteps } from '@/data/BlueprintWorkflow'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import {
-  GITLAB_API_PROXY_ENDPOINT,
-  PROJECTS_ENDPOINT
-} from '@/config/gitlabApiProxy'
-import {
   JENKINS_API_PROXY_ENDPOINT,
   JENKINS_JOBS_ENDPOINT
 } from '@/config/jenkinsApiProxy'
@@ -58,7 +54,6 @@ import usePipelineValidation from '@/hooks/usePipelineValidation'
 import useConnectionValidation from '@/hooks/useConnectionValidation'
 import useJIRA from '@/hooks/useJIRA'
 import useJenkins from '@/hooks/useJenkins'
-import useGitlab from '@/hooks/useGitlab'
 
 import WorkflowStepsBar from '@/components/blueprints/WorkflowStepsBar'
 import WorkflowActions from '@/components/blueprints/WorkflowActions'
@@ -280,19 +275,6 @@ const CreateBlueprint = (props) => {
       issuesEndpoint: ISSUE_TYPES_ENDPOINT,
       fieldsEndpoint: ISSUE_FIELDS_ENDPOINT,
       boardsEndpoint: BOARDS_ENDPOINT
-    },
-    configuredConnection
-  )
-
-  const {
-    fetchProjects: fetchGitlabProjects,
-    projects: gitlabProjects,
-    isFetching: isFetchingGitlab,
-    error: gitlabProxyError
-  } = useGitlab(
-    {
-      apiProxyPath: GITLAB_API_PROXY_ENDPOINT,
-      projectsEndpoint: PROJECTS_ENDPOINT
     },
     configuredConnection
   )
@@ -978,9 +960,6 @@ const CreateBlueprint = (props) => {
                       activeConnectionTab={activeConnectionTab}
                       blueprintConnections={blueprintConnections}
                       jiraBoards={jiraBoards}
-                      fetchGitlabProjects={fetchGitlabProjects}
-                      isFetchingGitlab={isFetchingGitlab}
-                      gitlabProjects={gitlabProjects}
                       fetchJenkinsJobs={fetchJenkinsJobs}
                       isFetchingJenkins={isFetchingJenkins}
                       jenkinsJobs={jenkinsJobs}
@@ -1000,7 +979,6 @@ const CreateBlueprint = (props) => {
                       ]}
                       isFetching={
                         isFetchingJIRA ||
-                        isFetchingGitlab ||
                         isFetchingJenkins ||
                         isFetchingConnection
                       }
@@ -1080,7 +1058,6 @@ const CreateBlueprint = (props) => {
               isLoading={
                 isSaving ||
                 isFetchingJIRA ||
-                isFetchingGitlab ||
                 isFetchingJenkins ||
                 isFetchingConnection ||
                 isTestingConnection
