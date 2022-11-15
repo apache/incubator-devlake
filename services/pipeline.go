@@ -155,7 +155,6 @@ func GetPipelineLogsArchivePath(pipeline *models.Pipeline) (string, errors.Error
 // RunPipelineInQueue query pipeline from db and run it in a queue
 func RunPipelineInQueue(pipelineMaxParallel int64) {
 	sema := semaphore.NewWeighted(pipelineMaxParallel)
-	startedPipelineIds := []uint64{}
 	for {
 		globalPipelineLog.Info("acquire lock")
 		// start goroutine when sema lock ready and pipeline exist.
@@ -168,24 +167,27 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 		dbPipeline := &models.DbPipeline{}
 		for {
 			cronLocker.Lock()
-			db.Where("status = ?", models.TASK_CREATED).
-				Not(startedPipelineIds).
+			db.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}).
 				Order("id ASC").Limit(1).Find(dbPipeline)
 			cronLocker.Unlock()
 			if dbPipeline.ID != 0 {
+				db.Model(&models.DbPipeline{}).Where("id = ?", dbPipeline.ID).Updates(map[string]interface{}{
+					"status":   models.TASK_RUNNING,
+					"message":  "",
+					"began_at": time.Now(),
+				})
 				break
 			}
 			time.Sleep(time.Second)
 		}
-		startedPipelineIds = append(startedPipelineIds, dbPipeline.ID)
-		go func() {
+		go func(pipelineId uint64) {
 			defer sema.Release(1)
-			globalPipelineLog.Info("run pipeline, %d", dbPipeline.ID)
-			err = runPipeline(dbPipeline.ID)
+			globalPipelineLog.Info("run pipeline, %d", pipelineId)
+			err = runPipeline(pipelineId)
 			if err != nil {
-				globalPipelineLog.Error(err, "failed to run pipeline %d", dbPipeline.ID)
+				globalPipelineLog.Error(err, "failed to run pipeline %d", pipelineId)
 			}
-		}()
+		}(dbPipeline.ID)
 	}
 }
 
@@ -329,7 +331,7 @@ func CancelPipeline(pipelineId uint64) errors.Error {
 
 // getPipelineLogsPath gets the logs directory of this pipeline
 func getPipelineLogsPath(pipeline *models.Pipeline) (string, errors.Error) {
-	pipelineLog := getPipelineLogger(pipeline)
+	pipelineLog := GetPipelineLogger(pipeline)
 	path := filepath.Dir(pipelineLog.GetConfig().Path)
 	_, err := os.Stat(path)
 	if err == nil {

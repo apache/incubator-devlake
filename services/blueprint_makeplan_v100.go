@@ -54,6 +54,7 @@ func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan
 		}
 		for _, stage := range plans[i] {
 			for _, task := range stage {
+				task.SkipOnFail = settings.SkipOnFail
 				if task.Plugin == "dora" {
 					hasDoraEnrich = true
 					for k, v := range task.Options {

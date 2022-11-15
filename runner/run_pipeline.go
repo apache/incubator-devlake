@@ -18,11 +18,10 @@ limitations under the License.
 package runner
 
 import (
-	"fmt"
+	"sort"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
-
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/viper"
@@ -37,43 +36,32 @@ func RunPipeline(
 	pipelineId uint64,
 	runTasks func([]uint64) errors.Error,
 ) errors.Error {
-	startTime := time.Now()
+	// load tasks for pipeline
+	var tasks []models.Task
+	err := db.Where("pipeline_id = ? AND status = ?", pipelineId, models.TASK_CREATED).Order("pipeline_row, pipeline_col").Find(&tasks).Error
+	if err != nil {
+		return errors.Convert(err)
+	}
+	taskIds := Get2DTaskIds(tasks)
+	return RunPipelineTasks(log, db, pipelineId, taskIds, runTasks)
+}
+
+func RunPipelineTasks(
+	log core.Logger,
+	db *gorm.DB,
+	pipelineId uint64,
+	taskIds [][]uint64,
+	runTasks func([]uint64) errors.Error,
+) errors.Error {
 	// load pipeline from db
 	dbPipeline := &models.DbPipeline{}
 	err := db.Find(dbPipeline, pipelineId).Error
 	if err != nil {
 		return errors.Convert(err)
 	}
-	// load tasks for pipeline
-	var tasks []*models.Task
-	err = db.Where("pipeline_id = ?", dbPipeline.ID).Order("pipeline_row, pipeline_col").Find(&tasks).Error
-	if err != nil {
-		return errors.Convert(err)
-	}
-	if len(tasks) != dbPipeline.TotalTasks {
-		return errors.Internal.New(fmt.Sprintf("expected total tasks to be %v, got %v", dbPipeline.TotalTasks, len(tasks)))
-	}
-	// convert to 2d array
-	taskIds := make([][]uint64, 0)
-	for _, task := range tasks {
-		for len(taskIds) < task.PipelineRow {
-			taskIds = append(taskIds, make([]uint64, 0))
-		}
-		taskIds[task.PipelineRow-1] = append(taskIds[task.PipelineRow-1], task.ID)
-	}
 
-	beganAt := time.Now()
-	err = db.Model(dbPipeline).Updates(map[string]interface{}{
-		"status":   models.TASK_RUNNING,
-		"message":  "",
-		"began_at": beganAt,
-	}).Error
-	if err != nil {
-		return errors.Convert(err)
-	}
 	// This double for loop executes each set of tasks sequentially while
 	// executing the set of tasks concurrently.
-	finishedTasks := 0
 	for i, row := range taskIds {
 		// update stage
 		err = db.Model(dbPipeline).Updates(map[string]interface{}{
@@ -90,18 +78,35 @@ func RunPipeline(
 			log.Error(err, "run tasks failed")
 			return errors.Convert(err)
 		}
-		// Deprecated
+
 		// update finishedTasks
-		finishedTasks += len(row)
 		err = db.Model(dbPipeline).Updates(map[string]interface{}{
-			"finished_tasks": finishedTasks,
+			"finished_tasks": gorm.Expr("finished_tasks + ?", len(row)),
 		}).Error
 		if err != nil {
 			log.Error(err, "update pipeline state failed")
 			return errors.Convert(err)
 		}
 	}
-	endTime := time.Now()
-	log.Info("pipeline finished in %d ms: %v", endTime.UnixMilli()-startTime.UnixMilli(), err)
+	log.Info("pipeline finished in %d ms: %v", time.Now().UnixMilli()-dbPipeline.BeganAt.UnixMilli(), err)
 	return errors.Convert(err)
+}
+
+func Get2DTaskIds(tasks []models.Task) [][]uint64 {
+	sort.Slice(tasks, func(i, j int) bool {
+		if tasks[i].PipelineRow < tasks[j].PipelineRow {
+			return true
+		} else if tasks[i].PipelineRow == tasks[j].PipelineRow {
+			return tasks[i].PipelineCol < tasks[j].PipelineCol
+		}
+		return true
+	})
+	taskIds := make([][]uint64, 0)
+	for _, task := range tasks {
+		for len(taskIds) < task.PipelineRow {
+			taskIds = append(taskIds, make([]uint64, 0))
+		}
+		taskIds[task.PipelineRow-1] = append(taskIds[task.PipelineRow-1], task.ID)
+	}
+	return taskIds
 }

@@ -25,9 +25,10 @@ import (
 // PipelineTask represents a smallest unit of execution inside a PipelinePlan
 type PipelineTask struct {
 	// Plugin name
-	Plugin   string                 `json:"plugin" binding:"required"`
-	Subtasks []string               `json:"subtasks"`
-	Options  map[string]interface{} `json:"options"`
+	Plugin     string                 `json:"plugin" binding:"required"`
+	SkipOnFail bool                   `json:"skipOnFail"`
+	Subtasks   []string               `json:"subtasks"`
+	Options    map[string]interface{} `json:"options"`
 }
 
 // PipelineStage consist of multiple PipelineTasks, they will be executed in parallel
@@ -51,6 +52,7 @@ type PluginBlueprintV100 interface {
 type BlueprintConnectionV100 struct {
 	Plugin       string                `json:"plugin" validate:"required"`
 	ConnectionId uint64                `json:"connectionId" validate:"required"`
+	SkipOnFail   bool                  `json:"skipOnFail"`
 	Scope        []*BlueprintScopeV100 `json:"scope" validate:"required"`
 }
 

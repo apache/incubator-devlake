@@ -39,12 +39,14 @@ type Blueprint struct {
 	//please check this https://crontab.guru/ for detail
 	CronConfig   string          `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
 	IsManual     bool            `json:"isManual"`
+	SkipOnFail   bool            `json:"skipOnFail"`
 	Settings     json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
 	common.Model `swaggerignore:"true"`
 }
 
 type BlueprintSettings struct {
 	Version     string          `json:"version" validate:"required,semver,oneof=1.0.0"`
+	SkipOnFail  bool            `json:"skipOnFail"`
 	Connections json.RawMessage `json:"connections" validate:"required"`
 	BeforePlan  json.RawMessage `json:"before_plan"`
 	AfterPlan   json.RawMessage `json:"after_plan"`
@@ -69,6 +71,7 @@ type DbBlueprint struct {
 	//please check this https://crontab.guru/ for detail
 	CronConfig   string `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
 	IsManual     bool   `json:"isManual"`
+	SkipOnFail   bool   `json:"skipOnFail"`
 	Settings     string `json:"settings" encrypt:"yes" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
 	common.Model `swaggerignore:"true"`
 }
