@@ -21,19 +21,28 @@ import { useState, useEffect, useMemo } from 'react'
 import request from '../request'
 import { getGitLabProxyApiPrefix } from '../config'
 
+export type ItemType = {
+  id: number
+  key: number
+  title: string
+  shortTitle: string
+}
+
 export interface UseGitLabProjectSelectorProps {
   connectionId: string
-  search: string
-  membership: boolean
+  selectedItems: Array<ItemType>
+  onChangeItems: (items: Array<ItemType>) => void
 }
 
 export const useGitLabProjectSelector = ({
   connectionId,
-  search,
-  membership
+  selectedItems,
+  onChangeItems
 }: UseGitLabProjectSelectorProps) => {
   const [loading, setLoading] = useState(false)
   const [items, setItems] = useState([])
+  const [search, setSearch] = useState('')
+  const [membership, setMembership] = useState(true)
 
   const prefix = useMemo(
     () => getGitLabProxyApiPrefix(connectionId),
@@ -42,6 +51,7 @@ export const useGitLabProjectSelector = ({
 
   useEffect(() => {
     if (!search) return
+    setItems([])
     setLoading(true)
 
     const apiPath = `${prefix}/projects`
@@ -62,10 +72,27 @@ export const useGitLabProjectSelector = ({
     return () => clearTimeout(timer)
   }, [prefix, search, membership])
 
-  return useMemo(() => {
-    return {
+  return useMemo(
+    () => ({
       loading,
-      items
-    }
-  }, [loading, items])
+      items,
+      search,
+      membership,
+      onSearch(s: string) {
+        setSearch(s)
+      },
+      onChangeMembership(e: React.ChangeEvent<HTMLInputElement>) {
+        setMembership(e.target.checked)
+      },
+      onSelect(item: ItemType) {
+        const newItems = [...selectedItems, item]
+        onChangeItems(newItems)
+      },
+      onRemove(item: ItemType) {
+        const newItems = selectedItems.filter((it) => item.id !== it.id)
+        onChangeItems(newItems)
+      }
+    }),
+    [loading, items, search, membership]
+  )
 }

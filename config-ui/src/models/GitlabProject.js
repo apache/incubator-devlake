@@ -63,6 +63,7 @@ class GitlabProject extends Entity {
     this.title = data?.title || this.name || this.id || null
     this.shortTitle = data?.shortTitle || null
     this.icon = data?.icon || null
+    this.type = data?.type || null
 
     // @todo: GitLab API props to camelCase
     this.visibility = data?.visibility || 'private'

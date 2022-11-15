@@ -214,9 +214,21 @@ const DataScopes = (props) => {
                           <p>Select the project you would like to sync.</p>
                           <GitLabMillerColumns
                             connectionId={configuredConnection.connectionId}
+                            disabledItemIds={selectedScopeEntities
+                              .filter((it) => it.type !== 'miller-columns')
+                              .map((it) => it.id)}
                             onChangeItems={(items) =>
                               setScopeEntities([
-                                ...items.map((it) => new GitlabProject(it))
+                                ...scopeEntitiesGroup[
+                                  configuredConnection.id
+                                ].filter((it) => it.type !== 'miller-columns'),
+                                ...items.map(
+                                  (it) =>
+                                    new GitlabProject({
+                                      ...it,
+                                      type: 'miller-columns'
+                                    })
+                                )
                               ])
                             }
                           />
@@ -231,17 +243,31 @@ const DataScopes = (props) => {
                       </p>
                       <GitLabProjectSelector
                         connectionId={configuredConnection.connectionId}
-                        selectedItems={selectedScopeEntities.map((it) => ({
-                          id: it.id,
-                          key: it.id,
-                          title: it.title,
-                          shortTitle: it.shortTitle,
-                          value: it.id
-                        }))}
-                        onChangeSelectItems={(items) =>
-                          setScopeEntities(
-                            items.map((it) => new GitlabProject(it))
-                          )
+                        disabledItemIds={selectedScopeEntities
+                          .filter((it) => it.type !== 'project-selector')
+                          .map((it) => it.id)}
+                        selectedItems={selectedScopeEntities
+                          .filter((it) => it.type === 'project-selector')
+                          .map((it) => ({
+                            id: it.id,
+                            key: it.id,
+                            title: it.title,
+                            shortTitle: it.shortTitle,
+                            value: it.id
+                          }))}
+                        onChangeItems={(items) =>
+                          setScopeEntities([
+                            ...scopeEntitiesGroup[
+                              configuredConnection.id
+                            ].filter((it) => it.type !== 'project-selector'),
+                            ...items.map(
+                              (it) =>
+                                new GitlabProject({
+                                  ...it,
+                                  type: 'project-selector'
+                                })
+                            )
+                          ])
                         }
                       />
                     </>

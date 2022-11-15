@@ -31,12 +31,17 @@ import {
 } from './use-gitlab-miller-columns'
 
 interface Props extends UseGitLabMillerColumnsProps {
+  disabledItemIds?: Array<number>
   onChangeItems: (
     items: Array<Pick<ItemType, 'id' | 'title'> & { shortTitle: string }>
   ) => void
 }
 
-export const GitLabMillerColumns = ({ connectionId, onChangeItems }: Props) => {
+export const GitLabMillerColumns = ({
+  connectionId,
+  disabledItemIds,
+  onChangeItems
+}: Props) => {
   const [seletedIds, setSelectedIds] = useState<Array<ItemType['id']>>([])
 
   const { items, itemTree, onExpandItem } = useGitLabMillerColumns<{
@@ -76,6 +81,7 @@ export const GitLabMillerColumns = ({ connectionId, onChangeItems }: Props) => {
     <MillerColumns
       height={300}
       items={items}
+      disabledItemIds={disabledItemIds}
       selectedItemIds={seletedIds}
       onSelectedItemIds={setSelectedIds}
       onExpandItem={onExpandItem}

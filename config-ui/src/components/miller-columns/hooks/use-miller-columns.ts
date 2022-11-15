@@ -29,6 +29,7 @@ export interface UseMillerColumnsProps {
   items: ItemType[]
   activeItemId?: ItemType['id']
   onActiveItemId?: (id: ItemType['id']) => void
+  disabledItemIds?: Array<ItemType['id']>
   selectedItemIds: Array<ItemType['id']>
   onSelectedItemIds?: (ids: Array<ItemType['id']>) => void
   onExpandItem?: (item: ItemType) => void
@@ -36,6 +37,7 @@ export interface UseMillerColumnsProps {
 
 export const useMillerColumns = ({
   items,
+  disabledItemIds,
   onActiveItemId,
   onSelectedItemIds,
   onExpandItem,
@@ -108,6 +110,7 @@ export const useMillerColumns = ({
 
         switch (true) {
           case !itemMap.getItemChildLoaded(item.id):
+          case (disabledItemIds ?? []).includes(item.id):
             return CheckStatus.disabled
           case selectedItemIds.includes(item.id):
             return CheckStatus.checked
@@ -154,6 +157,6 @@ export const useMillerColumns = ({
           : setSelectedItemIds(newIds)
       }
     }),
-    [columns, itemMap, activeItemId, selectedItemIds]
+    [columns, itemMap, activeItemId, disabledItemIds, selectedItemIds]
   )
 }
