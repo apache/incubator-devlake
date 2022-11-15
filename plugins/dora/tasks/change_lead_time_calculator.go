@@ -19,12 +19,12 @@ package tasks
 
 import (
 	goerror "errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"reflect"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -34,9 +34,45 @@ import (
 func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	log := taskCtx.GetLogger()
+	data := taskCtx.GetData().(*DoraTaskData)
+	// construct a list of tuple[task, oldPipelineCommitSha, newPipelineCommitSha, taskFinishedDate]
+	pipelineIdClauses := []dal.Clause{
+		dal.Select(`ct.id as task_id, cpc.commit_sha as new_deploy_commit_sha, 
+			ct.finished_date as task_finished_date`),
+		dal.From(`cicd_tasks ct`),
+		dal.Join(`left join cicd_pipeline_commits cpc on ct.pipeline_id = cpc.pipeline_id`),
+		dal.Join(`left join project_mapping pm on pm.row_id = ct.cicd_scope_id and pm.table = 'cicd_scopes'`),
+		dal.Where(`ct.environment = ? and ct.type = ? and pm.project_name = ?`,
+			"PRODUCTION", "DEPLOYMENT", data.Options.ProjectName),
+		dal.Orderby(`ct.started_date `),
+	}
+	deploymentPairList := make([]deploymentPair, 0)
+	err := db.All(&deploymentPairList, pipelineIdClauses...)
+	if err != nil {
+		return err
+	}
+	// deploymentPairList[i-1].NewDeployCommitSha is deploymentPairList[i].OldDeployCommitSha
+	oldDeployCommitSha := ""
+	for i := 0; i < len(deploymentPairList); i++ {
+		deploymentPairList[i].OldDeployCommitSha = oldDeployCommitSha
+		oldDeployCommitSha = deploymentPairList[i].NewDeployCommitSha
+	}
+
+	// get repo list by projectName
+	repoClauses := []dal.Clause{
+		dal.From(`project_mapping pm`),
+		dal.Where("pm.project_name = ? and pm.table = ?", data.Options.ProjectName, "repos"),
+	}
+	repoList := make([]string, 0)
+	err = db.Pluck(`row_id`, &repoList, repoClauses...)
+	if err != nil {
+		return err
+	}
+
+	// get prs by repo list
 	clauses := []dal.Clause{
 		dal.From(&code.PullRequest{}),
-		dal.Where("merged_date IS NOT NULL"),
+		dal.Where("merged_date IS NOT NULL and base_repo_id in ?", repoList),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -44,11 +80,11 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 	}
 	defer cursor.Close()
 
-	enricher, err := helper.NewDataConverter(helper.DataConverterArgs{
+	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:    taskCtx,
+			Ctx: taskCtx,
 			Params: DoraApiParams{
-				// TODO
+				ProjectName: data.Options.ProjectName,
 			},
 			Table: "pull_requests",
 		},
@@ -58,6 +94,9 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			pr := inputRow.(*code.PullRequest)
 			firstCommitDate, err := getFirstCommitTime(pr.Id, db)
+			projectPrMetric := &crossdomain.ProjectPrMetrics{}
+			projectPrMetric.Id = pr.Id
+			projectPrMetric.ProjectName = data.Options.ProjectName
 			if err != nil {
 				return nil, err
 			}
@@ -68,52 +107,51 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 				} else {
 					codingTime = codingTime / 60
 				}
-				pr.OrigCodingTimespan = codingTime
+				projectPrMetric.CodingTimespan = processNegativeValue(codingTime)
 			}
 			firstReviewTime, err := getFirstReviewTime(pr.Id, pr.AuthorId, db)
 			if err != nil {
 				return nil, err
 			}
 			if firstReviewTime != nil {
-				pr.OrigReviewLag = int64(firstReviewTime.Sub(pr.CreatedDate).Minutes())
-				pr.OrigReviewTimespan = int64(pr.MergedDate.Sub(*firstReviewTime).Minutes())
+				projectPrMetric.ReviewLag = processNegativeValue(int64(firstReviewTime.Sub(pr.CreatedDate).Minutes()))
+				projectPrMetric.ReviewTimespan = processNegativeValue(int64(pr.MergedDate.Sub(*firstReviewTime).Minutes()))
 			}
-			deployment, err := getDeployment(devops.PRODUCTION, *pr.MergedDate, db)
+			deploymentFinishedDate, err := getDeploymentFinishTime(pr.MergeCommitSha, deploymentPairList, db)
 			if err != nil {
 				return nil, err
 			}
-			if deployment != nil && deployment.FinishedDate != nil {
-				timespan := deployment.FinishedDate.Sub(*pr.MergedDate)
-				pr.OrigDeployTimespan = int64(timespan.Minutes())
+			if deploymentFinishedDate != nil {
+				timespan := deploymentFinishedDate.Sub(*pr.MergedDate)
+				projectPrMetric.DeployTimespan = processNegativeValue(int64(timespan.Minutes()))
 			} else {
 				log.Debug("deploy time of pr %v is nil\n", pr.PullRequestKey)
 			}
-			processNegativeValue(pr)
-			pr.ChangeTimespan = nil
+			projectPrMetric.ChangeTimespan = nil
 			result := int64(0)
-			if pr.CodingTimespan != nil {
-				result += *pr.CodingTimespan
+			if projectPrMetric.CodingTimespan != nil {
+				result += *projectPrMetric.CodingTimespan
 			}
-			if pr.ReviewLag != nil {
-				result += *pr.ReviewLag
+			if projectPrMetric.ReviewLag != nil {
+				result += *projectPrMetric.ReviewLag
 			}
-			if pr.ReviewTimespan != nil {
-				result += *pr.ReviewTimespan
+			if projectPrMetric.ReviewTimespan != nil {
+				result += *projectPrMetric.ReviewTimespan
 			}
-			if pr.DeployTimespan != nil {
-				result += *pr.DeployTimespan
+			if projectPrMetric.DeployTimespan != nil {
+				result += *projectPrMetric.DeployTimespan
 			}
 			if result > 0 {
-				pr.ChangeTimespan = &result
+				projectPrMetric.ChangeTimespan = &result
 			}
-			return []interface{}{pr}, nil
+			return []interface{}{projectPrMetric}, nil
 		},
 	})
 	if err != nil {
 		return err
 	}
 
-	return enricher.Execute()
+	return converter.Execute()
 }
 
 func getFirstCommitTime(prId string, db dal.Dal) (*time.Time, errors.Error) {
@@ -151,54 +189,34 @@ func getFirstReviewTime(prId string, prCreator string, db dal.Dal) (*time.Time, 
 	return &review.CreatedDate, nil
 }
 
-func getDeployment(environment string, mergeDate time.Time, db dal.Dal) (*devops.CICDTask, errors.Error) {
+func getDeploymentFinishTime(mergeSha string, deploymentPairList []deploymentPair, db dal.Dal) (*time.Time, errors.Error) {
 	// ignore environment at this point because detecting it by name is obviously not engouh
 	// take https://github.com/apache/incubator-devlake/actions/workflows/build.yml for example
 	// one can not distingush testing/production by looking at the job name solely.
-	cicdTask := &devops.CICDTask{}
-	cicdTaskClauses := []dal.Clause{
-		dal.From(&devops.CICDTask{}),
-		dal.Where(`
-			type = ?
-			AND cicd_tasks.result = ?
-			AND cicd_tasks.started_date > ?`,
-			"DEPLOYMENT",
-			"SUCCESS",
-			mergeDate,
-		),
-		dal.Orderby("cicd_tasks.started_date ASC"),
-		dal.Limit(1),
+	commitDiff := &code.CommitsDiff{}
+	// find if tuple[merge_sha, new_commit_sha, old_commit_sha] exist in commits_diffs, if yes, return pair.FinishedDate
+	for _, pair := range deploymentPairList {
+		err := db.First(commitDiff, dal.Where(`commit_sha = ? and new_commit_sha = ? and old_commit_sha = ?`,
+			mergeSha, pair.NewDeployCommitSha, pair.OldDeployCommitSha))
+		if err == nil {
+			return pair.TaskFinishedDate, nil
+		}
+		if goerror.Is(err, gorm.ErrRecordNotFound) {
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+
 	}
-	err := db.First(cicdTask, cicdTaskClauses...)
-	if goerror.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-	return cicdTask, nil
+	return nil, nil
 }
 
-func processNegativeValue(pr *code.PullRequest) {
-	if pr.OrigCodingTimespan > 0 {
-		pr.CodingTimespan = &pr.OrigCodingTimespan
+func processNegativeValue(v int64) *int64 {
+	if v > 0 {
+		return &v
 	} else {
-		pr.CodingTimespan = nil
-	}
-	if pr.OrigReviewLag > 0 {
-		pr.ReviewLag = &pr.OrigReviewLag
-	} else {
-		pr.ReviewLag = nil
-	}
-	if pr.OrigReviewTimespan > 0 {
-		pr.ReviewTimespan = &pr.OrigReviewTimespan
-	} else {
-		pr.ReviewTimespan = nil
-	}
-	if pr.OrigDeployTimespan > 0 {
-		pr.DeployTimespan = &pr.OrigDeployTimespan
-	} else {
-		pr.DeployTimespan = nil
+		return nil
 	}
 }
 
@@ -208,4 +226,11 @@ var CalculateChangeLeadTimeMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Calculate change lead time",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD, core.DOMAIN_TYPE_CODE},
+}
+
+type deploymentPair struct {
+	TaskId             string
+	NewDeployCommitSha string
+	OldDeployCommitSha string
+	TaskFinishedDate   *time.Time
 }

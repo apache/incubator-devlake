@@ -1,0 +1,11 @@
+id,project_name,coding_timespan,review_lag,review_timespan,deploy_timespan,change_timespan
+github:GithubPullRequest:1:1043463302,project1,,8558,2859,,11417
+github:GithubPullRequest:1:1048233599,project1,,194,4033,,4227
+github:GithubPullRequest:1:1049191985,project1,1,156,1712,,1869
+github:GithubPullRequest:1:1051112182,project1,,,,,
+github:GithubPullRequest:1:1051243958,project1,9,55,492,,556
+github:GithubPullRequest:1:1051273681,project1,2,62,285,76812,77161
+github:GithubPullRequest:1:1051340471,project1,34,311,,89320,89665
+github:GithubPullRequest:1:1051524882,project1,22,4,52,108966,109044
+github:GithubPullRequest:1:1051574863,project1,,,,114901,114901
+github:GithubPullRequest:1:1051637383,project1,1,45,13,90913,90972

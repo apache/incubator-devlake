@@ -1,2 +1,5 @@
-id,created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark,name,url,description,owner_id,language,forked_from,created_date,updated_date,deleted
-github:GithubRepo:1:384111310,2022-09-20 13:47:48.519,2022-09-20 13:47:48.519,"{""ConnectionId"":1,""Owner"":""apache"",""Repo"":""incubator-devlake""}",_raw_github_api_repositories,1,"",apache/incubator-devlake,https://github.com/apache/incubator-devlake,"Apache DevLake is an open-source dev data platform to ingest, analyze, and visualize the fragmented data from DevOps tools, which can distill insights to improve engineering productivity.","",Go,"",2021-07-08 12:06:09,2022-09-20 03:25:21,0
+id
+github:GithubRepo:1:384111310
+repo1
+repo2
+repo3
