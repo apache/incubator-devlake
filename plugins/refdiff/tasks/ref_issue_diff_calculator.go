@@ -52,6 +52,7 @@ func CalculateIssuesDiff(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+	// commits_diffs join refs => ref_commits_diffs, join pull_request_issues => ref_issues_diffs
 	cursor, err := db.Cursor(
 		dal.From("commits_diffs"),
 		dal.Join(

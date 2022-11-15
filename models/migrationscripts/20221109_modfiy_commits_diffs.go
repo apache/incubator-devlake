@@ -27,6 +27,8 @@ var _ core.MigrationScript = (*modifyCommitsDiffs)(nil)
 
 type modifyCommitsDiffs struct{}
 
+// ref_commits_diffs splits commits_diffs and finished_commits_diffs table.
+// finished_commits_diffs records the new_commit_sha and old_commit_sha pair that is inserted after being successfully calculated.
 type FinishedCommitsDiffs20221109 struct {
 	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
