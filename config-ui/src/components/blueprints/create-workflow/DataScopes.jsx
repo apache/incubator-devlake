@@ -30,7 +30,7 @@ import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import BoardsSelector from '@/components/blueprints/BoardsSelector'
 import DataDomainsSelector from '@/components/blueprints/DataDomainsSelector'
 import NoData from '@/components/NoData'
-import { GitLabMillerColumns } from '@/components/gitlab'
+import { GitLabMillerColumns, GitLabProjectSelector } from '@/components/gitlab'
 import GitlabProject from '@/models/GitlabProject'
 import GitHubProject from '@/models/GithubProject'
 import JenkinsJobsSelector from '@/components/blueprints/JenkinsJobsSelector'
@@ -216,6 +216,28 @@ const DataScopes = (props) => {
                       <GitLabMillerColumns
                         connectionId={configuredConnection.connectionId}
                         onChangeItems={(items) =>
+                          setScopeEntities([
+                            ...items.map((it) => new GitlabProject(it))
+                          ])
+                        }
+                      />
+                      <div style={{ margin: '16px 0 8px' }}>
+                        Add repositories outside of your projects
+                      </div>
+                      <p>
+                        Enter the repositories using the format “owner/repo” and
+                        separate multiple repos with a comma.
+                      </p>
+                      <GitLabProjectSelector
+                        connectionId={configuredConnection.connectionId}
+                        selectedItems={selectedScopeEntities.map((it) => ({
+                          id: it.id,
+                          key: it.id,
+                          title: it.title,
+                          shortTitle: it.shortTitle,
+                          value: it.id
+                        }))}
+                        onChangeSelectItems={(items) =>
                           setScopeEntities(
                             items.map((it) => new GitlabProject(it))
                           )

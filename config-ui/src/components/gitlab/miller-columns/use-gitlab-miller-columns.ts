@@ -22,9 +22,7 @@ import type { ItemType } from '@/components/miller-columns'
 import { useLoadItems, ItemTypeEnum } from '@/components/miller-columns'
 
 import request from '../request'
-
-const getGitLabProxyApiPrefix = (connectionId: string) =>
-  `/plugins/gitlab/connections/${connectionId}/proxy/rest`
+import { getGitLabProxyApiPrefix } from '../config'
 
 export interface UseGitLabMillerColumnsProps {
   connectionId: string

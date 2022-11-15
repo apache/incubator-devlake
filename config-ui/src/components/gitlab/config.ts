@@ -16,5 +16,5 @@
  *
  */
 
-export * from './miller-columns'
-export * from './project-selector'
+export const getGitLabProxyApiPrefix = (connectionId: string) =>
+  `/plugins/gitlab/connections/${connectionId}/proxy/rest`
