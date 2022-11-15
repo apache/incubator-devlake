@@ -34,7 +34,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	ctx := taskCtx.GetContext()
 	logger := taskCtx.GetLogger()
-	// mysql limit 
+	// mysql limit
 	insertCountLimitOfCommitsDiff := int(65535 / reflect.ValueOf(code.CommitsDiff{}).NumField())
 
 	commitPairs := data.Options.AllPairs
