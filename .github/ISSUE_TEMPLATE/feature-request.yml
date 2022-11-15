@@ -22,9 +22,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        For better global communication, Please write in English.
-
-        If you feel the description in English is not clear, then you can append description in Chinese, thanks!
+        For better communication, Please write in English.
 
   - type: checkboxes
     attributes:
@@ -40,16 +38,17 @@ body:
 
   - type: textarea
     attributes:
-      label: Description
-      description: A short description of your feature
+      label: Use case
+      description: Tell us about your contexts and goals.
+      placeholder: >
+        As a tech lead/product manager/QA engineer/DevOps engineer, I want to ...
 
   - type: textarea
     attributes:
-      label: Use case
-      description: What do you want to happen?
+      label: Description
+      description: The description of the feature
       placeholder: >
-        Rather than telling us how you might implement this feature, try to take a
-        step back and describe what you are trying to achieve.
+        Tell us about the detailed description, proposed solutions, wireframes, deliverables or other information of the feature.
 
   - type: textarea
     attributes:
