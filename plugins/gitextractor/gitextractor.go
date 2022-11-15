@@ -32,28 +32,11 @@ import (
 var _ core.PluginMeta = (*GitExtractor)(nil)
 var _ core.PluginTask = (*GitExtractor)(nil)
 var _ core.PluginModel = (*GitExtractor)(nil)
-var _ core.PluginMetric = (*GitExtractor)(nil)
 
 type GitExtractor struct{}
 
-func (plugin GitExtractor) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
-	return []map[string]interface{}{}, nil
-}
-
 func (plugin GitExtractor) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{}
-}
-
-func (plugin GitExtractor) IsProjectMetric() bool {
-	return false
-}
-
-func (plugin GitExtractor) RunAfter() ([]string, errors.Error) {
-	return []string{}, nil
-}
-
-func (plugin GitExtractor) Settings() interface{} {
-	return nil
 }
 
 func (plugin GitExtractor) Description() string {

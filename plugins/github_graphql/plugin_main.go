@@ -44,7 +44,6 @@ var _ core.PluginInit = (*GithubGraphql)(nil)
 var _ core.PluginTask = (*GithubGraphql)(nil)
 var _ core.PluginApi = (*GithubGraphql)(nil)
 var _ core.PluginModel = (*GithubGraphql)(nil)
-var _ core.PluginMetric = (*GithubGraphql)(nil)
 var _ core.CloseablePluginTask = (*GithubGraphql)(nil)
 
 // PluginEntry exports a symbol for Framework to load
@@ -60,26 +59,8 @@ func (plugin GithubGraphql) Init(config *viper.Viper, logger core.Logger, db *go
 	return nil
 }
 
-func (plugin GithubGraphql) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
-	return []map[string]interface{}{}, nil
-}
-
 func (plugin GithubGraphql) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{}
-}
-
-func (plugin GithubGraphql) IsProjectMetric() bool {
-	return false
-}
-
-func (plugin GithubGraphql) RunAfter() ([]string, errors.Error) {
-	return []string{
-		"gitextractor",
-	}, nil
-}
-
-func (plugin GithubGraphql) Settings() interface{} {
-	return nil
 }
 
 func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {

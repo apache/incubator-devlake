@@ -37,7 +37,6 @@ var _ core.PluginInit = (*Jenkins)(nil)
 var _ core.PluginTask = (*Jenkins)(nil)
 var _ core.PluginApi = (*Jenkins)(nil)
 var _ core.PluginModel = (*Jenkins)(nil)
-var _ core.PluginMetric = (*Jenkins)(nil)
 var _ core.PluginMigration = (*Jenkins)(nil)
 var _ core.CloseablePluginTask = (*Jenkins)(nil)
 
@@ -46,10 +45,6 @@ type Jenkins struct{}
 func (plugin Jenkins) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
-}
-
-func (plugin Jenkins) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
-	return []map[string]interface{}{}, nil
 }
 
 func (plugin Jenkins) GetTablesInfo() []core.Tabler {
@@ -64,18 +59,6 @@ func (plugin Jenkins) GetTablesInfo() []core.Tabler {
 		&models.JenkinsStage{},
 		&models.JenkinsTask{},
 	}
-}
-
-func (plugin Jenkins) IsProjectMetric() bool {
-	return false
-}
-
-func (plugin Jenkins) RunAfter() ([]string, errors.Error) {
-	return []string{}, nil
-}
-
-func (plugin Jenkins) Settings() interface{} {
-	return nil
 }
 
 func (plugin Jenkins) Description() string {

@@ -59,12 +59,7 @@ func (plugin RefDiff) IsProjectMetric() bool {
 }
 
 func (plugin RefDiff) RunAfter() ([]string, errors.Error) {
-	return []string{
-		"gitextractor",
-		"github",
-		"gitlab",
-		"gitee",
-	}, nil
+	return []string{}, nil
 }
 
 func (plugin RefDiff) Settings() interface{} {

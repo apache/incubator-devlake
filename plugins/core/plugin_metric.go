@@ -21,12 +21,6 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 )
 
-/*
- */
-type Tabler interface {
-	TableName() string
-}
-
 type PluginMetric interface {
 	// returns a list of required data entities and expected features.
 	// [{ "model": "cicd_tasks", "requiredFields": {"column": "type", "execptedValue": "Deployment"}}, ...]

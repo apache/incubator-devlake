@@ -17,6 +17,10 @@ limitations under the License.
 
 package core
 
+type Tabler interface {
+	TableName() string
+}
+
 type PluginModel interface {
 	// This method returns all models of the current plugin
 	GetTablesInfo() []Tabler

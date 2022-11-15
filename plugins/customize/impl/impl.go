@@ -33,7 +33,6 @@ var _ core.PluginMeta = (*Customize)(nil)
 var _ core.PluginInit = (*Customize)(nil)
 var _ core.PluginApi = (*Customize)(nil)
 var _ core.PluginModel = (*Customize)(nil)
-var _ core.PluginMetric = (*Customize)(nil)
 
 type Customize struct {
 	handlers *api.Handlers
@@ -45,24 +44,8 @@ func (plugin *Customize) Init(config *viper.Viper, logger core.Logger, db *gorm.
 	return nil
 }
 
-func (plugin Customize) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
-	return []map[string]interface{}{}, nil
-}
-
 func (plugin Customize) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{}
-}
-
-func (plugin Customize) IsProjectMetric() bool {
-	return false
-}
-
-func (plugin Customize) RunAfter() ([]string, errors.Error) {
-	return []string{}, nil
-}
-
-func (plugin Customize) Settings() interface{} {
-	return nil
 }
 
 func (plugin Customize) SubTaskMetas() []core.SubTaskMeta {

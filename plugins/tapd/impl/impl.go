@@ -38,7 +38,6 @@ var _ core.PluginInit = (*Tapd)(nil)
 var _ core.PluginTask = (*Tapd)(nil)
 var _ core.PluginApi = (*Tapd)(nil)
 var _ core.PluginModel = (*Tapd)(nil)
-var _ core.PluginMetric = (*Tapd)(nil)
 var _ core.PluginMigration = (*Tapd)(nil)
 var _ core.CloseablePluginTask = (*Tapd)(nil)
 
@@ -47,10 +46,6 @@ type Tapd struct{}
 func (plugin Tapd) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
-}
-
-func (plugin Tapd) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
-	return []map[string]interface{}{}, nil
 }
 
 func (plugin Tapd) GetTablesInfo() []core.Tabler {
@@ -93,18 +88,6 @@ func (plugin Tapd) GetTablesInfo() []core.Tabler {
 		&models.TapdWorkspace{},
 		&models.TapdWorkspaceIteration{},
 	}
-}
-
-func (plugin Tapd) IsProjectMetric() bool {
-	return false
-}
-
-func (plugin Tapd) RunAfter() ([]string, errors.Error) {
-	return []string{}, nil
-}
-
-func (plugin Tapd) Settings() interface{} {
-	return nil
 }
 
 func (plugin Tapd) Description() string {

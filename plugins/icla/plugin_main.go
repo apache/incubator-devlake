@@ -38,7 +38,6 @@ var _ core.PluginInit = (*Icla)(nil)
 var _ core.PluginTask = (*Icla)(nil)
 var _ core.PluginApi = (*Icla)(nil)
 var _ core.PluginModel = (*Icla)(nil)
-var _ core.PluginMetric = (*Icla)(nil)
 var _ core.PluginMigration = (*Icla)(nil)
 var _ core.CloseablePluginTask = (*Icla)(nil)
 
@@ -55,25 +54,10 @@ func (plugin Icla) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 	return nil
 }
 
-func (plugin Icla) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
-	return []map[string]interface{}{}, nil
-}
-
 func (plugin Icla) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{
 		&models.IclaCommitter{},
 	}
-}
-func (plugin Icla) IsProjectMetric() bool {
-	return false
-}
-
-func (plugin Icla) RunAfter() ([]string, errors.Error) {
-	return []string{}, nil
-}
-
-func (plugin Icla) Settings() interface{} {
-	return nil
 }
 
 func (plugin Icla) SubTaskMetas() []core.SubTaskMeta {

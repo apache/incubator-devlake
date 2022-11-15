@@ -32,7 +32,6 @@ var _ core.PluginMeta = (*Org)(nil)
 var _ core.PluginInit = (*Org)(nil)
 var _ core.PluginTask = (*Org)(nil)
 var _ core.PluginModel = (*Org)(nil)
-var _ core.PluginMetric = (*Org)(nil)
 
 type Org struct {
 	handlers *api.Handlers
@@ -44,24 +43,8 @@ func (plugin *Org) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 	return nil
 }
 
-func (plugin Org) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
-	return []map[string]interface{}{}, nil
-}
-
 func (plugin Org) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{}
-}
-
-func (plugin Org) IsProjectMetric() bool {
-	return false
-}
-
-func (plugin Org) RunAfter() ([]string, errors.Error) {
-	return []string{}, nil
-}
-
-func (plugin Org) Settings() interface{} {
-	return nil
 }
 
 func (plugin Org) Description() string {
