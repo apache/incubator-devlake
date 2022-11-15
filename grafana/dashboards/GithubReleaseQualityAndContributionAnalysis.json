@@ -16,7 +16,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 7,
-  "iteration": 1668421545285,
+  "iteration": 1668494309227,
   "links": [],
   "panels": [
     {
@@ -1084,7 +1084,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "-- Get the bug fixer distribution in the last 5 tags\nwith _last_5_tags as(\n  SELECT \n    -- distinct new_ref_id, old_ref_id\n    distinct SUBSTRING_INDEX(new_ref_id,':', -1) as new_ref_id, SUBSTRING_INDEX(old_ref_id,':', -1) as old_ref_id\n  FROM \n    refs_commits_diffs\n  WHERE\n\t\tSUBSTRING_INDEX(new_ref_id,':', 4) in ($repo_id)\n\tORDER BY 1 desc\n\tLIMIT 5\n),\n\n_bugs as(\n\tselect \n\t\ti.issue_key, i.type, i.severity, i.title, i.description,\n\t\tpr.id, pr.author_name as pr_author, pr.created_date,\n\t\trank() over(partition by i.id order by pr.created_date asc) as pr_rank\n\tfrom\n\t\trefs_issues_diffs rid\n\t\tleft join issues i on rid.issue_id = i.id\n\t\tleft join pull_request_issues pri on i.id = pri.issue_id\n\t\tleft join pull_requests pr on pri.pull_request_id = pr.id\n\twhere\n\t\tSUBSTRING_INDEX(rid.new_ref_id,':', 4) in ($repo_id)\n\t\t-- and rid.new_ref_id in (SELECT new_ref_id FROM _last_5_tags)\n\t\tand SUBSTRING_INDEX(rid.new_ref_id,':', -1) in (SELECT new_ref_id FROM _last_5_tags)\n\t\tand i.type = 'BUG'\n\torder by i.issue_key\n)\n\nSELECT \n  pr_author,\n  count(*) bug_fixed_count\nFROM _bugs\nWHERE pr_rank = 1\nGROUP BY 1\nORDER BY 2 desc\nlimit 10",
+          "rawSql": "-- Get the bug fixer distribution in the last 5 tags\nwith refs_commits_diffs as(\n  SELECT\n    new_refs.id as new_ref_id, old_refs.id as old_ref_id, commits_diffs.commit_sha, new_commit_sha, old_commit_sha\n  FROM\n    commits_diffs\n  LEFT JOIN refs new_refs on new_refs.commit_sha = commits_diffs.new_commit_sha\n  LEFT JOIN refs old_refs on old_refs.commit_sha = commits_diffs.old_commit_sha\n),\n\n_last_5_tags as(\n  SELECT \n    -- distinct new_ref_id, old_ref_id\n    distinct SUBSTRING_INDEX(new_ref_id,':', -1) as new_ref_id, SUBSTRING_INDEX(old_ref_id,':', -1) as old_ref_id\n  FROM \n    refs_commits_diffs\n  WHERE\n\t\tSUBSTRING_INDEX(new_ref_id,':', 4) in ($repo_id)\n\tORDER BY 1 desc\n\tLIMIT 5\n),\n\n_bugs as(\n\tselect \n\t\ti.issue_key, i.type, i.severity, i.title, i.description,\n\t\tpr.id, pr.author_name as pr_author, pr.created_date,\n\t\trank() over(partition by i.id order by pr.created_date asc) as pr_rank\n\tfrom\n\t\trefs_issues_diffs rid\n\t\tleft join issues i on rid.issue_id = i.id\n\t\tleft join pull_request_issues pri on i.id = pri.issue_id\n\t\tleft join pull_requests pr on pri.pull_request_id = pr.id\n\twhere\n\t\tSUBSTRING_INDEX(rid.new_ref_id,':', 4) in ($repo_id)\n\t\t-- and rid.new_ref_id in (SELECT new_ref_id FROM _last_5_tags)\n\t\tand SUBSTRING_INDEX(rid.new_ref_id,':', -1) in (SELECT new_ref_id FROM _last_5_tags)\n\t\tand i.type = 'BUG'\n\torder by i.issue_key\n)\n\nSELECT \n  pr_author,\n  count(*) bug_fixed_count\nFROM _bugs\nWHERE pr_rank = 1\nGROUP BY 1\nORDER BY 2 desc\nlimit 10",
           "refId": "A",
           "select": [
             [
