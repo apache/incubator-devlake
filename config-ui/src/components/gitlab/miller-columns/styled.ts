@@ -18,10 +18,6 @@
 
 import styled from '@emotion/styled'
 
-export const Container = styled.div`
-  display: flex;
-  width: 100%;
-  border: 1px solid #dbe4fd;
-  border-radius: 4px;
-  overflow-x: auto;
+export const Placeholder = styled.div`
+  padding: 4px 12px;
 `

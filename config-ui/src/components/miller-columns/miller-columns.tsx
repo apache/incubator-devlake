@@ -19,7 +19,7 @@
 import React from 'react'
 
 import { useMillerColumns, UseMillerColumnsProps } from './hooks'
-import { Item } from './components'
+import { Column, Item } from './components'
 
 import { ColumnType } from './types'
 import * as S from './styled'
@@ -43,24 +43,24 @@ export const MillerColumns = ({
     <S.Container>
       {columns.map((col, i) => {
         const bottom = renderColumnBottom?.(col)
-
         return (
-          <S.Column key={col.parentId} height={height}>
-            {i === 0 && firstColumnTitle && (
-              <div className='title'>{firstColumnTitle}</div>
-            )}
-            {col.items.map((it) => (
+          <Column
+            key={col.parentId}
+            items={col.items}
+            renderItem={(item) => (
               <Item
-                key={it.id}
-                item={it}
-                status={getStatus(it, col)}
-                checkStatus={getChekecdStatus(it)}
+                key={item.id}
+                item={item}
+                status={getStatus(item, col)}
+                checkStatus={getChekecdStatus(item)}
                 onExpandItem={onExpandItem}
                 onSelectItem={onSelectItem}
               />
-            ))}
-            {bottom}
-          </S.Column>
+            )}
+            height={height}
+            title={i === 0 && firstColumnTitle}
+            bottom={bottom}
+          />
         )
       })}
     </S.Container>

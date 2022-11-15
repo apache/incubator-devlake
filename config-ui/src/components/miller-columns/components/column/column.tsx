@@ -16,12 +16,26 @@
  *
  */
 
-import styled from '@emotion/styled'
+import React from 'react'
 
-export const Container = styled.div`
-  display: flex;
-  width: 100%;
-  border: 1px solid #dbe4fd;
-  border-radius: 4px;
-  overflow-x: auto;
-`
+import type { ItemType } from '../../types'
+
+import * as S from './styled'
+
+interface Props {
+  items: Array<ItemType>
+  renderItem: (item: ItemType) => React.ReactNode
+  height?: number
+  title?: string | React.ReactNode
+  bottom?: React.ReactNode
+}
+
+export const Column = ({ items, renderItem, height, title, bottom }: Props) => {
+  return (
+    <S.Container height={height}>
+      {title && <div className='title'>{title}</div>}
+      {items.map((it) => renderItem(it))}
+      {bottom}
+    </S.Container>
+  )
+}

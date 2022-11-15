@@ -29,6 +29,7 @@ import {
   useGitLabMillerColumns,
   UseGitLabMillerColumnsProps
 } from './use-gitlab-miller-columns'
+import * as S from './styled'
 
 interface Props extends UseGitLabMillerColumnsProps {
   disabledItemIds?: Array<number>
@@ -71,15 +72,16 @@ export const GitLabMillerColumns = ({
   }) => {
     switch (true) {
       case isLoading:
-        return <div>Loading...</div>
+        return <S.Placeholder>Loading...</S.Placeholder>
       case isEmpty:
-        return <div>No Data.</div>
+        return <S.Placeholder>No Data.</S.Placeholder>
     }
   }
 
   return (
     <MillerColumns
       height={300}
+      firstColumnTitle='Subgroups/Projects'
       items={items}
       disabledItemIds={disabledItemIds}
       selectedItemIds={seletedIds}
