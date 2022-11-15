@@ -56,8 +56,12 @@ export const useGitLabMillerColumns = <T>({
   const getInitItems = useCallback(async () => {
     const user = await request(`${prefix}/user`)
     const [groups, projects] = await Promise.all([
-      request(`${prefix}/groups`, { data: { top_level_only: 1 } }),
-      request(`${prefix}/users/${user.id}/projects`)
+      request(`${prefix}/groups`, {
+        data: { top_level_only: 1, per_page: 100 }
+      }),
+      request(`${prefix}/users/${user.id}/projects`, {
+        data: { per_page: 100 }
+      })
     ])
     return [...upadateGroups(groups), ...updateProjects(projects)]
   }, [prefix])
@@ -65,8 +69,12 @@ export const useGitLabMillerColumns = <T>({
   const loadMoreItems = useCallback(
     async (item: ItemType) => {
       const [groups, projects] = await Promise.all([
-        request(`${prefix}/groups/${item.id}/subgroups`),
-        request(`${prefix}/groups/${item.id}/projects`)
+        request(`${prefix}/groups/${item.id}/subgroups`, {
+          data: { per_page: 100 }
+        }),
+        request(`${prefix}/groups/${item.id}/projects`, {
+          data: { per_page: 100 }
+        })
       ])
       return [...upadateGroups(groups), ...updateProjects(projects)]
     },
