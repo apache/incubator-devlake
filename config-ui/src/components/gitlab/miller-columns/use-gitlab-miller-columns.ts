@@ -31,13 +31,10 @@ export interface UseGitLabMillerColumnsProps {
 export const useGitLabMillerColumns = <T>({
   connectionId
 }: UseGitLabMillerColumnsProps) => {
-  const { apiProjects, apiGroups } = useMemo(() => {
-    const prefix = getGitLabProxyApiPrefix(connectionId)
-    return {
-      apiProjects: `${prefix}/projects`,
-      apiGroups: `${prefix}/groups`
-    }
-  }, [connectionId])
+  const prefix = useMemo(
+    () => getGitLabProxyApiPrefix(connectionId),
+    [connectionId]
+  )
 
   const upadateGroups = (arr: any): Array<ItemType> =>
     arr.map((it: any) => ({
@@ -57,22 +54,23 @@ export const useGitLabMillerColumns = <T>({
     }))
 
   const getInitItems = useCallback(async () => {
+    const user = await request(`${prefix}/user`)
     const [groups, projects] = await Promise.all([
-      request(apiGroups, { data: { top_level_only: 1 } }),
-      request(apiProjects, { data: { membership: true, owned: true } })
+      request(`${prefix}/groups`, { data: { top_level_only: 1 } }),
+      request(`${prefix}/users/${user.id}/projects`)
     ])
     return [...upadateGroups(groups), ...updateProjects(projects)]
-  }, [apiProjects, apiGroups])
+  }, [prefix])
 
   const loadMoreItems = useCallback(
     async (item: ItemType) => {
       const [groups, projects] = await Promise.all([
-        request(`${apiGroups}/${item.id}/subgroups`),
-        request(`${apiGroups}/${item.id}/projects`)
+        request(`${prefix}/groups/${item.id}/subgroups`),
+        request(`${prefix}/groups/${item.id}/projects`)
       ])
       return [...upadateGroups(groups), ...updateProjects(projects)]
     },
-    [apiGroups]
+    [prefix]
   )
 
   const { items, itemTree, loadItems } = useLoadItems<T>({
