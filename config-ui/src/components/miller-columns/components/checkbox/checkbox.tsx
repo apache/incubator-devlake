@@ -25,7 +25,7 @@ import * as S from './styled'
 interface Props {
   status?: CheckStatus | Array<CheckStatus>
   children?: React.ReactNode
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent<HTMLLabelElement>) => void
 }
 
 export const Checkbox = ({ children, status, onClick }: Props) => {
@@ -41,15 +41,14 @@ export const Checkbox = ({ children, status, onClick }: Props) => {
       (Array.isArray(status) && status?.includes(CheckStatus.disabled))
   })
 
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
+  const handleClick = (e: React.MouseEvent<HTMLLabelElement>) => {
     if (status === CheckStatus.disabled) return
-    onClick?.()
+    onClick?.(e)
   }
 
   return (
-    <S.Wrapper>
-      <span className={checkboxCls} onClick={handleClick}>
+    <S.Wrapper onClick={handleClick}>
+      <span className={checkboxCls}>
         <span className='checkbox-inner'></span>
       </span>
       {children && <span className='text'>{children}</span>}

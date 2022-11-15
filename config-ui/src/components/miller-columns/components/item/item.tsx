@@ -44,7 +44,10 @@ export const Item = ({
     onExpandItem?.(item)
   }
 
-  const handleCheckboxClick = () => {
+  const handleCheckboxClick = (e: React.MouseEvent<HTMLLabelElement>) => {
+    if (item.type === ItemTypeEnum.LEAF) {
+      e.stopPropagation()
+    }
     onSelectItem?.(item)
   }
 
