@@ -53,7 +53,7 @@ export const MillerColumns = ({
               <Item
                 key={it.id}
                 item={it}
-                status={getStatus(it)}
+                status={getStatus(it, col)}
                 checkStatus={getChekecdStatus(it)}
                 onExpandItem={onExpandItem}
                 onSelectItem={onSelectItem}

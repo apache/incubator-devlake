@@ -18,7 +18,7 @@
 
 import { useState, useMemo, useEffect } from 'react'
 
-import type { ItemType } from '../types'
+import type { ItemType, ColumnType } from '../types'
 import { ItemTypeEnum, RowStatus } from '../types'
 import { CheckStatus } from '../components'
 
@@ -97,8 +97,8 @@ export const useMillerColumns = ({
       itemMap,
       activeItemId,
       selectedItemIds,
-      getStatus(item: ItemType) {
-        if (item.id === activeItemId) {
+      getStatus(item: ItemType, column: ColumnType) {
+        if (column.activeId === item.id) {
           return RowStatus.selected
         }
         return RowStatus.noselected
