@@ -18,9 +18,9 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -34,10 +34,10 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	ctx := taskCtx.GetContext()
 	logger := taskCtx.GetLogger()
-	insertCountLimitOfRefsCommitsDiff := int(65535 / reflect.ValueOf(code.RefsCommitsDiff{}).NumField())
+	// mysql limit
+	insertCountLimitOfCommitsDiff := int(65535 / reflect.ValueOf(code.CommitsDiff{}).NumField())
 
 	commitPairs := data.Options.AllPairs
-
 	commitNodeGraph := utils.NewCommitNodeGraph()
 
 	// load commits from db
@@ -69,7 +69,8 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	logger.Info("Create a commit node graph with node count[%d]", commitNodeGraph.Size())
 
 	// calculate diffs for commits pairs and store them into database
-	commitsDiff := &code.RefsCommitsDiff{}
+	commitsDiff := &code.CommitsDiff{}
+	finishedCommitDiff := &code.FinishedCommitsDiffs{}
 	lenCommitPairs := len(commitPairs)
 	taskCtx.SetProgress(0, lenCommitPairs)
 
@@ -80,31 +81,24 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 		default:
 		}
 		// ref might advance, keep commit sha for debugging
-		commitsDiff.NewRefCommitSha = pair[0]
-		commitsDiff.OldRefCommitSha = pair[1]
-		commitsDiff.NewRefId = fmt.Sprintf("%s:%s", repoId, pair[2])
-		commitsDiff.OldRefId = fmt.Sprintf("%s:%s", repoId, pair[3])
+		commitsDiff.NewCommitSha = pair[0]
+		commitsDiff.OldCommitSha = pair[1]
+		finishedCommitDiff.NewCommitSha = pair[0]
+		finishedCommitDiff.OldCommitSha = pair[1]
 
-		// delete records before creation
-		err = db.Delete(&code.RefsCommitsDiff{NewRefId: commitsDiff.NewRefId, OldRefId: commitsDiff.OldRefId})
-		if err != nil {
-			return err
-		}
-
-		if commitsDiff.NewRefCommitSha == commitsDiff.OldRefCommitSha {
+		if commitsDiff.NewCommitSha == commitsDiff.OldCommitSha {
 			// different refs might point to a same commit, it is ok
 			logger.Info(
-				"skipping ref pair due to they are the same %s %s => %s",
-				commitsDiff.NewRefId,
-				commitsDiff.OldRefId,
-				commitsDiff.NewRefCommitSha,
+				"skipping ref pair due to they are the same %s",
+				commitsDiff.NewCommitSha,
 			)
 			continue
 		}
 
 		lostSha, oldCount, newCount := commitNodeGraph.CalculateLostSha(pair[1], pair[0])
 
-		commitsDiffs := []code.RefsCommitsDiff{}
+		commitsDiffs := []code.CommitsDiff{}
+		finishedCommitDiffs := []code.FinishedCommitsDiffs{}
 
 		commitsDiff.SortingIndex = 1
 		for _, sha := range lostSha {
@@ -112,13 +106,13 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 			commitsDiffs = append(commitsDiffs, *commitsDiff)
 
 			// sql limit placeholders count only 65535
-			if commitsDiff.SortingIndex%insertCountLimitOfRefsCommitsDiff == 0 {
+			if commitsDiff.SortingIndex%insertCountLimitOfCommitsDiff == 0 {
 				logger.Info("commitsDiffs count in limited[%d] index[%d]--exec and clean", len(commitsDiffs), commitsDiff.SortingIndex)
 				err = db.CreateIfNotExist(commitsDiffs)
 				if err != nil {
 					return err
 				}
-				commitsDiffs = []code.RefsCommitsDiff{}
+				commitsDiffs = []code.CommitsDiff{}
 			}
 
 			commitsDiff.SortingIndex++
@@ -130,13 +124,18 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 			if err != nil {
 				return err
 			}
+			finishedCommitDiffs = append(finishedCommitDiffs, *finishedCommitDiff)
+			err = db.CreateIfNotExist(finishedCommitDiffs)
+			if err != nil {
+				return err
+			}
 		}
 
 		logger.Info(
 			"total %d commits of difference found between [new][%s] and [old][%s(total:%d)]",
 			newCount,
-			commitsDiff.NewRefId,
-			commitsDiff.OldRefId,
+			commitsDiff.NewCommitSha,
+			commitsDiff.OldCommitSha,
 			oldCount,
 		)
 		taskCtx.IncProgress(1)
