@@ -85,10 +85,10 @@ func (*modifyAllEntities) Up(basicRes core.BasicRes) errors.Error {
 
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		jenkinsBuild20220729{},
-		jenkinsJobDag20220729{},
-		jenkinsBuildRepo20220729{},
-		jenkinsStage20200729{},
+		&jenkinsBuild20220729{},
+		&jenkinsJobDag20220729{},
+		&jenkinsBuildRepo20220729{},
+		&jenkinsStage20200729{},
 	)
 }
 

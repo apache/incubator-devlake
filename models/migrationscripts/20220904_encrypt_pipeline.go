@@ -18,48 +18,19 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"time"
-
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"gorm.io/datatypes"
 )
 
 var _ core.MigrationScript = (*encryptPipeline)(nil)
 
 type encryptPipeline struct{}
 
-type pipeline20220904Before struct {
+type PipelineEncryption0904 struct {
 	archived.Model
-	Name          string         `json:"name" gorm:"index"`
-	BlueprintId   uint64         `json:"blueprintId"`
-	Plan          datatypes.JSON `json:"plan"` // target field
-	TotalTasks    int            `json:"totalTasks"`
-	FinishedTasks int            `json:"finishedTasks"`
-	BeganAt       *time.Time     `json:"beganAt"`
-	FinishedAt    *time.Time     `json:"finishedAt" gorm:"index"`
-	Status        string         `json:"status"`
-	Message       string         `json:"message"`
-	SpentSeconds  int            `json:"spentSeconds"`
-	Stage         int            `json:"stage"`
-}
-
-type pipeline0904After struct {
-	common.Model
-	Name          string     `json:"name" gorm:"index"`
-	BlueprintId   uint64     `json:"blueprintId"`
-	Plan          string     `json:"plan" encrypt:"yes"` // target field
-	TotalTasks    int        `json:"totalTasks"`
-	FinishedTasks int        `json:"finishedTasks"`
-	BeganAt       *time.Time `json:"beganAt"`
-	FinishedAt    *time.Time `json:"finishedAt" gorm:"index"`
-	Status        string     `json:"status"`
-	Message       string     `json:"message"`
-	SpentSeconds  int        `json:"spentSeconds"`
-	Stage         int        `json:"stage"`
+	Plan string
 }
 
 func (script *encryptPipeline) Up(basicRes core.BasicRes) errors.Error {
@@ -67,33 +38,23 @@ func (script *encryptPipeline) Up(basicRes core.BasicRes) errors.Error {
 	if encKey == "" {
 		return errors.BadInput.New("invalid encKey")
 	}
-
-	return migrationhelper.TransformTable(
+	err := migrationhelper.TransformColumns(
 		basicRes,
 		script,
 		"_devlake_pipelines",
-		func(s *pipeline20220904Before) (*pipeline0904After, errors.Error) {
-			encryptedPlan, err := core.Encrypt(encKey, string(s.Plan))
+		[]string{"plan"},
+		func(src *PipelineEncryption0904) (*PipelineEncryption0904, errors.Error) {
+			plan, err := core.Encrypt(encKey, src.Plan)
 			if err != nil {
 				return nil, err
 			}
-
-			dst := &pipeline0904After{
-				Name:          s.Name,
-				BlueprintId:   s.BlueprintId,
-				FinishedTasks: s.FinishedTasks,
-				BeganAt:       s.BeganAt,
-				FinishedAt:    s.FinishedAt,
-				Status:        s.Status,
-				Message:       s.Message,
-				SpentSeconds:  s.SpentSeconds,
-				Stage:         s.Stage,
-				Plan:          encryptedPlan,
-			}
-			return dst, nil
+			return &PipelineEncryption0904{
+				Model: src.Model,
+				Plan:  plan,
+			}, nil
 		},
 	)
-
+	return err
 }
 
 func (*encryptPipeline) Version() uint64 {
