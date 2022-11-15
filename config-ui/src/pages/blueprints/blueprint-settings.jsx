@@ -64,10 +64,6 @@ import BlueprintDataScopesDialog from '@/components/blueprints/BlueprintDataScop
 import BlueprintNavigationLinks from '@/components/blueprints/BlueprintNavigationLinks'
 import DataScopesGrid from '@/components/blueprints/DataScopesGrid'
 import AdvancedJSON from '@/components/blueprints/create-workflow/AdvancedJSON'
-import {
-  GITLAB_API_PROXY_ENDPOINT,
-  PROJECTS_ENDPOINT
-} from '@/config/gitlabApiProxy'
 import useJenkins from '@/hooks/useJenkins'
 import {
   JENKINS_API_PROXY_ENDPOINT,

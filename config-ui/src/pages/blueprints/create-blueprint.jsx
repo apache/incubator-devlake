@@ -40,10 +40,6 @@ import { WorkflowAdvancedSteps, WorkflowSteps } from '@/data/BlueprintWorkflow'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import {
-  GITLAB_API_PROXY_ENDPOINT,
-  PROJECTS_ENDPOINT
-} from '@/config/gitlabApiProxy'
-import {
   JENKINS_API_PROXY_ENDPOINT,
   JENKINS_JOBS_ENDPOINT
 } from '@/config/jenkinsApiProxy'
