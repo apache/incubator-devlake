@@ -18,7 +18,6 @@ limitations under the License.
 package runner
 
 import (
-	"sort"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -42,14 +41,6 @@ func RunPipeline(
 	if err != nil {
 		return errors.Convert(err)
 	}
-	sort.Slice(tasks, func(i, j int) bool {
-		if tasks[i].PipelineRow < tasks[j].PipelineRow {
-			return true
-		} else if tasks[i].PipelineRow == tasks[j].PipelineRow {
-			return tasks[i].PipelineCol < tasks[j].PipelineCol
-		}
-		return true
-	})
 	taskIds := make([][]uint64, 0)
 	for _, task := range tasks {
 		for len(taskIds) < task.PipelineRow {

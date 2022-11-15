@@ -362,7 +362,7 @@ func getTaskIdFromActivityId(activityId string) (uint64, errors.Error) {
 	return errors.Convert01(strconv.ParseUint(submatches[1], 10, 64))
 }
 
-// DeleteCreatedTasks deletes tasks with status `TASK_RERUN`
+// DeleteCreatedTasks deletes tasks with status `TASK_CREATED`
 func DeleteCreatedTasks(pipelineId uint64) errors.Error {
 	err := db.Where("pipeline_id = ? AND status = ?", pipelineId, models.TASK_CREATED).Delete(&models.Task{}).Error
 	if err != nil {
