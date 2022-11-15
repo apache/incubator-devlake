@@ -90,6 +90,7 @@ func parseBlueprint(DbBlueprint *models.DbBlueprint) *models.Blueprint {
 		Enable:     DbBlueprint.Enable,
 		CronConfig: DbBlueprint.CronConfig,
 		IsManual:   DbBlueprint.IsManual,
+		SkipOnFail: DbBlueprint.SkipOnFail,
 		Settings:   []byte(DbBlueprint.Settings),
 		Model:      DbBlueprint.Model,
 	}
@@ -105,6 +106,7 @@ func parseDbBlueprint(blueprint *models.Blueprint) *models.DbBlueprint {
 		Enable:     blueprint.Enable,
 		CronConfig: blueprint.CronConfig,
 		IsManual:   blueprint.IsManual,
+		SkipOnFail: blueprint.SkipOnFail,
 		Settings:   string(blueprint.Settings),
 		Model:      blueprint.Model,
 	}

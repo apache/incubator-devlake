@@ -196,3 +196,12 @@ func decryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, error
 	dbPipeline.Plan = plan
 	return dbPipeline, nil
 }
+
+// UpdateDbPipelineStatus update the status of pipeline
+func UpdateDbPipelineStatus(pipelineId uint64, status string) errors.Error {
+	err := db.Model(&models.DbPipeline{}).Where("id = ?", pipelineId).Update("status", status).Error
+	if err != nil {
+		return errors.Convert(err)
+	}
+	return nil
+}

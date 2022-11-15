@@ -54,6 +54,7 @@ func All() []core.MigrationScript {
 		new(createCollectorState),
 		new(removeCicdPipelineRelation),
 		new(addCicdScope),
+		new(addSkipOnFail),
 		new(modifyCommitsDiffs),
 	}
 }

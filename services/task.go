@@ -27,9 +27,9 @@ import (
 	"sync"
 
 	"github.com/apache/incubator-devlake/errors"
-
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/runner"
 	"gorm.io/gorm"
@@ -153,6 +153,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, errors.Error) {
 		PipelineId:  newTask.PipelineId,
 		PipelineRow: newTask.PipelineRow,
 		PipelineCol: newTask.PipelineCol,
+		SkipOnFail:  newTask.SkipOnFail,
 	}
 	err = db.Save(&task).Error
 	if err != nil {
@@ -194,6 +195,60 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, errors.Error) {
 	return tasks, count, nil
 }
 
+// GetTasksWithLastStatus returns task list of the pipeline, only the most recently tasks would be returned
+func GetTasksWithLastStatus(pipelineId uint64) ([]models.Task, errors.Error) {
+	var tasks []models.Task
+	dbInner := db.Model(&models.Task{}).Order("id DESC").Where("pipeline_id = ?", pipelineId)
+	err := dbInner.Find(&tasks).Error
+	if err != nil {
+		return nil, errors.Convert(err)
+	}
+	taskIds := make(map[int64]struct{})
+	var result []models.Task
+	var maxRow, maxCol int
+	for _, task := range tasks {
+		if task.PipelineRow > maxRow {
+			maxRow = task.PipelineRow
+		}
+		if task.PipelineCol > maxCol {
+			maxCol = task.PipelineCol
+		}
+	}
+	for _, task := range tasks {
+		index := int64(task.PipelineRow)*int64(maxCol) + int64(task.PipelineCol)
+		if _, ok := taskIds[index]; !ok {
+			taskIds[index] = struct{}{}
+			result = append(result, task)
+		}
+	}
+	runningTasks.FillProgressDetailToTasks(result)
+	return result, nil
+}
+
+// SpawnTasks create new tasks from the failed ones
+func SpawnTasks(input []models.Task) ([]models.Task, errors.Error) {
+	var result []models.Task
+	for _, task := range input {
+		task.Model = common.Model{}
+		task.Status = models.TASK_CREATED
+		task.Message = ""
+		task.Progress = 0
+		task.ProgressDetail = nil
+		task.FailedSubTask = ""
+		task.BeganAt = nil
+		task.FinishedAt = nil
+		task.SpentSeconds = 0
+		task.SkipOnFail = true
+		result = append(result, task)
+	}
+	err := db.Save(&result).Error
+	if err != nil {
+		taskLog.Error(err, "save task failed")
+		return nil, errors.Internal.Wrap(err, "save task failed")
+	}
+	return result, nil
+}
+
 // GetTask FIXME ...
 func GetTask(taskId uint64) (*models.Task, errors.Error) {
 	task := &models.Task{}
@@ -217,19 +272,22 @@ func CancelTask(taskId uint64) errors.Error {
 	return nil
 }
 
-func runTasksStandalone(parentLogger core.Logger, taskIds []uint64) errors.Error {
+// RunTasksStandalone run tasks in parallel
+func RunTasksStandalone(parentLogger core.Logger, taskIds []uint64) errors.Error {
+	if len(taskIds) == 0 {
+		return nil
+	}
 	results := make(chan error)
 	for _, taskId := range taskIds {
-		taskId := taskId
-		go func() {
-			taskLog.Info("run task #%d in background ", taskId)
+		go func(id uint64) {
+			taskLog.Info("run task #%d in background ", id)
 			var err errors.Error
-			taskErr := runTaskStandalone(parentLogger, taskId)
+			taskErr := runTaskStandalone(parentLogger, id)
 			if taskErr != nil {
-				err = errors.Default.Wrap(taskErr, fmt.Sprintf("Error running task %d.", taskId))
+				err = errors.Default.Wrap(taskErr, fmt.Sprintf("Error running task %d.", id))
 			}
 			results <- err
-		}()
+		}(taskId)
 	}
 	errs := make([]error, 0)
 	var err error
@@ -302,4 +360,13 @@ func getTaskIdFromActivityId(activityId string) (uint64, errors.Error) {
 		return 0, errors.Default.New("activityId does not match")
 	}
 	return errors.Convert01(strconv.ParseUint(submatches[1], 10, 64))
+}
+
+// DeleteCreatedTasks deletes tasks with status `TASK_CREATED`
+func DeleteCreatedTasks(pipelineId uint64) errors.Error {
+	err := db.Where("pipeline_id = ? AND status = ?", pipelineId, models.TASK_CREATED).Delete(&models.Task{}).Error
+	if err != nil {
+		return errors.Convert(err)
+	}
+	return nil
 }
