@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 14,
-  "iteration": 1665388367641,
+  "id": 19,
+  "iteration": 1668508842251,
   "links": [],
   "panels": [
     {
@@ -946,7 +946,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 30
               }
             ]
           }
@@ -1041,11 +1041,23 @@
                 ]
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Queue Time in Days"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-text"
+              }
+            ]
           }
         ]
       },
       "gridPos": {
-        "h": 18,
+        "h": 9,
         "w": 12,
         "x": 12,
         "y": 27
@@ -1098,7 +1110,7 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisLabel": "",
+            "axisLabel": "Queue Time in Days",
             "axisPlacement": "auto",
             "axisSoftMin": 0,
             "fillOpacity": 80,
@@ -1120,7 +1132,7 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 21
               }
             ]
           }
@@ -1135,18 +1147,21 @@
       },
       "id": 18,
       "options": {
-        "barWidth": 0.5,
+        "barWidth": 0.3,
         "groupWidth": 0.7,
         "legend": {
           "calcs": [
-            "mean"
+            "mean",
+            "max"
           ],
           "displayMode": "list",
           "placement": "bottom"
         },
         "orientation": "auto",
-        "showValue": "auto",
-        "text": {},
+        "showValue": "always",
+        "text": {
+          "valueSize": 12
+        },
         "tooltip": {
           "mode": "single"
         }
@@ -1159,7 +1174,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select \n  concat('#', i.issue_key, ' ', i.title) as issue_key,\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days'\nfrom \n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and b.id in ($repo_id)\norder by 2 desc",
+          "rawSql": "select \n  concat('#', i.issue_key) as issue_key,\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days'\nfrom \n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and b.id in ($repo_id)\norder by 2 desc",
           "refId": "A",
           "select": [
             [
@@ -1185,6 +1200,183 @@
       ],
       "title": "Distribution of Bug Queue Time in Days [Outstanding Bugs]",
       "type": "barchart"
+    },
+    {
+      "datasource": "mysql",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "displayMode": "auto"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 7
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Queue Time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Issue Number"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 121
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Creation Date"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 187
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "url"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 492
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Queue Time in Days"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 152
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Title"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 547
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "url"
+            },
+            "properties": [
+              {
+                "id": "links",
+                "value": [
+                  {
+                    "targetBlank": true,
+                    "title": "URL",
+                    "url": "${__value.raw}"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Queue Time in Days"
+            },
+            "properties": [
+              {
+                "id": "custom.displayMode",
+                "value": "color-text"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 36
+      },
+      "id": 31,
+      "options": {
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select \n  i.issue_key as 'Issue Number',\n  i.title as 'Title',\n  (TIMESTAMPDIFF(MINUTE, i.created_date,NOW()))/1440 as 'Queue Time in Days',\n  i.url as 'Url'\nfrom \n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\nwhere\n  i.type in ($issue_type)\n  and i.status != 'DONE'\n  and i.assignee_name = ''\n  and b.id in ($repo_id)\norder by 'Queue Time' desc",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "script_version"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "_devlake_migration_history",
+          "timeColumn": "created_at",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "title": "Bugs to be Triaged [All History]",
+      "type": "table"
     },
     {
       "datasource": "mysql",
@@ -1559,5 +1751,5 @@
   "timezone": "",
   "title": "Weekly Bug Retro",
   "uid": "-5EKA5w7k",
-  "version": 14
+  "version": 6
 }
