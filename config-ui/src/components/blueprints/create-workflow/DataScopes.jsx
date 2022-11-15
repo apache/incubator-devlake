@@ -209,15 +209,19 @@ const DataScopes = (props) => {
                   ) && (
                     <>
                       <h4>Projects *</h4>
-                      <p>Select the project you would like to sync.</p>
-                      <GitLabMillerColumns
-                        connectionId={configuredConnection.connectionId}
-                        onChangeItems={(items) =>
-                          setScopeEntities([
-                            ...items.map((it) => new GitlabProject(it))
-                          ])
-                        }
-                      />
+                      {!!activeStep && (
+                        <>
+                          <p>Select the project you would like to sync.</p>
+                          <GitLabMillerColumns
+                            connectionId={configuredConnection.connectionId}
+                            onChangeItems={(items) =>
+                              setScopeEntities([
+                                ...items.map((it) => new GitlabProject(it))
+                              ])
+                            }
+                          />
+                        </>
+                      )}
                       <div style={{ margin: '16px 0 8px' }}>
                         Add repositories outside of your projects
                       </div>
