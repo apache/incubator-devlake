@@ -130,7 +130,6 @@ const StageLane = (props) => {
 
   useEffect(() => {
     setActiveStage(stages[sK])
-    console.log('>> ACTIVE STAGE LANE', stages[sK])
   }, [stages, sK])
 
   useEffect(() => {
