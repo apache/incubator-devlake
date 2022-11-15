@@ -224,10 +224,10 @@ func TestTransformTable_RollBack(t *testing.T) {
 			}, nil
 		})
 
-	assert.Equal(t, err.Unwrap().Error(), TestError.Unwrap().Error())
+	assert.Contains(t, err.Unwrap().Error(), TestError.Unwrap().Error())
 }
 
-func TestCopyTableColumn(t *testing.T) {
+func TestCopyTableColumns(t *testing.T) {
 	mockRows := new(mocks.Rows)
 
 	mockRows.On("Next").Return(true).Times(3)
@@ -306,7 +306,7 @@ func TestCopyTableColumn(t *testing.T) {
 	mockRes.On("GetDal").Return(mockDal)
 	mockRes.On("GetLogger").Return(mockLog)
 
-	err := CopyTableColumn(mockRes, TestTableNameSrc, TestTableNameDst,
+	err := CopyTableColumns(mockRes, TestTableNameSrc, TestTableNameDst,
 		func(src *TestSrcTable) (*TestDstTable, errors.Error) {
 			shaName := sha256.New()
 			shaName.Write([]byte(src.Name))
@@ -320,7 +320,7 @@ func TestCopyTableColumn(t *testing.T) {
 	assert.Nil(t, err)
 }
 
-func TestCopyTableColumn_RollBack(t *testing.T) {
+func TestCopyTableColumns_RollBack(t *testing.T) {
 	mockRows := new(mocks.Rows)
 	mockRows.On("Next").Return(true).Once()
 	mockRows.On("Close").Return(nil).Twice()
@@ -377,7 +377,7 @@ func TestCopyTableColumn_RollBack(t *testing.T) {
 	mockRes.On("GetDal").Return(mockDal)
 	mockRes.On("GetLogger").Return(mockLog)
 
-	err := CopyTableColumn(mockRes, TestTableNameSrc, TestTableNameDst,
+	err := CopyTableColumns(mockRes, TestTableNameSrc, TestTableNameDst,
 		func(src *TestSrcTable) (*TestDstTable, errors.Error) {
 			shaName := sha256.New()
 			shaName.Write([]byte(src.Name))
@@ -388,7 +388,7 @@ func TestCopyTableColumn_RollBack(t *testing.T) {
 			}, nil
 		})
 
-	assert.Equal(t, err.Unwrap().Error(), TestError.Unwrap().Error())
+	assert.Contains(t, err.Unwrap().Error(), TestError.Unwrap().Error())
 }
 
 func TestTransformColumns(t *testing.T) {
@@ -560,7 +560,7 @@ func TestTransformColumns_RollBack(t *testing.T) {
 			}, nil
 		})
 
-	assert.Equal(t, err.Unwrap().Error(), TestError.Unwrap().Error())
+	assert.Contains(t, err.Unwrap().Error(), TestError.Unwrap().Error())
 }
 
 func TestChangeColumnsType(t *testing.T) {
@@ -667,5 +667,5 @@ func TestChangeColumnsType_Rollback(t *testing.T) {
 			return TestError
 		})
 
-	assert.Equal(t, err.Unwrap().Error(), TestError.Unwrap().Error())
+	assert.Contains(t, err.Unwrap().Error(), TestError.Unwrap().Error())
 }
