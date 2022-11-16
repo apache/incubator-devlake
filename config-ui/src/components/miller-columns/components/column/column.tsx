@@ -28,7 +28,7 @@ export interface ColumnsProps {
   renderItem: (item: ItemType) => React.ReactNode
   height?: number
   title?: string | React.ReactNode
-  bottom?: React.ReactNode
+  columnCount?: number
   scrollProps?: {
     hasMore: boolean
     onScroll: () => void
@@ -42,6 +42,7 @@ export const Column = ({
   renderItem,
   height,
   title,
+  columnCount = 3,
   scrollProps
 }: ColumnsProps) => {
   const [hasMore, setHasMore] = useState(true)
@@ -69,7 +70,11 @@ export const Column = ({
   )
 
   return (
-    <S.Container id='miller-columns-column-container' height={height}>
+    <S.Container
+      id='miller-columns-column-container'
+      height={height}
+      columnCount={columnCount}
+    >
       {title && <div className='title'>{title}</div>}
       <InfiniteScroll
         dataLength={items.length}

@@ -49,6 +49,7 @@ export const JIRAMillerColumns = ({ connectionId, onChangeItems }: Props) => {
   return (
     <MillerColumns
       height={300}
+      columnCount={1}
       items={items}
       selectedItemIds={seletedIds}
       onSelectedItemIds={setSelectedIds}

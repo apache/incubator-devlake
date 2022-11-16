@@ -25,13 +25,15 @@ import * as S from './styled'
 
 interface Props extends UseMillerColumnsProps {
   height?: number
+  columnCount?: number
   firstColumnTitle?: React.ReactNode
   scrollProps?: ColumnsProps['scrollProps']
 }
 
 export const MillerColumns = ({
-  firstColumnTitle,
   height,
+  columnCount,
+  firstColumnTitle,
   scrollProps,
   ...props
 }: Props) => {
@@ -56,6 +58,7 @@ export const MillerColumns = ({
           )}
           height={height}
           title={i === 0 && firstColumnTitle}
+          columnCount={columnCount}
           scrollProps={scrollProps}
         />
       ))}
