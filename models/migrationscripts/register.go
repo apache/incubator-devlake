@@ -55,5 +55,6 @@ func All() []core.MigrationScript {
 		new(removeCicdPipelineRelation),
 		new(addCicdScope),
 		new(modifyCommitsDiffs),
+		new(addDeployCommitsDiff),
 	}
 }
