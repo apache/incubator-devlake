@@ -18,7 +18,8 @@
 
 import { useState, useEffect, useMemo } from 'react'
 
-import request from '../request'
+import request from '@/components/utils/request'
+
 import { getGitLabProxyApiPrefix } from '../config'
 
 export type ItemType = {

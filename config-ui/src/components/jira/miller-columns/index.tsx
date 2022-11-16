@@ -16,57 +16,46 @@
  *
  */
 
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import type { ItemType } from '@/components/miller-columns'
-import { MillerColumns, ItemTypeEnum } from '@/components/miller-columns'
+import { MillerColumns } from '@/components/miller-columns'
 
 import {
-  useGitLabMillerColumns,
-  UseGitLabMillerColumnsProps
-} from './use-gitlab-miller-columns'
+  useJIRAMillerColumns,
+  UseJIRAMillerColumnsProps
+} from './use-jira-miller-columns'
 
-interface Props extends UseGitLabMillerColumnsProps {
-  disabledItemIds?: Array<number>
-  onChangeItems: (
-    items: Array<Pick<ItemType, 'id' | 'title'> & { shortTitle: string }>
-  ) => void
+interface Props extends UseJIRAMillerColumnsProps {
+  onChangeItems: (items: Array<Pick<ItemType, 'id' | 'title'>>) => void
 }
 
-export const GitLabMillerColumns = ({
-  connectionId,
-  disabledItemIds,
-  onChangeItems
-}: Props) => {
+export const JIRAMillerColumns = ({ connectionId, onChangeItems }: Props) => {
   const [seletedIds, setSelectedIds] = useState<Array<ItemType['id']>>([])
 
-  const { items, itemTree, onExpandItem } = useGitLabMillerColumns<{
-    nameWithNameSpace?: string
-  }>({
-    connectionId
-  })
+  const { items, hasMore, onScroll } = useJIRAMillerColumns({ connectionId })
 
   useEffect(() => {
-    const curItems = seletedIds
-      .filter((id) => itemTree[id].type === ItemTypeEnum.LEAF)
-      .map((id) => ({
-        id,
-        title: itemTree[id].nameWithNameSpace ?? '',
-        shortTitle: itemTree[id].title
-      }))
-
-    onChangeItems(curItems)
+    onChangeItems(
+      items
+        .filter((it) => seletedIds.includes(it.id))
+        .map((it) => ({
+          id: it.id,
+          title: it.title
+        }))
+    )
   }, [seletedIds])
 
   return (
     <MillerColumns
       height={300}
-      firstColumnTitle='Subgroups/Projects'
       items={items}
-      disabledItemIds={disabledItemIds}
       selectedItemIds={seletedIds}
       onSelectedItemIds={setSelectedIds}
-      onExpandItem={onExpandItem}
+      scrollProps={{
+        hasMore,
+        onScroll
+      }}
     />
   )
 }

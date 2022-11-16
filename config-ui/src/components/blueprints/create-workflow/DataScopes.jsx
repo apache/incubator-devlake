@@ -32,6 +32,8 @@ import DataDomainsSelector from '@/components/blueprints/DataDomainsSelector'
 import NoData from '@/components/NoData'
 import { GitLabMillerColumns, GitLabProjectSelector } from '@/components/gitlab'
 import GitlabProject from '@/models/GitlabProject'
+import { JIRAMillerColumns } from '@/components/jira'
+import JiraBoard from '@/models/JiraBoard'
 import GitHubProject from '@/models/GithubProject'
 import JenkinsJobsSelector from '@/components/blueprints/JenkinsJobsSelector'
 
@@ -190,17 +192,28 @@ const DataScopes = (props) => {
                     <>
                       <h4>Boards *</h4>
                       <p>Select the boards you would like to sync.</p>
-                      <BoardsSelector
-                        items={jiraBoards}
-                        selectedItems={selectedScopeEntities}
-                        onQueryChange={setBoardSearch}
-                        onItemSelect={setScopeEntities}
-                        onClear={setScopeEntities}
-                        onRemove={setScopeEntities}
-                        disabled={isSaving}
-                        configuredConnection={configuredConnection}
-                        isLoading={isFetching}
-                      />
+                      {!activeStep ? (
+                        <BoardsSelector
+                          items={jiraBoards}
+                          selectedItems={selectedScopeEntities}
+                          onQueryChange={setBoardSearch}
+                          onItemSelect={setScopeEntities}
+                          onClear={setScopeEntities}
+                          onRemove={setScopeEntities}
+                          disabled={isSaving}
+                          configuredConnection={configuredConnection}
+                          isLoading={isFetching}
+                        />
+                      ) : (
+                        <JIRAMillerColumns
+                          connectionId={configuredConnection.connectionId}
+                          onChangeItems={(items) =>
+                            setScopeEntities(
+                              items.map((it) => new JiraBoard(it))
+                            )
+                          }
+                        />
+                      )}
                     </>
                   )}
 

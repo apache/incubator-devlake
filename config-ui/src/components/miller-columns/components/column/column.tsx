@@ -16,26 +16,71 @@
  *
  */
 
-import React from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component'
 
 import type { ItemType } from '../../types'
 
 import * as S from './styled'
 
-interface Props {
+export interface ColumnsProps {
   items: Array<ItemType>
   renderItem: (item: ItemType) => React.ReactNode
   height?: number
   title?: string | React.ReactNode
   bottom?: React.ReactNode
+  scrollProps?: {
+    hasMore: boolean
+    onScroll: () => void
+    renderLoader?: () => React.ReactNode
+    renderBottom?: () => React.ReactNode
+  }
 }
 
-export const Column = ({ items, renderItem, height, title, bottom }: Props) => {
+export const Column = ({
+  items,
+  renderItem,
+  height,
+  title,
+  scrollProps
+}: ColumnsProps) => {
+  const [hasMore, setHasMore] = useState(true)
+
+  useEffect(() => {
+    if (scrollProps) {
+      setHasMore(scrollProps.hasMore)
+    }
+  }, [scrollProps])
+
+  const handleNext = useCallback(() => {
+    if (scrollProps) {
+      scrollProps.onScroll()
+    } else {
+      setHasMore(false)
+    }
+  }, [scrollProps])
+
+  const loader = scrollProps?.renderLoader?.() ?? (
+    <S.StatusWrapper>Loading...</S.StatusWrapper>
+  )
+
+  const bottom = scrollProps?.renderBottom?.() ?? (
+    <S.StatusWrapper>All Data Loaded.</S.StatusWrapper>
+  )
+
   return (
-    <S.Container height={height}>
+    <S.Container id='miller-columns-column-container' height={height}>
       {title && <div className='title'>{title}</div>}
-      {items.map((it) => renderItem(it))}
-      {bottom}
+      <InfiniteScroll
+        dataLength={items.length}
+        hasMore={hasMore}
+        next={handleNext}
+        loader={loader}
+        scrollableTarget='miller-columns-column-container'
+        endMessage={bottom}
+      >
+        {items.map((it) => renderItem(it))}
+      </InfiniteScroll>
     </S.Container>
   )
 }

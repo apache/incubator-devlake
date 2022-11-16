@@ -30,7 +30,7 @@ export interface UseMillerColumnsProps {
   activeItemId?: ItemType['id']
   onActiveItemId?: (id: ItemType['id']) => void
   disabledItemIds?: Array<ItemType['id']>
-  selectedItemIds: Array<ItemType['id']>
+  selectedItemIds?: Array<ItemType['id']>
   onSelectedItemIds?: (ids: Array<ItemType['id']>) => void
   onExpandItem?: (item: ItemType) => void
 }

@@ -19,21 +19,20 @@
 import React from 'react'
 
 import { useMillerColumns, UseMillerColumnsProps } from './hooks'
-import { Column, Item } from './components'
+import { Column, ColumnsProps, Item } from './components'
 
-import { ColumnType } from './types'
 import * as S from './styled'
 
 interface Props extends UseMillerColumnsProps {
   height?: number
   firstColumnTitle?: React.ReactNode
-  renderColumnBottom?: (col: ColumnType) => React.ReactNode
+  scrollProps?: ColumnsProps['scrollProps']
 }
 
 export const MillerColumns = ({
   firstColumnTitle,
   height,
-  renderColumnBottom,
+  scrollProps,
   ...props
 }: Props) => {
   const { columns, getStatus, getChekecdStatus, onExpandItem, onSelectItem } =
@@ -41,28 +40,25 @@ export const MillerColumns = ({
 
   return (
     <S.Container>
-      {columns.map((col, i) => {
-        const bottom = renderColumnBottom?.(col)
-        return (
-          <Column
-            key={col.parentId}
-            items={col.items}
-            renderItem={(item) => (
-              <Item
-                key={item.id}
-                item={item}
-                status={getStatus(item, col)}
-                checkStatus={getChekecdStatus(item)}
-                onExpandItem={onExpandItem}
-                onSelectItem={onSelectItem}
-              />
-            )}
-            height={height}
-            title={i === 0 && firstColumnTitle}
-            bottom={bottom}
-          />
-        )
-      })}
+      {columns.map((col, i) => (
+        <Column
+          key={col.parentId}
+          items={col.items}
+          renderItem={(item) => (
+            <Item
+              key={item.id}
+              item={item}
+              status={getStatus(item, col)}
+              checkStatus={getChekecdStatus(item)}
+              onExpandItem={onExpandItem}
+              onSelectItem={onSelectItem}
+            />
+          )}
+          height={height}
+          title={i === 0 && firstColumnTitle}
+          scrollProps={scrollProps}
+        />
+      ))}
     </S.Container>
   )
 }

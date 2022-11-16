@@ -20,8 +20,8 @@ import { useMemo, useCallback } from 'react'
 
 import type { ItemType } from '@/components/miller-columns'
 import { useLoadItems, ItemTypeEnum } from '@/components/miller-columns'
+import request from '@/components/utils/request'
 
-import request from '../request'
 import { getGitLabProxyApiPrefix } from '../config'
 
 export interface UseGitLabMillerColumnsProps {
