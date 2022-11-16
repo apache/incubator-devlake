@@ -34,9 +34,9 @@ import (
 
 var _ core.PluginMeta = (*Gitlab)(nil)
 var _ core.PluginInit = (*Gitlab)(nil)
-var _ core.PluginModel = (*Gitlab)(nil)
 var _ core.PluginTask = (*Gitlab)(nil)
 var _ core.PluginApi = (*Gitlab)(nil)
+var _ core.PluginModel = (*Gitlab)(nil)
 var _ core.PluginMigration = (*Gitlab)(nil)
 var _ core.PluginBlueprintV100 = (*Gitlab)(nil)
 var _ core.CloseablePluginTask = (*Gitlab)(nil)

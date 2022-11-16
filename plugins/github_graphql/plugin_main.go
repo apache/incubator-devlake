@@ -20,6 +20,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"reflect"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -32,9 +36,6 @@ import (
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
 	"gorm.io/gorm"
-	"reflect"
-	"strings"
-	"time"
 )
 
 // make sure interface is implemented
@@ -42,6 +43,7 @@ var _ core.PluginMeta = (*GithubGraphql)(nil)
 var _ core.PluginInit = (*GithubGraphql)(nil)
 var _ core.PluginTask = (*GithubGraphql)(nil)
 var _ core.PluginApi = (*GithubGraphql)(nil)
+var _ core.PluginModel = (*GithubGraphql)(nil)
 var _ core.CloseablePluginTask = (*GithubGraphql)(nil)
 
 // PluginEntry exports a symbol for Framework to load
@@ -55,6 +57,10 @@ func (plugin GithubGraphql) Description() string {
 
 func (plugin GithubGraphql) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	return nil
+}
+
+func (plugin GithubGraphql) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
 }
 
 func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {

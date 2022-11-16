@@ -34,6 +34,8 @@ var _ core.PluginMeta = (*RefDiff)(nil)
 var _ core.PluginInit = (*RefDiff)(nil)
 var _ core.PluginTask = (*RefDiff)(nil)
 var _ core.PluginApi = (*RefDiff)(nil)
+var _ core.PluginModel = (*RefDiff)(nil)
+var _ core.PluginMetric = (*RefDiff)(nil)
 
 // PluginEntry is a variable exported for Framework to search and load
 var PluginEntry RefDiff //nolint
@@ -44,8 +46,24 @@ func (plugin RefDiff) Description() string {
 	return "Calculate commits diff for specified ref pairs based on `commits` and `commit_parents` tables"
 }
 
+func (plugin RefDiff) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{}, nil
+}
+
 func (plugin RefDiff) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{}
+}
+
+func (plugin RefDiff) IsProjectMetric() bool {
+	return false
+}
+
+func (plugin RefDiff) RunAfter() ([]string, errors.Error) {
+	return []string{}, nil
+}
+
+func (plugin RefDiff) Settings() interface{} {
+	return nil
 }
 
 func (plugin RefDiff) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {

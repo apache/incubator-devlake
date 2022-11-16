@@ -30,6 +30,7 @@ import (
 var _ core.PluginMeta = (*Webhook)(nil)
 var _ core.PluginInit = (*Webhook)(nil)
 var _ core.PluginApi = (*Webhook)(nil)
+var _ core.PluginModel = (*Webhook)(nil)
 var _ core.PluginMigration = (*Webhook)(nil)
 
 type Webhook struct{}
@@ -41,6 +42,10 @@ func (plugin Webhook) Description() string {
 func (plugin Webhook) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
+}
+
+func (plugin Webhook) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
 }
 
 // PkgPath information lost when compiled as plugin(.so)

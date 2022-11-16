@@ -36,6 +36,7 @@ var _ core.PluginMeta = (*Jenkins)(nil)
 var _ core.PluginInit = (*Jenkins)(nil)
 var _ core.PluginTask = (*Jenkins)(nil)
 var _ core.PluginApi = (*Jenkins)(nil)
+var _ core.PluginModel = (*Jenkins)(nil)
 var _ core.PluginMigration = (*Jenkins)(nil)
 var _ core.CloseablePluginTask = (*Jenkins)(nil)
 

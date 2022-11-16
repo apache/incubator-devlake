@@ -15,13 +15,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package core
+package models
 
-type Tabler interface {
-	TableName() string
+import "github.com/apache/incubator-devlake/models/common"
+
+type Project struct {
+	Name        string `gorm:"primaryKey;type:varchar(255)"`
+	Description string `gorm:"type:text"`
+
+	common.NoPKModel
 }
 
-type PluginModel interface {
-	// This method returns all models of the current plugin
-	GetTablesInfo() []Tabler
+func (Project) TableName() string {
+	return "projects"
+}
+
+type ProjectMetric struct {
+	ProjectName  string `gorm:"primaryKey;type:varchar(255)"`
+	PluginName   string `gorm:"primaryKey;type:varchar(255)"`
+	PluginOption string `gorm:"type:text"`
+	Enable       bool   `gorm:"type:boolean"`
+
+	common.NoPKModel
+}
+
+func (ProjectMetric) TableName() string {
+	return "project_metrics"
 }

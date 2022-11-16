@@ -32,6 +32,7 @@ import (
 var _ core.PluginMeta = (*Customize)(nil)
 var _ core.PluginInit = (*Customize)(nil)
 var _ core.PluginApi = (*Customize)(nil)
+var _ core.PluginModel = (*Customize)(nil)
 
 type Customize struct {
 	handlers *api.Handlers
@@ -41,6 +42,10 @@ func (plugin *Customize) Init(config *viper.Viper, logger core.Logger, db *gorm.
 	basicRes := helper.NewDefaultBasicRes(config, logger, db)
 	plugin.handlers = api.NewHandlers(basicRes.GetDal())
 	return nil
+}
+
+func (plugin Customize) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
 }
 
 func (plugin Customize) SubTaskMetas() []core.SubTaskMeta {

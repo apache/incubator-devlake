@@ -31,6 +31,7 @@ import (
 var _ core.PluginMeta = (*Org)(nil)
 var _ core.PluginInit = (*Org)(nil)
 var _ core.PluginTask = (*Org)(nil)
+var _ core.PluginModel = (*Org)(nil)
 
 type Org struct {
 	handlers *api.Handlers

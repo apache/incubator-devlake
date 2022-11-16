@@ -37,6 +37,7 @@ var _ core.PluginMeta = (*Icla)(nil)
 var _ core.PluginInit = (*Icla)(nil)
 var _ core.PluginTask = (*Icla)(nil)
 var _ core.PluginApi = (*Icla)(nil)
+var _ core.PluginModel = (*Icla)(nil)
 var _ core.PluginMigration = (*Icla)(nil)
 var _ core.CloseablePluginTask = (*Icla)(nil)
 
@@ -45,18 +46,18 @@ var PluginEntry Icla //nolint
 
 type Icla struct{}
 
-func (plugin Icla) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{
-		&models.IclaCommitter{},
-	}
-}
-
 func (plugin Icla) Description() string {
 	return "collect some Icla data"
 }
 
 func (plugin Icla) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	return nil
+}
+
+func (plugin Icla) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{
+		&models.IclaCommitter{},
+	}
 }
 
 func (plugin Icla) SubTaskMetas() []core.SubTaskMeta {

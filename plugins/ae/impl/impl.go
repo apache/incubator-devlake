@@ -35,6 +35,7 @@ var _ core.PluginMeta = (*AE)(nil)
 var _ core.PluginInit = (*AE)(nil)
 var _ core.PluginTask = (*AE)(nil)
 var _ core.PluginApi = (*AE)(nil)
+var _ core.PluginModel = (*AE)(nil)
 var _ core.PluginMigration = (*AE)(nil)
 var _ core.CloseablePluginTask = (*AE)(nil)
 
@@ -44,6 +45,7 @@ func (plugin AE) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) erro
 	api.Init(config, logger, db)
 	return nil
 }
+
 func (plugin AE) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{
 		&models.AECommit{},

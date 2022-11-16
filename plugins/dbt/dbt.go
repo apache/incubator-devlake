@@ -28,8 +28,9 @@ import (
 )
 
 var (
-	_ core.PluginMeta = (*Dbt)(nil)
-	_ core.PluginTask = (*Dbt)(nil)
+	_ core.PluginMeta  = (*Dbt)(nil)
+	_ core.PluginTask  = (*Dbt)(nil)
+	_ core.PluginModel = (*Dbt)(nil)
 )
 
 type Dbt struct{}

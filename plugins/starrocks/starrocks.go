@@ -27,6 +27,11 @@ import (
 
 type StarRocks string
 
+// make sure interface is implemented
+var _ core.PluginMeta = (*StarRocks)(nil)
+var _ core.PluginTask = (*StarRocks)(nil)
+var _ core.PluginModel = (*StarRocks)(nil)
+
 func (s StarRocks) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
 		LoadDataTaskMeta,
