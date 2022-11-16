@@ -191,6 +191,9 @@ func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandle
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 		},
+		"connections/:connectionId/proxy/rest/*path": {
+			"GET": api.Proxy,
+		},
 	}
 }
 
