@@ -171,6 +171,18 @@ func TestIssueDataFlow(t *testing.T) {
 		),
 	)
 
+	dataflowTester.VerifyTable(
+		models.JiraSprintIssue{},
+		"./snapshot_tables/_tool_jira_sprint_issues.csv",
+		[]string{
+			"connection_id",
+			"sprint_id",
+			"issue_id",
+			"resolution_date",
+			"issue_created_date",
+		},
+	)
+
 	// verify issue conversion
 	dataflowTester.FlushTabler(&ticket.Issue{})
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
