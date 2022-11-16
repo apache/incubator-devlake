@@ -62,7 +62,7 @@ func RegisterRouter(r *gin.Engine) {
 
 	// plugin api
 	r.GET("/plugininfo", plugininfo.Get)
-	r.GET("/plugins", plugininfo.GetPluginNames)
+	r.GET("/plugins", plugininfo.GetPluginMetas)
 
 	// project api
 	r.GET("/projects/:projectName", project.GetProject)

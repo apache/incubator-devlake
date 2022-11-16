@@ -21,10 +21,8 @@ import (
 	goerror "errors"
 	"fmt"
 
-	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
-	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/gorm"
 )
 
@@ -118,7 +116,7 @@ func GetDbProjectMetric(projectName string, pluginName string) (*models.ProjectM
 }
 
 // encryptProject
-func encryptProject(project *models.Project) (*models.Project, errors.Error) {
+/*func encryptProject(project *models.Project) (*models.Project, errors.Error) {
 	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
 
 	describeEncrypt, err := core.Encrypt(encKey, project.Description)
@@ -141,10 +139,10 @@ func encryptProjectMetric(projectMetric *models.ProjectMetric) (*models.ProjectM
 	projectMetric.PluginOption = pluginOption
 
 	return projectMetric, nil
-}
+}*/
 
 // decryptProject
-func decryptProject(project *models.Project) (*models.Project, errors.Error) {
+/*func decryptProject(project *models.Project) (*models.Project, errors.Error) {
 	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
 
 	describe, err := core.Decrypt(encKey, project.Description)
@@ -167,4 +165,4 @@ func decryptProjectMetric(projectMetric *models.ProjectMetric) (*models.ProjectM
 	projectMetric.PluginOption = pluginOption
 
 	return projectMetric, nil
-}
+}*/

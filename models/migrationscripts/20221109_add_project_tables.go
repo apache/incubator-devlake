@@ -36,7 +36,7 @@ type Project struct {
 }
 
 func (Project) TableName() string {
-	return "_devlake_projects"
+	return "projects"
 }
 
 type ProjectMetric struct {
@@ -48,7 +48,7 @@ type ProjectMetric struct {
 }
 
 func (ProjectMetric) TableName() string {
-	return "_devlake_project_metrics"
+	return "project_metrics"
 }
 
 func (script *addProjectTables) Up(basicRes core.BasicRes) errors.Error {

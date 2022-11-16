@@ -27,6 +27,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type ProjectCount struct {
+	Projects []*models.Project
+	Count    int64
+}
+
 // @Summary Create and run a new project
 // @Description Create and run a new project
 // @Tags framework/projects
@@ -53,7 +58,7 @@ func GetProject(c *gin.Context) {
 // @Tags framework/projects
 // @Param page query int true "query"
 // @Param pagesize query int true "query"
-// @Success 200  {object} gin.H
+// @Success 200  {object} ProjectCount
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /projects [get]
@@ -69,7 +74,10 @@ func GetProjects(c *gin.Context) {
 		shared.ApiOutputAbort(c, errors.Default.Wrap(err, "error getting projects"))
 		return
 	}
-	shared.ApiOutputSuccess(c, gin.H{"project": projects, "count": count}, http.StatusOK)
+	shared.ApiOutputSuccess(c, ProjectCount{
+		Projects: projects,
+		Count:    count,
+	}, http.StatusOK)
 }
 
 // @Summary Create a new project

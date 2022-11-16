@@ -31,11 +31,11 @@ type ProjectQuery struct {
 
 // CreateProject accepts a project instance and insert it to database
 func CreateProject(project *models.Project) errors.Error {
-	enProject, err := encryptProject(project)
+	/*project, err := encryptProject(project)
 	if err != nil {
 		return err
-	}
-	err = CreateDbProject(enProject)
+	}*/
+	err := CreateDbProject(project)
 	if err != nil {
 		return err
 	}
@@ -44,11 +44,11 @@ func CreateProject(project *models.Project) errors.Error {
 
 // CreateProjectMetric accepts a ProjectMetric instance and insert it to database
 func CreateProjectMetric(projectMetric *models.ProjectMetric) errors.Error {
-	enProjectMetric, err := encryptProjectMetric(projectMetric)
+	/*enProjectMetric, err := encryptProjectMetric(projectMetric)
 	if err != nil {
 		return err
-	}
-	err = CreateDbProjectMetric(enProjectMetric)
+	}*/
+	err := CreateDbProjectMetric(projectMetric)
 	if err != nil {
 		return err
 	}
@@ -62,10 +62,10 @@ func GetProject(name string) (*models.Project, errors.Error) {
 		return nil, errors.Convert(err)
 	}
 
-	project, err = decryptProject(project)
+	/*project, err = decryptProject(project)
 	if err != nil {
 		return nil, errors.Convert(err)
-	}
+	}*/
 
 	return project, nil
 }
@@ -77,10 +77,10 @@ func GetProjectMetric(projectName string, pluginName string) (*models.ProjectMet
 		return nil, errors.Convert(err)
 	}
 
-	projectMetric, err = decryptProjectMetric(projectMetric)
+	/*projectMetric, err = decryptProjectMetric(projectMetric)
 	if err != nil {
 		return nil, errors.Convert(err)
-	}
+	}*/
 
 	return projectMetric, nil
 }
@@ -91,12 +91,14 @@ func GetProjects(query *ProjectQuery) ([]*models.Project, int64, errors.Error) {
 	if err != nil {
 		return nil, 0, errors.Convert(err)
 	}
-	for i, project := range projects {
+
+	/*for i, project := range projects {
 		projects[i], err = decryptProject(project)
 		if err != nil {
 			return nil, 0, err
 		}
-	}
+	}*/
+
 	return projects, count, nil
 }
 
@@ -113,13 +115,13 @@ func PatchProject(name string, body map[string]interface{}) (*models.Project, er
 		return nil, err
 	}
 
-	enProject, err := encryptProject(project)
+	/*enProject, err := encryptProject(project)
 	if err != nil {
 		return nil, err
-	}
+	}*/
 
 	// save
-	err = SaveDbProject(enProject)
+	err = SaveDbProject(project)
 	if err != nil {
 		return nil, errors.Internal.Wrap(err, "error saving project")
 	}
@@ -141,13 +143,13 @@ func PatchProjectMetric(projectName string, pluginName string, body map[string]i
 		return nil, err
 	}
 
-	enProjectMetric, err := encryptProjectMetric(projectMetric)
+	/*enProjectMetric, err := encryptProjectMetric(projectMetric)
 	if err != nil {
 		return nil, err
-	}
+	}*/
 
 	// save
-	err = SaveDbProjectMetric(enProjectMetric)
+	err = SaveDbProjectMetric(projectMetric)
 	if err != nil {
 		return nil, errors.Internal.Wrap(err, "error saving project")
 	}
