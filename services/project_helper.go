@@ -98,8 +98,8 @@ func GetDbProject(name string) (*models.Project, errors.Error) {
 	return project, nil
 }
 
-// GetDbProjectMetric returns the detail of a given project name
-func GetDbProjectMetric(projectName string, pluginName string) (*models.ProjectMetric, errors.Error) {
+// GetDbProjectMetrics returns the detail of a given project name
+func GetDbProjectMetrics(projectName string, pluginName string) (*models.ProjectMetric, errors.Error) {
 	projectMetric := &models.ProjectMetric{}
 	projectMetric.ProjectName = projectName
 	projectMetric.PluginName = pluginName

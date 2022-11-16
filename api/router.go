@@ -72,7 +72,7 @@ func RegisterRouter(r *gin.Engine) {
 	r.GET("/projects", project.GetProjects)
 
 	// project metric api
-	r.GET("/projects/:projectName/metrics/:pluginName", project.GetProjectMetric)
+	r.GET("/projects/:projectName/metrics/:pluginName", project.GetProjectMetrics)
 	r.PATCH("/projects/:projectName/metrics/:pluginName", project.PatchProjectMetrics)
 	//r.DELETE("/projects/:projectName/metrics/:pluginName", project.DeleteProjectMetrics)
 	r.POST("/projects/:projectName/metrics", project.PostProjectMetrics)

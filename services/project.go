@@ -70,9 +70,9 @@ func GetProject(name string) (*models.Project, errors.Error) {
 	return project, nil
 }
 
-// GetProjectMetric returns a ProjectMetric
-func GetProjectMetric(projectName string, pluginName string) (*models.ProjectMetric, errors.Error) {
-	projectMetric, err := GetDbProjectMetric(projectName, pluginName)
+// GetProjectMetrics returns a ProjectMetric
+func GetProjectMetrics(projectName string, pluginName string) (*models.ProjectMetric, errors.Error) {
+	projectMetric, err := GetDbProjectMetrics(projectName, pluginName)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
@@ -133,7 +133,7 @@ func PatchProject(name string, body map[string]interface{}) (*models.Project, er
 // PatchProjectMetric FIXME ...
 func PatchProjectMetric(projectName string, pluginName string, body map[string]interface{}) (*models.ProjectMetric, errors.Error) {
 	// load record from db
-	projectMetric, err := GetDbProjectMetric(projectName, pluginName)
+	projectMetric, err := GetDbProjectMetrics(projectName, pluginName)
 	if err != nil {
 		return nil, err
 	}

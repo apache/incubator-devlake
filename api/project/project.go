@@ -27,7 +27,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProjectCount struct {
+type PaginatedProjects struct {
 	Projects []*models.Project
 	Count    int64
 }
@@ -58,7 +58,7 @@ func GetProject(c *gin.Context) {
 // @Tags framework/projects
 // @Param page query int true "query"
 // @Param pagesize query int true "query"
-// @Success 200  {object} ProjectCount
+// @Success 200  {object} PaginatedProjects
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /projects [get]
@@ -74,7 +74,7 @@ func GetProjects(c *gin.Context) {
 		shared.ApiOutputAbort(c, errors.Default.Wrap(err, "error getting projects"))
 		return
 	}
-	shared.ApiOutputSuccess(c, ProjectCount{
+	shared.ApiOutputSuccess(c, PaginatedProjects{
 		Projects: projects,
 		Count:    count,
 	}, http.StatusOK)
@@ -154,11 +154,11 @@ func PatchProject(c *gin.Context) {
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /projects/:projectName/metrics/:pluginName [get]
-func GetProjectMetric(c *gin.Context) {
+func GetProjectMetrics(c *gin.Context) {
 	projectName := c.Param("projectName")
 	pluginName := c.Param("pluginName")
 
-	projectMetric, err := services.GetProjectMetric(projectName, pluginName)
+	projectMetric, err := services.GetProjectMetrics(projectName, pluginName)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting project metric"))
 		return
