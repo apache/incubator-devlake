@@ -18,11 +18,12 @@ limitations under the License.
 package helper
 
 import (
-	"database/sql"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
+	"github.com/apache/incubator-devlake/errors"
+
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 // DataConvertHandler Accept row from source cursor, return list of entities that need to be stored
@@ -41,7 +42,7 @@ type DataConverterArgs struct {
 	RawDataSubTaskArgs
 	// Domain layer entity Id prefix, i.e. `jira:JiraIssue:1`, `github:GithubIssue`
 	InputRowType reflect.Type
-	Input        *sql.Rows
+	Input        dal.Rows
 	Convert      DataConvertHandler
 	BatchSize    int
 }

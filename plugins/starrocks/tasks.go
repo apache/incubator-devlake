@@ -226,7 +226,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrock
 	offset := 0
 	var err error
 	for {
-		var rows *sql.Rows
+		var rows dal.Rows
 		var data []map[string]interface{}
 		// select data from db
 		rows, err = db.Cursor(

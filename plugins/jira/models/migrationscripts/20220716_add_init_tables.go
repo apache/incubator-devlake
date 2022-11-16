@@ -85,10 +85,15 @@ func (script *addInitTables20220716) Up(basicRes core.BasicRes) errors.Error {
 	if encKey == "" {
 		return errors.BadInput.New("jira v0.11 invalid encKey")
 	}
-	err = migrationhelper.TransformTable(
+
+	err = migrationhelper.TransformColumns(
 		basicRes,
 		script,
 		"_tool_jira_connections",
+		[]string{
+			"rate_limit",
+			"basic_auth_encoded",
+		},
 		func(old *jiraConnection20220716Before) (*jiraConnection20220716After, errors.Error) {
 			conn := &jiraConnection20220716After{}
 			conn.ID = old.ID

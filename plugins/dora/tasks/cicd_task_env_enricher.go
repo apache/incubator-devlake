@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"database/sql"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -63,7 +62,7 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	// 	return errors.Default.Wrap(errRegexp, "Regexp compile testingPattern failed")
 	// }
 
-	var cursor *sql.Rows
+	var cursor dal.Rows
 	if len(prefix) == 0 {
 		cursor, err = db.Cursor(
 			dal.From(&devops.CICDTask{}),

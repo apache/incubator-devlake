@@ -185,6 +185,11 @@ func TransformTable[S any, D any](
 	db := basicRes.GetDal()
 	tmpTableName := fmt.Sprintf("%s_%s", tableName, hashScript(script))
 
+	err = PrimarykeyIsAutoIncrement(db, tableName)
+	if err != nil {
+		return errors.Default.Wrap(err, "failed to check PrimarykeyIsAutoIncrement on TransformTable")
+	}
+
 	// rename the src to tmp in case of failure
 	err = db.RenameTable(tableName, tmpTableName)
 	if err != nil {
@@ -193,15 +198,17 @@ func TransformTable[S any, D any](
 			fmt.Sprintf("failed to rename rename src table [%s] to [%s]", tableName, tmpTableName),
 		)
 	}
+
 	// rollback for error
 	defer func() {
 		if err != nil {
-			err = db.RenameTable(tmpTableName, tableName)
-			if err != nil {
+			err1 := db.RenameTable(tmpTableName, tableName)
+			if err1 != nil {
 				msg := fmt.Sprintf(
-					"fail to rollback table [%s] to [%s], you may have to do it manually",
+					"fail to rollback table [%s] to [%s]:[%s], you may have to do it manually",
 					tmpTableName,
 					tableName,
+					err1.Error(),
 				)
 				err = errors.Default.Wrap(err, msg)
 			}
@@ -213,45 +220,25 @@ func TransformTable[S any, D any](
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("error on auto migrate [%s]", tableName))
 	}
+
 	// rollback for error
 	defer func() {
 		if err != nil {
-			err = db.DropTables(tableName)
-			if err != nil {
+			err1 := db.DropTables(tableName)
+			if err1 != nil {
 				msg := fmt.Sprintf(
-					"fail to drop table [%s], you may have to do it manually",
+					"fail to drop table [%s]:[%s], you may have to do it manually",
 					tableName,
+					err1.Error(),
 				)
 				err = errors.Default.Wrap(err, msg)
 			}
 		}
 	}()
 
-	// transform data from temp table to new table
-	cursor, err := db.Cursor(dal.From(tmpTableName))
+	err = CopyTableColumns(basicRes, tmpTableName, tableName, transform)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", tmpTableName))
-	}
-	defer cursor.Close()
-	batch, err := helper.NewBatchSave(basicRes, reflect.TypeOf(new(D)), 200, tableName)
-	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("failed to instantiate BatchSave for table [%s]", tableName))
-	}
-	defer batch.Close()
-	src := new(S)
-	for cursor.Next() {
-		err = db.Fetch(cursor, src)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("fail to load record from table [%s]", tmpTableName))
-		}
-		dst, err := transform(src)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("failed to transform row %v", src))
-		}
-		err = batch.Add(dst)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("push to BatchSave failed %v", dst))
-		}
+		return errors.Default.Wrap(err, fmt.Sprintf("error to CopyTableColumn from [%s] to [%s]", tmpTableName, tableName))
 	}
 
 	// drop the temp table: we can safely ignore the error because it doesn't matter and there will be nothing we
@@ -261,14 +248,15 @@ func TransformTable[S any, D any](
 	return err
 }
 
-// CopyTableColumn can copy data from src table to dst table
-func CopyTableColumn[S any, D any](
+// CopyTableColumns can copy data from src table to dst table
+func CopyTableColumns[S any, D any](
 	basicRes core.BasicRes,
 	srcTableName string,
 	dstTableName string,
 	transform func(*S) (*D, errors.Error),
 ) (err errors.Error) {
 	db := basicRes.GetDal()
+
 	cursor, err := db.Cursor(dal.From(srcTableName))
 	if err != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("failed to load data from src table [%s]", srcTableName))
@@ -282,22 +270,50 @@ func CopyTableColumn[S any, D any](
 
 	srcTable := new(S)
 	for cursor.Next() {
-		err = db.Fetch(cursor, srcTable)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("fail to load record from table [%s]", srcTableName))
+		err1 := db.Fetch(cursor, srcTable)
+		if err1 != nil {
+			return errors.Default.Wrap(err1, fmt.Sprintf("fail to load record from table [%s]", srcTableName))
 		}
 
-		dst, err := transform(srcTable)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("failed to transform row %v", srcTable))
+		dst, err1 := transform(srcTable)
+		if err1 != nil {
+			return errors.Default.Wrap(err1, fmt.Sprintf("failed to transform row %v", srcTable))
 		}
-		err = batch.Add(dst)
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("push to BatchSave failed %v", dstTableName))
+
+		err1 = batch.Add(dst)
+		if err1 != nil {
+			return errors.Default.Wrap(err1, fmt.Sprintf("push to BatchSave failed %v", dstTableName))
 		}
 	}
 
 	return err
+}
+
+// PrimarykeyIsAutoIncrement check if the Primarykey is auto increment
+func PrimarykeyIsAutoIncrement(db dal.Dal, tableName string) errors.Error {
+	var pkcs []dal.ColumnMeta
+	pkcs, err := dal.GetPrimarykeyColumns(db, dal.DefaultTabler{Name: tableName})
+	if err != nil {
+		return errors.Default.Wrap(
+			err,
+			fmt.Sprintf("failed to GetPrimarykeyColumns from table [%s]", tableName),
+		)
+	}
+
+	for _, pkc := range pkcs {
+		isAutoIncrement, ok := pkc.AutoIncrement()
+		if !ok {
+			// if this pk has not concept about isAutoIncrement that means it is not AutoIncrement
+			continue
+		}
+
+		if isAutoIncrement {
+			return errors.Default.New(
+				fmt.Sprintf("the Primarykey[%s] is AutoIncrement on table [%s]", pkc.Name(), tableName),
+			)
+		}
+	}
+	return nil
 }
 
 func hashScript(script core.MigrationScript) string {

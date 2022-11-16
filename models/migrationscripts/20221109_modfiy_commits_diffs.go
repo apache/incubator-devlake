@@ -76,7 +76,7 @@ func (script *modifyCommitsDiffs) Up(basicRes core.BasicRes) errors.Error {
 	}
 
 	// copy data
-	err = migrationhelper.CopyTableColumn(
+	err = migrationhelper.CopyTableColumns(
 		basicRes,
 		RefsCommitsDiff20221109{}.TableName(),
 		CommitsDiff20221109{}.TableName(),
