@@ -38,3 +38,7 @@ export const Container = styled.div<{ height?: number }>`
     color: #292b3f;
   }
 `
+
+export const StatusWrapper = styled.div`
+  padding: 4px 12px;
+`

@@ -18,18 +18,13 @@
 
 import React, { useEffect, useState } from 'react'
 
-import type { ColumnType, ItemType } from '@/components/miller-columns'
-import {
-  MillerColumns,
-  ItemStatusEnum,
-  ItemTypeEnum
-} from '@/components/miller-columns'
+import type { ItemType } from '@/components/miller-columns'
+import { MillerColumns, ItemTypeEnum } from '@/components/miller-columns'
 
 import {
   useGitLabMillerColumns,
   UseGitLabMillerColumnsProps
 } from './use-gitlab-miller-columns'
-import * as S from './styled'
 
 interface Props extends UseGitLabMillerColumnsProps {
   disabledItemIds?: Array<number>
@@ -63,21 +58,6 @@ export const GitLabMillerColumns = ({
     onChangeItems(curItems)
   }, [seletedIds])
 
-  const renderColumnBottom = ({
-    isLoading,
-    isEmpty
-  }: {
-    isLoading: boolean
-    isEmpty: boolean
-  }) => {
-    switch (true) {
-      case isLoading:
-        return <S.Placeholder>Loading...</S.Placeholder>
-      case isEmpty:
-        return <S.Placeholder>No Data.</S.Placeholder>
-    }
-  }
-
   return (
     <MillerColumns
       height={300}
@@ -87,22 +67,6 @@ export const GitLabMillerColumns = ({
       selectedItemIds={seletedIds}
       onSelectedItemIds={setSelectedIds}
       onExpandItem={onExpandItem}
-      renderColumnBottom={(col: ColumnType) => {
-        if (!col.parentId) {
-          return renderColumnBottom({
-            isLoading: !itemTree.root,
-            isEmpty: !itemTree.root || !itemTree.root.items.length
-          })
-        } else {
-          return renderColumnBottom({
-            isLoading:
-              !itemTree[col.parentId] ||
-              itemTree[col.parentId].status === ItemStatusEnum.PENDING,
-            isEmpty:
-              !itemTree[col.parentId] || !itemTree[col.parentId].items.length
-          })
-        }
-      }}
     />
   )
 }
