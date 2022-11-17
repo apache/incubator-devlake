@@ -42,8 +42,6 @@ export const GitLabMillerColumns = ({
     connectionId
   })
 
-  console.log(items)
-
   useEffect(() => {
     const curItems = items.filter((it) => seletedIds.includes(it.id))
     onChangeItems(curItems)

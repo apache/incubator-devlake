@@ -18,7 +18,7 @@
 
 import React, { useState, useEffect } from 'react'
 
-import type { ItemType } from '@/components/miller-columns'
+import { ItemType, ItemTypeEnum } from '@/components/miller-columns'
 import { MillerColumns } from '@/components/miller-columns'
 
 import {
@@ -40,7 +40,9 @@ export const GitHubMillerColumns = ({ connectionId, onChangeItems }: Props) => {
   useEffect(() => {
     onChangeItems(
       items
-        .filter((it) => seletedIds.includes(it.id))
+        .filter(
+          (it) => seletedIds.includes(it.id) && it.type !== ItemTypeEnum.BRANCH
+        )
         .map((it: any) => {
           return {
             id: it.id,
