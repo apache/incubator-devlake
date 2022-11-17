@@ -45,6 +45,12 @@ func CalculatePrCherryPick(taskCtx core.SubTaskContext) errors.Error {
 	repoId := data.Options.RepoId
 	ctx := taskCtx.GetContext()
 	db := taskCtx.GetDal()
+
+	projectName := data.Options.ProjectName
+	if projectName != "" {
+		return nil
+	}
+
 	var prTitleRegex *regexp.Regexp
 	var err error
 	prTitlePattern := taskCtx.GetConfig("GITHUB_PR_TITLE_PATTERN")

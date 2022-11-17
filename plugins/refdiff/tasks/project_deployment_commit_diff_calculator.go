@@ -19,59 +19,25 @@ package tasks
 
 import (
 	"reflect"
-	"time"
 
 	"github.com/apache/incubator-devlake/errors"
-
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/refdiff/utils"
 )
 
-type DeployCommitsDiff struct {
-	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
-	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
-	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
-	SortingIndex int
-}
-
-type DeploymentCommitPairs []DeployCommitsDiff
-
-type DeploymentCommitPairRev struct {
-	CommitSha   string `gorm:"type:varchar(40)"`
-	PipelineId  string `gorm:"type:varchar(255)"`
-	TaskId      string `gorm:"type:varchar(255)"`
-	TaskName    string `gorm:"type:varchar(255)"`
-	StartedDate *time.Time
-}
-
 func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
-
-	// 1. select scopeId from project_mapping where project_name = $projectName
-	// 2. for repoId in scopeList:
-	/*
-	   select
-	   commit_sha, cp.id as pipeline_id, ct.id as task_id, ct.started_date
-	   FROM
-	   cicd_tasks ct
-	   left join cicd_pipelines cp on cp.id = ct.pipeline_id
-	   left join cicd_pipeline_commits cpc on cpc.pipeline_id = cp.id
-	   where
-	   ct.type = "DEPLOYMENT" and commit_sha != "" and repo_id=$repoId  -- github:GithubRepo:1:484251804
-	   order by
-	   ct.started_date
-	*/
-
-	// 3, 根据新旧commit_sha 之间，计算的commit_sha
-	// 4, 写表到deploy_commits_diff
-
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	db := taskCtx.GetDal()
 	ctx := taskCtx.GetContext()
 	logger := taskCtx.GetLogger()
 
 	projectName := data.Options.ProjectName
+	if projectName == "" {
+		return nil
+	}
+
 	cursorScope, err := db.Cursor(
 		dal.Select("row_id"),
 		dal.From("project_mapping"),
@@ -81,6 +47,7 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 		panic(err)
 	}
 	defer cursorScope.Close()
+
 	for cursorScope.Next() {
 		var scopeId string
 		err = errors.Convert(cursorScope.Scan(&scopeId))
@@ -89,11 +56,10 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 		}
 
 		cursorDeployment, err := db.Cursor(
-			//dal.Select("commit_sha, cp.id as pipeline_id, ct.id as task_id, ct.name as task_name, ct.started_date"),
 			dal.Select("commit_sha"),
 			dal.From("cicd_tasks ct"),
-			dal.Join("cicd_pipelines cp on cp.id = ct.pipeline_id"),
-			dal.Join("cicd_pipeline_commits cpc on cpc.pipeline_id = cp.id"),
+			dal.Join("left join cicd_pipelines cp on cp.id = ct.pipeline_id"),
+			dal.Join("left join cicd_pipeline_commits cpc on cpc.pipeline_id = cp.id"),
 			dal.Where("ct.type = ? and commit_sha != ? and repo_id=? ", "DEPLOYMENT", "", scopeId),
 			dal.Orderby("ct.started_date"),
 		)
@@ -102,25 +68,24 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 		}
 		defer cursorDeployment.Close()
 
-		commitPairs := make(DeploymentCommitPairs, 0)
+		commitPairs := make([]code.CommitsDiff, 0)
+		finishedCommitDiffs := []code.FinishedCommitsDiffs{}
+		var commitShaList []string
 		for cursorDeployment.Next() {
-			var commitSha1 string
-			err := errors.Convert(cursorDeployment.Scan(&commitSha1))
+			var commitSha string
+			err := errors.Convert(cursorDeployment.Scan(&commitSha))
 			if err != nil {
 				return err
 			}
-			for cursorDeployment.Next() {
-				var commitSha2 string
-				err := errors.Convert(cursorDeployment.Scan(&commitSha2))
-				if err != nil {
-					return err
-				}
-				commitPairs = append(commitPairs, DeployCommitsDiff{NewCommitSha: commitSha2, OldCommitSha: commitSha1})
-			}
-
+			commitShaList = append(commitShaList, commitSha)
 		}
 
-		insertCountLimitOfDeployCommitsDiff := int(65535 / reflect.ValueOf(DeployCommitsDiff{}).NumField())
+		for i := 0; i < len(commitShaList)-1; i++ {
+			commitPairs = append(commitPairs, code.CommitsDiff{NewCommitSha: commitShaList[i+1], OldCommitSha: commitShaList[i]})
+			finishedCommitDiffs = append(finishedCommitDiffs, code.FinishedCommitsDiffs{NewCommitSha: commitShaList[i+1], OldCommitSha: commitShaList[i]})
+		}
+
+		insertCountLimitOfDeployCommitsDiff := int(65535 / reflect.ValueOf(code.CommitsDiff{}).NumField())
 		commitNodeGraph := utils.NewCommitNodeGraph()
 
 		// load commits from db
@@ -152,7 +117,7 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 		logger.Info("Create a commit node graph with node count[%d]", commitNodeGraph.Size())
 
 		// calculate diffs for commits pairs and store them into database
-		commitsDiff := &DeployCommitsDiff{}
+		commitsDiff := &code.CommitsDiff{}
 		lenCommitPairs := len(commitPairs)
 		taskCtx.SetProgress(0, lenCommitPairs)
 
@@ -177,7 +142,7 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 
 			lostSha, oldCount, newCount := commitNodeGraph.CalculateLostSha(commitsDiff.OldCommitSha, commitsDiff.NewCommitSha)
 
-			commitsDiffs := DeploymentCommitPairs{}
+			commitsDiffs := []code.CommitsDiff{}
 			commitsDiff.SortingIndex = 1
 			for _, sha := range lostSha {
 				commitsDiff.CommitSha = sha
@@ -190,7 +155,7 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 					if err != nil {
 						return err
 					}
-					commitsDiffs = DeploymentCommitPairs{}
+					commitsDiffs = []code.CommitsDiff{}
 				}
 
 				commitsDiff.SortingIndex++
@@ -199,6 +164,10 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 			if len(commitsDiffs) > 0 {
 				logger.Info("insert data count [%d]", len(commitsDiffs))
 				err = db.CreateIfNotExist(commitsDiffs)
+				if err != nil {
+					return err
+				}
+				err = db.CreateIfNotExist(finishedCommitDiffs)
 				if err != nil {
 					return err
 				}
@@ -211,11 +180,11 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 				commitsDiff.OldCommitSha,
 				oldCount,
 			)
-			taskCtx.IncProgress(1)
+
 		}
 
 	}
-
+	taskCtx.IncProgress(1)
 	return nil
 }
 
