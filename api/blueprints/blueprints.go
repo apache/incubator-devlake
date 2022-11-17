@@ -28,6 +28,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type PaginatedBlueprint struct {
+	Blueprints []*models.Blueprint
+	Count      int64
+}
+
 // @Summary post blueprints
 // @Description post blueprints
 // @Tags framework/blueprints
@@ -59,7 +64,7 @@ func Post(c *gin.Context) {
 // @Description get blueprints
 // @Tags framework/blueprints
 // @Accept application/json
-// @Success 200  {object} gin.H
+// @Success 200  {object} PaginatedBlueprint
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /blueprints [get]
@@ -75,7 +80,7 @@ func Index(c *gin.Context) {
 		shared.ApiOutputAbort(c, errors.Default.Wrap(err, "error getting blueprints"))
 		return
 	}
-	shared.ApiOutputSuccess(c, gin.H{"blueprints": blueprints, "count": count}, http.StatusOK)
+	shared.ApiOutputSuccess(c, PaginatedBlueprint{Blueprints: blueprints, Count: count}, http.StatusOK)
 }
 
 // @Summary get blueprints
