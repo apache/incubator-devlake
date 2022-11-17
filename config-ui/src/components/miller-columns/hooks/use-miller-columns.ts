@@ -67,11 +67,11 @@ export const useMillerColumns = ({
     const parentItem = itemMap[item.parentId ?? '']
 
     if (parentItem) {
-      const childSelectedIds = (parentItem.items ?? [])
+      const childSelectedIds = parentItem.items
         .map((it) => it.id)
         .filter((id) => [...selectedItemIds, item.id].includes(id))
 
-      if (childSelectedIds.length === (parentItem.items ?? []).length) {
+      if (childSelectedIds.length === parentItem.items.length) {
         result.push(parentItem.id)
         result.push(...collectAddParentIds(parentItem))
       }
