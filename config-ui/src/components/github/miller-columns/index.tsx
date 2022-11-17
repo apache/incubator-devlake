@@ -33,7 +33,7 @@ interface Props extends UseGitHubMillerColumnsProps {
 export const GitHubMillerColumns = ({ connectionId, onChangeItems }: Props) => {
   const [seletedIds, setSelectedIds] = useState<Array<ItemType['id']>>([])
 
-  const { items, onExpandItem } = useGitHubMillerColumns({
+  const { items, onExpandItem, hasMore, onScroll } = useGitHubMillerColumns({
     connectionId
   })
 
@@ -56,13 +56,17 @@ export const GitHubMillerColumns = ({ connectionId, onChangeItems }: Props) => {
 
   return (
     <MillerColumns
-      height={300}
+      height={50}
       columnCount={2}
       firstColumnTitle='Organizations/Owners'
       items={items}
       selectedItemIds={seletedIds}
       onSelectedItemIds={setSelectedIds}
       onExpandItem={onExpandItem}
+      scrollProps={{
+        hasMore,
+        onScroll
+      }}
     />
   )
 }
