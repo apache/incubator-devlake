@@ -144,9 +144,12 @@ const DataScopes = (props) => {
                           <GitHubMillerColumns
                             connectionId={configuredConnection.connectionId}
                             onChangeItems={(items) =>
-                              setScopeEntities(
-                                items.map((it) => new GitHubProject(it))
-                              )
+                              setScopeEntities([
+                                ...scopeEntitiesGroup[
+                                  configuredConnection.id
+                                ].filter((it) => it.type !== 'miller-columns'),
+                                ...items.map((it) => new GitHubProject(it))
+                              ])
                             }
                           />
                         </>
@@ -163,11 +166,16 @@ const DataScopes = (props) => {
                         disabled={isRunning}
                         placeholder='username/repo, username/another-repo'
                         values={
-                          selectedScopeEntities?.map((p) => p.value) || []
+                          selectedScopeEntities
+                            ?.filter((it) => it.type !== 'miller-columns')
+                            .map((p) => p.value) || []
                         }
                         fill={true}
                         onChange={(values) =>
                           setScopeEntities([
+                            ...scopeEntitiesGroup[
+                              configuredConnection.id
+                            ].filter((it) => it.type === 'miller-columns'),
                             ...values.map(
                               (v, vIdx) =>
                                 new GitHubProject({

@@ -41,14 +41,18 @@ export const GitHubMillerColumns = ({ connectionId, onChangeItems }: Props) => {
     onChangeItems(
       items
         .filter((it) => seletedIds.includes(it.id))
-        .map((it) => ({
-          id: it.id,
-          title: it.title
-        }))
+        .map((it: any) => {
+          return {
+            id: it.id,
+            title: `${it.owner}/${it.repo}`,
+            owner: it.owner,
+            repo: it.repo,
+            value: `${it.owner}/${it.repo}`,
+            type: 'miller-columns'
+          }
+        })
     )
   }, [seletedIds])
-
-  console.log(items)
 
   return (
     <MillerColumns

@@ -57,12 +57,16 @@ export const useGitHubMillerColumns = ({
         {
           parentId: null,
           id: 'owner',
-          title: 'owner'
+          title: 'owner',
+          type: ItemTypeEnum.BRANCH,
+          status: ItemStatusEnum.READY
         },
         ...repos.map((it: any) => ({
           parentId: 'owner',
           id: it.id,
-          title: it.name
+          title: it.name,
+          owner: user.login,
+          repo: it.name
         }))
       ])
     })()
@@ -70,6 +74,10 @@ export const useGitHubMillerColumns = ({
 
   const onExpandItem = useCallback(
     async (item: ItemType) => {
+      if (item.status === ItemStatusEnum.READY) {
+        return
+      }
+
       const repos = await request(`${prefix}/orgs/${item.title}/repos`)
       setItems([
         ...items.map((it) =>
@@ -83,7 +91,9 @@ export const useGitHubMillerColumns = ({
         ...repos.map((it: any) => ({
           parentId: item.id,
           id: it.id,
-          title: it.name
+          title: it.name,
+          owner: item.title,
+          repo: it.name
         }))
       ])
     },

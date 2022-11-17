@@ -49,6 +49,8 @@ class GitHubProject extends Entity {
     this.useApi = data?.useApi || false
     this.variant = data?.variant || 'project'
     this.providerId = 'github'
+
+    this.type = data?.type
   }
 
   getConfiguredEntityId() {
