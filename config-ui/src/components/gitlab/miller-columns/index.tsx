@@ -28,9 +28,7 @@ import {
 
 interface Props extends UseGitLabMillerColumnsProps {
   disabledItemIds?: Array<number>
-  onChangeItems: (
-    items: Array<Pick<ItemType, 'id' | 'title'> & { shortTitle: string }>
-  ) => void
+  onChangeItems: (items: Array<Pick<ItemType, 'id' | 'title'>>) => void
 }
 
 export const GitLabMillerColumns = ({
@@ -40,21 +38,14 @@ export const GitLabMillerColumns = ({
 }: Props) => {
   const [seletedIds, setSelectedIds] = useState<Array<ItemType['id']>>([])
 
-  const { items, itemTree, onExpandItem } = useGitLabMillerColumns<{
-    nameWithNameSpace?: string
-  }>({
+  const { items, onExpandItem, hasMore, onScroll } = useGitLabMillerColumns({
     connectionId
   })
 
-  useEffect(() => {
-    const curItems = seletedIds
-      .filter((id) => itemTree[id].type === ItemTypeEnum.LEAF)
-      .map((id) => ({
-        id,
-        title: itemTree[id].nameWithNameSpace ?? '',
-        shortTitle: itemTree[id].title
-      }))
+  console.log(items)
 
+  useEffect(() => {
+    const curItems = items.filter((it) => seletedIds.includes(it.id))
     onChangeItems(curItems)
   }, [seletedIds])
 
@@ -67,6 +58,10 @@ export const GitLabMillerColumns = ({
       selectedItemIds={seletedIds}
       onSelectedItemIds={setSelectedIds}
       onExpandItem={onExpandItem}
+      scrollProps={{
+        hasMore,
+        onScroll
+      }}
     />
   )
 }
