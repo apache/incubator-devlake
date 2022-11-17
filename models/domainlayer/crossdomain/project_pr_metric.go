@@ -21,16 +21,19 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer"
 )
 
-type ProjectPrMetrics struct {
+type ProjectPrMetric struct {
 	domainlayer.DomainEntity
 	ProjectName    string `gorm:"primaryKey;type:varchar(100)"`
+	FirstCommitSha string
 	CodingTimespan *int64
+	FirstReviewId  string
 	ReviewLag      *int64
 	ReviewTimespan *int64
+	DeploymentId   string
 	DeployTimespan *int64
 	ChangeTimespan *int64
 }
 
-func (ProjectPrMetrics) TableName() string {
+func (ProjectPrMetric) TableName() string {
 	return "project_pr_metrics"
 }

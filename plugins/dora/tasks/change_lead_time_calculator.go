@@ -38,13 +38,13 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 	// construct a list of tuple[task, oldPipelineCommitSha, newPipelineCommitSha, taskFinishedDate]
 	pipelineIdClauses := []dal.Clause{
 		dal.Select(`ct.id as task_id, cpc.commit_sha as new_deploy_commit_sha, 
-			ct.finished_date as task_finished_date`),
+			ct.finished_date as task_finished_date, cpc.repo_id as repo_id`),
 		dal.From(`cicd_tasks ct`),
 		dal.Join(`left join cicd_pipeline_commits cpc on ct.pipeline_id = cpc.pipeline_id`),
-		dal.Join(`left join project_mapping pm on pm.row_id = ct.cicd_scope_id and pm.table = 'cicd_scopes'`),
-		dal.Where(`ct.environment = ? and ct.type = ? and pm.project_name = ?`,
-			"PRODUCTION", "DEPLOYMENT", data.Options.ProjectName),
-		dal.Orderby(`ct.started_date `),
+		dal.Join(`left join project_mapping pm on pm.row_id = ct.cicd_scope_id`),
+		dal.Where(`ct.environment = ? and ct.type = ? and ct.result = ? and pm.project_name = ? and pm.table = ?`,
+			"PRODUCTION", "DEPLOYMENT", "SUCCESS", data.Options.ProjectName, "cicd_scopes"),
+		dal.Orderby(`cpc.repo_id, ct.started_date `),
 	}
 	deploymentPairList := make([]deploymentPair, 0)
 	err := db.All(&deploymentPairList, pipelineIdClauses...)
@@ -53,26 +53,22 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 	}
 	// deploymentPairList[i-1].NewDeployCommitSha is deploymentPairList[i].OldDeployCommitSha
 	oldDeployCommitSha := ""
+	lastRepoId := ""
 	for i := 0; i < len(deploymentPairList); i++ {
-		deploymentPairList[i].OldDeployCommitSha = oldDeployCommitSha
+		// if two deployments belong to different repo, let's skip
+		if lastRepoId == deploymentPairList[i].RepoId {
+			deploymentPairList[i].OldDeployCommitSha = oldDeployCommitSha
+		} else {
+			lastRepoId = deploymentPairList[i].RepoId
+		}
 		oldDeployCommitSha = deploymentPairList[i].NewDeployCommitSha
 	}
 
-	// get repo list by projectName
-	repoClauses := []dal.Clause{
-		dal.From(`project_mapping pm`),
-		dal.Where("pm.project_name = ? and pm.table = ?", data.Options.ProjectName, "repos"),
-	}
-	repoList := make([]string, 0)
-	err = db.Pluck(`row_id`, &repoList, repoClauses...)
-	if err != nil {
-		return err
-	}
-
-	// get prs by repo list
+	// get prs by repo project_name
 	clauses := []dal.Clause{
 		dal.From(&code.PullRequest{}),
-		dal.Where("merged_date IS NOT NULL and base_repo_id in ?", repoList),
+		dal.Join(`left join project_mapping pm on pm.row_id = pull_requests.base_repo_id`),
+		dal.Where("pull_requests.merged_date IS NOT NULL and pm.project_name = ? and pm.table = ?", data.Options.ProjectName, "repos"),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -93,42 +89,48 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			pr := inputRow.(*code.PullRequest)
-			firstCommitDate, err := getFirstCommitTime(pr.Id, db)
-			projectPrMetric := &crossdomain.ProjectPrMetrics{}
+			firstCommit, err := getFirstCommit(pr.Id, db)
+			if err != nil {
+				return nil, err
+			}
+			projectPrMetric := &crossdomain.ProjectPrMetric{}
 			projectPrMetric.Id = pr.Id
 			projectPrMetric.ProjectName = data.Options.ProjectName
 			if err != nil {
 				return nil, err
 			}
-			if firstCommitDate != nil {
-				codingTime := int64(pr.CreatedDate.Sub(*firstCommitDate).Seconds())
+			if firstCommit != nil {
+				codingTime := int64(pr.CreatedDate.Sub(firstCommit.AuthoredDate).Seconds())
 				if codingTime/60 == 0 && codingTime%60 > 0 {
 					codingTime = 1
 				} else {
 					codingTime = codingTime / 60
 				}
 				projectPrMetric.CodingTimespan = processNegativeValue(codingTime)
+				projectPrMetric.FirstCommitSha = firstCommit.Sha
 			}
-			firstReviewTime, err := getFirstReviewTime(pr.Id, pr.AuthorId, db)
+			firstReview, err := getFirstReview(pr.Id, pr.AuthorId, db)
 			if err != nil {
 				return nil, err
 			}
-			if firstReviewTime != nil {
-				projectPrMetric.ReviewLag = processNegativeValue(int64(firstReviewTime.Sub(pr.CreatedDate).Minutes()))
-				projectPrMetric.ReviewTimespan = processNegativeValue(int64(pr.MergedDate.Sub(*firstReviewTime).Minutes()))
+			if firstReview != nil {
+				projectPrMetric.ReviewLag = processNegativeValue(int64(firstReview.CreatedDate.Sub(pr.CreatedDate).Minutes()))
+				projectPrMetric.ReviewTimespan = processNegativeValue(int64(pr.MergedDate.Sub(firstReview.CreatedDate).Minutes()))
+				projectPrMetric.FirstReviewId = firstReview.ReviewId
 			}
-			deploymentFinishedDate, err := getDeploymentFinishTime(pr.MergeCommitSha, deploymentPairList, db)
+			deployment, err := getDeployment(pr.MergeCommitSha, pr.BaseRepoId, deploymentPairList, db)
 			if err != nil {
 				return nil, err
 			}
-			if deploymentFinishedDate != nil {
-				timespan := deploymentFinishedDate.Sub(*pr.MergedDate)
+			if deployment != nil && deployment.TaskFinishedDate != nil {
+				timespan := deployment.TaskFinishedDate.Sub(*pr.MergedDate)
 				projectPrMetric.DeployTimespan = processNegativeValue(int64(timespan.Minutes()))
+				projectPrMetric.DeploymentId = deployment.TaskId
 			} else {
 				log.Debug("deploy time of pr %v is nil\n", pr.PullRequestKey)
 			}
 			projectPrMetric.ChangeTimespan = nil
-			result := int64(0)
+			var result int64
 			if projectPrMetric.CodingTimespan != nil {
 				result += *projectPrMetric.CodingTimespan
 			}
@@ -154,7 +156,7 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 	return converter.Execute()
 }
 
-func getFirstCommitTime(prId string, db dal.Dal) (*time.Time, errors.Error) {
+func getFirstCommit(prId string, db dal.Dal) (*code.Commit, errors.Error) {
 	commit := &code.Commit{}
 	commitClauses := []dal.Clause{
 		dal.From(&code.Commit{}),
@@ -169,10 +171,10 @@ func getFirstCommitTime(prId string, db dal.Dal) (*time.Time, errors.Error) {
 	if err != nil {
 		return nil, err
 	}
-	return &commit.AuthoredDate, nil
+	return commit, nil
 }
 
-func getFirstReviewTime(prId string, prCreator string, db dal.Dal) (*time.Time, errors.Error) {
+func getFirstReview(prId string, prCreator string, db dal.Dal) (*code.PullRequestComment, errors.Error) {
 	review := &code.PullRequestComment{}
 	commentClauses := []dal.Clause{
 		dal.From(&code.PullRequestComment{}),
@@ -186,20 +188,23 @@ func getFirstReviewTime(prId string, prCreator string, db dal.Dal) (*time.Time, 
 	if err != nil {
 		return nil, err
 	}
-	return &review.CreatedDate, nil
+	return review, nil
 }
 
-func getDeploymentFinishTime(mergeSha string, deploymentPairList []deploymentPair, db dal.Dal) (*time.Time, errors.Error) {
+func getDeployment(mergeSha string, repoId string, deploymentPairList []deploymentPair, db dal.Dal) (*deploymentPair, errors.Error) {
 	// ignore environment at this point because detecting it by name is obviously not engouh
 	// take https://github.com/apache/incubator-devlake/actions/workflows/build.yml for example
 	// one can not distingush testing/production by looking at the job name solely.
 	commitDiff := &code.CommitsDiff{}
 	// find if tuple[merge_sha, new_commit_sha, old_commit_sha] exist in commits_diffs, if yes, return pair.FinishedDate
 	for _, pair := range deploymentPairList {
+		if repoId != pair.RepoId {
+			continue
+		}
 		err := db.First(commitDiff, dal.Where(`commit_sha = ? and new_commit_sha = ? and old_commit_sha = ?`,
 			mergeSha, pair.NewDeployCommitSha, pair.OldDeployCommitSha))
 		if err == nil {
-			return pair.TaskFinishedDate, nil
+			return &pair, nil
 		}
 		if goerror.Is(err, gorm.ErrRecordNotFound) {
 			continue
@@ -230,6 +235,7 @@ var CalculateChangeLeadTimeMeta = core.SubTaskMeta{
 
 type deploymentPair struct {
 	TaskId             string
+	RepoId             string
 	NewDeployCommitSha string
 	OldDeployCommitSha string
 	TaskFinishedDate   *time.Time

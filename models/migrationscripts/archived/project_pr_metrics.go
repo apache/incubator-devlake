@@ -17,16 +17,19 @@ limitations under the License.
 
 package archived
 
-type ProjectPrMetrics struct {
+type ProjectPrMetric struct {
 	DomainEntity
 	ProjectName    string `gorm:"primaryKey;type:varchar(100)"`
+	FirstReviewId  string
+	FirstCommitSha string
 	CodingTimespan *int64
 	ReviewLag      *int64
 	ReviewTimespan *int64
+	DeploymentId   string
 	DeployTimespan *int64
 	ChangeTimespan *int64
 }
 
-func (ProjectPrMetrics) TableName() string {
+func (ProjectPrMetric) TableName() string {
 	return "project_pr_metrics"
 }

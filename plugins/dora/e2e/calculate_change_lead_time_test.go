@@ -19,6 +19,7 @@ package e2e
 
 import (
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
@@ -34,7 +35,6 @@ func TestCalculateCLTimeDataFlow(t *testing.T) {
 	taskData := &tasks.DoraTaskData{
 		Options: &tasks.DoraOptions{
 			ProjectName: "project1",
-			RepoId:      "github:GithubRepo:1:384111310",
 			TransformationRules: tasks.TransformationRules{
 				ProductionPattern: "(?i)deploy",
 			},
@@ -56,17 +56,10 @@ func TestCalculateCLTimeDataFlow(t *testing.T) {
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/cicd_scopes.csv", &devops.CicdScope{})
 
 	// verify converter
-	dataflowTester.FlushTabler(&crossdomain.ProjectPrMetrics{})
+	dataflowTester.FlushTabler(&crossdomain.ProjectPrMetric{})
 	dataflowTester.Subtask(tasks.CalculateChangeLeadTimeMeta, taskData)
-	dataflowTester.VerifyTable(
-		crossdomain.ProjectPrMetrics{},
-		"./snapshot_tables/project_pr_metrics.csv",
-		[]string{
-			`coding_timespan`,
-			`review_lag`,
-			`review_timespan`,
-			`deploy_timespan`,
-			`change_timespan`,
-		},
-	)
+	dataflowTester.VerifyTableWithOptions(&crossdomain.ProjectPrMetric{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/project_pr_metrics.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

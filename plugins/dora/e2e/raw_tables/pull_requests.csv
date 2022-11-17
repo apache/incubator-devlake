@@ -1,16 +1,12 @@
-id,base_repo_id,head_repo_id,status,description,parent_pr_id,pull_request_key,created_date,merged_date,closed_date,type,merge_commit_sha
-github:GithubPullRequest:1:1048233599,repo1,repo1,closed,description_text,,2991,2022-09-07 04:07:39.000,2022-09-10 02:35:43.000,2022-09-10 02:35:44.000,,commit16
-github:GithubPullRequest:1:1043463302,repo1,repo1,closed,description_text,,2911,2022-09-01 09:34:40.000,2022-09-09 07:52:53.000,2022-09-09 07:52:54.000,,commit18
-github:GithubPullRequest:1:1049191985,repo1,repo1,closed,description_text,,3012,2022-09-07 20:30:44.000,2022-09-09 03:39:50.000,2022-09-09 03:39:50.000,,commit14
-github:GithubPullRequest:1:1051243958,repo1,repo1,closed,description_text,,3032,2022-09-09 08:01:07.000,2022-09-09 17:09:31.000,2022-09-09 17:09:31.000,,commit20
-github:GithubPullRequest:1:1051273681,repo1,repo1,closed,description_text,,3034,2022-09-09 08:31:39.000,2022-09-09 14:19:14.000,2022-09-09 14:19:14.000,,commit13
-github:GithubPullRequest:1:1051340471,repo1,repo1,closed,description_text,,3035,2022-09-09 09:36:24.000,2022-09-09 14:47:54.000,2022-09-09 14:47:54.000,,commit12
-github:GithubPullRequest:1:1051524882,repo1,repo1,closed,description_text,,3038,2022-09-09 12:35:29.000,2022-09-09 13:32:51.000,2022-09-09 13:32:51.000,,commit11
-github:GithubPullRequest:1:1051524992,repo1,repo1,closed,description_text,,3038,2022-09-09 12:35:29.000,,2022-09-09 13:32:51.000,,commit11
-github:GithubPullRequest:1:1051524993,repo1,repo1,closed,description_text,,3038,2022-09-09 12:35:29.000,,2022-09-09 13:32:51.000,,commit11
-github:GithubPullRequest:1:1051524994,repo1,repo1,closed,description_text,,3038,2022-09-09 12:35:29.000,,2022-09-09 13:32:51.000,,commit11
-github:GithubPullRequest:1:1051574863,repo1,repo1,closed,description_text,,3039,2022-09-09 13:23:37.000,2022-09-09 15:12:23.000,2022-09-09 15:12:23.000,,commit10
-github:GithubPullRequest:1:1051637383,repo1,repo1,closed,description_text,,3041,2022-09-09 14:17:24.000,2022-09-09 15:16:28.000,2022-09-09 15:16:28.000,,commit9
-github:GithubPullRequest:1:1051112182,repo2,repo21,closed,description_text,,3038,2022-09-09 12:35:29.000,2022-09-09 13:32:51.000,2022-09-09 13:32:51.000,,commit101
-github:GithubPullRequest:3:1051342463,repo3,repo31,closed,description_text,,3039,2022-09-09 13:23:37.000,2022-09-09 15:12:23.000,2022-09-09 15:12:23.000,,commit102
-github:GithubPullRequest:2:1051123483,repo4,repo41,closed,description_text,,3041,2022-09-09 14:17:24.000,2022-09-09 15:16:28.000,2022-09-09 15:16:28.000,,commit109
+id,_raw_data_params,base_repo_id,created_date,merged_date,merge_commit_sha,base_commit_sha,head_commit_sha
+github:GithubPullRequest:1:1043463302,,repo1,2022-09-01 09:34:40,2022-09-09 07:52:53,commit200,,
+github:GithubPullRequest:1:1048233599,,repo1,2022-09-07 04:07:39,2022-09-10 02:35:43,commit201,,
+github:GithubPullRequest:1:1049191985,,repo1,2022-09-07 20:30:44,2022-09-09 03:39:50,commit202,,
+github:GithubPullRequest:1:1051112182,,repo1,2022-09-09 12:35:29,2022-09-09 13:32:51,commit203,,
+github:GithubPullRequest:1:1051524992,,repo1,2022-09-09 12:35:29,,commit111,,
+github:GithubPullRequest:1:1051524993,,repo1,2022-09-09 12:35:29,,commit112,,
+github:GithubPullRequest:1:1051524994,,repo1,2022-09-09 12:35:29,,commit113,,
+github:GithubPullRequest:1:1051574863,,repo1,2022-09-09 13:23:37,2022-09-09 15:12:23,commit204,,
+github:GithubPullRequest:1:1051637383,,repo1,2022-09-09 14:17:24,2022-09-09 15:16:28,commit92,,
+github:GithubPullRequest:2:1051123483,,repo4,2022-09-09 14:17:24,2022-09-09 15:16:28,commit109,,
+github:GithubPullRequest:3:1051342463,,repo3,2022-09-09 13:23:37,2022-09-09 15:12:23,commit102,,

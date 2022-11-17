@@ -30,7 +30,7 @@ func (u *addProjectPrMetric) Up(baseRes core.BasicRes) errors.Error {
 	db := baseRes.GetDal()
 	err := migrationhelper.AutoMigrateTables(
 		baseRes,
-		&archived.ProjectPrMetrics{},
+		&archived.ProjectPrMetric{},
 	)
 	if err != nil {
 		return err
