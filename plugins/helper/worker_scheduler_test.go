@@ -31,7 +31,7 @@ func TestWorkerSchedulerQpsControl(t *testing.T) {
 	// assuming we want 2 requests per second
 	testChannel := make(chan int, 100)
 	ctx, cancel := context.WithCancel(context.Background())
-	s, _ := NewWorkerScheduler(ctx, 5, 2, 1*time.Second, 0, unithelper.DummyLogger())
+	s, _ := NewWorkerScheduler(ctx, 5, 2, 1*time.Second, unithelper.DummyLogger())
 	defer s.Release()
 	for i := 1; i <= 5; i++ {
 		t := i

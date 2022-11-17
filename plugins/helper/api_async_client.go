@@ -111,7 +111,6 @@ func CreateAsyncApiClient(
 		numOfWorkers,
 		requests,
 		duration,
-		retry,
 		logger,
 	)
 	if err != nil {
