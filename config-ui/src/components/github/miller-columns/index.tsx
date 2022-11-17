@@ -56,7 +56,7 @@ export const GitHubMillerColumns = ({ connectionId, onChangeItems }: Props) => {
 
   return (
     <MillerColumns
-      height={50}
+      height={300}
       columnCount={2}
       firstColumnTitle='Organizations/Owners'
       items={items}

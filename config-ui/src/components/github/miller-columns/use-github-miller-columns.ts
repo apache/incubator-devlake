@@ -155,7 +155,9 @@ export const useGitHubMillerColumns = ({
           id: it.id,
           title: it.name,
           type: ItemTypeEnum.LEAF,
-          status: ItemStatusEnum.READY
+          status: ItemStatusEnum.READY,
+          owner: it.owner?.login,
+          repo: it.name
         }))
       ])
     },
@@ -212,7 +214,9 @@ export const useGitHubMillerColumns = ({
           id: it.id,
           title: it.name,
           type: ItemTypeEnum.LEAF,
-          status: ItemStatusEnum.READY
+          status: ItemStatusEnum.READY,
+          owner: it.owner.login,
+          repo: it.name
         }))
       ])
     }
