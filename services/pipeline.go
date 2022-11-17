@@ -94,7 +94,7 @@ func pipelineServiceInit() {
 
 // CreatePipeline and return the model
 func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.Error) {
-	dbPipeline, err := CreateDbPipeline(newPipeline)
+	dbPipeline, parallelLabelModels, err := CreateDbPipeline(newPipeline)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
@@ -102,7 +102,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.E
 	if err != nil {
 		return nil, err
 	}
-	pipeline := parsePipeline(dbPipeline)
+	pipeline := parsePipeline(dbPipeline, parallelLabelModels)
 	return pipeline, nil
 }
 
@@ -118,7 +118,8 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error
 		if err != nil {
 			return nil, 0, err
 		}
-		pipeline := parsePipeline(dbPipeline)
+		// TODO query parallelLabelModels
+		pipeline := parsePipeline(dbPipeline, nil)
 		pipelines = append(pipelines, pipeline)
 	}
 
@@ -127,7 +128,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error
 
 // GetPipeline by id
 func GetPipeline(pipelineId uint64) (*models.Pipeline, errors.Error) {
-	dbPipeline, err := GetDbPipeline(pipelineId)
+	dbPipeline, dbParallelLabels, err := GetDbPipeline(pipelineId)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +136,7 @@ func GetPipeline(pipelineId uint64) (*models.Pipeline, errors.Error) {
 	if err != nil {
 		return nil, err
 	}
-	pipeline := parsePipeline(dbPipeline)
+	pipeline := parsePipeline(dbPipeline, dbParallelLabels)
 	return pipeline, nil
 }
 
@@ -155,6 +156,7 @@ func GetPipelineLogsArchivePath(pipeline *models.Pipeline) (string, errors.Error
 // RunPipelineInQueue query pipeline from db and run it in a queue
 func RunPipelineInQueue(pipelineMaxParallel int64) {
 	sema := semaphore.NewWeighted(pipelineMaxParallel)
+	runningParallelLabels := []string{}
 	for {
 		globalPipelineLog.Info("acquire lock")
 		// start goroutine when sema lock ready and pipeline exist.
@@ -165,29 +167,57 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 		}
 		globalPipelineLog.Info("get lock and wait next pipeline")
 		dbPipeline := &models.DbPipeline{}
+		var dbParallelLabels []models.DbPipelineParallelLabel
 		for {
 			cronLocker.Lock()
+			// prepare query to find an appropriate pipeline to execute
 			db.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}).
+				Joins(`left join _devlake_pipeline_parallel_labels ON
+                  _devlake_pipeline_parallel_labels.pipeline_id = _devlake_pipelines.id AND
+                  _devlake_pipeline_parallel_labels.name in ?`, runningParallelLabels).
+				Group(`id`).
+				Having(`count(_devlake_pipeline_parallel_labels.name)=0`).
+				Select("id").
 				Order("id ASC").Limit(1).Find(dbPipeline)
 			cronLocker.Unlock()
 			if dbPipeline.ID != 0 {
-				db.Model(&models.DbPipeline{}).Where("id = ?", dbPipeline.ID).Updates(map[string]interface{}{
-					"status":   models.TASK_RUNNING,
-					"message":  "",
-					"began_at": time.Now(),
-				})
 				break
 			}
 			time.Sleep(time.Second)
 		}
-		go func(pipelineId uint64) {
+
+		db.Model(&models.DbPipeline{}).Where("id = ?", dbPipeline.ID).Updates(map[string]interface{}{
+			"status":   models.TASK_RUNNING,
+			"message":  "",
+			"began_at": time.Now(),
+		})
+		dbPipeline, dbParallelLabels, err = GetDbPipeline(dbPipeline.ID)
+		if err != nil {
+			panic(err)
+		}
+
+		// add pipelineParallelLabels to runningParallelLabels
+		var pipelineParallelLabels []string
+		for _, dbParallelLabel := range dbParallelLabels {
+			pipelineParallelLabels = append(pipelineParallelLabels, dbParallelLabel.Name)
+		}
+		runningParallelLabels = append(runningParallelLabels, pipelineParallelLabels...)
+		globalPipelineLog.Info("now running runningParallelLabels is, %s", runningParallelLabels)
+
+		go func(pipelineId uint64, parallelLabels []string) {
 			defer sema.Release(1)
+			defer func() {
+				runningParallelLabels = utils.SliceRemove(runningParallelLabels, parallelLabels...)
+				globalPipelineLog.Info("finish pipeline, %d", pipelineId)
+				globalPipelineLog.Info("now finish runningParallelLabels is, %s", runningParallelLabels)
+			}()
 			globalPipelineLog.Info("run pipeline, %d", pipelineId)
-			err = runPipeline(pipelineId)
+			//err = runPipeline(pipelineId)
+			time.Sleep(time.Second * 10)
 			if err != nil {
 				globalPipelineLog.Error(err, "failed to run pipeline %d", pipelineId)
 			}
-		}(dbPipeline.ID)
+		}(dbPipeline.ID, pipelineParallelLabels)
 	}
 }
 
