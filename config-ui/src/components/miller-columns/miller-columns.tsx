@@ -18,7 +18,8 @@
 
 import React from 'react'
 
-import { useMillerColumns, UseMillerColumnsProps } from './hooks'
+import type { UseMillerColumnsProps } from './hooks'
+import { useMillerColumns } from './hooks'
 import { Column, ColumnsProps, Item } from './components'
 
 import * as S from './styled'
@@ -45,6 +46,7 @@ export const MillerColumns = ({
       {columns.map((col, i) => (
         <Column
           key={col.parentId}
+          parentId={col.parentId}
           items={col.items}
           renderItem={(item) => (
             <Item
@@ -59,7 +61,14 @@ export const MillerColumns = ({
           height={height}
           title={i === 0 && firstColumnTitle}
           columnCount={columnCount}
-          scrollProps={scrollProps}
+          scrollProps={{
+            ...scrollProps,
+            hasMore: col.parentId ? col.hasMore : scrollProps?.hasMore ?? true,
+            onScroll:
+              scrollProps?.onScroll ??
+              ((parentId) =>
+                console.log(`column: ${parentId ?? 'root'} scroll`))
+          }}
         />
       ))}
     </S.Container>

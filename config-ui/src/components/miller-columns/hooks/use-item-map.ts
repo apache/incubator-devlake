@@ -16,62 +16,72 @@
  *
  */
 
-import { useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 
-import type { ItemType, ItemInfoType } from '../types'
-import { ItemStatusEnum } from '../types'
+import type { MillerColumnsItem, ItemType, ItemMapType } from '../types'
+import { ItemTypeEnum, ItemStatusEnum } from '../types'
 
 interface Props {
-  items: ItemType[]
+  items: Array<MillerColumnsItem>
 }
 
 export const useItemMap = ({ items }: Props) => {
-  const checkChildLoaded = (item: ItemType): boolean => {
+  const [itemMap, setItemMap] = useState<ItemMapType>({})
+
+  const checkChildLoaded = (item: MillerColumnsItem): boolean => {
     if (item.status === ItemStatusEnum.PENDING) {
       return false
     }
 
-    return item.items.every((it) => {
-      return checkChildLoaded(it)
-    })
+    return !items
+      .filter((it) => it.parentId === item.id)
+      .find((it) => it.status === ItemStatusEnum.PENDING)
   }
 
-  return useMemo(() => {
-    const itemMap = new Map<ItemType['id'], ItemInfoType>()
-
-    const collect = ({
-      item,
-      parent
-    }: {
-      item: ItemType
-      parent?: ItemType
-    }) => {
-      if (!itemMap.has(item.id)) {
-        itemMap.set(item.id, {
-          item,
-          parentId: parent?.id,
-          childLoaded: checkChildLoaded(item)
-        })
-      }
-
-      if (item.items) {
-        item.items.forEach((it) => collect({ item: it, parent: item }))
-      }
-    }
-
-    items.forEach((it) => collect({ item: it }))
-
+  const covertItem = (item: MillerColumnsItem): ItemType => {
+    const type = item.type
+      ? item.type
+      : (item.items ?? []).length
+      ? ItemTypeEnum.BRANCH
+      : ItemTypeEnum.LEAF
+    const status = item.status ? item.status : ItemStatusEnum.READY
     return {
-      getItem(id: ItemType['id']) {
-        return (itemMap.get(id) as ItemInfoType).item
-      },
-      getItemParent(id: ItemType['id']) {
-        const parentId = itemMap.get(id)?.parentId
-        return parentId ? (itemMap.get(parentId) as ItemInfoType).item : null
-      },
-      getItemChildLoaded(id: ItemType['id']) {
-        return (itemMap.get(id) as ItemInfoType).childLoaded
-      }
-    }
+      ...item,
+      type,
+      status,
+      childLoaded: checkChildLoaded(item)
+    } as ItemType
+  }
+
+  const collectChildItems = (
+    items: Array<MillerColumnsItem>,
+    item: MillerColumnsItem
+  ): Array<ItemType> => {
+    return items
+      .filter((it) => {
+        return it.parentId === item.id
+      })
+      .map((it) =>
+        covertItem({
+          ...it,
+          items: collectChildItems(items, it)
+        })
+      )
+  }
+
+  const itemsToMap = (items: Array<MillerColumnsItem>): ItemMapType => {
+    return items.reduce((acc, cur) => {
+      acc[cur.id] = covertItem({
+        ...cur,
+        items: collectChildItems(items, cur)
+      })
+      return acc
+    }, {} as any)
+  }
+
+  useEffect(() => {
+    setItemMap(itemsToMap(items))
   }, [items])
+
+  return useMemo(() => itemMap, [itemMap])
 }

@@ -18,15 +18,16 @@
 
 import { useState, useMemo, useEffect } from 'react'
 
-import type { ItemType, ColumnType } from '../types'
+import type { MillerColumnsItem, ItemType, ColumnType } from '../types'
 import { ItemTypeEnum, RowStatus } from '../types'
 import { CheckStatus } from '../components'
 
+import { useConvertItems } from './use-convert-items'
 import { useItemMap } from './use-item-map'
 import { useColumns } from './use-columns'
 
 export interface UseMillerColumnsProps {
-  items: ItemType[]
+  items: Array<MillerColumnsItem>
   activeItemId?: ItemType['id']
   onActiveItemId?: (id: ItemType['id']) => void
   disabledItemIds?: Array<ItemType['id']>
@@ -48,8 +49,9 @@ export const useMillerColumns = ({
     []
   )
 
-  const itemMap = useItemMap({ items })
-  const columns = useColumns({ items, itemMap, activeItemId })
+  const covertItems = useConvertItems({ items })
+  const itemMap = useItemMap({ items: covertItems })
+  const columns = useColumns({ itemMap, activeItemId })
 
   useEffect(() => {
     setActiveItemId(props.activeItemId)
@@ -62,14 +64,14 @@ export const useMillerColumns = ({
   const collectAddParentIds = (item: ItemType) => {
     let result: Array<ItemType['id']> = []
 
-    const parentItem = itemMap.getItemParent(item.id)
+    const parentItem = itemMap[item.parentId ?? '']
 
     if (parentItem) {
-      const childSelectedIds = parentItem.items
+      const childSelectedIds = (parentItem.items ?? [])
         .map((it) => it.id)
         .filter((id) => [...selectedItemIds, item.id].includes(id))
 
-      if (childSelectedIds.length === parentItem.items.length) {
+      if (childSelectedIds.length === (parentItem.items ?? []).length) {
         result.push(parentItem.id)
         result.push(...collectAddParentIds(parentItem))
       }
@@ -81,7 +83,7 @@ export const useMillerColumns = ({
   const collectRemoveParentIds = (item: ItemType) => {
     let result: Array<ItemType['id']> = []
 
-    const parentItem = itemMap.getItemParent(item.id)
+    const parentItem = itemMap[item.parentId ?? '']
 
     if (parentItem) {
       result.push(parentItem.id)
@@ -98,18 +100,18 @@ export const useMillerColumns = ({
       activeItemId,
       selectedItemIds,
       getStatus(item: ItemType, column: ColumnType) {
-        if (column.activeId === item.id) {
+        if (item.id === column.activeId) {
           return RowStatus.selected
         }
         return RowStatus.noselected
       },
       getChekecdStatus(item: ItemType) {
-        const childSelectedIds = item.items
+        const childSelectedIds = (item.items ?? [])
           .map((it) => it.id)
           .filter((id) => selectedItemIds.includes(id))
 
         switch (true) {
-          case !itemMap.getItemChildLoaded(item.id):
+          case !itemMap[item.id].childLoaded:
           case (disabledItemIds ?? []).includes(item.id):
             return CheckStatus.disabled
           case selectedItemIds.includes(item.id):

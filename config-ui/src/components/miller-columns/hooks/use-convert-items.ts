@@ -16,6 +16,31 @@
  *
  */
 
-export * from './miller-columns'
-export * from './types'
-export * from './test'
+import { useState, useEffect, useMemo } from 'react'
+
+import type { MillerColumnsItem } from '../types'
+
+export interface UseConvertItemsProps {
+  items: Array<MillerColumnsItem>
+}
+
+export const useConvertItems = ({ items }: UseConvertItemsProps) => {
+  const [convertItems, setConvertItems] = useState<Array<MillerColumnsItem>>([])
+
+  const flatItems = (items: Array<MillerColumnsItem>) => {
+    let result: Array<MillerColumnsItem> = []
+    items.forEach((it) => {
+      result.push(it)
+      if (it.items) {
+        result.push(...flatItems(it.items))
+      }
+    })
+    return result
+  }
+
+  useEffect(() => {
+    setConvertItems(flatItems(items))
+  }, [items])
+
+  return useMemo(() => convertItems, [convertItems])
+}

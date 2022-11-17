@@ -24,6 +24,7 @@ import type { ItemType } from '../../types'
 import * as S from './styled'
 
 export interface ColumnsProps {
+  parentId: ItemType['parentId']
   items: Array<ItemType>
   renderItem: (item: ItemType) => React.ReactNode
   height?: number
@@ -31,13 +32,14 @@ export interface ColumnsProps {
   columnCount?: number
   scrollProps?: {
     hasMore: boolean
-    onScroll: () => void
+    onScroll: (parentId: ItemType['parentId']) => void
     renderLoader?: () => React.ReactNode
     renderBottom?: () => React.ReactNode
   }
 }
 
 export const Column = ({
+  parentId,
   items,
   renderItem,
   height,
@@ -55,7 +57,7 @@ export const Column = ({
 
   const handleNext = useCallback(() => {
     if (scrollProps) {
-      scrollProps.onScroll()
+      scrollProps.onScroll(parentId)
     } else {
       setHasMore(false)
     }
@@ -66,22 +68,20 @@ export const Column = ({
   )
 
   const bottom = scrollProps?.renderBottom?.() ?? (
-    <S.StatusWrapper>All Data Loaded.</S.StatusWrapper>
+    <S.StatusWrapper>End.</S.StatusWrapper>
   )
 
+  const id = `miller-columns-column-${parentId ?? 'root'}`
+
   return (
-    <S.Container
-      id='miller-columns-column-container'
-      height={height}
-      columnCount={columnCount}
-    >
+    <S.Container id={id} height={height} columnCount={columnCount}>
       {title && <div className='title'>{title}</div>}
       <InfiniteScroll
         dataLength={items.length}
         hasMore={hasMore}
         next={handleNext}
         loader={loader}
-        scrollableTarget='miller-columns-column-container'
+        scrollableTarget={id}
         endMessage={bottom}
       >
         {items.map((it) => renderItem(it))}
