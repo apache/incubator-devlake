@@ -15,18 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/models/common"
+	"gorm.io/datatypes"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addSourceTable20220407),
-		new(renameSourceTable20220505),
-		new(addInitTables20220716),
-		new(addTransformationRule20221116),
-	}
+type JiraTransformationRule struct {
+	common.Model
+	EpicKeyField               string         `json:"epicKeyField"`
+	StoryPointField            string         `json:"storyPointField"`
+	RemotelinkCommitShaPattern string         `json:"remotelinkCommitShaPattern"`
+	TypeMappings               datatypes.JSON `json:"typeMappings"`
 }

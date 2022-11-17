@@ -20,11 +20,12 @@ package impl
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
-
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/api"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
@@ -42,10 +43,24 @@ var _ core.PluginModel = (*Jira)(nil)
 var _ core.PluginMigration = (*Jira)(nil)
 var _ core.PluginBlueprintV100 = (*Jira)(nil)
 var _ core.CloseablePluginTask = (*Jira)(nil)
+var _ core.PluginSource = (*Jira)(nil)
 
-type Jira struct{}
+type Jira struct {
+}
 
-func (plugin Jira) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
+func (plugin Jira) Connection() interface{} {
+	return &models.JiraConnection{}
+}
+
+func (plugin Jira) Scope() interface{} {
+	return &models.JiraBoard{}
+}
+
+func (plugin Jira) TransformationRule() interface{} {
+	return &models.JiraTransformationRule{}
+}
+
+func (plugin *Jira) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
 }
@@ -161,6 +176,23 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
+		}
+	}
+	if op.BoardId == 0 && op.ScopeId != "" {
+		op.BoardId, err = strconv.ParseUint(op.ScopeId, 10, 64)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for scopeId")
+		}
+	}
+	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.JiraTransformationRule
+		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
+		}
+		op.TransformationRules, err = tasks.MakeTransformationRules(transformationRule)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "fail to make transformationRule")
 		}
 	}
 	jiraApiClient, err := tasks.NewJiraApiClient(taskCtx, connection)
