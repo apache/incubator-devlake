@@ -132,13 +132,15 @@ export const useGitLabMillerColumns = <T>({
       const groups = await getRootGroups(target.groupPage, target.groupPageSize)
 
       if (groups.length < target.groupPageSize) {
+        target.groupLoaded = true
         projects = await getRootProjects(
           user.id,
           target.projectPage,
           target.projectPageSize
         )
 
-        if (projects.length < 2) {
+        if (projects.length < target.projectPageSize) {
+          target.projectLoaded = true
           setHasMore(false)
         } else {
           target.projectPage += 1
