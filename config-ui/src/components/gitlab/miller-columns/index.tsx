@@ -48,18 +48,20 @@ export const GitLabMillerColumns = ({
   }, [seletedIds])
 
   return (
-    <MillerColumns
-      height={300}
-      firstColumnTitle='Subgroups/Projects'
-      items={items}
-      disabledItemIds={disabledItemIds}
-      selectedItemIds={seletedIds}
-      onSelectedItemIds={setSelectedIds}
-      onExpandItem={onExpandItem}
-      scrollProps={{
-        hasMore,
-        onScroll
-      }}
-    />
+    <div style={{ width: 450 }}>
+      <MillerColumns
+        height={300}
+        firstColumnTitle='Subgroups/Projects'
+        items={items}
+        disabledItemIds={disabledItemIds}
+        selectedItemIds={seletedIds}
+        onSelectedItemIds={setSelectedIds}
+        onExpandItem={onExpandItem}
+        scrollProps={{
+          hasMore,
+          onScroll
+        }}
+      />
+    </div>
   )
 }
