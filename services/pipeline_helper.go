@@ -109,31 +109,49 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, []mo
 }
 
 // GetDbPipelines by query
-func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.Error) {
+func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, map[uint64][]models.DbPipelineParallelLabel, int64, errors.Error) {
 	dbPipelines := make([]*models.DbPipeline, 0)
-	db := db.Model(dbPipelines).Order("id DESC")
+	dbQuery := db.Model(dbPipelines).Order("id DESC")
 	if query.BlueprintId != 0 {
-		db = db.Where("blueprint_id = ?", query.BlueprintId)
+		dbQuery = dbQuery.Where("blueprint_id = ?", query.BlueprintId)
 	}
 	if query.Status != "" {
-		db = db.Where("status = ?", query.Status)
+		dbQuery = dbQuery.Where("status = ?", query.Status)
 	}
 	if query.Pending > 0 {
-		db = db.Where("finished_at is null and status != ?", "TASK_FAILED")
+		dbQuery = dbQuery.Where("finished_at is null and status != ?", "TASK_FAILED")
+	}
+	if query.ParallelLabel != "" {
+		dbQuery = dbQuery.
+			Joins(`left join _devlake_pipeline_parallel_labels ON
+                  _devlake_pipeline_parallel_labels.pipeline_id = _devlake_pipelines.id`).
+			Where(`_devlake_pipeline_parallel_labels.name = ?`, query.ParallelLabel)
 	}
 	var count int64
-	err := db.Count(&count).Error
+	err := dbQuery.Count(&count).Error
 	if err != nil {
-		return nil, 0, errors.Default.Wrap(err, "error getting DB pipelines count")
+		return nil, nil, 0, errors.Default.Wrap(err, "error getting DB pipelines count")
 	}
 
-	db = processDbClausesWithPager(db, query.PageSize, query.Page)
+	dbQuery = processDbClausesWithPager(dbQuery, query.PageSize, query.Page)
 
-	err = db.Find(&dbPipelines).Error
+	err = dbQuery.Find(&dbPipelines).Error
 	if err != nil {
-		return nil, count, errors.Default.Wrap(err, "error finding DB pipelines")
+		return nil, nil, count, errors.Default.Wrap(err, "error finding DB pipelines")
 	}
-	return dbPipelines, count, nil
+
+	var pipelineIds []uint64
+	for _, dbPipeline := range dbPipelines {
+		pipelineIds = append(pipelineIds, dbPipeline.ID)
+	}
+	dbParallelLabels := []models.DbPipelineParallelLabel{}
+	dbParallelLabelsMap := map[uint64][]models.DbPipelineParallelLabel{}
+	db.Where(`pipeline_id in ?`, pipelineIds).Find(&dbParallelLabels)
+	for _, dbParallelLabel := range dbParallelLabels {
+		dbParallelLabelsMap[dbParallelLabel.PipelineId] = append(dbParallelLabelsMap[dbParallelLabel.PipelineId], dbParallelLabel)
+	}
+
+	return dbPipelines, dbParallelLabelsMap, count, nil
 }
 
 // GetDbPipeline by id

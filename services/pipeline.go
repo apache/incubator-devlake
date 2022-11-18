@@ -40,13 +40,14 @@ var notificationService *NotificationService
 var temporalClient client.Client
 var globalPipelineLog = logger.Global.Nested("pipeline service")
 
-// PipelineQuery FIXME ...
+// PipelineQuery is a query for GetPipelines
 type PipelineQuery struct {
-	Status      string `form:"status"`
-	Pending     int    `form:"pending"`
-	Page        int    `form:"page"`
-	PageSize    int    `form:"pageSize"`
-	BlueprintId uint64 `uri:"blueprintId" form:"blueprint_id"`
+	Status        string `form:"status"`
+	Pending       int    `form:"pending"`
+	Page          int    `form:"page"`
+	PageSize      int    `form:"pageSize"`
+	BlueprintId   uint64 `uri:"blueprintId" form:"blueprint_id"`
+	ParallelLabel string `form:"parallel_label"`
 }
 
 func pipelineServiceInit() {
@@ -108,7 +109,7 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.E
 
 // GetPipelines by query
 func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error) {
-	dbPipelines, i, err := GetDbPipelines(query)
+	dbPipelines, dbParallelLabelsMap, i, err := GetDbPipelines(query)
 	if err != nil {
 		return nil, 0, errors.Convert(err)
 	}
@@ -118,8 +119,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error
 		if err != nil {
 			return nil, 0, err
 		}
-		// TODO query parallelLabelModels
-		pipeline := parsePipeline(dbPipeline, nil)
+		pipeline := parsePipeline(dbPipeline, dbParallelLabelsMap[dbPipeline.ID])
 		pipelines = append(pipelines, pipeline)
 	}
 
