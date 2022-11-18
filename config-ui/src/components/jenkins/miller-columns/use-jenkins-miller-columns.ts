@@ -70,6 +70,10 @@ export const useJenkinsMillerColumns = ({
   }
 
   const onExpandItem = async (item: MillerColumnsItem) => {
+    if (item.status === ItemStatusEnum.READY) {
+      return
+    }
+
     const jobs = getJobs(item)
     const res = await request(
       `${prefix}/job/${jobs.join(
