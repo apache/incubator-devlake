@@ -253,7 +253,7 @@ func (t *DataFlowTester) CreateSnapshot(dst schema.Tabler, opts TableOptions) {
 		} else if columnType.ScanType().Name() == `NullInt64` {
 			forScanValues[i] = new(sql.NullInt64)
 		} else {
-			forScanValues[i] = new(string)
+			forScanValues[i] = new(sql.NullString)
 		}
 	}
 
