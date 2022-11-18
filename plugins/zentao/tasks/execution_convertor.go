@@ -31,7 +31,7 @@ import (
 
 var _ core.SubTaskEntryPoint = ConvertExecutions
 
-var ConvertExecutionsMeta = core.SubTaskMeta{
+var ConvertExecutionMeta = core.SubTaskMeta{
 	Name:             "convertExecutions",
 	EntryPoint:       ConvertExecutions,
 	EnabledByDefault: true,
@@ -58,9 +58,10 @@ func ConvertExecutions(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
-				ProductId:   data.Options.ProductId,
-				ExecutionId: data.Options.ExecutionId,
-				ProjectId:   data.Options.ProjectId,
+				ConnectionId: data.Options.ConnectionId,
+				ProductId:    data.Options.ProductId,
+				ExecutionId:  data.Options.ExecutionId,
+				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_EXECUTION_TABLE,
 		},
@@ -72,9 +73,9 @@ func ConvertExecutions(taskCtx core.SubTaskContext) errors.Error {
 					Id: boardIdGen.Generate(toolExecution.ConnectionId, toolExecution.Id),
 				},
 				Name:        toolExecution.Name,
-				Description: toolExecution.Desc,
+				Description: toolExecution.Description,
 				Url:         toolExecution.Path,
-				CreatedDate: toolExecution.OpenedDate.ToNullableTime(),
+				CreatedDate: toolExecution.OpenedDate,
 				Type:        toolExecution.Type,
 			}
 

@@ -18,23 +18,25 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/zentao/models/archived"
-	"gorm.io/gorm"
 )
 
 type addInitTables struct{}
 
-func (u *addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	return errors.Convert(db.Migrator().AutoMigrate(
-		archived.ZentaoConnection{},
-		archived.ZentaoProject{},
-		archived.ZentaoExecution{},
-		archived.ZentaoStory{},
-		archived.ZentaoBug{},
-		archived.ZentaoTask{},
-	))
+func (*addInitTables) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&archived.ZentaoConnection{},
+		&archived.ZentaoProject{},
+		&archived.ZentaoProduct{},
+		&archived.ZentaoExecution{},
+		&archived.ZentaoStory{},
+		&archived.ZentaoBug{},
+		&archived.ZentaoTask{},
+	)
 }
 
 func (*addInitTables) Version() uint64 {

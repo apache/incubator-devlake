@@ -19,28 +19,27 @@ package archived
 
 import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"time"
 )
 
 type ZentaoStory struct {
 	archived.NoPKModel
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ExecutionId  uint64 `json:"execution_id"`
-	Project      int    `json:"project"`
-	Product      int    `json:"product"`
+	ID           uint64 `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
+	Project      uint64 `json:"project"`
+	Product      uint64 `json:"product"`
 	Branch       int    `json:"branch"`
-	Story        int    `json:"story"`
 	Version      int    `json:"version"`
-	Order        int    `json:"order"`
-	ID           int    `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
+	OrderIn      int    `json:"order"`
 	Vision       string `json:"vision"`
-	Parent       int    `json:"parent"`
+	Parent       uint64 `json:"parent"`
 	Module       int    `json:"module"`
 	Plan         string `json:"plan"`
 	Source       string `json:"source"`
 	SourceNote   string `json:"sourceNote"`
 	FromBug      int    `json:"fromBug"`
 	Feedback     int    `json:"feedback"`
+	FeedbackBy   string `json:"feedbackBy"`
 	Title        string `json:"title"`
 	Keywords     string `json:"keywords"`
 	Type         string `json:"type"`
@@ -51,47 +50,39 @@ type ZentaoStory struct {
 	SubStatus    string `json:"subStatus"`
 	Color        string `json:"color"`
 	Stage        string `json:"stage"`
-	StagedBy     string `json:"stagedBy"`
+	StagedById   uint64 `json:"stagedBy"`
 	//Mailto           []interface{} `json:"mailto"`
-	Lib            int `json:"lib"`
-	FromStory      int `json:"fromStory"`
-	FromVersion    int `json:"fromVersion"`
-	OpenedBy       `json:"openedBy"`
-	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
-	AssignedTo     `json:"assignedTo"`
-	AssignedDate   *helper.Iso8601Time `json:"assignedDate"`
-	ApprovedDate   string              `json:"approvedDate"`
-	LastEditedBy   `json:"lastEditedBy"`
-	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
-	ChangedBy      string              `json:"changedBy"`
-	ChangedDate    string              `json:"changedDate"`
-	//ReviewedBy       interface{} `json:"reviewedBy"`
-	ReviewedDate     *helper.Iso8601Time `json:"reviewedDate"`
-	ClosedBy         `json:"closedBy"`
-	ClosedDate       *helper.Iso8601Time `json:"closedDate"`
-	ClosedReason     string              `json:"closedReason"`
-	ActivatedDate    string              `json:"activatedDate"`
-	ToBug            int                 `json:"toBug"`
-	ChildStories     string              `json:"childStories"`
-	LinkStories      string              `json:"linkStories"`
-	LinkRequirements string              `json:"linkRequirements"`
-	DuplicateStory   int                 `json:"duplicateStory"`
-	StoryChanged     string              `json:"storyChanged"`
-	FeedbackBy       string              `json:"feedbackBy"`
-	NotifyEmail      string              `json:"notifyEmail"`
-	URChanged        string              `json:"URChanged"`
-	Deleted          bool                `json:"deleted"`
-	PriOrder         string              `json:"priOrder"`
-	ProductType      string              `json:"productType"`
-	PlanTitle        string              `json:"planTitle"`
-	ProductStatus    string              `json:"productStatus"`
-}
-
-type AssignedTo struct {
-	AssignedToID       int    `json:"id"`
-	AssignedToAccount  string `json:"account"`
-	AssignedToAvatar   string `json:"avatar"`
-	AssignedToRealname string `json:"realname"`
+	Lib              int    `json:"lib"`
+	FromStory        uint64 `json:"fromStory"`
+	FromVersion      int    `json:"fromVersion"`
+	OpenedById       uint64
+	OpenedByName     string
+	OpenedDate       *time.Time `json:"openedDate"`
+	AssignedToId     uint64
+	AssignedToName   string
+	AssignedDate     *time.Time `json:"assignedDate"`
+	ApprovedDate     string     `json:"approvedDate"`
+	LastEditedId     uint64
+	LastEditedDate   *time.Time `json:"lastEditedDate"`
+	ChangedDate      string     `json:"changedDate"`
+	ReviewedById     uint64     `json:"reviewedBy"`
+	ReviewedDate     *time.Time `json:"reviewedDate"`
+	ClosedId         uint64
+	ClosedDate       *time.Time `json:"closedDate"`
+	ClosedReason     string     `json:"closedReason"`
+	ActivatedDate    string     `json:"activatedDate"`
+	ToBug            int        `json:"toBug"`
+	ChildStories     string     `json:"childStories"`
+	LinkStories      string     `json:"linkStories"`
+	LinkRequirements string     `json:"linkRequirements"`
+	DuplicateStory   uint64     `json:"duplicateStory"`
+	StoryChanged     string     `json:"storyChanged"`
+	FeedbackById     uint64     `json:"feedbackBy"`
+	NotifyEmail      string     `json:"notifyEmail"`
+	URChanged        string     `json:"URChanged"`
+	Deleted          bool       `json:"deleted"`
+	PriOrder         string     `json:"priOrder"`
+	PlanTitle        string     `json:"planTitle"`
 }
 
 func (ZentaoStory) TableName() string {

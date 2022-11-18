@@ -24,9 +24,10 @@ import (
 )
 
 type ZentaoApiParams struct {
-	ProductId   uint64
-	ExecutionId uint64
-	ProjectId   uint64
+	ConnectionId uint64
+	ProductId    uint64
+	ExecutionId  uint64
+	ProjectId    uint64
 }
 
 type ZentaoOptions struct {

@@ -25,97 +25,70 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-var _ core.SubTaskEntryPoint = ExtractExecutions
+var _ core.SubTaskEntryPoint = ExtractProducts
 
-var ExtractExecutionMeta = core.SubTaskMeta{
-	Name:             "extractExecutions",
-	EntryPoint:       ExtractExecutions,
+var ExtractProductMeta = core.SubTaskMeta{
+	Name:             "extractProducts",
+	EntryPoint:       ExtractProducts,
 	EnabledByDefault: true,
-	Description:      "extract Zentao executions",
+	Description:      "extract Zentao products",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ExtractExecutions(taskCtx core.SubTaskContext) errors.Error {
+func ExtractProducts(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
 				ExecutionId:  data.Options.ExecutionId,
+				ProductId:    data.Options.ProductId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_EXECUTION_TABLE,
+			Table: RAW_PRODUCT_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
-			res := &models.ZentaoExecutionRes{}
+			res := &models.ZentaoProductRes{}
 			err := json.Unmarshal(row.Data, res)
 			if err != nil {
-				return nil, errors.Default.WrapRaw(err)
+				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao product extractor")
 			}
-			execution := &models.ZentaoExecution{
+			product := &models.ZentaoProduct{
 				ConnectionId:   data.Options.ConnectionId,
-				Id:             res.ID,
-				Project:        res.Project,
-				Model:          res.Model,
-				Type:           res.Type,
-				Lifetime:       res.Lifetime,
-				Budget:         res.Budget,
-				BudgetUnit:     res.BudgetUnit,
-				Attribute:      res.Attribute,
-				Percent:        res.Percent,
-				Milestone:      res.Milestone,
-				Output:         res.Output,
-				Auth:           res.Auth,
-				Parent:         res.Parent,
-				Path:           res.Path,
-				Grade:          res.Grade,
+				Id:             uint64(res.ID),
+				Program:        res.Program,
 				Name:           res.Name,
 				Code:           res.Code,
-				PlanBegin:      res.PlanBegin,
-				PlanEnd:        res.PlanEnd,
-				RealBegan:      res.RealBegan,
-				RealEnd:        res.RealEnd,
-				Days:           res.Days,
+				Bind:           res.Bind,
+				Line:           res.Line,
+				Type:           res.Type,
 				Status:         res.Status,
 				SubStatus:      res.SubStatus,
-				Pri:            res.Pri,
 				Description:    res.Description,
-				Version:        res.Version,
-				ParentVersion:  res.ParentVersion,
-				PlanDuration:   res.PlanDuration,
-				RealDuration:   res.RealDuration,
-				OpenedById:     res.OpenedBy.ID,
-				OpenedDate:     res.OpenedDate,
-				OpenedVersion:  res.OpenedVersion,
-				LastEditedById: res.LastEditedBy.ID,
-				LastEditedDate: res.LastEditedDate,
-				ClosedById:     res.ClosedBy.ID,
-				ClosedDate:     res.ClosedDate,
-				CanceledById:   res.CanceledBy.ID,
-				CanceledDate:   res.CanceledDate,
-				SuspendedDate:  res.SuspendedDate,
 				POId:           res.PO.ID,
-				PMId:           res.PM.ID,
 				QDId:           res.QD.ID,
 				RDId:           res.RD.ID,
-				Team:           res.Team,
 				Acl:            res.Acl,
+				Reviewer:       res.Reviewer,
+				CreatedById:    res.CreatedBy.ID,
+				CreatedDate:    res.CreatedDate,
+				CreatedVersion: res.CreatedVersion,
 				OrderIn:        res.OrderIn,
-				Vision:         res.Vision,
-				DisplayCards:   res.DisplayCards,
-				FluidBoard:     res.FluidBoard,
 				Deleted:        res.Deleted,
-				TotalHours:     res.TotalHours,
-				TotalEstimate:  res.TotalEstimate,
-				TotalConsumed:  res.TotalConsumed,
-				TotalLeft:      res.TotalLeft,
+				Plans:          res.Plans,
+				Releases:       res.Releases,
+				Builds:         res.Builds,
+				Cases:          res.Cases,
+				Projects:       res.Projects,
+				Executions:     res.Executions,
+				Bugs:           res.Bugs,
+				Docs:           res.Docs,
 				Progress:       res.Progress,
 				CaseReview:     res.CaseReview,
 			}
 			results := make([]interface{}, 0)
-			results = append(results, execution)
+			results = append(results, product)
 			return results, nil
 		},
 	})

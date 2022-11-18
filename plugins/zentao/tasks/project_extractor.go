@@ -27,7 +27,7 @@ import (
 
 var _ core.SubTaskEntryPoint = ExtractProjects
 
-var ExtractProjectsMeta = core.SubTaskMeta{
+var ExtractProjectMeta = core.SubTaskMeta{
 	Name:             "extractProjects",
 	EntryPoint:       ExtractProjects,
 	EnabledByDefault: true,
@@ -39,9 +39,14 @@ func ExtractProjects(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:    taskCtx,
-			Params: ZentaoApiParams{},
-			Table:  RAW_PROJECT_TABLE,
+			Ctx: taskCtx,
+			Params: ZentaoApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				ExecutionId:  data.Options.ExecutionId,
+				ProductId:    data.Options.ProductId,
+				ProjectId:    data.Options.ProjectId,
+			},
+			Table: RAW_PROJECT_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			project := &models.ZentaoProject{}

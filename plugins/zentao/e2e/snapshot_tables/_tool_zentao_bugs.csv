@@ -1,0 +1,13 @@
+connection_id,id,project,product,injection,identify,branch,module,execution,plan,story,story_version,task,to_task,to_story,title,keywords,severity,pri,type,os,browser,hardware,found,steps,status,sub_status,color,confirmed,activated_count,activated_date,feedback_by,notify_email,opened_by_id,opened_by_name,opened_date,opened_build,assigned_to_id,assigned_to_name,assigned_date,deadline,resolved_by_id,resolution,resolved_build,resolved_date,closed_by_id,closed_date,duplicate_bug,link_bug,feedback,result,repo,mr,entry,lines,v1,v2,repo_type,issue_key,testtask,last_edited_by_id,last_edited_date,deleted,pri_order,severity_order,needconfirm,status_name,product_status
+1,1,7,3,0,0,0,8,1,0,1,1,1,0,0,首页页面问题,,3,1,codeerror,,,,,"<p>[步骤]进入首页</p>
+<p>[结果]出现乱码&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>[期望]正常显示</p>",active,,,0,0,,,,7,测试甲,2012-06-05T02:56:11.000+00:00,主干,4,开发甲,2012-06-05T02:56:11.000+00:00,,0,,,,0,,0,,0,0,0,0,,,,,,,0,0,2021-04-28T03:09:08.000+00:00,0,1,3,0,激活,normal
+1,2,7,3,0,0,0,9,1,1,2,1,15,0,0,新闻中心页面问题,hh,3,2,codeerror,",windows",",chrome",,,"<p>[步骤]进入新闻中心</p>
+<p>[结果]页面出现乱码</p>
+<p>[期望]正常显示rew</p>",delay,,,1,1,2022-10-05T04:16:44.000+00:00,,1114255335@qq.com,7,测试甲,2012-06-05T02:57:11.000+00:00,主干,0,,2022-10-05T04:19:22.000+00:00,2022-10-06,0,,,,0,,0,,0,0,0,0,,,,,,,1,1,2022-10-05T04:19:22.000+00:00,0,2,3,0,过期Bug,normal
+1,3,7,3,0,0,0,10,1,0,3,2,6,0,0,成果展示页面问题,,3,1,codeerror,,,,,"<p>[步骤]进入成果展示&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>[结果]乱码</p>
+<p>[期望]正常显示</p>",active,,,0,0,,,,8,测试乙,2012-06-05T02:58:22.000+00:00,主干,4,开发甲,2012-06-05T02:58:22.000+00:00,,0,,,,0,,0,,0,0,0,0,,,,,,,0,0,2021-04-28T03:09:08.000+00:00,0,1,3,0,激活,normal
+1,4,7,3,0,0,0,11,1,0,4,1,9,0,0,售后服务页面问题,,3,1,codeerror,,,,,"<p>[步骤]进入售后服务</p>
+<p>[结果]乱码</p>
+<p>[期望]正常显示</p>",resolved,,,1,0,,,,9,测试丙,2012-06-05T03:00:19.000+00:00,主干,9,测试丙,2022-10-05T04:10:08.000+00:00,,1,fixed,主干,2022-10-05T04:09:59.000+00:00,0,,0,,0,0,0,0,,,,,,,0,1,2022-10-05T04:10:08.000+00:00,0,1,3,0,已解决,normal

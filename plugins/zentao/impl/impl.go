@@ -20,7 +20,6 @@ package impl
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/zentao/api"
@@ -53,11 +52,12 @@ func (plugin Zentao) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) 
 func (plugin Zentao) SubTaskMetas() []core.SubTaskMeta {
 	// TODO add your sub task here
 	return []core.SubTaskMeta{
-		tasks.CollectProjectMeta,
-		tasks.ExtractProjectsMeta,
+		tasks.CollectProductMeta,
+		tasks.ExtractProductMeta,
+		tasks.ConvertProductMeta,
 		tasks.CollectExecutionMeta,
-		tasks.ExtractExecutionsMeta,
-		tasks.ConvertExecutionsMeta,
+		tasks.ExtractExecutionMeta,
+		tasks.ConvertExecutionMeta,
 		tasks.CollectStoryMeta,
 		tasks.ExtractStoryMeta,
 		tasks.ConvertStoryMeta,
@@ -101,7 +101,7 @@ func (plugin Zentao) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/zentao"
 }
 
-func (plugin Zentao) MigrationScripts() []migration.Script {
+func (plugin Zentao) MigrationScripts() []core.MigrationScript {
 	return migrationscripts.All()
 }
 

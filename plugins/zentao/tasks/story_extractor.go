@@ -41,20 +41,76 @@ func ExtractStory(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
-				ProductId:   data.Options.ProductId,
-				ExecutionId: data.Options.ExecutionId,
-				ProjectId:   data.Options.ProjectId,
+				ConnectionId: data.Options.ConnectionId,
+				ProductId:    data.Options.ProductId,
+				ExecutionId:  data.Options.ExecutionId,
+				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_STORY_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
-			story := &models.ZentaoStory{}
-			err := json.Unmarshal(row.Data, story)
+			res := &models.ZentaoStoryRes{}
+			err := json.Unmarshal(row.Data, res)
 			if err != nil {
 				return nil, errors.Default.WrapRaw(err)
 			}
-			story.ConnectionId = data.Options.ConnectionId
-			story.ExecutionId = data.Options.ExecutionId
+			story := &models.ZentaoStory{
+				ConnectionId:     data.Options.ConnectionId,
+				ID:               res.ID,
+				Product:          res.Product,
+				Branch:           res.Branch,
+				Version:          res.Version,
+				OrderIn:          0,
+				Vision:           res.Vision,
+				Parent:           res.Parent,
+				Module:           res.Module,
+				Plan:             res.Plan,
+				Source:           res.Source,
+				SourceNote:       res.SourceNote,
+				FromBug:          res.FromBug,
+				Feedback:         res.Feedback,
+				Title:            res.Title,
+				Keywords:         res.Keywords,
+				Type:             res.Type,
+				Category:         res.Category,
+				Pri:              res.Pri,
+				Estimate:         res.Estimate,
+				Status:           res.Status,
+				SubStatus:        res.SubStatus,
+				Color:            res.Color,
+				Stage:            res.Stage,
+				Lib:              res.Lib,
+				FromStory:        res.FromStory,
+				FromVersion:      res.FromVersion,
+				OpenedById:       res.OpenedBy.ID,
+				OpenedByName:     res.OpenedBy.Realname,
+				OpenedDate:       res.OpenedDate,
+				AssignedToId:     res.AssignedTo.ID,
+				AssignedToName:   res.AssignedTo.Realname,
+				AssignedDate:     res.AssignedDate,
+				ApprovedDate:     res.ApprovedDate,
+				LastEditedId:     res.LastEditedBy.ID,
+				LastEditedDate:   res.LastEditedDate,
+				ChangedDate:      res.ChangedDate,
+				ReviewedById:     res.ReviewedBy.ID,
+				ReviewedDate:     res.ReviewedDate,
+				ClosedId:         res.ClosedBy.ID,
+				ClosedDate:       res.ClosedDate,
+				ClosedReason:     res.ClosedReason,
+				ActivatedDate:    res.ActivatedDate,
+				ToBug:            res.ToBug,
+				ChildStories:     res.ChildStories,
+				LinkStories:      res.LinkStories,
+				LinkRequirements: res.LinkRequirements,
+				DuplicateStory:   res.DuplicateStory,
+				StoryChanged:     res.StoryChanged,
+				FeedbackBy:       res.FeedbackBy,
+				NotifyEmail:      res.NotifyEmail,
+				URChanged:        res.URChanged,
+				Deleted:          res.Deleted,
+				PriOrder:         res.PriOrder,
+				PlanTitle:        res.PlanTitle,
+			}
 			results := make([]interface{}, 0)
 			results = append(results, story)
 			return results, nil

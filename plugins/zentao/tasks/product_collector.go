@@ -28,28 +28,27 @@ import (
 	"net/url"
 )
 
-const RAW_EXECUTION_TABLE = "zentao_api_executions"
+const RAW_PRODUCT_TABLE = "zentao_api_products"
 
-var _ core.SubTaskEntryPoint = CollectExecution
+var _ core.SubTaskEntryPoint = CollectProduct
 
-func CollectExecution(taskCtx core.SubTaskContext) errors.Error {
+func CollectProduct(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				ProductId:    data.Options.ProductId,
 				ExecutionId:  data.Options.ExecutionId,
+				ProductId:    data.Options.ProductId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_EXECUTION_TABLE,
+			Table: RAW_PRODUCT_TABLE,
 		},
 		ApiClient: data.ApiClient,
-
-		PageSize: 100,
+		PageSize:  100,
 		// TODO write which api would you want request
-		UrlTemplate: "executions/{{ .Params.ExecutionId }}",
+		UrlTemplate: "products/{{ .Params.ProductId }}",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -61,7 +60,7 @@ func CollectExecution(taskCtx core.SubTaskContext) errors.Error {
 			body, err := io.ReadAll(res.Body)
 			res.Body.Close()
 			if err != nil {
-				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao execution collector")
+				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao product collector")
 			}
 			return []json.RawMessage{body}, nil
 		},
@@ -73,9 +72,9 @@ func CollectExecution(taskCtx core.SubTaskContext) errors.Error {
 	return collector.Execute()
 }
 
-var CollectExecutionMeta = core.SubTaskMeta{
-	Name:             "CollectExecution",
-	EntryPoint:       CollectExecution,
+var CollectProductMeta = core.SubTaskMeta{
+	Name:             "CollectProduct",
+	EntryPoint:       CollectProduct,
 	EnabledByDefault: true,
-	Description:      "Collect Execution data from Zentao api",
+	Description:      "Collect Product data from Zentao api",
 }

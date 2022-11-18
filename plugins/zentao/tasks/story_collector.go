@@ -28,7 +28,7 @@ import (
 	"net/url"
 )
 
-const RAW_STORY_TABLE = "zentao_stories"
+const RAW_STORY_TABLE = "zentao_api_stories"
 
 var _ core.SubTaskEntryPoint = CollectStory
 
@@ -38,21 +38,23 @@ func CollectStory(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
-				ProductId:   data.Options.ProductId,
-				ExecutionId: data.Options.ExecutionId,
-				ProjectId:   data.Options.ProjectId,
+				ConnectionId: data.Options.ConnectionId,
+				ProductId:    data.Options.ProductId,
+				ExecutionId:  data.Options.ExecutionId,
+				ProjectId:    data.Options.ProjectId,
 			},
 			Table: RAW_STORY_TABLE,
 		},
-		ApiClient:   data.ApiClient,
-		Incremental: false,
-		PageSize:    100,
+		ApiClient: data.ApiClient,
+
+		PageSize: 100,
 		// TODO write which api would you want request
-		UrlTemplate: "/executions/{{ .Params.ExecutionId }}/stories",
+		UrlTemplate: "/products/{{ .Params.ProjectId }}/stories",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
+			query.Set("status", "allstory")
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,

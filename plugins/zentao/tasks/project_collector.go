@@ -27,7 +27,7 @@ import (
 	"net/url"
 )
 
-const RAW_PROJECT_TABLE = "zentao_project"
+const RAW_PROJECT_TABLE = "zentao_api_projects"
 
 var _ core.SubTaskEntryPoint = CollectProject
 
@@ -35,13 +35,18 @@ func CollectProject(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:    taskCtx,
-			Params: ZentaoApiParams{},
-			Table:  RAW_PROJECT_TABLE,
+			Ctx: taskCtx,
+			Params: ZentaoApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				ExecutionId:  data.Options.ExecutionId,
+				ProductId:    data.Options.ProductId,
+				ProjectId:    data.Options.ProjectId,
+			},
+			Table: RAW_PROJECT_TABLE,
 		},
-		ApiClient:   data.ApiClient,
-		Incremental: false,
-		PageSize:    100,
+		ApiClient: data.ApiClient,
+
+		PageSize: 100,
 		// TODO write which api would you want request
 		UrlTemplate: "projects",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
