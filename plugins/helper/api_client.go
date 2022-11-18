@@ -84,10 +84,13 @@ func NewApiClient(
 	if err != nil {
 		return nil, errors.Default.New("Failed to resolve Port")
 	}
-	err = utils.CheckNetwork(parsedUrl.Hostname(), port, 10*time.Second)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "Failed to connect")
-	}
+
+    if proxy != "" {
+        err = utils.CheckNetwork(parsedUrl.Hostname(), port, 10*time.Second)
+        if err != nil {
+            return nil, errors.Default.Wrap(err, "Failed to connect")
+        }
+    }
 	apiClient := &ApiClient{}
 	apiClient.Setup(
 		endpoint,
