@@ -36,7 +36,9 @@ import { JIRAMillerColumns } from '@/components/jira'
 import JiraBoard from '@/models/JiraBoard'
 import { GitHubMillerColumns } from '@/components/github'
 import GitHubProject from '@/models/GithubProject'
+import { JenkinsMillerColumns } from '@/components/jenkins'
 import JenkinsJobsSelector from '@/components/blueprints/JenkinsJobsSelector'
+import JenkinsJob from '@/models/JenkinsJob'
 
 const DataScopes = (props) => {
   const {
@@ -319,19 +321,30 @@ const DataScopes = (props) => {
                   ) && (
                     <>
                       <h4>Jobs *</h4>
-                      <p>Select the job you would like to sync.</p>
-                      <JenkinsJobsSelector
-                        onFetch={fetchJenkinsJobs}
-                        isFetching={isFetchingJenkins}
-                        items={jenkinsJobs}
-                        selectedItems={selectedScopeEntities}
-                        onItemSelect={setScopeEntities}
-                        onClear={setScopeEntities}
-                        onRemove={setScopeEntities}
-                        disabled={isSaving}
-                        configuredConnection={configuredConnection}
-                        isLoading={isFetching}
-                      />
+                      <p>Select the jobs you would like to sync.</p>
+                      {!activeStep ? (
+                        <JenkinsJobsSelector
+                          onFetch={fetchJenkinsJobs}
+                          isFetching={isFetchingJenkins}
+                          items={jenkinsJobs}
+                          selectedItems={selectedScopeEntities}
+                          onItemSelect={setScopeEntities}
+                          onClear={setScopeEntities}
+                          onRemove={setScopeEntities}
+                          disabled={isSaving}
+                          configuredConnection={configuredConnection}
+                          isLoading={isFetching}
+                        />
+                      ) : (
+                        <JenkinsMillerColumns
+                          connectionId={configuredConnection.connectionId}
+                          onChangeItems={(items) =>
+                            setScopeEntities(
+                              items.map((it) => new JenkinsJob(it))
+                            )
+                          }
+                        />
+                      )}
                     </>
                   )}
 
