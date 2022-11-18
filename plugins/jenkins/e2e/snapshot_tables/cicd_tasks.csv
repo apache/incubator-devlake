@@ -1,6 +1,4 @@
 id,name,pipeline_id,result,status,type,environment,duration_sec,started_date,finished_date
-jenkins:JenkinsBuild:1:devlake #1,devlake,jenkins:JenkinsBuild:1:devlake #1,SUCCESS,DONE,,,14,2022-04-15T10:10:16.000+00:00,2022-04-15T10:10:30.000+00:00
-jenkins:JenkinsBuild:1:devlake #2,devlake,jenkins:JenkinsBuild:1:devlake #2,SUCCESS,DONE,,,2,2022-04-15T11:35:48.000+00:00,2022-04-15T11:35:50.000+00:00
 jenkins:JenkinsBuild:1:devlake #3,devlake,jenkins:JenkinsBuild:1:devlake #3,SUCCESS,DONE,,,1,2022-04-15T12:00:49.000+00:00,2022-04-15T12:00:50.000+00:00
 jenkins:JenkinsBuild:1:devlake #4,devlake,jenkins:JenkinsBuild:1:devlake #4,SUCCESS,DONE,,,13,2022-09-08T14:26:43.000+00:00,2022-09-08T14:26:56.000+00:00
 jenkins:JenkinsBuild:1:devlake #5,devlake,jenkins:JenkinsBuild:1:devlake #5,SUCCESS,DONE,,,1,2022-09-08T14:27:11.000+00:00,2022-09-08T14:27:12.000+00:00
@@ -18,9 +16,6 @@ jenkins:JenkinsBuild:1:dir-test » pipeline-test #1,pipeline-test,jenkins:Jenkin
 jenkins:JenkinsBuild:1:dir-test » pipeline-test #2,pipeline-test,jenkins:JenkinsBuild:1:dir-test » pipeline-test #2,SUCCESS,DONE,,,0,2022-09-08T14:26:51.000+00:00,2022-09-08T14:26:51.000+00:00
 jenkins:JenkinsBuild:1:dir-test » testfile #1,testfile,jenkins:JenkinsBuild:1:dir-test » testfile #1,SUCCESS,DONE,,,0,2022-07-21T06:40:00.000+00:00,2022-07-21T06:40:00.000+00:00
 jenkins:JenkinsBuild:1:dir-test » testfile #2,testfile,jenkins:JenkinsBuild:1:dir-test » testfile #2,SUCCESS,DONE,,,0,2022-09-08T14:26:52.000+00:00,2022-09-08T14:26:52.000+00:00
-jenkins:JenkinsBuild:1:pipeline-test2 #1,pipeline-test2,jenkins:JenkinsBuild:1:pipeline-test2 #1,SUCCESS,DONE,,,4,2022-09-08T15:40:13.000+00:00,2022-09-08T15:40:17.000+00:00
-jenkins:JenkinsBuild:1:pipeline-test2 #2,pipeline-test2,jenkins:JenkinsBuild:1:pipeline-test2 #2,SUCCESS,DONE,,,0,2022-09-08T15:40:33.000+00:00,2022-09-08T15:40:33.000+00:00
-jenkins:JenkinsBuild:1:pipeline-test2 #3,pipeline-test2,jenkins:JenkinsBuild:1:pipeline-test2 #3,SUCCESS,DONE,,,0,2022-09-08T15:40:48.000+00:00,2022-09-08T15:40:48.000+00:00
 jenkins:JenkinsBuild:1:测试流水线 #1,测试流水线,jenkins:JenkinsBuild:1:测试流水线 #1,SUCCESS,DONE,,,1,2022-09-08T14:26:45.000+00:00,2022-09-08T14:26:46.000+00:00
 jenkins:JenkinsBuild:1:测试流水线 #2,测试流水线,jenkins:JenkinsBuild:1:测试流水线 #2,SUCCESS,DONE,,,0,2022-09-08T14:27:12.000+00:00,2022-09-08T14:27:12.000+00:00
 jenkins:JenkinsBuild:1:测试流水线 #3,测试流水线,jenkins:JenkinsBuild:1:测试流水线 #3,SUCCESS,DONE,,,0,2022-09-08T15:40:49.000+00:00,2022-09-08T15:40:49.000+00:00

@@ -1,6 +1,7 @@
 connection_id,id,build_name,name,exec_node,status,start_time_millis,duration_millis,pause_duration_millis,type,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
-1,6,Auto Init Gitlab #1,gitlabInit,,FAILED,1583329644046,588,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13574,
-1,6,Auto Init Gitlab #18,gitlabInit,,FAILED,1584458835920,215100,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13575,
+1,6,devlake #1,gitlabInit,,FAILED,1583329644046,588,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13574,
+1,6,devlake #2,gitlabInit,,FAILED,1584458835920,215100,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13575,
+1,6,devlake 2,gitlabInit,,FAILED,1584458835920,215100,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13575,
 1,6,Auto Init Gitlab #19,gitlabInit,,ABORTED,1584497957140,5859,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13580,
 1,6,Auto Init Gitlab #23,gitlabInit,,ABORTED,1605767269680,248279,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13582,
 1,6,Auto Init Gitlab #58,gitlabInit,,ABORTED,1615296910614,1312274,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13578,
@@ -12,3 +13,7 @@ connection_id,id,build_name,name,exec_node,status,start_time_millis,duration_mil
 1,6,Test Gitlab Sync #3,gitlabAutoSync,,SUCCESS,1581076468986,14118,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13579,
 1,6,Test Gitlab Sync 11,gitlabAutoSync,,SUCCESS,1583981120136,86044,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13584,
 1,8,Pipeline expirement #5,scp-f/b,,FAILED,1572321694770,297,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13577,
+1,6,UItest10.90.0.66 #11,gitlabAutoSync,,SUCCESS,1583981120136,86044,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13584,
+1,6,UItest10.90.0.66 12,gitlabAutoSync,,SUCCESS,1583981120136,86044,0,,"{""ConnectionId"":1}",_raw_jenkins_api_stages,13584,
+1,7,UItest10.90.0.66 #14,gitlabAutoSync,,SUCCESS,1583981120136,86044,0,,"{""ConnectionId"":2}",_raw_jenkins_api_stages,13584,
+1,6,UItest10.90.0.66 13,gitlabAutoSync,,SUCCESS,1583981120136,86044,0,,"{""ConnectionId"":3}",_raw_jenkins_api_stages,13584,
