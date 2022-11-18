@@ -57,18 +57,20 @@ export const GitHubMillerColumns = ({ connectionId, onChangeItems }: Props) => {
   }, [seletedIds])
 
   return (
-    <MillerColumns
-      height={300}
-      columnCount={2}
-      firstColumnTitle='Organizations/Owners'
-      items={items}
-      selectedItemIds={seletedIds}
-      onSelectedItemIds={setSelectedIds}
-      onExpandItem={onExpandItem}
-      scrollProps={{
-        hasMore,
-        onScroll
-      }}
-    />
+    <div style={{ width: 450 }}>
+      <MillerColumns
+        height={300}
+        columnCount={2}
+        firstColumnTitle='Organizations/Owners'
+        items={items}
+        selectedItemIds={seletedIds}
+        onSelectedItemIds={setSelectedIds}
+        onExpandItem={onExpandItem}
+        scrollProps={{
+          hasMore,
+          onScroll
+        }}
+      />
+    </div>
   )
 }

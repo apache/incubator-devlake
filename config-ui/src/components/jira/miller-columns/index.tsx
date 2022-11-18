@@ -47,16 +47,18 @@ export const JIRAMillerColumns = ({ connectionId, onChangeItems }: Props) => {
   }, [seletedIds])
 
   return (
-    <MillerColumns
-      height={300}
-      columnCount={1}
-      items={items}
-      selectedItemIds={seletedIds}
-      onSelectedItemIds={setSelectedIds}
-      scrollProps={{
-        hasMore,
-        onScroll
-      }}
-    />
+    <div style={{ width: 450 }}>
+      <MillerColumns
+        height={300}
+        columnCount={1}
+        items={items}
+        selectedItemIds={seletedIds}
+        onSelectedItemIds={setSelectedIds}
+        scrollProps={{
+          hasMore,
+          onScroll
+        }}
+      />
+    </div>
   )
 }

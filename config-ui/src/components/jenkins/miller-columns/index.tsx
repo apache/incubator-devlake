@@ -16,50 +16,58 @@
  *
  */
 
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
-import type { ItemType } from '@/components/miller-columns'
-import { MillerColumns, ItemTypeEnum } from '@/components/miller-columns'
+import { ItemType, ItemTypeEnum } from '@/components/miller-columns'
+import { MillerColumns } from '@/components/miller-columns'
 
 import {
-  useGitLabMillerColumns,
-  UseGitLabMillerColumnsProps
-} from './use-gitlab-miller-columns'
+  useJenkinsMillerColumns,
+  UseJenkinsMillerColumnsProps
+} from './use-jenkins-miller-columns'
 
-interface Props extends UseGitLabMillerColumnsProps {
-  disabledItemIds?: Array<number>
+interface Props extends UseJenkinsMillerColumnsProps {
   onChangeItems: (items: Array<Pick<ItemType, 'id' | 'title'>>) => void
 }
 
-export const GitLabMillerColumns = ({
+export const JenkinsMillerColumns = ({
   connectionId,
-  disabledItemIds,
   onChangeItems
 }: Props) => {
   const [seletedIds, setSelectedIds] = useState<Array<ItemType['id']>>([])
 
-  const { items, onExpandItem, hasMore, onScroll } = useGitLabMillerColumns({
+  const { items, onExpandItem, hasMore } = useJenkinsMillerColumns({
     connectionId
   })
 
   useEffect(() => {
-    const curItems = items.filter((it) => seletedIds.includes(it.id))
-    onChangeItems(curItems)
+    onChangeItems(
+      items
+        .filter(
+          (it) => seletedIds.includes(it.id) && it.type !== ItemTypeEnum.BRANCH
+        )
+        .map((it: any) => ({
+          id: it.id,
+          key: it.id,
+          title: it.title,
+          value: it.title,
+          jobPath: it.jobPath || null
+        }))
+    )
   }, [seletedIds])
 
   return (
     <div style={{ width: 450 }}>
       <MillerColumns
         height={300}
-        firstColumnTitle='Subgroups/Projects'
+        columnCount={2}
         items={items}
-        disabledItemIds={disabledItemIds}
         selectedItemIds={seletedIds}
         onSelectedItemIds={setSelectedIds}
         onExpandItem={onExpandItem}
         scrollProps={{
           hasMore,
-          onScroll
+          onScroll: () => {}
         }}
       />
     </div>
