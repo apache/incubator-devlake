@@ -55,6 +55,15 @@ func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, map[uint64][
 	if query.Enable != nil {
 		dbQuery = dbQuery.Where("enable = ?", *query.Enable)
 	}
+	if query.IsManual != nil {
+		dbQuery = dbQuery.Where("is_manual = ?", *query.IsManual)
+	}
+	if query.ParallelLabel != "" {
+		dbQuery = dbQuery.
+			Joins(`left join _devlake_blueprint_parallel_labels ON
+                  _devlake_blueprint_parallel_labels.blueprint_id = _devlake_blueprints.id`).
+			Where(`_devlake_blueprint_parallel_labels.name = ?`, query.ParallelLabel)
+	}
 
 	var count int64
 	err := dbQuery.Count(&count).Error
@@ -96,7 +105,7 @@ func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, []models.DbBluep
 	dbParallelLabels := []models.DbBlueprintParallelLabel{}
 	err = db.Find(&dbParallelLabels, "blueprint_id = ?", dbBlueprint.ID).Error
 	if err != nil {
-		return nil, nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
+		return nil, nil, errors.Internal.Wrap(err, "error getting the blueprint from database")
 	}
 	return dbBlueprint, dbParallelLabels, nil
 }

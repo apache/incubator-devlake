@@ -81,7 +81,7 @@ GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
 */
 
 // @Summary Get list of pipelines
-// @Description GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
+// @Description GET /pipelines?status=TASK_RUNNING&pending=1&parallel_label=search_text&page=1&pagesize=10
 // @Tags framework/pipelines
 // @Param status query string false "status"
 // @Param pending query int false "pending"

@@ -34,12 +34,13 @@ import (
 	"gorm.io/gorm"
 )
 
-// BlueprintQuery FIXME ...
+// BlueprintQuery is a query for GetBlueprints
 type BlueprintQuery struct {
-	Enable   *bool `form:"enable,omitempty"`
-	IsManual *bool `form:"is_manual"`
-	Page     int   `form:"page"`
-	PageSize int   `form:"pageSize"`
+	Enable        *bool  `form:"enable,omitempty"`
+	IsManual      *bool  `form:"is_manual"`
+	Page          int    `form:"page"`
+	PageSize      int    `form:"pageSize"`
+	ParallelLabel string `form:"parallel_label"`
 }
 
 var (
