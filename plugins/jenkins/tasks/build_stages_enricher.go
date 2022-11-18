@@ -18,15 +18,13 @@ limitations under the License.
 package tasks
 
 import (
+	goerror "errors"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"strconv"
-	"strings"
+	"gorm.io/gorm"
 )
-
-// this struct should be moved to `gitub_api_common.go`
 
 var EnrichApiBuildWithStagesMeta = core.SubTaskMeta{
 	Name:             "enrichApiBuildWithStages",
@@ -63,15 +61,11 @@ func EnrichApiBuildWithStages(taskCtx core.SubTaskContext) errors.Error {
 		}
 		build := &models.JenkinsBuild{}
 		build.ConnectionId = data.Options.ConnectionId
-		str := strings.Split(buildName, "#")
-		build.JobName = strings.TrimSpace(str[0])
-		var number int
-		number, err = errors.Convert01(strconv.Atoi(strings.TrimSpace(str[1])))
-		if err != nil {
-			return err
-		}
-		build.Number = int64(number)
+		build.FullDisplayName = buildName
 		err = db.First(build)
+		if goerror.Is(err, gorm.ErrRecordNotFound) {
+			continue
+		}
 		if err != nil {
 			return errors.Convert(err)
 		}

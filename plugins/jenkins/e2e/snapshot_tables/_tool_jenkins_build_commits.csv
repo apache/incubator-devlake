@@ -7,3 +7,4 @@ connection_id,build_name,commit_sha,branch,repo_url,_raw_data_params,_raw_data_t
 1,devlake #6,20139afef3c6ec9f3ebffcb06e243b145cbef8c6,refs/remotes/origin/main,https://github.com/merico-dev/lake.git,"{""ConnectionId"":1}",_raw_jenkins_api_builds,90,
 1,devlake #7,0006e8105d70318aff5eeee38d405fa181a32aa0,refs/remotes/origin/main,https://github.com/merico-dev/lake.git,"{""ConnectionId"":1}",_raw_jenkins_api_builds,89,
 1,devlake #8,0006e8105d70318aff5eeee38d405fa181a32aa0,refs/remotes/origin/main,https://github.com/merico-dev/lake.git,"{""ConnectionId"":1}",_raw_jenkins_api_builds,88,
+1,devlake 2,0f886c74949c3ee7e489188911c7dc0c1d547418,refs/remotes/origin/main,https://github.com/merico-dev/lake.git,"{""ConnectionId"":1}",_raw_jenkins_api_builds,994,
