@@ -19,10 +19,9 @@ package models
 
 import (
 	"encoding/json"
-
-	"github.com/apache/incubator-devlake/errors"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 )

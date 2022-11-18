@@ -351,7 +351,6 @@ func TriggerBlueprint(id uint64) (*models.Pipeline, errors.Error) {
 		return nil, err
 	}
 
-	fmt.Println(blueprint.ParallelLabels)
 	pipeline, err := createPipelineByBlueprint(blueprint, blueprint.Name, plan)
 	// done
 	return pipeline, err

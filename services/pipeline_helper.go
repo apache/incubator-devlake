@@ -200,6 +200,7 @@ func parsePipeline(dbPipeline *models.DbPipeline, parallelLabelModels []models.D
 }
 
 // parseDbPipeline converts Pipeline to DbPipeline
+// nolint:unused
 func parseDbPipeline(pipeline *models.Pipeline) (*models.DbPipeline, []models.DbPipelineParallelLabel) {
 	dbPipeline := models.DbPipeline{
 		Model:         pipeline.Model,

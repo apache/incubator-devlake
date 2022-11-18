@@ -147,7 +147,9 @@ func parseDbBlueprint(blueprint *models.Blueprint) (*models.DbBlueprint, []model
 	parallelLabels := []models.DbBlueprintParallelLabel{}
 	for _, label := range blueprint.ParallelLabels {
 		parallelLabels = append(parallelLabels, models.DbBlueprintParallelLabel{
-			Name: label,
+			// NOTICE: BlueprintId may be nil
+			BlueprintId: blueprint.ID,
+			Name:        label,
 		})
 	}
 	return &dbBlueprint, parallelLabels
