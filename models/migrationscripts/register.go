@@ -57,5 +57,6 @@ func All() []core.MigrationScript {
 		new(addSkipOnFail),
 		new(modifyCommitsDiffs),
 		new(addProjectTables),
+		new(addProjectToBluePrint),
 	}
 }
