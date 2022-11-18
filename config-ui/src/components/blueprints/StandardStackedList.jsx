@@ -94,6 +94,8 @@ const StandardStackedList = (props) => {
                   >
                     {item.shortTitle || item.title}
                   </Popover>
+                ) : item.providerId === 'jenkins' ? (
+                  `${item.jobPath}${item.title}`
                 ) : (
                   item.title
                 )}

@@ -38,6 +38,7 @@ class JenkinsJob extends Entity {
     this.name = data?.name || null
     this.value = data?.value || this.name || this.id || null
     this.title = data?.title || this.name || this.id || null
+    this.jobPath = data?.jobPath || ''
 
     this.useApi = data?.useApi || true
     this.variant = data?.variant || 'job'
@@ -50,7 +51,8 @@ class JenkinsJob extends Entity {
 
   getTransformationScopeOptions() {
     return {
-      jobName: this.value
+      jobName: this.value,
+      jobPath: this.jobPath
     }
   }
 }

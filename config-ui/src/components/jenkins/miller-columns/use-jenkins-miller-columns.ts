@@ -95,7 +95,7 @@ export const useJenkinsMillerColumns = ({
         title: it.name,
         type: it.jobs ? ItemTypeEnum.BRANCH : ItemTypeEnum.LEAF,
         status: it.jobs ? ItemStatusEnum.PENDING : ItemStatusEnum.READY,
-        fullPath: `${jobs.join('/')}/${it.name}`
+        jobPath: `${jobs.join('/')}/`
       }))
     ])
   }

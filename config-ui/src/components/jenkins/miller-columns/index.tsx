@@ -49,8 +49,9 @@ export const JenkinsMillerColumns = ({
         .map((it: any) => ({
           id: it.id,
           key: it.id,
-          title: it.fullPath || it.title,
-          value: it.fullPath || it.title
+          title: it.title,
+          value: it.title,
+          jobPath: it.jobPath || null
         }))
     )
   }, [seletedIds])
