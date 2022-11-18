@@ -41,14 +41,14 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 		Job: &models.JenkinsJob{FullName: "Test-jenkins-dir » test-jenkins-sub-dir » test-sub-sub-dir » devlake"},
 	}
 
-	// import raw data table
-	// SELECT * FROM _raw_jenkins_api_builds INTO OUTFILE "/tmp/_raw_jenkins_api_builds.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jenkins_api_builds.csv", "_raw_jenkins_api_builds")
-
-	// verify extraction
 	dataflowTester.FlushTabler(&models.JenkinsBuild{})
 	dataflowTester.FlushTabler(&models.JenkinsBuildCommit{})
 	dataflowTester.FlushTabler(&models.JenkinsStage{})
+
+	// import raw data table
+	// SELECT * FROM _raw_jenkins_api_builds INTO OUTFILE "/tmp/_raw_jenkins_api_builds.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jenkins_api_builds.csv", "_raw_jenkins_api_builds")
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_jenkins_stages.csv", &models.JenkinsStage{})
 
 	dataflowTester.Subtask(tasks.ExtractApiBuildsMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -65,6 +65,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"result",
 			"timestamp",
 			"start_time",
+			"has_stages",
 		),
 	)
 
@@ -84,6 +85,18 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
 	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 	dataflowTester.Subtask(tasks.EnrichApiBuildWithStagesMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.JenkinsBuild{},
+		"./snapshot_tables/_tool_jenkins_builds_after_enrich.csv",
+		[]string{
+			"connection_id",
+			"job_name",
+			"duration",
+			"full_display_name",
+			"has_stages",
+		},
+	)
+
 	dataflowTester.Subtask(tasks.ConvertBuildsToCICDMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertBuildReposMeta, taskData)
 
