@@ -16,31 +16,31 @@
  *
  */
 
-import styled from '@emotion/styled'
+import { useState, useEffect, useMemo } from 'react'
 
-export const Container = styled.div<{ height?: number; columnCount: number }>`
-  margin: 0;
-  padding: 0;
-  ${({ columnCount }) => `
-    flex: 0 0 ${100 / columnCount}%;
-    width: ${100 / columnCount}%;
-  `}
-  ${({ height }) => `height: ${height}px;`}
-  list-style: none;
-  border-left: 1px solid #dbe4fd;
-  overflow-y: auto;
+import type { MillerColumnsItem } from '../types'
 
-  &:first-child {
-    border-left: none;
+export interface UseConvertItemsProps {
+  items: Array<MillerColumnsItem>
+}
+
+export const useConvertItems = ({ items }: UseConvertItemsProps) => {
+  const [convertItems, setConvertItems] = useState<Array<MillerColumnsItem>>([])
+
+  const flatItems = (items: Array<MillerColumnsItem>) => {
+    let result: Array<MillerColumnsItem> = []
+    items.forEach((it) => {
+      result.push(it)
+      if (it.items) {
+        result.push(...flatItems(it.items))
+      }
+    })
+    return result
   }
 
-  & > .title {
-    padding: 4px 12px;
-    font-weight: 700;
-    color: #292b3f;
-  }
-`
+  useEffect(() => {
+    setConvertItems(flatItems(items))
+  }, [items])
 
-export const StatusWrapper = styled.div`
-  padding: 4px 12px;
-`
+  return useMemo(() => convertItems, [convertItems])
+}

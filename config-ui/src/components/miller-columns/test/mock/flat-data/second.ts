@@ -16,31 +16,30 @@
  *
  */
 
-import styled from '@emotion/styled'
-
-export const Container = styled.div<{ height?: number; columnCount: number }>`
-  margin: 0;
-  padding: 0;
-  ${({ columnCount }) => `
-    flex: 0 0 ${100 / columnCount}%;
-    width: ${100 / columnCount}%;
-  `}
-  ${({ height }) => `height: ${height}px;`}
-  list-style: none;
-  border-left: 1px solid #dbe4fd;
-  overflow-y: auto;
-
-  &:first-child {
-    border-left: none;
+export const flatDataSecond = [
+  {
+    parentId: '2',
+    id: '2-1',
+    title: '2-1'
+  },
+  {
+    parentId: '2',
+    id: '2-2',
+    title: '2-2'
+  },
+  {
+    parentId: '2',
+    id: '2-3',
+    title: '2-3'
+  },
+  {
+    parentId: '2',
+    id: '2-4',
+    title: '2-4'
+  },
+  {
+    parentId: '2',
+    id: '2-5',
+    title: '2-5'
   }
-
-  & > .title {
-    padding: 4px 12px;
-    font-weight: 700;
-    color: #292b3f;
-  }
-`
-
-export const StatusWrapper = styled.div`
-  padding: 4px 12px;
-`
+]

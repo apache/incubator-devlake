@@ -16,31 +16,4 @@
  *
  */
 
-import styled from '@emotion/styled'
-
-export const Container = styled.div<{ height?: number; columnCount: number }>`
-  margin: 0;
-  padding: 0;
-  ${({ columnCount }) => `
-    flex: 0 0 ${100 / columnCount}%;
-    width: ${100 / columnCount}%;
-  `}
-  ${({ height }) => `height: ${height}px;`}
-  list-style: none;
-  border-left: 1px solid #dbe4fd;
-  overflow-y: auto;
-
-  &:first-child {
-    border-left: none;
-  }
-
-  & > .title {
-    padding: 4px 12px;
-    font-weight: 700;
-    color: #292b3f;
-  }
-`
-
-export const StatusWrapper = styled.div`
-  padding: 4px 12px;
-`
+export * from './miller-columns'

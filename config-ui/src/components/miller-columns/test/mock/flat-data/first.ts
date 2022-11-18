@@ -16,31 +16,44 @@
  *
  */
 
-import styled from '@emotion/styled'
+import { ItemTypeEnum, ItemStatusEnum } from '../../..'
 
-export const Container = styled.div<{ height?: number; columnCount: number }>`
-  margin: 0;
-  padding: 0;
-  ${({ columnCount }) => `
-    flex: 0 0 ${100 / columnCount}%;
-    width: ${100 / columnCount}%;
-  `}
-  ${({ height }) => `height: ${height}px;`}
-  list-style: none;
-  border-left: 1px solid #dbe4fd;
-  overflow-y: auto;
-
-  &:first-child {
-    border-left: none;
+export const flatDataFirst = [
+  {
+    parentId: null,
+    id: '1',
+    title: '1'
+  },
+  {
+    parentId: null,
+    id: '2',
+    title: '2',
+    type: ItemTypeEnum.BRANCH,
+    status: ItemStatusEnum.PENDING
+  },
+  {
+    parentId: null,
+    id: '3',
+    title: '3'
+  },
+  {
+    parentId: '1',
+    id: '1-1',
+    title: '1-1'
+  },
+  {
+    parentId: '1',
+    id: '1-2',
+    title: '1-2'
+  },
+  {
+    parentId: '1-1',
+    id: '1-1-1',
+    title: '1-1-1'
+  },
+  {
+    parentId: '1-1-1',
+    id: '1-1-1-1',
+    title: '1-1-1-1'
   }
-
-  & > .title {
-    padding: 4px 12px;
-    font-weight: 700;
-    color: #292b3f;
-  }
-`
-
-export const StatusWrapper = styled.div`
-  padding: 4px 12px;
-`
+]

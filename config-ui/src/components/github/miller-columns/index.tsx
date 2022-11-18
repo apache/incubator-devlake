@@ -16,43 +16,52 @@
  *
  */
 
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
-import type { ItemType } from '@/components/miller-columns'
-import { MillerColumns, ItemTypeEnum } from '@/components/miller-columns'
+import { ItemType, ItemTypeEnum } from '@/components/miller-columns'
+import { MillerColumns } from '@/components/miller-columns'
 
 import {
-  useGitLabMillerColumns,
-  UseGitLabMillerColumnsProps
-} from './use-gitlab-miller-columns'
+  useGitHubMillerColumns,
+  UseGitHubMillerColumnsProps
+} from './use-github-miller-columns'
 
-interface Props extends UseGitLabMillerColumnsProps {
-  disabledItemIds?: Array<number>
+interface Props extends UseGitHubMillerColumnsProps {
   onChangeItems: (items: Array<Pick<ItemType, 'id' | 'title'>>) => void
 }
 
-export const GitLabMillerColumns = ({
-  connectionId,
-  disabledItemIds,
-  onChangeItems
-}: Props) => {
+export const GitHubMillerColumns = ({ connectionId, onChangeItems }: Props) => {
   const [seletedIds, setSelectedIds] = useState<Array<ItemType['id']>>([])
 
-  const { items, onExpandItem, hasMore, onScroll } = useGitLabMillerColumns({
+  const { items, onExpandItem, hasMore, onScroll } = useGitHubMillerColumns({
     connectionId
   })
 
   useEffect(() => {
-    const curItems = items.filter((it) => seletedIds.includes(it.id))
-    onChangeItems(curItems)
+    onChangeItems(
+      items
+        .filter(
+          (it) => seletedIds.includes(it.id) && it.type !== ItemTypeEnum.BRANCH
+        )
+        .map((it: any) => {
+          return {
+            id: it.id,
+            title: `${it.owner}/${it.repo}`,
+            owner: it.owner,
+            repo: it.repo,
+            value: `${it.owner}/${it.repo}`,
+            type: 'miller-columns'
+          }
+        })
+    )
   }, [seletedIds])
 
   return (
     <MillerColumns
       height={300}
-      firstColumnTitle='Subgroups/Projects'
+      columnCount={2}
+      firstColumnTitle='Organizations/Owners'
       items={items}
-      disabledItemIds={disabledItemIds}
       selectedItemIds={seletedIds}
       onSelectedItemIds={setSelectedIds}
       onExpandItem={onExpandItem}

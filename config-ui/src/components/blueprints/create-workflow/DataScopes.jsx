@@ -34,6 +34,7 @@ import { GitLabMillerColumns, GitLabProjectSelector } from '@/components/gitlab'
 import GitlabProject from '@/models/GitlabProject'
 import { JIRAMillerColumns } from '@/components/jira'
 import JiraBoard from '@/models/JiraBoard'
+import { GitHubMillerColumns } from '@/components/github'
 import GitHubProject from '@/models/GithubProject'
 import JenkinsJobsSelector from '@/components/blueprints/JenkinsJobsSelector'
 
@@ -136,18 +137,45 @@ const DataScopes = (props) => {
                     configuredConnection.provider
                   ) && (
                     <>
-                      <h4>Projects *</h4>
-                      <p>Enter the project names you would like to sync.</p>
+                      <h4>Repositories *</h4>
+                      {!!activeStep && (
+                        <>
+                          <p>Select the repositories you would like to sync.</p>
+                          <GitHubMillerColumns
+                            connectionId={configuredConnection.connectionId}
+                            onChangeItems={(items) =>
+                              setScopeEntities([
+                                ...scopeEntitiesGroup[
+                                  configuredConnection.id
+                                ].filter((it) => it.type !== 'miller-columns'),
+                                ...items.map((it) => new GitHubProject(it))
+                              ])
+                            }
+                          />
+                        </>
+                      )}
+                      <div style={{ margin: '16px 0 8px' }}>
+                        Add repositories outside of your organizations
+                      </div>
+                      <p>
+                        Enter the repositories using the format “owner/repo” and
+                        separate multiple repos with a comma.
+                      </p>
                       <TagInput
                         id='project-id'
                         disabled={isRunning}
                         placeholder='username/repo, username/another-repo'
                         values={
-                          selectedScopeEntities?.map((p) => p.value) || []
+                          selectedScopeEntities
+                            ?.filter((it) => it.type !== 'miller-columns')
+                            .map((p) => p.value) || []
                         }
                         fill={true}
                         onChange={(values) =>
                           setScopeEntities([
+                            ...scopeEntitiesGroup[
+                              configuredConnection.id
+                            ].filter((it) => it.type === 'miller-columns'),
                             ...values.map(
                               (v, vIdx) =>
                                 new GitHubProject({

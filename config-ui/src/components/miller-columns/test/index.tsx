@@ -16,31 +16,32 @@
  *
  */
 
-import styled from '@emotion/styled'
+import React, { useState } from 'react'
 
-export const Container = styled.div<{ height?: number; columnCount: number }>`
-  margin: 0;
-  padding: 0;
-  ${({ columnCount }) => `
-    flex: 0 0 ${100 / columnCount}%;
-    width: ${100 / columnCount}%;
-  `}
-  ${({ height }) => `height: ${height}px;`}
-  list-style: none;
-  border-left: 1px solid #dbe4fd;
-  overflow-y: auto;
+import { MillerColumns, MillerColumnsItem } from '..'
 
-  &:first-child {
-    border-left: none;
-  }
+import { useTest } from './use-test'
 
-  & > .title {
-    padding: 4px 12px;
-    font-weight: 700;
-    color: #292b3f;
-  }
-`
+export const TestMillerColumns = () => {
+  const [selectedIds, setSelectedIds] = useState<
+    Array<MillerColumnsItem['id']>
+  >([])
 
-export const StatusWrapper = styled.div`
-  padding: 4px 12px;
-`
+  const { items, onExpandItem, hasMore, onScroll } = useTest()
+
+  return (
+    <MillerColumns
+      height={100}
+      columnCount={4}
+      firstColumnTitle='TestMillerColumns'
+      items={items}
+      selectedItemIds={selectedIds}
+      onSelectedItemIds={setSelectedIds}
+      onExpandItem={onExpandItem}
+      scrollProps={{
+        hasMore,
+        onScroll
+      }}
+    />
+  )
+}

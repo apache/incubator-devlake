@@ -18,7 +18,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 
-import type { ItemType } from '@/components/miller-columns'
+import type { MillerColumnsItem } from '@/components/miller-columns'
 import { ItemTypeEnum, ItemStatusEnum } from '@/components/miller-columns'
 
 import request from '@/components/utils/request'
@@ -32,7 +32,7 @@ export interface UseJIRAMillerColumnsProps {
 export const useJIRAMillerColumns = ({
   connectionId
 }: UseJIRAMillerColumnsProps) => {
-  const [items, setItems] = useState<Array<ItemType>>([])
+  const [items, setItems] = useState<Array<MillerColumnsItem>>([])
   const [hasMore, setHasMore] = useState(true)
   const [page, setPage] = useState(1)
   const [pageSize] = useState(50)
@@ -41,6 +41,7 @@ export const useJIRAMillerColumns = ({
 
   const updateItems = (arr: Array<{ id: number; name: string }>) =>
     arr.map((it) => ({
+      parentId: null,
       id: it.id,
       title: it.name,
       type: ItemTypeEnum.LEAF,
