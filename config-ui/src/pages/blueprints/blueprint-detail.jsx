@@ -140,7 +140,7 @@ const BlueprintDetail = (props) => {
 
   const runBlueprint = useCallback(() => {
     if (activeBlueprint !== null) {
-      runPipeline()
+      runPipeline(activeBlueprint.id)
     }
   }, [activeBlueprint, runPipeline])
 

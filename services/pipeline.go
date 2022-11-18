@@ -202,18 +202,16 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 			pipelineParallelLabels = append(pipelineParallelLabels, dbParallelLabel.Name)
 		}
 		runningParallelLabels = append(runningParallelLabels, pipelineParallelLabels...)
-		globalPipelineLog.Info("now running runningParallelLabels is, %s", runningParallelLabels)
+		globalPipelineLog.Info("now running runningParallelLabels is %s", runningParallelLabels)
 
 		go func(pipelineId uint64, parallelLabels []string) {
 			defer sema.Release(1)
 			defer func() {
 				runningParallelLabels = utils.SliceRemove(runningParallelLabels, parallelLabels...)
-				globalPipelineLog.Info("finish pipeline, %d", pipelineId)
-				globalPipelineLog.Info("now finish runningParallelLabels is, %s", runningParallelLabels)
+				globalPipelineLog.Info("finish pipeline #%d, now runningParallelLabels is %s", pipelineId, runningParallelLabels)
 			}()
 			globalPipelineLog.Info("run pipeline, %d", pipelineId)
-			//err = runPipeline(pipelineId)
-			time.Sleep(time.Second * 10)
+			err = runPipeline(pipelineId)
 			if err != nil {
 				globalPipelineLog.Error(err, "failed to run pipeline %d", pipelineId)
 			}

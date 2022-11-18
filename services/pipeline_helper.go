@@ -53,21 +53,24 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, []mo
 		return nil, nil, err
 	}
 
-	var parallelLabelModels []models.DbPipelineParallelLabel
-	for _, label := range newPipeline.ParallelLabels {
-		parallelLabelModels = append(parallelLabelModels, models.DbPipelineParallelLabel{
-			Name: label,
-		})
-	}
-
 	// save pipeline to database
 	if err := db.Create(&dbPipeline).Error; err != nil {
 		globalPipelineLog.Error(err, "create pipeline failed: %v", err)
 		return nil, nil, errors.Internal.Wrap(err, "create pipeline failed")
 	}
-	if err := db.Create(&parallelLabelModels).Error; err != nil {
-		globalPipelineLog.Error(err, "create pipeline's parallelLabelModels failed: %v", err)
-		return nil, nil, errors.Internal.Wrap(err, "create pipeline's parallelLabelModels failed")
+
+	var parallelLabelModels []models.DbPipelineParallelLabel
+	for _, label := range newPipeline.ParallelLabels {
+		parallelLabelModels = append(parallelLabelModels, models.DbPipelineParallelLabel{
+			PipelineId: dbPipeline.ID,
+			Name:       label,
+		})
+	}
+	if len(parallelLabelModels) > 0 {
+		if err := db.Create(&parallelLabelModels).Error; err != nil {
+			globalPipelineLog.Error(err, "create pipeline's parallelLabelModels failed: %v", err)
+			return nil, nil, errors.Internal.Wrap(err, "create pipeline's parallelLabelModels failed")
+		}
 	}
 
 	// create tasks accordingly
@@ -215,7 +218,9 @@ func parseDbPipeline(pipeline *models.Pipeline) (*models.DbPipeline, []models.Db
 	parallelLabels := []models.DbPipelineParallelLabel{}
 	for _, label := range pipeline.ParallelLabels {
 		parallelLabels = append(parallelLabels, models.DbPipelineParallelLabel{
-			Name: label,
+			// NOTICE: PipelineId may be nil
+			PipelineId: pipeline.ID,
+			Name:       label,
 		})
 	}
 	return &dbPipeline, parallelLabels

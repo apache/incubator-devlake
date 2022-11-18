@@ -60,5 +60,6 @@ func All() []core.MigrationScript {
 		new(addProjectTables),
 		new(addProjectToBluePrint),
 		new(addProjectIssueMetric),
+		new(addParallelLabels),
 	}
 }
