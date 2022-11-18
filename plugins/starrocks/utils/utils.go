@@ -15,14 +15,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package utils
 
 import (
 	"fmt"
 	"strings"
 )
 
-func getTablesByDomainLayer(domainLayer string) []string {
+// GetTablesByDomainLayer return the tables of the DomainLayer
+func GetTablesByDomainLayer(domainLayer string) []string {
 	switch domainLayer {
 	case "code":
 		return []string{
@@ -91,7 +92,8 @@ func stringIn(s string, l ...string) bool {
 	return false
 }
 
-func getStarRocksDataType(dataType string) string {
+// GetStarRocksDataType analysis and return the data type of StarRocks
+func GetStarRocksDataType(dataType string) string {
 	dataType = strings.ToLower(dataType)
 	starrocksDatatype := "string"
 	if hasPrefixes(dataType, "datetime", "timestamp") {
@@ -119,7 +121,7 @@ func getStarRocksDataType(dataType string) string {
 	} else if dataType == "uuid" {
 		starrocksDatatype = "char(36)"
 	} else if strings.HasSuffix(dataType, "[]") {
-		starrocksDatatype = fmt.Sprintf("array<%s>", getStarRocksDataType(strings.Split(dataType, "[]")[0]))
+		starrocksDatatype = fmt.Sprintf("array<%s>", GetStarRocksDataType(strings.Split(dataType, "[]")[0]))
 	}
 	return starrocksDatatype
 }
