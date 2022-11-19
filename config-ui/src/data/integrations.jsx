@@ -30,6 +30,7 @@ import { ReactComponent as JenkinsProvider } from '@/images/integrations/jenkins
 import { ReactComponent as JiraProvider } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProvider } from '@/images/integrations/github.svg'
 import { ReactComponent as TapdProvider } from '@/images/integrations/tapd.svg'
+import { ReactComponent as ZentaoProvider } from '@/images/integrations/zentao.svg'
 import { ReactComponent as AzureProvider } from '@/images/integrations/azure.svg'
 import { ReactComponent as BitbucketProvider } from '@/images/integrations/bitbucket.svg'
 import { ReactComponent as GiteeProvider } from '@/images/integrations/gitee.svg'
@@ -98,6 +99,27 @@ const integrationsData = [
     ),
     iconDashboard: (
       <TapdProvider className='providerIconSvg' width='40' height='40' />
+    ),
+    // relocated to ProviderTransformationSettings since v0.12.0
+    settings: {}
+  },
+  {
+    id: Providers.ZENTAO,
+    type: ProviderTypes.INTEGRATION,
+    enabled: true,
+    multiConnection: true,
+    isBeta: true,
+    name: ProviderLabels.ZENTAO,
+    icon: (
+      <ZentaoProvider
+        className='providerIconSvg'
+        width='30'
+        height='30'
+        style={{ float: 'left', marginTop: '5px' }}
+      />
+    ),
+    iconDashboard: (
+      <ZentaoProvider className='providerIconSvg' width='40' height='40' />
     ),
     // relocated to ProviderTransformationSettings since v0.12.0
     settings: {}

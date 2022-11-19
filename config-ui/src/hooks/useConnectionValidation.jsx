@@ -96,6 +96,7 @@ function useConnectionValidation({
         }
         break
       case Providers.JIRA:
+      case Providers.ZENTAO:
       case Providers.JENKINS:
         if (!username || username.length <= 2) {
           errs.push('Username is required')

@@ -273,7 +273,8 @@ export default function ConfigureConnection() {
                         {[
                           Providers.GITLAB,
                           Providers.JIRA,
-                          Providers.TAPD
+                          Providers.TAPD,
+                          Providers.ZENTAO
                         ].includes(activeProvider?.id) && (
                           <h2 style={{ margin: 0 }}>
                             #{activeConnection?.id} {activeConnection.name}

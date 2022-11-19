@@ -77,6 +77,7 @@ const DataTransformations = (props) => {
   const noTransformationsAvailable = useMemo(
     () =>
       [Providers.TAPD].includes(configuredConnection?.provider) ||
+      [Providers.ZENTAO].includes(configuredConnection?.provider) ||
       ([Providers.GITLAB].includes(configuredConnection?.provider) &&
         dataDomainsGroup[configuredConnection?.id].every(
           (e) => e.value !== DataDomainTypes.DEVOPS
@@ -86,6 +87,7 @@ const DataTransformations = (props) => {
       configuredConnection?.id,
       dataDomainsGroup,
       Providers.TAPD,
+      Providers.ZENTAO,
       Providers.GITLAB
     ]
   )

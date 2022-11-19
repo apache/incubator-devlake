@@ -25,6 +25,7 @@ import GithubSettings from '@/pages/configure/settings/github'
 import AzureSettings from '@/pages/configure/settings/azure'
 import BitbucketSettings from '@/pages/configure/settings/bitbucket'
 import GiteeSettings from '@/pages/configure/settings/gitee'
+import ZentaoSettings from '@/pages/configure/settings/zentao'
 
 // Transformation Higher-Order Component (HOC) Settings Loader
 const withTransformationSettings = (
@@ -70,6 +71,7 @@ const ProviderTransformationSettings = (props) => {
       [Providers.JIRA]: JiraSettings,
       [Providers.JENKINS]: JenkinsSettings,
       [Providers.TAPD]: TapdSettings,
+      [Providers.ZENTAO]: ZentaoSettings,
       [Providers.AZURE]: AzureSettings,
       [Providers.BITBUCKET]: BitbucketSettings,
       [Providers.GITEE]: GiteeSettings
