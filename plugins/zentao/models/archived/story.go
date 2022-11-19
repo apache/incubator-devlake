@@ -77,7 +77,6 @@ type ZentaoStory struct {
 	LinkRequirements string     `json:"linkRequirements"`
 	DuplicateStory   uint64     `json:"duplicateStory"`
 	StoryChanged     string     `json:"storyChanged"`
-	FeedbackById     uint64     `json:"feedbackBy"`
 	NotifyEmail      string     `json:"notifyEmail"`
 	URChanged        string     `json:"URChanged"`
 	Deleted          bool       `json:"deleted"`

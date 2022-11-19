@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"io"
 	"net/http"
 	"net/url"
 )
@@ -61,11 +60,9 @@ func CollectTask(taskCtx core.SubTaskContext) errors.Error {
 			var data struct {
 				Task []json.RawMessage `json:"tasks"`
 			}
-			body, err := io.ReadAll(res.Body)
-			err = json.Unmarshal(body, &data)
-			res.Body.Close()
+			err := helper.UnmarshalResponse(res, &data)
 			if err != nil {
-				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao task collector")
+				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
 			}
 			return data.Task, nil
 		},

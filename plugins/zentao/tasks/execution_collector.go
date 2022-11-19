@@ -59,10 +59,10 @@ func CollectExecution(taskCtx core.SubTaskContext) errors.Error {
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
-			res.Body.Close()
 			if err != nil {
 				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao execution collector")
 			}
+			res.Body.Close()
 			return []json.RawMessage{body}, nil
 		},
 	})
