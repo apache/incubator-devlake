@@ -122,6 +122,7 @@ const StageTaskName = (props) => {
                     <>{ProviderLabels.JENKINS}</>
                   )}
                   {task.plugin === Providers.TAPD && <>{ProviderLabels.TAPD}</>}
+                  {task.plugin === Providers.ZENTAO && <>{ProviderLabels.ZENTAO}</>}
                   {task.plugin === Providers.JIRA && (
                     <>Board ID {task.options.boardId}</>
                   )}

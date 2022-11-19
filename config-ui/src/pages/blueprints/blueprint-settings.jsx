@@ -512,6 +512,7 @@ const BlueprintSettings = (props) => {
                 dataDomainsGroup[configuredConnection?.id]?.length > 0
               break
             case Providers.TAPD:
+            case Providers.ZENTAO:
               isValid = dataDomainsGroup[configuredConnection?.id]?.length > 0
               break
             default:

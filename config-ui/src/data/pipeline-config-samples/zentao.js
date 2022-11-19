@@ -15,6 +15,18 @@
  * limitations under the License.
  *
  */
-const AVAILABLE_PLUGINS = ['gitlab', 'jira', 'jenkins', 'github', 'tapd', 'zentao']
+const zentaoConfig = [
+  [
+    {
+      plugin: 'zentao',
+      options: {
+        connectionId: 1,
+        productId: 1,
+        projectId: 1,
+        executionId: 1,
+      }
+    }
+  ]
+]
 
-module.exports = AVAILABLE_PLUGINS
+export { zentaoConfig }

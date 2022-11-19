@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 24.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   version="1.1"
+   id="图层_1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 189.83999 189.84"
+   xml:space="preserve"
+   sodipodi:docname="zentao.svg"
+   width="189.84"
+   height="189.84"
+   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs156" /><sodipodi:namedview
+   id="namedview154"
+   pagecolor="#ffffff"
+   bordercolor="#111111"
+   borderopacity="1"
+   inkscape:showpageshadow="0"
+   inkscape:pageopacity="0"
+   inkscape:pagecheckerboard="1"
+   inkscape:deskcolor="#d1d1d1"
+   showgrid="false"
+   inkscape:zoom="3.1447385"
+   inkscape:cx="289.69023"
+   inkscape:cy="95.079449"
+   inkscape:window-width="3840"
+   inkscape:window-height="2050"
+   inkscape:window-x="-12"
+   inkscape:window-y="-12"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="g151" />
+<style
+   type="text/css"
+   id="style80">
+	.st0{fill:#888988;}
+	.st1{fill:#221714;}
+	.st2{fill-rule:evenodd;clip-rule:evenodd;fill:#221714;}
+	.st3{fill:url(#SVGID_1_);}
+	.st4{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;}
+</style>
+<g
+   id="g151"
+   transform="translate(-7.92,-5.74)">
+	
+	<g
+   id="g149">
+		<linearGradient
+   id="SVGID_1_"
+   gradientUnits="userSpaceOnUse"
+   x1="102.8407"
+   y1="195.5705"
+   x2="102.8407"
+   y2="5.7350001">
+			<stop
+   offset="0"
+   style="stop-color:#2975FE"
+   id="stop140" />
+			<stop
+   offset="1"
+   style="stop-color:#0CD5FF"
+   id="stop142" />
+		</linearGradient>
+		<path
+   class="st3"
+   d="m 102.84,5.74 c -52.42,0 -94.92,42.5 -94.92,94.92 0,52.42 42.5,94.92 94.92,94.92 52.43,0 94.92,-42.49 94.92,-94.92 0,-52.43 -42.49,-94.92 -94.92,-94.92 z"
+   id="path145"
+   style="fill:url(#SVGID_1_)" />
+		<path
+   class="st4"
+   d="m 174.02,47.18 c 0,0 15.56,23.18 8.66,42.87 -4.63,13.22 -21.42,17.86 -34.85,13.59 C 126.97,97 101.09,74.82 72.82,95.21 c -23.9,17.25 -13.94,47.33 3.13,57.35 12.79,7.51 30.62,9.86 41.04,0.99 8.35,-7.12 12.9,-25.67 -1.17,-32.03 -4.8,-2.17 -14.24,-2.65 -19.44,3.41 -6.79,7.92 -4.21,18.99 5.19,22.5 0,0 -16.8,-0.84 -19.03,-18.22 -3.8,-29.57 34.05,-34.45 52,-23.36 32.28,19.94 20.83,65.12 -27.19,73.35 -24.33,4.16 -64.53,-4.21 -80.46,-36.76 -5.97,-12.2 -4.34,-10.11 -4.34,-10.11 0,0 2.12,2.36 5.64,4.92 11.42,8.31 22.06,0.78 19.48,-10.15 -8.89,-37.59 6.06,-43.96 15.2,-50.99 9.16,-7.03 5.55,-20.19 -12.45,-17.3 -25.22,4.05 -31.89,40.68 -31.89,40.68 0,0 -4.17,-62.24 50.36,-67.69 55.61,-5.55 63.57,43.34 87.88,50.76 33.78,10.3 17.25,-35.38 17.25,-35.38 z"
+   id="path147" />
+	</g>
+</g>
+</svg>
