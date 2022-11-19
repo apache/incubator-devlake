@@ -26,6 +26,7 @@ import GitHubPlugin from '@/registry/plugins/github.json'
 import GitLabPlugin from '@/registry/plugins/gitlab.json'
 import JenkinsPlugin from '@/registry/plugins/jenkins.json'
 import TapdPlugin from '@/registry/plugins/tapd.json'
+import ZentaoPlugin from '@/registry/plugins/zentao.json'
 import AzurePlugin from '@/registry/plugins/azure.json'
 import BitbucketPlugin from '@/registry/plugins/bitbucket.json'
 import GiteePlugin from '@/registry/plugins/gitee.json'
@@ -49,6 +50,7 @@ function useIntegrations(
     GitLabPlugin,
     JenkinsPlugin,
     TapdPlugin,
+    ZentaoPlugin,
     AzurePlugin,
     BitbucketPlugin,
     GiteePlugin,

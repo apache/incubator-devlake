@@ -803,6 +803,7 @@ export default function ConnectionForm(props) {
           Providers.JIRA,
           Providers.JENKINS,
           Providers.TAPD,
+          Providers.ZENTAO,
           Providers.AZURE,
           Providers.BITBUCKET,
           Providers.GITEE
