@@ -4,3 +4,6 @@ project1,cicd_scopes,cicd2
 project1,repos,repo1
 project1,repos,repo2
 project2,cicd_scopes,cicd3
+project1,boards,board1
+project1,boards,board2
+project2,boards,board3

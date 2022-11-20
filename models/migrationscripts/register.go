@@ -59,5 +59,6 @@ func All() []core.MigrationScript {
 		new(addProjectPrMetric),
 		new(addProjectTables),
 		new(addProjectToBluePrint),
+		new(addProjectIssueMetric),
 	}
 }
