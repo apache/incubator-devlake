@@ -18,14 +18,15 @@ limitations under the License.
 package models
 
 import (
+	"encoding/json"
+
 	"github.com/apache/incubator-devlake/models/common"
-	"gorm.io/datatypes"
 )
 
 type JiraTransformationRule struct {
 	common.Model
-	EpicKeyField               string         `json:"epicKeyField"`
-	StoryPointField            string         `json:"storyPointField"`
-	RemotelinkCommitShaPattern string         `json:"remotelinkCommitShaPattern"`
-	TypeMappings               datatypes.JSON `json:"typeMappings"`
+	EpicKeyField               string          `json:"epicKeyField" gorm:"type:varchar(255)"`
+	StoryPointField            string          `json:"storyPointField" gorm:"type:varchar(255)"`
+	RemotelinkCommitShaPattern string          `json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
+	TypeMappings               json.RawMessage `json:"typeMappings"`
 }

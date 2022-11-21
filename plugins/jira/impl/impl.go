@@ -249,6 +249,21 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
 		},
+		"connections/:connectionId/scopes/:boardId": {
+			"GET": api.GetScope,
+			"PUT": api.PutScope,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+		},
+		"transformation_rules": {
+			"POST": api.CreateTransformationRule,
+			"GET":  api.GetTransformationRuleList,
+		},
+		"transformation_rules/:id": {
+			"PUT": api.UpdateTransformationRule,
+			"GET": api.GetTransformationRule,
+		},
 	}
 }
 

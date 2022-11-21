@@ -35,7 +35,7 @@ import (
 // @Description create transformation rule for Jira
 // @Tags plugins/jira
 // @Accept application/json
-// @Param scope body tasks.TransformationRules true "json"
+// @Param transformationRule body tasks.TransformationRules true "transformation rule"
 // @Success 200  {object} core.ApiResourceOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -57,7 +57,8 @@ func CreateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 // @Description update transformation rule for Jira
 // @Tags plugins/jira
 // @Accept application/json
-// @Param scope body tasks.TransformationRules true "json"
+// @Param id path int true "id"
+// @Param transformationRule body tasks.TransformationRules true "transformation rule"
 // @Success 200  {object} core.ApiResourceOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -96,31 +97,11 @@ func makeJiraTransformationRule(input *core.ApiResourceInput) (*models.JiraTrans
 	}, nil
 }
 
-// DeleteTransformationRule delete transformation rule
-// @Summary delete transformation rule
-// @Description delete transformation rule
-// @Tags plugins/jira
-// @Accept application/json
-// @Success 200  {object} core.ApiResourceOutput
-// @Failure 400  {object} shared.ApiBody "Bad Request"
-// @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/transformation_rules/{id} [PUT]
-func DeleteTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	transformationRuleId, err := strconv.ParseUint(input.Params["id"], 10, 64)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "the transformation rule ID should be an integer")
-	}
-	err = basicRes.GetDal().Delete(&models.JiraTransformationRule{}, dal.Where("id = ?", transformationRuleId))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on deleting TransformationRule")
-	}
-	return &core.ApiResourceOutput{Status: http.StatusOK}, nil
-}
-
 // GetTransformationRule return one transformation rule
 // @Summary return one transformation rule
 // @Description return one transformation rule
 // @Tags plugins/jira
+// @Param id path int true "id"
 // @Success 200  {object} tasks.TransformationRules
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -133,28 +114,24 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 	var rule models.JiraTransformationRule
 	err = basicRes.GetDal().First(&rule, dal.Where("id = ?", transformationRuleId))
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on deleting TransformationRule")
+		return nil, errors.Default.Wrap(err, "error on get TransformationRule")
 	}
 	return &core.ApiResourceOutput{Body: rule, Status: http.StatusOK}, nil
 }
 
-// ListTransformationRule return all transformation rule
-// @Summary return all transformation rule
-// @Description return all transformation rule
+// GetTransformationRuleList return all transformation rules
+// @Summary return all transformation rules
+// @Description return all transformation rules
 // @Tags plugins/jira
 // @Success 200  {object} []tasks.TransformationRules
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules [GET]
-func ListTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	transformationRuleId, err := strconv.ParseUint(input.Params["id"], 10, 64)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "the transformation rule ID should be an integer")
-	}
+func GetTransformationRuleList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var rules []models.JiraTransformationRule
-	err = basicRes.GetDal().All(&rules, dal.Where("id = ?", transformationRuleId))
+	err := basicRes.GetDal().All(&rules)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on deleting TransformationRule")
+		return nil, errors.Default.Wrap(err, "error on get TransformationRule list")
 	}
 	return &core.ApiResourceOutput{Body: rules, Status: http.StatusOK}, nil
 }

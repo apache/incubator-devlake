@@ -19,7 +19,6 @@ package api
 
 import (
 	"net/http"
-	"net/url"
 	"strconv"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -30,12 +29,10 @@ import (
 )
 
 type putBoardRequest struct {
-	ConnectionId uint64 `json:"connectionId"`
-	BoardId      uint64 `json:"boardId"`
-	ProjectId    uint   `json:"projectId"`
-	Name         string `json:"name"`
-	Self         string `json:"self"`
-	Type         string `json:"type"`
+	ProjectId uint   `json:"projectId"`
+	Name      string `json:"name"`
+	Self      string `json:"self"`
+	Type      string `json:"type"`
 }
 
 // PutScope create or update jira board
@@ -43,21 +40,26 @@ type putBoardRequest struct {
 // @Description Create or update Jira board
 // @Tags plugins/jira
 // @Accept application/json
+// @Param connectionId path int false "connection ID"
+// @Param boardId path int false "board ID"
 // @Param scope body putBoardRequest true "json"
 // @Success 200  {object} core.ApiResourceOutput
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/scopes [PUT]
+// @Router /plugins/jira/connections/{connectionId}/scopes/{boardId} [PUT]
 func PutScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	// update from request and save to database
+	connectionId, boardId := extractParam(input.Params)
+	if connectionId*boardId == 0 {
+		return nil, errors.BadInput.New("invalid path params")
+	}
 	var req putBoardRequest
 	err := mapstructure.Decode(input.Body, &req)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error decoding map into putBoardRequest")
 	}
 	board := &models.JiraBoard{
-		ConnectionId: req.ConnectionId,
-		BoardId:      req.BoardId,
+		ConnectionId: connectionId,
+		BoardId:      boardId,
 		ProjectId:    req.ProjectId,
 		Name:         req.Name,
 		Self:         req.Self,
@@ -70,69 +72,53 @@ func PutScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	return &core.ApiResourceOutput{Status: http.StatusOK}, nil
 }
 
-// DeleteScope delete a jira board
-// @Summary delete a jira board
-// @Description delete a jira board
+// GetScopeList get Jira boards
+// @Summary get Jira boards
+// @Description get Jira boards
 // @Tags plugins/jira
-// @Param connectionId query int false "connection ID"
-// @Param boardId query int false "board ID"
-// @Success 200  {object} core.ApiResourceOutput
-// @Failure 400  {object} shared.ApiBody "Bad Request"
-// @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/scopes [DELETE]
-func DeleteScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	connectionId, boardId := extractQuery(input.Query)
-	if connectionId == 0 {
-		return nil, errors.Default.New("invalid connectionId")
-	}
-	if boardId == 0 {
-		return nil, errors.Default.New("invalid boardId")
-	}
-	err := basicRes.GetDal().Delete(&models.JiraBoard{}, dal.Where("connection_id = ? AND board_id = ?", connectionId, boardId))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on deleting JiraBoard")
-	}
-	return &core.ApiResourceOutput{Status: http.StatusOK}, nil
-}
-
-// GetScope get Jira board
-// @Summary get Jira board
-// @Description get Jira board
-// @Tags plugins/jira
-// @Param connectionId query int false "connection ID"
-// @Param boardId query int false "board ID"
+// @Param connectionId path int false "connection ID"
 // @Success 200  {object} []models.JiraBoard
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/scopes [GET]
-func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+// @Router /plugins/jira/connections/{connectionId}/scopes/ [GET]
+func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var boards []models.JiraBoard
-	var clauses []dal.Clause
-	connectionId, boardId := extractQuery(input.Query)
-	if connectionId > 0 {
-		clauses = append(clauses, dal.Where("connection_id = ?", connectionId))
+	connectionId, _ := extractParam(input.Params)
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("invalid path params")
 	}
-	if boardId > 0 {
-		clauses = append(clauses, dal.Where("board_id = ?", boardId))
-	}
-	err := basicRes.GetDal().All(&boards, clauses...)
+	err := basicRes.GetDal().All(&boards, dal.Where("connection_id = ?", connectionId))
 	if err != nil {
 		return nil, err
 	}
 	return &core.ApiResourceOutput{Body: boards, Status: http.StatusOK}, nil
 }
 
-func extractQuery(query url.Values) (uint64, uint64) {
-	var connectionId, boardId uint64
-	cid := query["connectionId"]
-	if len(cid) > 0 {
-		if connectionId, _ = strconv.ParseUint(cid[0], 10, 64); connectionId > 0 {
-		}
+// GetScope get one Jira board
+// @Summary get one Jira board
+// @Description get one Jira board
+// @Tags plugins/jira
+// @Param connectionId path int false "connection ID"
+// @Param boardId path int false "board ID"
+// @Success 200  {object} models.JiraBoard
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /plugins/jira/connections/{connectionId}/scopes/{boardId} [GET]
+func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+	var board models.JiraBoard
+	connectionId, boardId := extractParam(input.Params)
+	if connectionId*boardId == 0 {
+		return nil, errors.BadInput.New("invalid path params")
 	}
-	bid := query["boardId"]
-	if len(bid) > 0 {
-		if boardId, _ = strconv.ParseUint(bid[0], 10, 64); boardId > 0 {
-		}
+	err := basicRes.GetDal().First(&board, dal.Where("connection_id = ? AND board_id = ?", connectionId, board))
+	if err != nil {
+		return nil, err
 	}
+	return &core.ApiResourceOutput{Body: board, Status: http.StatusOK}, nil
+}
+
+func extractParam(params map[string]string) (uint64, uint64) {
+	connectionId, _ := strconv.ParseUint(params["connectionId"], 10, 64)
+	boardId, _ := strconv.ParseUint(params["boardId"], 10, 64)
 	return connectionId, boardId
 }
