@@ -106,7 +106,7 @@ type ZentaoTaskRes struct {
 	Repo           int        `json:"repo"`
 	Mr             int        `json:"mr"`
 	Entry          string     `json:"entry"`
-	Lines          string     `json:"lines"`
+	NumOfLine      string     `json:"lines"`
 	V1             string     `json:"v1"`
 	V2             string     `json:"v2"`
 	Deleted        bool       `json:"deleted"`
@@ -119,11 +119,11 @@ type ZentaoTaskRes struct {
 	} `json:"latestStoryVersion"`
 	StoryStatus interface {
 	} `json:"storyStatus"`
-	AssignedToRealName string `json:"assignedToRealName"`
-	PriOrder           string `json:"priOrder"`
-	Delay              int    `json:"delay"`
-	NeedConfirm        bool   `json:"needConfirm"`
-	Progress           int    `json:"progress"`
+	AssignedToRealName string  `json:"assignedToRealName"`
+	PriOrder           string  `json:"priOrder"`
+	Delay              int     `json:"delay"`
+	NeedConfirm        bool    `json:"needConfirm"`
+	Progress           float64 `json:"progress"`
 }
 
 type ZentaoTask struct {
@@ -180,7 +180,7 @@ type ZentaoTask struct {
 	Repo               int        `json:"repo"`
 	Mr                 int        `json:"mr"`
 	Entry              string     `json:"entry"`
-	Lines              string     `json:"lines"`
+	NumOfLine          string     `json:"lines"`
 	V1                 string     `json:"v1"`
 	V2                 string     `json:"v2"`
 	Deleted            bool       `json:"deleted"`
@@ -193,7 +193,7 @@ type ZentaoTask struct {
 	AssignedToRealName string     `json:"assignedToRealName"`
 	PriOrder           string     `json:"priOrder"`
 	NeedConfirm        bool       `json:"needConfirm"`
-	Progress           int        `json:"progress"`
+	Progress           float64    `json:"progress"`
 }
 
 func (ZentaoTask) TableName() string {

@@ -80,8 +80,8 @@ type ZentaoExecution struct {
 	TotalConsumed  int    `json:"totalConsumed"`
 	TotalLeft      int    `json:"totalLeft"`
 	ProjectId      uint64
-	Progress       int  `json:"progress"`
-	CaseReview     bool `json:"caseReview"`
+	Progress       float64 `json:"progress"`
+	CaseReview     bool    `json:"caseReview"`
 	archived.NoPKModel
 }
 

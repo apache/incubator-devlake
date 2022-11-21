@@ -76,7 +76,7 @@ type ZentaoTask struct {
 	Repo               int        `json:"repo"`
 	Mr                 int        `json:"mr"`
 	Entry              string     `json:"entry"`
-	Lines              string     `json:"lines"`
+	NumOfLine          string     `json:"lines"`
 	V1                 string     `json:"v1"`
 	V2                 string     `json:"v2"`
 	Deleted            bool       `json:"deleted"`
@@ -89,7 +89,7 @@ type ZentaoTask struct {
 	AssignedToRealName string     `json:"assignedToRealName"`
 	PriOrder           string     `json:"priOrder"`
 	NeedConfirm        bool       `json:"needConfirm"`
-	Progress           int        `json:"progress"`
+	Progress           float64    `json:"progress"`
 }
 
 func (ZentaoTask) TableName() string {

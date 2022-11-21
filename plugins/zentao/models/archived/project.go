@@ -82,11 +82,11 @@ type ZentaoProject struct {
 	TeamCount      int    `json:"teamCount"`
 	LeftTasks      string `json:"leftTasks"`
 	//TeamMembers   []interface{} `json:"teamMembers" gorm:"-"`
-	TotalEstimate int `json:"totalEstimate"`
-	TotalConsumed int `json:"totalConsumed"`
-	TotalLeft     int `json:"totalLeft"`
-	Progress      int `json:"progress"`
-	TotalReal     int `json:"totalReal"`
+	TotalEstimate int     `json:"totalEstimate"`
+	TotalConsumed int     `json:"totalConsumed"`
+	TotalLeft     int     `json:"totalLeft"`
+	Progress      float64 `json:"progress"`
+	TotalReal     int     `json:"totalReal"`
 }
 type PM struct {
 	PmId       uint64 `json:"id"`
@@ -101,11 +101,11 @@ type Whitelist []struct {
 	WhitelistRealname string `json:"realname"`
 }
 type Hours struct {
-	HoursTotalEstimate int `json:"totalEstimate"`
-	HoursTotalConsumed int `json:"totalConsumed"`
-	HoursTotalLeft     int `json:"totalLeft"`
-	HoursProgress      int `json:"progress"`
-	HoursTotalReal     int `json:"totalReal"`
+	HoursTotalEstimate int     `json:"totalEstimate"`
+	HoursTotalConsumed int     `json:"totalConsumed"`
+	HoursTotalLeft     int     `json:"totalLeft"`
+	HoursProgress      float64 `json:"progress"`
+	HoursTotalReal     int     `json:"totalReal"`
 }
 
 func (ZentaoProject) TableName() string {

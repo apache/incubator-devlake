@@ -94,7 +94,7 @@ type ZentaoBugRes struct {
 	Repo         int        `json:"repo"`
 	Mr           int        `json:"mr"`
 	Entry        string     `json:"entry"`
-	Lines        string     `json:"lines"`
+	NumOfLine    string     `json:"lines"`
 	V1           string     `json:"v1"`
 	V2           string     `json:"v2"`
 	RepoType     string     `json:"repoType"`
@@ -171,7 +171,7 @@ type ZentaoBug struct {
 	Repo           int        `json:"repo"`
 	Mr             int        `json:"mr"`
 	Entry          string     `json:"entry"`
-	Lines          string     `json:"lines"`
+	NumOfLine      string     `json:"lines"`
 	V1             string     `json:"v1"`
 	V2             string     `json:"v2"`
 	RepoType       string     `json:"repoType"`
