@@ -52,7 +52,7 @@ type ZentaoProduct struct {
 	Executions     int        `json:"executions"`
 	Bugs           int        `json:"bugs"`
 	Docs           int        `json:"docs"`
-	Progress       int        `json:"progress"`
+	Progress       float64    `json:"progress"`
 	CaseReview     bool       `json:"caseReview"`
 	archived.NoPKModel
 }
