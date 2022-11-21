@@ -19,53 +19,33 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/models/common"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type ZentaoProductRes struct {
-	ID          uint64 `json:"id"`
-	Program     int    `json:"program"`
-	Name        string `json:"name"`
-	Code        string `json:"code"`
-	Bind        string `json:"bind"`
-	Line        int    `json:"line"`
-	Type        string `json:"type"`
-	Status      string `json:"status"`
-	SubStatus   string `json:"subStatus"`
-	Description string `json:"desc"`
-	PO          struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"PO"`
-	QD struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"QD"`
-	RD struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"RD"`
-	Feedback  interface{}   `json:"feedback"`
-	Acl       string        `json:"acl"`
-	Whitelist []interface{} `json:"whitelist"`
-	Reviewer  string        `json:"reviewer"`
-	CreatedBy struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"createdBy"`
-	CreatedDate    *time.Time `json:"createdDate"`
-	CreatedVersion string     `json:"createdVersion"`
-	OrderIn        int        `json:"order"`
-	Vision         string     `json:"vision"`
-	Deleted        string     `json:"deleted"`
+	ID             uint64              `json:"id"`
+	Program        int                 `json:"program"`
+	Name           string              `json:"name"`
+	Code           string              `json:"code"`
+	Bind           string              `json:"bind"`
+	Line           int                 `json:"line"`
+	Type           string              `json:"type"`
+	Status         string              `json:"status"`
+	SubStatus      string              `json:"subStatus"`
+	Description    string              `json:"desc"`
+	PO             *ZentaoAccount      `json:"PO"`
+	QD             *ZentaoAccount      `json:"QD"`
+	RD             *ZentaoAccount      `json:"RD"`
+	Feedback       interface{}         `json:"feedback"`
+	Acl            string              `json:"acl"`
+	Whitelist      []interface{}       `json:"whitelist"`
+	Reviewer       string              `json:"reviewer"`
+	CreatedBy      *ZentaoAccount      `json:"createdBy"`
+	CreatedDate    *helper.Iso8601Time `json:"createdDate"`
+	CreatedVersion string              `json:"createdVersion"`
+	OrderIn        int                 `json:"order"`
+	Vision         string              `json:"vision"`
+	Deleted        string              `json:"deleted"`
 	Stories        struct {
 		Active    int `json:"active"`
 		Reviewing int `json:"reviewing"`
@@ -104,20 +84,20 @@ type ZentaoProduct struct {
 	Acl            string `json:"acl"`
 	Reviewer       string `json:"reviewer"`
 	CreatedById    uint64
-	CreatedDate    *time.Time `json:"createdDate"`
-	CreatedVersion string     `json:"createdVersion"`
-	OrderIn        int        `json:"order"`
-	Deleted        string     `json:"deleted"`
-	Plans          int        `json:"plans"`
-	Releases       int        `json:"releases"`
-	Builds         int        `json:"builds"`
-	Cases          int        `json:"cases"`
-	Projects       int        `json:"projects"`
-	Executions     int        `json:"executions"`
-	Bugs           int        `json:"bugs"`
-	Docs           int        `json:"docs"`
-	Progress       float64    `json:"progress"`
-	CaseReview     bool       `json:"caseReview"`
+	CreatedDate    *helper.Iso8601Time `json:"createdDate"`
+	CreatedVersion string              `json:"createdVersion"`
+	OrderIn        int                 `json:"order"`
+	Deleted        string              `json:"deleted"`
+	Plans          int                 `json:"plans"`
+	Releases       int                 `json:"releases"`
+	Builds         int                 `json:"builds"`
+	Cases          int                 `json:"cases"`
+	Projects       int                 `json:"projects"`
+	Executions     int                 `json:"executions"`
+	Bugs           int                 `json:"bugs"`
+	Docs           int                 `json:"docs"`
+	Progress       float64             `json:"progress"`
+	CaseReview     bool                `json:"caseReview"`
 	common.NoPKModel
 }
 

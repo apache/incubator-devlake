@@ -75,7 +75,7 @@ func ConvertExecutions(taskCtx core.SubTaskContext) errors.Error {
 				Name:        toolExecution.Name,
 				Description: toolExecution.Description,
 				Url:         toolExecution.Path,
-				CreatedDate: toolExecution.OpenedDate,
+				CreatedDate: toolExecution.OpenedDate.ToNullableTime(),
 				Type:        toolExecution.Type,
 			}
 

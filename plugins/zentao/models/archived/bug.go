@@ -19,79 +19,79 @@ package archived
 
 import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type ZentaoBug struct {
 	archived.NoPKModel
-	ConnectionId   uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID             uint64     `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Project        uint64     `json:"project"`
-	Product        uint64     `json:"product"`
-	Injection      int        `json:"injection"`
-	Identify       int        `json:"identify"`
-	Branch         int        `json:"branch"`
-	Module         int        `json:"module"`
-	Execution      uint64     `json:"execution"`
-	Plan           int        `json:"plan"`
-	Story          uint64     `json:"story"`
-	StoryVersion   int        `json:"storyVersion"`
-	Task           int        `json:"task"`
-	ToTask         int        `json:"toTask"`
-	ToStory        uint64     `json:"toStory"`
-	Title          string     `json:"title"`
-	Keywords       string     `json:"keywords"`
-	Severity       int        `json:"severity"`
-	Pri            int        `json:"pri"`
-	Type           string     `json:"type"`
-	Os             string     `json:"os"`
-	Browser        string     `json:"browser"`
-	Hardware       string     `json:"hardware"`
-	Found          string     `json:"found"`
-	Steps          string     `json:"steps"`
-	Status         string     `json:"status"`
-	SubStatus      string     `json:"subStatus"`
-	Color          string     `json:"color"`
-	Confirmed      int        `json:"confirmed"`
-	ActivatedCount int        `json:"activatedCount"`
-	ActivatedDate  *time.Time `json:"activatedDate"`
-	FeedbackBy     string     `json:"feedbackBy"`
-	NotifyEmail    string     `json:"notifyEmail"`
+	ConnectionId   uint64              `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID             uint64              `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Project        uint64              `json:"project"`
+	Product        uint64              `json:"product"`
+	Injection      int                 `json:"injection"`
+	Identify       int                 `json:"identify"`
+	Branch         int                 `json:"branch"`
+	Module         int                 `json:"module"`
+	Execution      uint64              `json:"execution"`
+	Plan           int                 `json:"plan"`
+	Story          uint64              `json:"story"`
+	StoryVersion   int                 `json:"storyVersion"`
+	Task           int                 `json:"task"`
+	ToTask         int                 `json:"toTask"`
+	ToStory        uint64              `json:"toStory"`
+	Title          string              `json:"title"`
+	Keywords       string              `json:"keywords"`
+	Severity       int                 `json:"severity"`
+	Pri            int                 `json:"pri"`
+	Type           string              `json:"type"`
+	Os             string              `json:"os"`
+	Browser        string              `json:"browser"`
+	Hardware       string              `json:"hardware"`
+	Found          string              `json:"found"`
+	Steps          string              `json:"steps"`
+	Status         string              `json:"status"`
+	SubStatus      string              `json:"subStatus"`
+	Color          string              `json:"color"`
+	Confirmed      int                 `json:"confirmed"`
+	ActivatedCount int                 `json:"activatedCount"`
+	ActivatedDate  *helper.Iso8601Time `json:"activatedDate"`
+	FeedbackBy     string              `json:"feedbackBy"`
+	NotifyEmail    string              `json:"notifyEmail"`
 	OpenedById     uint64
 	OpenedByName   string
-	OpenedDate     *time.Time `json:"openedDate"`
-	OpenedBuild    string     `json:"openedBuild"`
+	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	OpenedBuild    string              `json:"openedBuild"`
 	AssignedToId   uint64
 	AssignedToName string
-	AssignedDate   *time.Time `json:"assignedDate"`
-	Deadline       string     `json:"deadline"`
+	AssignedDate   *helper.Iso8601Time `json:"assignedDate"`
+	Deadline       string              `json:"deadline"`
 	ResolvedById   uint64
-	Resolution     string     `json:"resolution"`
-	ResolvedBuild  string     `json:"resolvedBuild"`
-	ResolvedDate   *time.Time `json:"resolvedDate"`
+	Resolution     string              `json:"resolution"`
+	ResolvedBuild  string              `json:"resolvedBuild"`
+	ResolvedDate   *helper.Iso8601Time `json:"resolvedDate"`
 	ClosedById     uint64
-	ClosedDate     *time.Time `json:"closedDate"`
-	DuplicateBug   int        `json:"duplicateBug"`
-	LinkBug        string     `json:"linkBug"`
-	Feedback       int        `json:"feedback"`
-	Result         int        `json:"result"`
-	Repo           int        `json:"repo"`
-	Mr             int        `json:"mr"`
-	Entry          string     `json:"entry"`
-	NumOfLine      string     `json:"lines"`
-	V1             string     `json:"v1"`
-	V2             string     `json:"v2"`
-	RepoType       string     `json:"repoType"`
-	IssueKey       string     `json:"issueKey"`
-	Testtask       int        `json:"testtask"`
+	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
+	DuplicateBug   int                 `json:"duplicateBug"`
+	LinkBug        string              `json:"linkBug"`
+	Feedback       int                 `json:"feedback"`
+	Result         int                 `json:"result"`
+	Repo           int                 `json:"repo"`
+	Mr             int                 `json:"mr"`
+	Entry          string              `json:"entry"`
+	NumOfLine      string              `json:"lines"`
+	V1             string              `json:"v1"`
+	V2             string              `json:"v2"`
+	RepoType       string              `json:"repoType"`
+	IssueKey       string              `json:"issueKey"`
+	Testtask       int                 `json:"testtask"`
 	LastEditedById uint64
-	LastEditedDate *time.Time `json:"lastEditedDate"`
-	Deleted        bool       `json:"deleted"`
-	PriOrder       string     `json:"priOrder"`
-	SeverityOrder  int        `json:"severityOrder"`
-	Needconfirm    bool       `json:"needconfirm"`
-	StatusName     string     `json:"statusName"`
-	ProductStatus  string     `json:"productStatus"`
+	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
+	Deleted        bool                `json:"deleted"`
+	PriOrder       string              `json:"priOrder"`
+	SeverityOrder  int                 `json:"severityOrder"`
+	Needconfirm    bool                `json:"needconfirm"`
+	StatusName     string              `json:"statusName"`
+	ProductStatus  string              `json:"productStatus"`
 }
 
 func (ZentaoBug) TableName() string {

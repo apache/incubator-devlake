@@ -19,21 +19,25 @@ package tasks
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"net/http"
-	"net/url"
+	"github.com/apache/incubator-devlake/plugins/zentao/models"
 )
 
-const RAW_STORY_TABLE = "zentao_api_stories"
+var _ core.SubTaskEntryPoint = ExtractAccount
 
-var _ core.SubTaskEntryPoint = CollectStory
+var ExtractAccountMeta = core.SubTaskMeta{
+	Name:             "extractAccount",
+	EntryPoint:       ExtractAccount,
+	EnabledByDefault: true,
+	Description:      "extract Zentao account",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
+}
 
-func CollectStory(taskCtx core.SubTaskContext) errors.Error {
+func ExtractAccount(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
@@ -42,42 +46,24 @@ func CollectStory(taskCtx core.SubTaskContext) errors.Error {
 				ExecutionId:  data.Options.ExecutionId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_STORY_TABLE,
+			Table: RAW_ACCOUNT_TABLE,
 		},
-		ApiClient: data.ApiClient,
-
-		PageSize: 100,
-		// TODO write which api would you want request
-		UrlTemplate: "/products/{{ .Params.ProductId }}/stories",
-		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("status", "allstory")
-			return query, nil
-		},
-		GetTotalPages: GetTotalPagesFromResponse,
-		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
-			var data struct {
-				Story []json.RawMessage `json:"stories"`
-			}
-			err := helper.UnmarshalResponse(res, &data)
+		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
+			account := &models.ZentaoAccount{}
+			err := json.Unmarshal(row.Data, account)
 			if err != nil {
-				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
+				return nil, errors.Default.WrapRaw(err)
 			}
-			return data.Story, nil
+			account.ConnectionId = data.Options.ConnectionId
+			results := make([]interface{}, 0)
+			results = append(results, account)
+			return results, nil
 		},
 	})
+
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
-}
-
-var CollectStoryMeta = core.SubTaskMeta{
-	Name:             "CollectStory",
-	EntryPoint:       CollectStory,
-	EnabledByDefault: true,
-	Description:      "Collect Story data from Zentao api",
+	return extractor.Execute()
 }

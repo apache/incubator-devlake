@@ -27,11 +27,11 @@ import (
 	"net/url"
 )
 
-const RAW_STORY_TABLE = "zentao_api_stories"
+const RAW_DEPARTMENT_TABLE = "zentao_api_departments"
 
-var _ core.SubTaskEntryPoint = CollectStory
+var _ core.SubTaskEntryPoint = CollectDepartment
 
-func CollectStory(taskCtx core.SubTaskContext) errors.Error {
+func CollectDepartment(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
@@ -42,30 +42,29 @@ func CollectStory(taskCtx core.SubTaskContext) errors.Error {
 				ExecutionId:  data.Options.ExecutionId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_STORY_TABLE,
+			Table: RAW_DEPARTMENT_TABLE,
 		},
 		ApiClient: data.ApiClient,
 
 		PageSize: 100,
 		// TODO write which api would you want request
-		UrlTemplate: "/products/{{ .Params.ProductId }}/stories",
+		UrlTemplate: "/users",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("status", "allstory")
 			return query, nil
 		},
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
-				Story []json.RawMessage `json:"stories"`
+				Users []json.RawMessage `json:"users"`
 			}
 			err := helper.UnmarshalResponse(res, &data)
 			if err != nil {
 				return nil, errors.Default.Wrap(err, "error reading endpoint response by Zentao bug collector")
 			}
-			return data.Story, nil
+			return data.Users, nil
 		},
 	})
 	if err != nil {
@@ -75,9 +74,9 @@ func CollectStory(taskCtx core.SubTaskContext) errors.Error {
 	return collector.Execute()
 }
 
-var CollectStoryMeta = core.SubTaskMeta{
-	Name:             "CollectStory",
-	EntryPoint:       CollectStory,
+var CollectDepartmentMeta = core.SubTaskMeta{
+	Name:             "CollectDepartment",
+	EntryPoint:       CollectDepartment,
 	EnabledByDefault: true,
-	Description:      "Collect Story data from Zentao api",
+	Description:      "Collect Department data from Zentao api",
 }
