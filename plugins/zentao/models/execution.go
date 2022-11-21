@@ -178,7 +178,7 @@ type ZentaoExecutionRes struct {
 		FluidBoard     string `json:"fluidBoard"`
 		Deleted        string `json:"deleted"`
 	} `json:"projectInfo"`
-	Progress    int `json:"progress"`
+	Progress    float64 `json:"progress"`
 	TeamMembers []struct {
 		ID         uint64 `json:"id"`
 		Root       int    `json:"root"`
@@ -207,8 +207,8 @@ type ZentaoExecutionRes struct {
 }
 
 type ZentaoExecution struct {
-	ConnectionId   uint64     `gorm:"primaryKey"`
-	Id             uint64     `json:"id" gorm:"primaryKey"`
+	ConnectionId   uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id             uint64     `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Project        uint64     `json:"project"`
 	Model          string     `json:"model"`
 	Type           string     `json:"type"`
@@ -264,8 +264,8 @@ type ZentaoExecution struct {
 	TotalConsumed  int    `json:"totalConsumed"`
 	TotalLeft      int    `json:"totalLeft"`
 	ProjectId      uint64
-	Progress       int  `json:"progress"`
-	CaseReview     bool `json:"caseReview"`
+	Progress       float64 `json:"progress"`
+	CaseReview     bool    `json:"caseReview"`
 	common.NoPKModel
 }
 

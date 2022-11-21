@@ -74,21 +74,21 @@ type ZentaoProductRes struct {
 		Closed    int `json:"closed"`
 		Changing  int `json:"changing"`
 	} `json:"stories"`
-	Plans      int  `json:"plans"`
-	Releases   int  `json:"releases"`
-	Builds     int  `json:"builds"`
-	Cases      int  `json:"cases"`
-	Projects   int  `json:"projects"`
-	Executions int  `json:"executions"`
-	Bugs       int  `json:"bugs"`
-	Docs       int  `json:"docs"`
-	Progress   int  `json:"progress"`
-	CaseReview bool `json:"caseReview"`
+	Plans      int     `json:"plans"`
+	Releases   int     `json:"releases"`
+	Builds     int     `json:"builds"`
+	Cases      int     `json:"cases"`
+	Projects   int     `json:"projects"`
+	Executions int     `json:"executions"`
+	Bugs       int     `json:"bugs"`
+	Docs       int     `json:"docs"`
+	Progress   float64 `json:"progress"`
+	CaseReview bool    `json:"caseReview"`
 }
 
 type ZentaoProduct struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	Id             uint64 `json:"id" gorm:"primaryKey"`
+	ConnectionId   uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id             uint64 `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Program        int    `json:"program"`
 	Name           string `json:"name"`
 	Code           string `json:"code"`
@@ -116,7 +116,7 @@ type ZentaoProduct struct {
 	Executions     int        `json:"executions"`
 	Bugs           int        `json:"bugs"`
 	Docs           int        `json:"docs"`
-	Progress       int        `json:"progress"`
+	Progress       float64    `json:"progress"`
 	CaseReview     bool       `json:"caseReview"`
 	common.NoPKModel
 }

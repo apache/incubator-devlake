@@ -109,7 +109,7 @@ func ExtractBug(taskCtx core.SubTaskContext) errors.Error {
 				Repo:           res.Repo,
 				Mr:             res.Mr,
 				Entry:          res.Entry,
-				Lines:          res.Lines,
+				NumOfLine:      res.NumOfLine,
 				V1:             res.V1,
 				V2:             res.V2,
 				RepoType:       res.RepoType,
