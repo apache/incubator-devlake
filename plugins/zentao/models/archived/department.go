@@ -26,9 +26,9 @@ type ZentaoDepartment struct {
 	Parent       int    `json:"parent" gorm:"type:varchar(100)"`
 	Path         string `json:"path" gorm:"type:varchar(100)"`
 	Grade        int    `json:"grade"`
-	Order        int    `json:"order"`
+	OrderIn      int    `json:"order"`
 	Position     string `json:"position" gorm:"type:varchar(100)"`
-	Function     string `json:"function" gorm:"type:varchar(100)"`
+	DeptFunction string `json:"function" gorm:"type:varchar(100)"`
 	Manager      string `json:"manager" gorm:"type:varchar(100)"`
 	ManagerName  string `json:"managerName" gorm:"type:varchar(100)"`
 	archived.NoPKModel
