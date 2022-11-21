@@ -24,33 +24,33 @@ import (
 
 type ZentaoStory struct {
 	archived.NoPKModel
-	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           uint64 `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
-	Project      uint64 `json:"project"`
-	Product      uint64 `json:"product"`
-	Branch       int    `json:"branch"`
-	Version      int    `json:"version"`
-	OrderIn      int    `json:"order"`
-	Vision       string `json:"vision"`
-	Parent       uint64 `json:"parent"`
-	Module       int    `json:"module"`
-	Plan         string `json:"plan"`
-	Source       string `json:"source"`
-	SourceNote   string `json:"sourceNote"`
-	FromBug      int    `json:"fromBug"`
-	Feedback     int    `json:"feedback"`
-	FeedbackBy   string `json:"feedbackBy"`
-	Title        string `json:"title"`
-	Keywords     string `json:"keywords"`
-	Type         string `json:"type"`
-	Category     string `json:"category"`
-	Pri          int    `json:"pri"`
-	Estimate     int    `json:"estimate"`
-	Status       string `json:"status"`
-	SubStatus    string `json:"subStatus"`
-	Color        string `json:"color"`
-	Stage        string `json:"stage"`
-	StagedById   uint64 `json:"stagedBy"`
+	ConnectionId uint64  `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID           uint64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
+	Project      uint64  `json:"project"`
+	Product      uint64  `json:"product"`
+	Branch       int     `json:"branch"`
+	Version      int     `json:"version"`
+	OrderIn      int     `json:"order"`
+	Vision       string  `json:"vision"`
+	Parent       uint64  `json:"parent"`
+	Module       int     `json:"module"`
+	Plan         string  `json:"plan"`
+	Source       string  `json:"source"`
+	SourceNote   string  `json:"sourceNote"`
+	FromBug      int     `json:"fromBug"`
+	Feedback     int     `json:"feedback"`
+	FeedbackBy   string  `json:"feedbackBy"`
+	Title        string  `json:"title"`
+	Keywords     string  `json:"keywords"`
+	Type         string  `json:"type"`
+	Category     string  `json:"category"`
+	Pri          int     `json:"pri"`
+	Estimate     float64 `json:"estimate"`
+	Status       string  `json:"status"`
+	SubStatus    string  `json:"subStatus"`
+	Color        string  `json:"color"`
+	Stage        string  `json:"stage"`
+	StagedById   uint64  `json:"stagedBy"`
 	//Mailto           []interface{} `json:"mailto"`
 	Lib              int    `json:"lib"`
 	FromStory        uint64 `json:"fromStory"`

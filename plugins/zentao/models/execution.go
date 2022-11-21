@@ -115,15 +115,15 @@ type ZentaoExecutionRes struct {
 		Avatar   string `json:"avatar"`
 		Realname string `json:"realname"`
 	} `json:"whitelist"`
-	OrderIn       int    `json:"order"`
-	Vision        string `json:"vision"`
-	DisplayCards  int    `json:"displayCards"`
-	FluidBoard    string `json:"fluidBoard"`
-	Deleted       bool   `json:"deleted"`
-	TotalHours    int    `json:"totalHours"`
-	TotalEstimate int    `json:"totalEstimate"`
-	TotalConsumed int    `json:"totalConsumed"`
-	TotalLeft     int    `json:"totalLeft"`
+	OrderIn       int     `json:"order"`
+	Vision        string  `json:"vision"`
+	DisplayCards  int     `json:"displayCards"`
+	FluidBoard    string  `json:"fluidBoard"`
+	Deleted       bool    `json:"deleted"`
+	TotalHours    float64 `json:"totalHours"`
+	TotalEstimate float64 `json:"totalEstimate"`
+	TotalConsumed float64 `json:"totalConsumed"`
+	TotalLeft     float64 `json:"totalLeft"`
 	ProjectInfo   struct {
 		ID             uint64 `json:"id"`
 		Project        uint64 `json:"project"`
@@ -180,23 +180,23 @@ type ZentaoExecutionRes struct {
 	} `json:"projectInfo"`
 	Progress    float64 `json:"progress"`
 	TeamMembers []struct {
-		ID         uint64 `json:"id"`
-		Root       int    `json:"root"`
-		Type       string `json:"type"`
-		Account    string `json:"account"`
-		Role       string `json:"role"`
-		Position   string `json:"position"`
-		Limited    string `json:"limited"`
-		Join       string `json:"join"`
-		Days       int    `json:"days"`
-		Hours      int    `json:"hours"`
-		Estimate   string `json:"estimate"`
-		Consumed   string `json:"consumed"`
-		Left       string `json:"left"`
-		OrderIn    int    `json:"order"`
-		TotalHours int    `json:"totalHours"`
-		UserID     uint64 `json:"userID"`
-		Realname   string `json:"realname"`
+		ID         uint64  `json:"id"`
+		Root       int     `json:"root"`
+		Type       string  `json:"type"`
+		Account    string  `json:"account"`
+		Role       string  `json:"role"`
+		Position   string  `json:"position"`
+		Limited    string  `json:"limited"`
+		Join       string  `json:"join"`
+		Days       int     `json:"days"`
+		Hours      int     `json:"hours"`
+		Estimate   string  `json:"estimate"`
+		Consumed   string  `json:"consumed"`
+		Left       string  `json:"left"`
+		OrderIn    int     `json:"order"`
+		TotalHours float64 `json:"totalHours"`
+		UserID     uint64  `json:"userID"`
+		Realname   string  `json:"realname"`
 	} `json:"teamMembers"`
 	Products []struct {
 		ID    uint64        `json:"id"`
@@ -252,17 +252,17 @@ type ZentaoExecution struct {
 	PMId           uint64
 	QDId           uint64
 	RDId           uint64
-	Team           string `json:"team"`
-	Acl            string `json:"acl"`
-	OrderIn        int    `json:"order"`
-	Vision         string `json:"vision"`
-	DisplayCards   int    `json:"displayCards"`
-	FluidBoard     string `json:"fluidBoard"`
-	Deleted        bool   `json:"deleted"`
-	TotalHours     int    `json:"totalHours"`
-	TotalEstimate  int    `json:"totalEstimate"`
-	TotalConsumed  int    `json:"totalConsumed"`
-	TotalLeft      int    `json:"totalLeft"`
+	Team           string  `json:"team"`
+	Acl            string  `json:"acl"`
+	OrderIn        int     `json:"order"`
+	Vision         string  `json:"vision"`
+	DisplayCards   int     `json:"displayCards"`
+	FluidBoard     string  `json:"fluidBoard"`
+	Deleted        bool    `json:"deleted"`
+	TotalHours     float64 `json:"totalHours"`
+	TotalEstimate  float64 `json:"totalEstimate"`
+	TotalConsumed  float64 `json:"totalConsumed"`
+	TotalLeft      float64 `json:"totalLeft"`
 	ProjectId      uint64
 	Progress       float64 `json:"progress"`
 	CaseReview     bool    `json:"caseReview"`
