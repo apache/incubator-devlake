@@ -90,9 +90,11 @@ func ConvertStory(taskCtx core.SubTaskContext) errors.Error {
 			}
 			switch toolEntity.Stage {
 			case "closed":
-				domainEntity.Status = "DONE"
+				domainEntity.Status = ticket.DONE
+			case "wait":
+				domainEntity.Status = ticket.TODO
 			default:
-				domainEntity.Status = "IN_PROGRESS"
+				domainEntity.Status = ticket.IN_PROGRESS
 			}
 			if toolEntity.ClosedDate != nil {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.Sub(*toolEntity.OpenedDate).Minutes())

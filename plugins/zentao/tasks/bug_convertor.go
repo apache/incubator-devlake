@@ -76,7 +76,7 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 				},
 				IssueKey:       strconv.FormatUint(toolEntity.ID, 10),
 				Title:          toolEntity.Title,
-				Type:           toolEntity.Type,
+				Type:           ticket.BUG,
 				OriginalStatus: toolEntity.Status,
 				ResolutionDate: toolEntity.ClosedDate,
 				CreatedDate:    toolEntity.OpenedDate,
@@ -91,9 +91,9 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 			}
 			switch toolEntity.Status {
 			case "resolved":
-				domainEntity.Status = "DONE"
+				domainEntity.Status = ticket.DONE
 			default:
-				domainEntity.Status = "IN_PROGRESS"
+				domainEntity.Status = ticket.IN_PROGRESS
 			}
 			if toolEntity.ClosedDate != nil {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.Sub(*toolEntity.OpenedDate).Minutes())

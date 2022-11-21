@@ -78,7 +78,7 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				IssueKey:       strconv.FormatUint(toolEntity.ID, 10),
 				Title:          toolEntity.Name,
 				Description:    toolEntity.Description,
-				Type:           toolEntity.Type,
+				Type:           "TASK",
 				OriginalStatus: toolEntity.Status,
 				ResolutionDate: toolEntity.ClosedDate,
 				CreatedDate:    toolEntity.OpenedDate,
@@ -91,10 +91,12 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				AssigneeName:   toolEntity.AssignedToName,
 			}
 			switch toolEntity.Status {
-			case "done", "closed":
-				domainEntity.Status = "DONE"
+			case "done", "closed", "cancel":
+				domainEntity.Status = ticket.DONE
+			case "wait":
+				domainEntity.Status = ticket.TODO
 			default:
-				domainEntity.Status = "IN_PROGRESS"
+				domainEntity.Status = ticket.IN_PROGRESS
 			}
 			if toolEntity.ClosedDate != nil {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.Sub(*toolEntity.OpenedDate).Minutes())
