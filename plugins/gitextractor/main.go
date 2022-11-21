@@ -20,8 +20,10 @@ package main
 import (
 	"context"
 	"flag"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/plugins/gitextractor/impl"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
@@ -29,6 +31,9 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
+
+// PluginEntry is a variable exported for Framework to search and load
+var PluginEntry impl.GitExtractor //nolint
 
 func main() {
 	url := flag.String("url", "", "-url")
@@ -73,7 +78,7 @@ func main() {
 		"git extractor",
 		nil,
 	)
-	repo, err := newGitRepo(log, storage, tasks.GitExtractorOptions{
+	repo, err := impl.NewGitRepo(log, storage, tasks.GitExtractorOptions{
 		RepoId:   *id,
 		Url:      *url,
 		User:     *user,
