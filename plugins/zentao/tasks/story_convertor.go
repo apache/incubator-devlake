@@ -48,7 +48,7 @@ func ConvertStory(taskCtx core.SubTaskContext) errors.Error {
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoStory{}),
 		dal.Where(`_tool_zentao_stories.product = ? and 
-			_tool_zentao_stories.connection_id = ?`, data.Options.ExecutionId, data.Options.ConnectionId),
+			_tool_zentao_stories.connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err

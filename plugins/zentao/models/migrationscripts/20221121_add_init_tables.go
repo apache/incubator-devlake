@@ -55,6 +55,7 @@ func (*addInitTables) Up(basicRes core.BasicRes) errors.Error {
 		&archived.ZentaoBug{},
 		&archived.ZentaoTask{},
 		&archived.ZentaoAccount{},
+		&archived.ZentaoDepartment{},
 	)
 }
 
