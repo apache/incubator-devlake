@@ -68,17 +68,17 @@ type ZentaoExecution struct {
 	PMId           uint64
 	QDId           uint64
 	RDId           uint64
-	Team           string `json:"team"`
-	Acl            string `json:"acl"`
-	OrderIn        int    `json:"order"`
-	Vision         string `json:"vision"`
-	DisplayCards   int    `json:"displayCards"`
-	FluidBoard     string `json:"fluidBoard"`
-	Deleted        bool   `json:"deleted"`
-	TotalHours     int    `json:"totalHours"`
-	TotalEstimate  int    `json:"totalEstimate"`
-	TotalConsumed  int    `json:"totalConsumed"`
-	TotalLeft      int    `json:"totalLeft"`
+	Team           string  `json:"team"`
+	Acl            string  `json:"acl"`
+	OrderIn        int     `json:"order"`
+	Vision         string  `json:"vision"`
+	DisplayCards   int     `json:"displayCards"`
+	FluidBoard     string  `json:"fluidBoard"`
+	Deleted        bool    `json:"deleted"`
+	TotalHours     float64 `json:"totalHours"`
+	TotalEstimate  float64 `json:"totalEstimate"`
+	TotalConsumed  float64 `json:"totalConsumed"`
+	TotalLeft      float64 `json:"totalLeft"`
 	ProjectId      uint64
 	Progress       float64 `json:"progress"`
 	CaseReview     bool    `json:"caseReview"`
