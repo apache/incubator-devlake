@@ -19,7 +19,7 @@ package archived
 
 import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type ZentaoTask struct {
@@ -53,43 +53,43 @@ type ZentaoTask struct {
 	Version            int    `json:"version"`
 	OpenedById         uint64
 	OpenedByName       string
-	OpenedDate         *time.Time `json:"openedDate"`
+	OpenedDate         *helper.Iso8601Time `json:"openedDate"`
 	AssignedToId       uint64
 	AssignedToName     string
-	AssignedDate       *time.Time `json:"assignedDate"`
-	EstStarted         string     `json:"estStarted"`
-	RealStarted        *time.Time `json:"realStarted"`
+	AssignedDate       *helper.Iso8601Time `json:"assignedDate"`
+	EstStarted         string              `json:"estStarted"`
+	RealStarted        *helper.Iso8601Time `json:"realStarted"`
 	FinishedId         uint64
-	FinishedDate       *time.Time `json:"finishedDate"`
-	FinishedList       string     `json:"finishedList"`
+	FinishedDate       *helper.Iso8601Time `json:"finishedDate"`
+	FinishedList       string              `json:"finishedList"`
 	CanceledId         uint64
-	CanceledDate       *time.Time `json:"canceledDate"`
+	CanceledDate       *helper.Iso8601Time `json:"canceledDate"`
 	ClosedById         uint64
-	ClosedDate         *time.Time `json:"closedDate"`
-	PlanDuration       int        `json:"planDuration"`
-	RealDuration       int        `json:"realDuration"`
-	ClosedReason       string     `json:"closedReason"`
+	ClosedDate         *helper.Iso8601Time `json:"closedDate"`
+	PlanDuration       int                 `json:"planDuration"`
+	RealDuration       int                 `json:"realDuration"`
+	ClosedReason       string              `json:"closedReason"`
 	LastEditedId       uint64
-	LastEditedDate     *time.Time `json:"lastEditedDate"`
-	ActivatedDate      string     `json:"activatedDate"`
-	OrderIn            int        `json:"order"`
-	Repo               int        `json:"repo"`
-	Mr                 int        `json:"mr"`
-	Entry              string     `json:"entry"`
-	NumOfLine          string     `json:"lines"`
-	V1                 string     `json:"v1"`
-	V2                 string     `json:"v2"`
-	Deleted            bool       `json:"deleted"`
-	Vision             string     `json:"vision"`
-	StoryID            uint64     `json:"storyID"`
-	StoryTitle         string     `json:"storyTitle"`
-	Branch             int        `json:"branch"`
-	LatestStoryVersion int        `json:"latestStoryVersion"`
-	StoryStatus        string     `json:"storyStatus"`
-	AssignedToRealName string     `json:"assignedToRealName"`
-	PriOrder           string     `json:"priOrder"`
-	NeedConfirm        bool       `json:"needConfirm"`
-	Progress           float64    `json:"progress"`
+	LastEditedDate     *helper.Iso8601Time `json:"lastEditedDate"`
+	ActivatedDate      *helper.Iso8601Time `json:"activatedDate"`
+	OrderIn            int                 `json:"order"`
+	Repo               int                 `json:"repo"`
+	Mr                 int                 `json:"mr"`
+	Entry              string              `json:"entry"`
+	NumOfLine          string              `json:"lines"`
+	V1                 string              `json:"v1"`
+	V2                 string              `json:"v2"`
+	Deleted            bool                `json:"deleted"`
+	Vision             string              `json:"vision"`
+	StoryID            uint64              `json:"storyID"`
+	StoryTitle         string              `json:"storyTitle"`
+	Branch             int                 `json:"branch"`
+	LatestStoryVersion int                 `json:"latestStoryVersion"`
+	StoryStatus        string              `json:"storyStatus"`
+	AssignedToRealName string              `json:"assignedToRealName"`
+	PriOrder           string              `json:"priOrder"`
+	NeedConfirm        bool                `json:"needConfirm"`
+	Progress           float64             `json:"progress"`
 }
 
 func (ZentaoTask) TableName() string {

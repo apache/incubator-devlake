@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -32,4 +33,18 @@ func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs
 	}
 	return body.Page, nil
 
+}
+
+func getAccountId(account *models.ZentaoAccount) uint64 {
+	if account != nil {
+		return account.ID
+	}
+	return 0
+}
+
+func getAccountName(account *models.ZentaoAccount) string {
+	if account != nil {
+		return account.Realname
+	}
+	return ""
 }

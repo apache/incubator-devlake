@@ -19,7 +19,7 @@ package archived
 
 import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type ZentaoProduct struct {
@@ -40,20 +40,20 @@ type ZentaoProduct struct {
 	Acl            string `json:"acl"`
 	Reviewer       string `json:"reviewer"`
 	CreatedById    uint64
-	CreatedDate    *time.Time `json:"createdDate"`
-	CreatedVersion string     `json:"createdVersion"`
-	OrderIn        int        `json:"order"`
-	Deleted        string     `json:"deleted"`
-	Plans          int        `json:"plans"`
-	Releases       int        `json:"releases"`
-	Builds         int        `json:"builds"`
-	Cases          int        `json:"cases"`
-	Projects       int        `json:"projects"`
-	Executions     int        `json:"executions"`
-	Bugs           int        `json:"bugs"`
-	Docs           int        `json:"docs"`
-	Progress       float64    `json:"progress"`
-	CaseReview     bool       `json:"caseReview"`
+	CreatedDate    *helper.Iso8601Time `json:"createdDate"`
+	CreatedVersion string              `json:"createdVersion"`
+	OrderIn        int                 `json:"order"`
+	Deleted        string              `json:"deleted"`
+	Plans          int                 `json:"plans"`
+	Releases       int                 `json:"releases"`
+	Builds         int                 `json:"builds"`
+	Cases          int                 `json:"cases"`
+	Projects       int                 `json:"projects"`
+	Executions     int                 `json:"executions"`
+	Bugs           int                 `json:"bugs"`
+	Docs           int                 `json:"docs"`
+	Progress       float64             `json:"progress"`
+	CaseReview     bool                `json:"caseReview"`
 	archived.NoPKModel
 }
 

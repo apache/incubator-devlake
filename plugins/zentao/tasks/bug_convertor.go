@@ -78,9 +78,9 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 				Title:          toolEntity.Title,
 				Type:           ticket.BUG,
 				OriginalStatus: toolEntity.Status,
-				ResolutionDate: toolEntity.ClosedDate,
-				CreatedDate:    toolEntity.OpenedDate,
-				UpdatedDate:    toolEntity.LastEditedDate,
+				ResolutionDate: toolEntity.ClosedDate.ToNullableTime(),
+				CreatedDate:    toolEntity.OpenedDate.ToNullableTime(),
+				UpdatedDate:    toolEntity.LastEditedDate.ToNullableTime(),
 				ParentIssueId:  storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Story),
 				Priority:       string(rune(toolEntity.Pri)),
 				CreatorId:      strconv.FormatUint(toolEntity.OpenedById, 10),
@@ -96,7 +96,7 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 				domainEntity.Status = ticket.IN_PROGRESS
 			}
 			if toolEntity.ClosedDate != nil {
-				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.Sub(*toolEntity.OpenedDate).Minutes())
+				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}
 			domainBoardIssue := &ticket.BoardIssue{
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProductId),

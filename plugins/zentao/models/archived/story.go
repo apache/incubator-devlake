@@ -19,7 +19,7 @@ package archived
 
 import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type ZentaoStory struct {
@@ -57,31 +57,31 @@ type ZentaoStory struct {
 	FromVersion      int    `json:"fromVersion"`
 	OpenedById       uint64
 	OpenedByName     string
-	OpenedDate       *time.Time `json:"openedDate"`
+	OpenedDate       *helper.Iso8601Time `json:"openedDate"`
 	AssignedToId     uint64
 	AssignedToName   string
-	AssignedDate     *time.Time `json:"assignedDate"`
-	ApprovedDate     string     `json:"approvedDate"`
+	AssignedDate     *helper.Iso8601Time `json:"assignedDate"`
+	ApprovedDate     *helper.Iso8601Time `json:"approvedDate"`
 	LastEditedId     uint64
-	LastEditedDate   *time.Time `json:"lastEditedDate"`
-	ChangedDate      string     `json:"changedDate"`
-	ReviewedById     uint64     `json:"reviewedBy"`
-	ReviewedDate     *time.Time `json:"reviewedDate"`
+	LastEditedDate   *helper.Iso8601Time `json:"lastEditedDate"`
+	ChangedDate      *helper.Iso8601Time `json:"changedDate"`
+	ReviewedById     uint64              `json:"reviewedBy"`
+	ReviewedDate     *helper.Iso8601Time `json:"reviewedDate"`
 	ClosedId         uint64
-	ClosedDate       *time.Time `json:"closedDate"`
-	ClosedReason     string     `json:"closedReason"`
-	ActivatedDate    string     `json:"activatedDate"`
-	ToBug            int        `json:"toBug"`
-	ChildStories     string     `json:"childStories"`
-	LinkStories      string     `json:"linkStories"`
-	LinkRequirements string     `json:"linkRequirements"`
-	DuplicateStory   uint64     `json:"duplicateStory"`
-	StoryChanged     string     `json:"storyChanged"`
-	NotifyEmail      string     `json:"notifyEmail"`
-	URChanged        string     `json:"URChanged"`
-	Deleted          bool       `json:"deleted"`
-	PriOrder         string     `json:"priOrder"`
-	PlanTitle        string     `json:"planTitle"`
+	ClosedDate       *helper.Iso8601Time `json:"closedDate"`
+	ClosedReason     string              `json:"closedReason"`
+	ActivatedDate    *helper.Iso8601Time `json:"activatedDate"`
+	ToBug            int                 `json:"toBug"`
+	ChildStories     string              `json:"childStories"`
+	LinkStories      string              `json:"linkStories"`
+	LinkRequirements string              `json:"linkRequirements"`
+	DuplicateStory   uint64              `json:"duplicateStory"`
+	StoryChanged     string              `json:"storyChanged"`
+	NotifyEmail      string              `json:"notifyEmail"`
+	URChanged        string              `json:"URChanged"`
+	Deleted          bool                `json:"deleted"`
+	PriOrder         string              `json:"priOrder"`
+	PlanTitle        string              `json:"planTitle"`
 }
 
 func (ZentaoStory) TableName() string {

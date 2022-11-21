@@ -19,164 +19,117 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/models/common"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type ZentaoExecutionRes struct {
-	ID            uint64     `json:"id"`
-	Project       uint64     `json:"project"`
-	Model         string     `json:"model"`
-	Type          string     `json:"type"`
-	Lifetime      string     `json:"lifetime"`
-	Budget        string     `json:"budget"`
-	BudgetUnit    string     `json:"budgetUnit"`
-	Attribute     string     `json:"attribute"`
-	Percent       int        `json:"percent"`
-	Milestone     string     `json:"milestone"`
-	Output        string     `json:"output"`
-	Auth          string     `json:"auth"`
-	Parent        uint64     `json:"parent"`
-	Path          string     `json:"path"`
-	Grade         int        `json:"grade"`
-	Name          string     `json:"name"`
-	Code          string     `json:"code"`
-	PlanBegin     string     `json:"begin"`
-	PlanEnd       string     `json:"end"`
-	RealBegan     *time.Time `json:"realBegan"`
-	RealEnd       *time.Time `json:"realEnd"`
-	Days          int        `json:"days"`
-	Status        string     `json:"status"`
-	SubStatus     string     `json:"subStatus"`
-	Pri           string     `json:"pri"`
-	Description   string     `json:"desc"`
-	Version       int        `json:"version"`
-	ParentVersion int        `json:"parentVersion"`
-	PlanDuration  int        `json:"planDuration"`
-	RealDuration  int        `json:"realDuration"`
-	OpenedBy      struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"openedBy"`
-	OpenedDate    *time.Time `json:"openedDate"`
-	OpenedVersion string     `json:"openedVersion"`
-	LastEditedBy  struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"lastEditedBy"`
-	LastEditedDate *time.Time `json:"lastEditedDate"`
-	ClosedBy       struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"closedBy"`
-	ClosedDate *time.Time `json:"closedDate"`
-	CanceledBy struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"canceledBy"`
-	CanceledDate  *time.Time `json:"canceledDate"`
-	SuspendedDate string     `json:"suspendedDate"`
-	PO            struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"PO"`
-	PM struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"PM"`
-	QD struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"QD"`
-	RD struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"RD"`
-	Team      string `json:"team"`
-	Acl       string `json:"acl"`
-	Whitelist []struct {
-		ID       uint64 `json:"id"`
-		Account  string `json:"account"`
-		Avatar   string `json:"avatar"`
-		Realname string `json:"realname"`
-	} `json:"whitelist"`
-	OrderIn       int     `json:"order"`
-	Vision        string  `json:"vision"`
-	DisplayCards  int     `json:"displayCards"`
-	FluidBoard    string  `json:"fluidBoard"`
-	Deleted       bool    `json:"deleted"`
-	TotalHours    float64 `json:"totalHours"`
-	TotalEstimate float64 `json:"totalEstimate"`
-	TotalConsumed float64 `json:"totalConsumed"`
-	TotalLeft     float64 `json:"totalLeft"`
-	ProjectInfo   struct {
-		ID             uint64 `json:"id"`
-		Project        uint64 `json:"project"`
-		Model          string `json:"model"`
-		Type           string `json:"type"`
-		Lifetime       string `json:"lifetime"`
-		Budget         string `json:"budget"`
-		BudgetUnit     string `json:"budgetUnit"`
-		Attribute      string `json:"attribute"`
-		Percent        int    `json:"percent"`
-		Milestone      string `json:"milestone"`
-		Output         string `json:"output"`
-		Auth           string `json:"auth"`
-		Parent         uint64 `json:"parent"`
-		Path           string `json:"path"`
-		Grade          int    `json:"grade"`
-		Name           string `json:"name"`
-		Code           string `json:"code"`
-		PlanBegin      string `json:"begin"`
-		PlanEnd        string `json:"end"`
-		RealBegan      string `json:"realBegan"`
-		RealEnd        string `json:"realEnd"`
-		Days           int    `json:"days"`
-		Status         string `json:"status"`
-		SubStatus      string `json:"subStatus"`
-		Pri            string `json:"pri"`
-		Description    string `json:"desc"`
-		Version        int    `json:"version"`
-		ParentVersion  int    `json:"parentVersion"`
-		PlanDuration   int    `json:"planDuration"`
-		RealDuration   int    `json:"realDuration"`
-		OpenedBy       string `json:"openedBy"`
-		OpenedDate     string `json:"openedDate"`
-		OpenedVersion  string `json:"openedVersion"`
-		LastEditedBy   string `json:"lastEditedBy"`
-		LastEditedDate string `json:"lastEditedDate"`
-		ClosedBy       string `json:"closedBy"`
-		ClosedDate     string `json:"closedDate"`
-		CanceledBy     string `json:"canceledBy"`
-		CanceledDate   string `json:"canceledDate"`
-		SuspendedDate  string `json:"suspendedDate"`
-		PO             string `json:"PO"`
-		PM             string `json:"PM"`
-		QD             string `json:"QD"`
-		RD             string `json:"RD"`
-		Team           string `json:"team"`
-		Acl            string `json:"acl"`
-		Whitelist      string `json:"whitelist"`
-		OrderIn        int    `json:"order"`
-		Vision         string `json:"vision"`
-		DisplayCards   int    `json:"displayCards"`
-		FluidBoard     string `json:"fluidBoard"`
-		Deleted        string `json:"deleted"`
+	ID             uint64              `json:"id"`
+	Project        uint64              `json:"project"`
+	Model          string              `json:"model"`
+	Type           string              `json:"type"`
+	Lifetime       string              `json:"lifetime"`
+	Budget         string              `json:"budget"`
+	BudgetUnit     string              `json:"budgetUnit"`
+	Attribute      string              `json:"attribute"`
+	Percent        int                 `json:"percent"`
+	Milestone      string              `json:"milestone"`
+	Output         string              `json:"output"`
+	Auth           string              `json:"auth"`
+	Parent         uint64              `json:"parent"`
+	Path           string              `json:"path"`
+	Grade          int                 `json:"grade"`
+	Name           string              `json:"name"`
+	Code           string              `json:"code"`
+	PlanBegin      *helper.Iso8601Time `json:"begin"`
+	PlanEnd        *helper.Iso8601Time `json:"end"`
+	RealBegan      *helper.Iso8601Time `json:"realBegan"`
+	RealEnd        *helper.Iso8601Time `json:"realEnd"`
+	Status         string              `json:"status"`
+	SubStatus      string              `json:"subStatus"`
+	Pri            string              `json:"pri"`
+	Description    string              `json:"desc"`
+	Version        int                 `json:"version"`
+	ParentVersion  int                 `json:"parentVersion"`
+	PlanDuration   int                 `json:"planDuration"`
+	RealDuration   int                 `json:"realDuration"`
+	OpenedBy       *ZentaoAccount      `json:"openedBy"`
+	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	OpenedVersion  string              `json:"openedVersion"`
+	LastEditedBy   *ZentaoAccount      `json:"lastEditedBy"`
+	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
+	ClosedBy       *ZentaoAccount      `json:"closedBy"`
+	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
+	CanceledBy     *ZentaoAccount      `json:"canceledBy"`
+	CanceledDate   *helper.Iso8601Time `json:"canceledDate"`
+	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate"`
+	PO             *ZentaoAccount      `json:"PO"`
+	PM             *ZentaoAccount      `json:"PM"`
+	QD             *ZentaoAccount      `json:"QD"`
+	RD             *ZentaoAccount      `json:"RD"`
+	Team           string              `json:"team"`
+	Acl            string              `json:"acl"`
+	Whitelist      []*ZentaoAccount    `json:"whitelist"`
+	OrderIn        int                 `json:"order"`
+	Vision         string              `json:"vision"`
+	DisplayCards   int                 `json:"displayCards"`
+	FluidBoard     string              `json:"fluidBoard"`
+	Deleted        bool                `json:"deleted"`
+	TotalHours     float64             `json:"totalHours"`
+	TotalEstimate  float64             `json:"totalEstimate"`
+	TotalConsumed  float64             `json:"totalConsumed"`
+	TotalLeft      float64             `json:"totalLeft"`
+	ProjectInfo    struct {
+		ID             uint64              `json:"id"`
+		Project        uint64              `json:"project"`
+		Model          string              `json:"model"`
+		Type           string              `json:"type"`
+		Lifetime       string              `json:"lifetime"`
+		Budget         string              `json:"budget"`
+		BudgetUnit     string              `json:"budgetUnit"`
+		Attribute      string              `json:"attribute"`
+		Percent        int                 `json:"percent"`
+		Milestone      string              `json:"milestone"`
+		Output         string              `json:"output"`
+		Auth           string              `json:"auth"`
+		Parent         uint64              `json:"parent"`
+		Path           string              `json:"path"`
+		Grade          int                 `json:"grade"`
+		Name           string              `json:"name"`
+		Code           string              `json:"code"`
+		PlanBegin      *helper.Iso8601Time `json:"begin"`
+		PlanEnd        *helper.Iso8601Time `json:"end"`
+		RealBegan      string              `json:"realBegan"`
+		RealEnd        *helper.Iso8601Time `json:"realEnd"`
+		Status         string              `json:"status"`
+		SubStatus      string              `json:"subStatus"`
+		Pri            string              `json:"pri"`
+		Description    string              `json:"desc"`
+		Version        int                 `json:"version"`
+		ParentVersion  int                 `json:"parentVersion"`
+		PlanDuration   int                 `json:"planDuration"`
+		RealDuration   int                 `json:"realDuration"`
+		OpenedBy       string              `json:"openedBy"`
+		OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+		OpenedVersion  string              `json:"openedVersion"`
+		LastEditedBy   string              `json:"lastEditedBy"`
+		LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
+		ClosedBy       string              `json:"closedBy"`
+		ClosedDate     *helper.Iso8601Time `json:"closedDate"`
+		CanceledBy     string              `json:"canceledBy"`
+		CanceledDate   *helper.Iso8601Time `json:"canceledDate"`
+		SuspendedDate  *helper.Iso8601Time `json:"suspendedDate"`
+		PO             string              `json:"PO"`
+		PM             string              `json:"PM"`
+		QD             string              `json:"QD"`
+		RD             string              `json:"RD"`
+		Team           string              `json:"team"`
+		Acl            string              `json:"acl"`
+		Whitelist      string              `json:"whitelist"`
+		OrderIn        int                 `json:"order"`
+		Vision         string              `json:"vision"`
+		DisplayCards   int                 `json:"displayCards"`
+		FluidBoard     string              `json:"fluidBoard"`
+		Deleted        string              `json:"deleted"`
 	} `json:"projectInfo"`
 	Progress    float64 `json:"progress"`
 	TeamMembers []struct {
@@ -188,7 +141,6 @@ type ZentaoExecutionRes struct {
 		Position   string  `json:"position"`
 		Limited    string  `json:"limited"`
 		Join       string  `json:"join"`
-		Days       int     `json:"days"`
 		Hours      int     `json:"hours"`
 		Estimate   string  `json:"estimate"`
 		Consumed   string  `json:"consumed"`
@@ -207,47 +159,46 @@ type ZentaoExecutionRes struct {
 }
 
 type ZentaoExecution struct {
-	ConnectionId   uint64     `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id             uint64     `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Project        uint64     `json:"project"`
-	Model          string     `json:"model"`
-	Type           string     `json:"type"`
-	Lifetime       string     `json:"lifetime"`
-	Budget         string     `json:"budget"`
-	BudgetUnit     string     `json:"budgetUnit"`
-	Attribute      string     `json:"attribute"`
-	Percent        int        `json:"percent"`
-	Milestone      string     `json:"milestone"`
-	Output         string     `json:"output"`
-	Auth           string     `json:"auth"`
-	Parent         uint64     `json:"parent"`
-	Path           string     `json:"path"`
-	Grade          int        `json:"grade"`
-	Name           string     `json:"name"`
-	Code           string     `json:"code"`
-	PlanBegin      string     `json:"begin"`
-	PlanEnd        string     `json:"end"`
-	RealBegan      *time.Time `json:"realBegan"`
-	RealEnd        *time.Time `json:"realEnd"`
-	Days           int        `json:"days"`
-	Status         string     `json:"status"`
-	SubStatus      string     `json:"subStatus"`
-	Pri            string     `json:"pri"`
-	Description    string     `json:"desc"`
-	Version        int        `json:"version"`
-	ParentVersion  int        `json:"parentVersion"`
-	PlanDuration   int        `json:"planDuration"`
-	RealDuration   int        `json:"realDuration"`
+	ConnectionId   uint64              `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id             uint64              `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Project        uint64              `json:"project"`
+	Model          string              `json:"model"`
+	Type           string              `json:"type"`
+	Lifetime       string              `json:"lifetime"`
+	Budget         string              `json:"budget"`
+	BudgetUnit     string              `json:"budgetUnit"`
+	Attribute      string              `json:"attribute"`
+	Percent        int                 `json:"percent"`
+	Milestone      string              `json:"milestone"`
+	Output         string              `json:"output"`
+	Auth           string              `json:"auth"`
+	Parent         uint64              `json:"parent"`
+	Path           string              `json:"path"`
+	Grade          int                 `json:"grade"`
+	Name           string              `json:"name"`
+	Code           string              `json:"code"`
+	PlanBegin      *helper.Iso8601Time `json:"begin"`
+	PlanEnd        *helper.Iso8601Time `json:"end"`
+	RealBegan      *helper.Iso8601Time `json:"realBegan"`
+	RealEnd        *helper.Iso8601Time `json:"realEnd"`
+	Status         string              `json:"status"`
+	SubStatus      string              `json:"subStatus"`
+	Pri            string              `json:"pri"`
+	Description    string              `json:"desc"`
+	Version        int                 `json:"version"`
+	ParentVersion  int                 `json:"parentVersion"`
+	PlanDuration   int                 `json:"planDuration"`
+	RealDuration   int                 `json:"realDuration"`
 	OpenedById     uint64
-	OpenedDate     *time.Time `json:"openedDate"`
-	OpenedVersion  string     `json:"openedVersion"`
+	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	OpenedVersion  string              `json:"openedVersion"`
 	LastEditedById uint64
-	LastEditedDate *time.Time `json:"lastEditedDate"`
+	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
 	ClosedById     uint64
-	ClosedDate     *time.Time `json:"closedDate"`
+	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
 	CanceledById   uint64
-	CanceledDate   *time.Time `json:"canceledDate"`
-	SuspendedDate  string     `json:"suspendedDate"`
+	CanceledDate   *helper.Iso8601Time `json:"canceledDate"`
+	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate"`
 	POId           uint64
 	PMId           uint64
 	QDId           uint64
