@@ -42,12 +42,12 @@ var globalPipelineLog = logger.Global.Nested("pipeline service")
 
 // PipelineQuery is a query for GetPipelines
 type PipelineQuery struct {
-	Status        string `form:"status"`
-	Pending       int    `form:"pending"`
-	Page          int    `form:"page"`
-	PageSize      int    `form:"pageSize"`
-	BlueprintId   uint64 `uri:"blueprintId" form:"blueprint_id"`
-	ParallelLabel string `form:"parallel_label"`
+	Status      string `form:"status"`
+	Pending     int    `form:"pending"`
+	Page        int    `form:"page"`
+	PageSize    int    `form:"pageSize"`
+	BlueprintId uint64 `uri:"blueprintId" form:"blueprint_id"`
+	Label       string `form:"label"`
 }
 
 func pipelineServiceInit() {
@@ -95,7 +95,7 @@ func pipelineServiceInit() {
 
 // CreatePipeline and return the model
 func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.Error) {
-	dbPipeline, parallelLabelModels, err := CreateDbPipeline(newPipeline)
+	dbPipeline, labelModels, err := CreateDbPipeline(newPipeline)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
@@ -103,13 +103,13 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.E
 	if err != nil {
 		return nil, err
 	}
-	pipeline := parsePipeline(dbPipeline, parallelLabelModels)
+	pipeline := parsePipeline(dbPipeline, labelModels)
 	return pipeline, nil
 }
 
 // GetPipelines by query
 func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error) {
-	dbPipelines, dbParallelLabelsMap, i, err := GetDbPipelines(query)
+	dbPipelines, dbLabelsMap, i, err := GetDbPipelines(query)
 	if err != nil {
 		return nil, 0, errors.Convert(err)
 	}
@@ -119,7 +119,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error
 		if err != nil {
 			return nil, 0, err
 		}
-		pipeline := parsePipeline(dbPipeline, dbParallelLabelsMap[dbPipeline.ID])
+		pipeline := parsePipeline(dbPipeline, dbLabelsMap[dbPipeline.ID])
 		pipelines = append(pipelines, pipeline)
 	}
 
@@ -128,7 +128,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error
 
 // GetPipeline by id
 func GetPipeline(pipelineId uint64) (*models.Pipeline, errors.Error) {
-	dbPipeline, dbParallelLabels, err := GetDbPipeline(pipelineId)
+	dbPipeline, dbLabels, err := GetDbPipeline(pipelineId)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func GetPipeline(pipelineId uint64) (*models.Pipeline, errors.Error) {
 	if err != nil {
 		return nil, err
 	}
-	pipeline := parsePipeline(dbPipeline, dbParallelLabels)
+	pipeline := parsePipeline(dbPipeline, dbLabels)
 	return pipeline, nil
 }
 
@@ -167,16 +167,17 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 		}
 		globalPipelineLog.Info("get lock and wait next pipeline")
 		dbPipeline := &models.DbPipeline{}
-		var dbParallelLabels []models.DbPipelineParallelLabel
+		var dbLabels []models.DbPipelineLabel
 		for {
 			cronLocker.Lock()
 			// prepare query to find an appropriate pipeline to execute
 			db.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}).
-				Joins(`left join _devlake_pipeline_parallel_labels ON
-                  _devlake_pipeline_parallel_labels.pipeline_id = _devlake_pipelines.id AND
-                  _devlake_pipeline_parallel_labels.name in ?`, runningParallelLabels).
+				Joins(`left join _devlake_pipeline_labels ON
+                  _devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id AND
+                  _devlake_pipeline_labels.name = 'parallel/%' AND
+                  _devlake_pipeline_labels.name in ?`, runningParallelLabels).
 				Group(`id`).
-				Having(`count(_devlake_pipeline_parallel_labels.name)=0`).
+				Having(`count(_devlake_pipeline_labels.name)=0`).
 				Select("id").
 				Order("id ASC").Limit(1).Find(dbPipeline)
 			cronLocker.Unlock()
@@ -191,15 +192,17 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 			"message":  "",
 			"began_at": time.Now(),
 		})
-		dbPipeline, dbParallelLabels, err = GetDbPipeline(dbPipeline.ID)
+		dbPipeline, dbLabels, err = GetDbPipeline(dbPipeline.ID)
 		if err != nil {
 			panic(err)
 		}
 
 		// add pipelineParallelLabels to runningParallelLabels
 		var pipelineParallelLabels []string
-		for _, dbParallelLabel := range dbParallelLabels {
-			pipelineParallelLabels = append(pipelineParallelLabels, dbParallelLabel.Name)
+		for _, dbLabel := range dbLabels {
+			if strings.HasPrefix(dbLabel.Name, `parallel/`) {
+				pipelineParallelLabels = append(pipelineParallelLabels, dbLabel.Name)
+			}
 		}
 		runningParallelLabels = append(runningParallelLabels, pipelineParallelLabels...)
 		globalPipelineLog.Info("now running runningParallelLabels is %s", runningParallelLabels)

@@ -36,11 +36,11 @@ import (
 
 // BlueprintQuery is a query for GetBlueprints
 type BlueprintQuery struct {
-	Enable        *bool  `form:"enable,omitempty"`
-	IsManual      *bool  `form:"is_manual"`
-	Page          int    `form:"page"`
-	PageSize      int    `form:"pageSize"`
-	ParallelLabel string `form:"parallel_label"`
+	Enable   *bool  `form:"enable,omitempty"`
+	IsManual *bool  `form:"is_manual"`
+	Page     int    `form:"page"`
+	PageSize int    `form:"pageSize"`
+	Label    string `form:"label"`
 }
 
 var (
@@ -54,12 +54,12 @@ func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 	if err != nil {
 		return err
 	}
-	dbBlueprint, dbBlueprintParallelLabels := parseDbBlueprint(blueprint)
+	dbBlueprint, dbBlueprintLabels := parseDbBlueprint(blueprint)
 	dbBlueprint, err = encryptDbBlueprint(dbBlueprint)
 	if err != nil {
 		return err
 	}
-	err = SaveDbBlueprint(dbBlueprint, dbBlueprintParallelLabels)
+	err = SaveDbBlueprint(dbBlueprint, dbBlueprintLabels)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 
 // GetBlueprints returns a paginated list of Blueprints based on `query`
 func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
-	dbBlueprints, dbParallelLabelsMap, count, err := GetDbBlueprints(query)
+	dbBlueprints, dbLabelsMap, count, err := GetDbBlueprints(query)
 	if err != nil {
 		return nil, 0, errors.Convert(err)
 	}
@@ -83,7 +83,7 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Er
 		if err != nil {
 			return nil, 0, err
 		}
-		blueprint := parseBlueprint(dbBlueprint, dbParallelLabelsMap[dbBlueprint.ID])
+		blueprint := parseBlueprint(dbBlueprint, dbLabelsMap[dbBlueprint.ID])
 		blueprints = append(blueprints, blueprint)
 	}
 	return blueprints, count, nil
@@ -91,7 +91,7 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Er
 
 // GetBlueprint returns the detail of a given Blueprint ID
 func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
-	dbBlueprint, dbParallelLabels, err := GetDbBlueprint(blueprintId)
+	dbBlueprint, dbLabels, err := GetDbBlueprint(blueprintId)
 	if err != nil {
 		if goerror.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NotFound.New("blueprint not found")
@@ -102,7 +102,7 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
 	if err != nil {
 		return nil, err
 	}
-	blueprint := parseBlueprint(dbBlueprint, dbParallelLabels)
+	blueprint := parseBlueprint(dbBlueprint, dbLabels)
 	return blueprint, nil
 }
 
@@ -180,12 +180,12 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	}
 
 	// save
-	dbBlueprint, dbBlueprintParallelLabels := parseDbBlueprint(blueprint)
+	dbBlueprint, dbBlueprintLabels := parseDbBlueprint(blueprint)
 	dbBlueprint, err = encryptDbBlueprint(dbBlueprint)
 	if err != nil {
 		return nil, err
 	}
-	err = SaveDbBlueprint(dbBlueprint, dbBlueprintParallelLabels)
+	err = SaveDbBlueprint(dbBlueprint, dbBlueprintLabels)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +216,7 @@ func DeleteBlueprint(id uint64) errors.Error {
 func ReloadBlueprints(c *cron.Cron) errors.Error {
 	enable := true
 	isManual := false
-	dbBlueprints, dbParallelLabelsMap, _, err := GetDbBlueprints(&BlueprintQuery{Enable: &enable, IsManual: &isManual})
+	dbBlueprints, dbLabelsMap, _, err := GetDbBlueprints(&BlueprintQuery{Enable: &enable, IsManual: &isManual})
 	if err != nil {
 		return err
 	}
@@ -229,7 +229,7 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 		if err != nil {
 			return err
 		}
-		blueprint := parseBlueprint(dbBlueprint, dbParallelLabelsMap[dbBlueprint.ID])
+		blueprint := parseBlueprint(dbBlueprint, dbLabelsMap[dbBlueprint.ID])
 		plan, err := blueprint.UnmarshalPlan()
 		if err != nil {
 			blueprintLog.Error(err, failToCreateCronJob)
@@ -259,7 +259,7 @@ func createPipelineByBlueprint(blueprint *models.Blueprint, name string, plan co
 	newPipeline.Plan = plan
 	newPipeline.Name = name
 	newPipeline.BlueprintId = blueprint.ID
-	newPipeline.ParallelLabels = blueprint.ParallelLabels
+	newPipeline.Labels = blueprint.Labels
 	pipeline, err := CreatePipeline(&newPipeline)
 	// Return all created tasks to the User
 	if err != nil {

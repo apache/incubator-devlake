@@ -67,7 +67,7 @@ func Post(c *gin.Context) {
 // @Param is_manual query bool false "is_manual"
 // @Param page query int false "page"
 // @Param page_size query int false "page_size"
-// @Param parallel_label query string false "parallel_label"
+// @Param label query string false "label"
 // @Success 200  {object} PaginatedBlueprint
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"

@@ -39,12 +39,12 @@ type Blueprint struct {
 	Plan        json.RawMessage `json:"plan"`
 	Enable      bool            `json:"enable"`
 	//please check this https://crontab.guru/ for detail
-	CronConfig     string          `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
-	IsManual       bool            `json:"isManual"`
-	SkipOnFail     bool            `json:"skipOnFail"`
-	ParallelLabels []string        `json:"parallelLabels"`
-	Settings       json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
-	common.Model   `swaggerignore:"true"`
+	CronConfig   string          `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
+	IsManual     bool            `json:"isManual"`
+	SkipOnFail   bool            `json:"skipOnFail"`
+	Labels       []string        `json:"labels"`
+	Settings     json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
+	common.Model `swaggerignore:"true"`
 }
 
 type BlueprintSettings struct {
@@ -84,13 +84,13 @@ func (DbBlueprint) TableName() string {
 	return "_devlake_blueprints"
 }
 
-type DbBlueprintParallelLabel struct {
+type DbBlueprintLabel struct {
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 	BlueprintId uint64    `json:"blueprint_id" gorm:"primaryKey"`
 	Name        string    `json:"name" gorm:"primaryKey"`
 }
 
-func (DbBlueprintParallelLabel) TableName() string {
-	return "_devlake_blueprint_parallel_labels"
+func (DbBlueprintLabel) TableName() string {
+	return "_devlake_blueprint_labels"
 }

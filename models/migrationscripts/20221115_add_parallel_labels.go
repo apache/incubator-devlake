@@ -23,47 +23,47 @@ import (
 	"time"
 )
 
-type DbPipelineParallelLabel20221115 struct {
+type DbPipelineLabel20221115 struct {
 	CreatedAt  time.Time `json:"createdAt"`
 	UpdatedAt  time.Time `json:"updatedAt"`
 	PipelineId uint64    `json:"pipeline_id" gorm:"primaryKey"`
 	Name       string    `json:"name" gorm:"primaryKey"`
 }
 
-func (DbPipelineParallelLabel20221115) TableName() string {
-	return "_devlake_pipeline_parallel_labels"
+func (DbPipelineLabel20221115) TableName() string {
+	return "_devlake_pipeline_labels"
 }
 
-type DbBlueprintParallelLabel20221115 struct {
+type DbBlueprintLabel20221115 struct {
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 	BlueprintId uint64    `json:"blueprint_id" gorm:"primaryKey"`
 	Name        string    `json:"name" gorm:"primaryKey"`
 }
 
-func (DbBlueprintParallelLabel20221115) TableName() string {
-	return "_devlake_blueprint_parallel_labels"
+func (DbBlueprintLabel20221115) TableName() string {
+	return "_devlake_blueprint_labels"
 }
 
-type addParallelLabels struct{}
+type addLabels struct{}
 
-func (*addParallelLabels) Up(res core.BasicRes) errors.Error {
+func (*addLabels) Up(res core.BasicRes) errors.Error {
 	db := res.GetDal()
-	err := db.AutoMigrate(&DbPipelineParallelLabel20221115{})
+	err := db.AutoMigrate(&DbPipelineLabel20221115{})
 	if err != nil {
 		return err
 	}
-	err = db.AutoMigrate(&DbBlueprintParallelLabel20221115{})
+	err = db.AutoMigrate(&DbBlueprintLabel20221115{})
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (*addParallelLabels) Version() uint64 {
+func (*addLabels) Version() uint64 {
 	return 20221115000034
 }
 
-func (*addParallelLabels) Name() string {
-	return "UpdateSchemas for addParallelLabels"
+func (*addLabels) Name() string {
+	return "add parallel labels' schema for blueprint and pipeline"
 }

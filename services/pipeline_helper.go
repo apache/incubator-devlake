@@ -29,7 +29,7 @@ import (
 )
 
 // CreateDbPipeline returns a NewPipeline
-func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, []models.DbPipelineParallelLabel, errors.Error) {
+func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, []models.DbPipelineLabel, errors.Error) {
 	cronLocker.Lock()
 	defer cronLocker.Unlock()
 	planByte, err := errors.Convert01(json.Marshal(newPipeline.Plan))
@@ -59,17 +59,17 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, []mo
 		return nil, nil, errors.Internal.Wrap(err, "create pipeline failed")
 	}
 
-	var parallelLabelModels []models.DbPipelineParallelLabel
-	for _, label := range newPipeline.ParallelLabels {
-		parallelLabelModels = append(parallelLabelModels, models.DbPipelineParallelLabel{
+	var labelModels []models.DbPipelineLabel
+	for _, label := range newPipeline.Labels {
+		labelModels = append(labelModels, models.DbPipelineLabel{
 			PipelineId: dbPipeline.ID,
 			Name:       label,
 		})
 	}
-	if len(parallelLabelModels) > 0 {
-		if err := db.Create(&parallelLabelModels).Error; err != nil {
-			globalPipelineLog.Error(err, "create pipeline's parallelLabelModels failed: %v", err)
-			return nil, nil, errors.Internal.Wrap(err, "create pipeline's parallelLabelModels failed")
+	if len(labelModels) > 0 {
+		if err := db.Create(&labelModels).Error; err != nil {
+			globalPipelineLog.Error(err, "create pipeline's labelModels failed: %v", err)
+			return nil, nil, errors.Internal.Wrap(err, "create pipeline's labelModels failed")
 		}
 	}
 
@@ -108,11 +108,11 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, []mo
 		return nil, nil, errors.Internal.Wrap(err, "update pipline state failed")
 	}
 
-	return dbPipeline, parallelLabelModels, nil
+	return dbPipeline, labelModels, nil
 }
 
 // GetDbPipelines by query
-func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, map[uint64][]models.DbPipelineParallelLabel, int64, errors.Error) {
+func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, map[uint64][]models.DbPipelineLabel, int64, errors.Error) {
 	dbPipelines := make([]*models.DbPipeline, 0)
 	dbQuery := db.Model(dbPipelines).Order("id DESC")
 	if query.BlueprintId != 0 {
@@ -124,11 +124,11 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, map[uint64][]mo
 	if query.Pending > 0 {
 		dbQuery = dbQuery.Where("finished_at is null and status != ?", "TASK_FAILED")
 	}
-	if query.ParallelLabel != "" {
+	if query.Label != "" {
 		dbQuery = dbQuery.
-			Joins(`left join _devlake_pipeline_parallel_labels ON
-                  _devlake_pipeline_parallel_labels.pipeline_id = _devlake_pipelines.id`).
-			Where(`_devlake_pipeline_parallel_labels.name = ?`, query.ParallelLabel)
+			Joins(`left join _devlake_pipeline_labels ON
+                  _devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id`).
+			Where(`_devlake_pipeline_labels.name = ?`, query.Label)
 	}
 	var count int64
 	err := dbQuery.Count(&count).Error
@@ -147,18 +147,18 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, map[uint64][]mo
 	for _, dbPipeline := range dbPipelines {
 		pipelineIds = append(pipelineIds, dbPipeline.ID)
 	}
-	dbParallelLabels := []models.DbPipelineParallelLabel{}
-	dbParallelLabelsMap := map[uint64][]models.DbPipelineParallelLabel{}
-	db.Where(`pipeline_id in ?`, pipelineIds).Find(&dbParallelLabels)
-	for _, dbParallelLabel := range dbParallelLabels {
-		dbParallelLabelsMap[dbParallelLabel.PipelineId] = append(dbParallelLabelsMap[dbParallelLabel.PipelineId], dbParallelLabel)
+	dbLabels := []models.DbPipelineLabel{}
+	dbLabelsMap := map[uint64][]models.DbPipelineLabel{}
+	db.Where(`pipeline_id in ?`, pipelineIds).Find(&dbLabels)
+	for _, dbLabel := range dbLabels {
+		dbLabelsMap[dbLabel.PipelineId] = append(dbLabelsMap[dbLabel.PipelineId], dbLabel)
 	}
 
-	return dbPipelines, dbParallelLabelsMap, count, nil
+	return dbPipelines, dbLabelsMap, count, nil
 }
 
 // GetDbPipeline by id
-func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, []models.DbPipelineParallelLabel, errors.Error) {
+func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, []models.DbPipelineLabel, errors.Error) {
 	dbPipeline := &models.DbPipeline{}
 	err := db.First(dbPipeline, pipelineId).Error
 	if err != nil {
@@ -167,41 +167,41 @@ func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, []models.DbPipelinePa
 		}
 		return nil, nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
 	}
-	dbParallelLabels := []models.DbPipelineParallelLabel{}
-	err = db.Find(&dbParallelLabels, "pipeline_id = ?", pipelineId).Error
+	dbLabels := []models.DbPipelineLabel{}
+	err = db.Find(&dbLabels, "pipeline_id = ?", pipelineId).Error
 	if err != nil {
 		return nil, nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
 	}
-	return dbPipeline, dbParallelLabels, nil
+	return dbPipeline, dbLabels, nil
 }
 
 // parsePipeline converts DbPipeline to Pipeline
-func parsePipeline(dbPipeline *models.DbPipeline, parallelLabelModels []models.DbPipelineParallelLabel) *models.Pipeline {
-	parallelLabelList := []string{}
-	for _, labelModel := range parallelLabelModels {
-		parallelLabelList = append(parallelLabelList, labelModel.Name)
+func parsePipeline(dbPipeline *models.DbPipeline, labelModels []models.DbPipelineLabel) *models.Pipeline {
+	labelList := []string{}
+	for _, labelModel := range labelModels {
+		labelList = append(labelList, labelModel.Name)
 	}
 	pipeline := models.Pipeline{
-		Model:          dbPipeline.Model,
-		Name:           dbPipeline.Name,
-		BlueprintId:    dbPipeline.BlueprintId,
-		Plan:           []byte(dbPipeline.Plan),
-		TotalTasks:     dbPipeline.TotalTasks,
-		FinishedTasks:  dbPipeline.FinishedTasks,
-		BeganAt:        dbPipeline.BeganAt,
-		FinishedAt:     dbPipeline.FinishedAt,
-		Status:         dbPipeline.Status,
-		Message:        dbPipeline.Message,
-		SpentSeconds:   dbPipeline.SpentSeconds,
-		Stage:          dbPipeline.Stage,
-		ParallelLabels: parallelLabelList,
+		Model:         dbPipeline.Model,
+		Name:          dbPipeline.Name,
+		BlueprintId:   dbPipeline.BlueprintId,
+		Plan:          []byte(dbPipeline.Plan),
+		TotalTasks:    dbPipeline.TotalTasks,
+		FinishedTasks: dbPipeline.FinishedTasks,
+		BeganAt:       dbPipeline.BeganAt,
+		FinishedAt:    dbPipeline.FinishedAt,
+		Status:        dbPipeline.Status,
+		Message:       dbPipeline.Message,
+		SpentSeconds:  dbPipeline.SpentSeconds,
+		Stage:         dbPipeline.Stage,
+		Labels:        labelList,
 	}
 	return &pipeline
 }
 
 // parseDbPipeline converts Pipeline to DbPipeline
 // nolint:unused
-func parseDbPipeline(pipeline *models.Pipeline) (*models.DbPipeline, []models.DbPipelineParallelLabel) {
+func parseDbPipeline(pipeline *models.Pipeline) (*models.DbPipeline, []models.DbPipelineLabel) {
 	dbPipeline := models.DbPipeline{
 		Model:         pipeline.Model,
 		Name:          pipeline.Name,
@@ -216,15 +216,15 @@ func parseDbPipeline(pipeline *models.Pipeline) (*models.DbPipeline, []models.Db
 		SpentSeconds:  pipeline.SpentSeconds,
 		Stage:         pipeline.Stage,
 	}
-	parallelLabels := []models.DbPipelineParallelLabel{}
-	for _, label := range pipeline.ParallelLabels {
-		parallelLabels = append(parallelLabels, models.DbPipelineParallelLabel{
+	labels := []models.DbPipelineLabel{}
+	for _, label := range pipeline.Labels {
+		labels = append(labels, models.DbPipelineLabel{
 			// NOTICE: PipelineId may be nil
 			PipelineId: pipeline.ID,
 			Name:       label,
 		})
 	}
-	return &dbPipeline, parallelLabels
+	return &dbPipeline, labels
 }
 
 // encryptDbPipeline encrypts dbPipeline.Plan
