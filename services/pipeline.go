@@ -174,7 +174,7 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 			db.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}).
 				Joins(`left join _devlake_pipeline_labels ON
                   _devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id AND
-                  _devlake_pipeline_labels.name = 'parallel/%' AND
+                  _devlake_pipeline_labels.name LIKE 'parallel/%' AND
                   _devlake_pipeline_labels.name in ?`, runningParallelLabels).
 				Group(`id`).
 				Having(`count(_devlake_pipeline_labels.name)=0`).
@@ -205,7 +205,6 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 			}
 		}
 		runningParallelLabels = append(runningParallelLabels, pipelineParallelLabels...)
-		globalPipelineLog.Info("now running runningParallelLabels is %s", runningParallelLabels)
 
 		go func(pipelineId uint64, parallelLabels []string) {
 			defer sema.Release(1)
@@ -213,7 +212,7 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 				runningParallelLabels = utils.SliceRemove(runningParallelLabels, parallelLabels...)
 				globalPipelineLog.Info("finish pipeline #%d, now runningParallelLabels is %s", pipelineId, runningParallelLabels)
 			}()
-			globalPipelineLog.Info("run pipeline, %d", pipelineId)
+			globalPipelineLog.Info("run pipeline, %d, now running runningParallelLabels are %s", pipelineId, runningParallelLabels)
 			err = runPipeline(pipelineId)
 			if err != nil {
 				globalPipelineLog.Error(err, "failed to run pipeline %d", pipelineId)
