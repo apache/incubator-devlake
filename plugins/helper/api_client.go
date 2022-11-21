@@ -85,7 +85,7 @@ func NewApiClient(
 		return nil, errors.Default.New("Failed to resolve Port")
 	}
 
-    if proxy != "" {
+    if proxy == "" {
         err = utils.CheckNetwork(parsedUrl.Hostname(), port, 10*time.Second)
         if err != nil {
             return nil, errors.Default.Wrap(err, "Failed to connect")
@@ -110,6 +110,16 @@ func NewApiClient(
 	}
 
 	if proxy != "" {
+        var pu, err := url.Parse(proxy)
+        if err != nil {
+            return nil, errors.BadInput.Wrap(err, fmt.Sprintf("Invalid Proxy URL: %s", proxy))
+        }
+
+        err = utils.CheckNetwork(pu.Hostname(), port, 10*time.Second)
+        if err != nil {
+            return nil, errors.Default.Wrap(err, "Failed to connect to proxy")
+        }
+
 		err = apiClient.SetProxy(proxy)
 		if err != nil {
 			return nil, errors.Convert(err)
