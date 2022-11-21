@@ -88,7 +88,7 @@ func ConnectIncidentToDeployment(taskCtx core.SubTaskContext) errors.Error {
 								and cicd_tasks.type = ?
 								and pm.table = ?
 								and pm.project_name = ?`,
-					issue.CreatedDate, "SUCCESS", devops.PRODUCTION, "DEPLOYMENT", "cicd_scopes", data.Options.ProjectName,
+					issue.CreatedDate, devops.SUCCESS, devops.PRODUCTION, devops.DEPLOYMENT, "cicd_scopes", data.Options.ProjectName,
 				),
 				dal.Orderby("cicd_tasks.finished_date DESC"),
 			}
