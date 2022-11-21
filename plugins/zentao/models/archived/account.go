@@ -15,34 +15,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/zentao/models/archived"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type addInitTables struct{}
-
-func (*addInitTables) Up(basicRes core.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		&archived.ZentaoConnection{},
-		&archived.ZentaoProject{},
-		&archived.ZentaoProduct{},
-		&archived.ZentaoExecution{},
-		&archived.ZentaoStory{},
-		&archived.ZentaoBug{},
-		&archived.ZentaoTask{},
-	)
+type ZentaoAccount struct {
+	archived.NoPKModel
+	ConnectionId uint64  `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID           uint64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
+	Account  string `json:"account" gorm:"type:varchar(100);index"`
+	Avatar   string `json:"avatar" gorm:"type:varchar(255)"`
+	Realname string `json:"realname" gorm:"type:varchar(100);index"`
+	Role string `json:"role" gorm:"type:varchar(100);index"`
+	Dept uint64 `json:"dept" gorm:"type:BIGINT  NOT NULL;index"`
 }
 
-func (*addInitTables) Version() uint64 {
-	return 20220910000001
-}
-
-func (*addInitTables) Name() string {
-	return "zentao init schemas"
+func (ZentaoAccount) TableName() string {
+	return "_tool_zentao_accounts"
 }

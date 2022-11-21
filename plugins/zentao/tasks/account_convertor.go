@@ -20,8 +20,8 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -29,57 +29,56 @@ import (
 	"reflect"
 )
 
-var _ core.SubTaskEntryPoint = ConvertProducts
+var _ core.SubTaskEntryPoint = ConvertAccount
 
-var ConvertProductMeta = core.SubTaskMeta{
-	Name:             "convertProducts",
-	EntryPoint:       ConvertProducts,
+var ConvertAccountMeta = core.SubTaskMeta{
+	Name:             "convertAccount",
+	EntryPoint:       ConvertAccount,
 	EnabledByDefault: true,
-	Description:      "convert Zentao products",
+	Description:      "convert Zentao account",
 	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
-func ConvertProducts(taskCtx core.SubTaskContext) errors.Error {
+func ConvertAccount(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
-	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
+	accountIdGen := didgen.NewDomainIdGenerator(&models.ZentaoAccount{})
+	deptIdGen := didgen.NewDomainIdGenerator(&models.ZentaoDepartment{})
 	cursor, err := db.Cursor(
-		dal.From(&models.ZentaoProduct{}),
-		dal.Where(`_tool_zentao_products.id = ? and 
-			_tool_zentao_products.connection_id = ?`, data.Options.ProductId, data.Options.ConnectionId),
+		dal.From(&models.ZentaoAccount{}),
+		dal.Where(`_tool_zentao_accounts.connection_id = ?`, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close()
 	convertor, err := helper.NewDataConverter(helper.DataConverterArgs{
-		InputRowType: reflect.TypeOf(models.ZentaoProduct{}),
+		InputRowType: reflect.TypeOf(models.ZentaoAccount{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: ZentaoApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				ExecutionId:  data.Options.ExecutionId,
 				ProductId:    data.Options.ProductId,
+				ExecutionId:  data.Options.ExecutionId,
 				ProjectId:    data.Options.ProjectId,
 			},
-			Table: RAW_PRODUCT_TABLE,
+			Table: RAW_ACCOUNT_TABLE,
 		},
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			toolProduct := inputRow.(*models.ZentaoProduct)
+			toolEntity := inputRow.(*models.ZentaoAccount)
 
-			domainBoard := &ticket.Board{
+			domainEntity := &crossdomain.Account{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: boardIdGen.Generate(toolProduct.ConnectionId, toolProduct.Id),
+					Id: accountIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),
 				},
-				Name:        toolProduct.Name,
-				Description: toolProduct.Description,
-				CreatedDate: toolProduct.CreatedDate.ToNullableTime(),
-				Type:        toolProduct.Type,
+				FullName:     toolEntity.Realname,
+				UserName:     toolEntity.Account,
+				AvatarUrl:    toolEntity.Avatar,
+				Organization: deptIdGen.Generate(toolEntity.ConnectionId, toolEntity.Dept),
 			}
-
 			results := make([]interface{}, 0)
-			results = append(results, domainBoard)
+			results = append(results, domainEntity)
 			return results, nil
 		},
 	})

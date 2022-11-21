@@ -19,51 +19,50 @@ package archived
 
 import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 type ZentaoExecution struct {
-	ConnectionId   uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id             uint64 `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Project        uint64 `json:"project"`
-	Model          string `json:"model"`
-	Type           string `json:"type"`
-	Lifetime       string `json:"lifetime"`
-	Budget         string `json:"budget"`
-	BudgetUnit     string `json:"budgetUnit"`
-	Attribute      string `json:"attribute"`
-	Percent        int    `json:"percent"`
-	Milestone      string `json:"milestone"`
-	Output         string `json:"output"`
-	Auth           string `json:"auth"`
-	Parent         uint64 `json:"parent"`
-	Path           string `json:"path"`
-	Grade          int    `json:"grade"`
-	Name           string `json:"name"`
-	Code           string `json:"code"`
-	PlanBegin      string `json:"begin"`
-	PlanEnd        string `json:"end"`
-	RealBegan      string `json:"realBegan"`
-	RealEnd        string `json:"realEnd"`
-	Days           int    `json:"days"`
-	Status         string `json:"status"`
-	SubStatus      string `json:"subStatus"`
-	Pri            string `json:"pri"`
-	Description    string `json:"desc"`
-	Version        int    `json:"version"`
-	ParentVersion  int    `json:"parentVersion"`
-	PlanDuration   int    `json:"planDuration"`
-	RealDuration   int    `json:"realDuration"`
+	ConnectionId   uint64              `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id             uint64              `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Project        uint64              `json:"project"`
+	Model          string              `json:"model"`
+	Type           string              `json:"type"`
+	Lifetime       string              `json:"lifetime"`
+	Budget         string              `json:"budget"`
+	BudgetUnit     string              `json:"budgetUnit"`
+	Attribute      string              `json:"attribute"`
+	Percent        int                 `json:"percent"`
+	Milestone      string              `json:"milestone"`
+	Output         string              `json:"output"`
+	Auth           string              `json:"auth"`
+	Parent         uint64              `json:"parent"`
+	Path           string              `json:"path"`
+	Grade          int                 `json:"grade"`
+	Name           string              `json:"name"`
+	Code           string              `json:"code"`
+	PlanBegin      *helper.Iso8601Time `json:"begin"`
+	PlanEnd        *helper.Iso8601Time `json:"end"`
+	RealBegan      string              `json:"realBegan"`
+	RealEnd        *helper.Iso8601Time `json:"realEnd"`
+	Status         string              `json:"status"`
+	SubStatus      string              `json:"subStatus"`
+	Pri            string              `json:"pri"`
+	Description    string              `json:"desc"`
+	Version        int                 `json:"version"`
+	ParentVersion  int                 `json:"parentVersion"`
+	PlanDuration   int                 `json:"planDuration"`
+	RealDuration   int                 `json:"realDuration"`
 	OpenedById     uint64
-	OpenedDate     *time.Time `json:"openedDate"`
-	OpenedVersion  string     `json:"openedVersion"`
+	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
+	OpenedVersion  string              `json:"openedVersion"`
 	LastEditedById uint64
-	LastEditedDate *time.Time `json:"lastEditedDate"`
+	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
 	ClosedById     uint64
-	ClosedDate     *time.Time `json:"closedDate"`
+	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
 	CanceledById   uint64
-	CanceledDate   *time.Time `json:"canceledDate"`
-	SuspendedDate  string     `json:"suspendedDate"`
+	CanceledDate   *helper.Iso8601Time `json:"canceledDate"`
+	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate"`
 	POId           uint64
 	PMId           uint64
 	QDId           uint64

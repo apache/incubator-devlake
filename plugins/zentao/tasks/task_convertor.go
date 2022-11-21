@@ -78,11 +78,11 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				IssueKey:       strconv.FormatUint(toolEntity.ID, 10),
 				Title:          toolEntity.Name,
 				Description:    toolEntity.Description,
-				Type:           toolEntity.Type,
+				Type:           "TASK",
 				OriginalStatus: toolEntity.Status,
-				ResolutionDate: toolEntity.ClosedDate,
-				CreatedDate:    toolEntity.OpenedDate,
-				UpdatedDate:    toolEntity.LastEditedDate,
+				ResolutionDate: toolEntity.ClosedDate.ToNullableTime(),
+				CreatedDate:    toolEntity.OpenedDate.ToNullableTime(),
+				UpdatedDate:    toolEntity.LastEditedDate.ToNullableTime(),
 				ParentIssueId:  storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Parent),
 				Priority:       string(rune(toolEntity.Pri)),
 				CreatorId:      strconv.FormatUint(toolEntity.OpenedById, 10),
@@ -91,13 +91,15 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				AssigneeName:   toolEntity.AssignedToName,
 			}
 			switch toolEntity.Status {
-			case "done", "closed":
-				domainEntity.Status = "DONE"
+			case "done", "closed", "cancel":
+				domainEntity.Status = ticket.DONE
+			case "wait":
+				domainEntity.Status = ticket.TODO
 			default:
-				domainEntity.Status = "IN_PROGRESS"
+				domainEntity.Status = ticket.IN_PROGRESS
 			}
 			if toolEntity.ClosedDate != nil {
-				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.Sub(*toolEntity.OpenedDate).Minutes())
+				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}
 			domainBoardIssue := &ticket.BoardIssue{
 				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProductId),

@@ -15,36 +15,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tasks
+package models
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/zentao/models"
-	"net/http"
-
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/models/common"
 )
 
-func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
-	body := &ZentaoPagination{}
-	err := helper.UnmarshalResponse(res, body)
-	if err != nil {
-		return 0, err
-	}
-	return body.Page, nil
-
+type ZentaoAccount struct {
+	common.NoPKModel
+	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ID           uint64 `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
+	Account      string `json:"account" gorm:"type:varchar(100);index"`
+	Avatar       string `json:"avatar" gorm:"type:varchar(255)"`
+	Realname     string `json:"realname" gorm:"type:varchar(100);index"`
+	Role         string `json:"role" gorm:"type:varchar(100);index"`
+	Dept         uint64 `json:"dept" gorm:"type:BIGINT  NOT NULL;index"`
 }
 
-func getAccountId(account *models.ZentaoAccount) uint64 {
-	if account != nil {
-		return account.ID
-	}
-	return 0
-}
-
-func getAccountName(account *models.ZentaoAccount) string {
-	if account != nil {
-		return account.Realname
-	}
-	return ""
+func (ZentaoAccount) TableName() string {
+	return "_tool_zentao_accounts"
 }
