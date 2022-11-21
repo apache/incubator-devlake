@@ -20,6 +20,7 @@ package tasks
 import (
 	goerror "errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"reflect"
 	"time"
 
@@ -43,7 +44,7 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 		dal.Join(`left join cicd_pipeline_commits cpc on ct.pipeline_id = cpc.pipeline_id`),
 		dal.Join(`left join project_mapping pm on pm.row_id = ct.cicd_scope_id`),
 		dal.Where(`ct.environment = ? and ct.type = ? and ct.result = ? and pm.project_name = ? and pm.table = ?`,
-			"PRODUCTION", "DEPLOYMENT", "SUCCESS", data.Options.ProjectName, "cicd_scopes"),
+			devops.PRODUCTION, devops.DEPLOYMENT, devops.SUCCESS, data.Options.ProjectName, "cicd_scopes"),
 		dal.Orderby(`cpc.repo_id, ct.started_date `),
 	}
 	deploymentPairList := make([]deploymentPair, 0)

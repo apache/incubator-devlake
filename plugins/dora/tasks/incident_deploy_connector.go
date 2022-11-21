@@ -19,6 +19,8 @@ package tasks
 
 import (
 	goerror "errors"
+	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -30,22 +32,25 @@ import (
 	"gorm.io/gorm"
 )
 
-var ConnectIssueDeployMeta = core.SubTaskMeta{
-	Name:             "ConnectIssueDeploy",
-	EntryPoint:       ConnectIssueDeploy,
+var ConnectIncidentToDeploymentMeta = core.SubTaskMeta{
+	Name:             "ConnectIncidentToDeployment",
+	EntryPoint:       ConnectIncidentToDeployment,
 	EnabledByDefault: true,
-	Description:      "TODO",
+	Description:      "Connect incident issue to deployment",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
-func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
+func ConnectIncidentToDeployment(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
-	issue := &ticket.Issue{}
+	data := taskCtx.GetData().(*DoraTaskData)
 	// select all issues belongs to the board
 	clauses := []dal.Clause{
-		dal.From(issue),
+		dal.From(`issues i`),
+		dal.Join(`left join board_issues bi on bi.issue_id = i.id`),
+		dal.Join(`left join project_mapping pm on pm.row_id = bi.board_id`),
 		dal.Where(
-			"issues.type = ?", "INCIDENT",
+			"i.type = ? and pm.project_name = ? and pm.table = ?",
+			"INCIDENT", data.Options.ProjectName, "boards",
 		),
 	}
 	cursor, err := db.Cursor(clauses...)
@@ -56,24 +61,34 @@ func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
 
 	enricher, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:    taskCtx,
+			Ctx: taskCtx,
 			Params: DoraApiParams{
-				// TODO
+				ProjectName: data.Options.ProjectName,
 			},
 			Table: "issues",
 		},
 		InputRowType: reflect.TypeOf(ticket.Issue{}),
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			issueToBeUpdate := inputRow.(*ticket.Issue)
+			issue := inputRow.(*ticket.Issue)
+			projectIssueMetric := &crossdomain.ProjectIssueMetric{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: issue.Id,
+				},
+				ProjectName: data.Options.ProjectName,
+			}
 			cicdTask := &devops.CICDTask{}
 			cicdTakClauses := []dal.Clause{
 				dal.From(cicdTask),
-				dal.Join("left join cicd_pipeline_commits on cicd_tasks.pipeline_id = cicd_pipeline_commits.pipeline_id"),
+				dal.Join("left join project_mapping pm on cicd_tasks.cicd_scope_id = pm.row_id"),
 				dal.Where(
 					`cicd_tasks.finished_date < ? 
-								and cicd_tasks.result = ? and cicd_tasks.environment = ?`,
-					issueToBeUpdate.CreatedDate, "SUCCESS", devops.PRODUCTION,
+								and cicd_tasks.result = ? 
+								and cicd_tasks.environment = ?
+								and cicd_tasks.type = ?
+								and pm.table = ?
+								and pm.project_name = ?`,
+					issue.CreatedDate, devops.SUCCESS, devops.PRODUCTION, devops.DEPLOYMENT, "cicd_scopes", data.Options.ProjectName,
 				),
 				dal.Orderby("cicd_tasks.finished_date DESC"),
 			}
@@ -85,9 +100,9 @@ func ConnectIssueDeploy(taskCtx core.SubTaskContext) errors.Error {
 					return nil, err
 				}
 			}
-			issueToBeUpdate.DeploymentId = cicdTask.Id
+			projectIssueMetric.DeploymentId = cicdTask.Id
 
-			return []interface{}{issueToBeUpdate}, nil
+			return []interface{}{projectIssueMetric}, nil
 		},
 	})
 	if err != nil {
