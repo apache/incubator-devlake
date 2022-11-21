@@ -23,6 +23,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -157,6 +158,7 @@ func GetPipelineLogsArchivePath(pipeline *models.Pipeline) (string, errors.Error
 func RunPipelineInQueue(pipelineMaxParallel int64) {
 	sema := semaphore.NewWeighted(pipelineMaxParallel)
 	runningParallelLabels := []string{}
+	var runningParallelLabelLock sync.Mutex
 	for {
 		globalPipelineLog.Info("acquire lock")
 		// start goroutine when sema lock ready and pipeline exist.
@@ -204,12 +206,16 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 				pipelineParallelLabels = append(pipelineParallelLabels, dbLabel.Name)
 			}
 		}
+		runningParallelLabelLock.Lock()
 		runningParallelLabels = append(runningParallelLabels, pipelineParallelLabels...)
+		runningParallelLabelLock.Unlock()
 
 		go func(pipelineId uint64, parallelLabels []string) {
 			defer sema.Release(1)
 			defer func() {
+				runningParallelLabelLock.Lock()
 				runningParallelLabels = utils.SliceRemove(runningParallelLabels, parallelLabels...)
+				runningParallelLabelLock.Unlock()
 				globalPipelineLog.Info("finish pipeline #%d, now runningParallelLabels is %s", pipelineId, runningParallelLabels)
 			}()
 			globalPipelineLog.Info("run pipeline, %d, now running runningParallelLabels are %s", pipelineId, runningParallelLabels)
