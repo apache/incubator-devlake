@@ -82,9 +82,9 @@ type ZentaoProject struct {
 	TeamCount      int    `json:"teamCount"`
 	LeftTasks      string `json:"leftTasks"`
 	//TeamMembers   []interface{} `json:"teamMembers" gorm:"-"`
-	TotalEstimate int     `json:"totalEstimate"`
-	TotalConsumed int     `json:"totalConsumed"`
-	TotalLeft     int     `json:"totalLeft"`
+	TotalEstimate float64 `json:"totalEstimate"`
+	TotalConsumed float64 `json:"totalConsumed"`
+	TotalLeft     float64 `json:"totalLeft"`
 	Progress      float64 `json:"progress"`
 	TotalReal     int     `json:"totalReal"`
 }

@@ -23,28 +23,28 @@ import (
 )
 
 type ZentaoTaskRes struct {
-	Id            uint64 `json:"id"`
-	Project       uint64 `json:"project"`
-	Parent        uint64 `json:"parent"`
-	Execution     uint64 `json:"execution"`
-	Module        int    `json:"module"`
-	Design        int    `json:"design"`
-	Story         uint64 `json:"story"`
-	StoryVersion  int    `json:"storyVersion"`
-	DesignVersion int    `json:"designVersion"`
-	FromBug       int    `json:"fromBug"`
-	Feedback      int    `json:"feedback"`
-	FromIssue     int    `json:"fromIssue"`
-	Name          string `json:"name"`
-	Type          string `json:"type"`
-	Mode          string `json:"mode"`
-	Pri           int    `json:"pri"`
-	Estimate      int    `json:"estimate"`
-	Consumed      int    `json:"consumed"`
-	Deadline      string `json:"deadline"`
-	Status        string `json:"status"`
-	SubStatus     string `json:"subStatus"`
-	Color         string `json:"color"`
+	Id            uint64  `json:"id"`
+	Project       uint64  `json:"project"`
+	Parent        uint64  `json:"parent"`
+	Execution     uint64  `json:"execution"`
+	Module        int     `json:"module"`
+	Design        int     `json:"design"`
+	Story         uint64  `json:"story"`
+	StoryVersion  int     `json:"storyVersion"`
+	DesignVersion int     `json:"designVersion"`
+	FromBug       int     `json:"fromBug"`
+	Feedback      int     `json:"feedback"`
+	FromIssue     int     `json:"fromIssue"`
+	Name          string  `json:"name"`
+	Type          string  `json:"type"`
+	Mode          string  `json:"mode"`
+	Pri           int     `json:"pri"`
+	Estimate      float64 `json:"estimate"`
+	Consumed      float64 `json:"consumed"`
+	Deadline      string  `json:"deadline"`
+	Status        string  `json:"status"`
+	SubStatus     string  `json:"subStatus"`
+	Color         string  `json:"color"`
 	Mailto        []struct {
 		Id       uint64 `json:"id"`
 		Account  string `json:"account"`
@@ -128,30 +128,30 @@ type ZentaoTaskRes struct {
 
 type ZentaoTask struct {
 	common.NoPKModel
-	ConnectionId  uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ExecutionId   uint64 `json:"execution_id"`
-	ID            uint64 `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Project       uint64 `json:"project"`
-	Parent        uint64 `json:"parent"`
-	Execution     uint64 `json:"execution"`
-	Module        int    `json:"module"`
-	Design        int    `json:"design"`
-	Story         uint64 `json:"story"`
-	StoryVersion  int    `json:"storyVersion"`
-	DesignVersion int    `json:"designVersion"`
-	FromBug       int    `json:"fromBug"`
-	Feedback      int    `json:"feedback"`
-	FromIssue     int    `json:"fromIssue"`
-	Name          string `json:"name"`
-	Type          string `json:"type"`
-	Mode          string `json:"mode"`
-	Pri           int    `json:"pri"`
-	Estimate      int    `json:"estimate"`
-	Consumed      int    `json:"consumed"`
-	Deadline      string `json:"deadline"`
-	Status        string `json:"status"`
-	SubStatus     string `json:"subStatus"`
-	Color         string `json:"color"`
+	ConnectionId  uint64  `gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	ExecutionId   uint64  `json:"execution_id"`
+	ID            uint64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Project       uint64  `json:"project"`
+	Parent        uint64  `json:"parent"`
+	Execution     uint64  `json:"execution"`
+	Module        int     `json:"module"`
+	Design        int     `json:"design"`
+	Story         uint64  `json:"story"`
+	StoryVersion  int     `json:"storyVersion"`
+	DesignVersion int     `json:"designVersion"`
+	FromBug       int     `json:"fromBug"`
+	Feedback      int     `json:"feedback"`
+	FromIssue     int     `json:"fromIssue"`
+	Name          string  `json:"name"`
+	Type          string  `json:"type"`
+	Mode          string  `json:"mode"`
+	Pri           int     `json:"pri"`
+	Estimate      float64 `json:"estimate"`
+	Consumed      float64 `json:"consumed"`
+	Deadline      string  `json:"deadline"`
+	Status        string  `json:"status"`
+	SubStatus     string  `json:"subStatus"`
+	Color         string  `json:"color"`
 	//Mailto        interface{} `json:"mailto"`
 	Description        string `json:"desc"`
 	Version            int    `json:"version"`
