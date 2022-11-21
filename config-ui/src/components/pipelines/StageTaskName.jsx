@@ -65,7 +65,7 @@ const StageTaskName = (props) => {
           {ProviderLabels[task?.plugin?.toUpperCase()] ||
             task?.plugin?.toUpperCase()}{' '}
           {(task.plugin === Providers.GITHUB ||
-            task.plugin === 'github_graphql') && (
+            task.plugin === Providers.GITHUB_GRAPHQL) && (
             <>
               @{task.options.owner}/{task.options.repo}
             </>

@@ -137,7 +137,7 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 					Options:  options,
 				})
 			} else {
-				return nil, errors.Default.New("plugin github_graphql does not support SubTaskMetas")
+				return nil, errors.BadInput.New("plugin github_graphql does not support SubTaskMetas")
 			}
 		} else {
 			subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
