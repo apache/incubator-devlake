@@ -89,6 +89,16 @@ const MenuConfiguration = (activeRoute) => {
             activeRoute.url.endsWith('/webhook'),
           icon: 'layers',
           classNames: []
+        },
+        {
+          id: 6,
+          label: `${ProviderLabels.ZENTAO} (beta)`,
+          route: '/integrations/zentao',
+          active:
+            activeRoute.url.endsWith('/integrations/zentao') ||
+            activeRoute.url.endsWith('/zentao'),
+          icon: 'layers',
+          classNames: []
         }
       ]
     },

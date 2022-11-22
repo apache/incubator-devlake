@@ -15,6 +15,6 @@
  * limitations under the License.
  *
  */
-const AVAILABLE_PLUGINS = ['gitlab', 'jira', 'jenkins', 'github', 'tapd']
+const AVAILABLE_PLUGINS = ['gitlab', 'jira', 'jenkins', 'github', 'tapd', 'zentao']
 
 module.exports = AVAILABLE_PLUGINS

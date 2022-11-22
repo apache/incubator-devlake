@@ -115,7 +115,7 @@ const DataTransformations = (props) => {
 
   const noTransformationsAvailable = useMemo(
     () =>
-      [Providers.TAPD].includes(configuredConnection?.provider) ||
+      [Providers.TAPD].includes(configuredConnection?.provider) || [Providers.ZENTAO].includes(configuredConnection?.provider) ||
       ([Providers.GITLAB].includes(configuredConnection?.provider) &&
         dataEntities[configuredConnection?.id].every(
           (e) => e.value !== DataEntityTypes.DEVOPS
