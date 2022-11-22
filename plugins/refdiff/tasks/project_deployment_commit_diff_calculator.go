@@ -44,7 +44,7 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 		dal.Where("project_name = ?", projectName),
 	)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer cursorScope.Close()
 
@@ -55,7 +55,8 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 			return err
 		}
 
-		cursorDeployment, err := db.Cursor(
+		var commitShaList []string
+		err := db.All(&commitShaList,
 			dal.Select("commit_sha"),
 			dal.From("cicd_tasks ct"),
 			dal.Join("left join cicd_pipelines cp on cp.id = ct.pipeline_id"),
@@ -64,21 +65,11 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 			dal.Orderby("ct.started_date"),
 		)
 		if err != nil {
-			panic(err)
+			return err
 		}
-		defer cursorDeployment.Close()
 
-		commitPairs := make([]code.CommitsDiff, 0)
-		finishedCommitDiffs := []code.FinishedCommitsDiffs{}
-		var commitShaList []string
-		for cursorDeployment.Next() {
-			var commitSha string
-			err := errors.Convert(cursorDeployment.Scan(&commitSha))
-			if err != nil {
-				return err
-			}
-			commitShaList = append(commitShaList, commitSha)
-		}
+		var commitPairs []code.CommitsDiff
+		var finishedCommitDiffs []code.FinishedCommitsDiffs
 
 		for i := 0; i < len(commitShaList)-1; i++ {
 			commitPairs = append(commitPairs, code.CommitsDiff{NewCommitSha: commitShaList[i+1], OldCommitSha: commitShaList[i]})
@@ -88,32 +79,20 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 		insertCountLimitOfDeployCommitsDiff := int(65535 / reflect.ValueOf(code.CommitsDiff{}).NumField())
 		commitNodeGraph := utils.NewCommitNodeGraph()
 
-		// load commits from db
-		commitParent := &code.CommitParent{}
-		cursor, err := db.Cursor(
+		var CommitParentList []code.CommitParent
+		err = db.All(&CommitParentList,
 			dal.Select("cp.*"),
 			dal.Join("LEFT JOIN repo_commits rc ON (rc.commit_sha = cp.commit_sha)"),
 			dal.From("commit_parents cp"),
 			dal.Where("rc.repo_id = ?", scopeId),
 		)
 		if err != nil {
-			panic(err)
-		}
-		defer cursor.Close()
-
-		for cursor.Next() {
-			select {
-			case <-ctx.Done():
-				return errors.Convert(ctx.Err())
-			default:
-			}
-			err = db.Fetch(cursor, commitParent)
-			if err != nil {
-				return errors.Default.Wrap(err, "failed to read commit from database")
-			}
-			commitNodeGraph.AddParent(commitParent.CommitSha, commitParent.ParentCommitSha)
+			return err
 		}
 
+		for i := 0; i < len(CommitParentList); i++ {
+			commitNodeGraph.AddParent(CommitParentList[i].CommitSha, CommitParentList[i].ParentCommitSha)
+		}
 		logger.Info("Create a commit node graph with node count[%d]", commitNodeGraph.Size())
 
 		// calculate diffs for commits pairs and store them into database

@@ -31,13 +31,13 @@ var _ core.PluginMeta = (*RefDiff)(nil)
 var _ core.PluginInit = (*RefDiff)(nil)
 var _ core.PluginTask = (*RefDiff)(nil)
 var _ core.PluginApi = (*RefDiff)(nil)
-
-// PluginEntry is a variable exported for Framework to search and load
-var PluginEntry RefDiff //nolint
 var _ core.PluginModel = (*RefDiff)(nil)
 var _ core.PluginMetric = (*RefDiff)(nil)
 
 type RefDiff struct{}
+
+// PluginEntry is a variable exported for Framework to search and load
+var PluginEntry RefDiff //nolint
 
 func (plugin RefDiff) Description() string {
 	return "Calculate commits diff for specified ref pairs based on `commits` and `commit_parents` tables"

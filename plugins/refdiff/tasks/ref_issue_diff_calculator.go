@@ -49,8 +49,7 @@ func CalculateIssuesDiff(taskCtx core.SubTaskContext) errors.Error {
 	repoId := data.Options.RepoId
 	db := taskCtx.GetDal()
 
-	projectName := data.Options.ProjectName
-	if projectName != "" {
+	if data.Options.ProjectName != "" {
 		return nil
 	}
 	// use to calculate progress

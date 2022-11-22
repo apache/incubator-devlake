@@ -34,9 +34,8 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	ctx := taskCtx.GetContext()
 	logger := taskCtx.GetLogger()
-	
-	projectName := data.Options.ProjectName
-	if projectName != "" {
+
+	if data.Options.ProjectName != "" {
 		return nil
 	}
 	// mysql limit
@@ -54,7 +53,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 		dal.Where("rc.repo_id = ?", repoId),
 	)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer cursor.Close()
 
