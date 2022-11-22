@@ -112,3 +112,21 @@ func StreamProcess[T any](cmd *exec.Cmd, converter func(b []byte) (T, error)) (<
 	}()
 	return stream, nil
 }
+
+// CreateCmd wraps the args in "sh -c" for shell-level execution
+func CreateCmd(args ...string) *exec.Cmd {
+	if len(args) < 1 {
+		panic("no cmd given")
+	}
+	cmd := "sh"
+	cmdArgs := []string{"-c"}
+	cmdBuilder := &strings.Builder{}
+	for _, elem := range args {
+		if elem != "" {
+			_, _ = cmdBuilder.WriteString(elem)
+			_, _ = cmdBuilder.WriteString(" ")
+		}
+	}
+	cmdArgs = append(cmdArgs, cmdBuilder.String())
+	return exec.Command(cmd, cmdArgs...)
+}

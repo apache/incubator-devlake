@@ -33,7 +33,7 @@ type (
 	}
 	// SingerTapConfig the set of variables needed to initialize a SingerTap
 	SingerTapConfig struct {
-		Cmd                  string
+		TapExecutable        string
 		StreamPropertiesFile string
 		IsLegacy             bool
 	}
