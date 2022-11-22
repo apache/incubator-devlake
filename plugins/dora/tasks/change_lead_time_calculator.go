@@ -37,7 +37,7 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 	log := taskCtx.GetLogger()
 	data := taskCtx.GetData().(*DoraTaskData)
 	// construct a list of tuple[task, oldPipelineCommitSha, newPipelineCommitSha, taskFinishedDate]
-	pipelineIdClauses := []dal.Clause{
+	deploymentClause := []dal.Clause{
 		dal.Select(`ct.id as task_id, cpc.commit_sha as new_deploy_commit_sha, 
 			ct.finished_date as task_finished_date, cpc.repo_id as repo_id`),
 		dal.From(`cicd_tasks ct`),
@@ -47,22 +47,22 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 			devops.PRODUCTION, devops.DEPLOYMENT, devops.SUCCESS, data.Options.ProjectName, "cicd_scopes"),
 		dal.Orderby(`cpc.repo_id, ct.started_date `),
 	}
-	deploymentPairList := make([]deploymentPair, 0)
-	err := db.All(&deploymentPairList, pipelineIdClauses...)
+	deploymentDiffPairs := make([]deploymentPair, 0)
+	err := db.All(&deploymentDiffPairs, deploymentClause...)
 	if err != nil {
 		return err
 	}
-	// deploymentPairList[i-1].NewDeployCommitSha is deploymentPairList[i].OldDeployCommitSha
+	// deploymentDiffPairs[i-1].NewDeployCommitSha is deploymentDiffPairs[i].OldDeployCommitSha
 	oldDeployCommitSha := ""
 	lastRepoId := ""
-	for i := 0; i < len(deploymentPairList); i++ {
+	for i := 0; i < len(deploymentDiffPairs); i++ {
 		// if two deployments belong to different repo, let's skip
-		if lastRepoId == deploymentPairList[i].RepoId {
-			deploymentPairList[i].OldDeployCommitSha = oldDeployCommitSha
+		if lastRepoId == deploymentDiffPairs[i].RepoId {
+			deploymentDiffPairs[i].OldDeployCommitSha = oldDeployCommitSha
 		} else {
-			lastRepoId = deploymentPairList[i].RepoId
+			lastRepoId = deploymentDiffPairs[i].RepoId
 		}
-		oldDeployCommitSha = deploymentPairList[i].NewDeployCommitSha
+		oldDeployCommitSha = deploymentDiffPairs[i].NewDeployCommitSha
 	}
 
 	// get prs by repo project_name
@@ -119,7 +119,7 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 				projectPrMetric.ReviewTimespan = processNegativeValue(int64(pr.MergedDate.Sub(firstReview.CreatedDate).Minutes()))
 				projectPrMetric.FirstReviewId = firstReview.ReviewId
 			}
-			deployment, err := getDeployment(pr.MergeCommitSha, pr.BaseRepoId, deploymentPairList, db)
+			deployment, err := getDeployment(pr.MergeCommitSha, pr.BaseRepoId, deploymentDiffPairs, db)
 			if err != nil {
 				return nil, err
 			}
