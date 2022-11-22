@@ -55,9 +55,9 @@ func ConvertIncidents(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*PagerDutyTaskData)
 	cursor, err := db.Cursor(
 		dal.Select("pi.*, pu.*, pa.assigned_at"),
-		dal.From("_tool_pagerduty_incident AS pi"),
-		dal.Join(`LEFT JOIN _tool_pagerduty_assignment AS pa ON pa.incident_number = pi.number`),
-		dal.Join(`LEFT JOIN _tool_pagerduty_user AS pu ON pa.user_id = pu.id`),
+		dal.From("_tool_pagerduty_incidents AS pi"),
+		dal.Join(`LEFT JOIN _tool_pagerduty_assignments AS pa ON pa.incident_number = pi.number`),
+		dal.Join(`LEFT JOIN _tool_pagerduty_users AS pu ON pa.user_id = pu.id`),
 		dal.Where("pi.connection_id = ?", data.Options.ConnectionId),
 	)
 	if err != nil {

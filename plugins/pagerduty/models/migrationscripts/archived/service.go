@@ -30,5 +30,5 @@ type (
 )
 
 func (Service) TableName() string {
-	return "_tool_pagerduty_service"
+	return "_tool_pagerduty_services"
 }

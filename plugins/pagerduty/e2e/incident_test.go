@@ -49,28 +49,28 @@ func TestIncidentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTableWithOptions(
 		models.Incident{},
 		e2ehelper.TableOptions{
-			CSVRelPath:  "./snapshot_tables/_tool_pagerduty_incident.csv",
+			CSVRelPath:  "./snapshot_tables/_tool_pagerduty_incidents.csv",
 			IgnoreTypes: []any{common.Model{}},
 		},
 	)
 	dataflowTester.VerifyTableWithOptions(
 		models.User{},
 		e2ehelper.TableOptions{
-			CSVRelPath:  "./snapshot_tables/_tool_pagerduty_user.csv",
+			CSVRelPath:  "./snapshot_tables/_tool_pagerduty_users.csv",
 			IgnoreTypes: []any{common.Model{}},
 		},
 	)
 	dataflowTester.VerifyTableWithOptions(
 		models.Assignment{},
 		e2ehelper.TableOptions{
-			CSVRelPath:  "./snapshot_tables/_tool_pagerduty_assignment.csv",
+			CSVRelPath:  "./snapshot_tables/_tool_pagerduty_assignments.csv",
 			IgnoreTypes: []any{common.Model{}},
 		},
 	)
 	dataflowTester.VerifyTableWithOptions(
 		models.Service{},
 		e2ehelper.TableOptions{
-			CSVRelPath:  "./snapshot_tables/_tool_pagerduty_service.csv",
+			CSVRelPath:  "./snapshot_tables/_tool_pagerduty_services.csv",
 			IgnoreTypes: []any{common.Model{}},
 		},
 	)

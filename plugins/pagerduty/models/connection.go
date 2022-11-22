@@ -48,5 +48,5 @@ type ApiUserResponse struct {
 }
 
 func (PagerDutyConnection) TableName() string {
-	return "_tool_pagerduty_connection"
+	return "_tool_pagerduty_connections"
 }

@@ -47,5 +47,5 @@ type (
 )
 
 func (Incident) TableName() string {
-	return "_tool_pagerduty_incident"
+	return "_tool_pagerduty_incidents"
 }

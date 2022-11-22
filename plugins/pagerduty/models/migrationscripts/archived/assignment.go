@@ -31,5 +31,5 @@ type Assignment struct {
 }
 
 func (Assignment) TableName() string {
-	return "_tool_pagerduty_assignment"
+	return "_tool_pagerduty_assignments"
 }

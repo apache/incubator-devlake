@@ -28,5 +28,5 @@ type User struct {
 }
 
 func (User) TableName() string {
-	return "_tool_pagerduty_user"
+	return "_tool_pagerduty_users"
 }
