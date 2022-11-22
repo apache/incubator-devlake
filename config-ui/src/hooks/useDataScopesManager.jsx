@@ -190,6 +190,18 @@ function useDataScopesManager({
           // testingPattern: ''
         }
         break
+      case Providers.ZENTAO:
+        // @todo: complete tapd transforms #2673
+        transforms = {
+          issueTypeRequirement: '',
+          issueTypeBug: '',
+          issueTypeIncident: '',
+          productionPattern: '',
+          deploymentPattern: ''
+          // stagingPattern: '',
+          // testingPattern: ''
+        }
+        break
     }
     console.log(
       '>>>>> DATA SCOPES MANAGER: Getting Default Transformation Values for PROVIDER Type ',
@@ -273,6 +285,14 @@ function useDataScopesManager({
           }))
           break
         case Providers.TAPD:
+          newScope = {
+            ...newScope
+            // options: {
+            // },
+            // transformation: {},
+          }
+          break
+        case Providers.ZENTAO:
           newScope = {
             ...newScope
             // options: {
@@ -491,7 +511,10 @@ function useDataScopesManager({
         entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
         break
       case Providers.TAPD:
-        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'ci-cd')
+        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking')
+        break
+      case Providers.ZENTAO:
+        entities = DEFAULT_DATA_ENTITIES.filter((d) => d.name === 'issue-tracking')
         break
     }
     return entities
@@ -720,6 +743,8 @@ function useDataScopesManager({
       case Providers.JENKINS:
         break
       case Providers.TAPD:
+        break
+      case Providers.ZENTAO:
         break
     }
   }, [provider])

@@ -24,6 +24,7 @@ import { githubConfig as sampleGithubPipelineConfig } from '@/data/pipeline-conf
 import { gitlabConfig as sampleGitlabPipelineConfig } from '@/data/pipeline-config-samples/gitlab'
 import { jiraConfig as sampleJiraPipelineConfig } from '@/data/pipeline-config-samples/jira'
 import { jenkinsConfig as sampleJenkinsPipelineConfig } from '@/data/pipeline-config-samples/jenkins'
+import { zentaoConfig as sampleZentaoPipelineConfig } from '@/data/pipeline-config-samples/zentao'
 import { feishuConfig as sampleFeishuPipelineConfig } from '@/data/pipeline-config-samples/feishu'
 import { dbtConfig as sampleDbtPipelineConfig } from '@/data/pipeline-config-samples/dbt'
 import { starRocksConfig as sampleStarRocksConfigPipelineConfig } from '@/data/pipeline-config-samples/starrocks'
@@ -134,6 +135,15 @@ const PipelineConfigsMenu = (props) => {
         onClick={() =>
           setRawConfiguration(
             JSON.stringify(sampleStarRocksConfigPipelineConfig, null, '  ')
+          )
+        }
+      />
+      <Menu.Item
+        icon='code'
+        text='Load Zentao Configuration'
+        onClick={() =>
+          setRawConfiguration(
+            JSON.stringify(sampleZentaoPipelineConfig, null, '  ')
           )
         }
       />

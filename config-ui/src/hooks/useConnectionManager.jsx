@@ -364,6 +364,9 @@ function useConnectionManager(
             ),
             request.get(
               `${DEVLAKE_ENDPOINT}/plugins/${Providers.TAPD}/connections`
+            ),
+            request.get(
+              `${DEVLAKE_ENDPOINT}/plugins/${Providers.ZENTAO}/connections`
             )
           ])
           const builtConnections = aC.map((providerResponse) =>

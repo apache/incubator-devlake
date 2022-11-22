@@ -22,6 +22,7 @@ import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jen
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
 import { ReactComponent as TapdProviderIcon } from '@/images/integrations/tapd.svg'
+import { ReactComponent as ZentaoProviderIcon } from '@/images/integrations/zentao.svg'
 // import GitExtractorIcon from '@/images/git.png'
 // import RefDiffIcon from '@/images/git-diff.png'
 import FeishuIcon from '@/images/feishu.png'
@@ -41,6 +42,7 @@ const Providers = {
   DBT: 'dbt',
   STARROCKS: 'starrocks',
   TAPD: 'tapd',
+  ZENTAO: 'zentao',
   DORA: 'dora'
 }
 
@@ -63,6 +65,7 @@ const ProviderLabels = {
   DBT: 'Data Build Tool (DBT)',
   STARROCKS: 'StarRocks',
   TAPD: 'TAPD',
+  ZENTAO: 'ZENTAO',
   DORA: 'DORA'
 }
 
@@ -113,6 +116,19 @@ const ProviderFormLabels = {
     )
   },
   tapd: {
+    name: 'Connection Name',
+    endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
+    token: 'Basic Auth Token',
+    username: 'Username',
+    password: 'Password',
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+      </>
+    )
+  },
+  zentao: {
     name: 'Connection Name',
     endpoint: 'Endpoint URL',
     proxy: 'Proxy URL',
@@ -242,6 +258,15 @@ const ProviderFormPlaceholders = {
     password: 'eg. ************',
     rateLimitPerHour: '1000'
   },
+  zentao: {
+    name: 'eg. Zentao',
+    endpoint: 'URL eg. http://domain:port/api.php/v1/',
+    proxy: 'eg. http://proxy.localhost:8080',
+    token: 'eg. 6b057ffe68464c93a057',
+    username: 'eg. admin',
+    password: 'eg. ************',
+    rateLimitPerHour: '1000'
+  },
   jira: {
     name: 'eg. JIRA',
     endpoint: 'eg. https://your-domain.atlassian.net/rest/',
@@ -271,6 +296,9 @@ const ProviderIcons = {
   ),
   [Providers.TAPD]: (w, h) => (
     <TapdProviderIcon width={w || 24} height={h || 24} />
+  ),
+  [Providers.ZENTAO]: (w, h) => (
+    <ZentaoProviderIcon width={w || 24} height={h || 24} />
   ),
   [Providers.JIRA]: (w, h) => (
     <JiraProviderIcon width={w || 24} height={h || 24} />

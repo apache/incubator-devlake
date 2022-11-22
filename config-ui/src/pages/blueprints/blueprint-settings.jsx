@@ -549,6 +549,9 @@ const BlueprintSettings = (props) => {
             case Providers.TAPD:
               isValid = entities[configuredConnection?.id]?.length > 0
               break
+            case Providers.ZENTAO:
+              isValid = entities[configuredConnection?.id]?.length > 0
+              break
             default:
               isValid = true
           }

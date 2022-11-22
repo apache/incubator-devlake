@@ -118,6 +118,7 @@ export default function AddConnection() {
         case Providers.GITLAB:
         case Providers.JIRA:
         case Providers.TAPD:
+        case Providers.ZENTAO:
         default:
           setName('')
           break
@@ -212,7 +213,8 @@ export default function AddConnection() {
                     [
                       Providers.JENKINS,
                       Providers.JIRA,
-                      Providers.TAPD
+                      Providers.TAPD,
+                      Providers.ZENTAO
                     ].includes(activeProvider.id)
                       ? 'plain'
                       : 'token'

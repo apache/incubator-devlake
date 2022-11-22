@@ -57,7 +57,8 @@ function usePipelineManager(
     Providers.FEISHU,
     Providers.AE,
     Providers.DBT,
-    Providers.TAPD
+    Providers.TAPD,
+    Providers.ZENTAO
   ])
 
   const PIPELINES_ENDPOINT = useMemo(() => `${DEVLAKE_ENDPOINT}/pipelines`, [])

@@ -80,6 +80,12 @@ const DATA_SOURCES_LIST = [
     name: Providers.TAPD,
     title: ProviderLabels[Providers.TAPD.toUpperCase()],
     value: Providers.TAPD
+  },
+  {
+    id: 6,
+    name: Providers.ZENTAO,
+    title: ProviderLabels[Providers.ZENTAO.toUpperCase()],
+    value: Providers.ZENTAO
   }
 ]
 

@@ -28,6 +28,7 @@ import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
 import TapdSettings from '@/pages/configure/settings/tapd'
+import ZentaoSettings from '@/pages/configure/settings/zentao'
 import GithubSettings from '@/pages/configure/settings/github'
 
 const ProviderTransformationSettings = (props) => {
@@ -125,6 +126,18 @@ const ProviderTransformationSettings = (props) => {
       )}
       {provider?.id === Providers.TAPD && (
         <TapdSettings
+          provider={provider}
+          connection={connection}
+          transformation={transformation}
+          entityIdKey={entityIdKey}
+          onSettingsChange={onSettingsChange}
+          entities={entities[connection?.id]}
+          isSaving={isSaving}
+          isSavingConnection={isSavingConnection}
+        />
+      )}
+      {provider?.id === Providers.ZENTAO && (
+        <ZentaoSettings
           provider={provider}
           connection={connection}
           transformation={transformation}

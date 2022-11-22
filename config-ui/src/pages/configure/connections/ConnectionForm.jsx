@@ -745,7 +745,8 @@ export default function ConnectionForm(props) {
           Providers.GITLAB,
           Providers.JIRA,
           Providers.JENKINS,
-          Providers.TAPD
+          Providers.TAPD,
+          Providers.ZENTAO
         ].includes(activeProvider?.id) && (
           <>
             <div className='formContainer'>
