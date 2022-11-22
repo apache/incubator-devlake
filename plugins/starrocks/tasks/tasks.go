@@ -218,7 +218,7 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTmpTable string, tab
 		}
 	}
 	tableSql := fmt.Sprintf("drop table if exists %s; create table if not exists `%s` ( %s ) %s", starrocksTmpTable, starrocksTmpTable, strings.Join(columns, ","), extra)
-	c.GetLogger().Info(tableSql)
+	c.GetLogger().Debug(tableSql)
 	_, err = errors.Convert01(starrocks.Exec(tableSql))
 	return columnMap, orderBy, err
 }
@@ -334,7 +334,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrock
 		if result["Status"] != "Success" {
 			c.GetLogger().Error(nil, "load %s failed: %s", table, string(b))
 		} else {
-			c.GetLogger().Info("load %s success: %s, limit: %d, offset: %d", table, b, config.BatchSize, offset)
+			c.GetLogger().Debug("load %s success: %s, limit: %d, offset: %d", table, b, config.BatchSize, offset)
 		}
 		offset += len(data)
 	}
