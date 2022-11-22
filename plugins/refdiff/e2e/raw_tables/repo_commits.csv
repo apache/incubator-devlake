@@ -1,11 +1,11 @@
-repo_id,commit_sha,created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
-github:GithubRepo:1:484251804,commit_sha1,2022-11-17 06:37:04.880,2022-11-17 06:37:04.880,"","",0,""
-github:GithubRepo:1:484251804,commit_sha2,2022-11-17 06:36:30.911,2022-11-17 06:36:30.911,"","",0,""
-github:GithubRepo:1:484251804,commit_sha3,2022-11-17 06:37:45.734,2022-11-17 06:37:45.734,"","",0,""
-github:GithubRepo:1:484251804,commit_sha4,2022-11-17 06:37:04.880,2022-11-17 06:37:04.880,"","",0,""
-github:GithubRepo:1:484251804,commit_sha5,2022-11-17 06:35:55.773,2022-11-17 06:35:55.773,"","",0,""
-github:GithubRepo:1:484251804,commit_sha6,2022-11-17 06:37:04.880,2022-11-17 06:37:04.880,"","",0,""
-github:GithubRepo:1:484251804,commit_sha7,2022-11-17 06:37:04.880,2022-11-17 06:37:04.880,"","",0,""
-github:GithubRepo:1:484251804,commit_sha8,2022-11-17 06:37:04.880,2022-11-17 06:37:04.880,"","",0,""
-github:GithubRepo:1:484251804,commit_sha9,2022-11-17 06:36:32.970,2022-11-17 06:36:32.970,"","",0,""
-github:GithubRepo:1:484251804,commit_sha10,2022-11-17 06:36:31.627,2022-11-17 06:36:31.627,"","",0,""
+repo_id,commit_sha
+github:GithubRepo:1:484251804,commit_sha1
+github:GithubRepo:1:484251804,commit_sha2
+github:GithubRepo:1:484251804,commit_sha3
+github:GithubRepo:1:484251804,commit_sha4
+github:GithubRepo:1:484251804,commit_sha5
+github:GithubRepo:1:484251804,commit_sha6
+github:GithubRepo:1:484251804,commit_sha7
+github:GithubRepo:1:484251804,commit_sha8
+github:GithubRepo:1:484251804,commit_sha9
+github:GithubRepo:1:484251804,commit_sha10
