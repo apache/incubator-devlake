@@ -35,7 +35,7 @@ func TestEpicDataflow(t *testing.T) {
 		Options: &tasks.JiraOptions{
 			ConnectionId:        1,
 			BoardId:             93,
-			TransformationRules: tasks.TransformationRules{StoryPointField: "customfield_10024"},
+			TransformationRules: &tasks.TransformationRules{StoryPointField: "customfield_10024"},
 		},
 	}
 
