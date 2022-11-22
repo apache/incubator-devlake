@@ -69,25 +69,6 @@ func NewApiClient(
 	proxy string,
 	br core.BasicRes,
 ) (*ApiClient, errors.Error) {
-	parsedUrl, err := url.Parse(endpoint)
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, fmt.Sprintf("Invalid URL: %s", endpoint))
-	}
-	if parsedUrl.Scheme == "" {
-		return nil, errors.BadInput.New("Invalid URL scheme")
-	}
-	err = utils.CheckDNS(parsedUrl.Hostname())
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "Failed to resolve DNS")
-	}
-	port, err := utils.ResolvePort(parsedUrl.Port(), parsedUrl.Scheme)
-	if err != nil {
-		return nil, errors.Default.New("Failed to resolve Port")
-	}
-	err = utils.CheckNetwork(parsedUrl.Hostname(), port, 10*time.Second)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "Failed to connect")
-	}
 	apiClient := &ApiClient{}
 	apiClient.Setup(
 		endpoint,
@@ -111,8 +92,38 @@ func NewApiClient(
 		if err != nil {
 			return nil, errors.Convert(err)
 		}
+		// check connectivity
+		res, err := apiClient.Get("/", nil, nil)
+		if err != nil {
+			return nil, err
+		}
+		if res.StatusCode == http.StatusBadGateway {
+			return nil, errors.BadInput.New(fmt.Sprintf("fail to connect to %v via %v", endpoint, proxy))
+		}
+	} else {
+		// check connectivity
+		parsedUrl, err := url.Parse(endpoint)
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, fmt.Sprintf("Invalid URL: %s", endpoint))
+		}
+		if parsedUrl.Scheme == "" {
+			return nil, errors.BadInput.New("Invalid URL scheme")
+		}
+		err = utils.CheckDNS(parsedUrl.Hostname())
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "Failed to resolve DNS")
+		}
+		port, err := utils.ResolvePort(parsedUrl.Port(), parsedUrl.Scheme)
+		if err != nil {
+			return nil, errors.Default.New("Failed to resolve Port")
+		}
+		err = utils.CheckNetwork(parsedUrl.Hostname(), port, 10*time.Second)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "Failed to connect")
+		}
 	}
 	apiClient.SetContext(ctx)
+
 	return apiClient, nil
 }
 
@@ -268,7 +279,7 @@ func (apiClient *ApiClient) Do(
 	res, err = errors.Convert01(apiClient.client.Do(req))
 	if err != nil {
 		apiClient.logError(err, "[api-client] failed to request %s with error", req.URL.String())
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("error running beforeRequest for %s", req.URL.String()))
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error requesting %s", req.URL.String()))
 	}
 	// after receive
 	if apiClient.afterResponse != nil {
