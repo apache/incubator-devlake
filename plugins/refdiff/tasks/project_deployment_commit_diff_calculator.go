@@ -48,6 +48,15 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 	}
 	defer cursorScope.Close()
 
+	var ExistFinishedCommitDiff []code.FinishedCommitsDiffs
+	err = db.All(&ExistFinishedCommitDiff,
+		dal.Select("*"),
+		dal.From("finished_commits_diffs"),
+	)
+	if err != nil {
+		return err
+	}
+
 	for cursorScope.Next() {
 		var scopeId string
 		err = errors.Convert(cursorScope.Scan(&scopeId))
@@ -72,6 +81,11 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 		var finishedCommitDiffs []code.FinishedCommitsDiffs
 
 		for i := 0; i < len(commitShaList)-1; i++ {
+			for _, item := range ExistFinishedCommitDiff {
+				if commitShaList[i+1] == item.NewCommitSha && commitShaList[i] == item.OldCommitSha {
+					i++
+				}
+			}
 			commitPairs = append(commitPairs, code.CommitsDiff{NewCommitSha: commitShaList[i+1], OldCommitSha: commitShaList[i]})
 			finishedCommitDiffs = append(finishedCommitDiffs, code.FinishedCommitsDiffs{NewCommitSha: commitShaList[i+1], OldCommitSha: commitShaList[i]})
 		}
