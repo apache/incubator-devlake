@@ -49,8 +49,8 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 
 	cursor, err := db.Cursor(
 		dal.From(`cicd_tasks ct`),
-		dal.Join("inner join project_mapping pm on pm.row_id = ct.cicd_scope_id and pm.table = ?", "cicd_scopes"),
-		dal.Where(`pm.project_name = ?`, projectName),
+		dal.Join("left join project_mapping pm on pm.row_id = ct.cicd_scope_id"),
+		dal.Where(`pm.project_name = ? and pm.table = ?`, projectName, "cicd_scopes"),
 	)
 
 	if err != nil {
@@ -70,16 +70,11 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 		Input:        cursor,
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			cicdTask := inputRow.(*devops.CICDTask)
-			results := make([]interface{}, 0, 1)
-			if productionNamePattern == "" {
+			if productionNamePattern == "" || productionNameRegexp.FindString(cicdTask.Name) != "" {
 				cicdTask.Environment = devops.PRODUCTION
-			} else {
-				if productEnv := productionNameRegexp.FindString(cicdTask.Name); productEnv != "" {
-					cicdTask.Environment = devops.PRODUCTION
-				}
+				return []interface{}{cicdTask}, nil
 			}
-			results = append(results, cicdTask)
-			return results, nil
+			return nil, nil
 		},
 	})
 	if err != nil {
