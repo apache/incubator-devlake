@@ -18,10 +18,12 @@ limitations under the License.
 package plugininfo
 
 import (
-	"github.com/apache/incubator-devlake/errors"
+	"fmt"
 	"net/http"
 	"reflect"
 	"sync"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/api/shared"
 	"github.com/apache/incubator-devlake/models/domainlayer/domaininfo"
@@ -66,6 +68,19 @@ type TableInfos struct {
 	Field     []*TableInfo `json:"field"`
 	Error     *string      `json:"error"`
 }
+
+type PluginMetric struct {
+	RequiredDataEntities []map[string]interface{} `json:"requiredDataEntities"`
+	RunAfter             []string                 `json:"runAfter"`
+	IsProjectMetric      bool                     `json:"isProjectMetric"`
+}
+
+type PluginMeta struct {
+	Plugin string       `json:"plugin"`
+	Metric PluginMetric `json:"metric"`
+}
+
+type PluginMetas []PluginMeta
 
 func NewTableInfos(table core.Tabler) *TableInfos {
 	tableInfos := &TableInfos{
@@ -177,4 +192,50 @@ func Get(c *gin.Context) {
 	}
 
 	shared.ApiOutputSuccess(c, info, http.StatusOK)
+}
+
+// @Get name list of plugins
+// @Description GET /plugins
+// @Description RETURN SAMPLE
+// @Tags framework/plugins
+// @Success 200  {object} PluginMetas
+// @Failure 400  {string} errcode.Error "Bad Request"
+// @Router /plugins [get]
+func GetPluginMetas(c *gin.Context) {
+	var metas PluginMetas
+	err := core.TraversalPlugin(func(name string, plugin core.PluginMeta) errors.Error {
+		pluginMeta := PluginMeta{
+			Plugin: name,
+		}
+
+		// if this plugin has the plugin task info
+		if pt, ok := plugin.(core.PluginMetric); ok {
+			var err1 errors.Error
+			metric := PluginMetric{}
+
+			metric.RequiredDataEntities, err1 = pt.RequiredDataEntities()
+			if err1 != nil {
+				return errors.Default.Wrap(err1, fmt.Sprintf("failed to get RequiredDataEntities on plugin %s", name))
+			}
+
+			metric.RunAfter, err1 = pt.RunAfter()
+			if err1 != nil {
+				return errors.Default.Wrap(err1, fmt.Sprintf("failed to get RunAfter on plugin %s", name))
+			}
+
+			metric.IsProjectMetric = pt.IsProjectMetric()
+
+			pluginMeta.Metric = metric
+		}
+
+		metas = append(metas, pluginMeta)
+
+		return nil
+	})
+
+	if err != nil {
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting plugin info of plugins"))
+	}
+
+	shared.ApiOutputSuccess(c, metas, http.StatusOK)
 }

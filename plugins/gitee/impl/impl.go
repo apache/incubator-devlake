@@ -36,6 +36,7 @@ var _ core.PluginMeta = (*Gitee)(nil)
 var _ core.PluginInit = (*Gitee)(nil)
 var _ core.PluginTask = (*Gitee)(nil)
 var _ core.PluginApi = (*Gitee)(nil)
+var _ core.PluginModel = (*Gitee)(nil)
 var _ core.PluginMigration = (*Gitee)(nil)
 var _ core.CloseablePluginTask = (*Gitee)(nil)
 

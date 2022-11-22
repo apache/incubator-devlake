@@ -37,6 +37,7 @@ var _ core.PluginMeta = (*Feishu)(nil)
 var _ core.PluginInit = (*Feishu)(nil)
 var _ core.PluginTask = (*Feishu)(nil)
 var _ core.PluginApi = (*Feishu)(nil)
+var _ core.PluginModel = (*Feishu)(nil)
 var _ core.PluginMigration = (*Feishu)(nil)
 var _ core.CloseablePluginTask = (*Feishu)(nil)
 

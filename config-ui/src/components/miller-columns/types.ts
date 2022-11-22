@@ -16,6 +16,15 @@
  *
  */
 
+export type MillerColumnsItem = {
+  parentId: string | number | null
+  id: string | number
+  title: string
+  items?: Array<MillerColumnsItem>
+  type?: ItemTypeEnum
+  status?: ItemStatusEnum
+}
+
 export enum ItemTypeEnum {
   LEAF = 'leaf',
   BRANCH = 'branch'
@@ -26,39 +35,23 @@ export enum ItemStatusEnum {
   READY = 'ready'
 }
 
-export type ItemType = {
-  id: string | number
-  title: string
+export type ItemType = Pick<MillerColumnsItem, 'parentId' | 'id' | 'title'> & {
+  items: Array<ItemType>
   type: ItemTypeEnum
   status: ItemStatusEnum
-  items: ItemType[]
-}
-
-export type ItemInfoType = {
-  item: ItemType
-  parentId?: ItemType['id']
   childLoaded: boolean
 }
 
-export type ItemMapType = {
-  getItem: (id: ItemType['id']) => ItemType
-  getItemParent: (id: ItemType['id']) => ItemType | null
-  getItemChildLoaded: (id: ItemType['id']) => boolean
-}
+export type ItemMapType = Record<ItemType['id'], ItemType>
 
 export type ColumnType = {
-  parentId: ItemType['id'] | null
+  parentId: ItemType['parentId']
   items: ItemType[]
   activeId: ItemType['id'] | null
+  hasMore: boolean
 }
 
 export enum RowStatus {
   selected = 'selected',
   noselected = 'noselected'
-}
-
-export enum CheckedStatus {
-  selected = 'selected',
-  noselected = 'noselected',
-  indeterminate = 'indeterminate'
 }

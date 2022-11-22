@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package impl
 
 import (
 	"strings"
@@ -31,6 +31,7 @@ import (
 
 var _ core.PluginMeta = (*GitExtractor)(nil)
 var _ core.PluginTask = (*GitExtractor)(nil)
+var _ core.PluginModel = (*GitExtractor)(nil)
 
 type GitExtractor struct{}
 
@@ -62,7 +63,7 @@ func (plugin GitExtractor) PrepareTaskData(taskCtx core.TaskContext, options map
 		return nil, err
 	}
 	storage := store.NewDatabase(taskCtx, op.Url)
-	repo, err := newGitRepo(taskCtx.GetLogger(), storage, op)
+	repo, err := NewGitRepo(taskCtx.GetLogger(), storage, op)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +83,8 @@ func (plugin GitExtractor) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/gitextractor"
 }
 
-func newGitRepo(logger core.Logger, storage models.Store, op tasks.GitExtractorOptions) (*parser.GitRepo, errors.Error) {
+// NewGitRepo create and return a new parser git repo
+func NewGitRepo(logger core.Logger, storage models.Store, op tasks.GitExtractorOptions) (*parser.GitRepo, errors.Error) {
 	var err errors.Error
 	var repo *parser.GitRepo
 	p := parser.NewGitRepoCreator(storage, logger)
@@ -95,6 +97,3 @@ func newGitRepo(logger core.Logger, storage models.Store, op tasks.GitExtractorO
 	}
 	return repo, err
 }
-
-// PluginEntry is a variable exported for Framework to search and load
-var PluginEntry GitExtractor //nolint

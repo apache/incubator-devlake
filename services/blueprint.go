@@ -21,8 +21,9 @@ import (
 	"encoding/json"
 	goerror "errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"strings"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
@@ -108,6 +109,15 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 	if err != nil {
 		return errors.BadInput.WrapRaw(err)
 	}
+
+	// checking if the project exist
+	if blueprint.ProjectName != "" {
+		_, err := GetProject(blueprint.ProjectName)
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("invalid projectName: [%s] for the blueprint [%s]", blueprint.ProjectName, blueprint.Name))
+		}
+	}
+
 	if strings.ToLower(blueprint.CronConfig) == "manual" {
 		blueprint.IsManual = true
 	}

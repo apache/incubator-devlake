@@ -32,6 +32,8 @@ import (
 var _ core.PluginMeta = (*Dora)(nil)
 var _ core.PluginInit = (*Dora)(nil)
 var _ core.PluginTask = (*Dora)(nil)
+var _ core.PluginModel = (*Dora)(nil)
+var _ core.PluginMetric = (*Dora)(nil)
 var _ core.CloseablePluginTask = (*Dora)(nil)
 var _ core.PluginMigration = (*Dora)(nil)
 
@@ -56,12 +58,40 @@ func (plugin Dora) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 	return nil
 }
 
+func (plugin Dora) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{
+		{
+			"model": "cicd_tasks",
+			"requiredFields": map[string]string{
+				"column":        "type",
+				"execptedValue": "Deployment",
+			},
+		},
+	}, nil
+}
+
+func (plugin Dora) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
+}
+
+func (plugin Dora) IsProjectMetric() bool {
+	return true
+}
+
+func (plugin Dora) RunAfter() ([]string, errors.Error) {
+	return []string{}, nil
+}
+
+func (plugin Dora) Settings() interface{} {
+	return nil
+}
+
 func (plugin Dora) SubTaskMetas() []core.SubTaskMeta {
 	// TODO add your sub task here
 	return []core.SubTaskMeta{
 		tasks.EnrichTaskEnvMeta,
 		tasks.CalculateChangeLeadTimeMeta,
-		tasks.ConnectIssueDeployMeta,
+		tasks.ConnectIncidentToDeploymentMeta,
 	}
 }
 

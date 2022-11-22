@@ -23,7 +23,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var PluginEntry impl.RefDiff
+// PluginEntry is a variable exported for Framework to search and load
+var PluginEntry impl.RefDiff //nolint
 
 // standalone mode for debugging
 func main() {

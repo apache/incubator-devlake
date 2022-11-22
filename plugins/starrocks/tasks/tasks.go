@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package tasks
 
 import (
 	"bytes"
@@ -32,6 +32,7 @@ import (
 	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/starrocks/utils"
 	"github.com/lib/pq"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -76,7 +77,7 @@ func LoadData(c core.SubTaskContext) errors.Error {
 	}
 	var starrocksTables []string
 	if config.DomainLayer != "" {
-		starrocksTables = getTablesByDomainLayer(config.DomainLayer)
+		starrocksTables = utils.GetTablesByDomainLayer(config.DomainLayer)
 		if starrocksTables == nil {
 			return errors.NotFound.New(fmt.Sprintf("no table found by domain layer: %s", config.DomainLayer))
 		}
@@ -183,7 +184,7 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTmpTable string, tab
 		if !ok {
 			return columnMap, "", errors.Default.New(fmt.Sprintf("Get [%s] ColumeType Failed", name))
 		}
-		dataType := getStarRocksDataType(columnDatatype)
+		dataType := utils.GetStarRocksDataType(columnDatatype)
 		columnMap[name] = dataType
 		column := fmt.Sprintf("`%s` %s", name, dataType)
 		columns = append(columns, column)
@@ -217,7 +218,7 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTmpTable string, tab
 		}
 	}
 	tableSql := fmt.Sprintf("drop table if exists %s; create table if not exists `%s` ( %s ) %s", starrocksTmpTable, starrocksTmpTable, strings.Join(columns, ","), extra)
-	c.GetLogger().Info(tableSql)
+	c.GetLogger().Debug(tableSql)
 	_, err = errors.Convert01(starrocks.Exec(tableSql))
 	return columnMap, orderBy, err
 }
@@ -333,7 +334,7 @@ func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrock
 		if result["Status"] != "Success" {
 			c.GetLogger().Error(nil, "load %s failed: %s", table, string(b))
 		} else {
-			c.GetLogger().Info("load %s success: %s, limit: %d, offset: %d", table, b, config.BatchSize, offset)
+			c.GetLogger().Debug("load %s success: %s, limit: %d, offset: %d", table, b, config.BatchSize, offset)
 		}
 		offset += len(data)
 	}

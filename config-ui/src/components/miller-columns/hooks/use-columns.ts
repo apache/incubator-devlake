@@ -18,39 +18,48 @@
 
 import { useMemo } from 'react'
 
-import { ItemType, ItemMapType, ColumnType } from '../types'
+import type { ItemType, ItemMapType, ColumnType } from '../types'
+import { ItemStatusEnum } from '../types'
 
 interface Props {
-  items: ItemType[]
   itemMap: ItemMapType
   activeItemId?: ItemType['id']
 }
 
-export const useColumns = ({ items, itemMap, activeItemId }: Props) => {
+export const useColumns = ({ itemMap, activeItemId }: Props) => {
   return useMemo(() => {
-    const rootLeaf = { items, activeId: null, parentId: null }
+    const rootLeaf = {
+      parentId: null,
+      activeId: null,
+      items: Object.values(itemMap).filter((it) => it.parentId === null),
+      hasMore: false
+    }
 
     if (!activeItemId) {
       return [rootLeaf]
     }
 
-    const activeItem = itemMap.getItem(activeItemId)
+    const activeItem = itemMap[activeItemId]
 
     const columns: ColumnType[] = [
       {
         parentId: activeItem.id,
-        items: activeItem.items,
-        activeId: null
+        items: activeItem.items ?? [],
+        activeId: null,
+        hasMore: activeItem.status !== ItemStatusEnum.READY
       }
     ]
 
     const collect = (item: ItemType) => {
-      const parent = itemMap.getItemParent(item.id)
+      const parent = itemMap[item.parentId ?? '']
 
       columns.unshift({
-        parentId: parent?.id ?? null,
-        items: parent?.items ?? items,
-        activeId: item.id ?? null
+        parentId: item.parentId,
+        items: parent
+          ? parent.items
+          : Object.values(itemMap).filter((it) => it.parentId === null),
+        activeId: item.id ?? null,
+        hasMore: false
       })
 
       if (parent) {
@@ -61,5 +70,5 @@ export const useColumns = ({ items, itemMap, activeItemId }: Props) => {
     collect(activeItem)
 
     return columns
-  }, [items, itemMap, activeItemId])
+  }, [itemMap, activeItemId])
 }

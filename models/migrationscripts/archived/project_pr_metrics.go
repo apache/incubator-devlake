@@ -15,21 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package archived
 
-type StarRocksConfig struct {
-	SourceType  string `mapstructure:"source_type"`
-	SourceDsn   string `mapstructure:"source_dsn"`
-	Host        string
-	Port        int
-	User        string
-	Password    string
-	Database    string
-	BeHost      string `mapstructure:"be_host"`
-	BePort      int    `mapstructure:"be_port"`
-	Tables      []string
-	BatchSize   int               `mapstructure:"batch_size"`
-	OrderBy     map[string]string `mapstructure:"order_by"`
-	DomainLayer string            `mapstructure:"domain_layer"`
-	Extra       map[string]string
+type ProjectPrMetric struct {
+	DomainEntity
+	ProjectName    string `gorm:"primaryKey;type:varchar(100)"`
+	FirstReviewId  string
+	FirstCommitSha string
+	CodingTimespan *int64
+	ReviewLag      *int64
+	ReviewTimespan *int64
+	DeploymentId   string
+	DeployTimespan *int64
+	ChangeTimespan *int64
+}
+
+func (ProjectPrMetric) TableName() string {
+	return "project_pr_metrics"
 }

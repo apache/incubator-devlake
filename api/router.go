@@ -27,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/api/ping"
 	"github.com/apache/incubator-devlake/api/pipelines"
 	"github.com/apache/incubator-devlake/api/plugininfo"
+	"github.com/apache/incubator-devlake/api/project"
 	"github.com/apache/incubator-devlake/api/push"
 	"github.com/apache/incubator-devlake/api/shared"
 	"github.com/apache/incubator-devlake/api/task"
@@ -59,7 +60,22 @@ func RegisterRouter(r *gin.Engine) {
 	r.POST("/push/:tableName", push.Post)
 	r.GET("/domainlayer/repos", domainlayer.ReposIndex)
 
+	// plugin api
 	r.GET("/plugininfo", plugininfo.Get)
+	r.GET("/plugins", plugininfo.GetPluginMetas)
+
+	// project api
+	r.GET("/projects/:projectName", project.GetProject)
+	r.PATCH("/projects/:projectName", project.PatchProject)
+	//r.DELETE("/projects/:projectName", project.DeleteProject)
+	r.POST("/projects", project.PostProject)
+	r.GET("/projects", project.GetProjects)
+
+	// project metric api
+	r.GET("/projects/:projectName/metrics/:pluginName", project.GetProjectMetrics)
+	r.PATCH("/projects/:projectName/metrics/:pluginName", project.PatchProjectMetrics)
+	//r.DELETE("/projects/:projectName/metrics/:pluginName", project.DeleteProjectMetrics)
+	r.POST("/projects/:projectName/metrics", project.PostProjectMetrics)
 
 	// mount all api resources for all plugins
 	pluginsApiResources, err := services.GetPluginsApiResources()

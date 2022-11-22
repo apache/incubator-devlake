@@ -22,5 +22,6 @@ type Tabler interface {
 }
 
 type PluginModel interface {
+	// This method returns all models of the current plugin
 	GetTablesInfo() []Tabler
 }

@@ -18,61 +18,12 @@ limitations under the License.
 package main
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/helper"
-
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/dbt/tasks"
+	"github.com/apache/incubator-devlake/plugins/dbt/impl"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/spf13/cobra"
 )
 
-var (
-	_ core.PluginMeta = (*Dbt)(nil)
-	_ core.PluginTask = (*Dbt)(nil)
-)
-
-type Dbt struct{}
-
-func (plugin Dbt) Description() string {
-	return "Convert data by dbt"
-}
-
-func (plugin Dbt) SubTaskMetas() []core.SubTaskMeta {
-	return []core.SubTaskMeta{
-		tasks.GitMeta,
-		tasks.DbtConverterMeta,
-	}
-}
-
-func (plugin Dbt) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
-}
-
-func (plugin Dbt) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
-	var op tasks.DbtOptions
-	err := helper.Decode(options, &op, nil)
-	if err != nil {
-		return nil, err
-	}
-	if op.ProjectPath == "" {
-		return nil, errors.Default.New("projectPath is required for dbt plugin")
-	}
-
-	if op.ProjectTarget == "" {
-		op.ProjectTarget = "dev"
-	}
-
-	return &tasks.DbtTaskData{
-		Options: &op,
-	}, nil
-}
-
-func (plugin Dbt) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/dbt"
-}
-
-var PluginEntry Dbt
+var PluginEntry impl.Dbt
 
 // standalone mode for debugging
 func main() {
