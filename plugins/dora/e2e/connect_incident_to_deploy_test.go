@@ -42,7 +42,7 @@ func TestConnectIncidentToDeploymentDataFlow(t *testing.T) {
 		},
 	}
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler("./raw_tables/cicd_tasks_changeleadtime.csv", &devops.CICDTask{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/cicd_tasks.csv", &devops.CICDTask{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/project_mapping.csv", &crossdomain.ProjectMapping{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/board_issues.csv", &ticket.BoardIssue{})
 	dataflowTester.ImportCsvIntoTabler("./raw_tables/issues.csv", &ticket.Issue{})

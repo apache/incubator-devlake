@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"reflect"
 	"regexp"
 
@@ -40,51 +39,30 @@ var EnrichTaskEnvMeta = core.SubTaskMeta{
 func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*DoraTaskData)
-	repoId := data.Options.RepoId
+	projectName := data.Options.ProjectName
 
 	productionNamePattern := data.Options.ProductionPattern
-	// TODO: STAGE 2
-	// stagingNamePattern := data.Options.StagingPattern
-	// testingNamePattern := data.Options.TestingPattern
-	prefix := data.Options.Prefix
-
-	productionNameRegexp, errRegexp := regexp.Compile(productionNamePattern)
-	if errRegexp != nil {
-		return errors.Default.Wrap(errRegexp, "Regexp compile productionPattern failed")
+	productionNameRegexp, err := errors.Convert01(regexp.Compile(productionNamePattern))
+	if err != nil {
+		return err
 	}
-	// TODO: STAGE 2
-	// stagingNameRegexp, errRegexp := regexp.Compile(stagingNamePattern)
-	// if errRegexp != nil {
-	// 	return errors.Default.Wrap(errRegexp, "Regexp compile stagingPattern failed")
-	// }
-	// testingNameRegexp, errRegexp := regexp.Compile(testingNamePattern)
-	// if errRegexp != nil {
-	// 	return errors.Default.Wrap(errRegexp, "Regexp compile testingPattern failed")
-	// }
 
-	var cursor dal.Rows
-	if len(prefix) == 0 {
-		cursor, err = db.Cursor(
-			dal.From(&devops.CICDTask{}),
-			dal.Join("left join cicd_pipeline_commits cpr on cicd_tasks.pipeline_id = cpr.pipeline_id"),
-			dal.Where("status=? and repo_id=?", devops.DONE, repoId))
-	} else {
-		likeString := fmt.Sprintf(`%s:%s`, prefix, "%")
-		cursor, err = db.Cursor(
-			dal.From(&devops.CICDTask{}),
-			dal.Where("status=? and id like ? ", devops.DONE, likeString))
-	}
+	cursor, err := db.Cursor(
+		dal.From(`cicd_tasks ct`),
+		dal.Join("inner join project_mapping pm on pm.row_id = ct.cicd_scope_id and pm.table = ?", "cicd_scopes"),
+		dal.Where(`pm.project_name = ?`, projectName),
+	)
+
 	if err != nil {
 		return err
 	}
 
 	defer cursor.Close()
-
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx:    taskCtx,
+			Ctx: taskCtx,
 			Params: DoraApiParams{
-				// TODO
+				ProjectName: projectName,
 			},
 			Table: "cicd_tasks",
 		},
@@ -93,36 +71,14 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			cicdTask := inputRow.(*devops.CICDTask)
 			results := make([]interface{}, 0, 1)
-			var EnvironmentVar string
 			if productionNamePattern == "" {
-				EnvironmentVar = devops.PRODUCTION
+				cicdTask.Environment = devops.PRODUCTION
 			} else {
 				if productEnv := productionNameRegexp.FindString(cicdTask.Name); productEnv != "" {
-					EnvironmentVar = devops.PRODUCTION
+					cicdTask.Environment = devops.PRODUCTION
 				}
 			}
-
-			// TODO: STAGE 2
-			// if stagingEnv := stagingNameRegexp.FindString(cicdTask.Name); stagingEnv != "" {
-			// 	EnvironmentVar = devops.STAGING
-			// }
-			// if testingEnv := testingNameRegexp.FindString(cicdTask.Name); testingEnv != "" {
-			// 	EnvironmentVar = devops.TESTING
-			// }
-
-			cicdPipelineFilter := &devops.CICDTask{
-				DomainEntity: cicdTask.DomainEntity,
-				PipelineId:   cicdTask.PipelineId,
-				Name:         cicdTask.Name,
-				Type:         cicdTask.Type,
-				Result:       cicdTask.Result,
-				Status:       cicdTask.Status,
-				DurationSec:  cicdTask.DurationSec,
-				StartedDate:  cicdTask.StartedDate,
-				FinishedDate: cicdTask.FinishedDate,
-				Environment:  EnvironmentVar,
-			}
-			results = append(results, cicdPipelineFilter)
+			results = append(results, cicdTask)
 			return results, nil
 		},
 	})
