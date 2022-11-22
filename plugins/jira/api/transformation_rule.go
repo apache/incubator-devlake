@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -36,12 +37,12 @@ import (
 // @Tags plugins/jira
 // @Accept application/json
 // @Param transformationRule body tasks.TransformationRules true "transformation rule"
-// @Success 200  {object} core.ApiResourceOutput
+// @Success 200  {object} models.JiraTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules [POST]
 func CreateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	rule, err := makeJiraTransformationRule(input)
+	rule, err := makeDbTransformationRuleFromInput(input)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error in makeJiraTransformationRule")
 	}
@@ -49,7 +50,7 @@ func CreateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
 	}
-	return &core.ApiResourceOutput{Status: http.StatusOK}, nil
+	return &core.ApiResourceOutput{Body: rule, Status: http.StatusOK}, nil
 }
 
 // UpdateTransformationRule update transformation rule for Jira
@@ -59,40 +60,60 @@ func CreateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 // @Accept application/json
 // @Param id path int true "id"
 // @Param transformationRule body tasks.TransformationRules true "transformation rule"
-// @Success 200  {object} core.ApiResourceOutput
+// @Success 200  {object} models.JiraTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/transformation_rules/{id} [PUT]
+// @Router /plugins/jira/transformation_rules/{id} [PATCH]
 func UpdateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	transformationRuleId, err := strconv.ParseUint(input.Params["id"], 10, 64)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "the transformation rule ID should be an integer")
 	}
-	rule, err := makeJiraTransformationRule(input)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error in makeJiraTransformationRule")
-	}
-	err = basicRes.GetDal().Update(&rule, dal.Where("id = ?", transformationRuleId))
+	var old models.JiraTransformationRule
+	err = basicRes.GetDal().First(&old, dal.Where("id = ?", transformationRuleId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
 	}
-	return &core.ApiResourceOutput{Status: http.StatusOK}, nil
+	rule := new(tasks.TransformationRules)
+	_, err = rule.FromDb(&old)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "the transformation rule ID should be an integer")
+	}
+	err = mapstructure.Decode(input.Body, &rule)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error decoding map into putBoardRequest")
+	}
+	dbRule, err := makeDbTransformationRule(rule)
+	dbRule.Model = old.Model
+	dbRule.UpdatedAt = time.Now()
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error in makeJiraTransformationRule")
+	}
+
+	err = basicRes.GetDal().Update(&dbRule, dal.Where("id = ?", transformationRuleId))
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
+	}
+	return &core.ApiResourceOutput{Body: rule, Status: http.StatusOK}, nil
 }
 
-func makeJiraTransformationRule(input *core.ApiResourceInput) (*models.JiraTransformationRule, errors.Error) {
+func makeDbTransformationRuleFromInput(input *core.ApiResourceInput) (*models.JiraTransformationRule, errors.Error) {
 	var req tasks.TransformationRules
 	err := mapstructure.Decode(input.Body, &req)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error decoding map into putBoardRequest")
 	}
-	blob, err := json.Marshal(req.TypeMappings)
+	return makeDbTransformationRule(&req)
+}
+func makeDbTransformationRule(rule *tasks.TransformationRules) (*models.JiraTransformationRule, errors.Error) {
+	blob, err := json.Marshal(rule.TypeMappings)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
 	}
 	return &models.JiraTransformationRule{
-		EpicKeyField:               req.EpicKeyField,
-		StoryPointField:            req.StoryPointField,
-		RemotelinkCommitShaPattern: req.RemotelinkCommitShaPattern,
+		EpicKeyField:               rule.EpicKeyField,
+		StoryPointField:            rule.StoryPointField,
+		RemotelinkCommitShaPattern: rule.RemotelinkCommitShaPattern,
 		TypeMappings:               blob,
 	}, nil
 }
@@ -102,7 +123,7 @@ func makeJiraTransformationRule(input *core.ApiResourceInput) (*models.JiraTrans
 // @Description return one transformation rule
 // @Tags plugins/jira
 // @Param id path int true "id"
-// @Success 200  {object} tasks.TransformationRules
+// @Success 200  {object} models.JiraTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules/{id} [GET]
@@ -123,7 +144,7 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 // @Summary return all transformation rules
 // @Description return all transformation rules
 // @Tags plugins/jira
-// @Success 200  {object} []tasks.TransformationRules
+// @Success 200  {object} []models.JiraTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules [GET]

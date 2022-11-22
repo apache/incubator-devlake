@@ -43,7 +43,7 @@ type putBoardRequest struct {
 // @Param connectionId path int false "connection ID"
 // @Param boardId path int false "board ID"
 // @Param scope body putBoardRequest true "json"
-// @Success 200  {object} core.ApiResourceOutput
+// @Success 200  {object} models.JiraBoard
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scopes/{boardId} [PUT]
@@ -69,7 +69,7 @@ func PutScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving JiraBoard")
 	}
-	return &core.ApiResourceOutput{Status: http.StatusOK}, nil
+	return &core.ApiResourceOutput{Body: board, Status: http.StatusOK}, nil
 }
 
 // GetScopeList get Jira boards

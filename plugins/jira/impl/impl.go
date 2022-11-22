@@ -261,8 +261,8 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"GET":  api.GetTransformationRuleList,
 		},
 		"transformation_rules/:id": {
-			"PUT": api.UpdateTransformationRule,
-			"GET": api.GetTransformationRule,
+			"PATCH": api.UpdateTransformationRule,
+			"GET":   api.GetTransformationRule,
 		},
 	}
 }
