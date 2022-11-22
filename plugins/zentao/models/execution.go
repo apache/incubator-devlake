@@ -98,7 +98,7 @@ type ZentaoExecutionRes struct {
 		Code           string              `json:"code"`
 		PlanBegin      *helper.Iso8601Time `json:"begin"`
 		PlanEnd        *helper.Iso8601Time `json:"end"`
-		RealBegan      string              `json:"realBegan"`
+		RealBegan      *helper.Iso8601Time `json:"realBegan"`
 		RealEnd        *helper.Iso8601Time `json:"realEnd"`
 		Status         string              `json:"status"`
 		SubStatus      string              `json:"subStatus"`
