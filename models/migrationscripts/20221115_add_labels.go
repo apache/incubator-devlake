@@ -19,6 +19,7 @@ package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"time"
 )
@@ -27,7 +28,7 @@ type DbPipelineLabel20221115 struct {
 	CreatedAt  time.Time `json:"createdAt"`
 	UpdatedAt  time.Time `json:"updatedAt"`
 	PipelineId uint64    `json:"pipeline_id" gorm:"primaryKey"`
-	Name       string    `json:"name" gorm:"primaryKey"`
+	Name       string    `json:"name" gorm:"primaryKey;index"`
 }
 
 func (DbPipelineLabel20221115) TableName() string {
@@ -38,7 +39,7 @@ type DbBlueprintLabel20221115 struct {
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 	BlueprintId uint64    `json:"blueprint_id" gorm:"primaryKey"`
-	Name        string    `json:"name" gorm:"primaryKey"`
+	Name        string    `json:"name" gorm:"primaryKey;index"`
 }
 
 func (DbBlueprintLabel20221115) TableName() string {
@@ -48,16 +49,7 @@ func (DbBlueprintLabel20221115) TableName() string {
 type addLabels struct{}
 
 func (*addLabels) Up(res core.BasicRes) errors.Error {
-	db := res.GetDal()
-	err := db.AutoMigrate(&DbPipelineLabel20221115{})
-	if err != nil {
-		return err
-	}
-	err = db.AutoMigrate(&DbBlueprintLabel20221115{})
-	if err != nil {
-		return err
-	}
-	return nil
+	return migrationhelper.AutoMigrateTables(res, &DbPipelineLabel20221115{}, &DbBlueprintLabel20221115{})
 }
 
 func (*addLabels) Version() uint64 {
@@ -65,5 +57,5 @@ func (*addLabels) Version() uint64 {
 }
 
 func (*addLabels) Name() string {
-	return "add parallel labels' schema for blueprint and pipeline"
+	return "add labels' schema for blueprint and pipeline"
 }

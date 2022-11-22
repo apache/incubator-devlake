@@ -78,6 +78,8 @@ type DbBlueprint struct {
 	SkipOnFail   bool   `json:"skipOnFail"`
 	Settings     string `json:"settings" encrypt:"yes" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
 	common.Model `swaggerignore:"true"`
+
+	Labels []DbBlueprintLabel `json:"-" gorm:"-"`
 }
 
 func (DbBlueprint) TableName() string {
@@ -88,7 +90,7 @@ type DbBlueprintLabel struct {
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 	BlueprintId uint64    `json:"blueprint_id" gorm:"primaryKey"`
-	Name        string    `json:"name" gorm:"primaryKey"`
+	Name        string    `json:"name" gorm:"primaryKey;index"`
 }
 
 func (DbBlueprintLabel) TableName() string {

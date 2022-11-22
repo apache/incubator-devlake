@@ -96,7 +96,7 @@ func pipelineServiceInit() {
 
 // CreatePipeline and return the model
 func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.Error) {
-	dbPipeline, labelModels, err := CreateDbPipeline(newPipeline)
+	dbPipeline, err := CreateDbPipeline(newPipeline)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
@@ -104,13 +104,13 @@ func CreatePipeline(newPipeline *models.NewPipeline) (*models.Pipeline, errors.E
 	if err != nil {
 		return nil, err
 	}
-	pipeline := parsePipeline(dbPipeline, labelModels)
+	pipeline := parsePipeline(dbPipeline)
 	return pipeline, nil
 }
 
 // GetPipelines by query
 func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error) {
-	dbPipelines, dbLabelsMap, i, err := GetDbPipelines(query)
+	dbPipelines, i, err := GetDbPipelines(query)
 	if err != nil {
 		return nil, 0, errors.Convert(err)
 	}
@@ -120,7 +120,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error
 		if err != nil {
 			return nil, 0, err
 		}
-		pipeline := parsePipeline(dbPipeline, dbLabelsMap[dbPipeline.ID])
+		pipeline := parsePipeline(dbPipeline)
 		pipelines = append(pipelines, pipeline)
 	}
 
@@ -129,7 +129,7 @@ func GetPipelines(query *PipelineQuery) ([]*models.Pipeline, int64, errors.Error
 
 // GetPipeline by id
 func GetPipeline(pipelineId uint64) (*models.Pipeline, errors.Error) {
-	dbPipeline, dbLabels, err := GetDbPipeline(pipelineId)
+	dbPipeline, err := GetDbPipeline(pipelineId)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func GetPipeline(pipelineId uint64) (*models.Pipeline, errors.Error) {
 	if err != nil {
 		return nil, err
 	}
-	pipeline := parsePipeline(dbPipeline, dbLabels)
+	pipeline := parsePipeline(dbPipeline)
 	return pipeline, nil
 }
 
@@ -169,7 +169,6 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 		}
 		globalPipelineLog.Info("get lock and wait next pipeline")
 		dbPipeline := &models.DbPipeline{}
-		var dbLabels []models.DbPipelineLabel
 		for {
 			cronLocker.Lock()
 			// prepare query to find an appropriate pipeline to execute
@@ -194,14 +193,14 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 			"message":  "",
 			"began_at": time.Now(),
 		})
-		dbPipeline, dbLabels, err = GetDbPipeline(dbPipeline.ID)
+		dbPipeline, err = GetDbPipeline(dbPipeline.ID)
 		if err != nil {
 			panic(err)
 		}
 
 		// add pipelineParallelLabels to runningParallelLabels
 		var pipelineParallelLabels []string
-		for _, dbLabel := range dbLabels {
+		for _, dbLabel := range dbPipeline.Labels {
 			if strings.HasPrefix(dbLabel.Name, `parallel/`) {
 				pipelineParallelLabels = append(pipelineParallelLabels, dbLabel.Name)
 			}

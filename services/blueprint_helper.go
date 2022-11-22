@@ -27,8 +27,13 @@ import (
 )
 
 // SaveDbBlueprint accepts a Blueprint instance and upsert it to database
-func SaveDbBlueprint(dbBlueprint *models.DbBlueprint, labelModels []models.DbBlueprintLabel) errors.Error {
-	err := db.Save(&dbBlueprint).Error
+func SaveDbBlueprint(dbBlueprint *models.DbBlueprint) errors.Error {
+	var err error
+	if dbBlueprint.ID != 0 {
+		err = db.Save(&dbBlueprint).Error
+	} else {
+		err = db.Create(&dbBlueprint).Error
+	}
 	if err != nil {
 		return errors.Default.Wrap(err, "error creating DB blueprint")
 	}
@@ -36,11 +41,11 @@ func SaveDbBlueprint(dbBlueprint *models.DbBlueprint, labelModels []models.DbBlu
 	if err != nil {
 		return errors.Default.Wrap(err, "error delete DB blueprint's old labelModels")
 	}
-	if len(labelModels) > 0 {
-		for _, labelModel := range labelModels {
-			labelModel.BlueprintId = dbBlueprint.ID
+	if len(dbBlueprint.Labels) > 0 {
+		for i := range dbBlueprint.Labels {
+			dbBlueprint.Labels[i].BlueprintId = dbBlueprint.ID
 		}
-		err = db.Create(&labelModels).Error
+		err = db.Create(&dbBlueprint.Labels).Error
 		if err != nil {
 			return errors.Default.Wrap(err, "error creating DB blueprint's labelModels")
 		}
@@ -49,7 +54,7 @@ func SaveDbBlueprint(dbBlueprint *models.DbBlueprint, labelModels []models.DbBlu
 }
 
 // GetDbBlueprints returns a paginated list of Blueprints based on `query`
-func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, map[uint64][]models.DbBlueprintLabel, int64, errors.Error) {
+func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, errors.Error) {
 	dbBlueprints := make([]*models.DbBlueprint, 0)
 	dbQuery := db.Model(dbBlueprints).Order("id DESC")
 	if query.Enable != nil {
@@ -68,46 +73,48 @@ func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, map[uint64][
 	var count int64
 	err := dbQuery.Count(&count).Error
 	if err != nil {
-		return nil, nil, 0, errors.Default.Wrap(err, "error getting DB count of blueprints")
+		return nil, 0, errors.Default.Wrap(err, "error getting DB count of blueprints")
 	}
 
 	dbQuery = processDbClausesWithPager(dbQuery, query.PageSize, query.Page)
 
 	err = dbQuery.Find(&dbBlueprints).Error
 	if err != nil {
-		return nil, nil, 0, errors.Default.Wrap(err, "error finding DB blueprints")
+		return nil, 0, errors.Default.Wrap(err, "error finding DB blueprints")
 	}
 
 	var blueprintIds []uint64
 	for _, dbBlueprint := range dbBlueprints {
 		blueprintIds = append(blueprintIds, dbBlueprint.ID)
 	}
-	dbLabels := []models.DbBlueprintLabel{}
+	var dbLabels []models.DbBlueprintLabel
 	dbLabelsMap := map[uint64][]models.DbBlueprintLabel{}
 	db.Where(`blueprint_id in ?`, blueprintIds).Find(&dbLabels)
 	for _, dbLabel := range dbLabels {
 		dbLabelsMap[dbLabel.BlueprintId] = append(dbLabelsMap[dbLabel.BlueprintId], dbLabel)
 	}
+	for _, dbBlueprint := range dbBlueprints {
+		dbBlueprint.Labels = dbLabelsMap[dbBlueprint.ID]
+	}
 
-	return dbBlueprints, dbLabelsMap, count, nil
+	return dbBlueprints, count, nil
 }
 
 // GetDbBlueprint returns the detail of a given Blueprint ID
-func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, []models.DbBlueprintLabel, errors.Error) {
+func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, errors.Error) {
 	dbBlueprint := &models.DbBlueprint{}
 	err := db.First(dbBlueprint, dbBlueprintId).Error
 	if err != nil {
 		if goerror.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil, errors.NotFound.Wrap(err, "could not find blueprint in DB")
+			return nil, errors.NotFound.Wrap(err, "could not find blueprint in DB")
 		}
-		return nil, nil, errors.Default.Wrap(err, "error getting blueprint from DB")
+		return nil, errors.Default.Wrap(err, "error getting blueprint from DB")
 	}
-	dbLabels := []models.DbBlueprintLabel{}
-	err = db.Find(&dbLabels, "blueprint_id = ?", dbBlueprint.ID).Error
+	err = db.Find(&dbBlueprint.Labels, "blueprint_id = ?", dbBlueprint.ID).Error
 	if err != nil {
-		return nil, nil, errors.Internal.Wrap(err, "error getting the blueprint from database")
+		return nil, errors.Internal.Wrap(err, "error getting the blueprint from database")
 	}
-	return dbBlueprint, dbLabels, nil
+	return dbBlueprint, nil
 }
 
 // DeleteDbBlueprint deletes blueprint by id
@@ -120,28 +127,28 @@ func DeleteDbBlueprint(id uint64) errors.Error {
 }
 
 // parseBlueprint
-func parseBlueprint(DbBlueprint *models.DbBlueprint, labelModels []models.DbBlueprintLabel) *models.Blueprint {
+func parseBlueprint(dbBlueprint *models.DbBlueprint) *models.Blueprint {
 	labelList := []string{}
-	for _, labelModel := range labelModels {
+	for _, labelModel := range dbBlueprint.Labels {
 		labelList = append(labelList, labelModel.Name)
 	}
 	blueprint := models.Blueprint{
-		Name:       DbBlueprint.Name,
-		Mode:       DbBlueprint.Mode,
-		Plan:       []byte(DbBlueprint.Plan),
-		Enable:     DbBlueprint.Enable,
-		CronConfig: DbBlueprint.CronConfig,
-		IsManual:   DbBlueprint.IsManual,
-		SkipOnFail: DbBlueprint.SkipOnFail,
-		Settings:   []byte(DbBlueprint.Settings),
-		Model:      DbBlueprint.Model,
+		Name:       dbBlueprint.Name,
+		Mode:       dbBlueprint.Mode,
+		Plan:       []byte(dbBlueprint.Plan),
+		Enable:     dbBlueprint.Enable,
+		CronConfig: dbBlueprint.CronConfig,
+		IsManual:   dbBlueprint.IsManual,
+		SkipOnFail: dbBlueprint.SkipOnFail,
+		Settings:   []byte(dbBlueprint.Settings),
+		Model:      dbBlueprint.Model,
 		Labels:     labelList,
 	}
 	return &blueprint
 }
 
 // parseDbBlueprint
-func parseDbBlueprint(blueprint *models.Blueprint) (*models.DbBlueprint, []models.DbBlueprintLabel) {
+func parseDbBlueprint(blueprint *models.Blueprint) *models.DbBlueprint {
 	dbBlueprint := models.DbBlueprint{
 		Name:       blueprint.Name,
 		Mode:       blueprint.Mode,
@@ -153,15 +160,15 @@ func parseDbBlueprint(blueprint *models.Blueprint) (*models.DbBlueprint, []model
 		Settings:   string(blueprint.Settings),
 		Model:      blueprint.Model,
 	}
-	labels := []models.DbBlueprintLabel{}
+	dbBlueprint.Labels = []models.DbBlueprintLabel{}
 	for _, label := range blueprint.Labels {
-		labels = append(labels, models.DbBlueprintLabel{
+		dbBlueprint.Labels = append(dbBlueprint.Labels, models.DbBlueprintLabel{
 			// NOTICE: BlueprintId may be nil
 			BlueprintId: blueprint.ID,
 			Name:        label,
 		})
 	}
-	return &dbBlueprint, labels
+	return &dbBlueprint
 }
 
 // encryptDbBlueprint

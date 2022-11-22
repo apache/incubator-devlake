@@ -29,12 +29,12 @@ import (
 )
 
 // CreateDbPipeline returns a NewPipeline
-func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, []models.DbPipelineLabel, errors.Error) {
+func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, errors.Error) {
 	cronLocker.Lock()
 	defer cronLocker.Unlock()
 	planByte, err := errors.Convert01(json.Marshal(newPipeline.Plan))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	// create pipeline object from posted data
 	dbPipeline := &models.DbPipeline{
@@ -50,26 +50,26 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, []mo
 	}
 	dbPipeline, err = encryptDbPipeline(dbPipeline)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// save pipeline to database
 	if err := db.Create(&dbPipeline).Error; err != nil {
 		globalPipelineLog.Error(err, "create pipeline failed: %v", err)
-		return nil, nil, errors.Internal.Wrap(err, "create pipeline failed")
+		return nil, errors.Internal.Wrap(err, "create pipeline failed")
 	}
 
-	var labelModels []models.DbPipelineLabel
+	dbPipeline.Labels = []models.DbPipelineLabel{}
 	for _, label := range newPipeline.Labels {
-		labelModels = append(labelModels, models.DbPipelineLabel{
+		dbPipeline.Labels = append(dbPipeline.Labels, models.DbPipelineLabel{
 			PipelineId: dbPipeline.ID,
 			Name:       label,
 		})
 	}
-	if len(labelModels) > 0 {
-		if err := db.Create(&labelModels).Error; err != nil {
+	if len(dbPipeline.Labels) > 0 {
+		if err := db.Create(&dbPipeline.Labels).Error; err != nil {
 			globalPipelineLog.Error(err, "create pipeline's labelModels failed: %v", err)
-			return nil, nil, errors.Internal.Wrap(err, "create pipeline's labelModels failed")
+			return nil, errors.Internal.Wrap(err, "create pipeline's labelModels failed")
 		}
 	}
 
@@ -86,7 +86,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, []mo
 			_, err := CreateTask(newTask)
 			if err != nil {
 				globalPipelineLog.Error(err, "create task for pipeline failed: %v", err)
-				return nil, nil, err
+				return nil, err
 			}
 			// sync task state back to pipeline
 			dbPipeline.TotalTasks += 1
@@ -94,10 +94,10 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, []mo
 	}
 	if err != nil {
 		globalPipelineLog.Error(err, "save tasks for pipeline failed: %v", err)
-		return nil, nil, errors.Internal.Wrap(err, "save tasks for pipeline failed")
+		return nil, errors.Internal.Wrap(err, "save tasks for pipeline failed")
 	}
 	if dbPipeline.TotalTasks == 0 {
-		return nil, nil, errors.Internal.New("no task to run")
+		return nil, errors.Internal.New("no task to run")
 	}
 
 	// update tasks state
@@ -105,14 +105,14 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, []mo
 		"total_tasks": dbPipeline.TotalTasks,
 	}).Error; err != nil {
 		globalPipelineLog.Error(err, "update pipline state failed: %v", err)
-		return nil, nil, errors.Internal.Wrap(err, "update pipline state failed")
+		return nil, errors.Internal.Wrap(err, "update pipline state failed")
 	}
 
-	return dbPipeline, labelModels, nil
+	return dbPipeline, nil
 }
 
 // GetDbPipelines by query
-func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, map[uint64][]models.DbPipelineLabel, int64, errors.Error) {
+func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.Error) {
 	dbPipelines := make([]*models.DbPipeline, 0)
 	dbQuery := db.Model(dbPipelines).Order("id DESC")
 	if query.BlueprintId != 0 {
@@ -133,14 +133,14 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, map[uint64][]mo
 	var count int64
 	err := dbQuery.Count(&count).Error
 	if err != nil {
-		return nil, nil, 0, errors.Default.Wrap(err, "error getting DB pipelines count")
+		return nil, 0, errors.Default.Wrap(err, "error getting DB pipelines count")
 	}
 
 	dbQuery = processDbClausesWithPager(dbQuery, query.PageSize, query.Page)
 
 	err = dbQuery.Find(&dbPipelines).Error
 	if err != nil {
-		return nil, nil, count, errors.Default.Wrap(err, "error finding DB pipelines")
+		return nil, count, errors.Default.Wrap(err, "error finding DB pipelines")
 	}
 
 	var pipelineIds []uint64
@@ -148,37 +148,39 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, map[uint64][]mo
 		pipelineIds = append(pipelineIds, dbPipeline.ID)
 	}
 	dbLabels := []models.DbPipelineLabel{}
-	dbLabelsMap := map[uint64][]models.DbPipelineLabel{}
 	db.Where(`pipeline_id in ?`, pipelineIds).Find(&dbLabels)
+	dbLabelsMap := map[uint64][]models.DbPipelineLabel{}
 	for _, dbLabel := range dbLabels {
 		dbLabelsMap[dbLabel.PipelineId] = append(dbLabelsMap[dbLabel.PipelineId], dbLabel)
 	}
+	for _, dbPipeline := range dbPipelines {
+		dbPipeline.Labels = dbLabelsMap[dbPipeline.ID]
+	}
 
-	return dbPipelines, dbLabelsMap, count, nil
+	return dbPipelines, count, nil
 }
 
 // GetDbPipeline by id
-func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, []models.DbPipelineLabel, errors.Error) {
+func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, errors.Error) {
 	dbPipeline := &models.DbPipeline{}
 	err := db.First(dbPipeline, pipelineId).Error
 	if err != nil {
 		if goerror.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil, errors.NotFound.New("pipeline not found")
+			return nil, errors.NotFound.New("pipeline not found")
 		}
-		return nil, nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
+		return nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
 	}
-	dbLabels := []models.DbPipelineLabel{}
-	err = db.Find(&dbLabels, "pipeline_id = ?", pipelineId).Error
+	err = db.Find(&dbPipeline.Labels, "pipeline_id = ?", pipelineId).Error
 	if err != nil {
-		return nil, nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
+		return nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
 	}
-	return dbPipeline, dbLabels, nil
+	return dbPipeline, nil
 }
 
 // parsePipeline converts DbPipeline to Pipeline
-func parsePipeline(dbPipeline *models.DbPipeline, labelModels []models.DbPipelineLabel) *models.Pipeline {
+func parsePipeline(dbPipeline *models.DbPipeline) *models.Pipeline {
 	labelList := []string{}
-	for _, labelModel := range labelModels {
+	for _, labelModel := range dbPipeline.Labels {
 		labelList = append(labelList, labelModel.Name)
 	}
 	pipeline := models.Pipeline{
@@ -201,7 +203,7 @@ func parsePipeline(dbPipeline *models.DbPipeline, labelModels []models.DbPipelin
 
 // parseDbPipeline converts Pipeline to DbPipeline
 // nolint:unused
-func parseDbPipeline(pipeline *models.Pipeline) (*models.DbPipeline, []models.DbPipelineLabel) {
+func parseDbPipeline(pipeline *models.Pipeline) *models.DbPipeline {
 	dbPipeline := models.DbPipeline{
 		Model:         pipeline.Model,
 		Name:          pipeline.Name,
@@ -216,15 +218,15 @@ func parseDbPipeline(pipeline *models.Pipeline) (*models.DbPipeline, []models.Db
 		SpentSeconds:  pipeline.SpentSeconds,
 		Stage:         pipeline.Stage,
 	}
-	labels := []models.DbPipelineLabel{}
+	dbPipeline.Labels = []models.DbPipelineLabel{}
 	for _, label := range pipeline.Labels {
-		labels = append(labels, models.DbPipelineLabel{
+		dbPipeline.Labels = append(dbPipeline.Labels, models.DbPipelineLabel{
 			// NOTICE: PipelineId may be nil
 			PipelineId: pipeline.ID,
 			Name:       label,
 		})
 	}
-	return &dbPipeline, labels
+	return &dbPipeline
 }
 
 // encryptDbPipeline encrypts dbPipeline.Plan

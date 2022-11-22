@@ -64,6 +64,8 @@ type DbPipeline struct {
 	Message       string     `json:"message"`
 	SpentSeconds  int        `json:"spentSeconds"`
 	Stage         int        `json:"stage"`
+
+	Labels []DbPipelineLabel `json:"-" gorm:"-"`
 }
 
 func (DbPipeline) TableName() string {
@@ -74,7 +76,7 @@ type DbPipelineLabel struct {
 	CreatedAt  time.Time `json:"createdAt"`
 	UpdatedAt  time.Time `json:"updatedAt"`
 	PipelineId uint64    `json:"pipeline_id" gorm:"primaryKey"`
-	Name       string    `json:"name" gorm:"primaryKey"`
+	Name       string    `json:"name" gorm:"primaryKey;index"`
 }
 
 func (DbPipelineLabel) TableName() string {

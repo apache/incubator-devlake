@@ -117,7 +117,7 @@ func runPipeline(pipelineId uint64) errors.Error {
 	if err != nil {
 		err = errors.Default.Wrap(err, fmt.Sprintf("Error running pipeline %d.", pipelineId))
 	}
-	dbPipeline, _, e := GetDbPipeline(pipelineId)
+	dbPipeline, e := GetDbPipeline(pipelineId)
 	if e != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("Unable to get pipeline %d.", pipelineId))
 	}

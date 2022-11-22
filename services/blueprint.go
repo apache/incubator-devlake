@@ -54,12 +54,12 @@ func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 	if err != nil {
 		return err
 	}
-	dbBlueprint, dbBlueprintLabels := parseDbBlueprint(blueprint)
+	dbBlueprint := parseDbBlueprint(blueprint)
 	dbBlueprint, err = encryptDbBlueprint(dbBlueprint)
 	if err != nil {
 		return err
 	}
-	err = SaveDbBlueprint(dbBlueprint, dbBlueprintLabels)
+	err = SaveDbBlueprint(dbBlueprint)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 
 // GetBlueprints returns a paginated list of Blueprints based on `query`
 func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
-	dbBlueprints, dbLabelsMap, count, err := GetDbBlueprints(query)
+	dbBlueprints, count, err := GetDbBlueprints(query)
 	if err != nil {
 		return nil, 0, errors.Convert(err)
 	}
@@ -83,7 +83,7 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Er
 		if err != nil {
 			return nil, 0, err
 		}
-		blueprint := parseBlueprint(dbBlueprint, dbLabelsMap[dbBlueprint.ID])
+		blueprint := parseBlueprint(dbBlueprint)
 		blueprints = append(blueprints, blueprint)
 	}
 	return blueprints, count, nil
@@ -91,7 +91,7 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Er
 
 // GetBlueprint returns the detail of a given Blueprint ID
 func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
-	dbBlueprint, dbLabels, err := GetDbBlueprint(blueprintId)
+	dbBlueprint, err := GetDbBlueprint(blueprintId)
 	if err != nil {
 		if goerror.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NotFound.New("blueprint not found")
@@ -102,7 +102,7 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
 	if err != nil {
 		return nil, err
 	}
-	blueprint := parseBlueprint(dbBlueprint, dbLabels)
+	blueprint := parseBlueprint(dbBlueprint)
 	return blueprint, nil
 }
 
@@ -180,12 +180,12 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	}
 
 	// save
-	dbBlueprint, dbBlueprintLabels := parseDbBlueprint(blueprint)
+	dbBlueprint := parseDbBlueprint(blueprint)
 	dbBlueprint, err = encryptDbBlueprint(dbBlueprint)
 	if err != nil {
 		return nil, err
 	}
-	err = SaveDbBlueprint(dbBlueprint, dbBlueprintLabels)
+	err = SaveDbBlueprint(dbBlueprint)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +216,7 @@ func DeleteBlueprint(id uint64) errors.Error {
 func ReloadBlueprints(c *cron.Cron) errors.Error {
 	enable := true
 	isManual := false
-	dbBlueprints, dbLabelsMap, _, err := GetDbBlueprints(&BlueprintQuery{Enable: &enable, IsManual: &isManual})
+	dbBlueprints, _, err := GetDbBlueprints(&BlueprintQuery{Enable: &enable, IsManual: &isManual})
 	if err != nil {
 		return err
 	}
@@ -229,7 +229,7 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 		if err != nil {
 			return err
 		}
-		blueprint := parseBlueprint(dbBlueprint, dbLabelsMap[dbBlueprint.ID])
+		blueprint := parseBlueprint(dbBlueprint)
 		plan, err := blueprint.UnmarshalPlan()
 		if err != nil {
 			blueprintLog.Error(err, failToCreateCronJob)
