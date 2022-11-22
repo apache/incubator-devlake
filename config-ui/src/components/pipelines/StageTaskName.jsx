@@ -61,14 +61,16 @@ const StageTaskName = (props) => {
           ref={popoverTriggerRef}
           style={{ display: 'block', margin: '5px 0 5px 0' }}
         >
-          <strong>Task ID {task.id}</strong>{' '}
-          {ProviderLabels[task?.plugin?.toUpperCase()]}{' '}
-          {task.plugin === Providers.GITHUB &&
-            task.plugin !== Providers.JENKINS && (
-              <>
-                @{task.options.owner}/{task.options.repo}
-              </>
-            )}
+          <strong>Task#{task.id}</strong>{' '}
+          {ProviderLabels[task?.plugin?.toUpperCase()] ||
+            task?.plugin?.toUpperCase()}{' '}
+          {(task.plugin === Providers.GITHUB ||
+            task.plugin === Providers.GITHUB_GRAPHQL) && (
+            <>
+              @{task.options.owner}/{task.options.repo}
+            </>
+          )}
+          {task.plugin === Providers.JENKINS && <>@{task.options.jobName}</>}
           {task.plugin === Providers.JIRA && (
             <>Board ID {task.options.boardId}</>
           )}

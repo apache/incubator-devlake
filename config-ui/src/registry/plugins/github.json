@@ -34,7 +34,8 @@
     },
     "tooltips": {
       "token": "Due to Github's rate limit, input more tokens, \ncomma separated, to accelerate data collection.",
-      "rateLimitPerHour": "Rate Limit requests per hour,\nEnter a numeric value > 0 to enable."
+      "rateLimitPerHour": "Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.",
+      "enableGraphql": "GraphQL APIs are 10+ times faster than REST APIs, but it may not be supported in GitHub on-premise versions.  "
     }
  },
  "availableDataDomains": ["CODE", "TICKET", "CODEREVIEW", "CROSS", "CICD"],

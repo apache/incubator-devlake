@@ -118,6 +118,7 @@ var CollectPrMeta = core.SubTaskMeta{
 	EntryPoint:       CollectPr,
 	EnabledByDefault: true,
 	Description:      "Collect Pr data from GithubGraphql api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 var _ core.SubTaskEntryPoint = CollectPr

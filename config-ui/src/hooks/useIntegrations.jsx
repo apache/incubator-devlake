@@ -23,6 +23,7 @@ import Plugin from '@/models/Plugin'
 // "integration" Plugins a.k.a "Providers"
 import JiraPlugin from '@/registry/plugins/jira.json'
 import GitHubPlugin from '@/registry/plugins/github.json'
+import GitHubGraphqlPlugin from '@/registry/plugins/github_graphql.json'
 import GitLabPlugin from '@/registry/plugins/gitlab.json'
 import JenkinsPlugin from '@/registry/plugins/jenkins.json'
 import TapdPlugin from '@/registry/plugins/tapd.json'
@@ -46,6 +47,7 @@ function useIntegrations(
   pluginRegistry = [
     JiraPlugin,
     GitHubPlugin,
+    GitHubGraphqlPlugin,
     GitLabPlugin,
     JenkinsPlugin,
     TapdPlugin,
