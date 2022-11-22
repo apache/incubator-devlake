@@ -36,10 +36,6 @@ import usePipelineManager from '@/hooks/usePipelineManager'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import useBlueprintValidation from '@/hooks/useBlueprintValidation'
 import usePaginator from '@/hooks/usePaginator'
-import Nav from '@/components/Nav'
-import Sidebar from '@/components/Sidebar'
-import AppCrumbs from '@/components/Breadcrumbs'
-import Content from '@/components/Content'
 // import AddBlueprintDialog from '@/components/blueprints/AddBlueprintDialog'
 import { ReactComponent as NoBlueprintsIcon } from '@/images/no-blueprints.svg'
 import BlueprintsGrid from '@/components/blueprints/BlueprintsGrid'
@@ -342,161 +338,122 @@ const Blueprints = (props) => {
   }, [blueprints, setPaginatorData])
 
   return (
-    <>
-      <div className='container'>
-        <Nav />
-        <Sidebar key={Integrations} integrations={Integrations} />
-        <Content>
-          <main className='main'>
-            {/* <AppCrumbs
+    <main className='main'>
+      {/* <AppCrumbs
               items={[
                 { href: '/', icon: false, text: 'Dashboard' },
                 { href: '/pipelines', icon: false, text: 'Pipelines' },
                 { href: '/blueprints', icon: false, text: 'Pipeline Blueprints', current: true },
               ]}
             /> */}
-            <div className='headlineContainer'>
-              <div style={{ display: 'flex' }}>
-                <div>
-                  <h1 style={{ margin: 0 }}>Blueprints</h1>
-                </div>
-                <div style={{ marginLeft: 'auto' }}>
-                  {blueprints.length > 0 && (
+      <div className='headlineContainer'>
+        <div style={{ display: 'flex' }}>
+          <div>
+            <h1 style={{ margin: 0 }}>Blueprints</h1>
+          </div>
+          <div style={{ marginLeft: 'auto' }}>
+            {blueprints.length > 0 && (
+              <Button
+                // disabled={pipelines.length === 0}
+                icon='plus'
+                intent={Intent.PRIMARY}
+                text='New Blueprint'
+                onClick={() => createNewBlueprint()}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+      {!isFetchingBlueprints && blueprints.length > 0 && (
+        <>
+          <BlueprintsGrid
+            blueprints={pagedData}
+            pipelines={relatedPipelines}
+            activeFilterStatus={activeFilterStatus}
+            onFilter={setActiveFilterStatus}
+            activeBlueprint={activeBlueprint}
+            blueprintSchedule={blueprintSchedule}
+            isActiveBlueprint={isActiveBlueprint}
+            expandBlueprint={expandBlueprint}
+            deleteBlueprint={deleteBlueprint}
+            createCron={createCron}
+            getNextRunDate={getNextRunDate}
+            handleBlueprintActivation={handleBlueprintActivation}
+            configureBlueprint={configureBlueprint}
+            configureBlueprintSettings={configureBlueprintSettings}
+            isDeleting={isDeleting}
+            isLoading={isFetchingAllPipelines}
+            expandDetails={expandDetails}
+            cronPresets={cronPresets}
+            onViewPipeline={viewPipeline}
+          />
+        </>
+      )}
+
+      {!isFetchingBlueprints && blueprints.length === 0 && (
+        <Card style={{ marginTop: '36px' }} elevation={Elevation.TWO}>
+          <NonIdealState
+            className='blueprints-non-ideal-state'
+            icon={
+              <NoBlueprintsIcon
+                width={120}
+                height={120}
+                style={{ marginBottom: '-30px' }}
+              />
+            }
+            title=''
+            description={
+              <>
+                <p
+                  style={{
+                    color: '#292B3F',
+                    fontSize: '15px',
+                    padding: '0 14%',
+                    textAlign: 'center'
+                  }}
+                >
+                  A blueprint is a plan that covers all the work, such as
+                  selecting and transforming the data you wish to collect, to
+                  get your raw data ready for query and metric computation in
+                  the dashboards. Try adding your first blueprint!
+                </p>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignSelf: 'center',
+                    justifyContent: 'center',
+                    marginTop: '5px'
+                  }}
+                >
+                  {pipelines.length === 0 ? (
                     <Button
                       // disabled={pipelines.length === 0}
                       icon='plus'
                       intent={Intent.PRIMARY}
                       text='New Blueprint'
-                      onClick={() => createNewBlueprint()}
+                      style={{ marginRight: '10px' }}
+                      onClick={createNewBlueprint}
+                    />
+                  ) : (
+                    <Button
+                      icon='plus'
+                      intent={Intent.PRIMARY}
+                      text='New Blueprint'
+                      style={{ marginRight: '10px' }}
+                      onClick={createNewBlueprint}
                     />
                   )}
                 </div>
-              </div>
-            </div>
-            {!isFetchingBlueprints && blueprints.length > 0 && (
-              <>
-                <BlueprintsGrid
-                  blueprints={pagedData}
-                  pipelines={relatedPipelines}
-                  activeFilterStatus={activeFilterStatus}
-                  onFilter={setActiveFilterStatus}
-                  activeBlueprint={activeBlueprint}
-                  blueprintSchedule={blueprintSchedule}
-                  isActiveBlueprint={isActiveBlueprint}
-                  expandBlueprint={expandBlueprint}
-                  deleteBlueprint={deleteBlueprint}
-                  createCron={createCron}
-                  getNextRunDate={getNextRunDate}
-                  handleBlueprintActivation={handleBlueprintActivation}
-                  configureBlueprint={configureBlueprint}
-                  configureBlueprintSettings={configureBlueprintSettings}
-                  isDeleting={isDeleting}
-                  isLoading={isFetchingAllPipelines}
-                  expandDetails={expandDetails}
-                  cronPresets={cronPresets}
-                  onViewPipeline={viewPipeline}
-                />
               </>
-            )}
-
-            {!isFetchingBlueprints && blueprints.length === 0 && (
-              <Card style={{ marginTop: '36px' }} elevation={Elevation.TWO}>
-                <NonIdealState
-                  className='blueprints-non-ideal-state'
-                  icon={
-                    <NoBlueprintsIcon
-                      width={120}
-                      height={120}
-                      style={{ marginBottom: '-30px' }}
-                    />
-                  }
-                  title=''
-                  description={
-                    <>
-                      <p
-                        style={{
-                          color: '#292B3F',
-                          fontSize: '15px',
-                          padding: '0 14%',
-                          textAlign: 'center'
-                        }}
-                      >
-                        A blueprint is a plan that covers all the work, such as
-                        selecting and transforming the data you wish to collect,
-                        to get your raw data ready for query and metric
-                        computation in the dashboards. Try adding your first
-                        blueprint!
-                      </p>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignSelf: 'center',
-                          justifyContent: 'center',
-                          marginTop: '5px'
-                        }}
-                      >
-                        {pipelines.length === 0 ? (
-                          <Button
-                            // disabled={pipelines.length === 0}
-                            icon='plus'
-                            intent={Intent.PRIMARY}
-                            text='New Blueprint'
-                            style={{ marginRight: '10px' }}
-                            onClick={createNewBlueprint}
-                          />
-                        ) : (
-                          <Button
-                            icon='plus'
-                            intent={Intent.PRIMARY}
-                            text='New Blueprint'
-                            style={{ marginRight: '10px' }}
-                            onClick={createNewBlueprint}
-                          />
-                        )}
-                      </div>
-                    </>
-                  }
-                  // action={createNewBlueprint}
-                />
-              </Card>
-            )}
-            <div style={{ alignSelf: 'flex-end', padding: '10px' }}>
-              {renderPagnationControls()}
-            </div>
-          </main>
-        </Content>
+            }
+            // action={createNewBlueprint}
+          />
+        </Card>
+      )}
+      <div style={{ alignSelf: 'flex-end', padding: '10px' }}>
+        {renderPagnationControls()}
       </div>
-
-      {/* <AddBlueprintDialog
-        isLoading={isFetchingAllPipelines}
-        isOpen={blueprintDialogIsOpen}
-        setIsOpen={setBlueprintDialogIsOpen}
-        name={name}
-        cronConfig={cronConfig}
-        customCronConfig={customCronConfig}
-        enable={enable}
-        tasks={tasks}
-        draftBlueprint={draftBlueprint}
-        setDraftBlueprint={setDraftBlueprint}
-        setBlueprintName={setBlueprintName}
-        setCronConfig={setCronConfig}
-        setCustomCronConfig={setCustomCronConfig}
-        setEnableBlueprint={setEnableBlueprint}
-        setBlueprintTasks={setBlueprintTasks}
-        createCron={createCron}
-        saveBlueprint={saveBlueprint}
-        isSaving={isSaving}
-        isValidBlueprint={isValidBlueprint}
-        fieldHasError={fieldHasError}
-        getFieldError={getFieldError}
-        pipelines={pipelineTemplates}
-        selectedPipelineTemplate={selectedPipelineTemplate}
-        setSelectedPipelineTemplate={setSelectedPipelineTemplate}
-        detectedProviders={detectedProviderTasks}
-        getCronPreset={getCronPreset}
-        getCronPresetByConfig={getCronPresetByConfig}
-      /> */}
-    </>
+    </main>
   )
 }
 

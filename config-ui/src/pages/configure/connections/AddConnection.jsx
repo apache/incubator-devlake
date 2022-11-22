@@ -18,10 +18,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import { Icon } from '@blueprintjs/core'
-import Nav from '@/components/Nav'
-import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
-import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 // import { integrationsData } from '@/data/integrations'
 // import {
@@ -149,105 +146,92 @@ export default function AddConnection() {
   }, [providerId, setActiveProvider, Integrations])
 
   return (
-    <>
-      <div className='container'>
-        <Nav />
-        <Sidebar key={Integrations} integrations={Integrations} />
-        <Content>
-          <main className='main'>
-            <AppCrumbs
-              items={[
-                { href: '/', icon: false, text: 'Dashboard' },
-                { href: '/integrations', icon: false, text: 'Connections' },
-                {
-                  href: `/integrations/${activeProvider?.id}`,
-                  icon: false,
-                  text: `${activeProvider?.name}`
-                },
-                {
-                  href: `/connections/add/${activeProvider?.id}`,
-                  icon: false,
-                  text: 'Add Connection',
-                  current: true
-                }
-              ]}
-            />
-            <div style={{ width: '100%' }}>
-              <Link
-                style={{ float: 'right', marginLeft: '10px', color: '#777777' }}
-                to={`/integrations/${activeProvider?.id}`}
-              >
-                <Icon icon='undo' size={16} /> Go Back
-              </Link>
-              <div style={{ display: 'flex' }}>
-                <div>
-                  <span style={{ marginRight: '10px' }}>
-                    <img
-                      className='providerIconSvg'
-                      src={'/' + activeProvider?.icon}
-                      width={40}
-                      height={40}
-                      style={{ width: '40px', height: '40px' }}
-                    />
-                  </span>
-                </div>
-                <div>
-                  <h1 style={{ margin: 0 }}>
-                    {activeProvider?.name} Add Connection
-                  </h1>
-                  <p className='page-description'>
-                    Create a new connection for this provider.
-                  </p>
-                </div>
-              </div>
-              <div className='addConnection' style={{ display: 'flex' }}>
-                <ConnectionForm
-                  isLocked={connectionLimitReached}
-                  isValid={isValidForm}
-                  validationErrors={validationErrors}
-                  activeProvider={activeProvider}
-                  name={name}
-                  endpointUrl={endpointUrl}
-                  proxy={proxy}
-                  rateLimitPerHour={rateLimitPerHour}
-                  enableGraphql={enableGraphql}
-                  token={token}
-                  initialTokenStore={initialTokenStore}
-                  username={username}
-                  password={password}
-                  onSave={() => saveConnection({})}
-                  onTest={testConnection}
-                  onCancel={cancel}
-                  onValidate={validate}
-                  onNameChange={setName}
-                  onEndpointChange={setEndpointUrl}
-                  onProxyChange={setProxy}
-                  onRateLimitChange={setRateLimitPerHour}
-                  onEnableGraphqlChange={setEnableGraphql}
-                  onTokenChange={setToken}
-                  onUsernameChange={setUsername}
-                  onPasswordChange={setPassword}
-                  isSaving={isSaving}
-                  isTesting={isTesting}
-                  testStatus={testStatus}
-                  testResponse={testResponse}
-                  allTestResponses={allTestResponses}
-                  errors={errors}
-                  showError={showError}
-                  authType={activeProvider?.getAuthenticationType()}
-                  sourceLimits={ProviderConnectionLimits}
-                  labels={ProviderFormLabels[activeProvider?.id]}
-                  placeholders={ProviderFormPlaceholders[activeProvider?.id]}
-                  tooltips={ProviderFormTooltips[activeProvider?.id]}
-                />
-              </div>
-              {/* {validationErrors.length > 0 && (
-                <FormValidationErrors errors={validationErrors} />
-              )} */}
-            </div>
-          </main>
-        </Content>
+    <main className='main'>
+      <AppCrumbs
+        items={[
+          { href: '/', icon: false, text: 'Dashboard' },
+          { href: '/integrations', icon: false, text: 'Connections' },
+          {
+            href: `/integrations/${activeProvider?.id}`,
+            icon: false,
+            text: `${activeProvider?.name}`
+          },
+          {
+            href: `/connections/add/${activeProvider?.id}`,
+            icon: false,
+            text: 'Add Connection',
+            current: true
+          }
+        ]}
+      />
+      <div style={{ width: '100%' }}>
+        <Link
+          style={{ float: 'right', marginLeft: '10px', color: '#777777' }}
+          to={`/integrations/${activeProvider?.id}`}
+        >
+          <Icon icon='undo' size={16} /> Go Back
+        </Link>
+        <div style={{ display: 'flex' }}>
+          <div>
+            <span style={{ marginRight: '10px' }}>
+              <img
+                className='providerIconSvg'
+                src={'/' + activeProvider?.icon}
+                width={40}
+                height={40}
+                style={{ width: '40px', height: '40px' }}
+              />
+            </span>
+          </div>
+          <div>
+            <h1 style={{ margin: 0 }}>{activeProvider?.name} Add Connection</h1>
+            <p className='page-description'>
+              Create a new connection for this provider.
+            </p>
+          </div>
+        </div>
+        <div className='addConnection' style={{ display: 'flex' }}>
+          <ConnectionForm
+            isLocked={connectionLimitReached}
+            isValid={isValidForm}
+            validationErrors={validationErrors}
+            activeProvider={activeProvider}
+            name={name}
+            endpointUrl={endpointUrl}
+            proxy={proxy}
+            rateLimitPerHour={rateLimitPerHour}
+            enableGraphql={enableGraphql}
+            token={token}
+            initialTokenStore={initialTokenStore}
+            username={username}
+            password={password}
+            onSave={() => saveConnection({})}
+            onTest={testConnection}
+            onCancel={cancel}
+            onValidate={validate}
+            onNameChange={setName}
+            onEndpointChange={setEndpointUrl}
+            onProxyChange={setProxy}
+            onRateLimitChange={setRateLimitPerHour}
+            onEnableGraphqlChange={setEnableGraphql}
+            onTokenChange={setToken}
+            onUsernameChange={setUsername}
+            onPasswordChange={setPassword}
+            isSaving={isSaving}
+            isTesting={isTesting}
+            testStatus={testStatus}
+            testResponse={testResponse}
+            allTestResponses={allTestResponses}
+            errors={errors}
+            showError={showError}
+            authType={activeProvider?.getAuthenticationType()}
+            sourceLimits={ProviderConnectionLimits}
+            labels={ProviderFormLabels[activeProvider?.id]}
+            placeholders={ProviderFormPlaceholders[activeProvider?.id]}
+            tooltips={ProviderFormTooltips[activeProvider?.id]}
+          />
+        </div>
       </div>
-    </>
+    </main>
   )
 }

@@ -26,9 +26,6 @@ import {
 // import { integrationsData } from '@/data/integrations'
 import { Intent } from '@blueprintjs/core'
 // import { Providers } from '@/data/Providers'
-import Nav from '@/components/Nav'
-import Sidebar from '@/components/Sidebar'
-import Content from '@/components/Content'
 import { ToastNotification } from '@/components/Toast'
 
 import { BlueprintMode } from '@/data/NullBlueprint'
@@ -872,206 +869,193 @@ const CreateBlueprint = (props) => {
 
   return (
     <>
-      <div className='container'>
-        <Nav />
-        <Sidebar key={Integrations} integrations={Integrations} />
-        <Content>
-          <main className='main'>
-            <WorkflowStepsBar activeStep={activeStep} steps={blueprintSteps} />
+      <main className='main'>
+        <WorkflowStepsBar activeStep={activeStep} steps={blueprintSteps} />
 
-            <div
-              className={`workflow-content workflow-step-id-${activeStep?.id}`}
-            >
-              {advancedMode ? (
-                <>
-                  {activeStep?.id === 1 && (
-                    <AdvancedJSON
-                      activeStep={activeStep}
-                      advancedMode={advancedMode}
-                      runTasksAdvanced={runTasksAdvanced}
-                      blueprintConnections={blueprintConnections}
-                      connectionsList={connectionsList}
-                      name={name}
-                      setBlueprintName={setBlueprintName}
-                      // setBlueprintConnections={setBlueprintConnections}
-                      fieldHasError={fieldHasError}
-                      getFieldError={getFieldError}
-                      // addConnection={addConnection}
-                      // manageConnection={manageConnection}
-                      onAdvancedMode={handleAdvancedMode}
-                      // @todo add multistage checker method
-                      isMultiStagePipeline={() => {}}
-                      rawConfiguration={rawConfiguration}
-                      setRawConfiguration={setRawConfiguration}
-                      isSaving={isSaving}
-                      isValidConfiguration={isValidConfiguration}
-                      validationAdvancedError={validationAdvancedError}
-                      validationErrors={validationErrors}
-                    />
-                  )}
-
-                  {activeStep?.id === 2 && (
-                    <DataSync
-                      skipOnFail={skipOnFail}
-                      setSkipOnFail={setSkipOnFail}
-                      activeStep={activeStep}
-                      advancedMode={advancedMode}
-                      cronConfig={cronConfig}
-                      customCronConfig={customCronConfig}
-                      createCron={createCron}
-                      setCronConfig={setCronConfig}
-                      getCronPreset={getCronPreset}
-                      fieldHasError={fieldHasError}
-                      getFieldError={getFieldError}
-                      setCustomCronConfig={setCustomCronConfig}
-                      getCronPresetByConfig={getCronPresetByConfig}
-                    />
-                  )}
-                </>
-              ) : (
-                <>
-                  {activeStep?.id === 1 && (
-                    <DataConnections
-                      activeStep={activeStep}
-                      advancedMode={advancedMode}
-                      blueprintConnections={dataConnections}
-                      // blueprintConnections={blueprintConnections}
-                      // eslint-disable-next-line max-len
-                      // blueprintConnections={[...blueprintConnections.map((c, cIdx) => ({...c, statusResponse: onlineStatus[cIdx], status: onlineStatus[cIdx]?.status }))]}
-                      onlineStatus={onlineStatus}
-                      connectionsList={connectionsList}
-                      name={name}
-                      setBlueprintName={setBlueprintName}
-                      setBlueprintConnections={setBlueprintConnections}
-                      fieldHasError={fieldHasError}
-                      getFieldError={getFieldError}
-                      addConnection={addConnection}
-                      manageConnection={manageConnection}
-                      onAdvancedMode={handleAdvancedMode}
-                      isTesting={isTestingConnection}
-                    />
-                  )}
-
-                  {activeStep?.id === 2 && (
-                    <DataScopes
-                      provider={provider}
-                      activeStep={activeStep}
-                      advancedMode={advancedMode}
-                      activeConnectionTab={activeConnectionTab}
-                      blueprintConnections={blueprintConnections}
-                      jiraBoards={jiraBoards}
-                      fetchJenkinsJobs={fetchJenkinsJobs}
-                      isFetchingJenkins={isFetchingJenkins}
-                      jenkinsJobs={jenkinsJobs}
-                      dataDomainsGroup={dataDomainsGroup}
-                      scopeEntitiesGroup={scopeEntitiesGroup}
-                      configuredConnection={configuredConnection}
-                      handleConnectionTabChange={handleConnectionTabChange}
-                      setDataDomainsGroup={setDataDomainsGroup}
-                      setScopeEntitiesGroup={setScopeEntitiesGroup}
-                      setBoardSearch={setBoardSearch}
-                      prevStep={prevStep}
-                      isSaving={isSaving}
-                      isRunning={isRunning}
-                      validationErrors={[
-                        ...validationErrors,
-                        ...blueprintValidationErrors
-                      ]}
-                      isFetching={
-                        isFetchingJIRA ||
-                        isFetchingJenkins ||
-                        isFetchingConnection
-                      }
-                    />
-                  )}
-
-                  {activeStep?.id === 3 && (
-                    <DataTransformations
-                      provider={provider}
-                      activeStep={activeStep}
-                      advancedMode={advancedMode}
-                      activeConnectionTab={activeConnectionTab}
-                      blueprintConnections={blueprintConnections}
-                      dataDomainsGroup={dataDomainsGroup}
-                      scopeEntitiesGroup={scopeEntitiesGroup}
-                      issueTypes={jiraApiIssueTypes}
-                      fields={jiraApiFields}
-                      configuredConnection={configuredConnection}
-                      configuredScopeEntity={configuredScopeEntity}
-                      handleConnectionTabChange={handleConnectionTabChange}
-                      prevStep={prevStep}
-                      setConfiguredScopeEntity={setConfiguredScopeEntity}
-                      activeTransformation={activeTransformation}
-                      hasConfiguredEntityTransformationChanged={
-                        hasConfiguredEntityTransformationChanged
-                      }
-                      changeConfiguredEntityTransformation={
-                        changeConfiguredEntityTransformation
-                      }
-                      onSave={handleTransformationSave}
-                      onCancel={handleTransformationCancel}
-                      onClear={handleTransformationClear}
-                      isSaving={isSaving}
-                      isSavingConnection={isSavingConnection}
-                      isRunning={isRunning}
-                      fieldHasError={fieldHasError}
-                      getFieldError={getFieldError}
-                      jiraProxyError={jiraProxyError}
-                      isFetchingJIRA={isFetchingJIRA}
-                    />
-                  )}
-
-                  {activeStep?.id === 4 && (
-                    <DataSync
-                      skipOnFail={skipOnFail}
-                      setSkipOnFail={setSkipOnFail}
-                      activeStep={activeStep}
-                      advancedMode={advancedMode}
-                      cronConfig={cronConfig}
-                      customCronConfig={customCronConfig}
-                      createCron={createCron}
-                      setCronConfig={setCronConfig}
-                      getCronPreset={getCronPreset}
-                      fieldHasError={fieldHasError}
-                      getFieldError={getFieldError}
-                      setCustomCronConfig={setCustomCronConfig}
-                      getCronPresetByConfig={getCronPresetByConfig}
-                    />
-                  )}
-                </>
+        <div className={`workflow-content workflow-step-id-${activeStep?.id}`}>
+          {advancedMode ? (
+            <>
+              {activeStep?.id === 1 && (
+                <AdvancedJSON
+                  activeStep={activeStep}
+                  advancedMode={advancedMode}
+                  runTasksAdvanced={runTasksAdvanced}
+                  blueprintConnections={blueprintConnections}
+                  connectionsList={connectionsList}
+                  name={name}
+                  setBlueprintName={setBlueprintName}
+                  // setBlueprintConnections={setBlueprintConnections}
+                  fieldHasError={fieldHasError}
+                  getFieldError={getFieldError}
+                  // addConnection={addConnection}
+                  // manageConnection={manageConnection}
+                  onAdvancedMode={handleAdvancedMode}
+                  // @todo add multistage checker method
+                  isMultiStagePipeline={() => {}}
+                  rawConfiguration={rawConfiguration}
+                  setRawConfiguration={setRawConfiguration}
+                  isSaving={isSaving}
+                  isValidConfiguration={isValidConfiguration}
+                  validationAdvancedError={validationAdvancedError}
+                  validationErrors={validationErrors}
+                />
               )}
-            </div>
 
-            <WorkflowActions
-              activeStep={activeStep}
-              blueprintSteps={blueprintSteps}
-              advancedMode={advancedMode}
-              setShowBlueprintInspector={setShowBlueprintInspector}
-              validationErrors={[
-                ...validationErrors,
-                ...blueprintValidationErrors
-              ]}
-              onNext={nextStep}
-              onPrev={prevStep}
-              onSave={handleBlueprintSave}
-              onSaveAndRun={handleBlueprintSaveAndRun}
-              isLoading={
-                isSaving ||
-                isFetchingJIRA ||
-                isFetchingJenkins ||
-                isFetchingConnection ||
-                isTestingConnection
-              }
-              isValid={
-                advancedMode
-                  ? isValidBlueprint && isValidPipeline
-                  : isValidBlueprint
-              }
-              canGoNext={canAdvanceNext}
-            />
-          </main>
-        </Content>
-      </div>
+              {activeStep?.id === 2 && (
+                <DataSync
+                  skipOnFail={skipOnFail}
+                  setSkipOnFail={setSkipOnFail}
+                  activeStep={activeStep}
+                  advancedMode={advancedMode}
+                  cronConfig={cronConfig}
+                  customCronConfig={customCronConfig}
+                  createCron={createCron}
+                  setCronConfig={setCronConfig}
+                  getCronPreset={getCronPreset}
+                  fieldHasError={fieldHasError}
+                  getFieldError={getFieldError}
+                  setCustomCronConfig={setCustomCronConfig}
+                  getCronPresetByConfig={getCronPresetByConfig}
+                />
+              )}
+            </>
+          ) : (
+            <>
+              {activeStep?.id === 1 && (
+                <DataConnections
+                  activeStep={activeStep}
+                  advancedMode={advancedMode}
+                  blueprintConnections={dataConnections}
+                  // blueprintConnections={blueprintConnections}
+                  // eslint-disable-next-line max-len
+                  // blueprintConnections={[...blueprintConnections.map((c, cIdx) => ({...c, statusResponse: onlineStatus[cIdx], status: onlineStatus[cIdx]?.status }))]}
+                  onlineStatus={onlineStatus}
+                  connectionsList={connectionsList}
+                  name={name}
+                  setBlueprintName={setBlueprintName}
+                  setBlueprintConnections={setBlueprintConnections}
+                  fieldHasError={fieldHasError}
+                  getFieldError={getFieldError}
+                  addConnection={addConnection}
+                  manageConnection={manageConnection}
+                  onAdvancedMode={handleAdvancedMode}
+                  isTesting={isTestingConnection}
+                />
+              )}
+
+              {activeStep?.id === 2 && (
+                <DataScopes
+                  provider={provider}
+                  activeStep={activeStep}
+                  advancedMode={advancedMode}
+                  activeConnectionTab={activeConnectionTab}
+                  blueprintConnections={blueprintConnections}
+                  jiraBoards={jiraBoards}
+                  fetchJenkinsJobs={fetchJenkinsJobs}
+                  isFetchingJenkins={isFetchingJenkins}
+                  jenkinsJobs={jenkinsJobs}
+                  dataDomainsGroup={dataDomainsGroup}
+                  scopeEntitiesGroup={scopeEntitiesGroup}
+                  configuredConnection={configuredConnection}
+                  handleConnectionTabChange={handleConnectionTabChange}
+                  setDataDomainsGroup={setDataDomainsGroup}
+                  setScopeEntitiesGroup={setScopeEntitiesGroup}
+                  setBoardSearch={setBoardSearch}
+                  prevStep={prevStep}
+                  isSaving={isSaving}
+                  isRunning={isRunning}
+                  validationErrors={[
+                    ...validationErrors,
+                    ...blueprintValidationErrors
+                  ]}
+                  isFetching={
+                    isFetchingJIRA || isFetchingJenkins || isFetchingConnection
+                  }
+                />
+              )}
+
+              {activeStep?.id === 3 && (
+                <DataTransformations
+                  provider={provider}
+                  activeStep={activeStep}
+                  advancedMode={advancedMode}
+                  activeConnectionTab={activeConnectionTab}
+                  blueprintConnections={blueprintConnections}
+                  dataDomainsGroup={dataDomainsGroup}
+                  scopeEntitiesGroup={scopeEntitiesGroup}
+                  issueTypes={jiraApiIssueTypes}
+                  fields={jiraApiFields}
+                  configuredConnection={configuredConnection}
+                  configuredScopeEntity={configuredScopeEntity}
+                  handleConnectionTabChange={handleConnectionTabChange}
+                  prevStep={prevStep}
+                  setConfiguredScopeEntity={setConfiguredScopeEntity}
+                  activeTransformation={activeTransformation}
+                  hasConfiguredEntityTransformationChanged={
+                    hasConfiguredEntityTransformationChanged
+                  }
+                  changeConfiguredEntityTransformation={
+                    changeConfiguredEntityTransformation
+                  }
+                  onSave={handleTransformationSave}
+                  onCancel={handleTransformationCancel}
+                  onClear={handleTransformationClear}
+                  isSaving={isSaving}
+                  isSavingConnection={isSavingConnection}
+                  isRunning={isRunning}
+                  fieldHasError={fieldHasError}
+                  getFieldError={getFieldError}
+                  jiraProxyError={jiraProxyError}
+                  isFetchingJIRA={isFetchingJIRA}
+                />
+              )}
+
+              {activeStep?.id === 4 && (
+                <DataSync
+                  skipOnFail={skipOnFail}
+                  setSkipOnFail={setSkipOnFail}
+                  activeStep={activeStep}
+                  advancedMode={advancedMode}
+                  cronConfig={cronConfig}
+                  customCronConfig={customCronConfig}
+                  createCron={createCron}
+                  setCronConfig={setCronConfig}
+                  getCronPreset={getCronPreset}
+                  fieldHasError={fieldHasError}
+                  getFieldError={getFieldError}
+                  setCustomCronConfig={setCustomCronConfig}
+                  getCronPresetByConfig={getCronPresetByConfig}
+                />
+              )}
+            </>
+          )}
+        </div>
+
+        <WorkflowActions
+          activeStep={activeStep}
+          blueprintSteps={blueprintSteps}
+          advancedMode={advancedMode}
+          setShowBlueprintInspector={setShowBlueprintInspector}
+          validationErrors={[...validationErrors, ...blueprintValidationErrors]}
+          onNext={nextStep}
+          onPrev={prevStep}
+          onSave={handleBlueprintSave}
+          onSaveAndRun={handleBlueprintSaveAndRun}
+          isLoading={
+            isSaving ||
+            isFetchingJIRA ||
+            isFetchingJenkins ||
+            isFetchingConnection ||
+            isTestingConnection
+          }
+          isValid={
+            advancedMode
+              ? isValidBlueprint && isValidPipeline
+              : isValidBlueprint
+          }
+          canGoNext={canAdvanceNext}
+        />
+      </main>
 
       <ConnectionDialog
         integrations={Integrations}
