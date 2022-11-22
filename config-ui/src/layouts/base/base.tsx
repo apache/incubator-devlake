@@ -74,7 +74,7 @@ export const BaseLayout = ({ children }: Props) => {
             >
               {it.children?.map((cit) => (
                 <MenuItem
-                  key={it.key}
+                  key={cit.key}
                   className='sub-menu-item'
                   text={cit.title}
                   icon={cit.icon ?? <img src={cit.iconUrl} width={16} alt='' />}
