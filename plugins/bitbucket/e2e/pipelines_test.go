@@ -68,6 +68,7 @@ func TestBitbucketPipelineDataFlow(t *testing.T) {
 	)
 
 	// verify conversion
+	dataflowTester.FlushTabler(&devops.CICDPipelineCommit{})
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
 	dataflowTester.Subtask(tasks.ConvertPipelineMeta, taskData)
 	dataflowTester.VerifyTable(
