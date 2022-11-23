@@ -23,9 +23,9 @@ import (
 
 type ZentaoDepartment struct {
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           uint64 `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
+	ID           int64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
 	Name         string `json:"name" gorm:"type:varchar(100);index"`
-	Parent       uint64 `json:"parent" gorm:"type:varchar(100)"`
+	Parent       int64  `json:"parent" gorm:"type:varchar(100)"`
 	Path         string `json:"path" gorm:"type:varchar(100)"`
 	Grade        int    `json:"grade"`
 	OrderIn      int    `json:"order"`

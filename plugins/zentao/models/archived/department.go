@@ -21,7 +21,7 @@ import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
 
 type ZentaoDepartment struct {
 	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           uint64 `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
+	ID           int64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
 	Name         string `json:"name" gorm:"type:varchar(100);index"`
 	Parent       int    `json:"parent" gorm:"type:varchar(100)"`
 	Path         string `json:"path" gorm:"type:varchar(100)"`

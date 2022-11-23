@@ -75,7 +75,7 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: taskIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),
 				},
-				IssueKey:       strconv.FormatUint(toolEntity.ID, 10),
+				IssueKey:       strconv.FormatInt(toolEntity.ID, 10),
 				Title:          toolEntity.Name,
 				Description:    toolEntity.Description,
 				Type:           "TASK",
@@ -85,9 +85,9 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				UpdatedDate:    toolEntity.LastEditedDate.ToNullableTime(),
 				ParentIssueId:  storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Parent),
 				Priority:       string(rune(toolEntity.Pri)),
-				CreatorId:      strconv.FormatUint(toolEntity.OpenedById, 10),
+				CreatorId:      strconv.FormatInt(toolEntity.OpenedById, 10),
 				CreatorName:    toolEntity.OpenedByName,
-				AssigneeId:     strconv.FormatUint(toolEntity.AssignedToId, 10),
+				AssigneeId:     strconv.FormatInt(toolEntity.AssignedToId, 10),
 				AssigneeName:   toolEntity.AssignedToName,
 			}
 			switch toolEntity.Status {
