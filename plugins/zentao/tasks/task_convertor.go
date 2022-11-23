@@ -102,7 +102,7 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}
 			domainBoardIssue := &ticket.BoardIssue{
-				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProductId),
+				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ExecutionId),
 				IssueId: domainEntity.Id,
 			}
 			results := make([]interface{}, 0)
