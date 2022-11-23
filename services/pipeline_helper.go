@@ -126,8 +126,7 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.E
 	}
 	if query.Label != "" {
 		dbQuery = dbQuery.
-			Joins(`left join _devlake_pipeline_labels ON
-                  _devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id`).
+			Joins(`left join _devlake_pipeline_labels ON _devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id`).
 			Where(`_devlake_pipeline_labels.name = ?`, query.Label)
 	}
 	var count int64

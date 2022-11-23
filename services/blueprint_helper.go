@@ -65,8 +65,7 @@ func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, error
 	}
 	if query.Label != "" {
 		dbQuery = dbQuery.
-			Joins(`left join _devlake_blueprint_labels ON
-                  _devlake_blueprint_labels.blueprint_id = _devlake_blueprints.id`).
+			Joins(`left join _devlake_blueprint_labels ON _devlake_blueprint_labels.blueprint_id = _devlake_blueprints.id`).
 			Where(`_devlake_blueprint_labels.name = ?`, query.Label)
 	}
 

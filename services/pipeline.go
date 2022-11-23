@@ -174,9 +174,9 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 			// prepare query to find an appropriate pipeline to execute
 			db.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}).
 				Joins(`left join _devlake_pipeline_labels ON
-                  _devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id AND
-                  _devlake_pipeline_labels.name LIKE 'parallel/%' AND
-                  _devlake_pipeline_labels.name in ?`, runningParallelLabels).
+						_devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id AND
+						_devlake_pipeline_labels.name LIKE 'parallel/%' AND
+						_devlake_pipeline_labels.name in ?`, runningParallelLabels).
 				Group(`id`).
 				Having(`count(_devlake_pipeline_labels.name)=0`).
 				Select("id").
