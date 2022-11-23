@@ -37,14 +37,10 @@ func TestPrDataFlow(t *testing.T) {
 	}
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
-			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
-			TransformationRules: models.TransformationRules{
-				PrType:             "type/(.*)$",
-				PrComponent:        "component/(.*)$",
-				PrBodyClosePattern: "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/api.bitbucket.org\\/2.0\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)",
-			},
+			ConnectionId:        1,
+			Owner:               "panjf2000",
+			Repo:                "ants",
+			TransformationRules: models.TransformationRules{},
 		},
 		Repo: bitbucketRepository,
 	}
@@ -59,7 +55,7 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.BitbucketPullRequest{},
 		"./snapshot_tables/_tool_bitbucket_pull_requests.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"bitbucket_id",
 			"repo_id",
@@ -81,17 +77,13 @@ func TestPrDataFlow(t *testing.T) {
 			"url",
 			"author_name",
 			"author_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		models.BitbucketAccount{},
 		"./snapshot_tables/_tool_bitbucket_accounts_in_pr.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"user_name",
 			"account_id",
@@ -101,11 +93,7 @@ func TestPrDataFlow(t *testing.T) {
 			"html_url",
 			"uuid",
 			"has2_fa_enabled",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify pr conversion
@@ -114,12 +102,8 @@ func TestPrDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequest{},
 		"./snapshot_tables/pull_requests.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"base_repo_id",
 			"head_repo_id",
 			"status",
@@ -139,7 +123,7 @@ func TestPrDataFlow(t *testing.T) {
 			"base_ref",
 			"base_commit_sha",
 			"head_commit_sha",
-		},
+		),
 	)
 
 }

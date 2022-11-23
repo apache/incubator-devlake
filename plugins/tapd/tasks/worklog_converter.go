@@ -20,6 +20,7 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/errors"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -37,7 +38,6 @@ func ConvertWorklog(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger.Info("convert board:%d", data.Options.WorkspaceId)
 	worklogIdGen := didgen.NewDomainIdGenerator(&models.TapdWorklog{})
-	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
 	clauses := []dal.Clause{
 		dal.From(&models.TapdWorklog{}),
 		dal.Where("connection_id = ? AND workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
@@ -48,6 +48,10 @@ func ConvertWorklog(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
+	taskIdGen := didgen.NewDomainIdGenerator(&models.TapdTask{})
+	storyIdGen := didgen.NewDomainIdGenerator(&models.TapdStory{})
+	bugIdGen := didgen.NewDomainIdGenerator(&models.TapdBug{})
+
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdWorklog{}),
@@ -58,22 +62,18 @@ func ConvertWorklog(taskCtx core.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: worklogIdGen.Generate(data.Options.ConnectionId, toolL.Id),
 				},
-				AuthorId:         accountIdGen.Generate(data.Options.ConnectionId, toolL.Owner),
+				AuthorId:         getAccountIdGen().Generate(data.Options.ConnectionId, toolL.Owner),
 				Comment:          toolL.Memo,
 				TimeSpentMinutes: int(toolL.Timespent),
 				LoggedDate:       (*time.Time)(toolL.Created),
-				//IssueId:          toolL.EntityId,
 			}
-			switch toolL.EntityType {
+			switch strings.ToUpper(toolL.EntityType) {
 			case "TASK":
-				domainL.IssueId = didgen.
-					NewDomainIdGenerator(&models.TapdTask{}).Generate(toolL.EntityId)
+				domainL.IssueId = taskIdGen.Generate(toolL.EntityId)
 			case "BUG":
-				domainL.IssueId = didgen.
-					NewDomainIdGenerator(&models.TapdBug{}).Generate(toolL.EntityId)
+				domainL.IssueId = bugIdGen.Generate(toolL.EntityId)
 			case "STORY":
-				domainL.IssueId = didgen.
-					NewDomainIdGenerator(&models.TapdStory{}).Generate(toolL.EntityId)
+				domainL.IssueId = storyIdGen.Generate(toolL.EntityId)
 			}
 			return []interface{}{
 				domainL,

@@ -50,7 +50,7 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabMergeRequest{},
 		"./snapshot_tables/_tool_gitlab_merge_requests.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"gitlab_id",
 			"iid",
@@ -75,24 +75,16 @@ func TestGitlabMrDataFlow(t *testing.T) {
 			"component",
 			"first_comment_time",
 			"review_rounds",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.GitlabMrLabel{},
 		"./snapshot_tables/_tool_gitlab_mr_labels.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"mr_id",
 			"label_name",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify conversion
@@ -101,12 +93,8 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequest{},
 		"./snapshot_tables/pull_requests.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"base_repo_id",
 			"head_repo_id",
 			"status",
@@ -127,7 +115,7 @@ func TestGitlabMrDataFlow(t *testing.T) {
 			"base_ref",
 			"base_commit_sha",
 			"head_commit_sha",
-		},
+		),
 	)
 
 	// verify conversion
@@ -136,13 +124,9 @@ func TestGitlabMrDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequestLabel{},
 		"./snapshot_tables/pull_request_labels.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"pull_request_id",
 			"label_name",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

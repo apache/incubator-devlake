@@ -15,12 +15,13 @@
  * limitations under the License.
  *
  */
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useContext } from 'react'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
 import { ToastNotification } from '@/components/Toast'
-import { Providers } from '@/data/Providers'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers } from '@/data/Providers'
 import { Intent } from '@blueprintjs/core'
 // import { integrationsData } from '@/data/integrations'
 
@@ -28,6 +29,7 @@ function usePipelineManager(
   myPipelineName = `COLLECTION ${Date.now()}`,
   initialTasks = []
 ) {
+  const { Providers } = useContext(IntegrationsContext)
   // const [integrations, setIntegrations] = useState(integrationsData)
   const [pipelineName, setPipelineName] = useState(
     myPipelineName ?? `COLLECTION ${Date.now()}`
@@ -47,18 +49,9 @@ function usePipelineManager(
   const [activePipeline, setActivePipeline] = useState(NullPipelineRun)
   const [lastRunId, setLastRunId] = useState(null)
   const [pipelineRun, setPipelineRun] = useState(NullPipelineRun)
-  const [allowedProviders, setAllowedProviders] = useState([
-    Providers.JIRA,
-    Providers.GITLAB,
-    Providers.JENKINS,
-    Providers.GITHUB,
-    Providers.REFDIFF,
-    Providers.GITEXTRACTOR,
-    Providers.FEISHU,
-    Providers.AE,
-    Providers.DBT,
-    Providers.TAPD
-  ])
+  const [allowedProviders, setAllowedProviders] = useState(
+    Object.keys(Providers)
+  )
 
   const PIPELINES_ENDPOINT = useMemo(() => `${DEVLAKE_ENDPOINT}/pipelines`, [])
   const [logfile, setLogfile] = useState('logging.tar.gz')
@@ -138,9 +131,10 @@ function usePipelineManager(
     }
   }, [])
 
-  const fetchPipeline = useCallback((pipelineID, refresh = false) => {
+  const fetchPipeline = useCallback((pipelineID) => {
     if (!pipelineID) {
       console.log('>> !ABORT! Pipeline ID Missing! Aborting Fetch...')
+      return
       // return ToastNotification.show({ message: 'Pipeline ID Missing! Aborting Fetch...', intent: 'danger', icon: 'warning-sign' })
     }
     try {
@@ -162,10 +156,6 @@ function usePipelineManager(
           id: p.data.id,
           tasks: [...t.data.tasks]
         })
-        setPipelineRun((pR) =>
-          refresh ? { ...p.data, ID: p.data.id, tasks: [...t.data.tasks] } : pR
-        )
-        setLastRunId((lrId) => (refresh ? p.data?.id : lrId))
         setTimeout(() => {
           setIsFetching(false)
         }, 500)
@@ -191,18 +181,18 @@ function usePipelineManager(
     }
   }, [])
 
-  const fetchAllPipelines = useCallback((status = null, fetchTimeout = 500) => {
+  const fetchAllPipelines = useCallback((blueprintId, status = null, fetchTimeout = 500) => {
     try {
       setIsFetchingAll(true)
       setErrors([])
       ToastNotification.clear()
       console.log('>> FETCHING ALL PIPELINE RUNS...')
       const fetchAll = async () => {
-        let queryParams = '?'
+        let queryParams = '?blueprint_id=' + blueprintId
         queryParams +=
           status &&
           ['TASK_COMPLETED', 'TASK_RUNNING', 'TASK_FAILED'].includes(status)
-            ? `status=${status}&`
+            ? `&status=${status}&`
             : ''
         const p = await request.get(
           `${DEVLAKE_ENDPOINT}/pipelines${queryParams}`
@@ -253,6 +243,34 @@ function usePipelineManager(
     [allowedProviders]
   )
 
+  const rerunAllFailedTasks = async () => {
+    try {
+      const res = await request.post(
+        `${DEVLAKE_ENDPOINT}/pipelines/${activePipeline.id}/tasks`,
+        {
+          taskId: 0
+        }
+      )
+      if (res?.data?.success) {
+        fetchPipeline(activePipeline.id)
+      }
+    } catch (err) {}
+  }
+
+  const rerunTask = async (taskId) => {
+    try {
+      const res = await request.post(
+        `${DEVLAKE_ENDPOINT}/pipelines/${activePipeline.id}/tasks`,
+        {
+          taskId
+        }
+      )
+      if (res?.data?.success) {
+        fetchPipeline(activePipeline.id)
+      }
+    } catch (err) {}
+  }
+
   useEffect(() => {
     console.log('>> PIPELINE MANAGER - RECEIVED RUN/TASK SETTINGS', settings)
   }, [settings])
@@ -291,7 +309,9 @@ function usePipelineManager(
     detectPipelineProviders,
     allowedProviders,
     setAllowedProviders,
-    getPipelineLogfile
+    getPipelineLogfile,
+    rerunAllFailedTasks,
+    rerunTask
   }
 }
 

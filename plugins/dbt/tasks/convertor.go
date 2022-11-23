@@ -20,13 +20,14 @@ package tasks
 import (
 	"bufio"
 	"encoding/json"
-	"github.com/apache/incubator-devlake/errors"
 	"net"
 	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/viper"
@@ -41,60 +42,78 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	projectName := data.Options.ProjectName
 	projectTarget := data.Options.ProjectTarget
 	projectVars := data.Options.ProjectVars
-	dbUrl := taskCtx.GetConfig("DB_URL")
-	u, err := errors.Convert01(url.Parse(dbUrl))
+	args := data.Options.Args
+	failFast := data.Options.FailFast
+	threads := data.Options.Threads
+	noVersionCheck := data.Options.NoVersionCheck
+	excludeModels := data.Options.ExcludeModels
+	selector := data.Options.Selector
+	state := data.Options.State
+	deferFlag := data.Options.Defer
+	noDefer := data.Options.NoDefer
+	fullRefresh := data.Options.FullRefresh
+	profilesPath := data.Options.ProfilesPath
+	profile := data.Options.Profile
+
+	err := errors.Convert(os.Chdir(projectPath))
 	if err != nil {
 		return err
 	}
-	dbType := u.Scheme
-	dbUsername := u.User.Username()
-	dbPassword, _ := u.User.Password()
-	dbServer, dbPort, _ := net.SplitHostPort(u.Host)
-	dbDataBase := u.Path[1:]
-	var dbSchema string
-	flag := strings.Compare(dbType, "mysql")
-	if flag == 0 {
-		// mysql database
-		dbSchema = dbDataBase
-	} else {
-		// other database
-		mapQuery, err := errors.Convert01(url.ParseQuery(u.RawQuery))
+	_, err = errors.Convert01(os.Stat("profiles.yml"))
+	// if profiles.yml not exist, create it manually
+	if err != nil {
+		dbUrl := taskCtx.GetConfig("DB_URL")
+		u, err := errors.Convert01(url.Parse(dbUrl))
 		if err != nil {
 			return err
 		}
-		if value, ok := mapQuery["search_path"]; ok {
-			if len(value) < 1 {
-				return errors.Default.New("DB_URL search_path parses error")
-			}
-			dbSchema = value[0]
+		dbType := u.Scheme
+		dbUsername := u.User.Username()
+		dbPassword, _ := u.User.Password()
+		dbServer, dbPort, _ := net.SplitHostPort(u.Host)
+		dbDataBase := u.Path[1:]
+		var dbSchema string
+		flag := strings.Compare(dbType, "mysql")
+		if flag == 0 {
+			// mysql database
+			dbSchema = dbDataBase
 		} else {
-			dbSchema = "public"
+			// other database
+			mapQuery, err := errors.Convert01(url.ParseQuery(u.RawQuery))
+			if err != nil {
+				return err
+			}
+			if value, ok := mapQuery["search_path"]; ok {
+				if len(value) < 1 {
+					return errors.Default.New("DB_URL search_path parses error")
+				}
+				dbSchema = value[0]
+			} else {
+				dbSchema = "public"
+			}
+		}
+		config := viper.New()
+		config.Set(projectName+".target", projectTarget)
+		config.Set(projectName+".outputs."+projectTarget+".type", dbType)
+		dbPortInt, _ := strconv.Atoi(dbPort)
+		config.Set(projectName+".outputs."+projectTarget+".port", dbPortInt)
+		config.Set(projectName+".outputs."+projectTarget+".password", dbPassword)
+		config.Set(projectName+".outputs."+projectTarget+".schema", dbSchema)
+		if flag == 0 {
+			config.Set(projectName+".outputs."+projectTarget+".server", dbServer)
+			config.Set(projectName+".outputs."+projectTarget+".username", dbUsername)
+			config.Set(projectName+".outputs."+projectTarget+".database", dbDataBase)
+		} else {
+			config.Set(projectName+".outputs."+projectTarget+".host", dbServer)
+			config.Set(projectName+".outputs."+projectTarget+".user", dbUsername)
+			config.Set(projectName+".outputs."+projectTarget+".dbname", dbDataBase)
+		}
+		err = errors.Convert(config.WriteConfigAs("profiles.yml"))
+		if err != nil {
+			return err
 		}
 	}
-	err = errors.Convert(os.Chdir(projectPath))
-	if err != nil {
-		return err
-	}
-	config := viper.New()
-	config.Set(projectName+".target", projectTarget)
-	config.Set(projectName+".outputs."+projectTarget+".type", dbType)
-	dbPortInt, _ := strconv.Atoi(dbPort)
-	config.Set(projectName+".outputs."+projectTarget+".port", dbPortInt)
-	config.Set(projectName+".outputs."+projectTarget+".password", dbPassword)
-	config.Set(projectName+".outputs."+projectTarget+".schema", dbSchema)
-	if flag == 0 {
-		config.Set(projectName+".outputs."+projectTarget+".server", dbServer)
-		config.Set(projectName+".outputs."+projectTarget+".username", dbUsername)
-		config.Set(projectName+".outputs."+projectTarget+".database", dbDataBase)
-	} else {
-		config.Set(projectName+".outputs."+projectTarget+".host", dbServer)
-		config.Set(projectName+".outputs."+projectTarget+".user", dbUsername)
-		config.Set(projectName+".outputs."+projectTarget+".dbname", dbDataBase)
-	}
-	err = errors.Convert(config.WriteConfigAs("profiles.yml"))
-	if err != nil {
-		return err
-	}
+	// if package.yml exist, install dbt dependencies
 	_, err = errors.Convert01(os.Stat("packages.yml"))
 	if err == nil {
 		cmd := exec.Command("dbt", "deps")
@@ -103,7 +122,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 			return err
 		}
 	}
-	dbtExecParams := []string{"dbt", "run", "--profiles-dir", projectPath}
+	dbtExecParams := []string{"dbt", "run", "--project-dir", projectPath}
 	if projectVars != nil {
 		jsonProjectVars, err := json.Marshal(projectVars)
 		if err != nil {
@@ -112,19 +131,67 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		dbtExecParams = append(dbtExecParams, "--vars")
 		dbtExecParams = append(dbtExecParams, string(jsonProjectVars))
 	}
-	dbtExecParams = append(dbtExecParams, "--select")
-	dbtExecParams = append(dbtExecParams, models...)
+	if len(models) > 0 {
+		dbtExecParams = append(dbtExecParams, "--select")
+		dbtExecParams = append(dbtExecParams, models...)
+	}
+	if args != nil {
+		dbtExecParams = append(dbtExecParams, args...)
+	}
+	if failFast {
+		dbtExecParams = append(dbtExecParams, "--fail-fast")
+	}
+	if threads != 0 {
+		dbtExecParams = append(dbtExecParams, "--threads")
+		dbtExecParams = append(dbtExecParams, strconv.Itoa(threads))
+	}
+	if noVersionCheck {
+		dbtExecParams = append(dbtExecParams, "--no-version-check")
+	}
+	if excludeModels != nil {
+		dbtExecParams = append(dbtExecParams, "--exclude")
+		dbtExecParams = append(dbtExecParams, excludeModels...)
+	}
+	if selector != "" {
+		dbtExecParams = append(dbtExecParams, "--selector")
+		dbtExecParams = append(dbtExecParams, selector)
+	}
+	if state != "" {
+		dbtExecParams = append(dbtExecParams, "--state")
+		dbtExecParams = append(dbtExecParams, state)
+	}
+	if deferFlag {
+		dbtExecParams = append(dbtExecParams, "--defer")
+	}
+	if noDefer {
+		dbtExecParams = append(dbtExecParams, "--no-defer")
+	}
+	if fullRefresh {
+		dbtExecParams = append(dbtExecParams, "--full-refresh")
+	}
+	if profilesPath != "" {
+		dbtExecParams = append(dbtExecParams, "--profiles-dir")
+		dbtExecParams = append(dbtExecParams, profilesPath)
+	}
+	if profile != "" {
+		dbtExecParams = append(dbtExecParams, "--profile")
+		dbtExecParams = append(dbtExecParams, profile)
+	}
 	cmd := exec.Command(dbtExecParams[0], dbtExecParams[1:]...)
-	log.Info("dbt run script: ", cmd)
+	log.Info("dbt run script: %v", cmd)
 	stdout, _ := cmd.StdoutPipe()
 	err = errors.Convert(cmd.Start())
 	if err != nil {
 		return err
 	}
 	scanner := bufio.NewScanner(stdout)
+	var errStr string
 	for scanner.Scan() {
 		line := scanner.Text()
 		log.Info(line)
+		if strings.Contains(line, "Encountered an error") || errStr != "" {
+			errStr += line + "\n"
+		}
 		if strings.Contains(line, "of") && strings.Contains(line, "OK") {
 			taskCtx.IncProgress(1)
 		}
@@ -134,7 +201,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}
 	err = errors.Convert(cmd.Wait())
 	if err != nil {
-		return err
+		return errors.Internal.New(errStr)
 	}
 	if !cmd.ProcessState.Success() {
 		log.Error(nil, "dbt run task error, please check!!!")

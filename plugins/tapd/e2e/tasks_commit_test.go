@@ -51,7 +51,7 @@ func TestTapdTaskCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdTaskCommit{},
 		"./snapshot_tables/_tool_tapd_task_commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"user_id",
@@ -69,11 +69,8 @@ func TestTapdTaskCommitDataFlow(t *testing.T) {
 			"commit_time",
 			"created",
 			"task_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+			"issue_updated",
+		),
 	)
 
 	dataflowTester.FlushTabler(&crossdomain.IssueCommit{})
@@ -81,13 +78,9 @@ func TestTapdTaskCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		crossdomain.IssueCommit{},
 		"./snapshot_tables/issue_commits_task.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"issue_id",
 			"commit_sha",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

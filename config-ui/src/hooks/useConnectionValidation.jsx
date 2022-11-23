@@ -15,8 +15,9 @@
  * limitations under the License.
  *
  */
-import { useState, useEffect, useCallback } from 'react'
-import { Providers } from '@/data/Providers'
+import { useState, useEffect, useCallback, useContext } from 'react'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers } from '@/data/Providers'
 
 function useConnectionValidation({
   activeProvider,
@@ -28,6 +29,8 @@ function useConnectionValidation({
   username,
   password
 }) {
+  const { Providers } = useContext(IntegrationsContext)
+
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
   const [validURIs, setValidURIs] = useState(['http://', 'https://'])
@@ -93,6 +96,7 @@ function useConnectionValidation({
         }
         break
       case Providers.JIRA:
+      case Providers.ZENTAO:
       case Providers.JENKINS:
         if (!username || username.length <= 2) {
           errs.push('Username is required')
@@ -105,6 +109,7 @@ function useConnectionValidation({
 
     setErrors(errs)
   }, [
+    Providers,
     name,
     endpointUrl,
     proxy,

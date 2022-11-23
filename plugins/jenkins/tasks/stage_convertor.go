@@ -74,14 +74,15 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 	}
 
 	clauses := []dal.Clause{
-		dal.Select(`tjb.connection_id, tjs.build_name, tjs.name, tjs._raw_data_remark, 
+		dal.Select(`tjb.connection_id, tjs.build_name, tjs.id, tjs._raw_data_remark, tjs.name,
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
 			tjs.status, tjs.start_time_millis, tjs.duration_millis, 
 			tjs.pause_duration_millis, tjs.type, 
 			tjb.triggered_by, tjb.building`),
-		dal.From("_tool_jenkins_builds tjb"),
-		dal.Join("left join _tool_jenkins_stages tjs on tjs.build_name = tjb.full_display_name"),
-		dal.Where("tjb.connection_id = ? ", data.Options.ConnectionId),
+		dal.From("_tool_jenkins_stages tjs"),
+		dal.Join("left join _tool_jenkins_builds tjb on tjs.build_name = tjb.full_display_name"),
+		dal.Where("tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? ",
+			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
 	}
 
 	cursor, err := db.Cursor(clauses...)
@@ -91,12 +92,16 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 	defer cursor.Close()
 	stageIdGen := didgen.NewDomainIdGenerator(&models.JenkinsStage{})
 	buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
+	jobIdGen := didgen.NewDomainIdGenerator(&models.JenkinsJob{})
+
 	convertor, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(JenkinsBuildWithRepoStage{}),
 		Input:        cursor,
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
+				JobName:      data.Options.JobName,
+				JobPath:      data.Options.JobPath,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_STAGE_TABLE,
@@ -108,23 +113,27 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 			}
 			durationSec := int64(body.DurationMillis / 1000)
 			jenkinsTaskResult := ""
-			jenkinsTaskStatus := "DONE"
+			jenkinsTaskStatus := devops.DONE
 			var jenkinsTaskFinishedDate *time.Time
 			results := make([]interface{}, 0)
-			if body.Result == "SUCCESS" {
+			if body.Status == "SUCCESS" {
 				jenkinsTaskResult = devops.SUCCESS
 			} else if body.Result == "FAILED" {
 				jenkinsTaskResult = devops.FAILURE
-			} else {
+			} else if body.Result == "ABORTED" {
 				jenkinsTaskResult = devops.ABORT
+			} else {
+				jenkinsTaskResult = ""
+				jenkinsTaskStatus = devops.IN_PROGRESS
 			}
+
 			startedDate := time.Unix(body.StartTimeMillis/1000, 0)
 			finishedDate := startedDate.Add(time.Duration(durationSec * int64(time.Second)))
 			jenkinsTaskFinishedDate = &finishedDate
 			jenkinsTask := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: stageIdGen.Generate(body.ConnectionId,
-						body.BuildName, body.Name),
+						body.BuildName, body.ID),
 				},
 				Name: body.Name,
 				PipelineId: buildIdGen.Generate(body.ConnectionId,
@@ -134,6 +143,7 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 				DurationSec:  uint64(body.DurationMillis / 1000),
 				StartedDate:  time.Unix(durationSec, 0),
 				FinishedDate: jenkinsTaskFinishedDate,
+				CicdScopeId:  jobIdGen.Generate(body.ConnectionId, data.Job.FullName),
 			}
 			if deployTagRegexp != nil {
 				if deployFlag := deployTagRegexp.FindString(body.Name); deployFlag != "" {

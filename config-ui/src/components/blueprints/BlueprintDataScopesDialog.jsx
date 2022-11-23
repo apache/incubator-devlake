@@ -65,20 +65,18 @@ const BlueprintDataScopesDialog = (props) => {
     provider,
     activeTransformation,
     configuredConnection,
-    configuredProject,
-    configuredBoard,
-    configurationKey,
+    configuredScopeEntity,
     scopeConnection,
-    dataEntitiesList = [],
-    boardsList = [],
+    jiraBoards = [],
     issueTypesList = [],
     fieldsList = [],
-    boards = {},
     setBoardSearch = () => {},
     gitlabProjects = [],
     fetchGitlabProjects = () => [],
-    entities = {},
-    projects = {},
+    fetchJenkinsJobs = () => [],
+    jenkinsJobs = [],
+    dataDomainsGroup = {},
+    scopeEntitiesGroup = {},
     mode = Modes.EDIT,
     canOutsideClickClose = false,
     showCloseButtonInFooter = true,
@@ -94,15 +92,11 @@ const BlueprintDataScopesDialog = (props) => {
     onClose = () => {},
     onCancel = () => {},
     onSave = () => {},
-    setDataEntities = () => {},
-    setProjects = () => {},
-    setBoards = () => {},
-    setEntities = () => {},
-    setConfiguredProject = () => {},
-    setConfiguredBoard = () => {},
-    setTransformationSettings = () => {},
-    addBoardTransformation = () => {},
-    addProjectTransformation = () => {},
+    setDataDomainsGroup = () => {},
+    setScopeEntitiesGroup = () => {},
+    hasConfiguredEntityTransformationChanged = () => false,
+    changeConfiguredEntityTransformation = () => {},
+    setConfiguredScopeEntity = () => {},
     fieldHasError = () => {},
     getFieldError = () => {},
     isSaving = false,
@@ -112,6 +106,8 @@ const BlueprintDataScopesDialog = (props) => {
     jiraProxyError,
     isFetchingGitlab,
     gitlabProxyError,
+    isFetchingJenkins,
+    jenkinsProxyError,
     errors = [],
     content = null,
     backButtonProps = {
@@ -119,28 +115,32 @@ const BlueprintDataScopesDialog = (props) => {
       intent: Intent.PRIMARY,
       text: 'Previous Step',
       outlined: true,
-      loading: isFetchingJIRA || isFetchingGitlab || isSaving
+      loading:
+        isFetchingJIRA || isFetchingGitlab || isFetchingJenkins || isSaving
     },
     nextButtonProps = {
       disabled: !isValid,
       intent: Intent.PRIMARY,
       text: 'Next Step',
       outlined: true,
-      loading: isFetchingJIRA || isFetchingGitlab || isSaving
+      loading:
+        isFetchingJIRA || isFetchingGitlab || isFetchingJenkins || isSaving
     },
     finalButtonProps = {
       disabled: !isValid,
       intent: Intent.PRIMARY,
       onClick: onSave,
       text: 'Save Changes',
-      loading: isFetchingJIRA || isFetchingGitlab || isSaving
+      loading:
+        isFetchingJIRA || isFetchingGitlab || isFetchingJenkins || isSaving
     },
     closeButtonProps = {
       // disabled:
       intent: Intent.PRIMARY,
       text: 'Cancel',
       outlined: true,
-      loading: isFetchingJIRA || isFetchingGitlab || isSaving
+      loading:
+        isFetchingJIRA || isFetchingGitlab || isFetchingJenkins || isSaving
     }
   } = props
 
@@ -176,20 +176,21 @@ const BlueprintDataScopesDialog = (props) => {
                 provider={provider}
                 activeStep={activeStep}
                 blueprintConnections={blueprintConnections}
-                dataEntitiesList={dataEntitiesList}
-                boardsList={boardsList}
-                boards={boards}
+                scopeEntitiesGroup={scopeEntitiesGroup}
+                jiraBoards={jiraBoards}
                 setBoardSearch={setBoardSearch}
                 fetchGitlabProjects={fetchGitlabProjects}
                 gitlabProjects={gitlabProjects}
                 isFetchingGitlab={isFetchingGitlab}
                 gitlabProxyError={gitlabProxyError}
-                dataEntities={entities}
-                projects={projects}
+                fetchJenkinsJobs={fetchJenkinsJobs}
+                jenkinsJobs={jenkinsJobs}
+                isFetchingJenkins={isFetchingJenkins}
+                jenkinsProxyError={jenkinsProxyError}
+                dataDomainsGroup={dataDomainsGroup}
                 configuredConnection={configuredConnection}
-                setDataEntities={setEntities}
-                setProjects={setProjects}
-                setBoards={setBoards}
+                setDataDomainsGroup={setDataDomainsGroup}
+                setScopeEntitiesGroup={setScopeEntitiesGroup}
                 isSaving={isSaving}
                 isLoading={isFetchingJIRA}
                 validationErrors={[]}
@@ -210,20 +211,20 @@ const BlueprintDataScopesDialog = (props) => {
                 blueprint={blueprint}
                 activeTransformation={activeTransformation}
                 blueprintConnections={blueprintConnections}
-                dataEntities={entities}
-                projects={projects}
-                boards={boards}
-                boardsList={boardsList}
+                dataDomainsGroup={dataDomainsGroup}
+                scopeEntitiesGroup={scopeEntitiesGroup}
                 issueTypes={issueTypesList}
                 fields={fieldsList}
                 configuredConnection={configuredConnection}
-                configuredProject={configuredProject}
-                configuredBoard={configuredBoard}
-                configurationKey={configurationKey}
-                addBoardTransformation={addBoardTransformation}
-                addProjectTransformation={addProjectTransformation}
+                configuredScopeEntity={configuredScopeEntity}
+                setConfiguredScopeEntity={setConfiguredScopeEntity}
                 isSaving={isSaving}
-                setTransformationSettings={setTransformationSettings}
+                hasConfiguredEntityTransformationChanged={
+                  hasConfiguredEntityTransformationChanged
+                }
+                changeConfiguredEntityTransformation={
+                  changeConfiguredEntityTransformation
+                }
                 // onSave={handleTransformationSave}
                 // onCancel={handleTransformationCancel}
                 // onClear={handleTransformationClear}

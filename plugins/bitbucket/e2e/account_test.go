@@ -58,7 +58,7 @@ func TestAccountDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.BitbucketAccount{},
 		"./snapshot_tables/_tool_bitbucket_accounts.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"user_name",
 			"account_id",
@@ -68,11 +68,7 @@ func TestAccountDataFlow(t *testing.T) {
 			"html_url",
 			"uuid",
 			"has2_fa_enabled",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	// verify converter
 	dataflowTester.FlushTabler(&crossdomain.Account{})

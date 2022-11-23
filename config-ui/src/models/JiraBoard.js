@@ -16,6 +16,8 @@
  *
  */
 
+import Entity from '@/models/Entity'
+
 /**
  * @typedef {object} JiraBoard
  * @property {number?} id
@@ -26,13 +28,15 @@
  * @property {number|string?} title
  * @property {string?} shortTitle
  * @property {string?} icon
- * @property {kanban|scrum?} type
+ * @property {'kanban'|'scrum'?} type
  * @property {object?} location
  * @property {boolean?} useApi
  * @property {project|board?} variant
+ * @property {string?} providerId
  */
-class JiraBoard {
+class JiraBoard extends Entity {
   constructor(data = {}) {
+    super(data)
     this.id = data?.id || null
     this.key = data?.key || this.id || null
     this.self = data?.self || null
@@ -56,19 +60,18 @@ class JiraBoard {
 
     this.useApi = data?.useApi || true
     this.variant = data?.variant || 'board'
-  }
-
-  get(property) {
-    return this[property]
-  }
-
-  set(property, value) {
-    this[property] = value
-    return this.property
+    this.providerId = 'jira'
   }
 
   getConfiguredEntityId() {
     return this.id
+  }
+
+  getTransformationScopeOptions() {
+    return {
+      boardId: this.id,
+      title: this.title
+    }
   }
 }
 

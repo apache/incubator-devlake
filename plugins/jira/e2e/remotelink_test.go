@@ -34,7 +34,7 @@ func TestRemotelinkDataFlow(t *testing.T) {
 		Options: &tasks.JiraOptions{
 			ConnectionId:        2,
 			BoardId:             8,
-			TransformationRules: tasks.TransformationRules{RemotelinkCommitShaPattern: ".*/commit/(.*)"},
+			TransformationRules: &tasks.TransformationRules{RemotelinkCommitShaPattern: ".*/commit/(.*)"},
 		},
 	}
 
@@ -48,7 +48,7 @@ func TestRemotelinkDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraRemotelink{},
 		"./snapshot_tables/_tool_jira_remotelinks.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"remotelink_id",
 			"issue_id",
@@ -56,24 +56,16 @@ func TestRemotelinkDataFlow(t *testing.T) {
 			"title",
 			"url",
 			"issue_updated",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.JiraIssueCommit{},
 		"./snapshot_tables/_tool_jira_issue_commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"issue_id",
 			"commit_sha",
 			"commit_url",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

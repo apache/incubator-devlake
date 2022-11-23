@@ -66,7 +66,9 @@ func RunTask(
 			default:
 				e = fmt.Errorf("%v", et)
 			}
-			err = errors.Default.Wrap(e, fmt.Sprintf("run task failed with panic (%s)", utils.GatherCallFrames(0)))
+			if !task.SkipOnFail {
+				err = errors.Default.Wrap(e, fmt.Sprintf("run task failed with panic (%s)", utils.GatherCallFrames(0)))
+			}
 		}
 		finishedAt := time.Now()
 		spentSeconds := finishedAt.Unix() - beganAt.Unix()
@@ -135,6 +137,9 @@ func RunTask(
 		options,
 		progress,
 	)
+	if err != nil && task.SkipOnFail {
+		return nil
+	}
 	return err
 }
 
@@ -297,7 +302,7 @@ func UpdateProgressDetail(db *gorm.DB, log core.Logger, taskId uint64, progressD
 		pct := float32(p.Current) / float32(p.Total)
 		err := db.Model(task).Update("progress", pct).Error
 		if err != nil {
-			log.Error(err, "failed to update progress: %w")
+			log.Error(err, "failed to update progress")
 		}
 	case core.SubTaskSetProgress:
 		progressDetail.TotalRecords = p.Total

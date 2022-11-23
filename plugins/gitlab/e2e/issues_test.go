@@ -51,7 +51,7 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabIssue{},
 		"./snapshot_tables/_tool_gitlab_issues.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"gitlab_id",
 			"project_id",
@@ -75,25 +75,17 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 			"component",
 			"time_estimate",
 			"total_time_spent",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		models.GitlabIssueLabel{},
 		"./snapshot_tables/_tool_gitlab_issue_labels.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"issue_id",
 			"label_name",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify conversion
@@ -103,11 +95,7 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		"./snapshot_tables/issues.csv",
-		[]string{
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"url",
 			"issue_key",
@@ -134,20 +122,16 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 			"component",
 			"icon_url",
 			"creator_name",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		&ticket.BoardIssue{},
 		"./snapshot_tables/board_issues.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"board_id",
 			"issue_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	// verify conversion
 	dataflowTester.FlushTabler(&ticket.IssueLabel{})
@@ -155,13 +139,9 @@ func TestGitlabIssueDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.IssueLabel{},
 		"./snapshot_tables/issue_labels.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"issue_id",
 			"label_name",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

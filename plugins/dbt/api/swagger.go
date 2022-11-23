@@ -25,19 +25,34 @@ package api
 // @Router /blueprints/dbt/blueprint-plan [post]
 func _() {}
 
-type DbtBlueprintPlan [][]struct {
-	Plugin  string `json:"plugin"`
-	Options struct {
-		ProjectPath    string   `json:"projectPath"`
-		ProjectName    string   `json:"projectName"`
-		ProjectTarget  string   `json:"projectTarget"`
-		SelectedModels []string `json:"selectedModels"`
-		ProjectVars    struct {
-			Demokey1 string `json:"demokey1"`
-			Demokey2 string `json:"demokey2"`
-		} `json:"projectVars"`
-	} `json:"options"`
+type Options struct {
+	ProjectPath    string   `json:"projectPath"`
+	ProjectGitURL  string   `json:"projectGitURL"`
+	ProjectName    string   `json:"projectName"`
+	ProjectTarget  string   `json:"projectTarget"`
+	SelectedModels []string `json:"selectedModels"`
+	Args           []string `json:"args"`
+	FailFast       bool     `json:"failFast"`
+	ProfilesPath   string   `json:"profilesPath"`
+	Profile        string   `json:"profile"`
+	Threads        int      `json:"threads"`
+	NoVersionCheck bool     `json:"noVersionCheck"`
+	ExcludeModels  []string `json:"excludeModels"`
+	Selector       string   `json:"selector"`
+	State          string   `json:"state"`
+	Defer          bool     `json:"defer"`
+	NoDefer        bool     `json:"noDefer"`
+	FullRefresh    bool     `json:"fullRefresh"`
+	ProjectVars    struct {
+		Demokey1 string `json:"demokey1"`
+		Demokey2 string `json:"demokey2"`
+	} `json:"projectVars"`
 }
+type Plan struct {
+	Plugin  string  `json:"plugin"`
+	Options Options `json:"options"`
+}
+type DbtBlueprintPlan [][]Plan
 
 // @Summary pipelines plan for dbt
 // @Description pipelines plan for dbt
@@ -47,16 +62,4 @@ type DbtBlueprintPlan [][]struct {
 // @Router /pipelines/dbt/pipeline-plan [post]
 func _() {}
 
-type DbtPipelinePlan [][]struct {
-	Plugin  string `json:"plugin"`
-	Options struct {
-		ProjectPath    string   `json:"projectPath"`
-		ProjectName    string   `json:"projectName"`
-		ProjectTarget  string   `json:"projectTarget"`
-		SelectedModels []string `json:"selectedModels"`
-		ProjectVars    struct {
-			Demokey1 string `json:"demokey1"`
-			Demokey2 string `json:"demokey2"`
-		} `json:"projectVars"`
-	} `json:"options"`
-}
+type DbtPipelinePlan [][]Plan

@@ -21,10 +21,12 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/merico-dev/graphql"
+	"strings"
 	"time"
 )
 
@@ -60,12 +62,12 @@ type GraphqlQueryIssue struct {
 		Assignees []GraphqlInlineAccountQuery `graphql:"nodes"`
 	} `graphql:"assignees(first: 1)"`
 	Milestone *struct {
-		Number int `json:"number"`
+		Number int
 	} `json:"milestone"`
 	Labels struct {
 		Nodes []struct {
-			Id   string `json:"id"`
-			Name string `json:"name"`
+			Id   string
+			Name string
 		}
 	} `graphql:"labels(first: 100)"`
 }
@@ -75,11 +77,13 @@ var CollectIssueMeta = core.SubTaskMeta{
 	EntryPoint:       CollectIssue,
 	EnabledByDefault: true,
 	Description:      "Collect Issue data from GithubGraphql api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_TICKET},
 }
 
 var _ core.SubTaskEntryPoint = CollectIssue
 
 func CollectIssue(taskCtx core.SubTaskContext) errors.Error {
+	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 	config := data.Options.TransformationRules
 	issueRegexes, err := githubTasks.NewIssueRegexes(config)
@@ -87,13 +91,14 @@ func CollectIssue(taskCtx core.SubTaskContext) errors.Error {
 		return nil
 	}
 
+	milestoneMap, err := getMilestoneMap(db, data.Repo.GithubId, data.Repo.ConnectionId)
+	if err != nil {
+		return nil
+	}
+
 	collector, err := helper.NewGraphqlCollector(helper.GraphqlCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
 			Params: githubTasks.GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
 				Owner:        data.Options.Owner,
@@ -103,9 +108,6 @@ func CollectIssue(taskCtx core.SubTaskContext) errors.Error {
 		},
 		GraphqlClient: data.GraphqlClient,
 		PageSize:      100,
-		/*
-			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
-		*/
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
 			query := &GraphqlQueryIssueWrapper{}
 			variables := map[string]interface{}{
@@ -126,7 +128,7 @@ func CollectIssue(taskCtx core.SubTaskContext) errors.Error {
 
 			results := make([]interface{}, 0, 1)
 			for _, issue := range issues {
-				githubIssue, err := convertGithubIssue(issue, data.Options.ConnectionId, data.Repo.GithubId)
+				githubIssue, err := convertGithubIssue(milestoneMap, issue, data.Options.ConnectionId, data.Repo.GithubId)
 				if err != nil {
 					return nil, err
 				}
@@ -162,7 +164,29 @@ func CollectIssue(taskCtx core.SubTaskContext) errors.Error {
 	return collector.Execute()
 }
 
-func convertGithubIssue(issue GraphqlQueryIssue, connectionId uint64, repositoryId int) (*models.GithubIssue, errors.Error) {
+// create a milestone map for numberId to databaseId
+func getMilestoneMap(db dal.Dal, repoId int, connectionId uint64) (map[int]int, errors.Error) {
+	milestoneMap := map[int]int{}
+	var milestones []struct {
+		MilestoneId int
+		RepoId      int
+		Number      int
+	}
+	err := db.All(
+		&milestones,
+		dal.From(&models.GithubMilestone{}),
+		dal.Where("repo_id = ? and connection_id = ?", repoId, connectionId),
+	)
+	if err != nil {
+		return nil, err
+	}
+	for _, milestone := range milestones {
+		milestoneMap[milestone.Number] = milestone.MilestoneId
+	}
+	return milestoneMap, nil
+}
+
+func convertGithubIssue(milestoneMap map[int]int, issue GraphqlQueryIssue, connectionId uint64, repositoryId int) (*models.GithubIssue, errors.Error) {
 	githubIssue := &models.GithubIssue{
 		ConnectionId:    connectionId,
 		GithubId:        issue.DatabaseId,
@@ -170,7 +194,7 @@ func convertGithubIssue(issue GraphqlQueryIssue, connectionId uint64, repository
 		Number:          issue.Number,
 		State:           issue.State,
 		Title:           issue.Title,
-		Body:            issue.Body,
+		Body:            strings.ReplaceAll(issue.Body, "\x00", `<0x00>`),
 		Url:             issue.Url,
 		ClosedAt:        issue.ClosedAt,
 		GithubCreatedAt: issue.CreatedAt,
@@ -188,7 +212,9 @@ func convertGithubIssue(issue GraphqlQueryIssue, connectionId uint64, repository
 		githubIssue.LeadTimeMinutes = uint(issue.ClosedAt.Sub(issue.CreatedAt).Minutes())
 	}
 	if issue.Milestone != nil {
-		githubIssue.MilestoneId = issue.Milestone.Number
+		if milestoneId, ok := milestoneMap[issue.Milestone.Number]; ok {
+			githubIssue.MilestoneId = milestoneId
+		}
 	}
 	return githubIssue, nil
 }

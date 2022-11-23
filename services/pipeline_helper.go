@@ -20,6 +20,7 @@ package services
 import (
 	"encoding/json"
 	goerror "errors"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
@@ -53,7 +54,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	}
 	// save pipeline to database
 	if err := db.Create(&dbPipeline).Error; err != nil {
-		globalPipelineLog.Error(err, "create pipline failed: %w", err)
+		globalPipelineLog.Error(err, "create pipline failed: %v", err)
 		return nil, errors.Internal.Wrap(err, "create pipline failed")
 	}
 
@@ -69,7 +70,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 			}
 			_, err := CreateTask(newTask)
 			if err != nil {
-				globalPipelineLog.Error(err, "create task for pipeline failed: %w", err)
+				globalPipelineLog.Error(err, "create task for pipeline failed: %v", err)
 				return nil, err
 			}
 			// sync task state back to pipeline
@@ -77,7 +78,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 		}
 	}
 	if err != nil {
-		globalPipelineLog.Error(err, "save tasks for pipeline failed: %w", err)
+		globalPipelineLog.Error(err, "save tasks for pipeline failed: %v", err)
 		return nil, errors.Internal.Wrap(err, "save tasks for pipeline failed")
 	}
 	if dbPipeline.TotalTasks == 0 {
@@ -88,7 +89,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	if err := db.Model(dbPipeline).Updates(map[string]interface{}{
 		"total_tasks": dbPipeline.TotalTasks,
 	}).Error; err != nil {
-		globalPipelineLog.Error(err, "update pipline state failed: %w", err)
+		globalPipelineLog.Error(err, "update pipline state failed: %v", err)
 		return nil, errors.Internal.Wrap(err, "update pipline state failed")
 	}
 
@@ -106,17 +107,16 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.E
 		db = db.Where("status = ?", query.Status)
 	}
 	if query.Pending > 0 {
-		db = db.Where("finished_at is null")
+		db = db.Where("finished_at is null and status != ?", "TASK_FAILED")
 	}
 	var count int64
 	err := db.Count(&count).Error
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error getting DB pipelines count")
 	}
-	if query.Page > 0 && query.PageSize > 0 {
-		offset := query.PageSize * (query.Page - 1)
-		db = db.Limit(query.PageSize).Offset(offset)
-	}
+
+	db = processDbClausesWithPager(db, query.PageSize, query.Page)
+
 	err = db.Find(&dbPipelines).Error
 	if err != nil {
 		return nil, count, errors.Default.Wrap(err, "error finding DB pipelines")
@@ -195,4 +195,13 @@ func decryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, error
 	}
 	dbPipeline.Plan = plan
 	return dbPipeline, nil
+}
+
+// UpdateDbPipelineStatus update the status of pipeline
+func UpdateDbPipelineStatus(pipelineId uint64, status string) errors.Error {
+	err := db.Model(&models.DbPipeline{}).Where("id = ?", pipelineId).Update("status", status).Error
+	if err != nil {
+		return errors.Convert(err)
+	}
+	return nil
 }

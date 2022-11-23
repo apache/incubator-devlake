@@ -19,58 +19,31 @@ package tasks
 
 import (
 	"encoding/json"
-	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"gorm.io/gorm"
-	"net/http"
-	"net/url"
-	"reflect"
-	"time"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"net/http"
+	"net/url"
+	"reflect"
 )
 
 const RAW_STORY_COMMIT_TABLE = "tapd_api_story_commits"
 
 var _ core.SubTaskEntryPoint = CollectStoryCommits
 
-type SimpleStory struct {
-	Id uint64
-}
-
 func CollectStoryCommits(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_COMMIT_TABLE, false)
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issueCommits")
-	num := 0
 	since := data.Since
-	incremental := false
-	if since == nil {
-		// user didn't specify a time range to sync, try load from database
-		var latestUpdated models.TapdStoryCommit
-		clauses := []dal.Clause{
-			dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
-			dal.Orderby("created DESC"),
-		}
-		err := db.First(&latestUpdated, clauses...)
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
-			return errors.NotFound.Wrap(err, "failed to get latest tapd changelog record")
-		}
-		if latestUpdated.Id > 0 {
-			since = (*time.Time)(latestUpdated.Created)
-			incremental = true
-		}
-	}
-
 	clauses := []dal.Clause{
-		dal.Select("id"),
+		dal.Select("_tool_tapd_stories.id as issue_id, modified as update_time"),
 		dal.From(&models.TapdStory{}),
-		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
+		dal.Where("_tool_tapd_stories.connection_id = ? and _tool_tapd_stories.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
 	if since != nil {
 		clauses = append(clauses, dal.Where("modified > ?", since))
@@ -79,34 +52,28 @@ func CollectStoryCommits(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleStory{}))
+	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(models.Input{}))
 	if err != nil {
 		return err
 	}
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Incremental:        incremental,
+		Incremental:        since != nil,
 		ApiClient:          data.ApiClient,
-		//PageSize:    100,
-		Input:       iterator,
-		UrlTemplate: "code_commit_infos",
+		Input:              iterator,
+		UrlTemplate:        "code_commit_infos",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			input := reqData.Input.(*SimpleStory)
+			input := reqData.Input.(*models.Input)
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("type", "story")
-			query.Set("object_id", fmt.Sprintf("%v", input.Id))
+			query.Set("object_id", fmt.Sprintf("%v", input.IssueId))
 			query.Set("order", "created asc")
 			return query, nil
 		},
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Stories []json.RawMessage `json:"data"`
-			}
-			if len(data.Stories) > 0 {
-				fmt.Println(len(data.Stories))
-				num += len(data.Stories)
-				fmt.Printf("num is %d", num)
 			}
 			err := helper.UnmarshalResponse(res, &data)
 			return data.Stories, err

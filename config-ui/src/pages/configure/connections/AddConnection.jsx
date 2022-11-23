@@ -18,20 +18,18 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import { Icon } from '@blueprintjs/core'
-import Nav from '@/components/Nav'
-import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
-import Content from '@/components/Content'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
-import { integrationsData } from '@/data/integrations'
-import {
-  ProviderConnectionLimits,
-  ProviderFormLabels,
-  ProviderFormPlaceholders,
-  ProviderLabels,
-  Providers
-} from '@/data/Providers'
+// import { integrationsData } from '@/data/integrations'
+// import {
+//   ProviderConnectionLimits,
+//   ProviderFormLabels,
+//   ProviderFormPlaceholders,
+//   ProviderLabels,
+//   Providers
+// } from '@/data/Providers'
 
+import useIntegrations from '@/hooks/useIntegrations'
 import useConnectionManager from '@/hooks/useConnectionManager'
 import useConnectionValidation from '@/hooks/useConnectionValidation'
 
@@ -42,9 +40,23 @@ export default function AddConnection() {
   const history = useHistory()
   const { providerId } = useParams()
 
-  const [activeProvider, setActiveProvider] = useState(
-    integrationsData.find((p) => p.id === providerId)
-  )
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider,
+    Providers,
+    ProviderFormLabels,
+    ProviderFormPlaceholders,
+    ProviderFormTooltips,
+    ProviderConnectionLimits,
+    setActiveProvider
+  } = useIntegrations()
+
+  // @todo: Replace with Integrations Hook
+  // const [activeProvider, setActiveProvider] = useState(
+  //   integrationsData.find((p) => p.id === providerId)
+  // )
 
   const {
     testConnection,
@@ -60,6 +72,7 @@ export default function AddConnection() {
     endpointUrl,
     proxy,
     rateLimitPerHour,
+    enableGraphql,
     token,
     initialTokenStore,
     username,
@@ -68,6 +81,7 @@ export default function AddConnection() {
     setEndpointUrl,
     setProxy,
     setRateLimitPerHour,
+    setEnableGraphql,
     setUsername,
     setPassword,
     setToken,
@@ -95,7 +109,7 @@ export default function AddConnection() {
   })
 
   const cancel = () => {
-    history.push(`/integrations/${activeProvider.id}`)
+    history.push(`/integrations/${activeProvider?.id}`)
   }
 
   // const resetForm = () => {
@@ -107,128 +121,117 @@ export default function AddConnection() {
   // }
 
   useEffect(() => {
+    // @todo: Cleanup Restricted Provider Names (Legacy Feature)
     // Selected Provider
-    if (activeProvider?.id) {
-      fetchAllConnections()
-      switch (activeProvider.id) {
-        case Providers.JENKINS:
-          // setName(ProviderLabels.JENKINS)
-          break
-        case Providers.GITHUB:
-        case Providers.GITLAB:
-        case Providers.JIRA:
-        case Providers.TAPD:
-        default:
-          setName('')
-          break
-      }
-    }
-  }, [activeProvider.id, fetchAllConnections, setName])
+    // if (activeProvider?.id) {
+    //   fetchAllConnections()
+    //   switch (activeProvider?.id) {
+    //     case Providers.JENKINS:
+    //       // setName(ProviderLabels.JENKINS)
+    //       break
+    //     case Providers.GITHUB:
+    //     case Providers.GITLAB:
+    //     case Providers.JIRA:
+    //     case Providers.TAPD:
+    //     default:
+    //       setName('')
+    //       break
+    //   }
+    // }
+  }, [activeProvider?.id, fetchAllConnections, setName])
 
   useEffect(() => {
     console.log('>>>> DETECTED PROVIDER = ', providerId)
-    setActiveProvider(integrationsData.find((p) => p.id === providerId))
-  }, [providerId])
+    setActiveProvider(Integrations.find((p) => p.id === providerId))
+  }, [providerId, setActiveProvider, Integrations])
 
   return (
-    <>
-      <div className='container'>
-        <Nav />
-        <Sidebar />
-        <Content>
-          <main className='main'>
-            <AppCrumbs
-              items={[
-                { href: '/', icon: false, text: 'Dashboard' },
-                { href: '/integrations', icon: false, text: 'Connections' },
-                {
-                  href: `/integrations/${activeProvider.id}`,
-                  icon: false,
-                  text: `${activeProvider.name}`
-                },
-                {
-                  href: `/connections/add/${activeProvider.id}`,
-                  icon: false,
-                  text: 'Add Connection',
-                  current: true
-                }
-              ]}
-            />
-            <div style={{ width: '100%' }}>
-              <Link
-                style={{ float: 'right', marginLeft: '10px', color: '#777777' }}
-                to={`/integrations/${activeProvider.id}`}
-              >
-                <Icon icon='undo' size={16} /> Go Back
-              </Link>
-              <div style={{ display: 'flex' }}>
-                <div>
-                  <span style={{ marginRight: '10px' }}>
-                    {activeProvider.icon}
-                  </span>
-                </div>
-                <div>
-                  <h1 style={{ margin: 0 }}>
-                    {activeProvider.name} Add Connection
-                  </h1>
-                  <p className='page-description'>
-                    Create a new connection for this provider.
-                  </p>
-                </div>
-              </div>
-              <div className='addConnection' style={{ display: 'flex' }}>
-                <ConnectionForm
-                  isLocked={connectionLimitReached}
-                  isValid={isValidForm}
-                  validationErrors={validationErrors}
-                  activeProvider={activeProvider}
-                  name={name}
-                  endpointUrl={endpointUrl}
-                  proxy={proxy}
-                  rateLimitPerHour={rateLimitPerHour}
-                  token={token}
-                  initialTokenStore={initialTokenStore}
-                  username={username}
-                  password={password}
-                  onSave={() => saveConnection({})}
-                  onTest={testConnection}
-                  onCancel={cancel}
-                  onValidate={validate}
-                  onNameChange={setName}
-                  onEndpointChange={setEndpointUrl}
-                  onProxyChange={setProxy}
-                  onRateLimitChange={setRateLimitPerHour}
-                  onTokenChange={setToken}
-                  onUsernameChange={setUsername}
-                  onPasswordChange={setPassword}
-                  isSaving={isSaving}
-                  isTesting={isTesting}
-                  testStatus={testStatus}
-                  testResponse={testResponse}
-                  allTestResponses={allTestResponses}
-                  errors={errors}
-                  showError={showError}
-                  authType={
-                    [
-                      Providers.JENKINS,
-                      Providers.JIRA,
-                      Providers.TAPD
-                    ].includes(activeProvider.id)
-                      ? 'plain'
-                      : 'token'
-                  }
-                  sourceLimits={ProviderConnectionLimits}
-                  labels={ProviderFormLabels[activeProvider.id]}
-                  placeholders={ProviderFormPlaceholders[activeProvider.id]}
-                />
-              </div>
-              {/* {validationErrors.length > 0 && (
-                <FormValidationErrors errors={validationErrors} />
-              )} */}
-            </div>
-          </main>
-        </Content>
+    <main className='main'>
+      <AppCrumbs
+        items={[
+          { href: '/', icon: false, text: 'Dashboard' },
+          { href: '/integrations', icon: false, text: 'Connections' },
+          {
+            href: `/integrations/${activeProvider?.id}`,
+            icon: false,
+            text: `${activeProvider?.name}`
+          },
+          {
+            href: `/connections/add/${activeProvider?.id}`,
+            icon: false,
+            text: 'Add Connection',
+            current: true
+          }
+        ]}
+      />
+      <div style={{ width: '100%' }}>
+        <Link
+          style={{ float: 'right', marginLeft: '10px', color: '#777777' }}
+          to={`/integrations/${activeProvider?.id}`}
+        >
+          <Icon icon='undo' size={16} /> Go Back
+        </Link>
+        <div style={{ display: 'flex' }}>
+          <div>
+            <span style={{ marginRight: '10px' }}>
+              <img
+                className='providerIconSvg'
+                src={'/' + activeProvider?.icon}
+                width={40}
+                height={40}
+                style={{ width: '40px', height: '40px' }}
+              />
+            </span>
+          </div>
+          <div>
+            <h1 style={{ margin: 0 }}>{activeProvider?.name} Add Connection</h1>
+            <p className='page-description'>
+              Create a new connection for this provider.
+            </p>
+          </div>
+        </div>
+        <div className='addConnection' style={{ display: 'flex' }}>
+          <ConnectionForm
+            isLocked={connectionLimitReached}
+            isValid={isValidForm}
+            validationErrors={validationErrors}
+            activeProvider={activeProvider}
+            name={name}
+            endpointUrl={endpointUrl}
+            proxy={proxy}
+            rateLimitPerHour={rateLimitPerHour}
+            enableGraphql={enableGraphql}
+            token={token}
+            initialTokenStore={initialTokenStore}
+            username={username}
+            password={password}
+            onSave={() => saveConnection({})}
+            onTest={testConnection}
+            onCancel={cancel}
+            onValidate={validate}
+            onNameChange={setName}
+            onEndpointChange={setEndpointUrl}
+            onProxyChange={setProxy}
+            onRateLimitChange={setRateLimitPerHour}
+            onEnableGraphqlChange={setEnableGraphql}
+            onTokenChange={setToken}
+            onUsernameChange={setUsername}
+            onPasswordChange={setPassword}
+            isSaving={isSaving}
+            isTesting={isTesting}
+            testStatus={testStatus}
+            testResponse={testResponse}
+            allTestResponses={allTestResponses}
+            errors={errors}
+            showError={showError}
+            authType={activeProvider?.getAuthenticationType()}
+            sourceLimits={ProviderConnectionLimits}
+            labels={ProviderFormLabels[activeProvider?.id]}
+            placeholders={ProviderFormPlaceholders[activeProvider?.id]}
+            tooltips={ProviderFormTooltips[activeProvider?.id]}
+          />
+        </div>
       </div>
-    </>
+    </main>
   )
 }

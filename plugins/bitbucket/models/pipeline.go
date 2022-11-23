@@ -28,6 +28,8 @@ type BitbucketPipeline struct {
 	Status            string `gorm:"type:varchar(100)"`
 	Result            string `gorm:"type:varchar(100)"`
 	RefName           string `gorm:"type:varchar(255)"`
+	RepoId            string `gorm:"type:varchar(255)"`
+	CommitSha         string `gorm:"type:varchar(255)"`
 	WebUrl            string `gorm:"type:varchar(255)"`
 	DurationInSeconds uint64
 
@@ -40,3 +42,18 @@ type BitbucketPipeline struct {
 func (BitbucketPipeline) TableName() string {
 	return "_tool_bitbucket_pipelines"
 }
+
+const (
+	FAILED      = "FAILED"
+	ERROR       = "ERROR"
+	UNDEPLOYED  = "UNDEPLOYED"
+	STOPPED     = "STOPPED"
+	SKIPPED     = "SKIPPED"
+	SUCCESSFUL  = "SUCCESSFUL"
+	COMPLETED   = "COMPLETED"
+	PAUSED      = "COMPLETED"
+	HALTED      = "HALTED"
+	IN_PROGRESS = "IN_PROGRESS"
+	PENDING     = "PENDING"
+	BUILDING    = "BUILDING"
+)

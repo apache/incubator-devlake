@@ -18,12 +18,12 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
@@ -50,6 +50,7 @@ func TestPrCommitDataFlow(t *testing.T) {
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubCommit{})
 	dataflowTester.FlushTabler(&models.GithubPrCommit{})
+	dataflowTester.FlushTabler(&models.GithubRepoCommit{})
 	dataflowTester.Subtask(tasks.ExtractApiPullRequestCommitsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.GithubCommit{},
@@ -95,6 +96,13 @@ func TestPrCommitDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequestCommit{},
 		"./snapshot_tables/pull_request_commits.csv",
-		[]string{"commit_sha", "pull_request_id"},
+		[]string{
+			"commit_sha",
+			"pull_request_id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
+		},
 	)
 }

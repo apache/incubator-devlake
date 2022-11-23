@@ -15,8 +15,9 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useRef } from 'react'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+import React, { useEffect, useRef, useContext } from 'react'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import {
   Icon,
   Colors,
@@ -31,6 +32,8 @@ import dayjs from '@/utils/time'
 
 const StageTaskName = (props) => {
   const { task, showDetails = null, onClose = () => {} } = props
+  const { Providers, ProviderIcons, ProviderLabels } =
+    useContext(IntegrationsContext)
 
   const popoverTriggerRef = useRef()
 
@@ -58,21 +61,24 @@ const StageTaskName = (props) => {
           ref={popoverTriggerRef}
           style={{ display: 'block', margin: '5px 0 5px 0' }}
         >
-          <strong>Task ID {task.id}</strong>{' '}
-          {ProviderLabels[task?.plugin?.toUpperCase()]}{' '}
-          {task.plugin === Providers.GITHUB &&
-            task.plugin !== Providers.JENKINS && (
-              <>
-                @{task.options.owner}/{task.options.repo}
-              </>
-            )}
+          <strong>Task#{task.id}</strong>{' '}
+          {ProviderLabels[task?.plugin?.toUpperCase()] ||
+            task?.plugin?.toUpperCase()}{' '}
+          {(task.plugin === Providers.GITHUB ||
+            task.plugin === Providers.GITHUB_GRAPHQL) && (
+            <>
+              @{task.options.owner}/{task.options.repo}
+            </>
+          )}
+          {task.plugin === Providers.JENKINS && <>@{task.options.jobName}</>}
           {task.plugin === Providers.JIRA && (
             <>Board ID {task.options.boardId}</>
           )}
           {task.plugin === Providers.GITLAB && (
             <>Project ID {task.options.projectId}</>
           )}
-          {task.plugin === Providers.GITEXTRACTOR && <>{task.options.repoId}</>}
+          {task.plugin === Providers.GITEXTRACTOR ||
+            (task.plugin === Providers.DORA && <>{task.options.repoId}</>)}
         </span>
         <>
           <div
@@ -116,6 +122,7 @@ const StageTaskName = (props) => {
                     <>{ProviderLabels.JENKINS}</>
                   )}
                   {task.plugin === Providers.TAPD && <>{ProviderLabels.TAPD}</>}
+                  {task.plugin === Providers.ZENTAO && <>{ProviderLabels.ZENTAO}</>}
                   {task.plugin === Providers.JIRA && (
                     <>Board ID {task.options.boardId}</>
                   )}

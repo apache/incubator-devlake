@@ -18,37 +18,30 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type addFieldTask20220830 struct {
-	archived.DomainEntity
-	Name        string `gorm:"type:varchar(255)"`
-	Description string
-	Url         string `gorm:"type:varchar(255)"`
-	CreatedDate *time.Time
-	Type        string `gorm:"type:varchar(255)"`
+var _ core.MigrationScript = (*addTypeToBoard)(nil)
+
+type boards20220830 struct {
+	Type string `gorm:"type:varchar(255)"`
 }
 
-func (addFieldTask20220830) TableName() string {
+func (boards20220830) TableName() string {
 	return "boards"
 }
 
-type addTypeFieldInBoard struct{}
+type addTypeToBoard struct{}
 
-func (*addTypeFieldInBoard) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AddColumn(addFieldTask20220830{}, "type")
-	return errors.Convert(err)
+func (*addTypeToBoard) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&boards20220830{})
 }
 
-func (*addTypeFieldInBoard) Version() uint64 {
+func (*addTypeToBoard) Version() uint64 {
 	return 20220830142321
 }
 
-func (*addTypeFieldInBoard) Name() string {
+func (*addTypeToBoard) Name() string {
 	return "add column `type` at boards"
 }

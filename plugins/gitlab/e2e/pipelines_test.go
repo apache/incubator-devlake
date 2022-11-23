@@ -18,8 +18,10 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer/devops"
+	"github.com/apache/incubator-devlake/models/common"
 	"testing"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/plugins/gitlab/impl"
@@ -48,7 +50,7 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabPipeline{},
 		"./snapshot_tables/_tool_gitlab_pipelines.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"gitlab_id",
 			"gitlab_created_at",
@@ -59,27 +61,19 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 			"started_at",
 			"finished_at",
 			"coverage",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		models.GitlabPipelineProject{},
 		"./snapshot_tables/_tool_gitlab_pipeline_projects.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"pipeline_id",
 			"project_id",
 			"ref",
 			"sha",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify conversion
@@ -87,31 +81,13 @@ func TestGitlabPipelineDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
 	dataflowTester.Subtask(tasks.ConvertPipelineMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertPipelineCommitMeta, taskData)
-	dataflowTester.VerifyTable(
-		devops.CICDPipeline{},
-		"./snapshot_tables/cicd_pipelines.csv",
-		[]string{
-			"id",
-			"name",
-			"result",
-			"status",
-			"type",
-			"duration_sec",
-			"created_date",
-			"finished_date",
-			"environment",
-		},
-	)
+	dataflowTester.VerifyTableWithOptions(&devops.CICDPipeline{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_pipelines.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 
-	dataflowTester.VerifyTable(
-		devops.CiCDPipelineCommit{},
-		"./snapshot_tables/cicd_pipeline_commits.csv",
-		[]string{
-			"pipeline_id",
-			"commit_sha",
-			"branch",
-			"repo_id",
-			"repo_url",
-		},
-	)
+	dataflowTester.VerifyTableWithOptions(&devops.CiCDPipelineCommit{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_pipeline_commits.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

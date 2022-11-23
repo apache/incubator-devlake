@@ -14,15 +14,13 @@
 // limitations under the License.
 
 .integrationProviders {
-  border: 0;
   display: flex;
-  width: 80%;
-  min-width: 520px;
   align-self: flex-start;
+  flex-wrap: wrap;
   padding: 10px;
+  border: 0;
 
   .iProvider {
-    margin: 0 30px 15px 0;
     text-align: center;
     width: 96px;
     height: 96px;

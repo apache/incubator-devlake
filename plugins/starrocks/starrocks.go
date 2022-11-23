@@ -18,46 +18,12 @@ limitations under the License.
 package main
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/starrocks/impl"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/spf13/cobra"
 )
 
-type StarRocks string
-
-func (s StarRocks) SubTaskMetas() []core.SubTaskMeta {
-	return []core.SubTaskMeta{
-		LoadDataTaskMeta,
-	}
-}
-
-func (s StarRocks) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
-	var op StarRocksConfig
-	err := helper.Decode(options, &op, nil)
-	if err != nil {
-		return nil, err
-	}
-	if op.BeHost == "" {
-		op.BeHost = op.Host
-	}
-	return &op, nil
-}
-
-func (s StarRocks) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
-}
-
-func (s StarRocks) Description() string {
-	return "Sync data from database to StarRocks"
-}
-
-func (s StarRocks) RootPkgPath() string {
-	return "github.com/merico-dev/lake/plugins/starrocks"
-}
-
-var PluginEntry StarRocks
+var PluginEntry impl.StarRocks
 
 func main() {
 	cmd := &cobra.Command{Use: "StarRocks"}
@@ -82,6 +48,7 @@ func main() {
 	batchSize := cmd.Flags().StringP("batch_size", "b", "", "StarRocks insert batch size")
 	_ = cmd.MarkFlagRequired("batch_size")
 	extra := cmd.Flags().StringP("extra", "e", "", "StarRocks create table sql extra")
+	orderBy := cmd.Flags().StringP("order_by", "o", "", "Source tables order by, default is primary key")
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"source_type": sourceType,
@@ -96,6 +63,7 @@ func main() {
 			"tables":      tables,
 			"batch_size":  batchSize,
 			"extra":       extra,
+			"order_by":    orderBy,
 		})
 	}
 	runner.RunCmd(cmd)

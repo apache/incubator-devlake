@@ -23,9 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"strings"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
@@ -43,33 +41,16 @@ var ExtractStoryMeta = core.SubTaskMeta{
 func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
 	db := taskCtx.GetDal()
-	statusList := make([]*models.TapdStoryStatus, 0)
-	clauses := []dal.Clause{
-		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
-	}
-	err := db.All(&statusList, clauses...)
+	statusList := make([]models.TapdStoryStatus, 0)
+	statusLanguageMap, getStdStatus, err := getDefaltStdStatusMapping(data, db, statusList)
 	if err != nil {
 		return err
 	}
-
-	statusMap := make(map[string]string, len(statusList))
-	lastStatusMap := make(map[string]bool, len(statusList))
-	for _, v := range statusList {
-		statusMap[v.EnglishName] = v.ChineseName
-		lastStatusMap[v.ChineseName] = v.IsLastStep
+	customStatusMap := getStatusMapping(data)
+	typeMap, err := getTypeMappings(data, db, "story")
+	if err != nil {
+		return err
 	}
-	getStdStatus := func(statusKey string) string {
-		if lastStatusMap[statusKey] {
-			return ticket.DONE
-		} else if statusKey == "草稿" {
-			return ticket.TODO
-		} else {
-			return ticket.IN_PROGRESS
-		}
-	}
-
-	mappings, err := getTypeMappings(data, db, "story")
-
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
@@ -82,13 +63,17 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			toolL := storyBody.Story
-			toolL.Status = statusMap[toolL.Status]
-			toolL.StdStatus = getStdStatus(toolL.Status)
+			toolL.Status = statusLanguageMap[toolL.Status]
+			if len(customStatusMap) != 0 {
+				toolL.StdStatus = customStatusMap[toolL.Status]
+			} else {
+				toolL.StdStatus = getStdStatus(toolL.Status)
+			}
 
 			toolL.ConnectionId = data.Options.ConnectionId
 
-			toolL.Type = mappings.typeIdMappings[toolL.WorkitemTypeId]
-			toolL.StdType = mappings.stdTypeMappings[toolL.Type]
+			toolL.Type = typeMap.typeIdMappings[toolL.WorkitemTypeId]
+			toolL.StdType = typeMap.stdTypeMappings[toolL.Type]
 			if toolL.StdType == "" {
 				toolL.StdType = "REQUIREMENT"
 			}

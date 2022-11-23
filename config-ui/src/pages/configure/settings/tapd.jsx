@@ -17,7 +17,7 @@
  */
 import React, { useEffect, useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
-import { DataEntityTypes } from '@/data/DataEntities'
+import { DataDomainTypes } from '@/data/DataDomains'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
@@ -26,30 +26,14 @@ export default function TapdSettings(props) {
   const {
     provider,
     connection,
-    entities = [],
+    dataDomains = [],
     onSettingsChange = () => {}
   } = props
   const history = useHistory()
-  const { providerId, connectionId } = useParams()
-
-  // eslint-disable-next-line max-len
-  const [errors, setErrors] = useState([])
 
   const cancel = () => {
     history.push(`/integrations/${provider.id}`)
   }
-
-  // useEffect(() => {
-  //   setErrors(['This integration doesn’t require any configuration.'])
-  // }, [])
-
-  useEffect(() => {
-    onSettingsChange({
-      errors,
-      providerId,
-      connectionId
-    })
-  }, [errors, onSettingsChange, connectionId, providerId])
 
   return (
     <>

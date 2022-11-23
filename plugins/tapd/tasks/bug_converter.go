@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 
@@ -48,10 +49,7 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
-	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
-	workspaceIdGen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
-	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
+	bugIdGen := didgen.NewDomainIdGenerator(&models.TapdBug{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdBug{}),
@@ -60,37 +58,39 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 			toolL := inputRow.(*models.TapdBug)
 			domainL := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: issueIdGen.Generate(toolL.ConnectionId, toolL.Id),
+					Id: bugIdGen.Generate(toolL.ConnectionId, toolL.Id),
 				},
-				Url:      toolL.Url,
-				IssueKey: strconv.FormatUint(toolL.Id, 10),
-				Title:    toolL.Title,
-				EpicKey:  toolL.EpicKey,
-				Type:     "BUG",
-				Status:   toolL.StdStatus,
-				//ResolutionDate: (*time.Time)(toolL.Resolved),
-				//CreatedDate:    (*time.Time)(toolL.Created),
-				//UpdatedDate:    (*time.Time)(toolL.Modified),
-				ParentIssueId:  issueIdGen.Generate(toolL.ConnectionId, toolL.IssueId),
+				Url:            toolL.Url,
+				IssueKey:       strconv.FormatUint(toolL.Id, 10),
+				Title:          toolL.Title,
+				EpicKey:        toolL.EpicKey,
+				Type:           "BUG",
+				Status:         toolL.StdStatus,
+				ResolutionDate: (*time.Time)(toolL.Resolved),
+				CreatedDate:    (*time.Time)(toolL.Created),
+				UpdatedDate:    (*time.Time)(toolL.Modified),
+				ParentIssueId:  bugIdGen.Generate(toolL.ConnectionId, toolL.IssueId),
 				Priority:       toolL.Priority,
-				CreatorId:      accountIdGen.Generate(data.Options.ConnectionId, toolL.Reporter),
+				CreatorId:      getAccountIdGen().Generate(data.Options.ConnectionId, toolL.Reporter),
 				CreatorName:    toolL.Reporter,
-				AssigneeId:     accountIdGen.Generate(data.Options.ConnectionId, toolL.CurrentOwner),
 				AssigneeName:   toolL.CurrentOwner,
 				Severity:       toolL.Severity,
 				Component:      toolL.Feature, // todo not sure about this
 				OriginalStatus: toolL.Status,
+			}
+			if domainL.AssigneeName != "" {
+				domainL.AssigneeId = getAccountIdGen().Generate(data.Options.ConnectionId, toolL.CurrentOwner)
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
 				domainL.LeadTimeMinutes = int64(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{
-				BoardId: workspaceIdGen.Generate(toolL.WorkspaceId),
+				BoardId: getWorkspaceIdGen().Generate(toolL.ConnectionId, toolL.WorkspaceId),
 				IssueId: domainL.Id,
 			}
 			sprintIssue := &ticket.SprintIssue{
-				SprintId: iterIdGen.Generate(data.Options.ConnectionId, toolL.IterationId),
+				SprintId: getIterIdGen().Generate(data.Options.ConnectionId, toolL.IterationId),
 				IssueId:  domainL.Id,
 			}
 			results = append(results, domainL, boardIssue, sprintIssue)

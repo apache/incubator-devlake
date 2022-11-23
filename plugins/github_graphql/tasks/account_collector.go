@@ -61,6 +61,7 @@ var CollectAccountMeta = core.SubTaskMeta{
 	EntryPoint:       CollectAccount,
 	EnabledByDefault: true,
 	Description:      "Collect Account data from GithubGraphql api",
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
 }
 
 type SimpleAccount struct {
@@ -96,10 +97,9 @@ func CollectAccount(taskCtx core.SubTaskContext) errors.Error {
 			},
 			Table: RAW_ACCOUNTS_TABLE,
 		},
-		IgnoreQueryErr: true,
-		Input:          iterator,
-		InputStep:      100,
-		GraphqlClient:  data.GraphqlClient,
+		Input:         iterator,
+		InputStep:     100,
+		GraphqlClient: data.GraphqlClient,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
 			accounts := reqData.Input.([]interface{})
 			query := &GraphqlQueryAccountWrapper{}
@@ -115,7 +115,11 @@ func CollectAccount(taskCtx core.SubTaskContext) errors.Error {
 			}
 			return query, variables, nil
 		},
-		ResponseParser: func(iQuery interface{}, variables map[string]interface{}) ([]interface{}, error) {
+		ResponseParserWithDataErrors: func(iQuery interface{}, variables map[string]interface{}, dataErrors []graphql.DataError) ([]interface{}, error) {
+			for _, dataError := range dataErrors {
+				// log and ignore
+				taskCtx.GetLogger().Warn(dataError, `query user get error but ignore`)
+			}
 			query := iQuery.(*GraphqlQueryAccountWrapper)
 			accounts := query.Users
 

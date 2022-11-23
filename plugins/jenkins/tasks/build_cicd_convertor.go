@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 	"regexp"
 	"time"
@@ -54,7 +55,10 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 
 	clauses := []dal.Clause{
 		dal.From("_tool_jenkins_builds"),
-		dal.Where("_tool_jenkins_builds.connection_id = ?", data.Options.ConnectionId),
+		dal.Where(`_tool_jenkins_builds.connection_id = ?
+						and _tool_jenkins_builds.job_path = ? 
+						and _tool_jenkins_builds.job_name = ?`,
+			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -62,6 +66,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 	}
 	defer cursor.Close()
 	buildIdGen := didgen.NewDomainIdGenerator(&models.JenkinsBuild{})
+	jobIdGen := didgen.NewDomainIdGenerator(&models.JenkinsJob{})
 
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(models.JenkinsBuild{}),
@@ -69,6 +74,8 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
+				JobName:      data.Options.JobName,
+				JobPath:      data.Options.JobPath,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,
@@ -90,6 +97,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 
 			if jenkinsBuild.Building {
 				jenkinsPipelineStatus = devops.IN_PROGRESS
+				jenkinsPipelineResult = ""
 			} else {
 				jenkinsPipelineStatus = devops.DONE
 				finishTime := jenkinsBuild.StartTime.Add(time.Duration(durationSec * int64(time.Second)))
@@ -100,22 +108,13 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 					Id: buildIdGen.Generate(jenkinsBuild.ConnectionId,
 						jenkinsBuild.FullDisplayName),
 				},
-				Name:         jenkinsBuild.JobName,
+				Name:         fmt.Sprintf(`%s%s`, jenkinsBuild.JobPath, jenkinsBuild.JobName),
 				Result:       jenkinsPipelineResult,
 				Status:       jenkinsPipelineStatus,
 				FinishedDate: jenkinsPipelineFinishedDate,
 				DurationSec:  uint64(durationSec),
 				CreatedDate:  jenkinsBuild.StartTime,
-			}
-
-			if jenkinsBuild.TriggeredBy != "" {
-				domainPipelineRelation := &devops.CICDPipelineRelationship{
-					ParentPipelineId: buildIdGen.Generate(jenkinsBuild.ConnectionId,
-						jenkinsBuild.TriggeredBy),
-					ChildPipelineId: buildIdGen.Generate(jenkinsBuild.ConnectionId,
-						jenkinsBuild.FullDisplayName),
-				}
-				results = append(results, domainPipelineRelation)
+				CicdScopeId:  jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Job.FullName),
 			}
 			jenkinsPipeline.RawDataOrigin = jenkinsBuild.RawDataOrigin
 			results = append(results, jenkinsPipeline)
@@ -132,6 +131,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 					DurationSec:  uint64(durationSec),
 					StartedDate:  jenkinsBuild.StartTime,
 					FinishedDate: jenkinsPipelineFinishedDate,
+					CicdScopeId:  jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Job.FullName),
 				}
 				if deployTagRegexp != nil {
 					if deployFlag := deployTagRegexp.FindString(jenkinsBuild.JobName); deployFlag != "" {

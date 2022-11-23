@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-name: Bug report
+name: Bug
 title: "[Bug][Module Name] Bug title "
 description: Problems and issues with code of Apache DevLake
 labels: ["type/bug"]
@@ -29,9 +29,7 @@ body:
         [join our slack](https://join.slack.com/t/devlake-io/shared_invite/zt-18uayb6ut-cHOjiYcBwERQ8VVPZ9cQQw)
         and send your question to channel `#questions`
 
-        For better global communication, Please write in English.
-
-        If you feel the description in English is not clear, then you can append description in Chinese, thanks!
+        For better communication, please use English.
 
   - type: checkboxes
     attributes:
@@ -48,22 +46,16 @@ body:
   - type: textarea
     attributes:
       label: What happened
-      description: Describe what happened.
       placeholder: >
-        Please provide the context in which the problem occurred and explain what happened
+        Please provide the context, screenshots, error logs of the problem.
     validations:
       required: true
 
   - type: textarea
     attributes:
-      label: What you expected to happen
-      description: What do you think went wrong?
+      label: What do you expect to happen
       placeholder: >
-        Please explain why you think the behaviour is erroneous. It is extremely helpful if you copy and paste
-        the fragment of logs showing the exact error messages or wrong behaviour and screenshots for
-        UI problems. You can include files by dragging and dropping them here.
-
-        **NOTE**: please copy and paste texts instead of taking screenshots of them for easy future search.
+        Please explain why do you want it to happen.
     validations:
       required: true
 
@@ -71,13 +63,9 @@ body:
     attributes:
       label: How to reproduce
       description: >
-        What should we do to reproduce the problem? If you are not able to provide a reproducible case,
-        please open a [Discussion](https://github.com/apache/incubator-devlake/discussions) instead.
+        If you are not able to provide a reproducible case, please open a [Discussion](https://github.com/apache/incubator-devlake/discussions) instead.
       placeholder: >
-        Please make sure you provide a reproducible step-by-step case of how to reproduce the problem
-        as minimally and precisely as possible. Keep in mind we do not have access to your deployment.
-        Remember that non-reproducible issues will be closed! Opening a discussion is recommended as a
-        first step.
+        Please provide detailed steps to reproduce the problem.
     validations:
       required: true
 
@@ -86,19 +74,18 @@ body:
       label: Anything else
       description: Anything else we need to know?
       placeholder: >
-        How often does this problem occur? (Once? Every time? Only when certain conditions are met?)
-        Any relevant logs to include? Put them here inside fenced
-        ``` ``` blocks or inside a collapsable details tag if it's too long:
-        <details><summary>x.log</summary> lots of stuff </details>
-
+        Eg. How often does this problem occur? (Once? Every time? Only when certain conditions are met?)
   - type: dropdown
     id: version
     attributes:
       label: Version
       description: >
-        Which version of Apache DevLake are you running? We only accept bugs report from the LTS projects.
+        Which version of Apache DevLake are you running?
       options:
         - main
+        - v0.14.2
+        - v0.14.1
+        - v0.14.0
         - v0.13.0
         - v0.12.0
         - v0.11.0
@@ -132,6 +119,3 @@ body:
             [Code of Conduct](https://www.apache.org/foundation/policies/conduct)
           required: true
 
-  - type: markdown
-    attributes:
-      value: "Thanks for completing our form!"

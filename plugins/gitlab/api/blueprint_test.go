@@ -18,6 +18,7 @@ limitations under the License.
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/models/common"
@@ -26,6 +27,9 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"io"
+	"net/http"
 	"testing"
 )
 
@@ -46,14 +50,26 @@ func TestProcessScope(t *testing.T) {
 			Token: "123",
 		},
 	}
+	mockApiCLient := mocks.NewApiClientGetter(t)
+	repo := &tasks.GitlabApiProject{
+		GitlabId:      12345,
+		HttpUrlToRepo: "https://this_is_HttpUrlToRepo",
+	}
+	js, err := json.Marshal(repo)
+	assert.Nil(t, err)
+	res := &http.Response{}
+	res.Body = io.NopCloser(bytes.NewBuffer(js))
+	res.StatusCode = http.StatusOK
+	mockApiCLient.On("Get", "projects/12345", mock.Anything, mock.Anything).Return(res, nil)
+
 	mockMeta := mocks.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/gitlab")
-	err := core.RegisterPlugin("gitlab", mockMeta)
+	err = core.RegisterPlugin("gitlab", mockMeta)
 	assert.Nil(t, err)
 	bs := &core.BlueprintScopeV100{
 		Entities: []string{"CODE"},
 		Options: json.RawMessage(`{
-              "projectId": 123
+              "projectId": 12345
             }`),
 		Transformation: json.RawMessage(`{
               "prType": "hey,man,wasup",
@@ -65,19 +81,55 @@ func TestProcessScope(t *testing.T) {
               "productionPattern": "xxxx"
             }`),
 	}
-	apiRepo := &tasks.GitlabApiProject{
-		GitlabId:      123,
-		HttpUrlToRepo: "HttpUrlToRepo",
-	}
 	scopes := make([]*core.BlueprintScopeV100, 0)
 	scopes = append(scopes, bs)
-	plan := make(core.PipelinePlan, len(scopes))
-	for i, scopeElem := range scopes {
-		plan, err = processScope(nil, 1, scopeElem, i, plan, apiRepo, connection)
-		assert.Nil(t, err)
+	plan, err := makePipelinePlan(nil, scopes, mockApiCLient, connection)
+	assert.Nil(t, err)
+
+	expectPlan := core.PipelinePlan{
+		core.PipelineStage{
+			{
+				Plugin:   "gitlab",
+				Subtasks: []string{},
+				Options: map[string]interface{}{
+					"connectionId": uint64(1),
+					"projectId":    float64(12345),
+					"transformationRules": map[string]interface{}{
+						"prType": "hey,man,wasup",
+					},
+				},
+			},
+			{
+				Plugin: "gitextractor",
+				Options: map[string]interface{}{
+					"proxy":  "",
+					"repoId": "gitlab:GitlabProject:1:12345",
+					"url":    "https://git:123@this_is_HttpUrlToRepo",
+				},
+			},
+		},
+		core.PipelineStage{
+			{
+				Plugin: "refdiff",
+				Options: map[string]interface{}{
+					"tagsLimit":   float64(10),
+					"tagsOrder":   "reverse semver",
+					"tagsPattern": "pattern",
+				},
+			},
+		},
+		core.PipelineStage{
+			{
+				Plugin:   "dora",
+				Subtasks: []string{"EnrichTaskEnv"},
+				Options: map[string]interface{}{
+					"repoId": "gitlab:GitlabProject:1:12345",
+					"transformationRules": map[string]interface{}{
+						"productionPattern": "xxxx",
+					},
+				},
+			},
+		},
 	}
-	planJson, err1 := json.Marshal(plan)
-	assert.Nil(t, err1)
-	expectPlan := `[[{"plugin":"gitlab","subtasks":[],"options":{"connectionId":1,"projectId":123,"transformationRules":{"prType":"hey,man,wasup"}}},{"plugin":"gitextractor","subtasks":null,"options":{"proxy":"","repoId":"gitlab:GitlabProject:1:123","url":"//git:123@HttpUrlToRepo"}}],[{"plugin":"refdiff","subtasks":null,"options":{"tagsLimit":10,"tagsOrder":"reverse semver","tagsPattern":"pattern"}}],[{"plugin":"dora","subtasks":["EnrichTaskEnv"],"options":{"repoId":"gitlab:GitlabProject:1:123","tasks":["EnrichTaskEnv"],"transformationRules":{"productionPattern":"xxxx"}}}]]`
-	assert.Equal(t, expectPlan, string(planJson))
+	assert.Equal(t, expectPlan, plan)
 }

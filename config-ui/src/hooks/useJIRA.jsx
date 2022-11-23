@@ -18,8 +18,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import request from '@/utils/request'
 import { ToastNotification } from '@/components/Toast'
-import { Providers } from '@/data/Providers'
-import DataScopeConnection from '@/models/DataScopeConnection'
 
 const useJIRA = (
   { apiProxyPath, issuesEndpoint, fieldsEndpoint, boardsEndpoint },
@@ -41,9 +39,6 @@ const useJIRA = (
   const [error, setError] = useState()
 
   const fetchIssueTypes = useCallback(() => {
-    // if (activeConnection?.plugin !== Providers.JIRA) {
-    //   return
-    // }
     try {
       if (apiProxyPath.includes('null') || !activeConnection?.connectionId) {
         throw new Error('Connection ID is Null')
@@ -82,9 +77,6 @@ const useJIRA = (
   }, [issuesEndpoint, activeConnection, apiProxyPath])
 
   const fetchFields = useCallback(() => {
-    // if (activeConnection?.plugin !== Providers.JIRA) {
-    //   return
-    // }
     try {
       if (apiProxyPath.includes('null') || !activeConnection?.connectionId) {
         throw new Error('Connection ID is Null')
@@ -123,10 +115,7 @@ const useJIRA = (
   }, [fieldsEndpoint, activeConnection, apiProxyPath])
 
   const fetchBoards = useCallback(
-    async (search, callback = () => {}) => {
-      // if (activeConnection?.plugin !== Providers.JIRA) {
-      //   return
-      // }
+    async (search) => {
       try {
         if (apiProxyPath.includes('null') || !activeConnection?.connectionId) {
           throw new Error('Connection ID is Null')
@@ -136,12 +125,9 @@ const useJIRA = (
         const fetchApiBoards = async () => {
           const boards = await request
             .get(
-              activeConnection?.connectionId
-                ? `${boardsEndpoint.replace(
-                    '[:connectionId:]',
-                    activeConnection?.connectionId
-                  )}?name=${search}`
-                : `${boardsEndpoint}?name=${search}`
+              boardsEndpoint
+                .replace('[:connectionId:]', activeConnection?.connectionId)
+                .replace('[:name:]', search)
             )
             .catch((e) => setError(e))
           console.log('>>> JIRA API PROXY: Boards Response...', boards)
@@ -155,8 +141,7 @@ const useJIRA = (
           // }, 1000)
           return boards.data.values
         }
-        const res = await fetchApiBoards()
-        if (callback) callback(res)
+        await fetchApiBoards()
       } catch (e) {
         setIsFetching(false)
         setError(e)
@@ -244,7 +229,8 @@ const useJIRA = (
       key: d[idProperty],
       title: d[titleProperty],
       value: d[valueProperty],
-      icon: d?.location?.avatarURI,
+      icon: d?.location?.avatarURI || d?.iconUrl,
+      description: d?.description,
       type: d.schema?.type || 'string'
     }))
   }
@@ -273,10 +259,6 @@ const useJIRA = (
     )
   }, [boardsResponse])
 
-  // useEffect(() => {
-  //   console.log('>>> ALL JIRA RESOURCES!', allResources)
-  // }, [allResources])
-
   useEffect(() => {
     console.log('>>> JIRA API PROXY: FIELD SELECTOR LIST DATA', fields)
   }, [fields])
@@ -290,10 +272,6 @@ const useJIRA = (
       console.log('>>> JIRA PROXY API ERROR!', error)
     }
   }, [error])
-
-  // useEffect(() => {
-  //   console.log('>>> JIRA PROXY ACTIVE CONNECTION...', activeConnection)
-  // }, [activeConnection])
 
   return {
     isFetching,

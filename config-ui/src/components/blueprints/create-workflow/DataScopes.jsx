@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useContext, useMemo } from 'react'
 import {
   Button,
   Card,
@@ -24,33 +24,38 @@ import {
   Intent,
   TagInput
 } from '@blueprintjs/core'
-import { ProviderIcons, Providers } from '@/data/Providers'
+import IntegrationsContext from '@/store/integrations-context'
+// import { ProviderIcons, Providers } from '@/data/Providers'
 import ConnectionTabs from '@/components/blueprints/ConnectionTabs'
 import BoardsSelector from '@/components/blueprints/BoardsSelector'
-import DataEntitiesSelector from '@/components/blueprints/DataEntitiesSelector'
+import DataDomainsSelector from '@/components/blueprints/DataDomainsSelector'
 import NoData from '@/components/NoData'
-import GitlabProjectsSelector from '@/components/blueprints/GitlabProjectsSelector'
+import { GitLabMillerColumns, GitLabProjectSelector } from '@/components/gitlab'
+import GitlabProject from '@/models/GitlabProject'
+import { JIRAMillerColumns } from '@/components/jira'
+import JiraBoard from '@/models/JiraBoard'
+import { GitHubMillerColumns } from '@/components/github'
 import GitHubProject from '@/models/GithubProject'
+import { JenkinsMillerColumns } from '@/components/jenkins'
+import JenkinsJobsSelector from '@/components/blueprints/JenkinsJobsSelector'
+import JenkinsJob from '@/models/JenkinsJob'
 
 const DataScopes = (props) => {
   const {
     activeStep,
     activeConnectionTab,
     blueprintConnections = [],
-    dataEntitiesList = [],
-    boardsList = [],
-    fetchGitlabProjects = () => [],
-    isFetchingGitlab = false,
-    gitlabProjects = [],
-    dataEntities = [],
-    projects = [],
-    boards = [],
+    jiraBoards = [],
+    fetchJenkinsJobs = () => [],
+    isFetchingJenkins = false,
+    jenkinsJobs = [],
+    dataDomainsGroup = [],
+    scopeEntitiesGroup = [],
     validationErrors = [],
     configuredConnection,
     handleConnectionTabChange = () => {},
-    setDataEntities = () => {},
-    setProjects = () => {},
-    setBoards = () => {},
+    setDataDomainsGroup = () => {},
+    setScopeEntitiesGroup = () => {},
     setBoardSearch = () => {},
     prevStep = () => {},
     fieldHasError = () => {},
@@ -63,22 +68,23 @@ const DataScopes = (props) => {
     cardStyle = {}
   } = props
 
-  const selectedBoards = useMemo(
-    () => boards[configuredConnection.id],
-    [boards, configuredConnection?.id]
-  )
-  const selectedProjects = useMemo(
-    () => projects[configuredConnection.id],
-    [projects, configuredConnection?.id]
+  const { Integrations, Providers, ProviderIcons } =
+    useContext(IntegrationsContext)
+
+  const selectedScopeEntities = useMemo(
+    () => scopeEntitiesGroup[configuredConnection.id],
+    [scopeEntitiesGroup, configuredConnection?.id]
   )
 
-  useEffect(() => {
-    console.log('>> OVER HERE!!!', selectedBoards)
-  }, [selectedBoards])
-
-  useEffect(() => {
-    console.log('>> OVER HERE FOR Projects!!!', selectedProjects)
-  }, [selectedProjects])
+  const setScopeEntities = useCallback(
+    (scopeEntities) => {
+      setScopeEntitiesGroup((g) => ({
+        ...g,
+        [configuredConnection.id]: scopeEntities
+      }))
+    },
+    [setScopeEntitiesGroup, configuredConnection?.id]
+  )
 
   return (
     <div
@@ -133,34 +139,58 @@ const DataScopes = (props) => {
                     configuredConnection.provider
                   ) && (
                     <>
-                      <h4>Projects *</h4>
-                      <p>Enter the project names you would like to sync.</p>
+                      <h4>Repositories *</h4>
+                      {!!activeStep && (
+                        <>
+                          <p>Select the repositories you would like to sync.</p>
+                          <GitHubMillerColumns
+                            connectionId={configuredConnection.connectionId}
+                            onChangeItems={(items) =>
+                              setScopeEntities([
+                                ...scopeEntitiesGroup[
+                                  configuredConnection.id
+                                ].filter((it) => it.type !== 'miller-columns'),
+                                ...items.map((it) => new GitHubProject(it))
+                              ])
+                            }
+                          />
+                        </>
+                      )}
+                      <div style={{ margin: '16px 0 8px' }}>
+                        Add repositories outside of your organizations
+                      </div>
+                      <p>
+                        Enter the repositories using the format “owner/repo” and
+                        separate multiple repos with a comma.
+                      </p>
                       <TagInput
                         id='project-id'
                         disabled={isRunning}
                         placeholder='username/repo, username/another-repo'
                         values={
-                          projects[configuredConnection.id]?.map(
-                            (p) => p.value
-                          ) || []
+                          selectedScopeEntities
+                            ?.filter((it) => it.type !== 'miller-columns')
+                            .map((p) => p.value) || []
                         }
                         fill={true}
                         onChange={(values) =>
-                          setProjects((p) => ({
-                            ...p,
-                            [configuredConnection.id]: [
-                              ...values.map(
-                                (v, vIdx) =>
-                                  new GitHubProject({
-                                    id: v,
-                                    key: v,
-                                    title: v,
-                                    value: v,
-                                    type: 'string'
-                                  })
-                              )
-                            ]
-                          }))
+                          setScopeEntities([
+                            ...scopeEntitiesGroup[
+                              configuredConnection.id
+                            ].filter((it) => it.type === 'miller-columns'),
+                            ...values.map(
+                              (v, vIdx) =>
+                                new GitHubProject({
+                                  id: v,
+                                  key: v,
+                                  owner: v.includes('/') ? v.split('/')[0] : '',
+                                  repo: v.includes('/') ? v.split('/')[1] : '',
+                                  title: v,
+                                  value: v,
+                                  type: 'string'
+                                })
+                            )
+                          ])
                         }
                         addOnPaste={true}
                         addOnBlur={true}
@@ -169,12 +199,7 @@ const DataScopes = (props) => {
                             disabled={isRunning}
                             icon='eraser'
                             minimal
-                            onClick={() =>
-                              setProjects((p) => ({
-                                ...p,
-                                [configuredConnection.id]: []
-                              }))
-                            }
+                            onClick={() => setScopeEntities([])}
                           />
                         }
                         onKeyDown={(e) =>
@@ -197,17 +222,28 @@ const DataScopes = (props) => {
                     <>
                       <h4>Boards *</h4>
                       <p>Select the boards you would like to sync.</p>
-                      <BoardsSelector
-                        items={boardsList}
-                        selectedItems={selectedBoards}
-                        onQueryChange={setBoardSearch}
-                        onItemSelect={setBoards}
-                        onClear={setBoards}
-                        onRemove={setBoards}
-                        disabled={isSaving}
-                        configuredConnection={configuredConnection}
-                        isLoading={isFetching}
-                      />
+                      {!activeStep ? (
+                        <BoardsSelector
+                          items={jiraBoards}
+                          selectedItems={selectedScopeEntities}
+                          onQueryChange={setBoardSearch}
+                          onItemSelect={setScopeEntities}
+                          onClear={setScopeEntities}
+                          onRemove={setScopeEntities}
+                          disabled={isSaving}
+                          configuredConnection={configuredConnection}
+                          isLoading={isFetching}
+                        />
+                      ) : (
+                        <JIRAMillerColumns
+                          connectionId={configuredConnection.connectionId}
+                          onChangeItems={(items) =>
+                            setScopeEntities(
+                              items.map((it) => new JiraBoard(it))
+                            )
+                          }
+                        />
+                      )}
                     </>
                   )}
 
@@ -216,19 +252,99 @@ const DataScopes = (props) => {
                   ) && (
                     <>
                       <h4>Projects *</h4>
-                      <p>Select the project you would like to sync.</p>
-                      <GitlabProjectsSelector
-                        onFetch={fetchGitlabProjects}
-                        isFetching={isFetchingGitlab}
-                        items={gitlabProjects}
-                        selectedItems={selectedProjects}
-                        onItemSelect={setProjects}
-                        onClear={setProjects}
-                        onRemove={setProjects}
-                        disabled={isSaving}
-                        configuredConnection={configuredConnection}
-                        isLoading={isFetching}
+                      {!!activeStep && (
+                        <>
+                          <p>Select the project you would like to sync.</p>
+                          <GitLabMillerColumns
+                            connectionId={configuredConnection.connectionId}
+                            disabledItemIds={selectedScopeEntities
+                              .filter((it) => it.type !== 'miller-columns')
+                              .map((it) => it.id)}
+                            onChangeItems={(items) =>
+                              setScopeEntities([
+                                ...scopeEntitiesGroup[
+                                  configuredConnection.id
+                                ].filter((it) => it.type !== 'miller-columns'),
+                                ...items.map(
+                                  (it) =>
+                                    new GitlabProject({
+                                      ...it,
+                                      type: 'miller-columns'
+                                    })
+                                )
+                              ])
+                            }
+                          />
+                        </>
+                      )}
+                      <div style={{ margin: '16px 0 8px' }}>
+                        Add repositories outside of your projects
+                      </div>
+                      <p>
+                        Enter the repositories using the format “owner/repo” and
+                        separate multiple repos with a comma.
+                      </p>
+                      <GitLabProjectSelector
+                        connectionId={configuredConnection.connectionId}
+                        disabledItemIds={selectedScopeEntities
+                          .filter((it) => it.type !== 'project-selector')
+                          .map((it) => it.id)}
+                        selectedItems={selectedScopeEntities
+                          .filter((it) => it.type === 'project-selector')
+                          .map((it) => ({
+                            id: it.id,
+                            key: it.id,
+                            title: it.title,
+                            shortTitle: it.shortTitle,
+                            value: it.id
+                          }))}
+                        onChangeItems={(items) =>
+                          setScopeEntities([
+                            ...scopeEntitiesGroup[
+                              configuredConnection.id
+                            ].filter((it) => it.type !== 'project-selector'),
+                            ...items.map(
+                              (it) =>
+                                new GitlabProject({
+                                  ...it,
+                                  type: 'project-selector'
+                                })
+                            )
+                          ])
+                        }
                       />
+                    </>
+                  )}
+
+                  {[Providers.JENKINS].includes(
+                    configuredConnection.provider
+                  ) && (
+                    <>
+                      <h4>Jobs *</h4>
+                      <p>Select the jobs you would like to sync.</p>
+                      {!activeStep ? (
+                        <JenkinsJobsSelector
+                          onFetch={fetchJenkinsJobs}
+                          isFetching={isFetchingJenkins}
+                          items={jenkinsJobs}
+                          selectedItems={selectedScopeEntities}
+                          onItemSelect={setScopeEntities}
+                          onClear={setScopeEntities}
+                          onRemove={setScopeEntities}
+                          disabled={isSaving}
+                          configuredConnection={configuredConnection}
+                          isLoading={isFetching}
+                        />
+                      ) : (
+                        <JenkinsMillerColumns
+                          connectionId={configuredConnection.connectionId}
+                          onChangeItems={(items) =>
+                            setScopeEntities(
+                              items.map((it) => new JenkinsJob(it))
+                            )
+                          }
+                        />
+                      )}
                     </>
                   )}
 
@@ -244,15 +360,20 @@ const DataScopes = (props) => {
                       Learn about data entities
                     </a>
                   </p>
-                  <DataEntitiesSelector
-                    items={dataEntitiesList}
-                    selectedItems={dataEntities[configuredConnection.id] || []}
-                    // restrictedItems={getRestrictedDataEntities()}
-                    onItemSelect={setDataEntities}
-                    onClear={setDataEntities}
+                  <DataDomainsSelector
+                    items={
+                      Integrations.find(
+                        (p) => p.id === configuredConnection.provider
+                      )?.getAvailableDataDomains() || []
+                    }
+                    selectedItems={
+                      dataDomainsGroup[configuredConnection.id] || []
+                    }
+                    onItemSelect={setDataDomainsGroup}
+                    onClear={setDataDomainsGroup}
                     fieldHasError={fieldHasError}
                     getFieldError={getFieldError}
-                    onRemove={setDataEntities}
+                    onRemove={setDataDomainsGroup}
                     disabled={isSaving}
                     configuredConnection={configuredConnection}
                     isSaving={isSaving}

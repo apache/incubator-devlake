@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -99,10 +100,23 @@ func ConvertRepo(taskCtx core.SubTaskContext) errors.Error {
 				BoardId: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
 				RepoId:  repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
 			}
+
+			domainCicdScope := &devops.CicdScope{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
+				},
+				Name:        repository.Name,
+				Url:         repository.HTMLUrl,
+				Description: repository.Description,
+				CreatedDate: &repository.CreatedDate,
+				UpdatedDate: repository.UpdatedDate,
+			}
+
 			return []interface{}{
 				domainRepository,
 				domainBoard,
 				domainBoardRepo,
+				domainCicdScope,
 			}, nil
 		},
 	})

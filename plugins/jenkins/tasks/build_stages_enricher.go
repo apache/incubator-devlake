@@ -22,11 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
-	"strconv"
-	"strings"
 )
-
-// this struct should be moved to `gitub_api_common.go`
 
 var EnrichApiBuildWithStagesMeta = core.SubTaskMeta{
 	Name:             "enrichApiBuildWithStages",
@@ -40,10 +36,14 @@ func EnrichApiBuildWithStages(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{
-		dal.Select("distinct build_name"),
-		dal.From(&models.JenkinsStage{}),
-		dal.Where("connection_id = ?", data.Options.ConnectionId),
-		dal.Groupby("build_name"),
+		dal.Select("tjb.*"),
+		dal.From(`_tool_jenkins_builds tjb`),
+		dal.Join(`inner join _tool_jenkins_stages tjs 
+						on tjs.build_name = tjb.full_display_name 
+						and tjs.connection_id = tjb.connection_id`),
+		dal.Where(`tjb.connection_id = ? 
+							and tjb.job_path = ? and tjb.job_name = ?`,
+			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -53,35 +53,17 @@ func EnrichApiBuildWithStages(taskCtx core.SubTaskContext) errors.Error {
 	taskCtx.SetProgress(0, -1)
 
 	for cursor.Next() {
-		var buildName string
-		err = errors.Convert(cursor.Scan(&buildName))
-		if err != nil {
-			return err
-		}
-		if buildName == "" {
-			continue
-		}
 		build := &models.JenkinsBuild{}
-		build.ConnectionId = data.Options.ConnectionId
-		str := strings.Split(buildName, "#")
-		build.JobName = strings.TrimSpace(str[0])
-		var number int
-		number, err = errors.Convert01(strconv.Atoi(strings.TrimSpace(str[1])))
+		err = db.Fetch(cursor, build)
 		if err != nil {
 			return err
-		}
-		build.Number = int64(number)
-		err = db.First(build)
-		if err != nil {
-			return errors.Convert(err)
 		}
 		build.HasStages = true
-
-		err = db.Update(build)
+		err = db.CreateOrUpdate(build)
 		if err != nil {
-			return errors.Convert(err)
+			return err
 		}
-		taskCtx.IncProgress(1)
 	}
+
 	return nil
 }

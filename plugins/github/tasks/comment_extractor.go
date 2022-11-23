@@ -95,11 +95,13 @@ func ExtractApiComments(taskCtx core.SubTaskContext) errors.Error {
 					GithubId:        apiComment.GithubId,
 					PullRequestId:   pr.GithubId,
 					Body:            string(apiComment.Body),
-					AuthorUsername:  apiComment.User.Login,
-					AuthorUserId:    apiComment.User.Id,
 					GithubCreatedAt: apiComment.GithubCreatedAt.ToTime(),
 					GithubUpdatedAt: apiComment.GithubUpdatedAt.ToTime(),
 					Type:            "NORMAL",
+				}
+				if apiComment.User != nil {
+					githubPrComment.AuthorUsername = apiComment.User.Login
+					githubPrComment.AuthorUserId = apiComment.User.Id
 				}
 				results = append(results, githubPrComment)
 			} else {
@@ -108,18 +110,22 @@ func ExtractApiComments(taskCtx core.SubTaskContext) errors.Error {
 					GithubId:        apiComment.GithubId,
 					IssueId:         issue.GithubId,
 					Body:            string(apiComment.Body),
-					AuthorUsername:  apiComment.User.Login,
-					AuthorUserId:    apiComment.User.Id,
 					GithubCreatedAt: apiComment.GithubCreatedAt.ToTime(),
 					GithubUpdatedAt: apiComment.GithubUpdatedAt.ToTime(),
 				}
+				if apiComment.User != nil {
+					githubIssueComment.AuthorUsername = apiComment.User.Login
+					githubIssueComment.AuthorUserId = apiComment.User.Id
+				}
 				results = append(results, githubIssueComment)
 			}
-			githubAccount, err := convertAccount(apiComment.User, data.Repo.GithubId, data.Options.ConnectionId)
-			if err != nil {
-				return nil, err
+			if apiComment.User != nil {
+				githubAccount, err := convertAccount(apiComment.User, data.Repo.GithubId, data.Options.ConnectionId)
+				if err != nil {
+					return nil, err
+				}
+				results = append(results, githubAccount)
 			}
-			results = append(results, githubAccount)
 			return results, nil
 		},
 	})

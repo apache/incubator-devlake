@@ -47,12 +47,13 @@ func ExtractBugCommits(taskCtx core.SubTaskContext) errors.Error {
 			}
 			toolL := issueCommitBody
 			toolL.ConnectionId = data.Options.ConnectionId
-			issue := SimpleBug{}
+			issue := models.Input{}
 			err = errors.Convert(json.Unmarshal(row.Input, &issue))
 			if err != nil {
 				return nil, err
 			}
-			toolL.BugId = issue.Id
+			toolL.BugId = issue.IssueId
+			toolL.IssueUpdated = issue.UpdateTime
 			toolL.WorkspaceId = data.Options.WorkspaceId
 			results := make([]interface{}, 0, 1)
 			results = append(results, &toolL)

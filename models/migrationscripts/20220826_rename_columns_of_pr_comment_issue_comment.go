@@ -18,24 +18,21 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
+
+var _ core.MigrationScript = (*renameColumnsOfPrCommentIssueComment)(nil)
 
 type renameColumnsOfPrCommentIssueComment struct{}
 
-func (*renameColumnsOfPrCommentIssueComment) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().RenameColumn(&archived.PullRequestComment{}, "user_id", "account_id")
+func (*renameColumnsOfPrCommentIssueComment) Up(basicRes core.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.RenameColumn("pull_request_comments", "user_id", "account_id")
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	err = db.Migrator().RenameColumn(&archived.IssueComment{}, "user_id", "account_id")
-	if err != nil {
-		return errors.Convert(err)
-	}
-	return nil
+	return db.RenameColumn("issue_comments", "user_id", "account_id")
 }
 
 func (*renameColumnsOfPrCommentIssueComment) Version() uint64 {

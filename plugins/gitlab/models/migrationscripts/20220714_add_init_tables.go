@@ -18,19 +18,19 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/config"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type addInitTables struct{}
 
-func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().DropTable(
+func (*addInitTables) Up(baseRes core.BasicRes) errors.Error {
+	db := baseRes.GetDal()
+	err := db.DropTables(
 		&archived.GitlabProject{},
 		&archived.GitlabMergeRequest{},
 		&archived.GitlabCommit{},
@@ -61,10 +61,11 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	)
 
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
-	err = db.Migrator().AutoMigrate(
+	err = migrationhelper.AutoMigrateTables(
+		baseRes,
 		&archived.GitlabProject{},
 		&archived.GitlabMergeRequest{},
 		&archived.GitlabCommit{},
@@ -83,13 +84,12 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	)
 
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
-	v := config.GetConfig()
-	encKey := v.GetString("ENCODE_KEY")
-	endPoint := v.GetString("GITLAB_ENDPOINT")
-	gitlabAuth := v.GetString("GITLAB_AUTH")
+	encKey := baseRes.GetConfig("ENCODE_KEY")
+	endPoint := baseRes.GetConfig("GITLAB_ENDPOINT")
+	gitlabAuth := baseRes.GetConfig("GITLAB_AUTH")
 
 	if encKey == "" || endPoint == "" || gitlabAuth == "" {
 		return nil
@@ -100,15 +100,18 @@ func (*addInitTables) Up(ctx context.Context, db *gorm.DB) errors.Error {
 	conn.Endpoint = endPoint
 	conn.Token, err = core.Encrypt(encKey, gitlabAuth)
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	conn.Proxy = v.GetString("GITLAB_PROXY")
-	conn.RateLimitPerHour = v.GetInt("GITLAB_API_REQUESTS_PER_HOUR")
-
-	err = db.Clauses(clause.OnConflict{DoNothing: true}).Create(conn).Error
+	conn.Proxy = baseRes.GetConfig("GITLAB_PROXY")
+	var err1 error
+	conn.RateLimitPerHour, err1 = strconv.Atoi(baseRes.GetConfig("GITLAB_API_REQUESTS_PER_HOUR"))
+	if err1 != nil {
+		conn.RateLimitPerHour = 1000
+	}
+	err = db.CreateIfNotExist(conn)
 
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
 	return nil

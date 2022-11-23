@@ -94,7 +94,7 @@ type ApiCollector struct {
 // of response we want to save, ApiCollector will collect them from remote server and store them into database.
 func NewApiCollector(args ApiCollectorArgs) (*ApiCollector, errors.Error) {
 	// process args
-	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
+	rawDataSubTask, err := NewRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "Couldn't resolve raw subtask args")
 	}

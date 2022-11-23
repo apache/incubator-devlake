@@ -56,7 +56,8 @@ type RawDataSubTask struct {
 	params string
 }
 
-func newRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, errors.Error) {
+// NewRawDataSubTask constructor for RawDataSubTask
+func NewRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, errors.Error) {
 	if args.Ctx == nil {
 		return nil, errors.Default.New("Ctx is required for RawDataSubTask")
 	}
@@ -79,4 +80,14 @@ func newRawDataSubTask(args RawDataSubTaskArgs) (*RawDataSubTask, errors.Error) 
 		table:  fmt.Sprintf("_raw_%s", args.Table),
 		params: paramsString,
 	}, nil
+}
+
+// GetTable returns the raw table name
+func (r *RawDataSubTask) GetTable() string {
+	return r.table
+}
+
+// GetParams returns the raw params
+func (r *RawDataSubTask) GetParams() string {
+	return r.params
 }

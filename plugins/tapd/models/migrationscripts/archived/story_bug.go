@@ -17,13 +17,17 @@ limitations under the License.
 
 package archived
 
-import "github.com/apache/incubator-devlake/models/migrationscripts/archived"
+import (
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"time"
+)
 
 type TapdStoryBug struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	WorkspaceId  uint64 `gorm:"primaryKey" json:"workspace_id,string"`
 	StoryId      uint64 `gorm:"primaryKey" json:"story_id,string"`
 	BugId        uint64 `gorm:"primaryKey" json:"bug_id,string"`
+	IssueUpdated *time.Time
 	archived.NoPKModel
 }
 

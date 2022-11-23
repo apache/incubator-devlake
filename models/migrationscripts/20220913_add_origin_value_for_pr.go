@@ -18,21 +18,27 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
+
+var _ core.MigrationScript = (*addOriginChangeValueForPr)(nil)
 
 type addOriginChangeValueForPr struct{}
 
-func (*addOriginChangeValueForPr) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(
-		&PullRequest0913{},
-	)
-	if err != nil {
-		return errors.Convert(err)
-	}
-	return nil
+type pullRequest0913 struct {
+	OrigCodingTimespan int64
+	OrigReviewLag      int64
+	OrigReviewTimespan int64
+	OrigDeployTimespan int64
+}
+
+func (pullRequest0913) TableName() string {
+	return "pull_requests"
+}
+
+func (*addOriginChangeValueForPr) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&pullRequest0913{})
 }
 
 func (*addOriginChangeValueForPr) Version() uint64 {
@@ -41,15 +47,4 @@ func (*addOriginChangeValueForPr) Version() uint64 {
 
 func (*addOriginChangeValueForPr) Name() string {
 	return "add origin change lead time for pr"
-}
-
-type PullRequest0913 struct {
-	OrigCodingTimespan int64
-	OrigReviewLag      int64
-	OrigReviewTimespan int64
-	OrigDeployTimespan int64
-}
-
-func (PullRequest0913) TableName() string {
-	return "pull_requests"
 }

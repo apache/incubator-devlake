@@ -18,16 +18,17 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
+
+var _ core.MigrationScript = (*addProjectMapping)(nil)
 
 type addProjectMapping struct{}
 
-func (*addProjectMapping) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	return errors.Convert(db.Migrator().AutoMigrate(&archived.ProjectMapping{}))
+func (*addProjectMapping) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&archived.ProjectMapping{})
 }
 
 func (*addProjectMapping) Version() uint64 {

@@ -50,7 +50,7 @@ func TestTapdWorklogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdWorklog{},
 		"./snapshot_tables/_tool_tapd_worklogs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"workspace_id",
@@ -61,11 +61,7 @@ func TestTapdWorklogDataFlow(t *testing.T) {
 			"owner",
 			"created",
 			"memo",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.FlushTabler(&ticket.IssueWorklog{})
@@ -73,19 +69,15 @@ func TestTapdWorklogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.IssueWorklog{},
 		"./snapshot_tables/issue_worklogs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"author_id",
 			"comment",
 			"time_spent_minutes",
 			"logged_date",
 			"started_date",
 			"issue_id",
-		},
+		),
 	)
 
 }

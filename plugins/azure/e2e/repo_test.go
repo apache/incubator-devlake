@@ -47,7 +47,7 @@ func TestAzureRepoDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.AzureRepo{},
 		"./snapshot_tables/_tool_azure_repos.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"azure_id",
 			"name",
@@ -59,11 +59,6 @@ func TestAzureRepoDataFlow(t *testing.T) {
 			"ssh_url",
 			"web_url",
 			"is_disabled",
-
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

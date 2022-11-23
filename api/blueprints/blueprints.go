@@ -28,14 +28,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type PaginatedBlueprint struct {
+	Blueprints []*models.Blueprint
+	Count      int64
+}
+
 // @Summary post blueprints
 // @Description post blueprints
 // @Tags framework/blueprints
 // @Accept application/json
 // @Param blueprint body models.Blueprint true "json"
 // @Success 200  {object} models.Blueprint
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internel Error"
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /blueprints [post]
 func Post(c *gin.Context) {
 	blueprint := &models.Blueprint{}
@@ -59,9 +64,9 @@ func Post(c *gin.Context) {
 // @Description get blueprints
 // @Tags framework/blueprints
 // @Accept application/json
-// @Success 200  {object} gin.H
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internel Error"
+// @Success 200  {object} PaginatedBlueprint
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /blueprints [get]
 func Index(c *gin.Context) {
 	var query services.BlueprintQuery
@@ -75,7 +80,7 @@ func Index(c *gin.Context) {
 		shared.ApiOutputAbort(c, errors.Default.Wrap(err, "error getting blueprints"))
 		return
 	}
-	shared.ApiOutputSuccess(c, gin.H{"blueprints": blueprints, "count": count}, http.StatusOK)
+	shared.ApiOutputSuccess(c, PaginatedBlueprint{Blueprints: blueprints, Count: count}, http.StatusOK)
 }
 
 // @Summary get blueprints
@@ -84,8 +89,8 @@ func Index(c *gin.Context) {
 // @Accept application/json
 // @Param blueprintId path int true "blueprint id"
 // @Success 200  {object} models.Blueprint
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internel Error"
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /blueprints/{blueprintId} [get]
 func Get(c *gin.Context) {
 	blueprintId := c.Param("blueprintId")
@@ -107,8 +112,8 @@ func Get(c *gin.Context) {
 // @Tags framework/blueprints
 // @Param blueprintId path string true "blueprintId"
 // @Success 200
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internel Error"
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /blueprints/{blueprintId} [delete]
 func Delete(c *gin.Context) {
 	pipelineId := c.Param("blueprintId")
@@ -123,39 +128,14 @@ func Delete(c *gin.Context) {
 	}
 }
 
-/*
-func Put(c *gin.Context) {
-	blueprintId := c.Param("blueprintId")
-	id, err := strconv.ParseUint(blueprintId, 10, 64)
-	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
-		return
-	}
-	editBlueprint := &models.EditBlueprint{}
-	err = c.MustBindWith(editBlueprint, binding.JSON)
-	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
-		fmt.Println(err)
-		return
-	}
-	editBlueprint.BlueprintId = id
-	blueprint, err := services.ModifyBlueprint(editBlueprint)
-	if err != nil {
-		shared.ApiOutputError(c, err, http.StatusBadRequest)
-		return
-	}
-	shared.ApiOutputSuccess(c, blueprint, http.StatusOK)
-}
-*/
-
 // @Summary patch blueprints
 // @Description patch blueprints
 // @Tags framework/blueprints
 // @Accept application/json
 // @Param blueprintId path string true "blueprintId"
 // @Success 200  {object} models.Blueprint
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internel Error"
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /blueprints/{blueprintId} [Patch]
 func Patch(c *gin.Context) {
 	blueprintId := c.Param("blueprintId")
@@ -184,8 +164,8 @@ func Patch(c *gin.Context) {
 // @Accept application/json
 // @Param blueprintId path string true "blueprintId"
 // @Success 200  {object} models.Pipeline
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internel Error"
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /blueprints/{blueprintId}/trigger [Post]
 func Trigger(c *gin.Context) {
 	blueprintId := c.Param("blueprintId")
@@ -208,18 +188,22 @@ func Trigger(c *gin.Context) {
 // @Accept application/json
 // @Param blueprintId path int true "blueprint id"
 // @Success 200  {object} shared.ResponsePipelines
-// @Failure 400  {string} errcode.Error "Bad Request"
-// @Failure 500  {string} errcode.Error "Internel Error"
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /blueprints/{blueprintId}/pipelines [get]
 func GetBlueprintPipelines(c *gin.Context) {
-	blueprintId := c.Param("blueprintId")
-	id, err := strconv.ParseUint(blueprintId, 10, 64)
+	var query services.PipelineQuery
+	err := c.ShouldBindQuery(&query)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad blueprintID at supplied"))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
-	var query services.PipelineQuery
-	query.BlueprintId = id
+	err = c.ShouldBindUri(&query)
+	if err != nil {
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad request URI format"))
+		return
+	}
+
 	pipelines, count, err := services.GetPipelines(&query)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting pipelines"))

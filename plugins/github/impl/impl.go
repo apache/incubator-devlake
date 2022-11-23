@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -37,7 +36,7 @@ var _ core.PluginMeta = (*Github)(nil)
 var _ core.PluginInit = (*Github)(nil)
 var _ core.PluginTask = (*Github)(nil)
 var _ core.PluginApi = (*Github)(nil)
-var _ core.Migratable = (*Github)(nil)
+var _ core.PluginModel = (*Github)(nil)
 var _ core.PluginBlueprintV100 = (*Github)(nil)
 var _ core.CloseablePluginTask = (*Github)(nil)
 
@@ -109,10 +108,10 @@ func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractAccountOrgMeta,
 		tasks.CollectRunsMeta,
 		tasks.ExtractRunsMeta,
+		tasks.ConvertRunsMeta,
 		tasks.CollectJobsMeta,
 		tasks.ExtractJobsMeta,
-		tasks.ConvertPipelinesMeta,
-		tasks.ConvertTasksMeta,
+		tasks.ConvertJobsMeta,
 		tasks.EnrichPullRequestIssuesMeta,
 		tasks.ConvertRepoMeta,
 		tasks.ConvertIssuesMeta,
@@ -175,7 +174,7 @@ func (plugin Github) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/github"
 }
 
-func (plugin Github) MigrationScripts() []migration.Script {
+func (plugin Github) MigrationScripts() []core.MigrationScript {
 	return migrationscripts.All()
 }
 
@@ -192,6 +191,9 @@ func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandle
 			"GET":    api.GetConnection,
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
+		},
+		"connections/:connectionId/proxy/rest/*path": {
+			"GET": api.Proxy,
 		},
 	}
 }

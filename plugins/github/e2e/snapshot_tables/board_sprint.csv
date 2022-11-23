@@ -1,2 +1,2 @@
-board_id,sprint_id
-github:GithubRepo:1:134018330,github:GithubMilestone:1:7856149
+board_id,sprint_id,created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+github:GithubRepo:1:134018330,github:GithubMilestone:1:7856149,2022-10-12T08:09:19.586+00:00,2022-10-12T08:09:19.586+00:00,"{""ConnectionId"":1,""Owner"":""panjf2000"",""Repo"":""ants""}",_raw_github_milestones,109,

@@ -30,6 +30,7 @@ type TapdOptions struct {
 	CompanyId           uint64   `mapstruct:"companyId"`
 	Tasks               []string `mapstruct:"tasks,omitempty"`
 	Since               string
+	CstZone             *time.Location
 	TransformationRules TransformationRules `json:"transformationRules"`
 }
 
@@ -44,11 +45,13 @@ type TypeMapping struct {
 	StandardType string `json:"standardType"`
 }
 
+type OriginalStatus []string
+
+type StatusMappings map[string]OriginalStatus
+
 type TypeMappings map[string]TypeMapping
 
 type TransformationRules struct {
-	EpicKeyField               string       `json:"epicKeyField"`
-	StoryPointField            string       `json:"storyPointField"`
-	RemotelinkCommitShaPattern string       `json:"remotelinkCommitShaPattern"`
-	TypeMappings               TypeMappings `json:"typeMappings"`
+	TypeMappings   TypeMappings   `json:"typeMappings"`
+	StatusMappings StatusMappings `json:"statusMappings"`
 }

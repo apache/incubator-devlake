@@ -48,7 +48,7 @@ type ApiExtractor struct {
 // NewApiExtractor creates a new ApiExtractor
 func NewApiExtractor(args ApiExtractorArgs) (*ApiExtractor, errors.Error) {
 	// process args
-	rawDataSubTask, err := newRawDataSubTask(args.RawDataSubTaskArgs)
+	rawDataSubTask, err := NewRawDataSubTask(args.RawDataSubTaskArgs)
 	if err != nil {
 		return nil, err
 	}

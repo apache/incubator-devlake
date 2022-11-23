@@ -18,45 +18,45 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/errors"
+	"encoding/json"
 
-	"gorm.io/datatypes"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-// model blueprint
-type blueprintNormalMode_Blueprint struct {
-	Settings datatypes.JSON `json:"settings"`
+var _ core.MigrationScript = (*renameTasksToPlan)(nil)
+
+type blueprint20220622 struct {
+	Settings json.RawMessage `json:"settings"`
 }
 
-func (blueprintNormalMode_Blueprint) TableName() string {
+func (blueprint20220622) TableName() string {
 	return "_devlake_blueprints"
 }
 
-// model pipeline
-type blueprintNormalMode_Pipeline struct {
+type pipeline20220622 struct {
 }
 
-func (blueprintNormalMode_Pipeline) TableName() string {
+func (pipeline20220622) TableName() string {
 	return "_devlake_pipelines"
 }
 
 // migration script
 type renameTasksToPlan struct{}
 
-func (*renameTasksToPlan) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AddColumn(blueprintNormalMode_Blueprint{}, "settings")
+func (*renameTasksToPlan) Up(basicRes core.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.AutoMigrate(blueprint20220622{})
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	err = db.Migrator().RenameColumn(&blueprintNormalMode_Blueprint{}, "tasks", "plan")
+	err = db.RenameColumn(blueprint20220622{}.TableName(), "tasks", "plan")
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	err = db.Migrator().RenameColumn(&blueprintNormalMode_Pipeline{}, "tasks", "plan")
+	err = db.RenameColumn(pipeline20220622{}.TableName(), "tasks", "plan")
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 	return nil
 }

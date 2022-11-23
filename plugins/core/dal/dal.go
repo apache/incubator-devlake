@@ -22,13 +22,42 @@ import (
 	"reflect"
 
 	"github.com/apache/incubator-devlake/errors"
-
-	"gorm.io/gorm/schema"
 )
 
+type Tabler interface {
+	TableName() string
+}
+
+// Default Table is working for the Tabler interface witch only need TableName
+type DefaultTabler struct {
+	Name string
+}
+
+var _ Tabler = (*DefaultTabler)(nil)
+
+func (d DefaultTabler) TableName() string {
+	return d.Name
+}
+
+// Clause represents SQL Clause
 type Clause struct {
 	Type string
 	Data interface{}
+}
+
+// ClauseColumn quote with name
+type ClauseColumn struct {
+	Table string
+	Name  string
+	Alias string
+	Raw   bool
+}
+
+// ClauseTable quote with name
+type ClauseTable struct {
+	Name  string
+	Alias string
+	Raw   bool
 }
 
 // ColumnMeta column type interface
@@ -53,21 +82,19 @@ type Dal interface {
 	AutoMigrate(entity interface{}, clauses ...Clause) errors.Error
 	// AddColumn add column for the table
 	AddColumn(table, columnName, columnType string) errors.Error
-	// DropColumn drop column from the table
-	DropColumn(table, columnName string) errors.Error
+	// DropColumns drop column from the table
+	DropColumns(table string, columnName ...string) errors.Error
 	// Exec executes raw sql query
 	Exec(query string, params ...interface{}) errors.Error
-	// RawCursor executes raw sql query and returns a database cursor
-	RawCursor(query string, params ...interface{}) (*sql.Rows, errors.Error)
 	// Cursor returns a database cursor, cursor is especially useful when handling big amount of rows of data
-	Cursor(clauses ...Clause) (*sql.Rows, errors.Error)
+	Cursor(clauses ...Clause) (Rows, errors.Error)
 	// Fetch loads row data from `cursor` into `dst`
-	Fetch(cursor *sql.Rows, dst interface{}) errors.Error
-	// All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
+	Fetch(cursor Rows, dst interface{}) errors.Error
+	// All loads matched rows from database to `dst`, USE IT WITH CAUTIOUS!!
 	All(dst interface{}, clauses ...Clause) errors.Error
 	// First loads first matched row from database to `dst`, error will be returned if no records were found
 	First(dst interface{}, clauses ...Clause) errors.Error
-	// All loads matched rows from database to `dst`, USE IT WITH COUTIOUS!!
+	// Count matched rows from database
 	Count(clauses ...Clause) (int64, errors.Error)
 	// Pluck used to query single column
 	Pluck(column string, dest interface{}, clauses ...Clause) errors.Error
@@ -75,8 +102,12 @@ type Dal interface {
 	Create(entity interface{}, clauses ...Clause) errors.Error
 	// Update updates record
 	Update(entity interface{}, clauses ...Clause) errors.Error
-	// UpdateColumns batch records in database
-	UpdateColumns(entity interface{}, clauses ...Clause) errors.Error
+	// UpdateColumn allows you to update multiple records
+	UpdateColumn(entity interface{}, columnName string, value interface{}, clauses ...Clause) errors.Error
+	// UpdateColumns allows you to update multiple columns of multiple records
+	UpdateColumns(entity interface{}, set []DalSet, clauses ...Clause) errors.Error
+	// UpdateAllColumn updated all Columns of entity
+	UpdateAllColumn(entity interface{}, clauses ...Clause) errors.Error
 	// CreateOrUpdate tries to create the record, or fallback to update all if failed
 	CreateOrUpdate(entity interface{}, clauses ...Clause) errors.Error
 	// CreateIfNotExist tries to create the record if not exist
@@ -85,18 +116,52 @@ type Dal interface {
 	Delete(entity interface{}, clauses ...Clause) errors.Error
 	// AllTables returns all tables in database
 	AllTables() ([]string, errors.Error)
+	// DropTables drops all specified tables
+	DropTables(dst ...interface{}) errors.Error
+	// RenameTable renames table name
+	RenameTable(oldName, newName string) errors.Error
 	// GetColumns returns table columns in database
-	GetColumns(dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
-	// GetPrimarykeyFields get the PrimaryKey from `gorm` tag
+	GetColumns(dst Tabler, filter func(columnMeta ColumnMeta) bool) (cms []ColumnMeta, err errors.Error)
+	// GetPrimaryKeyFields get the PrimaryKey from `gorm` tag
 	GetPrimaryKeyFields(t reflect.Type) []reflect.StructField
-	// RenameTable rename the oldName table to newName
-	RenameTable(oldName interface{}, newName interface{}) errors.Error
-	// DropTable drop the table
-	DropTable(dst ...interface{}) errors.Error
+	// RenameColumn renames column name for specified table
+	RenameColumn(table, oldColumnName, newColumnName string) errors.Error
+	// DropIndexes drops all specified tables
+	DropIndexes(table string, indexes ...string) errors.Error
+	// Dialect returns the dialect of current database
+	Dialect() string
+}
+
+type Rows interface {
+	// Next prepares the next result row for reading with the Scan method. It
+	// returns true on success, or false if there is no next result row or an error
+	// happened while preparing it. Err should be consulted to distinguish between
+	// the two cases.
+	//
+	// Every call to Scan, even the first one, must be preceded by a call to Next.
+	Next() bool
+
+	// Close closes the Rows, preventing further enumeration. If Next is called
+	// and returns false and there are no further result sets,
+	// the Rows are closed automatically and it will suffice to check the
+	// result of Err. Close is idempotent and does not affect the result of Err.
+	Close() error
+
+	// Scan copies the columns in the current row into the values pointed at by dest.
+	// The number of values in dest must be the same as the number of columns in Rows.
+	Scan(dest ...any) error
+
+	// Columns returns the column names.
+	// Columns returns an error if the rows are closed.
+	Columns() ([]string, error)
+
+	// ColumnTypes returns column information such as column type, length,
+	// and nullable. Some information may not be available from some drivers.
+	ColumnTypes() ([]*sql.ColumnType, error)
 }
 
 // GetColumnNames returns table Column Names in database
-func GetColumnNames(d Dal, dst schema.Tabler, filter func(columnMeta ColumnMeta) bool) (names []string, err errors.Error) {
+func GetColumnNames(d Dal, dst Tabler, filter func(columnMeta ColumnMeta) bool) (names []string, err errors.Error) {
 	columns, err := d.GetColumns(dst, filter)
 	if err != nil {
 		return
@@ -108,7 +173,7 @@ func GetColumnNames(d Dal, dst schema.Tabler, filter func(columnMeta ColumnMeta)
 }
 
 // GetPrimarykeyColumns get returns PrimaryKey table Meta in database
-func GetPrimarykeyColumns(d Dal, dst schema.Tabler) ([]ColumnMeta, errors.Error) {
+func GetPrimarykeyColumns(d Dal, dst Tabler) ([]ColumnMeta, errors.Error) {
 	return d.GetColumns(dst, func(columnMeta ColumnMeta) bool {
 		isPrimaryKey, ok := columnMeta.PrimaryKey()
 		return isPrimaryKey && ok
@@ -116,7 +181,7 @@ func GetPrimarykeyColumns(d Dal, dst schema.Tabler) ([]ColumnMeta, errors.Error)
 }
 
 // GetPrimarykeyColumnNames get returns PrimaryKey Column Names in database
-func GetPrimarykeyColumnNames(d Dal, dst schema.Tabler) (names []string, err errors.Error) {
+func GetPrimarykeyColumnNames(d Dal, dst Tabler) (names []string, err errors.Error) {
 	pkColumns, err := GetPrimarykeyColumns(d, dst)
 	if err != nil {
 		return
@@ -130,6 +195,11 @@ func GetPrimarykeyColumnNames(d Dal, dst schema.Tabler) (names []string, err err
 type DalClause struct {
 	Expr   string
 	Params []interface{}
+}
+
+type DalSet struct {
+	ColumnName string
+	Value      interface{}
 }
 
 const JoinClause string = "Join"
@@ -163,15 +233,19 @@ func Offset(offset int) Clause {
 const FromClause string = "From"
 
 // From creates a new TableClause
-func From(table interface{}) Clause {
-	return Clause{Type: FromClause, Data: table}
+func From(table interface{}, params ...interface{}) Clause {
+	if len(params) == 0 {
+		return Clause{Type: FromClause, Data: table}
+	} else {
+		return Clause{Type: FromClause, Data: DalClause{table.(string), params}}
+	}
 }
 
 const SelectClause string = "Select"
 
 // Select creates a new TableClause
-func Select(fields string) Clause {
-	return Clause{Type: SelectClause, Data: fields}
+func Select(clause string, params ...interface{}) Clause {
+	return Clause{Type: SelectClause, Data: DalClause{clause, params}}
 }
 
 const OrderbyClause string = "OrderBy"

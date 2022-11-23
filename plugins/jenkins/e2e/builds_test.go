@@ -35,25 +35,29 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 	taskData := &tasks.JenkinsTaskData{
 		Options: &tasks.JenkinsOptions{
 			ConnectionId: 1,
+			JobName:      `devlake`,
+			JobPath:      `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
 		},
+		Job: &models.JenkinsJob{FullName: "Test-jenkins-dir » test-jenkins-sub-dir » test-sub-sub-dir » devlake"},
 	}
+
+	dataflowTester.FlushTabler(&models.JenkinsBuild{})
+	dataflowTester.FlushTabler(&models.JenkinsBuildCommit{})
+	dataflowTester.FlushTabler(&models.JenkinsStage{})
 
 	// import raw data table
 	// SELECT * FROM _raw_jenkins_api_builds INTO OUTFILE "/tmp/_raw_jenkins_api_builds.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jenkins_api_builds.csv", "_raw_jenkins_api_builds")
-
-	// verify extraction
-	dataflowTester.FlushTabler(&models.JenkinsBuild{})
-	dataflowTester.FlushTabler(&models.JenkinsBuildCommit{})
-	dataflowTester.FlushTabler(&models.JenkinsStage{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_jenkins_stages.csv", &models.JenkinsStage{})
 
 	dataflowTester.Subtask(tasks.ExtractApiBuildsMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.JenkinsBuild{},
 		"./snapshot_tables/_tool_jenkins_builds.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"job_name",
+			"job_path",
 			"duration",
 			"full_display_name",
 			"estimated_duration",
@@ -61,41 +65,45 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"result",
 			"timestamp",
 			"start_time",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+			"has_stages",
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		models.JenkinsBuildCommit{},
 		"./snapshot_tables/_tool_jenkins_build_commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"build_name",
 			"commit_sha",
 			"branch",
 			"repo_url",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.FlushTabler(&devops.CICDTask{})
 	dataflowTester.FlushTabler(&devops.CICDPipeline{})
 	dataflowTester.FlushTabler(&devops.CiCDPipelineCommit{})
-	dataflowTester.FlushTabler(&devops.CICDPipelineRelationship{})
 	dataflowTester.Subtask(tasks.EnrichApiBuildWithStagesMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.JenkinsBuild{},
+		"./snapshot_tables/_tool_jenkins_builds_after_enrich.csv",
+		[]string{
+			"connection_id",
+			"job_name",
+			"duration",
+			"full_display_name",
+			"has_stages",
+		},
+	)
+
 	dataflowTester.Subtask(tasks.ConvertBuildsToCICDMeta, taskData)
 	dataflowTester.Subtask(tasks.ConvertBuildReposMeta, taskData)
 
 	dataflowTester.VerifyTable(
 		devops.CICDTask{},
 		"./snapshot_tables/cicd_tasks.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"name",
 			"pipeline_id",
 			"result",
@@ -105,13 +113,14 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"duration_sec",
 			"started_date",
 			"finished_date",
-		},
+			"cicd_scope_id",
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		devops.CICDPipeline{},
 		"./snapshot_tables/cicd_pipelines.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"name",
 			"result",
 			"status",
@@ -120,27 +129,19 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"environment",
 			"created_date",
 			"finished_date",
-		},
-	)
-
-	dataflowTester.VerifyTable(
-		devops.CICDPipelineRelationship{},
-		"./snapshot_tables/cicd_pipeline_relationships.csv",
-		[]string{
-			"parent_pipeline_id",
-			"child_pipeline_id",
-		},
+			"cicd_scope_id",
+		),
 	)
 
 	dataflowTester.VerifyTable(
 		devops.CiCDPipelineCommit{},
 		"./snapshot_tables/cicd_pipeline_commits.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"pipeline_id",
 			"repo_id",
 			"repo_url",
 			"branch",
 			"commit_sha",
-		},
+		),
 	)
 }

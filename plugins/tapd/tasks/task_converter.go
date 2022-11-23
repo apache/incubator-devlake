@@ -50,10 +50,7 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
-	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
-	workspaceIdGen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
-	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
+	taskIdGen := didgen.NewDomainIdGenerator(&models.TapdTask{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdTask{}),
@@ -62,7 +59,7 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 			toolL := inputRow.(*models.TapdTask)
 			domainL := &ticket.Issue{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: issueIdGen.Generate(toolL.ConnectionId, toolL.Id),
+					Id: taskIdGen.Generate(toolL.ConnectionId, toolL.Id),
 				},
 				Url:            toolL.Url,
 				IssueKey:       strconv.FormatUint(toolL.Id, 10),
@@ -74,23 +71,25 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				ResolutionDate: (*time.Time)(toolL.Completed),
 				CreatedDate:    (*time.Time)(toolL.Created),
 				UpdatedDate:    (*time.Time)(toolL.Modified),
-				ParentIssueId:  issueIdGen.Generate(toolL.ConnectionId, toolL.StoryId),
+				ParentIssueId:  taskIdGen.Generate(toolL.ConnectionId, toolL.StoryId),
 				Priority:       toolL.Priority,
-				CreatorId:      accountIdGen.Generate(data.Options.ConnectionId, toolL.Creator),
+				CreatorId:      getAccountIdGen().Generate(data.Options.ConnectionId, toolL.Creator),
 				CreatorName:    toolL.Creator,
-				AssigneeId:     accountIdGen.Generate(data.Options.ConnectionId, toolL.Owner),
 				AssigneeName:   toolL.Owner,
+			}
+			if domainL.AssigneeName != "" {
+				domainL.AssigneeId = getAccountIdGen().Generate(data.Options.ConnectionId, toolL.Owner)
 			}
 			if domainL.ResolutionDate != nil && domainL.CreatedDate != nil {
 				domainL.LeadTimeMinutes = int64(domainL.ResolutionDate.Sub(*domainL.CreatedDate).Minutes())
 			}
 			results := make([]interface{}, 0, 2)
 			boardIssue := &ticket.BoardIssue{
-				BoardId: workspaceIdGen.Generate(toolL.WorkspaceId),
+				BoardId: getWorkspaceIdGen().Generate(toolL.ConnectionId, toolL.WorkspaceId),
 				IssueId: domainL.Id,
 			}
 			sprintIssue := &ticket.SprintIssue{
-				SprintId: iterIdGen.Generate(data.Options.ConnectionId, toolL.IterationId),
+				SprintId: getIterIdGen().Generate(data.Options.ConnectionId, toolL.IterationId),
 				IssueId:  domainL.Id,
 			}
 			results = append(results, domainL, boardIssue, sprintIssue)

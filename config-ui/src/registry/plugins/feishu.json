@@ -1,0 +1,12 @@
+{
+  "id": "feishu",
+  "name": "Feishu",
+  "type": "pipeline",
+  "enabled": true,
+  "multiConnection": false,
+  "isBeta": false,
+  "isProvider": false,
+  "icon": "src/images/integrations/feishu.svg",
+  "private": false,
+  "connection": null
+}

@@ -48,7 +48,7 @@ func TestSprintDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraSprint{},
 		"./snapshot_tables/_tool_jira_sprints.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"sprint_id",
 			"self",
@@ -58,11 +58,7 @@ func TestSprintDataFlow(t *testing.T) {
 			"end_date",
 			"complete_date",
 			"origin_board_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.VerifyTable(
@@ -74,11 +70,13 @@ func TestSprintDataFlow(t *testing.T) {
 	// verify sprint conversion
 	dataflowTester.FlushTabler(&ticket.Sprint{})
 	dataflowTester.FlushTabler(&ticket.BoardSprint{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_sprints_for_convertor.csv", &models.JiraBoardSprint{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_sprints_for_convertor.csv", &models.JiraSprint{})
 	dataflowTester.Subtask(tasks.ConvertSprintsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Sprint{},
 		"./snapshot_tables/sprints.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"url",
 			"status",
@@ -87,11 +85,14 @@ func TestSprintDataFlow(t *testing.T) {
 			"ended_date",
 			"completed_date",
 			"original_board_id",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		ticket.BoardSprint{},
 		"./snapshot_tables/board_sprints.csv",
-		[]string{"board_id", "sprint_id"},
+		e2ehelper.ColumnWithRawData(
+			"board_id",
+			"sprint_id",
+		),
 	)
 }

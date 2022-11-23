@@ -18,6 +18,8 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
@@ -34,7 +36,10 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	taskData := &tasks.JenkinsTaskData{
 		Options: &tasks.JenkinsOptions{
 			ConnectionId: 1,
+			JobName:      `devlake`,
+			JobPath:      `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
 		},
+		Job: &models.JenkinsJob{FullName: "Test-jenkins-dir » test-jenkins-sub-dir » test-sub-sub-dir » devlake"},
 	}
 
 	// import raw data table
@@ -47,17 +52,24 @@ func TestJenkinsJobsDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JenkinsJob{},
 		"./snapshot_tables/_tool_jenkins_jobs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
+			"full_name",
 			"name",
 			"path",
 			"class",
 			"color",
 			"base",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+			"url",
+			"description",
+			"primary_view",
+		),
 	)
+
+	dataflowTester.FlushTabler(&devops.CicdScope{})
+	dataflowTester.Subtask(tasks.ConvertJobsMeta, taskData)
+	dataflowTester.VerifyTableWithOptions(&devops.CicdScope{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_scopes.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

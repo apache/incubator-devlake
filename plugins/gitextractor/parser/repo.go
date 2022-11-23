@@ -508,6 +508,32 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 			updateSnapshotFileBlame(curcommit, deleted, added, lastFile, snapshot)
 		}
 	}
+	r.logger.Info("line change collect success")
+	db := subtaskCtx.GetDal()
+	err := db.Delete(&code.RepoSnapshot{}, dal.Where("repo_id= ?", r.id))
+	if err != nil {
+		return errors.Convert(err)
+	}
+	for fp := range snapshot {
+		temp := snapshot[fp]
+		count := 0
+		for e := temp.Lines.Front(); e != nil; e = e.Next() {
+			count++
+			snapshotLine := &code.RepoSnapshot{}
+			snapshotLine.RepoId = r.id
+			snapshotLine.LineNo = count
+			snapshotLine.CommitSha = e.Value.(string)
+			snapshotLine.FilePath = fp
+			err := r.store.RepoSnapshot(snapshotLine)
+			if err != nil {
+				r.logger.Info("error")
+				return err
+			}
+		}
+
+	}
+
+	r.logger.Info("collect snapshot finished")
 	return nil
 }
 

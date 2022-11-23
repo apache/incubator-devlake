@@ -34,15 +34,19 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 	taskData := &tasks.JenkinsTaskData{
 		Options: &tasks.JenkinsOptions{
 			ConnectionId: 1,
+			JobName:      `devlake`,
+			JobPath:      `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
 		},
+		Job: &models.JenkinsJob{FullName: "Test-jenkins-dir » test-jenkins-sub-dir » test-sub-sub-dir » devlake"},
 	}
 
 	// import raw data table
 	// SELECT * FROM _raw_jenkins_api_stages INTO OUTFILE "/tmp/_raw_jenkins_api_stages.csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jenkins_api_stages.csv", "_raw_jenkins_api_stages")
+	dataflowTester.FlushTabler(&models.JenkinsBuild{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_jenkins_builds_for_stages.csv", models.JenkinsBuild{})
 
 	// import tool table
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jenkins_builds.csv", models.JenkinsBuild{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jenkins_build_commits.csv", models.JenkinsBuildCommit{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/cicd_tasks.csv", devops.CICDTask{})
 
@@ -52,7 +56,7 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JenkinsStage{},
 		"./snapshot_tables/_tool_jenkins_stages.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"name",
@@ -63,11 +67,7 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 			"pause_duration_millis",
 			"build_name",
 			"type",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.FlushTabler(&devops.CICDTask{})
@@ -75,7 +75,7 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		devops.CICDTask{},
 		"./snapshot_tables/cicd_tasks_after_stages.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"name",
 			"pipeline_id",
@@ -86,10 +86,7 @@ func TestJenkinsStagesDataFlow(t *testing.T) {
 			"started_date",
 			"finished_date",
 			"environment",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+			"cicd_scope_id",
+		),
 	)
 }

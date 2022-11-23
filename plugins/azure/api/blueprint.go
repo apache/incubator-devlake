@@ -19,6 +19,7 @@ package api
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -31,8 +32,8 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 	for i, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
 		taskOptions := make(map[string]interface{})
-		err = errors.Default.Wrap(json.Unmarshal(scopeElem.Options, &taskOptions), "unable to deserialize pipeline task options")
-		if err != nil {
+		err1 := json.Unmarshal(scopeElem.Options, &taskOptions)
+		if err1 != nil {
 			return nil, errors.Default.Wrap(err, "unable to deserialize pipeline task options")
 		}
 		taskOptions["connectionId"] = connectionId

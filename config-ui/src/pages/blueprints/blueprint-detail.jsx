@@ -41,7 +41,7 @@ import {
 } from '@blueprintjs/core'
 import { NullBlueprint } from '@/data/NullBlueprint'
 import { NullPipelineRun } from '@/data/NullPipelineRun'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+// import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import {
   StageStatus,
   TaskStatus,
@@ -50,22 +50,20 @@ import {
   StatusBgColors
 } from '@/data/Task'
 
-import Nav from '@/components/Nav'
-import Sidebar from '@/components/Sidebar'
-import Content from '@/components/Content'
 // import TaskActivity from '@/components/pipelines/TaskActivity'
 import CodeInspector from '@/components/pipelines/CodeInspector'
 import StageLane from '@/components/pipelines/StageLane'
 import { ToastNotification } from '@/components/Toast'
 import BlueprintNavigationLinks from '@/components/blueprints/BlueprintNavigationLinks'
 
+import useIntegrations from '@/hooks/useIntegrations'
 import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import usePaginator from '@/hooks/usePaginator'
 
 const BlueprintDetail = (props) => {
-  // eslint-disable-next-line no-unused-vars
-  const history = useHistory()
+  const { integrations: Integrations, ProviderLabels } = useIntegrations()
+
   const { bId } = useParams()
 
   const [blueprintId, setBlueprintId] = useState()
@@ -73,7 +71,6 @@ const BlueprintDetail = (props) => {
   // eslint-disable-next-line no-unused-vars
   const [blueprintConnections, setBlueprintConnections] = useState([])
   const [blueprintPipelines, setBlueprintPipelines] = useState([])
-  const [lastPipeline, setLastPipeline] = useState()
   const [inspectedPipeline, setInspectedPipeline] = useState(NullPipelineRun)
   const [currentRun, setCurrentRun] = useState()
   const [showCurrentRunTasks, setShowCurrentRunTasks] = useState(true)
@@ -88,39 +85,11 @@ const BlueprintDetail = (props) => {
   const [isDownloading, setIsDownloading] = useState(false)
 
   const {
-    // eslint-disable-next-line no-unused-vars
     blueprint,
-    blueprints,
-    name,
-    cronConfig,
-    customCronConfig,
-    cronPresets,
-    tasks,
-    detectedProviderTasks,
-    enable,
-    setName: setBlueprintName,
-    setCronConfig,
-    setCustomCronConfig,
-    setTasks: setBlueprintTasks,
-    setDetectedProviderTasks,
-    setEnable: setEnableBlueprint,
-    isFetching: isFetchingBlueprints,
-    isSaving,
-    isDeleting,
-    createCronExpression: createCron,
-    getCronSchedule: getSchedule,
-    getCronPreset,
-    getCronPresetByConfig,
     getNextRunDate,
     activateBlueprint,
     deactivateBlueprint,
-    // eslint-disable-next-line no-unused-vars
-    fetchBlueprint,
-    fetchAllBlueprints,
-    saveBlueprint,
-    deleteBlueprint,
-    saveComplete,
-    deleteComplete
+    fetchBlueprint
   } = useBlueprintManager()
 
   const {
@@ -138,7 +107,9 @@ const BlueprintDetail = (props) => {
     // eslint-disable-next-line no-unused-vars
     detectPipelineProviders,
     logfile: pipelineLogFilename,
-    getPipelineLogfile
+    getPipelineLogfile,
+    rerunAllFailedTasks,
+    rerunTask
   } = usePipelineManager()
 
   const {
@@ -174,8 +145,6 @@ const BlueprintDetail = (props) => {
       } else {
         activateBlueprint(blueprint)
       }
-      // fetchBlueprint(blueprint?.id)
-      // fetchAllPipelines()
     },
     [activateBlueprint, deactivateBlueprint]
   )
@@ -211,8 +180,6 @@ const BlueprintDetail = (props) => {
     setInspectedPipeline(NullPipelineRun)
     setShowInspector(false)
   }, [])
-
-  const cancelRun = () => {}
 
   const getTaskStatusIcon = (status) => {
     let icon = null
@@ -281,9 +248,9 @@ const BlueprintDetail = (props) => {
   useEffect(() => {
     if (blueprintId) {
       fetchBlueprint(blueprintId)
-      fetchAllPipelines()
+      fetchAllPipelines(blueprintId)
     }
-  }, [blueprintId, fetchBlueprint, fetchAllPipelines])
+  }, [lastRunId, autoRefresh, blueprintId, fetchBlueprint, fetchAllPipelines])
 
   useEffect(() => {
     console.log('>>>> SETTING ACTIVE BLUEPRINT...', blueprint)
@@ -304,7 +271,7 @@ const BlueprintDetail = (props) => {
           dataScope: connection?.scope
             .map((s) => [`${s.options?.owner}/${s?.options?.repo}`])
             .join(', '),
-          dataEntities: []
+          dataDomains: []
         }))
       )
       setPipelineSettings({
@@ -313,7 +280,7 @@ const BlueprintDetail = (props) => {
         plan: blueprint?.plan
       })
     }
-  }, [blueprint, setPipelineSettings])
+  }, [blueprint, setPipelineSettings, ProviderLabels])
 
   useEffect(() => {
     console.log('>>>> FETCHED ALL PIPELINES..', pipelines, activeBlueprint?.id)
@@ -324,7 +291,7 @@ const BlueprintDetail = (props) => {
 
   useEffect(() => {
     console.log('>>>> RELATED BLUEPRINT PIPELINES..', blueprintPipelines)
-    setLastPipeline(blueprintPipelines[0])
+    fetchPipeline(blueprintPipelines[0]?.id)
     setHistoricalRuns(
       blueprintPipelines.map((p, pIdx) => ({
         id: p.id,
@@ -346,46 +313,14 @@ const BlueprintDetail = (props) => {
 
   useEffect(() => {
     if (
-      lastPipeline?.id &&
+      activePipeline?.id &&
       [
         TaskStatus.CREATED,
         TaskStatus.RUNNING,
         TaskStatus.COMPLETE,
         TaskStatus.FAILED
-      ].includes(lastPipeline.status)
+      ].includes(activePipeline.status)
     ) {
-      fetchPipeline(lastPipeline?.id)
-      setCurrentRun((cR) => ({
-        ...cR,
-        id: lastPipeline.id,
-        status: lastPipeline.status,
-        statusLabel: TaskStatusLabels[lastPipeline.status],
-        icon: getTaskStatusIcon(lastPipeline.status),
-        startedAt: lastPipeline.beganAt
-          ? dayjs(lastPipeline.beganAt).format('L LTS')
-          : '-',
-        duration: [TaskStatus.CREATED, TaskStatus.RUNNING].includes(
-          lastPipeline.status
-        )
-          ? dayjs(lastPipeline.beganAt || lastPipeline.createdAt).toNow(true)
-          : dayjs(lastPipeline.beganAt).from(
-              lastPipeline.finishedAt || lastPipeline.updatedAt,
-              true
-            ),
-        stage: `Stage ${lastPipeline.stage}`,
-        tasksFinished: Number(lastPipeline.finishedTasks),
-        tasksTotal: Number(lastPipeline.totalTasks),
-        error: lastPipeline.message || null
-      }))
-    }
-  }, [fetchPipeline, lastPipeline])
-
-  useEffect(() => {
-    fetchAllPipelines()
-  }, [lastRunId, fetchAllPipelines])
-
-  useEffect(() => {
-    if (activePipeline?.id && activePipeline?.id !== null) {
       setCurrentStages(buildPipelineStages(activePipeline.tasks))
       setAutoRefresh(
         [TaskStatus.RUNNING, TaskStatus.CREATED].includes(
@@ -394,43 +329,49 @@ const BlueprintDetail = (props) => {
       )
       setCurrentRun((cR) => ({
         ...cR,
-        startedAt: activePipeline?.beganAt
-          ? dayjs(activePipeline?.beganAt).format('L LTS')
+        id: activePipeline.id,
+        status: activePipeline.status,
+        statusLabel: TaskStatusLabels[activePipeline.status],
+        icon: getTaskStatusIcon(activePipeline.status),
+        startedAt: activePipeline.beganAt
+          ? dayjs(activePipeline.beganAt).format('L LTS')
           : '-',
+        duration: [TaskStatus.CREATED, TaskStatus.RUNNING].includes(
+          activePipeline.status
+        )
+          ? dayjs(activePipeline.beganAt || activePipeline.createdAt).toNow(
+              true
+            )
+          : dayjs(activePipeline.beganAt).from(
+              activePipeline.finishedAt || activePipeline.updatedAt,
+              true
+            ),
         stage: `Stage ${activePipeline.stage}`,
-        status: activePipeline?.status,
-        statusLabel: TaskStatusLabels[activePipeline?.status],
-        icon: getTaskStatusIcon(activePipeline?.status)
+        tasksFinished: Number(activePipeline.finishedTasks),
+        tasksTotal: Number(activePipeline.totalTasks),
+        error: activePipeline.message || null
       }))
     }
-  }, [activePipeline, buildPipelineStages])
+  }, [activePipeline])
 
   useEffect(() => {
     console.log('>> BUILDING CURRENT STAGES...', currentStages)
   }, [currentStages])
 
   useEffect(() => {
-    if (autoRefresh && activePipeline?.id) {
-      console.log('>> ACTIVITY POLLING ENABLED!')
-      pollInterval.current = setInterval(() => {
-        fetchPipeline(activePipeline?.id)
-        // setLastPipeline(activePipeline)
-      }, pollTimer)
-    } else {
-      console.log('>> ACTIVITY POLLING DISABLED!')
-      clearInterval(pollInterval.current)
-      if (activePipeline?.id) {
-        fetchPipeline(activePipeline?.id)
-        fetchAllPipelines()
+    if (activePipeline?.id) {
+      if (autoRefresh) {
+        console.log('>> ACTIVITY POLLING ENABLED!')
+        pollInterval.current = setInterval(() => {
+          fetchPipeline(activePipeline?.id)
+          // setLastPipeline(activePipeline)
+        }, pollTimer)
+        return () => {
+          clearInterval(pollInterval.current)
+        }
       }
     }
-  }, [
-    autoRefresh,
-    fetchPipeline,
-    fetchAllPipelines,
-    activePipeline?.id,
-    pollTimer
-  ])
+  }, [autoRefresh, fetchPipeline, activePipeline?.id, pollTimer])
 
   // useEffect(() => {
   //   console.log('>> VIEW PIPELINE RUN....', expandRun)
@@ -438,471 +379,458 @@ const BlueprintDetail = (props) => {
 
   return (
     <>
-      <div className='container'>
-        <Nav />
-        <Sidebar />
-        <Content>
-          <main className='main'>
-            <div
-              className='blueprint-header'
-              style={{
-                display: 'flex',
-                width: '100%',
-                justifyContent: 'space-between',
-                marginBottom: '10px'
-              }}
-            >
-              <div className='blueprint-name' style={{}}>
-                <h2 style={{ fontWeight: 'bold' }}>{activeBlueprint?.name}</h2>
-              </div>
-              <div
-                className='blueprint-info'
-                style={{ display: 'flex', alignItems: 'center' }}
+      <main className='main'>
+        <div
+          className='blueprint-header'
+          style={{
+            display: 'flex',
+            width: '100%',
+            justifyContent: 'space-between',
+            marginBottom: '10px'
+          }}
+        >
+          <div className='blueprint-name' style={{}}>
+            <h2 style={{ fontWeight: 'bold' }}>{activeBlueprint?.name}</h2>
+          </div>
+          <div
+            className='blueprint-info'
+            style={{ display: 'flex', alignItems: 'center' }}
+          >
+            <div className='blueprint-schedule'>
+              <span
+                className='blueprint-schedule-interval'
+                style={{ textTransform: 'capitalize', padding: '0 10px' }}
               >
-                <div className='blueprint-schedule'>
-                  <span
-                    className='blueprint-schedule-interval'
-                    style={{ textTransform: 'capitalize', padding: '0 10px' }}
-                  >
-                    {activeBlueprint?.interval} (at{' '}
-                    {dayjs(getNextRunDate(activeBlueprint?.cronConfig)).format(
-                      'hh:mm A'
-                    )}
-                    )
-                  </span>{' '}
-                  &nbsp;{' '}
-                  <span className='blueprint-schedule-nextrun'>
-                    {activeBlueprint?.isManual ? (
-                      <strong>Manual Mode</strong>
-                    ) : (
-                      <>
-                        Next Run{' '}
-                        {dayjs(
-                          getNextRunDate(activeBlueprint?.cronConfig)
-                        ).fromNow()}
-                      </>
-                    )}
-                  </span>
-                </div>
-                <div
-                  className='blueprint-actions'
-                  style={{ padding: '0 10px' }}
-                >
-                  <Button
-                    intent={Intent.PRIMARY}
-                    small
-                    text='Run Now'
-                    onClick={runBlueprint}
-                    disabled={
-                      !activeBlueprint?.enable ||
-                      [TaskStatus.CREATED, TaskStatus.RUNNING].includes(
-                        currentRun?.status
-                      )
-                    }
-                  />
-                </div>
-                <div className='blueprint-enabled'>
-                  <Switch
-                    id='blueprint-enable'
-                    name='blueprint-enable'
-                    checked={activeBlueprint?.enable}
-                    label={
-                      activeBlueprint?.enable
-                        ? 'Blueprint Enabled'
-                        : 'Blueprint Disabled'
-                    }
-                    onChange={() => handleBlueprintActivation(activeBlueprint)}
-                    style={{
-                      marginBottom: 0,
-                      marginTop: 0,
-                      color: !activeBlueprint?.enable ? Colors.GRAY3 : 'inherit'
-                    }}
-                    disabled={currentRun?.status === TaskStatus.RUNNING}
-                  />
-                </div>
-                <div style={{ padding: '0 10px' }}>
-                  <Button
-                    intent={Intent.PRIMARY}
-                    icon='trash'
-                    small
-                    minimal
-                    disabled
-                  />
-                </div>
-              </div>
-            </div>
-
-            <BlueprintNavigationLinks blueprint={activeBlueprint} />
-
-            <div
-              className='blueprint-run'
-              style={{
-                width: '100%',
-                alignSelf: 'flex-start',
-                minWidth: '750px'
-              }}
-            >
-              <h3>Current Run</h3>
-              <Card
-                className={`current-run status-${currentRun?.status.toLowerCase()}`}
-                elevation={Elevation.TWO}
-                style={{ padding: '12px', marginBottom: '8px' }}
-              >
-                {currentRun && (
-                  <div
-                    style={{ display: 'flex', justifyContent: 'space-between' }}
-                  >
-                    <div>
-                      <label style={{ color: '#94959F' }}>Status</label>
-                      <div style={{ display: 'flex' }}>
-                        <span style={{ marginRight: '6px', marginTop: '2px' }}>
-                          {currentRun?.icon}
-                        </span>
-                        <h4
-                          className={`status-${currentRun?.status.toLowerCase()}`}
-                          style={{ fontSize: '15px', margin: 0, padding: 0 }}
-                        >
-                          {currentRun?.statusLabel}
-                        </h4>
-                      </div>
-                    </div>
-                    <div>
-                      <label style={{ color: '#94959F' }}>Started at</label>
-                      <h4 style={{ fontSize: '15px', margin: 0, padding: 0 }}>
-                        {currentRun?.startedAt}
-                      </h4>
-                    </div>
-                    <div>
-                      <label style={{ color: '#94959F' }}>Duration</label>
-                      <h4 style={{ fontSize: '15px', margin: 0, padding: 0 }}>
-                        {currentRun?.duration}
-                      </h4>
-                    </div>
-                    <div>
-                      <label style={{ color: '#94959F' }}>Current Stage</label>
-                      <h4 style={{ fontSize: '15px', margin: 0, padding: 0 }}>
-                        {currentRun?.stage}
-                      </h4>
-                    </div>
-                    <div>
-                      <label style={{ color: '#94959F' }}>
-                        Tasks Completed
-                      </label>
-                      <h4 style={{ fontSize: '15px', margin: 0, padding: 0 }}>
-                        {currentRun?.tasksFinished} / {currentRun?.tasksTotal}
-                      </h4>
-                    </div>
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <div style={{ display: 'block' }}>
-                        {/* <Button intent={Intent.PRIMARY} outlined text='Cancel' onClick={cancelRun} /> */}
-                        <Popover
-                          key='popover-help-key-cancel-run'
-                          className='trigger-pipeline-cancel'
-                          popoverClassName='popover-pipeline-cancel'
-                          position={Position.BOTTOM}
-                          autoFocus={false}
-                          enforceFocus={false}
-                          usePortal={true}
-                          disabled={currentRun?.status !== 'TASK_RUNNING'}
-                        >
-                          <Button
-                            // icon='stop'
-                            text='Cancel'
-                            intent={Intent.PRIMARY}
-                            outlined
-                            disabled={currentRun?.status !== 'TASK_RUNNING'}
-                          />
-                          <>
-                            <div
-                              style={{
-                                fontSize: '12px',
-                                padding: '12px',
-                                maxWidth: '200px'
-                              }}
-                            >
-                              <p>
-                                Are you Sure you want to cancel this{' '}
-                                <strong>Pipeline Run</strong>?
-                              </p>
-                              <div
-                                style={{
-                                  display: 'flex',
-                                  width: '100%',
-                                  justifyContent: 'flex-end'
-                                }}
-                              >
-                                <Button
-                                  text='NO'
-                                  minimal
-                                  small
-                                  className={Classes.POPOVER_DISMISS}
-                                  style={{
-                                    marginLeft: 'auto',
-                                    marginRight: '3px'
-                                  }}
-                                />
-                                <Button
-                                  className={Classes.POPOVER_DISMISS}
-                                  text='YES'
-                                  icon='small-tick'
-                                  intent={Intent.DANGER}
-                                  small
-                                  onClick={() => cancelPipeline(currentRun?.id)}
-                                />
-                              </div>
-                            </div>
-                          </>
-                        </Popover>
-                      </div>
-                    </div>
-                  </div>
+                {activeBlueprint?.interval} (at{' '}
+                {dayjs(getNextRunDate(activeBlueprint?.cronConfig)).format(
+                  'hh:mm A'
                 )}
-                {!currentRun && (
+                )
+              </span>{' '}
+              &nbsp;{' '}
+              <span className='blueprint-schedule-nextrun'>
+                {activeBlueprint?.isManual ? (
+                  <strong>Manual Mode</strong>
+                ) : (
                   <>
-                    <p style={{ margin: 0 }}>
-                      There is no current run for this blueprint.
-                    </p>
+                    Next Run{' '}
+                    {dayjs(
+                      getNextRunDate(activeBlueprint?.cronConfig)
+                    ).fromNow()}
                   </>
                 )}
-                {currentRun?.error && (
-                  <div style={{ marginTop: '10px' }}>
-                    <p className='error-msg' style={{ color: '#E34040' }}>
-                      {currentRun?.error}
-                    </p>
-                  </div>
-                )}
-              </Card>
-              {currentRun && (
-                <Card
-                  elevation={Elevation.TWO}
-                  style={{ padding: '12px', marginBottom: '8px' }}
-                >
-                  <div
-                    className='blueprint-run-activity'
-                    style={{ display: 'flex', width: '100%' }}
-                  >
-                    <div
-                      className='pipeline-task-activity'
-                      style={{
-                        flex: 1,
-                        padding:
-                          Object.keys(currentStages).length === 1 ? '0' : 0,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}
-                    >
-                      {Object.keys(currentStages).length > 0 && (
-                        <div className='pipeline-multistage-activity'>
-                          {Object.keys(currentStages).map((sK, sIdx) => (
-                            <StageLane
-                              key={`stage-lane-key-${sIdx}`}
-                              stages={currentStages}
-                              sK={sK}
-                              sIdx={sIdx}
-                              showStageTasks={showCurrentRunTasks}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <Button
-                      icon={
-                        showCurrentRunTasks ? 'chevron-down' : 'chevron-right'
-                      }
-                      intent={Intent.NONE}
-                      minimal
-                      small
-                      style={{
-                        textAlign: 'center',
-                        display: 'block',
-                        float: 'right',
-                        margin: '0 10px',
-                        marginBottom: 'auto'
-                      }}
-                      onClick={() => setShowCurrentRunTasks((s) => !s)}
-                    />
-                  </div>
-                </Card>
-              )}
+              </span>
             </div>
+            <div className='blueprint-actions' style={{ padding: '0 10px' }}>
+              <Button
+                intent={Intent.PRIMARY}
+                small
+                text='Run Now'
+                onClick={runBlueprint}
+                disabled={
+                  !activeBlueprint?.enable ||
+                  [TaskStatus.CREATED, TaskStatus.RUNNING].includes(
+                    currentRun?.status
+                  )
+                }
+              />
+            </div>
+            <div className='blueprint-enabled'>
+              <Switch
+                id='blueprint-enable'
+                name='blueprint-enable'
+                checked={activeBlueprint?.enable}
+                label={
+                  activeBlueprint?.enable
+                    ? 'Blueprint Enabled'
+                    : 'Blueprint Disabled'
+                }
+                onChange={() => handleBlueprintActivation(activeBlueprint)}
+                style={{
+                  marginBottom: 0,
+                  marginTop: 0,
+                  color: !activeBlueprint?.enable ? Colors.GRAY3 : 'inherit'
+                }}
+                disabled={currentRun?.status === TaskStatus.RUNNING}
+              />
+            </div>
+            <div style={{ padding: '0 10px' }}>
+              <Button
+                intent={Intent.PRIMARY}
+                icon='trash'
+                small
+                minimal
+                disabled
+              />
+            </div>
+          </div>
+        </div>
 
-            <div
-              className='blueprint-historical-runs'
-              style={{
-                width: '100%',
-                alignSelf: 'flex-start',
-                minWidth: '750px'
-              }}
-            >
-              <h3>Historical Runs</h3>
-              <Card
-                elevation={Elevation.TWO}
-                style={{ padding: '0', marginBottom: '8px' }}
-              >
-                <table
-                  className='bp3-html-table bp3-html-table historical-runs-table'
-                  style={{ width: '100%' }}
+        <BlueprintNavigationLinks blueprint={activeBlueprint} />
+
+        <div
+          className='blueprint-run'
+          style={{
+            width: '100%',
+            alignSelf: 'flex-start',
+            minWidth: '750px'
+          }}
+        >
+          <h3>Current Run</h3>
+          <Card
+            className={`current-run status-${currentRun?.status.toLowerCase()}`}
+            elevation={Elevation.TWO}
+            style={{ padding: '12px', marginBottom: '8px' }}
+          >
+            {currentRun && (
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div>
+                  <label style={{ color: '#94959F' }}>Status</label>
+                  <div style={{ display: 'flex' }}>
+                    <span style={{ marginRight: '6px', marginTop: '2px' }}>
+                      {currentRun?.icon}
+                    </span>
+                    <h4
+                      className={`status-${currentRun?.status.toLowerCase()}`}
+                      style={{ fontSize: '15px', margin: 0, padding: 0 }}
+                    >
+                      {currentRun?.statusLabel}
+                    </h4>
+                  </div>
+                </div>
+                <div>
+                  <label style={{ color: '#94959F' }}>Started at</label>
+                  <h4 style={{ fontSize: '15px', margin: 0, padding: 0 }}>
+                    {currentRun?.startedAt}
+                  </h4>
+                </div>
+                <div>
+                  <label style={{ color: '#94959F' }}>Duration</label>
+                  <h4 style={{ fontSize: '15px', margin: 0, padding: 0 }}>
+                    {currentRun?.duration}
+                  </h4>
+                </div>
+                <div>
+                  <label style={{ color: '#94959F' }}>Current Stage</label>
+                  <h4 style={{ fontSize: '15px', margin: 0, padding: 0 }}>
+                    {currentRun?.stage}
+                  </h4>
+                </div>
+                <div>
+                  <label style={{ color: '#94959F' }}>Tasks Completed</label>
+                  <h4 style={{ fontSize: '15px', margin: 0, padding: 0 }}>
+                    {currentRun?.tasksFinished} / {currentRun?.tasksTotal}
+                  </h4>
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}
                 >
-                  <thead>
-                    <tr>
-                      <th style={{ minWidth: '100px', whiteSpace: 'nowrap' }}>
-                        Status
-                      </th>
-                      <th style={{ minWidth: '100px', whiteSpace: 'nowrap' }}>
-                        Started at
-                      </th>
-                      <th style={{ minWidth: '100px', whiteSpace: 'nowrap' }}>
-                        Completed at
-                      </th>
-                      <th style={{ minWidth: '100px', whiteSpace: 'nowrap' }}>
-                        Duration
-                      </th>
-                      <th style={{ width: '100%', whiteSpace: 'nowrap' }} />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pagedHistoricalRuns.map((run, runIdx) => (
-                      <tr key={`historical-run-key-${runIdx}`}>
-                        <td
-                          style={{
-                            width: '15%',
-                            whiteSpace: 'nowrap',
-                            borderBottom: '1px solid #f0f0f0'
-                          }}
-                        >
-                          <span
+                  {currentRun?.status === 'TASK_RUNNING' && (
+                    <div style={{ display: 'block' }}>
+                      {/* <Button intent={Intent.PRIMARY} outlined text='Cancel' onClick={cancelRun} /> */}
+                      <Popover
+                        key='popover-help-key-cancel-run'
+                        className='trigger-pipeline-cancel'
+                        popoverClassName='popover-pipeline-cancel'
+                        position={Position.BOTTOM}
+                        autoFocus={false}
+                        enforceFocus={false}
+                        usePortal={true}
+                      >
+                        <Button
+                          // icon='stop'
+                          text='Cancel'
+                          intent={Intent.PRIMARY}
+                          outlined
+                        />
+                        <>
+                          <div
                             style={{
-                              display: 'inline-block',
-                              float: 'left',
-                              marginRight: '5px'
+                              fontSize: '12px',
+                              padding: '12px',
+                              maxWidth: '200px'
                             }}
                           >
-                            {run.statusIcon}
-                          </span>{' '}
-                          {run.statusLabel}
-                        </td>
-                        <td
-                          style={{
-                            width: '25%',
-                            whiteSpace: 'nowrap',
-                            borderBottom: '1px solid #f0f0f0'
-                          }}
-                        >
-                          {run.startedAt}
-                        </td>
-                        <td
-                          style={{
-                            width: '25%',
-                            whiteSpace: 'nowrap',
-                            borderBottom: '1px solid #f0f0f0'
-                          }}
-                        >
-                          {run.completedAt}
-                        </td>
-                        <td
-                          style={{
-                            width: '15%',
-                            whiteSpace: 'nowrap',
-                            borderBottom: '1px solid #f0f0f0'
-                          }}
-                        >
-                          {run.duration}
-                        </td>
-                        <td
-                          style={{
-                            textAlign: 'right',
-                            borderBottom: '1px solid #f0f0f0',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          <Tooltip intent={Intent.PRIMARY} content='View JSON'>
-                            <Button
-                              intent={Intent.PRIMARY}
-                              minimal
-                              small
-                              icon='code'
-                              onClick={() =>
-                                inspectRun(
-                                  blueprintPipelines.find(
-                                    (p) => p.id === run.id
-                                  )
-                                )
-                              }
-                            />
-                          </Tooltip>
-                          <Tooltip
-                            intent={Intent.PRIMARY}
-                            content='Download Full Log'
-                          >
-                            <Button
-                              intent={Intent.NONE}
-                              loading={isDownloading}
-                              minimal
-                              small
-                              icon='document'
-                              style={{ marginLeft: '10px' }}
-                              onClick={() =>
-                                downloadPipelineLog(
-                                  blueprintPipelines.find(
-                                    (p) => p.id === run.id
-                                  )
-                                )
-                              }
-                            />
-                          </Tooltip>
-                          <Tooltip
-                            intent={Intent.PRIMARY}
-                            content='Show Run Activity'
-                          >
-                            <Button
-                              intent={Intent.PRIMARY}
-                              minimal
-                              small
-                              icon={
-                                expandRun?.id === run.id
-                                  ? 'chevron-down'
-                                  : 'chevron-right'
-                              }
-                              style={{ marginLeft: '10px' }}
-                              onClick={() =>
-                                viewPipelineRun(
-                                  blueprintPipelines.find(
-                                    (p) => p.id === run.id
-                                  )
-                                )
-                              }
-                            />
-                          </Tooltip>
-                        </td>
-                      </tr>
-                    ))}
-                    {historicalRuns.length === 0 && (
-                      <tr>
-                        <td colSpan={5}>
-                          There are no historical runs associated with this
-                          blueprint.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </Card>
-            </div>
-            {historicalRuns.length > 0 && (
-              <div style={{ alignSelf: 'flex-end', padding: '10px' }}>
-                {renderPagnationControls()}
+                            <p>
+                              Are you Sure you want to cancel this{' '}
+                              <strong>Pipeline Run</strong>?
+                            </p>
+                            <div
+                              style={{
+                                display: 'flex',
+                                width: '100%',
+                                justifyContent: 'flex-end'
+                              }}
+                            >
+                              <Button
+                                text='NO'
+                                minimal
+                                small
+                                className={Classes.POPOVER_DISMISS}
+                                style={{
+                                  marginLeft: 'auto',
+                                  marginRight: '3px'
+                                }}
+                              />
+                              <Button
+                                className={Classes.POPOVER_DISMISS}
+                                text='YES'
+                                icon='small-tick'
+                                intent={Intent.DANGER}
+                                small
+                                onClick={() => cancelPipeline(currentRun?.id)}
+                              />
+                            </div>
+                          </div>
+                        </>
+                      </Popover>
+                    </div>
+                  )}
+                  {currentRun?.status === TaskStatus.COMPLETE && (
+                    <Button
+                      intent={Intent.PRIMARY}
+                      onClick={rerunAllFailedTasks}
+                    >
+                      Run Failed Tasks
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
-          </main>
-        </Content>
-      </div>
+            {!currentRun && (
+              <>
+                <p style={{ margin: 0 }}>
+                  There is no current run for this blueprint.
+                </p>
+              </>
+            )}
+            {currentRun?.error && (
+              <div style={{ marginTop: '10px' }}>
+                <p className='error-msg' style={{ color: '#E34040' }}>
+                  {currentRun?.error}
+                </p>
+              </div>
+            )}
+          </Card>
+          {currentRun && (
+            <Card
+              elevation={Elevation.TWO}
+              style={{ padding: '12px', marginBottom: '8px' }}
+            >
+              <div
+                className='blueprint-run-activity'
+                style={{ display: 'flex', width: '100%' }}
+              >
+                <div
+                  className='pipeline-task-activity'
+                  style={{
+                    flex: 1,
+                    padding: Object.keys(currentStages).length === 1 ? '0' : 0,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                >
+                  {Object.keys(currentStages).length > 0 && (
+                    <div className='pipeline-multistage-activity'>
+                      {Object.keys(currentStages).map((sK, sIdx) => (
+                        <StageLane
+                          key={`stage-lane-key-${sIdx}`}
+                          stages={currentStages}
+                          sK={sK}
+                          sIdx={sIdx}
+                          showStageTasks={showCurrentRunTasks}
+                          rerunTask={rerunTask}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <Button
+                  icon={showCurrentRunTasks ? 'chevron-down' : 'chevron-right'}
+                  intent={Intent.NONE}
+                  minimal
+                  small
+                  style={{
+                    textAlign: 'center',
+                    display: 'block',
+                    float: 'right',
+                    margin: '0 10px',
+                    marginBottom: 'auto'
+                  }}
+                  onClick={() => setShowCurrentRunTasks((s) => !s)}
+                />
+              </div>
+            </Card>
+          )}
+        </div>
+
+        <div
+          className='blueprint-historical-runs'
+          style={{
+            width: '100%',
+            alignSelf: 'flex-start',
+            minWidth: '750px'
+          }}
+        >
+          <h3>Historical Runs</h3>
+          <Card
+            elevation={Elevation.TWO}
+            style={{ padding: '0', marginBottom: '8px' }}
+          >
+            <table
+              className='bp3-html-table bp3-html-table historical-runs-table'
+              style={{ width: '100%' }}
+            >
+              <thead>
+                <tr>
+                  <th style={{ minWidth: '100px', whiteSpace: 'nowrap' }}>
+                    Status
+                  </th>
+                  <th style={{ minWidth: '100px', whiteSpace: 'nowrap' }}>
+                    Started at
+                  </th>
+                  <th style={{ minWidth: '100px', whiteSpace: 'nowrap' }}>
+                    Completed at
+                  </th>
+                  <th style={{ minWidth: '100px', whiteSpace: 'nowrap' }}>
+                    Duration
+                  </th>
+                  <th style={{ width: '100%', whiteSpace: 'nowrap' }} />
+                </tr>
+              </thead>
+              <tbody>
+                {pagedHistoricalRuns.map((run, runIdx) => (
+                  <tr key={`historical-run-key-${runIdx}`}>
+                    <td
+                      style={{
+                        width: '15%',
+                        whiteSpace: 'nowrap',
+                        borderBottom: '1px solid #f0f0f0'
+                      }}
+                    >
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          float: 'left',
+                          marginRight: '5px'
+                        }}
+                      >
+                        {run.statusIcon}
+                      </span>{' '}
+                      {run.statusLabel}
+                    </td>
+                    <td
+                      style={{
+                        width: '25%',
+                        whiteSpace: 'nowrap',
+                        borderBottom: '1px solid #f0f0f0'
+                      }}
+                    >
+                      {run.startedAt}
+                    </td>
+                    <td
+                      style={{
+                        width: '25%',
+                        whiteSpace: 'nowrap',
+                        borderBottom: '1px solid #f0f0f0'
+                      }}
+                    >
+                      {run.completedAt}
+                    </td>
+                    <td
+                      style={{
+                        width: '15%',
+                        whiteSpace: 'nowrap',
+                        borderBottom: '1px solid #f0f0f0'
+                      }}
+                    >
+                      {run.duration}
+                    </td>
+                    <td
+                      style={{
+                        textAlign: 'right',
+                        borderBottom: '1px solid #f0f0f0',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      <Tooltip intent={Intent.PRIMARY} content='View JSON'>
+                        <Button
+                          intent={Intent.PRIMARY}
+                          minimal
+                          small
+                          icon='code'
+                          onClick={() =>
+                            inspectRun(
+                              blueprintPipelines.find((p) => p.id === run.id)
+                            )
+                          }
+                        />
+                      </Tooltip>
+                      <Tooltip
+                        intent={Intent.PRIMARY}
+                        content='Download Full Log'
+                      >
+                        <Button
+                          intent={Intent.NONE}
+                          loading={isDownloading}
+                          minimal
+                          small
+                          icon='document'
+                          style={{ marginLeft: '10px' }}
+                          onClick={() =>
+                            downloadPipelineLog(
+                              blueprintPipelines.find((p) => p.id === run.id)
+                            )
+                          }
+                        />
+                      </Tooltip>
+                      <Tooltip
+                        intent={Intent.PRIMARY}
+                        content='Show Run Activity'
+                      >
+                        <Button
+                          intent={Intent.PRIMARY}
+                          minimal
+                          small
+                          icon={
+                            expandRun?.id === run.id
+                              ? 'chevron-down'
+                              : 'chevron-right'
+                          }
+                          style={{ marginLeft: '10px' }}
+                          onClick={() =>
+                            viewPipelineRun(
+                              blueprintPipelines.find((p) => p.id === run.id)
+                            )
+                          }
+                        />
+                      </Tooltip>
+                    </td>
+                  </tr>
+                ))}
+                {historicalRuns.length === 0 && (
+                  <tr>
+                    <td colSpan={5}>
+                      There are no historical runs associated with this
+                      blueprint.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </Card>
+        </div>
+        {historicalRuns.length > 0 && (
+          <div style={{ alignSelf: 'flex-end', padding: '10px' }}>
+            {renderPagnationControls()}
+          </div>
+        )}
+      </main>
       <CodeInspector
         isOpen={showInspector}
         activePipeline={inspectedPipeline}

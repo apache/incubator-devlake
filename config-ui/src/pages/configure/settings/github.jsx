@@ -29,7 +29,7 @@ import {
   Position,
   Intent
 } from '@blueprintjs/core'
-import { DataEntityTypes } from '@/data/DataEntities'
+import { DataDomainTypes } from '@/data/DataDomains'
 import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 
 import '@/styles/integration.scss'
@@ -39,41 +39,25 @@ export default function GithubSettings(props) {
   const {
     provider,
     connection,
-    entities = [],
+    dataDomains = [],
     transformation = {},
-    entityIdKey,
     isSaving,
     isSavingConnection,
-    onSettingsChange = () => {},
-    configuredProject
+    onSettingsChange = () => {}
   } = props
-
-  // eslint-disable-next-line no-unused-vars
-  const [errors, setErrors] = useState([])
   const [enableAdditionalCalculations, setEnableAdditionalCalculations] =
     useState(false)
 
-  // eslint-disable-next-line no-unused-vars
-  const handleSettingsChange = useCallback(
-    (setting) => {
-      onSettingsChange(setting, configuredProject?.id)
+  const handleAdditionalEnable = useCallback(
+    (enable) => {
+      setEnableAdditionalCalculations(enable)
+      onSettingsChange({
+        refdiff: enable
+          ? { tagsOrder: '', tagsPattern: '', tagsLimit: 10 }
+          : null
+      })
     },
-    [onSettingsChange, configuredProject]
-  )
-
-  const handleAdditionalSettings = useCallback(
-    (setting) => {
-      setEnableAdditionalCalculations(setting)
-      onSettingsChange(
-        {
-          refdiff: setting
-            ? { tagsOrder: '', tagsPattern: '', tagsLimit: 10 }
-            : null
-        },
-        configuredProject?.id
-      )
-    },
-    [setEnableAdditionalCalculations, configuredProject, onSettingsChange]
+    [setEnableAdditionalCalculations, onSettingsChange]
   )
 
   useEffect(() => {
@@ -84,19 +68,9 @@ export default function GithubSettings(props) {
     setEnableAdditionalCalculations(!!transformation?.refdiff)
   }, [transformation])
 
-  useEffect(() => {
-    console.log(
-      '>>>> GITHUB: ENABLE GITHUB ADDITIONAL SETTINGS..?',
-      enableAdditionalCalculations
-    )
-    if (enableAdditionalCalculations === 'disabled') {
-      // onSettingsChange({gitextractorCalculation: ''}, configuredProject)
-    }
-  }, [enableAdditionalCalculations])
-
   return (
     <>
-      {entities.some((e) => e.value === DataEntityTypes.TICKET) && (
+      {dataDomains.some((e) => e.value === DataDomainTypes.TICKET) && (
         <>
           <h5>
             Issue Tracking{' '}
@@ -124,10 +98,7 @@ export default function GithubSettings(props) {
                   // defaultValue={transformation?.issueSeverity}
                   value={transformation?.issueSeverity}
                   onChange={(e) =>
-                    onSettingsChange(
-                      { issueSeverity: e.target.value },
-                      configuredProject?.id
-                    )
+                    onSettingsChange({ issueSeverity: e.target.value })
                   }
                   disabled={isSaving || isSavingConnection}
                   className='input'
@@ -150,10 +121,7 @@ export default function GithubSettings(props) {
                   placeholder='component/(.*)$'
                   value={transformation?.issueComponent}
                   onChange={(e) =>
-                    onSettingsChange(
-                      { issueComponent: e.target.value },
-                      configuredProject?.id
-                    )
+                    onSettingsChange({ issueComponent: e.target.value })
                   }
                   disabled={isSaving || isSavingConnection}
                   className='input'
@@ -175,10 +143,7 @@ export default function GithubSettings(props) {
                   placeholder='(highest|high|medium|low)$'
                   value={transformation?.issuePriority}
                   onChange={(e) =>
-                    onSettingsChange(
-                      { issuePriority: e.target.value },
-                      configuredProject?.id
-                    )
+                    onSettingsChange({ issuePriority: e.target.value })
                   }
                   disabled={isSaving || isSavingConnection}
                   className='input'
@@ -200,10 +165,7 @@ export default function GithubSettings(props) {
                   placeholder='(feat|feature|proposal|requirement)$'
                   value={transformation?.issueTypeRequirement}
                   onChange={(e) =>
-                    onSettingsChange(
-                      { issueTypeRequirement: e.target.value },
-                      configuredProject?.id
-                    )
+                    onSettingsChange({ issueTypeRequirement: e.target.value })
                   }
                   disabled={isSaving || isSavingConnection}
                   className='input'
@@ -225,10 +187,7 @@ export default function GithubSettings(props) {
                   placeholder='(bug|broken)$'
                   value={transformation?.issueTypeBug}
                   onChange={(e) =>
-                    onSettingsChange(
-                      { issueTypeBug: e.target.value },
-                      configuredProject?.id
-                    )
+                    onSettingsChange({ issueTypeBug: e.target.value })
                   }
                   disabled={isSaving || isSavingConnection}
                   className='input'
@@ -261,10 +220,7 @@ export default function GithubSettings(props) {
                   placeholder='(incident|p0|p1|p2)$'
                   value={transformation?.issueTypeIncident}
                   onChange={(e) =>
-                    onSettingsChange(
-                      { issueTypeIncident: e.target.value },
-                      configuredProject?.id
-                    )
+                    onSettingsChange({ issueTypeIncident: e.target.value })
                   }
                   disabled={isSaving || isSavingConnection}
                   className='input'
@@ -276,20 +232,16 @@ export default function GithubSettings(props) {
         </>
       )}
 
-      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) &&
-        configuredProject && (
-          <Deployment
-            provider={provider}
-            entities={entities}
-            entityIdKey={entityIdKey}
-            transformation={transformation}
-            connection={connection}
-            onSettingsChange={onSettingsChange}
-            isSaving={isSaving || isSavingConnection}
-          />
-        )}
+      {dataDomains.some((e) => e.value === DataDomainTypes.DEVOPS) && (
+        <Deployment
+          provider={provider}
+          transformation={transformation}
+          onSettingsChange={onSettingsChange}
+          isSaving={isSaving || isSavingConnection}
+        />
+      )}
 
-      {entities.some((e) => e.value === DataEntityTypes.CODE_REVIEW) && (
+      {dataDomains.some((e) => e.value === DataDomainTypes.CODE_REVIEW) && (
         <>
           <h5>
             Code Review{' '}
@@ -316,12 +268,7 @@ export default function GithubSettings(props) {
                   id='github-pr-type'
                   placeholder='type/(.*)$'
                   value={transformation?.prType}
-                  onChange={(e) =>
-                    onSettingsChange(
-                      { prType: e.target.value },
-                      configuredProject?.id
-                    )
-                  }
+                  onChange={(e) => onSettingsChange({ prType: e.target.value })}
                   disabled={isSaving || isSavingConnection}
                   className='input'
                   maxLength={255}
@@ -342,10 +289,7 @@ export default function GithubSettings(props) {
                   placeholder='component/(.*)$'
                   value={transformation?.prComponent}
                   onChange={(e) =>
-                    onSettingsChange(
-                      { prComponent: e.target.value },
-                      configuredProject?.id
-                    )
+                    onSettingsChange({ prComponent: e.target.value })
                   }
                   disabled={isSaving || isSavingConnection}
                   className='input'
@@ -433,10 +377,7 @@ export default function GithubSettings(props) {
                 // eslint-disable-next-line max-len
                 placeholder='(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and )?(#|https:\/\/github.com\/%s\/%s\/issues\/)\d+[ ]*)+)'
                 onChange={(e) =>
-                  onSettingsChange(
-                    { prBodyClosePattern: e.target.value },
-                    configuredProject?.id
-                  )
+                  onSettingsChange({ prBodyClosePattern: e.target.value })
                 }
                 disabled={isSaving || isSavingConnection}
                 fill
@@ -452,7 +393,7 @@ export default function GithubSettings(props) {
               checked={enableAdditionalCalculations}
               label='Enable calculation of commit and issue difference'
               onChange={(e) =>
-                handleAdditionalSettings(!enableAdditionalCalculations)
+                handleAdditionalEnable(!enableAdditionalCalculations)
               }
             />
             {enableAdditionalCalculations && (
@@ -472,15 +413,12 @@ export default function GithubSettings(props) {
                       placeholder='10'
                       allowNumericCharactersOnly={true}
                       onValueChange={(tagsLimitNumeric) =>
-                        onSettingsChange(
-                          {
-                            refdiff: {
-                              ...transformation?.refdiff,
-                              tagsLimit: tagsLimitNumeric
-                            }
-                          },
-                          configuredProject?.id
-                        )
+                        onSettingsChange({
+                          refdiff: {
+                            ...transformation?.refdiff,
+                            tagsLimit: tagsLimitNumeric
+                          }
+                        })
                       }
                       value={transformation?.refdiff?.tagsLimit}
                     />
@@ -497,15 +435,12 @@ export default function GithubSettings(props) {
                       placeholder='(regex)$'
                       value={transformation?.refdiff?.tagsPattern}
                       onChange={(e) =>
-                        onSettingsChange(
-                          {
-                            refdiff: {
-                              ...transformation?.refdiff,
-                              tagsPattern: e.target.value
-                            }
-                          },
-                          configuredProject?.id
-                        )
+                        onSettingsChange({
+                          refdiff: {
+                            ...transformation?.refdiff,
+                            tagsPattern: e.target.value
+                          }
+                        })
                       }
                       disabled={isSaving || isSavingConnection}
                       className='input'
@@ -524,15 +459,12 @@ export default function GithubSettings(props) {
                       placeholder='reverse semver'
                       value={transformation?.refdiff?.tagsOrder}
                       onChange={(e) =>
-                        onSettingsChange(
-                          {
-                            refdiff: {
-                              ...transformation?.refdiff,
-                              tagsOrder: e.target.value
-                            }
-                          },
-                          configuredProject?.id
-                        )
+                        onSettingsChange({
+                          refdiff: {
+                            ...transformation?.refdiff,
+                            tagsOrder: e.target.value
+                          }
+                        })
                       }
                       disabled={isSaving || isSavingConnection}
                       className='input'
@@ -546,8 +478,8 @@ export default function GithubSettings(props) {
         </>
       )}
 
-      {(entities?.length === 0 ||
-        entities.every((e) => e.value === DataEntityTypes.CROSSDOMAIN)) && (
+      {(dataDomains?.length === 0 ||
+        dataDomains.every((e) => e.value === DataDomainTypes.CROSSDOMAIN)) && (
         <div className='headlineContainer'>
           <h5>No Data Entities</h5>
           <p className='description'>

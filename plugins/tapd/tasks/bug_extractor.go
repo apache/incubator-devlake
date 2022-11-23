@@ -23,9 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"strings"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
@@ -43,30 +41,12 @@ var ExtractBugMeta = core.SubTaskMeta{
 func ExtractBugs(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_TABLE, false)
 	db := taskCtx.GetDal()
-	statusList := make([]*models.TapdBugStatus, 0)
-	clauses := []dal.Clause{
-		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
-	}
-	err := db.All(&statusList, clauses...)
+	statusList := make([]models.TapdBugStatus, 0)
+	statusLanguageMap, getStdStatus, err := getDefaltStdStatusMapping(data, db, statusList)
 	if err != nil {
 		return err
 	}
-
-	statusMap := make(map[string]string, len(statusList))
-	lastStatusMap := make(map[string]bool, len(statusList))
-	for _, v := range statusList {
-		statusMap[v.EnglishName] = v.ChineseName
-		lastStatusMap[v.ChineseName] = v.IsLastStep
-	}
-	getStdStatus := func(statusKey string) string {
-		if lastStatusMap[statusKey] {
-			return ticket.DONE
-		} else if statusKey == "新建" {
-			return ticket.TODO
-		} else {
-			return ticket.IN_PROGRESS
-		}
-	}
+	customStatusMap := getStatusMapping(data)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -81,10 +61,15 @@ func ExtractBugs(taskCtx core.SubTaskContext) errors.Error {
 			}
 			toolL := bugBody.Bug
 
-			toolL.Status = statusMap[toolL.Status]
+			toolL.Status = statusLanguageMap[toolL.Status]
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "BUG"
 			toolL.StdType = "BUG"
+			if len(customStatusMap) != 0 {
+				toolL.StdStatus = customStatusMap[toolL.Status]
+			} else {
+				toolL.StdStatus = getStdStatus(toolL.Status)
+			}
 			toolL.StdStatus = getStdStatus(toolL.Status)
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)
 			if strings.Contains(toolL.CurrentOwner, ";") {
