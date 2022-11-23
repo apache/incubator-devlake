@@ -22,7 +22,6 @@ import (
 	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
-	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/dora/impl"
 	"github.com/apache/incubator-devlake/plugins/dora/tasks"
@@ -49,8 +48,15 @@ func TestEnrichEnvDataFlow(t *testing.T) {
 
 	// verify enrich with repoId
 	dataflowTester.Subtask(tasks.EnrichTaskEnvMeta, taskData)
-	dataflowTester.VerifyTableWithOptions(&devops.CICDTask{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/enrich_cicd_tasks.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
-	})
+	dataflowTester.VerifyTable(
+		&devops.CICDTask{},
+		"./snapshot_tables/enrich_cicd_tasks.csv",
+		[]string{
+			"id",
+			"name",
+			"environment",
+			"type",
+			"cicd_scope_id",
+		},
+	)
 }
