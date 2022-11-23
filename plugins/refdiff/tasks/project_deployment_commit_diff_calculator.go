@@ -27,6 +27,20 @@ import (
 	"github.com/apache/incubator-devlake/plugins/refdiff/utils"
 )
 
+func CommitDiffConvertor(pipelineCommitShaList []string, existFinishedCommitDiff []code.FinishedCommitsDiffs) (commitPairs []code.CommitsDiff, finishedCommitDiffs []code.FinishedCommitsDiffs) {
+	for i := 0; i < len(pipelineCommitShaList)-1; i++ {
+		for _, item := range existFinishedCommitDiff {
+			if pipelineCommitShaList[i+1] == item.NewCommitSha && pipelineCommitShaList[i] == item.OldCommitSha {
+				i++
+				break
+			}
+		}
+		commitPairs = append(commitPairs, code.CommitsDiff{NewCommitSha: pipelineCommitShaList[i+1], OldCommitSha: pipelineCommitShaList[i]})
+		finishedCommitDiffs = append(finishedCommitDiffs, code.FinishedCommitsDiffs{NewCommitSha: pipelineCommitShaList[i+1], OldCommitSha: pipelineCommitShaList[i]})
+	}
+	return commitPairs, finishedCommitDiffs
+}
+
 func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	db := taskCtx.GetDal()
@@ -48,8 +62,8 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 	}
 	defer cursorScope.Close()
 
-	var ExistFinishedCommitDiff []code.FinishedCommitsDiffs
-	err = db.All(&ExistFinishedCommitDiff,
+	var existFinishedCommitDiff []code.FinishedCommitsDiffs
+	err = db.All(&existFinishedCommitDiff,
 		dal.Select("*"),
 		dal.From("finished_commits_diffs"),
 	)
@@ -64,8 +78,8 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 			return err
 		}
 
-		var commitShaList []string
-		err := db.All(&commitShaList,
+		var pipelineCommitShaList []string
+		err := db.All(&pipelineCommitShaList,
 			dal.Select("commit_sha"),
 			dal.From("cicd_tasks ct"),
 			dal.Join("left join cicd_pipelines cp on cp.id = ct.pipeline_id"),
@@ -76,19 +90,8 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 		if err != nil {
 			return err
 		}
-
-		var commitPairs []code.CommitsDiff
-		var finishedCommitDiffs []code.FinishedCommitsDiffs
-
-		for i := 0; i < len(commitShaList)-1; i++ {
-			for _, item := range ExistFinishedCommitDiff {
-				if commitShaList[i+1] == item.NewCommitSha && commitShaList[i] == item.OldCommitSha {
-					i++
-				}
-			}
-			commitPairs = append(commitPairs, code.CommitsDiff{NewCommitSha: commitShaList[i+1], OldCommitSha: commitShaList[i]})
-			finishedCommitDiffs = append(finishedCommitDiffs, code.FinishedCommitsDiffs{NewCommitSha: commitShaList[i+1], OldCommitSha: commitShaList[i]})
-		}
+		// generate commitPairs and finishedCommitDiffs
+		commitPairs, finishedCommitDiffs := CommitDiffConvertor(pipelineCommitShaList, existFinishedCommitDiff)
 
 		insertCountLimitOfDeployCommitsDiff := int(65535 / reflect.ValueOf(code.CommitsDiff{}).NumField())
 		commitNodeGraph := utils.NewCommitNodeGraph()
@@ -149,6 +152,10 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 						return err
 					}
 					commitsDiffs = []code.CommitsDiff{}
+					err = db.CreateIfNotExist(finishedCommitDiffs)
+					if err != nil {
+						return err
+					}
 				}
 
 				commitsDiff.SortingIndex++

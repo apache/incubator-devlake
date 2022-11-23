@@ -141,6 +141,10 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 					return err
 				}
 				commitsDiffs = []code.CommitsDiff{}
+				err = db.CreateIfNotExist(finishedCommitDiffs)
+				if err != nil {
+					return err
+				}
 			}
 
 			commitsDiff.SortingIndex++
