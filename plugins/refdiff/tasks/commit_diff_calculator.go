@@ -141,10 +141,6 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 					return err
 				}
 				commitsDiffs = []code.CommitsDiff{}
-				err = db.CreateIfNotExist(finishedCommitDiffs)
-				if err != nil {
-					return err
-				}
 			}
 
 			commitsDiff.SortingIndex++
@@ -156,7 +152,10 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 			if err != nil {
 				return err
 			}
-			finishedCommitDiffs = append(finishedCommitDiffs, *finishedCommitDiff)
+		}
+
+		finishedCommitDiffs = append(finishedCommitDiffs, *finishedCommitDiff)
+		if len(finishedCommitDiffs) > 0 {
 			err = db.CreateIfNotExist(finishedCommitDiffs)
 			if err != nil {
 				return err

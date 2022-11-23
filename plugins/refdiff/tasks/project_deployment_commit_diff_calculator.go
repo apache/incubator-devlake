@@ -152,10 +152,6 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 						return err
 					}
 					commitsDiffs = []code.CommitsDiff{}
-					err = db.CreateIfNotExist(finishedCommitDiffs)
-					if err != nil {
-						return err
-					}
 				}
 
 				commitsDiff.SortingIndex++
@@ -167,6 +163,9 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 				if err != nil {
 					return err
 				}
+			}
+
+			if len(finishedCommitDiffs) > 0 {
 				err = db.CreateIfNotExist(finishedCommitDiffs)
 				if err != nil {
 					return err
