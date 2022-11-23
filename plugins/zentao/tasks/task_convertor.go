@@ -44,7 +44,7 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	storyIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
-	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
+	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
 	taskIdGen := didgen.NewDomainIdGenerator(&models.ZentaoTask{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoTask{}),
