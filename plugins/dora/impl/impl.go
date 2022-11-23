@@ -20,8 +20,6 @@ package impl
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/dora/api"
-
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/dora/models/migrationscripts"
@@ -118,7 +116,32 @@ func (plugin Dora) MigrationScripts() []core.MigrationScript {
 }
 
 func (plugin Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (core.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(projectName, options)
+	plan := core.PipelinePlan{}
+	op := &tasks.DoraOptions{}
+	err := json.Unmarshal(options, op)
+	if err != nil {
+		return nil, errors.Default.WrapRaw(err)
+	}
+	stageDeploymentCommitdiff := core.PipelineStage{
+		{
+			Plugin:   "refdiff",
+			Subtasks: []string{"calculateDeploymentDiffs"},
+			Options: map[string]interface{}{
+				"projectName": projectName,
+			},
+		},
+	}
+	stageDora := core.PipelineStage{
+		{
+			Plugin: "dora",
+			Options: map[string]interface{}{
+				"projectName": projectName,
+			},
+		},
+	}
+	plan = append(plan, stageDeploymentCommitdiff, stageDora)
+
+	return plan, nil
 }
 
 func (plugin Dora) Close(taskCtx core.TaskContext) errors.Error {

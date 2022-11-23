@@ -15,7 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package impl
 
 import (
 	"encoding/json"
@@ -24,25 +24,23 @@ import (
 	"testing"
 )
 
-func TestMakePipelinePlan(t *testing.T) {
+func TestMakeMetricPluginPipelinePlanV200(t *testing.T) {
+	var dora Dora
 	const projectName = "TestMakePlanV200-project"
-	const productionPattern = "production--"
 	// mock dora plugin as a metric plugin
 	option := map[string]interface{}{
 		"projectName": projectName,
-		"transformationRules": map[string]interface{}{
-			"productionPattern": productionPattern,
-		},
 	}
 
 	optionJson, err := json.Marshal(option)
 	assert.Nil(t, err)
-	plan, err := MakePipelinePlan(projectName, optionJson)
+	plan, err := dora.MakeMetricPluginPipelinePlanV200(projectName, optionJson)
 	doraOutputPlan := core.PipelinePlan{
 		core.PipelineStage{
 			{
-				Plugin: "refdiff", Subtasks: []string{"calculateDeploymentDiffs"},
-				Options: map[string]interface{}{"projectName": projectName},
+				Plugin:   "refdiff",
+				Subtasks: []string{"calculateDeploymentDiffs"},
+				Options:  map[string]interface{}{"projectName": projectName},
 			},
 		},
 		core.PipelineStage{
