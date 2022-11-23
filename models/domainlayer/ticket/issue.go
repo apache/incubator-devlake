@@ -50,7 +50,6 @@ type Issue struct {
 	AssigneeName            string `gorm:"type:varchar(255)"`
 	Severity                string `gorm:"type:varchar(255)"`
 	Component               string `gorm:"type:varchar(255)"`
-	DeploymentId            string `gorm:"type:varchar(255)"`
 }
 
 func (Issue) TableName() string {
