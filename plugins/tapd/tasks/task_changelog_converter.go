@@ -60,10 +60,19 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_CHANGELOG_TABLE, false)
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
+	customStatusMap := getStatusMapping(data)
+	getTaskStdStatus := func(statusKey string) string {
+		if statusKey == "done" {
+			return ticket.DONE
+		} else if statusKey == "progressing" {
+			return ticket.IN_PROGRESS
+		} else {
+			return ticket.TODO
+		}
+	}
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdTaskChangelog{})
-	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdIssue{})
-	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
+	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdTask{})
 
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.task_id, tc.creator, _tool_tapd_task_changelog_items.*"),
@@ -88,13 +97,22 @@ func ConvertTaskChangelog(taskCtx core.SubTaskContext) errors.Error {
 					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Options.ConnectionId, cl.Id), cl.Field),
 				},
 				IssueId:           issueIdGen.Generate(data.Options.ConnectionId, cl.TaskId),
-				AuthorId:          accountIdGen.Generate(data.Options.ConnectionId, cl.Creator),
+				AuthorId:          getAccountIdGen().Generate(data.Options.ConnectionId, cl.Creator),
 				AuthorName:        cl.Creator,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,
 				OriginalFromValue: cl.ValueBeforeParsed,
 				OriginalToValue:   cl.ValueAfterParsed,
 				CreatedDate:       *cl.Created,
+			}
+			if domainCl.FieldName == "status" {
+				if len(customStatusMap) != 0 {
+					domainCl.FromValue = customStatusMap[domainCl.OriginalFromValue]
+					domainCl.ToValue = customStatusMap[domainCl.OriginalToValue]
+				} else {
+					domainCl.FromValue = getTaskStdStatus(domainCl.OriginalFromValue)
+					domainCl.ToValue = getTaskStdStatus(domainCl.OriginalToValue)
+				}
 			}
 
 			return []interface{}{

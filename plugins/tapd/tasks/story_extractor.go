@@ -23,9 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"strings"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
@@ -43,27 +41,15 @@ var ExtractStoryMeta = core.SubTaskMeta{
 func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_TABLE, false)
 	db := taskCtx.GetDal()
-	statusList := make([]*models.TapdStoryStatus, 0)
-	clauses := []dal.Clause{
-		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
-	}
-	err := db.All(&statusList, clauses...)
+	statusList := make([]models.TapdStoryStatus, 0)
+	statusLanguageMap, getStdStatus, err := getDefaltStdStatusMapping(data, db, statusList)
 	if err != nil {
 		return err
 	}
-
-	statusMap := make(map[string]string, len(statusList))
-	for _, v := range statusList {
-		statusMap[v.EnglishName] = v.ChineseName
-	}
-	getStdStatus := func(statusKey string) string {
-		if statusKey == "已实现" || statusKey == "已拒绝" || statusKey == "关闭" || statusKey == "已取消" || statusKey == "已解决" {
-			return ticket.DONE
-		} else if statusKey == "草稿" {
-			return ticket.TODO
-		} else {
-			return ticket.IN_PROGRESS
-		}
+	customStatusMap := getStatusMapping(data)
+	typeMap, err := getTypeMappings(data, db, "story")
+	if err != nil {
+		return err
 	}
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
@@ -72,15 +58,26 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 			var storyBody struct {
 				Story models.TapdStory
 			}
-			err := errors.Convert(json.Unmarshal(row.Data, &storyBody))
+			err = errors.Convert(json.Unmarshal(row.Data, &storyBody))
 			if err != nil {
 				return nil, err
 			}
 			toolL := storyBody.Story
-			toolL.Status = statusMap[toolL.Status]
+			toolL.Status = statusLanguageMap[toolL.Status]
+			if len(customStatusMap) != 0 {
+				toolL.StdStatus = customStatusMap[toolL.Status]
+			} else {
+				toolL.StdStatus = getStdStatus(toolL.Status)
+			}
+
 			toolL.ConnectionId = data.Options.ConnectionId
-			toolL.StdType = "REQUIREMENT"
-			toolL.StdStatus = getStdStatus(toolL.Status)
+
+			toolL.Type = typeMap.typeIdMappings[toolL.WorkitemTypeId]
+			toolL.StdType = typeMap.stdTypeMappings[toolL.Type]
+			if toolL.StdType == "" {
+				toolL.StdType = "REQUIREMENT"
+			}
+
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
@@ -122,4 +119,9 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
+}
+
+type typeMappings struct {
+	typeIdMappings  map[uint64]string
+	stdTypeMappings map[string]string
 }

@@ -47,6 +47,7 @@ type CICDTask struct {
 	DurationSec  uint64
 	StartedDate  time.Time
 	FinishedDate *time.Time
+	CicdScopeId  string `gorm:"index;type:varchar(255)"`
 }
 
 func (CICDTask) TableName() string {

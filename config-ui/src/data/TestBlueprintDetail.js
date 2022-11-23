@@ -54,15 +54,13 @@ const TEST_CONNECTIONS = [
     id: 0,
     provider: Providers.GITHUB,
     name: 'Merico GitHub',
-    dataScope: 'merico-dev/ake, merico-dev/lake-website',
-    dataEntities: ['code', 'ticket', 'user']
+    dataScope: 'merico-dev/ake, merico-dev/lake-website'
   },
   {
     id: 0,
     provider: Providers.JIRA,
     name: 'Merico JIRA',
-    dataScope: 'Sprint Dev Board, DevLake Sync Board ',
-    dataEntities: ['ticket']
+    dataScope: 'Sprint Dev Board, DevLake Sync Board '
   }
 ]
 
@@ -145,6 +143,7 @@ const TEST_BLUEPRINT_API_RESPONSE = {
   enable: true,
   cronConfig: '0 0 * * *',
   isManual: false,
+  skipOnFail: false,
   settings: {
     version: '1.0.0',
     connections: [

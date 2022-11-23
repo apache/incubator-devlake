@@ -18,17 +18,17 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-	"github.com/apache/incubator-devlake/errors"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
+
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
 )
 
 type addPipelineID struct{}
 
-type GitlabJob20220804 struct {
+type gitlabJob20220804 struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 
 	GitlabId     int     `gorm:"primaryKey"`
@@ -50,14 +50,15 @@ type GitlabJob20220804 struct {
 	archived.NoPKModel
 }
 
-func (GitlabJob20220804) TableName() string {
+func (gitlabJob20220804) TableName() string {
 	return "_tool_gitlab_jobs"
 }
 
-func (*addPipelineID) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AddColumn(&GitlabJob20220804{}, "pipeline_id")
+func (*addPipelineID) Up(baseRes core.BasicRes) errors.Error {
+	db := baseRes.GetDal()
+	err := db.AutoMigrate(&gitlabJob20220804{})
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 	return nil
 }

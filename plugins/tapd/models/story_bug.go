@@ -19,6 +19,7 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/models/common"
+	"time"
 )
 
 type TapdStoryBug struct {
@@ -26,6 +27,7 @@ type TapdStoryBug struct {
 	WorkspaceId  uint64 `gorm:"primaryKey" json:"workspace_id"`
 	StoryId      uint64 `gorm:"primaryKey" json:"story_id,string"`
 	BugId        uint64 `gorm:"primaryKey" json:"bug_id,string"`
+	IssueUpdated *time.Time
 	common.NoPKModel
 }
 

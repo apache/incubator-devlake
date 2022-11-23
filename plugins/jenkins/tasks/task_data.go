@@ -27,10 +27,14 @@ import (
 
 type JenkinsApiParams struct {
 	ConnectionId uint64
+	JobName      string
+	JobPath      string
 }
 
 type JenkinsOptions struct {
 	ConnectionId               uint64 `json:"connectionId"`
+	JobName                    string `json:"jobName"`
+	JobPath                    string `json:"jobPath"`
 	Since                      string
 	Tasks                      []string `json:"tasks,omitempty"`
 	models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
@@ -41,6 +45,7 @@ type JenkinsTaskData struct {
 	ApiClient  *helper.ApiAsyncClient
 	Connection *models.JenkinsConnection
 	Since      *time.Time
+	Job        *models.JenkinsJob
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptions, errors.Error) {

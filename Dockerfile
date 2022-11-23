@@ -45,6 +45,14 @@ WORKDIR /app
 
 COPY --from=builder /app/bin /app/bin
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=builder /app/requirements.txt /app/requirements.txt
+COPY --from=builder /app/config/tap /app/config/tap
+
+# Setup Python
+RUN python -m venv /app/.venv
+RUN echo "source /app/.venv/bin/activate" >> ~/.profile
+RUN source ~/.profile
+RUN pip install --upgrade pip -r requirements.txt
 
 ENV PATH="/app/bin:${PATH}"
 

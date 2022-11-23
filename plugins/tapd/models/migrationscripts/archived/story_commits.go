@@ -20,6 +20,7 @@ package archived
 import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"time"
 )
 
 type TapdStoryCommit struct {
@@ -40,8 +41,8 @@ type TapdStoryCommit struct {
 	FileCommit      string          `json:"file_commit"`
 	CommitTime      *helper.CSTTime `json:"commit_time"`
 	Created         *helper.CSTTime `json:"created"`
-
-	StoryId uint64
+	IssueUpdated    *time.Time
+	StoryId         uint64
 	archived.NoPKModel
 }
 

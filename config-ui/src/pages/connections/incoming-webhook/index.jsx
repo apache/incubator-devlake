@@ -20,9 +20,6 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Icon, Button, Intent } from '@blueprintjs/core'
 
-import Nav from '@/components/Nav'
-import Sidebar from '@/components/Sidebar'
-import Content from '@/components/Content'
 import AppCrumbs from '@/components/Breadcrumbs'
 import { useWebhookManager } from '@/hooks/useWebhookManager'
 import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/incoming-webhook.svg'
@@ -53,8 +50,11 @@ export const IncomingWebhook = () => {
             ...r,
             postIssuesEndpoint: `${postUrlPrefix}${r.postIssuesEndpoint}`,
             closeIssuesEndpoint: `${postUrlPrefix}${r.closeIssuesEndpoint}`,
-            postPipelineTaskEndpoint: `${postUrlPrefix}${r.postPipelineTaskEndpoint}`,
-            closePipelineEndpoint: `${postUrlPrefix}${r.closePipelineEndpoint}`
+            postDeploymentsCurl: `curl ${postUrlPrefix}${r.postPipelineDeployTaskEndpoint} -X 'POST' -d "{
+  \\"commit_sha\\":\\"the sha of deployment commit\\",
+  \\"repo_url\\":\\"the repo URL of the deployment commit\\",
+  \\"start_time\\":\\"Optional, eg. 2020-01-01T12:00:00+00:00\\"
+}"`
           }
         : existingRecord
     )
@@ -67,98 +67,94 @@ export const IncomingWebhook = () => {
 
   return (
     <div className='container'>
-      <Nav />
-      <Sidebar />
-      <Content>
-        <div className='main'>
-          <AppCrumbs
-            items={[
-              { href: '/', icon: false, text: 'Dashboard' },
-              // use /connections replace here
-              { href: '/integrations', icon: false, text: 'Connections' },
-              {
-                href: '/connections/incoming-webhook',
-                icon: false,
-                text: 'Incoming Webhook',
-                current: true
-              }
-            ]}
-          />
-          <div className='headlineContainer'>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 12
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <WebHookProviderIcon
-                  className='providerIconSvg'
-                  width='30'
-                  height='30'
-                />
-                <h1 style={{ margin: '0 0 0 8px' }}>Incoming Webhook</h1>
-              </div>
-              <Link style={{ color: '#777777' }} to='/integrations'>
-                <Icon icon='undo' size={16} /> Go Back
-              </Link>
+      <div className='main'>
+        <AppCrumbs
+          items={[
+            { href: '/', icon: false, text: 'Dashboard' },
+            // use /connections replace here
+            { href: '/integrations', icon: false, text: 'Connections' },
+            {
+              href: '/connections/incoming-webhook',
+              icon: false,
+              text: 'Incoming Webhook',
+              current: true
+            }
+          ]}
+        />
+        <div className='headlineContainer'>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 12
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <WebHookProviderIcon
+                className='providerIconSvg'
+                width='30'
+                height='30'
+              />
+              <h1 style={{ margin: '0 0 0 8px' }}>Incoming Webhook</h1>
             </div>
-            <div className='page-description'>
-              Use Webhooks to define Incidents and Deployments for your CI tools
-              if they are not listed in Data Sources.
-            </div>
+            <Link style={{ color: '#777777' }} to='/integrations'>
+              <Icon icon='undo' size={16} /> Go Back
+            </Link>
           </div>
-          <div className='manageProvider'>
-            <S.Container>
-              <span>
-                <Button
-                  intent='primary'
-                  text='Add Incoming Webhook'
-                  loading={operating}
-                  onClick={() => handleShowModal('add')}
-                />
-              </span>
-              <S.Wrapper>
-                <S.Grid className='title'>
-                  <li>ID</li>
-                  <li>Incoming Webhook Name</li>
-                  <li />
-                </S.Grid>
-                {loading ? (
-                  <div>Loading</div>
-                ) : (
-                  data.map((it) => (
-                    <S.Grid key={it.id}>
-                      <li>{it.id}</li>
-                      <li>{it.name}</li>
-                      <li>
-                        <Button
-                          loading={operating}
-                          intent={Intent.PRIMARY}
-                          minimal
-                          small
-                          icon={<EditIcon width={18} height={18} />}
-                          onClick={() => handleShowModal('edit', it)}
-                        />
-                        <Button
-                          loading={operating}
-                          intent={Intent.PRIMARY}
-                          minimal
-                          small
-                          icon={<DeleteIcon width={18} height={18} />}
-                          onClick={() => handleShowModal('delete', it)}
-                        />
-                      </li>
-                    </S.Grid>
-                  ))
-                )}
-              </S.Wrapper>
-            </S.Container>
+          <div className='page-description'>
+            Use Webhooks to define Incidents and Deployments for your CI tools
+            if they are not listed in Data Sources.
           </div>
         </div>
-      </Content>
+        <div className='manageProvider'>
+          <S.Container>
+            <span>
+              <Button
+                intent='primary'
+                text='Add Incoming Webhook'
+                loading={operating}
+                onClick={() => handleShowModal('add')}
+              />
+            </span>
+            <S.Wrapper>
+              <S.Grid className='title'>
+                <li>ID</li>
+                <li>Incoming Webhook Name</li>
+                <li />
+              </S.Grid>
+              {loading ? (
+                <div>Loading</div>
+              ) : (
+                data.map((it) => (
+                  <S.Grid key={it.id}>
+                    <li>{it.id}</li>
+                    <li>{it.name}</li>
+                    <li>
+                      <Button
+                        loading={operating}
+                        intent={Intent.PRIMARY}
+                        minimal
+                        small
+                        icon={<EditIcon width={18} height={18} />}
+                        onClick={() => handleShowModal('edit', it)}
+                      />
+                      <Button
+                        loading={operating}
+                        intent={Intent.PRIMARY}
+                        minimal
+                        small
+                        icon={<DeleteIcon width={18} height={18} />}
+                        onClick={() => handleShowModal('delete', it)}
+                      />
+                    </li>
+                  </S.Grid>
+                ))
+              )}
+            </S.Wrapper>
+          </S.Container>
+        </div>
+      </div>
       {modalType === 'add' && (
         <AddModal onSubmit={onCreate} onCancel={handleHideModal} />
       )}

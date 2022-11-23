@@ -1,0 +1,12 @@
+{
+  "id": "dbt",
+  "name": "DBT",
+  "type": "pipeline",
+  "enabled": true,
+  "multiConnection": false,
+  "isBeta": false,
+  "isProvider": false,
+  "icon": "src/images/integrations/dbt.svg",
+  "private": false,
+  "connection": null
+}

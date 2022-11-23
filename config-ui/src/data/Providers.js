@@ -22,12 +22,21 @@ import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jen
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
 import { ReactComponent as TapdProviderIcon } from '@/images/integrations/tapd.svg'
-// import GitExtractorIcon from '@/images/git.png'
-// import RefDiffIcon from '@/images/git-diff.png'
+import { ReactComponent as AzureProviderIcon } from '@/images/integrations/azure.svg'
+import { ReactComponent as BitbucketProviderIcon } from '@/images/integrations/bitbucket.svg'
+import { ReactComponent as GiteeProviderIcon } from '@/images/integrations/gitee.svg'
+import { RateLimitTooltip } from '@/data/ConnectionTooltips.js'
 import FeishuIcon from '@/images/feishu.png'
-// import DBTIcon from '@/images/dbt.png'
-// import AEIcon from '@/images/ae.png'
 
+/**
+ *  !! WARNING !! DO NOT USE (DEVELOPMENT USE ONLY)
+ *  Provider Configuration now managed by Plugin Registry,
+ *  This functionality is being replaced by the Integrations Manager Hook!
+ *  see src/hooks/useIntegrations.jsx for more information.
+ *  ---------------------------------------------------------------
+ */
+
+// @note: replaced by Integrations Hook
 const Providers = {
   NULL: 'null',
   GITLAB: 'gitlab',
@@ -40,15 +49,21 @@ const Providers = {
   AE: 'ae',
   DBT: 'dbt',
   STARROCKS: 'starrocks',
-  TAPD: 'tapd'
+  TAPD: 'tapd',
+  AZURE: 'azure',
+  BITBUCKET: 'bitbucket',
+  GITEE: 'gitee',
+  DORA: 'dora' // (not a true provider)
 }
 
+// @note: replaced by Integrations Hook
 const ProviderTypes = {
   PLUGIN: 'plugin',
   INTEGRATION: 'integration',
   PIPELINE: 'pipeline'
 }
 
+// @note: replaced by Integrations Hook
 const ProviderLabels = {
   NULL: 'NullProvider',
   GITLAB: 'GitLab',
@@ -61,9 +76,14 @@ const ProviderLabels = {
   AE: 'Analysis Engine (AE)',
   DBT: 'Data Build Tool (DBT)',
   STARROCKS: 'StarRocks',
-  TAPD: 'TAPD'
+  TAPD: 'TAPD',
+  AZURE: 'Azure CI',
+  BITBUCKET: 'BitBucket',
+  GITEE: 'Gitee',
+  DORA: 'DORA' // (not a true provider)
 }
 
+// @note: replaced by Integrations Hook and/or delete
 const ProviderConnectionLimits = {
   // (All providers are mult-connection, no source limits defined)
   // jenkins: null,
@@ -72,8 +92,8 @@ const ProviderConnectionLimits = {
   // gitlab: null
 }
 
-// NOTE: Not all fields may be referenced/displayed for a provider,
-// ie. JIRA prefers $token over $username and $password
+// @note: replaced by Integrations Hook
+// @todo: handle tooltips dynamically at form layer
 const ProviderFormLabels = {
   null: {
     name: 'Connection Name',
@@ -94,6 +114,7 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   },
@@ -107,6 +128,7 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   },
@@ -120,6 +142,7 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   },
@@ -159,6 +182,7 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   },
@@ -198,11 +222,55 @@ const ProviderFormLabels = {
     rateLimitPerHour: (
       <>
         Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
+      </>
+    )
+  },
+  azure: {
+    name: 'Connection Name',
+    endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
+    token: 'Basic Auth Token',
+    username: 'Username',
+    password: 'Password',
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
+      </>
+    )
+  },
+  bitbucket: {
+    name: 'Connection Name',
+    endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
+    token: 'Basic Auth Token',
+    username: 'Username',
+    password: 'Password',
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
+      </>
+    )
+  },
+  gitee: {
+    name: 'Connection Name',
+    endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
+    token: 'Basic Auth Token',
+    username: 'Username',
+    password: 'Password',
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
       </>
     )
   }
 }
 
+// @note: replaced by Integrations Hook
 const ProviderFormPlaceholders = {
   null: {
     name: 'eg. Enter Instance Name',
@@ -257,9 +325,37 @@ const ProviderFormPlaceholders = {
     username: 'eg. admin',
     password: 'eg. ************',
     rateLimitPerHour: '1000'
+  },
+  azure: {
+    name: 'eg. Azure',
+    endpoint: 'eg. https://api.azure.com/',
+    proxy: 'eg. http://proxy.localhost:8080',
+    token: 'eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
+    username: 'eg. admin',
+    password: 'eg. ************',
+    rateLimitPerHour: '1000'
+  },
+  bitbucket: {
+    name: 'eg. Bitbucket',
+    endpoint: 'eg. https://api.bitbucket.com/',
+    proxy: 'eg. http://proxy.localhost:8080',
+    token: 'eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
+    username: 'eg. admin',
+    password: 'eg. ************',
+    rateLimitPerHour: '1000'
+  },
+  gitee: {
+    name: 'eg. Gitee',
+    endpoint: 'eg. https://api.gitee.com/',
+    proxy: 'eg. http://proxy.localhost:8080',
+    token: 'eg. 4c5cbdb62c165e2b3d18, 40008ebccff9837bb8d2',
+    username: 'eg. admin',
+    password: 'eg. ************',
+    rateLimitPerHour: '1000'
   }
 }
 
+// @note: replaced by Integrations Hook
 const ProviderIcons = {
   [Providers.GITLAB]: (w, h) => (
     <GitlabProviderIcon width={w || 24} height={h || 24} />
@@ -282,9 +378,20 @@ const ProviderIcons = {
     <img src={FeishuIcon} width={w || 24} height={h || 24} />
   ),
   [Providers.AE]: (w, h) => <Icon icon='box' size={w || 24} />,
-  [Providers.DBT]: (w, h) => <Icon icon='box' size={w || 24} />
+  [Providers.DBT]: (w, h) => <Icon icon='box' size={w || 24} />,
+  // @todo: update with svg icons
+  [Providers.AZURE]: (w, h) => (
+    <AzureProviderIcon width={w || 24} height={h || 24} />
+  ),
+  [Providers.BITBUCKET]: (w, h) => (
+    <BitbucketProviderIcon width={w || 24} height={h || 24} />
+  ),
+  [Providers.GITEE]: (w, h) => (
+    <GiteeProviderIcon width={w || 24} height={h || 24} />
+  )
 }
 
+// @note: migrated to @data/ConnectionStatus
 const ConnectionStatus = {
   OFFLINE: 0,
   ONLINE: 1,
@@ -292,6 +399,7 @@ const ConnectionStatus = {
   TESTING: 3
 }
 
+// @note: migrated to @data/ConnectionStatus
 const ConnectionStatusLabels = {
   [ConnectionStatus.OFFLINE]: 'Offline',
   [ConnectionStatus.ONLINE]: 'Online',

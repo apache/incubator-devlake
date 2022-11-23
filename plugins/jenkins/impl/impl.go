@@ -19,9 +19,9 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
+	"strings"
 
-	"github.com/apache/incubator-devlake/migration"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/api"
@@ -36,7 +36,8 @@ var _ core.PluginMeta = (*Jenkins)(nil)
 var _ core.PluginInit = (*Jenkins)(nil)
 var _ core.PluginTask = (*Jenkins)(nil)
 var _ core.PluginApi = (*Jenkins)(nil)
-var _ core.Migratable = (*Jenkins)(nil)
+var _ core.PluginModel = (*Jenkins)(nil)
+var _ core.PluginMigration = (*Jenkins)(nil)
 var _ core.CloseablePluginTask = (*Jenkins)(nil)
 
 type Jenkins struct{}
@@ -68,6 +69,7 @@ func (plugin Jenkins) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
 		tasks.CollectApiJobsMeta,
 		tasks.ExtractApiJobsMeta,
+		tasks.ConvertJobsMeta,
 		tasks.CollectApiBuildsMeta,
 		tasks.ExtractApiBuildsMeta,
 		tasks.CollectApiStagesMeta,
@@ -104,6 +106,9 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 	if err != nil {
 		return nil, err
 	}
+	if !strings.HasSuffix(op.JobPath, "/") {
+		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
+	}
 	return &tasks.JenkinsTaskData{
 		Options:    op,
 		ApiClient:  apiClient,
@@ -115,7 +120,7 @@ func (plugin Jenkins) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/jenkins"
 }
 
-func (plugin Jenkins) MigrationScripts() []migration.Script {
+func (plugin Jenkins) MigrationScripts() []core.MigrationScript {
 	return migrationscripts.All()
 }
 
@@ -136,6 +141,9 @@ func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandl
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
+		},
+		"connections/:connectionId/proxy/rest/*path": {
+			"GET": api.Proxy,
 		},
 	}
 }

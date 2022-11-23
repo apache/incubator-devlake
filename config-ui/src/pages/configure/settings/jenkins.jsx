@@ -15,23 +15,9 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
-import {
-  Button,
-  ButtonGroup,
-  Classes,
-  Intent,
-  FormGroup,
-  InputGroup,
-  Radio,
-  RadioGroup,
-  Switch,
-  Tag,
-  Tooltip
-} from '@blueprintjs/core'
+import React from 'react'
 
-import { DataEntityTypes } from '@/data/DataEntities'
+import { DataDomainTypes } from '@/data/DataDomains'
 import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 
 import '@/styles/integration.scss'
@@ -40,49 +26,20 @@ import '@/styles/connections.scss'
 export default function JenkinsSettings(props) {
   const {
     provider,
-    transformation,
-    entityIdKey,
     connection,
-    entities = [],
-    onSettingsChange = () => {},
+    dataDomains = [],
+    transformation = {},
     isSaving = false,
-    isSavingConnection = false
+    isSavingConnection = false,
+    onSettingsChange = () => {}
   } = props
-  const history = useHistory()
-  const { providerId, connectionId } = useParams()
-
-  // eslint-disable-next-line max-len
-  const [errors, setErrors] = useState([])
-
-  const cancel = () => {
-    history.push(`/integrations/${provider.id}`)
-  }
-
-  // useEffect(() => {
-  //   setErrors(['This integration doesn’t require any configuration.'])
-  // }, [])
-
-  useEffect(() => {
-    onSettingsChange({
-      errors,
-      providerId,
-      connectionId
-    })
-  }, [errors, onSettingsChange, connectionId, providerId])
-
-  useEffect(() => {
-    console.log('>>> JENKINS: DATA ENTITIES...', entities)
-  }, [entities])
 
   return (
     <>
-      {entities.some((e) => e.value === DataEntityTypes.DEVOPS) ? (
+      {dataDomains.some((e) => e.value === DataDomainTypes.DEVOPS) ? (
         <Deployment
           provider={provider}
-          entities={entities}
-          entityIdKey={entityIdKey}
           transformation={transformation}
-          connection={connection}
           onSettingsChange={onSettingsChange}
           isSaving={isSaving || isSavingConnection}
         />

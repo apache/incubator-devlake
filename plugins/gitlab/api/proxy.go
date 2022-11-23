@@ -46,7 +46,7 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error)
 		map[string]string{
 			"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
 		},
-		30*time.Second,
+		TimeOut,
 		connection.Proxy,
 		BasicRes,
 	)

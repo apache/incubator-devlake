@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"database/sql"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -63,12 +62,12 @@ func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
 	// 	return errors.Default.Wrap(errRegexp, "Regexp compile testingPattern failed")
 	// }
 
-	var cursor *sql.Rows
+	var cursor dal.Rows
 	if len(prefix) == 0 {
 		cursor, err = db.Cursor(
 			dal.From(&devops.CICDTask{}),
-			dal.Join("left join cicd_pipeline_commits cpr on cpr.repo_id = ? and cicd_tasks.pipeline_id = cpr.pipeline_id ", repoId),
-			dal.Where("status=? ", devops.DONE))
+			dal.Join("left join cicd_pipeline_commits cpr on cicd_tasks.pipeline_id = cpr.pipeline_id"),
+			dal.Where("status=? and repo_id=?", devops.DONE, repoId))
 	} else {
 		likeString := fmt.Sprintf(`%s:%s`, prefix, "%")
 		cursor, err = db.Cursor(

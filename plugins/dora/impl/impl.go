@@ -21,7 +21,6 @@ import (
 	"fmt"
 
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/dora/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/dora/tasks"
@@ -33,7 +32,10 @@ import (
 var _ core.PluginMeta = (*Dora)(nil)
 var _ core.PluginInit = (*Dora)(nil)
 var _ core.PluginTask = (*Dora)(nil)
+var _ core.PluginModel = (*Dora)(nil)
+var _ core.PluginMetric = (*Dora)(nil)
 var _ core.CloseablePluginTask = (*Dora)(nil)
+var _ core.PluginMigration = (*Dora)(nil)
 
 type Dora struct{}
 
@@ -56,12 +58,40 @@ func (plugin Dora) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) er
 	return nil
 }
 
+func (plugin Dora) RequiredDataEntities() (data []map[string]interface{}, err errors.Error) {
+	return []map[string]interface{}{
+		{
+			"model": "cicd_tasks",
+			"requiredFields": map[string]string{
+				"column":        "type",
+				"execptedValue": "Deployment",
+			},
+		},
+	}, nil
+}
+
+func (plugin Dora) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
+}
+
+func (plugin Dora) IsProjectMetric() bool {
+	return true
+}
+
+func (plugin Dora) RunAfter() ([]string, errors.Error) {
+	return []string{}, nil
+}
+
+func (plugin Dora) Settings() interface{} {
+	return nil
+}
+
 func (plugin Dora) SubTaskMetas() []core.SubTaskMeta {
 	// TODO add your sub task here
 	return []core.SubTaskMeta{
 		tasks.EnrichTaskEnvMeta,
 		tasks.CalculateChangeLeadTimeMeta,
-		tasks.ConnectIssueDeployMeta,
+		tasks.ConnectIncidentToDeploymentMeta,
 	}
 }
 
@@ -80,7 +110,7 @@ func (plugin Dora) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/dora"
 }
 
-func (plugin Dora) MigrationScripts() []migration.Script {
+func (plugin Dora) MigrationScripts() []core.MigrationScript {
 	return migrationscripts.All()
 }
 

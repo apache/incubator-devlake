@@ -40,10 +40,12 @@ const NoData = (props) => {
           </h4>
           <div>{message}</div>
         </div>
-        {onClick && actionText && (
+        {onClick && actionText ? (
           <Button intent={Intent.NONE} onClick={onClick}>
             {actionText}
           </Button>
+        ) : (
+          <p>&nbsp;</p>
         )}
       </div>
     </>

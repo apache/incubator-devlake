@@ -1,0 +1,12 @@
+{
+  "id": "github_graphql",
+  "name": "GitHubGraphql",
+  "type": "pipeline",
+  "enabled": true,
+  "multiConnection": true,
+  "connectionLimit": 0,
+  "isBeta": false,
+  "isProvider": true,
+  "icon": "src/images/integrations/github.svg",
+  "private": false
+}

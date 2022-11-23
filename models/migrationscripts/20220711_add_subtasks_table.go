@@ -18,18 +18,19 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	commonArchived "github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
+
+var _ core.MigrationScript = (*addSubtasksTable)(nil)
 
 type addSubtasksTable struct {
 }
 
-// Subtask20220711 DB snapshot model of models.Subtask
-type Subtask20220711 struct {
+type subtasks20220711 struct {
 	commonArchived.Model
 	TaskID       uint64     `json:"task_id" gorm:"index"`
 	SubtaskName  string     `json:"name" gorm:"column:name;index"`
@@ -39,18 +40,18 @@ type Subtask20220711 struct {
 	SpentSeconds int64      `json:"spentSeconds"`
 }
 
-func (s Subtask20220711) TableName() string {
+func (subtasks20220711) TableName() string {
 	return "_devlake_subtasks"
 }
 
-func (u addSubtasksTable) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	return errors.Convert(db.Migrator().AutoMigrate(&Subtask20220711{}))
+func (addSubtasksTable) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&subtasks20220711{})
 }
 
-func (u addSubtasksTable) Version() uint64 {
+func (addSubtasksTable) Version() uint64 {
 	return 20220711000001
 }
 
-func (u addSubtasksTable) Name() string {
+func (addSubtasksTable) Name() string {
 	return "create subtask schema"
 }

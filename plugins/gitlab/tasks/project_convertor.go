@@ -20,6 +20,7 @@ package tasks
 import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -63,12 +64,14 @@ func ConvertApiProjects(taskCtx core.SubTaskContext) errors.Error {
 			gitlabProject := inputRow.(*models.GitlabProject)
 
 			domainRepository := convertToRepositoryModel(gitlabProject)
+			domainCicdScope := convertToCicdScopeModel(gitlabProject)
 			domainBoard := convertToBoardModel(gitlabProject)
 			domainBoardRepo := convertToBoardRepoModel(gitlabProject)
 			return []interface{}{
 				domainRepository,
 				domainBoard,
 				domainBoardRepo,
+				domainCicdScope,
 			}, nil
 		},
 	})
@@ -113,4 +116,18 @@ func convertToBoardRepoModel(project *models.GitlabProject) *crossdomain.BoardRe
 		RepoId:  didgen.NewDomainIdGenerator(project).Generate(project.ConnectionId, project.GitlabId),
 	}
 	return domainBoardRepo
+}
+
+func convertToCicdScopeModel(project *models.GitlabProject) *devops.CicdScope {
+	domainCicdScope := &devops.CicdScope{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: didgen.NewDomainIdGenerator(project).Generate(project.ConnectionId, project.GitlabId),
+		},
+		Name:        project.Name,
+		Url:         project.WebUrl,
+		Description: project.Description,
+		CreatedDate: &project.CreatedDate,
+		UpdatedDate: project.UpdatedDate,
+	}
+	return domainCicdScope
 }

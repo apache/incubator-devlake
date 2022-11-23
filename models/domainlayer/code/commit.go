@@ -84,3 +84,15 @@ type CommitLineChange struct {
 func (CommitLineChange) TableName() string {
 	return "commit_line_change"
 }
+
+type RepoSnapshot struct {
+	common.NoPKModel
+	RepoId    string `gorm:"primaryKey;type:varchar(255)"`
+	CommitSha string `gorm:"primaryKey;type:varchar(40);"`
+	FilePath  string `gorm:"primaryKey;type:varchar(255);"`
+	LineNo    int    `gorm:"primaryKey;type:int;"`
+}
+
+func (RepoSnapshot) TableName() string {
+	return "repo_snapshot"
+}

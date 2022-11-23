@@ -20,7 +20,6 @@
   white-space: nowrap;
   border: 0;
   outline: none;
-  min-width: 740px;
   display: flex;
   justify-content: center;
   -webkit-user-select: none;
@@ -118,11 +117,9 @@
   justify-content: flex-start;
   align-items: flex-start;
   align-content: flex-start;
-  width: 100%;
-  max-width: 700px;
-  min-width: 700px;
-  min-height: 400px;
   margin-top: 32px;
+  width: 100%;
+  min-height: 400px;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -157,10 +154,9 @@
 
 .workflow-actions {
   display: flex;
-  width: 100%;
-  max-width: 700px;
-  justify-content: space-between;
   margin-top: 32px;
+  width: 100%;
+  justify-content: space-between;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;

@@ -1,0 +1,52 @@
+{
+  "id": "gitlab",
+  "type": "integration",
+  "enabled": true,
+  "multiConnection": true,
+  "connectionLimit": 0,
+  "isBeta": false,
+  "isProvider": true,
+  "name": "GitLab",
+  "icon": "src/images/integrations/gitlab.svg",
+  "private": false,
+  "connection": {
+    "authentication": "token",
+    "fields": {
+      "name": { "enable": true, "required": true, "readonly": false },
+      "endpoint": { },
+      "proxy": { },
+      "token": { },
+      "rateLimitPerHour": { }
+    },
+    "labels": {
+      "name": "Connection Name",
+      "endpoint": "Endpoint URL",
+      "proxy": "Proxy URL",
+      "token": "Access Token",
+      "rateLimitPerHour": "Rate Limit (per hour)"
+    },
+    "placeholders": {
+      "name": "eg. GitLab",
+      "endpoint": "eg. https://gitlab.com/api/v4/",
+      "proxy": "eg. http://proxy.localhost:8080",
+      "token": "eg. ff9d1ad0e5c04f1f98fa",
+      "rateLimitPerHour": "1000"
+    },
+    "tooltips": {
+      "rateLimitPerHour": "Rate Limit requests per hour,\nEnter a numeric value > 0 to enable."
+    }
+  },
+  "availableDataDomains": ["CODE", "TICKET", "CODEREVIEW", "CROSS", "CICD"],
+  "transformations": {
+    "scopes": {
+      "options": {
+        "projectId": null,
+        "title": null
+      }
+    },
+    "default": {
+      "productionPattern": "",
+      "deploymentPattern": ""
+    }
+  }
+}

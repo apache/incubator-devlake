@@ -22,16 +22,17 @@ import (
 	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"gorm.io/gorm"
-	"io"
-	"net/http"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
+	"gorm.io/gorm"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
 type Page struct {
@@ -41,10 +42,30 @@ type Data struct {
 	Count int `json:"count"`
 }
 
-var UserIdGen *didgen.DomainIdGenerator
-var WorkspaceIdGen *didgen.DomainIdGenerator
-var IssueIdGen *didgen.DomainIdGenerator
-var IterIdGen *didgen.DomainIdGenerator
+var accountIdGen *didgen.DomainIdGenerator
+var workspaceIdGen *didgen.DomainIdGenerator
+var iterIdGen *didgen.DomainIdGenerator
+
+func getAccountIdGen() *didgen.DomainIdGenerator {
+	if accountIdGen == nil {
+		accountIdGen = didgen.NewDomainIdGenerator(&models.TapdAccount{})
+	}
+	return accountIdGen
+}
+
+func getWorkspaceIdGen() *didgen.DomainIdGenerator {
+	if workspaceIdGen == nil {
+		workspaceIdGen = didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
+	}
+	return workspaceIdGen
+}
+
+func getIterIdGen() *didgen.DomainIdGenerator {
+	if iterIdGen == nil {
+		iterIdGen = didgen.NewDomainIdGenerator(&models.TapdIteration{})
+	}
+	return iterIdGen
+}
 
 // res will not be used
 func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
@@ -138,4 +159,69 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string, useC
 		Table:  rawTable,
 	}
 	return rawDataSubTaskArgs, &filteredData
+}
+
+func getTypeMappings(data *TapdTaskData, db dal.Dal, system string) (*typeMappings, errors.Error) {
+	typeIdMapping := make(map[uint64]string)
+	issueTypes := make([]models.TapdWorkitemType, 0)
+	clauses := []dal.Clause{
+		dal.From(&models.TapdWorkitemType{}),
+		dal.Where("connection_id = ? and workspace_id = ? and entity_type = ?",
+			data.Options.ConnectionId, data.Options.WorkspaceId, system),
+	}
+	err := db.All(&issueTypes, clauses...)
+	if err != nil {
+		return nil, err
+	}
+	for _, issueType := range issueTypes {
+		typeIdMapping[issueType.Id] = issueType.Name
+	}
+	stdTypeMappings := make(map[string]string)
+	for userType, stdType := range data.Options.TransformationRules.TypeMappings {
+		stdTypeMappings[userType] = strings.ToUpper(stdType.StandardType)
+	}
+	return &typeMappings{
+		typeIdMappings:  typeIdMapping,
+		stdTypeMappings: stdTypeMappings,
+	}, nil
+}
+
+func getStatusMapping(data *TapdTaskData) map[string]string {
+	statusMapping := make(map[string]string)
+	mapping := data.Options.TransformationRules.StatusMappings
+	for std, orig := range mapping {
+		for _, v := range orig {
+			statusMapping[v] = std
+		}
+	}
+
+	return statusMapping
+}
+
+func getDefaltStdStatusMapping[S models.TapdStatus](data *TapdTaskData, db dal.Dal, statusList []S) (map[string]string, func(statusKey string) string, errors.Error) {
+	clauses := []dal.Clause{
+		dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
+	}
+	err := db.All(&statusList, clauses...)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	statusLanguageMap := make(map[string]string, len(statusList))
+	statusLastStepMap := make(map[string]bool, len(statusList))
+
+	for _, v := range statusList {
+		statusLanguageMap[v.GetEnglish()] = v.GetChinese()
+		statusLastStepMap[v.GetChinese()] = v.GetIsLastStep()
+	}
+	getStdStatus := func(statusKey string) string {
+		if statusLastStepMap[statusKey] {
+			return ticket.DONE
+		} else if statusKey == "草稿" {
+			return ticket.TODO
+		} else {
+			return ticket.IN_PROGRESS
+		}
+	}
+	return statusLanguageMap, getStdStatus, nil
 }

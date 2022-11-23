@@ -30,7 +30,6 @@ import {
 const StandardStackedList = (props) => {
   const {
     items = [],
-    transformations = {},
     className = 'selected-items-list',
     connection,
     activeItem,
@@ -43,100 +42,93 @@ const StandardStackedList = (props) => {
   } = props
 
   return (
-    <>
-      {items[connection.id]?.length > 0 && (
-        <Card className={className} elevation={Elevation.ZERO} style={style}>
-          {items[connection.id]?.map((item, pIdx) => (
-            <div
-              className='item-entry'
-              key={`item-row-key-${pIdx}`}
-              style={{
-                display: 'flex',
-                width: '100%',
-                height: '32px',
-                lineHeight: '100%',
-                justifyContent: 'space-between',
-                // margin: '8px 0',
-                padding: '8px 12px',
-                borderBottom: '1px solid #f0f0f0',
-                backgroundColor:
-                  activeItem === item ? 'rgba(116, 151, 247, 0.2)' : '#fff'
-              }}
-            >
-              <div>
-                <div className='item-name' style={{ fontWeight: 600 }}>
-                  <label
-                    onClick={() => onAdd(item)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    {item.shortTitle || item.icon ? (
-                      <Popover
-                        className='docs-popover-portal-example-popover'
-                        interactionKind={
-                          PopoverInteractionKind.HOVER_TARGET_ONLY
-                        }
-                        content={
-                          <div
-                            style={{
-                              padding: '5px',
-                              justifyContent: 'center',
-                              display: 'flex'
-                            }}
-                          >
-                            {item.icon && (
-                              <img
-                                src={item.icon}
-                                style={{
-                                  maxWidth: '100%',
-                                  overflow: 'hidden',
-                                  width: '14px',
-                                  height: '14px',
-                                  borderRadius: '50%',
-                                  marginRight: '2px'
-                                }}
-                              />
-                            )}
-                            {item.title}
-                          </div>
-                        }
+    <Card className={className} elevation={Elevation.ZERO} style={style}>
+      {items.map((item, pIdx) => (
+        <div
+          className='item-entry'
+          key={`item-row-key-${pIdx}`}
+          style={{
+            display: 'flex',
+            width: '100%',
+            height: '32px',
+            lineHeight: '100%',
+            justifyContent: 'space-between',
+            // margin: '8px 0',
+            padding: '8px 12px',
+            borderBottom: '1px solid #f0f0f0',
+            backgroundColor:
+              activeItem === item ? 'rgba(116, 151, 247, 0.2)' : '#fff'
+          }}
+        >
+          <div>
+            <div className='item-name' style={{ fontWeight: 600 }}>
+              <label onClick={() => onAdd(item)} style={{ cursor: 'pointer' }}>
+                {item.shortTitle || item.icon ? (
+                  <Popover
+                    className='docs-popover-portal-example-popover'
+                    interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
+                    content={
+                      <div
+                        style={{
+                          padding: '5px',
+                          justifyContent: 'center',
+                          display: 'flex'
+                        }}
                       >
-                        {item.shortTitle || item.title}
-                      </Popover>
-                    ) : (
-                      item.title
-                    )}
-                  </label>
-                </div>
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  alignContent: 'center'
-                }}
-              >
-                <div className='item-actions' style={{ paddingLeft: '20px' }}>
-                  <Button
-                    intent={Intent.PRIMARY}
-                    className='item-action-transformation'
-                    icon={<Icon size={12} color={Colors.BLUE4} />}
-                    text={isEditing(item) ? editButtonText : addButtonText}
-                    color={Colors.BLUE3}
-                    small
-                    minimal={activeItem || activeItem?.id !== item}
-                    style={{
-                      minWidth: '18px',
-                      minHeight: '18px',
-                      fontSize: '11px'
-                    }}
-                    onClick={() => onAdd(item)}
-                  />
-                </div>
-              </div>
+                        {item.icon && (
+                          <img
+                            src={item.icon}
+                            style={{
+                              maxWidth: '100%',
+                              overflow: 'hidden',
+                              width: '14px',
+                              height: '14px',
+                              borderRadius: '50%',
+                              marginRight: '2px'
+                            }}
+                          />
+                        )}
+                        {item.title}
+                      </div>
+                    }
+                  >
+                    {item.shortTitle || item.title}
+                  </Popover>
+                ) : item.providerId === 'jenkins' ? (
+                  `${item.jobPath}${item.title}`
+                ) : (
+                  item.title
+                )}
+              </label>
             </div>
-          ))}
-        </Card>
-      )}
-    </>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              alignContent: 'center'
+            }}
+          >
+            <div className='item-actions' style={{ paddingLeft: '20px' }}>
+              <Button
+                intent={Intent.PRIMARY}
+                className='item-action-transformation'
+                icon={<Icon size={12} color={Colors.BLUE4} />}
+                text={isEditing(item) ? editButtonText : addButtonText}
+                color={Colors.BLUE3}
+                small
+                minimal={activeItem || activeItem?.id !== item}
+                style={{
+                  minWidth: '18px',
+                  minHeight: '18px',
+                  fontSize: '11px'
+                }}
+                onClick={() => onAdd(item)}
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+    </Card>
   )
 }
 

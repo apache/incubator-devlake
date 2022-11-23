@@ -16,6 +16,8 @@
  *
  */
 
+import Entity from '@/models/Entity'
+
 /**
  * @typedef {object} GitlabProject
  * @property {number?} id
@@ -48,9 +50,11 @@
  * @property {boolean?} archived
  * @property {boolean?} useApi
  * @property {project|board?} variant
+ * @property {string?} providerId
  */
-class GitlabProject {
+class GitlabProject extends Entity {
   constructor(data = {}) {
+    super(data)
     this.id = data?.id || data?.projectId || null
     this.key = data?.key || this.id || null
     this.projectId = data?.projectId || this.id || null
@@ -59,6 +63,7 @@ class GitlabProject {
     this.title = data?.title || this.name || this.id || null
     this.shortTitle = data?.shortTitle || null
     this.icon = data?.icon || null
+    this.type = data?.type || null
 
     // @todo: GitLab API props to camelCase
     this.visibility = data?.visibility || 'private'
@@ -86,19 +91,18 @@ class GitlabProject {
 
     this.useApi = data?.useApi || false
     this.variant = data?.variant || 'project'
-  }
-
-  get(property) {
-    return this[property]
-  }
-
-  set(property, value) {
-    this[property] = value
-    return this.property
+    this.providerId = 'gitlab'
   }
 
   getConfiguredEntityId() {
     return this.id
+  }
+
+  getTransformationScopeOptions() {
+    return {
+      projectId: this.id,
+      title: this.title
+    }
   }
 }
 

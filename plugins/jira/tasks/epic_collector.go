@@ -19,17 +19,19 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"strings"
 
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+
 	"encoding/json"
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_EPIC_TABLE = "jira_api_epics"
@@ -108,23 +110,24 @@ func CollectEpics(taskCtx core.SubTaskContext) errors.Error {
 }
 
 func GetEpicKeysIterator(db dal.Dal, data *JiraTaskData, batchSize int) (helper.Iterator, errors.Error) {
-	cursor, err := db.RawCursor(`
-			SELECT
-				DISTINCT epic_key
-			FROM
-				_tool_jira_issues i
+	cursor, err := db.Cursor(
+		dal.Select("DISTINCT epic_key"),
+		dal.From("_tool_jira_issues i"),
+		dal.Join(`
 			LEFT JOIN _tool_jira_board_issues bi ON (
-				i.connection_id = bi.connection_id
-				AND 
-				i.issue_id = bi.issue_id
-			)
-			WHERE
-				i.connection_id = ?
-				AND 
-				bi.board_id = ?
-				AND
-				i.epic_key != ''
-		`, data.Options.ConnectionId, data.Options.BoardId)
+			i.connection_id = bi.connection_id
+			AND 
+			i.issue_id = bi.issue_id
+		)`),
+		dal.Where(`
+			i.connection_id = ?
+			AND 
+			bi.board_id = ?
+			AND
+			i.epic_key != ''
+		`, data.Options.ConnectionId, data.Options.BoardId,
+		),
+	)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to query for external epics")
 	}

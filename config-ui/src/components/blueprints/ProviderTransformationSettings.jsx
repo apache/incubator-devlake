@@ -15,126 +15,83 @@
  * limitations under the License.
  *
  */
-import React, { useEffect } from 'react'
-import {
-  Providers
-  // ProviderTypes,
-  // ProviderIcons,
-  // ConnectionStatus,
-  // ConnectionStatusLabels,
-} from '@/data/Providers'
-// import { DataEntities, DataEntityTypes } from '@/data/DataEntities'
+import React, { useMemo } from 'react'
+import NoData from '@/components/NoData'
 import JiraSettings from '@/pages/configure/settings/jira'
 import GitlabSettings from '@/pages/configure/settings/gitlab'
 import JenkinsSettings from '@/pages/configure/settings/jenkins'
 import TapdSettings from '@/pages/configure/settings/tapd'
 import GithubSettings from '@/pages/configure/settings/github'
+import AzureSettings from '@/pages/configure/settings/azure'
+import BitbucketSettings from '@/pages/configure/settings/bitbucket'
+import GiteeSettings from '@/pages/configure/settings/gitee'
+
+// Transformation Higher-Order Component (HOC) Settings Loader
+const withTransformationSettings = (
+  TransformationComponent,
+  TransformationProps
+) =>
+  TransformationComponent ? (
+    <TransformationComponent {...TransformationProps} />
+  ) : (
+    <NoData
+      title='No Transformations'
+      icon='disable'
+      message='This provider does not have additional transformation settings'
+      onClick={null}
+      actionText={null}
+    />
+  )
 
 const ProviderTransformationSettings = (props) => {
   const {
+    Providers,
     provider,
     blueprint,
     connection,
-    configuredProject,
-    configuredBoard,
-    transformations = {},
     transformation = {},
-    entityIdKey,
-    newTransformation = {},
-    boards = {},
-    projects = {},
-    entities = {},
-    issueTypes = [],
-    fields = [],
-    onSettingsChange = () => {},
-    changeTransformation = () => {},
+    dataDomainsGroup = {},
     isSaving = false,
     isSavingConnection = false,
+    onSettingsChange = () => {},
+
+    // only jira used
+    issueTypes = [],
+    fields = [],
     jiraProxyError,
     isFetchingJIRA = false
   } = props
 
-  useEffect(() => {
-    console.log('OVER HERE!!!', entityIdKey)
-  }, [entityIdKey])
+  // Provider Transformation Components (LOCAL)
+  const TransformationComponents = useMemo(
+    () => ({
+      [Providers.GITHUB]: GithubSettings,
+      [Providers.GITLAB]: GitlabSettings,
+      [Providers.JIRA]: JiraSettings,
+      [Providers.JENKINS]: JenkinsSettings,
+      [Providers.TAPD]: TapdSettings,
+      [Providers.AZURE]: AzureSettings,
+      [Providers.BITBUCKET]: BitbucketSettings,
+      [Providers.GITEE]: GiteeSettings
+    }),
+    [Providers]
+  )
+
+  // Dynamic Transformation Settings via HOC
+  const TransformationWithProviderSettings = withTransformationSettings(
+    provider?.id && TransformationComponents[provider?.id]
+      ? TransformationComponents[provider?.id]
+      : null,
+    {
+      // pass all props but notice default values in Line#47~63 have no effect
+      ...props,
+      dataDomains: dataDomainsGroup[connection?.id]
+    }
+  )
 
   return (
     <div className='transformation-settings' data-provider={provider?.id}>
-      {provider?.id === Providers.GITHUB && (
-        <GithubSettings
-          provider={provider}
-          connection={connection}
-          configuredProject={configuredProject}
-          projects={projects}
-          transformation={transformation}
-          entityIdKey={entityIdKey}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-
-      {provider?.id === Providers.GITLAB && (
-        <GitlabSettings
-          provider={provider}
-          connection={connection}
-          configuredProject={configuredProject}
-          projects={projects}
-          transformation={transformation}
-          entityIdKey={entityIdKey}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-
-      {provider?.id === Providers.JIRA && (
-        <JiraSettings
-          provider={provider}
-          blueprint={blueprint}
-          connection={connection}
-          configuredBoard={configuredBoard}
-          boards={boards}
-          issueTypes={issueTypes}
-          fields={fields}
-          transformation={transformation}
-          entityIdKey={entityIdKey}
-          transformations={transformations}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-          jiraProxyError={jiraProxyError}
-          isFetchingJIRA={isFetchingJIRA}
-        />
-      )}
-
-      {provider?.id === Providers.JENKINS && (
-        <JenkinsSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          entityIdKey={entityIdKey}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
-      {provider?.id === Providers.TAPD && (
-        <TapdSettings
-          provider={provider}
-          connection={connection}
-          transformation={transformation}
-          entityIdKey={entityIdKey}
-          onSettingsChange={onSettingsChange}
-          entities={entities[connection?.id]}
-          isSaving={isSaving}
-          isSavingConnection={isSavingConnection}
-        />
-      )}
+      {TransformationWithProviderSettings}
     </div>
   )
 }

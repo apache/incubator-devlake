@@ -18,16 +18,17 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
+
+var _ core.MigrationScript = (*removeNotes)(nil)
 
 type removeNotes struct{}
 
-func (*removeNotes) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	return errors.Convert(db.Migrator().DropTable(archived.Note{}))
+func (*removeNotes) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().DropTables(archived.Note{})
 }
 
 func (*removeNotes) Version() uint64 {

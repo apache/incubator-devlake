@@ -18,9 +18,12 @@ limitations under the License.
 package e2e
 
 import (
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
+	"testing"
+
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
-	"testing"
 
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -51,7 +54,7 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabProject{},
 		"./snapshot_tables/_tool_gitlab_projects.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"gitlab_id",
 			"name",
@@ -67,27 +70,20 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 			"forked_from_project_web_url",
 			"created_date",
 			"updated_date",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify conversion
 	dataflowTester.FlushTabler(&code.Repo{})
 	dataflowTester.FlushTabler(&ticket.Board{})
+	dataflowTester.FlushTabler(&devops.CicdScope{})
 	dataflowTester.FlushTabler(&crossdomain.BoardRepo{})
 	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Repo{},
 		"./snapshot_tables/repos.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"name",
 			"url",
 			"description",
@@ -97,25 +93,30 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 			"created_date",
 			"updated_date",
 			"deleted",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		ticket.Board{},
 		"./snapshot_tables/boards.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"name",
 			"description",
 			"url",
 			"created_date",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		crossdomain.BoardRepo{},
 		"./snapshot_tables/board_repos.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"board_id",
 			"repo_id",
-		},
+		),
 	)
+
+	dataflowTester.VerifyTableWithOptions(&devops.CicdScope{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_scopes.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

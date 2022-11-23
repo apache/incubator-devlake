@@ -18,79 +18,35 @@ limitations under the License.
 package main
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/helper"
-
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/dbt/tasks"
+	"github.com/apache/incubator-devlake/plugins/dbt/impl"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/spf13/cobra"
 )
 
-var _ core.PluginMeta = (*Dbt)(nil)
-var _ core.PluginTask = (*Dbt)(nil)
-
-type Dbt struct{}
-
-func (plugin Dbt) Description() string {
-	return "Convert data by dbt"
-}
-
-func (plugin Dbt) SubTaskMetas() []core.SubTaskMeta {
-	return []core.SubTaskMeta{
-		tasks.DbtConverterMeta,
-	}
-}
-
-func (plugin Dbt) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
-}
-
-func (plugin Dbt) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
-	var op tasks.DbtOptions
-	err := helper.Decode(options, &op, nil)
-	if err != nil {
-		return nil, err
-	}
-	if op.ProjectPath == "" {
-		return nil, errors.Default.New("projectPath is required for dbt plugin")
-	}
-	if op.ProjectName == "" {
-		return nil, errors.Default.New("projectName is required for dbt plugin")
-	}
-	if op.ProjectTarget == "" {
-		op.ProjectTarget = "dev"
-	}
-	if op.SelectedModels == nil {
-		return nil, errors.Default.New("selectedModels is required for dbt plugin")
-	}
-
-	return &tasks.DbtTaskData{
-		Options: &op,
-	}, nil
-}
-
-func (plugin Dbt) RootPkgPath() string {
-	return "github.com/apache/incubator-devlake/plugins/dbt"
-}
-
-var PluginEntry Dbt
+var PluginEntry impl.Dbt
 
 // standalone mode for debugging
 func main() {
 	dbtCmd := &cobra.Command{Use: "dbt"}
 	_ = dbtCmd.MarkFlagRequired("projectPath")
 	projectPath := dbtCmd.Flags().StringP("projectPath", "p", "/Users/abeizn/demoapp", "user dbt project directory.")
-
-	_ = dbtCmd.MarkFlagRequired("projectName")
+	projectGitURL := dbtCmd.Flags().StringP("projectGitURL", "g", "", "user dbt project git url.")
 	projectName := dbtCmd.Flags().StringP("projectName", "n", "demoapp", "user dbt project name.")
-
 	projectTarget := dbtCmd.Flags().StringP("projectTarget", "o", "dev", "this is the default target your dbt project will use.")
-
-	_ = dbtCmd.MarkFlagRequired("selectedModels")
 	modelsSlice := []string{"my_first_dbt_model", "my_second_dbt_model"}
 	selectedModels := dbtCmd.Flags().StringSliceP("models", "m", modelsSlice, "dbt select models")
-
+	failFast := dbtCmd.Flags().BoolP("failFast", "", false, "dbt fail fast")
+	profilesPath := dbtCmd.Flags().StringP("profilesPath", "", "/Users/abeizn/.dbt", "dbt profiles path")
+	profile := dbtCmd.Flags().StringP("profile", "", "default", "dbt profile")
+	threads := dbtCmd.Flags().IntP("threads", "", 1, "dbt threads")
+	noVersionCheck := dbtCmd.Flags().BoolP("noVersionCheck", "", false, "dbt no version check")
+	excludeModels := dbtCmd.Flags().StringSliceP("excludeModels", "", []string{}, "dbt exclude models")
+	selector := dbtCmd.Flags().StringP("selector", "", "", "dbt selector")
+	state := dbtCmd.Flags().StringP("state", "", "", "dbt state")
+	deferFlag := dbtCmd.Flags().BoolP("defer", "", false, "dbt defer")
+	noDefer := dbtCmd.Flags().BoolP("noDefer", "", false, "dbt no defer")
+	fullRefresh := dbtCmd.Flags().BoolP("fullRefresh", "", false, "dbt full refresh")
+	dbtArgs := dbtCmd.Flags().StringSliceP("args", "a", []string{}, "dbt run args")
 	projectVars := make(map[string]string)
 	projectVars["event_min_id"] = "7581"
 	projectVars["event_max_id"] = "7582"
@@ -107,6 +63,19 @@ func main() {
 			"projectTarget":  *projectTarget,
 			"selectedModels": *selectedModels,
 			"projectVars":    projectVarsConvert,
+			"projectGitURL":  *projectGitURL,
+			"args":           dbtArgs,
+			"failFast":       *failFast,
+			"profilesPath":   *profilesPath,
+			"profile":        *profile,
+			"threads":        *threads,
+			"noVersionCheck": *noVersionCheck,
+			"excludeModels":  *excludeModels,
+			"selector":       *selector,
+			"state":          *state,
+			"defer":          *deferFlag,
+			"noDefer":        *noDefer,
+			"fullRefresh":    *fullRefresh,
 		})
 	}
 	runner.RunCmd(dbtCmd)

@@ -19,14 +19,12 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"time"
 
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/errors"
 
-	"github.com/apache/incubator-devlake/migration"
-	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts"
@@ -39,7 +37,8 @@ var _ core.PluginMeta = (*Tapd)(nil)
 var _ core.PluginInit = (*Tapd)(nil)
 var _ core.PluginTask = (*Tapd)(nil)
 var _ core.PluginApi = (*Tapd)(nil)
-var _ core.Migratable = (*Tapd)(nil)
+var _ core.PluginModel = (*Tapd)(nil)
+var _ core.PluginMigration = (*Tapd)(nil)
 var _ core.CloseablePluginTask = (*Tapd)(nil)
 
 type Tapd struct{}
@@ -101,6 +100,8 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractCompanyMeta,
 		tasks.CollectSubWorkspaceMeta,
 		tasks.ExtractSubWorkspaceMeta,
+		tasks.CollectWorkitemTypesMeta,
+		tasks.ExtractWorkitemTypesMeta,
 		tasks.CollectStoryCustomFieldsMeta,
 		tasks.ExtractStoryCustomFieldsMeta,
 		tasks.CollectTaskCustomFieldsMeta,
@@ -111,8 +112,12 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 		tasks.ExtractStoryCategoriesMeta,
 		tasks.CollectStoryStatusMeta,
 		tasks.ExtractStoryStatusMeta,
+		tasks.CollectStoryStatusLastStepMeta,
+		tasks.EnrichStoryStatusLastStepMeta,
 		tasks.CollectBugStatusMeta,
 		tasks.ExtractBugStatusMeta,
+		tasks.CollectBugStatusLastStepMeta,
+		tasks.EnrichBugStatusLastStepMeta,
 		tasks.CollectAccountsMeta,
 		tasks.ExtractAccountsMeta,
 		tasks.CollectIterationMeta,
@@ -191,6 +196,11 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "failed to create tapd api client")
 	}
+	cstZone, err1 := time.LoadLocation("Asia/Shanghai")
+	if err1 != nil {
+		return nil, errors.Default.Wrap(err1, "fail to get CST Location")
+	}
+	op.CstZone = cstZone
 	taskData := &tasks.TapdTaskData{
 		Options:    &op,
 		ApiClient:  tapdApiClient,
@@ -199,10 +209,6 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if !since.IsZero() {
 		taskData.Since = &since
 	}
-	tasks.WorkspaceIdGen = didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
-	tasks.IssueIdGen = didgen.NewDomainIdGenerator(&models.TapdIssue{})
-	tasks.IterIdGen = didgen.NewDomainIdGenerator(&models.TapdIteration{})
-
 	return taskData, nil
 }
 
@@ -210,7 +216,7 @@ func (plugin Tapd) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/tapd"
 }
 
-func (plugin Tapd) MigrationScripts() []migration.Script {
+func (plugin Tapd) MigrationScripts() []core.MigrationScript {
 	return migrationscripts.All()
 }
 
@@ -227,6 +233,9 @@ func (plugin Tapd) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
+		},
+		"connections/:connectionId/proxy/rest/*path": {
+			"GET": api.Proxy,
 		},
 	}
 }

@@ -77,7 +77,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			if since != nil {
-				query.Set("created_after", since.String())
+				query.Set("updated_after", since.String())
 			}
 			query.Set("sort", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

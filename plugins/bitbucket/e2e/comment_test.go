@@ -42,15 +42,9 @@ func TestCommentDataFlow(t *testing.T) {
 			Owner:        "panjf2000",
 			Repo:         "ants",
 			TransformationRules: models.TransformationRules{
-				PrType:               "type/(.*)$",
-				PrComponent:          "component/(.*)$",
-				PrBodyClosePattern:   "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/api.bitbucket.org\\/2.0\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)",
-				IssueSeverity:        "severity/(.*)$",
-				IssuePriority:        "^(highest|high|medium|low)$",
-				IssueComponent:       "component/(.*)$",
-				IssueTypeBug:         "^(bug|failure|error)$",
-				IssueTypeIncident:    "",
-				IssueTypeRequirement: "^(feat|feature|proposal|requirement)$",
+				IssueStatusTODO:       []string{"new", "open"},
+				IssueStatusINPROGRESS: []string{"on hold"},
+				IssueStatusDONE:       []string{"closed"},
 			},
 		},
 		Repo: bitbucketRepository,
@@ -69,39 +63,31 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.BitbucketIssueComment{},
 		"./snapshot_tables/_tool_bitbucket_issue_comments.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"bitbucket_id",
 			"issue_id",
 			"author_name",
 			"author_id",
 			"type",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.BitbucketPrComment{},
 		"./snapshot_tables/_tool_bitbucket_pull_request_comments.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"bitbucket_id",
 			"pull_request_id",
 			"author_name",
 			"author_id",
 			"type",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.BitbucketAccount{},
 		"./snapshot_tables/_tool_bitbucket_accounts_in_comments.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"user_name",
 			"account_id",
@@ -111,11 +97,7 @@ func TestCommentDataFlow(t *testing.T) {
 			"html_url",
 			"uuid",
 			"has2_fa_enabled",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify comment conversion
@@ -127,16 +109,12 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.IssueComment{},
 		"./snapshot_tables/issue_comments.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"issue_id",
 			"body",
 			"account_id",
-		},
+		),
 	)
 
 	// verify relation in pr and comment conversion
@@ -145,12 +123,8 @@ func TestCommentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.PullRequestComment{},
 		"./snapshot_tables/pull_request_comments.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"pull_request_id",
 			"body",
 			"account_id",
@@ -159,6 +133,6 @@ func TestCommentDataFlow(t *testing.T) {
 			"type",
 			"review_id",
 			"status",
-		},
+		),
 	)
 }

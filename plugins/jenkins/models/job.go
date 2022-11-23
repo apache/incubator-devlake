@@ -19,42 +19,23 @@ package models
 
 import (
 	"github.com/apache/incubator-devlake/models/common"
-	"github.com/apache/incubator-devlake/plugins/helper"
 )
-
-// JenkinsJobProps current used jenkins job props
-type JenkinsJobProps struct {
-	// collected fields
-	ConnectionId uint64 `gorm:"primaryKey"`
-	Name         string `gorm:"primaryKey;type:varchar(255)"`
-	Path         string `gorm:"primaryKey;type:varchar(511)"`
-	Class        string `gorm:"type:varchar(255)"`
-	Color        string `gorm:"type:varchar(255)"`
-	Base         string `gorm:"type:varchar(255)"`
-}
 
 // JenkinsJob db entity for jenkins job
 type JenkinsJob struct {
-	JenkinsJobProps
+	ConnectionId uint64 `gorm:"primaryKey"`
+	FullName     string `gorm:"primaryKey;type:varchar(255)"`
+	Name         string `gorm:"index;type:varchar(255)"`
+	Path         string `gorm:"index;type:varchar(511)"`
+	Class        string `gorm:"type:varchar(255)"`
+	Color        string `gorm:"type:varchar(255)"`
+	Base         string `gorm:"type:varchar(255)"`
+	Url          string
+	Description  string
+	PrimaryView  string `gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
 
 func (JenkinsJob) TableName() string {
 	return "_tool_jenkins_jobs"
-}
-
-type FolderInput struct {
-	*helper.ListBaseNode
-	Path string
-}
-
-func (f *FolderInput) Data() interface{} {
-	return f.Path
-}
-
-func NewFolderInput(path string) *FolderInput {
-	return &FolderInput{
-		Path:         path,
-		ListBaseNode: helper.NewListBaseNode(),
-	}
 }

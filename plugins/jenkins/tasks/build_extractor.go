@@ -45,25 +45,15 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
+				JobName:      data.Options.JobName,
+				JobPath:      data.Options.JobPath,
 			},
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
-			/*
-				Table store raw data
-			*/
+			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,
 		},
 		Extract: func(row *helper.RawData) ([]interface{}, errors.Error) {
 			body := &models.ApiBuildResponse{}
 			err := errors.Convert(json.Unmarshal(row.Data, body))
-			if err != nil {
-				return nil, err
-			}
-			input := &SimpleJob{}
-			err = errors.Convert(json.Unmarshal(row.Input, input))
 			if err != nil {
 				return nil, err
 			}
@@ -73,7 +63,8 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 			class := strList[len(strList)-1]
 			build := &models.JenkinsBuild{
 				ConnectionId:      data.Options.ConnectionId,
-				JobName:           input.Name,
+				JobName:           data.Options.JobName,
+				JobPath:           data.Options.JobPath,
 				Duration:          body.Duration,
 				FullDisplayName:   body.DisplayName,
 				EstimatedDuration: body.EstimatedDuration,
@@ -81,6 +72,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 				Result:            body.Result,
 				Timestamp:         body.Timestamp,
 				Class:             class,
+				Building:          body.Building,
 				StartTime:         time.Unix(body.Timestamp/1000, 0),
 			}
 			vcs := body.ChangeSet.Kind

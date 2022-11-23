@@ -66,16 +66,28 @@ func ExtractApiEvents(taskCtx core.SubTaskContext) errors.Error {
 			if body.GithubId == 0 || body.Actor == nil {
 				return nil, nil
 			}
-			githubIssueEvent, err := convertGithubEvent(body, data.Options.ConnectionId)
+			githubIssueEvent := &models.GithubIssueEvent{
+				ConnectionId:    data.Options.ConnectionId,
+				GithubId:        body.GithubId,
+				IssueId:         body.Issue.Id,
+				Type:            body.Event,
+				GithubCreatedAt: body.GithubCreatedAt.ToTime(),
+			}
+
+			if body.Actor != nil {
+				githubIssueEvent.AuthorUsername = body.Actor.Login
+
+				githubAccount, err := convertAccount(body.Actor, data.Repo.GithubId, data.Options.ConnectionId)
+				if err != nil {
+					return nil, err
+				}
+				results = append(results, githubAccount)
+			}
+
 			if err != nil {
 				return nil, err
 			}
 			results = append(results, githubIssueEvent)
-			githubAccount, err := convertAccount(body.Actor, data.Repo.GithubId, data.Options.ConnectionId)
-			if err != nil {
-				return nil, err
-			}
-			results = append(results, githubAccount)
 
 			return results, nil
 		},
@@ -86,16 +98,4 @@ func ExtractApiEvents(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
-}
-
-func convertGithubEvent(event *IssueEvent, connId uint64) (*models.GithubIssueEvent, errors.Error) {
-	githubEvent := &models.GithubIssueEvent{
-		ConnectionId:    connId,
-		GithubId:        event.GithubId,
-		IssueId:         event.Issue.Id,
-		Type:            event.Event,
-		AuthorUsername:  event.Actor.Login,
-		GithubCreatedAt: event.GithubCreatedAt.ToTime(),
-	}
-	return githubEvent, nil
 }

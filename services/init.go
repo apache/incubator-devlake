@@ -18,15 +18,15 @@ limitations under the License.
 package services
 
 import (
-	"context"
-	"sync"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/impl"
+	"sync"
 
 	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/logger"
-	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/runner"
@@ -36,10 +36,11 @@ import (
 )
 
 var cfg *viper.Viper
-var db *gorm.DB
-var cronManager *cron.Cron
 var log core.Logger
-var migrationRequireConfirmation bool
+var db *gorm.DB
+var basicRes core.BasicRes
+var migrator core.Migrator
+var cronManager *cron.Cron
 var cronLocker sync.Mutex
 
 const failToCreateCronJob = "created cron job failed"
@@ -47,16 +48,22 @@ const failToCreateCronJob = "created cron job failed"
 // Init the services module
 func Init() {
 	var err error
+	// basic resources initialization
 	cfg = config.GetConfig()
 	log = logger.Global
 	db, err = runner.NewGormDb(cfg, logger.Global.Nested("db"))
-	location := cron.WithLocation(time.UTC)
-	cronManager = cron.New(location)
 	if err != nil {
 		panic(err)
 	}
-	migration.Init(db)
-	runner.RegisterMigrationScripts(migrationscripts.All(), "Framework", cfg, logger.Global)
+	basicRes = impl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(db))
+
+	// initialize db migrator singletone
+	migrator, err = runner.InitMigrator(basicRes)
+	if err != nil {
+		panic(err)
+	}
+	migrator.Register(migrationscripts.All(), "Framework")
+
 	// load plugins
 	err = runner.LoadPlugins(
 		cfg.GetString("PLUGIN_DIR"),
@@ -67,31 +74,41 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
+	for pluginName, pluginInst := range core.AllPlugins() {
+		if migratable, ok := pluginInst.(core.PluginMigration); ok {
+			migrator.Register(migratable.MigrationScripts(), pluginName)
+		}
+	}
 	forceMigration := cfg.GetBool("FORCE_MIGRATION")
-	if !migration.NeedConfirmation() || forceMigration {
+	if !migrator.HasPendingScripts() || forceMigration {
 		err = ExecuteMigration()
 		if err != nil {
 			panic(err)
 		}
-	} else {
-		migrationRequireConfirmation = true
 	}
-	log.Info("Db migration confirmation needed: %v", migrationRequireConfirmation)
+	log.Info("Db migration confirmation needed")
 }
 
 // ExecuteMigration executes all pending migration scripts and initialize services module
 func ExecuteMigration() errors.Error {
-	err := migration.Execute(context.Background())
+	// apply all pending migration scripts
+	err := migrator.Execute()
 	if err != nil {
 		return err
 	}
+
+	// cronjob for blueprint triggering
+	location := cron.WithLocation(time.UTC)
+	cronManager = cron.New(location)
+	if err != nil {
+		panic(err)
+	}
 	// call service init
 	pipelineServiceInit()
-	migrationRequireConfirmation = false
 	return nil
 }
 
 // MigrationRequireConfirmation returns if there were migration scripts waiting to be executed
 func MigrationRequireConfirmation() bool {
-	return migrationRequireConfirmation
+	return migrator.HasPendingScripts()
 }

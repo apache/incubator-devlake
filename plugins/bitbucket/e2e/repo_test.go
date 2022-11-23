@@ -38,13 +38,10 @@ func TestRepoDataFlow(t *testing.T) {
 	}
 	taskData := &tasks.BitbucketTaskData{
 		Options: &tasks.BitbucketOptions{
-			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
-			TransformationRules: models.TransformationRules{
-				PrType:      "type/(.*)$",
-				PrComponent: "component/(.*)$",
-			},
+			ConnectionId:        1,
+			Owner:               "panjf2000",
+			Repo:                "ants",
+			TransformationRules: models.TransformationRules{},
 		},
 		Repo: bitbucketRepository,
 	}
@@ -54,12 +51,11 @@ func TestRepoDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.BitbucketRepo{})
-	dataflowTester.FlushTabler(&models.BitbucketAccount{})
 	dataflowTester.Subtask(tasks.ExtractApiRepoMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.BitbucketRepo{},
 		"./snapshot_tables/_tool_bitbucket_repos.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"bitbucket_id",
 			"name",
@@ -67,30 +63,7 @@ func TestRepoDataFlow(t *testing.T) {
 			"description",
 			"owner_id",
 			"language",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-	dataflowTester.VerifyTable(
-		models.BitbucketAccount{},
-		"./snapshot_tables/_tool_bitbucket_accounts.csv",
-		[]string{
-			"connection_id",
-			"user_name",
-			"account_id",
-			"account_status",
-			"display_name",
-			"avatar_url",
-			"html_url",
-			"uuid",
-			"has2_fa_enabled",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify extraction
@@ -100,12 +73,8 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		code.Repo{},
 		"./snapshot_tables/repos.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"name",
 			"url",
 			"description",
@@ -113,21 +82,17 @@ func TestRepoDataFlow(t *testing.T) {
 			"language",
 			"forked_from",
 			"deleted",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		ticket.Board{},
 		"./snapshot_tables/boards.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"name",
 			"description",
 			"url",
 			"created_date",
-		},
+		),
 	)
 }

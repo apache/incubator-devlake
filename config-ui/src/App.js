@@ -16,8 +16,13 @@
  *
  */
 
-import React, { useEffect, useState, useCallback } from 'react'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import React from 'react'
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect
+} from 'react-router-dom'
 
 import 'normalize.css'
 import '@/styles/app.scss'
@@ -28,9 +33,9 @@ import '@fontsource/inter/600.css'
 import '@fontsource/inter/variable-full.css'
 // Theme variables (@styles/theme.scss) injected via Webpack w/ @sass-loader additionalData option!
 // import '@/styles/theme.scss'
-
 import useDatabaseMigrations from '@/hooks/useDatabaseMigrations'
 
+import { BaseLayout } from '@/layouts'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
@@ -41,7 +46,6 @@ import Blueprints from '@/pages/blueprints/index'
 import CreateBlueprint from '@/pages/blueprints/create-blueprint'
 import BlueprintDetail from '@/pages/blueprints/blueprint-detail'
 import BlueprintSettings from '@/pages/blueprints/blueprint-settings'
-import Connections from '@/pages/connections/index'
 import { IncomingWebhook as IncomingWebhookConnection } from '@/pages/connections/incoming-webhook'
 import MigrationAlertDialog from '@/components/MigrationAlertDialog'
 
@@ -59,69 +63,104 @@ function App(props) {
 
   return (
     <Router>
-      <Route exact path='/'>
-        <ErrorBoundary>
-          <Integration />
-        </ErrorBoundary>
-      </Route>
-      <Route path='/integrations/:providerId'>
-        <ErrorBoundary>
-          <ManageIntegration />
-        </ErrorBoundary>
-      </Route>
-      <Route path='/connections/add/:providerId'>
-        <ErrorBoundary>
-          <AddConnection />
-        </ErrorBoundary>
-      </Route>
-      <Route path='/connections/configure/:providerId/:connectionId'>
-        <ErrorBoundary>
-          <ConfigureConnection />
-        </ErrorBoundary>
-      </Route>
-      <Route exact path='/integrations'>
-        <ErrorBoundary>
-          <Integration />
-        </ErrorBoundary>
-      </Route>
-      <Route exact path='/blueprints/create'>
-        <ErrorBoundary>
-          <CreateBlueprint />
-        </ErrorBoundary>
-      </Route>
-      <Route exact path='/blueprints/detail/:bId'>
-        <ErrorBoundary>
-          <BlueprintDetail />
-        </ErrorBoundary>
-      </Route>
-      <Route exact path='/blueprints/settings/:bId'>
-        <ErrorBoundary>
-          <BlueprintSettings />
-        </ErrorBoundary>
-      </Route>
-      <Route exact path='/blueprints'>
-        <ErrorBoundary>
-          <Blueprints />
-        </ErrorBoundary>
-      </Route>
-      <Route exact path='/connections'>
-        <Connections />
-      </Route>
-      <Route exact path='/connections/incoming-webhook'>
-        <IncomingWebhookConnection />
-      </Route>
-      <Route exact path='/offline'>
-        <Offline />
-      </Route>
-      <MigrationAlertDialog
-        isOpen={migrationAlertOpened}
-        onClose={handleMigrationDialogClose}
-        onCancel={handleCancelMigration}
-        onConfirm={handleConfirmMigration}
-        isMigrating={isProcessing}
-        wasSuccessful={wasMigrationSuccessful}
-        hasFailed={hasMigrationFailed}
-      />
+      <Switch>
+        <Route exact path='/offline' component={() => <Offline />} />
+
+        <Route>
+          <BaseLayout>
+            <Switch>
+              <Route
+                path='/'
+                exact
+                component={() => <Redirect to='/integrations' />}
+              />
+              <Route
+                exact
+                path='/integrations'
+                component={() => (
+                  <ErrorBoundary>
+                    <Integration />
+                  </ErrorBoundary>
+                )}
+              />
+              <Route
+                path='/integrations/:providerId'
+                component={() => (
+                  <ErrorBoundary>
+                    <ManageIntegration />
+                  </ErrorBoundary>
+                )}
+              />
+              <Route
+                path='/connections/add/:providerId'
+                component={() => (
+                  <ErrorBoundary>
+                    <AddConnection />
+                  </ErrorBoundary>
+                )}
+              />
+              <Route
+                path='/connections/configure/:providerId/:connectionId'
+                component={() => (
+                  <ErrorBoundary>
+                    <ConfigureConnection />
+                  </ErrorBoundary>
+                )}
+              />
+              <Route
+                exact
+                path='/connections/incoming-webhook'
+                component={() => <IncomingWebhookConnection />}
+              />
+              <Route
+                exact
+                path='/blueprints'
+                component={() => (
+                  <ErrorBoundary>
+                    <Blueprints />
+                  </ErrorBoundary>
+                )}
+              />
+              <Route
+                exact
+                path='/blueprints/create'
+                component={() => (
+                  <ErrorBoundary>
+                    <CreateBlueprint />
+                  </ErrorBoundary>
+                )}
+              />
+              <Route
+                exact
+                path='/blueprints/detail/:bId'
+                component={() => (
+                  <ErrorBoundary>
+                    <BlueprintDetail />
+                  </ErrorBoundary>
+                )}
+              />
+              <Route
+                exact
+                path='/blueprints/settings/:bId'
+                component={() => (
+                  <ErrorBoundary>
+                    <BlueprintSettings />
+                  </ErrorBoundary>
+                )}
+              />
+            </Switch>
+            <MigrationAlertDialog
+              isOpen={migrationAlertOpened}
+              onClose={handleMigrationDialogClose}
+              onCancel={handleCancelMigration}
+              onConfirm={handleConfirmMigration}
+              isMigrating={isProcessing}
+              wasSuccessful={wasMigrationSuccessful}
+              hasFailed={hasMigrationFailed}
+            />
+          </BaseLayout>
+        </Route>
+      </Switch>
     </Router>
   )
 }

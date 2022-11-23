@@ -46,14 +46,10 @@ func TestStatusDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraStatus{},
 		"./snapshot_tables/_tool_jira_statuses.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"name",
 			"status_category",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

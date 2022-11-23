@@ -17,7 +17,7 @@
 @import '@/styles/fonts.scss';
 // Load Core BlueprintJS SCSS Modules
 @import '@blueprintjs/core/src/blueprint.scss';
-// @import '@blueprintjs/popover2/src/blueprint-popover2.scss';
+@import '~@blueprintjs/popover2/lib/css/blueprint-popover2.css';
 // App-level "blueprint" overrides
 @import '@/styles/libraries/blueprint.scss';
 // Global App styles

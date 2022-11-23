@@ -1,0 +1,12 @@
+{
+  "id": "gitextractor",
+  "name": "GitExtractor",
+  "type": "pipeline",
+  "enabled": true,
+  "multiConnection": false,
+  "isBeta": false,
+  "isProvider": false,
+  "icon": "src/images/integrations/gitextractor.svg",
+  "private": false,
+  "connection": null
+}

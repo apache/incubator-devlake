@@ -48,10 +48,9 @@ func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, error
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error getting DB count of blueprints")
 	}
-	if query.Page > 0 && query.PageSize > 0 {
-		offset := query.PageSize * (query.Page - 1)
-		db = db.Limit(query.PageSize).Offset(offset)
-	}
+
+	db = processDbClausesWithPager(db, query.PageSize, query.Page)
+
 	err = db.Find(&dbBlueprints).Error
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error finding DB blueprints")
@@ -91,6 +90,7 @@ func parseBlueprint(DbBlueprint *models.DbBlueprint) *models.Blueprint {
 		Enable:     DbBlueprint.Enable,
 		CronConfig: DbBlueprint.CronConfig,
 		IsManual:   DbBlueprint.IsManual,
+		SkipOnFail: DbBlueprint.SkipOnFail,
 		Settings:   []byte(DbBlueprint.Settings),
 		Model:      DbBlueprint.Model,
 	}
@@ -106,6 +106,7 @@ func parseDbBlueprint(blueprint *models.Blueprint) *models.DbBlueprint {
 		Enable:     blueprint.Enable,
 		CronConfig: blueprint.CronConfig,
 		IsManual:   blueprint.IsManual,
+		SkipOnFail: blueprint.SkipOnFail,
 		Settings:   string(blueprint.Settings),
 		Model:      blueprint.Model,
 	}

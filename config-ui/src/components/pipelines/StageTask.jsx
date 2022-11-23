@@ -21,15 +21,17 @@ import StageTaskName from '@/components/pipelines/StageTaskName'
 import StageTaskIndicator from '@/components/pipelines/StageTaskIndicator'
 import StageTaskCaption from '@/components/pipelines/StageTaskCaption'
 
+import { ReactComponent as SyncIcon } from '@/images/icons/sync.svg'
+
 const StageTask = (props) => {
-  const {
-    // stages = [],
-    task
-    // sK,
-    // sIdx,
-  } = props
+  const { task, rerunTask } = props
 
   const [taskModuleOpened, setTaskModuleOpened] = useState(null)
+
+  const handleRerunTask = (e) => {
+    e.stopPropagation()
+    rerunTask(task.id)
+  }
 
   const generateStageTaskCssClasses = () => {
     return `pipeline-task-module task-${task.status
@@ -70,11 +72,16 @@ const StageTask = (props) => {
           }}
         >
           <div style={{ padding: '4px 2px 4px 0', width: '100%' }}>
-            <StageTaskName
-              task={task}
-              showDetails={taskModuleOpened}
-              onClose={() => setTaskModuleOpened(null)}
-            />
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <StageTaskName
+                task={task}
+                showDetails={taskModuleOpened}
+                onClose={() => setTaskModuleOpened(null)}
+              />
+              <span onClick={handleRerunTask}>
+                <SyncIcon />
+              </span>
+            </div>
             <StageTaskCaption task={task} options={task.options} />
           </div>
         </div>

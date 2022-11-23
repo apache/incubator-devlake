@@ -40,7 +40,6 @@ func CollectBugs(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect bugs")
-
 	since := data.Since
 	incremental := false
 	if since == nil {
@@ -74,7 +73,7 @@ func CollectBugs(taskCtx core.SubTaskContext) errors.Error {
 			query.Set("fields", "labels")
 			query.Set("order", "created asc")
 			if since != nil {
-				query.Set("modified", fmt.Sprintf(">%v", since.Format("YYYY-MM-DD")))
+				query.Set("modified", fmt.Sprintf(">%s", fmt.Sprintf(">%s", since.In(data.Options.CstZone).Format("2006-01-02"))))
 			}
 			return query, nil
 		},

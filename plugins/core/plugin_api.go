@@ -39,9 +39,10 @@ type OutputFile struct {
 
 // Describe response data of a api
 type ApiResourceOutput struct {
-	Body   interface{} // response body
-	Status int
-	File   *OutputFile
+	Body        interface{} // response body
+	Status      int
+	File        *OutputFile
+	ContentType string
 }
 
 type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, errors.Error)

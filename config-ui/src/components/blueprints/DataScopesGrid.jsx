@@ -17,11 +17,12 @@
  */
 import React from 'react'
 import { Button, Intent, Card, Elevation, Tag } from '@blueprintjs/core'
-import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
+// import { Providers, ProviderLabels, ProviderIcons } from '@/data/Providers'
 import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
 
 const DataScopesGrid = (props) => {
   const {
+    providers: Providers = {},
     connections = [],
     blueprint = NullBlueprint,
     mode = BlueprintMode.NORMAL,
@@ -129,8 +130,8 @@ const DataScopesGrid = (props) => {
                   padding: 0
                 }}
               >
-                {c.entities.map((entityLabel, eIdx) => (
-                  <li key={`list-item-key-${eIdx}`}>{entityLabel}</li>
+                {c.dataDomains.map((dataDomain, eIdx) => (
+                  <li key={`list-item-key-${eIdx}`}>{dataDomain.title}</li>
                 ))}
               </ul>
             </div>
@@ -143,9 +144,7 @@ const DataScopesGrid = (props) => {
                 whiteSpace: 'nowrap'
               }}
             >
-              {[Providers.GITLAB, Providers.GITHUB].includes(
-                c.provider?.id
-              ) && (
+              {c?.hasScopeEntities() && (
                 <ul
                   style={{
                     listStyle: 'none',
@@ -153,26 +152,13 @@ const DataScopesGrid = (props) => {
                     padding: 0
                   }}
                 >
-                  {c.projects.map((project, pIdx) => (
+                  {c.scopeEntities.map((scopeEntity, pIdx) => (
                     <li
                       key={`list-item-key-${pIdx}`}
                       style={{ whiteSpace: 'break-spaces' }}
                     >
-                      {project.title}
+                      {scopeEntity.title}
                     </li>
-                  ))}
-                </ul>
-              )}
-              {[Providers.JIRA].includes(c.provider?.id) && (
-                <ul
-                  style={{
-                    listStyle: 'none',
-                    margin: 0,
-                    padding: 0
-                  }}
-                >
-                  {c.boardsList.map((board, bIdx) => (
-                    <li key={`list-item-key-${bIdx}`}>{board.title}</li>
                   ))}
                 </ul>
               )}

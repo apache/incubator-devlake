@@ -15,10 +15,11 @@
  * limitations under the License.
  *
  */
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useContext } from 'react'
 import parser from 'cron-parser'
 import { BlueprintMode } from '@/data/NullBlueprint'
-import { Providers } from '@/data/Providers'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers } from '@/data/Providers'
 
 function useBlueprintValidation({
   name,
@@ -28,13 +29,14 @@ function useBlueprintValidation({
   tasks = [],
   mode = null,
   connections = [],
-  entities = {},
-  boards = {},
-  projects = {},
+  dataDomainsGroup = {},
+  scopeEntitiesGroup = {},
   activeStep = null,
   activeProvider = null,
   activeConnection = null
 }) {
+  const { Providers } = useContext(IntegrationsContext)
+
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
 
@@ -88,7 +90,7 @@ function useBlueprintValidation({
   }, [])
 
   const validateRepositoryName = useCallback((projects = []) => {
-    const repoRegExp = /([a-z0-9_-]){2,}\/([a-z0-9_-]){2,}$/gi
+    const repoRegExp = /([a-z0-9_-]){2,}\/([.a-z0-9_-]){2,}$/gi
     return projects.every((p) => p.value.match(repoRegExp))
   }, [])
 
@@ -156,27 +158,25 @@ function useBlueprintValidation({
         case 2:
           if (
             activeProvider?.id === Providers.JIRA &&
-            boards[activeConnection?.id]?.length === 0
+            scopeEntitiesGroup[activeConnection?.id]?.length === 0
           ) {
             errs.push('Boards: No Boards selected.')
           }
           if (
-            activeProvider?.id === Providers.GITHUB &&
-            projects[activeConnection?.id]?.length === 0
+            [Providers.GITHUB, Providers.GITLAB, Providers.JENKINS].includes(
+              activeProvider?.id
+            ) &&
+            scopeEntitiesGroup[activeConnection?.id]?.length === 0
           ) {
-            errs.push('Projects: No Project Repsitories entered.')
+            if (activeProvider?.id === Providers.JENKINS) {
+              errs.push('Jobs: No Job entered.')
+            } else {
+              errs.push('Projects: No Project Repsitories entered.')
+            }
           }
           if (
             activeProvider?.id === Providers.GITHUB &&
-            !validateRepositoryName(projects[activeConnection?.id])
-          ) {
-            errs.push(
-              'Projects: Only Git Repository Names are supported (username/repo).'
-            )
-          }
-          if (
-            activeProvider?.id === Providers.GITHUB &&
-            !validateRepositoryName(projects[activeConnection?.id])
+            !validateRepositoryName(scopeEntitiesGroup[activeConnection?.id])
           ) {
             errs.push(
               'Projects: Only Git Repository Names are supported (username/repo).'
@@ -184,49 +184,46 @@ function useBlueprintValidation({
           }
           if (
             activeProvider?.id === Providers.GITHUB &&
-            !validateUniqueObjectSet(projects[activeConnection?.id])
+            !validateUniqueObjectSet(scopeEntitiesGroup[activeConnection?.id])
           ) {
             errs.push('Projects: Duplicate project detected.')
           }
-          if (entities[activeConnection?.id]?.length === 0) {
+          if (dataDomainsGroup[activeConnection?.id]?.length === 0) {
             errs.push('Data Entities: No Data Entities selected.')
           }
           if (
             activeProvider?.id === Providers.GITLAB &&
-            projects[activeConnection?.id]?.length === 0
-          ) {
-            errs.push('Projects: No Project IDs entered.')
-          }
-          if (
-            activeProvider?.id === Providers.GITLAB &&
-            !validateUniqueObjectSet(projects[activeConnection?.id])
+            !validateUniqueObjectSet(scopeEntitiesGroup[activeConnection?.id])
           ) {
             errs.push('Projects: Duplicate project detected.')
           }
 
           connections.forEach((c) => {
-            if (c.provider === Providers.JIRA && boards[c?.id]?.length === 0) {
+            if (
+              c.provider === Providers.JIRA &&
+              scopeEntitiesGroup[c?.id]?.length === 0
+            ) {
               errs.push(`${c.name} requires a Board`)
             }
             if (
               c.provider === Providers.GITHUB &&
-              projects[c?.id]?.length === 0
+              scopeEntitiesGroup[c?.id]?.length === 0
             ) {
               errs.push(`${c.name} requires Project Names`)
             }
             if (
               c.provider === Providers.GITHUB &&
-              !validateRepositoryName(projects[c?.id])
+              !validateRepositoryName(scopeEntitiesGroup[c?.id])
             ) {
               errs.push(`${c.name} has Invalid Project Repository`)
             }
             if (
               c.provider === Providers.GITLAB &&
-              projects[c?.id]?.length === 0
+              scopeEntitiesGroup[c?.id]?.length === 0
             ) {
               errs.push(`${c.name} requires Project IDs`)
             }
-            if (entities[c?.id]?.length === 0) {
+            if (dataDomainsGroup[c?.id]?.length === 0) {
               errs.push(`${c.name} is missing Data Entities`)
             }
           })
@@ -245,9 +242,8 @@ function useBlueprintValidation({
     enable,
     mode,
     connections,
-    boards,
-    entities,
-    projects,
+    scopeEntitiesGroup,
+    dataDomainsGroup,
     activeStep,
     activeProvider?.id,
     activeConnection,

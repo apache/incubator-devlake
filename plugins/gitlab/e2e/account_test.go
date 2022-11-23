@@ -49,7 +49,7 @@ func TestGitlabAccountDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.GitlabAccount{},
 		"./snapshot_tables/_tool_gitlab_accounts.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"gitlab_id",
 			"username",
@@ -59,11 +59,7 @@ func TestGitlabAccountDataFlow(t *testing.T) {
 			"membership_state",
 			"avatar_url",
 			"web_url",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify conversion
@@ -72,12 +68,8 @@ func TestGitlabAccountDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		crossdomain.Account{},
 		"./snapshot_tables/accounts.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"email",
 			"full_name",
 			"user_name",
@@ -85,6 +77,6 @@ func TestGitlabAccountDataFlow(t *testing.T) {
 			"organization",
 			"created_date",
 			"status",
-		},
+		),
 	)
 }

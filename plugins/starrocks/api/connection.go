@@ -37,17 +37,19 @@ func PostStarRocksPipeline(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 type StarRocksPipelinePlan [][]struct {
 	Plugin  string `json:"plugin"`
 	Options struct {
-		SourceType  string   `json:"source_type"`
-		SourceDsn   string   `json:"source_dsn"`
-		Host        string   `json:"host"`
-		Port        int      `json:"port"`
-		User        string   `json:"user"`
-		Password    string   `json:"password"`
-		Database    string   `json:"database"`
-		BePort      int      `json:"be_port"`
-		Tables      []string `json:"tables"`
-		BatchSize   int      `json:"batch_size"`
-		Extra       string   `json:"extra"`
-		DomainLayer string   `json:"domain_layer"`
+		SourceType  string            `json:"source_type"`
+		SourceDsn   string            `json:"source_dsn"`
+		Host        string            `json:"host"`
+		Port        int               `json:"port"`
+		User        string            `json:"user"`
+		Password    string            `json:"password"`
+		Database    string            `json:"database"`
+		BeHost      string            `json:"be_host"`
+		BePort      int               `json:"be_port"`
+		Tables      []string          `json:"tables"`
+		BatchSize   int               `json:"batch_size"`
+		OrderBy     map[string]string `json:"order_by"`
+		Extra       string            `json:"extra"`
+		DomainLayer string            `json:"domain_layer"`
 	} `json:"options"`
 }

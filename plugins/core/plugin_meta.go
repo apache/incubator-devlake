@@ -17,7 +17,7 @@ limitations under the License.
 
 package core
 
-// Minimal features a plugin should comply, should be implemented by all plugins
+// PluginMeta is the Minimal features a plugin should comply, should be implemented by all plugins
 type PluginMeta interface {
 	Description() string
 	// PkgPath information lost when compiled as plugin(.so)
@@ -31,12 +31,19 @@ type GrafanaDashboard struct {
 	GrafanaDashboardJson string
 }
 
-// PluginDashboard return it's dashboard which should be display at grafana
+// PluginDashboard return its dashboard which should be display at grafana
 type PluginDashboard interface {
 	Dashboards() []GrafanaDashboard
 }
 
-// PluginIcon return it's icon (.svg text)
+// PluginIcon return its icon (.svg text)
 type PluginIcon interface {
 	SvgIcon() string
+}
+
+// PluginSource abstracts data sources
+type PluginSource interface {
+	Connection() interface{}
+	Scope() interface{}
+	TransformationRule() interface{}
 }

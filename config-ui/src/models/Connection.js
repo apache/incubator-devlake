@@ -31,15 +31,15 @@
  * @property {number?} rateLimitPerHour
  * @property {Date?} createdAt
  * @property {Date?} updatedAt
- * @property {plain|token?} authentication
+ * @property {'plain'|'token'?} authentication
  * @property {string|object?} plugin
  * @property {string|object?} provider
  * @property {string?} providerId
- * @property {<Array<DataEntity>>} entities
+ * @property {Array<DataDomain>} dataDomains
  * @property {boolean} multiConnection
  * @property {number|string?} status
- * @property {<Array<object>>?} transformations
- * @property {<Array<string>>?} errors
+ * @property {Array<object>?} transformations
+ * @property {Array<string>?} errors
  */
 class Connection {
   constructor(data = {}) {
@@ -55,6 +55,7 @@ class Connection {
     this.username = data?.username || ''
     this.password = data?.password || ''
     this.rateLimitPerHour = data?.rateLimitPerHour || 0
+    this.enableGraphql = data?.enableGraphql || false
     this.createdAt = data?.createdAt || null
     this.updatedAt = data?.updatedAt || null
 
@@ -63,7 +64,7 @@ class Connection {
     // @todo: will be replaced out by $this.plugin
     this.provider = data?.provider || null
     this.providerId = data?.providerId || null
-    this.entities = data?.entities || []
+    this.dataDomains = data?.dataDomains || []
     this.multiConnection = data?.multiConnection || true
     this.status = data?.status || null
 

@@ -18,10 +18,12 @@ limitations under the License.
 package e2e
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"testing"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 
@@ -85,12 +87,17 @@ func TestRepoDataFlow(t *testing.T) {
 			"account_id",
 			"repo_github_id",
 			"login",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 
 	// verify extraction
 	dataflowTester.FlushTabler(&code.Repo{})
 	dataflowTester.FlushTabler(&ticket.Board{})
+	dataflowTester.FlushTabler(&devops.CicdScope{})
 	dataflowTester.FlushTabler(&crossdomain.BoardRepo{})
 	dataflowTester.Subtask(tasks.ConvertRepoMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -107,6 +114,10 @@ func TestRepoDataFlow(t *testing.T) {
 			"created_date",
 			"updated_date",
 			"deleted",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 	dataflowTester.VerifyTable(
@@ -118,6 +129,10 @@ func TestRepoDataFlow(t *testing.T) {
 			"description",
 			"url",
 			"created_date",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
 
@@ -127,6 +142,15 @@ func TestRepoDataFlow(t *testing.T) {
 		[]string{
 			"board_id",
 			"repo_id",
+			"_raw_data_params",
+			"_raw_data_table",
+			"_raw_data_id",
+			"_raw_data_remark",
 		},
 	)
+
+	dataflowTester.VerifyTableWithOptions(&devops.CicdScope{}, e2ehelper.TableOptions{
+		CSVRelPath:  "./snapshot_tables/cicd_scopes.csv",
+		IgnoreTypes: []interface{}{common.NoPKModel{}},
+	})
 }

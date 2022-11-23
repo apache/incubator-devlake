@@ -15,7 +15,14 @@
  * limitations under the License.
  *
  */
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+  useContext
+} from 'react'
 import {
   Button,
   Colors,
@@ -31,14 +38,33 @@ import {
   // PopoverInteractionKind,
   Intent,
   PopoverInteractionKind,
-  NumericInput
+  NumericInput,
+  Switch,
+  Tooltip
 } from '@blueprintjs/core'
-import { Providers } from '@/data/Providers'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers } from '@/data/Providers'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import InputValidationError from '@/components/validation/InputValidationError'
 
 import '@/styles/integration.scss'
 import '@/styles/connections.scss'
+
+const TooltipIcon = (props) => (
+  <Icon
+    icon='info-sign'
+    size={12}
+    style={{
+      float: 'left',
+      display: 'inline-block',
+      alignContent: 'center',
+      marginBottom: '4px',
+      marginLeft: '8px',
+      color: '#999'
+    }}
+    {...props}
+  />
+)
 
 export default function ConnectionForm(props) {
   const {
@@ -58,6 +84,7 @@ export default function ConnectionForm(props) {
     password,
     proxy = '',
     rateLimitPerHour = 0,
+    enableGraphql = true,
     isSaving,
     isTesting,
     showError,
@@ -75,16 +102,20 @@ export default function ConnectionForm(props) {
     onPasswordChange = () => {},
     onProxyChange = () => {},
     onRateLimitChange = () => {},
+    onEnableGraphqlChange = () => {},
     onValidate = () => {},
     authType = 'token',
     sourceLimits = {},
     showLimitWarning = true,
-    labels,
-    placeholders,
+    labels = {},
+    placeholders = {},
+    tooltips = {},
     enableActions = true,
     formGroupClassName = 'formGroup',
     showHeadline = true
   } = props
+
+  const { Providers } = useContext(IntegrationsContext)
 
   const connectionNameRef = useRef()
   const connectionEndpointRef = useRef()
@@ -100,6 +131,7 @@ export default function ConnectionForm(props) {
   const [tokenStore, setTokenStore] = useState(initialTokenStore)
   const [personalAccessTokens, setPersonalAccessTokens] = useState([])
   const [tokenTests, setTokenTests] = useState([])
+  const [enableRateLimit, setEnableRateLimit] = useState(rateLimitPerHour > 0)
 
   const patTestPayload = useMemo(
     () => ({ endpoint: endpointUrl, proxy }),
@@ -238,7 +270,12 @@ export default function ConnectionForm(props) {
       console.log('>> PERSONAL ACCESS TOKENS ENTERED...', personalAccessTokens)
       syncPersonalAcessTokens()
     }
-  }, [activeProvider?.id, personalAccessTokens, syncPersonalAcessTokens])
+  }, [
+    activeProvider?.id,
+    personalAccessTokens,
+    syncPersonalAcessTokens,
+    Providers.GITHUB
+  ])
 
   useEffect(() => {
     console.log(
@@ -277,6 +314,10 @@ export default function ConnectionForm(props) {
         })
     )
   }, [allTestResponses, personalAccessTokens, getValidityStatus])
+
+  useEffect(() => {
+    onRateLimitChange((rL) => (!enableRateLimit ? 0 : rL))
+  }, [enableRateLimit, onRateLimitChange])
 
   return (
     <>
@@ -429,6 +470,15 @@ export default function ConnectionForm(props) {
             >
               <Label>
                 {labels ? labels.token : <>Basic&nbsp;Auth&nbsp;Token</>}
+                {tooltips?.token ? (
+                  <Tooltip
+                    className='connection-tooltip'
+                    intent={Intent.PRIMARY}
+                    content={tooltips?.token}
+                  >
+                    <TooltipIcon />
+                  </Tooltip>
+                ) : null}
                 <span className='requiredStar'>*</span>
               </Label>
               {[Providers.GITHUB].includes(activeProvider?.id) ? (
@@ -710,6 +760,15 @@ export default function ConnectionForm(props) {
               >
                 <Label>
                   {labels ? labels.password : <>Password</>}
+                  {tooltips?.password ? (
+                    <Tooltip
+                      className='connection-tooltip'
+                      intent={Intent.PRIMARY}
+                      content={tooltips?.password}
+                    >
+                      <TooltipIcon />
+                    </Tooltip>
+                  ) : null}
                   <span className='requiredStar'>*</span>
                 </Label>
                 <InputGroup
@@ -745,78 +804,157 @@ export default function ConnectionForm(props) {
           Providers.GITLAB,
           Providers.JIRA,
           Providers.JENKINS,
-          Providers.TAPD
+          Providers.TAPD,
+          Providers.AZURE,
+          Providers.BITBUCKET,
+          Providers.GITEE
         ].includes(activeProvider?.id) && (
-          <>
-            <div className='formContainer'>
-              <FormGroup
+          <div className='formContainer'>
+            <FormGroup
+              disabled={isTesting || isSaving || isLocked}
+              inline={true}
+              labelFor='connection-proxy'
+              className={formGroupClassName}
+              contentClassName='formGroupContent'
+            >
+              <Label>{labels ? labels.proxy : <>Proxy&nbsp;URL</>}</Label>
+              <InputGroup
+                id='connection-proxy'
+                inputRef={connectionProxyRef}
+                tabIndex={3}
+                placeholder={
+                  placeholders.proxy
+                    ? placeholders.proxy
+                    : 'http://proxy.localhost:8080'
+                }
+                defaultValue={proxy}
+                onChange={(e) => onProxyChange(e.target.value)}
                 disabled={isTesting || isSaving || isLocked}
-                inline={true}
-                labelFor='connection-proxy'
-                className={formGroupClassName}
-                contentClassName='formGroupContent'
+                className={`input input-proxy ${
+                  fieldHasError('Proxy') ? 'invalid-field' : ''
+                }`}
+                rightElement={
+                  <InputValidationError error={getFieldError('Proxy')} />
+                }
+              />
+            </FormGroup>
+          </div>
+        )}
+        {[Providers.GITHUB].includes(activeProvider?.id) && (
+          <div className='formContainer'>
+            <FormGroup
+              disabled={isTesting || isSaving || isLocked}
+              inline={true}
+              labelFor='connection-ratelimit'
+              className={formGroupClassName}
+              contentClassName='formGroupContent'
+            >
+              <Label>
+                {labels?.enableGraphql || <>Use Graphql APIs</>}
+                {tooltips?.enableGraphql ? (
+                  <Tooltip
+                    className='connection-tooltip'
+                    intent={Intent.PRIMARY}
+                    content={tooltips?.enableGraphql}
+                  >
+                    <TooltipIcon />
+                  </Tooltip>
+                ) : null}
+              </Label>
+              <div
+                className='ratelimit-options'
+                style={{ display: 'flex', float: 'left' }}
               >
-                <Label>{labels ? labels.proxy : <>Proxy&nbsp;URL</>}</Label>
-                <InputGroup
-                  id='connection-proxy'
-                  inputRef={connectionProxyRef}
-                  tabIndex={3}
-                  placeholder={
-                    placeholders.proxy
-                      ? placeholders.proxy
-                      : 'http://proxy.localhost:8080'
-                  }
-                  defaultValue={proxy}
-                  onChange={(e) => onProxyChange(e.target.value)}
-                  disabled={isTesting || isSaving || isLocked}
-                  className={`input input-proxy ${
-                    fieldHasError('Proxy') ? 'invalid-field' : ''
-                  }`}
-                  rightElement={
-                    <InputValidationError error={getFieldError('Proxy')} />
-                  }
+                <Switch
+                  checked={enableGraphql}
+                  label={enableGraphql ? 'Enabled' : 'Disabled'}
+                  onChange={() => onEnableGraphqlChange(!enableGraphql)}
+                  style={{ marginBottom: '0' }}
                 />
-              </FormGroup>
-            </div>
-            <div className='formContainer'>
-              <FormGroup
-                disabled={isTesting || isSaving || isLocked}
-                inline={true}
-                labelFor='connection-ratelimit'
-                className={formGroupClassName}
-                contentClassName='formGroupContent'
+              </div>
+            </FormGroup>
+          </div>
+        )}
+        {[
+          Providers.GITHUB,
+          Providers.GITLAB,
+          Providers.JIRA,
+          Providers.JENKINS,
+          Providers.TAPD,
+          Providers.AZURE,
+          Providers.BITBUCKET,
+          Providers.GITEE
+        ].includes(activeProvider?.id) && (
+          <div className='formContainer'>
+            <FormGroup
+              disabled={isTesting || isSaving || isLocked}
+              inline={true}
+              labelFor='connection-ratelimit'
+              className={formGroupClassName}
+              contentClassName='formGroupContent'
+            >
+              <Label>
+                {labels ? labels.rateLimitPerHour : <>Rate&nbsp;Limit</>}
+                {tooltips?.rateLimitPerHour ? (
+                  <Tooltip
+                    className='connection-tooltip'
+                    intent={Intent.PRIMARY}
+                    content={tooltips?.rateLimitPerHour}
+                  >
+                    <TooltipIcon />
+                  </Tooltip>
+                ) : null}
+              </Label>
+              <div
+                className='ratelimit-options'
+                style={{ display: 'flex', float: 'left' }}
               >
-                <Label>
-                  {labels ? labels.rateLimitPerHour : <>Rate&nbsp;Limit</>}
-                </Label>
-                <NumericInput
-                  id='connection-ratelimit'
-                  ref={connectionRateLimitRef}
-                  disabled={isTesting || isSaving || isLocked}
-                  min={0}
-                  max={1000000000}
-                  clampValueOnBlur={true}
-                  className={`input input-ratelimit ${
-                    fieldHasError('RateLimit') ? 'invalid-field' : ''
-                  }`}
-                  fill={false}
-                  placeholder={
-                    placeholders.rateLimitPerHour
-                      ? placeholders.rateLimitPerHour
-                      : '1000'
+                {enableRateLimit && (
+                  <div style={{ marginRight: '10px' }}>
+                    <NumericInput
+                      id='connection-ratelimit'
+                      ref={connectionRateLimitRef}
+                      disabled={isTesting || isSaving || isLocked}
+                      min={0}
+                      max={1000000000}
+                      clampValueOnBlur={true}
+                      className={`input input-ratelimit ${
+                        fieldHasError('RateLimit') ? 'invalid-field' : ''
+                      }`}
+                      fill={false}
+                      placeholder={
+                        placeholders.rateLimitPerHour
+                          ? placeholders.rateLimitPerHour
+                          : '1000'
+                      }
+                      allowNumericCharactersOnly={true}
+                      onValueChange={(rateLimitPerHour) => {
+                        onRateLimitChange(rateLimitPerHour)
+                      }}
+                      value={rateLimitPerHour}
+                      rightElement={
+                        <InputValidationError
+                          error={getFieldError('RateLimit')}
+                        />
+                      }
+                    />
+                  </div>
+                )}
+                <Switch
+                  checked={enableRateLimit}
+                  label={
+                    enableRateLimit ? (
+                      <>Enabled &mdash; {rateLimitPerHour} Requests/hr</>
+                    ) : (
+                      'Disabled'
+                    )
                   }
-                  allowNumericCharactersOnly={true}
-                  onValueChange={(rateLimitPerHour) => {
-                    onRateLimitChange(rateLimitPerHour)
-                  }}
-                  value={rateLimitPerHour}
-                  rightElement={
-                    <InputValidationError error={getFieldError('RateLimit')} />
-                  }
+                  onChange={() => setEnableRateLimit(!enableRateLimit)}
+                  style={{ marginBottom: '0' }}
                 />
-              </FormGroup>
-            </div>
-          </>
+              </div>
+            </FormGroup>
+          </div>
         )}
         {enableActions && (
           <div

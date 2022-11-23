@@ -1,0 +1,12 @@
+{
+  "id": "dora",
+  "name": "DORA",
+  "type": "webhook",
+  "enabled": true,
+  "multiConnection": false,
+  "isBeta": false,
+  "isProvider": false,
+  "icon": "src/images/integrations/dora.svg",
+  "private": false,
+  "connection": null
+}

@@ -113,9 +113,11 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 			bitbucketPipeline := &models.BitbucketPipeline{
 				ConnectionId:        data.Options.ConnectionId,
 				BitbucketId:         bitbucketApiPipeline.Uuid,
-				WebUrl:              bitbucketApiPipeline.Links.Self.Href,
+				WebUrl:              bitbucketApiPipeline.Target.Commit.Links.Html.Href,
 				Status:              bitbucketApiPipeline.State.Name,
 				RefName:             bitbucketApiPipeline.Target.RefName,
+				CommitSha:           bitbucketApiPipeline.Target.Commit.Hash,
+				RepoId:              bitbucketApiPipeline.Repo.FullName,
 				DurationInSeconds:   bitbucketApiPipeline.DurationInSeconds,
 				BitbucketCreatedOn:  helper.Iso8601TimeToTime(bitbucketApiPipeline.CreatedOn),
 				BitbucketCompleteOn: helper.Iso8601TimeToTime(bitbucketApiPipeline.CompletedOn),

@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"time"
@@ -46,11 +47,53 @@ type TransformationRules struct {
 	TypeMappings               TypeMappings `json:"typeMappings"`
 }
 
+func (r *TransformationRules) ToDb() (rule *models.JiraTransformationRule, error2 errors.Error) {
+	blob, err := json.Marshal(r.TypeMappings)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
+	}
+	return &models.JiraTransformationRule{
+		EpicKeyField:               r.EpicKeyField,
+		StoryPointField:            r.StoryPointField,
+		RemotelinkCommitShaPattern: r.RemotelinkCommitShaPattern,
+		TypeMappings:               blob,
+	}, nil
+}
+func (r *TransformationRules) FromDb(rule *models.JiraTransformationRule) (*TransformationRules, errors.Error) {
+	mappings := make(map[string]TypeMapping)
+	err := json.Unmarshal(rule.TypeMappings, &mappings)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
+	}
+	r.EpicKeyField = rule.EpicKeyField
+	r.StoryPointField = rule.StoryPointField
+	r.RemotelinkCommitShaPattern = rule.RemotelinkCommitShaPattern
+	r.TypeMappings = mappings
+	return r, nil
+}
+
+func MakeTransformationRules(rule models.JiraTransformationRule) (*TransformationRules, errors.Error) {
+	var typeMapping TypeMappings
+	err := json.Unmarshal(rule.TypeMappings, &typeMapping)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
+	}
+	result := &TransformationRules{
+		EpicKeyField:               rule.EpicKeyField,
+		StoryPointField:            rule.StoryPointField,
+		RemotelinkCommitShaPattern: rule.RemotelinkCommitShaPattern,
+		TypeMappings:               typeMapping,
+	}
+	return result, nil
+}
+
 type JiraOptions struct {
-	ConnectionId        uint64 `json:"connectionId"`
-	BoardId             uint64 `json:"boardId"`
-	Since               string
-	TransformationRules TransformationRules `json:"transformationRules"`
+	ConnectionId         uint64 `json:"connectionId"`
+	BoardId              uint64 `json:"boardId"`
+	Since                string
+	TransformationRules  *TransformationRules `json:"transformationRules"`
+	ScopeId              string
+	TransformationRuleId uint64
 }
 
 type JiraTaskData struct {

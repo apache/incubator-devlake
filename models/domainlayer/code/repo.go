@@ -21,7 +21,10 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
+
+var _ core.Scope = (*Repo)(nil)
 
 type Repo struct {
 	domainlayer.DomainEntity
@@ -48,4 +51,12 @@ type RepoLanguage struct {
 
 func (RepoLanguage) TableName() string {
 	return "repo_languages"
+}
+
+func (r *Repo) ScopeId() string {
+	return r.Id
+}
+
+func (r *Repo) ScopeName() string {
+	return r.Name
 }

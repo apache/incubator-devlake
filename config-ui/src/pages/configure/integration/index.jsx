@@ -17,11 +17,11 @@
  */
 import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import Nav from '@/components/Nav'
-import Sidebar from '@/components/Sidebar'
+import { Colors, Icon } from '@blueprintjs/core'
 import AppCrumbs from '@/components/Breadcrumbs'
-import Content from '@/components/Content'
-import { integrationsData } from '@/data/integrations'
+// @todo: replace with Integrations Hook
+// import { integrationsData } from '@/data/integrations'
+import useIntegrations from '@/hooks/useIntegrations'
 import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/incoming-webhook.svg'
 
 import '@/styles/integration.scss'
@@ -29,99 +29,122 @@ import '@/styles/integration.scss'
 export default function Integration() {
   const history = useHistory()
 
-  const [activeProvider, setActiveProvider] = useState(integrationsData[0])
+  const {
+    registry,
+    plugins: Plugins,
+    integrations: Integrations,
+    activeProvider,
+    setActiveProvider
+  } = useIntegrations()
+  // const [activeProvider, setActiveProvider] = useState(integrationsData[0])
 
   const handleProviderClick = (providerId) => {
-    const theProvider = integrationsData.find((p) => p.id === providerId)
+    const theProvider = Plugins.find((p) => p.id === providerId)
     if (theProvider) {
       setActiveProvider(theProvider)
       history.push(`/integrations/${theProvider.id}`)
     } else {
-      setActiveProvider(integrationsData[0])
+      setActiveProvider(Plugins.find[0])
     }
   }
 
-  useEffect(() => {
-    // Selected Provider
-    console.log(activeProvider)
-  }, [activeProvider, history])
+  // useEffect(() => {
+  //   // Selected Provider
+  //   console.log(activeProvider)
+  // }, [activeProvider, history])
 
-  useEffect(() => {}, [])
+  // useEffect(() => {}, [])
 
   return (
-    <>
-      <div className='container'>
-        <Nav />
-        <Sidebar />
-        <Content>
-          <main className='main'>
-            <AppCrumbs
-              items={[
-                { href: '/', icon: false, text: 'Dashboard' },
-                {
-                  href: '/integrations',
-                  icon: false,
-                  text: 'Connections',
-                  current: true
-                }
-              ]}
-            />
-            <div className='headlineContainer'>
-              <h1>Data Connections</h1>
-              <p className='page-description'>
-                {integrationsData.length} connections are available for data
-                collection.
-              </p>
-            </div>
-            <div className='integrationProviders'>
-              {integrationsData.map((provider) => (
-                <div
-                  className='iProvider'
-                  key={`provider-${provider.id}`}
-                  onClick={() => handleProviderClick(provider.id)}
-                >
-                  <div className='providerIcon'>{provider.iconDashboard}</div>
-                  <div className='providerName'>
-                    {provider.name}{' '}
-                    {provider.isBeta && (
-                      <>
-                        <sup>(beta)</sup>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className='headlineContainer'>
-              <h1>Webhooks</h1>
-              <p className='page-description'>
-                You can use webhooks to import deployments and incidents from
-                the unsupported data integrations to calculate DORA metrics,
-                etc. Please note: webhooks cannot be created or managed in
-                Blueprints.
-              </p>
-            </div>
-            <div className='integrationProviders'>
-              <div
-                className='iProvider'
-                style={{ width: 130 }}
-                onClick={() => history.push('/connections/incoming-webhook')}
-              >
-                <div className='providerIcon'>
-                  <WebHookProviderIcon
-                    className='providerIconSvg'
-                    width='40'
-                    height='40'
-                  />
-                </div>
-                <div className='providerName'>
-                  Issue/Deployment Incoming Webhook
-                </div>
-              </div>
-            </div>
-          </main>
-        </Content>
+    <main className='main'>
+      <AppCrumbs
+        items={[
+          { href: '/', icon: false, text: 'Dashboard' },
+          {
+            href: '/integrations',
+            icon: false,
+            text: 'Connections',
+            current: true
+          }
+        ]}
+      />
+      <div className='headlineContainer'>
+        <h1>Data Connections</h1>
+        <p className='page-description'>
+          {Integrations.length} connections are available for data collection.
+        </p>
       </div>
-    </>
+      <div className='integrationProviders'>
+        {Integrations.map((provider) => (
+          <div
+            className='iProvider'
+            key={`provider-${provider.id}`}
+            onClick={() => handleProviderClick(provider.id)}
+            style={{ position: 'relative' }}
+          >
+            {provider?.private && (
+              <span
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  position: 'absolute',
+                  top: '-5px',
+                  right: '-5px',
+                  textAlign: 'center',
+                  lineHeight: '16px',
+                  backgroundColor: '#fff',
+                  display: 'block',
+                  borderRadius: '50%',
+                  border: '1px solid #eee'
+                }}
+              >
+                <Icon icon='lock' size={10} style={{ color: Colors.RED5 }} />
+              </span>
+            )}
+            <div className='providerIcon'>
+              <img
+                className='providerIconSvg'
+                src={provider.icon}
+                width={40}
+                height={40}
+                style={{ width: '40px', height: '40px' }}
+              />
+            </div>
+            <div className='providerName'>
+              {provider.name}{' '}
+              {provider.isBeta && (
+                <>
+                  <sup>(beta)</sup>
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className='headlineContainer'>
+        <h1>Webhooks</h1>
+        <p className='page-description'>
+          You can use webhooks to import deployments and incidents from the
+          unsupported data integrations to calculate DORA metrics, etc. Please
+          note: webhooks cannot be created or managed in Blueprints.
+        </p>
+      </div>
+      <div className='integrationProviders'>
+        <div
+          className='iProvider'
+          style={{ width: 130 }}
+          onClick={() => history.push('/connections/incoming-webhook')}
+        >
+          <div className='providerIcon'>
+            <WebHookProviderIcon
+              className='providerIconSvg'
+              width='40'
+              height='40'
+            />
+          </div>
+          <div className='providerName'>Issue/Deployment Incoming Webhook</div>
+        </div>
+      </div>
+    </main>
   )
 }

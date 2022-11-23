@@ -21,6 +21,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
@@ -28,7 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/apache/incubator-devlake/worker/app"
 	"go.temporal.io/sdk/client"
-	"time"
 )
 
 type pipelineRunner struct {
@@ -43,7 +44,7 @@ func (p *pipelineRunner) runPipelineStandalone() errors.Error {
 		db,
 		p.pipeline.ID,
 		func(taskIds []uint64) errors.Error {
-			return runTasksStandalone(p.logger, taskIds)
+			return RunTasksStandalone(p.logger, taskIds)
 		},
 	)
 }
@@ -73,13 +74,14 @@ func (p *pipelineRunner) runPipelineViaTemporal() errors.Error {
 	}
 	err = workflow.Get(context.Background(), nil)
 	if err != nil {
-		p.logger.Info("failed to execute pipeline #%d via temporal: %w", p.pipeline.ID, err)
+		p.logger.Info("failed to execute pipeline #%d via temporal: %v", p.pipeline.ID, err)
 	}
 	p.logger.Info("pipeline #%d finished by temporal", p.pipeline.ID)
 	return errors.Convert(err)
 }
 
-func getPipelineLogger(pipeline *models.Pipeline) core.Logger {
+// GetPipelineLogger returns logger for the pipeline
+func GetPipelineLogger(pipeline *models.Pipeline) core.Logger {
 	pipelineLogger := globalPipelineLog.Nested(
 		fmt.Sprintf("pipeline #%d", pipeline.ID),
 	)
@@ -98,13 +100,13 @@ func getPipelineLogger(pipeline *models.Pipeline) core.Logger {
 
 // runPipeline start a pipeline actually
 func runPipeline(pipelineId uint64) errors.Error {
-	pipeline, err := GetPipeline(pipelineId)
+	ppl, err := GetPipeline(pipelineId)
 	if err != nil {
 		return err
 	}
 	pipelineRun := pipelineRunner{
-		logger:   getPipelineLogger(pipeline),
-		pipeline: pipeline,
+		logger:   GetPipelineLogger(ppl),
+		pipeline: ppl,
 	}
 	// run
 	if temporalClient != nil {

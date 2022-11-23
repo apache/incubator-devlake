@@ -18,24 +18,25 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type Component struct {
+var _ core.MigrationScript = (*addCommitFileComponent)(nil)
+
+type component20220722 struct {
 	RepoId    string `gorm:"type:varchar(255)"`
 	Name      string `gorm:"primaryKey;type:varchar(255)"`
 	PathRegex string `gorm:"type:varchar(255)"`
 }
 
-func (Component) TableName() string {
+func (component20220722) TableName() string {
 	return "components"
 }
 
-type CommitFile struct {
+type commitFile20220722 struct {
 	archived.DomainEntity
 	CommitSha string `gorm:"type:varchar(40)"`
 	FilePath  string `gorm:"type:varchar(255)"`
@@ -43,40 +44,43 @@ type CommitFile struct {
 	Deletions int
 }
 
-func (CommitFile) TableName() string {
+func (commitFile20220722) TableName() string {
 	return "commit_files"
 }
 
-type CommitFileComponent struct {
+type commitFileComponent20220722 struct {
 	archived.NoPKModel
 	CommitFileId  string `gorm:"primaryKey;type:varchar(255)"`
 	ComponentName string `gorm:"type:varchar(255)"`
 }
 
-func (CommitFileComponent) TableName() string {
+func (commitFileComponent20220722) TableName() string {
 	return "commit_file_components"
 }
 
-type commitfileComponent struct{}
+type addCommitFileComponent struct{}
 
-func (*commitfileComponent) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().DropTable(&archived.CommitFile{})
+func (addCommitFileComponent) Up(basicRes core.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.DropTables(&archived.CommitFile{})
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	err = db.Migrator().AutoMigrate(Component{}, CommitFile{}, CommitFileComponent{})
-	if err != nil {
-		return errors.Convert(err)
-	}
-	return nil
+
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		&component20220722{},
+		&commitFile20220722{},
+		&commitFileComponent20220722{},
+	)
 
 }
 
-func (*commitfileComponent) Version() uint64 {
+func (*addCommitFileComponent) Version() uint64 {
 	return 20220722165805
 }
 
-func (*commitfileComponent) Name() string {
+func (*addCommitFileComponent) Name() string {
 
 	return "add commit_file_components components table,update commit_files table"
 }

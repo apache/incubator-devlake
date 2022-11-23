@@ -49,7 +49,7 @@ func CollectIterations(taskCtx core.SubTaskContext) errors.Error {
 		var latestUpdated models.TapdIteration
 		clauses := []dal.Clause{
 			dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
-			dal.Orderby("created DESC"),
+			dal.Orderby("modified DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
 		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
@@ -65,6 +65,7 @@ func CollectIterations(taskCtx core.SubTaskContext) errors.Error {
 		Incremental:        incremental,
 		ApiClient:          data.ApiClient,
 		PageSize:           100,
+		Concurrency:        3,
 		UrlTemplate:        "iterations",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
@@ -73,7 +74,7 @@ func CollectIterations(taskCtx core.SubTaskContext) errors.Error {
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("order", "created asc")
 			if since != nil {
-				query.Set("updated", fmt.Sprintf(">%v", since.Format("YYYY-MM-DD")))
+				query.Set("modified", fmt.Sprintf(">%s", since.In(data.Options.CstZone).Format("2006-01-02")))
 			}
 			return query, nil
 		},

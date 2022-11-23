@@ -20,6 +20,7 @@ package tasks
 import (
 	"reflect"
 	"regexp"
+	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -34,9 +35,9 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
-var ConvertTasksMeta = core.SubTaskMeta{
-	Name:             "convertTasks",
-	EntryPoint:       ConvertTasks,
+var ConvertJobsMeta = core.SubTaskMeta{
+	Name:             "convertJobs",
+	EntryPoint:       ConvertJobs,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_jobs into  domain layer table cicd_tasks",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
@@ -46,7 +47,7 @@ type SimpleBranch struct {
 	HeadBranch string `json:"head_branch" gorm:"type:varchar(255)"`
 }
 
-func ConvertTasks(taskCtx core.SubTaskContext) (err errors.Error) {
+func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
@@ -71,6 +72,7 @@ func ConvertTasks(taskCtx core.SubTaskContext) (err errors.Error) {
 	defer cursor.Close()
 	jobIdGen := didgen.NewDomainIdGenerator(&models.GithubJob{})
 	runIdGen := didgen.NewDomainIdGenerator(&models.GithubRun{})
+	repoIdGen := didgen.NewDomainIdGenerator(&models.GithubRepo{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
@@ -93,18 +95,21 @@ func ConvertTasks(taskCtx core.SubTaskContext) (err errors.Error) {
 				StartedDate:  *line.StartedAt,
 				FinishedDate: line.CompletedAt,
 				PipelineId:   runIdGen.Generate(data.Options.ConnectionId, line.RepoId, line.RunID),
+				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
 			}
 			if deployTagRegexp != nil {
 				if deployFlag := deployTagRegexp.FindString(line.Name); deployFlag != "" {
 					domainJob.Type = devops.DEPLOYMENT
 				}
 			}
-			if line.Conclusion == "success" {
+			if strings.Contains(line.Conclusion, "success") {
 				domainJob.Result = devops.SUCCESS
-			} else if line.Conclusion == "failure" || line.Conclusion == "startup_failure" {
+			} else if strings.Contains(line.Conclusion, "failure") {
 				domainJob.Result = devops.FAILURE
-			} else {
+			} else if strings.Contains(line.Conclusion, "abort") {
 				domainJob.Result = devops.ABORT
+			} else {
+				domainJob.Result = ""
 			}
 
 			if line.Status != "completed" {

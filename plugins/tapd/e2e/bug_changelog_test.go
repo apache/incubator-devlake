@@ -38,8 +38,50 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			CompanyId:    99,
 			WorkspaceId:  991,
+			TransformationRules: tasks.TransformationRules{
+				TypeMappings: map[string]tasks.TypeMapping{
+					"Techstory": {
+						StandardType: "REQUIREMENT",
+					},
+					"技术债": {
+						StandardType: "REQUIREMENT",
+					},
+					"需求": {
+						StandardType: "REQUIREMENT",
+					},
+				},
+				StatusMappings: map[string]tasks.OriginalStatus{
+					"DONE":        []string{"已关闭"},
+					"IN_PROGRESS": []string{"接受/处理", "开发中", "developing", "test-11test-11test-12"},
+					"TODO":        []string{"新", "planning", "test-11test-11test-11"},
+				},
+			},
 		},
 	}
+
+	// bug status
+	// import raw data table
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status.csv",
+		"_raw_tapd_api_bug_status")
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status_last_steps.csv",
+		"_raw_tapd_api_bug_status_last_steps")
+
+	// verify extraction
+	dataflowTester.FlushTabler(&models.TapdBugStatus{})
+	dataflowTester.Subtask(tasks.ExtractBugStatusMeta, taskData)
+	dataflowTester.Subtask(tasks.EnrichBugStatusLastStepMeta, taskData)
+	dataflowTester.VerifyTable(
+		models.TapdBugStatus{},
+		"./snapshot_tables/_tool_tapd_bug_statuses.csv",
+		e2ehelper.ColumnWithRawData(
+			"connection_id",
+			"workspace_id",
+			"english_name",
+			"chinese_name",
+			"is_last_step",
+		),
+	)
+
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_changelogs.csv",
 		"_raw_tapd_api_bug_changelogs")
@@ -51,7 +93,7 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdBugChangelog{},
 		"./snapshot_tables/_tool_tapd_bug_changelogs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"field",
@@ -62,16 +104,12 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 			"new_value",
 			"memo",
 			"created",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.TapdBugChangelogItem{},
 		"./snapshot_tables/_tool_tapd_bug_changelog_items.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"changelog_id",
 			"field",
@@ -79,11 +117,7 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 			"value_after_parsed",
 			"iteration_id_from",
 			"iteration_id_to",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.FlushTabler(&ticket.IssueChangelogs{})
@@ -91,11 +125,7 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.IssueChangelogs{},
 		"./snapshot_tables/issue_changelogs_bug.csv",
-		[]string{
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"issue_id",
 			"author_id",
@@ -107,7 +137,7 @@ func TestTapdBugChangelogDataFlow(t *testing.T) {
 			"created_date",
 			"original_from_value",
 			"original_to_value",
-		},
+		),
 	)
 
 }

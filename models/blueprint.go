@@ -19,6 +19,7 @@ package models
 
 import (
 	"encoding/json"
+
 	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models/common"
@@ -32,19 +33,22 @@ const (
 
 // @Description CronConfig
 type Blueprint struct {
-	Name   string          `json:"name" validate:"required"`
-	Mode   string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Plan   json.RawMessage `json:"plan"`
-	Enable bool            `json:"enable"`
+	Name        string          `json:"name" validate:"required"`
+	ProjectName string          `json:"projectName" gorm:"type:varchar(255)"`
+	Mode        string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+	Plan        json.RawMessage `json:"plan"`
+	Enable      bool            `json:"enable"`
 	//please check this https://crontab.guru/ for detail
 	CronConfig   string          `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
 	IsManual     bool            `json:"isManual"`
+	SkipOnFail   bool            `json:"skipOnFail"`
 	Settings     json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
 	common.Model `swaggerignore:"true"`
 }
 
 type BlueprintSettings struct {
 	Version     string          `json:"version" validate:"required,semver,oneof=1.0.0"`
+	SkipOnFail  bool            `json:"skipOnFail"`
 	Connections json.RawMessage `json:"connections" validate:"required"`
 	BeforePlan  json.RawMessage `json:"before_plan"`
 	AfterPlan   json.RawMessage `json:"after_plan"`
@@ -62,13 +66,15 @@ func (bp *Blueprint) UnmarshalPlan() (core.PipelinePlan, errors.Error) {
 
 // @Description CronConfig
 type DbBlueprint struct {
-	Name   string `json:"name" validate:"required"`
-	Mode   string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Plan   string `json:"plan" encrypt:"yes"`
-	Enable bool   `json:"enable"`
+	Name        string `json:"name" validate:"required"`
+	ProjectName string `json:"projectName" gorm:"type:varchar(255)"`
+	Mode        string `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
+	Plan        string `json:"plan" encrypt:"yes"`
+	Enable      bool   `json:"enable"`
 	//please check this https://crontab.guru/ for detail
 	CronConfig   string `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
 	IsManual     bool   `json:"isManual"`
+	SkipOnFail   bool   `json:"skipOnFail"`
 	Settings     string `json:"settings" encrypt:"yes" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
 	common.Model `swaggerignore:"true"`
 }

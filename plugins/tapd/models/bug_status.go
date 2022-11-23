@@ -17,7 +17,9 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/models/common"
+import (
+	"github.com/apache/incubator-devlake/models/common"
+)
 
 type TapdBugStatus struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
@@ -31,3 +33,23 @@ type TapdBugStatus struct {
 func (TapdBugStatus) TableName() string {
 	return "_tool_tapd_bug_statuses"
 }
+
+type TapdStatus interface {
+	GetChinese() string
+	GetEnglish() string
+	GetIsLastStep() bool
+}
+
+func (s TapdBugStatus) GetChinese() string {
+	return s.ChineseName
+}
+
+func (s TapdBugStatus) GetEnglish() string {
+	return s.EnglishName
+}
+
+func (s TapdBugStatus) GetIsLastStep() bool {
+	return s.IsLastStep
+}
+
+var _ TapdStatus = (*TapdBugStatus)(nil)

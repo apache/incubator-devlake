@@ -46,7 +46,7 @@ type PipelineQuery struct {
 	Pending     int    `form:"pending"`
 	Page        int    `form:"page"`
 	PageSize    int    `form:"pageSize"`
-	BlueprintId uint64 `form:"blueprint_id"`
+	BlueprintId uint64 `uri:"blueprintId" form:"blueprint_id"`
 }
 
 func pipelineServiceInit() {
@@ -155,37 +155,39 @@ func GetPipelineLogsArchivePath(pipeline *models.Pipeline) (string, errors.Error
 // RunPipelineInQueue query pipeline from db and run it in a queue
 func RunPipelineInQueue(pipelineMaxParallel int64) {
 	sema := semaphore.NewWeighted(pipelineMaxParallel)
-	startedPipelineIds := []uint64{}
 	for {
-		globalPipelineLog.Info("wait for new pipeline")
+		globalPipelineLog.Info("acquire lock")
 		// start goroutine when sema lock ready and pipeline exist.
 		// to avoid read old pipeline, acquire lock before read exist pipeline
 		err := sema.Acquire(context.TODO(), 1)
 		if err != nil {
 			panic(err)
 		}
-		globalPipelineLog.Info("get lock and wait pipeline")
+		globalPipelineLog.Info("get lock and wait next pipeline")
 		dbPipeline := &models.DbPipeline{}
 		for {
 			cronLocker.Lock()
-			db.Where("status = ?", models.TASK_CREATED).
-				Not(startedPipelineIds).
+			db.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}).
 				Order("id ASC").Limit(1).Find(dbPipeline)
 			cronLocker.Unlock()
 			if dbPipeline.ID != 0 {
+				db.Model(&models.DbPipeline{}).Where("id = ?", dbPipeline.ID).Updates(map[string]interface{}{
+					"status":   models.TASK_RUNNING,
+					"message":  "",
+					"began_at": time.Now(),
+				})
 				break
 			}
 			time.Sleep(time.Second)
 		}
-		startedPipelineIds = append(startedPipelineIds, dbPipeline.ID)
-		go func() {
+		go func(pipelineId uint64) {
 			defer sema.Release(1)
-			globalPipelineLog.Info("run pipeline, %d", dbPipeline.ID)
-			err = runPipeline(dbPipeline.ID)
+			globalPipelineLog.Info("run pipeline, %d", pipelineId)
+			err = runPipeline(pipelineId)
 			if err != nil {
-				globalPipelineLog.Error(err, "failed to run pipeline %d", dbPipeline.ID)
+				globalPipelineLog.Error(err, "failed to run pipeline %d", pipelineId)
 			}
-		}()
+		}(dbPipeline.ID)
 	}
 }
 
@@ -213,7 +215,7 @@ func watchTemporalPipelines() {
 					"",
 				)
 				if err != nil {
-					globalPipelineLog.Error(err, "failed to query workflow execution: %w", err)
+					globalPipelineLog.Error(err, "failed to query workflow execution: %v", err)
 					continue
 				}
 				// workflow is terminated by outsider
@@ -233,7 +235,7 @@ func watchTemporalPipelines() {
 						for hisIter.HasNext() {
 							his, err := hisIter.Next()
 							if err != nil {
-								globalPipelineLog.Error(err, "failed to get next from workflow history iterator: %w", err)
+								globalPipelineLog.Error(err, "failed to get next from workflow history iterator: %v", err)
 								continue
 							}
 							rp.Message = fmt.Sprintf("temporal event type: %v", his.GetEventType())
@@ -246,7 +248,7 @@ func watchTemporalPipelines() {
 						"finished_at": rp.FinishedAt,
 					}).Error
 					if err != nil {
-						globalPipelineLog.Error(err, "failed to update db: %w", err)
+						globalPipelineLog.Error(err, "failed to update db: %v", err)
 					}
 					continue
 				}
@@ -270,7 +272,7 @@ func watchTemporalPipelines() {
 					}
 					lastPayload := payloads[len(payloads)-1]
 					if err := dc.FromPayload(lastPayload, progressDetail); err != nil {
-						globalPipelineLog.Error(err, "failed to unmarshal heartbeat payload: %w", err)
+						globalPipelineLog.Error(err, "failed to unmarshal heartbeat payload: %v", err)
 						continue
 					}
 				}
@@ -303,7 +305,7 @@ func NotifyExternal(pipelineId uint64) errors.Error {
 		Status:     pipeline.Status,
 	})
 	if err != nil {
-		globalPipelineLog.Error(err, "failed to send notification: %w", err)
+		globalPipelineLog.Error(err, "failed to send notification: %v", err)
 		return err
 	}
 	return nil
@@ -329,7 +331,7 @@ func CancelPipeline(pipelineId uint64) errors.Error {
 
 // getPipelineLogsPath gets the logs directory of this pipeline
 func getPipelineLogsPath(pipeline *models.Pipeline) (string, errors.Error) {
-	pipelineLog := getPipelineLogger(pipeline)
+	pipelineLog := GetPipelineLogger(pipeline)
 	path := filepath.Dir(pipelineLog.GetConfig().Path)
 	_, err := os.Stat(path)
 	if err == nil {

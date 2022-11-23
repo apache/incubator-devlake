@@ -42,24 +42,23 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	}
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_status.csv",
 		"_raw_tapd_api_story_status")
-
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_status_last_steps.csv",
+		"_raw_tapd_api_story_status_last_steps")
 	// verify extraction
+	dataflowTester.FlushTabler(&models.TapdWorkitemType{})
 	dataflowTester.FlushTabler(&models.TapdStoryStatus{})
 	dataflowTester.Subtask(tasks.ExtractStoryStatusMeta, taskData)
+	dataflowTester.Subtask(tasks.EnrichStoryStatusLastStepMeta, taskData)
 	dataflowTester.VerifyTable(
 		models.TapdStoryStatus{},
 		"./snapshot_tables/_tool_tapd_story_statuses.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"workspace_id",
 			"english_name",
 			"chinese_name",
 			"is_last_step",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// import raw data table
@@ -75,7 +74,7 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdStory{},
 		"./snapshot_tables/_tool_tapd_stories.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"workitem_type_id",
@@ -179,52 +178,36 @@ func TestTapdStoryDataFlow(t *testing.T) {
 			"custom_field48",
 			"custom_field49",
 			"custom_field50",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.TapdWorkSpaceStory{},
 		"./snapshot_tables/_tool_tapd_workspace_stories.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"workspace_id",
 			"story_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.TapdIterationStory{},
 		"./snapshot_tables/_tool_tapd_iteration_stories.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"workspace_id",
 			"iteration_id",
 			"story_id",
 			"resolution_date",
 			"story_created_date",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.TapdStoryLabel{},
 		"./snapshot_tables/_tool_tapd_story_labels.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"label_name",
 			"story_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.FlushTabler(&ticket.Issue{})
@@ -235,12 +218,8 @@ func TestTapdStoryDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
 		"./snapshot_tables/issues_story.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"url",
 			"issue_key",
 			"title",
@@ -266,43 +245,31 @@ func TestTapdStoryDataFlow(t *testing.T) {
 			"component",
 			"icon_url",
 			"creator_name",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		ticket.BoardIssue{},
 		"./snapshot_tables/board_issues_story.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"board_id",
 			"issue_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		ticket.SprintIssue{},
 		"./snapshot_tables/sprint_issues_story.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"issue_id",
 			"sprint_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.Subtask(tasks.ConvertStoryLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueLabel{},
 		"./snapshot_tables/issue_labels_story.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"issue_id",
 			"label_name",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

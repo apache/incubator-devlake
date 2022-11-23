@@ -18,26 +18,16 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
+
+var _ core.MigrationScript = (*renamePipelineCommits)(nil)
 
 type renamePipelineCommits struct{}
 
-type CiCDPipelineRepoOld struct {
-	archived.DomainEntity
-	CommitSha string `gorm:"primaryKey;type:varchar(255)"`
-	Branch    string `gorm:"type:varchar(255)"`
-	Repo      string `gorm:"type:varchar(255)"`
-}
-
-func (CiCDPipelineRepoOld) TableName() string {
-	return "cicd_pipeline_repos"
-}
-
-type CiCDPipelineRepo0915 struct {
+type cicdPipelineRepo20220915After struct {
 	archived.NoPKModel
 	PipelineId string `gorm:"primaryKey;type:varchar(255)"`
 	CommitSha  string `gorm:"primaryKey;type:varchar(255)"`
@@ -46,27 +36,27 @@ type CiCDPipelineRepo0915 struct {
 	RepoUrl    string
 }
 
-func (CiCDPipelineRepo0915) TableName() string {
+func (cicdPipelineRepo20220915After) TableName() string {
 	return "cicd_pipeline_commits"
 }
 
-func (*renamePipelineCommits) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().RenameTable(CiCDPipelineRepoOld{}, CiCDPipelineRepo0915{})
+func (*renamePipelineCommits) Up(basicRes core.BasicRes) errors.Error {
+	db := basicRes.GetDal()
+	err := db.RenameTable("cicd_pipeline_repos", "cicd_pipeline_commits")
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	err = db.Migrator().RenameColumn(CiCDPipelineRepo0915{}, `id`, `pipeline_id`)
+	// err = db.DropIndexes("cicd_pipeline_repos", `idx_cicd_pipeline_repos_raw_data_params`)
+	// if err != nil {
+	// 	return err
+	// }
+	err = db.RenameColumn("cicd_pipeline_commits", "id", "pipeline_id")
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
-	err = db.Migrator().DropIndex(CiCDPipelineRepo0915{}, `idx_cicd_pipeline_repos_raw_data_params`)
+	err = db.AutoMigrate(cicdPipelineRepo20220915After{})
 	if err != nil {
-		return errors.Convert(err)
-	}
-	// add index
-	err = db.Migrator().AutoMigrate(CiCDPipelineRepo0915{})
-	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 	return nil
 }

@@ -19,7 +19,6 @@ package impl
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/webhook/api"
 	"github.com/apache/incubator-devlake/plugins/webhook/models/migrationscripts"
@@ -31,6 +30,8 @@ import (
 var _ core.PluginMeta = (*Webhook)(nil)
 var _ core.PluginInit = (*Webhook)(nil)
 var _ core.PluginApi = (*Webhook)(nil)
+var _ core.PluginModel = (*Webhook)(nil)
+var _ core.PluginMigration = (*Webhook)(nil)
 
 type Webhook struct{}
 
@@ -43,12 +44,16 @@ func (plugin Webhook) Init(config *viper.Viper, logger core.Logger, db *gorm.DB)
 	return nil
 }
 
+func (plugin Webhook) GetTablesInfo() []core.Tabler {
+	return []core.Tabler{}
+}
+
 // PkgPath information lost when compiled as plugin(.so)
 func (plugin Webhook) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/webhook"
 }
 
-func (plugin Webhook) MigrationScripts() []migration.Script {
+func (plugin Webhook) MigrationScripts() []core.MigrationScript {
 	return migrationscripts.All()
 }
 
@@ -68,6 +73,9 @@ func (plugin Webhook) ApiResources() map[string]map[string]core.ApiResourceHandl
 		},
 		":connectionId/cicd_pipeline/:pipelineName/finish": {
 			"POST": api.PostPipelineFinish,
+		},
+		":connectionId/deployments": {
+			"POST": api.PostDeploymentCicdTask,
 		},
 		":connectionId/issues": {
 			"POST": api.PostIssue,

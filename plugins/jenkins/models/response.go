@@ -17,32 +17,17 @@ limitations under the License.
 
 package models
 
-type ApiResponse struct {
-	URL             string           `json:"url"`
-	Jobs            []Job            `json:"jobs"`
-	Mode            string           `json:"mode"`
-	Views           []Views          `json:"views"`
-	Class           string           `json:"_class"`
-	NodeName        string           `json:"nodeName"`
-	UseCrumbs       bool             `json:"useCrumbs"`
-	Description     interface{}      `json:"description"`
-	OverallLoad     OverallLoad      `json:"overallLoad"`
-	PrimaryView     PrimaryView      `json:"primaryView"`
-	UseSecurity     bool             `json:"useSecurity"`
-	NumExecutors    int              `json:"numExecutors"`
-	QuietingDown    bool             `json:"quietingDown"`
-	UnlabeledLoad   UnlabeledLoad    `json:"unlabeledLoad"`
-	AssignedLabels  []AssignedLabels `json:"assignedLabels"`
-	SlaveAgentPort  int              `json:"slaveAgentPort"`
-	NodeDescription string           `json:"nodeDescription"`
-}
 type Job struct {
-	URL              string    `json:"url"`
+	FullName         string    `gorm:"primaryKey;type:varchar(255)"`
+	Path             string    `gorm:"primaryKey;type:varchar(511)"`
 	Name             string    `json:"name"`
 	Color            string    `json:"color"`
 	Class            string    `json:"_class"`
-	Jobs             *[]Job    `json:"jobs"`
+	Base             string    `json:"base"`
+	URL              string    `json:"url"`
+	Description      string    `json:"description"`
 	UpstreamProjects []Project `json:"upstreamProjects"`
+	*PrimaryView     `json:"primaryView"`
 }
 
 type Project struct {
@@ -73,6 +58,7 @@ type ApiBuildResponse struct {
 	Class             string    `json:"_class"`
 	Number            int64     `json:"number"`
 	Result            string    `json:"result"`
+	Building          bool      `json:"building"`
 	Actions           []Action  `json:"actions"`
 	Duration          float64   `json:"duration"`
 	Timestamp         int64     `json:"timestamp"`

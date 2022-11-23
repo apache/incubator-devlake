@@ -25,6 +25,8 @@ VERSION = $(TAG)@$(SHA)
 dep:
 	go install github.com/vektra/mockery/v2@latest
 	go install github.com/swaggo/swag/cmd/swag@v1.8.4
+	go install github.com/atombender/go-jsonschema/cmd/gojsonschema@latest
+	pip install -r requirements.txt
 
 swag:
 	swag init --parseDependency --parseInternal -o ./api/docs -g ./api/api.go -g plugins/*/api/*.go
@@ -57,6 +59,9 @@ build-grafana-image:
 
 build-images: build-server-image build-config-ui-image build-grafana-image
 
+tap-models:
+	chmod +x ./scripts/singer-model-generator.sh
+	@sh scripts/singer-model-generator.sh config/singer/pagerduty.json plugins/pagerduty --all
 
 push-server-image: build-server-image
 	docker push $(IMAGE_REPO)/devlake:$(TAG)

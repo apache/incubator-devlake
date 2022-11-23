@@ -60,6 +60,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 	defer cursor.Close()
 
 	jobIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabJob{})
+	projectIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabProject{})
 	pipelineIdGen := didgen.NewDomainIdGenerator(&gitlabModels.GitlabPipeline{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		InputRowType: reflect.TypeOf(gitlabModels.GitlabJob{}),
@@ -91,7 +92,8 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 					Failed:  []string{"failed"},
 					Abort:   []string{"canceled", "skipped"},
 					Manual:  []string{"manual"},
-					Default: devops.SUCCESS,
+					Success: []string{"success"},
+					Default: "",
 				}, gitlabJob.Status),
 				Status: devops.GetStatus(&devops.StatusRule{
 					InProgress: []string{"created", "waiting_for_resource", "preparing", "pending", "running", "scheduled"},
@@ -102,6 +104,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 				DurationSec:  uint64(gitlabJob.Duration),
 				StartedDate:  *startedAt,
 				FinishedDate: gitlabJob.FinishedAt,
+				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, gitlabJob.ProjectId),
 			}
 			if deployTagRegexp != nil {
 				if deployFlag := deployTagRegexp.FindString(gitlabJob.Name); deployFlag != "" {

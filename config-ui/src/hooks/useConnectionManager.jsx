@@ -23,12 +23,11 @@ import request from '@/utils/request'
 import Connection from '@/models/Connection'
 import ProviderListConnection from '@/models/ProviderListConnection'
 import {
-  Providers,
-  ProviderConnectionLimits,
   ConnectionStatus,
   ConnectionStatusLabels
-} from '@/data/Providers'
+} from '@/data/ConnectionStatus'
 
+import useIntegrations from '@/hooks/useIntegrations'
 import useNetworkOfflineMode from '@/hooks/useNetworkOfflineMode'
 
 function useConnectionManager(
@@ -37,6 +36,12 @@ function useConnectionManager(
 ) {
   const history = useHistory()
   const { handleOfflineMode } = useNetworkOfflineMode()
+
+  const {
+    integrations: Integrations,
+    Providers,
+    ProviderConnectionLimits
+  } = useIntegrations()
 
   const [provider, setProvider] = useState(activeProvider)
   const [name, setName] = useState()
@@ -49,6 +54,7 @@ function useConnectionManager(
   const [initialTokenStore, setInitialTokenStore] = useState(defaultTokenStore)
   const [username, setUsername] = useState()
   const [password, setPassword] = useState()
+  const [enableGraphql, setEnableGraphql] = useState(true)
 
   const [isSaving, setIsSaving] = useState(false)
   const [isFetching, setIsFetching] = useState(false)
@@ -71,9 +77,9 @@ function useConnectionManager(
   const connectionCount = useMemo(() => allConnections.length, [allConnections])
   const connectionLimitReached = useMemo(
     () =>
-      sourceLimits[provider?.id] &&
-      connectionCount >= sourceLimits[provider?.id],
-    [provider?.id, sourceLimits, connectionCount]
+      ProviderConnectionLimits[provider?.id] &&
+      connectionCount >= ProviderConnectionLimits[provider?.id],
+    [provider?.id, ProviderConnectionLimits, connectionCount]
   )
   const [connectionsList, setConnectionsList] = useState([])
 
@@ -97,9 +103,19 @@ function useConnectionManager(
       password,
       token,
       proxy,
-      rateLimitPerHour
+      rateLimitPerHour,
+      enableGraphql
     }),
-    [name, endpointUrl, username, password, token, proxy, rateLimitPerHour]
+    [
+      name,
+      endpointUrl,
+      username,
+      password,
+      token,
+      proxy,
+      rateLimitPerHour,
+      enableGraphql
+    ]
   )
 
   const testConnection = useCallback(
@@ -165,7 +181,7 @@ function useConnectionManager(
       }
       runTest()
     },
-    [provider?.id, connectionTestPayload]
+    [provider?.id, connectionTestPayload, Providers.GITHUB]
   )
 
   const notifyConnectionSaveSuccess = useCallback(
@@ -348,24 +364,12 @@ function useConnectionManager(
         console.log('>> FETCHING ALL CONNECTION SOURCES')
         let c = null
         if (allSources) {
-          // @todo: build promises dynamically from $integrationsData
-          const aC = await Promise.all([
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.JIRA}/connections`
-            ),
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.GITLAB}/connections`
-            ),
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.JENKINS}/connections`
-            ),
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.GITHUB}/connections`
-            ),
-            request.get(
-              `${DEVLAKE_ENDPOINT}/plugins/${Providers.TAPD}/connections`
+          // Fetch All Provider Integrations from IM Hook
+          const aC = await Promise.all(
+            Integrations.map((p) =>
+              request.get(`${DEVLAKE_ENDPOINT}/plugins/${p?.id}/connections`)
             )
-          ])
+          )
           const builtConnections = aC.map((providerResponse) =>
             []
               .concat(
@@ -432,7 +436,7 @@ function useConnectionManager(
         handleOfflineMode(e.response?.status, e.response)
       }
     },
-    [provider?.id, handleOfflineMode]
+    [provider?.id, handleOfflineMode, Integrations]
   )
 
   const deleteConnection = useCallback(
@@ -546,6 +550,7 @@ function useConnectionManager(
       setName(activeConnection?.name)
       setEndpointUrl(activeConnection?.endpoint)
       setRateLimitPerHour(activeConnection?.rateLimitPerHour)
+      setEnableGraphql(activeConnection?.enableGraphql)
       setProxy(activeConnection?.proxy)
       setUsername(activeConnection?.username)
       setPassword(activeConnection?.password)
@@ -663,6 +668,7 @@ function useConnectionManager(
     endpointUrl,
     proxy,
     rateLimitPerHour,
+    enableGraphql,
     username,
     password,
     token,
@@ -674,6 +680,7 @@ function useConnectionManager(
     setEndpointUrl,
     setProxy,
     setRateLimitPerHour,
+    setEnableGraphql,
     setToken,
     setInitialTokenStore,
     setUsername,

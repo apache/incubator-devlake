@@ -15,18 +15,15 @@
  * limitations under the License.
  *
  */
-import { useCallback, useEffect, useState } from 'react'
-import { Providers } from '@/data/Providers'
+import { useCallback, useEffect, useState, useContext } from 'react'
+import IntegrationsContext from '@/store/integrations-context'
+// import { Providers } from '@/data/Providers'
 import { BlueprintMode } from '@/data/NullBlueprint'
 
 function usePipelineValidation({
   activeStep,
   enabledProviders = [],
   pipelineName,
-  projectId,
-  projects = [],
-  boardId,
-  boards = [],
   owner,
   repositoryName,
   gitExtractorUrl,
@@ -40,25 +37,15 @@ function usePipelineValidation({
   advancedMode,
   mode = null,
   connection,
-  entities = [],
   rawConfiguration
 }) {
+  const { Providers } = useContext(IntegrationsContext)
   const [errors, setErrors] = useState([])
   const [isValid, setIsValid] = useState(false)
   const [detectedProviders, setDetectedProviders] = useState([])
-  const [allowedProviders, setAllowedProviders] = useState([
-    Providers.JIRA,
-    Providers.GITLAB,
-    Providers.JENKINS,
-    Providers.GITHUB,
-    Providers.REFDIFF,
-    Providers.GITEXTRACTOR,
-    Providers.FEISHU,
-    Providers.AE,
-    Providers.DBT,
-    Providers.STARROCKS,
-    Providers.TAPD
-  ])
+  const [allowedProviders, setAllowedProviders] = useState(
+    Object.keys(Providers)
+  )
 
   const clear = () => {
     setErrors([])
@@ -104,8 +91,6 @@ function usePipelineValidation({
     // refDiffTasks,
     // refDiffPairs,
     // connectionId,
-    // boards,
-    // projects
   ])
 
   const validateAdvanced = useCallback(() => {

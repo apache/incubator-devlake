@@ -20,8 +20,6 @@ package devops
 import (
 	"time"
 
-	"github.com/apache/incubator-devlake/models/common"
-
 	"github.com/apache/incubator-devlake/models/domainlayer"
 )
 
@@ -35,29 +33,25 @@ type CICDPipeline struct {
 	Environment  string `gorm:"type:varchar(255)"`
 	CreatedDate  time.Time
 	FinishedDate *time.Time
+	CicdScopeId  string `gorm:"index;type:varchar(255)"`
 }
 
 func (CICDPipeline) TableName() string {
 	return "cicd_pipelines"
 }
 
-type CICDPipelineRelationship struct {
-	ParentPipelineId string `gorm:"primaryKey;type:varchar(255)"`
-	ChildPipelineId  string `gorm:"primaryKey;type:varchar(255)"`
-	common.NoPKModel
-}
-
-func (CICDPipelineRelationship) TableName() string {
-	return "cicd_pipeline_relationships"
-}
-
+// this is for the field `result` in table.cicd_pipelines and table.cicd_tasks
 const (
-	SUCCESS     = "SUCCESS"
-	FAILURE     = "FAILURE"
-	ABORT       = "ABORT"
+	SUCCESS = "SUCCESS"
+	FAILURE = "FAILURE"
+	ABORT   = "ABORT"
+	MANUAL  = "MANUAL"
+)
+
+// this is for the field `status` in table.cicd_pipelines and table.cicd_tasks
+const (
 	IN_PROGRESS = "IN_PROGRESS"
 	DONE        = "DONE"
-	MANUAL      = "MANUAL"
 )
 
 type ResultRule struct {

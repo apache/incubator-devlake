@@ -26,7 +26,7 @@ type TapdBug struct {
 	ConnectionId uint64 `gorm:"primaryKey"`
 	Id           uint64 `gorm:"primaryKey;type:BIGINT" json:"id,string"`
 	EpicKey      string
-	Title        string          `json:"name" gorm:"type:varchar(255)"`
+	Title        string          `json:"title" gorm:"type:varchar(255)"`
 	Description  string          `json:"description"`
 	WorkspaceId  uint64          `json:"workspace_id,string"`
 	Created      *helper.CSTTime `json:"created"`

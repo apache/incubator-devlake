@@ -47,7 +47,7 @@ func TestWorklogDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.JiraWorklog{},
 		"./snapshot_tables/_tool_jira_worklogs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"issue_id",
 			"worklog_id",
@@ -58,21 +58,18 @@ func TestWorklogDataFlow(t *testing.T) {
 			"updated",
 			"started",
 			"issue_updated",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// verify worklog conversion
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_worklogs_for_convertor.csv", &models.JiraWorklog{})
 	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues_for_worklog.csv", &models.JiraBoardIssue{})
 	dataflowTester.FlushTabler(&ticket.IssueWorklog{})
 	dataflowTester.Subtask(tasks.ConvertWorklogsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueWorklog{},
 		"./snapshot_tables/worklogs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"author_id",
 			"comment",
@@ -80,6 +77,6 @@ func TestWorklogDataFlow(t *testing.T) {
 			"logged_date",
 			"started_date",
 			"issue_id",
-		},
+		),
 	)
 }

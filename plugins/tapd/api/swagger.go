@@ -17,27 +17,6 @@ limitations under the License.
 
 package api
 
-type CodeTransformationRules struct {
-	PrType               string `mapstructure:"prType" json:"prType"`
-	PrComponent          string `mapstructure:"prComponent" json:"prComponent"`
-	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern"`
-	IssueSeverity        string `mapstructure:"issueSeverity" json:"issueSeverity"`
-	IssuePriority        string `mapstructure:"issuePriority" json:"issuePriority"`
-	IssueComponent       string `mapstructure:"issueComponent" json:"issueComponent"`
-	IssueTypeBug         string `mapstructure:"issueTypeBug" json:"issueTypeBug"`
-	IssueTypeIncident    string `mapstructure:"issueTypeIncident" json:"issueTypeIncident"`
-	IssueTypeRequirement string `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement"`
-}
-
-type TicketTransformationRules struct {
-	EpicKeyField               string `json:"epicKeyField"`
-	StoryPointField            string `json:"storyPointField"`
-	RemotelinkCommitShaPattern string `json:"remotelinkCommitShaPattern"`
-	TypeMappings               map[string]struct {
-		StandardType string `json:"standardType"`
-	} `json:"typeMappings"`
-}
-
 // @Summary blueprints setting for tapd
 // @Description blueprint setting for tapd
 // @Tags plugins/tapd
@@ -53,10 +32,11 @@ type TapdBlueprintSetting []struct {
 		ConnectionID int    `json:"connectionId"`
 		Scope        []struct {
 			Options struct {
-				WorkspaceId uint64   `mapstruct:"workspaceId"`
-				CompanyId   uint64   `mapstruct:"companyId"`
-				Tasks       []string `mapstruct:"tasks,omitempty"`
-				Since       string
+				WorkspaceId         uint64   `mapstruct:"workspaceId"`
+				CompanyId           uint64   `mapstruct:"companyId"`
+				Tasks               []string `mapstruct:"tasks,omitempty"`
+				Since               string
+				TransformationRules TransformationRules `json:"transformationRules"`
 			} `json:"options"`
 			Entities []string `json:"entities"`
 		} `json:"scope"`
@@ -75,9 +55,27 @@ type TapdPipelinePlan [][]struct {
 	Plugin   string   `json:"plugin"`
 	Subtasks []string `json:"subtasks"`
 	Options  struct {
-		WorkspaceId uint64   `mapstruct:"workspaceId"`
-		CompanyId   uint64   `mapstruct:"companyId"`
-		Tasks       []string `mapstruct:"tasks,omitempty"`
-		Since       string
+		ConnectionId        uint64   `mapstruct:"connectionId"`
+		WorkspaceId         uint64   `mapstruct:"workspaceId"`
+		CompanyId           uint64   `mapstruct:"companyId"`
+		Tasks               []string `mapstruct:"tasks,omitempty"`
+		Since               string
+		TransformationRules TransformationRules `json:"transformationRules"`
 	} `json:"options"`
 }
+
+type TransformationRules struct {
+	TypeMappings   TypeMappings   `json:"typeMappings"`
+	StatusMappings StatusMappings `json:"statusMappings"`
+}
+type TypeMapping struct {
+	StandardType string `json:"standardType"`
+}
+
+type StatusMappings struct {
+	TodoStatus       []string `json:"todoStatus"`
+	InProgressStatus []string `json:"inprogressStatus"`
+	DoneStatus       []string `json:"doneStatus"`
+}
+
+type TypeMappings map[string]TypeMapping

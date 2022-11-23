@@ -18,10 +18,10 @@ limitations under the License.
 package helper
 
 import (
-	"database/sql"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
@@ -36,18 +36,18 @@ type Iterator interface {
 // DalCursorIterator FIXME ...
 type DalCursorIterator struct {
 	db        dal.Dal
-	cursor    *sql.Rows
+	cursor    dal.Rows
 	elemType  reflect.Type
 	batchSize int
 }
 
 // NewDalCursorIterator FIXME ...
-func NewDalCursorIterator(db dal.Dal, cursor *sql.Rows, elemType reflect.Type) (*DalCursorIterator, errors.Error) {
+func NewDalCursorIterator(db dal.Dal, cursor dal.Rows, elemType reflect.Type) (*DalCursorIterator, errors.Error) {
 	return NewBatchedDalCursorIterator(db, cursor, elemType, -1)
 }
 
 // NewBatchedDalCursorIterator FIXME ...
-func NewBatchedDalCursorIterator(db dal.Dal, cursor *sql.Rows, elemType reflect.Type, batchSize int) (*DalCursorIterator, errors.Error) {
+func NewBatchedDalCursorIterator(db dal.Dal, cursor dal.Rows, elemType reflect.Type, batchSize int) (*DalCursorIterator, errors.Error) {
 	return &DalCursorIterator{
 		db:        db,
 		cursor:    cursor,
