@@ -1,4 +1,4 @@
-id,url,icon_url,issue_key,title,description,epic_key,type,status,original_status,story_point,resolution_date,created_date,updated_date,lead_time_minutes,parent_issue_id,priority,original_estimate_minutes,time_spent_minutes,time_remaining_minutes,creator_id,creator_name,assignee_id,assignee_name,severity,component,deployment_id
-zentao:ZentaoTask:1:1,,,1,任务名称,任务描述<span> </span><br /><div><br /></div>,,TASK,TODO,wait,0,,2022-09-19T01:50:37.000+00:00,,0,zentao:ZentaoStory:1:0,,0,0,0,1,devlake,5,开发乙,,,
-zentao:ZentaoTask:1:2,,,2,任务名称,任务描述<span> </span><br /><div><br /></div>,,TASK,TODO,wait,0,,2022-09-19T01:50:37.000+00:00,,0,zentao:ZentaoStory:1:0,,0,0,0,1,devlake,5,开发乙,,,
-zentao:ZentaoTask:1:3,,,3,任务名称,任务描述<span> </span><br /><div><br /></div>,,TASK,TODO,wait,0,,2022-09-19T01:50:37.000+00:00,,0,zentao:ZentaoStory:1:-1,,0,0,0,1,devlake,5,开发乙,,,
+id,url,icon_url,issue_key,title,description,epic_key,type,status,original_status,story_point,resolution_date,created_date,updated_date,lead_time_minutes,parent_issue_id,priority,original_estimate_minutes,time_spent_minutes,time_remaining_minutes,creator_id,creator_name,assignee_id,assignee_name,severity,component
+zentao:ZentaoTask:1:1,,,1,任务名称,任务描述<span> </span><br /><div><br /></div>,,TASK,TODO,wait,0,,2022-09-19T01:50:37.000+00:00,,0,zentao:ZentaoStory:1:0,,0,0,0,1,devlake,5,开发乙,,
+zentao:ZentaoTask:1:2,,,2,任务名称,任务描述<span> </span><br /><div><br /></div>,,TASK,TODO,wait,0,,2022-09-19T01:50:37.000+00:00,,0,zentao:ZentaoStory:1:0,,0,0,0,1,devlake,5,开发乙,,
+zentao:ZentaoTask:1:3,,,3,任务名称,任务描述<span> </span><br /><div><br /></div>,,TASK,TODO,wait,0,,2022-09-19T01:50:37.000+00:00,,0,zentao:ZentaoStory:1:-1,,0,0,0,1,devlake,5,开发乙,,
