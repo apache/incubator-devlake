@@ -23,7 +23,7 @@ import (
 )
 
 type ZentaoProductRes struct {
-	ID             uint64              `json:"id"`
+	ID             int64               `json:"id"`
 	Program        int                 `json:"program"`
 	Name           string              `json:"name"`
 	Code           string              `json:"code"`
@@ -68,7 +68,7 @@ type ZentaoProductRes struct {
 
 type ZentaoProduct struct {
 	ConnectionId   uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id             uint64 `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Id             int64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Program        int    `json:"program"`
 	Name           string `json:"name"`
 	Code           string `json:"code"`
@@ -78,12 +78,12 @@ type ZentaoProduct struct {
 	Status         string `json:"status"`
 	SubStatus      string `json:"subStatus"`
 	Description    string `json:"desc"`
-	POId           uint64
-	QDId           uint64
-	RDId           uint64
+	POId           int64
+	QDId           int64
+	RDId           int64
 	Acl            string `json:"acl"`
 	Reviewer       string `json:"reviewer"`
-	CreatedById    uint64
+	CreatedById    int64
 	CreatedDate    *helper.Iso8601Time `json:"createdDate"`
 	CreatedVersion string              `json:"createdVersion"`
 	OrderIn        int                 `json:"order"`

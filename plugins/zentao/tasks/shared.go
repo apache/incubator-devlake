@@ -35,7 +35,7 @@ func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs
 
 }
 
-func getAccountId(account *models.ZentaoAccount) uint64 {
+func getAccountId(account *models.ZentaoAccount) int64 {
 	if account != nil {
 		return account.ID
 	}
