@@ -19,12 +19,11 @@ package impl
 
 import (
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/refdiff/tasks"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
-
-	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 // make sure interface is implemented
@@ -36,6 +35,9 @@ var _ core.PluginModel = (*RefDiff)(nil)
 var _ core.PluginMetric = (*RefDiff)(nil)
 
 type RefDiff struct{}
+
+// PluginEntry is a variable exported for Framework to search and load
+var PluginEntry RefDiff //nolint
 
 func (plugin RefDiff) Description() string {
 	return "Calculate commits diff for specified ref pairs based on `commits` and `commit_parents` tables"
@@ -70,6 +72,7 @@ func (plugin RefDiff) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CalculateCommitsDiffMeta,
 		tasks.CalculateIssuesDiffMeta,
 		tasks.CalculatePrCherryPickMeta,
+		tasks.CalculateProjectDeploymentCommitsDiffMeta,
 	}
 }
 

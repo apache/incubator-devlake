@@ -19,8 +19,9 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -47,6 +48,10 @@ func CalculateIssuesDiff(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*RefdiffTaskData)
 	repoId := data.Options.RepoId
 	db := taskCtx.GetDal()
+
+	if data.Options.ProjectName != "" {
+		return nil
+	}
 	// use to calculate progress
 	pairList, err := CaculatePairList(taskCtx)
 	if err != nil {

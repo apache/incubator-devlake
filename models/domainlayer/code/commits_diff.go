@@ -18,9 +18,9 @@ limitations under the License.
 package code
 
 type CommitsDiff struct {
-	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
 	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
 	SortingIndex int
 }
 

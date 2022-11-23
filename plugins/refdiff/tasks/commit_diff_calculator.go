@@ -34,11 +34,39 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	ctx := taskCtx.GetContext()
 	logger := taskCtx.GetLogger()
+
+	if data.Options.ProjectName != "" {
+		return nil
+	}
+
+	// get all data from finish_commits_diffs
+	commitPairs := data.Options.AllPairs
+	var ExistFinishedCommitDiff []code.FinishedCommitsDiffs
+	err := db.All(&ExistFinishedCommitDiff,
+		dal.Select("*"),
+		dal.From("finished_commits_diffs"),
+	)
+	if err != nil {
+		return err
+	}
+	for i := 0; i < len(commitPairs); i++ {
+		pair := commitPairs[i]
+		for _, item := range ExistFinishedCommitDiff {
+			if pair[0] == item.NewCommitSha && pair[1] == item.OldCommitSha {
+				commitPairs = append(commitPairs[:i], commitPairs[i+1:]...)
+				i--
+				break
+			}
+		}
+	}
+	if len(commitPairs) == 0 {
+		logger.Info("commit pair has been produced.")
+		return nil
+	}
+
+	commitNodeGraph := utils.NewCommitNodeGraph()
 	// mysql limit
 	insertCountLimitOfCommitsDiff := int(65535 / reflect.ValueOf(code.CommitsDiff{}).NumField())
-
-	commitPairs := data.Options.AllPairs
-	commitNodeGraph := utils.NewCommitNodeGraph()
 
 	// load commits from db
 	commitParent := &code.CommitParent{}
@@ -49,7 +77,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 		dal.Where("rc.repo_id = ?", repoId),
 	)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer cursor.Close()
 
@@ -124,7 +152,10 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 			if err != nil {
 				return err
 			}
-			finishedCommitDiffs = append(finishedCommitDiffs, *finishedCommitDiff)
+		}
+
+		finishedCommitDiffs = append(finishedCommitDiffs, *finishedCommitDiff)
+		if len(finishedCommitDiffs) > 0 {
 			err = db.CreateIfNotExist(finishedCommitDiffs)
 			if err != nil {
 				return err
