@@ -31,8 +31,11 @@ func GetTotalPagesFromResponse(res *http.Response, args *helper.ApiCollectorArgs
 	if err != nil {
 		return 0, err
 	}
-	return body.Page, nil
-
+	pages := body.Total / args.PageSize
+	if body.Total%args.PageSize > 0 {
+		pages++
+	}
+	return pages, nil
 }
 
 func getAccountId(account *models.ZentaoAccount) int64 {
