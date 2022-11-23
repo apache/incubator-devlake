@@ -21,11 +21,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
 	"github.com/mitchellh/mapstructure"
@@ -37,7 +37,7 @@ import (
 // @Tags plugins/jira
 // @Accept application/json
 // @Param transformationRule body tasks.TransformationRules true "transformation rule"
-// @Success 200  {object} models.JiraTransformationRule
+// @Success 200  {object} tasks.TransformationRules
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules [POST]
@@ -60,7 +60,7 @@ func CreateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 // @Accept application/json
 // @Param id path int true "id"
 // @Param transformationRule body tasks.TransformationRules true "transformation rule"
-// @Success 200  {object} models.JiraTransformationRule
+// @Success 200  {object} tasks.TransformationRules
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules/{id} [PATCH]
@@ -74,34 +74,23 @@ func UpdateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
 	}
-	rule := new(tasks.TransformationRules)
-	_, err = rule.FromDb(&old)
+	err = helper.DecodeMapStruct(input.Body, &old)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "the transformation rule ID should be an integer")
+		return nil, errors.Default.Wrap(err, "error decoding map into transformationRule")
 	}
-	err = mapstructure.Decode(input.Body, &rule)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error decoding map into putBoardRequest")
-	}
-	dbRule, err := makeDbTransformationRule(rule)
-	dbRule.Model = old.Model
-	dbRule.UpdatedAt = time.Now()
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error in makeJiraTransformationRule")
-	}
-
-	err = basicRes.GetDal().Update(&dbRule, dal.Where("id = ?", transformationRuleId))
+	old.ID = transformationRuleId
+	err = basicRes.GetDal().Update(&old, dal.Where("id = ?", transformationRuleId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
 	}
-	return &core.ApiResourceOutput{Body: rule, Status: http.StatusOK}, nil
+	return &core.ApiResourceOutput{Body: old, Status: http.StatusOK}, nil
 }
 
 func makeDbTransformationRuleFromInput(input *core.ApiResourceInput) (*models.JiraTransformationRule, errors.Error) {
 	var req tasks.TransformationRules
 	err := mapstructure.Decode(input.Body, &req)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error decoding map into putBoardRequest")
+		return nil, errors.Default.Wrap(err, "error decoding map into transformationRule")
 	}
 	return makeDbTransformationRule(&req)
 }
@@ -123,7 +112,7 @@ func makeDbTransformationRule(rule *tasks.TransformationRules) (*models.JiraTran
 // @Description return one transformation rule
 // @Tags plugins/jira
 // @Param id path int true "id"
-// @Success 200  {object} models.JiraTransformationRule
+// @Success 200  {object} tasks.TransformationRules
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules/{id} [GET]
@@ -144,7 +133,7 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 // @Summary return all transformation rules
 // @Description return all transformation rules
 // @Tags plugins/jira
-// @Success 200  {object} []models.JiraTransformationRule
+// @Success 200  {object} []tasks.TransformationRules
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules [GET]
