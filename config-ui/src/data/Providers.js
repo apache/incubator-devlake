@@ -22,6 +22,7 @@ import { ReactComponent as JenkinsProviderIcon } from '@/images/integrations/jen
 import { ReactComponent as JiraProviderIcon } from '@/images/integrations/jira.svg'
 import { ReactComponent as GitHubProviderIcon } from '@/images/integrations/github.svg'
 import { ReactComponent as TapdProviderIcon } from '@/images/integrations/tapd.svg'
+import { ReactComponent as ZentaoProviderIcon } from '@/images/integrations/zentao.svg'
 import { ReactComponent as AzureProviderIcon } from '@/images/integrations/azure.svg'
 import { ReactComponent as BitbucketProviderIcon } from '@/images/integrations/bitbucket.svg'
 import { ReactComponent as GiteeProviderIcon } from '@/images/integrations/gitee.svg'
@@ -50,6 +51,7 @@ const Providers = {
   DBT: 'dbt',
   STARROCKS: 'starrocks',
   TAPD: 'tapd',
+  ZENTAO: 'zentao',
   AZURE: 'azure',
   BITBUCKET: 'bitbucket',
   GITEE: 'gitee',
@@ -76,7 +78,8 @@ const ProviderLabels = {
   AE: 'Analysis Engine (AE)',
   DBT: 'Data Build Tool (DBT)',
   STARROCKS: 'StarRocks',
-  TAPD: 'TAPD',
+  TAPD: 'Tapd',
+  ZENTAO: 'Zentao',
   AZURE: 'Azure CI',
   BITBUCKET: 'BitBucket',
   GITEE: 'Gitee',
@@ -137,6 +140,19 @@ const ProviderFormLabels = {
     endpoint: 'Endpoint URL',
     proxy: 'Proxy URL',
     token: 'Basic Auth Token',
+    username: 'Username',
+    password: 'Password',
+    rateLimitPerHour: (
+      <>
+        Rate Limit <sup>(per hour)</sup>
+        <RateLimitTooltip />
+      </>
+    )
+  },
+  zentao: {
+    name: 'Connection Name',
+    endpoint: 'Endpoint URL',
+    proxy: 'Proxy URL',
     username: 'Username',
     password: 'Password',
     rateLimitPerHour: (
@@ -308,6 +324,14 @@ const ProviderFormPlaceholders = {
     password: 'eg. ************',
     rateLimitPerHour: '1000'
   },
+  zentao: {
+    name: 'eg. Zentao',
+    endpoint: 'URL eg. http://subdomain.domain:port/api.php/v1/',
+    proxy: 'eg. http://proxy.localhost:8080',
+    username: 'eg. devlake',
+    password: 'eg. ************',
+    rateLimitPerHour: '1000'
+  },
   jira: {
     name: 'eg. JIRA',
     endpoint: 'eg. https://your-domain.atlassian.net/rest/',
@@ -365,6 +389,9 @@ const ProviderIcons = {
   ),
   [Providers.TAPD]: (w, h) => (
     <TapdProviderIcon width={w || 24} height={h || 24} />
+  ),
+  [Providers.ZENTAO]: (w, h) => (
+    <ZentaoProviderIcon width={w || 24} height={h || 24} />
   ),
   [Providers.JIRA]: (w, h) => (
     <JiraProviderIcon width={w || 24} height={h || 24} />
