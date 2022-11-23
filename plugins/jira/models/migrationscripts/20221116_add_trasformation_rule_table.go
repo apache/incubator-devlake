@@ -19,14 +19,24 @@ package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 )
 
+type jiraBoard20221116 struct {
+	TransformationRuleId uint64
+	ScopeId              string `gorm:"type:varchar(255)"`
+}
+
+func (jiraBoard20221116) TableName() string {
+	return "_tool_jira_boards"
+}
+
 type addTransformationRule20221116 struct{}
 
 func (script *addTransformationRule20221116) Up(basicRes core.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(&archived.JiraTransformationRule{})
+	return migrationhelper.AutoMigrateTables(basicRes, &jiraBoard20221116{}, &archived.JiraTransformationRule{})
 }
 
 func (*addTransformationRule20221116) Version() uint64 {
@@ -34,5 +44,5 @@ func (*addTransformationRule20221116) Version() uint64 {
 }
 
 func (*addTransformationRule20221116) Name() string {
-	return "add table _tool_jira_transformation_rules"
+	return "add table _tool_jira_transformation_rules, add transformation_rule_id to _tool_jira_boards"
 }

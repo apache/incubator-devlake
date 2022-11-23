@@ -101,9 +101,6 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 		tasks.CollectProjectsMeta,
 		tasks.ExtractProjectsMeta,
 
-		tasks.CollectBoardMeta,
-		tasks.ExtractBoardMeta,
-
 		tasks.CollectIssueTypesMeta,
 		tasks.ExtractIssueTypesMeta,
 
@@ -250,8 +247,9 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 			"GET": api.Proxy,
 		},
 		"connections/:connectionId/scopes/:boardId": {
-			"GET": api.GetScope,
-			"PUT": api.PutScope,
+			"GET":   api.GetScope,
+			"PUT":   api.PutScope,
+			"PATCH": api.UpdateScope,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
