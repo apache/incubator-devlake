@@ -18,7 +18,9 @@ limitations under the License.
 package impl
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/dora/api"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -36,6 +38,7 @@ var _ core.PluginModel = (*Dora)(nil)
 var _ core.PluginMetric = (*Dora)(nil)
 var _ core.CloseablePluginTask = (*Dora)(nil)
 var _ core.PluginMigration = (*Dora)(nil)
+var _ core.MetricPluginBlueprintV200 = (*Dora)(nil)
 
 type Dora struct{}
 
@@ -112,6 +115,10 @@ func (plugin Dora) RootPkgPath() string {
 
 func (plugin Dora) MigrationScripts() []core.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (plugin Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (core.PipelinePlan, errors.Error) {
+	return api.MakePipelinePlan(projectName, options)
 }
 
 func (plugin Dora) Close(taskCtx core.TaskContext) errors.Error {
