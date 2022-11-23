@@ -16,21 +16,21 @@
  *
  */
 
-import { default as AE } from './plugins/ae.json'
-import { default as Azure } from './plugins/azure.json'
-import { default as BitBucket } from './plugins/bitbucket.json'
-import { default as DBT } from './plugins/dbt.json'
-import { default as DORA } from './plugins/dora.json'
-import { default as Feishu } from './plugins/feishu.json'
-import { default as Gitee } from './plugins/gitee.json'
-import { default as GitExtractor } from './plugins/gitextractor.json'
-import { default as GitHub } from './plugins/github.json'
-import { default as GitLab } from './plugins/gitlab.json'
-import { default as Jenkins } from './plugins/jenkins.json'
-import { default as JIRA } from './plugins/jira.json'
-import { default as Refdiff } from './plugins/refdiff.json'
-import { default as Starrocks } from './plugins/starrocks.json'
-import { default as TAPD } from './plugins/tapd.json'
+import AE from './plugins/ae.json'
+import Azure from './plugins/azure.json'
+import BitBucket from './plugins/bitbucket.json'
+import DBT from './plugins/dbt.json'
+import DORA from './plugins/dora.json'
+import Feishu from './plugins/feishu.json'
+import Gitee from './plugins/gitee.json'
+import GitExtractor from './plugins/gitextractor.json'
+import GitHub from './plugins/github.json'
+import GitLab from './plugins/gitlab.json'
+import Jenkins from './plugins/jenkins.json'
+import JIRA from './plugins/jira.json'
+import Refdiff from './plugins/refdiff.json'
+import Starrocks from './plugins/starrocks.json'
+import TAPD from './plugins/tapd.json'
 
 export const Plugins = [
   AE,
