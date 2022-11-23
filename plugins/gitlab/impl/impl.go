@@ -21,31 +21,39 @@ import (
 	"fmt"
 
 	"github.com/apache/incubator-devlake/errors"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
+
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
 
-var _ core.PluginMeta = (*Gitlab)(nil)
-var _ core.PluginInit = (*Gitlab)(nil)
-var _ core.PluginTask = (*Gitlab)(nil)
-var _ core.PluginApi = (*Gitlab)(nil)
-var _ core.PluginModel = (*Gitlab)(nil)
-var _ core.PluginMigration = (*Gitlab)(nil)
-var _ core.PluginBlueprintV100 = (*Gitlab)(nil)
-var _ core.CloseablePluginTask = (*Gitlab)(nil)
+type GitlabImpl interface {
+	core.PluginMeta
+	core.PluginInit
+	core.PluginTask
+	core.PluginModel
+	core.PluginMigration
+	core.PluginBlueprintV100
+	core.DataSourcePluginBlueprintV200
+	core.CloseablePluginTask
+}
+
+var _ GitlabImpl = (*Gitlab)(nil)
 
 type Gitlab string
 
 func (plugin Gitlab) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
+}
+
+func (plugin Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(connectionId, scopes)
 }
 
 func (plugin Gitlab) GetTablesInfo() []core.Tabler {
