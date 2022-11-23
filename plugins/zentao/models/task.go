@@ -23,13 +23,13 @@ import (
 )
 
 type ZentaoTaskRes struct {
-	Id             uint64              `json:"id"`
-	Project        uint64              `json:"project"`
-	Parent         uint64              `json:"parent"`
-	Execution      uint64              `json:"execution"`
+	Id             int64               `json:"id"`
+	Project        int64               `json:"project"`
+	Parent         int64               `json:"parent"`
+	Execution      int64               `json:"execution"`
 	Module         int                 `json:"module"`
 	Design         int                 `json:"design"`
-	Story          uint64              `json:"story"`
+	Story          int64               `json:"story"`
 	StoryVersion   int                 `json:"storyVersion"`
 	DesignVersion  int                 `json:"designVersion"`
 	FromBug        int                 `json:"fromBug"`
@@ -76,7 +76,7 @@ type ZentaoTaskRes struct {
 	V2             string              `json:"v2"`
 	Deleted        bool                `json:"deleted"`
 	Vision         string              `json:"vision"`
-	StoryID        uint64              `json:"storyID"`
+	StoryID        int64               `json:"storyID"`
 	StoryTitle     string              `json:"storyTitle"`
 	Branch         interface {
 	} `json:"branch"`
@@ -94,14 +94,14 @@ type ZentaoTaskRes struct {
 type ZentaoTask struct {
 	common.NoPKModel
 	ConnectionId  uint64  `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ExecutionId   uint64  `json:"execution_id"`
-	ID            uint64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Project       uint64  `json:"project"`
-	Parent        uint64  `json:"parent"`
-	Execution     uint64  `json:"execution"`
+	ExecutionId   int64   `json:"execution_id"`
+	ID            int64   `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Project       int64   `json:"project"`
+	Parent        int64   `json:"parent"`
+	Execution     int64   `json:"execution"`
 	Module        int     `json:"module"`
 	Design        int     `json:"design"`
-	Story         uint64  `json:"story"`
+	Story         int64   `json:"story"`
 	StoryVersion  int     `json:"storyVersion"`
 	DesignVersion int     `json:"designVersion"`
 	FromBug       int     `json:"fromBug"`
@@ -120,25 +120,25 @@ type ZentaoTask struct {
 	//Mailto        interface{} `json:"mailto"`
 	Description        string `json:"desc"`
 	Version            int    `json:"version"`
-	OpenedById         uint64
+	OpenedById         int64
 	OpenedByName       string
 	OpenedDate         *helper.Iso8601Time `json:"openedDate"`
-	AssignedToId       uint64
+	AssignedToId       int64
 	AssignedToName     string
 	AssignedDate       *helper.Iso8601Time `json:"assignedDate"`
 	EstStarted         string              `json:"estStarted"`
 	RealStarted        *helper.Iso8601Time `json:"realStarted"`
-	FinishedId         uint64
+	FinishedId         int64
 	FinishedDate       *helper.Iso8601Time `json:"finishedDate"`
 	FinishedList       string              `json:"finishedList"`
-	CanceledId         uint64
+	CanceledId         int64
 	CanceledDate       *helper.Iso8601Time `json:"canceledDate"`
-	ClosedById         uint64
+	ClosedById         int64
 	ClosedDate         *helper.Iso8601Time `json:"closedDate"`
 	PlanDuration       int                 `json:"planDuration"`
 	RealDuration       int                 `json:"realDuration"`
 	ClosedReason       string              `json:"closedReason"`
-	LastEditedId       uint64
+	LastEditedId       int64
 	LastEditedDate     *helper.Iso8601Time `json:"lastEditedDate"`
 	ActivatedDate      *helper.Iso8601Time `json:"activatedDate"`
 	OrderIn            int                 `json:"order"`
@@ -150,7 +150,7 @@ type ZentaoTask struct {
 	V2                 string              `json:"v2"`
 	Deleted            bool                `json:"deleted"`
 	Vision             string              `json:"vision"`
-	StoryID            uint64              `json:"storyID"`
+	StoryID            int64               `json:"storyID"`
 	StoryTitle         string              `json:"storyTitle"`
 	Branch             int                 `json:"branch"`
 	LatestStoryVersion int                 `json:"latestStoryVersion"`

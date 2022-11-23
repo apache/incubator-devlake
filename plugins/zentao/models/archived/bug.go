@@ -25,20 +25,20 @@ import (
 type ZentaoBug struct {
 	archived.NoPKModel
 	ConnectionId   uint64              `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID             uint64              `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Project        uint64              `json:"project"`
-	Product        uint64              `json:"product"`
+	ID             int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Project        int64               `json:"project"`
+	Product        int64               `json:"product"`
 	Injection      int                 `json:"injection"`
 	Identify       int                 `json:"identify"`
 	Branch         int                 `json:"branch"`
 	Module         int                 `json:"module"`
-	Execution      uint64              `json:"execution"`
+	Execution      int64               `json:"execution"`
 	Plan           int                 `json:"plan"`
-	Story          uint64              `json:"story"`
+	Story          int64               `json:"story"`
 	StoryVersion   int                 `json:"storyVersion"`
 	Task           int                 `json:"task"`
 	ToTask         int                 `json:"toTask"`
-	ToStory        uint64              `json:"toStory"`
+	ToStory        int64               `json:"toStory"`
 	Title          string              `json:"title"`
 	Keywords       string              `json:"keywords"`
 	Severity       int                 `json:"severity"`
@@ -57,19 +57,19 @@ type ZentaoBug struct {
 	ActivatedDate  *helper.Iso8601Time `json:"activatedDate"`
 	FeedbackBy     string              `json:"feedbackBy"`
 	NotifyEmail    string              `json:"notifyEmail"`
-	OpenedById     uint64
+	OpenedById     int64
 	OpenedByName   string
 	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
 	OpenedBuild    string              `json:"openedBuild"`
-	AssignedToId   uint64
+	AssignedToId   int64
 	AssignedToName string
 	AssignedDate   *helper.Iso8601Time `json:"assignedDate"`
 	Deadline       string              `json:"deadline"`
-	ResolvedById   uint64
+	ResolvedById   int64
 	Resolution     string              `json:"resolution"`
 	ResolvedBuild  string              `json:"resolvedBuild"`
 	ResolvedDate   *helper.Iso8601Time `json:"resolvedDate"`
-	ClosedById     uint64
+	ClosedById     int64
 	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
 	DuplicateBug   int                 `json:"duplicateBug"`
 	LinkBug        string              `json:"linkBug"`
@@ -84,7 +84,7 @@ type ZentaoBug struct {
 	RepoType       string              `json:"repoType"`
 	IssueKey       string              `json:"issueKey"`
 	Testtask       int                 `json:"testtask"`
-	LastEditedById uint64
+	LastEditedById int64
 	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
 	Deleted        bool                `json:"deleted"`
 	PriOrder       string              `json:"priOrder"`
