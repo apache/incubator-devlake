@@ -18,10 +18,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import { Button, Card, Elevation, Icon, Intent } from '@blueprintjs/core'
-import Nav from '@/components/Nav'
-import Sidebar from '@/components/Sidebar'
 import AppCrumbs from '@/components/Breadcrumbs'
-import Content from '@/components/Content'
 import ContentLoader from '@/components/loaders/ContentLoader'
 import useIntegrations from '@/hooks/useIntegrations'
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -183,202 +180,186 @@ export default function ConfigureConnection() {
   // }, [saveConnectionComplete])
 
   return (
-    <>
-      <div className='container'>
-        <Nav />
-        <Sidebar key={Integrations} integrations={Integrations} />
-        <Content>
-          <main className='main'>
-            <AppCrumbs
-              items={[
-                { href: '/', icon: false, text: 'Dashboard' },
-                { href: '/integrations', icon: false, text: 'Connections' },
-                {
-                  href: `/integrations/${activeProvider?.id}`,
-                  icon: false,
-                  text: `${activeProvider?.name}`
-                },
-                {
-                  href: `/connections/configure/${activeProvider?.id}/${activeConnection?.id}`,
-                  icon: false,
-                  text: `${
-                    activeConnection ? activeConnection.name : 'Configure'
-                  } Settings`,
-                  current: true
-                }
-              ]}
+    <main className='main'>
+      <AppCrumbs
+        items={[
+          { href: '/', icon: false, text: 'Dashboard' },
+          { href: '/integrations', icon: false, text: 'Connections' },
+          {
+            href: `/integrations/${activeProvider?.id}`,
+            icon: false,
+            text: `${activeProvider?.name}`
+          },
+          {
+            href: `/connections/configure/${activeProvider?.id}/${activeConnection?.id}`,
+            icon: false,
+            text: `${
+              activeConnection ? activeConnection.name : 'Configure'
+            } Settings`,
+            current: true
+          }
+        ]}
+      />
+      <div className='configureConnection' style={{ width: '100%' }}>
+        {!isLoadingConnection && (
+          <Link
+            style={{
+              float: 'right',
+              marginLeft: '10px',
+              color: '#777777'
+            }}
+            to={`/integrations/${activeProvider?.id}`}
+          >
+            <Icon icon='fast-backward' size={16} /> Connection List
+          </Link>
+        )}
+        <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+          <div>
+            <span style={{ marginRight: '10px' }}>
+              <img
+                className='providerIconSvg'
+                src={'/' + activeProvider?.icon}
+                width={40}
+                height={40}
+                style={{ width: '40px', height: '40px' }}
+              />
+            </span>
+          </div>
+          {isLoadingConnection && (
+            <ContentLoader
+              title='Loading Connection ...'
+              message='Please wait while connection settings are loaded.'
             />
-            <div className='configureConnection' style={{ width: '100%' }}>
-              {!isLoadingConnection && (
-                <Link
-                  style={{
-                    float: 'right',
-                    marginLeft: '10px',
-                    color: '#777777'
-                  }}
-                  to={`/integrations/${activeProvider?.id}`}
-                >
-                  <Icon icon='fast-backward' size={16} /> Connection List
-                </Link>
-              )}
-              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <div>
-                  <span style={{ marginRight: '10px' }}>
-                    <img
-                      className='providerIconSvg'
-                      src={'/' + activeProvider?.icon}
-                      width={40}
-                      height={40}
-                      style={{ width: '40px', height: '40px' }}
-                    />
-                  </span>
-                </div>
-                {isLoadingConnection && (
-                  <ContentLoader
-                    title='Loading Connection ...'
-                    message='Please wait while connection settings are loaded.'
-                  />
-                )}
-                {!isLoadingConnection && (
-                  <div style={{ justifyContent: 'flex-start' }}>
-                    <div style={{ display: 'flex' }}>
-                      <h1 style={{ margin: 0 }}>
-                        Manage{' '}
-                        <strong style={{ fontWeight: 900 }}>
-                          {activeProvider?.name}
-                        </strong>{' '}
-                        Settings
-                      </h1>
-                      {activeProvider?.multiConnection && (
-                        <div style={{ paddingTop: '5px' }}>
-                          <DeleteAction
-                            id={deleteId}
-                            connection={activeConnection}
-                            text='Delete'
-                            showConfirmation={() =>
-                              setDeleteId(activeConnection.id)
-                            }
-                            onConfirm={deleteConnection}
-                            onCancel={(e) => setDeleteId(null)}
-                            isDisabled={isDeletingConnection}
-                            isLoading={isDeletingConnection}
-                          >
-                            <DeleteConfirmationMessage
-                              title={`DELETE "${activeConnection.name}"`}
-                            />
-                          </DeleteAction>
-                        </div>
-                      )}
-                    </div>
-                    {activeConnection && (
-                      <>
-                        {[
-                          Providers.GITLAB,
-                          Providers.JIRA,
-                          Providers.TAPD
-                        ].includes(activeProvider?.id) && (
-                          <h2 style={{ margin: 0 }}>
-                            #{activeConnection?.id} {activeConnection.name}
-                          </h2>
-                        )}
-                        <p className='page-description'>
-                          Manage settings and options for this connection.
-                        </p>
-                      </>
-                    )}
+          )}
+          {!isLoadingConnection && (
+            <div style={{ justifyContent: 'flex-start' }}>
+              <div style={{ display: 'flex' }}>
+                <h1 style={{ margin: 0 }}>
+                  Manage{' '}
+                  <strong style={{ fontWeight: 900 }}>
+                    {activeProvider?.name}
+                  </strong>{' '}
+                  Settings
+                </h1>
+                {activeProvider?.multiConnection && (
+                  <div style={{ paddingTop: '5px' }}>
+                    <DeleteAction
+                      id={deleteId}
+                      connection={activeConnection}
+                      text='Delete'
+                      showConfirmation={() => setDeleteId(activeConnection.id)}
+                      onConfirm={deleteConnection}
+                      onCancel={(e) => setDeleteId(null)}
+                      isDisabled={isDeletingConnection}
+                      isLoading={isDeletingConnection}
+                    >
+                      <DeleteConfirmationMessage
+                        title={`DELETE "${activeConnection.name}"`}
+                      />
+                    </DeleteAction>
                   </div>
                 )}
               </div>
-              {!isLoadingConnection && activeProvider && activeConnection && (
+              {activeConnection && (
                 <>
-                  <Card
-                    interactive={false}
-                    elevation={Elevation.ZERO}
-                    style={{
-                      backgroundColor: '#f8f8f8',
-                      width: '100%',
-                      marginBottom: '20px'
-                    }}
-                  >
-                    <Button
-                      type='button'
-                      icon={showConnectionSettings ? 'eye-on' : 'eye-off'}
-                      intent={
-                        showConnectionSettings
-                          ? Intent.PRIMARY
-                          : Intent.DISABLED
-                      }
-                      style={{ margin: '2px', float: 'right' }}
-                      onClick={() =>
-                        setShowConnectionSettings(!showConnectionSettings)
-                      }
-                      minimal
-                      small
-                    />
-                    {showConnectionSettings ? (
-                      <div
-                        className='editConnection'
-                        style={{ display: 'flex' }}
-                      >
-                        <ConnectionForm
-                          isValid={isValidForm}
-                          validationErrors={validationErrors}
-                          activeProvider={activeProvider}
-                          name={name}
-                          endpointUrl={endpointUrl}
-                          proxy={proxy}
-                          rateLimitPerHour={rateLimitPerHour}
-                          enableGraphql={enableGraphql}
-                          token={token}
-                          initialTokenStore={initialTokenStore}
-                          username={username}
-                          password={password}
-                          onSave={() => saveConnection()}
-                          onTest={testConnection}
-                          onCancel={cancel}
-                          onValidate={validate}
-                          onNameChange={setName}
-                          onEndpointChange={setEndpointUrl}
-                          onProxyChange={setProxy}
-                          onRateLimitChange={setRateLimitPerHour}
-                          onEnableGraphqlChange={setEnableGraphql}
-                          onTokenChange={setToken}
-                          onUsernameChange={setUsername}
-                          onPasswordChange={setPassword}
-                          isSaving={isSavingConnection}
-                          isTesting={isTestingConnection}
-                          testStatus={testStatus}
-                          testResponse={testResponse}
-                          allTestResponses={allTestResponses}
-                          errors={errors}
-                          showError={showConnectionError}
-                          authType={activeProvider?.getAuthenticationType()}
-                          showLimitWarning={false}
-                          sourceLimits={ProviderConnectionLimits}
-                          labels={ProviderFormLabels[activeProvider?.id]}
-                          placeholders={
-                            ProviderFormPlaceholders[activeProvider?.id]
-                          }
-                          tooltips={ProviderFormTooltips[activeProvider?.id]}
-                        />
-                      </div>
-                    ) : (
-                      <>
-                        <h2 style={{ margin: 0 }}>Configure Connection</h2>
-                        <p className='description' style={{ margin: 0 }}>
-                          ( Click the <strong>Visibility</strong> icon to your
-                          right to edit connection )
-                        </p>
-                      </>
-                    )}
-                    {/* {validationErrors.length > 0 && (
+                  {[Providers.GITLAB, Providers.JIRA, Providers.TAPD].includes(
+                    activeProvider?.id
+                  ) && (
+                    <h2 style={{ margin: 0 }}>
+                      #{activeConnection?.id} {activeConnection.name}
+                    </h2>
+                  )}
+                  <p className='page-description'>
+                    Manage settings and options for this connection.
+                  </p>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+        {!isLoadingConnection && activeProvider && activeConnection && (
+          <>
+            <Card
+              interactive={false}
+              elevation={Elevation.ZERO}
+              style={{
+                backgroundColor: '#f8f8f8',
+                width: '100%',
+                marginBottom: '20px'
+              }}
+            >
+              <Button
+                type='button'
+                icon={showConnectionSettings ? 'eye-on' : 'eye-off'}
+                intent={
+                  showConnectionSettings ? Intent.PRIMARY : Intent.DISABLED
+                }
+                style={{ margin: '2px', float: 'right' }}
+                onClick={() =>
+                  setShowConnectionSettings(!showConnectionSettings)
+                }
+                minimal
+                small
+              />
+              {showConnectionSettings ? (
+                <div className='editConnection' style={{ display: 'flex' }}>
+                  <ConnectionForm
+                    isValid={isValidForm}
+                    validationErrors={validationErrors}
+                    activeProvider={activeProvider}
+                    name={name}
+                    endpointUrl={endpointUrl}
+                    proxy={proxy}
+                    rateLimitPerHour={rateLimitPerHour}
+                    enableGraphql={enableGraphql}
+                    token={token}
+                    initialTokenStore={initialTokenStore}
+                    username={username}
+                    password={password}
+                    onSave={() => saveConnection()}
+                    onTest={testConnection}
+                    onCancel={cancel}
+                    onValidate={validate}
+                    onNameChange={setName}
+                    onEndpointChange={setEndpointUrl}
+                    onProxyChange={setProxy}
+                    onRateLimitChange={setRateLimitPerHour}
+                    onEnableGraphqlChange={setEnableGraphql}
+                    onTokenChange={setToken}
+                    onUsernameChange={setUsername}
+                    onPasswordChange={setPassword}
+                    isSaving={isSavingConnection}
+                    isTesting={isTestingConnection}
+                    testStatus={testStatus}
+                    testResponse={testResponse}
+                    allTestResponses={allTestResponses}
+                    errors={errors}
+                    showError={showConnectionError}
+                    authType={activeProvider?.getAuthenticationType()}
+                    showLimitWarning={false}
+                    sourceLimits={ProviderConnectionLimits}
+                    labels={ProviderFormLabels[activeProvider?.id]}
+                    placeholders={ProviderFormPlaceholders[activeProvider?.id]}
+                    tooltips={ProviderFormTooltips[activeProvider?.id]}
+                  />
+                </div>
+              ) : (
+                <>
+                  <h2 style={{ margin: 0 }}>Configure Connection</h2>
+                  <p className='description' style={{ margin: 0 }}>
+                    ( Click the <strong>Visibility</strong> icon to your right
+                    to edit connection )
+                  </p>
+                </>
+              )}
+              {/* {validationErrors.length > 0 && (
                       <FormValidationErrors errors={validationErrors} />
                     )} */}
-                  </Card>
-                  {/* <div style={{ marginTop: '30px' }}>
+            </Card>
+            {/* <div style={{ marginTop: '30px' }}>
                     {renderProviderSettings(providerId, activeProvider)}
                   </div> */}
-                  {/* <div className='form-actions-block' style={{ display: 'flex', marginTop: '60px', justifyContent: 'space-between' }}>
+            {/* <div className='form-actions-block' style={{ display: 'flex', marginTop: '60px', justifyContent: 'space-between' }}>
                     <div />
                     <div>
                       <Button icon='remove' text='Cancel' onClick={cancel} disabled={isSaving} />
@@ -393,12 +374,9 @@ export default function ConfigureConnection() {
                       />
                     </div>
                   </div> */}
-                </>
-              )}
-            </div>
-          </main>
-        </Content>
+          </>
+        )}
       </div>
-    </>
+    </main>
   )
 }
