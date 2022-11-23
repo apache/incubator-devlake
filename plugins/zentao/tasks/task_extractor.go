@@ -56,7 +56,6 @@ func ExtractTask(taskCtx core.SubTaskContext) errors.Error {
 			}
 			task := &models.ZentaoTask{
 				ConnectionId:       data.Options.ConnectionId,
-				ExecutionId:        data.Options.ExecutionId,
 				ID:                 res.Id,
 				Project:            res.Project,
 				Parent:             res.Parent,
