@@ -27,7 +27,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/core/errors"
 )
 
 // NoopConverter no-op converter

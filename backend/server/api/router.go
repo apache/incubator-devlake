@@ -19,6 +19,9 @@ package api
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/apache/incubator-devlake/core/plugin"
 	"github.com/apache/incubator-devlake/server/api/blueprints"
 	"github.com/apache/incubator-devlake/server/api/domainlayer"
@@ -31,8 +34,6 @@ import (
 	"github.com/apache/incubator-devlake/server/api/task"
 	"github.com/apache/incubator-devlake/server/api/version"
 	"github.com/apache/incubator-devlake/server/services"
-	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -73,24 +74,29 @@ func RegisterRouter(r *gin.Engine) {
 	r.GET("/projects", project.GetProjects)
 
 	// mount all api resources for all plugins
-	pluginsApiResources, err := services.GetPluginsApiResources()
+	resources, err := services.GetPluginsApiResources()
 	if err != nil {
 		panic(err)
 	}
-	for pluginName, apiResources := range pluginsApiResources {
-		for resourcePath, resourceHandlers := range apiResources {
-			for method, h := range resourceHandlers {
-				r.Handle(
-					method,
-					fmt.Sprintf("/plugins/%s/%s", pluginName, resourcePath),
-					handlePluginCall(pluginName, h),
-				)
-			}
+	// mount all api resources for all plugins
+	for pluginName, apiResources := range resources {
+		registerPluginEndpoints(r, pluginName, apiResources)
+	}
+}
+
+func registerPluginEndpoints(r *gin.Engine, pluginName string, apiResources map[string]map[string]plugin.ApiResourceHandler) {
+	for resourcePath, resourceHandlers := range apiResources {
+		for method, h := range resourceHandlers {
+			r.Handle(
+				method,
+				fmt.Sprintf("/plugins/%s/%s", pluginName, resourcePath),
+				handlePluginCall(h),
+			)
 		}
 	}
 }
 
-func handlePluginCall(pluginName string, handler plugin.ApiResourceHandler) func(c *gin.Context) {
+func handlePluginCall(handler plugin.ApiResourceHandler) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		var err error
 		input := &plugin.ApiResourceInput{}

@@ -21,8 +21,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/core/plugin"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/core/models"
+	"github.com/apache/incubator-devlake/core/plugin"
 
 	"gorm.io/gorm/schema"
 )
@@ -37,6 +39,7 @@ type EncDecSerializer struct {
 
 // Scan implements serializer interface
 func (es *EncDecSerializer) Scan(ctx context.Context, field *schema.Field, dst reflect.Value, dbValue interface{}) (err error) {
+	dbValue = models.UnwrapObject(dbValue)
 	fieldValue := reflect.New(field.FieldType)
 	if dbValue != nil {
 		var base64str string
