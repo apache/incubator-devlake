@@ -53,8 +53,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	refCommit := &code.RefCommit{}
-	for i := 0; i < len(commitPairsSrc); i++ {
-		pair := commitPairsSrc[i]
+	for _, pair := range commitPairsSrc {
 		newRefId := fmt.Sprintf("%s:%s", repoId, pair[2])
 		oldRefId := fmt.Sprintf("%s:%s", repoId, pair[3])
 		isAppend := true
