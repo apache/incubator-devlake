@@ -23,6 +23,21 @@ import (
 	"strings"
 )
 
+// RecoverToError call the recover to catch the panic and changed it to be an error
+func RecoverToError() error {
+	if r := recover(); r != nil {
+		switch e := r.(type) {
+		case error:
+			return e
+		case string:
+			return fmt.Errorf("%s", e)
+		default:
+			return fmt.Errorf("%v", e)
+		}
+	}
+	return nil
+}
+
 // GatherCallFrames FIXME ...
 func GatherCallFrames(delta int) string {
 	var name, file string
