@@ -29,8 +29,8 @@ import (
 )
 
 type PaginatedBlueprint struct {
-	Blueprints []*models.Blueprint
-	Count      int64
+	Blueprints []*models.Blueprint `json:"blueprints"`
+	Count      int64               `json:"count"`
 }
 
 // @Summary post blueprints
@@ -63,7 +63,11 @@ func Post(c *gin.Context) {
 // @Summary get blueprints
 // @Description get blueprints
 // @Tags framework/blueprints
-// @Accept application/json
+// @Param enable query bool false "enable"
+// @Param is_manual query bool false "is_manual"
+// @Param page query int false "page"
+// @Param page_size query int false "page_size"
+// @Param label query string false "label"
 // @Success 200  {object} PaginatedBlueprint
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"

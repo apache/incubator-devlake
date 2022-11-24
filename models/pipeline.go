@@ -39,6 +39,7 @@ type Pipeline struct {
 	Message       string         `json:"message"`
 	SpentSeconds  int            `json:"spentSeconds"`
 	Stage         int            `json:"stage"`
+	Labels        []string       `json:"labels"`
 }
 
 // We use a 2D array because the request body must be an array of a set of tasks
@@ -46,6 +47,7 @@ type Pipeline struct {
 type NewPipeline struct {
 	Name        string            `json:"name"`
 	Plan        core.PipelinePlan `json:"plan" swaggertype:"array,string" example:"please check api /pipelines/<PLUGIN_NAME>/pipeline-plan"`
+	Labels      []string          `json:"labels"`
 	BlueprintId uint64
 }
 
@@ -62,8 +64,21 @@ type DbPipeline struct {
 	Message       string     `json:"message"`
 	SpentSeconds  int        `json:"spentSeconds"`
 	Stage         int        `json:"stage"`
+
+	Labels []DbPipelineLabel `json:"-" gorm:"-"`
 }
 
 func (DbPipeline) TableName() string {
 	return "_devlake_pipelines"
+}
+
+type DbPipelineLabel struct {
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
+	PipelineId uint64    `json:"pipeline_id" gorm:"primaryKey"`
+	Name       string    `json:"name" gorm:"primaryKey;index"`
+}
+
+func (DbPipelineLabel) TableName() string {
+	return "_devlake_pipeline_labels"
 }

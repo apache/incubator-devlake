@@ -81,12 +81,14 @@ GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
 */
 
 // @Summary Get list of pipelines
-// @Description GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
+// @Description GET /pipelines?status=TASK_RUNNING&pending=1&label=search_text&page=1&pagesize=10
 // @Tags framework/pipelines
-// @Param status query string true "query"
-// @Param pending query int true "query"
-// @Param page query int true "query"
-// @Param pagesize query int true "query"
+// @Param status query string false "status"
+// @Param pending query int false "pending"
+// @Param page query int false "page"
+// @Param pagesize query int false "pagesize"
+// @Param blueprint_id query int false "blueprint_id"
+// @Param label query string false "label"
 // @Success 200  {object} shared.ResponsePipelines
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"

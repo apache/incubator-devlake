@@ -57,21 +57,19 @@ function usePipelineManager(
   const [logfile, setLogfile] = useState('logging.tar.gz')
 
   const runPipeline = useCallback(
-    (runSettings = null) => {
-      console.log('>> RUNNING PIPELINE....')
+    (blueprintId) => {
+      console.log('>> RUNNING PIPELINE....', blueprintId)
       try {
         setIsRunning(true)
         setErrors([])
         ToastNotification.clear()
-        console.log('>> DISPATCHING PIPELINE REQUEST', runSettings || settings)
         const run = async () => {
           // @todo: remove "ID" fallback key when no longer needed
           const p = await request.post(
-            `${DEVLAKE_ENDPOINT}/pipelines`,
-            runSettings || settings
+            `${DEVLAKE_ENDPOINT}/blueprints/${blueprintId}/trigger`
           )
           const t = await request.get(
-            `${DEVLAKE_ENDPOINT}/pipelines/${p.data?.ID || p.data?.id}/tasks`
+            `${DEVLAKE_ENDPOINT}/pipelines/${p.data?.id}/tasks`
           )
           console.log('>> RAW PIPELINE DATA FROM API...', p.data)
           setPipelineRun({

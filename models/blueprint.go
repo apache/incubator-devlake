@@ -19,9 +19,9 @@ package models
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/apache/incubator-devlake/errors"
-
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
@@ -42,6 +42,7 @@ type Blueprint struct {
 	CronConfig   string          `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
 	IsManual     bool            `json:"isManual"`
 	SkipOnFail   bool            `json:"skipOnFail"`
+	Labels       []string        `json:"labels"`
 	Settings     json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
 	common.Model `swaggerignore:"true"`
 }
@@ -77,8 +78,21 @@ type DbBlueprint struct {
 	SkipOnFail   bool   `json:"skipOnFail"`
 	Settings     string `json:"settings" encrypt:"yes" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
 	common.Model `swaggerignore:"true"`
+
+	Labels []DbBlueprintLabel `json:"-" gorm:"-"`
 }
 
 func (DbBlueprint) TableName() string {
 	return "_devlake_blueprints"
+}
+
+type DbBlueprintLabel struct {
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+	BlueprintId uint64    `json:"blueprint_id" gorm:"primaryKey"`
+	Name        string    `json:"name" gorm:"primaryKey;index"`
+}
+
+func (DbBlueprintLabel) TableName() string {
+	return "_devlake_blueprint_labels"
 }

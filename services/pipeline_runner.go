@@ -117,27 +117,28 @@ func runPipeline(pipelineId uint64) errors.Error {
 	if err != nil {
 		err = errors.Default.Wrap(err, fmt.Sprintf("Error running pipeline %d.", pipelineId))
 	}
-	pipeline, e := GetPipeline(pipelineId)
+	dbPipeline, e := GetDbPipeline(pipelineId)
 	if e != nil {
 		return errors.Default.Wrap(err, fmt.Sprintf("Unable to get pipeline %d.", pipelineId))
 	}
 	// finished, update database
 	finishedAt := time.Now()
-	pipeline.FinishedAt = &finishedAt
-	pipeline.SpentSeconds = int(finishedAt.Unix() - pipeline.BeganAt.Unix())
+	dbPipeline.FinishedAt = &finishedAt
+	if dbPipeline.BeganAt != nil {
+		dbPipeline.SpentSeconds = int(finishedAt.Unix() - dbPipeline.BeganAt.Unix())
+	}
 	if err != nil {
-		pipeline.Status = models.TASK_FAILED
+		dbPipeline.Status = models.TASK_FAILED
 		if lakeErr := errors.AsLakeErrorType(err); lakeErr != nil {
-			pipeline.Message = lakeErr.Messages().Format()
+			dbPipeline.Message = lakeErr.Messages().Format()
 		} else {
-			pipeline.Message = err.Error()
+			dbPipeline.Message = err.Error()
 		}
 	} else {
-		pipeline.Status = models.TASK_COMPLETED
-		pipeline.Message = ""
+		dbPipeline.Status = models.TASK_COMPLETED
+		dbPipeline.Message = ""
 	}
-	dbPipeline := parseDbPipeline(pipeline)
-	dbe := db.Model(dbPipeline).Select("finished_at", "spent_seconds", "status", "message").Updates(dbPipeline).Error
+	dbe := db.Model(dbPipeline).Updates(dbPipeline).Error
 	if dbe != nil {
 		globalPipelineLog.Error(dbe, "update pipeline state failed")
 		return errors.Convert(dbe)

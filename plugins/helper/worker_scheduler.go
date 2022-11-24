@@ -48,7 +48,6 @@ func NewWorkerScheduler(
 	workerNum int,
 	maxWork int,
 	maxWorkDuration time.Duration,
-	maxRetry int,
 	logger core.Logger,
 ) (*WorkerScheduler, errors.Error) {
 	if maxWork <= 0 {

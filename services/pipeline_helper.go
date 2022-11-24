@@ -52,10 +52,25 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	if err != nil {
 		return nil, err
 	}
+
 	// save pipeline to database
 	if err := db.Create(&dbPipeline).Error; err != nil {
-		globalPipelineLog.Error(err, "create pipline failed: %v", err)
-		return nil, errors.Internal.Wrap(err, "create pipline failed")
+		globalPipelineLog.Error(err, "create pipeline failed: %v", err)
+		return nil, errors.Internal.Wrap(err, "create pipeline failed")
+	}
+
+	dbPipeline.Labels = []models.DbPipelineLabel{}
+	for _, label := range newPipeline.Labels {
+		dbPipeline.Labels = append(dbPipeline.Labels, models.DbPipelineLabel{
+			PipelineId: dbPipeline.ID,
+			Name:       label,
+		})
+	}
+	if len(dbPipeline.Labels) > 0 {
+		if err := db.Create(&dbPipeline.Labels).Error; err != nil {
+			globalPipelineLog.Error(err, "create pipeline's labelModels failed: %v", err)
+			return nil, errors.Internal.Wrap(err, "create pipeline's labelModels failed")
+		}
 	}
 
 	// create tasks accordingly
@@ -99,28 +114,48 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 // GetDbPipelines by query
 func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.Error) {
 	dbPipelines := make([]*models.DbPipeline, 0)
-	db := db.Model(dbPipelines).Order("id DESC")
+	dbQuery := db.Model(dbPipelines).Order("id DESC")
 	if query.BlueprintId != 0 {
-		db = db.Where("blueprint_id = ?", query.BlueprintId)
+		dbQuery = dbQuery.Where("blueprint_id = ?", query.BlueprintId)
 	}
 	if query.Status != "" {
-		db = db.Where("status = ?", query.Status)
+		dbQuery = dbQuery.Where("status = ?", query.Status)
 	}
 	if query.Pending > 0 {
-		db = db.Where("finished_at is null and status != ?", "TASK_FAILED")
+		dbQuery = dbQuery.Where("finished_at is null and status != ?", "TASK_FAILED")
+	}
+	if query.Label != "" {
+		dbQuery = dbQuery.
+			Joins(`left join _devlake_pipeline_labels ON _devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id`).
+			Where(`_devlake_pipeline_labels.name = ?`, query.Label)
 	}
 	var count int64
-	err := db.Count(&count).Error
+	err := dbQuery.Count(&count).Error
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error getting DB pipelines count")
 	}
 
-	db = processDbClausesWithPager(db, query.PageSize, query.Page)
+	dbQuery = processDbClausesWithPager(dbQuery, query.PageSize, query.Page)
 
-	err = db.Find(&dbPipelines).Error
+	err = dbQuery.Find(&dbPipelines).Error
 	if err != nil {
 		return nil, count, errors.Default.Wrap(err, "error finding DB pipelines")
 	}
+
+	var pipelineIds []uint64
+	for _, dbPipeline := range dbPipelines {
+		pipelineIds = append(pipelineIds, dbPipeline.ID)
+	}
+	dbLabels := []models.DbPipelineLabel{}
+	db.Where(`pipeline_id in ?`, pipelineIds).Find(&dbLabels)
+	dbLabelsMap := map[uint64][]models.DbPipelineLabel{}
+	for _, dbLabel := range dbLabels {
+		dbLabelsMap[dbLabel.PipelineId] = append(dbLabelsMap[dbLabel.PipelineId], dbLabel)
+	}
+	for _, dbPipeline := range dbPipelines {
+		dbPipeline.Labels = dbLabelsMap[dbPipeline.ID]
+	}
+
 	return dbPipelines, count, nil
 }
 
@@ -134,11 +169,19 @@ func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, errors.Error) {
 		}
 		return nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
 	}
+	err = db.Find(&dbPipeline.Labels, "pipeline_id = ?", pipelineId).Error
+	if err != nil {
+		return nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
+	}
 	return dbPipeline, nil
 }
 
 // parsePipeline converts DbPipeline to Pipeline
 func parsePipeline(dbPipeline *models.DbPipeline) *models.Pipeline {
+	labelList := []string{}
+	for _, labelModel := range dbPipeline.Labels {
+		labelList = append(labelList, labelModel.Name)
+	}
 	pipeline := models.Pipeline{
 		Model:         dbPipeline.Model,
 		Name:          dbPipeline.Name,
@@ -152,11 +195,13 @@ func parsePipeline(dbPipeline *models.DbPipeline) *models.Pipeline {
 		Message:       dbPipeline.Message,
 		SpentSeconds:  dbPipeline.SpentSeconds,
 		Stage:         dbPipeline.Stage,
+		Labels:        labelList,
 	}
 	return &pipeline
 }
 
 // parseDbPipeline converts Pipeline to DbPipeline
+// nolint:unused
 func parseDbPipeline(pipeline *models.Pipeline) *models.DbPipeline {
 	dbPipeline := models.DbPipeline{
 		Model:         pipeline.Model,
@@ -171,6 +216,14 @@ func parseDbPipeline(pipeline *models.Pipeline) *models.DbPipeline {
 		Message:       pipeline.Message,
 		SpentSeconds:  pipeline.SpentSeconds,
 		Stage:         pipeline.Stage,
+	}
+	dbPipeline.Labels = []models.DbPipelineLabel{}
+	for _, label := range pipeline.Labels {
+		dbPipeline.Labels = append(dbPipeline.Labels, models.DbPipelineLabel{
+			// NOTICE: PipelineId may be nil
+			PipelineId: pipeline.ID,
+			Name:       label,
+		})
 	}
 	return &dbPipeline
 }

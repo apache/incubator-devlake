@@ -812,7 +812,7 @@ const CreateBlueprint = (props) => {
         blueprintId: saveBlueprintComplete?.id,
         plan: saveBlueprintComplete?.plan
       }
-      runPipeline(newPipelineConfiguration)
+      runPipeline(saveBlueprintComplete?.id)
       setRunNow(false)
       history.push(`/blueprints/detail/${saveBlueprintComplete?.id}`)
     } else if (newBlueprintId) {

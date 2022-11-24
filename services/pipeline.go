@@ -23,6 +23,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -40,13 +41,14 @@ var notificationService *NotificationService
 var temporalClient client.Client
 var globalPipelineLog = logger.Global.Nested("pipeline service")
 
-// PipelineQuery FIXME ...
+// PipelineQuery is a query for GetPipelines
 type PipelineQuery struct {
 	Status      string `form:"status"`
 	Pending     int    `form:"pending"`
 	Page        int    `form:"page"`
 	PageSize    int    `form:"pageSize"`
 	BlueprintId uint64 `uri:"blueprintId" form:"blueprint_id"`
+	Label       string `form:"label"`
 }
 
 func pipelineServiceInit() {
@@ -155,6 +157,8 @@ func GetPipelineLogsArchivePath(pipeline *models.Pipeline) (string, errors.Error
 // RunPipelineInQueue query pipeline from db and run it in a queue
 func RunPipelineInQueue(pipelineMaxParallel int64) {
 	sema := semaphore.NewWeighted(pipelineMaxParallel)
+	runningParallelLabels := []string{}
+	var runningParallelLabelLock sync.Mutex
 	for {
 		globalPipelineLog.Info("acquire lock")
 		// start goroutine when sema lock ready and pipeline exist.
@@ -167,27 +171,58 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 		dbPipeline := &models.DbPipeline{}
 		for {
 			cronLocker.Lock()
+			// prepare query to find an appropriate pipeline to execute
 			db.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}).
+				Joins(`left join _devlake_pipeline_labels ON
+						_devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id AND
+						_devlake_pipeline_labels.name LIKE 'parallel/%' AND
+						_devlake_pipeline_labels.name in ?`, runningParallelLabels).
+				Group(`id`).
+				Having(`count(_devlake_pipeline_labels.name)=0`).
+				Select("id").
 				Order("id ASC").Limit(1).Find(dbPipeline)
 			cronLocker.Unlock()
 			if dbPipeline.ID != 0 {
-				db.Model(&models.DbPipeline{}).Where("id = ?", dbPipeline.ID).Updates(map[string]interface{}{
-					"status":   models.TASK_RUNNING,
-					"message":  "",
-					"began_at": time.Now(),
-				})
 				break
 			}
 			time.Sleep(time.Second)
 		}
-		go func(pipelineId uint64) {
+
+		db.Model(&models.DbPipeline{}).Where("id = ?", dbPipeline.ID).Updates(map[string]interface{}{
+			"status":   models.TASK_RUNNING,
+			"message":  "",
+			"began_at": time.Now(),
+		})
+		dbPipeline, err = GetDbPipeline(dbPipeline.ID)
+		if err != nil {
+			panic(err)
+		}
+
+		// add pipelineParallelLabels to runningParallelLabels
+		var pipelineParallelLabels []string
+		for _, dbLabel := range dbPipeline.Labels {
+			if strings.HasPrefix(dbLabel.Name, `parallel/`) {
+				pipelineParallelLabels = append(pipelineParallelLabels, dbLabel.Name)
+			}
+		}
+		runningParallelLabelLock.Lock()
+		runningParallelLabels = append(runningParallelLabels, pipelineParallelLabels...)
+		runningParallelLabelLock.Unlock()
+
+		go func(pipelineId uint64, parallelLabels []string) {
 			defer sema.Release(1)
-			globalPipelineLog.Info("run pipeline, %d", pipelineId)
+			defer func() {
+				runningParallelLabelLock.Lock()
+				runningParallelLabels = utils.SliceRemove(runningParallelLabels, parallelLabels...)
+				runningParallelLabelLock.Unlock()
+				globalPipelineLog.Info("finish pipeline #%d, now runningParallelLabels is %s", pipelineId, runningParallelLabels)
+			}()
+			globalPipelineLog.Info("run pipeline, %d, now running runningParallelLabels are %s", pipelineId, runningParallelLabels)
 			err = runPipeline(pipelineId)
 			if err != nil {
 				globalPipelineLog.Error(err, "failed to run pipeline %d", pipelineId)
 			}
-		}(dbPipeline.ID)
+		}(dbPipeline.ID, pipelineParallelLabels)
 	}
 }
 

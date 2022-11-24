@@ -26,11 +26,29 @@ import (
 	"gorm.io/gorm"
 )
 
-// CreateDbBlueprint accepts a Blueprint instance and insert it to database
-func CreateDbBlueprint(dbBlueprint *models.DbBlueprint) errors.Error {
-	err := db.Create(&dbBlueprint).Error
+// SaveDbBlueprint accepts a Blueprint instance and upsert it to database
+func SaveDbBlueprint(dbBlueprint *models.DbBlueprint) errors.Error {
+	var err error
+	if dbBlueprint.ID != 0 {
+		err = db.Save(&dbBlueprint).Error
+	} else {
+		err = db.Create(&dbBlueprint).Error
+	}
 	if err != nil {
 		return errors.Default.Wrap(err, "error creating DB blueprint")
+	}
+	err = db.Delete(&models.DbBlueprintLabel{}, `blueprint_id = ?`, dbBlueprint.ID).Error
+	if err != nil {
+		return errors.Default.Wrap(err, "error delete DB blueprint's old labelModels")
+	}
+	if len(dbBlueprint.Labels) > 0 {
+		for i := range dbBlueprint.Labels {
+			dbBlueprint.Labels[i].BlueprintId = dbBlueprint.ID
+		}
+		err = db.Create(&dbBlueprint.Labels).Error
+		if err != nil {
+			return errors.Default.Wrap(err, "error creating DB blueprint's labelModels")
+		}
 	}
 	return nil
 }
@@ -38,22 +56,44 @@ func CreateDbBlueprint(dbBlueprint *models.DbBlueprint) errors.Error {
 // GetDbBlueprints returns a paginated list of Blueprints based on `query`
 func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, errors.Error) {
 	dbBlueprints := make([]*models.DbBlueprint, 0)
-	db := db.Model(dbBlueprints).Order("id DESC")
+	dbQuery := db.Model(dbBlueprints).Order("id DESC")
 	if query.Enable != nil {
-		db = db.Where("enable = ?", *query.Enable)
+		dbQuery = dbQuery.Where("enable = ?", *query.Enable)
+	}
+	if query.IsManual != nil {
+		dbQuery = dbQuery.Where("is_manual = ?", *query.IsManual)
+	}
+	if query.Label != "" {
+		dbQuery = dbQuery.
+			Joins(`left join _devlake_blueprint_labels ON _devlake_blueprint_labels.blueprint_id = _devlake_blueprints.id`).
+			Where(`_devlake_blueprint_labels.name = ?`, query.Label)
 	}
 
 	var count int64
-	err := db.Count(&count).Error
+	err := dbQuery.Count(&count).Error
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error getting DB count of blueprints")
 	}
 
-	db = processDbClausesWithPager(db, query.PageSize, query.Page)
+	dbQuery = processDbClausesWithPager(dbQuery, query.PageSize, query.Page)
 
-	err = db.Find(&dbBlueprints).Error
+	err = dbQuery.Find(&dbBlueprints).Error
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error finding DB blueprints")
+	}
+
+	var blueprintIds []uint64
+	for _, dbBlueprint := range dbBlueprints {
+		blueprintIds = append(blueprintIds, dbBlueprint.ID)
+	}
+	var dbLabels []models.DbBlueprintLabel
+	dbLabelsMap := map[uint64][]models.DbBlueprintLabel{}
+	db.Where(`blueprint_id in ?`, blueprintIds).Find(&dbLabels)
+	for _, dbLabel := range dbLabels {
+		dbLabelsMap[dbLabel.BlueprintId] = append(dbLabelsMap[dbLabel.BlueprintId], dbLabel)
+	}
+	for _, dbBlueprint := range dbBlueprints {
+		dbBlueprint.Labels = dbLabelsMap[dbBlueprint.ID]
 	}
 
 	return dbBlueprints, count, nil
@@ -69,6 +109,10 @@ func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, errors.Error) {
 		}
 		return nil, errors.Default.Wrap(err, "error getting blueprint from DB")
 	}
+	err = db.Find(&dbBlueprint.Labels, "blueprint_id = ?", dbBlueprint.ID).Error
+	if err != nil {
+		return nil, errors.Internal.Wrap(err, "error getting the blueprint from database")
+	}
 	return dbBlueprint, nil
 }
 
@@ -82,17 +126,22 @@ func DeleteDbBlueprint(id uint64) errors.Error {
 }
 
 // parseBlueprint
-func parseBlueprint(DbBlueprint *models.DbBlueprint) *models.Blueprint {
+func parseBlueprint(dbBlueprint *models.DbBlueprint) *models.Blueprint {
+	labelList := []string{}
+	for _, labelModel := range dbBlueprint.Labels {
+		labelList = append(labelList, labelModel.Name)
+	}
 	blueprint := models.Blueprint{
-		Name:       DbBlueprint.Name,
-		Mode:       DbBlueprint.Mode,
-		Plan:       []byte(DbBlueprint.Plan),
-		Enable:     DbBlueprint.Enable,
-		CronConfig: DbBlueprint.CronConfig,
-		IsManual:   DbBlueprint.IsManual,
-		SkipOnFail: DbBlueprint.SkipOnFail,
-		Settings:   []byte(DbBlueprint.Settings),
-		Model:      DbBlueprint.Model,
+		Name:       dbBlueprint.Name,
+		Mode:       dbBlueprint.Mode,
+		Plan:       []byte(dbBlueprint.Plan),
+		Enable:     dbBlueprint.Enable,
+		CronConfig: dbBlueprint.CronConfig,
+		IsManual:   dbBlueprint.IsManual,
+		SkipOnFail: dbBlueprint.SkipOnFail,
+		Settings:   []byte(dbBlueprint.Settings),
+		Model:      dbBlueprint.Model,
+		Labels:     labelList,
 	}
 	return &blueprint
 }
@@ -109,6 +158,14 @@ func parseDbBlueprint(blueprint *models.Blueprint) *models.DbBlueprint {
 		SkipOnFail: blueprint.SkipOnFail,
 		Settings:   string(blueprint.Settings),
 		Model:      blueprint.Model,
+	}
+	dbBlueprint.Labels = []models.DbBlueprintLabel{}
+	for _, label := range blueprint.Labels {
+		dbBlueprint.Labels = append(dbBlueprint.Labels, models.DbBlueprintLabel{
+			// NOTICE: BlueprintId may be nil
+			BlueprintId: blueprint.ID,
+			Name:        label,
+		})
 	}
 	return &dbBlueprint
 }
