@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -40,25 +41,43 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	// get all data from finish_commits_diffs
-	commitPairs := data.Options.AllPairs
-	var ExistFinishedCommitDiff []code.FinishedCommitsDiffs
-	err := db.All(&ExistFinishedCommitDiff,
+	commitPairsSrc := data.Options.AllPairs
+	var commitPairs RefCommitPairs
+	var existFinishedCommitDiff []code.FinishedCommitsDiff
+	err := db.All(&existFinishedCommitDiff,
 		dal.Select("*"),
 		dal.From("finished_commits_diffs"),
 	)
 	if err != nil {
 		return err
 	}
-	for i := 0; i < len(commitPairs); i++ {
-		pair := commitPairs[i]
-		for _, item := range ExistFinishedCommitDiff {
+
+	refCommit := &code.RefCommit{}
+	for _, pair := range commitPairsSrc {
+		newRefId := fmt.Sprintf("%s:%s", repoId, pair[2])
+		oldRefId := fmt.Sprintf("%s:%s", repoId, pair[3])
+		isAppend := true
+		isRefAppend := true
+		for _, item := range existFinishedCommitDiff {
 			if pair[0] == item.NewCommitSha && pair[1] == item.OldCommitSha {
-				commitPairs = append(commitPairs[:i], commitPairs[i+1:]...)
-				i--
+				isAppend = false
+				if pair[2] == newRefId && pair[3] == oldRefId {
+					isRefAppend = false
+				}
 				break
 			}
 		}
+		if isAppend {
+			commitPairs = append(commitPairs, pair)
+		}
+		if isRefAppend {
+			refCommit.NewCommitSha = pair[0]
+			refCommit.OldCommitSha = pair[1]
+			refCommit.NewRefId = newRefId
+			refCommit.OldRefId = oldRefId
+		}
 	}
+
 	if len(commitPairs) == 0 {
 		logger.Info("commit pair has been produced.")
 		return nil
@@ -98,7 +117,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 
 	// calculate diffs for commits pairs and store them into database
 	commitsDiff := &code.CommitsDiff{}
-	finishedCommitDiff := &code.FinishedCommitsDiffs{}
+	finishedCommitDiff := &code.FinishedCommitsDiff{}
 	lenCommitPairs := len(commitPairs)
 	taskCtx.SetProgress(0, lenCommitPairs)
 
@@ -111,6 +130,7 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 		// ref might advance, keep commit sha for debugging
 		commitsDiff.NewCommitSha = pair[0]
 		commitsDiff.OldCommitSha = pair[1]
+
 		finishedCommitDiff.NewCommitSha = pair[0]
 		finishedCommitDiff.OldCommitSha = pair[1]
 
@@ -126,7 +146,8 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 		lostSha, oldCount, newCount := commitNodeGraph.CalculateLostSha(pair[1], pair[0])
 
 		commitsDiffs := []code.CommitsDiff{}
-		finishedCommitDiffs := []code.FinishedCommitsDiffs{}
+		refCommits := []code.RefCommit{}
+		finishedCommitDiffs := []code.FinishedCommitsDiff{}
 
 		commitsDiff.SortingIndex = 1
 		for _, sha := range lostSha {
@@ -149,6 +170,14 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 		if len(commitsDiffs) > 0 {
 			logger.Info("insert data count [%d]", len(commitsDiffs))
 			err = db.CreateIfNotExist(commitsDiffs)
+			if err != nil {
+				return err
+			}
+		}
+
+		refCommits = append(refCommits, *refCommit)
+		if len(refCommits) > 0 {
+			err = db.CreateIfNotExist(refCommits)
 			if err != nil {
 				return err
 			}

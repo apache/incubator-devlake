@@ -27,7 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/refdiff/utils"
 )
 
-func CommitDiffConvertor(pipelineCommitShaList []string, existFinishedCommitDiff []code.FinishedCommitsDiffs) (commitPairs []code.CommitsDiff, finishedCommitDiffs []code.FinishedCommitsDiffs) {
+func CommitDiffConvertor(pipelineCommitShaList []string, existFinishedCommitDiff []code.FinishedCommitsDiff) (commitPairs []code.CommitsDiff, finishedCommitDiffs []code.FinishedCommitsDiff) {
 	for i := 0; i < len(pipelineCommitShaList)-1; i++ {
 		for _, item := range existFinishedCommitDiff {
 			if pipelineCommitShaList[i+1] == item.NewCommitSha && pipelineCommitShaList[i] == item.OldCommitSha {
@@ -36,7 +36,7 @@ func CommitDiffConvertor(pipelineCommitShaList []string, existFinishedCommitDiff
 			}
 		}
 		commitPairs = append(commitPairs, code.CommitsDiff{NewCommitSha: pipelineCommitShaList[i+1], OldCommitSha: pipelineCommitShaList[i]})
-		finishedCommitDiffs = append(finishedCommitDiffs, code.FinishedCommitsDiffs{NewCommitSha: pipelineCommitShaList[i+1], OldCommitSha: pipelineCommitShaList[i]})
+		finishedCommitDiffs = append(finishedCommitDiffs, code.FinishedCommitsDiff{NewCommitSha: pipelineCommitShaList[i+1], OldCommitSha: pipelineCommitShaList[i]})
 	}
 	return commitPairs, finishedCommitDiffs
 }
@@ -62,7 +62,7 @@ func CalculateProjectDeploymentCommitsDiff(taskCtx core.SubTaskContext) errors.E
 	}
 	defer cursorScope.Close()
 
-	var existFinishedCommitDiff []code.FinishedCommitsDiffs
+	var existFinishedCommitDiff []code.FinishedCommitsDiff
 	err = db.All(&existFinishedCommitDiff,
 		dal.Select("*"),
 		dal.From("finished_commits_diffs"),

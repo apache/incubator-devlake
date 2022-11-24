@@ -50,14 +50,14 @@ func TestRepoDataFlow(t *testing.T) {
 
 	// verify extraction
 	dataflowTester.FlushTabler(&code.CommitsDiff{})
-	dataflowTester.FlushTabler(&code.FinishedCommitsDiffs{})
+	dataflowTester.FlushTabler(&code.FinishedCommitsDiff{})
 
 	dataflowTester.Subtask(tasks.CalculateProjectDeploymentCommitsDiffMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&code.CommitsDiff{}, e2ehelper.TableOptions{
 		CSVRelPath: "./snapshot_tables/commits_diffs.csv",
 	})
 
-	dataflowTester.VerifyTableWithOptions(&code.FinishedCommitsDiffs{}, e2ehelper.TableOptions{
+	dataflowTester.VerifyTableWithOptions(&code.FinishedCommitsDiff{}, e2ehelper.TableOptions{
 		CSVRelPath: "./snapshot_tables/finished_commits_diffs.csv",
 	})
 }
