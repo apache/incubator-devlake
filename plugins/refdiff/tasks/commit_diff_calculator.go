@@ -41,7 +41,8 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	// get all data from finish_commits_diffs
-	commitPairs := data.Options.AllPairs
+	commitPairsSrc := data.Options.AllPairs
+	var commitPairs RefCommitPairs
 	var existFinishedCommitDiff []code.FinishedCommitsDiff
 	err := db.All(&existFinishedCommitDiff,
 		dal.Select("*"),
@@ -52,25 +53,32 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	refCommit := &code.RefCommit{}
-	for i := 0; i < len(commitPairs); i++ {
-		pair := commitPairs[i]
+	for i := 0; i < len(commitPairsSrc); i++ {
+		pair := commitPairsSrc[i]
+		newRefId := fmt.Sprintf("%s:%s", repoId, pair[2])
+		oldRefId := fmt.Sprintf("%s:%s", repoId, pair[3])
+		isAppend := true
+		isRefAppend := true
 		for _, item := range existFinishedCommitDiff {
 			if pair[0] == item.NewCommitSha && pair[1] == item.OldCommitSha {
-				newRefId := fmt.Sprintf("%s:%s", repoId, pair[2])
-				oldRefId := fmt.Sprintf("%s:%s", repoId, pair[3])
-				if pair[2] != newRefId || pair[3] != oldRefId {
-					refCommit.NewCommitSha = pair[0]
-					refCommit.OldCommitSha = pair[1]
-					refCommit.NewRefId = newRefId
-					refCommit.OldRefId = oldRefId
+				isAppend = false
+				if pair[2] == newRefId && pair[3] == oldRefId {
+					isRefAppend = false
 				}
-
-				commitPairs = append(commitPairs[:i], commitPairs[i+1:]...)
-				i--
 				break
 			}
 		}
+		if isAppend {
+			commitPairs = append(commitPairs, pair)
+		}
+		if isRefAppend {
+			refCommit.NewCommitSha = pair[0]
+			refCommit.OldCommitSha = pair[1]
+			refCommit.NewRefId = newRefId
+			refCommit.OldRefId = oldRefId
+		}
 	}
+
 	if len(commitPairs) == 0 {
 		logger.Info("commit pair has been produced.")
 		return nil
