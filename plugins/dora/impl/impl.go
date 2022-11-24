@@ -18,8 +18,8 @@ limitations under the License.
 package impl
 
 import (
+	"encoding/json"
 	"fmt"
-
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/dora/models/migrationscripts"
@@ -36,6 +36,7 @@ var _ core.PluginModel = (*Dora)(nil)
 var _ core.PluginMetric = (*Dora)(nil)
 var _ core.CloseablePluginTask = (*Dora)(nil)
 var _ core.PluginMigration = (*Dora)(nil)
+var _ core.MetricPluginBlueprintV200 = (*Dora)(nil)
 
 type Dora struct{}
 
@@ -112,6 +113,35 @@ func (plugin Dora) RootPkgPath() string {
 
 func (plugin Dora) MigrationScripts() []core.MigrationScript {
 	return migrationscripts.All()
+}
+
+func (plugin Dora) MakeMetricPluginPipelinePlanV200(projectName string, options json.RawMessage) (core.PipelinePlan, errors.Error) {
+	plan := core.PipelinePlan{}
+	op := &tasks.DoraOptions{}
+	err := json.Unmarshal(options, op)
+	if err != nil {
+		return nil, errors.Default.WrapRaw(err)
+	}
+	stageDeploymentCommitdiff := core.PipelineStage{
+		{
+			Plugin:   "refdiff",
+			Subtasks: []string{"calculateDeploymentDiffs"},
+			Options: map[string]interface{}{
+				"projectName": projectName,
+			},
+		},
+	}
+	stageDora := core.PipelineStage{
+		{
+			Plugin: "dora",
+			Options: map[string]interface{}{
+				"projectName": projectName,
+			},
+		},
+	}
+	plan = append(plan, stageDeploymentCommitdiff, stageDora)
+
+	return plan, nil
 }
 
 func (plugin Dora) Close(taskCtx core.TaskContext) errors.Error {
