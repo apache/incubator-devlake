@@ -42,6 +42,7 @@ func GetDomainTablesInfo() []Tabler {
 		&code.PullRequestLabel{},
 		&code.Ref{},
 		&code.CommitsDiff{},
+		&code.RefCommit{},
 		&code.FinishedCommitsDiff{},
 		&code.RefsPrCherrypick{},
 		&code.Repo{},
