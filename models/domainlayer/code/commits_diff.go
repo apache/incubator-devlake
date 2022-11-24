@@ -28,11 +28,22 @@ func (CommitsDiff) TableName() string {
 	return "commits_diffs"
 }
 
-type FinishedCommitsDiffs struct {
+type RefCommit struct {
+	NewRefId     string `gorm:"primaryKey;type:varchar(255)"`
+	OldRefId     string `gorm:"primaryKey;type:varchar(255)"`
+	NewCommitSha string `gorm:"type:varchar(40)"`
+	OldCommitSha string `gorm:"type:varchar(40)"`
+}
+
+func (RefCommit) TableName() string {
+	return "ref_commits"
+}
+
+type FinishedCommitsDiff struct {
 	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
 }
 
-func (FinishedCommitsDiffs) TableName() string {
+func (FinishedCommitsDiff) TableName() string {
 	return "finished_commits_diffs"
 }

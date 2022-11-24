@@ -52,9 +52,9 @@ func (RefsCommitsDiff20221109) TableName() string {
 }
 
 type CommitsDiff20221109 struct {
-	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
 	NewCommitSha string `gorm:"primaryKey;type:varchar(40)"`
 	OldCommitSha string `gorm:"primaryKey;type:varchar(40)"`
+	CommitSha    string `gorm:"primaryKey;type:varchar(40)"`
 	SortingIndex int
 }
 
@@ -62,10 +62,26 @@ func (CommitsDiff20221109) TableName() string {
 	return "commits_diffs"
 }
 
+type RefCommits20221109 struct {
+	NewRefId     string `gorm:"primaryKey;type:varchar(255)"`
+	OldRefId     string `gorm:"primaryKey;type:varchar(255)"`
+	NewCommitSha string `gorm:"type:varchar(40)"`
+	OldCommitSha string `gorm:"type:varchar(40)"`
+}
+
+func (RefCommits20221109) TableName() string {
+	return "ref_commits"
+}
+
 func (script *modifyCommitsDiffs) Up(basicRes core.BasicRes) errors.Error {
 	db := basicRes.GetDal()
 	// create table
 	err := db.AutoMigrate(&CommitsDiff20221109{})
+	if err != nil {
+		return err
+	}
+
+	err = db.AutoMigrate(&RefCommits20221109{})
 	if err != nil {
 		return err
 	}
