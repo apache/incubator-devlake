@@ -20,11 +20,10 @@ package e2e
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/models/domainlayer/code"
-	"github.com/apache/incubator-devlake/plugins/github/models"
-
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
+	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 )
 
@@ -40,7 +39,7 @@ func TestPrDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			Owner:        "panjf2000",
 			Repo:         "ants",
-			TransformationRules: models.TransformationRules{
+			TransformationRules: &models.TransformationRules{
 				PrType:             "type/(.*)$",
 				PrComponent:        "component/(.*)$",
 				PrBodyClosePattern: "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)",

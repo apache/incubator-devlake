@@ -44,7 +44,7 @@ func TestMilestoneDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			Owner:        "panjf2000",
 			Repo:         "ants",
-			TransformationRules: models.TransformationRules{
+			TransformationRules: &models.TransformationRules{
 				PrType:               "type/(.*)$",
 				PrComponent:          "component/(.*)$",
 				PrBodyClosePattern:   "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)",
