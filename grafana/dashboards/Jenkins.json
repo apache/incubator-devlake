@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 12,
-  "iteration": 1665485848500,
+  "id": 20,
+  "iteration": 1669388827168,
   "links": [],
   "panels": [
     {
@@ -29,7 +29,7 @@
       },
       "id": 58,
       "options": {
-        "content": "- Use Cases: This dashboard shows the basic CI/CD metrics from Jenkins.\n- Data Source Required: Jenkins",
+        "content": "- Use Cases: This dashboard shows the basic CI/CD metrics from Jenkins, such as [Build Count](https://devlake.apache.org/docs/Metrics/BuildCount), [Build Duration](https://devlake.apache.org/docs/Metrics/BuildDuration) and [Build Success Rate](https://devlake.apache.org/docs/Metrics/BuildSuccessRate).\n- Data Source Required: Jenkins",
         "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
@@ -85,11 +85,11 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "format": "time_series",
+          "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS time,\n  count(*)\nFROM \n  cicd_pipelines p\nWHERE\n  $__timeFilter(p.created_date)\n  and p.id like \"%jenkins%\"\n  and p.name in ($job_id)\nORDER BY 1",
+          "rawSql": "SELECT\n  count(*)\nFROM \n  cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and result = 'SUCCESS'\n  and id like \"%jenkins%\"\n  and name in ($job_id)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
           "refId": "A",
           "select": [
             [
@@ -115,7 +115,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "1. Total Number of Builds [Selected Time Range]",
+      "title": "1. Total Number of Successful Builds [Selected Time Range]",
       "type": "stat"
     },
     {
@@ -164,11 +164,11 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "format": "time_series",
+          "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS time,\n  1.0 * count(case when p.result = 'SUCCESS' then 1 else null end)/count(*)\nFROM cicd_pipelines p\nWHERE\n  $__timeFilter(p.created_date)\n  and p.id like \"%jenkins%\"\n  and p.name in ($job_id)\nORDER BY 1",
+          "rawSql": "SELECT\n  1.0 * count(case when result = 'SUCCESS' then 1 else null end)/count(*)\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%jenkins%\"\n  and name in ($job_id)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
           "refId": "A",
           "select": [
             [
@@ -200,7 +200,7 @@
     {
       "cacheTimeout": null,
       "datasource": "mysql",
-      "description": "The percentage of successful, failed, and aborted builds.",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -225,7 +225,8 @@
               "options": {
                 "mode": "exclude",
                 "names": [
-                  "build_count"
+                  "build_count",
+                  "ABORT"
                 ],
                 "prefix": "All except:",
                 "readOnly": true
@@ -238,6 +239,51 @@
                   "legend": false,
                   "tooltip": false,
                   "viz": true
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SUCCESS"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "FAILURE"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "ABORT"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgba(205, 204, 206, 1)",
+                  "mode": "fixed"
                 }
               }
             ]
@@ -286,7 +332,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS time,\n  p.result,\n  count(*) as build_count\nFROM cicd_pipelines p\nWHERE\n  $__timeFilter(p.created_date)\n  and p.id like \"%jenkins%\"\n  and p.name in ($job_id)\nGROUP BY 1,2\nORDER BY 1",
+          "rawSql": "SELECT\n  result,\n  count(*) as build_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%jenkins%\"\n  and name in ($job_id)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1\nORDER BY 2 desc",
           "refId": "A",
           "select": [
             [
@@ -359,11 +405,11 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "format": "time_series",
+          "format": "table",
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  now() AS time,\n  avg(p.duration_sec/60) as duration_in_minute\nFROM cicd_pipelines p\nWHERE\n  $__timeFilter(p.created_date)\n  and p.id like \"%jenkins%\"\n  and p.name in ($job_id)\nORDER BY 1",
+          "rawSql": "SELECT\n  avg(duration_sec/60) as duration_in_minutes\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%jenkins%\"\n  and name in ($job_id)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)",
           "refId": "A",
           "select": [
             [
@@ -462,7 +508,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _builds as(\n  SELECT\n    DATE_ADD(date(p.created_date), INTERVAL -DAYOFMONTH(date(p.created_date))+1 DAY) as time,\n    count(*) as build_count\n  FROM cicd_pipelines p\nWHERE\n  $__timeFilter(p.created_date)\n  and p.id like \"%jenkins%\"\n  and p.name in ($job_id)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  build_count as \"Build Count\"\nFROM _builds\nORDER BY time\n",
+          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    count(*) as build_count\n  FROM cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and result = 'SUCCESS'\n    and id like \"%jenkins%\"\n    and name in ($job_id)\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  build_count as \"Build Count\"\nFROM _builds\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -486,7 +532,7 @@
           ]
         }
       ],
-      "title": "1.1 Total Number of Builds [Each Month]",
+      "title": "1.1 Total Number of Successful Builds [Each Month]",
       "type": "barchart"
     },
     {
@@ -578,7 +624,7 @@
           "group": [],
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(p.created_date), INTERVAL -DAYOFMONTH(date(p.created_date))+1 DAY) as time,\r\n    p.result as result\r\n  FROM\r\n    cicd_pipelines p\r\nWHERE\r\n  $__timeFilter(p.created_date)\r\n  and p.id like \"%jenkins%\"\r\n  and p.name in ($job_id)\r\n)\r\n\r\nSELECT \r\n  date_format(time,'%M %Y') as month,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Build Success Rate\"\r\nFROM _build_success_rate\r\ngroup by 1\r\norder by 1",
+          "rawSql": "WITH _build_success_rate as(\r\n  SELECT\r\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\r\n    result\r\n  FROM\r\n    cicd_pipelines\r\n  WHERE\r\n    $__timeFilter(finished_date)\r\n    and id like \"%jenkins%\"\r\n    and name in ($job_id)\r\n    -- the following condition will remove the month with incomplete data\r\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\r\n)\r\n\r\nSELECT \r\n  date_format(time,'%M %Y') as month,\r\n  1.0 * sum(case when result = 'SUCCESS' then 1 else 0 end)/ count(*) as \"Build Success Rate\"\r\nFROM _build_success_rate\r\nGROUP BY 1\r\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -718,7 +764,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "SELECT\n  DATE_ADD(date(p.created_date), INTERVAL -DAYOFMONTH(date(p.created_date))+1 DAY) as time,\n  count(distinct case when p.result = 'SUCCESS' then p.id else null end) as successful_build_count,\n  count(distinct case when p.result != 'SUCCESS' then p.id else null end) as failed_build_count\nFROM cicd_pipelines p\nWHERE\n  $__timeFilter(p.created_date)\n  and p.id like \"%jenkins%\"\n  and p.name in ($job_id)\ngroup by 1",
+          "rawSql": "SELECT\n  DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n  count(distinct case when result = 'SUCCESS' then id else null end) as successful_build_count,\n  count(distinct case when result != 'SUCCESS' then id else null end) as failed_build_count\nFROM cicd_pipelines\nWHERE\n  $__timeFilter(finished_date)\n  and id like \"%jenkins%\"\n  and name in ($job_id)\n  -- the following condition will remove the month with incomplete data\n  and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\nGROUP BY 1",
           "refId": "A",
           "select": [
             [
@@ -785,7 +831,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "duration_in_minute"
+              "options": "mean_duration_minutes"
             },
             "properties": [
               {
@@ -831,7 +877,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _builds as(\n  SELECT\n    DATE_ADD(date(p.created_date), INTERVAL -DAYOFMONTH(date(p.created_date))+1 DAY) as time,\n    avg(p.duration_sec) as duration\n  FROM \n    cicd_pipelines p\nWHERE\n  $__timeFilter(p.created_date)\n  and p.id like \"%jenkins%\"\n  and p.name in ($job_id)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  duration/60 as duration_in_minute\nFROM _builds\nORDER BY time\n",
+          "rawSql": "WITH _builds as(\n  SELECT\n    DATE_ADD(date(finished_date), INTERVAL -DAYOFMONTH(date(finished_date))+1 DAY) as time,\n    avg(duration_sec) as mean_duration_sec\n  FROM \n    cicd_pipelines\n  WHERE\n    $__timeFilter(finished_date)\n    and id like \"%jenkins%\"\n    and name in ($job_id)\n    -- the following condition will remove the month with incomplete data\n    and finished_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  GROUP BY 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  mean_duration_sec/60 as mean_duration_minutes\nFROM _builds\nORDER BY time\n",
           "refId": "A",
           "select": [
             [
@@ -925,5 +971,5 @@
   "timezone": "",
   "title": "Jenkins",
   "uid": "W8AiDFQnk",
-  "version": 53
+  "version": 13
 }
