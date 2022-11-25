@@ -30,3 +30,7 @@ type JiraTransformationRule struct {
 	RemotelinkCommitShaPattern string          `json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
 	TypeMappings               json.RawMessage `json:"typeMappings"`
 }
+
+func (JiraTransformationRule) TableName() string {
+	return "_tool_jira_transformation_rules"
+}

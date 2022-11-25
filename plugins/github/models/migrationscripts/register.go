@@ -31,5 +31,6 @@ func All() []core.MigrationScript {
 		new(deleteGithubPipelineTable),
 		new(addHeadRepoIdFieldInGithubPr),
 		new(addEnableGraphqlForConnection),
+		new(addTransformationRule20221124),
 	}
 }

@@ -23,6 +23,7 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts"
@@ -80,8 +81,6 @@ func (plugin Github) Description() string {
 
 func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		tasks.CollectApiRepoMeta,
-		tasks.ExtractApiRepoMeta,
 		tasks.CollectApiIssuesMeta,
 		tasks.ExtractApiIssuesMeta,
 		tasks.CollectApiPullRequestsMeta,
@@ -153,7 +152,19 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
 		}
 	}
-
+	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.TransformationRules
+		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
+		}
+		op.TransformationRules = &transformationRule
+	}
+	var repo models.GithubRepo
+	err = taskCtx.GetDal().First(&repo, dal.Where("name = ? AND owner_login = ", op.Repo, op.Owner))
+	if err != nil {
+		return nil, errors.BadInput.Wrap(err, "fail to get repo")
+	}
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get github API client instance")
@@ -161,6 +172,7 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	taskData := &tasks.GithubTaskData{
 		Options:   op,
 		ApiClient: apiClient,
+		Repo:      &repo,
 	}
 
 	if !since.IsZero() {
@@ -191,6 +203,22 @@ func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandle
 			"GET":    api.GetConnection,
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
+		},
+		"connections/:connectionId/scopes/:repoId": {
+			"GET":   api.GetScope,
+			"PUT":   api.PutScope,
+			"PATCH": api.UpdateScope,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+		},
+		"transformation_rules": {
+			"POST": api.CreateTransformationRule,
+			"GET":  api.GetTransformationRuleList,
+		},
+		"transformation_rules/:id": {
+			"PATCH": api.UpdateTransformationRule,
+			"GET":   api.GetTransformationRule,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,
