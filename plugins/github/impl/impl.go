@@ -40,8 +40,21 @@ var _ core.PluginApi = (*Github)(nil)
 var _ core.PluginModel = (*Github)(nil)
 var _ core.PluginBlueprintV100 = (*Github)(nil)
 var _ core.CloseablePluginTask = (*Github)(nil)
+var _ core.PluginSource = (*Github)(nil)
 
 type Github struct{}
+
+func (plugin Github) Connection() interface{} {
+	return &models.GithubConnection{}
+}
+
+func (plugin Github) Scope() interface{} {
+	return &models.GithubRepo{}
+}
+
+func (plugin Github) TransformationRule() interface{} {
+	return &models.TransformationRules{}
+}
 
 func (plugin Github) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
@@ -81,6 +94,8 @@ func (plugin Github) Description() string {
 
 func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
+		tasks.CollectApiRepoMeta,
+		tasks.ExtractApiRepoMeta,
 		tasks.CollectApiIssuesMeta,
 		tasks.ExtractApiIssuesMeta,
 		tasks.CollectApiPullRequestsMeta,

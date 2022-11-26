@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"strconv"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -81,6 +82,7 @@ func ExtractApiRepositories(taskCtx core.SubTaskContext) errors.Error {
 			results := make([]interface{}, 0, 1)
 			githubRepository := &models.GithubRepo{
 				ConnectionId: data.Options.ConnectionId,
+				ScopeId:      strconv.Itoa(body.GithubId),
 				GithubId:     body.GithubId,
 				Name:         body.Name,
 				HTMLUrl:      body.HTMLUrl,
