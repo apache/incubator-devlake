@@ -29,5 +29,6 @@ func All() []core.MigrationScript {
 		new(addPipelineID),
 		new(addPipelineProjects),
 		new(fixDurationToFloat8),
+		new(addTransformationRule20221125),
 	}
 }

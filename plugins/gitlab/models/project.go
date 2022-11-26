@@ -24,8 +24,9 @@ import (
 )
 
 type GitlabProject struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-
+	ConnectionId            uint64 `gorm:"primaryKey"`
+	ScopeId                 string `gorm:"type:varchar(255)"`
+	TransformationRuleId    uint64
 	GitlabId                int    `gorm:"primaryKey"`
 	Name                    string `gorm:"type:varchar(255)"`
 	Description             string
