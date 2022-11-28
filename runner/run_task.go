@@ -285,7 +285,10 @@ func RunPluginSubTasks(
 		taskCtx.IncProgress(1)
 	}
 	if plugin, ok := pluginTask.(core.OnSuccessPluginTask); ok {
-		plugin.OnSuccess(taskCtx)
+		err = plugin.OnSuccess(taskCtx)
+		if err != nil {
+			return errors.Default.Wrap(err, "plugin call OnSuccess fail")
+		}
 	}
 
 	return nil
