@@ -33,7 +33,7 @@ import (
 	"testing"
 )
 
-func TestMakePipelinePlan(t *testing.T) {
+func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	connection := &models.GithubConnection{
 		RestConnection: helper.RestConnection{
 			BaseConnection: helper.BaseConnection{
