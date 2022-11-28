@@ -21,16 +21,16 @@ import (
 	"encoding/json"
 	goerror "errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
+	"gorm.io/gorm"
 	"io"
 	"net/http"
 	"net/url"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"gorm.io/gorm"
 )
 
 const RAW_ISSUE_TABLE = "jira_api_issues"
@@ -55,34 +55,34 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
 
-	since := data.Since
-	incremental := false
 	// user didn't specify a time range to sync, try load from database
-	if since == nil {
-		var latestUpdated models.JiraIssue
-		clauses := []dal.Clause{
-			dal.Select("_tool_jira_issues.*"),
-			dal.From("_tool_jira_issues"),
-			dal.Join("LEFT JOIN _tool_jira_board_issues bi ON (bi.connection_id = _tool_jira_issues.connection_id AND bi.issue_id = _tool_jira_issues.issue_id)"),
-			dal.Where("bi.connection_id = ? and bi.board_id = ?", data.Options.ConnectionId, data.Options.BoardId),
-			dal.Orderby("_tool_jira_issues.updated DESC"),
-		}
-		err := db.First(&latestUpdated, clauses...)
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
-			return errors.NotFound.Wrap(err, "failed to get latest jira issue record")
-		}
-		if latestUpdated.IssueId > 0 {
-			since = &latestUpdated.Updated
-			incremental = true
-		}
+	var latestUpdated models.JiraIssue
+	clauses := []dal.Clause{
+		dal.Select("_tool_jira_issues.*"),
+		dal.From("_tool_jira_issues"),
+		dal.Join("LEFT JOIN _tool_jira_board_issues bi ON (bi.connection_id = _tool_jira_issues.connection_id AND bi.issue_id = _tool_jira_issues.issue_id)"),
+		dal.Where("bi.connection_id = ? and bi.board_id = ?", data.Options.ConnectionId, data.Options.BoardId),
+		dal.Orderby("_tool_jira_issues.updated DESC"),
+	}
+	err := db.First(&latestUpdated, clauses...)
+	if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+		return errors.NotFound.Wrap(err, "failed to get latest jira issue record")
 	}
 	// build jql
 	// IMPORTANT: we have to keep paginated data in a consistence order to avoid data-missing, if we sort issues by
 	//  `updated`, issue will be jumping between pages if it got updated during the collection process
+	startFrom := data.StartFrom
+	incremental := false
 	jql := "ORDER BY created ASC"
-	if since != nil {
+	if startFrom != nil {
 		// prepend a time range criteria if `since` was specified, either by user or from database
-		jql = fmt.Sprintf("updated >= '%v' %v", since.Format("2006/01/02 15:04"), jql)
+		jql = fmt.Sprintf("created >= '%v' %v", startFrom.Format("2006/01/02 15:04"), jql)
+	}
+	if latestUpdated.IssueId > 0 {
+		incremental = data.Meta.StartFrom != nil && data.Meta.StartFrom.Equal(*data.StartFrom)
+		if incremental {
+			jql = fmt.Sprintf("updated >= '%v' %v", latestUpdated.Updated.Format("2006/01/02 15:04"), jql)
+		}
 	}
 
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{

@@ -53,12 +53,7 @@ func CollectEpics(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	since := data.Since
 	jql := "ORDER BY created ASC"
-	if since != nil {
-		// prepend a time range criteria if `since` was specified, either by user or from database
-		jql = fmt.Sprintf("updated >= '%s' %s", since.Format("2006/01/02 15:04"), jql)
-	}
 	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,

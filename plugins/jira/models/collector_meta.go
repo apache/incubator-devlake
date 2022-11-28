@@ -15,19 +15,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package models
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/models/common"
+	"time"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addSourceTable20220407),
-		new(renameSourceTable20220505),
-		new(addInitTables20220716),
-		new(addTransformationRule20221116),
-		new(addCollectorMeta20221125),
-	}
+type JiraLatestCollectorMeta struct {
+	common.NoPKModel
+	ConnectionId  uint64 `gorm:"primaryKey"`
+	BoardId       uint64 `gorm:"primaryKey"`
+	StartFrom     *time.Time
+	LatestUpdated *time.Time
+}
+
+func (JiraLatestCollectorMeta) TableName() string {
+	return "_tool_jira_latest_collector_meta"
 }

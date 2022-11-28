@@ -94,7 +94,7 @@ func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransform
 type JiraOptions struct {
 	ConnectionId         uint64 `json:"connectionId"`
 	BoardId              uint64 `json:"boardId"`
-	Since                string
+	StartFrom            string
 	TransformationRules  *JiraTransformationRule `json:"transformationRules"`
 	ScopeId              string
 	TransformationRuleId uint64
@@ -103,8 +103,9 @@ type JiraOptions struct {
 type JiraTaskData struct {
 	Options        *JiraOptions
 	ApiClient      *helper.ApiAsyncClient
-	Since          *time.Time
+	StartFrom      *time.Time
 	JiraServerInfo models.JiraServerInfo
+	Meta           models.JiraLatestCollectorMeta
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JiraOptions, errors.Error) {

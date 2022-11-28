@@ -284,6 +284,9 @@ func RunPluginSubTasks(
 		}
 		taskCtx.IncProgress(1)
 	}
+	if plugin, ok := pluginTask.(core.OnSuccessPluginTask); ok {
+		plugin.OnSuccess(taskCtx)
+	}
 
 	return nil
 }

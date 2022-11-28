@@ -42,7 +42,6 @@ var CollectWorklogsMeta = core.SubTaskMeta{
 func CollectWorklogs(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
-	since := data.Since
 
 	logger := taskCtx.GetLogger()
 
@@ -54,11 +53,10 @@ func CollectWorklogs(taskCtx core.SubTaskContext) errors.Error {
 		dal.Join("LEFT JOIN _tool_jira_worklogs wl ON (wl.connection_id = i.connection_id AND wl.issue_id = i.issue_id)"),
 		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  ", data.Options.ConnectionId, data.Options.BoardId),
 		dal.Groupby("i.issue_id, i.updated"),
-		dal.Having("i.updated > max(wl.issue_updated) OR  (max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0)"),
 	}
-	// apply time range if any
-	if since != nil {
-		clauses = append(clauses, dal.Where("i.updated > ?", *since))
+	incremental := data.Meta.StartFrom != nil && data.Meta.StartFrom.Equal(*data.StartFrom)
+	if incremental {
+		clauses = append(clauses, dal.Having("i.updated > max(wl.issue_updated) OR  (max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0)"))
 	}
 
 	// construct the input iterator
@@ -84,7 +82,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) errors.Error {
 		ApiClient:     data.ApiClient,
 		UrlTemplate:   "api/2/issue/{{ .Input.IssueId }}/worklog",
 		PageSize:      50,
-		Incremental:   since == nil,
+		Incremental:   incremental,
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {

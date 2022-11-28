@@ -54,12 +54,14 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) errors.Error {
 		dal.Join("LEFT JOIN _tool_jira_remotelinks rl ON (rl.connection_id = i.connection_id AND rl.issue_id = i.issue_id)"),
 		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  ", data.Options.ConnectionId, data.Options.BoardId),
 		dal.Groupby("i.issue_id, i.updated"),
-		dal.Having("i.updated > max(rl.issue_updated) OR  max(rl.issue_updated) IS NULL"),
 	}
-	// apply time range if any
-	since := data.Since
-	if since != nil {
-		clauses = append(clauses, dal.Where("i.updated > ?", *since))
+	incremental := data.Meta.StartFrom != nil && data.Meta.StartFrom.Equal(*data.StartFrom)
+	if incremental {
+		if data.Meta.LatestUpdated != nil {
+			clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL)", data.Meta.LatestUpdated))
+		} else {
+			clauses = append(clauses, dal.Having("i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL"))
+		}
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -84,7 +86,7 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) errors.Error {
 		},
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
-		Incremental: since == nil,
+		Incremental: incremental,
 		UrlTemplate: "api/2/issue/{{ .Input.IssueId }}/remotelink",
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			if res.StatusCode == http.StatusNotFound {

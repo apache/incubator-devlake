@@ -171,9 +171,9 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		return nil, errors.Default.Wrap(err, "unable to get Jira connection")
 	}
 
-	var since time.Time
-	if op.Since != "" {
-		since, err = time.Parse("2006-01-02T15:04:05Z", op.Since)
+	var startFrom time.Time
+	if op.StartFrom != "" {
+		startFrom, err = time.Parse("2006-01-02T15:04:05Z", op.StartFrom)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
 		}
@@ -208,10 +208,24 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		ApiClient:      jiraApiClient,
 		JiraServerInfo: *info,
 	}
-	if !since.IsZero() {
-		taskData.Since = &since
-		logger.Debug("collect data updated since %s", since)
+	if !startFrom.IsZero() {
+		taskData.StartFrom = &startFrom
+		logger.Debug("collect data created from %s", startFrom)
 	}
+
+	db := taskCtx.GetDal()
+	err = db.First(&taskData.Meta, dal.Where(`connection_id = ? AND board_id = ?`, op.ConnectionId, op.BoardId))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			taskData.Meta = models.JiraLatestCollectorMeta{
+				ConnectionId: op.ConnectionId,
+				BoardId:      op.BoardId,
+			}
+		} else {
+			return nil, errors.Default.Wrap(err, "failed to load JiraLatestCollectorMeta")
+		}
+	}
+
 	return taskData, nil
 }
 
@@ -274,5 +288,22 @@ func (plugin Jira) Close(taskCtx core.TaskContext) errors.Error {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
 	}
 	data.ApiClient.Release()
+	return nil
+}
+
+func (plugin Jira) OnSuccess(taskCtx core.TaskContext) errors.Error {
+	data, ok := taskCtx.GetData().(*tasks.JiraTaskData)
+	if !ok {
+		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
+	}
+	db := taskCtx.GetDal()
+	now := time.Now()
+	data.Meta.LatestUpdated = &now
+	data.Meta.StartFrom = data.StartFrom
+	err := db.CreateOrUpdate(&data.Meta)
+	if err != nil {
+		return errors.Default.Wrap(err, "error on saving JiraLatestCollectorMeta")
+	}
+
 	return nil
 }

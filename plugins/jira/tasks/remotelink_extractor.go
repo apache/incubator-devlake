@@ -45,7 +45,8 @@ func ExtractRemotelinks(taskCtx core.SubTaskContext) errors.Error {
 	logger.Info("extract remote links")
 	var commitShaRegex *regexp.Regexp
 	var err error
-	if pattern := data.Options.TransformationRules.RemotelinkCommitShaPattern; pattern != "" {
+	if data.Options.TransformationRules != nil && data.Options.TransformationRules.RemotelinkCommitShaPattern != "" {
+		pattern := data.Options.TransformationRules.RemotelinkCommitShaPattern
 		commitShaRegex, err = regexp.Compile(pattern)
 		if err != nil {
 			return errors.Default.Wrap(err, "regexp Compile pattern failed")

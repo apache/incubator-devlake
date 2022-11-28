@@ -18,16 +18,22 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addSourceTable20220407),
-		new(renameSourceTable20220505),
-		new(addInitTables20220716),
-		new(addTransformationRule20221116),
-		new(addCollectorMeta20221125),
-	}
+type addCollectorMeta20221125 struct{}
+
+func (script *addCollectorMeta20221125) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &archived.JiraLatestCollectorMeta{})
+}
+
+func (*addCollectorMeta20221125) Version() uint64 {
+	return 20221125000005
+}
+
+func (*addCollectorMeta20221125) Name() string {
+	return "add table meta for collector"
 }
