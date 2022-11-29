@@ -117,7 +117,8 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 // @Router /plugins/gitlab/transformation_rules [GET]
 func GetTransformationRuleList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var rules []models.TransformationRules
-	err := BasicRes.GetDal().All(&rules)
+	limit, offset := helper.GetLimitOffset(input.Query, "pageSize", "page")
+	err := BasicRes.GetDal().All(&rules, dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get TransformationRule list")
 	}

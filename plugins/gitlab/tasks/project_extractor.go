@@ -19,8 +19,6 @@ package tasks
 
 import (
 	"encoding/json"
-	"strconv"
-
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -39,7 +37,6 @@ var ExtractProjectMeta = core.SubTaskMeta{
 func convertProject(gitlabApiProject *GitlabApiProject) *models.GitlabProject {
 	gitlabProject := &models.GitlabProject{
 		GitlabId:          gitlabApiProject.GitlabId,
-		ScopeId:           strconv.Itoa(gitlabApiProject.GitlabId),
 		Name:              gitlabApiProject.Name,
 		Description:       gitlabApiProject.Description,
 		DefaultBranch:     gitlabApiProject.DefaultBranch,

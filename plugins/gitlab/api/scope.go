@@ -114,7 +114,8 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
 	}
-	err := BasicRes.GetDal().All(&projects, dal.Where("connection_id = ?", connectionId))
+	limit, offset := helper.GetLimitOffset(input.Query, "pageSize", "page")
+	err := BasicRes.GetDal().All(&projects, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, err
 	}
@@ -154,11 +155,8 @@ func verifyProject(project *models.GitlabProject) errors.Error {
 	if project.ConnectionId == 0 {
 		return errors.BadInput.New("invalid connectionId")
 	}
-	if project.GitlabId == 0 {
+	if project.GitlabId <= 0 {
 		return errors.BadInput.New("invalid projectId")
-	}
-	if project.ScopeId != strconv.Itoa(project.GitlabId) {
-		return errors.BadInput.New("the scope_id does not match the gitlab_id")
 	}
 	return nil
 }
