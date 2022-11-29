@@ -55,36 +55,6 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOption
 	}
 	if op.TransformationRules == nil && op.TransformationRuleId == 0 {
 		op.TransformationRules = new(models.TransformationRules)
-		if op.PrType == "" {
-			op.PrType = "type/(.*)$"
-		}
-		if op.PrComponent == "" {
-			op.PrComponent = "component/(.*)$"
-		}
-		if op.PrBodyClosePattern == "" {
-			op.PrBodyClosePattern = "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)"
-		}
-		if op.IssueSeverity == "" {
-			op.IssueSeverity = "severity/(.*)$"
-		}
-		if op.IssuePriority == "" {
-			op.IssuePriority = "^(highest|high|medium|low)$"
-		}
-		if op.IssueComponent == "" {
-			op.IssueComponent = "component/(.*)$"
-		}
-		if op.IssueTypeBug == "" {
-			op.IssueTypeBug = "^(bug|failure|error)$"
-		}
-		if op.IssueTypeIncident == "" {
-			op.IssueTypeIncident = ""
-		}
-		if op.IssueTypeRequirement == "" {
-			op.IssueTypeRequirement = "^(feat|feature|proposal|requirement)$"
-		}
-		if op.DeploymentPattern == "" {
-			op.DeploymentPattern = "(?i)deploy"
-		}
 	}
 	return &op, nil
 }
