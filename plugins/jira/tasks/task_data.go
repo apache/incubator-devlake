@@ -105,7 +105,11 @@ type JiraTaskData struct {
 	ApiClient      *helper.ApiAsyncClient
 	StartFrom      *time.Time
 	JiraServerInfo models.JiraServerInfo
-	Meta           models.JiraLatestCollectorMeta
+}
+
+type JiraApiParams struct {
+	ConnectionId uint64
+	BoardId      uint64
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JiraOptions, errors.Error) {

@@ -109,9 +109,3 @@ type CloseablePluginTask interface {
 	PluginTask
 	Close(taskCtx TaskContext) errors.Error
 }
-
-// OnSuccessPluginTask Extends PluginTask, and invokes a Close method after all subtasks are done
-type OnSuccessPluginTask interface {
-	PluginTask
-	OnSuccess(taskCtx TaskContext) errors.Error
-}

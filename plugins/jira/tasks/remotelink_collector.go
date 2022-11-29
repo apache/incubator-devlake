@@ -47,6 +47,18 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	logger.Info("collect remotelink")
 
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: JiraApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			BoardId:      data.Options.BoardId,
+		},
+		Table: RAW_REMOTELINK_TABLE,
+	}, data.StartFrom)
+	if err != nil {
+		return err
+	}
+
 	clauses := []dal.Clause{
 		dal.Select("i.issue_id, i.updated AS update_time"),
 		dal.From("_tool_jira_board_issues bi"),
@@ -55,10 +67,10 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) errors.Error {
 		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  ", data.Options.ConnectionId, data.Options.BoardId),
 		dal.Groupby("i.issue_id, i.updated"),
 	}
-	incremental := data.Meta.StartFrom != nil && data.Meta.StartFrom.Equal(*data.StartFrom)
+	incremental := collectorWithState.CanIncrementCollect()
 	if incremental {
-		if data.Meta.LatestUpdated != nil {
-			clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL)", data.Meta.LatestUpdated))
+		if collectorWithState.LatestState.LatestSuccessStart != nil {
+			clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL)", collectorWithState.LatestState.LatestSuccessStart))
 		} else {
 			clauses = append(clauses, dal.Having("i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL"))
 		}
@@ -75,15 +87,7 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
-			},
-			Table: RAW_REMOTELINK_TABLE,
-		},
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		Input:       iterator,
 		Incremental: incremental,
@@ -104,7 +108,7 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	err = collector.Execute()
+	err = collectorWithState.Execute()
 	if err != nil {
 		return err
 	}

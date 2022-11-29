@@ -15,21 +15,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"time"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type JiraLatestCollectorMeta struct {
-	archived.NoPKModel
-	ConnectionId  uint64 `gorm:"primaryKey"`
-	BoardId       uint64 `gorm:"primaryKey"`
-	StartFrom     *time.Time
-	LatestUpdated *time.Time
+type addCollectorMeta20221125 struct{}
+
+func (script *addCollectorMeta20221125) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &archived.CollectorLatestState{})
 }
 
-func (JiraLatestCollectorMeta) TableName() string {
-	return "_tool_jira_latest_collector_meta"
+func (*addCollectorMeta20221125) Version() uint64 {
+	return 20221125000038
+}
+
+func (*addCollectorMeta20221125) Name() string {
+	return "save state for collector"
 }

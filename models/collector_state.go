@@ -18,18 +18,18 @@ limitations under the License.
 package models
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
 	"time"
 )
 
-type JiraLatestCollectorMeta struct {
-	common.NoPKModel
-	ConnectionId  uint64 `gorm:"primaryKey"`
-	BoardId       uint64 `gorm:"primaryKey"`
-	StartFrom     *time.Time
-	LatestUpdated *time.Time
+type CollectorLatestState struct {
+	CreatedAt          time.Time `json:"createdAt"`
+	UpdatedAt          time.Time `json:"updatedAt"`
+	RawDataParams      string    `gorm:"primaryKey;column:raw_data_params;type:varchar(255);index" json:"raw_data_params"`
+	RawDataTable       string    `gorm:"primaryKey;column:raw_data_table;type:varchar(255)" json:"raw_data_table"`
+	StartFrom          *time.Time
+	LatestSuccessStart *time.Time
 }
 
-func (JiraLatestCollectorMeta) TableName() string {
-	return "_tool_jira_latest_collector_meta"
+func (CollectorLatestState) TableName() string {
+	return "_devlake_collector_latest_state"
 }

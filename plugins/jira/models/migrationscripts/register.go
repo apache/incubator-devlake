@@ -28,6 +28,5 @@ func All() []core.MigrationScript {
 		new(renameSourceTable20220505),
 		new(addInitTables20220716),
 		new(addTransformationRule20221116),
-		new(addCollectorMeta20221125),
 	}
 }

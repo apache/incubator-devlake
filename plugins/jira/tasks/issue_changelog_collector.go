@@ -52,6 +52,18 @@ func CollectIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 	log := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: JiraApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			BoardId:      data.Options.BoardId,
+		},
+		Table: RAW_CHANGELOG_TABLE,
+	}, data.StartFrom)
+	if err != nil {
+		return err
+	}
+
 	// query for issue_ids that needed changelog collection
 	clauses := []dal.Clause{
 		dal.Select("i.issue_id, i.updated AS update_time"),
@@ -61,7 +73,7 @@ func CollectIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ? AND i.std_type != ? ", data.Options.ConnectionId, data.Options.BoardId, "Epic"),
 		dal.Groupby("i.issue_id, i.updated"),
 	}
-	incremental := data.Meta.StartFrom != nil && data.Meta.StartFrom.Equal(*data.StartFrom)
+	incremental := collectorWithState.CanIncrementCollect()
 	if incremental {
 		clauses = append(clauses, dal.Having("i.updated > max(c.issue_updated) OR  (max(c.issue_updated) IS NULL AND COUNT(c.changelog_id) > 0)"))
 	}
@@ -86,15 +98,7 @@ func CollectIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	// now, let ApiCollector takes care the rest
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
-			},
-			Table: RAW_CHANGELOG_TABLE,
-		},
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:     data.ApiClient,
 		PageSize:      100,
 		Incremental:   incremental,
@@ -125,5 +129,5 @@ func CollectIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
