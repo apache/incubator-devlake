@@ -24,8 +24,7 @@ import (
 
 const pageSize = 50
 
-func getPageParam(q url.Values, pageSizeKey, pageKey string) (int, int) {
-	var size, page int
+func getPageParam(q url.Values, pageSizeKey, pageKey string) (size int, page int) {
 	if ps := q[pageSizeKey]; len(ps) > 0 {
 		size, _ = strconv.Atoi(ps[0])
 	}
@@ -42,8 +41,9 @@ func getPageParam(q url.Values, pageSizeKey, pageKey string) (int, int) {
 }
 
 // GetLimitOffset extract page and page size, then calculus the limit and offset from them
-func GetLimitOffset(q url.Values, pageSizeKey, pageKey string) (int, int) {
-	limit, page := getPageParam(q, pageSizeKey, pageKey)
-	offset := (page - 1) * limit
+func GetLimitOffset(q url.Values, pageSizeKey, pageKey string) (limit int, offset int) {
+	size, page := getPageParam(q, pageSizeKey, pageKey)
+	limit = size
+	offset = (page - 1) * limit
 	return limit, offset
 }
