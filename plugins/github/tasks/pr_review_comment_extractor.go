@@ -38,7 +38,7 @@ var ExtractApiPrReviewCommentsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Description: "Extract raw comment data  into tool layer table github_pull_request_comments" +
 		"and github_issue_comments",
-	DomainTypes: []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes: []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
