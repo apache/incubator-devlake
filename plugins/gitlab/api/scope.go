@@ -128,6 +128,8 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 // @Tags plugins/gitlab
 // @Param connectionId path int false "connection ID"
 // @Param projectId path int false "project ID"
+// @Param pageSize query int false "page size, default 50"
+// @Param page query int false "page size, default 1"
 // @Success 200  {object} models.GitlabProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"

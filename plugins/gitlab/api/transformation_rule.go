@@ -111,6 +111,8 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 // @Summary return all transformation rules
 // @Description return all transformation rules
 // @Tags plugins/gitlab
+// @Param pageSize query int false "page size, default 50"
+// @Param page query int false "page size, default 1"
 // @Success 200  {object} []models.TransformationRules
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
