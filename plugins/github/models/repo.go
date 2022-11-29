@@ -23,18 +23,19 @@ import (
 )
 
 type GithubRepo struct {
-	ConnectionId   uint64 `gorm:"primaryKey"`
-	GithubId       int    `gorm:"primaryKey"`
-	Name           string `gorm:"type:varchar(255)"`
-	HTMLUrl        string `gorm:"type:varchar(255)"`
-	Description    string
-	OwnerId        int        `json:"ownerId"`
-	OwnerLogin     string     `json:"ownerLogin" gorm:"type:varchar(255)"`
-	Language       string     `json:"language" gorm:"type:varchar(255)"`
-	ParentGithubId int        `json:"parentId"`
-	ParentHTMLUrl  string     `json:"parentHtmlUrl"`
-	CreatedDate    time.Time  `json:"createdDate"`
-	UpdatedDate    *time.Time `json:"updatedDate"`
+	ConnectionId         uint64 `gorm:"primaryKey"`
+	GithubId             int    `gorm:"primaryKey"`
+	TransformationRuleId uint64
+	Name                 string `gorm:"type:varchar(255)"`
+	HTMLUrl              string `gorm:"type:varchar(255)"`
+	Description          string
+	OwnerId              int        `json:"ownerId"`
+	OwnerLogin           string     `json:"ownerLogin" gorm:"type:varchar(255)"`
+	Language             string     `json:"language" gorm:"type:varchar(255)"`
+	ParentGithubId       int        `json:"parentId"`
+	ParentHTMLUrl        string     `json:"parentHtmlUrl"`
+	CreatedDate          time.Time  `json:"createdDate"`
+	UpdatedDate          *time.Time `json:"updatedDate"`
 	common.NoPKModel
 }
 

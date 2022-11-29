@@ -223,7 +223,7 @@ func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, gith
 	return results, nil
 }
 
-func NewIssueRegexes(config models.TransformationRules) (*IssueRegexes, errors.Error) {
+func NewIssueRegexes(config *models.TransformationRules) (*IssueRegexes, errors.Error) {
 	var issueRegexes IssueRegexes
 	var issueSeverity = config.IssueSeverity
 	var err error

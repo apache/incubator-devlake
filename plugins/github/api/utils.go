@@ -15,22 +15,34 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core"
+	"net/url"
+	"strconv"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addInitTables),
-		new(addGithubRunsTable),
-		new(addGithubJobsTable),
-		new(addGithubPipelineTable),
-		new(deleteGithubPipelineTable),
-		new(addHeadRepoIdFieldInGithubPr),
-		new(addEnableGraphqlForConnection),
-		new(addTransformationRule20221124),
+const pageSize = 50
+
+func getPageParam(q url.Values) (int, int) {
+	var size, page int
+	if ps := q["pageSize"]; len(ps) > 0 {
+		size, _ = strconv.Atoi(ps[0])
 	}
+	if p := q["page"]; len(p) > 0 {
+		page, _ = strconv.Atoi(p[0])
+	}
+	if size < 1 {
+		size = pageSize
+	}
+	if page < 1 {
+		page = 1
+	}
+	return size, page
+}
+
+func getLimitOffset(q url.Values) (int, int) {
+	limit, page := getPageParam(q)
+	offset := (page - 1) * limit
+	return limit, offset
 }
