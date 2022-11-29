@@ -25,7 +25,6 @@ import (
 type GithubRepo struct {
 	ConnectionId         uint64 `gorm:"primaryKey"`
 	GithubId             int    `gorm:"primaryKey"`
-	ScopeId              string `gorm:"type:varchar(255)"`
 	TransformationRuleId uint64
 	Name                 string `gorm:"type:varchar(255)"`
 	HTMLUrl              string `gorm:"type:varchar(255)"`

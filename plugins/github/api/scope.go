@@ -34,8 +34,8 @@ import (
 // @Description Create or update github repo
 // @Tags plugins/github
 // @Accept application/json
-// @Param connectionId path int false "connection ID"
-// @Param repoId path int false "repo ID"
+// @Param connectionId path int true "connection ID"
+// @Param repoId path int true "repo ID"
 // @Param scope body models.GithubRepo true "json"
 // @Success 200  {object} models.GithubRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
@@ -67,8 +67,8 @@ func PutScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 // @Description patch to github repo
 // @Tags plugins/github
 // @Accept application/json
-// @Param connectionId path int false "connection ID"
-// @Param repoId path int false "repo ID"
+// @Param connectionId path int true "connection ID"
+// @Param repoId path int true "repo ID"
 // @Param scope body models.GithubRepo true "json"
 // @Success 200  {object} models.GithubRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
@@ -103,7 +103,9 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 // @Summary get Github repos
 // @Description get Github repos
 // @Tags plugins/github
-// @Param connectionId path int false "connection ID"
+// @Param connectionId path int true "connection ID"
+// @Param pageSize query int false "page size, default 50"
+// @Param page query int false "page size, default 1"
 // @Success 200  {object} []models.GithubRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -114,7 +116,8 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
 	}
-	err := basicRes.GetDal().All(&repos, dal.Where("connection_id = ?", connectionId))
+	limit, offset := getLimitOffset(input.Query)
+	err := basicRes.GetDal().All(&repos, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, err
 	}
@@ -125,8 +128,8 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 // @Summary get one Github repo
 // @Description get one Github repo
 // @Tags plugins/github
-// @Param connectionId path int false "connection ID"
-// @Param repoId path int false "repo ID"
+// @Param connectionId path int true "connection ID"
+// @Param repoId path int true "repo ID"
 // @Success 200  {object} models.GithubRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -154,11 +157,8 @@ func verifyRepo(repo *models.GithubRepo) errors.Error {
 	if repo.ConnectionId == 0 {
 		return errors.BadInput.New("invalid connectionId")
 	}
-	if repo.GithubId == 0 {
-		return errors.BadInput.New("invalid repoId")
-	}
-	if repo.ScopeId != strconv.Itoa(repo.GithubId) {
-		return errors.BadInput.New("the scope_id does not match the github_id")
+	if repo.GithubId <= 0 {
+		return errors.BadInput.New("invalid github ID")
 	}
 	return nil
 }

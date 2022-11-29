@@ -17,20 +17,25 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/models/common"
+import (
+	"encoding/json"
+
+	"github.com/apache/incubator-devlake/models/common"
+)
 
 type TransformationRules struct {
 	common.Model
-	PrType               string `mapstructure:"prType" json:"prType" gorm:"type:varchar(255)"`
-	PrComponent          string `mapstructure:"prComponent" json:"prComponent" gorm:"type:varchar(255)"`
-	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
-	IssueSeverity        string `mapstructure:"issueSeverity" json:"issueSeverity" gorm:"type:varchar(255)"`
-	IssuePriority        string `mapstructure:"issuePriority" json:"issuePriority" gorm:"type:varchar(255)"`
-	IssueComponent       string `mapstructure:"issueComponent" json:"issueComponent" gorm:"type:varchar(255)"`
-	IssueTypeBug         string `mapstructure:"issueTypeBug" json:"issueTypeBug" gorm:"type:varchar(255)"`
-	IssueTypeIncident    string `mapstructure:"issueTypeIncident" json:"issueTypeIncident" gorm:"type:varchar(255)"`
-	IssueTypeRequirement string `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement" gorm:"type:varchar(255)"`
-	DeploymentPattern    string `mapstructure:"deploymentPattern" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	PrType               string          `mapstructure:"prType" json:"prType" gorm:"type:varchar(255)"`
+	PrComponent          string          `mapstructure:"prComponent" json:"prComponent" gorm:"type:varchar(255)"`
+	PrBodyClosePattern   string          `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
+	IssueSeverity        string          `mapstructure:"issueSeverity" json:"issueSeverity" gorm:"type:varchar(255)"`
+	IssuePriority        string          `mapstructure:"issuePriority" json:"issuePriority" gorm:"type:varchar(255)"`
+	IssueComponent       string          `mapstructure:"issueComponent" json:"issueComponent" gorm:"type:varchar(255)"`
+	IssueTypeBug         string          `mapstructure:"issueTypeBug" json:"issueTypeBug" gorm:"type:varchar(255)"`
+	IssueTypeIncident    string          `mapstructure:"issueTypeIncident" json:"issueTypeIncident" gorm:"type:varchar(255)"`
+	IssueTypeRequirement string          `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement" gorm:"type:varchar(255)"`
+	DeploymentPattern    string          `mapstructure:"deploymentPattern" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	RefdiffRule          json.RawMessage `mapstructure:"refdiffRule" json:"refdiffRule"`
 }
 
 func (TransformationRules) TableName() string {

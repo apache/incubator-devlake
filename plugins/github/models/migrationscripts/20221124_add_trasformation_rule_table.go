@@ -26,7 +26,6 @@ import (
 
 type githubRepo20221124 struct {
 	TransformationRuleId uint64
-	ScopeId              string `gorm:"type:varchar(255)"`
 }
 
 func (githubRepo20221124) TableName() string {

@@ -111,13 +111,16 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 // @Summary return all transformation rules
 // @Description return all transformation rules
 // @Tags plugins/github
+// @Param pageSize query int false "page size, default 50"
+// @Param page query int false "page size, default 1"
 // @Success 200  {object} []models.TransformationRules
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/transformation_rules [GET]
 func GetTransformationRuleList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var rules []models.TransformationRules
-	err := basicRes.GetDal().All(&rules)
+	limit, offset := getLimitOffset(input.Query)
+	err := basicRes.GetDal().All(&rules, dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get TransformationRule list")
 	}
