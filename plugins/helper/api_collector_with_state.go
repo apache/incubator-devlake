@@ -25,15 +25,16 @@ import (
 	"time"
 )
 
+// ApiCollectorStateManager save collector state in framework table
 type ApiCollectorStateManager struct {
 	RawDataSubTaskArgs
 	*ApiCollector
-	db           dal.Dal
 	LatestState  models.CollectorLatestState
 	StartFrom    *time.Time
 	ExecuteStart time.Time
 }
 
+// NewApiCollectorWithState create a new ApiCollectorStateManager
 func NewApiCollectorWithState(args RawDataSubTaskArgs, startFrom *time.Time) (*ApiCollectorStateManager, errors.Error) {
 	db := args.Ctx.GetDal()
 
@@ -61,16 +62,24 @@ func NewApiCollectorWithState(args RawDataSubTaskArgs, startFrom *time.Time) (*A
 	}, nil
 }
 
+// CanIncrementCollect return if the old data can support collect incrementally.
+// only when latest collection is success &&
+// (m.LatestState.StartFrom == nil means all data have been collected ||
+// StartFrom at this time exists and later than in the LatestState)
+// if StartFrom at this time not exists, collect incrementally only when "m.LatestState.StartFrom == nil"
 func (m ApiCollectorStateManager) CanIncrementCollect() bool {
-	return m.LatestState.StartFrom != nil && m.LatestState.StartFrom.Equal(*m.StartFrom)
+	return m.LatestState.LatestSuccessStart != nil &&
+		(m.LatestState.StartFrom == nil || m.StartFrom != nil && m.StartFrom.After(*m.LatestState.StartFrom))
 }
 
+// InitCollector init the embedded collector
 func (m *ApiCollectorStateManager) InitCollector(args ApiCollectorArgs) (err errors.Error) {
 	args.RawDataSubTaskArgs = m.RawDataSubTaskArgs
 	m.ApiCollector, err = NewApiCollector(args)
 	return err
 }
 
+// Execute the embedded collector and record execute state
 func (m ApiCollectorStateManager) Execute() errors.Error {
 	executeErr := m.ApiCollector.Execute()
 
@@ -81,7 +90,6 @@ func (m ApiCollectorStateManager) Execute() errors.Error {
 	if saveErr != nil {
 		if executeErr != nil {
 			return errors.Default.Combine([]error{executeErr, saveErr})
-
 		} else {
 			return errors.Default.Wrap(saveErr, "error on saving JiraLatestCollectorMeta")
 		}
