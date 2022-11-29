@@ -24,18 +24,18 @@ import (
 )
 
 type TransformationRules struct {
-	common.Model
-	PrType               string          `mapstructure:"prType" json:"prType" gorm:"type:varchar(255)"`
-	PrComponent          string          `mapstructure:"prComponent" json:"prComponent" gorm:"type:varchar(255)"`
-	PrBodyClosePattern   string          `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
-	IssueSeverity        string          `mapstructure:"issueSeverity" json:"issueSeverity" gorm:"type:varchar(255)"`
-	IssuePriority        string          `mapstructure:"issuePriority" json:"issuePriority" gorm:"type:varchar(255)"`
-	IssueComponent       string          `mapstructure:"issueComponent" json:"issueComponent" gorm:"type:varchar(255)"`
-	IssueTypeBug         string          `mapstructure:"issueTypeBug" json:"issueTypeBug" gorm:"type:varchar(255)"`
-	IssueTypeIncident    string          `mapstructure:"issueTypeIncident" json:"issueTypeIncident" gorm:"type:varchar(255)"`
-	IssueTypeRequirement string          `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement" gorm:"type:varchar(255)"`
-	DeploymentPattern    string          `mapstructure:"deploymentPattern" json:"deploymentPattern" gorm:"type:varchar(255)"`
-	RefdiffRule          json.RawMessage `mapstructure:"refdiffRule" json:"refdiffRule"`
+	common.Model         `mapstructure:"-"`
+	PrType               string          `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
+	PrComponent          string          `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`
+	PrBodyClosePattern   string          `mapstructure:"prBodyClosePattern,omitempty" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
+	IssueSeverity        string          `mapstructure:"issueSeverity,omitempty" json:"issueSeverity" gorm:"type:varchar(255)"`
+	IssuePriority        string          `mapstructure:"issuePriority,omitempty" json:"issuePriority" gorm:"type:varchar(255)"`
+	IssueComponent       string          `mapstructure:"issueComponent,omitempty" json:"issueComponent" gorm:"type:varchar(255)"`
+	IssueTypeBug         string          `mapstructure:"issueTypeBug,omitempty" json:"issueTypeBug" gorm:"type:varchar(255)"`
+	IssueTypeIncident    string          `mapstructure:"issueTypeIncident,omitempty" json:"issueTypeIncident" gorm:"type:varchar(255)"`
+	IssueTypeRequirement string          `mapstructure:"issueTypeRequirement,omitempty" json:"issueTypeRequirement" gorm:"type:varchar(255)"`
+	DeploymentPattern    string          `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	ReffdiffRule         json.RawMessage `mapstructure:"-" json:"refdiff"`
 }
 
 func (TransformationRules) TableName() string {

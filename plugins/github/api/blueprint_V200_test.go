@@ -22,6 +22,9 @@ import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
@@ -31,6 +34,7 @@ import (
 	"io"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
@@ -65,32 +69,48 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/github")
 	err = core.RegisterPlugin("github", mockMeta)
 	assert.Nil(t, err)
-	bs := &core.BlueprintScopeV100{
-		Entities: []string{"CODE"},
-		Options: json.RawMessage(`{
-              "owner": "test",
-              "repo": "testRepo"
-            }`),
-		Transformation: json.RawMessage(`{
-              "prType": "hey,man,wasup",
-              "refdiff": {
+	bs := &core.BlueprintScopeV200{
+		Entities: []string{"CODE", "TICKET"},
+		Id:       "",
+		Name:     "",
+	}
+	bpScopes := make([]*core.BlueprintScopeV200, 0)
+	bpScopes = append(bpScopes, bs)
+
+	plan := make(core.PipelinePlan, len(bpScopes))
+	scopes := make([]core.Scope, 0, len(bpScopes))
+	for i, bpScope := range bpScopes {
+		githubRepo := &models.GithubRepo{
+			ConnectionId: 1,
+			GithubId:     12345,
+			Name:         "testRepo",
+			OwnerLogin:   "test",
+			CreatedDate:  time.Time{},
+		}
+
+		transformationRule := &models.TransformationRules{
+			Model: common.Model{
+				ID: 1,
+			},
+			PrType: "hey,man,wasup",
+			ReffdiffRule: json.RawMessage(`{
                 "tagsPattern": "pattern",
                 "tagsLimit": 10,
                 "tagsOrder": "reverse semver"
-              },
-              "productionPattern": "xxxx"
-            }`),
-	}
-	scopes := make([]*core.BlueprintScopeV100, 0)
-	scopes = append(scopes, bs)
-	plan, err := makePipelinePlan(nil, scopes, mockApiCLient, connection)
-	assert.Nil(t, err)
+              }`),
+		}
 
+		var scope []core.Scope
+		plan, scope, err = makeDataSourcePipelinePlanV200(nil, i, plan, bpScope, connection, mockApiCLient, githubRepo, transformationRule)
+		assert.Nil(t, err)
+		scopes = append(scopes, scope...)
+	}
 	expectPlan := core.PipelinePlan{
 		core.PipelineStage{
 			{
-				Plugin:   "github",
-				Subtasks: []string{},
+				Plugin:     "github",
+				Subtasks:   []string{},
+				SkipOnFail: false,
 				Options: map[string]interface{}{
 					"connectionId": uint64(1),
 					"owner":        "test",
@@ -101,7 +121,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				},
 			},
 			{
-				Plugin: "gitextractor",
+				Plugin:     "gitextractor",
+				SkipOnFail: false,
 				Options: map[string]interface{}{
 					"proxy":  "",
 					"repoId": "github:GithubRepo:1:12345",
@@ -111,7 +132,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		},
 		core.PipelineStage{
 			{
-				Plugin: "refdiff",
+				Plugin:     "refdiff",
+				SkipOnFail: false,
 				Options: map[string]interface{}{
 					"tagsLimit":   float64(10),
 					"tagsOrder":   "reverse semver",
@@ -119,18 +141,27 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				},
 			},
 		},
-		core.PipelineStage{
-			{
-				Plugin:   "dora",
-				Subtasks: []string{"EnrichTaskEnv"},
-				Options: map[string]interface{}{
-					"repoId": "github:GithubRepo:1:12345",
-					"transformationRules": map[string]interface{}{
-						"productionPattern": "xxxx",
-					},
-				},
-			},
-		},
 	}
 	assert.Equal(t, expectPlan, plan)
+	expectScopes := make([]core.Scope, 0)
+	scopeRepo := &code.Repo{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: "github:GithubRepo:1:12345",
+		},
+		Name: "test/testRepo",
+	}
+
+	scopeTicket := &ticket.Board{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: "github:GithubRepo:1:12345",
+		},
+		Name:        "test/testRepo",
+		Description: "",
+		Url:         "",
+		CreatedDate: nil,
+		Type:        "",
+	}
+
+	expectScopes = append(expectScopes, scopeRepo, scopeTicket)
+	assert.Equal(t, expectScopes, scopes)
 }

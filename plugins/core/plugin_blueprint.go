@@ -133,8 +133,9 @@ type BlueprintConnectionV200 struct {
 // BlueprintScopeV200 contains the `id` and `name` for a specific scope
 // transformationRuleId should be deduced by the ScopeId
 type BlueprintScopeV200 struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
+	Id       string   `json:"id"`
+	Name     string   `json:"name"`
+	Entities []string `json:"entities"`
 }
 
 // MetricPluginBlueprintV200 is similar to the DataSourcePluginBlueprintV200

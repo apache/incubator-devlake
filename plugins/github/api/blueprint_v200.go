@@ -18,18 +18,32 @@ limitations under the License.
 package api
 
 import (
+	"context"
+	"encoding/json"
+	goerror "errors"
+	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/go-playground/validator/v10"
-
+	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/incubator-devlake/utils"
+	"github.com/go-playground/validator/v10"
+	"github.com/mitchellh/mapstructure"
+	"gorm.io/gorm"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-func MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
+func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, bpScopes []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
+	db := basicRes.GetDal()
 	connectionHelper := helper.NewConnectionHelper(basicRes, validator.New())
 	// get the connection info for url
 	connection := &models.GithubConnection{}
@@ -38,44 +52,156 @@ func MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.Blueprin
 		return nil, nil, err
 	}
 
-	return makeDataSourcePipelinePlanV200(scopes, connection)
-}
-
-func makeDataSourcePipelinePlanV200(scopes []*core.BlueprintScopeV200, connection *models.GithubConnection) (core.PipelinePlan, []core.Scope, errors.Error) {
-	pp := make(core.PipelinePlan, 0, 1)
-	sc := make([]core.Scope, 0, 3*len(scopes))
-	ps := make(core.PipelineStage, 0, len(scopes))
-	for _, scope := range scopes {
-		var board ticket.Board
-		var repo code.Repo
-
-		id := didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, scope.Id)
-
-		repo.Id = id
-		repo.Name = scope.Name
-
-		board.Id = id
-		board.Name = scope.Name
-
-		sc = append(sc, &repo)
-		sc = append(sc, &board)
-
-		ps = append(ps, &core.PipelineTask{
-			Plugin: "github",
-			Options: map[string]interface{}{
-				"name": scope.Name,
-			},
-		})
-
-		ps = append(ps, &core.PipelineTask{
-			Plugin: "gitextractor",
-			Options: map[string]interface{}{
-				"url": connection.Endpoint + scope.Name,
-			},
-		})
+	token := strings.Split(connection.Token, ",")[0]
+	apiClient, err := helper.NewApiClient(
+		context.TODO(),
+		connection.Endpoint,
+		map[string]string{
+			"Authorization": fmt.Sprintf("Bearer %s", token),
+		},
+		10*time.Second,
+		connection.Proxy,
+		basicRes,
+	)
+	if err != nil {
+		return nil, nil, err
 	}
 
-	pp = append(pp, ps)
+	plan := make(core.PipelinePlan, 0, len(bpScopes))
+	scopes := make([]core.Scope, 0, len(bpScopes))
+	for i, bpScope := range bpScopes {
+		var githubRepo *models.GithubRepo
+		err = db.First(githubRepo, dal.Where(`id = ?`, bpScope.Id))
+		if err != nil {
+			return nil, nil, err
+		}
+		var transformationRule *models.TransformationRules
+		err = db.First(transformationRule, dal.Where(`id = ?`, githubRepo.TransformationRuleId))
+		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil, err
+		}
+		var scope []core.Scope
+		// extract this for unit test
+		plan, scope, err = makeDataSourcePipelinePlanV200(subtaskMetas, i, plan, bpScope, connection, apiClient, githubRepo, transformationRule)
+		if err != nil {
+			return nil, nil, err
+		}
+		if len(scope) > 0 {
+			scopes = append(scopes, scope...)
+		}
 
-	return pp, sc, nil
+	}
+
+	return plan, scopes, nil
+}
+
+func makeDataSourcePipelinePlanV200(
+	subtaskMetas []core.SubTaskMeta,
+	i int,
+	plan core.PipelinePlan,
+	bpScope *core.BlueprintScopeV200,
+	connection *models.GithubConnection,
+	apiClient helper.ApiClientGetter,
+	githubRepo *models.GithubRepo,
+	transformationRule *models.TransformationRules,
+) (core.PipelinePlan, []core.Scope, errors.Error) {
+	var err errors.Error
+	var stage core.PipelineStage
+	var repo *tasks.GithubApiRepo
+	scopes := make([]core.Scope, 0)
+	if transformationRule != nil && transformationRule.ReffdiffRule != nil {
+		// add a new task to next stage
+		j := i + 1
+		if j == len(plan) {
+			plan = append(plan, nil)
+		}
+		refdiffOp := map[string]interface{}{}
+		err = errors.Convert(json.Unmarshal(transformationRule.ReffdiffRule, &refdiffOp))
+		if err != nil {
+			return nil, nil, err
+		}
+		plan[j] = core.PipelineStage{
+			{
+				Plugin:  "refdiff",
+				Options: refdiffOp,
+			},
+		}
+		transformationRule.ReffdiffRule = nil
+	}
+
+	// construct task options for github
+	var options map[string]interface{}
+	err = errors.Convert(mapstructure.Decode(githubRepo, &options))
+	if err != nil {
+		return nil, nil, err
+	}
+	// make sure task options is valid
+	op, err := tasks.DecodeAndValidateTaskOptions(options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var transformationRuleMap map[string]interface{}
+	err = errors.Convert(mapstructure.Decode(transformationRule, &transformationRuleMap))
+	if err != nil {
+		return nil, nil, err
+	}
+	options["transformationRules"] = transformationRuleMap
+	stage, err = addGithub(subtaskMetas, connection, bpScope.Entities, stage, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE) {
+		repo, err = memorizedGetApiRepo(repo, op, apiClient)
+		if err != nil {
+			return nil, nil, err
+		}
+		stage, err = addGitex(bpScope.Entities, connection, repo, stage)
+		if err != nil {
+			return nil, nil, err
+		}
+		scopeRepo := &code.Repo{
+			DomainEntity: domainlayer.DomainEntity{
+				Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
+			},
+			Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
+		}
+		if repo.Parent != nil {
+			scopeRepo.ForkedFrom = repo.Parent.HTMLUrl
+		}
+		scopes = append(scopes, scopeRepo)
+	} else if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE_REVIEW) {
+		scopeRepo := &code.Repo{
+			DomainEntity: domainlayer.DomainEntity{
+				Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
+			},
+			Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
+		}
+		scopes = append(scopes, scopeRepo)
+	}
+
+	if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CICD) {
+		scopeCICD := &devops.CicdScope{
+			DomainEntity: domainlayer.DomainEntity{
+				Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
+			},
+			Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
+		}
+		scopes = append(scopes, scopeCICD)
+	}
+
+	if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_TICKET) {
+		scopeTicket := &ticket.Board{
+			DomainEntity: domainlayer.DomainEntity{
+				Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
+			},
+			Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
+		}
+		scopes = append(scopes, scopeTicket)
+	}
+
+	plan[i] = stage
+
+	return plan, scopes, nil
 }
