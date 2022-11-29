@@ -157,8 +157,5 @@ func verifyBoard(board *models.JiraBoard) errors.Error {
 	if board.BoardId == 0 {
 		return errors.BadInput.New("invalid boardId")
 	}
-	if board.ScopeId != strconv.FormatUint(board.BoardId, 10) {
-		return errors.BadInput.New("the scope_id does not match the board_id")
-	}
 	return nil
 }

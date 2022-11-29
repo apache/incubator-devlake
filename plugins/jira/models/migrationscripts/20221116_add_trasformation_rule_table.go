@@ -26,7 +26,6 @@ import (
 
 type jiraBoard20221116 struct {
 	TransformationRuleId uint64
-	ScopeId              string `gorm:"type:varchar(255)"`
 }
 
 func (jiraBoard20221116) TableName() string {

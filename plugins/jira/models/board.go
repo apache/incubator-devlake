@@ -25,7 +25,6 @@ type JiraBoard struct {
 	common.NoPKModel
 	ConnectionId         uint64 `gorm:"primaryKey"`
 	BoardId              uint64 `gorm:"primaryKey"`
-	ScopeId              string `gorm:"type:varchar(255)"`
 	TransformationRuleId uint64
 	ProjectId            uint
 	Name                 string `gorm:"type:varchar(255)"`
