@@ -23,16 +23,17 @@ import (
 
 // JenkinsJob db entity for jenkins job
 type JenkinsJob struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-	FullName     string `gorm:"primaryKey;type:varchar(255)"`
-	Name         string `gorm:"index;type:varchar(255)"`
-	Path         string `gorm:"index;type:varchar(511)"`
-	Class        string `gorm:"type:varchar(255)"`
-	Color        string `gorm:"type:varchar(255)"`
-	Base         string `gorm:"type:varchar(255)"`
-	Url          string
-	Description  string
-	PrimaryView  string `gorm:"type:varchar(255)"`
+	ConnectionId         uint64 `gorm:"primaryKey"`
+	FullName             string `gorm:"primaryKey;type:varchar(255)"`
+	TransformationRuleId uint64
+	Name                 string `gorm:"index;type:varchar(255)"`
+	Path                 string `gorm:"index;type:varchar(511)"`
+	Class                string `gorm:"type:varchar(255)"`
+	Color                string `gorm:"type:varchar(255)"`
+	Base                 string `gorm:"type:varchar(255)"`
+	Url                  string
+	Description          string
+	PrimaryView          string `gorm:"type:varchar(255)"`
 	common.NoPKModel
 }
 

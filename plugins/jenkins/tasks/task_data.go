@@ -32,12 +32,14 @@ type JenkinsApiParams struct {
 }
 
 type JenkinsOptions struct {
-	ConnectionId               uint64 `json:"connectionId"`
-	JobName                    string `json:"jobName"`
-	JobPath                    string `json:"jobPath"`
-	Since                      string
-	Tasks                      []string `json:"tasks,omitempty"`
-	models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
+	ConnectionId                uint64 `json:"connectionId"`
+	TransformationRuleId        uint64 `json:"transformationRuleId"`
+	JobFullName                 string `json:"JobFullName"`
+	JobName                     string `json:"jobName"`
+	JobPath                     string `json:"jobPath"`
+	Since                       string
+	Tasks                       []string `json:"tasks,omitempty"`
+	*models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type JenkinsTaskData struct {
@@ -54,12 +56,14 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptio
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
-	if op.DeploymentPattern == "" {
-		op.DeploymentPattern = "(?i)deploy"
-	}
-	// find the needed Jenkins now
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("connectionId is invalid")
+	}
+	if op.TransformationRules == nil && op.TransformationRuleId == 0 {
+		op.TransformationRules = new(models.TransformationRules)
+		if op.DeploymentPattern == "" {
+			op.DeploymentPattern = "(?i)deploy"
+		}
 	}
 	return &op, nil
 }

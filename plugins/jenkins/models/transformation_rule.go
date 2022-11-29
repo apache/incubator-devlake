@@ -17,27 +17,13 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/plugins/helper"
+import "github.com/apache/incubator-devlake/models/common"
 
-// This object conforms to what the frontend currently sends.
-type JenkinsConnection struct {
-	helper.RestConnection `mapstructure:",squash"`
-	helper.BasicAuth      `mapstructure:",squash"`
+type TransformationRules struct {
+	common.Model
+	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern" json:"deploymentPattern"`
 }
 
-type JenkinsResponse struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	JenkinsConnection
-}
-
-type TestConnectionRequest struct {
-	Endpoint string `json:"endpoint" validate:"required"`
-	Username string `json:"username" validate:"required"`
-	Password string `json:"password" validate:"required"`
-	Proxy    string `json:"proxy"`
-}
-
-func (JenkinsConnection) TableName() string {
-	return "_tool_jenkins_connections"
+func (t TransformationRules) TableName() string {
+	return "_tool_jenkins_transformation_rules"
 }
