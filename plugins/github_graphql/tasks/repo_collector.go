@@ -60,7 +60,7 @@ var CollectRepoMeta = core.SubTaskMeta{
 	EntryPoint:       CollectRepo,
 	EnabledByDefault: true,
 	Description:      "Collect Repo data from GithubGraphql api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CICD, core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_CROSS},
 }
 
 func CollectRepo(taskCtx core.SubTaskContext) errors.Error {

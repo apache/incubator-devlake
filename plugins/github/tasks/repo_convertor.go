@@ -40,7 +40,7 @@ var ConvertRepoMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertRepo,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_repos into  domain layer table repos and boards",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CICD, core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_CROSS},
 }
 
 func ConvertRepo(taskCtx core.SubTaskContext) errors.Error {

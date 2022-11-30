@@ -69,7 +69,7 @@ func GeneratePlanJsonV100(settings *models.BlueprintSettings) (core.PipelinePlan
 		plan := core.PipelineStage{
 			&core.PipelineTask{
 				Plugin:   "dora",
-				Subtasks: []string{"calculateChangeLeadTime", "ConnectIssueDeploy"},
+				Subtasks: []string{"calculateChangeLeadTime", "ConnectIncidentToDeployment"},
 				Options:  doraRules,
 			},
 		}
