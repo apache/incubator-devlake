@@ -20,6 +20,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -33,7 +34,32 @@ import (
 	"testing"
 )
 
+var bs = &core.BlueprintScopeV100{
+	Entities: []string{"CODE"},
+	Options: json.RawMessage(`{
+              "owner": "test",
+              "repo": "testRepo"
+            }`),
+	Transformation: json.RawMessage(`{
+              "prType": "hey,man,wasup",
+              "refdiff": {
+                "tagsPattern": "pattern",
+                "tagsLimit": 10,
+                "tagsOrder": "reverse semver"
+              },
+              "productionPattern": "xxxx"
+            }`),
+}
+
+var repo = &tasks.GithubApiRepo{
+	GithubId:  12345,
+	CloneUrl:  "https://this_is_cloneUrl",
+	CreatedAt: helper.Iso8601Time{},
+}
+
 func TestMakePipelinePlan(t *testing.T) {
+	prepareMockMeta(t)
+	mockApiClient := prepareMockClient(t, repo)
 	connection := &models.GithubConnection{
 		RestConnection: helper.RestConnection{
 			BaseConnection: helper.BaseConnection{
@@ -50,40 +76,9 @@ func TestMakePipelinePlan(t *testing.T) {
 			Token: "123",
 		},
 	}
-	mockApiCLient := mocks.NewApiClientGetter(t)
-	repo := &tasks.GithubApiRepo{
-		GithubId: 12345,
-		CloneUrl: "https://this_is_cloneUrl",
-	}
-	js, err := json.Marshal(repo)
-	assert.Nil(t, err)
-	res := &http.Response{}
-	res.Body = io.NopCloser(bytes.NewBuffer(js))
-	res.StatusCode = http.StatusOK
-	mockApiCLient.On("Get", "repos/test/testRepo", mock.Anything, mock.Anything).Return(res, nil)
-	mockMeta := mocks.NewPluginMeta(t)
-	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/github")
-	err = core.RegisterPlugin("github", mockMeta)
-	assert.Nil(t, err)
-	bs := &core.BlueprintScopeV100{
-		Entities: []string{"CODE"},
-		Options: json.RawMessage(`{
-              "owner": "test",
-              "repo": "testRepo"
-            }`),
-		Transformation: json.RawMessage(`{
-              "prType": "hey,man,wasup",
-              "refdiff": {
-                "tagsPattern": "pattern",
-                "tagsLimit": 10,
-                "tagsOrder": "reverse semver"
-              },
-              "productionPattern": "xxxx"
-            }`),
-	}
 	scopes := make([]*core.BlueprintScopeV100, 0)
 	scopes = append(scopes, bs)
-	plan, err := makePipelinePlan(nil, scopes, mockApiCLient, connection)
+	plan, err := makePipelinePlan(nil, scopes, mockApiClient, connection)
 	assert.Nil(t, err)
 
 	expectPlan := core.PipelinePlan{
@@ -133,4 +128,53 @@ func TestMakePipelinePlan(t *testing.T) {
 		},
 	}
 	assert.Equal(t, expectPlan, plan)
+}
+
+func TestMemorizedGetApiRepo(t *testing.T) {
+	op := prepareOptions(t, bs)
+	expect := repo
+	repo1, err := memorizedGetApiRepo(repo, op, nil)
+	assert.Nil(t, err)
+	assert.Equal(t, expect, repo1)
+	mockApiClient := prepareMockClient(t, repo)
+	repo2, err := memorizedGetApiRepo(nil, op, mockApiClient)
+	assert.Nil(t, err)
+	assert.NotEqual(t, expect, repo2)
+}
+
+func TestGetApiRepo(t *testing.T) {
+	op := prepareOptions(t, bs)
+	mockClient := prepareMockClient(t, repo)
+	repo1, err := getApiRepo(op, mockClient)
+	assert.Nil(t, err)
+	assert.Equal(t, repo.GithubId, repo1.GithubId)
+}
+
+func prepareMockMeta(t *testing.T) {
+	mockMeta := mocks.NewPluginMeta(t)
+	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/github")
+	err := core.RegisterPlugin("github", mockMeta)
+	assert.Nil(t, err)
+}
+
+func prepareMockClient(t *testing.T, repo *tasks.GithubApiRepo) *mocks.ApiClientGetter {
+	mockApiCLient := mocks.NewApiClientGetter(t)
+	js, err := json.Marshal(repo)
+	assert.Nil(t, err)
+	res := &http.Response{}
+	res.Body = io.NopCloser(bytes.NewBuffer(js))
+	res.StatusCode = http.StatusOK
+	mockApiCLient.On("Get", "repos/test/testRepo", mock.Anything, mock.Anything).Return(res, nil)
+	return mockApiCLient
+}
+
+func prepareOptions(t *testing.T, bs *core.BlueprintScopeV100) *tasks.GithubOptions {
+	options := make(map[string]interface{})
+	err := errors.Convert(json.Unmarshal(bs.Options, &options))
+	assert.Nil(t, err)
+	options["connectionId"] = 1
+	// make sure task options is valid
+	op, err := tasks.DecodeAndValidateTaskOptions(options)
+	assert.Nil(t, err)
+	return op
 }
