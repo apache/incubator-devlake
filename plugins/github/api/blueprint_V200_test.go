@@ -92,12 +92,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			Model: common.Model{
 				ID: 1,
 			},
-			PrType: "hey,man,wasup",
-			ReffdiffRule: json.RawMessage(`{
-                "tagsPattern": "pattern",
-                "tagsLimit": 10,
-                "tagsOrder": "reverse semver"
-              }`),
+			PrType:  "hey,man,wasup",
+			Refdiff: json.RawMessage(`{"tagsPattern": "pattern", "tagsLimit": 10, "tagsOrder": "reverse semver"}`),
 		}
 
 		var scope []core.Scope
@@ -116,7 +112,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					"owner":        "test",
 					"repo":         "testRepo",
 					"transformationRules": map[string]interface{}{
-						"prType": "hey,man,wasup",
+						"prType":  "hey,man,wasup",
+						"refdiff": json.RawMessage(`{"tagsPattern": "pattern", "tagsLimit": 10, "tagsOrder": "reverse semver"}`),
 					},
 				},
 			},
