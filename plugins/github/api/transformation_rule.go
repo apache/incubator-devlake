@@ -119,7 +119,7 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 // @Router /plugins/github/transformation_rules [GET]
 func GetTransformationRuleList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var rules []models.TransformationRules
-	limit, offset := getLimitOffset(input.Query)
+	limit, offset := helper.GetLimitOffset(input.Query, "pageSize", "page")
 	err := basicRes.GetDal().All(&rules, dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get TransformationRule list")

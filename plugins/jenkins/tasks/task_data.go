@@ -61,9 +61,6 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptio
 	}
 	if op.TransformationRules == nil && op.TransformationRuleId == 0 {
 		op.TransformationRules = new(models.TransformationRules)
-		if op.DeploymentPattern == "" {
-			op.DeploymentPattern = "(?i)deploy"
-		}
 	}
 	return &op, nil
 }

@@ -133,13 +133,16 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 // @Summary return all transformation rules
 // @Description return all transformation rules
 // @Tags plugins/jira
+// @Param pageSize query int false "page size, default 50"
+// @Param page query int false "page size, default 1"
 // @Success 200  {object} []tasks.TransformationRules
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules [GET]
 func GetTransformationRuleList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var rules []models.JiraTransformationRule
-	err := basicRes.GetDal().All(&rules)
+	limit, offset := helper.GetLimitOffset(input.Query, "pageSize", "page")
+	err := basicRes.GetDal().All(&rules, dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get TransformationRule list")
 	}

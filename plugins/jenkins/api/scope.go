@@ -100,6 +100,8 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 // @Description get Jenkins jobs
 // @Tags plugins/jenkins
 // @Param connectionId path int false "connection ID"
+// @Param pageSize query int false "page size, default 50"
+// @Param page query int false "page size, default 1"
 // @Success 200  {object} []models.JenkinsJob
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
@@ -110,7 +112,8 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
 	}
-	err := BasicRes.GetDal().All(&jobs, dal.Where("connection_id = ?", connectionId))
+	limit, offset := helper.GetLimitOffset(input.Query, "pageSize", "page")
+	err := BasicRes.GetDal().All(&jobs, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, err
 	}
