@@ -81,18 +81,14 @@ func (m *ApiCollectorStateManager) InitCollector(args ApiCollectorArgs) (err err
 
 // Execute the embedded collector and record execute state
 func (m ApiCollectorStateManager) Execute() errors.Error {
-	executeErr := m.ApiCollector.Execute()
+	err := m.ApiCollector.Execute()
+	if err != nil {
+		return err
+	}
 
 	db := m.Ctx.GetDal()
 	m.LatestState.LatestSuccessStart = &m.ExecuteStart
 	m.LatestState.StartFrom = m.StartFrom
-	saveErr := db.CreateOrUpdate(&m.LatestState)
-	if saveErr != nil {
-		if executeErr != nil {
-			return errors.Default.Combine([]error{executeErr, saveErr})
-		} else {
-			return errors.Default.Wrap(saveErr, "error on saving JiraLatestCollectorMeta")
-		}
-	}
-	return executeErr
+	err = db.CreateOrUpdate(&m.LatestState)
+	return err
 }
