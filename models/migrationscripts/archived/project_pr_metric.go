@@ -20,14 +20,14 @@ package archived
 type ProjectPrMetric struct {
 	DomainEntity
 	ProjectName    string `gorm:"primaryKey;type:varchar(100)"`
-	FirstReviewId  string
 	FirstCommitSha string
-	CodingTimespan *int64
-	ReviewLag      *int64
-	ReviewTimespan *int64
+	PrCodingTime   *int64
+	FirstReviewId  string
+	PrPickupTime   *int64
+	PrReviewTime   *int64
 	DeploymentId   string
-	DeployTimespan *int64
-	ChangeTimespan *int64
+	PrDeployTime   *int64
+	PrCycleTime    *int64
 }
 
 func (ProjectPrMetric) TableName() string {

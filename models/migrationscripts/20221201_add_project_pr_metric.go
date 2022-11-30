@@ -15,25 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package crossdomain
+package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/models/domainlayer"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type ProjectPrMetric struct {
-	domainlayer.DomainEntity
-	ProjectName    string `gorm:"primaryKey;type:varchar(100)"`
-	FirstCommitSha string
-	PrCodingTime   *int64
-	FirstReviewId  string
-	PrPickupTime   *int64
-	PrReviewTime   *int64
-	DeploymentId   string
-	PrDeployTime   *int64
-	PrCycleTime    *int64
+type renameFiledsInProjectPrMetric struct{}
+
+func (u *renameFiledsInProjectPrMetric) Up(baseRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		baseRes,
+		&archived.ProjectPrMetric{},
+	)
 }
 
-func (ProjectPrMetric) TableName() string {
-	return "project_pr_metrics"
+func (*renameFiledsInProjectPrMetric) Version() uint64 {
+	return 20221201000001
+}
+
+func (*renameFiledsInProjectPrMetric) Name() string {
+	return "rename fields in project pr metric tables"
 }

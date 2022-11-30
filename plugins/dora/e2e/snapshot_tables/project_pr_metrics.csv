@@ -1,4 +1,4 @@
-id,project_name,first_commit_sha,coding_timespan,first_review_id,review_lag,review_timespan,deployment_id,deploy_timespan,change_timespan
+id,project_name,first_commit_sha,pr_coding_time,first_review_id,pr_pickup_time,pr_review_time,deployment_id,pr_deploy_time,pr_cycle_time
 github:GithubPullRequest:1:1043463302,project1,75ab753225b5b8acf3bc6e40e463b54b6800e7ed,,github:GithubPrReview:1:1098724785,8558,2859,task11,93134,104551
 github:GithubPullRequest:1:1048233599,project1,4f8cdefc9a9d53af16dd482c61623312eb9e9b5e,,github:GithubPrReview:1:0,194,4033,task12,76605,80832
 github:GithubPullRequest:1:1049191985,project1,4b71faf666833c0c7b915a512811e2c5e746d3de,1,github:GithubPrReview:1:1099918590,156,1712,task13,115026,116895
