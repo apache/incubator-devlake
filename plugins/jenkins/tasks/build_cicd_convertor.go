@@ -114,7 +114,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 				FinishedDate: jenkinsPipelineFinishedDate,
 				DurationSec:  uint64(durationSec),
 				CreatedDate:  jenkinsBuild.StartTime,
-				CicdScopeId:  jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Job.FullName),
+				CicdScopeId:  jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Options.JobFullName),
 			}
 			jenkinsPipeline.RawDataOrigin = jenkinsBuild.RawDataOrigin
 			results = append(results, jenkinsPipeline)
@@ -131,7 +131,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 					DurationSec:  uint64(durationSec),
 					StartedDate:  jenkinsBuild.StartTime,
 					FinishedDate: jenkinsPipelineFinishedDate,
-					CicdScopeId:  jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Job.FullName),
+					CicdScopeId:  jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Options.JobFullName),
 				}
 				if deployTagRegexp != nil {
 					if deployFlag := deployTagRegexp.FindString(jenkinsBuild.JobName); deployFlag != "" {

@@ -15,34 +15,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package archived
 
 import (
-	"net/url"
-	"strconv"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-const pageSize = 50
-
-func getPageParam(q url.Values) (int, int) {
-	var size, page int
-	if ps := q["pageSize"]; len(ps) > 0 {
-		size, _ = strconv.Atoi(ps[0])
-	}
-	if p := q["page"]; len(p) > 0 {
-		page, _ = strconv.Atoi(p[0])
-	}
-	if size < 1 {
-		size = pageSize
-	}
-	if page < 1 {
-		page = 1
-	}
-	return size, page
+type TransformationRules struct {
+	archived.Model
+	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern" json:"deploymentPattern"`
 }
 
-func getLimitOffset(q url.Values) (int, int) {
-	limit, page := getPageParam(q)
-	offset := (page - 1) * limit
-	return limit, offset
+func (t TransformationRules) TableName() string {
+	return "_tool_jenkins_transformation_rules"
 }

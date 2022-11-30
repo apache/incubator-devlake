@@ -18,18 +18,30 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addInitTables),
-		new(modifyAllEntities),
-		new(modifyJenkinsBuild),
-		new(addJobFields),
-		new(addJobPathForBuilds),
-		new(changeIndexOfJobPath),
-		new(addTransformationRule20221128),
-	}
+type jenkinsJob20221128 struct {
+	TransformationRuleId uint64
+}
+
+func (jenkinsJob20221128) TableName() string {
+	return "_tool_jenkins_jobs"
+}
+
+type addTransformationRule20221128 struct{}
+
+func (*addTransformationRule20221128) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &jenkinsJob20221128{}, &archived.TransformationRules{})
+}
+
+func (*addTransformationRule20221128) Version() uint64 {
+	return 20221128113500
+}
+
+func (*addTransformationRule20221128) Name() string {
+	return "add table _tool_jenkins_transformation_rules, add transformation_rule_id to _tool_jenkins_jobs"
 }

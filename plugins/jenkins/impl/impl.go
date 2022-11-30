@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -39,12 +40,25 @@ var _ core.PluginApi = (*Jenkins)(nil)
 var _ core.PluginModel = (*Jenkins)(nil)
 var _ core.PluginMigration = (*Jenkins)(nil)
 var _ core.CloseablePluginTask = (*Jenkins)(nil)
+var _ core.PluginSource = (*Jenkins)(nil)
 
 type Jenkins struct{}
 
 func (plugin Jenkins) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
+}
+
+func (plugin Jenkins) Connection() interface{} {
+	return &models.JenkinsConnection{}
+}
+
+func (plugin Jenkins) Scope() interface{} {
+	return &models.JenkinsJob{}
+}
+
+func (plugin Jenkins) TransformationRule() interface{} {
+	return &models.TransformationRules{}
 }
 
 func (plugin Jenkins) GetTablesInfo() []core.Tabler {
@@ -109,6 +123,14 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 	if !strings.HasSuffix(op.JobPath, "/") {
 		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
 	}
+	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.TransformationRules
+		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
+		}
+		op.TransformationRules = &transformationRule
+	}
 	return &tasks.JenkinsTaskData{
 		Options:    op,
 		ApiClient:  apiClient,
@@ -141,6 +163,22 @@ func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandl
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
+		},
+		"connections/:connectionId/scopes/*fullName": {
+			"GET":   api.GetScope,
+			"PUT":   api.PutScope,
+			"PATCH": api.UpdateScope,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+		},
+		"transformation_rules": {
+			"POST": api.CreateTransformationRule,
+			"GET":  api.GetTransformationRuleList,
+		},
+		"transformation_rules/:id": {
+			"PATCH": api.UpdateTransformationRule,
+			"GET":   api.GetTransformationRule,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,

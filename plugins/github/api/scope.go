@@ -116,7 +116,7 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	if connectionId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
 	}
-	limit, offset := getLimitOffset(input.Query)
+	limit, offset := helper.GetLimitOffset(input.Query, "pageSize", "page")
 	err := basicRes.GetDal().All(&repos, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, err

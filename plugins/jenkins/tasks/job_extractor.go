@@ -80,7 +80,7 @@ func ExtractApiJobs(taskCtx core.SubTaskContext) errors.Error {
 				}
 				results = append(results, &upDownJob)
 			}
-			data.Job = job
+			data.Options.JobFullName = body.FullName
 			results = append(results, job)
 
 			return results, nil

@@ -143,7 +143,7 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 				DurationSec:  uint64(body.DurationMillis / 1000),
 				StartedDate:  time.Unix(durationSec, 0),
 				FinishedDate: jenkinsTaskFinishedDate,
-				CicdScopeId:  jobIdGen.Generate(body.ConnectionId, data.Job.FullName),
+				CicdScopeId:  jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
 			}
 			if deployTagRegexp != nil {
 				if deployFlag := deployTagRegexp.FindString(body.Name); deployFlag != "" {
