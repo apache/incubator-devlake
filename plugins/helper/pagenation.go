@@ -15,20 +15,35 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package helper
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core"
+	"net/url"
+	"strconv"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addInitTables),
-		new(addGitlabCI),
-		new(addPipelineID),
-		new(addPipelineProjects),
-		new(fixDurationToFloat8),
-		new(addTransformationRule20221125),
+const pageSize = 50
+
+func getPageParam(q url.Values, pageSizeKey, pageKey string) (size int, page int) {
+	if ps := q[pageSizeKey]; len(ps) > 0 {
+		size, _ = strconv.Atoi(ps[0])
 	}
+	if p := q[pageKey]; len(p) > 0 {
+		page, _ = strconv.Atoi(p[0])
+	}
+	if size < 1 {
+		size = pageSize
+	}
+	if page < 1 {
+		page = 1
+	}
+	return size, page
+}
+
+// GetLimitOffset extract page and page size, then calculus the limit and offset from them
+func GetLimitOffset(q url.Values, pageSizeKey, pageKey string) (limit int, offset int) {
+	size, page := getPageParam(q, pageSizeKey, pageKey)
+	limit = size
+	offset = (page - 1) * limit
+	return limit, offset
 }

@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitlab/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts"
@@ -32,7 +33,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type GitlabImpl interface {
+var _ interface {
 	core.PluginMeta
 	core.PluginInit
 	core.PluginTask
@@ -41,15 +42,26 @@ type GitlabImpl interface {
 	core.PluginBlueprintV100
 	core.DataSourcePluginBlueprintV200
 	core.CloseablePluginTask
-}
-
-var _ GitlabImpl = (*Gitlab)(nil)
+	core.PluginSource
+} = (*Gitlab)(nil)
 
 type Gitlab string
 
 func (plugin Gitlab) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	api.Init(config, logger, db)
 	return nil
+}
+
+func (plugin Gitlab) Connection() interface{} {
+	return &models.GitlabConnection{}
+}
+
+func (plugin Gitlab) Scope() interface{} {
+	return &models.GitlabProject{}
+}
+
+func (plugin Gitlab) TransformationRule() interface{} {
+	return &models.TransformationRules{}
 }
 
 func (plugin Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
@@ -141,7 +153,14 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	if err != nil {
 		return nil, err
 	}
-
+	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.TransformationRules
+		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
+		}
+		op.TransformationRules = &transformationRule
+	}
 	return &tasks.GitlabTaskData{
 		Options:   op,
 		ApiClient: apiClient,
@@ -173,6 +192,22 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 			"PATCH":  api.PatchConnection,
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
+		},
+		"connections/:connectionId/scopes/:projectId": {
+			"GET":   api.GetScope,
+			"PUT":   api.PutScope,
+			"PATCH": api.UpdateScope,
+		},
+		"connections/:connectionId/scopes": {
+			"GET": api.GetScopeList,
+		},
+		"transformation_rules": {
+			"POST": api.CreateTransformationRule,
+			"GET":  api.GetTransformationRuleList,
+		},
+		"transformation_rules/:id": {
+			"PATCH": api.UpdateTransformationRule,
+			"GET":   api.GetTransformationRule,
 		},
 		"connections/:connectionId/proxy/rest/*path": {
 			"GET": api.Proxy,

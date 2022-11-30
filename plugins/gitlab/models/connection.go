@@ -17,7 +17,9 @@ limitations under the License.
 
 package models
 
-import "github.com/apache/incubator-devlake/plugins/helper"
+import (
+	"github.com/apache/incubator-devlake/plugins/helper"
+)
 
 // This object conforms to what the frontend currently sends.
 type GitlabConnection struct {
@@ -42,19 +44,6 @@ type GitlabResponse struct {
 type ApiUserResponse struct {
 	Id   int
 	Name string `json:"name"`
-}
-
-type TransformationRules struct {
-	PrType               string `mapstructure:"prType" json:"prType"`
-	PrComponent          string `mapstructure:"prComponent" json:"prComponent"`
-	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern"`
-	IssueSeverity        string `mapstructure:"issueSeverity" json:"issueSeverity"`
-	IssuePriority        string `mapstructure:"issuePriority" json:"issuePriority"`
-	IssueComponent       string `mapstructure:"issueComponent" json:"issueComponent"`
-	IssueTypeBug         string `mapstructure:"issueTypeBug" json:"issueTypeBug"`
-	IssueTypeIncident    string `mapstructure:"issueTypeIncident" json:"issueTypeIncident"`
-	IssueTypeRequirement string `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement"`
-	DeploymentPattern    string `mapstructure:"deploymentPattern" json:"deploymentPattern"`
 }
 
 func (GitlabConnection) TableName() string {

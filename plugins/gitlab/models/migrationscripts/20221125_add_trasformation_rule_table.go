@@ -18,17 +18,30 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addInitTables),
-		new(addGitlabCI),
-		new(addPipelineID),
-		new(addPipelineProjects),
-		new(fixDurationToFloat8),
-		new(addTransformationRule20221125),
-	}
+type gitlabProject20221125 struct {
+	TransformationRuleId uint64
+}
+
+func (gitlabProject20221125) TableName() string {
+	return "_tool_gitlab_projects"
+}
+
+type addTransformationRule20221125 struct{}
+
+func (*addTransformationRule20221125) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &gitlabProject20221125{}, &archived.TransformationRules{})
+}
+
+func (*addTransformationRule20221125) Version() uint64 {
+	return 20221125102500
+}
+
+func (*addTransformationRule20221125) Name() string {
+	return "add table _tool_gitlab_transformation_rules, add transformation_rule_id to _tool_gitlab_projects"
 }
