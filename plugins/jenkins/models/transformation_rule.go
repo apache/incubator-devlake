@@ -20,9 +20,9 @@ package models
 import "github.com/apache/incubator-devlake/models/common"
 
 type TransformationRules struct {
-	common.Model
-	Name              string `gorm:"type:varchar(255)"`
-	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern" json:"deploymentPattern"`
+	common.Model      `mapstructure:"-"`
+	Name              string `gorm:"type:varchar(255)" mapstructure:"name" json:"name"`
+	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern"`
 }
 
 func (t TransformationRules) TableName() string {

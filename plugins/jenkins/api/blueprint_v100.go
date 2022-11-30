@@ -27,21 +27,21 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
 )
 
-func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
+func MakePipelinePlanV100(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
 	connection := new(models.JenkinsConnection)
 	err = connectionHelper.FirstById(connection, connectionId)
 	if err != nil {
 		return nil, err
 	}
-	plan, err := makePipelinePlan(subtaskMetas, scope, nil, connection)
+	plan, err := makePipelinePlanV100(subtaskMetas, scope, connection)
 	if err != nil {
 		return nil, err
 	}
 	return plan, nil
 }
 
-func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintScopeV100, apiClient helper.ApiClientGetter, connection *models.JenkinsConnection) (core.PipelinePlan, errors.Error) {
+func makePipelinePlanV100(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintScopeV100, connection *models.JenkinsConnection) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
