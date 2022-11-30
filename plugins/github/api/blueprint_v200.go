@@ -71,17 +71,19 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionI
 	scopes := make([]core.Scope, 0, len(bpScopes))
 	for i, bpScope := range bpScopes {
 		var githubRepo *models.GithubRepo
+		// get repo from db
 		err = db.First(githubRepo, dal.Where(`id = ?`, bpScope.Id))
 		if err != nil {
 			return nil, nil, err
 		}
 		var transformationRule *models.TransformationRules
+		// get transformation rules from db
 		err = db.First(transformationRule, dal.Where(`id = ?`, githubRepo.TransformationRuleId))
 		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil, err
 		}
 		var scope []core.Scope
-		// extract this for unit test
+		// make pipeline for each bpScope
 		plan, scope, err = makeDataSourcePipelinePlanV200(subtaskMetas, i, plan, bpScope, connection, apiClient, githubRepo, transformationRule)
 		if err != nil {
 			return nil, nil, err
@@ -109,6 +111,7 @@ func makeDataSourcePipelinePlanV200(
 	var stage core.PipelineStage
 	var repo *tasks.GithubApiRepo
 	scopes := make([]core.Scope, 0)
+	// refdiff
 	if transformationRule != nil && transformationRule.ReffdiffRule != nil {
 		// add a new task to next stage
 		j := i + 1
@@ -126,7 +129,6 @@ func makeDataSourcePipelinePlanV200(
 				Options: refdiffOp,
 			},
 		}
-		transformationRule.ReffdiffRule = nil
 	}
 
 	// construct task options for github
@@ -151,7 +153,7 @@ func makeDataSourcePipelinePlanV200(
 	if err != nil {
 		return nil, nil, err
 	}
-
+	// add gitex stage and add repo to scopes
 	if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE) {
 		repo, err = memorizedGetApiRepo(repo, op, apiClient)
 		if err != nil {
@@ -172,6 +174,7 @@ func makeDataSourcePipelinePlanV200(
 		}
 		scopes = append(scopes, scopeRepo)
 	} else if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE_REVIEW) {
+		// if we don't need to collect gitex, we need to add repo to scopes here
 		scopeRepo := &code.Repo{
 			DomainEntity: domainlayer.DomainEntity{
 				Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
@@ -180,7 +183,7 @@ func makeDataSourcePipelinePlanV200(
 		}
 		scopes = append(scopes, scopeRepo)
 	}
-
+	// add cicd_scope to scopes
 	if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CICD) {
 		scopeCICD := &devops.CicdScope{
 			DomainEntity: domainlayer.DomainEntity{
@@ -190,7 +193,7 @@ func makeDataSourcePipelinePlanV200(
 		}
 		scopes = append(scopes, scopeCICD)
 	}
-
+	// add board to scopes
 	if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_TICKET) {
 		scopeTicket := &ticket.Board{
 			DomainEntity: domainlayer.DomainEntity{
