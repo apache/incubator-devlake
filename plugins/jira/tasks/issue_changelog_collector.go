@@ -59,7 +59,7 @@ func CollectIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 			BoardId:      data.Options.BoardId,
 		},
 		Table: RAW_CHANGELOG_TABLE,
-	}, data.StartFrom)
+	}, data.CreatedDateAfter)
 	if err != nil {
 		return err
 	}

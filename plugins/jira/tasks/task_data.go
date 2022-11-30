@@ -94,17 +94,17 @@ func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransform
 type JiraOptions struct {
 	ConnectionId         uint64 `json:"connectionId"`
 	BoardId              uint64 `json:"boardId"`
-	StartFrom            string
+	CreatedDateAfter     string
 	TransformationRules  *JiraTransformationRule `json:"transformationRules"`
 	ScopeId              string
 	TransformationRuleId uint64
 }
 
 type JiraTaskData struct {
-	Options        *JiraOptions
-	ApiClient      *helper.ApiAsyncClient
-	StartFrom      *time.Time
-	JiraServerInfo models.JiraServerInfo
+	Options          *JiraOptions
+	ApiClient        *helper.ApiAsyncClient
+	CreatedDateAfter *time.Time
+	JiraServerInfo   models.JiraServerInfo
 }
 
 type JiraApiParams struct {

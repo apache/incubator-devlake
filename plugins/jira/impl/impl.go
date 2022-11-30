@@ -171,9 +171,9 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		return nil, errors.Default.Wrap(err, "unable to get Jira connection")
 	}
 
-	var startFrom time.Time
-	if op.StartFrom != "" {
-		startFrom, err = time.Parse("2006-01-02T15:04:05Z", op.StartFrom)
+	var createdDateAfter time.Time
+	if op.CreatedDateAfter != "" {
+		createdDateAfter, err = time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter)
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
 		}
@@ -208,9 +208,9 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		ApiClient:      jiraApiClient,
 		JiraServerInfo: *info,
 	}
-	if !startFrom.IsZero() {
-		taskData.StartFrom = &startFrom
-		logger.Debug("collect data created from %s", startFrom)
+	if !createdDateAfter.IsZero() {
+		taskData.CreatedDateAfter = &createdDateAfter
+		logger.Debug("collect data created from %s", createdDateAfter)
 	}
 
 	return taskData, nil

@@ -29,13 +29,13 @@ import (
 type ApiCollectorStateManager struct {
 	RawDataSubTaskArgs
 	*ApiCollector
-	LatestState  models.CollectorLatestState
-	StartFrom    *time.Time
-	ExecuteStart time.Time
+	LatestState      models.CollectorLatestState
+	CreatedDateAfter *time.Time
+	ExecuteStart     time.Time
 }
 
 // NewApiCollectorWithState create a new ApiCollectorStateManager
-func NewApiCollectorWithState(args RawDataSubTaskArgs, startFrom *time.Time) (*ApiCollectorStateManager, errors.Error) {
+func NewApiCollectorWithState(args RawDataSubTaskArgs, createdDateAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
 	db := args.Ctx.GetDal()
 
 	rawDataSubTask, err := NewRawDataSubTask(args)
@@ -57,19 +57,19 @@ func NewApiCollectorWithState(args RawDataSubTaskArgs, startFrom *time.Time) (*A
 	return &ApiCollectorStateManager{
 		RawDataSubTaskArgs: args,
 		LatestState:        latestState,
-		StartFrom:          startFrom,
+		CreatedDateAfter:   createdDateAfter,
 		ExecuteStart:       time.Now(),
 	}, nil
 }
 
 // CanIncrementCollect return if the old data can support collect incrementally.
 // only when latest collection is success &&
-// (m.LatestState.StartFrom == nil means all data have been collected ||
-// StartFrom at this time exists and later than in the LatestState)
-// if StartFrom at this time not exists, collect incrementally only when "m.LatestState.StartFrom == nil"
+// (m.LatestState.CreatedDateAfter == nil means all data have been collected ||
+// CreatedDateAfter at this time exists and later than in the LatestState)
+// if CreatedDateAfter at this time not exists, collect incrementally only when "m.LatestState.CreatedDateAfter == nil"
 func (m ApiCollectorStateManager) CanIncrementCollect() bool {
 	return m.LatestState.LatestSuccessStart != nil &&
-		(m.LatestState.StartFrom == nil || m.StartFrom != nil && m.StartFrom.After(*m.LatestState.StartFrom))
+		(m.LatestState.CreatedDateAfter == nil || m.CreatedDateAfter != nil && m.CreatedDateAfter.After(*m.LatestState.CreatedDateAfter))
 }
 
 // InitCollector init the embedded collector
@@ -88,7 +88,7 @@ func (m ApiCollectorStateManager) Execute() errors.Error {
 
 	db := m.Ctx.GetDal()
 	m.LatestState.LatestSuccessStart = &m.ExecuteStart
-	m.LatestState.StartFrom = m.StartFrom
+	m.LatestState.CreatedDateAfter = m.CreatedDateAfter
 	err = db.CreateOrUpdate(&m.LatestState)
 	return err
 }

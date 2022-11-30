@@ -63,7 +63,7 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 			Table store raw data
 		*/
 		Table: RAW_ISSUE_TABLE,
-	}, data.StartFrom)
+	}, data.CreatedDateAfter)
 	if err != nil {
 		return err
 	}
@@ -71,11 +71,11 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 	// build jql
 	// IMPORTANT: we have to keep paginated data in a consistence order to avoid data-missing, if we sort issues by
 	//  `updated`, issue will be jumping between pages if it got updated during the collection process
-	startFrom := data.StartFrom
+	createdDateAfter := data.CreatedDateAfter
 	jql := "ORDER BY created ASC"
-	if startFrom != nil {
+	if createdDateAfter != nil {
 		// prepend a time range criteria if `since` was specified, either by user or from database
-		jql = fmt.Sprintf("created >= '%v' %v", startFrom.Format("2006/01/02 15:04"), jql)
+		jql = fmt.Sprintf("created >= '%v' %v", createdDateAfter.Format("2006/01/02 15:04"), jql)
 	}
 
 	incremental := collectorWithState.CanIncrementCollect()

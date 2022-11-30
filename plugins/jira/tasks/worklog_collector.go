@@ -52,7 +52,7 @@ func CollectWorklogs(taskCtx core.SubTaskContext) errors.Error {
 			BoardId:      data.Options.BoardId,
 		},
 		Table: RAW_WORKLOGS_TABLE,
-	}, data.StartFrom)
+	}, data.CreatedDateAfter)
 	if err != nil {
 		return err
 	}

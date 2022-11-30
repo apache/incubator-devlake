@@ -32,12 +32,12 @@ func main() {
 	boardId := cmd.Flags().Uint64P("board", "b", 0, "jira board id")
 	_ = cmd.MarkFlagRequired("connection")
 	_ = cmd.MarkFlagRequired("board")
-	startFrom := cmd.Flags().StringP("start_from", "s", "", "collect data that are updated after specified time, ie 2006-05-06T07:08:09Z")
+	CreatedDateAfter := cmd.Flags().StringP("created_date_after", "a", "", "collect data that are updated after specified time, ie 2006-05-06T07:08:09Z")
 	cmd.Run = func(c *cobra.Command, args []string) {
 		runner.DirectRun(c, args, PluginEntry, map[string]interface{}{
-			"connectionId": *connectionId,
-			"boardId":      *boardId,
-			"startFrom":    *startFrom,
+			"connectionId":     *connectionId,
+			"boardId":          *boardId,
+			"CreatedDateAfter": *CreatedDateAfter,
 		})
 	}
 	runner.RunCmd(cmd)

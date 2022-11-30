@@ -54,7 +54,7 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) errors.Error {
 			BoardId:      data.Options.BoardId,
 		},
 		Table: RAW_REMOTELINK_TABLE,
-	}, data.StartFrom)
+	}, data.CreatedDateAfter)
 	if err != nil {
 		return err
 	}
