@@ -107,70 +107,24 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 		if err != nil {
 			return nil, err
 		}
-		memorizedGetApiRepo := func() (*tasks.GithubApiRepo, errors.Error) {
-			if repo == nil {
-				repo, err = getApiRepo(op, apiClient)
-			}
-			return repo, err
-		}
 
 		stage := plan[i]
 		if stage == nil {
 			stage = core.PipelineStage{}
 		}
 
-		// construct github(graphql) task
-		if connection.EnableGraphql {
-			// FIXME this need fix when 2 plugins merged
-			plugin, err := core.GetPlugin(`github_graphql`)
-			if err != nil {
-				return nil, err
-			}
-			if pluginGq, ok := plugin.(core.PluginTask); ok {
-				subtasks, err := helper.MakePipelinePlanSubtasks(pluginGq.SubTaskMetas(), scopeElem.Entities)
-				if err != nil {
-					return nil, err
-				}
-				stage = append(stage, &core.PipelineTask{
-					Plugin:   "github_graphql",
-					Subtasks: subtasks,
-					Options:  options,
-				})
-			} else {
-				return nil, errors.BadInput.New("plugin github_graphql does not support SubTaskMetas")
-			}
-		} else {
-			subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scopeElem.Entities)
-			if err != nil {
-				return nil, err
-			}
-			stage = append(stage, &core.PipelineTask{
-				Plugin:   "github",
-				Subtasks: subtasks,
-				Options:  options,
-			})
+		stage, err = addGithub(subtaskMetas, connection, scopeElem.Entities, stage, options)
+		if err != nil {
+			return nil, err
 		}
 		// collect git data by gitextractor if CODE was requested
-		if utils.StringsContains(scopeElem.Entities, core.DOMAIN_TYPE_CODE) {
-			// here is the tricky part, we have to obtain the repo id beforehand
-			token := strings.Split(connection.Token, ",")[0]
-			repo, err = memorizedGetApiRepo()
-			if err != nil {
-				return nil, err
-			}
-			cloneUrl, err := errors.Convert01(url.Parse(repo.CloneUrl))
-			if err != nil {
-				return nil, err
-			}
-			cloneUrl.User = url.UserPassword("git", token)
-			stage = append(stage, &core.PipelineTask{
-				Plugin: "gitextractor",
-				Options: map[string]interface{}{
-					"url":    cloneUrl.String(),
-					"repoId": didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, repo.GithubId),
-					"proxy":  connection.Proxy,
-				},
-			})
+		repo, err = memorizedGetApiRepo(repo, op, apiClient)
+		if err != nil {
+			return nil, err
+		}
+		stage, err = addGitex(scopeElem.Entities, connection, repo, stage)
+		if err != nil {
+			return nil, err
 		}
 		// dora
 		if productionPattern, ok := transformationRules["productionPattern"]; ok && productionPattern != nil {
@@ -185,7 +139,7 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 			if j == len(plan) {
 				plan = append(plan, nil)
 			}
-			repo, err = memorizedGetApiRepo()
+			repo, err = memorizedGetApiRepo(repo, op, apiClient)
 			if err != nil {
 				return nil, err
 			}
@@ -211,6 +165,66 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 	return plan, nil
 }
 
+func addGitex(entities []string,
+	connection *models.GithubConnection,
+	repo *tasks.GithubApiRepo,
+	stage core.PipelineStage,
+) (core.PipelineStage, errors.Error) {
+	if utils.StringsContains(entities, core.DOMAIN_TYPE_CODE) {
+		// here is the tricky part, we have to obtain the repo id beforehand
+		token := strings.Split(connection.Token, ",")[0]
+		cloneUrl, err := errors.Convert01(url.Parse(repo.CloneUrl))
+		if err != nil {
+			return nil, err
+		}
+		cloneUrl.User = url.UserPassword("git", token)
+		stage = append(stage, &core.PipelineTask{
+			Plugin: "gitextractor",
+			Options: map[string]interface{}{
+				"url":    cloneUrl.String(),
+				"repoId": didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, repo.GithubId),
+				"proxy":  connection.Proxy,
+			},
+		})
+	}
+	return stage, nil
+}
+
+func addGithub(subtaskMetas []core.SubTaskMeta, connection *models.GithubConnection, entities []string, stage core.PipelineStage, options map[string]interface{}) (core.PipelineStage, errors.Error) {
+	// construct github(graphql) task
+	if connection.EnableGraphql {
+		// FIXME this need fix when 2 plugins merged
+		plugin, err := core.GetPlugin(`github_graphql`)
+		if err != nil {
+			return nil, err
+		}
+		if pluginGq, ok := plugin.(core.PluginTask); ok {
+			subtasks, err := helper.MakePipelinePlanSubtasks(pluginGq.SubTaskMetas(), entities)
+			if err != nil {
+				return nil, err
+			}
+			stage = append(stage, &core.PipelineTask{
+				Plugin:   "github_graphql",
+				Subtasks: subtasks,
+				Options:  options,
+			})
+		} else {
+			return nil, errors.BadInput.New("plugin github_graphql does not support SubTaskMetas")
+		}
+	} else {
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, entities)
+		if err != nil {
+			return nil, err
+		}
+		stage = append(stage, &core.PipelineTask{
+			Plugin:   "github",
+			Subtasks: subtasks,
+			Options:  options,
+		})
+	}
+	return stage, nil
+}
+
 func getApiRepo(op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tasks.GithubApiRepo, errors.Error) {
 	apiRepo := &tasks.GithubApiRepo{}
 	res, err := apiClient.Get(fmt.Sprintf("repos/%s/%s", op.Owner, op.Repo), nil, nil)
@@ -230,4 +244,15 @@ func getApiRepo(op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tas
 		return nil, err
 	}
 	return apiRepo, nil
+}
+
+func memorizedGetApiRepo(repo *tasks.GithubApiRepo, op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tasks.GithubApiRepo, errors.Error) {
+	if repo == nil {
+		var err errors.Error
+		repo, err = getApiRepo(op, apiClient)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return repo, nil
 }
