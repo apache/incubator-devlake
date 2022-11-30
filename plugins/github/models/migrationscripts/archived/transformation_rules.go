@@ -35,7 +35,7 @@ type TransformationRules struct {
 	IssueTypeIncident    string          `mapstructure:"issueTypeIncident" json:"issueTypeIncident" gorm:"type:varchar(255)"`
 	IssueTypeRequirement string          `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement" gorm:"type:varchar(255)"`
 	DeploymentPattern    string          `mapstructure:"deploymentPattern" json:"deploymentPattern" gorm:"type:varchar(255)"`
-	RefdiffRule          json.RawMessage `mapstructure:"refdiffRule" json:"refdiffRule"`
+	Refdiff              json.RawMessage `mapstructure:"refdiffRule" json:"refdiffRule"`
 }
 
 func (TransformationRules) TableName() string {
