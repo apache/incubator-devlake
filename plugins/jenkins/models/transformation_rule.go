@@ -19,12 +19,12 @@ package models
 
 import "github.com/apache/incubator-devlake/models/common"
 
-type TransformationRules struct {
+type JenkinsTransformationRule struct {
 	common.Model      `mapstructure:"-"`
 	Name              string `gorm:"type:varchar(255)" mapstructure:"name" json:"name"`
 	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern"`
 }
 
-func (t TransformationRules) TableName() string {
+func (t JenkinsTransformationRule) TableName() string {
 	return "_tool_jenkins_transformation_rules"
 }

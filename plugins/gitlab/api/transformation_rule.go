@@ -34,13 +34,13 @@ import (
 // @Description create transformation rule for Gitlab
 // @Tags plugins/gitlab
 // @Accept application/json
-// @Param transformationRule body models.TransformationRules true "transformation rule"
-// @Success 200  {object} models.TransformationRules
+// @Param transformationRule body models.GitlabTransformationRule true "transformation rule"
+// @Success 200  {object} models.GitlabTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/transformation_rules [POST]
 func CreateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	var rule models.TransformationRules
+	var rule models.GitlabTransformationRule
 	err := mapstructure.Decode(input.Body, &rule)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error in decoding transformation rule")
@@ -58,8 +58,8 @@ func CreateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 // @Tags plugins/gitlab
 // @Accept application/json
 // @Param id path int true "id"
-// @Param transformationRule body models.TransformationRules true "transformation rule"
-// @Success 200  {object} models.TransformationRules
+// @Param transformationRule body models.GitlabTransformationRule true "transformation rule"
+// @Success 200  {object} models.GitlabTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/transformation_rules/{id} [PATCH]
@@ -68,7 +68,7 @@ func UpdateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "the transformation rule ID should be an integer")
 	}
-	var old models.TransformationRules
+	var old models.GitlabTransformationRule
 	err = BasicRes.GetDal().First(&old, dal.Where("id = ?", transformationRuleId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
@@ -90,7 +90,7 @@ func UpdateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 // @Description return one transformation rule
 // @Tags plugins/gitlab
 // @Param id path int true "id"
-// @Success 200  {object} models.TransformationRules
+// @Success 200  {object} models.GitlabTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/transformation_rules/{id} [GET]
@@ -99,7 +99,7 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "the transformation rule ID should be an integer")
 	}
-	var rule models.TransformationRules
+	var rule models.GitlabTransformationRule
 	err = BasicRes.GetDal().First(&rule, dal.Where("id = ?", transformationRuleId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get TransformationRule")
@@ -113,12 +113,12 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 // @Tags plugins/gitlab
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []models.TransformationRules
+// @Success 200  {object} []models.GitlabTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/transformation_rules [GET]
 func GetTransformationRuleList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	var rules []models.TransformationRules
+	var rules []models.GitlabTransformationRule
 	limit, offset := helper.GetLimitOffset(input.Query, "pageSize", "page")
 	err := BasicRes.GetDal().All(&rules, dal.Limit(limit), dal.Offset(offset))
 	if err != nil {

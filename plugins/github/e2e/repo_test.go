@@ -43,7 +43,7 @@ func TestRepoDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			Owner:        "panjf2000",
 			Repo:         "ants",
-			TransformationRules: &models.TransformationRules{
+			GithubTransformationRule: &models.GithubTransformationRule{
 				PrType:      "type/(.*)$",
 				PrComponent: "component/(.*)$",
 			},

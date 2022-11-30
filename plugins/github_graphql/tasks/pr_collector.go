@@ -125,7 +125,7 @@ var _ core.SubTaskEntryPoint = CollectPr
 
 func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
-	config := data.Options.TransformationRules
+	config := data.Options.GithubTransformationRule
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
 	var prType = config.PrType

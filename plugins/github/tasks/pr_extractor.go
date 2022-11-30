@@ -65,7 +65,7 @@ type GithubApiPullRequest struct {
 
 func ExtractApiPullRequests(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
-	config := data.Options.TransformationRules
+	config := data.Options.GithubTransformationRule
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
 	var prType = config.PrType

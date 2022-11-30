@@ -88,13 +88,17 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			CreatedDate:  time.Time{},
 		}
 
-		transformationRule := &models.TransformationRules{
+		transformationRule := &models.GithubTransformationRule{
 			Model: common.Model{
 				ID: 1,
 			},
 			Name:    "github transformation rule",
-			PrType:  "hey,man,wasup",
-			Refdiff: json.RawMessage(`{"tagsPattern": "pattern", "tagsLimit": 10, "tagsOrder": "reverse semver"}`),
+			PrType: "hey,man,wasup",
+			Refdiff: map[string]interface{}{
+				"tagsPattern": "pattern",
+				"tagsLimit":   10,
+				"tagsOrder":   "reverse semver",
+			},
 		}
 
 		var scope []core.Scope
@@ -114,8 +118,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					"repo":         "testRepo",
 					"transformationRules": map[string]interface{}{
 						"name":    "github transformation rule",
-						"prType":  "hey,man,wasup",
-						"refdiff": json.RawMessage(`{"tagsPattern": "pattern", "tagsLimit": 10, "tagsOrder": "reverse semver"}`),
+						"prType": "hey,man,wasup",
 					},
 				},
 			},
@@ -134,7 +137,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Plugin:     "refdiff",
 				SkipOnFail: false,
 				Options: map[string]interface{}{
-					"tagsLimit":   float64(10),
+					"tagsLimit":   10,
 					"tagsOrder":   "reverse semver",
 					"tagsPattern": "pattern",
 				},

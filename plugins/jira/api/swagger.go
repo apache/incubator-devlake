@@ -33,7 +33,7 @@ type JiraBlueprintSetting []struct {
 		Plugin       string `json:"plugin"`
 		ConnectionID int    `json:"connectionId"`
 		Scope        []struct {
-			Transformation tasks.TransformationRules `json:"transformation"`
+			Transformation tasks.JiraTransformationRule `json:"transformation"`
 			Options        struct {
 				BoardId uint64 `json:"boardId"`
 				Since   string `json:"since"`
@@ -55,8 +55,8 @@ type JiraPipelinePlan [][]struct {
 	Plugin   string   `json:"plugin"`
 	Subtasks []string `json:"subtasks"`
 	Options  struct {
-		BoardID             int                       `json:"boardId"`
-		ConnectionID        int                       `json:"connectionId"`
-		TransformationRules tasks.TransformationRules `json:"transformationRules"`
+		BoardID             int                          `json:"boardId"`
+		ConnectionID        int                          `json:"connectionId"`
+		TransformationRules tasks.JiraTransformationRule `json:"transformationRules"`
 	} `json:"options"`
 }

@@ -35,7 +35,7 @@ func (githubRepo20221124) TableName() string {
 type addTransformationRule20221124 struct{}
 
 func (*addTransformationRule20221124) Up(basicRes core.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(basicRes, &githubRepo20221124{}, &archived.TransformationRules{})
+	return migrationhelper.AutoMigrateTables(basicRes, &githubRepo20221124{}, &archived.GithubTransformationRule{})
 }
 
 func (*addTransformationRule20221124) Version() uint64 {

@@ -19,7 +19,7 @@ package models
 
 import "github.com/apache/incubator-devlake/models/common"
 
-type TransformationRules struct {
+type GitlabTransformationRule struct {
 	common.Model
 	Name                 string `gorm:"type:varchar(255)"`
 	PrType               string `mapstructure:"prType" json:"prType"`
@@ -34,6 +34,6 @@ type TransformationRules struct {
 	DeploymentPattern    string `mapstructure:"deploymentPattern" json:"deploymentPattern"`
 }
 
-func (t TransformationRules) TableName() string {
+func (t GitlabTransformationRule) TableName() string {
 	return "_tool_gitlab_transformation_rules"
 }

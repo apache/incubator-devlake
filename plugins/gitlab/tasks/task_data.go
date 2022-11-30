@@ -26,12 +26,12 @@ import (
 )
 
 type GitlabOptions struct {
-	ConnectionId                uint64   `json:"connectionId"`
-	ProjectId                   int      `json:"projectId"`
-	TransformationRuleId        uint64   `json:"transformationRuleId"`
-	Tasks                       []string `json:"tasks,omitempty"`
-	Since                       string
-	*models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
+	ConnectionId                     uint64   `json:"connectionId"`
+	ProjectId                        int      `json:"projectId"`
+	TransformationRuleId             uint64   `json:"transformationRuleId"`
+	Tasks                            []string `json:"tasks,omitempty"`
+	Since                            string
+	*models.GitlabTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type GitlabTaskData struct {
@@ -53,8 +53,8 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOption
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("connectionId is invalid")
 	}
-	if op.TransformationRules == nil && op.TransformationRuleId == 0 {
-		op.TransformationRules = new(models.TransformationRules)
+	if op.GitlabTransformationRule == nil && op.TransformationRuleId == 0 {
+		op.GitlabTransformationRule = new(models.GitlabTransformationRule)
 	}
 	return &op, nil
 }

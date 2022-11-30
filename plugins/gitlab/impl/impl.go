@@ -61,7 +61,7 @@ func (plugin Gitlab) Scope() interface{} {
 }
 
 func (plugin Gitlab) TransformationRule() interface{} {
-	return &models.TransformationRules{}
+	return &models.GitlabTransformationRule{}
 }
 
 func (plugin Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
@@ -153,13 +153,13 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	if err != nil {
 		return nil, err
 	}
-	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.TransformationRules
+	if op.GitlabTransformationRule == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.GitlabTransformationRule
 		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
 		}
-		op.TransformationRules = &transformationRule
+		op.GitlabTransformationRule = &transformationRule
 	}
 	return &tasks.GitlabTaskData{
 		Options:   op,

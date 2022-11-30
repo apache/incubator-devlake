@@ -53,7 +53,7 @@ func (plugin Github) Scope() interface{} {
 }
 
 func (plugin Github) TransformationRule() interface{} {
-	return &models.TransformationRules{}
+	return &models.GithubTransformationRule{}
 }
 
 func (plugin Github) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
@@ -167,13 +167,13 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
 		}
 	}
-	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.TransformationRules
+	if op.GithubTransformationRule == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.GithubTransformationRule
 		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
 		}
-		op.TransformationRules = &transformationRule
+		op.GithubTransformationRule = &transformationRule
 	}
 	var repo models.GithubRepo
 	err = taskCtx.GetDal().First(&repo, dal.Where("name = ? AND owner_login = ", op.Repo, op.Owner))

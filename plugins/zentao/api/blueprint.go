@@ -40,7 +40,7 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		//TODO Add transformation rules to task options
 
 		/*
-		   var transformationRules tasks.TransformationRules
+		   var transformationRules tasks.JiraTransformationRule
 		   if len(scopeElem.Transformation) > 0 {
 		       err = json.Unmarshal(scopeElem.Transformation, &transformationRules)
 		       if err != nil {

@@ -129,7 +129,7 @@ type IssuesResponse struct {
 
 func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
-	config := data.Options.TransformationRules
+	config := data.Options.GitlabTransformationRule
 	var issueSeverityRegex *regexp.Regexp
 	var issueComponentRegex *regexp.Regexp
 	var issuePriorityRegex *regexp.Regexp

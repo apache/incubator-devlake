@@ -21,12 +21,12 @@ import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type TransformationRules struct {
+type JenkinsTransformationRule struct {
 	archived.Model
 	Name              string `gorm:"type:varchar(255)"`
 	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern" json:"deploymentPattern"`
 }
 
-func (t TransformationRules) TableName() string {
+func (t JenkinsTransformationRule) TableName() string {
 	return "_tool_jenkins_transformation_rules"
 }

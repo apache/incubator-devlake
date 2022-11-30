@@ -29,7 +29,7 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 	var err errors.Error
 	plan := make(core.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
-		var transformationRules tasks.TransformationRules
+		var transformationRules tasks.JiraTransformationRule
 		if len(scopeElem.Transformation) > 0 {
 			err = errors.Convert(json.Unmarshal(scopeElem.Transformation, &transformationRules))
 			if err != nil {
