@@ -31,7 +31,7 @@ var ExtractApiRepoMeta = core.SubTaskMeta{
 	EntryPoint:  ExtractApiRepositories,
 	Required:    true,
 	Description: "Extract raw Repositories data into tool layer table github_repos",
-	DomainTypes: []string{core.DOMAIN_TYPE_CODE},
+	DomainTypes: []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CICD, core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_CROSS},
 }
 
 type ApiRepoResponse GithubApiRepo
