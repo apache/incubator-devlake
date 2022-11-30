@@ -112,14 +112,14 @@ func makeDataSourcePipelinePlanV200(
 	var repo *tasks.GithubApiRepo
 	scopes := make([]core.Scope, 0)
 	// refdiff
-	if transformationRule != nil && transformationRule.ReffdiffRule != nil {
+	if transformationRule != nil && transformationRule.RefdiffRule != nil {
 		// add a new task to next stage
 		j := i + 1
 		if j == len(plan) {
 			plan = append(plan, nil)
 		}
 		refdiffOp := map[string]interface{}{}
-		err = errors.Convert(json.Unmarshal(transformationRule.ReffdiffRule, &refdiffOp))
+		err = errors.Convert(json.Unmarshal(transformationRule.RefdiffRule, &refdiffOp))
 		if err != nil {
 			return nil, nil, err
 		}

@@ -93,7 +93,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				ID: 1,
 			},
 			PrType: "hey,man,wasup",
-			ReffdiffRule: json.RawMessage(`{
+			RefdiffRule: json.RawMessage(`{
                 "tagsPattern": "pattern",
                 "tagsLimit": 10,
                 "tagsOrder": "reverse semver"
@@ -117,6 +117,11 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					"repo":         "testRepo",
 					"transformationRules": map[string]interface{}{
 						"prType": "hey,man,wasup",
+						"refdiff": json.RawMessage(`{
+                "tagsPattern": "pattern",
+                "tagsLimit": 10,
+                "tagsOrder": "reverse semver"
+              }`),
 					},
 				},
 			},
