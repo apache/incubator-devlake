@@ -29,35 +29,46 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+type req struct {
+	Data []*models.JenkinsJob `json:"data"`
+}
+
 // PutScope create or update jenkins job
 // @Summary create or update jenkins job
 // @Description Create or update jenkins job
 // @Tags plugins/jenkins
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param fullName path string false "job's full name"
-// @Param scope body models.JenkinsJob true "json"
-// @Success 200  {object} models.JenkinsJob
+// @Param scope body req true "json"
+// @Success 200  {object} []models.JenkinsJob
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jenkins/connections/{connectionId}/scopes/{fullName} [PUT]
+// @Router /plugins/jenkins/connections/{connectionId}/scopes [PUT]
 func PutScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	connectionId, fullName, err := extractParam(input.Params)
-	if err != nil {
-		return nil, err
+	connectionId, _ := strconv.ParseUint(input.Params["connectionId"], 10, 64)
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("invalid connectionId")
 	}
-	var job models.JenkinsJob
-	job.ConnectionId = connectionId
-	job.FullName = fullName
-	err = errors.Convert(mapstructure.Decode(input.Body, &job))
+	var jobs req
+	err := errors.Convert(mapstructure.Decode(input.Body, &jobs))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding Jenkins job error")
 	}
-	err = BasicRes.GetDal().CreateOrUpdate(&job)
+	keeper := make(map[string]struct{})
+	for _, job := range jobs.Data {
+		if _, ok := keeper[job.FullName]; ok {
+			return nil, errors.BadInput.New("duplicated item")
+		} else {
+			keeper[job.FullName] = struct{}{}
+		}
+		job.ConnectionId = connectionId
+
+	}
+	err = BasicRes.GetDal().CreateOrUpdate(jobs.Data)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving JenkinsJob")
 	}
-	return &core.ApiResourceOutput{Body: job, Status: http.StatusOK}, nil
+	return &core.ApiResourceOutput{Body: jobs.Data, Status: http.StatusOK}, nil
 }
 
 // UpdateScope patch to jenkins job

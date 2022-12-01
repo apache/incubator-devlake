@@ -20,6 +20,7 @@ package api
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -29,37 +30,52 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+type req struct {
+	Data []*models.GitlabProject `json:"data"`
+}
+
 // PutScope create or update gitlab project
 // @Summary create or update gitlab project
 // @Description Create or update gitlab project
 // @Tags plugins/gitlab
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param projectId path int false "project ID"
-// @Param scope body models.GitlabProject true "json"
-// @Success 200  {object} models.GitlabProject
+// @Param scope body req true "json"
+// @Success 200  {object} []models.GitlabProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/gitlab/connections/{connectionId}/scopes/{projectId} [PUT]
+// @Router /plugins/gitlab/connections/{connectionId}/scopes [PUT]
 func PutScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	connectionId, projectId := extractParam(input.Params)
-	if connectionId*projectId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId or projectId")
+	connectionId, _ := extractParam(input.Params)
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("invalid connectionId")
 	}
-	var project models.GitlabProject
-	err := errors.Convert(mapstructure.Decode(input.Body, &project))
+	var projects req
+	err := errors.Convert(mapstructure.Decode(input.Body, &projects))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding Gitlab project error")
 	}
-	err = verifyProject(&project)
-	if err != nil {
-		return nil, err
+	keeper := make(map[int]struct{})
+	now := time.Now()
+	for _, project := range projects.Data {
+		if _, ok := keeper[project.GitlabId]; ok {
+			return nil, errors.BadInput.New("duplicated item")
+		} else {
+			keeper[project.GitlabId] = struct{}{}
+		}
+		project.ConnectionId = connectionId
+		project.CreatedDate = now
+		project.UpdatedDate = &now
+		err = verifyProject(project)
+		if err != nil {
+			return nil, err
+		}
 	}
-	err = BasicRes.GetDal().CreateOrUpdate(project)
+	err = BasicRes.GetDal().CreateOrUpdate(projects.Data)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving GitlabProject")
 	}
-	return &core.ApiResourceOutput{Body: project, Status: http.StatusOK}, nil
+	return &core.ApiResourceOutput{Body: projects.Data, Status: http.StatusOK}, nil
 }
 
 // UpdateScope patch to gitlab project

@@ -251,11 +251,11 @@ func (plugin Jira) ApiResources() map[string]map[string]core.ApiResourceHandler 
 		},
 		"connections/:connectionId/scopes/:boardId": {
 			"GET":   api.GetScope,
-			"PUT":   api.PutScope,
 			"PATCH": api.UpdateScope,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
 		},
 		"transformation_rules": {
 			"POST": api.CreateTransformationRule,

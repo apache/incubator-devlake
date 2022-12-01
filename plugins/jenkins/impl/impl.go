@@ -170,11 +170,11 @@ func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandl
 		},
 		"connections/:connectionId/scopes/:fullName": {
 			"GET":   api.GetScope,
-			"PUT":   api.PutScope,
 			"PATCH": api.UpdateScope,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
 		},
 		"transformation_rules": {
 			"POST": api.CreateTransformationRule,
