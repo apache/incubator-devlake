@@ -131,13 +131,13 @@ func makeDataSourcePipelinePlanV200(
 	}
 
 	// construct task options for github
-	var options map[string]interface{}
-	err = errors.Convert(mapstructure.Decode(githubRepo, &options))
-	if err != nil {
-		return nil, nil, err
+	op := &tasks.GithubOptions{
+		ConnectionId:         githubRepo.ConnectionId,
+		TransformationRuleId: githubRepo.TransformationRuleId,
+		Owner:                githubRepo.OwnerLogin,
+		Repo:                 githubRepo.Name,
 	}
-	// make sure task options is valid
-	op, err := tasks.DecodeAndValidateTaskOptions(options)
+	options, err := tasks.ValidateAndEncodeTaskOptions(op)
 	if err != nil {
 		return nil, nil, err
 	}
