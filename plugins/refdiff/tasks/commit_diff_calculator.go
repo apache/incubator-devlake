@@ -43,34 +43,22 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	// get all data from finish_commits_diffs
 	commitPairsSrc := data.Options.AllPairs
 	var commitPairs RefCommitPairs
-	var existFinishedCommitDiff []code.FinishedCommitsDiff
-	err := db.All(&existFinishedCommitDiff,
-		dal.Select("*"),
-		dal.From("finished_commits_diffs"),
-	)
-	if err != nil {
-		return err
-	}
-
 	refCommit := &code.RefCommit{}
 	for _, pair := range commitPairsSrc {
 		newRefId := fmt.Sprintf("%s:%s", repoId, pair[2])
 		oldRefId := fmt.Sprintf("%s:%s", repoId, pair[3])
-		isAppend := true
-		isRefAppend := true
-		for _, item := range existFinishedCommitDiff {
-			if pair[0] == item.NewCommitSha && pair[1] == item.OldCommitSha {
-				isAppend = false
-				if pair[2] == newRefId && pair[3] == oldRefId {
-					isRefAppend = false
-				}
-				break
-			}
+
+		count, err := db.Count(
+			dal.Select("*"),
+			dal.From("finished_commits_diffs"),
+			dal.Where("new_commit_sha = ? and old_commit_sha = ?", pair[0], pair[1]))
+		if err != nil {
+			return err
 		}
-		if isAppend {
+		if count == 0 {
 			commitPairs = append(commitPairs, pair)
 		}
-		if isRefAppend {
+		if pair[2] != newRefId || pair[3] != oldRefId {
 			refCommit.NewCommitSha = pair[0]
 			refCommit.OldCommitSha = pair[1]
 			refCommit.NewRefId = newRefId
