@@ -18,6 +18,8 @@ limitations under the License.
 package services
 
 import (
+	"fmt"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -70,9 +72,9 @@ func GetProject(name string) (*models.Project, errors.Error) {
 	return project, nil
 }
 
-// GetProjectMetrics returns a ProjectMetric
-func GetProjectMetrics(projectName string, pluginName string) (*models.ProjectMetric, errors.Error) {
-	projectMetric, err := GetDbProjectMetrics(projectName, pluginName)
+// GetProjectMetric returns a ProjectMetric
+func GetProjectMetric(projectName string, pluginName string) (*models.ProjectMetric, errors.Error) {
+	projectMetric, err := GetDbProjectMetric(projectName, pluginName)
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
@@ -83,6 +85,73 @@ func GetProjectMetrics(projectName string, pluginName string) (*models.ProjectMe
 	}*/
 
 	return projectMetric, nil
+}
+
+// FlushProjectMetrics remove all Project metrics by project name and create new metrics by baseMetrics
+func FlushProjectMetrics(projectName string, baseMetrics *[]models.BaseMetric) errors.Error {
+	err := removeAllDbProjectMetricsByProjectName(projectName)
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("error to removeAllDbProjectMetricsByProjectName for %s", projectName))
+	}
+
+	for _, baseMetric := range *baseMetrics {
+		err = CreateProjectMetric(&models.ProjectMetric{
+			BaseProjectMetric: models.BaseProjectMetric{
+				ProjectName: projectName,
+				BaseMetric:  baseMetric,
+			},
+		})
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("failed to  CreateProjectMetric for [%s][%s]", projectName, baseMetric.PluginName))
+		}
+	}
+
+	return nil
+}
+
+// LoadBluePrintAndMetrics load the blueprint and ProjectMetrics for projectOutputv
+func LoadBluePrintAndMetrics(projectOutput *models.ApiOutputProject) errors.Error {
+	var err errors.Error
+
+	// load Metrics
+	projectMetrics, count, err := GetProjectMetrics(projectOutput.Name)
+	if err != nil {
+		return errors.Default.Wrap(err, "Failed to get project metrics by project")
+	}
+	if count == 0 {
+		projectOutput.Metrics = nil
+	} else {
+		baseMetric := make([]models.BaseMetric, len(*projectMetrics))
+		for i, projectMetric := range *projectMetrics {
+			baseMetric[i] = projectMetric.BaseMetric
+		}
+		projectOutput.Metrics = &baseMetric
+	}
+
+	// load blueprint
+	projectOutput.Blueprint, err = GetBlueprintByProjectName(projectOutput.Name)
+	if err != nil {
+		return errors.Default.Wrap(err, "Error to get blueprint by project")
+	}
+
+	return nil
+}
+
+// GetProjectMetrics returns all ProjectMetric of the project
+func GetProjectMetrics(projectName string) (*[]models.ProjectMetric, int64, errors.Error) {
+	projectMetrics, count, err := GetDbProjectMetrics(projectName)
+	if err != nil {
+		return nil, 0, errors.Convert(err)
+	}
+
+	/*for i, projectMetric := range projectMetrics {
+		projectMetrics[i], err = decryptProjectMetric(projectMetric)
+		if err != nil {
+			return nil, 0, err
+		}
+	}*/
+
+	return projectMetrics, count, nil
 }
 
 // GetProjects returns a paginated list of Projects based on `query`
@@ -103,17 +172,22 @@ func GetProjects(query *ProjectQuery) ([]*models.Project, int64, errors.Error) {
 }
 
 // PatchProject FIXME ...
-func PatchProject(name string, body map[string]interface{}) (*models.Project, errors.Error) {
+func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputProject, errors.Error) {
+	projectInput := &models.ApiInputProject{}
+	projectOutput := &models.ApiOutputProject{}
+
 	// load record from db
 	project, err := GetProject(name)
 	if err != nil {
 		return nil, err
 	}
 
-	err = helper.DecodeMapStruct(body, project)
+	err = helper.DecodeMapStruct(body, projectInput)
 	if err != nil {
 		return nil, err
 	}
+	projectInput.Name = name
+	project.BaseProject = projectInput.BaseProject
 
 	/*enProject, err := encryptProject(project)
 	if err != nil {
@@ -126,14 +200,36 @@ func PatchProject(name string, body map[string]interface{}) (*models.Project, er
 		return nil, errors.Internal.Wrap(err, "error saving project")
 	}
 
+	// check if need to changed the blueprint setting
+	if projectInput.Enable != nil {
+		_, err = PatchBlueprintEnableByProjectName(projectInput.Name, *projectInput.Enable)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "Failed to set if project enable")
+		}
+	}
+
+	// check if need flush the Metrics
+	if projectInput.Metrics != nil {
+		err = FlushProjectMetrics(projectInput.Name, projectInput.Metrics)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "Failed to flush project metrics")
+		}
+	}
+
+	projectOutput.BaseProject = projectInput.BaseProject
+	err = LoadBluePrintAndMetrics(projectOutput)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("Failed to LoadBluePrintAndMetrics on PatchProject for %s", projectOutput.Name))
+	}
+
 	// done
-	return project, nil
+	return projectOutput, nil
 }
 
 // PatchProjectMetric FIXME ...
 func PatchProjectMetric(projectName string, pluginName string, body map[string]interface{}) (*models.ProjectMetric, errors.Error) {
 	// load record from db
-	projectMetric, err := GetDbProjectMetrics(projectName, pluginName)
+	projectMetric, err := GetDbProjectMetric(projectName, pluginName)
 	if err != nil {
 		return nil, err
 	}

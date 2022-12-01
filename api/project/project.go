@@ -18,6 +18,7 @@ limitations under the License.
 package project
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/apache/incubator-devlake/api/shared"
@@ -36,12 +37,13 @@ type PaginatedProjects struct {
 // @Description Create and run a new project
 // @Tags framework/projects
 // @Accept application/json
-// @Param project body models.Project true "json"
-// @Success 200  {object} models.Project
+// @Param projectName path string true "project name"
+// @Success 200  {object} models.ApiOutputProject
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /projects/:projectName [get]
 func GetProject(c *gin.Context) {
+	projectOutput := &models.ApiOutputProject{}
 	projectName := c.Param("projectName")
 
 	project, err := services.GetProject(projectName)
@@ -50,7 +52,14 @@ func GetProject(c *gin.Context) {
 		return
 	}
 
-	shared.ApiOutputSuccess(c, project, http.StatusOK)
+	projectOutput.BaseProject = project.BaseProject
+	err = services.LoadBluePrintAndMetrics(projectOutput)
+	if err != nil {
+		shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("Failed to LoadBluePrintAndMetrics on GetProject for %s", projectOutput.Name)))
+		return
+	}
+
+	shared.ApiOutputSuccess(c, projectOutput, http.StatusOK)
 }
 
 // @Summary Get list of projects
@@ -84,35 +93,62 @@ func GetProjects(c *gin.Context) {
 // @Description Create a new project
 // @Tags framework/projects
 // @Accept application/json
-// @Param project body models.Project true "json"
-// @Success 200  {object} models.Project
+// @Param project body models.ApiInputProject true "json"
+// @Success 200  {object} models.ApiOutputProject
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /projects [post]
 func PostProject(c *gin.Context) {
-	project := &models.Project{}
+	projectInput := &models.ApiInputProject{}
+	projectOutput := &models.ApiOutputProject{}
 
-	err := c.ShouldBind(project)
+	err := c.ShouldBind(projectInput)
 	if err != nil {
 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, shared.BadRequestBody))
 		return
 	}
 
-	err = services.CreateProject(project)
+	err = services.CreateProject(&models.Project{BaseProject: projectInput.BaseProject})
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating project"))
 		return
 	}
 
-	shared.ApiOutputSuccess(c, project, http.StatusCreated)
+	// check if need to changed the blueprint setting
+	if projectInput.Enable != nil {
+		_, err = services.PatchBlueprintEnableByProjectName(projectInput.Name, *projectInput.Enable)
+		if err != nil {
+			shared.ApiOutputError(c, errors.BadInput.Wrap(err, "Failed to set if project enable"))
+			return
+		}
+	}
+
+	// check if need flush the Metrics
+	if projectInput.Metrics != nil {
+		err = services.FlushProjectMetrics(projectInput.Name, projectInput.Metrics)
+		if err != nil {
+			shared.ApiOutputError(c, errors.BadInput.Wrap(err, "Failed to flush project metrics"))
+			return
+		}
+
+	}
+
+	projectOutput.BaseProject = projectInput.BaseProject
+	err = services.LoadBluePrintAndMetrics(projectOutput)
+	if err != nil {
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, fmt.Sprintf("Failed to LoadBluePrintAndMetrics on PostProject for %s", projectOutput.Name)))
+		return
+	}
+
+	shared.ApiOutputSuccess(c, projectOutput, http.StatusCreated)
 }
 
 // @Summary Patch a project
 // @Description Patch a project
 // @Tags framework/projects
 // @Accept application/json
-// @Param project body models.Project true "json"
-// @Success 200  {object} models.Project
+// @Param project body models.ApiInputProject true "json"
+// @Success 200  {object} models.ApiOutputProject
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /projects/:projectName [patch]
@@ -126,13 +162,13 @@ func PatchProject(c *gin.Context) {
 		return
 	}
 
-	project, err := services.PatchProject(projectName, body)
+	projectOutput, err := services.PatchProject(projectName, body)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error patch project"))
 		return
 	}
 
-	shared.ApiOutputSuccess(c, project, http.StatusCreated)
+	shared.ApiOutputSuccess(c, projectOutput, http.StatusCreated)
 }
 
 // @Cancel a project
@@ -148,9 +184,9 @@ func PatchProject(c *gin.Context) {
 // @Summary Get a ProjectMetrics
 // @Description Get a ProjectMetrics
 // @Tags framework/ProjectMetrics
-// @Param page query int true "query"
-// @Param pagesize query int true "query"
-// @Success 200  {object} models.ProjectMetric
+// @Param projectName path string true "project name"
+// @Param pluginName path string true "plugin name"
+// @Success 200  {object} models.BaseProjectMetric
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
 // @Router /projects/:projectName/metrics/:pluginName [get]
@@ -158,26 +194,26 @@ func GetProjectMetrics(c *gin.Context) {
 	projectName := c.Param("projectName")
 	pluginName := c.Param("pluginName")
 
-	projectMetric, err := services.GetProjectMetrics(projectName, pluginName)
+	projectMetric, err := services.GetProjectMetric(projectName, pluginName)
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting project metric"))
 		return
 	}
 
-	shared.ApiOutputSuccess(c, projectMetric, http.StatusOK)
+	shared.ApiOutputSuccess(c, projectMetric.BaseProjectMetric, http.StatusOK)
 }
 
 // @Summary Create a new ProjectMetrics
 // @Description Create  a new ProjectMetrics
 // @Tags framework/ProjectMetrics
 // @Accept application/json
-// @Param project body models.Project true "json"
-// @Success 200  {object} models.ProjectMetric
+// @Param project body models.BaseProjectMetric true "json"
+// @Success 200  {object} models.BaseProjectMetric
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /projects/:projectName/metrics [post]
 func PostProjectMetrics(c *gin.Context) {
-	projectMetric := &models.ProjectMetric{}
+	projectMetric := &models.BaseProjectMetric{}
 
 	projectName := c.Param("projectName")
 
@@ -194,7 +230,7 @@ func PostProjectMetrics(c *gin.Context) {
 	}
 
 	projectMetric.ProjectName = projectName
-	err = services.CreateProjectMetric(projectMetric)
+	err = services.CreateProjectMetric(&models.ProjectMetric{BaseProjectMetric: *projectMetric})
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating project"))
 		return
@@ -207,8 +243,8 @@ func PostProjectMetrics(c *gin.Context) {
 // @Description Patch a ProjectMetrics
 // @Tags framework/ProjectMetrics
 // @Accept application/json
-// @Param ProjectMetrics body models.ProjectMetric true "json"
-// @Success 200  {object} models.ProjectMetric
+// @Param ProjectMetrics body models.BaseProjectMetric true "json"
+// @Success 200  {object} models.BaseProjectMetric
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internal Error"
 // @Router /projects/:projectName/metrics/:pluginName  [patch]
@@ -229,7 +265,7 @@ func PatchProjectMetrics(c *gin.Context) {
 		return
 	}
 
-	shared.ApiOutputSuccess(c, projectMetric, http.StatusCreated)
+	shared.ApiOutputSuccess(c, projectMetric.BaseProjectMetric, http.StatusCreated)
 }
 
 // @delete a ProjectMetrics

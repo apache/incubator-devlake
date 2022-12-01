@@ -96,7 +96,25 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
 		if goerror.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NotFound.New("blueprint not found")
 		}
-		return nil, errors.Internal.Wrap(err, "error getting the task from database")
+		return nil, errors.Internal.Wrap(err, "error getting the blueprint from database")
+	}
+	dbBlueprint, err = decryptDbBlueprint(dbBlueprint)
+	if err != nil {
+		return nil, err
+	}
+	blueprint := parseBlueprint(dbBlueprint)
+	return blueprint, nil
+}
+
+// GetBlueprintByProjectName returns the detail of a given ProjectName
+func GetBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Error) {
+	dbBlueprint, err := GetDbBlueprintByProjectName(projectName)
+	if err != nil {
+		// Allow specific projectName to fail to find the corresponding blueprint
+		if goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, errors.Internal.Wrap(err, fmt.Sprintf("error getting the blueprint from database with project %s", projectName))
 	}
 	dbBlueprint, err = decryptDbBlueprint(dbBlueprint)
 	if err != nil {
@@ -156,25 +174,9 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 	return nil
 }
 
-// PatchBlueprint FIXME ...
-func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, errors.Error) {
-	// load record from db
-	blueprint, err := GetBlueprint(id)
-	if err != nil {
-		return nil, err
-	}
-
-	originMode := blueprint.Mode
-	err = helper.DecodeMapStruct(body, blueprint)
-	if err != nil {
-		return nil, err
-	}
-	// make sure mode is not being update
-	if originMode != blueprint.Mode {
-		return nil, errors.Default.New("mode is not updatable")
-	}
+func saveBlueprint(blueprint *models.Blueprint) (*models.Blueprint, errors.Error) {
 	// validation
-	err = validateBlueprintAndMakePlan(blueprint)
+	err := validateBlueprintAndMakePlan(blueprint)
 	if err != nil {
 		return nil, errors.BadInput.WrapRaw(err)
 	}
@@ -196,6 +198,53 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 		return nil, errors.Internal.Wrap(err, "error reloading blueprints")
 	}
 	// done
+	return blueprint, nil
+}
+
+// PatchBlueprintEnableByProjectName FIXME ...
+func PatchBlueprintEnableByProjectName(projectName string, enable bool) (*models.Blueprint, errors.Error) {
+	blueprint, err := GetBlueprintByProjectName(projectName)
+	if err != nil {
+		return nil, err
+	}
+
+	if blueprint == nil {
+		return nil, errors.Default.New(fmt.Sprintf("do not surpport to set enable for projectName:[%s] ,because it has no blueprint.", projectName))
+	}
+
+	blueprint.Enable = enable
+
+	blueprint, err = saveBlueprint(blueprint)
+	if err != nil {
+		return nil, err
+	}
+
+	return blueprint, nil
+}
+
+// PatchBlueprint FIXME ...
+func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, errors.Error) {
+	// load record from db
+	blueprint, err := GetBlueprint(id)
+	if err != nil {
+		return nil, err
+	}
+
+	originMode := blueprint.Mode
+	err = helper.DecodeMapStruct(body, blueprint)
+	if err != nil {
+		return nil, err
+	}
+	// make sure mode is not being update
+	if originMode != blueprint.Mode {
+		return nil, errors.Default.New("mode is not updatable")
+	}
+
+	blueprint, err = saveBlueprint(blueprint)
+	if err != nil {
+		return nil, err
+	}
+
 	return blueprint, nil
 }
 
