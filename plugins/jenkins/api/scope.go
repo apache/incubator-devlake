@@ -53,7 +53,7 @@ func PutScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding Jenkins job error")
 	}
-	err = BasicRes.GetDal().CreateOrUpdate(job)
+	err = BasicRes.GetDal().CreateOrUpdate(&job)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving JenkinsJob")
 	}
@@ -80,7 +80,7 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 	var job models.JenkinsJob
 	job.ConnectionId = connectionId
 	job.FullName = fullName
-	err = BasicRes.GetDal().First(&job, dal.Where("connection_id = ? AND job_name = ?", connectionId, fullName))
+	err = BasicRes.GetDal().First(&job, dal.Where("connection_id = ? AND full_name = ?", connectionId, fullName))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "getting JenkinsJob error")
 	}
@@ -88,7 +88,7 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "patch jenkins job error")
 	}
-	err = BasicRes.GetDal().Update(job)
+	err = BasicRes.GetDal().Update(&job)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving JenkinsJob")
 	}
