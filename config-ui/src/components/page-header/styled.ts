@@ -16,7 +16,39 @@
  *
  */
 
-export * from './loading'
-export * from './divider'
-export * from './page-header'
+import styled from '@emotion/styled'
 
+export const Container = styled.div``
+
+export const Title = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+`
+
+export const Content = styled.div``
+
+export const Breadcrumbs = styled.ul`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+`
+
+export const Breadcrumb = styled.li`
+  font-size: 20px;
+  font-weight: 600;
+
+  a {
+    display: flex;
+    align-items: center;
+    color: #292b3f;
+
+    .bp3-icon {
+      margin: 0 10px;
+    }
+  }
+`
+export const Extra = styled.div``
