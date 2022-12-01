@@ -47,8 +47,6 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 	for _, pair := range commitPairsSrc {
 		newRefId := fmt.Sprintf("%s:%s", repoId, pair[2])
 		oldRefId := fmt.Sprintf("%s:%s", repoId, pair[3])
-		isAppend := true
-		isRefAppend := true
 
 		count, err := db.Count(
 			dal.Select("*"),
@@ -57,17 +55,10 @@ func CalculateCommitsDiff(taskCtx core.SubTaskContext) errors.Error {
 		if err != nil {
 			return err
 		}
-		if count > 0 {
-			isAppend = false
-		}
-		if pair[2] == newRefId && pair[3] == oldRefId {
-			isRefAppend = false
-		}
-
-		if isAppend {
+		if count == 0 {
 			commitPairs = append(commitPairs, pair)
 		}
-		if isRefAppend {
+		if pair[2] != newRefId || pair[3] != oldRefId {
 			refCommit.NewCommitSha = pair[0]
 			refCommit.OldCommitSha = pair[1]
 			refCommit.NewRefId = newRefId
