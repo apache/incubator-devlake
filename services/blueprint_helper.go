@@ -19,6 +19,8 @@ package services
 
 import (
 	goerror "errors"
+	"fmt"
+
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
@@ -111,7 +113,24 @@ func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, errors.Error) {
 	}
 	err = db.Find(&dbBlueprint.Labels, "blueprint_id = ?", dbBlueprint.ID).Error
 	if err != nil {
-		return nil, errors.Internal.Wrap(err, "error getting the blueprint from database")
+		return nil, errors.Internal.Wrap(err, "error getting the blueprint labels from database")
+	}
+	return dbBlueprint, nil
+}
+
+// GetDbBlueprint returns the detail of a given projectName
+func GetDbBlueprintByProjectName(projectName string) (*models.DbBlueprint, errors.Error) {
+	dbBlueprint := &models.DbBlueprint{}
+	err := db.Where("project_name = ?", projectName).First(dbBlueprint).Error
+	if err != nil {
+		if goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.NotFound.Wrap(err, fmt.Sprintf("could not find blueprint in DB by projectName %s", projectName))
+		}
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprint from DB by projectName %s", projectName))
+	}
+	err = db.Find(&dbBlueprint.Labels, "blueprint_id = ?", dbBlueprint.ID).Error
+	if err != nil {
+		return nil, errors.Internal.Wrap(err, "error getting the blueprint labels from database")
 	}
 	return dbBlueprint, nil
 }

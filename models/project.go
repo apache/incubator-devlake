@@ -19,10 +19,13 @@ package models
 
 import "github.com/apache/incubator-devlake/models/common"
 
-type Project struct {
+type BaseProject struct {
 	Name        string `gorm:"primaryKey;type:varchar(255)"`
 	Description string `gorm:"type:text"`
+}
 
+type Project struct {
+	BaseProject
 	common.NoPKModel
 }
 
@@ -30,15 +33,34 @@ func (Project) TableName() string {
 	return "projects"
 }
 
-type ProjectMetric struct {
-	ProjectName  string `gorm:"primaryKey;type:varchar(255)"`
+type BaseMetric struct {
 	PluginName   string `gorm:"primaryKey;type:varchar(255)"`
 	PluginOption string `gorm:"type:text"`
 	Enable       bool   `gorm:"type:boolean"`
+}
 
+type BaseProjectMetric struct {
+	ProjectName string `gorm:"primaryKey;type:varchar(255)"`
+	BaseMetric
+}
+
+type ProjectMetric struct {
+	BaseProjectMetric
 	common.NoPKModel
 }
 
 func (ProjectMetric) TableName() string {
 	return "project_metrics"
+}
+
+type ApiInputProject struct {
+	BaseProject
+	Enable  *bool
+	Metrics *[]BaseMetric
+}
+
+type ApiOutputProject struct {
+	BaseProject
+	Metrics   *[]BaseMetric
+	Blueprint *Blueprint
 }

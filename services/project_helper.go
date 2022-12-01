@@ -98,8 +98,8 @@ func GetDbProject(name string) (*models.Project, errors.Error) {
 	return project, nil
 }
 
-// GetDbProjectMetrics returns the detail of a given project name
-func GetDbProjectMetrics(projectName string, pluginName string) (*models.ProjectMetric, errors.Error) {
+// GetDbProjectMetric returns the detail of a given project name
+func GetDbProjectMetric(projectName string, pluginName string) (*models.ProjectMetric, errors.Error) {
 	projectMetric := &models.ProjectMetric{}
 	projectMetric.ProjectName = projectName
 	projectMetric.PluginName = pluginName
@@ -113,6 +113,37 @@ func GetDbProjectMetrics(projectName string, pluginName string) (*models.Project
 	}
 
 	return projectMetric, nil
+}
+
+// GetDbProjectMetrics returns all of Metrics of a given project name
+func GetDbProjectMetrics(projectName string) (*[]models.ProjectMetric, int64, errors.Error) {
+	projectMetrics := make([]models.ProjectMetric, 0)
+	db := db.Table(models.ProjectMetric{}.TableName()).Where("project_name = ?", projectName)
+
+	var count int64
+	err := db.Count(&count).Error
+	if err != nil {
+		return nil, 0, errors.Default.Wrap(err, fmt.Sprintf("could not get project metric count for projectName [%s] in DB", projectName))
+	}
+
+	if count == 0 {
+		return nil, 0, nil
+	}
+
+	err = db.Find(&projectMetrics).Error
+	if err != nil {
+		return nil, 0, errors.Default.Wrap(err, fmt.Sprintf("could not find project metric for projectName [%s] in DB", projectName))
+	}
+
+	return &projectMetrics, count, nil
+}
+
+func removeAllDbProjectMetricsByProjectName(projectName string) errors.Error {
+	err := db.Delete(&models.ProjectMetric{}, "project_name = ?", projectName).Error
+	if err != nil {
+		return errors.Default.Wrap(err, "error deleting ProjectMetrics from DB")
+	}
+	return nil
 }
 
 // encryptProject
