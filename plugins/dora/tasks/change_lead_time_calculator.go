@@ -107,7 +107,7 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 				} else {
 					codingTime = codingTime / 60
 				}
-				projectPrMetric.CodingTimespan = processNegativeValue(codingTime)
+				projectPrMetric.PrCodingTime = processNegativeValue(codingTime)
 				projectPrMetric.FirstCommitSha = firstCommit.Sha
 			}
 			firstReview, err := getFirstReview(pr.Id, pr.AuthorId, db)
@@ -115,8 +115,8 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			if firstReview != nil {
-				projectPrMetric.ReviewLag = processNegativeValue(int64(firstReview.CreatedDate.Sub(pr.CreatedDate).Minutes()))
-				projectPrMetric.ReviewTimespan = processNegativeValue(int64(pr.MergedDate.Sub(firstReview.CreatedDate).Minutes()))
+				projectPrMetric.PrPickupTime = processNegativeValue(int64(firstReview.CreatedDate.Sub(pr.CreatedDate).Minutes()))
+				projectPrMetric.PrReviewTime = processNegativeValue(int64(pr.MergedDate.Sub(firstReview.CreatedDate).Minutes()))
 				projectPrMetric.FirstReviewId = firstReview.ReviewId
 			}
 			deployment, err := getDeployment(pr.MergeCommitSha, pr.BaseRepoId, deploymentDiffPairs, db)
@@ -125,27 +125,27 @@ func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
 			}
 			if deployment != nil && deployment.TaskFinishedDate != nil {
 				timespan := deployment.TaskFinishedDate.Sub(*pr.MergedDate)
-				projectPrMetric.DeployTimespan = processNegativeValue(int64(timespan.Minutes()))
+				projectPrMetric.PrDeployTime = processNegativeValue(int64(timespan.Minutes()))
 				projectPrMetric.DeploymentId = deployment.TaskId
 			} else {
 				log.Debug("deploy time of pr %v is nil\n", pr.PullRequestKey)
 			}
-			projectPrMetric.ChangeTimespan = nil
+			projectPrMetric.PrCycleTime = nil
 			var result int64
-			if projectPrMetric.CodingTimespan != nil {
-				result += *projectPrMetric.CodingTimespan
+			if projectPrMetric.PrCodingTime != nil {
+				result += *projectPrMetric.PrCodingTime
 			}
-			if projectPrMetric.ReviewLag != nil {
-				result += *projectPrMetric.ReviewLag
+			if projectPrMetric.PrPickupTime != nil {
+				result += *projectPrMetric.PrPickupTime
 			}
-			if projectPrMetric.ReviewTimespan != nil {
-				result += *projectPrMetric.ReviewTimespan
+			if projectPrMetric.PrReviewTime != nil {
+				result += *projectPrMetric.PrReviewTime
 			}
-			if projectPrMetric.DeployTimespan != nil {
-				result += *projectPrMetric.DeployTimespan
+			if projectPrMetric.PrDeployTime != nil {
+				result += *projectPrMetric.PrDeployTime
 			}
 			if result > 0 {
-				projectPrMetric.ChangeTimespan = &result
+				projectPrMetric.PrCycleTime = &result
 			}
 			return []interface{}{projectPrMetric}, nil
 		},
