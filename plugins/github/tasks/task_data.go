@@ -51,6 +51,9 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOption
 		return nil, err
 	}
 	err = ValidateTaskOptions(&op)
+	if err != nil {
+		return nil, err
+	}
 	return &op, nil
 }
 
@@ -61,6 +64,9 @@ func ValidateAndEncodeTaskOptions(op *GithubOptions) (map[string]interface{}, er
 	}
 	var result map[string]interface{}
 	err = helper.Decode(op, &result, nil)
+	if err != nil {
+		return nil, err
+	}
 	return result, nil
 }
 
