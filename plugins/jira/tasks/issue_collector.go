@@ -21,25 +21,19 @@ import (
 	"encoding/json"
 	goerror "errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
+	"gorm.io/gorm"
 	"io"
 	"net/http"
 	"net/url"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
-	"gorm.io/gorm"
 )
 
 const RAW_ISSUE_TABLE = "jira_api_issues"
-
-// this struct should be moved to `jira_api_common.go`
-type JiraApiParams struct {
-	ConnectionId uint64
-	BoardId      uint64
-}
 
 var _ core.SubTaskEntryPoint = CollectIssues
 
@@ -55,10 +49,38 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
 
-	since := data.Since
-	incremental := false
-	// user didn't specify a time range to sync, try load from database
-	if since == nil {
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		/*
+			This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
+			set of data to be process, for example, we process JiraIssues by Board
+		*/
+		Params: JiraApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			BoardId:      data.Options.BoardId,
+		},
+		/*
+			Table store raw data
+		*/
+		Table: RAW_ISSUE_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
+
+	// build jql
+	// IMPORTANT: we have to keep paginated data in a consistence order to avoid data-missing, if we sort issues by
+	//  `updated`, issue will be jumping between pages if it got updated during the collection process
+	createdDateAfter := data.CreatedDateAfter
+	jql := "ORDER BY created ASC"
+	if createdDateAfter != nil {
+		// prepend a time range criteria if `since` was specified, either by user or from database
+		jql = fmt.Sprintf("created >= '%v' %v", createdDateAfter.Format("2006/01/02 15:04"), jql)
+	}
+
+	incremental := collectorWithState.CanIncrementCollect()
+	if incremental {
+		// user didn't specify a time range to sync, try load from database
 		var latestUpdated models.JiraIssue
 		clauses := []dal.Clause{
 			dal.Select("_tool_jira_issues.*"),
@@ -72,35 +94,13 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 			return errors.NotFound.Wrap(err, "failed to get latest jira issue record")
 		}
 		if latestUpdated.IssueId > 0 {
-			since = &latestUpdated.Updated
-			incremental = true
+			jql = fmt.Sprintf("updated >= '%v' %v", latestUpdated.Updated.Format("2006/01/02 15:04"), jql)
+		} else {
+			incremental = false
 		}
 	}
-	// build jql
-	// IMPORTANT: we have to keep paginated data in a consistence order to avoid data-missing, if we sort issues by
-	//  `updated`, issue will be jumping between pages if it got updated during the collection process
-	jql := "ORDER BY created ASC"
-	if since != nil {
-		// prepend a time range criteria if `since` was specified, either by user or from database
-		jql = fmt.Sprintf("updated >= '%v' %v", since.Format("2006/01/02 15:04"), jql)
-	}
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
-			Params: JiraApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
-			},
-			/*
-				Table store raw data
-			*/
-			Table: RAW_ISSUE_TABLE,
-		},
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
@@ -159,10 +159,9 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 			return data.Issues, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }

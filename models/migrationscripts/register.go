@@ -63,5 +63,6 @@ func All() []core.MigrationScript {
 		new(addLabels),
 		new(renameFiledsInProjectPrMetric),
 		new(addEnableToProjectMetric),
+		new(addCollectorMeta20221125),
 	}
 }

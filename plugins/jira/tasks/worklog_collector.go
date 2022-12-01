@@ -42,9 +42,20 @@ var CollectWorklogsMeta = core.SubTaskMeta{
 func CollectWorklogs(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
-	since := data.Since
 
 	logger := taskCtx.GetLogger()
+
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: JiraApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			BoardId:      data.Options.BoardId,
+		},
+		Table: RAW_WORKLOGS_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
 
 	// filter out issue_ids that needed collection
 	clauses := []dal.Clause{
@@ -54,11 +65,10 @@ func CollectWorklogs(taskCtx core.SubTaskContext) errors.Error {
 		dal.Join("LEFT JOIN _tool_jira_worklogs wl ON (wl.connection_id = i.connection_id AND wl.issue_id = i.issue_id)"),
 		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  ", data.Options.ConnectionId, data.Options.BoardId),
 		dal.Groupby("i.issue_id, i.updated"),
-		dal.Having("i.updated > max(wl.issue_updated) OR  (max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0)"),
 	}
-	// apply time range if any
-	if since != nil {
-		clauses = append(clauses, dal.Where("i.updated > ?", *since))
+	incremental := collectorWithState.CanIncrementCollect()
+	if incremental {
+		clauses = append(clauses, dal.Having("i.updated > max(wl.issue_updated) OR  (max(wl.issue_updated) IS NULL AND COUNT(wl.worklog_id) > 0)"))
 	}
 
 	// construct the input iterator
@@ -71,20 +81,12 @@ func CollectWorklogs(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
-			},
-			Table: RAW_WORKLOGS_TABLE,
-		},
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		Input:         iterator,
 		ApiClient:     data.ApiClient,
 		UrlTemplate:   "api/2/issue/{{ .Input.IssueId }}/worklog",
 		PageSize:      50,
-		Incremental:   since == nil,
+		Incremental:   incremental,
 		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
@@ -103,5 +105,5 @@ func CollectWorklogs(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }

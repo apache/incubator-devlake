@@ -52,6 +52,18 @@ func CollectIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 	log := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: JiraApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			BoardId:      data.Options.BoardId,
+		},
+		Table: RAW_CHANGELOG_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
+
 	// query for issue_ids that needed changelog collection
 	clauses := []dal.Clause{
 		dal.Select("i.issue_id, i.updated AS update_time"),
@@ -60,12 +72,10 @@ func CollectIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 		dal.Join("LEFT JOIN _tool_jira_issue_changelogs c ON (c.connection_id = i.connection_id AND c.issue_id = i.issue_id)"),
 		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ? AND i.std_type != ? ", data.Options.ConnectionId, data.Options.BoardId, "Epic"),
 		dal.Groupby("i.issue_id, i.updated"),
-		dal.Having("i.updated > max(c.issue_updated) OR  (max(c.issue_updated) IS NULL AND COUNT(c.changelog_id) > 0)"),
 	}
-	// apply time range if any
-	since := data.Since
-	if since != nil {
-		clauses = append(clauses, dal.Where("i.updated > ?", *since))
+	incremental := collectorWithState.CanIncrementCollect()
+	if incremental {
+		clauses = append(clauses, dal.Having("i.updated > max(c.issue_updated) OR  (max(c.issue_updated) IS NULL AND COUNT(c.changelog_id) > 0)"))
 	}
 
 	if log.IsLevelEnabled(core.LOG_DEBUG) {
@@ -88,18 +98,10 @@ func CollectIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	// now, let ApiCollector takes care the rest
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: JiraApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				BoardId:      data.Options.BoardId,
-			},
-			Table: RAW_CHANGELOG_TABLE,
-		},
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:     data.ApiClient,
 		PageSize:      100,
-		Incremental:   since == nil,
+		Incremental:   incremental,
 		GetTotalPages: GetTotalPagesFromResponse,
 		Input:         iterator,
 		UrlTemplate:   "api/3/issue/{{ .Input.IssueId }}/changelog",
@@ -127,5 +129,5 @@ func CollectIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }

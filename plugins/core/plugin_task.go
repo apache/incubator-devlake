@@ -104,7 +104,7 @@ type PluginTask interface {
 	PrepareTaskData(taskCtx TaskContext, options map[string]interface{}) (interface{}, errors.Error)
 }
 
-// CloseablePluginTask Extends PluginTask, and invokes a Close method after all subtasks are done
+// CloseablePluginTask Extends PluginTask, and invokes a Close method after all subtasks are done or fail
 type CloseablePluginTask interface {
 	PluginTask
 	Close(taskCtx TaskContext) errors.Error
