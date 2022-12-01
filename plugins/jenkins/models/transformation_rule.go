@@ -21,6 +21,7 @@ import "github.com/apache/incubator-devlake/models/common"
 
 type TransformationRules struct {
 	common.Model
+	Name              string `gorm:"type:varchar(255)"`
 	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern" json:"deploymentPattern"`
 }
 

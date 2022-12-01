@@ -21,6 +21,7 @@ import "github.com/apache/incubator-devlake/models/common"
 
 type TransformationRules struct {
 	common.Model
+	Name                 string `gorm:"type:varchar(255)"`
 	PrType               string `mapstructure:"prType" json:"prType"`
 	PrComponent          string `mapstructure:"prComponent" json:"prComponent"`
 	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern"`

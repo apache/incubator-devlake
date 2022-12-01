@@ -92,6 +92,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			Model: common.Model{
 				ID: 1,
 			},
+			Name:    "github transformation rule",
 			PrType:  "hey,man,wasup",
 			Refdiff: json.RawMessage(`{"tagsPattern": "pattern", "tagsLimit": 10, "tagsOrder": "reverse semver"}`),
 		}
@@ -112,6 +113,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					"owner":        "test",
 					"repo":         "testRepo",
 					"transformationRules": map[string]interface{}{
+						"name":    "github transformation rule",
 						"prType":  "hey,man,wasup",
 						"refdiff": json.RawMessage(`{"tagsPattern": "pattern", "tagsLimit": 10, "tagsOrder": "reverse semver"}`),
 					},

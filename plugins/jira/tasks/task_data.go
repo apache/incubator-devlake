@@ -41,6 +41,7 @@ type TypeMapping struct {
 type TypeMappings map[string]TypeMapping
 
 type TransformationRules struct {
+	Name                       string       `gorm:"type:varchar(255)"`
 	EpicKeyField               string       `json:"epicKeyField"`
 	StoryPointField            string       `json:"storyPointField"`
 	RemotelinkCommitShaPattern string       `json:"remotelinkCommitShaPattern"`
@@ -53,6 +54,7 @@ func (r *TransformationRules) ToDb() (rule *models.JiraTransformationRule, error
 		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
 	}
 	return &models.JiraTransformationRule{
+		Name:                       r.Name,
 		EpicKeyField:               r.EpicKeyField,
 		StoryPointField:            r.StoryPointField,
 		RemotelinkCommitShaPattern: r.RemotelinkCommitShaPattern,
@@ -65,6 +67,7 @@ func (r *TransformationRules) FromDb(rule *models.JiraTransformationRule) (*Tran
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
 	}
+	r.Name = rule.Name
 	r.EpicKeyField = rule.EpicKeyField
 	r.StoryPointField = rule.StoryPointField
 	r.RemotelinkCommitShaPattern = rule.RemotelinkCommitShaPattern
@@ -79,6 +82,7 @@ func MakeTransformationRules(rule models.JiraTransformationRule) (*Transformatio
 		return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
 	}
 	result := &TransformationRules{
+		Name:                       rule.Name,
 		EpicKeyField:               rule.EpicKeyField,
 		StoryPointField:            rule.StoryPointField,
 		RemotelinkCommitShaPattern: rule.RemotelinkCommitShaPattern,

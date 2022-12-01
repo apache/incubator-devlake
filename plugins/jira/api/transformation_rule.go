@@ -18,7 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -92,19 +91,7 @@ func makeDbTransformationRuleFromInput(input *core.ApiResourceInput) (*models.Ji
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error decoding map into transformationRule")
 	}
-	return makeDbTransformationRule(&req)
-}
-func makeDbTransformationRule(rule *tasks.TransformationRules) (*models.JiraTransformationRule, errors.Error) {
-	blob, err := json.Marshal(rule.TypeMappings)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
-	}
-	return &models.JiraTransformationRule{
-		EpicKeyField:               rule.EpicKeyField,
-		StoryPointField:            rule.StoryPointField,
-		RemotelinkCommitShaPattern: rule.RemotelinkCommitShaPattern,
-		TypeMappings:               blob,
-	}, nil
+	return req.ToDb()
 }
 
 // GetTransformationRule return one transformation rule
