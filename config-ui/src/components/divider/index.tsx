@@ -16,5 +16,11 @@
  *
  */
 
-export * from './loading'
-export * from './divider'
+import styled from 'styled-components'
+
+export const Divider = styled.div`
+  margin: 12px 0;
+  width: 100%;
+  height: 1px;
+  background-color: #dbe4fd;
+`
