@@ -87,6 +87,7 @@ func GetProjectMetric(projectName string, pluginName string) (*models.ProjectMet
 	return projectMetric, nil
 }
 
+// FlushProjectMetrics remove all Project metrics by project name and create new metrics by baseMetrics
 func FlushProjectMetrics(projectName string, baseMetrics *[]models.BaseMetric) errors.Error {
 	err := removeAllDbProjectMetricsByProjectName(projectName)
 	if err != nil {
@@ -130,7 +131,7 @@ func LoadBluePrintAndMetrics(projectOutput *models.ApiOutputProject) errors.Erro
 	// load blueprint
 	projectOutput.Blueprint, err = GetBlueprintByProjectName(projectOutput.Name)
 	if err != nil {
-		return errors.Default.Wrap(err, "Failed to get blueprint by project")
+		return errors.Default.Wrap(err, "Error to get blueprint by project")
 	}
 
 	return nil
@@ -185,6 +186,7 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	if err != nil {
 		return nil, err
 	}
+	projectInput.Name = name
 	project.BaseProject = projectInput.BaseProject
 
 	/*enProject, err := encryptProject(project)

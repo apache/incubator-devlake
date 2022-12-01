@@ -110,8 +110,9 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
 func GetBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Error) {
 	dbBlueprint, err := GetDbBlueprintByProjectName(projectName)
 	if err != nil {
+		// Allow specific projectName to fail to find the corresponding blueprint
 		if goerror.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.NotFound.New(fmt.Sprintf("blueprint not found with project %s", projectName))
+			return nil, nil
 		}
 		return nil, errors.Internal.Wrap(err, fmt.Sprintf("error getting the blueprint from database with project %s", projectName))
 	}
@@ -205,6 +206,10 @@ func PatchBlueprintEnableByProjectName(projectName string, enable bool) (*models
 	blueprint, err := GetBlueprintByProjectName(projectName)
 	if err != nil {
 		return nil, err
+	}
+
+	if blueprint == nil {
+		return nil, errors.Default.New(fmt.Sprintf("do not surpport to set enable for projectName:[%s] ,because it has no blueprint.", projectName))
 	}
 
 	blueprint.Enable = enable

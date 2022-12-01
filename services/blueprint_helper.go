@@ -118,7 +118,7 @@ func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, errors.Error) {
 	return dbBlueprint, nil
 }
 
-// GetDbBlueprint returns the detail of a given projectName
+// GetDbBlueprintByProjectName returns the detail of a given projectName
 func GetDbBlueprintByProjectName(projectName string) (*models.DbBlueprint, errors.Error) {
 	dbBlueprint := &models.DbBlueprint{}
 	err := db.Where("project_name = ?", projectName).First(dbBlueprint).Error
@@ -151,16 +151,17 @@ func parseBlueprint(dbBlueprint *models.DbBlueprint) *models.Blueprint {
 		labelList = append(labelList, labelModel.Name)
 	}
 	blueprint := models.Blueprint{
-		Name:       dbBlueprint.Name,
-		Mode:       dbBlueprint.Mode,
-		Plan:       []byte(dbBlueprint.Plan),
-		Enable:     dbBlueprint.Enable,
-		CronConfig: dbBlueprint.CronConfig,
-		IsManual:   dbBlueprint.IsManual,
-		SkipOnFail: dbBlueprint.SkipOnFail,
-		Settings:   []byte(dbBlueprint.Settings),
-		Model:      dbBlueprint.Model,
-		Labels:     labelList,
+		Name:        dbBlueprint.Name,
+		ProjectName: dbBlueprint.ProjectName,
+		Mode:        dbBlueprint.Mode,
+		Plan:        []byte(dbBlueprint.Plan),
+		Enable:      dbBlueprint.Enable,
+		CronConfig:  dbBlueprint.CronConfig,
+		IsManual:    dbBlueprint.IsManual,
+		SkipOnFail:  dbBlueprint.SkipOnFail,
+		Settings:    []byte(dbBlueprint.Settings),
+		Model:       dbBlueprint.Model,
+		Labels:      labelList,
 	}
 	return &blueprint
 }
@@ -168,15 +169,16 @@ func parseBlueprint(dbBlueprint *models.DbBlueprint) *models.Blueprint {
 // parseDbBlueprint
 func parseDbBlueprint(blueprint *models.Blueprint) *models.DbBlueprint {
 	dbBlueprint := models.DbBlueprint{
-		Name:       blueprint.Name,
-		Mode:       blueprint.Mode,
-		Plan:       string(blueprint.Plan),
-		Enable:     blueprint.Enable,
-		CronConfig: blueprint.CronConfig,
-		IsManual:   blueprint.IsManual,
-		SkipOnFail: blueprint.SkipOnFail,
-		Settings:   string(blueprint.Settings),
-		Model:      blueprint.Model,
+		Name:        blueprint.Name,
+		ProjectName: blueprint.ProjectName,
+		Mode:        blueprint.Mode,
+		Plan:        string(blueprint.Plan),
+		Enable:      blueprint.Enable,
+		CronConfig:  blueprint.CronConfig,
+		IsManual:    blueprint.IsManual,
+		SkipOnFail:  blueprint.SkipOnFail,
+		Settings:    string(blueprint.Settings),
+		Model:       blueprint.Model,
 	}
 	dbBlueprint.Labels = []models.DbBlueprintLabel{}
 	for _, label := range blueprint.Labels {

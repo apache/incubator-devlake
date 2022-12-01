@@ -59,7 +59,7 @@ func GetProject(c *gin.Context) {
 		return
 	}
 
-	shared.ApiOutputSuccess(c, project, http.StatusOK)
+	shared.ApiOutputSuccess(c, projectOutput, http.StatusOK)
 }
 
 // @Summary Get list of projects
@@ -184,8 +184,8 @@ func PatchProject(c *gin.Context) {
 // @Summary Get a ProjectMetrics
 // @Description Get a ProjectMetrics
 // @Tags framework/ProjectMetrics
-// @Param page query int true "query"
-// @Param pagesize query int true "query"
+// @Param projectName path string true "project name"
+// @Param pluginName path string true "plugin name"
 // @Success 200  {object} models.BaseProjectMetric
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"

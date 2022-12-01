@@ -62,5 +62,6 @@ func All() []core.MigrationScript {
 		new(addProjectIssueMetric),
 		new(addLabels),
 		new(renameFiledsInProjectPrMetric),
+		new(addEnableToProjectMetric),
 	}
 }
