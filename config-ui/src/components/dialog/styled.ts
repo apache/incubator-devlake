@@ -16,8 +16,38 @@
  *
  */
 
-export * from './loading'
-export * from './divider'
-export * from './page-header'
-export * from './selector'
-export * from './dialog'
+import styled from '@emotion/styled'
+import { Dialog } from '@blueprintjs/core'
+
+export const Container = styled(Dialog)`
+  position: relative;
+  top: -200px;
+  left: 90px;
+  width: 820px;
+  background-color: #fff;
+`
+
+export const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 20px;
+  padding: 12px 0;
+  border-bottom: 1px solid #dbe4fd;
+  box-shadow: none;
+
+  h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  & > span {
+    cursor: pointer;
+  }
+`
+
+export const Body = styled.div``
+
+export const Footer = styled.div``
