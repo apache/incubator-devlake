@@ -58,7 +58,7 @@ func TestProcessScope(t *testing.T) {
 	}
 	scopes := make([]*core.BlueprintScopeV100, 0)
 	scopes = append(scopes, bs)
-	plan, err := makePipelinePlan(nil, scopes, nil, connection)
+	plan, err := makePipelinePlanV100(nil, scopes, connection)
 	assert.Nil(t, err)
 
 	expectPlan := core.PipelinePlan{

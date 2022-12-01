@@ -23,18 +23,18 @@ import (
 
 // JenkinsJob db entity for jenkins job
 type JenkinsJob struct {
-	ConnectionId         uint64 `gorm:"primaryKey"`
-	FullName             string `gorm:"primaryKey;type:varchar(255)"`
-	TransformationRuleId uint64
-	Name                 string `gorm:"index;type:varchar(255)"`
-	Path                 string `gorm:"index;type:varchar(511)"`
-	Class                string `gorm:"type:varchar(255)"`
-	Color                string `gorm:"type:varchar(255)"`
-	Base                 string `gorm:"type:varchar(255)"`
-	Url                  string
-	Description          string
-	PrimaryView          string `gorm:"type:varchar(255)"`
-	common.NoPKModel
+	ConnectionId         uint64 `gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
+	FullName             string `gorm:"primaryKey;type:varchar(255)" mapstructure:"fullName"`
+	TransformationRuleId uint64 `mapstructure:"transformationRules,omitempty"`
+	Name                 string `gorm:"index;type:varchar(255)" mapstructure:"-,omitempty"`
+	Path                 string `gorm:"index;type:varchar(511)" mapstructure:"-,omitempty"`
+	Class                string `gorm:"type:varchar(255)" mapstructure:"class,omitempty"`
+	Color                string `gorm:"type:varchar(255)" mapstructure:"color,omitempty"`
+	Base                 string `gorm:"type:varchar(255)" mapstructure:"base,omitempty"`
+	Url                  string `mapstructure:"url,omitempty"`
+	Description          string `mapstructure:"description,omitempty"`
+	PrimaryView          string `gorm:"type:varchar(255)" mapstructure:"primaryView,omitempty"`
+	common.NoPKModel     `mapstructure:"-"`
 }
 
 func (JenkinsJob) TableName() string {

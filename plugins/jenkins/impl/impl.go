@@ -147,7 +147,11 @@ func (plugin Jenkins) MigrationScripts() []core.MigrationScript {
 }
 
 func (plugin Jenkins) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
+	return api.MakePipelinePlanV100(plugin.SubTaskMetas(), connectionId, scope)
+}
+
+func (plugin Jenkins) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes)
 }
 
 func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {
