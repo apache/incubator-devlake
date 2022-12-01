@@ -21,7 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-type TransformationRules struct {
+type GitlabTransformationRule struct {
 	archived.Model
 	Name                 string `gorm:"type:varchar(255)"`
 	PrType               string `mapstructure:"prType" json:"prType" gorm:"type:varchar(255)"`
@@ -36,6 +36,6 @@ type TransformationRules struct {
 	DeploymentPattern    string `mapstructure:"deploymentPattern" json:"deploymentPattern" gorm:"type:varchar(255)"`
 }
 
-func (t TransformationRules) TableName() string {
+func (t GitlabTransformationRule) TableName() string {
 	return "_tool_gitlab_transformation_rules"
 }

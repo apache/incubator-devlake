@@ -58,7 +58,7 @@ func (plugin Jenkins) Scope() interface{} {
 }
 
 func (plugin Jenkins) TransformationRule() interface{} {
-	return &models.TransformationRules{}
+	return &models.JenkinsTransformationRule{}
 }
 
 func (plugin Jenkins) GetTablesInfo() []core.Tabler {
@@ -123,13 +123,13 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 	if !strings.HasSuffix(op.JobPath, "/") {
 		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
 	}
-	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.TransformationRules
+	if op.JenkinsTransformationRule == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.JenkinsTransformationRule
 		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
 		}
-		op.TransformationRules = &transformationRule
+		op.JenkinsTransformationRule = &transformationRule
 	}
 	return &tasks.JenkinsTaskData{
 		Options:    op,

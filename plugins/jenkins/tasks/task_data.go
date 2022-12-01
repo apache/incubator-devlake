@@ -32,14 +32,14 @@ type JenkinsApiParams struct {
 }
 
 type JenkinsOptions struct {
-	ConnectionId                uint64 `json:"connectionId"`
-	TransformationRuleId        uint64 `json:"transformationRuleId"`
-	JobFullName                 string `json:"JobFullName"`
-	JobName                     string `json:"jobName"`
-	JobPath                     string `json:"jobPath"`
-	Since                       string
-	Tasks                       []string `json:"tasks,omitempty"`
-	*models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
+	ConnectionId                      uint64 `json:"connectionId"`
+	TransformationRuleId              uint64 `json:"transformationRuleId"`
+	JobFullName                       string `json:"JobFullName"`
+	JobName                           string `json:"jobName"`
+	JobPath                           string `json:"jobPath"`
+	Since                             string
+	Tasks                             []string `json:"tasks,omitempty"`
+	*models.JenkinsTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type JenkinsTaskData struct {
@@ -59,8 +59,8 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptio
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("connectionId is invalid")
 	}
-	if op.TransformationRules == nil && op.TransformationRuleId == 0 {
-		op.TransformationRules = new(models.TransformationRules)
+	if op.JenkinsTransformationRule == nil && op.TransformationRuleId == 0 {
+		op.JenkinsTransformationRule = new(models.JenkinsTransformationRule)
 	}
 	return &op, nil
 }

@@ -40,7 +40,7 @@ type TypeMapping struct {
 
 type TypeMappings map[string]TypeMapping
 
-type TransformationRules struct {
+type JiraTransformationRule struct {
 	Name                       string       `gorm:"type:varchar(255)"`
 	EpicKeyField               string       `json:"epicKeyField"`
 	StoryPointField            string       `json:"storyPointField"`
@@ -48,7 +48,7 @@ type TransformationRules struct {
 	TypeMappings               TypeMappings `json:"typeMappings"`
 }
 
-func (r *TransformationRules) ToDb() (rule *models.JiraTransformationRule, error2 errors.Error) {
+func (r *JiraTransformationRule) ToDb() (rule *models.JiraTransformationRule, error2 errors.Error) {
 	blob, err := json.Marshal(r.TypeMappings)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error marshaling TypeMappings")
@@ -61,7 +61,7 @@ func (r *TransformationRules) ToDb() (rule *models.JiraTransformationRule, error
 		TypeMappings:               blob,
 	}, nil
 }
-func (r *TransformationRules) FromDb(rule *models.JiraTransformationRule) (*TransformationRules, errors.Error) {
+func (r *JiraTransformationRule) FromDb(rule *models.JiraTransformationRule) (*JiraTransformationRule, errors.Error) {
 	mappings := make(map[string]TypeMapping)
 	err := json.Unmarshal(rule.TypeMappings, &mappings)
 	if err != nil {
@@ -75,13 +75,13 @@ func (r *TransformationRules) FromDb(rule *models.JiraTransformationRule) (*Tran
 	return r, nil
 }
 
-func MakeTransformationRules(rule models.JiraTransformationRule) (*TransformationRules, errors.Error) {
+func MakeTransformationRules(rule models.JiraTransformationRule) (*JiraTransformationRule, errors.Error) {
 	var typeMapping TypeMappings
 	err := json.Unmarshal(rule.TypeMappings, &typeMapping)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to unmarshal the typeMapping")
 	}
-	result := &TransformationRules{
+	result := &JiraTransformationRule{
 		Name:                       rule.Name,
 		EpicKeyField:               rule.EpicKeyField,
 		StoryPointField:            rule.StoryPointField,
@@ -95,7 +95,7 @@ type JiraOptions struct {
 	ConnectionId         uint64 `json:"connectionId"`
 	BoardId              uint64 `json:"boardId"`
 	Since                string
-	TransformationRules  *TransformationRules `json:"transformationRules"`
+	TransformationRules  *JiraTransformationRule `json:"transformationRules"`
 	ScopeId              string
 	TransformationRuleId uint64
 }

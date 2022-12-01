@@ -19,7 +19,6 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
@@ -76,7 +75,7 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionI
 		if err != nil {
 			return nil, nil, err
 		}
-		var transformationRule *models.TransformationRules
+		var transformationRule *models.GithubTransformationRule
 		// get transformation rules from db
 		err = db.First(transformationRule, dal.Where(`id = ?`, githubRepo.TransformationRuleId))
 		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
@@ -105,7 +104,7 @@ func makeDataSourcePipelinePlanV200(
 	connection *models.GithubConnection,
 	apiClient helper.ApiClientGetter,
 	githubRepo *models.GithubRepo,
-	transformationRule *models.TransformationRules,
+	transformationRule *models.GithubTransformationRule,
 ) (core.PipelinePlan, []core.Scope, errors.Error) {
 	var err errors.Error
 	var stage core.PipelineStage
@@ -118,8 +117,7 @@ func makeDataSourcePipelinePlanV200(
 		if j == len(plan) {
 			plan = append(plan, nil)
 		}
-		refdiffOp := map[string]interface{}{}
-		err = errors.Convert(json.Unmarshal(transformationRule.Refdiff, &refdiffOp))
+		refdiffOp := transformationRule.Refdiff
 		if err != nil {
 			return nil, nil, err
 		}
@@ -129,6 +127,7 @@ func makeDataSourcePipelinePlanV200(
 				Options: refdiffOp,
 			},
 		}
+		transformationRule.Refdiff = nil
 	}
 
 	// construct task options for github

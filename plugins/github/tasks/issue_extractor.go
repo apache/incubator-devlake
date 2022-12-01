@@ -71,7 +71,7 @@ type IssueRegexes struct {
 func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	config := data.Options.TransformationRules
+	config := data.Options.GithubTransformationRule
 	issueRegexes, err := NewIssueRegexes(config)
 	if err != nil {
 		return nil
@@ -223,7 +223,7 @@ func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, gith
 	return results, nil
 }
 
-func NewIssueRegexes(config *models.TransformationRules) (*IssueRegexes, errors.Error) {
+func NewIssueRegexes(config *models.GithubTransformationRule) (*IssueRegexes, errors.Error) {
 	var issueRegexes IssueRegexes
 	var issueSeverity = config.IssueSeverity
 	var err error

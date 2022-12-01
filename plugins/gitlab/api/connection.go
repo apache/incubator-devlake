@@ -177,6 +177,6 @@ type GitlabPipelinePlan [][]struct {
 		ConnectionID   int `json:"connectionId"`
 		ProjectId      int `json:"projectId"`
 		Since          string
-		Transformation models.TransformationRules `json:"transformation"`
+		Transformation models.GitlabTransformationRule `json:"transformation"`
 	} `json:"options"`
 }

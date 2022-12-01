@@ -34,11 +34,11 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 
 	taskData := &tasks.JenkinsTaskData{
 		Options: &tasks.JenkinsOptions{
-			ConnectionId:        1,
-			JobName:             `devlake`,
-			JobFullName:         "Test-jenkins-dir » test-jenkins-sub-dir » test-sub-sub-dir » devlake",
-			JobPath:             `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
-			TransformationRules: new(models.TransformationRules),
+			ConnectionId:              1,
+			JobName:                   `devlake`,
+			JobFullName:               "Test-jenkins-dir » test-jenkins-sub-dir » test-sub-sub-dir » devlake",
+			JobPath:                   `job/Test-jenkins-dir/job/test-jenkins-sub-dir/job/test-sub-sub-dir/`,
+			JenkinsTransformationRule: new(models.JenkinsTransformationRule),
 		},
 	}
 

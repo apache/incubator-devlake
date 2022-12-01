@@ -52,7 +52,7 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionI
 		if err != nil {
 			return nil, nil, err
 		}
-		var transformationRule *models.TransformationRules
+		var transformationRule *models.JenkinsTransformationRule
 		// get transformation rules from db
 		err = db.First(transformationRule, dal.Where(`id = ?`, jenkinsJob.TransformationRuleId))
 		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
@@ -77,7 +77,7 @@ func makeDataSourcePipelinePlanV200(
 	subtaskMetas []core.SubTaskMeta,
 	bpScope *core.BlueprintScopeV200,
 	jenkinsJob *models.JenkinsJob,
-	transformationRule *models.TransformationRules,
+	transformationRule *models.JenkinsTransformationRule,
 ) (core.PipelineStage, []core.Scope, errors.Error) {
 	var err errors.Error
 	var stage core.PipelineStage

@@ -76,7 +76,7 @@ var ExtractApiMergeRequestsMeta = core.SubTaskMeta{
 
 func ExtractApiMergeRequests(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
-	config := data.Options.TransformationRules
+	config := data.Options.GitlabTransformationRule
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
 	var prType = config.PrType

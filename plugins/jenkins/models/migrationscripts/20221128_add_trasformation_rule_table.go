@@ -35,7 +35,7 @@ func (jenkinsJob20221128) TableName() string {
 type addTransformationRule20221128 struct{}
 
 func (*addTransformationRule20221128) Up(basicRes core.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(basicRes, &jenkinsJob20221128{}, &archived.TransformationRules{})
+	return migrationhelper.AutoMigrateTables(basicRes, &jenkinsJob20221128{}, &archived.JenkinsTransformationRule{})
 }
 
 func (*addTransformationRule20221128) Version() uint64 {

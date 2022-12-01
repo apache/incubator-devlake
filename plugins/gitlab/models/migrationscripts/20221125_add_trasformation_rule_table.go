@@ -35,7 +35,7 @@ func (gitlabProject20221125) TableName() string {
 type addTransformationRule20221125 struct{}
 
 func (*addTransformationRule20221125) Up(basicRes core.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(basicRes, &gitlabProject20221125{}, &archived.TransformationRules{})
+	return migrationhelper.AutoMigrateTables(basicRes, &gitlabProject20221125{}, &archived.GitlabTransformationRule{})
 }
 
 func (*addTransformationRule20221125) Version() uint64 {

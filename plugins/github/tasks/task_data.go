@@ -27,13 +27,13 @@ import (
 )
 
 type GithubOptions struct {
-	ConnectionId                uint64   `json:"connectionId"`
-	TransformationRuleId        uint64   `json:"transformationRuleId"`
-	Tasks                       []string `json:"tasks,omitempty"`
-	Since                       string
-	Owner                       string
-	Repo                        string
-	*models.TransformationRules `mapstructure:"transformationRules" json:"transformationRules"`
+	ConnectionId                     uint64   `json:"connectionId"`
+	TransformationRuleId             uint64   `json:"transformationRuleId"`
+	Tasks                            []string `json:"tasks,omitempty"`
+	Since                            string
+	Owner                            string
+	Repo                             string
+	*models.GithubTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type GithubTaskData struct {
@@ -60,8 +60,8 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOption
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("connectionId is invalid")
 	}
-	if op.TransformationRules == nil && op.TransformationRuleId == 0 {
-		op.TransformationRules = new(models.TransformationRules)
+	if op.GithubTransformationRule == nil && op.TransformationRuleId == 0 {
+		op.GithubTransformationRule = new(models.GithubTransformationRule)
 	}
 	return &op, nil
 }

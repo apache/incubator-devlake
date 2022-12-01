@@ -51,7 +51,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			Name:         "ccc",
 		}
 
-		transformationRule := &models.TransformationRules{
+		transformationRule := &models.JenkinsTransformationRule{
 			Model: common.Model{
 				ID: 1,
 			},

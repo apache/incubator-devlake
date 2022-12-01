@@ -35,8 +35,8 @@ import (
 // @Description create transformation rule for Jira
 // @Tags plugins/jira
 // @Accept application/json
-// @Param transformationRule body tasks.TransformationRules true "transformation rule"
-// @Success 200  {object} tasks.TransformationRules
+// @Param transformationRule body tasks.JiraTransformationRule true "transformation rule"
+// @Success 200  {object} tasks.JiraTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules [POST]
@@ -58,8 +58,8 @@ func CreateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 // @Tags plugins/jira
 // @Accept application/json
 // @Param id path int true "id"
-// @Param transformationRule body tasks.TransformationRules true "transformation rule"
-// @Success 200  {object} tasks.TransformationRules
+// @Param transformationRule body tasks.JiraTransformationRule true "transformation rule"
+// @Success 200  {object} tasks.JiraTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules/{id} [PATCH]
@@ -86,7 +86,7 @@ func UpdateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 }
 
 func makeDbTransformationRuleFromInput(input *core.ApiResourceInput) (*models.JiraTransformationRule, errors.Error) {
-	var req tasks.TransformationRules
+	var req tasks.JiraTransformationRule
 	err := mapstructure.Decode(input.Body, &req)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error decoding map into transformationRule")
@@ -99,7 +99,7 @@ func makeDbTransformationRuleFromInput(input *core.ApiResourceInput) (*models.Ji
 // @Description return one transformation rule
 // @Tags plugins/jira
 // @Param id path int true "id"
-// @Success 200  {object} tasks.TransformationRules
+// @Success 200  {object} tasks.JiraTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules/{id} [GET]
@@ -122,7 +122,7 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 // @Tags plugins/jira
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []tasks.TransformationRules
+// @Success 200  {object} []tasks.JiraTransformationRule
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules [GET]
