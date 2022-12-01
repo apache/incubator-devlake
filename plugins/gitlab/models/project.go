@@ -24,24 +24,24 @@ import (
 )
 
 type GitlabProject struct {
-	ConnectionId            uint64 `gorm:"primaryKey"`
-	TransformationRuleId    uint64
-	GitlabId                int    `gorm:"primaryKey"`
-	Name                    string `gorm:"type:varchar(255)"`
-	Description             string
-	DefaultBranch           string `gorm:"varchar(255)"`
-	PathWithNamespace       string `gorm:"varchar(255)"`
-	WebUrl                  string `gorm:"varchar(255)"`
-	CreatorId               int
-	Visibility              string `gorm:"varchar(255)"`
-	OpenIssuesCount         int
-	StarCount               int
-	ForkedFromProjectId     int
-	ForkedFromProjectWebUrl string `gorm:"varchar(255)"`
+	ConnectionId            uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
+	TransformationRuleId    uint64 `json:"transformationRuleId" mapstructure:"transformationRuleId"`
+	GitlabId                int    `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
+	Name                    string `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
+	Description             string `json:"description" mapstructure:"description"`
+	DefaultBranch           string `json:"defaultBranch" mapstructure:"defaultBranch" gorm:"type:varchar(255)"`
+	PathWithNamespace       string `json:"pathWithNamespace" mapstructure:"pathWithNamespace" gorm:"type:varchar(255)"`
+	WebUrl                  string `json:"webUrl" mapstructure:"webUrl" gorm:"type:varchar(255)"`
+	CreatorId               int    `json:"creatorId" mapstructure:"creatorId"`
+	Visibility              string `json:"visibility" mapstructure:"visibility" gorm:"type:varchar(255)"`
+	OpenIssuesCount         int    `json:"openIssuesCount" mapstructure:"openIssuesCount"`
+	StarCount               int    `json:"starCount" mapstructure:"StarCount"`
+	ForkedFromProjectId     int    `json:"forkedFromProjectId" mapstructure:"forkedFromProjectId"`
+	ForkedFromProjectWebUrl string `json:"forkedFromProjectWebUrl" mapstructure:"forkedFromProjectWebUrl" gorm:"type:varchar(255)"`
 
-	CreatedDate time.Time
-	UpdatedDate *time.Time
-	common.NoPKModel
+	CreatedDate      time.Time  `json:"createdDate" mapstructure:"-"`
+	UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
+	common.NoPKModel `json:"-" mapstructure:"-"`
 }
 
 func (GitlabProject) TableName() string {

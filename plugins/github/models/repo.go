@@ -23,20 +23,20 @@ import (
 )
 
 type GithubRepo struct {
-	ConnectionId         uint64     `gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
-	GithubId             int        `gorm:"primaryKey" mapstructure:"-"`
-	Name                 string     `gorm:"type:varchar(255)" mapstructure:"repo,omitempty"`
-	HTMLUrl              string     `gorm:"type:varchar(255)" mapstructure:"htmlUrl,omitempty"`
-	Description          string     `mapstructure:"description,omitempty"`
-	TransformationRuleId uint64     `mapstructure:"transformationRules,omitempty"`
+	ConnectionId         uint64     `json:"connectionId" gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
+	GithubId             int        `json:"githubId" gorm:"primaryKey" mapstructure:"githubId"`
+	Name                 string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
+	HTMLUrl              string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
+	Description          string     `json:"description" mapstructure:"description,omitempty"`
+	TransformationRuleId uint64     `json:"transformationRuleId" mapstructure:"transformationRuleId,omitempty"`
 	OwnerId              int        `json:"ownerId" mapstructure:"ownerId,omitempty"`
-	OwnerLogin           string     `json:"ownerLogin" gorm:"type:varchar(255)" mapstructure:"owner,omitempty"`
+	OwnerLogin           string     `json:"ownerLogin" gorm:"type:varchar(255)" mapstructure:"ownerLogin,omitempty"`
 	Language             string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
-	ParentGithubId       int        `json:"parentId" mapstructure:"parentId,omitempty"`
+	ParentGithubId       int        `json:"parentId" mapstructure:"parentGithubId,omitempty"`
 	ParentHTMLUrl        string     `json:"parentHtmlUrl" mapstructure:"parentHtmlUrl,omitempty"`
 	CreatedDate          time.Time  `json:"createdDate" mapstructure:"-"`
 	UpdatedDate          *time.Time `json:"updatedDate" mapstructure:"-"`
-	common.NoPKModel     `mapstructure:"-"`
+	common.NoPKModel     `json:"-" mapstructure:"-"`
 }
 
 func (GithubRepo) TableName() string {

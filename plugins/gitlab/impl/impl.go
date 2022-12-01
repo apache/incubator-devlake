@@ -195,11 +195,11 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 		},
 		"connections/:connectionId/scopes/:projectId": {
 			"GET":   api.GetScope,
-			"PUT":   api.PutScope,
 			"PATCH": api.UpdateScope,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
 		},
 		"transformation_rules": {
 			"POST": api.CreateTransformationRule,

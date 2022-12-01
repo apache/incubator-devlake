@@ -29,37 +29,49 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+type req struct {
+	Data []*models.JiraBoard `json:"data"`
+}
+
 // PutScope create or update jira board
 // @Summary create or update jira board
 // @Description Create or update Jira board
 // @Tags plugins/jira
 // @Accept application/json
 // @Param connectionId path int false "connection ID"
-// @Param boardId path int false "board ID"
-// @Param scope body models.JiraBoard true "json"
-// @Success 200  {object} models.JiraBoard
+// @Param scope body req true "json"
+// @Success 200  {object} []models.JiraBoard
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jira/connections/{connectionId}/scopes/{boardId} [PUT]
+// @Router /plugins/jira/connections/{connectionId}/scopes [PUT]
 func PutScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	connectionId, boardId := extractParam(input.Params)
-	if connectionId*boardId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId or boardId")
+	connectionId, _ := extractParam(input.Params)
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("invalid connectionId")
 	}
-	var board models.JiraBoard
-	err := errors.Convert(mapstructure.Decode(input.Body, &board))
+	var boards req
+	err := errors.Convert(mapstructure.Decode(input.Body, &boards))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding Jira board error")
 	}
-	err = verifyBoard(&board)
-	if err != nil {
-		return nil, err
+	keeper := make(map[uint64]struct{})
+	for _, board := range boards.Data {
+		if _, ok := keeper[board.BoardId]; ok {
+			return nil, errors.BadInput.New("duplicated item")
+		} else {
+			keeper[board.BoardId] = struct{}{}
+		}
+		board.ConnectionId = connectionId
+		err = verifyBoard(board)
+		if err != nil {
+			return nil, err
+		}
 	}
-	err = basicRes.GetDal().CreateOrUpdate(board)
+	err = basicRes.GetDal().CreateOrUpdate(boards.Data)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving JiraBoard")
 	}
-	return &core.ApiResourceOutput{Body: board, Status: http.StatusOK}, nil
+	return &core.ApiResourceOutput{Body: boards.Data, Status: http.StatusOK}, nil
 }
 
 // UpdateScope patch to jira board

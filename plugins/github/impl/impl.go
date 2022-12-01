@@ -221,11 +221,11 @@ func (plugin Github) ApiResources() map[string]map[string]core.ApiResourceHandle
 		},
 		"connections/:connectionId/scopes/:repoId": {
 			"GET":   api.GetScope,
-			"PUT":   api.PutScope,
 			"PATCH": api.UpdateScope,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
+			"PUT": api.PutScope,
 		},
 		"transformation_rules": {
 			"POST": api.CreateTransformationRule,

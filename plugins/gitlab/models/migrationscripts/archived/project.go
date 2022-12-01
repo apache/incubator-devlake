@@ -18,28 +18,27 @@ limitations under the License.
 package archived
 
 import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
 type GitlabProject struct {
-	ConnectionId uint64 `gorm:"primaryKey"`
-
+	ConnectionId            uint64 `gorm:"primaryKey"`
 	GitlabId                int    `gorm:"primaryKey"`
 	Name                    string `gorm:"type:varchar(255)"`
 	Description             string
-	DefaultBranch           string `gorm:"varchar(255)"`
-	PathWithNamespace       string `gorm:"varchar(255)"`
-	WebUrl                  string `gorm:"varchar(255)"`
+	DefaultBranch           string `gorm:"type:varchar(255)"`
+	PathWithNamespace       string `gorm:"type:varchar(255)"`
+	WebUrl                  string `gorm:"type:varchar(255)"`
 	CreatorId               int
-	Visibility              string `gorm:"varchar(255)"`
+	Visibility              string `gorm:"type:varchar(255)"`
 	OpenIssuesCount         int
 	StarCount               int
 	ForkedFromProjectId     int
-	ForkedFromProjectWebUrl string `gorm:"varchar(255)"`
-
-	CreatedDate time.Time
-	UpdatedDate *time.Time
+	ForkedFromProjectWebUrl string `gorm:"type:varchar(255)"`
+	CreatedDate             time.Time
+	UpdatedDate             *time.Time
 	archived.NoPKModel
 }
 

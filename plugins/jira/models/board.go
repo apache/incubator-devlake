@@ -23,13 +23,13 @@ import (
 
 type JiraBoard struct {
 	common.NoPKModel
-	ConnectionId         uint64 `gorm:"primaryKey"`
-	BoardId              uint64 `gorm:"primaryKey"`
-	TransformationRuleId uint64
-	ProjectId            uint
-	Name                 string `gorm:"type:varchar(255)"`
-	Self                 string `gorm:"type:varchar(255)"`
-	Type                 string `gorm:"type:varchar(100)"`
+	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
+	BoardId              uint64 `json:"boardId" mapstructure:"boardId" gorm:"primaryKey"`
+	TransformationRuleId uint64 `json:"transformationRuleId" mapstructure:"transformationRuleId"`
+	ProjectId            uint   `json:"projectId" mapstructure:"projectId"`
+	Name                 string `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
+	Self                 string `json:"self" mapstructure:"self" gorm:"type:varchar(255)"`
+	Type                 string `json:"type" mapstructure:"type" gorm:"type:varchar(100)"`
 }
 
 func (JiraBoard) TableName() string {

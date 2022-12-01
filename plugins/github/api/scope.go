@@ -20,6 +20,7 @@ package api
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -29,37 +30,52 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+type req struct {
+	Data []*models.GithubRepo `json:"data"`
+}
+
 // PutScope create or update github repo
 // @Summary create or update github repo
 // @Description Create or update github repo
 // @Tags plugins/github
 // @Accept application/json
 // @Param connectionId path int true "connection ID"
-// @Param repoId path int true "repo ID"
-// @Param scope body models.GithubRepo true "json"
-// @Success 200  {object} models.GithubRepo
+// @Param scope body req true "json"
+// @Success 200  {object} []models.GithubRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/github/connections/{connectionId}/scopes/{repoId} [PUT]
+// @Router /plugins/github/connections/{connectionId}/scopes [PUT]
 func PutScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	connectionId, repoId := extractParam(input.Params)
-	if connectionId*repoId == 0 {
-		return nil, errors.BadInput.New("invalid connectionId or repoId")
+	connectionId, _ := extractParam(input.Params)
+	if connectionId == 0 {
+		return nil, errors.BadInput.New("invalid connectionId")
 	}
-	var repo models.GithubRepo
-	err := errors.Convert(mapstructure.Decode(input.Body, &repo))
+	var repos req
+	err := errors.Convert(mapstructure.Decode(input.Body, &repos))
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "decoding Github repo error")
 	}
-	err = verifyRepo(&repo)
-	if err != nil {
-		return nil, err
+	keeper := make(map[int]struct{})
+	now := time.Now()
+	for _, repo := range repos.Data {
+		if _, ok := keeper[repo.GithubId]; ok {
+			return nil, errors.BadInput.New("duplicated item")
+		} else {
+			keeper[repo.GithubId] = struct{}{}
+		}
+		repo.ConnectionId = connectionId
+		repo.CreatedDate = now
+		repo.UpdatedDate = &now
+		err = verifyRepo(repo)
+		if err != nil {
+			return nil, err
+		}
 	}
-	err = basicRes.GetDal().CreateOrUpdate(repo)
+	err = basicRes.GetDal().CreateOrUpdate(repos.Data)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving GithubRepo")
 	}
-	return &core.ApiResourceOutput{Body: repo, Status: http.StatusOK}, nil
+	return &core.ApiResourceOutput{Body: repos.Data, Status: http.StatusOK}, nil
 }
 
 // UpdateScope patch to github repo
