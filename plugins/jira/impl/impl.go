@@ -216,7 +216,11 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 }
 
 func (plugin Jira) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
+	return api.MakePipelinePlanV100(plugin.SubTaskMetas(), connectionId, scope)
+}
+
+func (plugin Jira) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes)
 }
 
 func (plugin Jira) RootPkgPath() string {

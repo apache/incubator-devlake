@@ -21,20 +21,20 @@ import (
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
-	"github.com/apache/incubator-devlake/models/domainlayer/devops"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/jenkins/models"
+	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	mockMeta := mocks.NewPluginMeta(t)
-	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/jenkins")
-	err := core.RegisterPlugin("jenkins", mockMeta)
+	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/jira")
+	err := core.RegisterPlugin("jira", mockMeta)
 	assert.Nil(t, err)
 	bs := &core.BlueprintScopeV200{
-		Entities: []string{"CICD"},
+		Entities: []string{"TICKET"},
 		Id:       "",
 		Name:     "",
 	}
@@ -44,39 +44,46 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	plan := make(core.PipelinePlan, len(bpScopes))
 	scopes := make([]core.Scope, 0, len(bpScopes))
 	for i, bpScope := range bpScopes {
-		jenkinsJob := &models.JenkinsJob{
+		jiraBoard := &models.JiraBoard{
 			ConnectionId: 1,
-			FullName:     "a/b/ccc",
-			Path:         "a/b/",
-			Name:         "ccc",
+			BoardId:      10,
+			Name:         "a",
+			ProjectId:    20,
+			Self:         "self",
+			Type:         "type",
 		}
 
-		transformationRule := &models.JenkinsTransformationRule{
+		transformationRule := &models.JiraTransformationRule{
 			Model: common.Model{
 				ID: 1,
 			},
-			Name:              "jenkins transformation rule",
-			DeploymentPattern: "hey,man,wasup",
+			Name:         "jira transformation rule",
+			EpicKeyField: "hey,man,wasup",
 		}
 
 		var scope []core.Scope
-		plan[i], scope, err = makeDataSourcePipelinePlanV200(nil, bpScope, jenkinsJob, transformationRule)
+		plan[i], scope, err = makeDataSourcePipelinePlanV200(nil, bpScope, jiraBoard, transformationRule)
 		assert.Nil(t, err)
 		scopes = append(scopes, scope...)
 	}
 	expectPlan := core.PipelinePlan{
 		core.PipelineStage{
 			{
-				Plugin:     "jenkins",
+				Plugin:     "jira",
 				Subtasks:   []string{},
 				SkipOnFail: false,
 				Options: map[string]interface{}{
-					"connectionId": uint64(1),
-					"fullName":     "a/b/ccc",
+					"connectionId":         uint64(1),
+					"boardId":              uint64(10),
+					"projectId":            uint(20),
+					"name":                 "a",
+					"self":                 "self",
+					"transformationRuleId": uint64(0),
 					"transformationRules": map[string]interface{}{
-						"name":              "jenkins transformation rule",
-						"deploymentPattern": "hey,man,wasup",
+						"name":         "jira transformation rule",
+						"epicKeyField": "hey,man,wasup",
 					},
+					"type": "type",
 				},
 			},
 		},
@@ -84,11 +91,11 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, expectPlan, plan)
 
 	expectScopes := make([]core.Scope, 0)
-	scopeCicd := &devops.CicdScope{
+	scopeCicd := &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
-			Id: "jenkins:JenkinsJob:1:a/b/ccc",
+			Id: "jira:JiraBoard:1:10",
 		},
-		Name:        "a/b/ccc",
+		Name:        "a",
 		Description: "",
 		Url:         "",
 		CreatedDate: nil,

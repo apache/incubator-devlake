@@ -24,12 +24,12 @@ import (
 )
 
 type JiraTransformationRule struct {
-	common.Model
-	Name                       string          `gorm:"type:varchar(255)"`
-	EpicKeyField               string          `json:"epicKeyField" gorm:"type:varchar(255)"`
-	StoryPointField            string          `json:"storyPointField" gorm:"type:varchar(255)"`
-	RemotelinkCommitShaPattern string          `json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
-	TypeMappings               json.RawMessage `json:"typeMappings"`
+	common.Model               `mapstructure:"-"`
+	Name                       string          `mapstructure:"name" json:"name" gorm:"type:varchar(255)"`
+	EpicKeyField               string          `mapstructure:"epicKeyField,omitempty" json:"epicKeyField" gorm:"type:varchar(255)"`
+	StoryPointField            string          `mapstructure:"storyPointField,omitempty" json:"storyPointField" gorm:"type:varchar(255)"`
+	RemotelinkCommitShaPattern string          `mapstructure:"remotelinkCommitShaPattern,omitempty" json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
+	TypeMappings               json.RawMessage `mapstructure:"typeMappings,omitempty" json:"typeMappings"`
 }
 
 func (JiraTransformationRule) TableName() string {
