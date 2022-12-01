@@ -25,6 +25,7 @@ import (
 
 type TransformationRules struct {
 	common.Model         `mapstructure:"-"`
+	Name                 string          `gorm:"type:varchar(255)"`
 	PrType               string          `mapstructure:"prType,omitempty" json:"prType" gorm:"type:varchar(255)"`
 	PrComponent          string          `mapstructure:"prComponent,omitempty" json:"prComponent" gorm:"type:varchar(255)"`
 	PrBodyClosePattern   string          `mapstructure:"prBodyClosePattern,omitempty" json:"prBodyClosePattern" gorm:"type:varchar(255)"`

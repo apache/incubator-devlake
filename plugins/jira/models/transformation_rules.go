@@ -25,6 +25,7 @@ import (
 
 type JiraTransformationRule struct {
 	common.Model
+	Name                       string          `gorm:"type:varchar(255)"`
 	EpicKeyField               string          `json:"epicKeyField" gorm:"type:varchar(255)"`
 	StoryPointField            string          `json:"storyPointField" gorm:"type:varchar(255)"`
 	RemotelinkCommitShaPattern string          `json:"remotelinkCommitShaPattern" gorm:"type:varchar(255)"`
