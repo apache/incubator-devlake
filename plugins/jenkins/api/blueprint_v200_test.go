@@ -47,7 +47,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		jenkinsJob := &models.JenkinsJob{
 			ConnectionId: 1,
 			FullName:     "a/b/ccc",
-			Path:         "a/b/",
+			Path:         "job/a/job/b/",
 			Name:         "ccc",
 		}
 
@@ -61,6 +61,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 		var scope []core.Scope
 		plan[i], scope, err = makeDataSourcePipelinePlanV200(nil, bpScope, jenkinsJob, transformationRule)
+
 		assert.Nil(t, err)
 		scopes = append(scopes, scope...)
 	}
@@ -72,7 +73,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				SkipOnFail: false,
 				Options: map[string]interface{}{
 					"connectionId": uint64(1),
-					"fullName":     "a/b/ccc",
+					"jobFullName":  "a/b/ccc",
 					"transformationRules": map[string]interface{}{
 						"name":              "github transformation rule",
 						"deploymentPattern": "hey,man,wasup",

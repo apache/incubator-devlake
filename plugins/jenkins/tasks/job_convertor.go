@@ -61,8 +61,7 @@ func ConvertJobs(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				JobName:      data.Options.JobName,
-				JobPath:      data.Options.JobPath,
+				FullName:     data.Options.JobFullName,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_JOB_TABLE,

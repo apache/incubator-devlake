@@ -49,7 +49,7 @@ func TestProcessScope(t *testing.T) {
 	bs := &core.BlueprintScopeV100{
 		Entities: []string{"CICD"},
 		Options: json.RawMessage(`{
-              "jobName": "testJob"
+              "jobFullName": "testJob"
             }`),
 		Transformation: json.RawMessage(`{
               "productionPattern": "(?i)build-and-deploy",
@@ -67,7 +67,7 @@ func TestProcessScope(t *testing.T) {
 				Plugin:   "jenkins",
 				Subtasks: []string{},
 				Options: map[string]interface{}{
-					"jobName":      "testJob",
+					"jobFullName":  "testJob",
 					"connectionId": uint64(1),
 					"transformationRules": map[string]interface{}{
 						"deploymentPattern": "deploy",

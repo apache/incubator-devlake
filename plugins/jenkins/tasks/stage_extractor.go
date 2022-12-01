@@ -42,8 +42,7 @@ func ExtractApiStages(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				JobName:      data.Options.JobName,
-				JobPath:      data.Options.JobPath,
+				FullName:     data.Options.JobFullName,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_STAGE_TABLE,
@@ -71,7 +70,7 @@ func ExtractApiStages(taskCtx core.SubTaskContext) errors.Error {
 				StartTimeMillis:     body.StartTimeMillis,
 				DurationMillis:      body.DurationMillis,
 				PauseDurationMillis: body.PauseDurationMillis,
-				BuildName:           input.FullDisplayName,
+				BuildName:           input.FullName,
 			}
 
 			results = append(results, stage)

@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -42,14 +43,13 @@ func CollectApiJobs(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				JobName:      data.Options.JobName,
-				JobPath:      data.Options.JobPath,
+				FullName:     data.Options.JobFullName,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_JOB_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		UrlTemplate: "{{ .Params.JobPath }}job/{{ .Params.JobName }}/api/json",
+		UrlTemplate: fmt.Sprintf("%sjob/%s/api/json", data.Options.JobPath, data.Options.JobName),
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			if err != nil {

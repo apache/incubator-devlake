@@ -45,8 +45,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				JobName:      data.Options.JobName,
-				JobPath:      data.Options.JobPath,
+				FullName:     data.Options.JobFullName,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,
@@ -66,6 +65,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 				JobName:           data.Options.JobName,
 				JobPath:           data.Options.JobPath,
 				Duration:          body.Duration,
+				FullName:          fmt.Sprintf(`%s#%d`, data.Options.JobFullName, body.Number),
 				FullDisplayName:   body.DisplayName,
 				EstimatedDuration: body.EstimatedDuration,
 				Number:            body.Number,
@@ -94,7 +94,7 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 						if url != "" {
 							buildCommitRemoteUrl := models.JenkinsBuildCommit{
 								ConnectionId: data.Options.ConnectionId,
-								BuildName:    build.FullDisplayName,
+								BuildName:    build.FullName,
 								CommitSha:    sha,
 								RepoUrl:      url,
 								Branch:       branch,

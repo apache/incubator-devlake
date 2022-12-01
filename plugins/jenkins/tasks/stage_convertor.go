@@ -80,7 +80,7 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 			tjs.pause_duration_millis, tjs.type, 
 			tjb.triggered_by, tjb.building`),
 		dal.From("_tool_jenkins_stages tjs"),
-		dal.Join("left join _tool_jenkins_builds tjb on tjs.build_name = tjb.full_display_name"),
+		dal.Join("left join _tool_jenkins_builds tjb on tjs.build_name = tjb.full_name"),
 		dal.Where("tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? ",
 			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName),
 	}
@@ -100,8 +100,7 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				JobName:      data.Options.JobName,
-				JobPath:      data.Options.JobPath,
+				FullName:     data.Options.JobFullName,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_STAGE_TABLE,
@@ -132,12 +131,10 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 			jenkinsTaskFinishedDate = &finishedDate
 			jenkinsTask := &devops.CICDTask{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: stageIdGen.Generate(body.ConnectionId,
-						body.BuildName, body.ID),
+					Id: stageIdGen.Generate(body.ConnectionId, body.BuildName, body.ID),
 				},
-				Name: body.Name,
-				PipelineId: buildIdGen.Generate(body.ConnectionId,
-					body.BuildName),
+				Name:         body.Name,
+				PipelineId:   buildIdGen.Generate(body.ConnectionId, body.BuildName),
 				Result:       jenkinsTaskResult,
 				Status:       jenkinsTaskStatus,
 				DurationSec:  uint64(body.DurationMillis / 1000),

@@ -31,5 +31,6 @@ func All() []core.MigrationScript {
 		new(addJobPathForBuilds),
 		new(changeIndexOfJobPath),
 		new(addTransformationRule20221128),
+		new(addFullNameForBuilds),
 	}
 }

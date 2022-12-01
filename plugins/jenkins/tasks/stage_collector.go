@@ -19,6 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -41,15 +42,15 @@ var CollectApiStagesMeta = core.SubTaskMeta{
 }
 
 type SimpleBuild struct {
-	Number          string
-	FullDisplayName string
+	Number   string
+	FullName string
 }
 
 func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
 	clauses := []dal.Clause{
-		dal.Select("tjb.number,tjb.full_display_name"),
+		dal.Select("tjb.number,tjb.full_name"),
 		dal.From("_tool_jenkins_builds as tjb"),
 		dal.Where(`tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? and tjb.class = ? `,
 			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName, "WorkflowRun"),
@@ -70,8 +71,7 @@ func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				JobName:      data.Options.JobName,
-				JobPath:      data.Options.JobPath,
+				FullName:     data.Options.JobFullName,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_STAGE_TABLE,
@@ -79,7 +79,7 @@ func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Input:       iterator,
-		UrlTemplate: "{{ .Params.Path }}job/{{ .Params.JobName }}/{{ .Input.Number }}/wfapi/describe",
+		UrlTemplate: fmt.Sprintf("%sjob/%s/{{ .Input.Number }}/wfapi/describe", data.Options.JobPath, data.Options.JobName),
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/
