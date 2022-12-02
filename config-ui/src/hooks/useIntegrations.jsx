@@ -173,10 +173,6 @@ function useIntegrations(
   )
 
   const registerPlugin = useCallback((pluginConfig) => {
-    console.log(
-      '>>> REGISTERING PLUGIN...',
-      `${pluginConfig?.name} [${pluginConfig?.type}]`
-    )
     // @todo: Validate Plugin before Registration
     return new Plugin(pluginConfig)
   }, [])
@@ -193,7 +189,6 @@ function useIntegrations(
     ]
     // todo: enhance plugin validation
     try {
-      console.log('>>> INTEGRATIONS HOOK: VALIDATING PLUGIN...', pluginConfig)
       JSON.parse(JSON.stringify(pluginConfig))
       isValid = requiredProperties.every((p) =>
         Object.prototype.hasOwnProperty.call(pluginConfig, p)
@@ -222,10 +217,6 @@ function useIntegrations(
   )
 
   useEffect(() => {
-    console.log(
-      '>>> INTEGRATIONS HOOK: PLUGIN REGISTRY CONFIGURATION!!!',
-      registry
-    )
     setPlugins((aP) => [
       // ...aP,
       ...registry
@@ -236,68 +227,8 @@ function useIntegrations(
   }, [registry, setPlugins, validatePlugin, registerPlugin])
 
   useEffect(() => {
-    console.log(
-      '>>> INTEGRATIONS HOOK: REGISTERED PLUGIN OBJECT CLASSES...',
-      plugins
-    )
     setActiveProvider(plugins[0])
   }, [plugins])
-
-  useEffect(() => {
-    console.log(
-      '>>> INTEGRATIONS HOOK: REGISTERED LIVE API PLUGIN OBJECT CLASSES...',
-      apiPlugins
-    )
-  }, [apiPlugins])
-
-  useEffect(() => {
-    console.log('>>> INTEGRATIONS HOOK: ACTIVE PROVIDER..', activeProvider)
-  }, [activeProvider])
-
-  useEffect(() => {
-    console.log(
-      '>>> INTEGRATIONS HOOK: PROVIDERS CONFIGURATION LIST ...',
-      Providers
-    )
-    console.log(
-      '>>> INTEGRATIONS HOOK: PROVIDER LABELS CONFIGURATION LIST ...',
-      ProviderLabels
-    )
-    console.log(
-      '>>> INTEGRATIONS HOOK: PROVIDER CONFIGURATION CONNECTION FORM LABELS..',
-      ProviderFormLabels
-    )
-    console.log(
-      '>>> INTEGRATIONS HOOK: PROVIDER CONFIGURATION CONNECTION  FORM PLACEHOLDERS..',
-      ProviderFormPlaceholders
-    )
-    console.log(
-      '>>> INTEGRATIONS HOOK: PROVIDER CONFIGURATION CONNECTION  FORM TOOLTIPS..',
-      ProviderFormTooltips
-    )
-    console.log(
-      '>>> INTEGRATIONS HOOK: PROVIDER CONFIGURATION PROVIDER ICONS..',
-      ProviderIcons
-    )
-    console.log(
-      '>>> INTEGRATIONS HOOK: PROVIDER CONNECTION LIMITS...',
-      ProviderConnectionLimits
-    )
-    console.log(
-      '>>> INTEGRATIONS HOOK: PROVIDER DATA SOURCES LIST...',
-      DataSources
-    )
-  }, [
-    activeProvider,
-    Providers,
-    ProviderLabels,
-    ProviderFormLabels,
-    ProviderFormPlaceholders,
-    ProviderConnectionLimits,
-    ProviderFormTooltips,
-    ProviderIcons,
-    DataSources
-  ])
 
   return {
     activeProvider,

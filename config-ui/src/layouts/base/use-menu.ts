@@ -34,7 +34,7 @@ export type MenuItemType = {
 export const useMenu = () => {
   const getGrafanaUrl = () => {
     const suffix = '/d/0Rjxknc7z/demo-homepage?orgId=1'
-    const {protocol, hostname} = window.location
+    const { protocol, hostname } = window.location
 
     return process.env.LOCAL
       ? `${protocol}//${hostname}:3002${suffix}`
@@ -46,7 +46,7 @@ export const useMenu = () => {
       [
         {
           key: 'connection',
-          title: 'Data Connections',
+          title: 'Connections',
           icon: 'data-connection',
           path: '/integrations',
           children: Plugins.filter((p) => p.type === 'integration').map(

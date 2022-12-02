@@ -21,13 +21,15 @@ import { Navbar } from '@blueprintjs/core'
 
 export const Container = styled.div`
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  background-color: #f9f9fa;
+  overflow: hidden;
 `
 
 export const Sider = styled.div`
-  flex: 0 0 250px;
+  flex: 0 0 200px;
   position: relative;
-  width: 250px;
+  width: 200px;
   background-color: #292b3f;
 
   .logo {
@@ -50,7 +52,7 @@ export const Sider = styled.div`
   }
 
   .menu {
-    margin: 0 20px;
+    margin: 0 4px;
     color: #fff;
     background-color: transparent;
 
@@ -100,17 +102,21 @@ export const Inner = styled.div`
   display: flex;
   flex-direction: column;
   flex: auto;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: auto;
 `
 
 export const Header = styled(Navbar)`
   flex: 0 0 50px;
+  background-color: #f9f9fa;
   box-shadow: none;
 `
 
 export const Content = styled.div`
   flex: auto;
-  padding: 16px 24px;
+  margin: 24px auto 0;
+  max-width: 820px;
+  width: 100%;
 `
 
 export const SlackContainer = styled.div`
