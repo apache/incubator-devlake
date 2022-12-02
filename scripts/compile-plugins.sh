@@ -34,8 +34,7 @@ set -e
 
 echo "Usage: "
 echo "  build all plugins:              $0 [golang build flags...]"
-echo "  build and keep one plugin only: PLUGIN=jira $0 [golang build flags...]"
-echo "  build and keep two plugin only: PLUGIN=jira PLUGIN2=github $0 [golang build flags...]"
+echo "  build and keep one plugin only: PLUGIN=github,jira $0 [golang build flags...]"
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 PLUGIN_SRC_DIR=$SCRIPT_DIR/../plugins
@@ -44,11 +43,10 @@ PLUGIN_OUTPUT_DIR=$SCRIPT_DIR/../bin/plugins
 if [ -z "$PLUGIN" ]; then
     PLUGINS=$(find $PLUGIN_SRC_DIR/* -maxdepth 0 -type d -not -name core -not -name helper -not -empty)
 else
-    PLUGINS=$PLUGIN_SRC_DIR/$PLUGIN
-fi
-
-if [ $PLUGIN ] && [ $PLUGIN2 ]; then
-    PLUGINS="$PLUGINS $PLUGIN_SRC_DIR/$PLUGIN2"
+    PLUGINS=
+    for p in $(echo "$PLUGIN" | tr "," "\n"); do
+        PLUGINS="$PLUGINS $PLUGIN_SRC_DIR/$p"
+    done
 fi
 
 rm -rf $PLUGIN_OUTPUT_DIR/*
