@@ -17,8 +17,9 @@
  */
 
 import React from 'react'
-import { MultiSelect } from '@blueprintjs/select'
-import { Checkbox, MenuItem, Intent } from '@blueprintjs/core'
+import { Checkbox } from '@blueprintjs/core'
+
+import { MultiSelector } from '@/components'
 
 import type { ItemType } from './use-gitlab-project-selector'
 import {
@@ -28,79 +29,32 @@ import {
 import * as S from './styled'
 
 interface Props extends UseGitLabProjectSelectorProps {
-  disabledItemIds?: Array<ItemType['id']>
+  selectedItems: Array<ItemType>
+  onChangeItems: (items: Array<ItemType>) => void
 }
 
 export const GitLabProjectSelector = ({
   connectionId,
-  disabledItemIds,
   selectedItems,
   onChangeItems
 }: Props) => {
-  const {
-    loading,
-    items,
-    search,
-    membership,
-    onSearch,
-    onChangeMembership,
-    onSelect,
-    onRemove
-  } = useGitLabProjectSelector({
-    connectionId,
-    selectedItems,
-    onChangeItems
-  })
-
-  const tagRenderer = (item: any) => {
-    return <span>{item.shortTitle || item.title}</span>
-  }
-
-  const itemRenderer = (item: ItemType, { handleClick }: any) => {
-    const selected = !![
-      ...selectedItems.map((it) => it.id),
-      ...(disabledItemIds ?? [])
-    ].find((id) => id === item.id)
-
-    return (
-      <MenuItem
-        key={item.key}
-        text={
-          <Checkbox label={item.title} checked={selected} disabled={selected} />
-        }
-        disabled={selected}
-        onClick={handleClick}
-      />
-    )
-  }
+  const { loading, items, membership, onSearch, onChangeMembership } =
+    useGitLabProjectSelector({
+      connectionId
+    })
 
   return (
     <S.Container>
-      <MultiSelect
-        className='selector'
-        placeholder='Select Projects'
-        popoverProps={{ usePortal: false, minimal: true, isOpen: !!search }}
-        resetOnSelect
-        fill
+      <MultiSelector
+        placeholder='Select Projects...'
         items={items}
+        getKey={(it) => `${it.id}`}
+        getName={(it) => it.shortTitle || it.title}
         selectedItems={selectedItems}
-        tagInputProps={{
-          tagProps: {
-            intent: Intent.PRIMARY,
-            minimal: true
-          }
-        }}
-        noResults={
-          <MenuItem
-            disabled={true}
-            text={loading ? 'Fetching...' : 'No Projects Available.'}
-          />
-        }
-        tagRenderer={tagRenderer}
-        itemRenderer={itemRenderer}
+        onChangeItems={onChangeItems}
+        loading={loading}
+        noResult='No Projects Available.'
         onQueryChange={onSearch}
-        onItemSelect={onSelect}
-        onRemove={onRemove}
       />
       <Checkbox
         className='checkbox'

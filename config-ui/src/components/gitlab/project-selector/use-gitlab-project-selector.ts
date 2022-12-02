@@ -31,17 +31,13 @@ export type ItemType = {
 
 export interface UseGitLabProjectSelectorProps {
   connectionId: string
-  selectedItems: Array<ItemType>
-  onChangeItems: (items: Array<ItemType>) => void
 }
 
 export const useGitLabProjectSelector = ({
-  connectionId,
-  selectedItems,
-  onChangeItems
+  connectionId
 }: UseGitLabProjectSelectorProps) => {
   const [loading, setLoading] = useState(false)
-  const [items, setItems] = useState([])
+  const [items, setItems] = useState<ItemType[]>([])
   const [search, setSearch] = useState('')
   const [membership, setMembership] = useState(true)
 
@@ -77,23 +73,14 @@ export const useGitLabProjectSelector = ({
     () => ({
       loading,
       items,
-      search,
       membership,
       onSearch(s: string) {
         setSearch(s)
       },
       onChangeMembership(e: React.ChangeEvent<HTMLInputElement>) {
         setMembership(e.target.checked)
-      },
-      onSelect(item: ItemType) {
-        const newItems = [...selectedItems, item]
-        onChangeItems(newItems)
-      },
-      onRemove(item: ItemType) {
-        const newItems = selectedItems.filter((it) => item.id !== it.id)
-        onChangeItems(newItems)
       }
     }),
-    [loading, items, search, membership]
+    [loading, items, membership]
   )
 }
