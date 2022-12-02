@@ -94,7 +94,6 @@ type ZentaoTaskRes struct {
 type ZentaoTask struct {
 	common.NoPKModel
 	ConnectionId  uint64  `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ExecutionId   int64   `json:"execution_id"`
 	ID            int64   `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
 	Project       int64   `json:"project"`
 	Parent        int64   `json:"parent"`

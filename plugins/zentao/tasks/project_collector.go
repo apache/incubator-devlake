@@ -45,8 +45,6 @@ func CollectProject(taskCtx core.SubTaskContext) errors.Error {
 			Table: RAW_PROJECT_TABLE,
 		},
 		ApiClient: data.ApiClient,
-
-		PageSize: 100,
 		// TODO write which api would you want request
 		UrlTemplate: "projects",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
@@ -55,7 +53,6 @@ func CollectProject(taskCtx core.SubTaskContext) errors.Error {
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
-		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			var data struct {
 				Projects []json.RawMessage `json:"projects"`

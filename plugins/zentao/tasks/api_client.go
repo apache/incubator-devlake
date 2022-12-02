@@ -91,5 +91,6 @@ func NewZentaoApiClient(taskCtx core.TaskContext, connection *models.ZentaoConne
 }
 
 type ZentaoPagination struct {
-	Page int `json:"page"`
+	Total int `json:"total"`
+	Limit int `json:"limit"`
 }
