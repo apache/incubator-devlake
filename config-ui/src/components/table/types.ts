@@ -16,9 +16,10 @@
  *
  */
 
-export * from './loading'
-export * from './divider'
-export * from './page-header'
-export * from './selector'
-export * from './dialog'
-export * from './table'
+export type ColumnType<T> = Array<{
+  title: string
+  dataIndex: string | string[]
+  key: string
+  align?: 'left' | 'center' | 'right'
+  render?: (value: any, row: T) => React.ReactNode
+}>
