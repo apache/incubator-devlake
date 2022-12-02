@@ -39,7 +39,7 @@ func EnrichApiBuildWithStages(taskCtx core.SubTaskContext) errors.Error {
 		dal.Select("tjb.*"),
 		dal.From(`_tool_jenkins_builds tjb`),
 		dal.Join(`inner join _tool_jenkins_stages tjs 
-						on tjs.build_name = tjb.full_display_name 
+						on tjs.build_name = tjb.full_name 
 						and tjs.connection_id = tjb.connection_id`),
 		dal.Where(`tjb.connection_id = ? 
 							and tjb.job_path = ? and tjb.job_name = ?`,

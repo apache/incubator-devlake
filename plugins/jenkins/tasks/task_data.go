@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -27,16 +28,15 @@ import (
 
 type JenkinsApiParams struct {
 	ConnectionId uint64
-	JobName      string
-	JobPath      string
+	FullName     string
 }
 
 type JenkinsOptions struct {
 	ConnectionId                      uint64 `json:"connectionId"`
 	TransformationRuleId              uint64 `json:"transformationRuleId"`
-	JobFullName                       string `json:"JobFullName"`
-	JobName                           string `json:"jobName"`
-	JobPath                           string `json:"jobPath"`
+	JobFullName                       string `json:"JobFullName"` // "path1/path2/job name"
+	JobName                           string `json:"jobName"`     // "job name"
+	JobPath                           string `json:"jobPath"`     // "job/path1/job/path2"
 	Since                             string
 	Tasks                             []string `json:"tasks,omitempty"`
 	*models.JenkinsTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
@@ -58,6 +58,16 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptio
 	}
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("connectionId is invalid")
+	}
+	if op.JobFullName == "" {
+		return nil, errors.BadInput.New("JobFullName is required for Jenkins execution")
+	}
+	if i := strings.LastIndex(op.JobFullName, `/`); i >= 0 {
+		op.JobName = op.JobFullName[i+1:]
+		op.JobPath = `job/` + strings.Join(strings.Split(op.JobFullName[:i], `/`), `/job/`)
+	} else {
+		op.JobName = op.JobFullName
+		op.JobPath = ``
 	}
 	if op.JenkinsTransformationRule == nil && op.TransformationRuleId == 0 {
 		op.JenkinsTransformationRule = new(models.JenkinsTransformationRule)

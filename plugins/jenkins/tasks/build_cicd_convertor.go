@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"reflect"
 	"regexp"
 	"time"
@@ -74,8 +73,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Params: JenkinsApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				JobName:      data.Options.JobName,
-				JobPath:      data.Options.JobPath,
+				FullName:     data.Options.JobFullName,
 			},
 			Ctx:   taskCtx,
 			Table: RAW_BUILD_TABLE,
@@ -105,10 +103,9 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 			}
 			jenkinsPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: buildIdGen.Generate(jenkinsBuild.ConnectionId,
-						jenkinsBuild.FullDisplayName),
+					Id: buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName),
 				},
-				Name:         fmt.Sprintf(`%s%s`, jenkinsBuild.JobPath, jenkinsBuild.JobName),
+				Name:         jenkinsBuild.FullDisplayName,
 				Result:       jenkinsPipelineResult,
 				Status:       jenkinsPipelineStatus,
 				FinishedDate: jenkinsPipelineFinishedDate,
@@ -122,8 +119,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 			if !jenkinsBuild.HasStages {
 				jenkinsTask := &devops.CICDTask{
 					DomainEntity: domainlayer.DomainEntity{
-						Id: buildIdGen.Generate(jenkinsBuild.ConnectionId,
-							jenkinsBuild.FullDisplayName),
+						Id: buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName),
 					},
 					Name:         jenkinsBuild.JobName,
 					Result:       jenkinsPipelineResult,
@@ -139,7 +135,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 					}
 				}
 
-				jenkinsTask.PipelineId = buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullDisplayName)
+				jenkinsTask.PipelineId = buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName)
 				jenkinsTask.RawDataOrigin = jenkinsBuild.RawDataOrigin
 				results = append(results, jenkinsTask)
 

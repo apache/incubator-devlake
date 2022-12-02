@@ -23,17 +23,17 @@ import (
 
 // JenkinsJob db entity for jenkins job
 type JenkinsJob struct {
-	ConnectionId         uint64 `gorm:"primaryKey" mapstructure:"connectionId,omitempty"`
-	FullName             string `gorm:"primaryKey;type:varchar(255)" mapstructure:"fullName"`
-	TransformationRuleId uint64 `mapstructure:"transformationRules,omitempty"`
-	Name                 string `gorm:"index;type:varchar(255)" mapstructure:"-,omitempty"`
-	Path                 string `gorm:"index;type:varchar(511)" mapstructure:"-,omitempty"`
-	Class                string `gorm:"type:varchar(255)" mapstructure:"class,omitempty"`
-	Color                string `gorm:"type:varchar(255)" mapstructure:"color,omitempty"`
-	Base                 string `gorm:"type:varchar(255)" mapstructure:"base,omitempty"`
-	Url                  string `mapstructure:"url,omitempty"`
-	Description          string `mapstructure:"description,omitempty"`
-	PrimaryView          string `gorm:"type:varchar(255)" mapstructure:"primaryView,omitempty"`
+	ConnectionId         uint64 `gorm:"primaryKey" mapstructure:"connectionId,omitempty" json:"connectionId"`
+	FullName             string `gorm:"primaryKey;type:varchar(255)" mapstructure:"jobFullName" json:"jobFullName"` // "path1/path2/job name"
+	TransformationRuleId uint64 `mapstructure:"transformationRules,omitempty" json:"transformationRuleId"`
+	Name                 string `gorm:"index;type:varchar(255)" mapstructure:"-,omitempty" json:"-"` // "job name"
+	Path                 string `gorm:"index;type:varchar(511)" mapstructure:"-,omitempty" json:"-"` // "job/path1/job/path2"
+	Class                string `gorm:"type:varchar(255)" mapstructure:"class,omitempty" json:"class"`
+	Color                string `gorm:"type:varchar(255)" mapstructure:"color,omitempty" json:"color"`
+	Base                 string `gorm:"type:varchar(255)" mapstructure:"base,omitempty" json:"base"`
+	Url                  string `mapstructure:"url,omitempty" json:"url"`
+	Description          string `mapstructure:"description,omitempty" json:"description"`
+	PrimaryView          string `gorm:"type:varchar(255)" mapstructure:"primaryView,omitempty" json:"primaryView"`
 	common.NoPKModel     `mapstructure:"-"`
 }
 
