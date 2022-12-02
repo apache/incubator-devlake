@@ -348,6 +348,32 @@ func NotifyExternal(pipelineId uint64) errors.Error {
 
 // CancelPipeline FIXME ...
 func CancelPipeline(pipelineId uint64) errors.Error {
+	// prevent RunPipelineInQueue from consuming pending pipelines
+	cronLocker.Lock()
+	defer cronLocker.Unlock()
+	pipeline := &models.DbPipeline{}
+	err := db.First(pipeline, pipelineId).Error
+	if err != nil {
+		return errors.BadInput.New("pipeline not found")
+	}
+	if pipeline.Status == models.TASK_CREATED || pipeline.Status == models.TASK_RERUN {
+		pipeline.Status = models.TASK_CANCELLED
+		result := db.Save(pipeline)
+		if result.Error != nil {
+			println(result.Error.Error())
+			return errors.Default.Wrap(result.Error, "faile to update pipeline")
+		}
+		// now, with RunPipelineInQueue being block and target pipeline got updated
+		// we should update the related tasks as well
+		result = db.Model(&models.Task{}).
+			Where("pipeline_id = ?", pipelineId).
+			Update("status", models.TASK_CANCELLED)
+		if result.Error != nil {
+			return errors.Default.Wrap(result.Error, "faile to update pipeline tasks")
+		}
+		// the target pipeline is pending, no running, no need to perform the actual cancel operation
+		return nil
+	}
 	if temporalClient != nil {
 		return errors.Convert(temporalClient.CancelWorkflow(context.Background(), getTemporalWorkflowId(pipelineId), ""))
 	}
