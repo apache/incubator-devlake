@@ -66,7 +66,7 @@ export const useMenu = () => {
           children: [
             {
               key: 'create-blueprint',
-              title: 'Create Bluepint',
+              title: 'Create Blueprint',
               icon: 'git-pull',
               path: '/blueprints/create'
             }
