@@ -360,7 +360,6 @@ func CancelPipeline(pipelineId uint64) errors.Error {
 		pipeline.Status = models.TASK_CANCELLED
 		result := db.Save(pipeline)
 		if result.Error != nil {
-			println(result.Error.Error())
 			return errors.Default.Wrap(result.Error, "faile to update pipeline")
 		}
 		// now, with RunPipelineInQueue being block and target pipeline got updated
