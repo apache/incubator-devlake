@@ -66,7 +66,7 @@ export const IncomingWebhook = () => {
   }
 
   return (
-    <div className='container'>
+    <>
       <div className='main'>
         <AppCrumbs
           items={[
@@ -172,6 +172,6 @@ export const IncomingWebhook = () => {
           onCancel={handleHideModal}
         />
       )}
-    </div>
+    </>
   )
 }
