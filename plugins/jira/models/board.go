@@ -22,7 +22,7 @@ import (
 )
 
 type JiraBoard struct {
-	common.NoPKModel
+	common.NoPKModel     `mapstructure:"-"`
 	ConnectionId         uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
 	BoardId              uint64 `json:"boardId" mapstructure:"boardId" gorm:"primaryKey"`
 	TransformationRuleId uint64 `json:"transformationRuleId" mapstructure:"transformationRuleId"`
