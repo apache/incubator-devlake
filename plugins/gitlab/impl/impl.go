@@ -65,8 +65,8 @@ func (plugin Gitlab) TransformationRule() interface{} {
 	return &models.GitlabTransformationRule{}
 }
 
-func (plugin Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(connectionId, scopes)
+func (plugin Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
+	return api.MakePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes)
 }
 
 func (plugin Gitlab) GetTablesInfo() []core.Tabler {
@@ -210,11 +210,11 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 		},
 		"connections/:connectionId/scopes/:projectId": {
 			"GET":   api.GetScope,
+			"PUT":   api.PutScope,
 			"PATCH": api.UpdateScope,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
-			"PUT": api.PutScope,
 		},
 		"transformation_rules": {
 			"POST": api.CreateTransformationRule,

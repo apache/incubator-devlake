@@ -18,37 +18,56 @@ limitations under the License.
 package api
 
 import (
+	"fmt"
+	"net/url"
+	"strconv"
+
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/go-playground/validator/v10"
+	"github.com/apache/incubator-devlake/utils"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-func MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
-	pp = make(core.PipelinePlan, 0, 1)
-	sc = make([]core.Scope, 0, 3*len(scopes))
-	err = nil
+func MakePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
+	var err errors.Error
+	connection := new(models.GitlabConnection)
+	err1 := connectionHelper.FirstById(connection, connectionId)
+	if err1 != nil {
+		return nil, nil, errors.Default.Wrap(err1, fmt.Sprintf("error on get connection by id[%d]", connectionId))
+	}
 
-	connectionHelper := helper.NewConnectionHelper(BasicRes, validator.New())
-
-	// get the connection info for url
-	connection := &models.GitlabConnection{}
-	err = connectionHelper.FirstById(connection, connectionId)
+	sc, err := makeScopeV200(connectionId, scope)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	ps := make(core.PipelineStage, 0, len(scopes))
+	pp, err := makePipelinePlanV200(subtaskMetas, scope, connection)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return pp, sc, nil
+}
+
+func makeScopeV200(connectionId uint64, scopes []*core.BlueprintScopeV200) ([]core.Scope, errors.Error) {
+	sc := make([]core.Scope, 0, 2*len(scopes))
+
 	for _, scope := range scopes {
 		var board ticket.Board
 		var repo code.Repo
 
-		id := didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, scope.Id)
+		intScopeId, err := strconv.Atoi(scope.Id)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("Failed to strconv.Atoi for scope.Id [%s]", scope.Id))
+		}
+		id := didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, intScopeId)
 
 		repo.Id = id
 		repo.Name = scope.Name
@@ -58,23 +77,93 @@ func MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.Blueprin
 
 		sc = append(sc, &repo)
 		sc = append(sc, &board)
-
-		ps = append(ps, &core.PipelineTask{
-			Plugin: "gitlab",
-			Options: map[string]interface{}{
-				"name": scope.Name,
-			},
-		})
-
-		ps = append(ps, &core.PipelineTask{
-			Plugin: "gitextractor",
-			Options: map[string]interface{}{
-				"url": connection.Endpoint + scope.Name,
-			},
-		})
 	}
 
-	pp = append(pp, ps)
+	return sc, nil
+}
 
-	return pp, sc, nil
+func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.BlueprintScopeV200, connection *models.GitlabConnection) (core.PipelinePlan, errors.Error) {
+	var err errors.Error
+
+	plans := make(core.PipelinePlan, 0, 3*len(scopes))
+	for _, scope := range scopes {
+		var stage core.PipelineStage
+		// get repo
+		repo := &models.GitlabProject{}
+		err = BasicRes.GetDal().First(repo, dal.Where("connection_id = ? AND gitlab_id = ?", connection.ID, scope.Id))
+		if err != nil {
+			return nil, err
+		}
+
+		// get transformationRuleId
+		var transformationRules models.GitlabTransformationRule
+		transformationRuleId := repo.TransformationRuleId
+		if transformationRuleId != 0 {
+			err = BasicRes.GetDal().First(&transformationRules, dal.Where("id = ?", transformationRuleId))
+			if err != nil {
+				return nil, errors.Default.Wrap(err, "error on get TransformationRule")
+			}
+		} else {
+			transformationRules.ID = 0
+		}
+
+		// refdiff part
+		if transformationRules.RefdiffRule != nil {
+			task := &core.PipelineTask{
+				Plugin:  "refdiff",
+				Options: transformationRules.RefdiffRule,
+			}
+			stage = append(stage, task)
+		}
+
+		// get int scopeId
+		intScopeId, err1 := strconv.Atoi(scope.Id)
+		if err != nil {
+			return nil, errors.Default.Wrap(err1, fmt.Sprintf("Failed to strconv.Atoi for scope.Id [%s]", scope.Id))
+		}
+
+		// gitlab main part
+		options := make(map[string]interface{})
+		options["connectionId"] = connection.ID
+		options["projectId"] = intScopeId
+		options["transformationRules"] = transformationRules
+		options["transformationRuleId"] = transformationRules.ID
+		// make sure task options is valid
+		_, err := tasks.DecodeAndValidateTaskOptions(options)
+		if err != nil {
+			return nil, err
+		}
+
+		// construct subtasks
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scope.Entities)
+		if err != nil {
+			return nil, err
+		}
+
+		stage = append(stage, &core.PipelineTask{
+			Plugin:   "gitlab",
+			Subtasks: subtasks,
+			Options:  options,
+		})
+
+		// collect git data by gitextractor if CODE was requested
+		if utils.StringsContains(scope.Entities, core.DOMAIN_TYPE_CODE) {
+			cloneUrl, err := errors.Convert01(url.Parse(repo.HttpUrlToRepo))
+			if err != nil {
+				return nil, err
+			}
+			cloneUrl.User = url.UserPassword("git", connection.Token)
+			stage = append(stage, &core.PipelineTask{
+				Plugin: "gitextractor",
+				Options: map[string]interface{}{
+					"url":    cloneUrl.String(),
+					"repoId": didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, repo.GitlabId),
+					"proxy":  connection.Proxy,
+				},
+			})
+		}
+
+		plans = append(plans, stage)
+	}
+	return plans, nil
 }

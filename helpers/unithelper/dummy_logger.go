@@ -31,7 +31,21 @@ func DummyLogger() *mocks.Logger {
 	logger.On("Debug", mock.Anything, mock.Anything).Maybe()
 	logger.On("Info", mock.Anything, mock.Anything).Maybe()
 	logger.On("Warn", mock.Anything, mock.Anything).Maybe()
-	logger.On("Error", mock.Anything, mock.Anything).Maybe()
+	logger.On("Error", mock.Anything, mock.Anything, mock.Anything).Maybe()
 	logger.On("Nested", mock.Anything).Return(logger).Maybe()
 	return logger
+}
+
+// NewMockBasicRes FIXME ...
+func NewMockBasicRes(callback func(mockDal *mocks.Dal)) *mocks.BasicRes {
+	mockRes := new(mocks.BasicRes)
+	mockLog := DummyLogger()
+	mockDal := new(mocks.Dal)
+
+	callback(mockDal)
+
+	mockRes.On("GetDal").Return(mockDal)
+	mockRes.On("GetLogger").Return(mockLog)
+	mockRes.On("GetConfig", mock.Anything).Return("")
+	return mockRes
 }
