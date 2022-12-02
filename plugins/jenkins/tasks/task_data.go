@@ -36,7 +36,7 @@ type JenkinsOptions struct {
 	TransformationRuleId              uint64 `json:"transformationRuleId"`
 	JobFullName                       string `json:"JobFullName"` // "path1/path2/job name"
 	JobName                           string `json:"jobName"`     // "job name"
-	JobPath                           string `json:"jobPath"`     // "job/path1/job/path2/job name"
+	JobPath                           string `json:"jobPath"`     // "job/path1/job/path2"
 	Since                             string
 	Tasks                             []string `json:"tasks,omitempty"`
 	*models.JenkinsTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`

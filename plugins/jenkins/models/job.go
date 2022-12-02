@@ -27,7 +27,7 @@ type JenkinsJob struct {
 	FullName             string `gorm:"primaryKey;type:varchar(255)" mapstructure:"jobFullName" json:"jobFullName"` // "path1/path2/job name"
 	TransformationRuleId uint64 `mapstructure:"transformationRules,omitempty" json:"transformationRuleId"`
 	Name                 string `gorm:"index;type:varchar(255)" mapstructure:"-,omitempty" json:"-"` // "job name"
-	Path                 string `gorm:"index;type:varchar(511)" mapstructure:"-,omitempty" json:"-"` // "job/path1/job/path2/job name"
+	Path                 string `gorm:"index;type:varchar(511)" mapstructure:"-,omitempty" json:"-"` // "job/path1/job/path2"
 	Class                string `gorm:"type:varchar(255)" mapstructure:"class,omitempty" json:"class"`
 	Color                string `gorm:"type:varchar(255)" mapstructure:"color,omitempty" json:"color"`
 	Base                 string `gorm:"type:varchar(255)" mapstructure:"base,omitempty" json:"base"`
