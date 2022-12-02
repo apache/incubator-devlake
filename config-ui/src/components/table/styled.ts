@@ -16,9 +16,45 @@
  *
  */
 
-export * from './loading'
-export * from './divider'
-export * from './page-header'
-export * from './selector'
-export * from './dialog'
-export * from './table'
+import styled from '@emotion/styled'
+
+export const Container = styled.div`
+  position: relative;
+`
+
+export const TableWrapper = styled.ul<{ loading?: boolean }>`
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: opacity 0.3s linear;
+
+  ${({ loading }) => (loading ? 'opacity: 0.2; ' : '')}
+`
+
+export const TableRow = styled.li`
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-top: 1px solid #dbe4fd;
+
+  & > span {
+    flex: 1;
+  }
+`
+
+export const TableHeader = styled(TableRow)`
+  font-size: 14px;
+  font-weight: 600;
+  border-top: none;
+`
+
+export const TableMask = styled.div`
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
