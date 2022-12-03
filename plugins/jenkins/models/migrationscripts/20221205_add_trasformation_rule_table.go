@@ -24,22 +24,22 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts/archived"
 )
 
-type jenkinsJob20221128 struct {
+type jenkinsJob20221205 struct {
 	TransformationRuleId uint64
 }
 
-func (jenkinsJob20221128) TableName() string {
+func (jenkinsJob20221205) TableName() string {
 	return "_tool_jenkins_jobs"
 }
 
 type addTransformationRule20221128 struct{}
 
 func (*addTransformationRule20221128) Up(basicRes core.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(basicRes, &jenkinsJob20221128{}, &archived.JenkinsTransformationRule{})
+	return migrationhelper.AutoMigrateTables(basicRes, &jenkinsJob20221205{}, &archived.JenkinsTransformationRule{})
 }
 
 func (*addTransformationRule20221128) Version() uint64 {
-	return 20221128113500
+	return 20221205113500
 }
 
 func (*addTransformationRule20221128) Name() string {

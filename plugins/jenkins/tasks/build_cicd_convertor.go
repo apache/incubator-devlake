@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"reflect"
-	"regexp"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -43,14 +42,10 @@ var ConvertBuildsToCICDMeta = core.SubTaskMeta{
 func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
-	var deployTagRegexp *regexp.Regexp
 	deploymentPattern := data.Options.DeploymentPattern
-	if len(deploymentPattern) > 0 {
-		deployTagRegexp, err = errors.Convert01(regexp.Compile(deploymentPattern))
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp compile deploymentPattern failed")
-		}
-	}
+	productionPattern := data.Options.ProductionPattern
+	regexEnricher := helper.NewRegexEnricher()
+	regexEnricher.AddRegexp(deploymentPattern, productionPattern)
 
 	clauses := []dal.Clause{
 		dal.From("_tool_jenkins_builds"),
@@ -121,7 +116,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 					DomainEntity: domainlayer.DomainEntity{
 						Id: buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName),
 					},
-					Name:         jenkinsBuild.JobName,
+					Name:         data.Options.JobFullName,
 					Result:       jenkinsPipelineResult,
 					Status:       jenkinsPipelineStatus,
 					DurationSec:  uint64(durationSec),
@@ -129,11 +124,8 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 					FinishedDate: jenkinsPipelineFinishedDate,
 					CicdScopeId:  jobIdGen.Generate(jenkinsBuild.ConnectionId, data.Options.JobFullName),
 				}
-				if deployTagRegexp != nil {
-					if deployFlag := deployTagRegexp.FindString(jenkinsBuild.JobName); deployFlag != "" {
-						jenkinsTask.Type = devops.DEPLOYMENT
-					}
-				}
+				jenkinsTask.Type = regexEnricher.GetEnrichResult(deploymentPattern, jenkinsTask.Name, devops.DEPLOYMENT)
+				jenkinsTask.Environment = regexEnricher.GetEnrichResult(productionPattern, jenkinsTask.Name, devops.PRODUCTION)
 
 				jenkinsTask.PipelineId = buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName)
 				jenkinsTask.RawDataOrigin = jenkinsBuild.RawDataOrigin

@@ -25,6 +25,7 @@ type JenkinsTransformationRule struct {
 	archived.Model
 	Name              string `gorm:"type:varchar(255)"`
 	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern" json:"deploymentPattern"`
+	ProductionPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern,omitempty" json:"productionPattern"`
 }
 
 func (t JenkinsTransformationRule) TableName() string {
