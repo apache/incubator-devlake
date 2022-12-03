@@ -16,9 +16,25 @@
  *
  */
 
-type ID = string | number
+export enum ConnectionStatusEnum {
+  ONLINE = 'online',
+  OFFLINE = 'offline',
+  WAITING = 'waiting',
+  TESTING = 'testing',
+  NULL = 'null'
+}
 
-declare module '*.svg' {
-  const content: any
-  export default content
+export type ConnectionItemType = {
+  unique: string
+  status: ConnectionStatusEnum
+  plugin: string
+  id: ID
+  name: string
+  icon: string
+  entities: string[]
+  endpoint: string
+  proxy: string
+  token?: string
+  username?: string
+  password?: string
 }

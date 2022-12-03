@@ -16,9 +16,4 @@
  *
  */
 
-type ID = string | number
-
-declare module '*.svg' {
-  const content: any
-  export default content
-}
+export * from './connections'
