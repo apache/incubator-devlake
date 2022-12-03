@@ -31,7 +31,7 @@ import (
 var EnrichTaskEnvMeta = core.SubTaskMeta{
 	Name:             "EnrichTaskEnv",
 	EntryPoint:       EnrichTasksEnv,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "calculate deployment frequency",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }

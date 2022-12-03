@@ -35,7 +35,8 @@ type GithubTransformationRule struct {
 	IssueTypeBug         string `mapstructure:"issueTypeBug" json:"issueTypeBug" gorm:"type:varchar(255)"`
 	IssueTypeIncident    string `mapstructure:"issueTypeIncident" json:"issueTypeIncident" gorm:"type:varchar(255)"`
 	IssueTypeRequirement string `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement" gorm:"type:varchar(255)"`
-	DeploymentPattern    string `mapstructure:"deploymentPattern" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	DeploymentPattern    string `mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern" gorm:"type:varchar(255)"`
+	ProductionPattern    string `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
 	Refdiff              datatypes.JSONMap
 }
 
