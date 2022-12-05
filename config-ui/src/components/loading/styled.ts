@@ -34,12 +34,13 @@ export const Wrapper = styled.div`
   align-items: center;
 `
 
-export const Spin = styled.div`
-  width: 26px;
-  height: 26px;
+export const Spin = styled.div<{ size: number }>`
+  width: ${({ size }) => size}px;
+  height: ${({ size }) => size}px;
   border: 2px solid #7497f7;
   border-radius: 50%;
   border-right-color: transparent;
+  box-sizing: border-box;
   animation-name: ${SpinKeyframes};
   animation-duration: 1s;
   animation-timing-function: linear;

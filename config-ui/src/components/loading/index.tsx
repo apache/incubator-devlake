@@ -21,14 +21,16 @@ import React from 'react'
 import * as S from './styled'
 
 interface Props {
+  size?: number
   text?: string
+  style?: React.CSSProperties
 }
 
-export const Loading = ({ text }: Props) => {
+export const Loading = ({ size = 24, text, style }: Props) => {
   return (
-    <S.Wrapper>
-      <S.Spin />
-      <S.Text>{text}</S.Text>
+    <S.Wrapper style={style}>
+      <S.Spin size={size} />
+      {text && <S.Text>{text}</S.Text>}
     </S.Wrapper>
   )
 }
