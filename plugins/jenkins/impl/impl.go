@@ -19,11 +19,12 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"strings"
+	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -96,6 +97,8 @@ func (plugin Jenkins) SubTaskMetas() []core.SubTaskMeta {
 }
 func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
+	logger := taskCtx.GetLogger()
+	logger.Debug("%v", options)
 	if err != nil {
 		return nil, err
 	}
@@ -120,9 +123,19 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 	if err != nil {
 		return nil, err
 	}
+
+	var createdDateAfter time.Time
+	if op.CreatedDateAfter != "" {
+		createdDateAfter, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
+		}
+	}
+
 	if !strings.HasSuffix(op.JobPath, "/") {
 		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
 	}
+
 	if op.JenkinsTransformationRule == nil && op.TransformationRuleId != 0 {
 		var transformationRule models.JenkinsTransformationRule
 		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
@@ -131,11 +144,16 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 		}
 		op.JenkinsTransformationRule = &transformationRule
 	}
-	return &tasks.JenkinsTaskData{
+	taskData := &tasks.JenkinsTaskData{
 		Options:    op,
 		ApiClient:  apiClient,
 		Connection: connection,
-	}, nil
+	}
+	if !createdDateAfter.IsZero() {
+		taskData.CreatedDateAfter = &createdDateAfter
+		logger.Debug("collect data created from %s", createdDateAfter)
+	}
+	return taskData, nil
 }
 
 func (plugin Jenkins) RootPkgPath() string {

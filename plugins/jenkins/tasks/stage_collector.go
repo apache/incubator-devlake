@@ -52,8 +52,12 @@ func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 	clauses := []dal.Clause{
 		dal.Select("tjb.number,tjb.full_name"),
 		dal.From("_tool_jenkins_builds as tjb"),
-		dal.Where(`tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? and tjb.class = ? `,
+		dal.Where(`tjb.connection_id = ? and tjb.job_path = ? and tjb.job_name = ? and tjb.class = ?`,
 			data.Options.ConnectionId, data.Options.JobPath, data.Options.JobName, "WorkflowRun"),
+	}
+	createdDateAfter := data.CreatedDateAfter
+	if createdDateAfter != nil {
+		clauses = append(clauses, dal.Where(`tjb.start_time >= ?`, createdDateAfter.Format("2006/01/02 15:04")))
 	}
 
 	cursor, err := db.Cursor(clauses...)
