@@ -77,7 +77,6 @@ func CollectApiStages(taskCtx core.SubTaskContext) errors.Error {
 			Table: RAW_STAGE_TABLE,
 		},
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
 		Input:       iterator,
 		UrlTemplate: fmt.Sprintf("%sjob/%s/{{ .Input.Number }}/wfapi/describe", data.Options.JobPath, data.Options.JobName),
 		/*
