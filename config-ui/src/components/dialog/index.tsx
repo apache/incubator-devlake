@@ -28,6 +28,7 @@ interface Props {
   cancelText?: string
   okText?: string
   okDisabled?: boolean
+  okLoading?: boolean
   onCancel?: () => void
   onOk?: () => void
 }
@@ -39,6 +40,7 @@ export const Dialog = ({
   cancelText = 'Cancel',
   okText = 'OK',
   okDisabled,
+  okLoading,
   onCancel,
   onOk
 }: Props) => {
@@ -61,6 +63,7 @@ export const Dialog = ({
           />
           <Button
             disabled={okDisabled}
+            loading={okLoading}
             intent={Intent.PRIMARY}
             text={okText}
             onClick={onOk}
