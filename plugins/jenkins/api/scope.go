@@ -29,6 +29,11 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+type apiJob struct {
+	models.JenkinsJob
+	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+}
+
 type req struct {
 	Data []*models.JenkinsJob `json:"data"`
 }
@@ -113,7 +118,7 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 // @Param connectionId path int false "connection ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []models.JenkinsJob
+// @Success 200  {object} []apiJob
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jenkins/connections/{connectionId}/scopes/ [GET]
@@ -128,7 +133,28 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: jobs, Status: http.StatusOK}, nil
+	var ruleIds []uint64
+	for _, job := range jobs {
+		if job.TransformationRuleId > 0 {
+			ruleIds = append(ruleIds, job.TransformationRuleId)
+		}
+	}
+	var rules []models.JenkinsTransformationRule
+	if len(ruleIds) > 0 {
+		err = BasicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
+		if err != nil {
+			return nil, err
+		}
+	}
+	names := make(map[uint64]string)
+	for _, rule := range rules {
+		names[rule.ID] = rule.Name
+	}
+	var apiJobs []apiJob
+	for _, job := range jobs {
+		apiJobs = append(apiJobs, apiJob{job, names[job.TransformationRuleId]})
+	}
+	return &core.ApiResourceOutput{Body: apiJobs, Status: http.StatusOK}, nil
 }
 
 // GetScope get one Jenkins job
@@ -137,7 +163,7 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 // @Tags plugins/jenkins
 // @Param connectionId path int false "connection ID"
 // @Param fullName path string false "job's full name"
-// @Success 200  {object} models.JenkinsJob
+// @Success 200  {object} apiJob
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jenkins/connections/{connectionId}/scopes/{fullName} [GET]
@@ -151,7 +177,14 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: job, Status: http.StatusOK}, nil
+	var rule models.JenkinsJob
+	if job.TransformationRuleId > 0 {
+		err = BasicRes.GetDal().First(&rule, dal.Where("id = ?", job.TransformationRuleId))
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &core.ApiResourceOutput{Body: apiJob{job, rule.Name}, Status: http.StatusOK}, nil
 }
 
 func extractParam(params map[string]string) (uint64, string, errors.Error) {
