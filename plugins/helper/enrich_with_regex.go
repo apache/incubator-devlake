@@ -24,14 +24,18 @@ import (
 	"regexp"
 )
 
+// RegexEnricher process value with regex pattern
 type RegexEnricher struct {
+	// This field will store compiled regular expression for every pattern
 	regexpMap map[string]*regexp.Regexp
 }
 
+// NewRegexEnricher initialize a regexEnricher
 func NewRegexEnricher() *RegexEnricher {
 	return &RegexEnricher{regexpMap: make(map[string]*regexp.Regexp)}
 }
 
+// AddRegexp will add compiled regular expression for pattern to regexpMap
 func (r *RegexEnricher) AddRegexp(patterns ...string) {
 	for _, pattern := range patterns {
 		if len(pattern) > 0 {
@@ -44,6 +48,9 @@ func (r *RegexEnricher) AddRegexp(patterns ...string) {
 	}
 }
 
+// GetEnrichResult will get compiled regular expression from map by pattern,
+// and check if v matches compiled regular expression,
+// lastly, will return corresponding value(result or empty)
 func (r *RegexEnricher) GetEnrichResult(pattern string, v string, result string) string {
 	if result == devops.PRODUCTION && pattern == "" {
 		return result
