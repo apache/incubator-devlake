@@ -20,6 +20,7 @@ package services
 import (
 	goerror "errors"
 	"fmt"
+	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
@@ -30,6 +31,9 @@ import (
 func CreateDbProject(project *models.Project) errors.Error {
 	err := db.Create(project).Error
 	if err != nil {
+		if strings.Contains(err.Error(), "duplicate") {
+			return errors.BadInput.New("The project [%s] already exists,cannot be created again")
+		}
 		return errors.Default.Wrap(err, "error creating DB project")
 	}
 	return nil

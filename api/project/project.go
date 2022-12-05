@@ -29,8 +29,8 @@ import (
 )
 
 type PaginatedProjects struct {
-	Projects []*models.Project
-	Count    int64
+	Projects []*models.BaseProject `json:"projects"`
+	Count    int64                 `json:"count"`
 }
 
 // @Summary Create and run a new project
@@ -63,10 +63,10 @@ func GetProject(c *gin.Context) {
 }
 
 // @Summary Get list of projects
-// @Description GET /projects?page=1&pagesize=10
+// @Description GET /projects?page=1&pageSize=10
 // @Tags framework/projects
 // @Param page query int true "query"
-// @Param pagesize query int true "query"
+// @Param pageSize query int true "query"
 // @Success 200  {object} PaginatedProjects
 // @Failure 400  {string} errcode.Error "Bad Request"
 // @Failure 500  {string} errcode.Error "Internel Error"
@@ -83,8 +83,14 @@ func GetProjects(c *gin.Context) {
 		shared.ApiOutputAbort(c, errors.Default.Wrap(err, "error getting projects"))
 		return
 	}
+
+	baseProjects := make([]*models.BaseProject, count)
+	for i, project := range projects {
+		baseProjects[i] = &project.BaseProject
+	}
+
 	shared.ApiOutputSuccess(c, PaginatedProjects{
-		Projects: projects,
+		Projects: baseProjects,
 		Count:    count,
 	}, http.StatusOK)
 }
@@ -110,7 +116,7 @@ func PostProject(c *gin.Context) {
 
 	err = services.CreateProject(&models.Project{BaseProject: projectInput.BaseProject})
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating project"))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "error creating project"))
 		return
 	}
 
@@ -130,13 +136,12 @@ func PostProject(c *gin.Context) {
 			shared.ApiOutputError(c, errors.BadInput.Wrap(err, "Failed to flush project metrics"))
 			return
 		}
-
 	}
 
 	projectOutput.BaseProject = projectInput.BaseProject
 	err = services.LoadBluePrintAndMetrics(projectOutput)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, fmt.Sprintf("Failed to LoadBluePrintAndMetrics on PostProject for %s", projectOutput.Name)))
+		shared.ApiOutputError(c, errors.Default.Wrap(err, fmt.Sprintf("Failed to LoadBluePrintAndMetrics on PostProject for %s", projectOutput.Name)))
 		return
 	}
 
@@ -164,7 +169,7 @@ func PatchProject(c *gin.Context) {
 
 	projectOutput, err := services.PatchProject(projectName, body)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error patch project"))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "error patch project"))
 		return
 	}
 
@@ -196,7 +201,7 @@ func GetProjectMetrics(c *gin.Context) {
 
 	projectMetric, err := services.GetProjectMetric(projectName, pluginName)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting project metric"))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "error getting project metric"))
 		return
 	}
 
@@ -232,7 +237,7 @@ func PostProjectMetrics(c *gin.Context) {
 	projectMetric.ProjectName = projectName
 	err = services.CreateProjectMetric(&models.ProjectMetric{BaseProjectMetric: *projectMetric})
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error creating project"))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "error creating project metric"))
 		return
 	}
 
@@ -261,7 +266,7 @@ func PatchProjectMetrics(c *gin.Context) {
 
 	projectMetric, err := services.PatchProjectMetric(projectName, pluginName, body)
 	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error patch project"))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "error patch project metric"))
 		return
 	}
 
