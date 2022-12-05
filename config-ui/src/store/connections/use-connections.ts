@@ -25,6 +25,7 @@ import { ConnectionStatusEnum } from './types'
 import { getConnection, testConnection } from './api'
 
 export const useConnections = (plugin?: string | string[]) => {
+  const [loading, setLoading] = useState(false)
   const [connections, setConnections] = useState<ConnectionItemType[]>([])
 
   const allConnections = useMemo(
@@ -37,39 +38,45 @@ export const useConnections = (plugin?: string | string[]) => {
   )
 
   const handleRefresh = useCallback(async () => {
-    const res = await Promise.all(
-      allConnections.map((cs) => getConnection(cs.id))
-    )
+    setLoading(true)
 
-    const resWithPlugin = res.map((cs, i) =>
-      cs.map((it: any) => {
-        const { id, icon, availableDataDomains } = allConnections[i] as any
+    try {
+      const res = await Promise.all(
+        allConnections.map((cs) => getConnection(cs.id))
+      )
 
-        return {
-          ...it,
-          plugin: id,
-          icon: `/${icon}`,
-          entities: availableDataDomains
-        }
-      })
-    )
+      const resWithPlugin = res.map((cs, i) =>
+        cs.map((it: any) => {
+          const { id, icon, availableDataDomains } = allConnections[i] as any
 
-    setConnections(
-      resWithPlugin.flat().map((it) => ({
-        unique: `${it.plugin}-${it.id}`,
-        status: ConnectionStatusEnum.NULL,
-        plugin: it.plugin,
-        id: it.id,
-        name: it.name,
-        icon: it.icon,
-        entities: it.entities,
-        endpoint: it.endpoint,
-        proxy: it.proxy,
-        token: it.token,
-        username: it.username,
-        password: it.password
-      }))
-    )
+          return {
+            ...it,
+            plugin: id,
+            icon: `/${icon}`,
+            entities: availableDataDomains
+          }
+        })
+      )
+
+      setConnections(
+        resWithPlugin.flat().map((it) => ({
+          unique: `${it.plugin}-${it.id}`,
+          status: ConnectionStatusEnum.NULL,
+          plugin: it.plugin,
+          id: it.id,
+          name: it.name,
+          icon: it.icon,
+          entities: it.entities,
+          endpoint: it.endpoint,
+          proxy: it.proxy,
+          token: it.token,
+          username: it.username,
+          password: it.password
+        }))
+      )
+    } finally {
+      setLoading(false)
+    }
   }, [allConnections])
 
   useEffect(() => {
@@ -138,10 +145,11 @@ export const useConnections = (plugin?: string | string[]) => {
 
   return useMemo(
     () => ({
+      loading,
       connections,
       onRefresh: handleRefresh,
       onTest: handleTest
     }),
-    [connections]
+    [loading, connections]
   )
 }
