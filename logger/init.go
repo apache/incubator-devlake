@@ -54,7 +54,11 @@ func init() {
 	if basePath == "" {
 		inner.Warn("LOGGING_DIR is not set. Log files will not be generated.")
 	} else {
-		basePath = filepath.Join(basePath, "devlake.log")
+		abs, err := filepath.Abs(basePath)
+		if err != nil {
+			panic(err)
+		}
+		basePath = filepath.Join(abs, "devlake.log")
 	}
 	var err errors.Error
 	Global, err = NewDefaultLogger(inner)
