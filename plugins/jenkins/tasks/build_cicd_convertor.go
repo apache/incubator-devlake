@@ -45,8 +45,10 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 	deploymentPattern := data.Options.DeploymentPattern
 	productionPattern := data.Options.ProductionPattern
 	regexEnricher := helper.NewRegexEnricher()
-	regexEnricher.AddRegexp(deploymentPattern, productionPattern)
-
+	err = regexEnricher.AddRegexp(deploymentPattern, productionPattern)
+	if err != nil {
+		return err
+	}
 	clauses := []dal.Clause{
 		dal.From("_tool_jenkins_builds"),
 		dal.Where(`_tool_jenkins_builds.connection_id = ?

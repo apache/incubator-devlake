@@ -53,8 +53,10 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 	deploymentPattern := data.Options.DeploymentPattern
 	productionPattern := data.Options.ProductionPattern
 	regexEnricher := helper.NewRegexEnricher()
-	regexEnricher.AddRegexp(deploymentPattern, productionPattern)
-
+	err = regexEnricher.AddRegexp(deploymentPattern, productionPattern)
+	if err != nil {
+		return err
+	}
 	job := &models.GithubJob{}
 	cursor, err := db.Cursor(
 		dal.From(job),

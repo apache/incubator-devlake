@@ -36,16 +36,17 @@ func NewRegexEnricher() *RegexEnricher {
 }
 
 // AddRegexp will add compiled regular expression for pattern to regexpMap
-func (r *RegexEnricher) AddRegexp(patterns ...string) {
+func (r *RegexEnricher) AddRegexp(patterns ...string) errors.Error {
 	for _, pattern := range patterns {
 		if len(pattern) > 0 {
 			regex, err := errors.Convert01(regexp.Compile(pattern))
 			if err != nil {
-				panic(fmt.Sprintf("Fail to compile pattern for regex pattern: %s", pattern))
+				return errors.Default.Wrap(err, fmt.Sprintf("Fail to compile pattern for regex pattern: %s", pattern))
 			}
 			r.regexpMap[pattern] = regex
 		}
 	}
+	return nil
 }
 
 // GetEnrichResult will get compiled regular expression from map by pattern,

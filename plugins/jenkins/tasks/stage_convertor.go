@@ -66,8 +66,10 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 	deploymentPattern := data.Options.DeploymentPattern
 	productionPattern := data.Options.ProductionPattern
 	regexEnricher := helper.NewRegexEnricher()
-	regexEnricher.AddRegexp(deploymentPattern, productionPattern)
-
+	err = regexEnricher.AddRegexp(deploymentPattern, productionPattern)
+	if err != nil {
+		return err
+	}
 	clauses := []dal.Clause{
 		dal.Select(`tjb.connection_id, tjs.build_name, tjs.id, tjs._raw_data_remark, tjs.name,
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
