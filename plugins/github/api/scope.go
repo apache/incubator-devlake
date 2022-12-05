@@ -30,6 +30,11 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+type apiRepo struct {
+	models.GithubRepo
+	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+}
+
 type req struct {
 	Data []*models.GithubRepo `json:"data"`
 }
@@ -122,7 +127,7 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 // @Param connectionId path int true "connection ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []models.GithubRepo
+// @Success 200  {object} []apiRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes/ [GET]
@@ -137,7 +142,28 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: repos, Status: http.StatusOK}, nil
+	var ruleIds []uint64
+	for _, repo := range repos {
+		if repo.TransformationRuleId > 0 {
+			ruleIds = append(ruleIds, repo.TransformationRuleId)
+		}
+	}
+	var rules []models.GithubTransformationRule
+	if len(ruleIds) > 0 {
+		err = basicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
+		if err != nil {
+			return nil, err
+		}
+	}
+	names := make(map[uint64]string)
+	for _, rule := range rules {
+		names[rule.ID] = rule.Name
+	}
+	var apiRepos []apiRepo
+	for _, repo := range repos {
+		apiRepos = append(apiRepos, apiRepo{repo, names[repo.TransformationRuleId]})
+	}
+	return &core.ApiResourceOutput{Body: apiRepos, Status: http.StatusOK}, nil
 }
 
 // GetScope get one Github repo
@@ -146,7 +172,7 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 // @Tags plugins/github
 // @Param connectionId path int true "connection ID"
 // @Param repoId path int true "repo ID"
-// @Success 200  {object} models.GithubRepo
+// @Success 200  {object} apiRepo
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/github/connections/{connectionId}/scopes/{repoId} [GET]
@@ -160,7 +186,14 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: repo, Status: http.StatusOK}, nil
+	var rule models.GithubTransformationRule
+	if repo.TransformationRuleId > 0 {
+		err = basicRes.GetDal().First(&rule, dal.Where("id = ?", repo.TransformationRuleId))
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &core.ApiResourceOutput{Body: apiRepo{repo, rule.Name}, Status: http.StatusOK}, nil
 }
 
 func extractParam(params map[string]string) (uint64, uint64) {

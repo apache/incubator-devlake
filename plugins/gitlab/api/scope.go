@@ -30,6 +30,11 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+type apiProject struct {
+	models.GitlabProject
+	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+}
+
 type req struct {
 	Data []*models.GitlabProject `json:"data"`
 }
@@ -120,7 +125,7 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 // @Description get Gitlab projects
 // @Tags plugins/gitlab
 // @Param connectionId path int false "connection ID"
-// @Success 200  {object} []models.GitlabProject
+// @Success 200  {object} []apiProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes/ [GET]
@@ -135,7 +140,28 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: projects, Status: http.StatusOK}, nil
+	var ruleIds []uint64
+	for _, proj := range projects {
+		if proj.TransformationRuleId > 0 {
+			ruleIds = append(ruleIds, proj.TransformationRuleId)
+		}
+	}
+	var rules []models.GitlabTransformationRule
+	if len(ruleIds) > 0 {
+		err = BasicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
+		if err != nil {
+			return nil, err
+		}
+	}
+	names := make(map[uint64]string)
+	for _, rule := range rules {
+		names[rule.ID] = rule.Name
+	}
+	var apiProjects []apiProject
+	for _, proj := range projects {
+		apiProjects = append(apiProjects, apiProject{proj, names[proj.TransformationRuleId]})
+	}
+	return &core.ApiResourceOutput{Body: apiProjects, Status: http.StatusOK}, nil
 }
 
 // GetScope get one Gitlab project
@@ -146,7 +172,7 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 // @Param projectId path int false "project ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} models.GitlabProject
+// @Success 200  {object} apiProject
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/gitlab/connections/{connectionId}/scopes/{projectId} [GET]
@@ -160,7 +186,14 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: project, Status: http.StatusOK}, nil
+	var rule models.GitlabTransformationRule
+	if project.TransformationRuleId > 0 {
+		err = BasicRes.GetDal().First(&rule, dal.Where("id = ?", project.TransformationRuleId))
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &core.ApiResourceOutput{Body: apiProject{project, rule.Name}, Status: http.StatusOK}, nil
 }
 
 func extractParam(params map[string]string) (uint64, uint64) {

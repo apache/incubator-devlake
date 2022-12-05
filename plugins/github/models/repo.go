@@ -28,7 +28,7 @@ type GithubRepo struct {
 	Name                 string     `json:"name" gorm:"type:varchar(255)" mapstructure:"name,omitempty"`
 	HTMLUrl              string     `json:"HTMLUrl" gorm:"type:varchar(255)" mapstructure:"HTMLUrl,omitempty"`
 	Description          string     `json:"description" mapstructure:"description,omitempty"`
-	TransformationRuleId uint64     `json:"transformationRuleId" mapstructure:"transformationRuleId,omitempty"`
+	TransformationRuleId uint64     `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId,omitempty"`
 	OwnerId              int        `json:"ownerId" mapstructure:"ownerId,omitempty"`
 	OwnerLogin           string     `json:"ownerLogin" gorm:"type:varchar(255)" mapstructure:"ownerLogin,omitempty"`
 	Language             string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`

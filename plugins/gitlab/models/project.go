@@ -25,7 +25,7 @@ import (
 
 type GitlabProject struct {
 	ConnectionId            uint64 `json:"connectionId" mapstructure:"connectionId" gorm:"primaryKey"`
-	TransformationRuleId    uint64 `json:"transformationRuleId" mapstructure:"transformationRuleId"`
+	TransformationRuleId    uint64 `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId"`
 	GitlabId                int    `json:"gitlabId" mapstructure:"gitlabId" gorm:"primaryKey"`
 	Name                    string `json:"name" mapstructure:"name" gorm:"type:varchar(255)"`
 	Description             string `json:"description" mapstructure:"description"`

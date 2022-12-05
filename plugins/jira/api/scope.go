@@ -29,6 +29,11 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+type apiBoard struct {
+	models.JiraBoard
+	TransformationRuleName string `json:"transformationRuleName,omitempty"`
+}
+
 type req struct {
 	Data []*models.JiraBoard `json:"data"`
 }
@@ -118,7 +123,7 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 // @Param connectionId path int false "connection ID"
 // @Param pageSize query int false "page size, default 50"
 // @Param page query int false "page size, default 1"
-// @Success 200  {object} []models.JiraBoard
+// @Success 200  {object} []apiBoard
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/connections/{connectionId}/scopes/ [GET]
@@ -133,7 +138,28 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: boards, Status: http.StatusOK}, nil
+	var ruleIds []uint64
+	for _, board := range boards {
+		if board.TransformationRuleId > 0 {
+			ruleIds = append(ruleIds, board.TransformationRuleId)
+		}
+	}
+	var rules []models.JiraTransformationRule
+	if len(ruleIds) > 0 {
+		err = basicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
+		if err != nil {
+			return nil, err
+		}
+	}
+	names := make(map[uint64]string)
+	for _, rule := range rules {
+		names[rule.ID] = rule.Name
+	}
+	var apiBoards []apiBoard
+	for _, board := range boards {
+		apiBoards = append(apiBoards, apiBoard{board, names[board.TransformationRuleId]})
+	}
+	return &core.ApiResourceOutput{Body: apiBoards, Status: http.StatusOK}, nil
 }
 
 // GetScope get one Jira board
@@ -156,7 +182,14 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: board, Status: http.StatusOK}, nil
+	var rule models.JiraTransformationRule
+	if board.TransformationRuleId > 0 {
+		err = basicRes.GetDal().First(&rule, dal.Where("id = ?", board.TransformationRuleId))
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &core.ApiResourceOutput{Body: apiBoard{board, rule.Name}, Status: http.StatusOK}, nil
 }
 
 func extractParam(params map[string]string) (uint64, uint64) {
