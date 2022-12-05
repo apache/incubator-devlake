@@ -28,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/mitchellh/mapstructure"
+	"gorm.io/gorm"
 )
 
 type apiProject struct {
@@ -183,6 +184,9 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 		return nil, errors.BadInput.New("invalid path params")
 	}
 	err := BasicRes.GetDal().First(&project, dal.Where("connection_id = ? AND gitlab_id = ?", connectionId, projectId))
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errors.NotFound.New("record not found")
+	}
 	if err != nil {
 		return nil, err
 	}
