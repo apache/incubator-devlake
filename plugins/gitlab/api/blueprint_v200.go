@@ -126,7 +126,7 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
 		options["projectId"] = intScopeId
-		options["transformationRules"] = transformationRules
+		options["transformationRules"] = &transformationRules
 		options["transformationRuleId"] = transformationRules.ID
 		// make sure task options is valid
 		_, err := tasks.DecodeAndValidateTaskOptions(options)
