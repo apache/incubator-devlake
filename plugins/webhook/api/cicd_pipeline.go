@@ -299,6 +299,7 @@ func PostDeploymentCicdTask(input *core.ApiResourceInput) (*core.ApiResourceOutp
 
 	db := basicRes.GetDal()
 	urlHash16 := fmt.Sprintf("%x", md5.Sum([]byte(request.RepoUrl)))[:16]
+	scopeId := fmt.Sprintf("%s:%d", "webhook", connection.ID)
 	pipelineId := fmt.Sprintf("%s:%d:%s:%s:%s", "webhook", connection.ID, `pipeline`, urlHash16, request.CommitSha)
 
 	taskId := fmt.Sprintf("%s:%d:%s:%s", "webhook", connection.ID, urlHash16, request.CommitSha)
@@ -312,6 +313,7 @@ func PostDeploymentCicdTask(input *core.ApiResourceInput) (*core.ApiResourceOutp
 		Status:      devops.DONE,
 		Type:        devops.DEPLOYMENT,
 		Environment: request.Environment,
+		CicdScopeId: scopeId,
 	}
 	now := time.Now()
 	if request.StartedDate != nil {
@@ -341,6 +343,7 @@ func PostDeploymentCicdTask(input *core.ApiResourceInput) (*core.ApiResourceOutp
 		FinishedDate: domainCicdTask.FinishedDate,
 		DurationSec:  domainCicdTask.DurationSec,
 		Environment:  domainCicdTask.Environment,
+		CicdScopeId:  scopeId,
 	}
 
 	domainPipelineCommit := &devops.CiCDPipelineCommit{
