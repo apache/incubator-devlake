@@ -16,9 +16,21 @@
  *
  */
 
-type ID = string | number
+import request from '@/components/utils/request'
 
-declare module '*.svg' {
-  const content: any
-  export default content
+type TestConnectionPayload = {
+  endpoint: string
+  proxy: string
+  token?: string
+  username?: string
+  password?: string
 }
+
+export const getConnection = (plugin: string) =>
+  request(`/plugins/${plugin}/connections`)
+
+export const testConnection = (plugin: string, data: TestConnectionPayload) =>
+  request(`/plugins/${plugin}/test`, {
+    method: 'post',
+    data
+  })
