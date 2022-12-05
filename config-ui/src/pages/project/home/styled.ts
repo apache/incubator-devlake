@@ -16,14 +16,52 @@
  *
  */
 
-type ID = string | number
+import styled from '@emotion/styled'
 
-declare module '*.svg' {
-  const content: any
-  export default content
-}
+export const Container = styled.div`
+  background-color: #ffffff;
+  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1),
+    0px 1.6px 8px rgba(0, 0, 0, 0.07);
+  border-radius: 4px;
+`
 
-declare module '*.png' {
-  const content: any
-  export default content
-}
+export const Inner = styled.div`
+  padding: 24px;
+  text-align: center;
+
+  .logo {
+    img {
+      display: inline-block;
+      width: 120px;
+      height: 120px;
+    }
+  }
+
+  .desc {
+    margin: 20px 0;
+  }
+`
+
+export const DialogWrapper = styled.div`
+  .block + .block {
+    margin-top: 16px;
+  }
+
+  .bp3-input-group {
+    width: 386px;
+  }
+
+  .checkbox {
+    display: flex;
+    margin-top: 8px;
+
+    & > p {
+      margin: 0 0 0 16px;
+    }
+  }
+
+  h3 {
+    margin: 0;
+    padding: 0;
+  }
+`

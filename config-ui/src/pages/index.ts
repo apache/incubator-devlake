@@ -16,14 +16,4 @@
  *
  */
 
-type ID = string | number
-
-declare module '*.svg' {
-  const content: any
-  export default content
-}
-
-declare module '*.png' {
-  const content: any
-  export default content
-}
+export * from './project'

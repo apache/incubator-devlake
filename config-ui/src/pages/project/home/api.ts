@@ -16,14 +16,28 @@
  *
  */
 
-type ID = string | number
+import request from '@/components/utils/request'
 
-declare module '*.svg' {
-  const content: any
-  export default content
+type GetProjectsParams = {
+  page: number
+  pageSize: number
 }
 
-declare module '*.png' {
-  const content: any
-  export default content
+export const getProjects = (params: GetProjectsParams) =>
+  request('/projects', { data: params })
+
+type CreateProjectPayload = {
+  name: string
+  description: string
+  metrics: Array<{
+    pluginName: string
+    pluginOption: string
+    enable: boolean
+  }>
 }
+
+export const createProject = (payload: CreateProjectPayload) =>
+  request('/projects', {
+    method: 'post',
+    data: payload
+  })
