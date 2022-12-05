@@ -15,19 +15,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package archived
+package helper
 
 import (
-	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-type JenkinsTransformationRule struct {
-	archived.Model
-	Name              string `gorm:"type:varchar(255)"`
-	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern" json:"deploymentPattern"`
-	ProductionPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern,omitempty" json:"productionPattern"`
-}
+func TestRegexEnricher_GetEnrichResult(t *testing.T) {
+	re := NewRegexEnricher()
+	pattern1 := `deploy.*`
+	pattern2 := "production"
+	err := re.AddRegexp(pattern1, pattern2)
+	assert.Nil(t, err)
+	res1 := re.GetEnrichResult(pattern1, `deployToWin`, `deployment`)
+	assert.Equal(t, "deployment", res1)
+	res2 := re.GetEnrichResult(pattern1, `deplo1`, `deployment`)
+	assert.Equal(t, "", res2)
 
-func (t JenkinsTransformationRule) TableName() string {
-	return "_tool_jenkins_transformation_rules"
+	res3 := re.GetEnrichResult(pattern2, `production`, `product`)
+	assert.Equal(t, "product", res3)
+	res4 := re.GetEnrichResult(pattern2, `producti1n`, `product`)
+	assert.Equal(t, "", res4)
 }

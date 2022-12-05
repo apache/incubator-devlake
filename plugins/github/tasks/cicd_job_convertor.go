@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"reflect"
-	"regexp"
 	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -51,16 +50,13 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 	repoId := data.Repo.GithubId
-
-	var deployTagRegexp *regexp.Regexp
 	deploymentPattern := data.Options.DeploymentPattern
-	if len(deploymentPattern) > 0 {
-		deployTagRegexp, err = errors.Convert01(regexp.Compile(deploymentPattern))
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp compile deploymentPattern failed")
-		}
+	productionPattern := data.Options.ProductionPattern
+	regexEnricher := helper.NewRegexEnricher()
+	err = regexEnricher.AddRegexp(deploymentPattern, productionPattern)
+	if err != nil {
+		return err
 	}
-
 	job := &models.GithubJob{}
 	cursor, err := db.Cursor(
 		dal.From(job),
@@ -97,11 +93,9 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 				PipelineId:   runIdGen.Generate(data.Options.ConnectionId, line.RepoId, line.RunID),
 				CicdScopeId:  repoIdGen.Generate(data.Options.ConnectionId, line.RepoId),
 			}
-			if deployTagRegexp != nil {
-				if deployFlag := deployTagRegexp.FindString(line.Name); deployFlag != "" {
-					domainJob.Type = devops.DEPLOYMENT
-				}
-			}
+			domainJob.Type = regexEnricher.GetEnrichResult(deploymentPattern, line.Name, devops.DEPLOYMENT)
+			domainJob.Environment = regexEnricher.GetEnrichResult(productionPattern, line.Name, devops.PRODUCTION)
+
 			if strings.Contains(line.Conclusion, "success") {
 				domainJob.Result = devops.SUCCESS
 			} else if strings.Contains(line.Conclusion, "failure") {

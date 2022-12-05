@@ -23,6 +23,7 @@ type JenkinsTransformationRule struct {
 	common.Model      `mapstructure:"-"`
 	Name              string `gorm:"type:varchar(255)" mapstructure:"name" json:"name"`
 	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern"`
+	ProductionPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern,omitempty" json:"productionPattern"`
 }
 
 func (t JenkinsTransformationRule) TableName() string {

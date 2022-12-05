@@ -19,7 +19,6 @@ package tasks
 
 import (
 	"reflect"
-	"regexp"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -64,15 +63,13 @@ var ConvertStagesMeta = core.SubTaskMeta{
 func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JenkinsTaskData)
-	var deployTagRegexp *regexp.Regexp
 	deploymentPattern := data.Options.DeploymentPattern
-	if len(deploymentPattern) > 0 {
-		deployTagRegexp, err = errors.Convert01(regexp.Compile(deploymentPattern))
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp compile deploymentPattern failed")
-		}
+	productionPattern := data.Options.ProductionPattern
+	regexEnricher := helper.NewRegexEnricher()
+	err = regexEnricher.AddRegexp(deploymentPattern, productionPattern)
+	if err != nil {
+		return err
 	}
-
 	clauses := []dal.Clause{
 		dal.Select(`tjb.connection_id, tjs.build_name, tjs.id, tjs._raw_data_remark, tjs.name,
 			tjs._raw_data_id, tjs._raw_data_table, tjs._raw_data_params,
@@ -142,11 +139,8 @@ func ConvertStages(taskCtx core.SubTaskContext) (err errors.Error) {
 				FinishedDate: jenkinsTaskFinishedDate,
 				CicdScopeId:  jobIdGen.Generate(body.ConnectionId, data.Options.JobFullName),
 			}
-			if deployTagRegexp != nil {
-				if deployFlag := deployTagRegexp.FindString(body.Name); deployFlag != "" {
-					jenkinsTask.Type = devops.DEPLOYMENT
-				}
-			}
+			jenkinsTask.Type = regexEnricher.GetEnrichResult(deploymentPattern, jenkinsTask.Name, devops.DEPLOYMENT)
+			jenkinsTask.Environment = regexEnricher.GetEnrichResult(productionPattern, jenkinsTask.Name, devops.PRODUCTION)
 			jenkinsTask.RawDataOrigin = body.RawDataOrigin
 
 			results = append(results, jenkinsTask)
