@@ -24,10 +24,9 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/webhook/models"
-	"github.com/apache/incubator-devlake/utils"
 )
 
-func MakeDataSourcePipelinePlanV200(_ []core.SubTaskMeta, connectionId uint64, bpScopes []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
+func MakeDataSourcePipelinePlanV200(connectionId uint64) (core.PipelinePlan, []core.Scope, errors.Error) {
 	// get the connection info for url
 	connection := &models.WebhookConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
@@ -35,23 +34,16 @@ func MakeDataSourcePipelinePlanV200(_ []core.SubTaskMeta, connectionId uint64, b
 		return nil, nil, err
 	}
 
-	plan := make(core.PipelinePlan, 0, len(bpScopes))
-	scopes := make([]core.Scope, 0, len(bpScopes))
-	for _, bpScope := range bpScopes {
-		// add cicd_scope to scopes
-		if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CICD) {
-			scopeCICD := &devops.CicdScope{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: fmt.Sprintf("%s:%d", "webhook", connection.ID),
-				},
-				Name: connection.Name,
-			}
-			scopes = append(scopes, scopeCICD)
-		}
-		// NOTICE:
-		//if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_TICKET) {}
-		// issue board will be created when post issue
+	scopes := make([]core.Scope, 0, 1)
+	// add cicd_scope to scopes
+	scopes[0] = &devops.CicdScope{
+		DomainEntity: domainlayer.DomainEntity{
+			Id: fmt.Sprintf("%s:%d", "webhook", connection.ID),
+		},
+		Name: connection.Name,
 	}
-
-	return plan, scopes, nil
+	// NOTICE:
+	//if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_TICKET) {}
+	// issue board will be created when post issue
+	return nil, scopes, nil
 }
