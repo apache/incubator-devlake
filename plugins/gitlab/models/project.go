@@ -38,6 +38,7 @@ type GitlabProject struct {
 	StarCount               int    `json:"starCount" mapstructure:"StarCount"`
 	ForkedFromProjectId     int    `json:"forkedFromProjectId" mapstructure:"forkedFromProjectId"`
 	ForkedFromProjectWebUrl string `json:"forkedFromProjectWebUrl" mapstructure:"forkedFromProjectWebUrl" gorm:"type:varchar(255)"`
+	HttpUrlToRepo           string `json:"http_url_to_repo" gorm:"varchar(255)"`
 
 	CreatedDate      time.Time  `json:"createdDate" mapstructure:"-"`
 	UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`

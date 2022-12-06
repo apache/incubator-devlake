@@ -35,7 +35,7 @@ type GitlabTransformationRule struct {
 	IssueTypeIncident    string            `mapstructure:"issueTypeIncident" json:"issueTypeIncident"`
 	IssueTypeRequirement string            `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement"`
 	DeploymentPattern    string            `mapstructure:"deploymentPattern" json:"deploymentPattern"`
-	RefdiffRule          datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
+	Refdiff              datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
 }
 
 func (t GitlabTransformationRule) TableName() string {

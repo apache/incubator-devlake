@@ -39,59 +39,59 @@ import (
 )
 
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
-	const TestConnectionID uint64 = 1
-	const TestTransformationRuleId uint64 = 2
-	const TestID int = 37
-	const TestGitlabEndPoint string = "https://gitlab.com/api/v4/"
-	const TestHHttpUrlToRepo string = "https://this_is_cloneUrl"
-	const TestToken string = "nddtf"
-	const TestName string = "gitlab-test"
-	const TestTransformationRuleName string = "github transformation rule"
-	const TestProxy string = ""
+	const testConnectionID uint64 = 1
+	const testTransformationRuleId uint64 = 2
+	const testID int = 37
+	const testGitlabEndPoint string = "https://gitlab.com/api/v4/"
+	const testHHttpUrlToRepo string = "https://this_is_cloneUrl"
+	const testToken string = "nddtf"
+	const testName string = "gitlab-test"
+	const testTransformationRuleName string = "github transformation rule"
+	const testProxy string = ""
 
-	var TestGitlabProject *models.GitlabProject = &models.GitlabProject{
-		ConnectionId: TestConnectionID,
-		GitlabId:     TestID,
-		Name:         TestName,
+	var testGitlabProject *models.GitlabProject = &models.GitlabProject{
+		ConnectionId: testConnectionID,
+		GitlabId:     testID,
+		Name:         testName,
 
-		TransformationRuleId: TestTransformationRuleId,
+		TransformationRuleId: testTransformationRuleId,
 		CreatedDate:          time.Time{},
-		HttpUrlToRepo:        TestHHttpUrlToRepo,
+		HttpUrlToRepo:        testHHttpUrlToRepo,
 	}
 
-	var TestTransformationRule *models.GitlabTransformationRule = &models.GitlabTransformationRule{
+	var testTransformationRule *models.GitlabTransformationRule = &models.GitlabTransformationRule{
 		Model: common.Model{
-			ID: TestTransformationRuleId,
+			ID: testTransformationRuleId,
 		},
-		Name:   TestTransformationRuleName,
+		Name:   testTransformationRuleName,
 		PrType: "hey,man,wasup",
-		RefdiffRule: map[string]interface{}{
+		Refdiff: map[string]interface{}{
 			"tagsPattern": "pattern",
 			"tagsLimit":   10,
 			"tagsOrder":   "reverse semver",
 		},
 	}
 
-	var TestGitlabConnection *models.GitlabConnection = &models.GitlabConnection{
+	var testGitlabConnection *models.GitlabConnection = &models.GitlabConnection{
 		RestConnection: helper.RestConnection{
 			BaseConnection: helper.BaseConnection{
-				Name: TestName,
+				Name: testName,
 				Model: common.Model{
-					ID: TestConnectionID,
+					ID: testConnectionID,
 				},
 			},
-			Endpoint:         TestGitlabEndPoint,
-			Proxy:            TestProxy,
+			Endpoint:         testGitlabEndPoint,
+			Proxy:            testProxy,
 			RateLimitPerHour: 0,
 		},
 		AccessToken: helper.AccessToken{
-			Token: TestToken,
+			Token: testToken,
 		},
 	}
 
-	var ExpectRepoId = "gitlab:GitlabProject:1:37"
+	var expectRepoId = "gitlab:GitlabProject:1:37"
 
-	var TestSubTaskMeta = []core.SubTaskMeta{
+	var testSubTaskMeta = []core.SubTaskMeta{
 		tasks.CollectProjectMeta,
 		tasks.ExtractProjectMeta,
 		tasks.ConvertProjectMeta,
@@ -101,7 +101,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		tasks.ConvertIssueLabelsMeta,
 	}
 
-	var ExpectPlans core.PipelinePlan = core.PipelinePlan{
+	var expectPlans core.PipelinePlan = core.PipelinePlan{
 		{
 			{
 				Plugin:     "refdiff",
@@ -126,9 +126,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				SkipOnFail: false,
 				Options: map[string]interface{}{
 					"connectionId":         uint64(1),
-					"projectId":            TestID,
-					"transformationRuleId": TestTransformationRuleId,
-					"transformationRules":  TestTransformationRule,
+					"projectId":            testID,
+					"transformationRuleId": testTransformationRuleId,
+					"transformationRules":  testTransformationRule,
 				},
 			},
 			{
@@ -136,25 +136,25 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				SkipOnFail: false,
 				Options: map[string]interface{}{
 					"proxy":  "",
-					"repoId": ExpectRepoId,
+					"repoId": expectRepoId,
 					"url":    "https://git:nddtf@this_is_cloneUrl",
 				},
 			},
 		},
 	}
 
-	var ExpectScopes []core.Scope = []core.Scope{
+	var expectScopes []core.Scope = []core.Scope{
 		&code.Repo{
 			DomainEntity: domainlayer.DomainEntity{
-				Id: ExpectRepoId,
+				Id: expectRepoId,
 			},
-			Name: TestName,
+			Name: testName,
 		},
 		&ticket.Board{
 			DomainEntity: domainlayer.DomainEntity{
-				Id: ExpectRepoId,
+				Id: expectRepoId,
 			},
-			Name:        TestName,
+			Name:        testName,
 			Description: "",
 			Url:         "",
 			CreatedDate: nil,
@@ -167,8 +167,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	bpScopes := []*core.BlueprintScopeV200{
 		{
 			Entities: []string{"CODE", "TICKET"},
-			Id:       strconv.Itoa(TestID),
-			Name:     TestName,
+			Id:       strconv.Itoa(testID),
+			Name:     testName,
 		},
 	}
 
@@ -182,17 +182,17 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	BasicRes = unithelper.NewMockBasicRes(func(mockDal *mocks.Dal) {
 		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.GitlabConnection)
-			*dst = *TestGitlabConnection
+			*dst = *testGitlabConnection
 		}).Return(nil).Once()
 
 		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.GitlabProject)
-			*dst = *TestGitlabProject
+			*dst = *testGitlabProject
 		}).Return(nil).Once()
 
 		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.GitlabTransformationRule)
-			*dst = *TestTransformationRule
+			*dst = *testTransformationRule
 		}).Return(nil).Once()
 	})
 	connectionHelper = helper.NewConnectionHelper(
@@ -200,9 +200,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		validator.New(),
 	)
 
-	plans, scopes, err := MakePipelinePlanV200(TestSubTaskMeta, TestConnectionID, bpScopes)
+	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes)
 	assert.Equal(t, err, nil)
 
-	assert.Equal(t, ExpectPlans, plans)
-	assert.Equal(t, ExpectScopes, scopes)
+	assert.Equal(t, expectPlans, plans)
+	assert.Equal(t, expectScopes, scopes)
 }

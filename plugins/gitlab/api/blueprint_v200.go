@@ -108,10 +108,10 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 		}
 
 		// refdiff part
-		if transformationRules.RefdiffRule != nil {
+		if transformationRules.Refdiff != nil {
 			task := &core.PipelineTask{
 				Plugin:  "refdiff",
-				Options: transformationRules.RefdiffRule,
+				Options: transformationRules.Refdiff,
 			}
 			stage = append(stage, task)
 		}
