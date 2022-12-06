@@ -20,10 +20,11 @@ package helper
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -165,7 +166,7 @@ func (c *ConnectionApiHelper) save(connection interface{}) errors.Error {
 
 	err := c.db.CreateOrUpdate(connection)
 	if err != nil {
-		if strings.Contains(err.Error(), "duplicate") {
+		if strings.Contains(strings.ToLower(err.Error()), "duplicate") {
 			return errors.BadInput.Wrap(err, "duplicated Connection Name")
 		}
 		return err
