@@ -16,37 +16,52 @@
  *
  */
 
-import styled, { keyframes } from 'styled-components'
+import styled from '@emotion/styled'
 
-const SpinKeyframes = keyframes({
-  '0%': {
-    transform: 'rotate(0deg)'
-  },
-  '100%': {
-    transform: 'rotate(360deg)'
+export const Container = styled.div`
+  background-color: #ffffff;
+  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1),
+    0px 1.6px 8px rgba(0, 0, 0, 0.07);
+  border-radius: 4px;
+`
+
+export const Inner = styled.div`
+  padding: 24px;
+  text-align: center;
+
+  .logo {
+    img {
+      display: inline-block;
+      width: 120px;
+      height: 120px;
+    }
   }
-})
 
-export const Wrapper = styled.div`
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  .desc {
+    margin: 20px 0;
+  }
 `
 
-export const Spin = styled.div<{ size: number }>`
-  width: ${({ size }) => size}px;
-  height: ${({ size }) => size}px;
-  border: 2px solid #7497f7;
-  border-radius: 50%;
-  border-right-color: transparent;
-  box-sizing: border-box;
-  animation-name: ${SpinKeyframes};
-  animation-duration: 1s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-`
+export const DialogWrapper = styled.div`
+  .block + .block {
+    margin-top: 16px;
+  }
 
-export const Text = styled.div`
-  margin-top: 6px;
+  .bp3-input-group {
+    width: 386px;
+  }
+
+  .checkbox {
+    display: flex;
+    margin-top: 8px;
+
+    & > p {
+      margin: 0 0 0 16px;
+    }
+  }
+
+  h3 {
+    margin: 0;
+    padding: 0;
+  }
 `

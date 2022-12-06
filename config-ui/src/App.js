@@ -36,6 +36,7 @@ import '@fontsource/inter/variable-full.css'
 import useDatabaseMigrations from '@/hooks/useDatabaseMigrations'
 
 import { BaseLayout } from '@/layouts'
+import { ProjectHomePage } from '@/pages'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
@@ -72,7 +73,12 @@ function App(props) {
               <Route
                 path='/'
                 exact
-                component={() => <Redirect to='/integrations' />}
+                component={() => <Redirect to='/projects' />}
+              />
+              <Route
+                exact
+                path='/projects'
+                component={() => <ProjectHomePage />}
               />
               <Route
                 exact

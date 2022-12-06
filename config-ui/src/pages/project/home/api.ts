@@ -16,37 +16,28 @@
  *
  */
 
-import styled, { keyframes } from 'styled-components'
+import request from '@/components/utils/request'
 
-const SpinKeyframes = keyframes({
-  '0%': {
-    transform: 'rotate(0deg)'
-  },
-  '100%': {
-    transform: 'rotate(360deg)'
-  }
-})
+type GetProjectsParams = {
+  page: number
+  pageSize: number
+}
 
-export const Wrapper = styled.div`
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-`
+export const getProjects = (params: GetProjectsParams) =>
+  request('/projects', { data: params })
 
-export const Spin = styled.div<{ size: number }>`
-  width: ${({ size }) => size}px;
-  height: ${({ size }) => size}px;
-  border: 2px solid #7497f7;
-  border-radius: 50%;
-  border-right-color: transparent;
-  box-sizing: border-box;
-  animation-name: ${SpinKeyframes};
-  animation-duration: 1s;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-`
+type CreateProjectPayload = {
+  name: string
+  description: string
+  metrics: Array<{
+    pluginName: string
+    pluginOption: string
+    enable: boolean
+  }>
+}
 
-export const Text = styled.div`
-  margin-top: 6px;
-`
+export const createProject = (payload: CreateProjectPayload) =>
+  request('/projects', {
+    method: 'post',
+    data: payload
+  })

@@ -45,6 +45,12 @@ export const useMenu = () => {
     () =>
       [
         {
+          key: 'project',
+          title: 'Projects',
+          icon: 'home',
+          path: '/projects'
+        },
+        {
           key: 'connection',
           title: 'Connections',
           icon: 'data-connection',
