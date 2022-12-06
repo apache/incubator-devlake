@@ -48,6 +48,10 @@ func (plugin Webhook) GetTablesInfo() []core.Tabler {
 	return []core.Tabler{}
 }
 
+func (plugin Webhook) MakeDataSourcePipelinePlanV200(connectionId uint64, _ []*core.BlueprintScopeV200) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(connectionId)
+}
+
 // PkgPath information lost when compiled as plugin(.so)
 func (plugin Webhook) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/webhook"
