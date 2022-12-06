@@ -47,7 +47,7 @@ func ApiOutputError(c *gin.Context, err error) {
 		messages := e.Messages()
 		c.JSON(e.GetType().GetHttpCode(), &ApiBody{
 			Success: false,
-			Message: messages.Get(),
+			Message: e.Error(),
 			Causes:  messages.Causes(),
 		})
 	} else {

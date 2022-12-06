@@ -20,8 +20,8 @@ package models
 import "github.com/apache/incubator-devlake/models/common"
 
 type BaseProject struct {
-	Name        string `gorm:"primaryKey;type:varchar(255)"`
-	Description string `gorm:"type:text"`
+	Name        string `json:"name" gorm:"primaryKey;type:varchar(255)"`
+	Description string `json:"description" gorm:"type:text"`
 }
 
 type Project struct {
@@ -34,13 +34,13 @@ func (Project) TableName() string {
 }
 
 type BaseMetric struct {
-	PluginName   string `gorm:"primaryKey;type:varchar(255)"`
-	PluginOption string `gorm:"type:text"`
-	Enable       bool   `gorm:"type:boolean"`
+	PluginName   string `json:"pluginName" gorm:"primaryKey;type:varchar(255)"`
+	PluginOption string `json:"pluginOption" gorm:"type:text"`
+	Enable       bool   `json:"enable" gorm:"type:boolean"`
 }
 
 type BaseProjectMetric struct {
-	ProjectName string `gorm:"primaryKey;type:varchar(255)"`
+	ProjectName string `json:"projectName" gorm:"primaryKey;type:varchar(255)"`
 	BaseMetric
 }
 
@@ -55,12 +55,12 @@ func (ProjectMetric) TableName() string {
 
 type ApiInputProject struct {
 	BaseProject
-	Enable  *bool
-	Metrics *[]BaseMetric
+	Enable  *bool         `json:"enable"`
+	Metrics *[]BaseMetric `json:"metrics"`
 }
 
 type ApiOutputProject struct {
 	BaseProject
-	Metrics   *[]BaseMetric
-	Blueprint *Blueprint
+	Metrics   *[]BaseMetric `json:"metrics"`
+	Blueprint *Blueprint    `json:"blueprint"`
 }
