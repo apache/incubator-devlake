@@ -42,7 +42,6 @@ import (
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, bpScopes []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
-	db := basicRes.GetDal()
 	connectionHelper := helper.NewConnectionHelper(basicRes, validator.New())
 	// get the connection info for url
 	connection := &models.GithubConnection{}
@@ -66,31 +65,14 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionI
 		return nil, nil, err
 	}
 
-	plan := make(core.PipelinePlan, 0, len(bpScopes))
-	scopes := make([]core.Scope, 0, len(bpScopes))
-	for i, bpScope := range bpScopes {
-		var githubRepo *models.GithubRepo
-		// get repo from db
-		err = db.First(githubRepo, dal.Where(`id = ?`, bpScope.Id))
-		if err != nil {
-			return nil, nil, err
-		}
-		var transformationRule *models.GithubTransformationRule
-		// get transformation rules from db
-		err = db.First(transformationRule, dal.Where(`id = ?`, githubRepo.TransformationRuleId))
-		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil, err
-		}
-		var scope []core.Scope
-		// make pipeline for each bpScope
-		plan, scope, err = makeDataSourcePipelinePlanV200(subtaskMetas, i, plan, bpScope, connection, apiClient, githubRepo, transformationRule)
-		if err != nil {
-			return nil, nil, err
-		}
-		if len(scope) > 0 {
-			scopes = append(scopes, scope...)
-		}
-
+	plan := make(core.PipelinePlan, len(bpScopes))
+	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection, apiClient)
+	if err != nil {
+		return nil, nil, err
+	}
+	scopes, err := makeScopesV200(bpScopes, connection)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	return plan, scopes, nil
@@ -98,112 +80,135 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionI
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []core.SubTaskMeta,
-	i int,
 	plan core.PipelinePlan,
-	bpScope *core.BlueprintScopeV200,
+	bpScopes []*core.BlueprintScopeV200,
 	connection *models.GithubConnection,
 	apiClient helper.ApiClientGetter,
-	githubRepo *models.GithubRepo,
-	transformationRule *models.GithubTransformationRule,
-) (core.PipelinePlan, []core.Scope, errors.Error) {
+) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
 	var stage core.PipelineStage
 	var repo *tasks.GithubApiRepo
+	for i, bpScope := range bpScopes {
+		githubRepo := &models.GithubRepo{}
+		// get repo from db
+		err = basicRes.GetDal().First(githubRepo, dal.Where(`connection_id = ? AND github_id = ?`, connection.ID, bpScope.Id))
+		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo%s", bpScope.Id))
+		}
+		transformationRule := &models.GithubTransformationRule{}
+		// get transformation rules from db
+		err = basicRes.GetDal().First(transformationRule, dal.Where(`id = ?`, githubRepo.TransformationRuleId))
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		// refdiff
+		if transformationRule != nil && transformationRule.Refdiff != nil {
+			// add a new task to next stage
+			j := i + 1
+			if j == len(plan) {
+				plan = append(plan, nil)
+			}
+			refdiffOp := transformationRule.Refdiff
+			if err != nil {
+				return nil, err
+			}
+			plan[j] = core.PipelineStage{
+				{
+					Plugin:  "refdiff",
+					Options: refdiffOp,
+				},
+			}
+			transformationRule.Refdiff = nil
+		}
+
+		// construct task options for github
+		op := &tasks.GithubOptions{
+			ConnectionId:         githubRepo.ConnectionId,
+			TransformationRuleId: githubRepo.TransformationRuleId,
+			Owner:                githubRepo.OwnerLogin,
+			Repo:                 githubRepo.Name,
+		}
+		options, err := tasks.ValidateAndEncodeTaskOptions(op)
+		if err != nil {
+			return nil, err
+		}
+
+		var transformationRuleMap map[string]interface{}
+		err = errors.Convert(mapstructure.Decode(transformationRule, &transformationRuleMap))
+		if err != nil {
+			return nil, err
+		}
+		options["transformationRules"] = transformationRuleMap
+		stage, err = addGithub(subtaskMetas, connection, bpScope.Entities, stage, options)
+		if err != nil {
+			return nil, err
+		}
+		// add gitex stage and add repo to scopes
+		if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE) {
+			repo, err = memorizedGetApiRepo(repo, op, apiClient)
+			if err != nil {
+				return nil, err
+			}
+			stage, err = addGitex(bpScope.Entities, connection, repo, stage)
+			if err != nil {
+				return nil, err
+			}
+		}
+		plan[i] = stage
+	}
+	return plan, nil
+}
+
+func makeScopesV200(bpScopes []*core.BlueprintScopeV200, connection *models.GithubConnection) ([]core.Scope, errors.Error) {
 	scopes := make([]core.Scope, 0)
-	// refdiff
-	if transformationRule != nil && transformationRule.Refdiff != nil {
-		// add a new task to next stage
-		j := i + 1
-		if j == len(plan) {
-			plan = append(plan, nil)
+	for _, bpScope := range bpScopes {
+		githubRepo := &models.GithubRepo{}
+		// get repo from db
+		err := basicRes.GetDal().First(githubRepo, dal.Where(`connection_id = ? AND github_id = ?`, connection.ID, bpScope.Id))
+		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo%s", bpScope.Id))
 		}
-		refdiffOp := transformationRule.Refdiff
-		if err != nil {
-			return nil, nil, err
+		transformationRule := &models.GithubTransformationRule{}
+		// get transformation rules from db
+		err = basicRes.GetDal().First(transformationRule, dal.Where(`id = ?`, githubRepo.TransformationRuleId))
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
 		}
-		plan[j] = core.PipelineStage{
-			{
-				Plugin:  "refdiff",
-				Options: refdiffOp,
-			},
+		if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE_REVIEW) ||
+			utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE) ||
+			utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CROSS) {
+			// if we don't need to collect gitex, we need to add repo to scopes here
+			scopeRepo := &code.Repo{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
+				},
+				Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
+			}
+			if githubRepo.ParentHTMLUrl != "" {
+				scopeRepo.ForkedFrom = githubRepo.ParentHTMLUrl
+			}
+			scopes = append(scopes, scopeRepo)
 		}
-		transformationRule.Refdiff = nil
+		// add cicd_scope to scopes
+		if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CICD) {
+			scopeCICD := &devops.CicdScope{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
+				},
+				Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
+			}
+			scopes = append(scopes, scopeCICD)
+		}
+		// add board to scopes
+		if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_TICKET) {
+			scopeTicket := &ticket.Board{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
+				},
+				Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
+			}
+			scopes = append(scopes, scopeTicket)
+		}
 	}
-
-	// construct task options for github
-	op := &tasks.GithubOptions{
-		ConnectionId:         githubRepo.ConnectionId,
-		TransformationRuleId: githubRepo.TransformationRuleId,
-		Owner:                githubRepo.OwnerLogin,
-		Repo:                 githubRepo.Name,
-	}
-	options, err := tasks.ValidateAndEncodeTaskOptions(op)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var transformationRuleMap map[string]interface{}
-	err = errors.Convert(mapstructure.Decode(transformationRule, &transformationRuleMap))
-	if err != nil {
-		return nil, nil, err
-	}
-	options["transformationRules"] = transformationRuleMap
-	stage, err = addGithub(subtaskMetas, connection, bpScope.Entities, stage, options)
-	if err != nil {
-		return nil, nil, err
-	}
-	// add gitex stage and add repo to scopes
-	if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE) {
-		repo, err = memorizedGetApiRepo(repo, op, apiClient)
-		if err != nil {
-			return nil, nil, err
-		}
-		stage, err = addGitex(bpScope.Entities, connection, repo, stage)
-		if err != nil {
-			return nil, nil, err
-		}
-		scopeRepo := &code.Repo{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
-			},
-			Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
-		}
-		if repo.Parent != nil {
-			scopeRepo.ForkedFrom = repo.Parent.HTMLUrl
-		}
-		scopes = append(scopes, scopeRepo)
-	} else if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE_REVIEW) {
-		// if we don't need to collect gitex, we need to add repo to scopes here
-		scopeRepo := &code.Repo{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
-			},
-			Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
-		}
-		scopes = append(scopes, scopeRepo)
-	}
-	// add cicd_scope to scopes
-	if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CICD) {
-		scopeCICD := &devops.CicdScope{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
-			},
-			Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
-		}
-		scopes = append(scopes, scopeCICD)
-	}
-	// add board to scopes
-	if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_TICKET) {
-		scopeTicket := &ticket.Board{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
-			},
-			Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
-		}
-		scopes = append(scopes, scopeTicket)
-	}
-
-	plan[i] = stage
-
-	return plan, scopes, nil
+	return scopes, nil
 }
