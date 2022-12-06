@@ -336,6 +336,18 @@ func MakePlanForBlueprint(blueprint *models.Blueprint) (core.PipelinePlan, error
 	switch bpSettings.Version {
 	case "1.0.0":
 		plan, err = GeneratePlanJsonV100(bpSettings)
+	case "2.0.0":
+		if blueprint.ProjectName == "" {
+			return nil, errors.BadInput.New("projectName is required for blueprint v2.0.0")
+		}
+		// load project metric plugins and convert it to a map
+		metrics := make(map[string]json.RawMessage)
+		projectMetrics := make([]models.ProjectMetric, 0)
+		db.Find(&projectMetrics, "project_name = ? AND enable = ?", blueprint.ProjectName, true)
+		for _, projectMetric := range projectMetrics {
+			metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
+		}
+		plan, err = GeneratePlanJsonV200(blueprint.ProjectName, bpSettings, metrics)
 	default:
 		return nil, errors.Default.New(fmt.Sprintf("unknown version of blueprint settings: %s", bpSettings.Version))
 	}
