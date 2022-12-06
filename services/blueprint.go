@@ -138,11 +138,9 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 			return errors.Default.Wrap(err, fmt.Sprintf("invalid projectName: [%s] for the blueprint [%s]", blueprint.ProjectName, blueprint.Name))
 		}
 	}
-
 	if strings.ToLower(blueprint.CronConfig) == "manual" {
 		blueprint.IsManual = true
 	}
-
 	if !blueprint.IsManual {
 		_, err = cron.ParseStandard(blueprint.CronConfig)
 		if err != nil {
@@ -152,7 +150,6 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 	if blueprint.Mode == models.BLUEPRINT_MODE_ADVANCED {
 		plan := make(core.PipelinePlan, 0)
 		err = errors.Convert(json.Unmarshal(blueprint.Plan, &plan))
-
 		if err != nil {
 			return errors.Default.Wrap(err, "invalid plan")
 		}
@@ -279,13 +276,12 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 			return err
 		}
 		blueprint := parseBlueprint(dbBlueprint)
-		plan, err := blueprint.UnmarshalPlan()
 		if err != nil {
 			blueprintLog.Error(err, failToCreateCronJob)
 			return err
 		}
 		if _, err := c.AddFunc(blueprint.CronConfig, func() {
-			pipeline, err := createPipelineByBlueprint(blueprint, blueprint.Name, plan)
+			pipeline, err := createPipelineByBlueprint(blueprint)
 			if err != nil {
 				blueprintLog.Error(err, "run cron job failed")
 			} else {
@@ -303,10 +299,20 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 	return nil
 }
 
-func createPipelineByBlueprint(blueprint *models.Blueprint, name string, plan core.PipelinePlan) (*models.Pipeline, errors.Error) {
+func createPipelineByBlueprint(blueprint *models.Blueprint) (*models.Pipeline, errors.Error) {
+	var plan core.PipelinePlan
+	var err errors.Error
+	if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
+		plan, err = MakePlanForBlueprint(blueprint)
+	} else {
+		plan, err = blueprint.UnmarshalPlan()
+	}
+	if err != nil {
+		return nil, err
+	}
 	newPipeline := models.NewPipeline{}
 	newPipeline.Plan = plan
-	newPipeline.Name = name
+	newPipeline.Name = blueprint.Name
 	newPipeline.BlueprintId = blueprint.ID
 	newPipeline.Labels = blueprint.Labels
 	pipeline, err := CreatePipeline(&newPipeline)
@@ -396,12 +402,7 @@ func TriggerBlueprint(id uint64) (*models.Pipeline, errors.Error) {
 	if err != nil {
 		return nil, err
 	}
-	plan, err := blueprint.UnmarshalPlan()
-	if err != nil {
-		return nil, err
-	}
-
-	pipeline, err := createPipelineByBlueprint(blueprint, blueprint.Name, plan)
+	pipeline, err := createPipelineByBlueprint(blueprint)
 	// done
 	return pipeline, err
 }

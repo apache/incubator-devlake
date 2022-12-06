@@ -26,9 +26,9 @@ import (
 
 type renameFiledsInProjectPrMetric struct{}
 
-func (u *renameFiledsInProjectPrMetric) Up(baseRes core.BasicRes) errors.Error {
+func (u *renameFiledsInProjectPrMetric) Up(basicRes core.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
-		baseRes,
+		basicRes,
 		&archived.ProjectPrMetric{},
 	)
 }
