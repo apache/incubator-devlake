@@ -283,7 +283,7 @@ func (collector *ApiCollector) fetchPagesUndetermined(reqData *RequestData) {
 					return nil
 				}
 				apiClient.NextTick(func() errors.Error {
-					reqDataCopy.Pager.Skip += collector.args.PageSize
+					reqDataCopy.Pager.Skip += collector.args.PageSize * concurrency
 					reqDataCopy.Pager.Page += concurrency
 					return collect()
 				})

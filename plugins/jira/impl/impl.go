@@ -175,7 +175,7 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if op.CreatedDateAfter != "" {
 		createdDateAfter, err = time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter)
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
+			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
 		}
 	}
 	if op.BoardId == 0 && op.ScopeId != "" {
