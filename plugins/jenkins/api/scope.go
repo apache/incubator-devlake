@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"github.com/mitchellh/mapstructure"
-	"gorm.io/gorm"
 )
 
 type apiJob struct {
@@ -175,7 +174,7 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 		return nil, err
 	}
 	err = BasicRes.GetDal().First(&job, dal.Where("connection_id = ? AND full_name = ?", connectionId, fullName))
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, errors.ErrRecordNotFound) {
 		return nil, errors.NotFound.New("record not found")
 	}
 	if err != nil {
