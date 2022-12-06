@@ -27,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/mitchellh/mapstructure"
+	"gorm.io/gorm"
 )
 
 type apiBoard struct {
@@ -179,7 +180,7 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 		return nil, errors.BadInput.New("invalid path params")
 	}
 	err := basicRes.GetDal().First(&board, dal.Where("connection_id = ? AND board_id = ?", connectionId, boardId))
-	if errors.Is(err, errors.ErrRecordNotFound) {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.NotFound.New("record not found")
 	}
 	if err != nil {

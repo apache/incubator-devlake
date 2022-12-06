@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
+
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/utils"
 	"gorm.io/gorm"
@@ -143,13 +144,9 @@ func (d *Dalgorm) All(dst interface{}, clauses ...dal.Clause) errors.Error {
 	return errors.Convert(buildTx(d.db, clauses).Find(dst).Error)
 }
 
-// First loads the first matched row from database to `dst`, error will be returned if no records were found
+// First loads first matched row from database to `dst`, error will be returned if no records were found
 func (d *Dalgorm) First(dst interface{}, clauses ...dal.Clause) errors.Error {
-	err := buildTx(d.db, clauses).First(dst).Error
-	if err == gorm.ErrRecordNotFound {
-		err = errors.ErrRecordNotFound
-	}
-	return errors.Convert(err)
+	return errors.Convert(buildTx(d.db, clauses).First(dst).Error)
 }
 
 // Count total records
