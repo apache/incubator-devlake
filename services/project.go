@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -186,7 +187,7 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	if err != nil {
 		return nil, err
 	}
-	projectInput.Name = name
+	// allowed to changed the name
 	project.BaseProject = projectInput.BaseProject
 
 	/*enProject, err := encryptProject(project)
@@ -198,6 +199,44 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	err = SaveDbProject(project)
 	if err != nil {
 		return nil, errors.Internal.Wrap(err, "error saving project")
+	}
+
+	// check if the name has changed, with the project name changing, we have to change the other table at the same time as follows
+	if name != project.Name {
+		//ProjectMetric
+		err = RenameProjectNameForProjectMetric(name, project.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		//ProjectPrMetric
+		err = RenameProjectNameForProjectPrMetric(name, project.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		//ProjectMapping
+		err = RenameProjectNameForProjectIssueMetric(name, project.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		//Blueprint
+		err = RenameProjectNameForBlueprint(name, project.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		// rename the project for each plugin
+		err = core.TraversalPlugin(func(name string, plugin core.PluginMeta) errors.Error {
+			if handle, ok := plugin.(core.PluginHandle); ok {
+				return handle.RenameProjectName(name, project.Name)
+			}
+			return nil
+		})
+		if err != nil {
+			return nil, errors.Internal.Wrap(err, "error to rename project name for plugins")
+		}
 	}
 
 	// check if need to changed the blueprint setting
