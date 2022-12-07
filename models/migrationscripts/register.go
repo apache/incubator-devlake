@@ -53,7 +53,7 @@ func All() []core.MigrationScript {
 		new(addRepoSnapshot),
 		new(createCollectorState),
 		new(removeCicdPipelineRelation),
-		new(addCicdScope),
+		new(addCicdScopeDropBuildsJobs),
 		new(addSkipOnFail),
 		new(modifyCommitsDiffs),
 		new(addProjectPrMetric),
