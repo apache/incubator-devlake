@@ -31,10 +31,12 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-// Dalgorm FIXME ...
+// Dalgorm implements the dal.Dal interface with gorm
 type Dalgorm struct {
 	db *gorm.DB
 }
+
+var _ dal.Dal = (*Dalgorm)(nil)
 
 func transformParams(params []interface{}) []interface{} {
 	tp := make([]interface{}, 0, len(params))
@@ -98,6 +100,19 @@ func buildTx(tx *gorm.DB, clauses []dal.Clause) *gorm.DB {
 			tx = tx.Group(d.(string))
 		case dal.HavingClause:
 			tx = tx.Having(d.(dal.DalClause).Expr, transformParams(d.(dal.DalClause).Params)...)
+		case dal.LockClause:
+			locking := clause.Locking{}
+			params := d.([]bool)
+			write := params[0]
+			if write {
+				locking.Strength = "UPDATE"
+			}
+			nowait := params[1]
+			if nowait {
+				locking.Options = "NOWAIT"
+			}
+
+			tx = tx.Clauses(locking)
 		}
 	}
 	return tx
@@ -326,7 +341,21 @@ func (d *Dalgorm) Dialect() string {
 	return d.db.Dialector.Name()
 }
 
-// NewDalgorm FIXME ...
+// Session creates a new manual transaction for special scenarios
+func (d *Dalgorm) Session(config dal.SessionConfig) dal.Dal {
+	session := d.db.Session(&gorm.Session{
+		PrepareStmt:            config.PrepareStmt,
+		SkipDefaultTransaction: config.SkipDefaultTransaction,
+	})
+	return NewDalgorm(session)
+}
+
+// Begin create a new transaction
+func (d *Dalgorm) Begin() dal.Transaction {
+	return newTransaction(d)
+}
+
+// NewDalgorm creates a *Dalgorm
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}
 }

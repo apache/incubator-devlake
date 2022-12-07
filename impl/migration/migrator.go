@@ -21,9 +21,11 @@ import (
 	"fmt"
 	"sort"
 	"sync"
+	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 type scriptWithComment struct {
@@ -37,19 +39,20 @@ type migratorImpl struct {
 	executed map[string]bool
 	scripts  []*scriptWithComment
 	pending  []*scriptWithComment
+	db       dal.Dal
+	tx       dal.Transaction
 }
 
 func (m *migratorImpl) loadExecuted() errors.Error {
-	db := m.basicRes.GetDal()
 	// make sure migration_history table exists
-	err := db.AutoMigrate(&MigrationHistory{})
+	err := m.tx.AutoMigrate(&MigrationHistory{})
 	if err != nil {
 		return errors.Default.Wrap(err, "error performing migrations")
 	}
 	// load executed scripts into memory
 	m.executed = make(map[string]bool)
 	var records []MigrationHistory
-	err = db.All(&records)
+	err = m.tx.All(&records)
 	if err != nil {
 		return errors.Default.Wrap(err, "error finding migration history records")
 	}
@@ -83,7 +86,6 @@ func (m *migratorImpl) Execute() errors.Error {
 		return m.pending[i].script.Version() < m.pending[j].script.Version()
 	})
 	// execute them one by one
-	db := m.basicRes.GetDal()
 	log := m.basicRes.GetLogger().Nested("migrator")
 	for _, swc := range m.pending {
 		scriptId := fmt.Sprintf("%d-%s", swc.script.Version(), swc.script.Name())
@@ -92,7 +94,7 @@ func (m *migratorImpl) Execute() errors.Error {
 		if err != nil {
 			return err
 		}
-		err = db.Create(&MigrationHistory{
+		err = m.tx.Create(&MigrationHistory{
 			ScriptVersion: swc.script.Version(),
 			ScriptName:    swc.script.Name(),
 			Comment:       swc.comment,
@@ -102,6 +104,10 @@ func (m *migratorImpl) Execute() errors.Error {
 		}
 		m.executed[scriptId] = true
 		m.pending = m.pending[1:]
+		err = m.tx.Commit()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -111,11 +117,45 @@ func (m *migratorImpl) HasPendingScripts() bool {
 	return len(m.executed) > 0 && len(m.pending) > 0
 }
 
+// func lockMigrationHistory(db dal.Dal) (dal.Transaction, errors.Error) {
+// 	println("start lock")
+// 	err := tx.Exec("")
+// 	// err := tx.First(migrationHistory, dal.Lock(true, true))
+// 	println("end lock", err)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return tx, nil
+// }
+
 // NewMigrator returns a new Migrator instance, which
 // implemented based on migration_history from the same database
 func NewMigrator(basicRes core.BasicRes) (core.Migrator, errors.Error) {
+	db := basicRes.GetDal().Session(dal.SessionConfig{
+		SkipDefaultTransaction: true,
+		PrepareStmt:            false,
+	})
 	m := &migratorImpl{
 		basicRes: basicRes,
+		db:       db,
+		tx:       db.Begin(),
+	}
+
+	c := make(chan error, 1)
+
+	// This prevent multiple devlake instances from sharing the same database by locking the migration history table
+	// However, it would not work if any older devlake instances were already using the database.
+	go func() {
+		c <- m.tx.Exec("LOCK TABLE _devlake_migration_history WRITE")
+	}()
+
+	select {
+	case err := <-c:
+		if err != nil {
+			return nil, errors.Convert(err)
+		}
+	case <-time.After(2 * time.Second):
+		return nil, errors.Default.New("locking _devlake_migration_history timeout, the database might be locked by another devlake instance")
 	}
 	err := m.loadExecuted()
 	if err != nil {
