@@ -23,8 +23,10 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"testing"
 )
 
@@ -41,31 +43,25 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	bpScopes := make([]*core.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
 
-	plan := make(core.PipelinePlan, len(bpScopes))
-	scopes := make([]core.Scope, 0, len(bpScopes))
-	for i, bpScope := range bpScopes {
-		jiraBoard := &models.JiraBoard{
-			ConnectionId: 1,
-			BoardId:      10,
-			Name:         "a",
-			ProjectId:    20,
-			Self:         "self",
-			Type:         "type",
-		}
-
-		transformationRule := &models.JiraTransformationRule{
-			Model: common.Model{
-				ID: 1,
+	connection := &models.JiraConnection{
+		RestConnection: helper.RestConnection{
+			BaseConnection: helper.BaseConnection{
+				Name: "Jira",
+				Model: common.Model{
+					ID: 1,
+				},
 			},
-			Name:         "jira transformation rule",
-			EpicKeyField: "hey,man,wasup",
-		}
-
-		var scope []core.Scope
-		plan[i], scope, err = makeDataSourcePipelinePlanV200(nil, bpScope, jiraBoard, transformationRule)
-		assert.Nil(t, err)
-		scopes = append(scopes, scope...)
+		},
 	}
+
+	basicRes = NewMockBasicRes()
+	plan := make(core.PipelinePlan, len(bpScopes))
+	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection)
+	assert.Nil(t, err)
+	basicRes = NewMockBasicRes()
+	scopes, err := makeScopesV200(bpScopes, connection)
+	assert.Nil(t, err)
+
 	expectPlan := core.PipelinePlan{
 		core.PipelineStage{
 			{
@@ -78,7 +74,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					"projectId":            uint(20),
 					"name":                 "a",
 					"self":                 "self",
-					"transformationRuleId": uint64(0),
+					"transformationRuleId": uint64(1),
 					"transformationRules": map[string]interface{}{
 						"name":         "jira transformation rule",
 						"epicKeyField": "hey,man,wasup",
@@ -91,7 +87,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, expectPlan, plan)
 
 	expectScopes := make([]core.Scope, 0)
-	scopeCicd := &ticket.Board{
+	jiraBoard := &ticket.Board{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: "jira:JiraBoard:1:10",
 		},
@@ -101,6 +97,44 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		CreatedDate: nil,
 	}
 
-	expectScopes = append(expectScopes, scopeCicd)
+	expectScopes = append(expectScopes, jiraBoard)
 	assert.Equal(t, expectScopes, scopes)
+}
+
+// NewMockBasicRes FIXME ...
+func NewMockBasicRes() *mocks.BasicRes {
+	jiraBoard := &models.JiraBoard{
+		ConnectionId:         1,
+		BoardId:              10,
+		Name:                 "a",
+		ProjectId:            20,
+		Self:                 "self",
+		Type:                 "type",
+		TransformationRuleId: 1,
+	}
+
+	transformationRule := &models.JiraTransformationRule{
+		Model: common.Model{
+			ID: 1,
+		},
+		Name:         "jira transformation rule",
+		EpicKeyField: "hey,man,wasup",
+	}
+	mockRes := new(mocks.BasicRes)
+	mockDal := new(mocks.Dal)
+
+	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		dst := args.Get(0).(*models.JiraBoard)
+		*dst = *jiraBoard
+	}).Return(nil).Once()
+
+	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		dst := args.Get(0).(*models.JiraTransformationRule)
+		*dst = *transformationRule
+	}).Return(nil).Once()
+
+	mockRes.On("GetDal").Return(mockDal)
+	mockRes.On("GetConfig", mock.Anything).Return("")
+
+	return mockRes
 }

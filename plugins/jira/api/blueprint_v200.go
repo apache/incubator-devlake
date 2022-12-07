@@ -19,6 +19,7 @@ package api
 
 import (
 	goerror "errors"
+	"fmt"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
@@ -35,7 +36,6 @@ import (
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, bpScopes []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
-	db := basicRes.GetDal()
 	// get the connection info for url
 	connection := &models.JiraConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
@@ -43,31 +43,14 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionI
 		return nil, nil, err
 	}
 
-	plan := make(core.PipelinePlan, 0, len(bpScopes))
-	scopes := make([]core.Scope, 0, len(bpScopes))
-	for i, bpScope := range bpScopes {
-		var jiraBoard *models.JiraBoard
-		// get repo from db
-		err = db.First(jiraBoard, dal.Where(`id = ?`, bpScope.Id))
-		if err != nil {
-			return nil, nil, err
-		}
-		var transformationRule *models.JiraTransformationRule
-		// get transformation rules from db
-		err = db.First(transformationRule, dal.Where(`id = ?`, jiraBoard.TransformationRuleId))
-		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil, err
-		}
-		var scope []core.Scope
-		// make pipeline for each bpScope
-		plan[i], scope, err = makeDataSourcePipelinePlanV200(subtaskMetas, bpScope, jiraBoard, transformationRule)
-		if err != nil {
-			return nil, nil, err
-		}
-		if len(scope) > 0 {
-			scopes = append(scopes, scope...)
-		}
-
+	plan := make(core.PipelinePlan, len(bpScopes))
+	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection)
+	if err != nil {
+		return nil, nil, err
+	}
+	scopes, err := makeScopesV200(bpScopes, connection)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	return plan, scopes, nil
@@ -75,52 +58,86 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionI
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []core.SubTaskMeta,
-	bpScope *core.BlueprintScopeV200,
-	jiraBoard *models.JiraBoard,
-	transformationRule *models.JiraTransformationRule,
-) (core.PipelineStage, []core.Scope, errors.Error) {
+	plan core.PipelinePlan,
+	bpScopes []*core.BlueprintScopeV200,
+	connection *models.JiraConnection,
+) (core.PipelinePlan, errors.Error) {
+	db := basicRes.GetDal()
 	var err errors.Error
 	var stage core.PipelineStage
-	scopes := make([]core.Scope, 0)
-
-	// construct task options for jenkins
-	var options map[string]interface{}
-	err = errors.Convert(mapstructure.Decode(jiraBoard, &options))
-	if err != nil {
-		return nil, nil, err
-	}
-	// make sure task options is valid
-	_, err = tasks.DecodeAndValidateTaskOptions(options)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var transformationRuleMap map[string]interface{}
-	err = errors.Convert(mapstructure.Decode(transformationRule, &transformationRuleMap))
-	if err != nil {
-		return nil, nil, err
-	}
-	options["transformationRules"] = transformationRuleMap
-	subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
-	if err != nil {
-		return nil, nil, err
-	}
-	stage = append(stage, &core.PipelineTask{
-		Plugin:   "jira",
-		Subtasks: subtasks,
-		Options:  options,
-	})
-
-	// add cicd_scope to scopes
-	if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_TICKET) {
-		scopeCICD := &ticket.Board{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: didgen.NewDomainIdGenerator(&models.JiraBoard{}).Generate(jiraBoard.ConnectionId, jiraBoard.BoardId),
-			},
-			Name: jiraBoard.Name,
+	for i, bpScope := range bpScopes {
+		jiraBoard := &models.JiraBoard{}
+		// get repo from db
+		err = db.First(jiraBoard, dal.Where(`connection_id = ? and board_id = ?`, connection.ID, bpScope.Id))
+		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board%s", bpScope.Id))
 		}
-		scopes = append(scopes, scopeCICD)
+		transformationRule := &models.JiraTransformationRule{}
+		// get transformation rules from db
+		err = db.First(transformationRule, dal.Where(`id = ?`, jiraBoard.TransformationRuleId))
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		// construct task options for Jira
+		var options map[string]interface{}
+		err = errors.Convert(mapstructure.Decode(jiraBoard, &options))
+		if err != nil {
+			return nil, err
+		}
+		// make sure task options is valid
+		_, err = tasks.DecodeAndValidateTaskOptions(options)
+		if err != nil {
+			return nil, err
+		}
+
+		var transformationRuleMap map[string]interface{}
+		err = errors.Convert(mapstructure.Decode(transformationRule, &transformationRuleMap))
+		if err != nil {
+			return nil, err
+		}
+		options["transformationRules"] = transformationRuleMap
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
+		if err != nil {
+			return nil, err
+		}
+		stage = append(stage, &core.PipelineTask{
+			Plugin:   "jira",
+			Subtasks: subtasks,
+			Options:  options,
+		})
+		plan[i] = stage
 	}
 
-	return stage, scopes, nil
+	return plan, nil
+}
+
+func makeScopesV200(bpScopes []*core.BlueprintScopeV200, connection *models.JiraConnection) ([]core.Scope, errors.Error) {
+	scopes := make([]core.Scope, 0)
+	for _, bpScope := range bpScopes {
+		jiraBoard := &models.JiraBoard{}
+		// get repo from db
+		err := basicRes.GetDal().First(jiraBoard,
+			dal.Where(`connection_id = ? and board_id = ?`,
+				connection.ID, bpScope.Id))
+		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board%d", jiraBoard.BoardId))
+		}
+		transformationRule := &models.JiraTransformationRule{}
+		// get transformation rules from db
+		err = basicRes.GetDal().First(transformationRule, dal.Where(`id = ?`, jiraBoard.TransformationRuleId))
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		// add board to scopes
+		if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_TICKET) {
+			jiraBoard := &ticket.Board{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: didgen.NewDomainIdGenerator(&models.JiraBoard{}).Generate(jiraBoard.ConnectionId, jiraBoard.BoardId),
+				},
+				Name: jiraBoard.Name,
+			}
+			scopes = append(scopes, jiraBoard)
+		}
+	}
+	return scopes, nil
 }
