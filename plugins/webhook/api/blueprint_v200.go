@@ -34,14 +34,14 @@ func MakeDataSourcePipelinePlanV200(connectionId uint64) (core.PipelinePlan, []c
 		return nil, nil, err
 	}
 
-	scopes := make([]core.Scope, 0, 1)
+	scopes := make([]core.Scope, 0)
 	// add cicd_scope to scopes
-	scopes[0] = &devops.CicdScope{
+	scopes = append(scopes, &devops.CicdScope{
 		DomainEntity: domainlayer.DomainEntity{
 			Id: fmt.Sprintf("%s:%d", "webhook", connection.ID),
 		},
 		Name: connection.Name,
-	}
+	})
 	// NOTICE:
 	//if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_TICKET) {}
 	// issue board will be created when post issue

@@ -19,11 +19,12 @@ package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-type addCicdScope struct{}
+type addCicdScopeDropBuildsJobs struct{}
 
 type cicdPipeline20221107 struct {
 	CicdScopeId string
@@ -41,22 +42,18 @@ func (cicdTask20221107) TableName() string {
 	return "cicd_tasks"
 }
 
-func (*addCicdScope) Up(basicRes core.BasicRes) errors.Error {
-	err := basicRes.GetDal().AutoMigrate(&cicdPipeline20221107{})
+func (*addCicdScopeDropBuildsJobs) Up(basicRes core.BasicRes) errors.Error {
+	err := basicRes.GetDal().DropTables("builds", "jobs")
 	if err != nil {
 		return err
 	}
-	err = basicRes.GetDal().AutoMigrate(&cicdTask20221107{})
-	if err != nil {
-		return err
-	}
-	return basicRes.GetDal().AutoMigrate(&archived.CicdScope{})
+	return migrationhelper.AutoMigrateTables(basicRes, &archived.CicdScope{}, &cicdTask20221107{}, &cicdPipeline20221107{})
 }
 
-func (*addCicdScope) Version() uint64 {
-	return 20221107000001
+func (*addCicdScopeDropBuildsJobs) Version() uint64 {
+	return 20221207000001
 }
 
-func (*addCicdScope) Name() string {
-	return "add cicd scope and add cicd_scope_id"
+func (*addCicdScopeDropBuildsJobs) Name() string {
+	return "add cicd scope and add cicd_scope_id and drop builds&jobs"
 }
