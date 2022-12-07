@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 17,
-  "iteration": 1660821502959,
+  "id": 23,
+  "iteration": 1670415305285,
   "links": [],
   "panels": [
     {
@@ -225,11 +225,9 @@
     },
     {
       "datasource": "mysql",
+      "description": "",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
           "decimals": 1,
           "mappings": [],
           "thresholds": {
@@ -241,16 +239,15 @@
               },
               {
                 "color": "red",
-                "value": 7
+                "value": 14
               }
             ]
-          },
-          "unit": "d"
+          }
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 6,
         "w": 6,
         "x": 0,
         "y": 11
@@ -263,9 +260,9 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "mean"
           ],
-          "fields": "",
+          "fields": "/^value$/",
           "values": false
         },
         "text": {},
@@ -277,22 +274,21 @@
           "format": "table",
           "group": [],
           "metricColumn": "none",
-          "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _inprogress_times as (\n  select\n    i.id as issue_id,\n    c.created_date as inprogress_time\n  from\n    lake.issues i\n    join lake.issue_changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.original_to_value in ($inprogress_status) \n    and date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n),\n\n_done_times as (\n  select\n    i.id as issue_id,\n    c.created_date as done_time\n  from\n    lake.issues i\n    join lake.issue_changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.original_to_value in ($done_status)\n    and date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY\n)\n\nselect\n  AVG(TIMESTAMPDIFF(MINUTE, inprogress_time, done_time) / 1440)\nfrom\n  _inprogress_times it\n  join _done_times dt on it.issue_id = dt.issue_id",
+          "rawSql": "select \r\n  avg(lead_time_minutes/1440) as value\r\nfrom issues i\r\n  join board_issues bi on i.id = bi.issue_id\r\nwhere \r\n  i.type in ($type)\r\n  and i.status = 'DONE'\r\n  and $__timeFilter(i.resolution_date)\r\n  and bi.board_id in ($board_id)",
           "refId": "A",
           "select": [
             [
               {
                 "params": [
-                  "id"
+                  "progress"
                 ],
                 "type": "column"
               }
             ]
           ],
-          "table": "_devlake_blueprints",
-          "timeColumn": "created_at",
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
           "timeColumnType": "timestamp",
           "where": [
             {
@@ -303,48 +299,32 @@
           ]
         }
       ],
-      "title": "Issue Cycle Time",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Mean Issue Lead Time in Days [Issues Resolved in Select Time Range]",
       "type": "stat"
     },
     {
       "datasource": "mysql",
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
-            "axisLabel": "",
+            "axisLabel": "Lead Time(days)",
             "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "axisSoftMin": 0,
+            "fillOpacity": 80,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 1,
-            "pointSize": 10,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "lineWidth": 1
           },
-          "decimals": 1,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -355,26 +335,34 @@
               },
               {
                 "color": "red",
-                "value": 7
+                "value": 80
               }
             ]
           },
-          "unit": "none"
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 6,
         "w": 18,
         "x": 6,
         "y": 11
       },
       "id": 23,
+      "interval": "",
       "options": {
+        "barWidth": 0.5,
+        "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
           "placement": "bottom"
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "text": {
+          "valueSize": 12
         },
         "tooltip": {
           "mode": "single"
@@ -383,25 +371,24 @@
       "pluginVersion": "8.0.6",
       "targets": [
         {
-          "format": "time_series",
+          "format": "table",
           "group": [],
           "metricColumn": "none",
-          "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _inprogress_times as (\n  select\n    i.id as issue_id,\n    i.created_date,\n    c.created_date as inprogress_time\n  from\n    lake.issues i\n    join lake.issue_changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.original_to_value in ($inprogress_status) \n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n),\n\n_done_times as (\n  select\n    i.id as issue_id,\n    i.created_date,\n    c.created_date as done_time\n  from\n    lake.issues i\n    join lake.issue_changelogs c on i.id = c.issue_id\n  where\n    c.field_name = 'status'\n    and c.original_to_value in ($done_status)\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n)\n\nselect\n  DATE_ADD(date(it.created_date), INTERVAL -DAY(date(it.created_date))+1 DAY) as time,\n  AVG(TIMESTAMPDIFF(MINUTE, inprogress_time, done_time) / 1440) as avg_issue_cycle_time_in_days\nfrom\n  _inprogress_times it\n  join _done_times dt on it.issue_id = dt.issue_id\ngroup by time",
+          "rawSql": "with _issues as(\n  SELECT\n    DATE_ADD(date(i.resolution_date), INTERVAL -DAY(date(i.resolution_date))+1 DAY) as time,\n    AVG(i.lead_time_minutes/1440) as issue_lead_time\n  FROM issues i\n  \tjoin board_issues bi on i.id = bi.issue_id\n  \tjoin boards b on bi.board_id = b.id\n  WHERE\n    b.id in ($board_id)\n    and i.status = \"DONE\"\n    and $__timeFilter(i.resolution_date)\n    and i.resolution_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by 1\n)\n\nSELECT \n  date_format(time,'%M %Y') as month,\n  issue_lead_time as \"Mean Requirement Lead Time in Days\"\nFROM _issues\nORDER BY time",
           "refId": "A",
           "select": [
             [
               {
                 "params": [
-                  "id"
+                  "progress"
                 ],
                 "type": "column"
               }
             ]
           ],
-          "table": "_devlake_blueprints",
-          "timeColumn": "created_at",
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
           "timeColumnType": "timestamp",
           "where": [
             {
@@ -412,8 +399,10 @@
           ]
         }
       ],
-      "title": "Issue Cycle Time over Month",
-      "type": "timeseries"
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Mean Requirement Lead Time in Days [Of Issues Resolved per Month]",
+      "type": "barchart"
     },
     {
       "datasource": "mysql",
@@ -447,7 +436,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 19
+        "y": 17
       },
       "id": 14,
       "options": {
@@ -541,7 +530,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 19
+        "y": 17
       },
       "id": 24,
       "options": {
@@ -630,7 +619,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 27
+        "y": 25
       },
       "id": 6,
       "options": {
@@ -741,7 +730,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 27
+        "y": 25
       },
       "id": 25,
       "options": {
@@ -818,7 +807,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 35
+        "y": 33
       },
       "id": 4,
       "options": {
@@ -913,7 +902,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 35
+        "y": 33
       },
       "id": 26,
       "options": {
@@ -1001,7 +990,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 43
+        "y": 41
       },
       "id": 16,
       "options": {
@@ -1111,7 +1100,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 43
+        "y": 41
       },
       "id": 28,
       "options": {
@@ -1132,7 +1121,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "-- with _prs as(\nselect\n  DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n  100*sum(case when id in (select pull_request_id from pull_request_issues) then 1 else 0 end)/count(*) as unlinked_pr_rate\nfrom lake.pull_requests \nwhere base_repo_id in ($repo_id)\ngroup by time\n\n\n",
+          "rawSql": "select\n  DATE_ADD(date(created_date), INTERVAL -DAY(date(created_date))+1 DAY) as time,\n  100*sum(case when id in (select pull_request_id from pull_request_issues) then 1 else 0 end)/count(*) as unlinked_pr_rate\nfrom lake.pull_requests \nwhere base_repo_id in ($repo_id)\nand $__timeFilter(created_date)\nand created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\ngroup by time\n\n",
           "refId": "A",
           "select": [
             [
@@ -1188,7 +1177,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 51
+        "y": 49
       },
       "id": 12,
       "options": {
@@ -1298,7 +1287,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 51
+        "y": 49
       },
       "id": 29,
       "options": {
@@ -1377,7 +1366,7 @@
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 59
+        "y": 57
       },
       "id": 2,
       "options": {
@@ -1489,7 +1478,7 @@
         "h": 8,
         "w": 18,
         "x": 6,
-        "y": 59
+        "y": 57
       },
       "id": 30,
       "options": {
@@ -1579,7 +1568,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 67
+        "y": 65
       },
       "id": 20,
       "options": {
@@ -1655,7 +1644,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 67
+        "y": 65
       },
       "id": 21,
       "options": {
@@ -1723,7 +1712,7 @@
         "h": 2,
         "w": 24,
         "x": 0,
-        "y": 75
+        "y": 73
       },
       "id": 34,
       "options": {
@@ -1799,11 +1788,9 @@
         "current": {
           "selected": true,
           "text": [
-            "High",
             "Highest"
           ],
           "value": [
-            "High",
             "Highest"
           ]
         },
@@ -1827,25 +1814,21 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "mysql",
-        "definition": "select original_to_value from issue_changelogs where field_name = 'status'",
-        "description": "Customize status(es) that are considered as \"In-Progress\"",
+        "definition": "select distinct type from issues",
+        "description": null,
         "error": null,
         "hide": 0,
         "includeAll": true,
-        "label": "Status(es) of In-progress Issues",
-        "multi": true,
-        "name": "inprogress_status",
+        "label": "Issue Type",
+        "multi": false,
+        "name": "type",
         "options": [],
-        "query": "select original_to_value from issue_changelogs where field_name = 'status'",
+        "query": "select distinct type from issues",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1855,27 +1838,23 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "mysql",
-        "definition": "select original_to_value from issue_changelogs where field_name = 'status'",
-        "description": "Customize status(es) that are considered as \"Done\"",
+        "definition": "select concat(name, '--', id) from boards",
+        "description": null,
         "error": null,
         "hide": 0,
         "includeAll": true,
-        "label": "Status(es) of Done Issues",
+        "label": "Choose Board",
         "multi": true,
-        "name": "done_status",
+        "name": "board_id",
         "options": [],
-        "query": "select original_to_value from issue_changelogs where field_name = 'status'",
+        "query": "select concat(name, '--', id) from boards",
         "refresh": 1,
-        "regex": "",
+        "regex": "/^(?<text>.*)--(?<value>.*)$/",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
@@ -1890,5 +1869,5 @@
   "timezone": "",
   "title": "Engineering Overview",
   "uid": "ZF6abXX7z",
-  "version": 9
+  "version": 7
 }
