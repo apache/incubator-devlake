@@ -69,43 +69,23 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/github")
 	err = core.RegisterPlugin("github", mockMeta)
 	assert.Nil(t, err)
+	// Refresh Global Variables and set the sql mock
+	basicRes = NewMockBasicRes()
 	bs := &core.BlueprintScopeV200{
 		Entities: []string{"CODE", "TICKET"},
-		Id:       "",
+		Id:       "1",
 		Name:     "",
 	}
 	bpScopes := make([]*core.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
 
 	plan := make(core.PipelinePlan, len(bpScopes))
-	scopes := make([]core.Scope, 0, len(bpScopes))
-	for i, bpScope := range bpScopes {
-		githubRepo := &models.GithubRepo{
-			ConnectionId: 1,
-			GithubId:     12345,
-			Name:         "testRepo",
-			OwnerLogin:   "test",
-			CreatedDate:  time.Time{},
-		}
+	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection, mockApiCLient)
+	assert.Nil(t, err)
+	basicRes = NewMockBasicRes()
+	scopes, err := makeScopesV200(bpScopes, connection)
+	assert.Nil(t, err)
 
-		transformationRule := &models.GithubTransformationRule{
-			Model: common.Model{
-				ID: 1,
-			},
-			Name:    "github transformation rule",
-			PrType: "hey,man,wasup",
-			Refdiff: map[string]interface{}{
-				"tagsPattern": "pattern",
-				"tagsLimit":   10,
-				"tagsOrder":   "reverse semver",
-			},
-		}
-
-		var scope []core.Scope
-		plan, scope, err = makeDataSourcePipelinePlanV200(nil, i, plan, bpScope, connection, mockApiCLient, githubRepo, transformationRule)
-		assert.Nil(t, err)
-		scopes = append(scopes, scope...)
-	}
 	expectPlan := core.PipelinePlan{
 		core.PipelineStage{
 			{
@@ -113,11 +93,12 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Subtasks:   []string{},
 				SkipOnFail: false,
 				Options: map[string]interface{}{
-					"connectionId": uint64(1),
-					"owner":        "test",
-					"repo":         "testRepo",
+					"connectionId":         uint64(1),
+					"transformationRuleId": uint64(1),
+					"owner":                "test",
+					"repo":                 "testRepo",
 					"transformationRules": map[string]interface{}{
-						"name":    "github transformation rule",
+						"name":   "github transformation rule",
 						"prType": "hey,man,wasup",
 					},
 				},
@@ -166,4 +147,46 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 	expectScopes = append(expectScopes, scopeRepo, scopeTicket)
 	assert.Equal(t, expectScopes, scopes)
+}
+
+// NewMockBasicRes FIXME ...
+func NewMockBasicRes() *mocks.BasicRes {
+	testGithubRepo := &models.GithubRepo{
+		ConnectionId:         1,
+		GithubId:             12345,
+		Name:                 "testRepo",
+		OwnerLogin:           "test",
+		TransformationRuleId: 1,
+		CreatedDate:          time.Time{},
+	}
+
+	testTransformationRule := &models.GithubTransformationRule{
+		Model: common.Model{
+			ID: 1,
+		},
+		Name:   "github transformation rule",
+		PrType: "hey,man,wasup",
+		Refdiff: map[string]interface{}{
+			"tagsPattern": "pattern",
+			"tagsLimit":   10,
+			"tagsOrder":   "reverse semver",
+		},
+	}
+	mockRes := new(mocks.BasicRes)
+	mockDal := new(mocks.Dal)
+
+	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		dst := args.Get(0).(*models.GithubRepo)
+		*dst = *testGithubRepo
+	}).Return(nil).Once()
+
+	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		dst := args.Get(0).(*models.GithubTransformationRule)
+		*dst = *testTransformationRule
+	}).Return(nil).Once()
+
+	mockRes.On("GetDal").Return(mockDal)
+	mockRes.On("GetConfig", mock.Anything).Return("")
+
+	return mockRes
 }
