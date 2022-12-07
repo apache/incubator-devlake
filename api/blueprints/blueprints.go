@@ -179,6 +179,10 @@ func Trigger(c *gin.Context) {
 		return
 	}
 	pipeline, err := services.TriggerBlueprint(id)
+	if errors.Is(err, services.ErrBlueprintRunning) {
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "the blueprint is running"))
+		return
+	}
 	if err != nil {
 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error triggering blueprint"))
 		return
