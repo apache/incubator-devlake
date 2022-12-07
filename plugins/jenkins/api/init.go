@@ -27,13 +27,13 @@ import (
 
 var vld *validator.Validate
 var connectionHelper *helper.ConnectionApiHelper
-var BasicRes core.BasicRes
+var basicRes core.BasicRes
 
 func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
-	BasicRes = helper.NewDefaultBasicRes(config, logger, database)
+	basicRes = helper.NewDefaultBasicRes(config, logger, database)
 	vld = validator.New()
 	connectionHelper = helper.NewConnectionHelper(
-		BasicRes,
+		basicRes,
 		vld,
 	)
 }

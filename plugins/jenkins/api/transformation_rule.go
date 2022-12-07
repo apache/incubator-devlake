@@ -45,7 +45,7 @@ func CreateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error in decoding transformation rule")
 	}
-	err = BasicRes.GetDal().Create(&rule)
+	err = basicRes.GetDal().Create(&rule)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
 	}
@@ -69,7 +69,7 @@ func UpdateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 		return nil, errors.Default.Wrap(err, "the transformation rule ID should be an integer")
 	}
 	var old models.JenkinsTransformationRule
-	err = BasicRes.GetDal().First(&old, dal.Where("id = ?", transformationRuleId))
+	err = basicRes.GetDal().First(&old, dal.Where("id = ?", transformationRuleId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
 	}
@@ -78,7 +78,7 @@ func UpdateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 		return nil, errors.Default.Wrap(err, "error decoding map into transformationRule")
 	}
 	old.ID = transformationRuleId
-	err = BasicRes.GetDal().Update(&old, dal.Where("id = ?", transformationRuleId))
+	err = basicRes.GetDal().Update(&old, dal.Where("id = ?", transformationRuleId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
 	}
@@ -100,7 +100,7 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 		return nil, errors.Default.Wrap(err, "the transformation rule ID should be an integer")
 	}
 	var rule models.JenkinsTransformationRule
-	err = BasicRes.GetDal().First(&rule, dal.Where("id = ?", transformationRuleId))
+	err = basicRes.GetDal().First(&rule, dal.Where("id = ?", transformationRuleId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get TransformationRule")
 	}
@@ -120,7 +120,7 @@ func GetTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutpu
 func GetTransformationRuleList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var rules []models.JenkinsTransformationRule
 	limit, offset := helper.GetLimitOffset(input.Query, "pageSize", "page")
-	err := BasicRes.GetDal().All(&rules, dal.Limit(limit), dal.Offset(offset))
+	err := basicRes.GetDal().All(&rules, dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on get TransformationRule list")
 	}
