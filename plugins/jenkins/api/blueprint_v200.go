@@ -19,6 +19,8 @@ package api
 
 import (
 	goerror "errors"
+	"fmt"
+
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"gorm.io/gorm"
 
@@ -35,7 +37,6 @@ import (
 )
 
 func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, bpScopes []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
-	db := BasicRes.GetDal()
 	// get the connection info for url
 	connection := &models.JenkinsConnection{}
 	err := connectionHelper.FirstById(connection, connectionId)
@@ -43,31 +44,14 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionI
 		return nil, nil, err
 	}
 
-	plan := make(core.PipelinePlan, 0, len(bpScopes))
-	scopes := make([]core.Scope, 0, len(bpScopes))
-	for i, bpScope := range bpScopes {
-		var jenkinsJob *models.JenkinsJob
-		// get repo from db
-		err = db.First(jenkinsJob, dal.Where(`id = ?`, bpScope.Id))
-		if err != nil {
-			return nil, nil, err
-		}
-		var transformationRule *models.JenkinsTransformationRule
-		// get transformation rules from db
-		err = db.First(transformationRule, dal.Where(`id = ?`, jenkinsJob.TransformationRuleId))
-		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil, err
-		}
-		var scope []core.Scope
-		// make pipeline for each bpScope
-		plan[i], scope, err = makeDataSourcePipelinePlanV200(subtaskMetas, bpScope, jenkinsJob, transformationRule)
-		if err != nil {
-			return nil, nil, err
-		}
-		if len(scope) > 0 {
-			scopes = append(scopes, scope...)
-		}
-
+	plan := make(core.PipelinePlan, len(bpScopes))
+	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection)
+	if err != nil {
+		return nil, nil, err
+	}
+	scopes, err := makeScopesV200(bpScopes, connection)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	return plan, scopes, nil
@@ -75,52 +59,89 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionI
 
 func makeDataSourcePipelinePlanV200(
 	subtaskMetas []core.SubTaskMeta,
-	bpScope *core.BlueprintScopeV200,
-	jenkinsJob *models.JenkinsJob,
-	transformationRule *models.JenkinsTransformationRule,
-) (core.PipelineStage, []core.Scope, errors.Error) {
+	plan core.PipelinePlan,
+	bpScopes []*core.BlueprintScopeV200,
+	connection *models.JenkinsConnection,
+) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
 	var stage core.PipelineStage
-	scopes := make([]core.Scope, 0)
-
-	// construct task options for jenkins
-	var options map[string]interface{}
-	err = errors.Convert(mapstructure.Decode(jenkinsJob, &options))
-	if err != nil {
-		return nil, nil, err
-	}
-	// make sure task options is valid
-	_, err = tasks.DecodeAndValidateTaskOptions(options)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var transformationRuleMap map[string]interface{}
-	err = errors.Convert(mapstructure.Decode(transformationRule, &transformationRuleMap))
-	if err != nil {
-		return nil, nil, err
-	}
-	options["transformationRules"] = transformationRuleMap
-	subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
-	if err != nil {
-		return nil, nil, err
-	}
-	stage = append(stage, &core.PipelineTask{
-		Plugin:   "jenkins",
-		Subtasks: subtasks,
-		Options:  options,
-	})
-
-	// add cicd_scope to scopes
-	if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CICD) {
-		scopeCICD := &devops.CicdScope{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: didgen.NewDomainIdGenerator(&models.JenkinsJob{}).Generate(jenkinsJob.ConnectionId, jenkinsJob.FullName),
-			},
-			Name: jenkinsJob.FullName,
+	for i, bpScope := range bpScopes {
+		jenkinsJob := &models.JenkinsJob{}
+		// get repo from db
+		err = basicRes.GetDal().First(jenkinsJob,
+			dal.Where(`connection_id = ? and full_name = ?`,
+				connection.ID, bpScope.Id))
+		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find jenkinsJob%s", bpScope.Id))
 		}
-		scopes = append(scopes, scopeCICD)
+		transformationRule := &models.JenkinsTransformationRule{}
+		// get transformation rules from db
+		err = basicRes.GetDal().First(transformationRule, dal.Where(`id = ?`,
+			jenkinsJob.TransformationRuleId))
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		// construct task options for jenkins
+		var options map[string]interface{}
+		err = errors.Convert(mapstructure.Decode(jenkinsJob, &options))
+		if err != nil {
+			return nil, err
+		}
+		// make sure task options is valid
+		_, err = tasks.DecodeAndValidateTaskOptions(options)
+		if err != nil {
+			return nil, err
+		}
+
+		var transformationRuleMap map[string]interface{}
+		err = errors.Convert(mapstructure.Decode(transformationRule, &transformationRuleMap))
+		if err != nil {
+			return nil, err
+		}
+		options["transformationRules"] = transformationRuleMap
+		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
+		if err != nil {
+			return nil, err
+		}
+		stage = append(stage, &core.PipelineTask{
+			Plugin:   "jenkins",
+			Subtasks: subtasks,
+			Options:  options,
+		})
+		plan[i] = stage
 	}
 
-	return stage, scopes, nil
+	return plan, nil
+}
+
+func makeScopesV200(bpScopes []*core.BlueprintScopeV200, connection *models.JenkinsConnection) ([]core.Scope, errors.Error) {
+	scopes := make([]core.Scope, 0)
+	for _, bpScope := range bpScopes {
+		jenkinsJob := &models.JenkinsJob{}
+		// get repo from db
+		err := basicRes.GetDal().First(jenkinsJob,
+			dal.Where(`connection_id = ? and full_name = ?`,
+				connection.ID, bpScope.Id))
+		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find jenkinsJob%s", bpScope.Id))
+		}
+
+		transformationRule := &models.JenkinsTransformationRule{}
+		// get transformation rules from db
+		err = basicRes.GetDal().First(transformationRule, dal.Where(`id = ?`, jenkinsJob.TransformationRuleId))
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		// add cicd_scope to scopes
+		if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CICD) {
+			scopeCICD := &devops.CicdScope{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: didgen.NewDomainIdGenerator(&models.JenkinsJob{}).Generate(connection.ID, jenkinsJob.FullName),
+				},
+				Name: jenkinsJob.FullName,
+			}
+			scopes = append(scopes, scopeCICD)
+		}
+	}
+	return scopes, nil
 }

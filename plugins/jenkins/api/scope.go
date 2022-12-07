@@ -70,7 +70,7 @@ func PutScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 		job.ConnectionId = connectionId
 
 	}
-	err = BasicRes.GetDal().CreateOrUpdate(jobs.Data)
+	err = basicRes.GetDal().CreateOrUpdate(jobs.Data)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving JenkinsJob")
 	}
@@ -97,7 +97,7 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 	var job models.JenkinsJob
 	job.ConnectionId = connectionId
 	job.FullName = fullName
-	err = BasicRes.GetDal().First(&job, dal.Where("connection_id = ? AND full_name = ?", connectionId, fullName))
+	err = basicRes.GetDal().First(&job, dal.Where("connection_id = ? AND full_name = ?", connectionId, fullName))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "getting JenkinsJob error")
 	}
@@ -105,7 +105,7 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "patch jenkins job error")
 	}
-	err = BasicRes.GetDal().Update(&job)
+	err = basicRes.GetDal().Update(&job)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving JenkinsJob")
 	}
@@ -130,7 +130,7 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 		return nil, errors.BadInput.New("invalid path params")
 	}
 	limit, offset := helper.GetLimitOffset(input.Query, "pageSize", "page")
-	err := BasicRes.GetDal().All(&jobs, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
+	err := basicRes.GetDal().All(&jobs, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	}
 	var rules []models.JenkinsTransformationRule
 	if len(ruleIds) > 0 {
-		err = BasicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
+		err = basicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
 		if err != nil {
 			return nil, err
 		}
@@ -174,7 +174,7 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	if err != nil {
 		return nil, err
 	}
-	err = BasicRes.GetDal().First(&job, dal.Where("connection_id = ? AND full_name = ?", connectionId, fullName))
+	err = basicRes.GetDal().First(&job, dal.Where("connection_id = ? AND full_name = ?", connectionId, fullName))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.NotFound.New("record not found")
 	}
@@ -183,7 +183,7 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	}
 	var rule models.JenkinsJob
 	if job.TransformationRuleId > 0 {
-		err = BasicRes.GetDal().First(&rule, dal.Where("id = ?", job.TransformationRuleId))
+		err = basicRes.GetDal().First(&rule, dal.Where("id = ?", job.TransformationRuleId))
 		if err != nil {
 			return nil, err
 		}

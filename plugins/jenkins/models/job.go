@@ -25,7 +25,7 @@ import (
 type JenkinsJob struct {
 	ConnectionId         uint64 `gorm:"primaryKey" mapstructure:"connectionId,omitempty" json:"connectionId"`
 	FullName             string `gorm:"primaryKey;type:varchar(255)" mapstructure:"jobFullName" json:"jobFullName"` // "path1/path2/job name"
-	TransformationRuleId uint64 `mapstructure:"transformationRules,omitempty" json:"transformationRuleId,omitempty"`
+	TransformationRuleId uint64 `mapstructure:"transformationRuleId,omitempty" json:"transformationRuleId,omitempty"`
 	Name                 string `gorm:"index;type:varchar(255)" mapstructure:"-,omitempty" json:"-"` // "job name"
 	Path                 string `gorm:"index;type:varchar(511)" mapstructure:"-,omitempty" json:"-"` // "job/path1/job/path2"
 	Class                string `gorm:"type:varchar(255)" mapstructure:"class,omitempty" json:"class"`
