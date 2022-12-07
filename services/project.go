@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -33,6 +34,10 @@ type ProjectQuery struct {
 
 // CreateProject accepts a project instance and insert it to database
 func CreateProject(project *models.Project) errors.Error {
+	if project.Name == "" {
+		return errors.Default.New("can not use empty name for project")
+	}
+
 	/*project, err := encryptProject(project)
 	if err != nil {
 		return err
@@ -186,13 +191,60 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	if err != nil {
 		return nil, err
 	}
-	projectInput.Name = name
+	// allowed to changed the name
+	if projectInput.Name == "" {
+		projectInput.Name = name
+	}
 	project.BaseProject = projectInput.BaseProject
 
 	/*enProject, err := encryptProject(project)
 	if err != nil {
 		return nil, err
 	}*/
+
+	// check if the name has changed, with the project name changing, we have to change the other table at the same time as follows
+	if name != project.Name {
+		//project name
+		err = RenameProjectName(name, project.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		//ProjectMetric
+		err = RenameProjectNameForProjectMetric(name, project.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		//ProjectPrMetric
+		err = RenameProjectNameForProjectPrMetric(name, project.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		//ProjectMapping
+		err = RenameProjectNameForProjectIssueMetric(name, project.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		//Blueprint
+		err = RenameProjectNameForBlueprint(name, project.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		// rename the project for each plugin
+		err = core.TraversalPlugin(func(name string, plugin core.PluginMeta) errors.Error {
+			if handle, ok := plugin.(core.PluginHandle); ok {
+				return handle.RenameProjectName(name, project.Name)
+			}
+			return nil
+		})
+		if err != nil {
+			return nil, errors.Internal.Wrap(err, "error to rename project name for plugins")
+		}
+	}
 
 	// save
 	err = SaveDbProject(project)

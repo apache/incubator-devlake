@@ -20,12 +20,12 @@ package models
 import "github.com/apache/incubator-devlake/models/common"
 
 type BaseProject struct {
-	Name        string `json:"name" gorm:"primaryKey;type:varchar(255)"`
-	Description string `json:"description" gorm:"type:text"`
+	Name        string `json:"name" mapstructure:"name" gorm:"primaryKey;type:varchar(255)"`
+	Description string `json:"description" mapstructure:"description" gorm:"type:text"`
 }
 
 type Project struct {
-	BaseProject
+	BaseProject `mapstructure:",squash"`
 	common.NoPKModel
 }
 
@@ -34,18 +34,18 @@ func (Project) TableName() string {
 }
 
 type BaseMetric struct {
-	PluginName   string `json:"pluginName" gorm:"primaryKey;type:varchar(255)"`
-	PluginOption string `json:"pluginOption" gorm:"type:text"`
-	Enable       bool   `json:"enable" gorm:"type:boolean"`
+	PluginName   string `json:"pluginName" mapstructure:"pluginName" gorm:"primaryKey;type:varchar(255)"`
+	PluginOption string `json:"pluginOption" mapstructure:"pluginOption" gorm:"type:text"`
+	Enable       bool   `json:"enable" mapstructure:"enable" gorm:"type:boolean"`
 }
 
 type BaseProjectMetric struct {
-	ProjectName string `json:"projectName" gorm:"primaryKey;type:varchar(255)"`
-	BaseMetric
+	ProjectName string `json:"projectName" mapstructure:"projectName" gorm:"primaryKey;type:varchar(255)"`
+	BaseMetric  `mapstructure:",squash"`
 }
 
 type ProjectMetric struct {
-	BaseProjectMetric
+	BaseProjectMetric `mapstructure:",squash"`
 	common.NoPKModel
 }
 
@@ -54,13 +54,13 @@ func (ProjectMetric) TableName() string {
 }
 
 type ApiInputProject struct {
-	BaseProject
-	Enable  *bool         `json:"enable"`
-	Metrics *[]BaseMetric `json:"metrics"`
+	BaseProject `mapstructure:",squash"`
+	Enable      *bool         `json:"enable" mapstructure:"enable"`
+	Metrics     *[]BaseMetric `json:"metrics" mapstructure:"metrics"`
 }
 
 type ApiOutputProject struct {
-	BaseProject
-	Metrics   *[]BaseMetric `json:"metrics"`
-	Blueprint *Blueprint    `json:"blueprint"`
+	BaseProject `mapstructure:",squash"`
+	Metrics     *[]BaseMetric `json:"metrics" mapstructure:"metrics"`
+	Blueprint   *Blueprint    `json:"blueprint" mapstructure:"blueprint"`
 }
