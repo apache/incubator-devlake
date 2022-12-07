@@ -32,7 +32,7 @@ jobs:
         password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
     - name: Build lake image
       run: |
-        cd devops/lake-builder/
+        cd devops/docker/lake-builder/
         export IMAGE_LAKE=mericodev/lake-builder
         export IMAGE_VER=${GITHUB_REF:18}
         docker build -t $IMAGE_LAKE:latest --file ./Dockerfile .

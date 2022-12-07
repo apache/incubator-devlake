@@ -23,7 +23,7 @@
 #While incubation status is not necessarily a reflection of the completeness or stability of the code,
 #it does indicate that the project has yet to be fully endorsed by the ASF.
 
-FROM --platform=$BUILDPLATFORM node:14 as builder
+FROM node:14 as builder
 WORKDIR /home/node/code
 COPY package.json /home/node/code
 COPY package-lock.json /home/node/code
@@ -42,7 +42,7 @@ RUN rm -rf ./*
 COPY --from=builder /home/node/code/dist/. ./
 EXPOSE 4000 4443
 RUN apt update && apt install -y apache2-utils
-COPY ./nginx.sh /usr/bin/nginx.sh
+COPY --from=builder /home/node/code/nginx.sh /usr/bin/nginx.sh
 RUN chmod +x /usr/bin/nginx.sh
 USER 101
-CMD nginx.sh
+CMD /usr/bin/nginx.sh

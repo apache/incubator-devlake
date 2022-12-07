@@ -56,4 +56,5 @@ jobs:
           ${{ runner.os }}-go-
     - name: Unit tests
       run: |
+        cd backend
         make unit-test

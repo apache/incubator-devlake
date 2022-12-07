@@ -21,7 +21,7 @@ services:
       - mysql-storage:/var/lib/mysql
     restart: always
     ports:
-      - 127.0.0.1:3306:3306
+      - "127.0.0.1:3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: lake
@@ -45,7 +45,7 @@ services:
     build:
       context: grafana/
     ports:
-      - 3002:3000
+      - "3002:3000"
     volumes:
       - grafana-storage:/var/lib/grafana
     environment:
@@ -62,12 +62,12 @@ services:
   devlake:
     image: mericodev/devlake:latest
     build:
-      context: "."
+      context: backend
       args:
         HTTPS_PROXY: "${HTTPS_PROXY}"
         GOPROXY: "${GOPROXY}"
     ports:
-      - 127.0.0.1:8080:8080
+      - "127.0.0.1:8080:8080"
     restart: always
     volumes:
       - ./.env:/app/.env
@@ -82,7 +82,7 @@ services:
     build:
       context: "config-ui"
     ports:
-      - 127.0.0.1:4000:4000
+      - "127.0.0.1:4000:4000"
     env_file:
       - ./.env
     environment:
