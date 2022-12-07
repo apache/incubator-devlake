@@ -34,6 +34,10 @@ type ProjectQuery struct {
 
 // CreateProject accepts a project instance and insert it to database
 func CreateProject(project *models.Project) errors.Error {
+	if project.Name == "" {
+		return errors.Default.New("can not use empty name for project")
+	}
+
 	/*project, err := encryptProject(project)
 	if err != nil {
 		return err
@@ -188,6 +192,9 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 		return nil, err
 	}
 	// allowed to changed the name
+	if projectInput.Name == "" {
+		projectInput.Name = name
+	}
 	project.BaseProject = projectInput.BaseProject
 
 	/*enProject, err := encryptProject(project)
@@ -195,14 +202,14 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 		return nil, err
 	}*/
 
-	// save
-	err = SaveDbProject(project)
-	if err != nil {
-		return nil, errors.Internal.Wrap(err, "error saving project")
-	}
-
 	// check if the name has changed, with the project name changing, we have to change the other table at the same time as follows
 	if name != project.Name {
+		//project name
+		err = RenameProjectName(name, project.Name)
+		if err != nil {
+			return nil, err
+		}
+
 		//ProjectMetric
 		err = RenameProjectNameForProjectMetric(name, project.Name)
 		if err != nil {
@@ -237,6 +244,12 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 		if err != nil {
 			return nil, errors.Internal.Wrap(err, "error to rename project name for plugins")
 		}
+	}
+
+	// save
+	err = SaveDbProject(project)
+	if err != nil {
+		return nil, errors.Internal.Wrap(err, "error saving project")
 	}
 
 	// check if need to changed the blueprint setting

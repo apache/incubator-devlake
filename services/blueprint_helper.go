@@ -137,13 +137,13 @@ func GetDbBlueprintByProjectName(projectName string) (*models.DbBlueprint, error
 
 // RenameProjectNameForBlueprint FIXME ...
 func RenameProjectNameForBlueprint(oldProjectName string, newProjectName string) errors.Error {
-	err := db.Model(&models.Blueprint{}).
+	err := db.Model(&models.DbBlueprint{}).
 		Where("project_name = ?", oldProjectName).
 		Updates(map[string]interface{}{
 			"project_name": newProjectName,
 		}).Error
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("Failed to RenameProjectNameForBlueprint for [%s] to [%s]", oldProjectName, newProjectName))
+		return errors.Default.Wrap(err, fmt.Sprintf("Failed to RenameProjectNameForBlueprint from [%s] to [%s]", oldProjectName, newProjectName))
 	}
 
 	return nil

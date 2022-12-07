@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // CreateDbProject accepts a project instance and insert it to database
@@ -33,7 +34,7 @@ func CreateDbProject(project *models.Project) errors.Error {
 	err := db.Create(project).Error
 	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "duplicate") {
-			return errors.BadInput.New("The project [%s] already exists,cannot be created again")
+			return errors.BadInput.New(fmt.Sprintf("The project [%s] already exists,cannot be created again", project.Name))
 		}
 		return errors.Default.Wrap(err, "error creating DB project")
 	}
@@ -143,6 +144,21 @@ func GetDbProjectMetrics(projectName string) (*[]models.ProjectMetric, int64, er
 	return &projectMetrics, count, nil
 }
 
+// RenameProjectName FIXME ...
+func RenameProjectName(oldProjectName string, newProjectName string) errors.Error {
+	err := db.Exec(
+		"UPDATE ? SET name = ? WHERE name = ?",
+		clause.Table{Name: models.Project{}.TableName()},
+		newProjectName,
+		oldProjectName,
+	).Error
+	if err != nil {
+		return errors.Default.Wrap(err, fmt.Sprintf("Failed to RenameProjectNameForProjectMetric from [%s] to [%s]", oldProjectName, newProjectName))
+	}
+
+	return nil
+}
+
 // RenameProjectNameForProjectMetric FIXME ...
 func RenameProjectNameForProjectMetric(oldProjectName string, newProjectName string) errors.Error {
 	err := db.Model(&models.ProjectMetric{}).
@@ -151,7 +167,7 @@ func RenameProjectNameForProjectMetric(oldProjectName string, newProjectName str
 			"project_name": newProjectName,
 		}).Error
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("Failed to RenameProjectNameForProjectMetric for [%s] to [%s]", oldProjectName, newProjectName))
+		return errors.Default.Wrap(err, fmt.Sprintf("Failed to RenameProjectNameForProjectMetric from [%s] to [%s]", oldProjectName, newProjectName))
 	}
 
 	return nil
@@ -165,7 +181,7 @@ func RenameProjectNameForProjectPrMetric(oldProjectName string, newProjectName s
 			"project_name": newProjectName,
 		}).Error
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("Failed to RenameProjectNameForProjectPrMetric for [%s] to [%s]", oldProjectName, newProjectName))
+		return errors.Default.Wrap(err, fmt.Sprintf("Failed to RenameProjectNameForProjectPrMetric from [%s] to [%s]", oldProjectName, newProjectName))
 	}
 
 	return nil
@@ -179,7 +195,7 @@ func RenameProjectNameForProjectIssueMetric(oldProjectName string, newProjectNam
 			"project_name": newProjectName,
 		}).Error
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("Failed to RenameProjectNameForProjectIssueMetric for [%s] to [%s]", oldProjectName, newProjectName))
+		return errors.Default.Wrap(err, fmt.Sprintf("Failed to RenameProjectNameForProjectIssueMetric from [%s] to [%s]", oldProjectName, newProjectName))
 	}
 
 	return nil
@@ -193,7 +209,7 @@ func RenameProjectNameForProjectMapping(oldProjectName string, newProjectName st
 			"project_name": newProjectName,
 		}).Error
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("Failed to RenameProjectNameForProjectMapping for [%s] to [%s]", oldProjectName, newProjectName))
+		return errors.Default.Wrap(err, fmt.Sprintf("Failed to RenameProjectNameForProjectMapping from [%s] to [%s]", oldProjectName, newProjectName))
 	}
 
 	return nil
