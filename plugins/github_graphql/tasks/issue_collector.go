@@ -41,7 +41,7 @@ type GraphqlQueryIssueWrapper struct {
 			TotalCount graphql.Int
 			Issues     []GraphqlQueryIssue `graphql:"nodes"`
 			PageInfo   *helper.GraphqlQueryPageInfo
-		} `graphql:"issues(first: $pageSize, after: $skipCursor)"`
+		} `graphql:"issues(first: $pageSize, after: $skipCursor, orderBy: {field: CREATED_AT, direction: DESC})"`
 	} `graphql:"repository(owner: $owner, name: $name)"`
 }
 
@@ -127,7 +127,12 @@ func CollectIssue(taskCtx core.SubTaskContext) errors.Error {
 			issues := query.Repository.IssueList.Issues
 
 			results := make([]interface{}, 0, 1)
+			isFinish := false
 			for _, issue := range issues {
+				if data.CreatedDateAfter != nil && !data.CreatedDateAfter.Before(issue.CreatedAt) {
+					isFinish = true
+					break
+				}
 				githubIssue, err := convertGithubIssue(milestoneMap, issue, data.Options.ConnectionId, data.Repo.GithubId)
 				if err != nil {
 					return nil, err
@@ -153,7 +158,11 @@ func CollectIssue(taskCtx core.SubTaskContext) errors.Error {
 					results = append(results, relatedUser)
 				}
 			}
-			return results, nil
+			if isFinish {
+				return results, helper.ErrFinishCollect
+			} else {
+				return results, nil
+			}
 		},
 	})
 

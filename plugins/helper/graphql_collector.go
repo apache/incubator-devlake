@@ -81,6 +81,9 @@ type GraphqlCollector struct {
 	workerErrors []error
 }
 
+// ErrFinishCollect is a error which will finish this collector
+var ErrFinishCollect = errors.Default.New("finish collect")
+
 // NewGraphqlCollector allocates a new GraphqlCollector with the given args.
 // GraphqlCollector can help us collect data from api with ease, pass in a AsyncGraphqlClient and tell it which part
 // of response we want to save, GraphqlCollector will collect them from remote server and store them into database.
@@ -109,16 +112,6 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, errors.E
 	if args.InputStep == 0 {
 		args.InputStep = 1
 	}
-	//if args.AfterResponse != nil {
-	//	apicllector.SetAfterResponse(args.AfterResponse)
-	//} else {
-	//	apicllector.SetAfterResponse(func(res *http.Response) error {
-	//		if res.StatusCode == http.StatusUnauthorized {
-	//			return errors.Default.New("authentication failed, please check your AccessToken")
-	//		}
-	//		return nil
-	//	})
-	//}
 	return apicllector, nil
 }
 
@@ -306,8 +299,13 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 		results, err = collector.args.ResponseParser(query, variables)
 	}
 	if err != nil {
-		collector.checkError(errors.Default.Wrap(err, `not parsed response in graphql collector`))
-		return
+		if errors.Is(err, ErrFinishCollect) {
+			logger.Info("collector finish by parser, rawId: #%d", row.ID)
+			handler = nil
+		} else {
+			collector.checkError(errors.Default.Wrap(err, `not parsed response in graphql collector`))
+			return
+		}
 	}
 
 	RAW_DATA_ORIGIN := "RawDataOrigin"
@@ -338,6 +336,7 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	}
 	collector.args.Ctx.IncProgress(1)
 	if handler != nil {
+		// trigger next fetch, but return if ErrFinishCollect got from ResponseParser
 		err = handler(query)
 		if err != nil {
 			collector.checkError(errors.Default.Wrap(err, `handle failed in graphql collector`))

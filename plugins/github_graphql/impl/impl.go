@@ -21,13 +21,13 @@ import (
 	"context"
 	goerror "errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/github_graphql/tasks"
@@ -45,8 +45,21 @@ var _ core.PluginTask = (*GithubGraphql)(nil)
 var _ core.PluginApi = (*GithubGraphql)(nil)
 var _ core.PluginModel = (*GithubGraphql)(nil)
 var _ core.CloseablePluginTask = (*GithubGraphql)(nil)
+var _ core.PluginSource = (*GithubGraphql)(nil)
 
 type GithubGraphql struct{}
+
+func (plugin GithubGraphql) Connection() interface{} {
+	return &models.GithubConnection{}
+}
+
+func (plugin GithubGraphql) Scope() interface{} {
+	return &models.GithubRepo{}
+}
+
+func (plugin GithubGraphql) TransformationRule() interface{} {
+	return &models.GithubTransformationRule{}
+}
 
 func (plugin GithubGraphql) Description() string {
 	return "collect some GithubGraphql data"
@@ -117,6 +130,8 @@ type GraphQueryRateLimit struct {
 }
 
 func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+	logger := taskCtx.GetLogger()
+	logger.Debug("%v", options)
 	var op githubTasks.GithubOptions
 	err := helper.Decode(options, &op, nil)
 	if err != nil {
@@ -135,6 +150,13 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 	_, err = EnrichOptions(taskCtx, &op, connection)
 	if err != nil {
 		return nil, err
+	}
+	var createdDateAfter time.Time
+	if op.CreatedDateAfter != "" {
+		createdDateAfter, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
+		}
 	}
 
 	tokens := strings.Split(connection.Token, ",")
@@ -171,11 +193,17 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 		return nil, errors.Default.Wrap(err, "unable to get github API client instance")
 	}
 
-	return &githubTasks.GithubTaskData{
+	taskData := &githubTasks.GithubTaskData{
 		Options:       &op,
 		ApiClient:     apiClient,
 		GraphqlClient: graphqlClient,
-	}, nil
+	}
+	if !createdDateAfter.IsZero() {
+		taskData.CreatedDateAfter = &createdDateAfter
+		logger.Debug("collect data updated createdDateAfter %s", createdDateAfter)
+	}
+
+	return taskData, nil
 }
 
 func EnrichOptions(taskCtx core.TaskContext,

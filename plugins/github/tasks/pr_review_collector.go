@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"time"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 
@@ -47,10 +48,23 @@ var CollectApiPullRequestReviewsMeta = core.SubTaskMeta{
 func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-	since := data.Since
 
-	incremental := false
-	if since == nil {
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Owner:        data.Options.Owner,
+			Repo:         data.Options.Repo,
+		},
+		Table: RAW_PR_REVIEW_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
+
+	var latestUpdatedTime *time.Time
+	incremental := collectorWithState.CanIncrementCollect()
+	if incremental {
 		var latestUpdatedPrReview models.GithubPrReview
 		err := db.All(
 			&latestUpdatedPrReview,
@@ -67,8 +81,9 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 			return errors.Default.Wrap(err, "failed to get latest github issue record")
 		}
 		if latestUpdatedPrReview.GithubId > 0 {
-			since = latestUpdatedPrReview.GithubSubmitAt
-			incremental = true
+			latestUpdatedTime = latestUpdatedPrReview.GithubSubmitAt
+		} else {
+			incremental = false
 		}
 	}
 	clauses := []dal.Clause{
@@ -76,8 +91,11 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 		dal.From(models.GithubPullRequest{}.TableName()),
 		dal.Where("repo_id = ? and connection_id=?", data.Repo.GithubId, data.Options.ConnectionId),
 	}
-	if since != nil {
-		clauses = append(clauses, dal.Where("github_updated_at > ?", *since))
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.CreatedDateAfter))
+	}
+	if latestUpdatedTime != nil {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", *latestUpdatedTime))
 	}
 	cursor, err := db.Cursor(
 		clauses...,
@@ -91,24 +109,7 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-
-			/*
-				Table store raw data
-			*/
-			Table: RAW_PR_REVIEW_TABLE,
-		},
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
@@ -137,5 +138,5 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	return collector.Execute()
+	return collectorWithState.Execute()
 }

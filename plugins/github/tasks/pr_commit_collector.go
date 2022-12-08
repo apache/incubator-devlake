@@ -54,12 +54,29 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	incremental := false
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Owner:        data.Options.Owner,
+			Repo:         data.Options.Repo,
+		},
+		Table: RAW_PR_COMMIT_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
 
-	cursor, err := db.Cursor(
+	clauses := []dal.Clause{
 		dal.Select("number, github_id"),
 		dal.From(models.GithubPullRequest{}.TableName()),
 		dal.Where("repo_id = ? and connection_id=?", data.Repo.GithubId, data.Options.ConnectionId),
+	}
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.CreatedDateAfter))
+	}
+	cursor, err := db.Cursor(
+		clauses...,
 	)
 	if err != nil {
 		return err
@@ -68,27 +85,10 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-
-			/*
-				Table store raw data
-			*/
-			Table: RAW_PR_COMMIT_TABLE,
-		},
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		Incremental: incremental,
+		Incremental: false,
 		Input:       iterator,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/commits",
@@ -128,9 +128,9 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 			return items, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}
-	return collector.Execute()
+
+	return collectorWithState.Execute()
 }

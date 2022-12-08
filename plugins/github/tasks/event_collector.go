@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -48,11 +49,24 @@ func CollectApiEvents(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	since := data.Since
-	incremental := false
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Owner:        data.Options.Owner,
+			Repo:         data.Options.Repo,
+		},
+		Table: RAW_EVENTS_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
+
+	var latestUpdatedTime *time.Time
+	incremental := collectorWithState.CanIncrementCollect()
 	// user didn't specify a time range to sync, try load from database
 	// actually, for github pull, since doesn't make any sense, github pull api doesn't support it
-	if since == nil {
+	if incremental {
 		var latestUpdatedIssueEvent models.GithubIssueEvent
 		err := db.All(
 			&latestUpdatedIssueEvent,
@@ -66,21 +80,13 @@ func CollectApiEvents(taskCtx core.SubTaskContext) errors.Error {
 		}
 
 		if latestUpdatedIssueEvent.GithubId > 0 {
-			since = &latestUpdatedIssueEvent.GithubCreatedAt
-			incremental = true
+			latestUpdatedTime = &latestUpdatedIssueEvent.GithubCreatedAt
+		} else {
+			incremental = false
 		}
 	}
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			Table: RAW_EVENTS_TABLE,
-		},
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
@@ -89,8 +95,8 @@ func CollectApiEvents(taskCtx core.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if since != nil {
-				query.Set("since", since.String())
+			if latestUpdatedTime != nil {
+				query.Set("since", latestUpdatedTime.String())
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
@@ -113,5 +119,5 @@ func CollectApiEvents(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }

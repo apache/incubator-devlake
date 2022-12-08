@@ -40,11 +40,23 @@ func CollectApiComments(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	since := data.Since
-	incremental := false
-	var err errors.Error
-	if since == nil {
-		since, incremental, err = calculateSince(data, db)
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Owner:        data.Options.Owner,
+			Repo:         data.Options.Repo,
+		},
+		Table: RAW_COMMENTS_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
+
+	var latestUpdatedTime *time.Time
+	incremental := collectorWithState.CanIncrementCollect()
+	if incremental {
+		latestUpdatedTime, incremental, err = calculateSince(data, db)
 		if err != nil {
 			return err
 		}
@@ -52,16 +64,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			Table: RAW_COMMENTS_TABLE,
-		},
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
@@ -70,8 +73,8 @@ func CollectApiComments(taskCtx core.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if since != nil {
-				query.Set("since", since.String())
+			if latestUpdatedTime != nil {
+				query.Set("since", latestUpdatedTime.String())
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
@@ -94,7 +97,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) errors.Error {
 		return errors.Default.Wrap(err, "error collecting github comments")
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
 
 var CollectApiCommentsMeta = core.SubTaskMeta{

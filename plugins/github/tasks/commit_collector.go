@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -46,12 +47,25 @@ func CollectApiCommits(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	since := data.Since
-	incremental := false
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Owner:        data.Options.Owner,
+			Repo:         data.Options.Repo,
+		},
+		Table: RAW_COMMIT_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
+
+	var latestUpdatedTime *time.Time
+	incremental := collectorWithState.CanIncrementCollect()
 	// user didn't specify a time range to sync, try load from database
-	if since == nil {
+	if incremental {
 		latestUpdated := &models.GithubCommit{}
-		err := db.All(
+		err = db.All(
 			&latestUpdated,
 			dal.Join("left join _tool_github_repo_commits on _tool_github_commits.sha = _tool_github_repo_commits.commit_sha"),
 			dal.Join("left join _tool_github_repos on _tool_github_repo_commits.repo_id = _tool_github_repos.github_id"),
@@ -63,28 +77,14 @@ func CollectApiCommits(taskCtx core.SubTaskContext) errors.Error {
 			return errors.Default.Wrap(err, "failed to get latest github commit record")
 		}
 		if latestUpdated.Sha != "" {
-			since = &latestUpdated.CommittedDate
-			incremental = true
+			latestUpdatedTime = &latestUpdated.CommittedDate
+		} else {
+			incremental = false
+
 		}
 	}
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraCommits by Board
-			*/
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			/*
-				Table store raw data
-			*/
-			Table: RAW_COMMIT_TABLE,
-		},
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
@@ -104,8 +104,8 @@ func CollectApiCommits(taskCtx core.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if since != nil {
-				query.Set("since", since.String())
+			if latestUpdatedTime != nil {
+				query.Set("since", latestUpdatedTime.String())
 			}
 			query.Set("direction", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -140,10 +140,9 @@ func CollectApiCommits(taskCtx core.SubTaskContext) errors.Error {
 			return items, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }

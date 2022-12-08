@@ -41,22 +41,29 @@ var CollectRunsMeta = core.SubTaskMeta{
 func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			Table: RAW_RUN_TABLE,
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Owner:        data.Options.Owner,
+			Repo:         data.Options.Repo,
 		},
+		Table: RAW_RUN_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
+
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    30,
 		Incremental: false,
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/actions/runs",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
+			if data.CreatedDateAfter != nil {
+				query.Set("created", fmt.Sprintf(">%s", data.CreatedDateAfter.String()))
+			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
@@ -71,11 +78,11 @@ func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 			return body.GithubWorkflowRuns, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}
-	return collector.Execute()
+
+	return collectorWithState.Execute()
 }
 
 type GithubRawRunsResult struct {
