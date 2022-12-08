@@ -16,5 +16,6 @@
  *
  */
 
-export * from './create-dialog'
-export * from './delete-dialog'
+import styled from 'styled-components'
+
+export const Wrapper = styled.div``
