@@ -42,13 +42,6 @@ export const useDataScopeList = ({
 }: UseDataScopeList) => {
   const [loading, setLoading] = useState(false)
   const [scope, setScope] = useState<ScopeItem[]>([])
-  const [scopeTsMap, setScopeTsMap] = useState<Record<string, ScopeItem[]>>({})
-
-  useEffect(() => {
-    setScopeTsMap(
-      groupBy(scope, (it) => it.transformationRuleName ?? 'No Transformation')
-    )
-  }, [scope])
 
   const formatScope = (scope: any) => {
     return scope.map((sc: any) => {
@@ -80,7 +73,14 @@ export const useDataScopeList = ({
   }, [])
 
   return useMemo(
-    () => ({ loading, scope, scopeTsMap }),
-    [loading, scope, scopeTsMap]
+    () => ({
+      loading,
+      scope,
+      scopeTsMap: groupBy(
+        scope,
+        (it) => it.transformationRuleName ?? 'No Transformation'
+      )
+    }),
+    [loading, scope]
   )
 }

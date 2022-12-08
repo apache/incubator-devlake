@@ -19,4 +19,3 @@
 export * from './workflow'
 export * from './action'
 export * from './inspector'
-export * from './data-scope-list'

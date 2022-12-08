@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useMemo } from 'react'
 import {
   ButtonGroup,
   Button,
@@ -33,9 +33,6 @@ import { useBlueprint } from '../../hooks'
 import * as S from './styled'
 
 export const Action = () => {
-  const [isFirst, setIsFirst] = useState(false)
-  const [isLast, setIsLast] = useState(false)
-
   const {
     step,
     mode,
@@ -47,24 +44,13 @@ export const Action = () => {
     onSaveAndRun
   } = useBlueprint()
 
-  useEffect(() => {
-    if (step === 1) {
-      setIsFirst(true)
-    } else {
-      setIsFirst(false)
-    }
-  }, [step])
-
-  useEffect(() => {
-    if (
+  const [isFirst, isLast] = useMemo(() => {
+    return [
+      step === 1,
       (mode === ModeEnum.normal && step === 4) ||
-      (mode === ModeEnum.advanced && step === 2)
-    ) {
-      setIsLast(true)
-    } else {
-      setIsLast(false)
-    }
-  }, [step, mode])
+        (mode === ModeEnum.advanced && step === 2)
+    ]
+  }, [])
 
   if (showDetail) {
     return null

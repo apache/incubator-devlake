@@ -34,7 +34,7 @@ import { Divider, MultiSelector, Loading } from '@/components'
 import { ModeEnum } from '../types'
 import { useBlueprint } from '../hooks'
 
-import { DEFAULT_CONFIG } from './config'
+import { DEFAULT_CONFIG } from './example'
 import * as S from './styled'
 
 export const StepOne = () => {
