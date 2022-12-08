@@ -50,7 +50,7 @@ export const Action = () => {
       (mode === ModeEnum.normal && step === 4) ||
         (mode === ModeEnum.advanced && step === 2)
     ]
-  }, [])
+  }, [step, mode])
 
   if (showDetail) {
     return null
