@@ -28,10 +28,24 @@ import (
 	"gorm.io/gorm"
 )
 
+// ErrBlueprintRunning indicates there is a running pipeline with the specified blueprint_id
+var ErrBlueprintRunning = errors.Default.New("the blueprint is running")
+
 // CreateDbPipeline returns a NewPipeline
 func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, errors.Error) {
 	cronLocker.Lock()
 	defer cronLocker.Unlock()
+	if newPipeline.BlueprintId > 0 {
+		var count int64
+		status := []string{models.TASK_CREATED, models.TASK_RUNNING}
+		err := db.Model(&models.DbPipeline{}).Where("blueprint_id = ? AND status IN ?", newPipeline.BlueprintId, status).Count(&count).Error
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "query pipelines error")
+		}
+		if count > 0 {
+			return nil, ErrBlueprintRunning
+		}
+	}
 	planByte, err := errors.Convert01(json.Marshal(newPipeline.Plan))
 	if err != nil {
 		return nil, err
