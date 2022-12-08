@@ -21,16 +21,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/http"
 	"net/url"
-	"time"
-
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-
-	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
 const RAW_EVENTS_TABLE = "github_api_events"
@@ -46,9 +41,7 @@ var CollectApiEventsMeta = core.SubTaskMeta{
 }
 
 func CollectApiEvents(taskCtx core.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-
 	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GithubApiParams{
@@ -62,30 +55,7 @@ func CollectApiEvents(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	var latestUpdatedTime *time.Time
 	incremental := collectorWithState.CanIncrementCollect()
-	// user didn't specify a time range to sync, try load from database
-	// actually, for github pull, since doesn't make any sense, github pull api doesn't support it
-	if incremental {
-		var latestUpdatedIssueEvent models.GithubIssueEvent
-		err := db.All(
-			&latestUpdatedIssueEvent,
-			dal.Join("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_events.issue_id"),
-			dal.Where("_tool_github_issues.repo_id = ? and _tool_github_issues.repo_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
-			dal.Orderby("github_created_at DESC"),
-			dal.Limit(1),
-		)
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to get latest github issue record")
-		}
-
-		if latestUpdatedIssueEvent.GithubId > 0 {
-			latestUpdatedTime = &latestUpdatedIssueEvent.GithubCreatedAt
-		} else {
-			incremental = false
-		}
-	}
-
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
@@ -95,8 +65,8 @@ func CollectApiEvents(taskCtx core.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if latestUpdatedTime != nil {
-				query.Set("since", latestUpdatedTime.String())
+			if incremental {
+				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")

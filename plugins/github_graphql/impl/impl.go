@@ -75,7 +75,7 @@ func (plugin GithubGraphql) GetTablesInfo() []core.Tabler {
 
 func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		tasks.CollectRepoMeta,
+		//tasks.CollectRepoMeta,
 
 		// collect millstones
 		githubTasks.CollectMilestonesMeta,

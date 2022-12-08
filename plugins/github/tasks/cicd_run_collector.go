@@ -41,20 +41,16 @@ var CollectRunsMeta = core.SubTaskMeta{
 func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: GithubApiParams{
-			ConnectionId: data.Options.ConnectionId,
-			Owner:        data.Options.Owner,
-			Repo:         data.Options.Repo,
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
+			},
+			Table: RAW_RUN_TABLE,
 		},
-		Table: RAW_RUN_TABLE,
-	}, data.CreatedDateAfter)
-	if err != nil {
-		return err
-	}
-
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    30,
 		Incremental: false,
@@ -82,7 +78,7 @@ func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return collector.Execute()
 }
 
 type GithubRawRunsResult struct {

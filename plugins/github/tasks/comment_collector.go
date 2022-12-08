@@ -20,26 +20,19 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
-	"time"
-
-	"github.com/apache/incubator-devlake/errors"
-
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
 const RAW_COMMENTS_TABLE = "github_api_comments"
 
 func CollectApiComments(taskCtx core.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-
 	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GithubApiParams{
@@ -53,17 +46,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	var latestUpdatedTime *time.Time
 	incremental := collectorWithState.CanIncrementCollect()
-	if incremental {
-		latestUpdatedTime, incremental, err = calculateSince(data, db)
-		if err != nil {
-			return err
-		}
-	}
-	if err != nil {
-		return err
-	}
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
@@ -73,8 +56,8 @@ func CollectApiComments(taskCtx core.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if latestUpdatedTime != nil {
-				query.Set("since", latestUpdatedTime.String())
+			if incremental {
+				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
@@ -106,50 +89,4 @@ var CollectApiCommentsMeta = core.SubTaskMeta{
 	EnabledByDefault: true,
 	Description:      "Collect comments data from Github api",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_TICKET},
-}
-
-func calculateSince(data *GithubTaskData, db dal.Dal) (*time.Time, bool, errors.Error) {
-	var since *time.Time
-	var latestUpdatedIssueComt models.GithubIssueComment
-	var latestUpdatedPrComt models.GithubPrComment
-
-	incremental := false
-	err := db.All(
-		&latestUpdatedIssueComt,
-		dal.Join("left join _tool_github_issues on _tool_github_issues.github_id = _tool_github_issue_comments.issue_id"),
-		dal.Where(
-			"_tool_github_issues.repo_id = ? AND _tool_github_issues.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId,
-		),
-		dal.Orderby("github_updated_at DESC"),
-		dal.Limit(1),
-	)
-	if err != nil {
-		return nil, false, errors.Default.Wrap(err, "failed to get latest github issue record")
-	}
-
-	err = db.All(
-		&latestUpdatedPrComt,
-		dal.Join("left join _tool_github_pull_requests on _tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id"),
-		dal.Where("_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
-		dal.Orderby("github_updated_at DESC"),
-		dal.Limit(1),
-	)
-	if err != nil {
-		return nil, false, errors.Default.Wrap(err, "failed to get latest github issue record")
-	}
-	if latestUpdatedIssueComt.GithubId > 0 && latestUpdatedPrComt.GithubId > 0 {
-		if latestUpdatedIssueComt.GithubUpdatedAt.Before(latestUpdatedPrComt.GithubUpdatedAt) {
-			since = &latestUpdatedPrComt.GithubUpdatedAt
-		} else {
-			since = &latestUpdatedIssueComt.GithubUpdatedAt
-		}
-		incremental = true
-	} else if latestUpdatedIssueComt.GithubId > 0 {
-		since = &latestUpdatedIssueComt.GithubUpdatedAt
-		incremental = true
-	} else if latestUpdatedPrComt.GithubId > 0 {
-		since = &latestUpdatedPrComt.GithubUpdatedAt
-		incremental = true
-	}
-	return since, incremental, nil
 }

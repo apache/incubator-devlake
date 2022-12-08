@@ -21,16 +21,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/http"
 	"net/url"
-	"time"
-
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-
-	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 )
 
 const RAW_ISSUE_TABLE = "github_api_issues"
@@ -44,9 +39,7 @@ var CollectApiIssuesMeta = core.SubTaskMeta{
 }
 
 func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-
 	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
 		Ctx: taskCtx,
 		Params: GithubApiParams{
@@ -60,27 +53,7 @@ func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	var latestUpdatedTime *time.Time
 	incremental := collectorWithState.CanIncrementCollect()
-	if incremental {
-		// try load from database
-		var latestUpdated models.GithubIssue
-		err = db.All(
-			&latestUpdated,
-			dal.Where("repo_id = ? and connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
-			dal.Orderby("github_updated_at DESC"),
-			dal.Limit(1),
-		)
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to get latest github issue record")
-		}
-		if latestUpdated.GithubId > 0 {
-			latestUpdatedTime = &latestUpdated.GithubUpdatedAt
-		} else {
-			incremental = false
-		}
-	}
-
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
@@ -102,8 +75,8 @@ func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
 			query := url.Values{}
 			query.Set("state", "all")
 			// data.CreatedDateAfter need to be used to filter data, but now no params supported
-			if latestUpdatedTime != nil {
-				query.Set("since", latestUpdatedTime.String())
+			if incremental {
+				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
 			}
 			query.Set("direction", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

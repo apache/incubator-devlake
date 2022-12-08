@@ -23,12 +23,10 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/http"
 	"net/url"
 	"reflect"
-	"time"
-
-	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 )
@@ -62,30 +60,7 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	var latestUpdatedTime *time.Time
 	incremental := collectorWithState.CanIncrementCollect()
-	if incremental {
-		var latestUpdatedPrReview models.GithubPrReview
-		err := db.All(
-			&latestUpdatedPrReview,
-			dal.Join(`left join _tool_github_pull_requests on 
-				_tool_github_pull_requests.github_id = _tool_github_pull_request_reviews.pull_request_id 
-				and _tool_github_pull_requests.connection_id = _tool_github_pull_request_reviews.connection_id`),
-			dal.Where(
-				"_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId,
-			),
-			dal.Orderby("github_updated_at DESC"),
-			dal.Limit(1),
-		)
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to get latest github issue record")
-		}
-		if latestUpdatedPrReview.GithubId > 0 {
-			latestUpdatedTime = latestUpdatedPrReview.GithubSubmitAt
-		} else {
-			incremental = false
-		}
-	}
 	clauses := []dal.Clause{
 		dal.Select("number, github_id"),
 		dal.From(models.GithubPullRequest{}.TableName()),
@@ -94,8 +69,8 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 	if collectorWithState.CreatedDateAfter != nil {
 		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.CreatedDateAfter))
 	}
-	if latestUpdatedTime != nil {
-		clauses = append(clauses, dal.Where("github_updated_at > ?", *latestUpdatedTime))
+	if incremental {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
 	}
 	cursor, err := db.Cursor(
 		clauses...,

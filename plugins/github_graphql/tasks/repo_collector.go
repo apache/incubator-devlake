@@ -58,7 +58,7 @@ type GraphqlQueryRepo struct {
 var CollectRepoMeta = core.SubTaskMeta{
 	Name:             "CollectRepo",
 	EntryPoint:       CollectRepo,
-	EnabledByDefault: true,
+	EnabledByDefault: false,
 	Description:      "Collect Repo data from GithubGraphql api",
 	DomainTypes:      []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CICD, core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_CROSS},
 }

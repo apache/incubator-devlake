@@ -22,12 +22,9 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/http"
 	"net/url"
-	"time"
 )
 
 const RAW_PR_REVIEW_COMMENTS_TABLE = "github_api_pull_request_review_comments"
@@ -35,7 +32,6 @@ const RAW_PR_REVIEW_COMMENTS_TABLE = "github_api_pull_request_review_comments"
 // this struct should be moved to `github_api_common.go`
 
 func CollectPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
 	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
@@ -51,32 +47,7 @@ func CollectPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	var latestUpdatedTime *time.Time
 	incremental := collectorWithState.CanIncrementCollect()
-	if incremental {
-		var latestUpdatedPrReviewComt models.GithubPrComment
-		err = db.All(
-			&latestUpdatedPrReviewComt,
-			dal.Join(`left join _tool_github_pull_requests on 
-				_tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id 
-				and _tool_github_pull_requests.connection_id = _tool_github_pull_request_comments.connection_id`),
-			dal.Where(
-				"_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ? AND _tool_github_pull_request_comments.type = ?",
-				data.Repo.GithubId, data.Repo.ConnectionId, "DIFF",
-			),
-			dal.Orderby("github_updated_at DESC"),
-			dal.Limit(1),
-		)
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to get latest github issue record")
-		}
-		if latestUpdatedPrReviewComt.GithubId > 0 {
-			latestUpdatedTime = &latestUpdatedPrReviewComt.GithubUpdatedAt
-		} else {
-			incremental = false
-		}
-	}
-
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
@@ -85,8 +56,8 @@ func CollectPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if latestUpdatedTime != nil {
-				query.Set("since", latestUpdatedTime.String())
+			if incremental {
+				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
