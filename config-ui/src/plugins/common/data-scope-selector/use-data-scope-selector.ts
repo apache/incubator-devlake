@@ -64,6 +64,12 @@ export const useDataScopeSelector = ({
         switch (true) {
           case plugin === Plugins.GitHub:
             return sc.githubId
+          case plugin === Plugins.JIRA:
+            return sc.boardId
+          case plugin === Plugins.GitLab:
+            return sc.gitlabId
+          case plugin === Plugins.Jenkins:
+            return sc.fullName
         }
       },
       getName(sc: ScopeItem) {

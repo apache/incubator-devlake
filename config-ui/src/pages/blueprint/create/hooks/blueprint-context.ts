@@ -38,7 +38,6 @@ export type BlueprintContextType = {
   skipOnFail: boolean
 
   onChangeStep: React.Dispatch<React.SetStateAction<number>>
-  onChangeError: React.Dispatch<React.SetStateAction<string>>
   onChangeShowInspector: React.Dispatch<React.SetStateAction<boolean>>
   onChangeShowDetail: React.Dispatch<React.SetStateAction<boolean>>
 
@@ -74,7 +73,6 @@ export const BlueprintContext = React.createContext<BlueprintContextType>({
   skipOnFail: false,
 
   onChangeStep: () => {},
-  onChangeError: () => {},
   onChangeShowInspector: () => {},
   onChangeShowDetail: () => {},
 

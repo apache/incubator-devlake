@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   RadioGroup,
   Radio,
@@ -58,7 +58,6 @@ const cronPresets = [
 ]
 
 export const StepFour = () => {
-  const [desc, setDesc] = useState('')
   const [frequency, setFrequency] = useState('')
 
   const {
@@ -70,14 +69,14 @@ export const StepFour = () => {
     onChangeSkipOnFail
   } = useBlueprint()
 
-  useEffect(() => {
-    if (frequency === 'manual') {
-      setDesc('Manual')
-    } else if (frequency === 'custom') {
-      setDesc('Custom')
-    } else {
-      const targetCron = cronPresets.find((it) => it.config === frequency)
-      setDesc(targetCron?.desc ?? '')
+  const description = useMemo(() => {
+    switch (frequency) {
+      case 'manual':
+        return 'Manual'
+      case 'custom':
+        return 'Custom'
+      default:
+        return cronPresets.find((it) => it.config === frequency)?.desc ?? ''
     }
   }, [frequency])
 
@@ -110,7 +109,7 @@ export const StepFour = () => {
   return (
     <S.Card>
       <h2>Set Sync Frequency</h2>
-      <p style={{ margin: '10px 0' }}>{desc}</p>
+      <p style={{ margin: '10px 0' }}>{description}</p>
       <Divider />
       <div className='block'>
         <h3>Frequency</h3>
@@ -123,7 +122,7 @@ export const StepFour = () => {
           <Radio label='Custom' value='custom' />
         </RadioGroup>
         {frequency === 'custom' && (
-          <div className='input'>
+          <S.Input>
             <InputGroup value={cronConfig} onChange={handleChangeCronConfig} />
             <Popover2
               position={Position.RIGHT}
@@ -156,7 +155,7 @@ export const StepFour = () => {
                 style={{ marginLeft: '10px', transition: 'none' }}
               />
             </Popover2>
-          </div>
+          </S.Input>
         )}
       </div>
       <div className='block'>

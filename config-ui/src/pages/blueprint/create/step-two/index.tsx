@@ -31,12 +31,8 @@ import * as S from './styled'
 export const StepTwo = () => {
   const [connection, setConnection] = useState<BPConnectionItemType>()
 
-  const {
-    connections,
-    onChangeConnections,
-    onChangeShowDetail,
-    onChangeError
-  } = useBlueprint()
+  const { connections, onChangeConnections, onChangeShowDetail } =
+    useBlueprint()
 
   const handleGoDetail = (c: BPConnectionItemType) => {
     setConnection(c)
@@ -58,15 +54,6 @@ export const StepTwo = () => {
   }
 
   const columns = useColumns({ onDetail: handleGoDetail })
-
-  useEffect(() => {
-    switch (true) {
-      case !connections.every((cs) => cs.scope.length):
-        return onChangeError('No Data Scope is Selected')
-      default:
-        return onChangeError('')
-    }
-  }, [connections])
 
   return !connection ? (
     <S.Card style={{ padding: 0 }}>

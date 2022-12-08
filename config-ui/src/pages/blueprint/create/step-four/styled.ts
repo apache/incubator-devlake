@@ -20,15 +20,6 @@ import styled from 'styled-components'
 
 export * from '../styled'
 
-export const Tips = styled.p`
-  margin: 24px 0 0;
-
-  span:last-child {
-    color: #7497f7;
-    cursor: pointer;
-  }
-`
-
 export const Help = styled.div`
   padding: 10px;
   width: 300px;
@@ -47,4 +38,9 @@ export const Help = styled.div`
   img {
     width: 100%;
   }
+`
+
+export const Input = styled.div`
+  display: flex;
+  align-items: center;
 `

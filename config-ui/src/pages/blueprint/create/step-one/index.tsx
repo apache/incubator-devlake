@@ -47,7 +47,6 @@ export const StepOne = () => {
     name,
     rawPlan,
     connections,
-    onChangeError,
     onChangeMode,
     onChangeName,
     onChangeRawPlan,
@@ -61,38 +60,6 @@ export const StepOne = () => {
       ),
     [connectionsStore, connections]
   )
-
-  const validRawPlan = (rp: string) => {
-    try {
-      const p = JSON.parse(rp)
-      if (p.flat().length === 0) {
-        return true
-      }
-      return false
-    } catch {
-      return true
-    }
-  }
-
-  useEffect(() => {
-    switch (true) {
-      case !name:
-        return onChangeError('Blueprint Name: Enter a valid Name')
-      case name.length < 3:
-        return onChangeError('Blueprint Name: Name too short, 3 chars minimum.')
-      case mode === ModeEnum.advanced && validRawPlan(rawPlan):
-        return onChangeError('Advanced Mode: Invalid/Empty Configuration')
-      case mode === ModeEnum.normal && !connections.length:
-        return onChangeError('Normal Mode: No Data Connections selected.')
-      case mode === ModeEnum.normal &&
-        !selectedConnections.every(
-          (cs) => cs.status === ConnectionStatusEnum.ONLINE
-        ):
-        return onChangeError('Normal Mode: Has Some Connections offline')
-      default:
-        return onChangeError('')
-    }
-  }, [name, mode, connections, selectedConnections])
 
   return (
     <>

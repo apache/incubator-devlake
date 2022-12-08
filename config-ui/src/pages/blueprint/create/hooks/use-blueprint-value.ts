@@ -17,6 +17,7 @@
  */
 
 import { useState, useMemo } from 'react'
+import { useHistory } from 'react-router-dom'
 
 import { operator } from '@/utils'
 
@@ -31,7 +32,6 @@ interface Props {
 
 export const useBlueprintValue = ({ from, projectName }: Props) => {
   const [step, setStep] = useState(1)
-  const [error, setError] = useState('')
   const [showInspector, setShowInspector] = useState(false)
   const [showDetail, setShowDetail] = useState(false)
 
@@ -46,6 +46,8 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
   const [isManual, setIsManual] = useState(false)
   const [skipOnFail, setSkipOnFail] = useState(false)
 
+  const history = useHistory()
+
   const validRawPlan = (rp: string) => {
     try {
       const p = JSON.parse(rp)
@@ -58,17 +60,36 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
     }
   }
 
-  const payload = useMemo(
-    () => ({
+  const error = useMemo(() => {
+    switch (true) {
+      case !name:
+        return 'Blueprint Name: Enter a valid Name'
+      case name.length < 3:
+        return 'Blueprint Name: Name too short, 3 chars minimum.'
+      case mode === ModeEnum.advanced && validRawPlan(rawPlan):
+        return 'Advanced Mode: Invalid/Empty Configuration'
+      case mode === ModeEnum.normal && !connections.length:
+        return 'Normal Mode: No Data Connections selected.'
+      case step === 2 && !connections.every((cs) => cs.scope.length):
+        return 'No Data Scope is Selected'
+      default:
+        return ''
+    }
+  }, [name, mode, rawPlan, connections])
+
+  const payload = useMemo(() => {
+    const params: any = {
       name,
       projectName,
       mode,
-      plan: validRawPlan(rawPlan) ? JSON.parse(rawPlan) : [[]],
       enable: true,
       cronConfig,
       isManual,
-      skipOnFail,
-      settings: {
+      skipOnFail
+    }
+
+    if (mode === ModeEnum.normal) {
+      params.settings = {
         version: '2.0.0',
         connections: connections.map((cs) => ({
           plugin: cs.plugin,
@@ -76,23 +97,32 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
           scope: cs.scope
         }))
       }
-    }),
-    [
-      name,
-      projectName,
-      mode,
-      rawPlan,
-      cronConfig,
-      isManual,
-      skipOnFail,
-      connections,
-      scope
-    ]
-  )
+    }
+
+    if (mode === ModeEnum.advanced) {
+      params.plan = validRawPlan(rawPlan) ? JSON.parse(rawPlan) : [[]]
+    }
+
+    return params
+  }, [
+    name,
+    projectName,
+    mode,
+    rawPlan,
+    cronConfig,
+    isManual,
+    skipOnFail,
+    connections,
+    scope
+  ])
 
   const handleSave = async () => {
     const [success] = await operator(() => API.createBlueprint(payload))
-    console.log(success)
+    const path =
+      from === FromEnum.blueprint ? '/blueprints' : `/projects/${projectName}`
+    if (success) {
+      history.push(path)
+    }
   }
 
   const hanldeSaveAndRun = () => {}
@@ -115,7 +145,6 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
       skipOnFail,
 
       onChangeStep: setStep,
-      onChangeError: setError,
       onChangeShowInspector: setShowInspector,
       onChangeShowDetail: setShowDetail,
 

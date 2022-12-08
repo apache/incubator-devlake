@@ -52,6 +52,24 @@ export const useDataScopeList = ({
             name: sc.name,
             transformationRuleName: sc.transformationRuleName
           }
+        case plugin === Plugins.JIRA:
+          return {
+            id: sc.boardId,
+            name: sc.name,
+            transformationRuleName: sc.transformationRuleName
+          }
+        case plugin === Plugins.GitLab:
+          return {
+            id: sc.gitlabId,
+            name: sc.name,
+            transformationRuleName: sc.transformationRuleName
+          }
+        case plugin === Plugins.Jenkins:
+          return {
+            id: sc.fullName,
+            name: sc.name,
+            transformationRuleName: sc.transformationRuleName
+          }
       }
     })
   }

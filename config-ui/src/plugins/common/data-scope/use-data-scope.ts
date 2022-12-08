@@ -53,9 +53,19 @@ export const useDataScope = ({
             id: sc.githubId,
             entities
           }
-        default:
+        case plugin === Plugins.JIRA:
           return {
-            id: sc.id,
+            id: sc.boardId,
+            entities
+          }
+        case plugin === Plugins.GitLab:
+          return {
+            id: sc.gitlabId,
+            entities
+          }
+        case plugin === Plugins.Jenkins:
+          return {
+            id: sc.fullName,
             entities
           }
       }
