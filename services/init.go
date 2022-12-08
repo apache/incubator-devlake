@@ -58,17 +58,22 @@ func Init() {
 		panic(err)
 	}
 	// gorm doesn't support creating a PrepareStmt=false session from a PrepareStmt=true
-	// but the migrator needs PrepareStmt=false to lock table, we have to deal with it here
-
-	// initialize db migrator singletone
-	migratorDb, err := runner.NewGormDbEx(cfg, logger.Global.Nested("migrator db"), &dal.SessionConfig{
+	// but the lockDatabase needs PrepareStmt=false for table locking, we have to deal with it here
+	lockingDb, err := runner.NewGormDbEx(cfg, logger.Global.Nested("migrator db"), &dal.SessionConfig{
 		PrepareStmt:            false,
 		SkipDefaultTransaction: true,
 	})
 	if err != nil {
 		panic(err)
 	}
-	migrator, err = runner.InitMigrator(impl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(migratorDb)))
+	err = lockDatabase(dalgorm.NewDalgorm(lockingDb))
+	if err != nil {
+		panic(err)
+	}
+
+	basicRes = impl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(db))
+	// initialize db migrator
+	migrator, err = runner.InitMigrator(basicRes)
 	if err != nil {
 		panic(err)
 	}
@@ -76,7 +81,6 @@ func Init() {
 	migrator.Register(migrationscripts.All(), "Framework")
 
 	// now,
-	basicRes = impl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(db))
 	// load plugins
 	err = runner.LoadPlugins(
 		cfg.GetString("PLUGIN_DIR"),
