@@ -48,5 +48,12 @@ export const Spin = styled.div<{ size: number }>`
 `
 
 export const Text = styled.div`
-  margin-top: 6px;
+  margin-top: 12px;
+`
+
+export const PageWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
 `
