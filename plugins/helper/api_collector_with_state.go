@@ -62,16 +62,6 @@ func NewApiCollectorWithState(args RawDataSubTaskArgs, createdDateAfter *time.Ti
 	}, nil
 }
 
-// NewAndInitCollectorWithState create a new ApiCollectorStateManager and init it
-//func NewAndInitCollectorWithState(args ApiCollectorArgs, createdDateAfter *time.Time) (*ApiCollectorStateManager, errors.Error) {
-//	collectorWithState, err := NewApiCollectorWithState(args.RawDataSubTaskArgs, createdDateAfter)
-//	if err != nil {
-//		return nil, err
-//	}
-//	collectorWithState.ApiCollector, err = NewApiCollector(args)
-//	return collectorWithState, err
-//}
-
 // CanIncrementCollect return if the old data can support collect incrementally.
 // only when latest collection is success &&
 // (m.LatestState.CreatedDateAfter == nil means all data have been collected ||

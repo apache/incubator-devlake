@@ -197,6 +197,7 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 		Options:       &op,
 		ApiClient:     apiClient,
 		GraphqlClient: graphqlClient,
+		Repo:          &repo,
 	}
 	if !createdDateAfter.IsZero() {
 		taskData.CreatedDateAfter = &createdDateAfter
