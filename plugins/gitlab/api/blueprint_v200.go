@@ -25,13 +25,14 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/utils"
 
+	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -57,54 +58,78 @@ func MakePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, 
 }
 
 func makeScopeV200(connectionId uint64, scopes []*core.BlueprintScopeV200) ([]core.Scope, errors.Error) {
-	sc := make([]core.Scope, 0, 2*len(scopes))
+	sc := make([]core.Scope, 0, 3*len(scopes))
 
 	for _, scope := range scopes {
-		var board ticket.Board
-		var repo code.Repo
-
-		intScopeId, err := strconv.Atoi(scope.Id)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("Failed to strconv.Atoi for scope.Id [%s]", scope.Id))
+		intScopeId, err1 := strconv.Atoi(scope.Id)
+		if err1 != nil {
+			return nil, errors.Default.Wrap(err1, fmt.Sprintf("Failed to strconv.Atoi for scope.Id [%s]", scope.Id))
 		}
 		id := didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connectionId, intScopeId)
 
-		repo.Id = id
-		repo.Name = scope.Name
+		// get repo from db
+		gitlabProject, err := GetRepoByConnectionIdAndscopeId(connectionId, scope.Id)
+		if err != nil {
+			return nil, err
+		}
 
-		board.Id = id
-		board.Name = scope.Name
+		if utils.StringsContains(scope.Entities, core.DOMAIN_TYPE_CODE_REVIEW) ||
+			utils.StringsContains(scope.Entities, core.DOMAIN_TYPE_CODE) ||
+			utils.StringsContains(scope.Entities, core.DOMAIN_TYPE_CROSS) {
+			// if we don't need to collect gitex, we need to add repo to scopes here
+			scopeRepo := &code.Repo{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: id,
+				},
+				Name: gitlabProject.Name,
+			}
+			if gitlabProject.ForkedFromProjectWebUrl != "" {
+				scopeRepo.ForkedFrom = gitlabProject.ForkedFromProjectWebUrl
+			}
+			sc = append(sc, scopeRepo)
+		}
 
-		sc = append(sc, &repo)
-		sc = append(sc, &board)
+		// add cicd_scope to scopes
+		if utils.StringsContains(scope.Entities, core.DOMAIN_TYPE_CICD) {
+			scopeCICD := &devops.CicdScope{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: id,
+				},
+				Name: gitlabProject.Name,
+			}
+			sc = append(sc, scopeCICD)
+		}
+
+		// add board to scopes
+		if utils.StringsContains(scope.Entities, core.DOMAIN_TYPE_TICKET) {
+			scopeTicket := &ticket.Board{
+				DomainEntity: domainlayer.DomainEntity{
+					Id: id,
+				},
+				Name: gitlabProject.Name,
+			}
+			sc = append(sc, scopeTicket)
+		}
 	}
 
 	return sc, nil
 }
 
 func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.BlueprintScopeV200, connection *models.GitlabConnection) (core.PipelinePlan, errors.Error) {
-	var err errors.Error
-
 	plans := make(core.PipelinePlan, 0, 3*len(scopes))
 	for _, scope := range scopes {
 		var stage core.PipelineStage
+		var err errors.Error
 		// get repo
-		repo := &models.GitlabProject{}
-		err = BasicRes.GetDal().First(repo, dal.Where("connection_id = ? AND gitlab_id = ?", connection.ID, scope.Id))
+		repo, err := GetRepoByConnectionIdAndscopeId(connection.ID, scope.Id)
 		if err != nil {
 			return nil, err
 		}
 
 		// get transformationRuleId
-		var transformationRules models.GitlabTransformationRule
-		transformationRuleId := repo.TransformationRuleId
-		if transformationRuleId != 0 {
-			err = BasicRes.GetDal().First(&transformationRules, dal.Where("id = ?", transformationRuleId))
-			if err != nil {
-				return nil, errors.Default.Wrap(err, "error on get TransformationRule")
-			}
-		} else {
-			transformationRules.ID = 0
+		transformationRules, err := GetTransformationRuleByRepo(repo)
+		if err != nil {
+			return nil, err
 		}
 
 		// refdiff part
@@ -125,14 +150,8 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 		// gitlab main part
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
-		options["projectId"] = intScopeId
-		options["transformationRules"] = &transformationRules
-		options["transformationRuleId"] = transformationRules.ID
-		// make sure task options is valid
-		_, err := tasks.DecodeAndValidateTaskOptions(options)
-		if err != nil {
-			return nil, err
-		}
+		options["scopeId"] = intScopeId
+		options["entities"] = scope.Entities
 
 		// construct subtasks
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scope.Entities)
@@ -166,4 +185,39 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 		plans = append(plans, stage)
 	}
 	return plans, nil
+}
+
+// GetRepoByConnectionIdAndscopeId get tbe repo by the connectionId and the scopeId
+func GetRepoByConnectionIdAndscopeId(connectionId uint64, scopeId string) (*models.GitlabProject, errors.Error) {
+	repo := &models.GitlabProject{}
+	db := BasicRes.GetDal()
+	err := db.First(repo, dal.Where("connection_id = ? AND gitlab_id = ?", connectionId, scopeId))
+	if err != nil {
+		if db.IsErrorNotFound(err) {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find repo by connection [%d] scope [%s]", connectionId, scopeId))
+		}
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo by connection [%d] scope [%s]", connectionId, scopeId))
+	}
+
+	return repo, nil
+}
+
+// GetTransformationRuleByRepo get the GetTransformationRule by Repo
+func GetTransformationRuleByRepo(repo *models.GitlabProject) (*models.GitlabTransformationRule, errors.Error) {
+	transformationRules := &models.GitlabTransformationRule{}
+	transformationRuleId := repo.TransformationRuleId
+	if transformationRuleId != 0 {
+		db := BasicRes.GetDal()
+		err := db.First(transformationRules, dal.Where("id = ?", transformationRuleId))
+		if err != nil {
+			if db.IsErrorNotFound(err) {
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find transformationRules by transformationRuleId [%d]", transformationRuleId))
+			}
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find transformationRules by transformationRuleId [%d]", transformationRuleId))
+		}
+	} else {
+		transformationRules.ID = 0
+	}
+
+	return transformationRules, nil
 }

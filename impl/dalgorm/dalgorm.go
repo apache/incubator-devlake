@@ -355,6 +355,11 @@ func (d *Dalgorm) Begin() dal.Transaction {
 	return newTransaction(d)
 }
 
+// IsErrorNotFound checking if the sql error is not found.
+func (d *Dalgorm) IsErrorNotFound(err errors.Error) bool {
+	return errors.Is(err, gorm.ErrRecordNotFound)
+}
+
 // NewDalgorm creates a *Dalgorm
 func NewDalgorm(db *gorm.DB) *Dalgorm {
 	return &Dalgorm{db}

@@ -22,16 +22,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// DummyLogger FIXME ...
-func DummyLogger() *mocks.Logger {
-	logger := new(mocks.Logger)
-	logger.On("IsLevelEnabled", mock.Anything).Return(false).Maybe()
-	logger.On("Printf", mock.Anything, mock.Anything).Maybe()
-	logger.On("Log", mock.Anything, mock.Anything, mock.Anything).Maybe()
-	logger.On("Debug", mock.Anything, mock.Anything).Maybe()
-	logger.On("Info", mock.Anything, mock.Anything).Maybe()
-	logger.On("Warn", mock.Anything, mock.Anything).Maybe()
-	logger.On("Error", mock.Anything, mock.Anything, mock.Anything).Maybe()
-	logger.On("Nested", mock.Anything).Return(logger).Maybe()
-	return logger
+// DummyBasicRes FIXME ...
+func DummyBasicRes(callback func(mockDal *mocks.Dal)) *mocks.BasicRes {
+	mockRes := new(mocks.BasicRes)
+	mockLog := DummyLogger()
+	mockDal := new(mocks.Dal)
+
+	callback(mockDal)
+
+	mockRes.On("GetDal").Return(mockDal)
+	mockRes.On("GetLogger").Return(mockLog)
+	mockRes.On("GetConfig", mock.Anything).Return("")
+	return mockRes
 }

@@ -19,11 +19,11 @@ package impl
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitlab/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts"
@@ -162,19 +162,23 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 		}
 	}
 
-	if op.GitlabTransformationRule == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.GitlabTransformationRule
-		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+	if op.GitlabTransformationRule == nil && op.ProjectId != 0 {
+		repo, err := api.GetRepoByConnectionIdAndscopeId(op.ConnectionId, strconv.Itoa(op.ProjectId))
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
+			return nil, err
 		}
-		op.GitlabTransformationRule = &transformationRule
+		transformationRule, err := api.GetTransformationRuleByRepo(repo)
+		if err != nil {
+			return nil, err
+		}
+		op.GitlabTransformationRule = transformationRule
 	}
 
 	taskData := tasks.GitlabTaskData{
 		Options:   op,
 		ApiClient: apiClient,
 	}
+
 	if !createdDateAfter.IsZero() {
 		taskData.CreatedDateAfter = &createdDateAfter
 		logger.Debug("collect data updated createdDateAfter %s", createdDateAfter)

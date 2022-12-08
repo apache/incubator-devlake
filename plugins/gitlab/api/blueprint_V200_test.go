@@ -28,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
@@ -43,11 +44,19 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testTransformationRuleId uint64 = 2
 	const testID int = 37
 	const testGitlabEndPoint string = "https://gitlab.com/api/v4/"
-	const testHHttpUrlToRepo string = "https://this_is_cloneUrl"
+	const testHttpUrlToRepo string = "https://this_is_cloneUrl"
 	const testToken string = "nddtf"
 	const testName string = "gitlab-test"
 	const testTransformationRuleName string = "github transformation rule"
 	const testProxy string = ""
+
+	bpScopes := []*core.BlueprintScopeV200{
+		{
+			Entities: []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CICD},
+			Id:       strconv.Itoa(testID),
+			Name:     testName,
+		},
+	}
 
 	var testGitlabProject *models.GitlabProject = &models.GitlabProject{
 		ConnectionId: testConnectionID,
@@ -56,7 +65,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 		TransformationRuleId: testTransformationRuleId,
 		CreatedDate:          time.Time{},
-		HttpUrlToRepo:        testHHttpUrlToRepo,
+		HttpUrlToRepo:        testHttpUrlToRepo,
 	}
 
 	var testTransformationRule *models.GitlabTransformationRule = &models.GitlabTransformationRule{
@@ -99,6 +108,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		tasks.ExtractApiIssuesMeta,
 		tasks.ConvertIssuesMeta,
 		tasks.ConvertIssueLabelsMeta,
+		tasks.CollectApiJobsMeta,
+		tasks.ExtractApiJobsMeta,
+		tasks.CollectApiPipelinesMeta,
+		tasks.ExtractApiPipelinesMeta,
 	}
 
 	var expectPlans core.PipelinePlan = core.PipelinePlan{
@@ -122,13 +135,16 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					tasks.ExtractApiIssuesMeta.Name,
 					tasks.ConvertIssuesMeta.Name,
 					tasks.ConvertIssueLabelsMeta.Name,
+					tasks.CollectApiJobsMeta.Name,
+					tasks.ExtractApiJobsMeta.Name,
+					tasks.CollectApiPipelinesMeta.Name,
+					tasks.ExtractApiPipelinesMeta.Name,
 				},
 				SkipOnFail: false,
 				Options: map[string]interface{}{
-					"connectionId":         uint64(1),
-					"projectId":            testID,
-					"transformationRuleId": testTransformationRuleId,
-					"transformationRules":  testTransformationRule,
+					"connectionId": uint64(1),
+					"scopeId":      testID,
+					"entities":     bpScopes[0].Entities,
 				},
 			},
 			{
@@ -148,7 +164,16 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			DomainEntity: domainlayer.DomainEntity{
 				Id: expectRepoId,
 			},
-			Name: testName,
+			Name:       testName,
+			ForkedFrom: testGitlabProject.ForkedFromProjectWebUrl,
+		},
+		&devops.CicdScope{
+			DomainEntity: domainlayer.DomainEntity{
+				Id: expectRepoId,
+			},
+			Name:        testName,
+			Description: "",
+			Url:         "",
 		},
 		&ticket.Board{
 			DomainEntity: domainlayer.DomainEntity{
@@ -164,14 +189,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 
 	var err errors.Error
 
-	bpScopes := []*core.BlueprintScopeV200{
-		{
-			Entities: []string{"CODE", "TICKET"},
-			Id:       strconv.Itoa(testID),
-			Name:     testName,
-		},
-	}
-
 	// register gitlab plugin for NewDomainIdGenerator
 	mockMeta := mocks.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/gitlab")
@@ -179,7 +196,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, err, nil)
 
 	// Refresh Global Variables and set the sql mock
-	BasicRes = unithelper.NewMockBasicRes(func(mockDal *mocks.Dal) {
+	BasicRes = unithelper.DummyBasicRes(func(mockDal *mocks.Dal) {
 		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.GitlabConnection)
 			*dst = *testGitlabConnection
@@ -188,7 +205,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.GitlabProject)
 			*dst = *testGitlabProject
-		}).Return(nil).Once()
+		}).Return(nil).Twice()
 
 		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.GitlabTransformationRule)
