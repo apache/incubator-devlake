@@ -23,7 +23,7 @@ import { Select } from '@blueprintjs/select'
 interface Props<T> {
   items: T[]
   disabledItems?: T[]
-  getKey?: (item: T) => string
+  getKey?: (item: T) => ID
   getName?: (item: T) => string
   selectedItem?: T
   onChangeItem?: (selectedItem: T) => void
