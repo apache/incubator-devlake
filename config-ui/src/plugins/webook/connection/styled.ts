@@ -16,6 +16,26 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
-export * from './connections'
+import styled from 'styled-components'
+
+export const Wrapper = styled.div``
+
+export const Inner = styled.div`
+  margin-top: 16px;
+  background-color: #fff;
+  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1),
+    0px 1.6px 8px rgba(0, 0, 0, 0.07);
+  border-radius: 8px;
+`
+
+export const Action = styled.div`
+  color: #7497f7;
+
+  span {
+    cursor: pointer;
+  }
+
+  span + span {
+    margin-left: 8px;
+  }
+`

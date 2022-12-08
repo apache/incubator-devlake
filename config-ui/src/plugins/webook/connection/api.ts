@@ -16,6 +16,30 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
-export * from './connections'
+import request from '@/components/utils/request'
+
+export const getConnections = () => request('/plugins/webhook/connections')
+
+export const getConnection = (id: ID) =>
+  request(`/plugins/webhook/connections/${id}`)
+
+type Paylod = {
+  name: string
+}
+
+export const createConnection = (payload: Paylod) =>
+  request('/plugins/webhook/connections', {
+    method: 'post',
+    data: payload
+  })
+
+export const updateConnection = (id: ID, payload: Paylod) =>
+  request(`/plugins/webhook/connections/${id}`, {
+    method: 'patch',
+    data: payload
+  })
+
+export const deleteConnection = (id: ID) =>
+  request(`/plugins/webhook/connections/${id}`, {
+    method: 'delete'
+  })

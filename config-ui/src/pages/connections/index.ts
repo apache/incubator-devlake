@@ -16,6 +16,6 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
-export * from './connections'
+import { WebHookConnection } from '@/plugins'
+
+export const WebHookConnectionPage = WebHookConnection

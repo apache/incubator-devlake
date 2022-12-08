@@ -36,7 +36,11 @@ import '@fontsource/inter/variable-full.css'
 import useDatabaseMigrations from '@/hooks/useDatabaseMigrations'
 
 import { BaseLayout } from '@/layouts'
-import { ProjectHomePage, CreateBlueprintPage } from '@/pages'
+import {
+  ProjectHomePage,
+  CreateBlueprintPage,
+  WebHookConnectionPage
+} from '@/pages'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
@@ -116,7 +120,7 @@ function App(props) {
               <Route
                 exact
                 path='/connections/incoming-webhook'
-                component={() => <IncomingWebhookConnection />}
+                component={() => <WebHookConnectionPage />}
               />
               <Route
                 exact

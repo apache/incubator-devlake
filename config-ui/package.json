@@ -52,6 +52,7 @@
     "@testing-library/react": "^12.1.1",
     "@testing-library/user-event": "^13.2.1",
     "@types/react": "^18.0.24",
+    "@types/react-copy-to-clipboard": "^5.0.4",
     "@types/react-router-dom": "^5.3.3",
     "@types/styled-components": "^5.1.26",
     "autoprefixer": "^9.8.6",
