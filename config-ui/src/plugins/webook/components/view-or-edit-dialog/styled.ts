@@ -16,6 +16,35 @@
  *
  */
 
-export * from './create-dialog'
-export * from './delete-dialog'
-export * from './view-or-edit-dialog'
+import styled from 'styled-components'
+import { Colors } from '@blueprintjs/core'
+
+export const Wrapper = styled.div`
+  h2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 16px 0;
+    padding: 0;
+    font-weight: 600;
+    color: ${Colors.GREEN5};
+
+    .bp3-icon {
+      margin-right: 8px;
+    }
+  }
+
+  h3 {
+    margin: 0;
+    padding: 0;
+  }
+
+  .block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 10px 16px;
+    background: #f0f4fe;
+  }
+`
