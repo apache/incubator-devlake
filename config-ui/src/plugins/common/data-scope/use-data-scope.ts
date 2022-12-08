@@ -63,19 +63,19 @@ export const useDataScope = ({
   }
 
   const handleSave = async () => {
-    setSaving(true)
-
-    const [success, res] = await operator(() =>
-      API.updateDataScope(plugin, connectionId, {
-        data: scope.map((sc: any) => omit(sc, 'from'))
-      })
+    const [success, res] = await operator(
+      () =>
+        API.updateDataScope(plugin, connectionId, {
+          data: scope.map((sc: any) => omit(sc, 'from'))
+        }),
+      {
+        setOperating: setSaving
+      }
     )
 
     if (success) {
       onSaveAfter?.(formatScope(res))
     }
-
-    setSaving(false)
   }
 
   return useMemo(
