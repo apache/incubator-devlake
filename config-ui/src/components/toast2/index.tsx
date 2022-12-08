@@ -16,8 +16,25 @@
  *
  */
 
-import { Toaster, Position } from '@blueprintjs/core'
+import { Toaster, Position, Intent } from '@blueprintjs/core'
 
 export const Toast = Toaster.create({
   position: Position.TOP
 })
+
+export const toast = {
+  success(message: string) {
+    Toast.show({
+      message,
+      intent: Intent.SUCCESS,
+      icon: 'endorsed'
+    })
+  },
+  error(message: string) {
+    Toast.show({
+      message,
+      intent: Intent.DANGER,
+      icon: 'error'
+    })
+  }
+}
