@@ -24,6 +24,7 @@ import * as S from './styled'
 interface Props {
   isOpen: boolean
   children: React.ReactNode
+  style?: React.CSSProperties
   title?: string
   cancelText?: string
   okText?: string
@@ -35,8 +36,9 @@ interface Props {
 
 export const Dialog = ({
   isOpen,
-  title,
   children,
+  style,
+  title,
   cancelText = 'Cancel',
   okText = 'OK',
   okDisabled,
@@ -45,7 +47,7 @@ export const Dialog = ({
   onOk
 }: Props) => {
   return (
-    <S.Container isOpen={isOpen}>
+    <S.Container isOpen={isOpen} style={style}>
       {title && (
         <S.Header className={Classes.DIALOG_HEADER}>
           <h2>{title}</h2>
