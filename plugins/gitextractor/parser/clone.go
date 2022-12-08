@@ -30,6 +30,9 @@ import (
 	ssh2 "golang.org/x/crypto/ssh"
 )
 
+// We have done comparison experiments for git2go and go-git, and the results show that git2go has better performance.
+// We kept go-git because it supports cloning via key-based SSH.
+
 const DefaultUser = "git"
 
 func cloneOverSSH(url, dir, passphrase string, pk []byte) errors.Error {
