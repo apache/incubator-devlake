@@ -16,5 +16,22 @@
  *
  */
 
-export * from './home'
-export * from './detail'
+import request from '@/components/utils/request'
+
+export const getProject = (name: string) => request(`/projects/${name}`)
+
+type UpdateProjectPayload = {
+  name: string
+  description: string
+  metrics: Array<{
+    pluginName: string
+    pluginOption: string
+    enable: boolean
+  }>
+}
+
+export const updateProject = (name: string, payload: UpdateProjectPayload) =>
+  request(`/projects/${name}`, {
+    method: 'patch',
+    data: payload
+  })

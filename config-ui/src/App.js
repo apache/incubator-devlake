@@ -38,6 +38,7 @@ import useDatabaseMigrations from '@/hooks/useDatabaseMigrations'
 import { BaseLayout } from '@/layouts'
 import {
   ProjectHomePage,
+  ProjectDetailPage,
   CreateBlueprintPage,
   WebHookConnectionPage
 } from '@/pages'
@@ -83,6 +84,16 @@ function App(props) {
                 exact
                 path='/projects'
                 component={() => <ProjectHomePage />}
+              />
+              <Route
+                exact
+                path='/projects/:pname'
+                component={() => <ProjectDetailPage />}
+              />
+              <Route
+                exact
+                path='/projects/:pname/create-blueprint'
+                component={() => <CreateBlueprintPage from='project' />}
               />
               <Route
                 exact
