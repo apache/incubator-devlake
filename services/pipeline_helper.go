@@ -37,7 +37,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	defer cronLocker.Unlock()
 	if newPipeline.BlueprintId > 0 {
 		var count int64
-		status := []string{models.TASK_CREATED, models.TASK_RUNNING, models.TASK_RERUN}
+		status := []string{models.TASK_CREATED, models.TASK_RUNNING}
 		err := db.Model(&models.DbPipeline{}).Where("blueprint_id = ? AND status IN ?", newPipeline.BlueprintId, status).Count(&count).Error
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "query pipelines error")
