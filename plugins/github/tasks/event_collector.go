@@ -42,34 +42,25 @@ var CollectApiEventsMeta = core.SubTaskMeta{
 
 func CollectApiEvents(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
-	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
-		Ctx: taskCtx,
-		Params: GithubApiParams{
-			ConnectionId: data.Options.ConnectionId,
-			Owner:        data.Options.Owner,
-			Repo:         data.Options.Repo,
-		},
-		Table: RAW_EVENTS_TABLE,
-	}, data.CreatedDateAfter)
-	if err != nil {
-		return err
-	}
 
-	incremental := collectorWithState.CanIncrementCollect()
-	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
+			Ctx: taskCtx,
+			Params: GithubApiParams{
+				ConnectionId: data.Options.ConnectionId,
+				Owner:        data.Options.Owner,
+				Repo:         data.Options.Repo,
+			},
+			Table: RAW_EVENTS_TABLE,
+		},
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		Incremental: incremental,
+		Incremental: false,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/issues/events",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			query.Set("state", "all")
-			if incremental {
-				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
-			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
-			query.Set("direction", "asc")
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 
 			return query, nil
@@ -84,10 +75,9 @@ func CollectApiEvents(taskCtx core.SubTaskContext) errors.Error {
 			return items, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}
 
-	return collectorWithState.Execute()
+	return collector.Execute()
 }

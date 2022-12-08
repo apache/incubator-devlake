@@ -67,6 +67,8 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
+	incremental := collectorWithState.CanIncrementCollect()
+
 	clauses := []dal.Clause{
 		dal.Select("number, github_id"),
 		dal.From(models.GithubPullRequest{}.TableName()),
@@ -74,6 +76,9 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 	}
 	if collectorWithState.CreatedDateAfter != nil {
 		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.CreatedDateAfter))
+	}
+	if incremental {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
 	}
 	cursor, err := db.Cursor(
 		clauses...,
@@ -88,7 +93,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		Incremental: false,
+		Incremental: incremental,
 		Input:       iterator,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/commits",

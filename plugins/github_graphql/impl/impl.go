@@ -147,7 +147,7 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 		return nil, errors.Default.Wrap(err, "unable to get github connection by the given connection ID: %v")
 	}
 
-	_, err = EnrichOptions(taskCtx, &op, connection)
+	githubRepo, err := EnrichOptions(taskCtx, &op, connection)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +197,7 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 		Options:       &op,
 		ApiClient:     apiClient,
 		GraphqlClient: graphqlClient,
-		Repo:          &repo,
+		Repo:          githubRepo,
 	}
 	if !createdDateAfter.IsZero() {
 		taskData.CreatedDateAfter = &createdDateAfter

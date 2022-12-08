@@ -53,20 +53,16 @@ func CollectApiPullRequests(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	incremental := collectorWithState.CanIncrementCollect()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
-		Incremental: incremental,
+		Incremental: false,
 
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls",
 
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if incremental {
-				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
-			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
