@@ -16,5 +16,14 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+export default [
+  [
+    {
+      plugin: 'gitlab',
+      options: {
+        projectId: 278964,
+        connectionId: 1
+      }
+    }
+  ]
+]

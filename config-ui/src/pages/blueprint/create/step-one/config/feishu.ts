@@ -16,5 +16,11 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+export default [
+  [
+    {
+      plugin: 'feishu',
+      options: {}
+    }
+  ]
+]

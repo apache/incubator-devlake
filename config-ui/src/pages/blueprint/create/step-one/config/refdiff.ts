@@ -16,5 +16,17 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+export default [
+  [
+    {
+      plugin: 'refdiff',
+      options: {
+        repoId: 'github:GithubRepo:384111310',
+        pairs: [
+          { newRef: 'refs/tags/v0.6.0', oldRef: 'refs/tags/0.5.0' },
+          { newRef: 'refs/tags/0.5.0', oldRef: 'refs/tags/0.4.0' }
+        ]
+      }
+    }
+  ]
+]

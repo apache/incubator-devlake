@@ -16,5 +16,26 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+export default [
+  [
+    {
+      plugin: 'starrocks',
+      options: {
+        source_type: '', // mysql or postgres
+        source_dsn: '', // gorm dsn
+        host: '127.0.0.1',
+        port: 9030,
+        user: 'root',
+        password: '',
+        database: 'lake',
+        be_host: '',
+        be_port: 8040,
+        tables: ['_tool_.*'], // support regexp
+        batch_size: 10000,
+        order_by: {},
+        extra: {}, // will append to create table sql
+        domain_layer: '' // priority over tables
+      }
+    }
+  ]
+]

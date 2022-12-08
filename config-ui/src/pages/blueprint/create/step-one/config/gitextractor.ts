@@ -16,5 +16,14 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+export default [
+  [
+    {
+      plugin: 'gitextractor',
+      options: {
+        url: 'https://github.com/apache/incubator-devlake.git',
+        repoId: 'github:GithubRepo:384111310'
+      }
+    }
+  ]
+]

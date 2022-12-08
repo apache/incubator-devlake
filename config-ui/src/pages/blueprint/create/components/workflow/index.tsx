@@ -16,5 +16,37 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+import React, { useMemo } from 'react'
+
+import { ModeEnum } from '../../types'
+import { useBlueprint } from '../../hooks'
+
+import * as S from './styled'
+
+export const WorkFlow = () => {
+  const { step, mode } = useBlueprint()
+
+  const steps = useMemo(
+    () =>
+      mode === ModeEnum.normal
+        ? [
+            'Add Data Connections',
+            'Set Data Scope',
+            'Add Transformation (Optional)',
+            'Set Sync Frequency'
+          ]
+        : ['Create Advanced Configuration', 'Set Sync Frequency'],
+    [mode]
+  )
+
+  return (
+    <S.List>
+      {steps.map((it, i) => (
+        <S.Item key={it} active={i + 1 === step}>
+          <span className='step'>{i + 1}</span>
+          <span className='name'>{it}</span>
+        </S.Item>
+      ))}
+    </S.List>
+  )
+}

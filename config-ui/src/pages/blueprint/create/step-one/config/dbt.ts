@@ -16,5 +16,33 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+export default [
+  [
+    {
+      plugin: 'dbt',
+      options: {
+        projectPath: '/var/www/html/my-project',
+        projectGitURL: '',
+        projectName: 'myproject',
+        projectTarget: 'dev',
+        selectedModels: ['model_one', 'model_two'],
+        projectVars: {
+          demokey1: 'demovalue1',
+          demokey2: 'demovalue2'
+        },
+        failFast: false,
+        profilesPath: '',
+        profile: '',
+        threads: 0,
+        noVersionCheck: false,
+        excludeModels: [],
+        selector: '',
+        state: '',
+        defer: false,
+        noDefer: false,
+        fullRefresh: false,
+        args: []
+      }
+    }
+  ]
+]

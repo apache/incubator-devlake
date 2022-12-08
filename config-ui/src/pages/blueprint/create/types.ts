@@ -16,5 +16,23 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+import type { ConnectionItemType } from '@/store'
+
+export enum FromEnum {
+  project = 'project',
+  blueprint = 'blueprint'
+}
+
+export enum ModeEnum {
+  advanced = 'ADVANCED',
+  normal = 'NORMAL'
+}
+
+export type BPScopeItemType = {
+  id: ID
+  entities: string[]
+}
+
+export type BPConnectionItemType = ConnectionItemType & {
+  scope: BPScopeItemType[]
+}

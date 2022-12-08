@@ -16,5 +16,36 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+export default [
+  [
+    {
+      plugin: 'gitlab',
+      options: {
+        projectId: 8967944,
+        connectionId: 1
+      }
+    },
+    {
+      plugin: 'jira',
+      options: {
+        boardId: 8,
+        connectionId: 1
+      }
+    },
+    {
+      plugin: 'jenkins',
+      options: {
+        connectionId: 1,
+        jobName: 'unit_test'
+      }
+    },
+    {
+      plugin: 'github',
+      options: {
+        repo: 'lake',
+        owner: 'merico-dev',
+        connectionId: 1
+      }
+    }
+  ]
+]

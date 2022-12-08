@@ -16,5 +16,24 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+import styled from 'styled-components'
+
+export const Container = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 36px;
+
+  .bp3-button + .bp3-button {
+    margin-left: 8px;
+  }
+`
+
+export const Error = styled.div`
+  padding: 6px 10px;
+  color: #94959f;
+
+  span.bp3-icon {
+    margin-right: 4px;
+  }
+`

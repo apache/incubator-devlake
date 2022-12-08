@@ -16,5 +16,35 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+import styled from 'styled-components'
+
+export * from '../styled'
+
+export const Tips = styled.p`
+  margin: 24px 0 0;
+
+  span:last-child {
+    color: #7497f7;
+    cursor: pointer;
+  }
+`
+
+export const Help = styled.div`
+  padding: 10px;
+  width: 300px;
+  font-size: 12px;
+
+  .title {
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 700px;
+
+    span.bp3-icon {
+      margin-right: 4px;
+    }
+  }
+
+  img {
+    width: 100%;
+  }
+`

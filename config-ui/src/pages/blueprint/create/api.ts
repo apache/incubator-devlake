@@ -16,5 +16,20 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+import request from '@/components/utils/request'
+
+export const updateDataScope = (
+  plugin: string,
+  connectionId: ID,
+  payload: any
+) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes`, {
+    method: 'put',
+    data: payload
+  })
+
+export const createBlueprint = (payload: any) =>
+  request('/blueprints', {
+    method: 'post',
+    data: payload
+  })

@@ -16,5 +16,47 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+import styled from 'styled-components'
+import { Colors } from '@blueprintjs/core'
+
+export * from '../styled'
+
+export const ConnectionList = styled.ul`
+  margin: 0;
+  padding: 12px;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    .name {
+      font-weight: 600;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+
+      &.online {
+        color: ${Colors.GREEN3};
+      }
+
+      &.offline {
+        color: ${Colors.RED3};
+      }
+    }
+  }
+`
+
+export const Tips = styled.p`
+  margin: 24px 0 0;
+
+  span:last-child {
+    color: #7497f7;
+    cursor: pointer;
+  }
+`

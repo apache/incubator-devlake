@@ -16,5 +16,40 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+import styled from 'styled-components'
+
+export const Container = styled.div`
+  padding: 16px 24px;
+  background-color: #f3f3f3;
+
+  .title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h3 {
+      margin: 0;
+      padding: 0;
+    }
+
+    span {
+      font-size: 10px;
+      color: #aaaaaa;
+    }
+  }
+
+  .content {
+    margin-top: 16px;
+    padding: 10px;
+    max-height: 600;
+    background-color: #ffff;
+    border-radius: 4px;
+    box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 20%) inset;
+    overflow-y: auto;
+
+    pre {
+      margin: 0;
+      font-size: 10px;
+    }
+  }
+`

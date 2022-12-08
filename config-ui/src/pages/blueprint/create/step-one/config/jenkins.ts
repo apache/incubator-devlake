@@ -16,5 +16,14 @@
  *
  */
 
-export * from './project'
-export * from './blueprint'
+export default [
+  [
+    {
+      plugin: 'jenkins',
+      options: {
+        connectionId: 1,
+        jobName: 'unit_test'
+      }
+    }
+  ]
+]
