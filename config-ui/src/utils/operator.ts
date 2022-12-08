@@ -25,8 +25,8 @@ export type OperateConfig = {
   formatReason?: (err: unknown) => string
 }
 
-export const operator = async (
-  request: () => Promise<unknown>,
+export const operator = async <T>(
+  request: () => Promise<T>,
   config?: OperateConfig
 ) => {
   const { setOperating, formatReason } = config || {}
