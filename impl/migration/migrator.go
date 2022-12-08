@@ -19,6 +19,7 @@ package migration
 
 import (
 	"fmt"
+	"os"
 	"sort"
 	"sync"
 	"time"
@@ -26,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/version"
 )
 
 type scriptWithComment struct {
@@ -43,16 +45,97 @@ type migratorImpl struct {
 	tx       dal.Transaction
 }
 
+// LockingHistory is desgned for preventing mutiple delake instances from sharing the same database which may cause
+// problems like #3537, #3466. It works by the following step:
+//
+// 1. Each devlake insert a record to this table whie `Succeeded=false`
+// 2. Then it should try to lock the LockingStub table
+// 3. Update the record with `Succeeded=true` if it had obtained the lock successfully
+//
+// NOTE: it works IFF all devlake instances obey the principle described above, in other words, this mechanism can
+// not prevent older versions from sharing the same database
+type LockingHistory struct {
+	ID        uint64 `gorm:"primaryKey" json:"id"`
+	HostName  string
+	Version   string
+	Succeeded bool
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (LockingHistory) TableName() string {
+	return "_devlake_locking_history"
+}
+
+// LockingStub does nothing but offer a locking target
+type LockingStub struct {
+	Stub string
+}
+
+func (LockingStub) TableName() string {
+	return "_devlake_locking_stub"
+}
+
+func (m *migratorImpl) lockDatabase() errors.Error {
+	// first, register the instance
+	err := m.db.AutoMigrate(&LockingHistory{})
+	if err != nil {
+		return err
+	}
+	hostName, e := os.Hostname()
+	if e != nil {
+		return errors.Convert(e)
+	}
+	lockingHistory := &LockingHistory{
+		HostName: hostName,
+		Version:  version.Version,
+	}
+	err = m.db.Create(lockingHistory)
+	if err != nil {
+		return err
+	}
+	// 2. obtain the lock
+	err = m.db.AutoMigrate(&LockingStub{})
+	if err != nil {
+		return err
+	}
+	m.tx = m.db.Begin()
+	c := make(chan error, 1)
+
+	// This prevent multiple devlake instances from sharing the same database by locking the migration history table
+	// However, it would not work if any older devlake instances were already using the database.
+	go func() {
+		switch m.db.Dialect() {
+		case "mysql":
+			c <- m.tx.Exec("LOCK TABLE _devlake_locking_stub WRITE")
+		case "postgres":
+			c <- m.tx.Exec("LOCK TABLE _devlake_locking_stub IN EXCLUSIVE MODE")
+		}
+	}()
+
+	select {
+	case err := <-c:
+		if err != nil {
+			return errors.Convert(err)
+		}
+	case <-time.After(2 * time.Second):
+		return errors.Default.New("locking _devlake_locking_stub timeout, the database might be locked by another devlake instance")
+	}
+	// 3. update the record
+	lockingHistory.Succeeded = true
+	return m.db.Update(lockingHistory)
+}
+
 func (m *migratorImpl) loadExecuted() errors.Error {
 	// make sure migration_history table exists
-	err := m.tx.AutoMigrate(&MigrationHistory{})
+	err := m.db.AutoMigrate(&MigrationHistory{})
 	if err != nil {
 		return errors.Default.Wrap(err, "error performing migrations")
 	}
 	// load executed scripts into memory
 	m.executed = make(map[string]bool)
 	var records []MigrationHistory
-	err = m.tx.All(&records)
+	err = m.db.All(&records)
 	if err != nil {
 		return errors.Default.Wrap(err, "error finding migration history records")
 	}
@@ -94,7 +177,7 @@ func (m *migratorImpl) Execute() errors.Error {
 		if err != nil {
 			return err
 		}
-		err = m.tx.Create(&MigrationHistory{
+		err = m.db.Create(&MigrationHistory{
 			ScriptVersion: swc.script.Version(),
 			ScriptName:    swc.script.Name(),
 			Comment:       swc.comment,
@@ -104,10 +187,6 @@ func (m *migratorImpl) Execute() errors.Error {
 		}
 		m.executed[scriptId] = true
 		m.pending = m.pending[1:]
-		err = m.tx.Commit()
-		if err != nil {
-			return err
-		}
 	}
 	return nil
 }
@@ -116,17 +195,6 @@ func (m *migratorImpl) Execute() errors.Error {
 func (m *migratorImpl) HasPendingScripts() bool {
 	return len(m.executed) > 0 && len(m.pending) > 0
 }
-
-// func lockMigrationHistory(db dal.Dal) (dal.Transaction, errors.Error) {
-// 	println("start lock")
-// 	err := tx.Exec("")
-// 	// err := tx.First(migrationHistory, dal.Lock(true, true))
-// 	println("end lock", err)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return tx, nil
-// }
 
 // NewMigrator returns a new Migrator instance, which
 // implemented based on migration_history from the same database
@@ -138,26 +206,12 @@ func NewMigrator(basicRes core.BasicRes) (core.Migrator, errors.Error) {
 	m := &migratorImpl{
 		basicRes: basicRes,
 		db:       db,
-		tx:       db.Begin(),
 	}
-
-	c := make(chan error, 1)
-
-	// This prevent multiple devlake instances from sharing the same database by locking the migration history table
-	// However, it would not work if any older devlake instances were already using the database.
-	go func() {
-		c <- m.tx.Exec("LOCK TABLE _devlake_migration_history WRITE")
-	}()
-
-	select {
-	case err := <-c:
-		if err != nil {
-			return nil, errors.Convert(err)
-		}
-	case <-time.After(2 * time.Second):
-		return nil, errors.Default.New("locking _devlake_migration_history timeout, the database might be locked by another devlake instance")
+	err := m.lockDatabase()
+	if err != nil {
+		return nil, err
 	}
-	err := m.loadExecuted()
+	err = m.loadExecuted()
 	if err != nil {
 		return nil, err
 	}

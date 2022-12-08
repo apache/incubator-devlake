@@ -50,6 +50,6 @@ func (t *DalgormTransaction) Commit() errors.Error {
 
 func newTransaction(dalgorm *Dalgorm) *DalgormTransaction {
 	return &DalgormTransaction{
-		Dalgorm: NewDalgorm(dalgorm.db),
+		Dalgorm: NewDalgorm(dalgorm.db.Begin()),
 	}
 }
