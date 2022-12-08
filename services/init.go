@@ -20,15 +20,17 @@ package services
 import (
 	"time"
 
+	"sync"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/impl"
-	"sync"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/viper"
@@ -55,15 +57,30 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
-	basicRes = impl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(db))
+	// gorm doesn't support creating a PrepareStmt=false session from a PrepareStmt=true
+	// but the lockDatabase needs PrepareStmt=false for table locking, we have to deal with it here
+	lockingDb, err := runner.NewGormDbEx(cfg, logger.Global.Nested("migrator db"), &dal.SessionConfig{
+		PrepareStmt:            false,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		panic(err)
+	}
+	err = lockDatabase(dalgorm.NewDalgorm(lockingDb))
+	if err != nil {
+		panic(err)
+	}
 
-	// initialize db migrator singletone
+	basicRes = impl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(db))
+	// initialize db migrator
 	migrator, err = runner.InitMigrator(basicRes)
 	if err != nil {
 		panic(err)
 	}
+	log.Info("migration initialized")
 	migrator.Register(migrationscripts.All(), "Framework")
 
+	// now,
 	// load plugins
 	err = runner.LoadPlugins(
 		cfg.GetString("PLUGIN_DIR"),

@@ -19,12 +19,14 @@ package runner
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net/url"
 	"strings"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
+
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
@@ -32,8 +34,16 @@ import (
 	gormLogger "gorm.io/gorm/logger"
 )
 
-// NewGormDb FIXME ...
+// NewGormDb creates a new *gorm.DB and set it up properly
 func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, errors.Error) {
+	return NewGormDbEx(config, logger, &dal.SessionConfig{
+		PrepareStmt:            true,
+		SkipDefaultTransaction: true,
+	})
+}
+
+// NewGormDbEx acts like NewGormDb but accept extra sessionConfig
+func NewGormDbEx(config *viper.Viper, logger core.Logger, sessionConfig *dal.SessionConfig) (*gorm.DB, errors.Error) {
 	dbLoggingLevel := gormLogger.Error
 	switch strings.ToLower(config.GetString("DB_LOGGING_LEVEL")) {
 	case "silent":
@@ -63,8 +73,8 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, errors.Error)
 				Colorful:                  true,           // Disable color
 			},
 		),
-		// most of our operation are in batch, this can improve performance
-		PrepareStmt: true,
+		PrepareStmt:            sessionConfig.PrepareStmt,
+		SkipDefaultTransaction: sessionConfig.SkipDefaultTransaction,
 	}
 	dbUrl := config.GetString("DB_URL")
 	if dbUrl == "" {

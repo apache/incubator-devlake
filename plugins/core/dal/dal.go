@@ -76,6 +76,12 @@ type ColumnMeta interface {
 	DefaultValue() (value string, ok bool)
 }
 
+// SessionConfig specify options for the session
+type SessionConfig struct {
+	PrepareStmt            bool
+	SkipDefaultTransaction bool
+}
+
 // Dal aims to facilitate an isolation between DBS and our System by defining a set of operations should a DBS provide
 type Dal interface {
 	// AutoMigrate runs auto migration for given entity
@@ -130,6 +136,16 @@ type Dal interface {
 	DropIndexes(table string, indexes ...string) errors.Error
 	// Dialect returns the dialect of current database
 	Dialect() string
+	// Session creates a new manual session for special scenarios
+	Session(config SessionConfig) Dal
+	// Begin create a new transaction
+	Begin() Transaction
+}
+
+type Transaction interface {
+	Dal
+	Rollback() errors.Error
+	Commit() errors.Error
 }
 
 type Rows interface {
@@ -267,4 +283,11 @@ const HavingClause string = "Having"
 // Having creates a new Having clause
 func Having(clause string, params ...interface{}) Clause {
 	return Clause{Type: HavingClause, Data: DalClause{clause, params}}
+}
+
+const LockClause string = "Lock"
+
+// Having creates a new Having clause
+func Lock(write bool, nowait bool) Clause {
+	return Clause{Type: LockClause, Data: []bool{write, nowait}}
 }
