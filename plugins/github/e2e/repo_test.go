@@ -51,53 +51,12 @@ func TestRepoDataFlow(t *testing.T) {
 		Repo: githubRepository,
 	}
 
-	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_repositories.csv", "_raw_github_api_repositories")
-
-	// verify extraction
-	dataflowTester.FlushTabler(&models.GithubRepo{})
-	dataflowTester.FlushTabler(&models.GithubRepoAccount{})
-	dataflowTester.Subtask(tasks.ExtractApiRepoMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.GithubRepo{},
-		"./snapshot_tables/_tool_github_repos.csv",
-		[]string{
-			"connection_id",
-			"github_id",
-			"name",
-			"html_url",
-			"description",
-			"owner_id",
-			"owner_login",
-			"language",
-			"created_date",
-			"updated_date",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-	dataflowTester.VerifyTable(
-		models.GithubRepoAccount{},
-		"./snapshot_tables/_tool_github_accounts_in_repo.csv",
-		[]string{
-			"connection_id",
-			"account_id",
-			"repo_github_id",
-			"login",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
-
-	// verify extraction
+	// verify convert
 	dataflowTester.FlushTabler(&code.Repo{})
 	dataflowTester.FlushTabler(&ticket.Board{})
 	dataflowTester.FlushTabler(&devops.CicdScope{})
 	dataflowTester.FlushTabler(&crossdomain.BoardRepo{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_repos.csv", &models.GithubRepo{})
 	dataflowTester.Subtask(tasks.ConvertRepoMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Repo{},

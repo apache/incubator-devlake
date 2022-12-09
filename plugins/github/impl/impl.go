@@ -94,8 +94,6 @@ func (plugin Github) Description() string {
 
 func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		tasks.CollectApiRepoMeta,
-		tasks.ExtractApiRepoMeta,
 		tasks.CollectApiIssuesMeta,
 		tasks.ExtractApiIssuesMeta,
 		tasks.CollectApiPullRequestsMeta,

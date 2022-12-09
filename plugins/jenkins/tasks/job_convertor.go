@@ -30,6 +30,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 )
 
+const RAW_JOB_TABLE = "jenkins_api_jobs"
+
 var ConvertJobsMeta = core.SubTaskMeta{
 	Name:             "convertJobs",
 	EntryPoint:       ConvertJobs,

@@ -95,9 +95,6 @@ func (plugin Jira) Description() string {
 
 func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		tasks.CollectBoardMeta,
-		tasks.ExtractBoardMeta,
-
 		tasks.CollectStatusMeta,
 		tasks.ExtractStatusMeta,
 

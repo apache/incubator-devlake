@@ -96,8 +96,6 @@ func (plugin Gitlab) Description() string {
 
 func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 	return []core.SubTaskMeta{
-		tasks.CollectProjectMeta,
-		tasks.ExtractProjectMeta,
 		tasks.CollectApiIssuesMeta,
 		tasks.ExtractApiIssuesMeta,
 		tasks.CollectApiMergeRequestsMeta,

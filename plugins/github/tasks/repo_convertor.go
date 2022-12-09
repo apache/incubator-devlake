@@ -35,6 +35,23 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
+const RAW_REPOSITORIES_TABLE = "github_api_repositories"
+
+type ApiRepoResponse GithubApiRepo
+
+type GithubApiRepo struct {
+	Name        string `json:"name"`
+	GithubId    int    `json:"id"`
+	HTMLUrl     string `json:"html_url"`
+	Language    string `json:"language"`
+	Description string `json:"description"`
+	Owner       *GithubAccountResponse
+	Parent      *GithubApiRepo      `json:"parent"`
+	CreatedAt   helper.Iso8601Time  `json:"created_at"`
+	UpdatedAt   *helper.Iso8601Time `json:"updated_at"`
+	CloneUrl    string              `json:"clone_url"`
+}
+
 var ConvertRepoMeta = core.SubTaskMeta{
 	Name:             "convertRepo",
 	EntryPoint:       ConvertRepo,
