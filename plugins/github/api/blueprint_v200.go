@@ -31,7 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/go-playground/validator/v10"
-	"github.com/mitchellh/mapstructure"
 	"gorm.io/gorm"
 	"strings"
 	"time"
@@ -86,9 +85,12 @@ func makeDataSourcePipelinePlanV200(
 	apiClient helper.ApiClientGetter,
 ) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
-	var stage core.PipelineStage
-	var repo *tasks.GithubApiRepo
+	var repoRes *tasks.GithubApiRepo
 	for i, bpScope := range bpScopes {
+		stage := plan[i]
+		if stage == nil {
+			stage = core.PipelineStage{}
+		}
 		githubRepo := &models.GithubRepo{}
 		// get repo from db
 		err = basicRes.GetDal().First(githubRepo, dal.Where(`connection_id = ? AND github_id = ?`, connection.ID, bpScope.Id))
@@ -123,33 +125,30 @@ func makeDataSourcePipelinePlanV200(
 
 		// construct task options for github
 		op := &tasks.GithubOptions{
-			ConnectionId:         githubRepo.ConnectionId,
-			TransformationRuleId: githubRepo.TransformationRuleId,
-			Owner:                githubRepo.OwnerLogin,
-			Repo:                 githubRepo.Name,
+			ConnectionId: githubRepo.ConnectionId,
+			ScopeId:      bpScope.Id,
 		}
-		options, err := tasks.ValidateAndEncodeTaskOptions(op)
+		options, err := tasks.EncodeTaskOptions(op)
 		if err != nil {
 			return nil, err
 		}
-
-		var transformationRuleMap map[string]interface{}
-		err = errors.Convert(mapstructure.Decode(transformationRule, &transformationRuleMap))
-		if err != nil {
-			return nil, err
-		}
-		options["transformationRules"] = transformationRuleMap
 		stage, err = addGithub(subtaskMetas, connection, bpScope.Entities, stage, options)
 		if err != nil {
 			return nil, err
 		}
+		ownerRepo := strings.Split(githubRepo.Name, "/")
+		if len(ownerRepo) != 2 {
+			return nil, errors.Default.New("Fail to parse githubRepo.Name")
+		}
+		op.Owner = ownerRepo[0]
+		op.Repo = ownerRepo[1]
 		// add gitex stage and add repo to scopes
 		if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE) {
-			repo, err = memorizedGetApiRepo(repo, op, apiClient)
+			repoRes, err = memorizedGetApiRepo(repoRes, op, apiClient)
 			if err != nil {
 				return nil, err
 			}
-			stage, err = addGitex(bpScope.Entities, connection, repo, stage)
+			stage, err = addGitex(bpScope.Entities, connection, repoRes, stage)
 			if err != nil {
 				return nil, err
 			}
@@ -182,7 +181,7 @@ func makeScopesV200(bpScopes []*core.BlueprintScopeV200, connection *models.Gith
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
 				},
-				Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
+				Name: githubRepo.Name,
 			}
 			if githubRepo.ParentHTMLUrl != "" {
 				scopeRepo.ForkedFrom = githubRepo.ParentHTMLUrl
@@ -205,7 +204,7 @@ func makeScopesV200(bpScopes []*core.BlueprintScopeV200, connection *models.Gith
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
 				},
-				Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
+				Name: githubRepo.Name,
 			}
 			scopes = append(scopes, scopeTicket)
 		}

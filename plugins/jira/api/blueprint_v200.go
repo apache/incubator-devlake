@@ -64,8 +64,11 @@ func makeDataSourcePipelinePlanV200(
 ) (core.PipelinePlan, errors.Error) {
 	db := basicRes.GetDal()
 	var err errors.Error
-	var stage core.PipelineStage
 	for i, bpScope := range bpScopes {
+		stage := plan[i]
+		if stage == nil {
+			stage = core.PipelineStage{}
+		}
 		jiraBoard := &models.JiraBoard{}
 		// get repo from db
 		err = db.First(jiraBoard, dal.Where(`connection_id = ? and board_id = ?`, connection.ID, bpScope.Id))

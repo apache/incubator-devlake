@@ -20,6 +20,7 @@ package services
 import (
 	"encoding/json"
 	goerror "errors"
+	"fmt"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
@@ -90,6 +91,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	// create tasks accordingly
 	for i := range newPipeline.Plan {
 		for j := range newPipeline.Plan[i] {
+			log.Debug(fmt.Sprintf("plan[%d][%d] is %+v\n", i, j, newPipeline.Plan[i][j]))
 			pipelineTask := newPipeline.Plan[i][j]
 			newTask := &models.NewTask{
 				PipelineTask: pipelineTask,

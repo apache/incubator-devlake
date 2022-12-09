@@ -226,7 +226,7 @@ func addGithub(subtaskMetas []core.SubTaskMeta, connection *models.GithubConnect
 }
 
 func getApiRepo(op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tasks.GithubApiRepo, errors.Error) {
-	apiRepo := &tasks.GithubApiRepo{}
+	repoRes := &tasks.GithubApiRepo{}
 	res, err := apiClient.Get(fmt.Sprintf("repos/%s/%s", op.Owner, op.Repo), nil, nil)
 	if err != nil {
 		return nil, err
@@ -239,11 +239,11 @@ func getApiRepo(op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tas
 	if err != nil {
 		return nil, err
 	}
-	err = errors.Convert(json.Unmarshal(body, apiRepo))
+	err = errors.Convert(json.Unmarshal(body, repoRes))
 	if err != nil {
 		return nil, err
 	}
-	return apiRepo, nil
+	return repoRes, nil
 }
 
 func memorizedGetApiRepo(repo *tasks.GithubApiRepo, op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tasks.GithubApiRepo, errors.Error) {

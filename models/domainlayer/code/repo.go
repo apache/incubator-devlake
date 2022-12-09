@@ -34,7 +34,7 @@ type Repo struct {
 	OwnerId     string     `json:"ownerId" gorm:"type:varchar(255)"`
 	Language    string     `json:"language" gorm:"type:varchar(255)"`
 	ForkedFrom  string     `json:"forkedFrom"`
-	CreatedDate time.Time  `json:"createdDate"`
+	CreatedDate *time.Time `json:"createdDate"`
 	UpdatedDate *time.Time `json:"updatedDate"`
 	Deleted     bool       `json:"deleted"`
 }

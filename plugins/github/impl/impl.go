@@ -19,11 +19,11 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/github_graphql/impl"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/api"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts"
@@ -146,7 +146,7 @@ func (plugin Github) SubTaskMetas() []core.SubTaskMeta {
 func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	logger := taskCtx.GetLogger()
 	logger.Debug("%v", options)
-	op, err := tasks.DecodeAndValidateTaskOptions(options)
+	op, err := tasks.DecodeTaskOptions(options)
 	if err != nil {
 		return nil, err
 	}
@@ -159,6 +159,10 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get github connection by the given connection ID")
 	}
+	githubRepo, err := impl.EnrichOptions(taskCtx, op, connection)
+	if err != nil {
+		return nil, err
+	}
 
 	var since time.Time
 	if op.Since != "" {
@@ -167,19 +171,6 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
 		}
 	}
-	if op.GithubTransformationRule == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.GithubTransformationRule
-		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
-		}
-		op.GithubTransformationRule = &transformationRule
-	}
-	var repo models.GithubRepo
-	err = taskCtx.GetDal().First(&repo, dal.Where("name = ? AND owner_login = ", op.Repo, op.Owner))
-	if err != nil {
-		return nil, errors.BadInput.Wrap(err, "fail to get repo")
-	}
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get github API client instance")
@@ -187,7 +178,7 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	taskData := &tasks.GithubTaskData{
 		Options:   op,
 		ApiClient: apiClient,
-		Repo:      &repo,
+		Repo:      githubRepo,
 	}
 
 	if !since.IsZero() {

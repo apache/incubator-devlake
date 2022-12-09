@@ -64,8 +64,11 @@ func makeDataSourcePipelinePlanV200(
 	connection *models.JenkinsConnection,
 ) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
-	var stage core.PipelineStage
 	for i, bpScope := range bpScopes {
+		stage := plan[i]
+		if stage == nil {
+			stage = core.PipelineStage{}
+		}
 		jenkinsJob := &models.JenkinsJob{}
 		// get repo from db
 		err = basicRes.GetDal().First(jenkinsJob,

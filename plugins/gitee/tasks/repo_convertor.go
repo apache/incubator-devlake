@@ -73,7 +73,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) errors.Error {
 				Description: repository.Description,
 				ForkedFrom:  repository.ParentHTMLUrl,
 				Language:    repository.Language,
-				CreatedDate: repository.CreatedDate,
+				CreatedDate: &repository.CreatedDate,
 				UpdatedDate: repository.UpdatedDate,
 			}
 
