@@ -37,8 +37,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	defer cronLocker.Unlock()
 	if newPipeline.BlueprintId > 0 {
 		var count int64
-		status := []string{models.TASK_CREATED, models.TASK_RUNNING, models.TASK_RERUN}
-		err := db.Model(&models.DbPipeline{}).Where("blueprint_id = ? AND status IN ?", newPipeline.BlueprintId, status).Count(&count).Error
+		err := db.Model(&models.DbPipeline{}).Where("blueprint_id = ? AND status IN ?", newPipeline.BlueprintId, models.PendingTaskStatus).Count(&count).Error
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "query pipelines error")
 		}
@@ -136,7 +135,7 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.E
 		dbQuery = dbQuery.Where("status = ?", query.Status)
 	}
 	if query.Pending > 0 {
-		dbQuery = dbQuery.Where("finished_at is null and status != ?", "TASK_FAILED")
+		dbQuery = dbQuery.Where("finished_at is null and status IN ?", models.PendingTaskStatus)
 	}
 	if query.Label != "" {
 		dbQuery = dbQuery.
