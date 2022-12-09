@@ -132,15 +132,6 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 			return nil, err
 		}
 
-		// refdiff part
-		if transformationRules.Refdiff != nil {
-			task := &core.PipelineTask{
-				Plugin:  "refdiff",
-				Options: transformationRules.Refdiff,
-			}
-			stage = append(stage, task)
-		}
-
 		// get int scopeId
 		intScopeId, err1 := strconv.Atoi(scope.Id)
 		if err != nil {
@@ -150,7 +141,7 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 		// gitlab main part
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
-		options["scopeId"] = intScopeId
+		options["projectId"] = intScopeId
 		options["entities"] = scope.Entities
 
 		// construct subtasks
@@ -182,7 +173,17 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 			})
 		}
 
+		// refdiff part
+		if transformationRules.Refdiff != nil {
+			task := &core.PipelineTask{
+				Plugin:  "refdiff",
+				Options: transformationRules.Refdiff,
+			}
+			stage = append(stage, task)
+		}
+
 		plans = append(plans, stage)
+
 	}
 	return plans, nil
 }

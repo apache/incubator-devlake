@@ -117,15 +117,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	var expectPlans core.PipelinePlan = core.PipelinePlan{
 		{
 			{
-				Plugin:     "refdiff",
-				SkipOnFail: false,
-				Options: map[string]interface{}{
-					"tagsLimit":   10,
-					"tagsOrder":   "reverse semver",
-					"tagsPattern": "pattern",
-				},
-			},
-			{
 				Plugin: "gitlab",
 				Subtasks: []string{
 					tasks.CollectProjectMeta.Name,
@@ -143,7 +134,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				SkipOnFail: false,
 				Options: map[string]interface{}{
 					"connectionId": uint64(1),
-					"scopeId":      testID,
+					"projectId":    testID,
 					"entities":     bpScopes[0].Entities,
 				},
 			},
@@ -154,6 +145,15 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					"proxy":  "",
 					"repoId": expectRepoId,
 					"url":    "https://git:nddtf@this_is_cloneUrl",
+				},
+			},
+			{
+				Plugin:     "refdiff",
+				SkipOnFail: false,
+				Options: map[string]interface{}{
+					"tagsLimit":   10,
+					"tagsOrder":   "reverse semver",
+					"tagsPattern": "pattern",
 				},
 			},
 		},
