@@ -16,13 +16,13 @@
  *
  */
 
-import styled from '@emotion/styled'
+import styled from 'styled-components'
 
 export const Container = styled.div`
   position: relative;
 `
 
-export const TableWrapper = styled.ul<{ loading?: boolean }>`
+export const TableWrapper = styled.ul<{ loading: number }>`
   margin: 0;
   padding: 0;
   list-style: none;

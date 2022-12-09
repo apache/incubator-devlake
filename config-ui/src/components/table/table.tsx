@@ -36,7 +36,7 @@ export const Table = <T extends Record<string, any>>({
 }: Props<T>) => {
   return (
     <S.Container>
-      <S.TableWrapper loading={loading}>
+      <S.TableWrapper loading={loading ? 1 : 0}>
         <S.TableHeader>
           {columns.map(({ key, title }) => (
             <span key={key}>{title}</span>
