@@ -32,7 +32,7 @@ var ExtractApiPullRequestCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ExtractApiPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Extract raw PullRequestCommits data into tool layer table github_commits",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS, core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 type PrCommitsResponse struct {

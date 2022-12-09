@@ -35,7 +35,7 @@ var ConvertPullRequestReviewsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertPullRequestReviews,
 	EnabledByDefault: true,
 	Description:      "ConvertPullRequestReviews data from Github api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS, core.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ConvertPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
