@@ -91,7 +91,7 @@ func convertToRepositoryModel(project *models.GitlabProject) *code.Repo {
 		Url:         project.WebUrl,
 		Description: project.Description,
 		ForkedFrom:  project.ForkedFromProjectWebUrl,
-		CreatedDate: project.CreatedDate,
+		CreatedDate: &project.CreatedDate,
 		UpdatedDate: project.UpdatedDate,
 	}
 	return domainRepository

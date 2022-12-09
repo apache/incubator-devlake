@@ -29,10 +29,11 @@ import (
 type GithubOptions struct {
 	ConnectionId                     uint64   `json:"connectionId" mapstructure:"connectionId,omitempty"`
 	TransformationRuleId             uint64   `json:"transformationRuleId" mapstructure:"transformationRuleId,omitempty"`
+	ScopeId                          string   `json:"scopeId" mapstructure:"scopeId,omitempty"`
 	Tasks                            []string `json:"tasks,omitempty" mapstructure:",omitempty"`
 	Since                            string   `json:"since" mapstructure:"since,omitempty"`
-	Owner                            string   `json:"owner" mapstructure:"owner"`
-	Repo                             string   `json:"repo"  mapstructure:"repo"`
+	Owner                            string   `json:"owner" mapstructure:"owner,omitempty"`
+	Repo                             string   `json:"repo"  mapstructure:"repo,omitempty"`
 	*models.GithubTransformationRule `mapstructure:"transformationRules,omitempty" json:"transformationRules"`
 }
 
@@ -45,25 +46,29 @@ type GithubTaskData struct {
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOptions, errors.Error) {
-	var op GithubOptions
-	err := helper.Decode(options, &op, nil)
+	op, err := DecodeTaskOptions(options)
 	if err != nil {
 		return nil, err
 	}
-	err = ValidateTaskOptions(&op)
+	err = ValidateTaskOptions(op)
+	if err != nil {
+		return nil, err
+	}
+	return op, nil
+}
+
+func DecodeTaskOptions(options map[string]interface{}) (*GithubOptions, errors.Error) {
+	var op GithubOptions
+	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, err
 	}
 	return &op, nil
 }
 
-func ValidateAndEncodeTaskOptions(op *GithubOptions) (map[string]interface{}, errors.Error) {
-	err := ValidateTaskOptions(op)
-	if err != nil {
-		return nil, err
-	}
+func EncodeTaskOptions(op *GithubOptions) (map[string]interface{}, errors.Error) {
 	var result map[string]interface{}
-	err = helper.Decode(op, &result, nil)
+	err := helper.Decode(op, &result, nil)
 	if err != nil {
 		return nil, err
 	}

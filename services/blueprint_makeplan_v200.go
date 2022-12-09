@@ -44,9 +44,11 @@ func GeneratePlanJsonV200(
 		if e != nil {
 			return nil, errors.Convert(err)
 		}
-		e = db.Create(scopes).Error
-		if e != nil {
-			return nil, errors.Convert(err)
+		for _, scope := range scopes {
+			e = basicRes.GetDal().CreateOrUpdate(scope)
+			if e != nil {
+				return nil, errors.Convert(err)
+			}
 		}
 	}
 	return plan, err

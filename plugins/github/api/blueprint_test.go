@@ -34,13 +34,20 @@ import (
 	"testing"
 )
 
-var bs = &core.BlueprintScopeV100{
-	Entities: []string{"CODE"},
-	Options: json.RawMessage(`{
+var repo = &tasks.GithubApiRepo{
+	GithubId:  12345,
+	CloneUrl:  "https://this_is_cloneUrl",
+	CreatedAt: helper.Iso8601Time{},
+}
+
+func TestMakePipelinePlan(t *testing.T) {
+	var bs = &core.BlueprintScopeV100{
+		Entities: []string{"CODE"},
+		Options: json.RawMessage(`{
               "owner": "test",
               "repo": "testRepo"
             }`),
-	Transformation: json.RawMessage(`{
+		Transformation: json.RawMessage(`{
               "prType": "hey,man,wasup",
               "refdiff": {
                 "tagsPattern": "pattern",
@@ -49,15 +56,7 @@ var bs = &core.BlueprintScopeV100{
               },
               "productionPattern": "xxxx"
             }`),
-}
-
-var repo = &tasks.GithubApiRepo{
-	GithubId:  12345,
-	CloneUrl:  "https://this_is_cloneUrl",
-	CreatedAt: helper.Iso8601Time{},
-}
-
-func TestMakePipelinePlan(t *testing.T) {
+	}
 	prepareMockMeta(t)
 	mockApiClient := prepareMockClient(t, repo)
 	connection := &models.GithubConnection{
@@ -131,7 +130,7 @@ func TestMakePipelinePlan(t *testing.T) {
 }
 
 func TestMemorizedGetApiRepo(t *testing.T) {
-	op := prepareOptions(t, bs)
+	op := prepareOptions(t)
 	expect := repo
 	repo1, err := memorizedGetApiRepo(repo, op, nil)
 	assert.Nil(t, err)
@@ -143,7 +142,7 @@ func TestMemorizedGetApiRepo(t *testing.T) {
 }
 
 func TestGetApiRepo(t *testing.T) {
-	op := prepareOptions(t, bs)
+	op := prepareOptions(t)
 	mockClient := prepareMockClient(t, repo)
 	repo1, err := getApiRepo(op, mockClient)
 	assert.Nil(t, err)
@@ -168,7 +167,23 @@ func prepareMockClient(t *testing.T, repo *tasks.GithubApiRepo) *mocks.ApiClient
 	return mockApiCLient
 }
 
-func prepareOptions(t *testing.T, bs *core.BlueprintScopeV100) *tasks.GithubOptions {
+func prepareOptions(t *testing.T) *tasks.GithubOptions {
+	var bs = &core.BlueprintScopeV100{
+		Entities: []string{"CODE"},
+		Options: json.RawMessage(`{
+              "owner": "test",
+              "repo": "testRepo"
+            }`),
+		Transformation: json.RawMessage(`{
+              "prType": "hey,man,wasup",
+              "refdiff": {
+                "tagsPattern": "pattern",
+                "tagsLimit": 10,
+                "tagsOrder": "reverse semver"
+              },
+              "productionPattern": "xxxx"
+            }`),
+	}
 	options := make(map[string]interface{})
 	err := errors.Convert(json.Unmarshal(bs.Options, &options))
 	assert.Nil(t, err)

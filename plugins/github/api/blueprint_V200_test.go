@@ -93,14 +93,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Subtasks:   []string{},
 				SkipOnFail: false,
 				Options: map[string]interface{}{
-					"connectionId":         uint64(1),
-					"transformationRuleId": uint64(1),
-					"owner":                "test",
-					"repo":                 "testRepo",
-					"transformationRules": map[string]interface{}{
-						"name":   "github transformation rule",
-						"prType": "hey,man,wasup",
-					},
+					"connectionId": uint64(1),
+					"scopeId":      "1",
 				},
 			},
 			{
@@ -154,8 +148,7 @@ func NewMockBasicRes() *mocks.BasicRes {
 	testGithubRepo := &models.GithubRepo{
 		ConnectionId:         1,
 		GithubId:             12345,
-		Name:                 "testRepo",
-		OwnerLogin:           "test",
+		Name:                 "test/testRepo",
 		TransformationRuleId: 1,
 		CreatedDate:          time.Time{},
 	}
