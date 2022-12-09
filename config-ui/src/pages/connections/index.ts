@@ -16,25 +16,6 @@
  *
  */
 
-import { Toaster, Position, Intent } from '@blueprintjs/core'
+import { WebHookConnection } from '@/plugins'
 
-export const Toast = Toaster.create({
-  position: Position.TOP
-})
-
-export const toast = {
-  success(message: string) {
-    Toast.show({
-      message,
-      intent: Intent.SUCCESS,
-      icon: 'endorsed'
-    })
-  },
-  error(message: string) {
-    Toast.show({
-      message,
-      intent: Intent.DANGER,
-      icon: 'error'
-    })
-  }
-}
+export const WebHookConnectionPage = WebHookConnection
