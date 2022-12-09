@@ -16,5 +16,6 @@
  *
  */
 
-export * from './home'
-export * from './detail'
+export * from './blueprint'
+export * from './incoming-webhooks'
+export * from './settings'

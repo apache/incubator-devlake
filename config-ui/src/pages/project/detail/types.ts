@@ -16,5 +16,9 @@
  *
  */
 
-export * from './home'
-export * from './detail'
+export type ProjectType = {
+  name: string
+  description: string
+  blueprint: any | null
+  enableDora: boolean
+} | null

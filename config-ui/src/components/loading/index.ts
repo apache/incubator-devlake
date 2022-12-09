@@ -16,5 +16,5 @@
  *
  */
 
-export * from './home'
-export * from './detail'
+export * from './loading'
+export * from './page-loading'
