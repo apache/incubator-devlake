@@ -30,15 +30,15 @@ type GitlabOptions struct {
 	ProjectId                        int      `json:"projectId"`
 	TransformationRuleId             uint64   `json:"transformationRuleId"`
 	Tasks                            []string `json:"tasks,omitempty"`
-	Since                            string
+	CreatedDateAfter                 string
 	*models.GitlabTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
 }
 
 type GitlabTaskData struct {
-	Options       *GitlabOptions
-	ApiClient     *helper.ApiAsyncClient
-	ProjectCommit *models.GitlabProjectCommit
-	Since         *time.Time
+	Options          *GitlabOptions
+	ApiClient        *helper.ApiAsyncClient
+	ProjectCommit    *models.GitlabProjectCommit
+	CreatedDateAfter *time.Time
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GitlabOptions, errors.Error) {

@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"net/url"
 )
 
 const RAW_MERGE_REQUEST_TABLE = "gitlab_api_merge_requests"
@@ -35,21 +36,37 @@ var CollectApiMergeRequestsMeta = core.SubTaskMeta{
 
 func CollectApiMergeRequests(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_MERGE_REQUEST_TABLE)
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		ApiClient:          data.ApiClient,
-		PageSize:           100,
-		Incremental:        false,
-		UrlTemplate:        "projects/{{ .Params.ProjectId }}/merge_requests",
-		Query:              GetQuery,
-		GetTotalPages:      GetTotalPagesFromResponse,
-		ResponseParser:     GetRawMessageFromResponse,
+	incremental := collectorWithState.CanIncrementCollect()
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:      data.ApiClient,
+		PageSize:       100,
+		Incremental:    incremental,
+		UrlTemplate:    "projects/{{ .Params.ProjectId }}/merge_requests",
+		GetTotalPages:  GetTotalPagesFromResponse,
+		ResponseParser: GetRawMessageFromResponse,
+		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
+			query, err := GetQuery(reqData)
+			if err != nil {
+				return nil, err
+			}
+			if incremental {
+				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.String())
+			}
+			if collectorWithState.CreatedDateAfter != nil {
+				query.Set("created_after", collectorWithState.CreatedDateAfter.String())
+			}
+			return query, nil
+		},
 	})
 
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
