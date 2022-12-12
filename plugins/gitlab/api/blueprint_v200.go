@@ -129,7 +129,9 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
 		options["projectId"] = intScopeId
-		options["createdDateAfter"] = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
+		if syncPolicy.CreatedDateAfter != nil {
+			options["createdDateAfter"] = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
+		}
 
 		// construct subtasks
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scope.Entities)

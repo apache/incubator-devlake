@@ -19,7 +19,7 @@ import React, {useCallback, useEffect} from 'react'
 import {Tag} from '@blueprintjs/core'
 import {TimePrecision} from "@blueprintjs/datetime"
 import {DateInput2} from "@blueprintjs/datetime2"
-import { format, parse } from "date-fns"
+import {format} from "date-fns"
 
 const StartFromSelector = (
   {
@@ -66,43 +66,45 @@ const StartFromSelector = (
           className="123"
           style={{display: 'flex', marginBottom: '10px'}}>
           <Tag
-            key="-6m" minimal={ago6m.toISOString()!=date}
+            key="-6m" minimal={ago6m.toISOString() != date}
             intent="primary"
             interactive={!disabled}
             onClick={() => chooseDate(ago6m)}
             style={{marginRight: 5}}>Last 6 months</Tag>
           <Tag
-            key="-90d" minimal={ago90d.toISOString()!=date}
+            key="-90d" minimal={ago90d.toISOString() != date}
             intent="primary"
             interactive={!disabled}
             onClick={() => chooseDate(ago90d)}
             style={{marginRight: 5}}>Last 90 days</Tag>
           <Tag
-            key="-30d" minimal={ago30d.toISOString()!=date}
+            key="-30d" minimal={ago30d.toISOString() != date}
             intent="primary"
             interactive={!disabled}
             onClick={() => chooseDate(ago30d)}
             style={{marginRight: 5}}>Last 30 days</Tag>
           <Tag
-            key="-1y" minimal={ago1y.toISOString()!=date}
+            key="-1y" minimal={ago1y.toISOString() != date}
             intent="primary"
             interactive={!disabled}
             onClick={() => chooseDate(ago1y)}
             style={{marginRight: 5}}>Last Year</Tag>
         </div>
 
-        <DateInput2
-          disabled={disabled}
-          timePrecision={TimePrecision.MINUTE}
-          formatDate={formatDate}
-          parseDate={parseDate}
-          fill={false}
-          placeholder={placeholder}
-          onChange={onSave}
-          popoverProps={{placement: "bottom"}}
-          value={date}
-        />
-        <span style={{ fontWeight: 'bold'}}> to Now</span>
+        <div style={{display: "flex", alignItems: "baseline"}}>
+          <DateInput2
+            disabled={disabled}
+            timePrecision={TimePrecision.MINUTE}
+            formatDate={formatDate}
+            parseDate={parseDate}
+            fill={false}
+            placeholder={placeholder}
+            onChange={onSave}
+            popoverProps={{placement: "bottom"}}
+            value={date}
+          />
+          <span style={{fontWeight: 'bold'}}> to Now</span>
+        </div>
       </div>
     </>
   )

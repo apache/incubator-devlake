@@ -126,9 +126,11 @@ func makeDataSourcePipelinePlanV200(
 
 		// construct task options for github
 		op := &tasks.GithubOptions{
-			ConnectionId:     githubRepo.ConnectionId,
-			ScopeId:          bpScope.Id,
-			CreatedDateAfter: syncPolicy.CreatedDateAfter.Format(time.RFC3339),
+			ConnectionId: githubRepo.ConnectionId,
+			ScopeId:      bpScope.Id,
+		}
+		if syncPolicy.CreatedDateAfter != nil {
+			op.CreatedDateAfter = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
 		}
 		options, err := tasks.EncodeTaskOptions(op)
 		if err != nil {
