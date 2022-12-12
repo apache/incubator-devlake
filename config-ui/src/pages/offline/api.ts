@@ -16,7 +16,6 @@
  *
  */
 
-export * from './offline'
-export * from './project'
-export * from './blueprint'
-export * from './connections'
+import request from '@/components/utils/request'
+
+export const ping = () => request('/ping')
