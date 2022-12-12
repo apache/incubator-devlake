@@ -18,14 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"gorm.io/gorm"
 	"net/url"
 )
 
@@ -40,28 +36,14 @@ var CollectApiPipelinesMeta = core.SubTaskMeta{
 }
 
 func CollectApiPipelines(taskCtx core.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_PIPELINE_TABLE)
-
-	since := data.Since
-	incremental := false
-	// user didn't specify a time range to sync, try load from database
-	if since == nil {
-		var latestUpdated models.GitlabPipeline
-		clause := []dal.Clause{
-			dal.Orderby("gitlab_updated_at DESC"),
-		}
-		err := db.First(&latestUpdated, clause...)
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
-			return errors.Default.Wrap(err, "failed to get latest gitlab pipeline record")
-		}
-		if latestUpdated.GitlabId > 0 {
-			since = latestUpdated.GitlabUpdatedAt
-			incremental = true
-		}
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	if err != nil {
+		return err
 	}
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
+	incremental := collectorWithState.CanIncrementCollect()
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
 		Concurrency:        5,
@@ -70,8 +52,8 @@ func CollectApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if since != nil {
-				query.Set("updated_after", since.String())
+			if incremental {
+				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.String())
 			}
 			query.Set("with_stats", "true")
 			query.Set("sort", "asc")
@@ -82,10 +64,9 @@ func CollectApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 		ResponseParser: GetRawMessageFromResponse,
 		AfterResponse:  ignoreHTTPStatus403, // ignore 403 for CI/CD disable
 	})
-
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }

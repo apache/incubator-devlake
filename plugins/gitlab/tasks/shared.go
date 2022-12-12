@@ -96,7 +96,7 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, Table string) (*helpe
 	return RawDataSubTaskArgs, data
 }
 
-func GetMergeRequestsIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIterator, errors.Error) {
+func GetMergeRequestsIterator(taskCtx core.SubTaskContext, collectorWithState *helper.ApiCollectorStateManager) (*helper.DalCursorIterator, errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
 	clauses := []dal.Clause{
@@ -106,6 +106,9 @@ func GetMergeRequestsIterator(taskCtx core.SubTaskContext) (*helper.DalCursorIte
 			`gmr.project_id = ? and gmr.connection_id = ?`,
 			data.Options.ProjectId, data.Options.ConnectionId,
 		),
+	}
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("gitlab_created_at > ?", *collectorWithState.CreatedDateAfter))
 	}
 	// construct the input iterator
 	cursor, err := db.Cursor(clauses...)

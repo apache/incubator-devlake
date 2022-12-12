@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -127,6 +128,8 @@ func (plugin Gitlab) SubTaskMetas() []core.SubTaskMeta {
 }
 
 func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+	logger := taskCtx.GetLogger()
+	logger.Debug("%v", options)
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -144,13 +147,21 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	}
 	err = connectionHelper.FirstById(connection, op.ConnectionId)
 	if err != nil {
-		return nil, err
+		return nil, errors.BadInput.Wrap(err, "connection not found")
 	}
 	apiClient, err := tasks.NewGitlabApiClient(taskCtx, connection)
-
 	if err != nil {
 		return nil, err
 	}
+
+	var createdDateAfter time.Time
+	if op.CreatedDateAfter != "" {
+		createdDateAfter, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
+		}
+	}
+
 	if op.GitlabTransformationRule == nil && op.TransformationRuleId != 0 {
 		var transformationRule models.GitlabTransformationRule
 		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
@@ -159,10 +170,16 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 		}
 		op.GitlabTransformationRule = &transformationRule
 	}
-	return &tasks.GitlabTaskData{
+
+	taskData := tasks.GitlabTaskData{
 		Options:   op,
 		ApiClient: apiClient,
-	}, nil
+	}
+	if !createdDateAfter.IsZero() {
+		taskData.CreatedDateAfter = &createdDateAfter
+		logger.Debug("collect data updated createdDateAfter %s", createdDateAfter)
+	}
+	return &taskData, nil
 }
 
 func (plugin Gitlab) RootPkgPath() string {

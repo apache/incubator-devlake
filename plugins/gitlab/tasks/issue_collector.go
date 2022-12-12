@@ -19,17 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
-	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/http"
 	"net/url"
-
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_ISSUE_TABLE = "gitlab_api_issues"
@@ -43,32 +38,17 @@ var CollectApiIssuesMeta = core.SubTaskMeta{
 }
 
 func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ISSUE_TABLE)
-
-	since := data.Since
-	incremental := false
-	// user didn't specify a time range to sync, try load from database
-	if since == nil {
-		var latestUpdated models.GitlabIssue
-		clause := []dal.Clause{
-			dal.Orderby("gitlab_updated_at DESC"),
-		}
-		err := db.First(&latestUpdated, clause...)
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
-			return errors.Default.Wrap(err, "failed to get latest gitlab issue record")
-		}
-		if latestUpdated.GitlabId > 0 {
-			since = &latestUpdated.GitlabUpdatedAt
-			incremental = true
-		}
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	if err != nil {
+		return err
 	}
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		ApiClient:          data.ApiClient,
-		PageSize:           100,
-		Incremental:        incremental,
+	incremental := collectorWithState.CanIncrementCollect()
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
+		Incremental: incremental,
 
 		UrlTemplate: "projects/{{ .Params.ProjectId }}/issues",
 		/*
@@ -76,8 +56,11 @@ func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
 		*/
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if since != nil {
-				query.Set("updated_after", since.String())
+			if incremental {
+				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.String())
+			}
+			if collectorWithState.CreatedDateAfter != nil {
+				query.Set("created_after", collectorWithState.CreatedDateAfter.String())
 			}
 			query.Set("sort", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -101,5 +84,5 @@ func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
