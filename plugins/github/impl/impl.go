@@ -234,8 +234,8 @@ func (plugin Github) MakePipelinePlan(connectionId uint64, scope []*core.Bluepri
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
-func (plugin Github) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200, syncPolicy *core.BlueprintSyncPolicy) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, syncPolicy)
+func (plugin Github) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200, syncPolicy core.BlueprintSyncPolicy) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (plugin Github) Close(taskCtx core.TaskContext) errors.Error {

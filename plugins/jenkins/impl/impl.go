@@ -183,8 +183,8 @@ func (plugin Jenkins) MakePipelinePlan(connectionId uint64, scope []*core.Bluepr
 	return api.MakePipelinePlanV100(plugin.SubTaskMetas(), connectionId, scope)
 }
 
-func (plugin Jenkins) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200, syncPolicy *core.BlueprintSyncPolicy) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, syncPolicy)
+func (plugin Jenkins) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200, syncPolicy core.BlueprintSyncPolicy) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {

@@ -65,8 +65,8 @@ func (plugin Gitlab) TransformationRule() interface{} {
 	return &models.GitlabTransformationRule{}
 }
 
-func (plugin Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200, syncPolicy *core.BlueprintSyncPolicy) (core.PipelinePlan, []core.Scope, errors.Error) {
-	return api.MakePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, syncPolicy)
+func (plugin Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200, syncPolicy core.BlueprintSyncPolicy) (core.PipelinePlan, []core.Scope, errors.Error) {
+	return api.MakePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (plugin Gitlab) GetTablesInfo() []core.Tabler {

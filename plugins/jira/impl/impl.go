@@ -226,8 +226,8 @@ func (plugin Jira) MakePipelinePlan(connectionId uint64, scope []*core.Blueprint
 	return api.MakePipelinePlanV100(plugin.SubTaskMetas(), connectionId, scope)
 }
 
-func (plugin Jira) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200, syncPolicy *core.BlueprintSyncPolicy) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, syncPolicy)
+func (plugin Jira) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200, syncPolicy core.BlueprintSyncPolicy) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (plugin Jira) RootPkgPath() string {

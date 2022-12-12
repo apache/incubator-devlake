@@ -77,9 +77,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}
 	bpScopes := make([]*core.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
+	syncPolicy := &core.BlueprintSyncPolicy{}
 
 	plan := make(core.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection, mockApiCLient, nil)
+	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection, mockApiCLient, syncPolicy)
 	assert.Nil(t, err)
 	basicRes = NewMockBasicRes()
 	scopes, err := makeScopesV200(bpScopes, connection)
