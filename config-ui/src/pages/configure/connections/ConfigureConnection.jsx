@@ -18,7 +18,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import { Button, Card, Elevation, Icon, Intent } from '@blueprintjs/core'
-import AppCrumbs from '@/components/Breadcrumbs'
 import ContentLoader from '@/components/loaders/ContentLoader'
 import useIntegrations from '@/hooks/useIntegrations'
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -181,25 +180,6 @@ export default function ConfigureConnection() {
 
   return (
     <main className='main'>
-      <AppCrumbs
-        items={[
-          { href: '/', icon: false, text: 'Dashboard' },
-          { href: '/integrations', icon: false, text: 'Connections' },
-          {
-            href: `/integrations/${activeProvider?.id}`,
-            icon: false,
-            text: `${activeProvider?.name}`
-          },
-          {
-            href: `/connections/configure/${activeProvider?.id}/${activeConnection?.id}`,
-            icon: false,
-            text: `${
-              activeConnection ? activeConnection.name : 'Configure'
-            } Settings`,
-            current: true
-          }
-        ]}
-      />
       <div className='configureConnection' style={{ width: '100%' }}>
         {!isLoadingConnection && (
           <Link

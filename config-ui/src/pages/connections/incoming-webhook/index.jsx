@@ -20,7 +20,6 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Icon, Button, Intent } from '@blueprintjs/core'
 
-import AppCrumbs from '@/components/Breadcrumbs'
 import { useWebhookManager } from '@/hooks/useWebhookManager'
 import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/incoming-webhook.svg'
 import { ReactComponent as EditIcon } from '@/images/icons/setting-con.svg'
@@ -68,19 +67,6 @@ export const IncomingWebhook = () => {
   return (
     <>
       <div className='main'>
-        <AppCrumbs
-          items={[
-            { href: '/', icon: false, text: 'Dashboard' },
-            // use /connections replace here
-            { href: '/integrations', icon: false, text: 'Connections' },
-            {
-              href: '/connections/incoming-webhook',
-              icon: false,
-              text: 'Incoming Webhook',
-              current: true
-            }
-          ]}
-        />
         <div className='headlineContainer'>
           <div
             style={{

@@ -18,7 +18,6 @@
 import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Colors, Icon } from '@blueprintjs/core'
-import AppCrumbs from '@/components/Breadcrumbs'
 // @todo: replace with Integrations Hook
 // import { integrationsData } from '@/data/integrations'
 import useIntegrations from '@/hooks/useIntegrations'
@@ -57,17 +56,6 @@ export default function Integration() {
 
   return (
     <main className='main'>
-      <AppCrumbs
-        items={[
-          { href: '/', icon: false, text: 'Dashboard' },
-          {
-            href: '/integrations',
-            icon: false,
-            text: 'Connections',
-            current: true
-          }
-        ]}
-      />
       <div className='headlineContainer'>
         <h1>Data Connections</h1>
         <p className='page-description'>
@@ -132,7 +120,7 @@ export default function Integration() {
       <div className='integrationProviders'>
         <div
           className='iProvider'
-          style={{ width: 130 }}
+          style={{ width: 140 }}
           onClick={() => history.push('/connections/incoming-webhook')}
         >
           <div className='providerIcon'>

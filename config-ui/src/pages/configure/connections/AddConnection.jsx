@@ -18,7 +18,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import { Icon } from '@blueprintjs/core'
-import AppCrumbs from '@/components/Breadcrumbs'
 import ConnectionForm from '@/pages/configure/connections/ConnectionForm'
 // import { integrationsData } from '@/data/integrations'
 // import {
@@ -147,23 +146,6 @@ export default function AddConnection() {
 
   return (
     <main className='main'>
-      <AppCrumbs
-        items={[
-          { href: '/', icon: false, text: 'Dashboard' },
-          { href: '/integrations', icon: false, text: 'Connections' },
-          {
-            href: `/integrations/${activeProvider?.id}`,
-            icon: false,
-            text: `${activeProvider?.name}`
-          },
-          {
-            href: `/connections/add/${activeProvider?.id}`,
-            icon: false,
-            text: 'Add Connection',
-            current: true
-          }
-        ]}
-      />
       <div style={{ width: '100%' }}>
         <Link
           style={{ float: 'right', marginLeft: '10px', color: '#777777' }}
