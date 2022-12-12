@@ -18,9 +18,9 @@ limitations under the License.
 package impl
 
 import (
+	goerror "errors"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -148,7 +148,8 @@ func (plugin Jira) SubTaskMetas() []core.SubTaskMeta {
 
 func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.JiraOptions
-	var err error
+	var err errors.Error
+	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Debug("%v", options)
 	err = helper.Decode(options, &op, nil)
@@ -171,23 +172,20 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		return nil, errors.Default.Wrap(err, "unable to get Jira connection")
 	}
 
-	var createdDateAfter time.Time
-	if op.CreatedDateAfter != "" {
-		createdDateAfter, err = time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter)
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
-		}
-	}
 	if op.BoardId == 0 && op.ScopeId != "" {
-		op.BoardId, err = strconv.ParseUint(op.ScopeId, 10, 64)
+		var jiraBoard models.JiraBoard
+		// get repo from db
+		err = db.First(&jiraBoard, dal.Where(`connection_id = ? and board_id = ?`, connection.ID, op.ScopeId))
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for scopeId")
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board%s", op.ScopeId))
 		}
+		op.BoardId = jiraBoard.BoardId
+		op.TransformationRuleId = jiraBoard.TransformationRuleId
 	}
 	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
 		var transformationRule models.JiraTransformationRule
 		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
-		if err != nil {
+		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
 		}
 		op.TransformationRules, err = tasks.MakeTransformationRules(transformationRule)
@@ -195,6 +193,15 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 			return nil, errors.BadInput.Wrap(err, "fail to make transformationRule")
 		}
 	}
+
+	var createdDateAfter time.Time
+	if op.CreatedDateAfter != "" {
+		createdDateAfter, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
+		}
+	}
+
 	jiraApiClient, err := tasks.NewJiraApiClient(taskCtx, connection)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "failed to create jira api client")

@@ -74,7 +74,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	bs := &core.BlueprintScopeV200{
 		Entities: []string{"CODE", "TICKET"},
 		Id:       "1",
-		Name:     "",
 	}
 	bpScopes := make([]*core.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)

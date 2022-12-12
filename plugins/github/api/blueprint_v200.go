@@ -94,8 +94,8 @@ func makeDataSourcePipelinePlanV200(
 		githubRepo := &models.GithubRepo{}
 		// get repo from db
 		err = basicRes.GetDal().First(githubRepo, dal.Where(`connection_id = ? AND github_id = ?`, connection.ID, bpScope.Id))
-		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo%s", bpScope.Id))
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", bpScope.Id))
 		}
 		transformationRule := &models.GithubTransformationRule{}
 		// get transformation rules from db
@@ -164,14 +164,8 @@ func makeScopesV200(bpScopes []*core.BlueprintScopeV200, connection *models.Gith
 		githubRepo := &models.GithubRepo{}
 		// get repo from db
 		err := basicRes.GetDal().First(githubRepo, dal.Where(`connection_id = ? AND github_id = ?`, connection.ID, bpScope.Id))
-		if err != nil && goerror.Is(err, gorm.ErrRecordNotFound) {
+		if err != nil {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo%s", bpScope.Id))
-		}
-		transformationRule := &models.GithubTransformationRule{}
-		// get transformation rules from db
-		err = basicRes.GetDal().First(transformationRule, dal.Where(`id = ?`, githubRepo.TransformationRuleId))
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
-			return nil, err
 		}
 		if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE_REVIEW) ||
 			utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE) ||
