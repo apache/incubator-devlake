@@ -25,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/utils"
 
-	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -74,15 +73,10 @@ func makeScopeV200(connectionId uint64, scopes []*core.BlueprintScopeV200) ([]co
 		}
 
 		if utils.StringsContains(scope.Entities, core.DOMAIN_TYPE_CODE_REVIEW) ||
-			utils.StringsContains(scope.Entities, core.DOMAIN_TYPE_CODE) ||
-			utils.StringsContains(scope.Entities, core.DOMAIN_TYPE_CROSS) {
+			utils.StringsContains(scope.Entities, core.DOMAIN_TYPE_CODE) {
 			// if we don't need to collect gitex, we need to add repo to scopes here
-			scopeRepo := &code.Repo{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: id,
-				},
-				Name: gitlabProject.Name,
-			}
+			scopeRepo := code.NewRepo(id, gitlabProject.Name)
+
 			if gitlabProject.ForkedFromProjectWebUrl != "" {
 				scopeRepo.ForkedFrom = gitlabProject.ForkedFromProjectWebUrl
 			}
@@ -91,23 +85,15 @@ func makeScopeV200(connectionId uint64, scopes []*core.BlueprintScopeV200) ([]co
 
 		// add cicd_scope to scopes
 		if utils.StringsContains(scope.Entities, core.DOMAIN_TYPE_CICD) {
-			scopeCICD := &devops.CicdScope{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: id,
-				},
-				Name: gitlabProject.Name,
-			}
+			scopeCICD := devops.NewCicdScope(id, gitlabProject.Name)
+
 			sc = append(sc, scopeCICD)
 		}
 
 		// add board to scopes
 		if utils.StringsContains(scope.Entities, core.DOMAIN_TYPE_TICKET) {
-			scopeTicket := &ticket.Board{
-				DomainEntity: domainlayer.DomainEntity{
-					Id: id,
-				},
-				Name: gitlabProject.Name,
-			}
+			scopeTicket := ticket.NewBoard(id, gitlabProject.Name)
+
 			sc = append(sc, scopeTicket)
 		}
 	}
@@ -173,17 +159,16 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 			})
 		}
 
+		plans = append(plans, stage)
+
 		// refdiff part
 		if transformationRules.Refdiff != nil {
 			task := &core.PipelineTask{
 				Plugin:  "refdiff",
 				Options: transformationRules.Refdiff,
 			}
-			stage = append(stage, task)
+			plans = append(plans, core.PipelineStage{task})
 		}
-
-		plans = append(plans, stage)
-
 	}
 	return plans, nil
 }

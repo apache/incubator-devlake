@@ -47,7 +47,8 @@ func GeneratePlanJsonV200(
 		for _, scope := range scopes {
 			e = basicRes.GetDal().CreateOrUpdate(scope)
 			if e != nil {
-				return nil, errors.Convert(err)
+				scopeInfo := fmt.Sprintf("[Id:%s][Name:%s][TableName:%s]", scope.ScopeId(), scope.ScopeName(), scope.TableName())
+				return nil, errors.Default.Wrap(e, fmt.Sprintf("failed to create scopes:[%s]", scopeInfo))
 			}
 		}
 	}

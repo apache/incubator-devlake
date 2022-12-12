@@ -26,7 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/helpers/unithelper"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/models/common"
-	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -101,8 +100,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	var expectRepoId = "gitlab:GitlabProject:1:37"
 
 	var testSubTaskMeta = []core.SubTaskMeta{
-		tasks.CollectProjectMeta,
-		tasks.ExtractProjectMeta,
 		tasks.ConvertProjectMeta,
 		tasks.CollectApiIssuesMeta,
 		tasks.ExtractApiIssuesMeta,
@@ -119,8 +116,6 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			{
 				Plugin: "gitlab",
 				Subtasks: []string{
-					tasks.CollectProjectMeta.Name,
-					tasks.ExtractProjectMeta.Name,
 					tasks.ConvertProjectMeta.Name,
 					tasks.CollectApiIssuesMeta.Name,
 					tasks.ExtractApiIssuesMeta.Name,
@@ -147,6 +142,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					"url":    "https://git:nddtf@this_is_cloneUrl",
 				},
 			},
+		},
+		{
 			{
 				Plugin:     "refdiff",
 				SkipOnFail: false,
@@ -159,33 +156,17 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		},
 	}
 
-	var expectScopes []core.Scope = []core.Scope{
-		&code.Repo{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: expectRepoId,
-			},
-			Name:       testName,
-			ForkedFrom: testGitlabProject.ForkedFromProjectWebUrl,
-		},
-		&devops.CicdScope{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: expectRepoId,
-			},
-			Name:        testName,
-			Description: "",
-			Url:         "",
-		},
-		&ticket.Board{
-			DomainEntity: domainlayer.DomainEntity{
-				Id: expectRepoId,
-			},
-			Name:        testName,
-			Description: "",
-			Url:         "",
-			CreatedDate: nil,
-			Type:        "",
-		},
-	}
+	expectRepo := code.NewRepo(expectRepoId, testName)
+	expectRepo.ForkedFrom = testGitlabProject.ForkedFromProjectWebUrl
+
+	expectCicdScope := devops.NewCicdScope(expectRepoId, testName)
+	expectCicdScope.Description = ""
+	expectCicdScope.Url = ""
+
+	expectBoard := ticket.NewBoard(expectRepoId, testName)
+	expectBoard.Description = ""
+	expectBoard.Url = ""
+	expectBoard.Type = ""
 
 	var err errors.Error
 
@@ -221,5 +202,27 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, err, nil)
 
 	assert.Equal(t, expectPlans, plans)
+
+	// ignore CreatedDate UpdatedDate  CreatedAt UpdatedAt checking
+	expectRepo.CreatedDate = scopes[0].(*code.Repo).CreatedDate
+	expectRepo.UpdatedDate = scopes[0].(*code.Repo).UpdatedDate
+	expectRepo.CreatedAt = scopes[0].(*code.Repo).CreatedAt
+	expectRepo.UpdatedAt = scopes[0].(*code.Repo).UpdatedAt
+
+	expectCicdScope.CreatedDate = scopes[1].(*devops.CicdScope).CreatedDate
+	expectCicdScope.UpdatedDate = scopes[1].(*devops.CicdScope).UpdatedDate
+	expectCicdScope.CreatedAt = scopes[1].(*devops.CicdScope).CreatedAt
+	expectCicdScope.UpdatedAt = scopes[1].(*devops.CicdScope).UpdatedAt
+
+	expectBoard.CreatedDate = scopes[2].(*ticket.Board).CreatedDate
+	expectBoard.CreatedAt = scopes[2].(*ticket.Board).CreatedAt
+	expectBoard.UpdatedAt = scopes[2].(*ticket.Board).UpdatedAt
+
+	var expectScopes []core.Scope = []core.Scope{
+		expectRepo,
+		expectCicdScope,
+		expectBoard,
+	}
+
 	assert.Equal(t, expectScopes, scopes)
 }
