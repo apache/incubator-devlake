@@ -13,15 +13,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-export * from './loading'
-export * from './divider'
-export * from './page-header'
-export * from './selector'
-export * from './dialog'
-export * from './table'
-export * from './toast2'
-export * from './logo'
-export * from './card'
+import styled from 'styled-components'
+
+export const Card = styled.div`
+  padding: 24px;
+  background-color: #fff;
+  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1),
+    0px 1.6px 8px rgba(0, 0, 0, 0.07);
+  border-radius: 8px;
+`
