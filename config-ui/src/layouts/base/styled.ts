@@ -29,30 +29,12 @@ export const Container = styled.div`
 export const Sider = styled.div`
   flex: 0 0 200px;
   position: relative;
+  padding: 20px 0;
   width: 200px;
   background-color: #292b3f;
 
-  .logo {
-    display: flex;
-    text-align: center;
-    flex-direction: column;
-    align-items: center;
-    margin: 20px 0;
-
-    img:first-child {
-      width: 48px;
-      height: 48px;
-    }
-
-    img:last-child {
-      margin-top: 10px;
-      width: 100px;
-      height: 13px;
-    }
-  }
-
   .menu {
-    margin: 0 4px;
+    margin: 20px 4px 0;
     color: #fff;
     background-color: transparent;
 

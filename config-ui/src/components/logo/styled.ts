@@ -16,11 +16,21 @@
  *
  */
 
-export * from './loading'
-export * from './divider'
-export * from './page-header'
-export * from './selector'
-export * from './dialog'
-export * from './table'
-export * from './toast2'
-export * from './logo'
+import styled from 'styled-components'
+
+export const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  img:first-child {
+    width: 48px;
+    height: 48px;
+  }
+
+  img:last-child {
+    margin-top: 10px;
+    width: 100px;
+    height: 13px;
+  }
+`

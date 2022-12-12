@@ -30,8 +30,8 @@ import {
 } from '@blueprintjs/core'
 import { Popover2 } from '@blueprintjs/popover2'
 
-import Logo from '@/images/devlake-logo.svg'
-import LogoText from '@/images/devlake-textmark.svg'
+import { Logo } from '@/components'
+
 import SlackIcon from '@/images/slack-mark-monochrome-black.svg'
 import SlackLogo from '@/images/slack-rgb.svg'
 
@@ -58,10 +58,7 @@ export const BaseLayout = ({ children }: Props) => {
   return (
     <S.Container>
       <S.Sider>
-        <div className='logo'>
-          <img src={Logo} alt='' />
-          <img src={LogoText} alt='' />
-        </div>
+        <Logo />
         <Menu className='menu'>
           {menu.map((it) => (
             <MenuItem
