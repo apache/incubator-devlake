@@ -30,6 +30,8 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
+const RAW_BOARD_TABLE = "jira_api_boards"
+
 var ConvertBoardMeta = core.SubTaskMeta{
 	Name:             "convertBoard",
 	EntryPoint:       ConvertBoard,

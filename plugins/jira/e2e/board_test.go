@@ -38,27 +38,9 @@ func TestBoardDataFlow(t *testing.T) {
 		},
 	}
 
-	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_jira_api_boards.csv", "_raw_jira_api_boards")
-
-	// verify board extraction
-	dataflowTester.FlushTabler(&models.JiraBoard{})
-	dataflowTester.Subtask(tasks.ExtractBoardMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.JiraBoard{},
-		"./snapshot_tables/_tool_jira_boards.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"board_id",
-			"project_id",
-			"name",
-			"self",
-			"type",
-		),
-	)
-
 	// verify board conversion
 	dataflowTester.FlushTabler(&ticket.Board{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_boards.csv", &models.JiraBoard{})
 	dataflowTester.Subtask(tasks.ConvertBoardMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Board{},

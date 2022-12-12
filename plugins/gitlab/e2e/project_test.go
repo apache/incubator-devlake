@@ -45,40 +45,12 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 		},
 	}
 
-	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_gitlab_api_projects.csv",
-		"_raw_gitlab_api_project")
-
-	// verify extraction
-	dataflowTester.FlushTabler(&models.GitlabProject{})
-	dataflowTester.Subtask(tasks.ExtractProjectMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.GitlabProject{},
-		"./snapshot_tables/_tool_gitlab_projects.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"gitlab_id",
-			"name",
-			"description",
-			"default_branch",
-			"path_with_namespace",
-			"web_url",
-			"creator_id",
-			"visibility",
-			"open_issues_count",
-			"star_count",
-			"forked_from_project_id",
-			"forked_from_project_web_url",
-			"created_date",
-			"updated_date",
-		),
-	)
-
 	// verify conversion
 	dataflowTester.FlushTabler(&code.Repo{})
 	dataflowTester.FlushTabler(&ticket.Board{})
 	dataflowTester.FlushTabler(&devops.CicdScope{})
 	dataflowTester.FlushTabler(&crossdomain.BoardRepo{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_gitlab_projects.csv", &models.GitlabProject{})
 	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Repo{},
