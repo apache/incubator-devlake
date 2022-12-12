@@ -65,7 +65,7 @@ func TestMakePlanV200(t *testing.T) {
 		},
 	}
 	dora := new(mocks.CompositeMetricPluginBlueprintV200)
-	dora.On("MakeMetricPluginPipelinePlanV200", projectName, json.RawMessage(nil)).Return(doraOutputPlan, nil)
+	dora.On("MakeMetricPluginPipelinePlanV200", projectName, json.RawMessage("{}")).Return(doraOutputPlan, nil)
 
 	// expectation, establish expectation before any code being launch to avoid unwanted modification
 	expectedPlan := make(core.PipelinePlan, 0)

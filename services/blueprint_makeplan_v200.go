@@ -106,6 +106,10 @@ func genPlanJsonV200(
 			return nil, nil, err
 		}
 		if pluginBp, ok := plugin.(core.MetricPluginBlueprintV200); ok {
+			// If we enable one metric plugin, even if it has nil option, we still process it
+			if len(metricPluginOptJson) == 0 {
+				metricPluginOptJson = json.RawMessage("{}")
+			}
 			metricPlans[i], err = pluginBp.MakeMetricPluginPipelinePlanV200(projectName, metricPluginOptJson)
 			if err != nil {
 				return nil, nil, err

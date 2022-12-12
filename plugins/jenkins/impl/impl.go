@@ -19,12 +19,12 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/api"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
@@ -94,16 +94,46 @@ func (plugin Jenkins) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
-	op, err := tasks.DecodeAndValidateTaskOptions(options)
-	logger := taskCtx.GetLogger()
-	logger.Debug("%v", options)
+	// Firstly, let's decode options to JenkinsOptions
+	op, err := tasks.DecodeTaskOptions(options)
 	if err != nil {
 		return nil, err
 	}
-	if op.ConnectionId == 0 {
-		return nil, errors.BadInput.New("connectionId is invalid")
+	// If this is from BpV200, we should set JobFullName to scopeId
+	if op.JobFullName == "" {
+		op.JobFullName = op.ScopeId
+	}
+	// Validate op and convert JobFullName to JobPath and JobName
+	op, err = tasks.ValidateTaskOptions(op)
+	if err != nil {
+		return nil, err
+	}
+	// get jenkinsJob from db
+	jenkinsJob := &models.JenkinsJob{}
+	err = taskCtx.GetDal().First(jenkinsJob,
+		dal.Where(`connection_id = ? and full_name = ?`,
+			op.ConnectionId, op.ScopeId))
+	if err != nil {
+		return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find jenkinsJob%s", op.ScopeId))
+	}
+	if op.TransformationRuleId == 0 {
+		op.TransformationRuleId = jenkinsJob.TransformationRuleId
 	}
 
+	if !strings.HasSuffix(op.JobPath, "/") {
+		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
+	}
+	// We only set op.JenkinsTransformationRule when it's nil and we have op.TransformationRuleId != 0
+	if op.JenkinsTransformationRule == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.JenkinsTransformationRule
+		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
+		}
+		op.JenkinsTransformationRule = &transformationRule
+	}
+	logger := taskCtx.GetLogger()
+	logger.Debug("%v", options)
 	connection := &models.JenkinsConnection{}
 	connectionHelper := helper.NewConnectionHelper(
 		taskCtx,
@@ -128,19 +158,6 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
 		}
-	}
-
-	if !strings.HasSuffix(op.JobPath, "/") {
-		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
-	}
-
-	if op.JenkinsTransformationRule == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.JenkinsTransformationRule
-		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
-		}
-		op.JenkinsTransformationRule = &transformationRule
 	}
 	taskData := &tasks.JenkinsTaskData{
 		Options:    op,

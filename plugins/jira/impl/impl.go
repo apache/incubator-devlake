@@ -177,7 +177,9 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board%s", op.ScopeId))
 		}
 		op.BoardId = jiraBoard.BoardId
-		op.TransformationRuleId = jiraBoard.TransformationRuleId
+		if op.TransformationRuleId == 0 {
+			op.TransformationRuleId = jiraBoard.TransformationRuleId
+		}
 	}
 	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
 		var transformationRule models.JiraTransformationRule
