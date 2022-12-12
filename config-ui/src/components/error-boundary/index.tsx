@@ -13,11 +13,41 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-export * from './error-handler'
-export * from './offline'
-export * from './project'
-export * from './blueprint'
-export * from './connections'
+import React from 'react'
+
+import { ErrorHandler } from '@/pages'
+
+type Props = {
+  children: React.ReactNode
+}
+
+type State = {
+  hasError: boolean
+  error?: any
+}
+
+export class ErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error: any) {
+    return {
+      hasError: true,
+      error
+    }
+  }
+
+  render() {
+    const { hasError, error } = this.state
+
+    if (!hasError) {
+      return this.props.children
+    }
+
+    return <ErrorHandler error={error} />
+  }
+}

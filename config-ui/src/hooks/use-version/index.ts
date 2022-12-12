@@ -16,8 +16,27 @@
  *
  */
 
-export * from './error-handler'
-export * from './offline'
-export * from './project'
-export * from './blueprint'
-export * from './connections'
+import { useState, useEffect, useMemo } from 'react'
+import { useHistory } from 'react-router-dom'
+
+import * as API from './api'
+
+export const useVersion = () => {
+  const [version, setVersion] = useState()
+  const history = useHistory()
+
+  const getVersion = async () => {
+    try {
+      const res = await API.getVersion()
+      setVersion(res.version)
+    } catch {
+      history.push('/offline')
+    }
+  }
+
+  useEffect(() => {
+    getVersion()
+  }, [])
+
+  return useMemo(() => version, [version])
+}
