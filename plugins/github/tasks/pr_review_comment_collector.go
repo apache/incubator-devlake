@@ -110,5 +110,5 @@ var CollectApiPrReviewCommentsMeta = core.SubTaskMeta{
 	EntryPoint:       CollectPrReviewComments,
 	EnabledByDefault: true,
 	Description:      "Collect pr review comments data from Github api",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS, core.DOMAIN_TYPE_CODE_REVIEW},
 }

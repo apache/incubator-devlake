@@ -35,7 +35,7 @@ var ConvertPullRequestCommitsMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertPullRequestCommits,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table github_pull_request_commits into  domain layer table pull_request_commits",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CODE_REVIEW},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS, core.DOMAIN_TYPE_CODE_REVIEW},
 }
 
 func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err errors.Error) {
