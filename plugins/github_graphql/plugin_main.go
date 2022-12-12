@@ -32,15 +32,17 @@ func main() {
 	connectionId := cmd.Flags().Uint64P("connectionId", "c", 0, "github connection id")
 	owner := cmd.Flags().StringP("owner", "o", "", "github owner")
 	repo := cmd.Flags().StringP("repo", "r", "", "github repo")
+	CreatedDateAfter := cmd.Flags().StringP("createdDateAfter", "a", "", "collect data that are created after specified time, ie 2006-05-06T07:08:09Z")
 	_ = cmd.MarkFlagRequired("connectionId")
 	_ = cmd.MarkFlagRequired("owner")
 	_ = cmd.MarkFlagRequired("repo")
 
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"connectionId": *connectionId,
-			"owner":        *owner,
-			"repo":         *repo,
+			"connectionId":     *connectionId,
+			"owner":            *owner,
+			"repo":             *repo,
+			"createdDateAfter": *CreatedDateAfter,
 		})
 	}
 	runner.RunCmd(cmd)

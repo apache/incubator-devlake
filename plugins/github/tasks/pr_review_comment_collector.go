@@ -20,13 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/github/models"
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/http"
 	"net/url"
+
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_PR_REVIEW_COMMENTS_TABLE = "github_api_pull_request_review_comments"
@@ -34,44 +33,23 @@ const RAW_PR_REVIEW_COMMENTS_TABLE = "github_api_pull_request_review_comments"
 // this struct should be moved to `github_api_common.go`
 
 func CollectPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
 
-	since := data.Since
-	incremental := false
-	if since == nil {
-		var latestUpdatedPrReviewComt models.GithubPrComment
-		err := db.All(
-			&latestUpdatedPrReviewComt,
-			dal.Join(`left join _tool_github_pull_requests on 
-				_tool_github_pull_requests.github_id = _tool_github_pull_request_comments.pull_request_id 
-				and _tool_github_pull_requests.connection_id = _tool_github_pull_request_comments.connection_id`),
-			dal.Where(
-				"_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ? AND _tool_github_pull_request_comments.type = ?",
-				data.Repo.GithubId, data.Repo.ConnectionId, "DIFF",
-			),
-			dal.Orderby("github_updated_at DESC"),
-			dal.Limit(1),
-		)
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to get latest github issue record")
-		}
-		if latestUpdatedPrReviewComt.GithubId > 0 {
-			since = &latestUpdatedPrReviewComt.GithubUpdatedAt
-			incremental = true
-		}
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Owner:        data.Options.Owner,
+			Repo:         data.Options.Repo,
+		},
+		Table: RAW_PR_REVIEW_COMMENTS_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
 	}
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			Table: RAW_PR_REVIEW_COMMENTS_TABLE,
-		},
+	incremental := collectorWithState.CanIncrementCollect()
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
@@ -79,8 +57,8 @@ func CollectPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if since != nil {
-				query.Set("since", since.String())
+			if incremental {
+				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("direction", "asc")
@@ -102,7 +80,7 @@ func CollectPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
 
 var CollectApiPrReviewCommentsMeta = core.SubTaskMeta{

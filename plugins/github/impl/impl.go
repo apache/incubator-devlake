@@ -162,11 +162,11 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 		return nil, err
 	}
 
-	var since time.Time
-	if op.Since != "" {
-		since, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.Since))
+	var createdDateAfter time.Time
+	if op.CreatedDateAfter != "" {
+		createdDateAfter, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter))
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
+			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
 		}
 	}
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
@@ -179,9 +179,9 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 		Repo:      githubRepo,
 	}
 
-	if !since.IsZero() {
-		taskData.Since = &since
-		logger.Debug("collect data updated since %s", since)
+	if !createdDateAfter.IsZero() {
+		taskData.CreatedDateAfter = &createdDateAfter
+		logger.Debug("collect data updated createdDateAfter %s", createdDateAfter)
 	}
 	return taskData, nil
 }

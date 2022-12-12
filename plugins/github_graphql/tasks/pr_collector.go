@@ -39,7 +39,7 @@ type GraphqlQueryPrWrapper struct {
 			PageInfo   *helper.GraphqlQueryPageInfo
 			Prs        []GraphqlQueryPr `graphql:"nodes"`
 			TotalCount graphql.Int
-		} `graphql:"pullRequests(first: $pageSize, after: $skipCursor)"`
+		} `graphql:"pullRequests(first: $pageSize, after: $skipCursor, orderBy: {field: CREATED_AT, direction: DESC})"`
 	} `graphql:"repository(owner: $owner, name: $name)"`
 }
 
@@ -128,17 +128,15 @@ func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 	config := data.Options.GithubTransformationRule
 	var labelTypeRegex *regexp.Regexp
 	var labelComponentRegex *regexp.Regexp
-	var prType = config.PrType
 	var err error
-	if len(prType) > 0 {
-		labelTypeRegex, err = regexp.Compile(prType)
+	if config != nil && len(config.PrType) > 0 {
+		labelTypeRegex, err = regexp.Compile(config.PrType)
 		if err != nil {
 			return errors.Default.Wrap(err, "regexp Compile prType failed")
 		}
 	}
-	var prComponent = config.PrComponent
-	if len(prComponent) > 0 {
-		labelComponentRegex, err = regexp.Compile(prComponent)
+	if config != nil && len(config.PrComponent) > 0 {
+		labelComponentRegex, err = regexp.Compile(config.PrComponent)
 		if err != nil {
 			return errors.Default.Wrap(err, "regexp Compile prComponent failed")
 		}
@@ -178,7 +176,12 @@ func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 			prs := query.Repository.PullRequests.Prs
 
 			results := make([]interface{}, 0, 1)
+			isFinish := false
 			for _, rawL := range prs {
+				if data.CreatedDateAfter != nil && !data.CreatedDateAfter.Before(rawL.CreatedAt) {
+					isFinish = true
+					break
+				}
 				//If this is a pr, ignore
 				githubPr, err := convertGithubPullRequest(rawL, data.Options.ConnectionId, data.Repo.GithubId)
 				if err != nil {
@@ -277,9 +280,13 @@ func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 						results = append(results, githubUser)
 					}
 				}
-
 			}
-			return results, nil
+
+			if isFinish {
+				return results, helper.ErrFinishCollect
+			} else {
+				return results, nil
+			}
 		},
 	})
 

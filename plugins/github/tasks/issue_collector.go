@@ -20,26 +20,15 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
 
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-
-	"github.com/apache/incubator-devlake/plugins/helper"
-
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_ISSUE_TABLE = "github_api_issues"
-
-// this struct should be moved to `gitub_api_common.go`
-type GithubApiParams struct {
-	ConnectionId uint64
-	Owner        string
-	Repo         string
-}
 
 var CollectApiIssuesMeta = core.SubTaskMeta{
 	Name:             "collectApiIssues",
@@ -50,46 +39,22 @@ var CollectApiIssuesMeta = core.SubTaskMeta{
 }
 
 func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-
-	since := data.Since
-	incremental := false
-	// user didn't specify a time range to sync, try load from database
-	if since == nil {
-		var latestUpdated models.GithubIssue
-		err := db.All(
-			&latestUpdated,
-			dal.Where("repo_id = ? and connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId),
-			dal.Orderby("github_updated_at DESC"),
-			dal.Limit(1),
-		)
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to get latest github issue record")
-		}
-		if latestUpdated.GithubId > 0 {
-			since = &latestUpdated.GithubUpdatedAt
-			incremental = true
-		}
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Owner:        data.Options.Owner,
+			Repo:         data.Options.Repo,
+		},
+		Table: RAW_ISSUE_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
 	}
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-			/*
-				Table store raw data
-			*/
-			Table: RAW_ISSUE_TABLE,
-		},
+	incremental := collectorWithState.CanIncrementCollect()
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
@@ -109,8 +74,9 @@ func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")
-			if since != nil {
-				query.Set("since", since.String())
+			// data.CreatedDateAfter need to be used to filter data, but now no params supported
+			if incremental {
+				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
 			}
 			query.Set("direction", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
@@ -149,5 +115,5 @@ func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }

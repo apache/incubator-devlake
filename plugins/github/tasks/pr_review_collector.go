@@ -20,16 +20,15 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/github/models"
 	"net/http"
 	"net/url"
 	"reflect"
 
-	"github.com/apache/incubator-devlake/plugins/helper"
-
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"github.com/apache/incubator-devlake/plugins/github/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_PR_REVIEW_TABLE = "github_api_pull_request_reviews"
@@ -47,37 +46,31 @@ var CollectApiPullRequestReviewsMeta = core.SubTaskMeta{
 func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-	since := data.Since
 
-	incremental := false
-	if since == nil {
-		var latestUpdatedPrReview models.GithubPrReview
-		err := db.All(
-			&latestUpdatedPrReview,
-			dal.Join(`left join _tool_github_pull_requests on 
-				_tool_github_pull_requests.github_id = _tool_github_pull_request_reviews.pull_request_id 
-				and _tool_github_pull_requests.connection_id = _tool_github_pull_request_reviews.connection_id`),
-			dal.Where(
-				"_tool_github_pull_requests.repo_id = ? AND _tool_github_pull_requests.connection_id = ?", data.Repo.GithubId, data.Repo.ConnectionId,
-			),
-			dal.Orderby("github_updated_at DESC"),
-			dal.Limit(1),
-		)
-		if err != nil {
-			return errors.Default.Wrap(err, "failed to get latest github issue record")
-		}
-		if latestUpdatedPrReview.GithubId > 0 {
-			since = latestUpdatedPrReview.GithubSubmitAt
-			incremental = true
-		}
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Owner:        data.Options.Owner,
+			Repo:         data.Options.Repo,
+		},
+		Table: RAW_PR_REVIEW_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
 	}
+
+	incremental := collectorWithState.CanIncrementCollect()
 	clauses := []dal.Clause{
 		dal.Select("number, github_id"),
 		dal.From(models.GithubPullRequest{}.TableName()),
 		dal.Where("repo_id = ? and connection_id=?", data.Repo.GithubId, data.Options.ConnectionId),
 	}
-	if since != nil {
-		clauses = append(clauses, dal.Where("github_updated_at > ?", *since))
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.CreatedDateAfter))
+	}
+	if incremental {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
 	}
 	cursor, err := db.Cursor(
 		clauses...,
@@ -91,24 +84,7 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			/*
-				This struct will be JSONEncoded and stored into database along with raw data itself, to identity minimal
-				set of data to be process, for example, we process JiraIssues by Board
-			*/
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
-			},
-
-			/*
-				Table store raw data
-			*/
-			Table: RAW_PR_REVIEW_TABLE,
-		},
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    100,
 		Incremental: incremental,
@@ -137,5 +113,5 @@ func CollectApiPullRequestReviews(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	return collector.Execute()
+	return collectorWithState.Execute()
 }

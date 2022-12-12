@@ -57,6 +57,9 @@ func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/actions/runs",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
+			if data.CreatedDateAfter != nil {
+				query.Set("created", fmt.Sprintf(">%s", data.CreatedDateAfter.String()))
+			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
@@ -71,10 +74,10 @@ func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 			return body.GithubWorkflowRuns, nil
 		},
 	})
-
 	if err != nil {
 		return err
 	}
+
 	return collector.Execute()
 }
 

@@ -31,18 +31,24 @@ type GithubOptions struct {
 	TransformationRuleId             uint64   `json:"transformationRuleId" mapstructure:"transformationRuleId,omitempty"`
 	ScopeId                          string   `json:"scopeId" mapstructure:"scopeId,omitempty"`
 	Tasks                            []string `json:"tasks,omitempty" mapstructure:",omitempty"`
-	Since                            string   `json:"since" mapstructure:"since,omitempty"`
+	CreatedDateAfter                 string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
 	Owner                            string   `json:"owner" mapstructure:"owner,omitempty"`
 	Repo                             string   `json:"repo"  mapstructure:"repo,omitempty"`
 	*models.GithubTransformationRule `mapstructure:"transformationRules,omitempty" json:"transformationRules"`
 }
 
 type GithubTaskData struct {
-	Options       *GithubOptions
-	ApiClient     *helper.ApiAsyncClient
-	GraphqlClient *helper.GraphqlAsyncClient
-	Since         *time.Time
-	Repo          *models.GithubRepo
+	Options          *GithubOptions
+	ApiClient        *helper.ApiAsyncClient
+	GraphqlClient    *helper.GraphqlAsyncClient
+	CreatedDateAfter *time.Time
+	Repo             *models.GithubRepo
+}
+
+type GithubApiParams struct {
+	ConnectionId uint64
+	Owner        string
+	Repo         string
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOptions, errors.Error) {
