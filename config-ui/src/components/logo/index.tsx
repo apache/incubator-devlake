@@ -16,11 +16,18 @@
  *
  */
 
-export * from './loading'
-export * from './divider'
-export * from './page-header'
-export * from './selector'
-export * from './dialog'
-export * from './table'
-export * from './toast2'
-export * from './logo'
+import React from 'react'
+
+import LogoImg from '@/images/devlake-logo.svg'
+import LogoTextImg from '@/images/devlake-textmark.svg'
+
+import * as S from './styled'
+
+export const Logo = () => {
+  return (
+    <S.Wrapper>
+      <img src={LogoImg} alt='' />
+      <img src={LogoTextImg} alt='' />
+    </S.Wrapper>
+  )
+}
