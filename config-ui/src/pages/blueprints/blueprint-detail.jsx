@@ -683,7 +683,7 @@ const BlueprintDetail = (props) => {
             style={{ padding: '0', marginBottom: '8px' }}
           >
             <table
-              className='bp3-html-table bp3-html-table historical-runs-table'
+              className='bp4-html-table bp4-html-table historical-runs-table'
               style={{ width: '100%' }}
             >
               <thead>

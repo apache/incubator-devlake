@@ -13,9 +13,9 @@
   },
   "dependencies": {
     "@babel/eslint-parser": "^7.18.2",
-    "@blueprintjs/core": "^3.49.1",
-    "@blueprintjs/popover2": "^1.4.1",
-    "@blueprintjs/select": "^3.18.10",
+    "@blueprintjs/core": "^4.13.0",
+    "@blueprintjs/popover2": "^1.10.2",
+    "@blueprintjs/select": "^4.8.12",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
     "@fontsource/inter": "^4.5.11",

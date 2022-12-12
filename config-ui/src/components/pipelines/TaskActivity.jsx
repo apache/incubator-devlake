@@ -468,7 +468,7 @@ const TaskActivity = (props) => {
                         </span>
                       </h2>
                       <table
-                        className='bp3-html-table striped bordered'
+                        className='bp4-html-table striped bordered'
                         style={{ width: '100%' }}
                       >
                         <thead>
