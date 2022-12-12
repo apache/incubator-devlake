@@ -53,6 +53,7 @@ RUN python -m venv /app/.venv
 RUN echo "source /app/.venv/bin/activate" >> ~/.profile
 RUN source ~/.profile
 RUN pip install --upgrade pip -r requirements.txt
+RUN apk add --no-cache curl
 
 ENV PATH="/app/bin:${PATH}"
 
