@@ -50,6 +50,7 @@ header:
     - '**/*.conf'
     - '**/.eslintrc'
     - 'deployment/helm/templates/_helpers.tpl'
+    - '**/.nvmrc'
 
 
 
