@@ -67,7 +67,7 @@ export const useMenu = () => {
         {
           key: 'blueprint',
           title: 'Blueprints',
-          icon: 'home',
+          icon: 'timeline-events',
           path: '/blueprints',
           children: [
             {
