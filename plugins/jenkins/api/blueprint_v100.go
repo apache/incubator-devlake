@@ -60,7 +60,11 @@ func makePipelinePlanV100(subtaskMetas []core.SubTaskMeta, scope []*core.Bluepri
 		}
 		taskOptions["connectionId"] = connection.ID
 		taskOptions["transformationRules"] = transformationRules
-		_, err := tasks.DecodeAndValidateTaskOptions(taskOptions)
+		op, err := tasks.DecodeTaskOptions(taskOptions)
+		if err != nil {
+			return nil, err
+		}
+		_, err = tasks.ValidateTaskOptions(op)
 		if err != nil {
 			return nil, err
 		}

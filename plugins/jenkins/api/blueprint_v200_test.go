@@ -19,11 +19,9 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/mocks"
-	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -37,28 +35,18 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Nil(t, err)
 	bs := &core.BlueprintScopeV200{
 		Entities: []string{"CICD"},
-		Id:       "test",
+		Id:       "a/b/ccc",
 		Name:     "",
 	}
 	bpScopes := make([]*core.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
 
-	connection := &models.JenkinsConnection{
-		RestConnection: helper.RestConnection{
-			BaseConnection: helper.BaseConnection{
-				Name: "jenkins",
-				Model: common.Model{
-					ID: 1,
-				},
-			},
-		},
-	}
 	basicRes = NewMockBasicRes()
 	plan := make(core.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection)
+	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, 1)
 	assert.Nil(t, err)
 	basicRes = NewMockBasicRes()
-	scopes, err := makeScopesV200(bpScopes, connection)
+	scopes, err := makeScopesV200(bpScopes, 1)
 	assert.Nil(t, err)
 
 	expectPlan := core.PipelinePlan{
@@ -68,13 +56,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Subtasks:   []string{},
 				SkipOnFail: false,
 				Options: map[string]interface{}{
-					"connectionId":         uint64(1),
-					"jobFullName":          "a/b/ccc",
-					"transformationRuleId": uint64(1),
-					"transformationRules": map[string]interface{}{
-						"name":              "jenkins transformation rule",
-						"deploymentPattern": "hey,man,wasup",
-					},
+					"connectionId": uint64(1),
+					"scopeId":      "a/b/ccc",
 				},
 			},
 		},
@@ -86,10 +69,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		DomainEntity: domainlayer.DomainEntity{
 			Id: "jenkins:JenkinsJob:1:a/b/ccc",
 		},
-		Name:        "a/b/ccc",
-		Description: "",
-		Url:         "",
-		CreatedDate: nil,
+		Name: "a/b/ccc",
 	}
 
 	expectScopes = append(expectScopes, scopeCicd)
@@ -99,19 +79,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 // NewMockBasicRes FIXME ...
 func NewMockBasicRes() *mocks.BasicRes {
 	jenkinsJob := &models.JenkinsJob{
-		ConnectionId:         1,
-		FullName:             "a/b/ccc",
-		Path:                 "job/a/job/b/",
-		Name:                 "ccc",
-		TransformationRuleId: 1,
-	}
-
-	transformationRule := &models.JenkinsTransformationRule{
-		Model: common.Model{
-			ID: 1,
-		},
-		Name:              "jenkins transformation rule",
-		DeploymentPattern: "hey,man,wasup",
+		ConnectionId: 1,
+		FullName:     "a/b/ccc",
 	}
 	mockRes := new(mocks.BasicRes)
 	mockDal := new(mocks.Dal)
@@ -119,11 +88,6 @@ func NewMockBasicRes() *mocks.BasicRes {
 	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 		dst := args.Get(0).(*models.JenkinsJob)
 		*dst = *jenkinsJob
-	}).Return(nil).Once()
-
-	mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
-		dst := args.Get(0).(*models.JenkinsTransformationRule)
-		*dst = *transformationRule
 	}).Return(nil).Once()
 
 	mockRes.On("GetDal").Return(mockDal)

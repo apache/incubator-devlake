@@ -33,6 +33,7 @@ type JenkinsApiParams struct {
 
 type JenkinsOptions struct {
 	ConnectionId                      uint64 `json:"connectionId"`
+	ScopeId                           string
 	TransformationRuleId              uint64 `json:"transformationRuleId"`
 	JobFullName                       string `json:"jobFullName"` // "path1/path2/job name"
 	JobName                           string `json:"jobName"`     // "job name"
@@ -49,12 +50,16 @@ type JenkinsTaskData struct {
 	CreatedDateAfter *time.Time
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptions, errors.Error) {
+func DecodeTaskOptions(options map[string]interface{}) (*JenkinsOptions, errors.Error) {
 	var op JenkinsOptions
 	err := helper.Decode(options, &op, nil)
 	if err != nil {
 		return nil, errors.BadInput.Wrap(err, "could not decode request parameters")
 	}
+	return &op, nil
+}
+
+func ValidateTaskOptions(op *JenkinsOptions) (*JenkinsOptions, errors.Error) {
 	if op.ConnectionId == 0 {
 		return nil, errors.BadInput.New("connectionId is invalid")
 	}
@@ -71,5 +76,5 @@ func DecodeAndValidateTaskOptions(options map[string]interface{}) (*JenkinsOptio
 	if op.JenkinsTransformationRule == nil && op.TransformationRuleId == 0 {
 		op.JenkinsTransformationRule = new(models.JenkinsTransformationRule)
 	}
-	return &op, nil
+	return op, nil
 }

@@ -37,7 +37,11 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 			return nil, errors.Default.Wrap(err, "unable to deserialize pipeline task options")
 		}
 		taskOptions["connectionId"] = connectionId
-		_, err := tasks.DecodeAndValidateTaskOptions(taskOptions)
+		op, err := tasks.DecodeTaskOptions(taskOptions)
+		if err != nil {
+			return nil, err
+		}
+		_, err = tasks.ValidateTaskOptions(op)
 		if err != nil {
 			return nil, err
 		}
