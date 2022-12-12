@@ -15,33 +15,9 @@
  * limitations under the License.
  *
  */
-import React from 'react'
-import { Breadcrumbs, Breadcrumb, Icon, Colors } from '@blueprintjs/core'
-import '@/styles/breadcrumbs.scss'
 
-const AppCrumbs = (props) => {
-  const { items } = props
-
-  const renderBreadcrumb = ({ text, ...restProps }) => {
-    return <Breadcrumb {...restProps}>{text}</Breadcrumb>
-  }
-
-  const renderCurrentBreadcrumb = ({ text, ...restProps }) => {
-    return (
-      <Breadcrumb {...restProps}>
-        {text} <Icon icon='symbol-circle' size={4} color={Colors.GREEN3} />
-      </Breadcrumb>
-    )
-  }
-
-  return (
-    <Breadcrumbs
-      breadcrumbRenderer={renderBreadcrumb}
-      currentBreadcrumbRenderer={renderCurrentBreadcrumb}
-      items={items}
-      icon='icon-slash'
-    />
-  )
-}
-
-export default AppCrumbs
+@import '~normalize.css';
+@import '~@blueprintjs/core/lib/css/blueprint.css';
+@import '~@blueprintjs/icons/lib/css/blueprint-icons.css';
+@import '~@blueprintjs/select/lib/css/blueprint-select.css';
+@import '~@blueprintjs/popover2/lib/css/blueprint-popover2.css';

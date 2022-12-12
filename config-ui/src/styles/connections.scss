@@ -18,46 +18,46 @@
     max-width: 100%;
   }
 
-  .bp3-form-group {
+  .bp4-form-group {
     display: flex;
     max-width: none;
     margin-bottom: 10px;
     
-    &.bp3-inline {
-      .bp3-form-content {
-        .bp3-input-group, .connection-tokens-personal-group {
+    &.bp4-inline {
+      .bp4-form-content {
+        .bp4-input-group, .connection-tokens-personal-group {
           margin-left: 0.75rem;
         }
 
         .connection-tokens-personal-group {
-          .bp3-input-group {
+          .bp4-input-group {
             margin-left: 0;
           }
         }
       }
     }
 
-    .bp3-form-content {
+    .bp4-form-content {
       width: 100%;
       // @todo REVISE THESE RULES!
       max-width: 100%;
       // min-width: 600px;
       display: flex;
-      .bp3-label {}
+      .bp4-label {}
     }
 
-    .bp3-input-group {
+    .bp4-input-group {
       display: flex;
       // width: 440px;
       // min-width: 440px;
       // max-width: 440px;    
       // max-width: 600px;
-      .bp3-input {
+      .bp4-input {
         flex: 1;
       }
 
       &.connection-name-input {
-        .bp3-input {
+        .bp4-input {
           &:read-only {
             background-color: #ffffee;
             font-weight: bold;
@@ -71,7 +71,7 @@
       }      
     }
 
-    .bp3-form-helper-text {
+    .bp4-form-helper-text {
       margin-top: 2px;
       margin-right: 10px;
       margin-left: 5px;
@@ -101,8 +101,8 @@
 }
 
 .configureConnection {
-  .bp3-form-group {
-    .bp3-form-content {
+  .bp4-form-group {
+    .bp4-form-content {
       // max-width: 80%;
     }
   }
@@ -154,7 +154,7 @@
   }
 }
 
-.bp3-popover-wrapper {
+.bp4-popover-wrapper {
   &.popover-generate-token, &.popover-delete-connection, &.trigger-delete-connection {
     width: auto;
   }
@@ -173,19 +173,19 @@
       font-size: 17px;
     }
 
-    .bp3-popover-content {
+    .bp4-popover-content {
       white-space: normal;
     }
   }
 
   &.trigger-delete-connection {
-    .bp3-popover-target {
+    .bp4-popover-target {
       width: auto;
     }
   }
 }
 
-.app-error-card.bp3-elevation-0 {
+.app-error-card.bp4-elevation-0 {
   box-shadow: none;
 }
 

@@ -115,7 +115,7 @@ export const Header = styled(Navbar)`
 export const Content = styled.div`
   flex: auto;
   margin: 24px auto 0;
-  max-width: 820px;
+  max-width: 900px;
   width: 100%;
 `
 

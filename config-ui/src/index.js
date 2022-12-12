@@ -22,6 +22,8 @@ import App from './App'
 import { UIContextProvider } from '@/store/UIContext'
 import { IntegrationsContextProvider } from '@/store/integrations-context'
 
+import './index.css'
+
 ReactDOM.render(
   <UIContextProvider>
     <IntegrationsContextProvider>

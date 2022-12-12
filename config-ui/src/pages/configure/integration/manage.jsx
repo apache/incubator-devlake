@@ -28,7 +28,6 @@ import {
   Intent,
   Icon
 } from '@blueprintjs/core'
-import AppCrumbs from '@/components/Breadcrumbs'
 import { ToastNotification } from '@/components/Toast'
 import useIntegrations from '@/hooks/useIntegrations'
 import useConnectionManager from '@/hooks/useConnectionManager'
@@ -178,18 +177,6 @@ export default function ManageIntegration() {
 
   return (
     <main className='main'>
-      <AppCrumbs
-        items={[
-          { href: '/', icon: false, text: 'Dashboard' },
-          { href: '/integrations', icon: false, text: 'Connections' },
-          {
-            href: `/integrations/${activeProvider?.id}`,
-            icon: false,
-            text: `${activeProvider?.name}`,
-            current: true
-          }
-        ]}
-      />
       <div className='headlineContainer'>
         <Link
           style={{ float: 'right', marginLeft: '10px', color: '#777777' }}
@@ -327,7 +314,7 @@ export default function ManageIntegration() {
               style={{ width: '100%', padding: '2px' }}
             >
               <table
-                className='bp3-html-table bp3-html-table-bordered connections-table'
+                className='bp4-html-table bp4-html-table-bordered connections-table'
                 style={{ width: '100%' }}
               >
                 <thead>

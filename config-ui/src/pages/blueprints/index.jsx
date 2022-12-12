@@ -339,13 +339,6 @@ const Blueprints = (props) => {
 
   return (
     <main className='main'>
-      {/* <AppCrumbs
-              items={[
-                { href: '/', icon: false, text: 'Dashboard' },
-                { href: '/pipelines', icon: false, text: 'Pipelines' },
-                { href: '/blueprints', icon: false, text: 'Pipeline Blueprints', current: true },
-              ]}
-            /> */}
       <div className='headlineContainer'>
         <div style={{ display: 'flex' }}>
           <div>
