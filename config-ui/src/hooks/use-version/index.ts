@@ -16,27 +16,27 @@
  *
  */
 
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { BrowserRouter as Router } from 'react-router-dom'
+import { useState, useEffect, useMemo } from 'react'
+import { useHistory } from 'react-router-dom'
 
-import { ErrorBoundary } from '@/components'
+import * as API from './api'
 
-import App from './App'
-import { UIContextProvider } from '@/store/UIContext'
-import { IntegrationsContextProvider } from '@/store/integrations-context'
+export const useVersion = () => {
+  const [version, setVersion] = useState()
+  const history = useHistory()
 
-import './index.css'
+  const getVersion = async () => {
+    try {
+      const res = await API.getVersion()
+      setVersion(res.version)
+    } catch {
+      history.push('/offline')
+    }
+  }
 
-ReactDOM.render(
-  <UIContextProvider>
-    <IntegrationsContextProvider>
-      <ErrorBoundary>
-        <Router>
-          <App />
-        </Router>
-      </ErrorBoundary>
-    </IntegrationsContextProvider>
-  </UIContextProvider>,
-  document.getElementById('app')
-)
+  useEffect(() => {
+    getVersion()
+  }, [])
+
+  return useMemo(() => version, [version])
+}

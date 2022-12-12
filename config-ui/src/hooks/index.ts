@@ -16,27 +16,4 @@
  *
  */
 
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { BrowserRouter as Router } from 'react-router-dom'
-
-import { ErrorBoundary } from '@/components'
-
-import App from './App'
-import { UIContextProvider } from '@/store/UIContext'
-import { IntegrationsContextProvider } from '@/store/integrations-context'
-
-import './index.css'
-
-ReactDOM.render(
-  <UIContextProvider>
-    <IntegrationsContextProvider>
-      <ErrorBoundary>
-        <Router>
-          <App />
-        </Router>
-      </ErrorBoundary>
-    </IntegrationsContextProvider>
-  </UIContextProvider>,
-  document.getElementById('app')
-)
+export * from './use-version'
