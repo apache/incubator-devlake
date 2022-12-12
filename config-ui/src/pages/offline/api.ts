@@ -16,12 +16,6 @@
  *
  */
 
-export * from './loading'
-export * from './divider'
-export * from './page-header'
-export * from './selector'
-export * from './dialog'
-export * from './table'
-export * from './toast2'
-export * from './logo'
-export * from './card'
+import request from '@/components/utils/request'
+
+export const ping = () => request('/ping')

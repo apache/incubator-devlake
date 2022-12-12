@@ -37,6 +37,7 @@ import useDatabaseMigrations from '@/hooks/useDatabaseMigrations'
 
 import { BaseLayout } from '@/layouts'
 import {
+  Offline,
   ProjectHomePage,
   ProjectDetailPage,
   CreateBlueprintPage,
@@ -47,7 +48,6 @@ import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
 import AddConnection from '@/pages/configure/connections/AddConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
-import Offline from '@/pages/offline/index'
 import Blueprints from '@/pages/blueprints/index'
 import CreateBlueprint from '@/pages/blueprints/create-blueprint'
 import BlueprintDetail from '@/pages/blueprints/blueprint-detail'
