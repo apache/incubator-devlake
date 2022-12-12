@@ -184,7 +184,7 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 
 	var since time.Time
 	if op.Since != "" {
-		since, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.Since))
+		since, err = errors.Convert01(time.Parse(time.RFC3339, op.Since))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
 		}

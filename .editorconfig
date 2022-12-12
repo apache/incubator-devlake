@@ -2,6 +2,6 @@
 indent_style = tab
 indent_size = 4
 
-[*.{js,jsx,yml,yaml}]
+[*.{js,jsx,ts,tsx,yml,yaml}]
 indent_style = space
 indent_size = 2

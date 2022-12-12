@@ -155,7 +155,9 @@ const BlueprintSettings = ({ id }) => {
     saveComplete,
     errors: blueprintErrors,
     skipOnFail,
-    setSkipOnFail
+    setSkipOnFail,
+    createdDateAfter,
+    setCreatedDateAfter
   } = useBlueprintManager()
 
   const {
@@ -422,7 +424,7 @@ const BlueprintSettings = ({ id }) => {
           title = 'Change Blueprint Name'
           break
         case 'cronConfig':
-          title = 'Change Sync Frequency'
+          title = 'Change Sync Policy'
           break
         case 'plan':
           title = 'Change Task Configuration'
@@ -678,6 +680,7 @@ const BlueprintSettings = ({ id }) => {
           payload: {
             isManual: !!isManualCron,
             skipOnFail,
+            createdDateAfter,
             cronConfig: isManualCron
               ? getCronPreset('daily').cronConfig
               : isCustomCron
@@ -707,6 +710,7 @@ const BlueprintSettings = ({ id }) => {
     }
   }, [
     skipOnFail,
+    createdDateAfter,
     blueprintName,
     cronConfig,
     customCronConfig,
@@ -877,7 +881,7 @@ const BlueprintSettings = ({ id }) => {
                 className='configure-settings-frequency'
                 style={{ marginLeft: '40px' }}
               >
-                <h3>Sync Frequency</h3>
+                <h3>Sync Policy</h3>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <div className='blueprint-frequency'>
                     {activeBlueprint?.isManual ? (
@@ -1023,6 +1027,8 @@ const BlueprintSettings = ({ id }) => {
                 <DataSync
                   skipOnFail={skipOnFail}
                   setSkipOnFail={setSkipOnFail}
+                  createdDateAfter={createdDateAfter}
+                  setCreatedDateAfter={setCreatedDateAfter}
                   cronConfig={cronConfig}
                   customCronConfig={customCronConfig}
                   createCron={createCron}

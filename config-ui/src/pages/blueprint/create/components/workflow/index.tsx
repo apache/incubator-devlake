@@ -33,9 +33,9 @@ export const WorkFlow = () => {
             'Add Data Connections',
             'Set Data Scope',
             'Add Transformation (Optional)',
-            'Set Sync Frequency'
+            'Set Sync Policy'
           ]
-        : ['Create Advanced Configuration', 'Set Sync Frequency'],
+        : ['Create Advanced Configuration', 'Set Sync Policy'],
     [mode]
   )
 

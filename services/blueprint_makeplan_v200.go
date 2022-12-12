@@ -30,11 +30,12 @@ import (
 // GeneratePlanJsonV200 generates pipeline plan according v2.0.0 definition
 func GeneratePlanJsonV200(
 	projectName string,
+	syncPolicy *core.BlueprintSyncPolicy,
 	sources *models.BlueprintSettings,
 	metrics map[string]json.RawMessage,
 ) (core.PipelinePlan, errors.Error) {
 	// generate plan and collect scopes
-	plan, scopes, err := genPlanJsonV200(projectName, sources, metrics)
+	plan, scopes, err := genPlanJsonV200(projectName, syncPolicy, sources, metrics)
 	if err != nil {
 		return nil, err
 	}
@@ -57,6 +58,7 @@ func GeneratePlanJsonV200(
 
 func genPlanJsonV200(
 	projectName string,
+	syncPolicy *core.BlueprintSyncPolicy,
 	sources *models.BlueprintSettings,
 	metrics map[string]json.RawMessage,
 ) (core.PipelinePlan, []core.Scope, errors.Error) {
@@ -84,6 +86,7 @@ func genPlanJsonV200(
 			sourcePlans[i], pluginScopes, err = pluginBp.MakeDataSourcePipelinePlanV200(
 				connection.ConnectionId,
 				connection.Scopes,
+				syncPolicy,
 			)
 			if err != nil {
 				return nil, nil, err
@@ -125,5 +128,10 @@ func genPlanJsonV200(
 		ParallelizePipelinePlans(sourcePlans...),
 		ParallelizePipelinePlans(metricPlans...),
 	)
+	for _, stage := range plan {
+		for _, task := range stage {
+			task.SkipOnFail = syncPolicy.SkipOnFail
+		}
+	}
 	return plan, scopes, err
 }

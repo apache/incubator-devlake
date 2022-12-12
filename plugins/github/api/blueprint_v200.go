@@ -40,7 +40,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, bpScopes []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
+func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, bpScopes []*core.BlueprintScopeV200, syncPolicy *core.BlueprintSyncPolicy) (core.PipelinePlan, []core.Scope, errors.Error) {
 	connectionHelper := helper.NewConnectionHelper(basicRes, validator.New())
 	// get the connection info for url
 	connection := &models.GithubConnection{}
@@ -65,7 +65,7 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionI
 	}
 
 	plan := make(core.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection, apiClient)
+	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection, apiClient, syncPolicy)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -83,6 +83,7 @@ func makeDataSourcePipelinePlanV200(
 	bpScopes []*core.BlueprintScopeV200,
 	connection *models.GithubConnection,
 	apiClient helper.ApiClientGetter,
+	syncPolicy *core.BlueprintSyncPolicy,
 ) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
 	var repoRes *tasks.GithubApiRepo
@@ -125,8 +126,9 @@ func makeDataSourcePipelinePlanV200(
 
 		// construct task options for github
 		op := &tasks.GithubOptions{
-			ConnectionId: githubRepo.ConnectionId,
-			ScopeId:      bpScope.Id,
+			ConnectionId:     githubRepo.ConnectionId,
+			ScopeId:          bpScope.Id,
+			CreatedDateAfter: syncPolicy.CreatedDateAfter.Format(time.RFC3339),
 		}
 		options, err := tasks.EncodeTaskOptions(op)
 		if err != nil {

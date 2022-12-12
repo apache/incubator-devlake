@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 const RAW_ISSUE_TABLE = "gitlab_api_issues"
@@ -57,10 +58,10 @@ func CollectApiIssues(taskCtx core.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			if incremental {
-				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.String())
+				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.Format(time.RFC3339))
 			}
 			if collectorWithState.CreatedDateAfter != nil {
-				query.Set("created_after", collectorWithState.CreatedDateAfter.String())
+				query.Set("created_after", collectorWithState.CreatedDateAfter.Format(time.RFC3339))
 			}
 			query.Set("sort", "asc")
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

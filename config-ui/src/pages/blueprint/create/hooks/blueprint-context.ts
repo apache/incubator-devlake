@@ -36,6 +36,7 @@ export type BlueprintContextType = {
   cronConfig: string
   isManual: boolean
   skipOnFail: boolean
+  createdDateAfter: string | null
 
   onChangeStep: React.Dispatch<React.SetStateAction<number>>
   onChangeShowInspector: React.Dispatch<React.SetStateAction<boolean>>
@@ -51,6 +52,7 @@ export type BlueprintContextType = {
   onChangeCronConfig: React.Dispatch<React.SetStateAction<string>>
   onChangeIsManual: React.Dispatch<React.SetStateAction<boolean>>
   onChangeSkipOnFail: React.Dispatch<React.SetStateAction<boolean>>
+  onChangeCreatedDateAfter: React.Dispatch<React.SetStateAction<string | null>>
 
   onSave: () => void
   onSaveAndRun: () => void
@@ -71,6 +73,7 @@ export const BlueprintContext = React.createContext<BlueprintContextType>({
   cronConfig: '0 0 * * *',
   isManual: false,
   skipOnFail: false,
+  createdDateAfter: null,
 
   onChangeStep: () => {},
   onChangeShowInspector: () => {},
@@ -84,6 +87,7 @@ export const BlueprintContext = React.createContext<BlueprintContextType>({
   onChangeCronConfig: () => {},
   onChangeIsManual: () => {},
   onChangeSkipOnFail: () => {},
+  onChangeCreatedDateAfter: () => {},
 
   onSave: () => {},
   onSaveAndRun: () => {}

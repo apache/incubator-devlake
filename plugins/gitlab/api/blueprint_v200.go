@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/utils"
@@ -35,7 +36,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-func MakePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
+func MakePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV200, syncPolicy *core.BlueprintSyncPolicy) (core.PipelinePlan, []core.Scope, errors.Error) {
 	var err errors.Error
 	connection := new(models.GitlabConnection)
 	err1 := connectionHelper.FirstById(connection, connectionId)
@@ -48,7 +49,7 @@ func MakePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, 
 		return nil, nil, err
 	}
 
-	pp, err := makePipelinePlanV200(subtaskMetas, scope, connection)
+	pp, err := makePipelinePlanV200(subtaskMetas, scope, connection, syncPolicy)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -101,7 +102,7 @@ func makeScopeV200(connectionId uint64, scopes []*core.BlueprintScopeV200) ([]co
 	return sc, nil
 }
 
-func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.BlueprintScopeV200, connection *models.GitlabConnection) (core.PipelinePlan, errors.Error) {
+func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.BlueprintScopeV200, connection *models.GitlabConnection, syncPolicy *core.BlueprintSyncPolicy) (core.PipelinePlan, errors.Error) {
 	plans := make(core.PipelinePlan, 0, 3*len(scopes))
 	for _, scope := range scopes {
 		var stage core.PipelineStage
@@ -128,7 +129,7 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
 		options["projectId"] = intScopeId
-		options["entities"] = scope.Entities
+		options["createdDateAfter"] = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
 
 		// construct subtasks
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, scope.Entities)

@@ -153,7 +153,7 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 	}
 	var createdDateAfter time.Time
 	if op.CreatedDateAfter != "" {
-		createdDateAfter, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter))
+		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
 		}

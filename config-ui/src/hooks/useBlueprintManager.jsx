@@ -50,6 +50,7 @@ function useBlueprintManager(
   const [detectedProviderTasks, setDetectedProviderTasks] = useState([])
   const [isManual, setIsManual] = useState(false)
   const [skipOnFail, setSkipOnFail] = useState(false)
+  const [createdDateAfter, setCreatedDateAfter] = useState('')
   const [rawConfiguration, setRawConfiguration] = useState(
     JSON.stringify([tasks], null, '  ')
   )
@@ -192,6 +193,7 @@ function useBlueprintManager(
               : NullBlueprint
           )
           setSkipOnFail(blueprintData.skipOnFail)
+          setCreatedDateAfter(blueprintData.createdDateAfter)
           setErrors(b.status !== 200 ? [b.data] : [])
           setTimeout(() => {
             setIsFetching(false)
@@ -240,7 +242,8 @@ function useBlueprintManager(
           enable: enable,
           mode,
           isManual,
-          skipOnFail
+          skipOnFail,
+          createdDateAfter
         }
         console.log('>> DISPATCHING BLUEPRINT SAVE REQUEST', blueprintPayload)
         const run = async () => {
@@ -303,6 +306,7 @@ function useBlueprintManager(
       enable,
       isManual,
       skipOnFail,
+      createdDateAfter,
       detectCronInterval
     ]
   )
@@ -564,6 +568,8 @@ function useBlueprintManager(
     isManual,
     skipOnFail,
     setSkipOnFail,
+    createdDateAfter,
+    setCreatedDateAfter,
     errors
   }
 }

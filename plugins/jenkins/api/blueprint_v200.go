@@ -19,6 +19,7 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -31,9 +32,9 @@ import (
 	"github.com/apache/incubator-devlake/utils"
 )
 
-func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, bpScopes []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
+func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, bpScopes []*core.BlueprintScopeV200, syncPolicy *core.BlueprintSyncPolicy) (core.PipelinePlan, []core.Scope, errors.Error) {
 	plan := make(core.PipelinePlan, len(bpScopes))
-	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connectionId)
+	plan, err := makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connectionId, syncPolicy)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -50,6 +51,7 @@ func makeDataSourcePipelinePlanV200(
 	plan core.PipelinePlan,
 	bpScopes []*core.BlueprintScopeV200,
 	connectionId uint64,
+	syncPolicy *core.BlueprintSyncPolicy,
 ) (core.PipelinePlan, errors.Error) {
 	for i, bpScope := range bpScopes {
 		stage := plan[i]
@@ -60,6 +62,7 @@ func makeDataSourcePipelinePlanV200(
 		options := make(map[string]interface{})
 		options["scopeId"] = bpScope.Id
 		options["connectionId"] = connectionId
+		options["createdDateAfter"] = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
 		subtasks, err := helper.MakePipelinePlanSubtasks(subtaskMetas, bpScope.Entities)
 		if err != nil {
 			return nil, err

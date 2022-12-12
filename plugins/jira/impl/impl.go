@@ -195,7 +195,7 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 
 	var createdDateAfter time.Time
 	if op.CreatedDateAfter != "" {
-		createdDateAfter, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter))
+		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
 		}
@@ -226,8 +226,8 @@ func (plugin Jira) MakePipelinePlan(connectionId uint64, scope []*core.Blueprint
 	return api.MakePipelinePlanV100(plugin.SubTaskMetas(), connectionId, scope)
 }
 
-func (plugin Jira) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes)
+func (plugin Jira) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200, syncPolicy *core.BlueprintSyncPolicy) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, syncPolicy)
 }
 
 func (plugin Jira) RootPkgPath() string {

@@ -65,8 +65,8 @@ func (plugin Gitlab) TransformationRule() interface{} {
 	return &models.GitlabTransformationRule{}
 }
 
-func (plugin Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
-	return api.MakePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes)
+func (plugin Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200, syncPolicy *core.BlueprintSyncPolicy) (core.PipelinePlan, []core.Scope, errors.Error) {
+	return api.MakePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, syncPolicy)
 }
 
 func (plugin Gitlab) GetTablesInfo() []core.Tabler {
@@ -156,7 +156,7 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 
 	var createdDateAfter time.Time
 	if op.CreatedDateAfter != "" {
-		createdDateAfter, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter))
+		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
 		}

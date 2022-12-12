@@ -47,8 +47,8 @@ const WorkflowSteps = [
   {
     id: 4,
     active: 0,
-    name: 'set-sync-frequeny',
-    title: 'Set Sync Frequency',
+    name: 'set-sync-policy',
+    title: 'Set Sync Policy',
     complete: false,
     icon: null,
     errors: []
@@ -77,8 +77,8 @@ const WorkflowAdvancedSteps = [
   {
     id: 2,
     active: 0,
-    name: 'set-sync-frequeny',
-    title: 'Set Sync Frequency',
+    name: 'set-sync-policy',
+    title: 'Set Sync Policy',
     complete: false,
     icon: null,
     errors: []

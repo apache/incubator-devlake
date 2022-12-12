@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/github_graphql/impl"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -28,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	"github.com/apache/incubator-devlake/plugins/github_graphql/impl"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -164,7 +164,7 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 
 	var createdDateAfter time.Time
 	if op.CreatedDateAfter != "" {
-		createdDateAfter, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter))
+		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
 		}
@@ -234,8 +234,8 @@ func (plugin Github) MakePipelinePlan(connectionId uint64, scope []*core.Bluepri
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
-func (plugin Github) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes)
+func (plugin Github) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200, syncPolicy *core.BlueprintSyncPolicy) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, syncPolicy)
 }
 
 func (plugin Github) Close(taskCtx core.TaskContext) errors.Error {

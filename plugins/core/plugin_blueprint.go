@@ -20,6 +20,7 @@ package core
 import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/errors"
+	"time"
 )
 
 // PipelineTask represents a smallest unit of execution inside a PipelinePlan
@@ -120,7 +121,11 @@ type Scope interface {
 // Project, so that complex metrics like DORA can be implemented based on a set
 // of Data Scopes
 type DataSourcePluginBlueprintV200 interface {
-	MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*BlueprintScopeV200) (PipelinePlan, []Scope, errors.Error)
+	MakeDataSourcePipelinePlanV200(
+		connectionId uint64,
+		scopes []*BlueprintScopeV200,
+		syncPolicy *BlueprintSyncPolicy,
+	) (PipelinePlan, []Scope, errors.Error)
 }
 
 // BlueprintConnectionV200 contains the pluginName/connectionId  and related Scopes,
@@ -165,4 +170,10 @@ type CompositePluginBlueprintV200 interface {
 	PluginMeta
 	DataSourcePluginBlueprintV200
 	MetricPluginBlueprintV200
+}
+
+type BlueprintSyncPolicy struct {
+	Version          string     `json:"version" validate:"required,semver,oneof=1.0.0"`
+	SkipOnFail       bool       `json:"skipOnFail"`
+	CreatedDateAfter *time.Time `json:"createdDateAfter"`
 }
