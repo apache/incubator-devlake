@@ -19,11 +19,11 @@ package impl
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitlab/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts"
@@ -65,8 +65,8 @@ func (plugin Gitlab) TransformationRule() interface{} {
 	return &models.GitlabTransformationRule{}
 }
 
-func (plugin Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(connectionId, scopes)
+func (plugin Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (core.PipelinePlan, []core.Scope, errors.Error) {
+	return api.MakePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes)
 }
 
 func (plugin Gitlab) GetTablesInfo() []core.Tabler {
@@ -162,19 +162,23 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 		}
 	}
 
-	if op.GitlabTransformationRule == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.GitlabTransformationRule
-		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+	if op.GitlabTransformationRule == nil && op.ProjectId != 0 {
+		repo, err := api.GetRepoByConnectionIdAndscopeId(op.ConnectionId, strconv.Itoa(op.ProjectId))
 		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
+			return nil, err
 		}
-		op.GitlabTransformationRule = &transformationRule
+		transformationRule, err := api.GetTransformationRuleByRepo(repo)
+		if err != nil {
+			return nil, err
+		}
+		op.GitlabTransformationRule = transformationRule
 	}
 
 	taskData := tasks.GitlabTaskData{
 		Options:   op,
 		ApiClient: apiClient,
 	}
+
 	if !createdDateAfter.IsZero() {
 		taskData.CreatedDateAfter = &createdDateAfter
 		logger.Debug("collect data updated createdDateAfter %s", createdDateAfter)
@@ -210,11 +214,11 @@ func (plugin Gitlab) ApiResources() map[string]map[string]core.ApiResourceHandle
 		},
 		"connections/:connectionId/scopes/:projectId": {
 			"GET":   api.GetScope,
+			"PUT":   api.PutScope,
 			"PATCH": api.UpdateScope,
 		},
 		"connections/:connectionId/scopes": {
 			"GET": api.GetScopeList,
-			"PUT": api.PutScope,
 		},
 		"transformation_rules": {
 			"POST": api.CreateTransformationRule,

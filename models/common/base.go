@@ -45,6 +45,14 @@ type RawDataOrigin struct {
 	RawDataRemark string `gorm:"column:_raw_data_remark" json:"_raw_data_remark"`
 }
 
+func NewNoPKModel() NoPKModel {
+	now := time.Now()
+	return NoPKModel{
+		CreatedAt: now,
+		UpdatedAt: now,
+	}
+}
+
 var (
 	DUPLICATE_REGEX = regexp.MustCompile(`(?i)\bduplicate\b`)
 )

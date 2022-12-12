@@ -49,6 +49,17 @@ func (r *Board) ScopeName() string {
 	return r.Name
 }
 
+func NewBoard(id string, name string) *Board {
+	board := &Board{
+		DomainEntity: domainlayer.NewDomainEntity(id),
+	}
+
+	board.Name = name
+	board.CreatedDate = &board.CreatedAt
+
+	return board
+}
+
 type BoardSprint struct {
 	common.NoPKModel
 	BoardId  string `gorm:"primaryKey;type:varchar(255)"`

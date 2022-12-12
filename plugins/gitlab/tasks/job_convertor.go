@@ -36,7 +36,7 @@ var ConvertJobMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertJobs,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_job into domain layer table job",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
 func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {

@@ -15,20 +15,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package domainlayer
+package unithelper
 
 import (
-	"github.com/apache/incubator-devlake/models/common"
+	"github.com/apache/incubator-devlake/mocks"
+	"github.com/stretchr/testify/mock"
 )
 
-type DomainEntity struct {
-	Id string `json:"id" gorm:"primaryKey;type:varchar(255);comment:This key is generated based on details from the original plugin"` // format: <Plugin>:<Entity>:<PK0>:<PK1>
-	common.NoPKModel
-}
+// DummyBasicRes FIXME ...
+func DummyBasicRes(callback func(mockDal *mocks.Dal)) *mocks.BasicRes {
+	mockRes := new(mocks.BasicRes)
+	mockLog := DummyLogger()
+	mockDal := new(mocks.Dal)
 
-func NewDomainEntity(id string) DomainEntity {
-	return DomainEntity{
-		Id:        id,
-		NoPKModel: common.NewNoPKModel(),
-	}
+	callback(mockDal)
+
+	mockRes.On("GetDal").Return(mockDal)
+	mockRes.On("GetLogger").Return(mockLog)
+	mockRes.On("GetConfig", mock.Anything).Return("")
+	return mockRes
 }

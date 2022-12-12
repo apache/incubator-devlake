@@ -60,3 +60,15 @@ func (r *Repo) ScopeId() string {
 func (r *Repo) ScopeName() string {
 	return r.Name
 }
+
+func NewRepo(id string, name string) *Repo {
+	repo := &Repo{
+		DomainEntity: domainlayer.NewDomainEntity(id),
+	}
+
+	repo.Name = name
+	repo.CreatedDate = &repo.CreatedAt
+	repo.UpdatedDate = &repo.UpdatedAt
+
+	return repo
+}

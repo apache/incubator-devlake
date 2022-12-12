@@ -18,9 +18,10 @@ limitations under the License.
 package devops
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"time"
 )
 
 var _ core.Scope = (*CicdScope)(nil)
@@ -44,4 +45,16 @@ func (r *CicdScope) ScopeId() string {
 
 func (r *CicdScope) ScopeName() string {
 	return r.Name
+}
+
+func NewCicdScope(id string, name string) *CicdScope {
+	cicdScope := &CicdScope{
+		DomainEntity: domainlayer.NewDomainEntity(id),
+	}
+
+	cicdScope.Name = name
+	cicdScope.CreatedDate = &cicdScope.CreatedAt
+	cicdScope.UpdatedDate = &cicdScope.UpdatedAt
+
+	return cicdScope
 }

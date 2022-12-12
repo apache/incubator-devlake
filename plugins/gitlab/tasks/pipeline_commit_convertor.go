@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"reflect"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -25,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"reflect"
 )
 
 var ConvertPipelineCommitMeta = core.SubTaskMeta{
@@ -33,7 +34,7 @@ var ConvertPipelineCommitMeta = core.SubTaskMeta{
 	EntryPoint:       ConvertPipelineCommits,
 	EnabledByDefault: true,
 	Description:      "Convert tool layer table gitlab_pipeline_project into domain layer table pipeline",
-	DomainTypes:      []string{core.DOMAIN_TYPE_CROSS},
+	DomainTypes:      []string{core.DOMAIN_TYPE_CICD},
 }
 
 func ConvertPipelineCommits(taskCtx core.SubTaskContext) errors.Error {
