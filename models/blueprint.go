@@ -73,12 +73,11 @@ type DbBlueprint struct {
 	Plan        string `json:"plan" encrypt:"yes"`
 	Enable      bool   `json:"enable"`
 	//please check this https://crontab.guru/ for detail
-	CronConfig       string     `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
-	IsManual         bool       `json:"isManual"`
-	SkipOnFail       bool       `json:"skipOnFail"`
-	CreatedDateAfter *time.Time `json:"createdDateAfter"`
-	Settings         string     `json:"settings" encrypt:"yes" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
-	common.Model     `swaggerignore:"true"`
+	CronConfig   string `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
+	IsManual     bool   `json:"isManual"`
+	SkipOnFail   bool   `json:"skipOnFail"`
+	Settings     string `json:"settings" encrypt:"yes" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
+	common.Model `swaggerignore:"true"`
 
 	Labels []DbBlueprintLabel `json:"-" gorm:"-"`
 }
