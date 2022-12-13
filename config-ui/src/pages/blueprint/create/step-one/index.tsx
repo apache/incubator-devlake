@@ -28,7 +28,7 @@ import {
 } from '@blueprintjs/core'
 import { Popover2 } from '@blueprintjs/popover2'
 
-import { useConnections, ConnectionStatusEnum } from '@/store'
+import { useStore } from '@/store/store'
 import { Divider, MultiSelector, Loading } from '@/components'
 
 import { ModeEnum } from '../types'
@@ -40,7 +40,7 @@ import * as S from './styled'
 export const StepOne = () => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const connectionsStore = useConnections()
+  const connectionsStore = useStore()
 
   const {
     mode,
@@ -92,7 +92,7 @@ export const StepOne = () => {
               getIcon={(it) => it.icon}
               selectedItems={selectedConnections}
               onChangeItems={(selectedItems) => {
-                connectionsStore.onTest(selectedItems)
+                connectionsStore.onTestConnections(selectedItems)
                 onChangeConnections(
                   selectedItems.map((it) => ({
                     ...it,
