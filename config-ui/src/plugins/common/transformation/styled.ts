@@ -28,12 +28,12 @@ export const Container = styled.div`
     0px 1.6px 8px rgba(0, 0, 0, 0.07);
   border-radius: 8px;
 
-  & > .bp3-button-group {
+  & > .bp4-button-group {
     display: block;
     margin-top: 16px;
     text-align: right;
 
-    .bp3-button + .bp3-button {
+    .bp4-button + .bp4-button {
       margin-left: 4px;
     }
   }

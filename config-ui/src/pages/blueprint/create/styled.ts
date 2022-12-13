@@ -59,32 +59,32 @@ export const Card = styled.div`
     font-weight: 600;
   }
 
-  .bp3-input-group > input {
+  .bp4-input-group > input {
     font-size: 12px;
   }
 
-  .bp3-tag-input-values > input {
+  .bp4-tag-input-values > input {
     font-size: 12px;
   }
 
-  textarea.bp3-input {
+  textarea.bp4-input {
     min-height: 240px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     background-color: #f9f9f9;
   }
 
-  .bp3-button-group {
+  .bp4-button-group {
     display: block;
     margin-top: 8px;
     text-align: right;
 
-    .bp3-button + .bp3-button {
+    .bp4-button + .bp4-button {
       margin-left: 4px;
     }
   }
 
-  .bp3-button.bp3-small {
+  .bp4-button.bp4-small {
     font-size: 12px;
   }
 
@@ -95,7 +95,7 @@ export const Card = styled.div`
     color: #7497f7;
     cursor: pointer;
 
-    span.bp3-icon {
+    span.bp4-icon {
       margin-right: 4px;
       cursor: pointer;
     }

@@ -22,20 +22,20 @@ export const TransformationWrapper = styled.div`
   h3 {
     margin: 0 0 8px;
 
-    .bp3-tag {
+    .bp4-tag {
       margin-left: 6px;
     }
   }
 
-  .bp3-form-group {
+  .bp4-form-group {
     display: flex;
     align-items: center;
 
-    .bp3-label {
+    .bp4-label {
       flex: 0 0 150px;
     }
 
-    .bp3-form-content {
+    .bp4-form-content {
       flex: auto;
     }
   }
