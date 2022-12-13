@@ -35,6 +35,7 @@ func TestMakePlanV200(t *testing.T) {
 	githubName := "TestMakePlanV200-github" // mimic github
 	// mock github plugin as a data source plugin
 	githubConnId := uint64(1)
+	syncPolicy := core.BlueprintSyncPolicy{}
 	githubScopes := []*core.BlueprintScopeV200{
 		{Id: "", Name: "apache/incubator-devlake"},
 		{Id: "", Name: "apache/incubator-devlake-website"},
@@ -54,7 +55,7 @@ func TestMakePlanV200(t *testing.T) {
 		&ticket.Board{DomainEntity: domainlayer.DomainEntity{Id: "github:GithubRepo:1:123"}, Name: "apache/incubator-devlake"},
 	}
 	github := new(mocks.CompositeDataSourcePluginBlueprintV200)
-	github.On("MakeDataSourcePipelinePlanV200", githubConnId, githubScopes).Return(githubOutputPlan, githubOutputScopes, nil)
+	github.On("MakeDataSourcePipelinePlanV200", githubConnId, githubScopes, syncPolicy).Return(githubOutputPlan, githubOutputScopes, nil)
 
 	// mock dora plugin as a metric plugin
 	doraName := "TestMakePlanV200-dora"
@@ -81,7 +82,6 @@ func TestMakePlanV200(t *testing.T) {
 	connections, _ := json.Marshal([]*core.BlueprintConnectionV200{
 		{Plugin: githubName, ConnectionId: githubConnId, Scopes: githubScopes},
 	})
-	syncPolicy := core.BlueprintSyncPolicy{}
 	sources := &models.BlueprintSettings{
 		Version:     "2.0.0",
 		Connections: connections,
