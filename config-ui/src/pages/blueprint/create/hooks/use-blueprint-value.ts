@@ -94,7 +94,10 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
         connections: connections.map((cs) => ({
           plugin: cs.plugin,
           connectionId: cs.id,
-          scope: cs.scope
+          scopes: cs.scope.map((sc) => ({
+            ...sc,
+            id: `${sc.id}`
+          }))
         }))
       }
     }
