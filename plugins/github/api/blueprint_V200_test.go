@@ -34,7 +34,6 @@ import (
 	"io"
 	"net/http"
 	"testing"
-	"time"
 )
 
 func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
@@ -147,7 +146,6 @@ func NewMockBasicRes() *mocks.BasicRes {
 		GithubId:             12345,
 		Name:                 "test/testRepo",
 		TransformationRuleId: 1,
-		CreatedDate:          time.Time{},
 	}
 
 	testTransformationRule := &models.GithubTransformationRule{

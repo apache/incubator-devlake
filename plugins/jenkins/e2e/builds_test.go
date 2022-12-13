@@ -143,7 +143,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 		e2ehelper.ColumnWithRawData(
 			"pipeline_id",
 			"repo_id",
-			"repo_url",
+			"repo",
 			"branch",
 			"commit_sha",
 		),

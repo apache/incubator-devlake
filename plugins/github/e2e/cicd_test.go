@@ -37,13 +37,11 @@ func TestGithubCICDDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			Owner:        "panjf2000",
 			Repo:         "ants",
+			GithubId:     134018330,
 			GithubTransformationRule: &models.GithubTransformationRule{
 				DeploymentPattern: `deploy.*`,
 				ProductionPattern: `deploywindows.*`,
 			},
-		},
-		Repo: &models.GithubRepo{
-			GithubId: 134018330,
 		},
 	}
 

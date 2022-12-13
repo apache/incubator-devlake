@@ -49,7 +49,7 @@ type SimpleBranch struct {
 func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-	repoId := data.Repo.GithubId
+	repoId := data.Options.GithubId
 	deploymentPattern := data.Options.DeploymentPattern
 	productionPattern := data.Options.ProductionPattern
 	regexEnricher := helper.NewRegexEnricher()

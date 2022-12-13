@@ -77,7 +77,7 @@ func CollectAccount(taskCtx core.SubTaskContext) errors.Error {
 	cursor, err := db.Cursor(
 		dal.Select("login"),
 		dal.From(models.GithubRepoAccount{}.TableName()),
-		dal.Where("repo_github_id = ? and connection_id=?", data.Repo.GithubId, data.Options.ConnectionId),
+		dal.Where("repo_github_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err

@@ -41,6 +41,7 @@ type ApiRepoResponse GithubApiRepo
 
 type GithubApiRepo struct {
 	Name        string `json:"name"`
+	FullName    string `json:"full_name"`
 	GithubId    int    `json:"id"`
 	HTMLUrl     string `json:"html_url"`
 	Language    string `json:"language"`
@@ -63,7 +64,7 @@ var ConvertRepoMeta = core.SubTaskMeta{
 func ConvertRepo(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-	repoId := data.Repo.GithubId
+	repoId := data.Options.GithubId
 
 	cursor, err := db.Cursor(
 		dal.From(&models.GithubRepo{}),
@@ -99,10 +100,14 @@ func ConvertRepo(taskCtx core.SubTaskContext) errors.Error {
 				Description: repository.Description,
 				ForkedFrom:  repository.ParentHTMLUrl,
 				Language:    repository.Language,
-				CreatedDate: &repository.CreatedDate,
+				CreatedDate: repository.CreatedDate,
 				UpdatedDate: repository.UpdatedDate,
 			}
-
+			if repository.OwnerLogin != "" {
+				domainRepository.Name = fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name)
+			} else {
+				domainRepository.Name = repository.Name
+			}
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
@@ -110,7 +115,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) errors.Error {
 				Name:        fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name),
 				Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
 				Description: repository.Description,
-				CreatedDate: &repository.CreatedDate,
+				CreatedDate: repository.CreatedDate,
 			}
 
 			domainBoardRepo := &crossdomain.BoardRepo{
@@ -125,7 +130,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) errors.Error {
 				Name:        repository.Name,
 				Url:         repository.HTMLUrl,
 				Description: repository.Description,
-				CreatedDate: &repository.CreatedDate,
+				CreatedDate: repository.CreatedDate,
 				UpdatedDate: repository.UpdatedDate,
 			}
 

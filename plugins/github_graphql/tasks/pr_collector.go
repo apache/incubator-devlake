@@ -183,12 +183,12 @@ func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 					break
 				}
 				//If this is a pr, ignore
-				githubPr, err := convertGithubPullRequest(rawL, data.Options.ConnectionId, data.Repo.GithubId)
+				githubPr, err := convertGithubPullRequest(rawL, data.Options.ConnectionId, data.Options.GithubId)
 				if err != nil {
 					return nil, err
 				}
 				if rawL.Author != nil {
-					githubUser, err := convertGraphqlPreAccount(*rawL.Author, data.Repo.GithubId, data.Options.ConnectionId)
+					githubUser, err := convertGraphqlPreAccount(*rawL.Author, data.Options.GithubId, data.Options.ConnectionId)
 					if err != nil {
 						return nil, err
 					}
@@ -243,7 +243,7 @@ func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 							githubPrReview.AuthorUserId = apiPullRequestReview.Author.Id
 							githubPrReview.AuthorUsername = apiPullRequestReview.Author.Login
 
-							githubUser, err := convertGraphqlPreAccount(*apiPullRequestReview.Author, data.Repo.GithubId, data.Options.ConnectionId)
+							githubUser, err := convertGraphqlPreAccount(*apiPullRequestReview.Author, data.Options.GithubId, data.Options.ConnectionId)
 							if err != nil {
 								return nil, err
 							}
@@ -273,7 +273,7 @@ func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 					results = append(results, githubPullRequestCommit)
 
 					if apiPullRequestCommit.Commit.Author.User != nil {
-						githubUser, err := convertGraphqlPreAccount(*apiPullRequestCommit.Commit.Author.User, data.Repo.GithubId, data.Options.ConnectionId)
+						githubUser, err := convertGraphqlPreAccount(*apiPullRequestCommit.Commit.Author.User, data.Options.GithubId, data.Options.ConnectionId)
 						if err != nil {
 							return nil, err
 						}

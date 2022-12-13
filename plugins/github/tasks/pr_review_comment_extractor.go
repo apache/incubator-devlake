@@ -100,7 +100,7 @@ func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 				githubPrComment.AuthorUserId = prReviewComment.User.Id
 				githubPrComment.AuthorUsername = prReviewComment.User.Login
 
-				githubAccount, err := convertAccount(prReviewComment.User, data.Repo.GithubId, data.Options.ConnectionId)
+				githubAccount, err := convertAccount(prReviewComment.User, data.Options.GithubId, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}
@@ -127,7 +127,7 @@ func enrichGithubPrComment(data *GithubTaskData, db dal.Dal, prUrlRegex *regexp.
 			return 0, errors.Default.Wrap(err, "parse prId failed")
 		}
 		pr := &models.GithubPullRequest{}
-		err = db.First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, prNumber, data.Repo.GithubId))
+		err = db.First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, prNumber, data.Options.GithubId))
 		if goerror.Is(err, gorm.ErrRecordNotFound) {
 			return 0, nil
 		} else if err != nil {

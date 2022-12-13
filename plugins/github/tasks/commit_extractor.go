@@ -109,7 +109,7 @@ func ExtractApiCommits(taskCtx core.SubTaskContext) errors.Error {
 
 			githubRepoCommit := &models.GithubRepoCommit{
 				ConnectionId: data.Options.ConnectionId,
-				RepoId:       data.Repo.GithubId,
+				RepoId:       data.Options.GithubId,
 				CommitSha:    commit.Sha,
 			}
 

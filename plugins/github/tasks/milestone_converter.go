@@ -46,7 +46,7 @@ type MilestoneConverterModel struct {
 
 func ConvertMilestones(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
-	repoId := data.Repo.GithubId
+	repoId := data.Options.GithubId
 	connectionId := data.Options.ConnectionId
 	db := taskCtx.GetDal()
 	clauses := []dal.Clause{

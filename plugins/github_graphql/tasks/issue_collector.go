@@ -91,7 +91,7 @@ func CollectIssue(taskCtx core.SubTaskContext) errors.Error {
 		return nil
 	}
 
-	milestoneMap, err := getMilestoneMap(db, data.Repo.GithubId, data.Repo.ConnectionId)
+	milestoneMap, err := getMilestoneMap(db, data.Options.GithubId, data.Options.ConnectionId)
 	if err != nil {
 		return nil
 	}
@@ -133,7 +133,7 @@ func CollectIssue(taskCtx core.SubTaskContext) errors.Error {
 					isFinish = true
 					break
 				}
-				githubIssue, err := convertGithubIssue(milestoneMap, issue, data.Options.ConnectionId, data.Repo.GithubId)
+				githubIssue, err := convertGithubIssue(milestoneMap, issue, data.Options.ConnectionId, data.Options.GithubId)
 				if err != nil {
 					return nil, err
 				}
@@ -144,14 +144,14 @@ func CollectIssue(taskCtx core.SubTaskContext) errors.Error {
 				results = append(results, githubLabels...)
 				results = append(results, githubIssue)
 				if issue.AssigneeList.Assignees != nil && len(issue.AssigneeList.Assignees) > 0 {
-					relatedUser, err := convertGraphqlPreAccount(issue.AssigneeList.Assignees[0], data.Repo.GithubId, data.Options.ConnectionId)
+					relatedUser, err := convertGraphqlPreAccount(issue.AssigneeList.Assignees[0], data.Options.GithubId, data.Options.ConnectionId)
 					if err != nil {
 						return nil, err
 					}
 					results = append(results, relatedUser)
 				}
 				if issue.Author != nil {
-					relatedUser, err := convertGraphqlPreAccount(*issue.Author, data.Repo.GithubId, data.Options.ConnectionId)
+					relatedUser, err := convertGraphqlPreAccount(*issue.Author, data.Options.GithubId, data.Options.ConnectionId)
 					if err != nil {
 						return nil, err
 					}

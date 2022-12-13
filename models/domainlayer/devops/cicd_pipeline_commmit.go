@@ -25,7 +25,7 @@ type CiCDPipelineCommit struct {
 	CommitSha  string `gorm:"primaryKey;type:varchar(255)"`
 	Branch     string `gorm:"type:varchar(255)"`
 	RepoId     string `gorm:"index;type:varchar(255)"`
-	RepoUrl    string
+	Repo       string
 }
 
 func (CiCDPipelineCommit) TableName() string {

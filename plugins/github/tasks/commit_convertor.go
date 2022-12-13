@@ -41,7 +41,7 @@ var ConvertCommitsMeta = core.SubTaskMeta{
 func ConvertCommits(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-	repoId := data.Repo.GithubId
+	repoId := data.Options.GithubId
 
 	cursor, err := db.Cursor(
 		dal.From("_tool_github_commits gc"),

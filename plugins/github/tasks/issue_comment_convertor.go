@@ -41,7 +41,7 @@ var ConvertIssueCommentsMeta = core.SubTaskMeta{
 func ConvertIssueComments(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-	repoId := data.Repo.GithubId
+	repoId := data.Options.GithubId
 
 	cursor, err := db.Cursor(
 		dal.From(&githubModels.GithubIssueComment{}),

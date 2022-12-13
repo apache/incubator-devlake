@@ -113,12 +113,12 @@ func ExtractApiPullRequests(taskCtx core.SubTaskContext) errors.Error {
 				return nil, nil
 			}
 			//If this is a pr, ignore
-			githubPr, err := convertGithubPullRequest(rawL, data.Options.ConnectionId, data.Repo.GithubId)
+			githubPr, err := convertGithubPullRequest(rawL, data.Options.ConnectionId, data.Options.GithubId)
 			if err != nil {
 				return nil, err
 			}
 			if rawL.User != nil {
-				githubUser, err := convertAccount(rawL.User, data.Repo.GithubId, data.Options.ConnectionId)
+				githubUser, err := convertAccount(rawL.User, data.Options.GithubId, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}

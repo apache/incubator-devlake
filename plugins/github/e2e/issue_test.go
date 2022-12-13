@@ -31,14 +31,12 @@ func TestIssueDataFlow(t *testing.T) {
 	var plugin impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
 
-	githubRepository := &models.GithubRepo{
-		GithubId: 134018330,
-	}
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
 			Owner:        "panjf2000",
 			Repo:         "ants",
+			GithubId:     134018330,
 			GithubTransformationRule: &models.GithubTransformationRule{
 				PrType:               "type/(.*)$",
 				PrComponent:          "component/(.*)$",
@@ -51,7 +49,6 @@ func TestIssueDataFlow(t *testing.T) {
 				IssueTypeRequirement: "^(feat|feature|proposal|requirement)$",
 			},
 		},
-		Repo: githubRepository,
 	}
 
 	// import raw data table

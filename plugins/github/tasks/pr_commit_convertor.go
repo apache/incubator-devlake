@@ -41,7 +41,7 @@ var ConvertPullRequestCommitsMeta = core.SubTaskMeta{
 func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-	repoId := data.Repo.GithubId
+	repoId := data.Options.GithubId
 
 	pullIdGen := didgen.NewDomainIdGenerator(&githubModels.GithubPullRequest{})
 

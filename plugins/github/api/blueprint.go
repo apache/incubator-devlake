@@ -43,14 +43,10 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 	if err != nil {
 		return nil, err
 	}
-	token := strings.Split(connection.Token, ",")[0]
-
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
 		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %s", token),
-		},
+		nil,
 		10*time.Second,
 		connection.Proxy,
 		basicRes,
@@ -65,11 +61,11 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 	return plan, nil
 }
 
-func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintScopeV100, apiClient helper.ApiClientGetter, connection *models.GithubConnection) (core.PipelinePlan, errors.Error) {
+func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scopeV100s []*core.BlueprintScopeV100, apiClient helper.ApiClientGetter, connection *models.GithubConnection) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
 	var repo *tasks.GithubApiRepo
-	plan := make(core.PipelinePlan, len(scope))
-	for i, scopeElem := range scope {
+	plan := make(core.PipelinePlan, len(scopeV100s))
+	for i, scopeElem := range scopeV100s {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
 		transformationRules := make(map[string]interface{})
 		if len(scopeElem.Transformation) > 0 {
@@ -118,7 +114,7 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 			return nil, err
 		}
 		// collect git data by gitextractor if CODE was requested
-		repo, err = memorizedGetApiRepo(repo, op, apiClient)
+		repo, err = MemorizedGetApiRepo(repo, op, apiClient)
 		if err != nil {
 			return nil, err
 		}
@@ -139,7 +135,7 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 			if j == len(plan) {
 				plan = append(plan, nil)
 			}
-			repo, err = memorizedGetApiRepo(repo, op, apiClient)
+			repo, err = MemorizedGetApiRepo(repo, op, apiClient)
 			if err != nil {
 				return nil, err
 			}
@@ -246,7 +242,7 @@ func getApiRepo(op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tas
 	return repoRes, nil
 }
 
-func memorizedGetApiRepo(repo *tasks.GithubApiRepo, op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tasks.GithubApiRepo, errors.Error) {
+func MemorizedGetApiRepo(repo *tasks.GithubApiRepo, op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tasks.GithubApiRepo, errors.Error) {
 	if repo == nil {
 		var err errors.Error
 		repo, err = getApiRepo(op, apiClient)

@@ -44,7 +44,7 @@ var ConvertIssuesMeta = core.SubTaskMeta{
 func ConvertIssues(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-	repoId := data.Repo.GithubId
+	repoId := data.Options.GithubId
 
 	issue := &githubModels.GithubIssue{}
 	cursor, err := db.Cursor(

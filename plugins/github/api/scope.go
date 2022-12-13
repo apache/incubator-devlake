@@ -70,7 +70,8 @@ func PutScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 			keeper[repo.GithubId] = struct{}{}
 		}
 		repo.ConnectionId = connectionId
-		repo.CreatedDate = now
+		// Fixme: why do we set this to now?
+		repo.CreatedDate = &now
 		repo.UpdatedDate = &now
 		err = verifyRepo(repo)
 		if err != nil {

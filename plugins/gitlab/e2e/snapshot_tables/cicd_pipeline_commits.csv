@@ -1,4 +1,4 @@
-pipeline_id,commit_sha,branch,repo_id,repo_url,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+pipeline_id,commit_sha,branch,repo_id,repo,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
 gitlab:GitlabPipeline:1:457474837,b1b82852d48b516a18e56c5bab0ebf54b8f4ccfd,renovate/pin-dependencies,gitlab:GitlabProject:1:12345678,,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_pipeline,152,
 gitlab:GitlabPipeline:1:457474996,739ab912e6e1ed27cecd8a2d00bfd6fa52afd90a,renovate/jest-monorepo,gitlab:GitlabProject:1:12345678,,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_pipeline,153,
 gitlab:GitlabPipeline:1:457475160,44d127e0ab7dbc4bc259b55929c9d00b62fc3bf4,renovate/lodash-monorepo,gitlab:GitlabProject:1:12345678,,"{""ConnectionId"":1,""ProjectId"":12345678}",_raw_gitlab_api_pipeline,154,

@@ -19,15 +19,14 @@ package impl
 
 import (
 	"context"
-	goerror "errors"
 	"fmt"
+	githubImpl "github.com/apache/incubator-devlake/plugins/github/impl"
 	"reflect"
 	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	githubTasks "github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/github_graphql/tasks"
@@ -147,7 +146,12 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 		return nil, errors.Default.Wrap(err, "unable to get github connection by the given connection ID: %v")
 	}
 
-	githubRepo, err := EnrichOptions(taskCtx, &op, connection)
+	apiClient, err := githubTasks.CreateApiClient(taskCtx, connection)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "unable to get github API client instance")
+	}
+
+	err = githubImpl.EnrichOptions(taskCtx, &op, apiClient.ApiClient)
 	if err != nil {
 		return nil, err
 	}
@@ -188,16 +192,10 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 		return int(v.Elem().FieldByName(`RateLimit`).FieldByName(`Cost`).Int())
 	})
 
-	apiClient, err := githubTasks.CreateApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get github API client instance")
-	}
-
 	taskData := &githubTasks.GithubTaskData{
 		Options:       &op,
 		ApiClient:     apiClient,
 		GraphqlClient: graphqlClient,
-		Repo:          githubRepo,
 	}
 	if !createdDateAfter.IsZero() {
 		taskData.CreatedDateAfter = &createdDateAfter
@@ -205,49 +203,6 @@ func (plugin GithubGraphql) PrepareTaskData(taskCtx core.TaskContext, options ma
 	}
 
 	return taskData, nil
-}
-
-func EnrichOptions(taskCtx core.TaskContext,
-	op *githubTasks.GithubOptions,
-	connection *models.GithubConnection) (*models.GithubRepo, errors.Error) {
-	var githubRepo models.GithubRepo
-	var err errors.Error
-	log := taskCtx.GetLogger()
-	// for advanced mode or others which we already set value to onwer/repo
-	if op.Owner != "" && op.Repo != "" {
-		err := taskCtx.GetDal().First(&githubRepo, dal.Where(
-			"connection_id = ? AND name = ? AND owner_login = ?",
-			op.ConnectionId, op.Repo, op.Owner))
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s/%s", op.Owner, op.Repo))
-		}
-		op.TransformationRuleId = githubRepo.TransformationRuleId
-	}
-	// for bp v200 which we only set ScopeId for options
-	if githubRepo.GithubId == 0 && op.ScopeId != "" {
-		log.Debug(fmt.Sprintf("Getting githubRepo by op.ScopeId: %s", op.ScopeId))
-		err = taskCtx.GetDal().First(&githubRepo, dal.Where(`connection_id = ? AND github_id = ?`, connection.ID, op.ScopeId))
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.ScopeId))
-		}
-		ownerName := strings.Split(githubRepo.Name, "/")
-		if len(ownerName) != 2 {
-			return nil, errors.Default.New("Fail to set owner/repo for github options.")
-		}
-		op.Owner = ownerName[0]
-		op.Repo = ownerName[1]
-		op.TransformationRuleId = githubRepo.TransformationRuleId
-	}
-	// Set GithubTransformationRule if it's nil, this has lower priority
-	if op.GithubTransformationRule == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.GithubTransformationRule
-		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", githubRepo.TransformationRuleId))
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
-		}
-		op.GithubTransformationRule = &transformationRule
-	}
-	return &githubRepo, nil
 }
 
 // PkgPath information lost when compiled as plugin(.so)
