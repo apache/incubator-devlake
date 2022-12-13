@@ -16,5 +16,9 @@
  *
  */
 
-export * from './create'
-export * from './detail'
+export type BlueprintType = {
+  id: ID
+  name: string
+  isManual: boolean
+  cronConfig: string
+}

@@ -224,7 +224,7 @@ function useDataScopesManager({
 
   const getGithubProjects = useCallback(
     (c) =>
-      c.scope.map(
+      c.scopes.map(
         (s) =>
           new GitHubProject({
             id: `${s.options?.owner}/${s.options?.repo}`,
@@ -240,7 +240,7 @@ function useDataScopesManager({
 
   const getGitlabProjects = useCallback(
     (c) =>
-      c.scope.map(
+      c.scopes.map(
         (s) =>
           new GitlabProject({
             id: s.options?.projectId,
@@ -255,7 +255,7 @@ function useDataScopesManager({
   const getJenkinsProjects = useCallback(
     (c) =>
       // when s.options?.jobName is empty, it's old jenkins config which collect all job data
-      c.scope
+      c.scopes
         .filter((s) => s.options?.jobName)
         .map(
           (s) =>
@@ -271,7 +271,7 @@ function useDataScopesManager({
 
   const getJiraBoard = useCallback(
     (c) =>
-      c.scope.map(
+      c.scopes.map(
         (s) =>
           new JiraBoard({
             id: s.options?.boardId,
@@ -423,12 +423,12 @@ function useDataScopesManager({
         `${ProviderLabels[c.plugin?.toUpperCase()]} #${c.connectionId || cIdx}`,
       // FIXME: entities in `c.scope[0]?.entities` means one of ALL_DATA_DOMAINS and is saved in db,
       // So it kept here.
-      dataDomains: c.scope[0]?.entities?.map((e) =>
+      dataDomains: c.scopes[0]?.entities?.map((e) =>
         ALL_DATA_DOMAINS.find((de) => de.value === e)
       ),
       scopeEntities: getProjects(c),
-      transformations: c.scope.map((s) => ({ ...s.transformation })),
-      transformationStates: c.scope.map((s) =>
+      transformations: c.scopes.map((s) => ({ ...s.transformation })),
+      transformationStates: c.scopes.map((s) =>
         Object.values(s.transformation ?? {}).some((v) =>
           Array.isArray(v)
             ? v.length > 0
@@ -439,7 +439,7 @@ function useDataScopesManager({
           ? 'Added'
           : '-'
       ),
-      scope: c.scope,
+      scope: c.scopes,
       // editable: ![Providers.JENKINS].includes(c.plugin),
       editable: true,
       advancedEditable: false,

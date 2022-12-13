@@ -68,10 +68,9 @@ import {
 } from '@/config/jenkinsApiProxy'
 import { ALL_DATA_DOMAINS } from '@/data/DataDomains'
 
-const BlueprintSettings = (props) => {
+const BlueprintSettings = ({ id }) => {
   // eslint-disable-next-line no-unused-vars
   const history = useHistory()
-  const { bId } = useParams()
 
   const {
     registry,
@@ -545,9 +544,9 @@ const BlueprintSettings = (props) => {
   ])
 
   useEffect(() => {
-    setBlueprintId(bId)
-    console.log('>>> REQUESTED SETTINGS for BLUEPRINT ID ===', bId)
-  }, [bId])
+    setBlueprintId(id)
+    console.log('>>> REQUESTED SETTINGS for BLUEPRINT ID ===', id)
+  }, [id])
 
   useEffect(() => {
     if (!isNaN(blueprintId)) {
@@ -851,137 +850,7 @@ const BlueprintSettings = (props) => {
     <>
       <main className='main'>
         {activeBlueprint?.id !== null && blueprintErrors.length === 0 && (
-          <div
-            className='blueprint-header'
-            style={{
-              display: 'flex',
-              width: '100%',
-              justifyContent: 'space-between',
-              marginBottom: '10px',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            <div className='blueprint-name' style={{}}>
-              <h2
-                style={{
-                  fontWeight: 'bold',
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: !activeBlueprint?.enable ? Colors.GRAY1 : 'inherit'
-                }}
-              >
-                {activeBlueprint?.name}
-                <Tag
-                  minimal
-                  intent={
-                    activeBlueprint.mode === BlueprintMode.ADVANCED
-                      ? Intent.DANGER
-                      : Intent.PRIMARY
-                  }
-                  style={{ marginLeft: '10px' }}
-                >
-                  {activeBlueprint?.mode?.toString().toUpperCase()}
-                </Tag>
-              </h2>
-            </div>
-            <div
-              className='blueprint-info'
-              style={{ display: 'flex', alignItems: 'center' }}
-            >
-              <div className='blueprint-schedule'>
-                {activeBlueprint?.isManual ? (
-                  <strong>Manual Mode</strong>
-                ) : (
-                  <span
-                    className='blueprint-schedule-interval'
-                    style={{
-                      textTransform: 'capitalize',
-                      padding: '0 10px'
-                    }}
-                  >
-                    {activeBlueprint?.interval} (at{' '}
-                    {dayjs(getNextRunDate(activeBlueprint?.cronConfig)).format(
-                      `hh:mm A ${
-                        activeBlueprint?.interval !== 'Hourly'
-                          ? ' MM/DD/YYYY'
-                          : ''
-                      }`
-                    )}
-                    )
-                  </span>
-                )}{' '}
-                <span className='blueprint-schedule-nextrun'>
-                  {!activeBlueprint?.isManual && (
-                    <>
-                      Next Run{' '}
-                      {dayjs(
-                        getNextRunDate(activeBlueprint?.cronConfig)
-                      ).fromNow()}
-                    </>
-                  )}
-                </span>
-              </div>
-              <div className='blueprint-actions' style={{ padding: '0 10px' }}>
-                {/* <Button
-                      intent={Intent.PRIMARY}
-                      small
-                      text='Run Now'
-                      onClick={runBlueprint}
-                      disabled={!activeBlueprint?.enable || currentRun?.status === TaskStatus.RUNNING}
-                    /> */}
-              </div>
-              <div className='blueprint-enabled'>
-                <Switch
-                  id='blueprint-enable'
-                  name='blueprint-enable'
-                  checked={activeBlueprint?.enable}
-                  label={
-                    activeBlueprint?.enable
-                      ? 'Blueprint Enabled'
-                      : 'Blueprint Disabled'
-                  }
-                  onChange={() => handleBlueprintActivation(activeBlueprint)}
-                  style={{
-                    marginBottom: 0,
-                    marginTop: 0,
-                    color: !activeBlueprint?.enable ? Colors.GRAY3 : 'inherit'
-                  }}
-                  disabled={currentRun?.status === TaskStatus.RUNNING}
-                />
-              </div>
-              <div style={{ padding: '0 10px' }}>
-                <Button
-                  intent={Intent.PRIMARY}
-                  icon='trash'
-                  small
-                  minimal
-                  disabled
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {blueprintErrors?.length > 0 && (
-          <div className='bp3-non-ideal-state blueprint-non-ideal-state'>
-            <div className='bp3-non-ideal-state-visual'>
-              <Icon icon='warning-sign' size={32} color={Colors.RED5} />
-            </div>
-            <h4 className='bp3-heading'>Invalid Blueprint</h4>
-            <div>{blueprintErrors[0]}</div>
-            <button
-              className='bp3-button bp3-intent-primary'
-              onClick={viewBlueprints}
-            >
-              Continue
-            </button>
-          </div>
-        )}
-
-        {activeBlueprint?.id !== null && blueprintErrors.length === 0 && (
           <>
-            <BlueprintNavigationLinks blueprint={activeBlueprint} />
-
             <div
               className='blueprint-main-settings'
               style={{

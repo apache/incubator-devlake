@@ -16,5 +16,5 @@
  *
  */
 
-export * from './create'
-export * from './detail'
+export * from './blueprint-detail'
+export * from './blueprint-detail-page'
