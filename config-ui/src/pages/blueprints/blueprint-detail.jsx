@@ -61,10 +61,8 @@ import useBlueprintManager from '@/hooks/useBlueprintManager'
 import usePipelineManager from '@/hooks/usePipelineManager'
 import usePaginator from '@/hooks/usePaginator'
 
-const BlueprintDetail = (props) => {
+const BlueprintDetail = ({ id }) => {
   const { integrations: Integrations, ProviderLabels } = useIntegrations()
-
-  const { bId } = useParams()
 
   const [blueprintId, setBlueprintId] = useState()
   const [activeBlueprint, setActiveBlueprint] = useState(NullBlueprint)
@@ -241,9 +239,9 @@ const BlueprintDetail = (props) => {
   )
 
   useEffect(() => {
-    setBlueprintId(bId)
-    console.log('>>> REQUESTED BLUEPRINT ID ===', bId)
-  }, [bId])
+    setBlueprintId(id)
+    console.log('>>> REQUESTED BLUEPRINT ID ===', id)
+  }, [id])
 
   useEffect(() => {
     if (blueprintId) {
@@ -268,7 +266,7 @@ const BlueprintDetail = (props) => {
           name: `${
             ProviderLabels[connection?.plugin.toUpperCase()]
           } Connection (ID #${connection?.connectionId})`,
-          dataScope: connection?.scope
+          dataScope: connection?.scopes
             .map((s) => [`${s.options?.owner}/${s?.options?.repo}`])
             .join(', '),
           dataDomains: []
@@ -381,92 +379,75 @@ const BlueprintDetail = (props) => {
     <>
       <main className='main'>
         <div
-          className='blueprint-header'
-          style={{
-            display: 'flex',
-            width: '100%',
-            justifyContent: 'space-between',
-            marginBottom: '10px'
-          }}
+          className='blueprint-info'
+          style={{ display: 'flex', alignItems: 'center' }}
         >
-          <div className='blueprint-name' style={{}}>
-            <h2 style={{ fontWeight: 'bold' }}>{activeBlueprint?.name}</h2>
+          <div className='blueprint-schedule'>
+            <span
+              className='blueprint-schedule-interval'
+              style={{ textTransform: 'capitalize', padding: '0 10px' }}
+            >
+              {activeBlueprint?.interval} (at{' '}
+              {dayjs(getNextRunDate(activeBlueprint?.cronConfig)).format(
+                'hh:mm A'
+              )}
+              )
+            </span>{' '}
+            &nbsp;{' '}
+            <span className='blueprint-schedule-nextrun'>
+              {activeBlueprint?.isManual ? (
+                <strong>Manual Mode</strong>
+              ) : (
+                <>
+                  Next Run{' '}
+                  {dayjs(getNextRunDate(activeBlueprint?.cronConfig)).fromNow()}
+                </>
+              )}
+            </span>
           </div>
-          <div
-            className='blueprint-info'
-            style={{ display: 'flex', alignItems: 'center' }}
-          >
-            <div className='blueprint-schedule'>
-              <span
-                className='blueprint-schedule-interval'
-                style={{ textTransform: 'capitalize', padding: '0 10px' }}
-              >
-                {activeBlueprint?.interval} (at{' '}
-                {dayjs(getNextRunDate(activeBlueprint?.cronConfig)).format(
-                  'hh:mm A'
-                )}
+          <div className='blueprint-actions' style={{ padding: '0 10px' }}>
+            <Button
+              intent={Intent.PRIMARY}
+              small
+              text='Run Now'
+              onClick={runBlueprint}
+              disabled={
+                !activeBlueprint?.enable ||
+                [TaskStatus.CREATED, TaskStatus.RUNNING].includes(
+                  currentRun?.status
                 )
-              </span>{' '}
-              &nbsp;{' '}
-              <span className='blueprint-schedule-nextrun'>
-                {activeBlueprint?.isManual ? (
-                  <strong>Manual Mode</strong>
-                ) : (
-                  <>
-                    Next Run{' '}
-                    {dayjs(
-                      getNextRunDate(activeBlueprint?.cronConfig)
-                    ).fromNow()}
-                  </>
-                )}
-              </span>
-            </div>
-            <div className='blueprint-actions' style={{ padding: '0 10px' }}>
-              <Button
-                intent={Intent.PRIMARY}
-                small
-                text='Run Now'
-                onClick={runBlueprint}
-                disabled={
-                  !activeBlueprint?.enable ||
-                  [TaskStatus.CREATED, TaskStatus.RUNNING].includes(
-                    currentRun?.status
-                  )
-                }
-              />
-            </div>
-            <div className='blueprint-enabled'>
-              <Switch
-                id='blueprint-enable'
-                name='blueprint-enable'
-                checked={activeBlueprint?.enable}
-                label={
-                  activeBlueprint?.enable
-                    ? 'Blueprint Enabled'
-                    : 'Blueprint Disabled'
-                }
-                onChange={() => handleBlueprintActivation(activeBlueprint)}
-                style={{
-                  marginBottom: 0,
-                  marginTop: 0,
-                  color: !activeBlueprint?.enable ? Colors.GRAY3 : 'inherit'
-                }}
-                disabled={currentRun?.status === TaskStatus.RUNNING}
-              />
-            </div>
-            <div style={{ padding: '0 10px' }}>
-              <Button
-                intent={Intent.PRIMARY}
-                icon='trash'
-                small
-                minimal
-                disabled
-              />
-            </div>
+              }
+            />
+          </div>
+          <div className='blueprint-enabled'>
+            <Switch
+              id='blueprint-enable'
+              name='blueprint-enable'
+              checked={activeBlueprint?.enable}
+              label={
+                activeBlueprint?.enable
+                  ? 'Blueprint Enabled'
+                  : 'Blueprint Disabled'
+              }
+              onChange={() => handleBlueprintActivation(activeBlueprint)}
+              style={{
+                marginBottom: 0,
+                marginTop: 0,
+                color: !activeBlueprint?.enable ? Colors.GRAY3 : 'inherit'
+              }}
+              disabled={currentRun?.status === TaskStatus.RUNNING}
+            />
+          </div>
+          <div style={{ padding: '0 10px' }}>
+            <Button
+              intent={Intent.PRIMARY}
+              icon='trash'
+              small
+              minimal
+              disabled
+            />
           </div>
         </div>
-
-        <BlueprintNavigationLinks blueprint={activeBlueprint} />
 
         <div
           className='blueprint-run'

@@ -16,5 +16,9 @@
  *
  */
 
-export * from './create'
-export * from './detail'
+import request from '@/components/utils/request'
+
+export const getBlueprint = (id: ID) => request(`/blueprints/${id}`)
+
+export const updateBlueprint = (id: ID, payload: any) =>
+  request(`/blueprints/${id}`, { method: 'patch', data: payload })

@@ -21,6 +21,7 @@ import { useHistory } from 'react-router-dom'
 import { Button, Intent } from '@blueprintjs/core'
 
 import NoData from '@/images/no-data.svg'
+import { BlueprintDetail } from '@/pages'
 
 import type { ProjectType } from '../types'
 import * as S from '../styled'
@@ -56,6 +57,6 @@ export const BlueprintPanel = ({ name, project }: Props) => {
       </div>
     </S.Panel>
   ) : (
-    <div>blueprint detail</div>
+    <BlueprintDetail id={project.blueprint.id} />
   )
 }

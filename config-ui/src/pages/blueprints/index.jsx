@@ -160,14 +160,14 @@ const Blueprints = (props) => {
 
   const configureBlueprint = useCallback(
     (blueprint) => {
-      history.push(`/blueprints/detail/${blueprint.id}`)
+      history.push(`/blueprints/${blueprint.id}`)
     },
     [history]
   )
 
   const configureBlueprintSettings = useCallback(
     (blueprint) => {
-      history.push(`/blueprints/settings/${blueprint.id}`)
+      history.push(`/blueprints/${blueprint.id}`)
     },
     [history]
   )

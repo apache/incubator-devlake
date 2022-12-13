@@ -42,6 +42,7 @@ import {
   ProjectHomePage,
   ProjectDetailPage,
   CreateBlueprintPage,
+  BlueprintDetailPage,
   WebHookConnectionPage
 } from '@/pages'
 import Integration from '@/pages/configure/integration/index'
@@ -124,16 +125,10 @@ function App(props) {
               path='/blueprints/create'
               component={() => <CreateBlueprintPage from='blueprint' />}
             />
-
             <Route
               exact
-              path='/blueprints/detail/:bId'
-              component={() => <BlueprintDetail />}
-            />
-            <Route
-              exact
-              path='/blueprints/settings/:bId'
-              component={() => <BlueprintSettings />}
+              path='/blueprints/:id'
+              component={() => <BlueprintDetailPage />}
             />
           </Switch>
           <MigrationAlertDialog
