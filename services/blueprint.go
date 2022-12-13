@@ -331,7 +331,7 @@ func MakePlanForBlueprint(blueprint *models.Blueprint) (core.PipelinePlan, error
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("settings:%s", string(blueprint.Settings)))
 	}
 
-	bpSyncPolicy := new(core.BlueprintSyncPolicy)
+	bpSyncPolicy := core.BlueprintSyncPolicy{}
 	bpSyncPolicy.Version = bpSettings.Version
 	bpSyncPolicy.SkipOnFail = blueprint.SkipOnFail
 	bpSyncPolicy.CreatedDateAfter = blueprint.CreatedDateAfter

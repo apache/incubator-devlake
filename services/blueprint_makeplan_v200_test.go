@@ -81,6 +81,7 @@ func TestMakePlanV200(t *testing.T) {
 	connections, _ := json.Marshal([]*core.BlueprintConnectionV200{
 		{Plugin: githubName, ConnectionId: githubConnId, Scopes: githubScopes},
 	})
+	syncPolicy := core.BlueprintSyncPolicy{}
 	sources := &models.BlueprintSettings{
 		Version:     "2.0.0",
 		Connections: connections,
@@ -89,7 +90,7 @@ func TestMakePlanV200(t *testing.T) {
 		doraName: nil,
 	}
 
-	plan, scopes, err := genPlanJsonV200(projectName, sources, metrics)
+	plan, scopes, err := genPlanJsonV200(projectName, syncPolicy, sources, metrics)
 	assert.Nil(t, err)
 
 	assert.Equal(t, expectedPlan, plan)

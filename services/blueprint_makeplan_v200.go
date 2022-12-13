@@ -30,7 +30,7 @@ import (
 // GeneratePlanJsonV200 generates pipeline plan according v2.0.0 definition
 func GeneratePlanJsonV200(
 	projectName string,
-	syncPolicy *core.BlueprintSyncPolicy,
+	syncPolicy core.BlueprintSyncPolicy,
 	sources *models.BlueprintSettings,
 	metrics map[string]json.RawMessage,
 ) (core.PipelinePlan, errors.Error) {
@@ -58,7 +58,7 @@ func GeneratePlanJsonV200(
 
 func genPlanJsonV200(
 	projectName string,
-	syncPolicy *core.BlueprintSyncPolicy,
+	syncPolicy core.BlueprintSyncPolicy,
 	sources *models.BlueprintSettings,
 	metrics map[string]json.RawMessage,
 ) (core.PipelinePlan, []core.Scope, errors.Error) {
@@ -74,7 +74,7 @@ func genPlanJsonV200(
 	sourcePlans := make([]core.PipelinePlan, len(connections))
 	scopes := make([]core.Scope, 0, len(connections))
 	for i, connection := range connections {
-		if len(connection.Scopes) == 0 {
+		if len(connection.Scopes) == 0 && connection.Plugin != `webhook` {
 			return nil, nil, errors.Default.New(fmt.Sprintf("connections[%d].scope is empty", i))
 		}
 		plugin, err := core.GetPlugin(connection.Plugin)
