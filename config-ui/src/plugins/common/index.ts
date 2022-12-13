@@ -18,7 +18,6 @@
 
 export * from './types'
 export * from './data-scope-list'
-export * from './data-scope-selector'
 export * from './data-scope'
 export * from './rule-selector'
 export * from './transformation'
