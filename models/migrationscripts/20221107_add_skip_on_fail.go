@@ -33,12 +33,12 @@ func (p blueprint20221107) TableName() string {
 	return "_devlake_blueprints"
 }
 
-type task20221107 struct {
+type pipeline20221107 struct {
 	SkipOnFail bool
 }
 
-func (t task20221107) TableName() string {
-	return "_devlake_tasks"
+func (t pipeline20221107) TableName() string {
+	return "_devlake_pipelines"
 }
 
 type addSkipOnFail struct{}
@@ -47,7 +47,7 @@ func (*addSkipOnFail) Up(basicRes core.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		&blueprint20221107{},
-		&task20221107{},
+		&pipeline20221107{},
 	)
 }
 
@@ -56,5 +56,5 @@ func (*addSkipOnFail) Version() uint64 {
 }
 
 func (*addSkipOnFail) Name() string {
-	return "add skip_on_fail to _devlake_pipelines and _devlake_tasks"
+	return "add skip_on_fail to _devlake_pipelines and _devlake_blueprint"
 }

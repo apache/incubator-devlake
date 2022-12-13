@@ -128,10 +128,5 @@ func genPlanJsonV200(
 		ParallelizePipelinePlans(sourcePlans...),
 		ParallelizePipelinePlans(metricPlans...),
 	)
-	for _, stage := range plan {
-		for _, task := range stage {
-			task.SkipOnFail = syncPolicy.SkipOnFail
-		}
-	}
 	return plan, scopes, err
 }

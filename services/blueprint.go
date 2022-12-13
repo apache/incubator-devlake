@@ -314,6 +314,7 @@ func createPipelineByBlueprint(blueprint *models.Blueprint) (*models.Pipeline, e
 	newPipeline.Name = blueprint.Name
 	newPipeline.BlueprintId = blueprint.ID
 	newPipeline.Labels = blueprint.Labels
+	newPipeline.SkipOnFail = blueprint.SkipOnFail
 	pipeline, err := CreatePipeline(&newPipeline)
 	// Return all created tasks to the User
 	if err != nil {
@@ -332,8 +333,6 @@ func MakePlanForBlueprint(blueprint *models.Blueprint) (core.PipelinePlan, error
 	}
 
 	bpSyncPolicy := core.BlueprintSyncPolicy{}
-	bpSyncPolicy.Version = bpSettings.Version
-	bpSyncPolicy.SkipOnFail = blueprint.SkipOnFail
 	bpSyncPolicy.CreatedDateAfter = bpSettings.CreatedDateAfter
 
 	var plan core.PipelinePlan
