@@ -22,7 +22,7 @@ import { Plugins } from '@/registry'
 
 import type { ConnectionItemType } from './types'
 import { ConnectionStatusEnum } from './types'
-import { getConnection, testConnection } from './api'
+import * as API from './api'
 
 export const useConnections = (plugin?: string | string[]) => {
   const [loading, setLoading] = useState(false)
@@ -37,46 +37,52 @@ export const useConnections = (plugin?: string | string[]) => {
     [plugin]
   )
 
+  const getConnection = async (plugin: string) => {
+    try {
+      return await API.getConnection(plugin)
+    } catch {
+      return []
+    }
+  }
+
   const handleRefresh = useCallback(async () => {
     setLoading(true)
 
-    try {
-      const res = await Promise.all(
-        allConnections.map((cs) => getConnection(cs.id))
-      )
+    const res = await Promise.all(
+      allConnections.map((cs) => getConnection(cs.id))
+    )
 
-      const resWithPlugin = res.map((cs, i) =>
-        cs.map((it: any) => {
-          const { id, icon, availableDataDomains } = allConnections[i] as any
+    const resWithPlugin = res.map((cs, i) =>
+      cs.map((it: any) => {
+        const { id, icon, availableDataDomains } = allConnections[i] as any
 
-          return {
-            ...it,
-            plugin: id,
-            icon: `/${icon}`,
-            entities: availableDataDomains
-          }
-        })
-      )
+        return {
+          ...it,
+          plugin: id,
+          icon: `/${icon}`,
+          entities: availableDataDomains
+        }
+      })
+    )
 
-      setConnections(
-        resWithPlugin.flat().map((it) => ({
-          unique: `${it.plugin}-${it.id}`,
-          status: ConnectionStatusEnum.NULL,
-          plugin: it.plugin,
-          id: it.id,
-          name: it.name,
-          icon: it.icon,
-          entities: it.entities,
-          endpoint: it.endpoint,
-          proxy: it.proxy,
-          token: it.token,
-          username: it.username,
-          password: it.password
-        }))
-      )
-    } finally {
-      setLoading(false)
-    }
+    setConnections(
+      resWithPlugin.flat().map((it) => ({
+        unique: `${it.plugin}-${it.id}`,
+        status: ConnectionStatusEnum.NULL,
+        plugin: it.plugin,
+        id: it.id,
+        name: it.name,
+        icon: it.icon,
+        entities: it.entities,
+        endpoint: it.endpoint,
+        proxy: it.proxy,
+        token: it.token,
+        username: it.username,
+        password: it.password
+      }))
+    )
+
+    setLoading(false)
   }, [allConnections])
 
   useEffect(() => {
@@ -114,7 +120,7 @@ export const useConnections = (plugin?: string | string[]) => {
             let status
 
             try {
-              const res = await testConnection(plugin, {
+              const res = await API.testConnection(plugin, {
                 endpoint,
                 proxy,
                 token,

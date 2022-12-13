@@ -75,7 +75,7 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
       default:
         return ''
     }
-  }, [name, mode, rawPlan, connections])
+  }, [name, mode, rawPlan, connections, step])
 
   const payload = useMemo(() => {
     const params: any = {
@@ -94,7 +94,10 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
         connections: connections.map((cs) => ({
           plugin: cs.plugin,
           connectionId: cs.id,
-          scope: cs.scope
+          scopes: cs.scope.map((sc) => ({
+            ...sc,
+            id: `${sc.id}`
+          }))
         }))
       }
     }
