@@ -19,12 +19,13 @@ package api
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestProcessScope(t *testing.T) {
@@ -49,7 +50,6 @@ func TestProcessScope(t *testing.T) {
 	bs := &core.BlueprintScopeV100{
 		Entities: []string{"CICD"},
 		Options: json.RawMessage(`{
-              "jobFullName": "testJob"
             }`),
 		Transformation: json.RawMessage(`{
               "productionPattern": "(?i)build-and-deploy",

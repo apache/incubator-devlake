@@ -27,6 +27,7 @@ type Job struct {
 	URL              string    `json:"url"`
 	Description      string    `json:"description"`
 	UpstreamProjects []Project `json:"upstreamProjects"`
+	Jobs             *[]Job    `json:"jobs" gorm:"-"`
 	*PrimaryView     `json:"primaryView"`
 }
 
