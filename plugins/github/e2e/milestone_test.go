@@ -18,32 +18,24 @@ limitations under the License.
 package e2e
 
 import (
-	"testing"
-	"time"
-
 	"github.com/apache/incubator-devlake/helpers/e2ehelper"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/github/impl"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
+	"testing"
 )
 
 func TestMilestoneDataFlow(t *testing.T) {
 	var plugin impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
-	githubRepository := &models.GithubRepo{
-		ConnectionId: 1,
-		GithubId:     134018330,
-		CreatedDate: func() time.Time {
-			createdTime, _ := time.Parse(time.RFC3339, "2006-01-02T15:04:05Z")
-			return createdTime
-		}(),
-	}
+
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
 			Owner:        "panjf2000",
 			Repo:         "ants",
+			GithubId:     134018330,
 			GithubTransformationRule: &models.GithubTransformationRule{
 				PrType:               "type/(.*)$",
 				PrComponent:          "component/(.*)$",
@@ -56,7 +48,6 @@ func TestMilestoneDataFlow(t *testing.T) {
 				IssueTypeRequirement: "^(feat|feature|proposal|requirement)$",
 			},
 		},
-		Repo: githubRepository,
 	}
 
 	dataflowTester.FlushTabler(&models.GithubMilestone{})

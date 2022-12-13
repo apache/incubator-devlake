@@ -42,7 +42,7 @@ var ConvertRunsMeta = core.SubTaskMeta{
 func ConvertRuns(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-	repoId := data.Repo.GithubId
+	repoId := data.Options.GithubId
 
 	pipeline := &models.GithubRun{}
 	cursor, err := db.Cursor(

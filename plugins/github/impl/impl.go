@@ -19,6 +19,8 @@ package impl
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -27,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
-	"github.com/apache/incubator-devlake/plugins/github_graphql/impl"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
@@ -157,7 +158,11 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get github connection by the given connection ID")
 	}
-	githubRepo, err := impl.EnrichOptions(taskCtx, op, connection)
+	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "unable to get github API client instance")
+	}
+	err = EnrichOptions(taskCtx, op, apiClient.ApiClient)
 	if err != nil {
 		return nil, err
 	}
@@ -169,14 +174,9 @@ func (plugin Github) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
 		}
 	}
-	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "unable to get github API client instance")
-	}
 	taskData := &tasks.GithubTaskData{
 		Options:   op,
 		ApiClient: apiClient,
-		Repo:      githubRepo,
 	}
 
 	if !createdDateAfter.IsZero() {
@@ -245,4 +245,80 @@ func (plugin Github) Close(taskCtx core.TaskContext) errors.Error {
 	}
 	data.ApiClient.Release()
 	return nil
+}
+
+func EnrichOptions(taskCtx core.TaskContext,
+	op *tasks.GithubOptions,
+	apiClient *helper.ApiClient) errors.Error {
+	var githubRepo models.GithubRepo
+	var err errors.Error
+	log := taskCtx.GetLogger()
+	// for advanced mode or others which we already set value to onwer/repo
+	if op.Owner != "" && op.Repo != "" {
+		// Lets try to use owner_login/name to find the record first
+		// In our db._tool_github_repos, record might be two kinds:
+		// 1. owner_login  = op.owner and name = op.repo
+		// 2. name = op.owner/op.repo
+		err := taskCtx.GetDal().First(&githubRepo, dal.Where(
+			"connection_id = ? AND ((name = ? AND owner_login = ?) OR name = ?)",
+			op.ConnectionId, op.Repo, op.Owner, fmt.Sprintf("%s/%s", op.Owner, op.Repo)))
+		if err == nil {
+			op.GithubId = githubRepo.GithubId
+			op.TransformationRuleId = githubRepo.TransformationRuleId
+		}
+		// If we still cannot find the record in db, we have to request from remote server and save it to db
+		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+			var repo *tasks.GithubApiRepo
+			repo, err = api.MemorizedGetApiRepo(repo, op, apiClient)
+			if err != nil {
+				return err
+			}
+			log.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
+			var scope models.GithubRepo
+			scope.ConnectionId = op.ConnectionId
+			scope.GithubId = repo.GithubId
+			scope.CreatedDate = repo.CreatedAt.ToNullableTime()
+			scope.Language = repo.Language
+			scope.Description = repo.Description
+			scope.HTMLUrl = repo.HTMLUrl
+			scope.ConnectionId = op.ConnectionId
+			scope.Name = repo.FullName
+			err = taskCtx.GetDal().CreateIfNotExist(&scope)
+			if err != nil {
+				return err
+			}
+
+			op.GithubId = repo.GithubId
+		}
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s/%s", op.Owner, op.Repo))
+		}
+	}
+	// for bp v200 which we only set ScopeId for options
+	if githubRepo.GithubId == 0 && op.ScopeId != "" {
+		log.Debug(fmt.Sprintf("Getting githubRepo by op.ScopeId: %s", op.ScopeId))
+		err = taskCtx.GetDal().First(&githubRepo, dal.Where(`connection_id = ? AND github_id = ?`, op.ConnectionId, op.ScopeId))
+		if err != nil {
+			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.ScopeId))
+		}
+		ownerName := strings.Split(githubRepo.Name, "/")
+		if len(ownerName) != 2 {
+			return errors.Default.New("Fail to set owner/repo for github options.")
+		}
+		op.Owner = ownerName[0]
+		op.Repo = ownerName[1]
+		op.GithubId = githubRepo.GithubId
+		op.TransformationRuleId = githubRepo.TransformationRuleId
+	}
+	// Set GithubTransformationRule if it's nil, this has lower priority
+	if op.GithubTransformationRule == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.GithubTransformationRule
+		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", githubRepo.TransformationRuleId))
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.BadInput.Wrap(err, "fail to get transformationRule")
+		}
+		op.GithubTransformationRule = &transformationRule
+	}
+	err = tasks.ValidateTaskOptions(op)
+	return err
 }

@@ -35,20 +35,17 @@ func TestRepoDataFlow(t *testing.T) {
 	var plugin impl.Github
 	dataflowTester := e2ehelper.NewDataFlowTester(t, "github", plugin)
 
-	githubRepository := &models.GithubRepo{
-		GithubId: 134018330,
-	}
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
 			Owner:        "panjf2000",
 			Repo:         "ants",
+			GithubId:     134018330,
 			GithubTransformationRule: &models.GithubTransformationRule{
 				PrType:      "type/(.*)$",
 				PrComponent: "component/(.*)$",
 			},
 		},
-		Repo: githubRepository,
 	}
 
 	// verify convert

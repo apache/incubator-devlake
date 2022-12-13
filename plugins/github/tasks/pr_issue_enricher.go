@@ -41,7 +41,7 @@ var EnrichPullRequestIssuesMeta = core.SubTaskMeta{
 func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GithubTaskData)
-	repoId := data.Repo.GithubId
+	repoId := data.Options.GithubId
 
 	var prBodyCloseRegex *regexp.Regexp
 	prBodyClosePattern := data.Options.PrBodyClosePattern

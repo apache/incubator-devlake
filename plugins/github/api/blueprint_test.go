@@ -132,11 +132,11 @@ func TestMakePipelinePlan(t *testing.T) {
 func TestMemorizedGetApiRepo(t *testing.T) {
 	op := prepareOptions(t)
 	expect := repo
-	repo1, err := memorizedGetApiRepo(repo, op, nil)
+	repo1, err := MemorizedGetApiRepo(repo, op, nil)
 	assert.Nil(t, err)
 	assert.Equal(t, expect, repo1)
 	mockApiClient := prepareMockClient(t, repo)
-	repo2, err := memorizedGetApiRepo(nil, op, mockApiClient)
+	repo2, err := MemorizedGetApiRepo(nil, op, mockApiClient)
 	assert.Nil(t, err)
 	assert.NotEqual(t, expect, repo2)
 }

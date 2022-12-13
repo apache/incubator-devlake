@@ -109,7 +109,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 			}
 			results := make([]interface{}, 0, 2)
 
-			githubIssue, err := convertGithubIssue(body, data.Options.ConnectionId, data.Repo.GithubId)
+			githubIssue, err := convertGithubIssue(body, data.Options.ConnectionId, data.Options.GithubId)
 			if err != nil {
 				return nil, err
 			}
@@ -122,7 +122,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 			if body.Assignee != nil {
 				githubIssue.AssigneeId = body.Assignee.Id
 				githubIssue.AssigneeName = body.Assignee.Login
-				relatedUser, err := convertAccount(body.Assignee, data.Repo.GithubId, data.Options.ConnectionId)
+				relatedUser, err := convertAccount(body.Assignee, data.Options.GithubId, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}
@@ -131,7 +131,7 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 			if body.User != nil {
 				githubIssue.AuthorId = body.User.Id
 				githubIssue.AuthorName = body.User.Login
-				relatedUser, err := convertAccount(body.User, data.Repo.GithubId, data.Options.ConnectionId)
+				relatedUser, err := convertAccount(body.User, data.Options.GithubId, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}

@@ -57,7 +57,7 @@ func ConvertAccounts(taskCtx core.SubTaskContext) errors.Error {
 		dal.From(&githubModels.GithubAccount{}),
 		dal.Where(
 			"repo_github_id = ? and _tool_github_accounts.connection_id=?",
-			data.Repo.GithubId,
+			data.Options.GithubId,
 			data.Options.ConnectionId,
 		),
 		dal.Join(`left join _tool_github_repo_accounts gra on (

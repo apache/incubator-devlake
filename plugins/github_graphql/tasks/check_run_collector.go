@@ -102,7 +102,7 @@ func CollectCheckRun(taskCtx core.SubTaskContext) errors.Error {
 	cursor, err := db.Cursor(
 		dal.Select("check_suite_node_id"),
 		dal.From(models.GithubRun{}.TableName()),
-		dal.Where("repo_id = ? and connection_id=?", data.Repo.GithubId, data.Options.ConnectionId),
+		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err
@@ -159,7 +159,7 @@ func CollectCheckRun(taskCtx core.SubTaskContext) errors.Error {
 					githubJob := &models.GithubJob{
 						ConnectionId: data.Options.ConnectionId,
 						RunID:        node.CheckSuite.WorkflowRun.DatabaseId,
-						RepoId:       data.Repo.GithubId,
+						RepoId:       data.Options.GithubId,
 						ID:           checkRun.DatabaseId,
 						NodeID:       checkRun.Id,
 						HTMLURL:      checkRun.DetailsUrl,

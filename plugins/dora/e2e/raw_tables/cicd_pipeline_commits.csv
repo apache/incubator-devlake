@@ -1,4 +1,4 @@
-pipeline_id,commit_sha,branch,repo_id,repo_url
+pipeline_id,commit_sha,branch,repo_id,repo
 pipeline110,commit300,z5z07j8qDO,repo1,
 pipeline111,commit301,7j3t5IFWb6,repo1,
 pipeline112,commit302,VBSqoF8WIh,repo1,

@@ -79,14 +79,14 @@ func ExtractApiComments(taskCtx core.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			issue := &models.GithubIssue{}
-			err = taskCtx.GetDal().All(issue, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Repo.GithubId))
+			err = taskCtx.GetDal().All(issue, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Options.GithubId))
 			if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 				return nil, err
 			}
 			//if we can not find issues with issue number above, move the comments to github_pull_request_comments
 			if issue.GithubId == 0 {
 				pr := &models.GithubPullRequest{}
-				err = taskCtx.GetDal().First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Repo.GithubId))
+				err = taskCtx.GetDal().First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Options.GithubId))
 				if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
 					return nil, err
 				}
@@ -120,7 +120,7 @@ func ExtractApiComments(taskCtx core.SubTaskContext) errors.Error {
 				results = append(results, githubIssueComment)
 			}
 			if apiComment.User != nil {
-				githubAccount, err := convertAccount(apiComment.User, data.Repo.GithubId, data.Options.ConnectionId)
+				githubAccount, err := convertAccount(apiComment.User, data.Options.GithubId, data.Options.ConnectionId)
 				if err != nil {
 					return nil, err
 				}

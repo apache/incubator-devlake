@@ -148,7 +148,7 @@ func makeDataSourcePipelinePlanV200(
 		op.Repo = ownerRepo[1]
 		// add gitex stage and add repo to scopes
 		if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE) {
-			repoRes, err = memorizedGetApiRepo(repoRes, op, apiClient)
+			repoRes, err = MemorizedGetApiRepo(repoRes, op, apiClient)
 			if err != nil {
 				return nil, err
 			}

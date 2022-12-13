@@ -52,7 +52,7 @@ func CollectAccountOrg(taskCtx core.SubTaskContext) errors.Error {
 			AND ga.type = 'User'
 		)`),
 		dal.Where("_tool_github_repo_accounts.repo_github_id = ? and _tool_github_repo_accounts.connection_id=?",
-			data.Repo.GithubId, data.Options.ConnectionId),
+			data.Options.GithubId, data.Options.ConnectionId),
 	)
 	if err != nil {
 		return err

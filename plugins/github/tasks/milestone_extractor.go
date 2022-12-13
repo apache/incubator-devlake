@@ -90,7 +90,7 @@ func ExtractMilestones(taskCtx core.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			results := make([]interface{}, 0, 1)
-			results = append(results, convertGithubMilestone(response, data.Options.ConnectionId, data.Repo.GithubId))
+			results = append(results, convertGithubMilestone(response, data.Options.ConnectionId, data.Options.GithubId))
 			return results, nil
 		},
 	})
