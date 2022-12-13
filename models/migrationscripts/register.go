@@ -64,6 +64,5 @@ func All() []core.MigrationScript {
 		new(renameFiledsInProjectPrMetric),
 		new(addEnableToProjectMetric),
 		new(addCollectorMeta20221125),
-		new(addCreatedDateAfter),
 	}
 }

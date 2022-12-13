@@ -680,7 +680,7 @@ const BlueprintSettings = ({ id }) => {
           payload: {
             isManual: !!isManualCron,
             skipOnFail,
-            createdDateAfter,
+            settings: {...blueprintSettings, createdDateAfter},
             cronConfig: isManualCron
               ? getCronPreset('daily').cronConfig
               : isCustomCron

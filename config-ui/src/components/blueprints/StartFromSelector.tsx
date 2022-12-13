@@ -40,7 +40,7 @@ const StartFromSelector = (
   const displayDate = useCallback((date: Date) => dayjs(date).format('L LTS'), []);
   const parseDate = useCallback((str: string) => dayjs(str).toDate(), []);
   const chooseDate = (date: Date | string | null) => {
-    onSave(date ? formatDate(date) : '')
+    onSave(date ? formatDate(date) : null)
   }
 
   const quickDates = useMemo(() => {
@@ -81,7 +81,7 @@ const StartFromSelector = (
             intent="primary"
             interactive={!disabled}
             onClick={() => chooseDate(quickDate.date)}
-            style={{marginRight: 5}}>Last 6 months
+            style={{marginRight: 5}}>{quickDate.label}
           </Tag>)}
         </div>
 
