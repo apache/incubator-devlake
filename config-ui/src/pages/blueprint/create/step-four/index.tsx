@@ -33,6 +33,7 @@ import CronHelp from '@/images/cron-help.png'
 import { useBlueprint } from '../hooks'
 
 import * as S from './styled'
+import StartFromSelector from "@/components/blueprints/StartFromSelector";
 
 const cronPresets = [
   {
@@ -64,9 +65,11 @@ export const StepFour = () => {
     cronConfig,
     isManual,
     skipOnFail,
+    createdDateAfter,
     onChangeCronConfig,
     onChangeIsManual,
-    onChangeSkipOnFail
+    onChangeSkipOnFail,
+    onChangeCreatedDateAfter
   } = useBlueprint()
 
   const description = useMemo(() => {
@@ -108,12 +111,21 @@ export const StepFour = () => {
 
   return (
     <S.Card>
-      <h2>Set Sync Frequency</h2>
-      <p style={{ margin: '10px 0' }}>{description}</p>
+      <h2>Set Sync Policy</h2>
       <Divider />
+      <div className='block'>
+          <h4>Time Filter *</h4>
+          <p>Select the data range you wish to collect. DevLake will collect the last six months of data by default.</p>
+          <StartFromSelector
+            autoFillDefault={true}
+            date={createdDateAfter}
+            onSave={onChangeCreatedDateAfter}
+          />
+      </div>
       <div className='block'>
         <h3>Frequency</h3>
         <p>Blueprints will run recurringly based on the sync frequency.</p>
+        <p style={{ margin: '10px 0' }}>{description}</p>
         <RadioGroup selectedValue={frequency} onChange={handleChangeFrequency}>
           <Radio label='Manual' value='manual' />
           {cronPresets.map((cron) => (

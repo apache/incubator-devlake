@@ -40,6 +40,7 @@ type Pipeline struct {
 	SpentSeconds  int            `json:"spentSeconds"`
 	Stage         int            `json:"stage"`
 	Labels        []string       `json:"labels"`
+	SkipOnFail    bool           `json:"skipOnFail"`
 }
 
 // We use a 2D array because the request body must be an array of a set of tasks
@@ -48,6 +49,7 @@ type NewPipeline struct {
 	Name        string            `json:"name"`
 	Plan        core.PipelinePlan `json:"plan" swaggertype:"array,string" example:"please check api /pipelines/<PLUGIN_NAME>/pipeline-plan"`
 	Labels      []string          `json:"labels"`
+	SkipOnFail  bool              `json:"skipOnFail"`
 	BlueprintId uint64
 }
 
@@ -64,6 +66,7 @@ type DbPipeline struct {
 	Message       string     `json:"message"`
 	SpentSeconds  int        `json:"spentSeconds"`
 	Stage         int        `json:"stage"`
+	SkipOnFail    bool       `json:"skipOnFail"`
 
 	Labels []DbPipelineLabel `json:"-" gorm:"-"`
 }

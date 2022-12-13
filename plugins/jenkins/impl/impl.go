@@ -154,7 +154,7 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 
 	var createdDateAfter time.Time
 	if op.CreatedDateAfter != "" {
-		createdDateAfter, err = errors.Convert01(time.Parse("2006-01-02T15:04:05Z", op.CreatedDateAfter))
+		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
 		}
@@ -183,8 +183,8 @@ func (plugin Jenkins) MakePipelinePlan(connectionId uint64, scope []*core.Bluepr
 	return api.MakePipelinePlanV100(plugin.SubTaskMetas(), connectionId, scope)
 }
 
-func (plugin Jenkins) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
-	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes)
+func (plugin Jenkins) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes []*core.BlueprintScopeV200, syncPolicy core.BlueprintSyncPolicy) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {
+	return api.MakeDataSourcePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
 func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandler {

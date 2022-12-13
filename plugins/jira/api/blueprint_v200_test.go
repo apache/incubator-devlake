@@ -37,10 +37,11 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		Entities: []string{"TICKET"},
 		Id:       "10",
 	}
+	syncPolicy := &core.BlueprintSyncPolicy{}
 	bpScopes := make([]*core.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
 	plan := make(core.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, uint64(1))
+	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, uint64(1), syncPolicy)
 	assert.Nil(t, err)
 	basicRes = NewMockBasicRes()
 	scopes, err := makeScopesV200(bpScopes, uint64(1))
@@ -49,9 +50,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	expectPlan := core.PipelinePlan{
 		core.PipelineStage{
 			{
-				Plugin:     "jira",
-				Subtasks:   []string{},
-				SkipOnFail: false,
+				Plugin:   "jira",
+				Subtasks: []string{},
 				Options: map[string]interface{}{
 					"connectionId": uint64(1),
 					"scopeId":      "10",

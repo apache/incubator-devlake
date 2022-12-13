@@ -24,7 +24,6 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
-
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -315,6 +314,7 @@ func createPipelineByBlueprint(blueprint *models.Blueprint) (*models.Pipeline, e
 	newPipeline.Name = blueprint.Name
 	newPipeline.BlueprintId = blueprint.ID
 	newPipeline.Labels = blueprint.Labels
+	newPipeline.SkipOnFail = blueprint.SkipOnFail
 	pipeline, err := CreatePipeline(&newPipeline)
 	// Return all created tasks to the User
 	if err != nil {
@@ -328,13 +328,17 @@ func createPipelineByBlueprint(blueprint *models.Blueprint) (*models.Pipeline, e
 func MakePlanForBlueprint(blueprint *models.Blueprint) (core.PipelinePlan, errors.Error) {
 	bpSettings := new(models.BlueprintSettings)
 	err := errors.Convert(json.Unmarshal(blueprint.Settings, bpSettings))
-
 	if err != nil {
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("settings:%s", string(blueprint.Settings)))
 	}
+
+	bpSyncPolicy := core.BlueprintSyncPolicy{}
+	bpSyncPolicy.CreatedDateAfter = bpSettings.CreatedDateAfter
+
 	var plan core.PipelinePlan
 	switch bpSettings.Version {
 	case "1.0.0":
+		// Notice: v1 not complete SkipOnFail & CreatedDateAfter
 		plan, err = GeneratePlanJsonV100(bpSettings)
 	case "2.0.0":
 		if blueprint.ProjectName == "" {
@@ -347,7 +351,7 @@ func MakePlanForBlueprint(blueprint *models.Blueprint) (core.PipelinePlan, error
 		for _, projectMetric := range projectMetrics {
 			metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
 		}
-		plan, err = GeneratePlanJsonV200(blueprint.ProjectName, bpSettings, metrics)
+		plan, err = GeneratePlanJsonV200(blueprint.ProjectName, bpSyncPolicy, bpSettings, metrics)
 	default:
 		return nil, errors.Default.New(fmt.Sprintf("unknown version of blueprint settings: %s", bpSettings.Version))
 	}

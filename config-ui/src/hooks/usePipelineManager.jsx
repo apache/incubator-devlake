@@ -179,41 +179,48 @@ function usePipelineManager(
     }
   }, [])
 
-  const fetchAllPipelines = useCallback((blueprintId, status = null, fetchTimeout = 500) => {
-    try {
-      setIsFetchingAll(true)
-      setErrors([])
-      ToastNotification.clear()
-      console.log('>> FETCHING ALL PIPELINE RUNS...')
-      const fetchAll = async () => {
-        let queryParams = '?blueprint_id=' + blueprintId
-        queryParams +=
-          status &&
-          ['TASK_COMPLETED', 'TASK_RUNNING', 'TASK_FAILED'].includes(status)
-            ? `&status=${status}&`
-            : ''
-        const p = await request.get(
-          `${DEVLAKE_ENDPOINT}/pipelines${queryParams}`
-        )
-        console.log('>> RAW PIPELINES RUN DATA FROM API...', p.data?.pipelines)
-        let pipelines = p.data && p.data.pipelines ? [...p.data.pipelines] : []
-        // @todo: remove "ID" fallback key when no longer needed
-        pipelines = pipelines.map((p) => ({ ...p, ID: p.id }))
-        setPipelines(pipelines)
-        setPipelineCount(p.data ? p.data.count : 0)
-        setTimeout(() => {
-          setIsFetchingAll(false)
-        }, fetchTimeout)
+  const fetchAllPipelines = useCallback(
+    (blueprintId, status = null, fetchTimeout = 500) => {
+      try {
+        setIsFetchingAll(true)
+        setErrors([])
+        ToastNotification.clear()
+        console.log('>> FETCHING ALL PIPELINE RUNS...')
+        const fetchAll = async () => {
+          let queryParams = '?blueprint_id=' + blueprintId
+          queryParams +=
+            status &&
+            ['TASK_COMPLETED', 'TASK_RUNNING', 'TASK_FAILED'].includes(status)
+              ? `&status=${status}&`
+              : ''
+          const p = await request.get(
+            `${DEVLAKE_ENDPOINT}/pipelines${queryParams}`
+          )
+          console.log(
+            '>> RAW PIPELINES RUN DATA FROM API...',
+            p.data?.pipelines
+          )
+          let pipelines =
+            p.data && p.data.pipelines ? [...p.data.pipelines] : []
+          // @todo: remove "ID" fallback key when no longer needed
+          pipelines = pipelines.map((p) => ({ ...p, ID: p.id }))
+          setPipelines(pipelines)
+          setPipelineCount(p.data ? p.data.count : 0)
+          setTimeout(() => {
+            setIsFetchingAll(false)
+          }, fetchTimeout)
+        }
+        fetchAll()
+      } catch (e) {
+        setIsFetchingAll(false)
+        setErrors([e.message])
+        setPipelines([])
+        setPipelineCount(0)
+        console.log('>> FAILED TO FETCH ALL PIPELINE RUNS!!', e)
       }
-      fetchAll()
-    } catch (e) {
-      setIsFetchingAll(false)
-      setErrors([e.message])
-      setPipelines([])
-      setPipelineCount(0)
-      console.log('>> FAILED TO FETCH ALL PIPELINE RUNS!!', e)
-    }
-  }, [])
+    },
+    []
+  )
 
   const buildPipelineStages = useCallback((tasks = [], outputArray = false) => {
     let stages = {}

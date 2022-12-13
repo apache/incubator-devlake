@@ -77,9 +77,10 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	}
 	bpScopes := make([]*core.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
+	syncPolicy := &core.BlueprintSyncPolicy{}
 
 	plan := make(core.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection, mockApiCLient)
+	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection, mockApiCLient, syncPolicy)
 	assert.Nil(t, err)
 	basicRes = NewMockBasicRes()
 	scopes, err := makeScopesV200(bpScopes, connection)
@@ -88,17 +89,15 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	expectPlan := core.PipelinePlan{
 		core.PipelineStage{
 			{
-				Plugin:     "github",
-				Subtasks:   []string{},
-				SkipOnFail: false,
+				Plugin:   "github",
+				Subtasks: []string{},
 				Options: map[string]interface{}{
 					"connectionId": uint64(1),
 					"scopeId":      "1",
 				},
 			},
 			{
-				Plugin:     "gitextractor",
-				SkipOnFail: false,
+				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"proxy":  "",
 					"repoId": "github:GithubRepo:1:12345",
@@ -108,8 +107,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		},
 		core.PipelineStage{
 			{
-				Plugin:     "refdiff",
-				SkipOnFail: false,
+				Plugin: "refdiff",
 				Options: map[string]interface{}{
 					"tagsLimit":   10,
 					"tagsOrder":   "reverse semver",

@@ -23,7 +23,7 @@ const zentaoConfig = [
         connectionId: 1,
         productId: 1,
         projectId: 1,
-        executionId: 1,
+        executionId: 1
       }
     }
   ]

@@ -58,6 +58,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 		Message:       "",
 		SpentSeconds:  0,
 		Plan:          string(planByte),
+		SkipOnFail:    newPipeline.SkipOnFail,
 	}
 	if newPipeline.BlueprintId != 0 {
 		dbPipeline.BlueprintId = newPipeline.BlueprintId
@@ -210,6 +211,7 @@ func parsePipeline(dbPipeline *models.DbPipeline) *models.Pipeline {
 		Message:       dbPipeline.Message,
 		SpentSeconds:  dbPipeline.SpentSeconds,
 		Stage:         dbPipeline.Stage,
+		SkipOnFail:    dbPipeline.SkipOnFail,
 		Labels:        labelList,
 	}
 	return &pipeline
@@ -231,6 +233,7 @@ func parseDbPipeline(pipeline *models.Pipeline) *models.DbPipeline {
 		Message:       pipeline.Message,
 		SpentSeconds:  pipeline.SpentSeconds,
 		Stage:         pipeline.Stage,
+		SkipOnFail:    pipeline.SkipOnFail,
 	}
 	dbPipeline.Labels = []models.DbPipelineLabel{}
 	for _, label := range pipeline.Labels {

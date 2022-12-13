@@ -22,6 +22,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/url"
+	"time"
 )
 
 const RAW_MERGE_REQUEST_TABLE = "gitlab_api_merge_requests"
@@ -55,10 +56,10 @@ func CollectApiMergeRequests(taskCtx core.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			if incremental {
-				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.String())
+				query.Set("updated_after", collectorWithState.LatestState.LatestSuccessStart.Format(time.RFC3339))
 			}
 			if collectorWithState.CreatedDateAfter != nil {
-				query.Set("created_after", collectorWithState.CreatedDateAfter.String())
+				query.Set("created_after", collectorWithState.CreatedDateAfter.Format(time.RFC3339))
 			}
 			return query, nil
 		},

@@ -153,7 +153,6 @@ func CreateTask(newTask *models.NewTask) (*models.Task, errors.Error) {
 		PipelineId:  newTask.PipelineId,
 		PipelineRow: newTask.PipelineRow,
 		PipelineCol: newTask.PipelineCol,
-		SkipOnFail:  newTask.SkipOnFail,
 	}
 	err = db.Save(&task).Error
 	if err != nil {
@@ -238,7 +237,6 @@ func SpawnTasks(input []models.Task) ([]models.Task, errors.Error) {
 		task.BeganAt = nil
 		task.FinishedAt = nil
 		task.SpentSeconds = 0
-		task.SkipOnFail = true
 		result = append(result, task)
 	}
 	err := db.Save(&result).Error

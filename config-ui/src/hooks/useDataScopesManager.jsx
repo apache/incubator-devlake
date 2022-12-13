@@ -421,7 +421,7 @@ function useDataScopesManager({
           (pC) => pC.connectionId === c.connectionId && pC.plugin === c.plugin
         )?.name ||
         `${ProviderLabels[c.plugin?.toUpperCase()]} #${c.connectionId || cIdx}`,
-      // FIXME: entities in `c.scope[0]?.entities` means one of ALL_DATA_DOMAINS and is saved in db,
+      // FIXME: entities in `c.scopes[0]?.entities` means one of ALL_DATA_DOMAINS and is saved in db,
       // So it kept here.
       dataDomains: c.scopes[0]?.entities?.map((e) =>
         ALL_DATA_DOMAINS.find((de) => de.value === e)

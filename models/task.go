@@ -62,7 +62,6 @@ type Task struct {
 	BeganAt       *time.Time `json:"beganAt"`
 	FinishedAt    *time.Time `json:"finishedAt" gorm:"index"`
 	SpentSeconds  int        `json:"spentSeconds"`
-	SkipOnFail    bool       `json:"-"`
 }
 
 type NewTask struct {

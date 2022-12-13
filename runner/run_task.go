@@ -51,6 +51,10 @@ func RunTask(
 	if task.Status == models.TASK_COMPLETED {
 		return errors.Default.New("invalid task status")
 	}
+	dbPipeline := &models.DbPipeline{}
+	if err := db.Find(dbPipeline, task.PipelineId).Error; err != nil {
+		return errors.Convert(err)
+	}
 	log, err := getTaskLogger(parentLogger, task)
 	if err != nil {
 		return errors.Convert(err)
@@ -66,7 +70,7 @@ func RunTask(
 			default:
 				e = fmt.Errorf("%v", et)
 			}
-			if !task.SkipOnFail {
+			if !dbPipeline.SkipOnFail {
 				err = errors.Default.Wrap(e, fmt.Sprintf("run task failed with panic (%s)", utils.GatherCallFrames(0)))
 			}
 		}
@@ -137,7 +141,7 @@ func RunTask(
 		options,
 		progress,
 	)
-	if err != nil && task.SkipOnFail {
+	if dbPipeline.SkipOnFail {
 		return nil
 	}
 	return err

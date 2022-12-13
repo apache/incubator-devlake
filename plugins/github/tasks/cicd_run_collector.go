@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -58,7 +59,7 @@ func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			if data.CreatedDateAfter != nil {
-				query.Set("created", fmt.Sprintf(">%s", data.CreatedDateAfter.String()))
+				query.Set("created", fmt.Sprintf(">%s", data.CreatedDateAfter.Format(time.RFC3339)))
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))

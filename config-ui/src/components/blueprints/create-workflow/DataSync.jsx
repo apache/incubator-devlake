@@ -36,11 +36,14 @@ import {
 import InputValidationError from '@/components/validation/InputValidationError'
 
 import CronHelp from '@/images/cron-help.png'
+import StartFromSelector from '@/components/blueprints/StartFromSelector'
 
 const DataSync = (props) => {
   const {
     skipOnFail,
     setSkipOnFail,
+    createdDateAfter,
+    setCreatedDateAfter,
     activeStep,
     cronConfig,
     customCronConfig,
@@ -93,6 +96,16 @@ const DataSync = (props) => {
             <Divider className='section-divider' />
           </>
         )}
+
+        <h4>Time Filter *</h4>
+        <p>
+          Select the data range you wish to collect. DevLake will collect the
+          last six months of data by default.
+        </p>
+        <StartFromSelector
+          date={createdDateAfter}
+          onSave={setCreatedDateAfter}
+        />
 
         <h4>Frequency</h4>
         <p>Blueprints will run recurringly based on the sync frequency.</p>

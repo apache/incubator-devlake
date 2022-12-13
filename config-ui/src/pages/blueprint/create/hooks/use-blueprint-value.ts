@@ -45,6 +45,7 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
   const [cronConfig, setCronConfig] = useState('0 0 * * *')
   const [isManual, setIsManual] = useState(false)
   const [skipOnFail, setSkipOnFail] = useState(false)
+  const [createdDateAfter, setCreatedDateAfter] = useState<string | null>(null)
 
   const history = useHistory()
 
@@ -85,7 +86,8 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
       enable: true,
       cronConfig,
       isManual,
-      skipOnFail
+      skipOnFail,
+      createdDateAfter
     }
 
     if (mode === ModeEnum.normal) {
@@ -115,6 +117,7 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
     cronConfig,
     isManual,
     skipOnFail,
+    createdDateAfter,
     connections,
     scope
   ])
@@ -146,6 +149,7 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
       cronConfig,
       isManual,
       skipOnFail,
+      createdDateAfter,
 
       onChangeStep: setStep,
       onChangeShowInspector: setShowInspector,
@@ -159,6 +163,7 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
       onChangeCronConfig: setCronConfig,
       onChangeIsManual: setIsManual,
       onChangeSkipOnFail: setSkipOnFail,
+      onChangeCreatedDateAfter: setCreatedDateAfter,
 
       onSave: handleSave,
       onSaveAndRun: hanldeSaveAndRun
@@ -176,7 +181,8 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
       scope,
       cronConfig,
       isManual,
-      skipOnFail
+      skipOnFail,
+      createdDateAfter
     ]
   )
 }

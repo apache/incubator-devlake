@@ -15,14 +15,14 @@
  * limitations under the License.
  *
  */
-import { useCallback, useEffect, useState } from 'react'
-import { DEVLAKE_ENDPOINT } from '@/utils/config'
+import {useCallback, useState} from 'react'
+import {DEVLAKE_ENDPOINT} from '@/utils/config'
 import request from '@/utils/request'
-import { ToastNotification } from '@/components/Toast'
-import { NullBlueprint, BlueprintMode } from '@/data/NullBlueprint'
+import {ToastNotification} from '@/components/Toast'
+import {BlueprintMode, NullBlueprint} from '@/data/NullBlueprint'
 import cron from 'cron-validate'
 import parser from 'cron-parser'
-import { Intent } from '@blueprintjs/core'
+import {Intent} from '@blueprintjs/core'
 
 function useBlueprintManager(
   blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`,
@@ -42,7 +42,8 @@ function useBlueprintManager(
   const [interval, setInterval] = useState('daily')
   const [tasks, setTasks] = useState([])
   const [settings, setSettings] = useState({
-    version: '1.0.0',
+    version: '2.0.0',
+    createdDateAfter: null,
     connections: []
   })
   const [mode, setMode] = useState(BlueprintMode.NORMAL)
@@ -50,6 +51,7 @@ function useBlueprintManager(
   const [detectedProviderTasks, setDetectedProviderTasks] = useState([])
   const [isManual, setIsManual] = useState(false)
   const [skipOnFail, setSkipOnFail] = useState(false)
+  const [createdDateAfter, setCreatedDateAfter] = useState(null)
   const [rawConfiguration, setRawConfiguration] = useState(
     JSON.stringify([tasks], null, '  ')
   )
@@ -192,6 +194,7 @@ function useBlueprintManager(
               : NullBlueprint
           )
           setSkipOnFail(blueprintData.skipOnFail)
+          setCreatedDateAfter(blueprintData.settings.createdDateAfter)
           setErrors(b.status !== 200 ? [b.data] : [])
           setTimeout(() => {
             setIsFetching(false)
@@ -236,11 +239,12 @@ function useBlueprintManager(
           cronConfig: detectCronConfig(),
           // @todo: refactor tasks ===> plan at higher levels
           plan: tasks,
-          settings,
+          // because of forthcoming refactor, just set here temporarily
+          settings: { createdDateAfter, ...settings },
           enable: enable,
           mode,
           isManual,
-          skipOnFail
+          skipOnFail,
         }
         console.log('>> DISPATCHING BLUEPRINT SAVE REQUEST', blueprintPayload)
         const run = async () => {
@@ -303,6 +307,7 @@ function useBlueprintManager(
       enable,
       isManual,
       skipOnFail,
+      createdDateAfter,
       detectCronInterval
     ]
   )
@@ -564,6 +569,8 @@ function useBlueprintManager(
     isManual,
     skipOnFail,
     setSkipOnFail,
+    createdDateAfter,
+    setCreatedDateAfter,
     errors
   }
 }

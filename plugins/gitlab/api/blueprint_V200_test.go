@@ -49,6 +49,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	const testTransformationRuleName string = "github transformation rule"
 	const testProxy string = ""
 
+	syncPolicy := &core.BlueprintSyncPolicy{}
 	bpScopes := []*core.BlueprintScopeV200{
 		{
 			Entities: []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CICD},
@@ -126,16 +127,13 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					tasks.CollectApiPipelinesMeta.Name,
 					tasks.ExtractApiPipelinesMeta.Name,
 				},
-				SkipOnFail: false,
 				Options: map[string]interface{}{
 					"connectionId": uint64(1),
 					"projectId":    testID,
-					"entities":     bpScopes[0].Entities,
 				},
 			},
 			{
-				Plugin:     "gitextractor",
-				SkipOnFail: false,
+				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"proxy":  "",
 					"repoId": expectRepoId,
@@ -145,8 +143,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		},
 		{
 			{
-				Plugin:     "refdiff",
-				SkipOnFail: false,
+				Plugin: "refdiff",
 				Options: map[string]interface{}{
 					"tagsLimit":   10,
 					"tagsOrder":   "reverse semver",
@@ -198,7 +195,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		validator.New(),
 	)
 
-	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes)
+	plans, scopes, err := MakePipelinePlanV200(testSubTaskMeta, testConnectionID, bpScopes, syncPolicy)
 	assert.Equal(t, err, nil)
 
 	assert.Equal(t, expectPlans, plans)

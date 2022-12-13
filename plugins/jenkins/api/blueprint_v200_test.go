@@ -38,12 +38,13 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		Id:       "a/b/ccc",
 		Name:     "",
 	}
+	syncPolicy := &core.BlueprintSyncPolicy{}
 	bpScopes := make([]*core.BlueprintScopeV200, 0)
 	bpScopes = append(bpScopes, bs)
 
 	basicRes = NewMockBasicRes()
 	plan := make(core.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, 1)
+	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, 1, syncPolicy)
 	assert.Nil(t, err)
 	basicRes = NewMockBasicRes()
 	scopes, err := makeScopesV200(bpScopes, 1)
@@ -52,9 +53,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	expectPlan := core.PipelinePlan{
 		core.PipelineStage{
 			{
-				Plugin:     "jenkins",
-				Subtasks:   []string{},
-				SkipOnFail: false,
+				Plugin:   "jenkins",
+				Subtasks: []string{},
 				Options: map[string]interface{}{
 					"connectionId": uint64(1),
 					"scopeId":      "a/b/ccc",

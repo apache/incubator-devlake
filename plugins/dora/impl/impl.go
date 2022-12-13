@@ -19,7 +19,6 @@ package impl
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/dora/models/migrationscripts"
@@ -34,7 +33,6 @@ var _ core.PluginInit = (*Dora)(nil)
 var _ core.PluginTask = (*Dora)(nil)
 var _ core.PluginModel = (*Dora)(nil)
 var _ core.PluginMetric = (*Dora)(nil)
-var _ core.CloseablePluginTask = (*Dora)(nil)
 var _ core.PluginMigration = (*Dora)(nil)
 var _ core.MetricPluginBlueprintV200 = (*Dora)(nil)
 
@@ -142,14 +140,4 @@ func (plugin Dora) MakeMetricPluginPipelinePlanV200(projectName string, options 
 	plan = append(plan, stageDeploymentCommitdiff, stageDora)
 
 	return plan, nil
-}
-
-func (plugin Dora) Close(taskCtx core.TaskContext) errors.Error {
-	data, ok := taskCtx.GetData().(*tasks.DoraTaskData)
-	if !ok {
-		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))
-	}
-	// TODO
-	println(data)
-	return nil
 }
