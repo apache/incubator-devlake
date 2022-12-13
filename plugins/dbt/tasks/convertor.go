@@ -185,7 +185,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	// prevent zombie process
-	defer cmd.Wait()
+	defer cmd.Wait() //nolint
 
 	scanner := bufio.NewScanner(stdout)
 	var errStr string
