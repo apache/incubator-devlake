@@ -184,6 +184,9 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+	// prevent zombie process
+	defer cmd.Wait() //nolint
+
 	scanner := bufio.NewScanner(stdout)
 	var errStr string
 	for scanner.Scan() {
@@ -199,10 +202,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	if err := errors.Convert(scanner.Err()); err != nil {
 		return err
 	}
-	err = errors.Convert(cmd.Wait())
-	if err != nil {
-		return errors.Internal.New(errStr)
-	}
+
 	if !cmd.ProcessState.Success() {
 		log.Error(nil, "dbt run task error, please check!!!")
 	}
