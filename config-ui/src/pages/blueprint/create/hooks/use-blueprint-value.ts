@@ -19,6 +19,7 @@
 import { useState, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
+import { useStore, ConnectionStatusEnum } from '@/store'
 import { operator } from '@/utils'
 
 import type { BPConnectionItemType, BPScopeItemType } from '../types'
@@ -49,6 +50,8 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
 
   const history = useHistory()
 
+  const store = useStore()
+
   const validRawPlan = (rp: string) => {
     try {
       const p = JSON.parse(rp)
@@ -71,12 +74,19 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
         return 'Advanced Mode: Invalid/Empty Configuration'
       case mode === ModeEnum.normal && !connections.length:
         return 'Normal Mode: No Data Connections selected.'
+      case mode === ModeEnum.normal &&
+        !store.connections
+          .filter((cs) =>
+            connections.map((it) => it.unique).includes(cs.unique)
+          )
+          .every((cs) => cs.status === ConnectionStatusEnum.ONLINE):
+        return 'Normal Mode: Has some offline connections'
       case step === 2 && !connections.every((cs) => cs.scope.length):
         return 'No Data Scope is Selected'
       default:
         return ''
     }
-  }, [name, mode, rawPlan, connections, step])
+  }, [name, mode, rawPlan, connections, step, store])
 
   const payload = useMemo(() => {
     const params: any = {
