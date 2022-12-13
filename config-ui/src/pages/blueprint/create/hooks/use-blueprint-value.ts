@@ -75,7 +75,7 @@ export const useBlueprintValue = ({ from, projectName }: Props) => {
       default:
         return ''
     }
-  }, [name, mode, rawPlan, connections])
+  }, [name, mode, rawPlan, connections, step])
 
   const payload = useMemo(() => {
     const params: any = {
