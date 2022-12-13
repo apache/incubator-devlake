@@ -50,9 +50,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	expectPlan := core.PipelinePlan{
 		core.PipelineStage{
 			{
-				Plugin:     "jira",
-				Subtasks:   []string{},
-				SkipOnFail: false,
+				Plugin:   "jira",
+				Subtasks: []string{},
 				Options: map[string]interface{}{
 					"connectionId": uint64(1),
 					"scopeId":      "10",

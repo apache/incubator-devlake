@@ -127,15 +127,13 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					tasks.CollectApiPipelinesMeta.Name,
 					tasks.ExtractApiPipelinesMeta.Name,
 				},
-				SkipOnFail: false,
 				Options: map[string]interface{}{
 					"connectionId": uint64(1),
 					"projectId":    testID,
 				},
 			},
 			{
-				Plugin:     "gitextractor",
-				SkipOnFail: false,
+				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"proxy":  "",
 					"repoId": expectRepoId,
@@ -145,8 +143,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		},
 		{
 			{
-				Plugin:     "refdiff",
-				SkipOnFail: false,
+				Plugin: "refdiff",
 				Options: map[string]interface{}{
 					"tagsLimit":   10,
 					"tagsOrder":   "reverse semver",

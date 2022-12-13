@@ -53,9 +53,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	expectPlan := core.PipelinePlan{
 		core.PipelineStage{
 			{
-				Plugin:     "jenkins",
-				Subtasks:   []string{},
-				SkipOnFail: false,
+				Plugin:   "jenkins",
+				Subtasks: []string{},
 				Options: map[string]interface{}{
 					"connectionId": uint64(1),
 					"scopeId":      "a/b/ccc",
