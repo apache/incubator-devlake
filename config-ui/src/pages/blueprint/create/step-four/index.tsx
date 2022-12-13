@@ -117,6 +117,7 @@ export const StepFour = () => {
           <h4>Time Filter *</h4>
           <p>Select the data range you wish to collect. DevLake will collect the last six months of data by default.</p>
           <StartFromSelector
+            autoFillDefault={true}
             date={createdDateAfter}
             onSave={onChangeCreatedDateAfter}
           />
