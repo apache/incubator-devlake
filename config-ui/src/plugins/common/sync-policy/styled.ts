@@ -16,8 +16,34 @@
  *
  */
 
-export * from './types'
-export * from './data-scope-list'
-export * from './data-scope'
-export * from './transformation'
-export * from './sync-policy'
+import styled from 'styled-components'
+
+export const Wrapper = styled.div`
+  .block + .block {
+    margin-top: 24px;
+  }
+`
+export const Input = styled.div`
+  display: flex;
+  align-items: center;
+`
+
+export const Help = styled.div`
+  padding: 10px;
+  width: 300px;
+  font-size: 12px;
+
+  .title {
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 700px;
+
+    span.bp3-icon {
+      margin-right: 4px;
+    }
+  }
+
+  img {
+    width: 100%;
+  }
+`
