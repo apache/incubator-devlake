@@ -20,25 +20,20 @@ import React from 'react'
 
 import { Dialog } from '@/components'
 
+import type { UseDeleteProps } from './use-delete'
+import { useDelete } from './use-delete'
 import * as S from './styled'
 
-interface Props {
-  initialValues: any
+interface Props extends UseDeleteProps {
   isOpen: boolean
-  saving: boolean
-  onSubmit: (id: ID) => Promise<any>
   onCancel: () => void
 }
 
-export const DeleteDialog = ({
-  initialValues,
-  isOpen,
-  saving,
-  onSubmit,
-  onCancel
-}: Props) => {
+export const WebhookDeleteDialog = ({ isOpen, onCancel, ...props }: Props) => {
+  const { saving, onSubmit } = useDelete({ ...props })
+
   const handleSubmit = () => {
-    onSubmit(initialValues.id)
+    onSubmit()
     onCancel()
   }
 
@@ -46,7 +41,7 @@ export const DeleteDialog = ({
     <Dialog
       isOpen={isOpen}
       title='Delete this Incoming Webhook?'
-      style={{ width: 600, top: -100 }}
+      style={{ width: 600 }}
       okText='Confirm'
       okLoading={saving}
       onCancel={onCancel}

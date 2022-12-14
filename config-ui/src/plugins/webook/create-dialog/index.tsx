@@ -16,30 +16,24 @@
  *
  */
 
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useMemo } from 'react'
 import { InputGroup, Icon } from '@blueprintjs/core'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import { Dialog, toast } from '@/components'
 
+import type { UseCreateProps } from './use-create'
+import { useCreate } from './use-create'
 import * as S from './styled'
 
-const prefix = `${window.location.origin}/api`
-
-interface Props {
+interface Props extends UseCreateProps {
   isOpen: boolean
-  saving: boolean
-  onSubmit: (name: string) => Promise<any>
   onCancel: () => void
 }
 
-export const CreateDialog = ({ isOpen, saving, onSubmit, onCancel }: Props) => {
-  const [step, setStep] = useState(1)
-  const [name, setName] = useState('')
-  const [record, setRecord] = useState({
-    postIssuesEndpoint: '',
-    closeIssuesEndpoint: '',
-    postDeploymentsCurl: ''
+export const WebhookCreateDialog = ({ isOpen, onCancel, ...props }: Props) => {
+  const { saving, step, name, record, onChangeName, onSubmit } = useCreate({
+    ...props
   })
 
   const [okText, okDisabled] = useMemo(
@@ -47,29 +41,19 @@ export const CreateDialog = ({ isOpen, saving, onSubmit, onCancel }: Props) => {
     [step, name]
   )
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = () => {
     if (step === 1) {
-      const res = await onSubmit(name)
-      setStep(2)
-      setRecord({
-        postIssuesEndpoint: `${prefix}${res.postIssuesEndpoint}`,
-        closeIssuesEndpoint: `${prefix}${res.closeIssuesEndpoint}`,
-        postDeploymentsCurl: `curl ${prefix}${res.postPipelineDeployTaskEndpoint} -X 'POST' -d "{
-        \\"commit_sha\\":\\"the sha of deployment commit\\",
-        \\"repo_url\\":\\"the repo URL of the deployment commit\\",
-        \\"start_time\\":\\"Optional, eg. 2020-01-01T12:00:00+00:00\\"
-      }"`
-      })
+      onSubmit()
     } else {
       onCancel()
     }
-  }, [step, name])
+  }
 
   return (
     <Dialog
       isOpen={isOpen}
       title='Add a New Incoming Webhook'
-      style={{ width: 600, top: -100 }}
+      style={{ width: 600 }}
       okText={okText}
       okDisabled={okDisabled}
       okLoading={saving}
@@ -83,7 +67,10 @@ export const CreateDialog = ({ isOpen, saving, onSubmit, onCancel }: Props) => {
             Give your Incoming Webhook a unique name to help you identify it in
             the future.
           </p>
-          <InputGroup value={name} onChange={(e) => setName(e.target.value)} />
+          <InputGroup
+            value={name}
+            onChange={(e) => onChangeName(e.target.value)}
+          />
         </S.Wrapper>
       )}
       {step === 2 && (

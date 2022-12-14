@@ -18,25 +18,24 @@
 
 import { useState, useEffect, useMemo } from 'react'
 
-import { operator } from '@/utils'
+import type { WebhookItemType } from '../types'
+import * as API from '../api'
 
-import * as API from './api'
-
-export type ConnectionItem = {
-  id: ID
-  name: string
+export interface UseConnectionProps {
+  filterIds?: ID[]
 }
 
-export const useConnection = () => {
+export const useConnection = ({ filterIds }: UseConnectionProps) => {
   const [loading, setLoading] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [connections, setConnections] = useState<ConnectionItem[]>([])
+  const [connections, setConnections] = useState<WebhookItemType[]>([])
 
   const getConnections = async () => {
     setLoading(true)
     try {
       const res = await API.getConnections()
-      setConnections(res)
+      setConnections(
+        res.filter((cs: any) => (filterIds ? filterIds.includes(cs.id) : true))
+      )
     } finally {
       setLoading(false)
     }
@@ -46,49 +45,12 @@ export const useConnection = () => {
     getConnections()
   }, [])
 
-  const handleCreate = async (name: string) => {
-    const [success, res] = await operator(
-      () => API.createConnection({ name }),
-      {
-        setOperating: setSaving
-      }
-    )
-
-    if (success) {
-      getConnections()
-      return API.getConnection(res.id)
-    }
-  }
-
-  const handleUpdate = async (id: ID, name: string) => {
-    const [success] = await operator(() => API.updateConnection(id, { name }), {
-      setOperating: setSaving
-    })
-
-    if (success) {
-      getConnections()
-    }
-  }
-
-  const handleDelete = async (id: ID) => {
-    const [success] = await operator(() => API.deleteConnection(id), {
-      setOperating: setSaving
-    })
-
-    if (success) {
-      getConnections()
-    }
-  }
-
   return useMemo(
     () => ({
       loading,
-      saving,
       connections,
-      onCreate: handleCreate,
-      onUpdate: handleUpdate,
-      onDelete: handleDelete
+      onRefresh: getConnections
     }),
-    [loading, saving, connections]
+    [loading, connections]
   )
 }

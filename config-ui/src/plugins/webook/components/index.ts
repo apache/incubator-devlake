@@ -15,7 +15,3 @@
  * limitations under the License.
  *
  */
-
-export * from './create-dialog'
-export * from './delete-dialog'
-export * from './view-or-edit-dialog'

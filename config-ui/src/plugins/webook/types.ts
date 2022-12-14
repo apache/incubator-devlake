@@ -16,8 +16,7 @@
  *
  */
 
-export * from './types'
-export * from './connection'
-export * from './create-dialog'
-export * from './delete-dialog'
-export * from './view-or-edit-dialog'
+export type WebhookItemType = {
+  id: ID
+  name: string
+}
