@@ -16,45 +16,13 @@
  *
  */
 
-import styled from '@emotion/styled'
+export type TransformationType = 'create' | 'createByExist' | 'selectExist'
 
-export const Wrapper = styled.div`
-  .block {
-    padding: 8px 16px;
-  }
+export type RuleItem = {
+  id: ID
+  name: string
+}
 
-  .item + .item {
-    margin-top: 16px;
-  }
-
-  h3 {
-    margin: 0 0 8px;
-
-    .bp4-tag {
-      margin-left: 6px;
-    }
-  }
-
-  p {
-    margin: 0 0 8px;
-  }
-
-  .bp4-form-group {
-    display: flex;
-    align-items: center;
-
-    .bp4-label {
-      flex: 0 0 150px;
-    }
-
-    .bp4-form-content {
-      flex: auto;
-    }
-  }
-
-  .bp4-button-group {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 16px;
-  }
-`
+export type ScopeItem = {
+  name: string
+} & any
