@@ -19,12 +19,12 @@
 import React, { useMemo } from 'react'
 
 import { ModeEnum } from '../../types'
-import { useBlueprint } from '../../hooks'
+import { useCreateBP } from '../../bp-context'
 
 import * as S from './styled'
 
 export const WorkFlow = () => {
-  const { step, mode } = useBlueprint()
+  const { step, mode } = useCreateBP()
 
   const steps = useMemo(
     () =>

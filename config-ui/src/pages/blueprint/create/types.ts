@@ -16,8 +16,6 @@
  *
  */
 
-import type { ConnectionItemType } from '@/store'
-
 export enum FromEnum {
   project = 'project',
   blueprint = 'blueprint'
@@ -28,11 +26,37 @@ export enum ModeEnum {
   normal = 'NORMAL'
 }
 
-export type BPScopeItemType = {
-  id: ID
-  entities: string[]
-}
+export type BPContextType = {
+  step: number
+  error: string
+  showInspector: boolean
+  showDetail: boolean
+  payload: any
 
-export type BPConnectionItemType = ConnectionItemType & {
-  scope: BPScopeItemType[]
+  name: string
+  mode: ModeEnum
+  rawPlan: string
+  uniqueList: string[]
+  scopeMap: Record<string, any>
+  cronConfig: string
+  isManual: boolean
+  skipOnFail: boolean
+  createdDateAfter: string | null
+
+  onChangeStep: React.Dispatch<React.SetStateAction<number>>
+  onChangeShowInspector: React.Dispatch<React.SetStateAction<boolean>>
+  onChangeShowDetail: React.Dispatch<React.SetStateAction<boolean>>
+
+  onChangeName: React.Dispatch<React.SetStateAction<string>>
+  onChangeMode: (mode: ModeEnum) => void
+  onChangeRawPlan: React.Dispatch<React.SetStateAction<string>>
+  onChangeUniqueList: React.Dispatch<React.SetStateAction<string[]>>
+  onChangeScopeMap: React.Dispatch<React.SetStateAction<Record<string, any>>>
+  onChangeCronConfig: React.Dispatch<React.SetStateAction<string>>
+  onChangeIsManual: React.Dispatch<React.SetStateAction<boolean>>
+  onChangeSkipOnFail: React.Dispatch<React.SetStateAction<boolean>>
+  onChangeCreatedDateAfter: React.Dispatch<React.SetStateAction<string | null>>
+
+  onSave: () => void
+  onSaveAndRun: () => void
 }

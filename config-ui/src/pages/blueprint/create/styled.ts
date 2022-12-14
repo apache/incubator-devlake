@@ -23,18 +23,9 @@ export const Container = styled.div``
 export const Content = styled.div`
   margin-top: 36px;
   margin-bottom: 24px;
-`
-
-export const Card = styled.div`
-  padding: 24px;
   font-size: 12px;
-  color: #292b3f;
-  background-color: #fff;
-  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1),
-    0px 1.6px 8px rgba(0, 0, 0, 0.07);
-  border-radius: 8px;
 
-  & + & {
+  .card + .card {
     margin-top: 24px;
   }
 
@@ -46,46 +37,10 @@ export const Card = styled.div`
   }
 
   h3 {
-    margin: 0 0 6px;
+    margin: 0 0 8px;
     padding: 0;
     font-size: 14px;
     font-weight: 600;
-  }
-
-  h5 {
-    margin: 8px 0;
-    padding: 0;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  .bp4-input-group > input {
-    font-size: 12px;
-  }
-
-  .bp4-tag-input-values > input {
-    font-size: 12px;
-  }
-
-  textarea.bp4-input {
-    min-height: 240px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    background-color: #f9f9f9;
-  }
-
-  .bp4-button-group {
-    display: block;
-    margin-top: 8px;
-    text-align: right;
-
-    .bp4-button + .bp4-button {
-      margin-left: 4px;
-    }
-  }
-
-  .bp4-button.bp4-small {
-    font-size: 12px;
   }
 
   .back {
@@ -112,9 +67,5 @@ export const Card = styled.div`
       color: #292b3f;
       font-weight: 600;
     }
-  }
-
-  .block + .block {
-    margin-top: 12px;
   }
 `

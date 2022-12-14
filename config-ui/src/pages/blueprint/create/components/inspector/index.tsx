@@ -16,15 +16,15 @@
  *
  */
 
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Drawer, DrawerSize, Classes, IconName } from '@blueprintjs/core'
 
-import { useBlueprint } from '../../hooks'
+import { useCreateBP } from '../../bp-context'
 
 import * as S from './styled'
 
 export const Inspector = () => {
-  const { name, payload, showInspector, onChangeShowInspector } = useBlueprint()
+  const { name, payload, showInspector, onChangeShowInspector } = useCreateBP()
 
   const props = {
     icon: 'code' as IconName,
