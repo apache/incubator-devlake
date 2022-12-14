@@ -30,14 +30,13 @@ type GithubRepo struct {
 	Description          string     `json:"description" mapstructure:"description,omitempty"`
 	TransformationRuleId uint64     `json:"transformationRuleId,omitempty" mapstructure:"transformationRuleId,omitempty"`
 	OwnerId              int        `json:"ownerId" mapstructure:"ownerId,omitempty"`
-	OwnerLogin           string     `json:"ownerLogin" gorm:"type:varchar(255)" mapstructure:"ownerLogin,omitempty"`
 	Language             string     `json:"language" gorm:"type:varchar(255)" mapstructure:"language,omitempty"`
 	ParentGithubId       int        `json:"parentId" mapstructure:"parentGithubId,omitempty"`
 	ParentHTMLUrl        string     `json:"parentHtmlUrl" mapstructure:"parentHtmlUrl,omitempty"`
 	CloneUrl             string     `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
 	CreatedDate          *time.Time `json:"createdDate" mapstructure:"-"`
 	UpdatedDate          *time.Time `json:"updatedDate" mapstructure:"-"`
-	common.NoPKModel     `json:"-" mapstructure:"-" swaggerignore:"true"`
+	common.NoPKModel     `json:"-" mapstructure:"-"`
 }
 
 func (GithubRepo) TableName() string {

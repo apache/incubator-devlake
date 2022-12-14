@@ -20,7 +20,6 @@ package impl
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -251,64 +250,39 @@ func EnrichOptions(taskCtx core.TaskContext,
 	op *tasks.GithubOptions,
 	apiClient *helper.ApiClient) errors.Error {
 	var githubRepo models.GithubRepo
-	var err errors.Error
+	// validate the op and set name=owner/repo if this is from advanced mode or bpV100
+	err := tasks.ValidateTaskOptions(op)
+	if err != nil {
+		return err
+	}
 	log := taskCtx.GetLogger()
-	// for advanced mode or others which we already set value to onwer/repo
-	if op.Owner != "" && op.Repo != "" {
-		// Lets try to use owner_login/name to find the record first
-		// In our db._tool_github_repos, record might be two kinds:
-		// 1. owner_login  = op.owner and name = op.repo
-		// 2. name = op.owner/op.repo
-		err := taskCtx.GetDal().First(&githubRepo, dal.Where(
-			"connection_id = ? AND ((name = ? AND owner_login = ?) OR name = ?)",
-			op.ConnectionId, op.Repo, op.Owner, fmt.Sprintf("%s/%s", op.Owner, op.Repo)))
-		if err == nil {
-			op.GithubId = githubRepo.GithubId
+	// for advanced mode or others which we only have name, for bp v200, we have githubId
+	err = taskCtx.GetDal().First(&githubRepo, dal.Where(
+		"connection_id = ? AND( name = ? OR github_id = ?)",
+		op.ConnectionId, op.Name, op.GithubId))
+	if err == nil {
+		op.Name = githubRepo.Name
+		op.GithubId = githubRepo.GithubId
+		if op.TransformationRuleId == 0 {
 			op.TransformationRuleId = githubRepo.TransformationRuleId
 		}
-		// If we still cannot find the record in db, we have to request from remote server and save it to db
-		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+	} else {
+		if taskCtx.GetDal().IsErrorNotFound(err) && op.Name != "" {
 			var repo *tasks.GithubApiRepo
 			repo, err = api.MemorizedGetApiRepo(repo, op, apiClient)
 			if err != nil {
 				return err
 			}
 			log.Debug(fmt.Sprintf("Current repo: %s", repo.FullName))
-			var scope models.GithubRepo
-			scope.ConnectionId = op.ConnectionId
-			scope.GithubId = repo.GithubId
-			scope.CreatedDate = repo.CreatedAt.ToNullableTime()
-			scope.Language = repo.Language
-			scope.Description = repo.Description
-			scope.HTMLUrl = repo.HTMLUrl
-			scope.ConnectionId = op.ConnectionId
-			scope.Name = repo.FullName
-			err = taskCtx.GetDal().CreateIfNotExist(&scope)
+			scope := convertApiRepoToScope(repo, op.ConnectionId)
+			err = taskCtx.GetDal().CreateIfNotExist(scope)
 			if err != nil {
 				return err
 			}
-
 			op.GithubId = repo.GithubId
+		} else {
+			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.Name))
 		}
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s/%s", op.Owner, op.Repo))
-		}
-	}
-	// for bp v200 which we only set ScopeId for options
-	if githubRepo.GithubId == 0 && op.ScopeId != "" {
-		log.Debug(fmt.Sprintf("Getting githubRepo by op.ScopeId: %s", op.ScopeId))
-		err = taskCtx.GetDal().First(&githubRepo, dal.Where(`connection_id = ? AND github_id = ?`, op.ConnectionId, op.ScopeId))
-		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.ScopeId))
-		}
-		ownerName := strings.Split(githubRepo.Name, "/")
-		if len(ownerName) != 2 {
-			return errors.Default.New("Fail to set owner/repo for github options.")
-		}
-		op.Owner = ownerName[0]
-		op.Repo = ownerName[1]
-		op.GithubId = githubRepo.GithubId
-		op.TransformationRuleId = githubRepo.TransformationRuleId
 	}
 	// Set GithubTransformationRule if it's nil, this has lower priority
 	if op.GithubTransformationRule == nil && op.TransformationRuleId != 0 {
@@ -319,6 +293,21 @@ func EnrichOptions(taskCtx core.TaskContext,
 		}
 		op.GithubTransformationRule = &transformationRule
 	}
-	err = tasks.ValidateTaskOptions(op)
+	if op.GithubTransformationRule == nil && op.TransformationRuleId == 0 {
+		op.GithubTransformationRule = new(models.GithubTransformationRule)
+	}
 	return err
+}
+
+func convertApiRepoToScope(repo *tasks.GithubApiRepo, connectionId uint64) *models.GithubRepo {
+	var scope models.GithubRepo
+	scope.ConnectionId = connectionId
+	scope.GithubId = repo.GithubId
+	scope.CreatedDate = repo.CreatedAt.ToNullableTime()
+	scope.Language = repo.Language
+	scope.Description = repo.Description
+	scope.HTMLUrl = repo.HTMLUrl
+	scope.Name = repo.FullName
+	scope.CloneUrl = repo.CloneUrl
+	return &scope
 }

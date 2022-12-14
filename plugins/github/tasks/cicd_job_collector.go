@@ -63,8 +63,7 @@ func CollectJobs(taskCtx core.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
+				Name:         data.Options.Name,
 			},
 			Table: RAW_JOB_TABLE,
 		},
@@ -72,7 +71,7 @@ func CollectJobs(taskCtx core.SubTaskContext) errors.Error {
 		PageSize:    100,
 		Input:       iterator,
 		Incremental: false,
-		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/actions/runs/{{ .Input.ID }}/jobs",
+		UrlTemplate: "repos/{{ .Params.Name }}/actions/runs/{{ .Input.ID }}/jobs",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))

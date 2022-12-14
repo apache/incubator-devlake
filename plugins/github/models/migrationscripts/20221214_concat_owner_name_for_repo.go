@@ -34,7 +34,7 @@ type githubRepoToBeTransform struct {
 type concatOwnerAndName struct{}
 
 func (script *concatOwnerAndName) Up(basicRes core.BasicRes) errors.Error {
-	return migrationhelper.TransformColumns(
+	err := migrationhelper.TransformColumns(
 		basicRes,
 		script,
 		"_tool_github_repos",
@@ -50,6 +50,10 @@ func (script *concatOwnerAndName) Up(basicRes core.BasicRes) errors.Error {
 				OwnerLogin:   "",
 			}, nil
 		})
+	if err != nil {
+		return err
+	}
+	return basicRes.GetDal().DropColumns("_tool_github_repos", "owner_login")
 }
 
 func (*concatOwnerAndName) Version() uint64 {
@@ -57,5 +61,5 @@ func (*concatOwnerAndName) Version() uint64 {
 }
 
 func (*concatOwnerAndName) Name() string {
-	return "concat owner and name for old repos"
+	return "concat owner and name for old github_repos and drop owner for github_repos"
 }

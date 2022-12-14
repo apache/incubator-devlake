@@ -68,8 +68,7 @@ func ExtractApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 			*/
 			Params: GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
+				Name:         data.Options.Name,
 			},
 			/*
 				Table store raw data

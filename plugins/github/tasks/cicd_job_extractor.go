@@ -42,8 +42,7 @@ func ExtractJobs(taskCtx core.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
+				Name:         data.Options.Name,
 			},
 			Table: RAW_JOB_TABLE,
 		},

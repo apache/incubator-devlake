@@ -63,8 +63,7 @@ func ConvertPullRequestCommits(taskCtx core.SubTaskContext) (err errors.Error) {
 			Ctx: taskCtx,
 			Params: GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
+				Name:         data.Options.Name,
 			},
 			Table: RAW_PR_COMMIT_TABLE,
 		},

@@ -43,10 +43,13 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 	if err != nil {
 		return nil, err
 	}
+	token := strings.Split(connection.Token, ",")[0]
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
 		connection.Endpoint,
-		nil,
+		map[string]string{
+			"Authorization": fmt.Sprintf("Bearer %s", token),
+		},
 		10*time.Second,
 		connection.Proxy,
 		basicRes,
@@ -108,7 +111,6 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scopeV100s []*core.Bluepr
 		if stage == nil {
 			stage = core.PipelineStage{}
 		}
-
 		stage, err = addGithub(subtaskMetas, connection, scopeElem.Entities, stage, options)
 		if err != nil {
 			return nil, err
@@ -223,7 +225,7 @@ func addGithub(subtaskMetas []core.SubTaskMeta, connection *models.GithubConnect
 
 func getApiRepo(op *tasks.GithubOptions, apiClient helper.ApiClientGetter) (*tasks.GithubApiRepo, errors.Error) {
 	repoRes := &tasks.GithubApiRepo{}
-	res, err := apiClient.Get(fmt.Sprintf("repos/%s/%s", op.Owner, op.Repo), nil, nil)
+	res, err := apiClient.Get(fmt.Sprintf("repos/%s", op.Name), nil, nil)
 	if err != nil {
 		return nil, err
 	}

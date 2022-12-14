@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/merico-dev/graphql"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -147,8 +148,7 @@ func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: githubTasks.GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
+				Name:         data.Options.Name,
 			},
 			Table: RAW_PRS_TABLE,
 		},
@@ -159,11 +159,12 @@ func CollectPr(taskCtx core.SubTaskContext) errors.Error {
 		*/
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
 			query := &GraphqlQueryPrWrapper{}
+			ownerName := strings.Split(data.Options.Name, "/")
 			variables := map[string]interface{}{
 				"pageSize":   graphql.Int(reqData.Pager.Size),
 				"skipCursor": (*graphql.String)(reqData.Pager.SkipCursor),
-				"owner":      graphql.String(data.Options.Owner),
-				"name":       graphql.String(data.Options.Repo),
+				"owner":      graphql.String(ownerName[0]),
+				"name":       graphql.String(ownerName[1]),
 			}
 			return query, variables, nil
 		},

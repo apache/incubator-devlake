@@ -35,8 +35,7 @@ func TestGithubCICDDataFlow(t *testing.T) {
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
+			Name:         "panjf2000/ants",
 			GithubId:     134018330,
 			GithubTransformationRule: &models.GithubTransformationRule{
 				DeploymentPattern: `deploy.*`,

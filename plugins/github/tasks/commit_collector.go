@@ -44,8 +44,7 @@ func CollectApiCommits(taskCtx core.SubTaskContext) errors.Error {
 		Ctx: taskCtx,
 		Params: GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
-			Owner:        data.Options.Owner,
-			Repo:         data.Options.Repo,
+			Name:         data.Options.Name,
 		},
 		Table: RAW_COMMIT_TABLE,
 	}, data.CreatedDateAfter)
@@ -67,7 +66,7 @@ func CollectApiCommits(taskCtx core.SubTaskContext) errors.Error {
 			avoid duplicate logic for every tasks, and when we have a better idea like improving performance, we can
 			do it in one place
 		*/
-		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/commits",
+		UrlTemplate: "repos/{{ .Params.Name }}/commits",
 		/*
 			(Optional) Return query string for request, or you can plug them into UrlTemplate directly
 		*/

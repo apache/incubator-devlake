@@ -44,15 +44,14 @@ var ExtractApiPrReviewCommentsMeta = core.SubTaskMeta{
 func ExtractApiPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
 	db := taskCtx.GetDal()
-	prUrlPattern := fmt.Sprintf(`https\:\/\/api\.github\.com\/repos\/%s\/%s\/pulls\/(\d+)`, data.Options.Owner, data.Options.Repo)
+	prUrlPattern := fmt.Sprintf(`https\:\/\/api\.github\.com\/repos\/%s\/pulls\/(\d+)`, data.Options.Name)
 
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
 			Ctx: taskCtx,
 			Params: GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
+				Name:         data.Options.Name,
 			},
 			Table: RAW_PR_REVIEW_COMMENTS_TABLE,
 		},

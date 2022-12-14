@@ -33,14 +33,13 @@ func TestPrReviewDataFlow(t *testing.T) {
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
+			Name:         "panjf2000/ants",
 			GithubId:     134018330,
 		},
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_pull_requests.csv", models.GithubPullRequest{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_pull_requests.csv", models.GithubPullRequest{})
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_pull_request_reviews.csv", "_raw_github_api_pull_request_reviews")
 
 	// verify extraction

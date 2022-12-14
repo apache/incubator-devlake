@@ -38,8 +38,7 @@ func TestRepoDataFlow(t *testing.T) {
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
+			Name:         "panjf2000/ants",
 			GithubId:     134018330,
 			GithubTransformationRule: &models.GithubTransformationRule{
 				PrType:      "type/(.*)$",
@@ -53,7 +52,7 @@ func TestRepoDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&ticket.Board{})
 	dataflowTester.FlushTabler(&devops.CicdScope{})
 	dataflowTester.FlushTabler(&crossdomain.BoardRepo{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_repos.csv", &models.GithubRepo{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_repos.csv", &models.GithubRepo{})
 	dataflowTester.Subtask(tasks.ConvertRepoMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Repo{},

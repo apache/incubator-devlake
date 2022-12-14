@@ -47,15 +47,14 @@ func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
+				Name:         data.Options.Name,
 			},
 			Table: RAW_RUN_TABLE,
 		},
 		ApiClient:   data.ApiClient,
 		PageSize:    30,
 		Incremental: false,
-		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/actions/runs",
+		UrlTemplate: "repos/{{ .Params.Name }}/actions/runs",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			if data.CreatedDateAfter != nil {
