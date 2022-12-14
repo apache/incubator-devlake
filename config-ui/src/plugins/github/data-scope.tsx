@@ -62,7 +62,7 @@ export const GitHubDataScope = ({
         )}
         onChangeItems={handleChangeMillerColumnsItems}
       />
-      <h5>Add repositories outside of your organizations</h5>
+      <h4>Add repositories outside of your organizations</h4>
       <p>Search for repositories and add to them</p>
       <RepoSelector
         connectionId={connectionId}

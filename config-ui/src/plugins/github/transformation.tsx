@@ -27,8 +27,6 @@ import {
   AdditionalSettings
 } from './components'
 
-import * as S from './styled'
-
 interface Props {
   transformation: any
   setTransformation: React.Dispatch<React.SetStateAction<any>>
@@ -36,13 +34,13 @@ interface Props {
 
 export const GitHubTransformation = ({ ...props }: Props) => {
   return (
-    <S.TransformationWrapper>
+    <>
       <IssueTracking {...props} />
       <Divider />
       <CiCd {...props} />
       <Divider />
       <CodeReview {...props} />
       <AdditionalSettings {...props} />
-    </S.TransformationWrapper>
+    </>
   )
 }
