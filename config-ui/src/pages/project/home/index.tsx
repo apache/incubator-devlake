@@ -21,7 +21,7 @@ import { Link, useHistory } from 'react-router-dom'
 import { Button, InputGroup, Checkbox, Intent } from '@blueprintjs/core'
 
 import NoData from '@/images/no-data.svg'
-import { PageHeader, Table, ColumnType, Dialog } from '@/components'
+import { PageHeader, Card, Table, ColumnType, Dialog } from '@/components'
 
 import { useProject } from './use-project'
 import * as S from './styled'
@@ -93,7 +93,7 @@ export const ProjectHomePage = () => {
     >
       <S.Container>
         {!projects.length ? (
-          <S.Inner>
+          <Card className='card'>
             <div className='logo'>
               <img src={NoData} alt='' />
             </div>
@@ -110,7 +110,7 @@ export const ProjectHomePage = () => {
                 onClick={handleShowDialog}
               />
             </div>
-          </S.Inner>
+          </Card>
         ) : (
           <Table loading={loading} columns={columns} dataSource={projects} />
         )}

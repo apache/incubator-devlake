@@ -84,9 +84,7 @@ export const WebHookConnection = () => {
           onClick={() => handleShowDialog('add')}
         />
       </ButtonGroup>
-      <S.Inner>
-        <Table loading={loading} columns={columns} dataSource={connections} />
-      </S.Inner>
+      <Table loading={loading} columns={columns} dataSource={connections} />
       {type === 'add' && (
         <CreateDialog
           isOpen
