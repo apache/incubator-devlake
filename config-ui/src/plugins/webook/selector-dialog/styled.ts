@@ -16,9 +16,18 @@
  *
  */
 
-export * from './types'
-export * from './connection'
-export * from './create-dialog'
-export * from './delete-dialog'
-export * from './view-or-edit-dialog'
-export * from './selector-dialog'
+import styled from 'styled-components'
+
+export const Wrapper = styled.div`
+  padding: 0 8px;
+
+  h3 {
+    margin: 8px 0;
+    font-size: 14px;
+  }
+
+  p {
+    margin: 0 0 8px;
+    font-size: 12px;
+  }
+`
