@@ -94,7 +94,7 @@ export const SyncPolicy = ({
         <p style={{ margin: '10px 0' }}>{cron.description}</p>
         <RadioGroup selectedValue={cron.value} onChange={handleChangeFrequency}>
           {options.map(({ label, value }) => (
-            <Radio label={label} value={value} />
+            <Radio key={value} label={label} value={value} />
           ))}
         </RadioGroup>
         {cron.value === 'custom' && (
