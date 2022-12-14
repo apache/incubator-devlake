@@ -88,8 +88,6 @@ export const useTransformation = ({
       transformationRuleId: tid
     }))
 
-    console.log(payload)
-
     const [success] = await operator(() =>
       API.updateDataScope(plugin, connectionId, {
         data: payload
