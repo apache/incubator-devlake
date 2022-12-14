@@ -117,6 +117,10 @@ export const ProjectHomePage = () => {
         <Dialog
           isOpen={isOpen}
           title='Create a New Project'
+          style={{
+            top: -100,
+            width: 820
+          }}
           okText='Save'
           okDisabled={!name}
           okLoading={operating}

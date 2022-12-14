@@ -21,9 +21,6 @@ import { Dialog } from '@blueprintjs/core'
 
 export const Container = styled(Dialog)`
   position: relative;
-  top: -200px;
-  left: 90px;
-  width: 820px;
   background-color: #fff;
 `
 

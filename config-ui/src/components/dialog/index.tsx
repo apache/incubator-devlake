@@ -26,6 +26,7 @@ interface Props {
   children: React.ReactNode
   style?: React.CSSProperties
   title?: string
+  footer?: React.ReactNode | null
   cancelText?: string
   okText?: string
   okDisabled?: boolean
@@ -39,6 +40,7 @@ export const Dialog = ({
   children,
   style,
   title,
+  footer,
   cancelText = 'Cancel',
   okText = 'OK',
   okDisabled,
@@ -55,23 +57,27 @@ export const Dialog = ({
         </S.Header>
       )}
       <S.Body className={Classes.DIALOG_BODY}>{children}</S.Body>
-      <S.Footer className={Classes.DIALOG_FOOTER}>
-        <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-          <Button
-            outlined
-            intent={Intent.PRIMARY}
-            onClick={onCancel}
-            text={cancelText}
-          />
-          <Button
-            disabled={okDisabled}
-            loading={okLoading}
-            intent={Intent.PRIMARY}
-            text={okText}
-            onClick={onOk}
-          />
-        </div>
-      </S.Footer>
+      {footer ? (
+        footer
+      ) : footer !== null ? (
+        <S.Footer className={Classes.DIALOG_FOOTER}>
+          <div className={Classes.DIALOG_FOOTER_ACTIONS}>
+            <Button
+              outlined
+              intent={Intent.PRIMARY}
+              onClick={onCancel}
+              text={cancelText}
+            />
+            <Button
+              disabled={okDisabled}
+              loading={okLoading}
+              intent={Intent.PRIMARY}
+              text={okText}
+              onClick={onOk}
+            />
+          </div>
+        </S.Footer>
+      ) : null}
     </S.Container>
   )
 }
