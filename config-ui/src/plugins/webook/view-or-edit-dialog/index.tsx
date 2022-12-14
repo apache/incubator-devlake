@@ -16,66 +16,45 @@
  *
  */
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React from 'react'
 import { InputGroup, Icon } from '@blueprintjs/core'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import { Dialog, toast } from '@/components'
 
+import type { UseViewOrEditProps } from './use-view-or-edit'
+import { useViewOrEdit } from './use-view-or-edit'
 import * as S from './styled'
 
-const prefix = `${window.location.origin}/api`
-
-interface Props {
+interface Props extends UseViewOrEditProps {
   type: 'edit' | 'show'
-  initialValues: any
   isOpen: boolean
-  saving: boolean
-  onSubmit: (id: ID, name: string) => Promise<any>
   onCancel: () => void
 }
 
-export const ViewOrEditDialog = ({
+export const WebhookViewOrEditDialog = ({
   type,
-  initialValues,
   isOpen,
-  saving,
-  onSubmit,
-  onCancel
+  onCancel,
+  ...props
 }: Props) => {
-  const [name, setName] = useState('')
-  const [record, setRecord] = useState({
-    postIssuesEndpoint: '',
-    closeIssuesEndpoint: '',
-    postDeploymentsCurl: ''
+  const { saving, name, record, onChangeName, onSubmit } = useViewOrEdit({
+    ...props
   })
 
-  useEffect(() => {
-    setName(initialValues.name)
-    setRecord({
-      postIssuesEndpoint: `${prefix}${initialValues.postIssuesEndpoint}`,
-      closeIssuesEndpoint: `${prefix}${initialValues.closeIssuesEndpoint}`,
-      postDeploymentsCurl: `curl ${prefix}${initialValues.postPipelineDeployTaskEndpoint} -X 'POST' -d "{
-\\"commit_sha\\":\\"the sha of deployment commit\\",
-\\"repo_url\\":\\"the repo URL of the deployment commit\\",
-\\"start_time\\":\\"Optional, eg. 2020-01-01T12:00:00+00:00\\"
-}"`
-    })
-  }, [initialValues])
-
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = () => {
     if (type === 'edit') {
-      await onSubmit(initialValues.id, name)
+      onSubmit()
     }
 
     onCancel()
-  }, [name])
+  }
 
   return (
     <Dialog
       isOpen={isOpen}
       title='View or Edit Incoming Webhook'
-      style={{ width: 600, top: -100 }}
+      style={{ width: 600 }}
       okText={type === 'edit' ? 'Save' : 'Done'}
       okDisabled={!name}
       okLoading={saving}
@@ -91,7 +70,7 @@ export const ViewOrEditDialog = ({
         <InputGroup
           disabled={type !== 'edit'}
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => onChangeName(e.target.value)}
         />
         <h2>
           <Icon icon='endorsed' size={30} />

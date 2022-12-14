@@ -20,5 +20,6 @@ export enum Plugins {
   GitHub = 'github',
   JIRA = 'jira',
   GitLab = 'gitlab',
-  Jenkins = 'jenkins'
+  Jenkins = 'jenkins',
+  Webhook = 'webhook'
 }

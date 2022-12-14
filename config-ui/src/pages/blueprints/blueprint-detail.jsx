@@ -267,7 +267,7 @@ const BlueprintDetail = ({ id }) => {
             ProviderLabels[connection?.plugin.toUpperCase()]
           } Connection (ID #${connection?.connectionId})`,
           dataScope: connection?.scopes
-            .map((s) => [`${s.options?.owner}/${s?.options?.repo}`])
+            ?.map((s) => [`${s.options?.owner}/${s?.options?.repo}`])
             .join(', '),
           dataDomains: []
         }))

@@ -21,4 +21,4 @@ export type ProjectType = {
   description: string
   blueprint: any | null
   enableDora: boolean
-} | null
+}

@@ -16,4 +16,7 @@
  *
  */
 
-export * from './miller-columns'
+export type WebhookItemType = {
+  id: ID
+  name: string
+}

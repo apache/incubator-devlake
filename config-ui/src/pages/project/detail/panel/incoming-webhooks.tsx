@@ -16,21 +16,52 @@
  *
  */
 
-import React from 'react'
+import React, { useState, useMemo } from 'react'
 import { Button, Intent } from '@blueprintjs/core'
 
 import NoData from '@/images/no-webhook.svg'
+import { Card } from '@/components'
+import type { WebhookItemType } from '@/plugins'
+import {
+  Plugins,
+  WebhookCreateDialog,
+  WebhookSelectorDialog,
+  WebHookConnection
+} from '@/plugins'
 
 import type { ProjectType } from '../types'
-import * as S from '../styled'
 
 interface Props {
-  project?: ProjectType
+  project: ProjectType
+  saving: boolean
+  onSelectWebhook: (items: WebhookItemType[]) => void
+  onCreateWebhook: (id: ID) => any
 }
 
-export const IncomingWebhooksPanel = ({ project }: Props) => {
-  return (
-    <S.Panel>
+export const IncomingWebhooksPanel = ({
+  project,
+  saving,
+  onSelectWebhook,
+  onCreateWebhook
+}: Props) => {
+  const [type, setType] = useState<'selectExist' | 'create'>()
+
+  const webhookIds = useMemo(
+    () =>
+      project.blueprint
+        ? project.blueprint.settings.connections
+            .filter((cs: any) => cs.plugin === Plugins.Webhook)
+            .map((cs: any) => cs.connectionId)
+        : [],
+    [project]
+  )
+
+  const handleCancel = () => {
+    setType(undefined)
+  }
+
+  return !webhookIds.length ? (
+    <Card>
       <div className='webhook'>
         <div className='logo'>
           <img src={NoData} alt='' />
@@ -42,15 +73,38 @@ export const IncomingWebhooksPanel = ({ project }: Props) => {
           </p>
         </div>
         <div className='action'>
-          <Button intent={Intent.PRIMARY} icon='plus' text='Add a Webhook' />
+          <Button
+            intent={Intent.PRIMARY}
+            icon='plus'
+            text='Add a Webhook'
+            onClick={() => setType('create')}
+          />
           <span className='or'>or</span>
           <Button
             outlined
             intent={Intent.PRIMARY}
             text='Select Existing Webhooks'
+            onClick={() => setType('selectExist')}
           />
         </div>
       </div>
-    </S.Panel>
+      {type === 'create' && (
+        <WebhookCreateDialog
+          isOpen
+          onCancel={handleCancel}
+          onSubmitAfter={onCreateWebhook}
+        />
+      )}
+      {type === 'selectExist' && (
+        <WebhookSelectorDialog
+          isOpen
+          saving={saving}
+          onCancel={handleCancel}
+          onSubmit={onSelectWebhook}
+        />
+      )}
+    </Card>
+  ) : (
+    <WebHookConnection filterIds={webhookIds} onCreateAfter={onCreateWebhook} />
   )
 }
