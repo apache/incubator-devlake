@@ -27,46 +27,56 @@ import * as API from './api'
 export interface UseDataScope {
   plugin: string
   connectionId: ID
-  allEntities: string[]
-  onSaveAfter?: (scope: Array<{ id: ID; entities: string[] }>) => void
+  entities: string[]
+  initialValues?: any
+  onSave?: (scope: any) => void
 }
 
 export const useDataScope = ({
   plugin,
   connectionId,
-  allEntities,
-  onSaveAfter
+  entities,
+  initialValues,
+  onSave
 }: UseDataScope) => {
   const [saving, setSaving] = useState(false)
-  const [scope, setScope] = useState<any>([])
-  const [entities, setEntities] = useState<string[]>([])
+  const [selectedScope, setSelectedScope] = useState<any>([])
+  const [selectedEntities, setSelectedEntities] = useState<string[]>([])
 
   useEffect(() => {
-    setEntities(allEntities ?? [])
-  }, [allEntities])
+    setSelectedScope(initialValues ?? [])
+  }, [initialValues])
+
+  useEffect(() => {
+    setSelectedEntities(entities ?? [])
+  }, [entities])
 
   const formatScope = (scope: any) => {
     return scope.map((sc: any) => {
       switch (true) {
         case plugin === Plugins.GitHub:
           return {
+            ...sc,
             id: sc.githubId,
-            entities
+            entities: selectedEntities
           }
         case plugin === Plugins.JIRA:
           return {
+            ...sc,
             id: sc.boardId,
-            entities
+            entities: selectedEntities
           }
         case plugin === Plugins.GitLab:
           return {
+            ...sc,
             id: sc.gitlabId,
-            entities
+            entities: selectedEntities
           }
         case plugin === Plugins.Jenkins:
           return {
+            ...sc,
             id: sc.fullName,
-            entities
+            entities: selectedEntities
           }
       }
     })
@@ -76,7 +86,7 @@ export const useDataScope = ({
     const [success, res] = await operator(
       () =>
         API.updateDataScope(plugin, connectionId, {
-          data: scope.map((sc: any) => omit(sc, 'from'))
+          data: selectedScope.map((sc: any) => omit(sc, 'from'))
         }),
       {
         setOperating: setSaving
@@ -84,19 +94,19 @@ export const useDataScope = ({
     )
 
     if (success) {
-      onSaveAfter?.(formatScope(res))
+      onSave?.(formatScope(res))
     }
   }
 
   return useMemo(
     () => ({
       saving,
-      scope,
-      entities,
-      onChangeScope: setScope,
-      onChangeEntities: setEntities,
+      selectedScope,
+      selectedEntities,
+      onChangeScope: setSelectedScope,
+      onChangeEntites: setSelectedEntities,
       onSave: handleSave
     }),
-    [saving, scope]
+    [saving, selectedScope, selectedEntities]
   )
 }
