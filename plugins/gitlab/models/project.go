@@ -42,7 +42,7 @@ type GitlabProject struct {
 
 	CreatedDate      time.Time  `json:"createdDate" mapstructure:"-"`
 	UpdatedDate      *time.Time `json:"updatedDate" mapstructure:"-"`
-	common.NoPKModel `json:"-" mapstructure:"-"`
+	common.NoPKModel `json:"-" mapstructure:"-" swaggerignore:"true"`
 }
 
 func (GitlabProject) TableName() string {
