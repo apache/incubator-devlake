@@ -34,7 +34,7 @@ type GithubRepo struct {
 	Language       string     `json:"language" gorm:"type:varchar(255)"`
 	ParentGithubId int        `json:"parentId"`
 	ParentHTMLUrl  string     `json:"parentHtmlUrl"`
-	CreatedDate    time.Time  `json:"createdDate"`
+	CreatedDate    *time.Time `json:"createdDate"`
 	UpdatedDate    *time.Time `json:"updatedDate"`
 	archived.NoPKModel
 }

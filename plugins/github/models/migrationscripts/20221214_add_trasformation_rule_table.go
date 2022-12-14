@@ -26,6 +26,7 @@ import (
 
 type githubRepo20221124 struct {
 	TransformationRuleId uint64
+	CloneUrl             string `json:"cloneUrl" gorm:"type:varchar(255)" mapstructure:"cloneUrl,omitempty"`
 }
 
 func (githubRepo20221124) TableName() string {
@@ -34,14 +35,14 @@ func (githubRepo20221124) TableName() string {
 
 type addTransformationRule20221124 struct{}
 
-func (*addTransformationRule20221124) Up(basicRes core.BasicRes) errors.Error {
+func (script *addTransformationRule20221124) Up(basicRes core.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(basicRes, &githubRepo20221124{}, &archived.GithubTransformationRule{})
 }
 
 func (*addTransformationRule20221124) Version() uint64 {
-	return 20221202095900
+	return 20221214095900
 }
 
 func (*addTransformationRule20221124) Name() string {
-	return "add table _tool_github_transformation_rules, add transformation_rule_id to _tool_github_repos"
+	return "add table _tool_github_transformation_rules, add transformation_rule_id&clone_url to _tool_github_repos"
 }

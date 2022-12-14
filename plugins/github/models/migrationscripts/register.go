@@ -32,5 +32,6 @@ func All() []core.MigrationScript {
 		new(addHeadRepoIdFieldInGithubPr),
 		new(addEnableGraphqlForConnection),
 		new(addTransformationRule20221124),
+		new(concatOwnerAndName),
 	}
 }
