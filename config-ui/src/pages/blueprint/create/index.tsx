@@ -21,8 +21,7 @@ import { useParams } from 'react-router-dom'
 
 import { PageHeader } from '@/components'
 
-import { useBlueprintValue } from './hooks/use-blueprint-value'
-import { BlueprintContext } from './hooks/blueprint-context'
+import { BPContext, BPContextProvider } from './bp-context'
 
 import { FromEnum, ModeEnum } from './types'
 import { WorkFlow, Action, Inspector } from './components'
@@ -38,11 +37,6 @@ interface Props {
 
 export const CreateBlueprintPage = ({ from }: Props) => {
   const { pname } = useParams<{ pname: string }>()
-
-  const { step, mode, ...props } = useBlueprintValue({
-    from,
-    projectName: pname
-  })
 
   const breadcrumbs = useMemo(
     () =>
@@ -63,27 +57,25 @@ export const CreateBlueprintPage = ({ from }: Props) => {
   )
 
   return (
-    <BlueprintContext.Provider
-      value={{
-        step,
-        mode,
-        ...props
-      }}
-    >
-      <PageHeader breadcrumbs={breadcrumbs}>
-        <S.Container>
-          <WorkFlow />
-          <S.Content>
-            {step === 1 && <StepOne />}
-            {mode === ModeEnum.normal && step === 2 && <StepTwo />}
-            {step === 3 && <StepThree />}
-            {((mode === ModeEnum.normal && step === 4) ||
-              (mode === ModeEnum.advanced && step === 2)) && <StepFour />}
-          </S.Content>
-          <Action />
-          <Inspector />
-        </S.Container>
-      </PageHeader>
-    </BlueprintContext.Provider>
+    <BPContextProvider from={from} projectName={pname}>
+      <BPContext.Consumer>
+        {({ step, mode }) => (
+          <PageHeader breadcrumbs={breadcrumbs}>
+            <S.Container>
+              <WorkFlow />
+              <S.Content>
+                {step === 1 && <StepOne />}
+                {mode === ModeEnum.normal && step === 2 && <StepTwo />}
+                {step === 3 && <StepThree />}
+                {((mode === ModeEnum.normal && step === 4) ||
+                  (mode === ModeEnum.advanced && step === 2)) && <StepFour />}
+              </S.Content>
+              <Action />
+              <Inspector />
+            </S.Container>
+          </PageHeader>
+        )}
+      </BPContext.Consumer>
+    </BPContextProvider>
   )
 }

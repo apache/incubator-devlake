@@ -28,7 +28,7 @@ import {
 import { Popover2 } from '@blueprintjs/popover2'
 
 import { ModeEnum } from '../../types'
-import { useBlueprint } from '../../hooks'
+import { useCreateBP } from '../../bp-context'
 
 import * as S from './styled'
 
@@ -42,7 +42,7 @@ export const Action = () => {
     onChangeShowInspector,
     onSave,
     onSaveAndRun
-  } = useBlueprint()
+  } = useCreateBP()
 
   const [isFirst, isLast] = useMemo(() => {
     return [

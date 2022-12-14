@@ -28,6 +28,7 @@ import { MultiSelector } from '@/components'
 
 import type { UseDataScope } from './use-data-scope'
 import { useDataScope } from './use-data-scope'
+import * as S from './styled'
 
 interface Props extends UseDataScope {
   onCancel?: () => void
@@ -36,25 +37,31 @@ interface Props extends UseDataScope {
 export const DataScope = ({
   plugin,
   connectionId,
-  allEntities,
+  entities,
   onCancel,
-  onSaveAfter
+  ...props
 }: Props) => {
-  const { saving, scope, entities, onChangeScope, onChangeEntities, onSave } =
-    useDataScope({
-      plugin,
-      connectionId,
-      allEntities,
-      onSaveAfter
-    })
+  const {
+    saving,
+    selectedScope,
+    selectedEntities,
+    onChangeScope,
+    onChangeEntites,
+    onSave
+  } = useDataScope({
+    ...props,
+    plugin,
+    connectionId,
+    entities
+  })
 
   return (
-    <>
+    <S.Wrapper>
       <div className='block'>
         {plugin === Plugins.GitHub && (
           <GitHubDataScope
             connectionId={connectionId}
-            selectedItems={scope}
+            selectedItems={selectedScope}
             onChangeItems={onChangeScope}
           />
         )}
@@ -62,7 +69,7 @@ export const DataScope = ({
         {plugin === Plugins.JIRA && (
           <JIRADataScope
             connectionId={connectionId}
-            selectedItems={scope}
+            selectedItems={selectedScope}
             onChangeItems={onChangeScope}
           />
         )}
@@ -70,7 +77,7 @@ export const DataScope = ({
         {plugin === Plugins.GitLab && (
           <GitLabDataScope
             connectionId={connectionId}
-            selectedItems={scope}
+            selectedItems={selectedScope}
             onChangeItems={onChangeScope}
           />
         )}
@@ -78,7 +85,7 @@ export const DataScope = ({
         {plugin === Plugins.Jenkins && (
           <JenkinsDataScope
             connectionId={connectionId}
-            selectedItems={scope}
+            selectedItems={selectedScope}
             onChangeItems={onChangeScope}
           />
         )}
@@ -98,9 +105,9 @@ export const DataScope = ({
           </a>
         </p>
         <MultiSelector
-          items={allEntities}
-          selectedItems={entities}
-          onChangeItems={onChangeEntities}
+          items={entities}
+          selectedItems={selectedEntities}
+          onChangeItems={onChangeEntites}
         />
       </div>
 
@@ -110,11 +117,11 @@ export const DataScope = ({
           outlined
           intent={Intent.PRIMARY}
           loading={saving}
-          disabled={!scope.length || !entities.length}
+          disabled={!selectedScope.length || !selectedEntities.length}
           text='Save'
           onClick={onSave}
         />
       </ButtonGroup>
-    </>
+    </S.Wrapper>
   )
 }

@@ -16,28 +16,27 @@
  *
  */
 
-import React from 'react'
+import styled from 'styled-components'
 
-import { Selector } from '@/components'
+export const Wrapper = styled.div`
+  .block {
+    margin-bottom: 16px;
+  }
 
-import type { RuleItem, UseRuleProps } from './use-rule'
-import { useRule } from './use-rule'
+  h3 {
+    margin: 0 0 8px;
+  }
 
-interface Props extends UseRuleProps {
-  selectedRule: RuleItem
-  onChangeRule: (selectedRule: RuleItem) => void
-}
+  h4 {
+    margin: 8px 0;
+  }
 
-export const RuleSelector = ({ plugin, selectedRule, onChangeRule }: Props) => {
-  const { rules } = useRule({ plugin })
+  p {
+    margin: 0 0 8px;
+  }
 
-  return (
-    <Selector
-      items={rules}
-      getKey={(it) => it.id}
-      getName={(it) => it.name}
-      selectedItem={selectedRule}
-      onChangeItem={onChangeRule}
-    />
-  )
-}
+  .bp4-button-group {
+    display: flex;
+    justify-content: flex-end;
+  }
+`

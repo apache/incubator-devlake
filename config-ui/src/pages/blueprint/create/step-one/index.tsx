@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   InputGroup,
   TextArea,
@@ -29,10 +29,10 @@ import {
 import { Popover2 } from '@blueprintjs/popover2'
 
 import { useStore } from '@/store/store'
-import { Divider, MultiSelector, Loading } from '@/components'
+import { Card, Divider, MultiSelector, Loading } from '@/components'
 
 import { ModeEnum } from '../types'
-import { useBlueprint } from '../hooks'
+import { useCreateBP } from '../bp-context'
 
 import { DEFAULT_CONFIG } from './example'
 import * as S from './styled'
@@ -40,30 +40,22 @@ import * as S from './styled'
 export const StepOne = () => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const connectionsStore = useStore()
+  const { connections, onTestConnections } = useStore()
 
   const {
     mode,
     name,
     rawPlan,
-    connections,
+    uniqueList,
     onChangeMode,
     onChangeName,
     onChangeRawPlan,
-    onChangeConnections
-  } = useBlueprint()
-
-  const selectedConnections = useMemo(
-    () =>
-      connectionsStore.connections.filter((cs) =>
-        connections.map((cs) => cs.unique).includes(cs.unique)
-      ),
-    [connectionsStore, connections]
-  )
+    onChangeUniqueList
+  } = useCreateBP()
 
   return (
     <>
-      <S.Card>
+      <Card className='card'>
         <h2>Blueprint Name</h2>
         <Divider />
         <p>
@@ -75,46 +67,45 @@ export const StepOne = () => {
           value={name}
           onChange={(e) => onChangeName(e.target.value)}
         />
-      </S.Card>
+      </Card>
 
       {mode === ModeEnum.normal && (
         <>
-          <S.Card>
+          <Card className='card'>
             <h2>Add Data Connections</h2>
             <Divider />
             <h3>Select Connections</h3>
             <p>Select from existing or create new connections</p>
             <MultiSelector
               placeholder='Select Connections...'
-              items={connectionsStore.connections}
+              items={connections}
               getKey={(it) => it.unique}
               getName={(it) => it.name}
               getIcon={(it) => it.icon}
-              selectedItems={selectedConnections}
+              selectedItems={connections.filter((cs) =>
+                uniqueList.includes(cs.unique)
+              )}
               onChangeItems={(selectedItems) => {
-                connectionsStore.onTestConnections(selectedItems)
-                onChangeConnections(
-                  selectedItems.map((it) => ({
-                    ...it,
-                    scope: []
-                  }))
-                )
+                onTestConnections(selectedItems)
+                onChangeUniqueList(selectedItems.map((sc) => sc.unique))
               }}
             />
             <S.ConnectionList>
-              {selectedConnections.map((cs) => (
-                <li key={cs.unique}>
-                  <span className='name'>{cs.name}</span>
-                  <span className={`status ${cs.status}`}>
-                    {cs.status === 'testing' && (
-                      <Loading size={14} style={{ marginRight: 4 }} />
-                    )}
-                    {cs.status}
-                  </span>
-                </li>
-              ))}
+              {connections
+                .filter((cs) => uniqueList.includes(cs.unique))
+                .map((cs) => (
+                  <li key={cs.unique}>
+                    <span className='name'>{cs.name}</span>
+                    <span className={`status ${cs.status}`}>
+                      {cs.status === 'testing' && (
+                        <Loading size={14} style={{ marginRight: 4 }} />
+                      )}
+                      {cs.status}
+                    </span>
+                  </li>
+                ))}
             </S.ConnectionList>
-          </S.Card>
+          </Card>
           <S.Tips>
             <span>
               To customize how tasks are executed in the blueprint, please use{' '}
@@ -128,7 +119,7 @@ export const StepOne = () => {
 
       {mode === ModeEnum.advanced && (
         <>
-          <S.Card>
+          <Card className='card'>
             <h2>JSON Configuration</h2>
             <Divider />
             <h3>Task Editor</h3>
@@ -167,7 +158,7 @@ export const StepOne = () => {
                 />
               </Popover2>
             </ButtonGroup>
-          </S.Card>
+          </Card>
           <S.Tips>
             <span>To visually define blueprint tasks, please use </span>
             <span onClick={() => onChangeMode(ModeEnum.normal)}>

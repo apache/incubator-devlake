@@ -18,7 +18,7 @@
 
 import React from 'react'
 
-import { Loading } from '@/components'
+import { Loading, Card } from '@/components'
 
 import { ColumnType } from './types'
 import * as S from './styled'
@@ -35,36 +35,38 @@ export const Table = <T extends Record<string, any>>({
   dataSource
 }: Props<T>) => {
   return (
-    <S.Container>
-      <S.TableWrapper loading={loading ? 1 : 0}>
-        <S.TableHeader>
-          {columns.map(({ key, title }) => (
-            <span key={key}>{title}</span>
+    <Card style={{ padding: 0 }}>
+      <S.Container>
+        <S.TableWrapper loading={loading ? 1 : 0}>
+          <S.TableHeader>
+            {columns.map(({ key, title }) => (
+              <span key={key}>{title}</span>
+            ))}
+          </S.TableHeader>
+          {dataSource.map((data, i) => (
+            <S.TableRow key={i}>
+              {columns.map(({ key, align = 'left', dataIndex, render }) => {
+                const value = Array.isArray(dataIndex)
+                  ? dataIndex.reduce((acc, cur) => {
+                      acc[cur] = data[cur]
+                      return acc
+                    }, {} as any)
+                  : data[dataIndex]
+                return (
+                  <span key={key} style={{ textAlign: align }}>
+                    {render ? render(value, data) : value}
+                  </span>
+                )
+              })}
+            </S.TableRow>
           ))}
-        </S.TableHeader>
-        {dataSource.map((data, i) => (
-          <S.TableRow key={i}>
-            {columns.map(({ key, align = 'left', dataIndex, render }) => {
-              const value = Array.isArray(dataIndex)
-                ? dataIndex.reduce((acc, cur) => {
-                    acc[cur] = data[cur]
-                    return acc
-                  }, {} as any)
-                : data[dataIndex]
-              return (
-                <span key={key} style={{ textAlign: align }}>
-                  {render ? render(value, data) : value}
-                </span>
-              )
-            })}
-          </S.TableRow>
-        ))}
-      </S.TableWrapper>
-      {loading && (
-        <S.TableMask>
-          <Loading />
-        </S.TableMask>
-      )}
-    </S.Container>
+        </S.TableWrapper>
+        {loading && (
+          <S.TableMask>
+            <Loading />
+          </S.TableMask>
+        )}
+      </S.Container>
+    </Card>
   )
 }

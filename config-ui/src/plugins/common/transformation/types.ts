@@ -16,42 +16,13 @@
  *
  */
 
-import { useEffect, useMemo, useState } from 'react'
-
-import { Plugins } from '@/plugins'
-
-import * as API from './api'
+export type TransformationType = 'create' | 'createByExist' | 'selectExist'
 
 export type RuleItem = {
   id: ID
   name: string
 }
 
-export interface UseRuleProps {
-  plugin: Plugins
-}
-
-export const useRule = ({ plugin }: UseRuleProps) => {
-  const [loading, setLoading] = useState(false)
-  const [rules, setRules] = useState<RuleItem[]>([])
-
-  useEffect(() => {
-    ;(async () => {
-      setLoading(true)
-      try {
-        const res = await API.getRules(plugin)
-        setRules(res)
-      } finally {
-        setLoading(false)
-      }
-    })()
-  }, [])
-
-  return useMemo(
-    () => ({
-      loading,
-      rules
-    }),
-    [loading, rules]
-  )
-}
+export type ScopeItem = {
+  name: string
+} & any

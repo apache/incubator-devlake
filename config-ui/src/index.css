@@ -22,3 +22,7 @@
 @import '~@blueprintjs/select/lib/css/blueprint-select.css';
 @import '~@blueprintjs/popover2/lib/css/blueprint-popover2.css';
 @import '~@blueprintjs/datetime/lib/css/blueprint-datetime.css';
+
+.bp4-button + .bp4-button {
+  margin-left: 8px;
+}

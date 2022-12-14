@@ -18,35 +18,93 @@
 
 import { useState, useEffect, useMemo } from 'react'
 
+import { Plugins } from '@/plugins'
 import { operator } from '@/utils'
 
+import type { RuleItem, ScopeItem } from './types'
 import { defaultConfig } from './config'
-import { createTransformation } from './api'
+import * as API from './api'
 
 export interface UseTransformationProps {
-  plugin: string
+  plugin: Plugins
+  connectionId: ID
+  scopeIds: ID[]
   name: string
-  initialValues?: any
-  onSaveAfter?: (tid: string | number) => void
+  selectedRule?: RuleItem
+  selectedScope?: ScopeItem[]
+  onSave?: () => void
 }
 
 export const useTransformation = ({
   plugin,
+  connectionId,
+  scopeIds,
   name,
-  initialValues,
-  onSaveAfter
+  selectedRule,
+  selectedScope,
+  onSave
 }: UseTransformationProps) => {
+  const [loading, setLoading] = useState(false)
+  const [rules, setRules] = useState<RuleItem[]>([])
+  const [scope, setScope] = useState<ScopeItem[]>([])
   const [saving, setSaving] = useState(false)
   const [transformation, setTransformation] = useState({})
 
   useEffect(() => {
-    setTransformation(initialValues ? initialValues : defaultConfig[plugin])
-  }, [initialValues, plugin])
+    setTransformation(selectedRule ? selectedRule : defaultConfig[plugin])
+  }, [selectedRule])
+
+  const getRules = async () => {
+    const res = await API.getRules(plugin)
+    setRules(res)
+  }
+
+  const getScope = async () => {
+    const res = await Promise.all(
+      scopeIds.map((id) => API.getDataScopeRepo(plugin, connectionId, id))
+    )
+    setScope(res)
+  }
+
+  const init = async () => {
+    setLoading(true)
+    try {
+      await getRules()
+      await getScope()
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    init()
+  }, [])
+
+  const handleUpdateScope = async (tid?: ID) => {
+    if (!tid) return
+
+    const payload = (selectedScope ?? []).map((sc: any) => ({
+      ...sc,
+      transformationRuleId: tid
+    }))
+
+    console.log(payload)
+
+    const [success] = await operator(() =>
+      API.updateDataScope(plugin, connectionId, {
+        data: payload
+      })
+    )
+
+    if (success) {
+      onSave?.()
+    }
+  }
 
   const handleSave = async () => {
     const [success, res] = await operator(
       () =>
-        createTransformation(plugin, {
+        API.createTransformation(plugin, {
           ...transformation,
           name
         }),
@@ -56,17 +114,53 @@ export const useTransformation = ({
     )
 
     if (success) {
-      onSaveAfter?.(res.id)
+      const payload = (selectedScope ?? []).map((sc: any) => ({
+        ...sc,
+        transformationRuleId: res.id
+      }))
+
+      if (payload.length) {
+        API.updateDataScope(plugin, connectionId, {
+          data: payload
+        })
+      }
+
+      onSave?.()
     }
   }
 
   return useMemo(
     () => ({
+      loading,
+      rules,
+      scope,
       saving,
       transformation,
-      setTransformation,
-      onSave: handleSave
+      getScopeKey(sc: any) {
+        switch (true) {
+          case plugin === Plugins.GitHub:
+            return sc.githubId
+          case plugin === Plugins.JIRA:
+            return sc.boardId
+          case plugin === Plugins.GitLab:
+            return sc.gitlabId
+          case plugin === Plugins.Jenkins:
+            return sc.fullName
+        }
+      },
+      onSave: handleSave,
+      onUpdateScope: handleUpdateScope,
+      onChangeTransformation: setTransformation
     }),
-    [saving, transformation, name, onSaveAfter]
+    [
+      loading,
+      rules,
+      scope,
+      saving,
+      transformation,
+      plugin,
+      selectedScope,
+      onSave
+    ]
   )
 }

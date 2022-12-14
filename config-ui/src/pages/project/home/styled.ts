@@ -19,26 +19,18 @@
 import styled from '@emotion/styled'
 
 export const Container = styled.div`
-  background-color: #ffffff;
-  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1),
-    0px 1.6px 8px rgba(0, 0, 0, 0.07);
-  border-radius: 4px;
-`
+  .card {
+    text-align: center;
 
-export const Inner = styled.div`
-  padding: 24px;
-  text-align: center;
-
-  .logo {
     img {
       display: inline-block;
       width: 120px;
       height: 120px;
     }
-  }
 
-  .desc {
-    margin: 20px 0;
+    .desc {
+      margin: 24px 0;
+    }
   }
 `
 

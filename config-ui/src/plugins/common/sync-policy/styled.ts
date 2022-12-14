@@ -16,17 +16,34 @@
  *
  */
 
-import request from '@/components/utils/request'
+import styled from 'styled-components'
 
-import { Plugins } from '@/plugins'
+export const Wrapper = styled.div`
+  .block + .block {
+    margin-top: 24px;
+  }
+`
+export const Input = styled.div`
+  display: flex;
+  align-items: center;
+`
 
-type GetRulesParams = {
-  page: number
-  pageSize: number
-}
+export const Help = styled.div`
+  padding: 10px;
+  width: 300px;
+  font-size: 12px;
 
-export const getRules = (plugin: Plugins, params?: GetRulesParams) =>
-  request(`/plugins/${plugin}/transformation_rules`, {
-    method: 'get',
-    data: params
-  })
+  .title {
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 700px;
+
+    span.bp3-icon {
+      margin-right: 4px;
+    }
+  }
+
+  img {
+    width: 100%;
+  }
+`

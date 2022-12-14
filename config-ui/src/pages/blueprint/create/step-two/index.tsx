@@ -16,25 +16,28 @@
  *
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Icon } from '@blueprintjs/core'
 
-import { Table, Divider } from '@/components'
+import type { ConnectionItemType } from '@/store'
+import { Card, Table, Divider } from '@/components'
+import { useStore } from '@/store'
 import { DataScope } from '@/plugins'
 
-import type { BPConnectionItemType, BPScopeItemType } from '../types'
-import { useBlueprint } from '../hooks'
+import { useCreateBP } from '../bp-context'
 
 import { useColumns } from './use-columns'
-import * as S from './styled'
 
 export const StepTwo = () => {
-  const [connection, setConnection] = useState<BPConnectionItemType>()
+  const [connection, setConnection] = useState<
+    ConnectionItemType & { scope: any }
+  >()
 
-  const { connections, onChangeConnections, onChangeShowDetail } =
-    useBlueprint()
+  const { connections } = useStore()
+  const { uniqueList, scopeMap, onChangeScopeMap, onChangeShowDetail } =
+    useCreateBP()
 
-  const handleGoDetail = (c: BPConnectionItemType) => {
+  const handleGoDetail = (c: ConnectionItemType & { scope: any }) => {
     setConnection(c)
     onChangeShowDetail(true)
   }
@@ -44,23 +47,38 @@ export const StepTwo = () => {
     onChangeShowDetail(false)
   }
 
-  const handleSave = (scope: BPScopeItemType[]) => {
+  const handleSave = (scope: any) => {
     if (!connection) return
-    const newConnections = connections.map((cs) =>
-      cs.unique !== connection.unique ? cs : { ...cs, scope }
-    )
-    onChangeConnections(newConnections)
+    onChangeScopeMap({
+      ...scopeMap,
+      [`${connection.unique}`]: scope
+    })
     handleBack()
   }
 
   const columns = useColumns({ onDetail: handleGoDetail })
+  const dataSource = useMemo(
+    () =>
+      uniqueList.map((unique) => {
+        const connection = connections.find(
+          (cs) => cs.unique === unique
+        ) as ConnectionItemType
+        const scope = scopeMap[unique] ?? []
+        return {
+          ...connection,
+          scope: scope.map((sc: any) => ({
+            id: `${sc.id}`,
+            entities: `${sc.entities}`
+          }))
+        }
+      }),
+    [uniqueList, connections, scopeMap]
+  )
 
   return !connection ? (
-    <S.Card style={{ padding: 0 }}>
-      <Table columns={columns} dataSource={connections} />
-    </S.Card>
+    <Table columns={columns} dataSource={dataSource} />
   ) : (
-    <S.Card>
+    <Card>
       <div className='back' onClick={handleBack}>
         <Icon icon='arrow-left' size={14} />
         <span>Cancel and Go Back to the Data Scope List</span>
@@ -74,10 +92,10 @@ export const StepTwo = () => {
       <DataScope
         plugin={connection.plugin}
         connectionId={connection.id}
-        allEntities={connection.entities}
+        entities={connection.entities}
         onCancel={handleBack}
-        onSaveAfter={handleSave}
+        onSave={handleSave}
       />
-    </S.Card>
+    </Card>
   )
 }

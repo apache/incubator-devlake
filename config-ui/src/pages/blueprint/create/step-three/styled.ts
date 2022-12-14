@@ -18,8 +18,6 @@
 
 import styled from 'styled-components'
 
-export * from '../styled'
-
 export const ConnectionColumn = styled.div`
   display: flex;
   align-items: center;
