@@ -16,43 +16,5 @@
  *
  */
 
-import styled from 'styled-components'
-
-export const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 100px;
-  height: 100vh;
-  background-color: #f9f9fa;
-  box-sizing: border-box;
-
-  .inner {
-    margin: 32px auto 0;
-    width: 640px;
-    text-align: center;
-
-    h2 {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
-
-      .bp4-icon {
-        margin-right: 4px;
-      }
-
-      strong {
-        margin-left: 4px;
-      }
-    }
-
-    .path {
-      margin: 8px 0;
-    }
-
-    p {
-      margin: 0 0 16px 0;
-    }
-  }
-`
+export * from './types'
+export * from './context'

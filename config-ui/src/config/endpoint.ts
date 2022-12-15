@@ -16,5 +16,4 @@
  *
  */
 
-export * from './connections'
-export * from './version'
+export const DEVLAKE_ENDPOINT = '/api'

@@ -16,5 +16,35 @@
  *
  */
 
-export * from './connections'
-export * from './version'
+import { useState, useEffect, useMemo } from 'react'
+
+import { transformError } from '@/error'
+
+import type { VersionType } from './types'
+import * as API from './api'
+
+export const useContextValue = () => {
+  const [loading, setLoading] = useState(true)
+  const [version, setVersion] = useState<VersionType>()
+  const [, setError] = useState<any>()
+
+  const getVersion = async () => {
+    setLoading(true)
+    try {
+      const res = await API.getVersion()
+      setVersion(res.version)
+    } catch (err) {
+      setError(() => {
+        throw transformError(err)
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    getVersion()
+  }, [])
+
+  return useMemo(() => ({ loading, version }), [loading, version])
+}

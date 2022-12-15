@@ -17,31 +17,40 @@
  */
 
 import { useState, useEffect, useMemo, useRef } from 'react'
+import { useHistory } from 'react-router-dom'
+
+import { operator } from '@/utils'
 
 import * as API from './api'
 
 const pollTimer = 10000
 const retryLimit = 10
 
-export const useOffline = () => {
-  const [loading, setLoading] = useState(false)
+export interface UseOfflineProps {
+  onResetError: () => void
+}
+
+export const useOffline = ({ onResetError }: UseOfflineProps) => {
+  const [processing, setProcessing] = useState(false)
   const [offline, setOffline] = useState(true)
+
+  const history = useHistory()
 
   const timer = useRef<any>()
   const retryCount = useRef<number>(0)
 
   const ping = async (auto = true) => {
-    setLoading(true)
-    try {
-      await API.ping()
+    const [success] = await operator(() => API.ping(), {
+      setOperating: setProcessing,
+      formatReason: () => 'Attempt to connect to the API failed'
+    })
+
+    if (success) {
       setOffline(false)
-    } catch {
-      setOffline(true)
-    } finally {
-      if (auto) {
-        retryCount.current += 1
-      }
-      setLoading(false)
+    }
+
+    if (auto) {
+      retryCount.current += 1
     }
   }
 
@@ -60,10 +69,14 @@ export const useOffline = () => {
 
   return useMemo(
     () => ({
-      loading,
+      processing,
       offline,
-      onRefresh: () => ping(false)
+      onRefresh: () => ping(false),
+      onContinue: () => {
+        onResetError()
+        history.push('/')
+      }
     }),
-    [loading, offline]
+    [processing, offline]
   )
 }

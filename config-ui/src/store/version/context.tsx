@@ -13,40 +13,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-import styled from 'styled-components'
+import React, { useContext } from 'react'
 
-export const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 100px;
-  height: 100vh;
-  background-color: #f9f9fa;
-  box-sizing: border-box;
+import { PageLoading } from '@/components'
 
-  .inner {
-    margin: 32px auto 0;
-    width: 640px;
+import type { VersionType } from './types'
+import { useContextValue } from './use-context-value'
 
-    h2 {
-      display: flex;
-      align-items: center;
-      margin: 0;
+const VersionContext = React.createContext<{
+  version?: VersionType
+}>({})
 
-      .bp4-icon {
-        margin-right: 4px;
-      }
-    }
+interface Props {
+  children?: React.ReactNode
+}
 
-    p {
-      margin: 16px 0;
-    }
+export const VersionContextProvider = ({ children }: Props) => {
+  const { loading, version } = useContextValue()
 
-    .bp4-button-group {
-      display: flex;
-      justify-content: center;
-    }
+  if (loading) {
+    return <PageLoading />
   }
-`
+
+  return (
+    <VersionContext.Provider value={{ version }}>
+      {children}
+    </VersionContext.Provider>
+  )
+}
+
+export const VersionContextConsumer = VersionContext.Consumer
+
+export const useVersion = () => useContext(VersionContext)

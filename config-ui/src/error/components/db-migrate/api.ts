@@ -16,5 +16,6 @@
  *
  */
 
-export * from './connections'
-export * from './version'
+import request from '@/components/utils/request'
+
+export const migrate = () => request('/proceed-db-migration')

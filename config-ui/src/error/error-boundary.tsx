@@ -17,7 +17,12 @@
 
 import React from 'react'
 
-import { ErrorHandler } from '@/pages'
+import { Logo } from '@/components'
+
+import { Error } from './types'
+import { DBMigrate, Offline, Default } from './components'
+
+import * as S from './styled'
 
 type Props = {
   children: React.ReactNode
@@ -41,6 +46,13 @@ export class ErrorBoundary extends React.Component<Props, State> {
     }
   }
 
+  handleResetError = () => {
+    this.setState({
+      hasError: false,
+      error: undefined
+    })
+  }
+
   render() {
     const { hasError, error } = this.state
 
@@ -48,6 +60,21 @@ export class ErrorBoundary extends React.Component<Props, State> {
       return this.props.children
     }
 
-    return <ErrorHandler error={error} />
+    return (
+      <S.Wrapper>
+        <Logo />
+        <S.Inner>
+          {error === Error.DB_NEED_MIGRATE && (
+            <DBMigrate onResetError={this.handleResetError} />
+          )}
+          {error === Error.API_OFFLINE && (
+            <Offline onResetError={this.handleResetError} />
+          )}
+          {!Object.keys(Error).includes(error) && (
+            <Default error={error} onResetError={this.handleResetError} />
+          )}
+        </S.Inner>
+      </S.Wrapper>
+    )
   }
 }

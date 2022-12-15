@@ -16,5 +16,7 @@
  *
  */
 
-export * from './connections'
-export * from './version'
+export enum Error {
+  API_OFFLINE = 'API_OFFLINE',
+  DB_NEED_MIGRATE = 'DB_NEED_MIGRATE'
+}

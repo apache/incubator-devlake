@@ -16,4 +16,38 @@
  *
  */
 
-export * from './use-version'
+import { useState, useMemo } from 'react'
+import { useHistory } from 'react-router-dom'
+
+import { operator } from '@/utils'
+
+import * as API from './api'
+
+export interface UseDBMigrateProps {
+  onResetError: () => void
+}
+
+export const useDBMigrate = ({ onResetError }: UseDBMigrateProps) => {
+  const [processing, setProcessing] = useState(false)
+
+  const history = useHistory()
+
+  const handleSubmit = async () => {
+    const [success] = await operator(() => API.migrate(), {
+      setOperating: setProcessing
+    })
+
+    if (success) {
+      onResetError()
+      history.push('/')
+    }
+  }
+
+  return useMemo(
+    () => ({
+      processing,
+      onSubmit: handleSubmit
+    }),
+    [processing]
+  )
+}
