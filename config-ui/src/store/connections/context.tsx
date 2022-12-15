@@ -19,44 +19,49 @@
 import React, { useContext } from 'react'
 
 import { PageLoading } from '@/components'
+import { Plugins } from '@/plugins'
 
-import type { ConnectionItemType } from './connections'
-import { useConnections } from './connections'
+import type { ConnectionItemType } from './types'
+import { useContextValue } from './use-context-value'
 
-export const StoreContext = React.createContext<{
+const ConnectionContext = React.createContext<{
   connections: ConnectionItemType[]
-  onRefreshConnections: () => void
-  onTestConnections: (selectedConnections: ConnectionItemType[]) => void
+  onRefresh: () => void
+  onTest: (selectedConnections: ConnectionItemType[]) => void
 }>({
   connections: [],
-  onRefreshConnections: () => {},
-  onTestConnections: () => {}
+  onRefresh: () => {},
+  onTest: () => {}
 })
 
 interface Props {
+  plugins?: Plugins[]
   children?: React.ReactNode
 }
 
-export const StoreContextProvider = ({ children }: Props) => {
-  const { loading, connections, onRefresh, onTest } = useConnections()
+export const ConnectionContextProvider = ({
+  plugins = [],
+  children
+}: Props) => {
+  const { loading, connections, onRefresh, onTest } = useContextValue(plugins)
 
   if (loading) {
     return <PageLoading />
   }
 
   return (
-    <StoreContext.Provider
+    <ConnectionContext.Provider
       value={{
         connections,
-        onRefreshConnections: onRefresh,
-        onTestConnections: onTest
+        onRefresh,
+        onTest
       }}
     >
       {children}
-    </StoreContext.Provider>
+    </ConnectionContext.Provider>
   )
 }
 
-export const useStore = () => {
-  return useContext(StoreContext)
-}
+export const ConnectionContextConsumer = ConnectionContext.Consumer
+
+export const useConnection = () => useContext(ConnectionContext)

@@ -16,5 +16,5 @@
  *
  */
 
-export * from './use-connections'
 export * from './types'
+export * from './context'
