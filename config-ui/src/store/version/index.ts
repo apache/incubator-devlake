@@ -16,4 +16,5 @@
  *
  */
 
-export * from './use-version'
+export * from './types'
+export * from './context'

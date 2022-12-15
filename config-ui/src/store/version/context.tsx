@@ -16,27 +16,35 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import React, { useContext } from 'react'
 
-import * as API from './api'
+import { PageLoading } from '@/components'
 
-export const useVersion = () => {
-  const [version, setVersion] = useState()
-  const history = useHistory()
+import type { VersionType } from './types'
+import { useContextValue } from './use-context-value'
 
-  const getVersion = async () => {
-    try {
-      const res = await API.getVersion()
-      setVersion(res.version)
-    } catch {
-      history.push('/offline')
-    }
+const VersionContext = React.createContext<{
+  version?: VersionType
+}>({})
+
+interface Props {
+  children?: React.ReactNode
+}
+
+export const VersionContextProvider = ({ children }: Props) => {
+  const { loading, version } = useContextValue()
+
+  if (loading) {
+    return <PageLoading />
   }
 
-  useEffect(() => {
-    getVersion()
-  }, [])
-
-  return useMemo(() => version, [version])
+  return (
+    <VersionContext.Provider value={{ version }}>
+      {children}
+    </VersionContext.Provider>
+  )
 }
+
+export const VersionContextConsumer = VersionContext.Consumer
+
+export const useVersion = () => useContext(VersionContext)

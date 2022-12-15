@@ -16,5 +16,4 @@
  *
  */
 
-export * from './connections'
-export * from './version'
+export type VersionType = string
