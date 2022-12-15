@@ -53,13 +53,7 @@ module.exports = (env = {}) => {
             // !WARNING! We only use style-loader for DEV MODE!
             // 'style-loader',
             MiniCssExtractPlugin.loader,
-            {
-              loader: 'css-loader',
-              options: {
-                modules: true,
-                importLoaders: 1
-              }
-            }
+            'css-loader'
           ]
         },
         {
