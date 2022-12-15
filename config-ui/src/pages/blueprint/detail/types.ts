@@ -33,9 +33,9 @@ export type BlueprintType = {
   isManual: boolean
   cronConfig: string
   skipOnFail: boolean
-  createdDateAfter: null | string
   settings: {
     version: string
+    createdDateAfter: null | string
     connections: Array<{
       plugin: Plugins
       connectionId: ID
