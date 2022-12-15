@@ -19,9 +19,9 @@
 import React, { useState, useMemo } from 'react'
 import { Icon } from '@blueprintjs/core'
 
-import type { ConnectionItemType } from '@/store'
 import { Card, Table, Divider } from '@/components'
-import { useStore } from '@/store'
+import type { ConnectionItemType } from '@/store'
+import { useConnection } from '@/store'
 import { DataScope } from '@/plugins'
 
 import { useCreateBP } from '../bp-context'
@@ -33,7 +33,7 @@ export const StepTwo = () => {
     ConnectionItemType & { scope: any }
   >()
 
-  const { connections } = useStore()
+  const { connections } = useConnection()
   const { uniqueList, scopeMap, onChangeScopeMap, onChangeShowDetail } =
     useCreateBP()
 

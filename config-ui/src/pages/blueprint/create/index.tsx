@@ -20,6 +20,7 @@ import React, { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 
 import { PageHeader } from '@/components'
+import { ConnectionContextProvider } from '@/store'
 
 import { BPContext, BPContextProvider } from './bp-context'
 
@@ -57,25 +58,27 @@ export const CreateBlueprintPage = ({ from }: Props) => {
   )
 
   return (
-    <BPContextProvider from={from} projectName={pname}>
-      <BPContext.Consumer>
-        {({ step, mode }) => (
-          <PageHeader breadcrumbs={breadcrumbs}>
-            <S.Container>
-              <WorkFlow />
-              <S.Content>
-                {step === 1 && <StepOne />}
-                {mode === ModeEnum.normal && step === 2 && <StepTwo />}
-                {step === 3 && <StepThree />}
-                {((mode === ModeEnum.normal && step === 4) ||
-                  (mode === ModeEnum.advanced && step === 2)) && <StepFour />}
-              </S.Content>
-              <Action />
-              <Inspector />
-            </S.Container>
-          </PageHeader>
-        )}
-      </BPContext.Consumer>
-    </BPContextProvider>
+    <ConnectionContextProvider>
+      <BPContextProvider from={from} projectName={pname}>
+        <BPContext.Consumer>
+          {({ step, mode }) => (
+            <PageHeader breadcrumbs={breadcrumbs}>
+              <S.Container>
+                <WorkFlow />
+                <S.Content>
+                  {step === 1 && <StepOne />}
+                  {mode === ModeEnum.normal && step === 2 && <StepTwo />}
+                  {step === 3 && <StepThree />}
+                  {((mode === ModeEnum.normal && step === 4) ||
+                    (mode === ModeEnum.advanced && step === 2)) && <StepFour />}
+                </S.Content>
+                <Action />
+                <Inspector />
+              </S.Container>
+            </PageHeader>
+          )}
+        </BPContext.Consumer>
+      </BPContextProvider>
+    </ConnectionContextProvider>
   )
 }

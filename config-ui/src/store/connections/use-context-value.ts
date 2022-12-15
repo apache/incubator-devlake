@@ -24,17 +24,16 @@ import type { ConnectionItemType } from './types'
 import { ConnectionStatusEnum } from './types'
 import * as API from './api'
 
-export const useConnections = (plugin?: string | string[]) => {
+export const useContextValue = (plugins: string[]) => {
   const [loading, setLoading] = useState(false)
   const [connections, setConnections] = useState<ConnectionItemType[]>([])
 
   const allConnections = useMemo(
     () =>
-      Plugins.filter((p) => p.type === 'integration').filter((p) => {
-        if (!plugin) return true
-        return Array.isArray(plugin) ? plugin.includes(p.id) : p.id === plugin
-      }),
-    [plugin]
+      Plugins.filter((p) => p.type === 'integration').filter((p) =>
+        !plugins.length ? true : plugins.includes(p.id)
+      ),
+    [plugins]
   )
 
   const getConnection = async (plugin: string) => {
