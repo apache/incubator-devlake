@@ -15,7 +15,7 @@
  * limitations under the License.
  *
  */
-export * from './error-handler'
+
 export * from './project'
 export * from './blueprint'
 export * from './connections'
