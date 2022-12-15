@@ -13,15 +13,45 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-export * from './loading'
-export * from './divider'
-export * from './page-header'
-export * from './selector'
-export * from './dialog'
-export * from './table'
-export * from './toast2'
-export * from './logo'
-export * from './card'
+import styled from 'styled-components'
+import { Colors } from '@blueprintjs/core'
+
+export const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 100px;
+  height: 100vh;
+  background-color: #f9f9fa;
+  box-sizing: border-box;
+`
+
+export const Inner = styled.div`
+  margin: 32px auto 0;
+  width: 640px;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    margin: 0;
+
+    .bp4-icon {
+      margin-right: 4px;
+    }
+  }
+
+  p {
+    margin: 16px 0;
+
+    &.warning {
+      color: ${Colors.ORANGE5};
+    }
+  }
+
+  .bp4-button-group {
+    display: flex;
+    justify-content: center;
+  }
+`
