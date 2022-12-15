@@ -16,33 +16,8 @@
  *
  */
 
-import { Plugins } from '@/plugins'
+import React from 'react'
 
-export type ConnectionItemType = {
-  icon: string
-  name: string
-  connectionId: ID
-  plugin: Plugins
-  entities: string[]
-  scopeIds: ID[]
-}
-
-export type BlueprintType = {
-  id: ID
-  name: string
-  isManual: boolean
-  cronConfig: string
-  skipOnFail: boolean
-  createdDateAfter: null | string
-  settings: {
-    version: string
-    connections: Array<{
-      plugin: Plugins
-      connectionId: ID
-      scopes: Array<{
-        id: ID
-        entities: string[]
-      }>
-    }>
-  }
+export const Status = () => {
+  return <div>Status</div>
 }

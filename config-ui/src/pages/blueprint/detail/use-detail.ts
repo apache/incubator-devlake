@@ -19,8 +19,9 @@
 import { useState, useEffect, useMemo } from 'react'
 
 import { operator } from '@/utils'
+import { Plugins } from '@/registry'
 
-import type { BlueprintType } from './types'
+import type { BlueprintType, ConnectionItemType } from './types'
 import * as API from './api'
 
 export interface UseDetailProps {
@@ -31,12 +32,31 @@ export const useDetail = ({ id }: UseDetailProps) => {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [blueprint, setBlueprint] = useState<BlueprintType>()
+  const [connections, setConnections] = useState<ConnectionItemType[]>([])
+
+  const transformConnection = (connections: any) => {
+    return connections
+      .map((cs: any) => {
+        const plugin = Plugins.find((plugin) => plugin.id === cs.plugin) as any
+        if (!plugin) return null
+        return {
+          icon: `/${plugin.icon}`,
+          name: plugin.name,
+          connectionId: cs.connectionId,
+          entities: cs.scopes[0].entities,
+          plugin: cs.plugin,
+          scopeIds: cs.scopes.map((sc: any) => sc.id)
+        }
+      })
+      .filter(Boolean)
+  }
 
   const getBlueprint = async () => {
     setLoading(true)
     try {
       const res = await API.getBlueprint(id)
       setBlueprint(res)
+      setConnections(transformConnection(res.settings.connections))
     } finally {
       setLoading(false)
     }
@@ -59,7 +79,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
     )
 
     if (success) {
-      setBlueprint(res)
+      getBlueprint()
     }
   }
 
@@ -68,8 +88,9 @@ export const useDetail = ({ id }: UseDetailProps) => {
       loading,
       saving,
       blueprint,
+      connections,
       onUpdate: handleUpdate
     }),
-    [loading, saving, blueprint]
+    [loading, saving, blueprint, connections]
   )
 }

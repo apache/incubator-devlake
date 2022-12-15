@@ -16,33 +16,38 @@
  *
  */
 
-import { Plugins } from '@/plugins'
+import React from 'react'
 
-export type ConnectionItemType = {
-  icon: string
-  name: string
-  connectionId: ID
-  plugin: Plugins
-  entities: string[]
-  scopeIds: ID[]
+import { Dialog } from '@/components'
+import { Transformation } from '@/plugins'
+
+import type { ConnectionItemType } from '../../types'
+
+interface Props {
+  connection?: ConnectionItemType
+  onCancel: () => void
 }
 
-export type BlueprintType = {
-  id: ID
-  name: string
-  isManual: boolean
-  cronConfig: string
-  skipOnFail: boolean
-  createdDateAfter: null | string
-  settings: {
-    version: string
-    connections: Array<{
-      plugin: Plugins
-      connectionId: ID
-      scopes: Array<{
-        id: ID
-        entities: string[]
-      }>
-    }>
-  }
+export const UpdateTransformationDialog = ({ connection, onCancel }: Props) => {
+  if (!connection) return null
+
+  const { plugin, connectionId, scopeIds } = connection
+
+  return (
+    <Dialog
+      isOpen
+      title='Change Data Scope'
+      footer={null}
+      style={{ width: 900 }}
+      onCancel={onCancel}
+    >
+      <Transformation
+        plugin={plugin}
+        connectionId={connectionId}
+        scopeIds={scopeIds}
+        onCancel={onCancel}
+        onSave={onCancel}
+      />
+    </Dialog>
+  )
 }
