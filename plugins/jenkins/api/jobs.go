@@ -30,7 +30,7 @@ import (
 )
 
 // request all jobs
-func GetAllJobs(apiClient helper.ApiClientGetter, path string, pageSize int, callback func(job *models.Job, isPath bool) errors.Error) errors.Error {
+func GetAllJobs(apiClient helper.ApiClientGetter, path string, beforename string, pageSize int, callback func(job *models.Job, isPath bool) errors.Error) errors.Error {
 	for i := 0; ; i += pageSize {
 		var data struct {
 			Jobs []json.RawMessage `json:"jobs"`
@@ -65,19 +65,20 @@ func GetAllJobs(apiClient helper.ApiClientGetter, path string, pageSize int, cal
 			}
 
 			job.Path = path
-			job.FullName = path + job.Name
+			job.FullName = beforename + job.Name
 
 			if job.Jobs != nil {
 				err = callback(job, true)
 				if err != nil {
 					return err
 				}
-				GetAllJobs(apiClient, path+"job/"+job.Name+"/", pageSize, callback)
+				err = GetAllJobs(apiClient, path+"job/"+job.Name+"/", beforename+job.Name+"/", pageSize, callback)
 			} else {
 				err = callback(job, false)
-				if err != nil {
-					return err
-				}
+			}
+
+			if err != nil {
+				return err
 			}
 		}
 

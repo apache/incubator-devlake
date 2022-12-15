@@ -38,16 +38,6 @@ func MakePipelinePlanV100(subtaskMetas []core.SubTaskMeta, connectionId uint64, 
 	if err != nil {
 		return nil, err
 	}
-	plan, err := makePipelinePlanV100(subtaskMetas, scope, connection)
-	if err != nil {
-		return nil, err
-	}
-	return plan, nil
-}
-
-func makePipelinePlanV100(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintScopeV100, connection *models.JenkinsConnection) (core.PipelinePlan, errors.Error) {
-	var err errors.Error
-	plans := make(core.PipelinePlan, 0, len(scope))
 
 	apiClient, err := helper.NewApiClient(
 		context.Background(),
@@ -63,6 +53,21 @@ func makePipelinePlanV100(subtaskMetas []core.SubTaskMeta, scope []*core.Bluepri
 		return nil, err
 	}
 
+	plan, err := makePipelinePlanV100(subtaskMetas, scope, connection, apiClient)
+	if err != nil {
+		return nil, err
+	}
+	return plan, nil
+}
+
+func makePipelinePlanV100(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintScopeV100, connection *models.JenkinsConnection, apiClient helper.ApiClientGetter) (core.PipelinePlan, errors.Error) {
+	var err errors.Error
+	plans := make(core.PipelinePlan, 0, len(scope))
+
+	if err != nil {
+		return nil, err
+	}
+
 	for _, scopeElem := range scope {
 		// handle taskOptions and transformationRules, by dumping them to taskOptions
 		transformationRules := make(map[string]interface{})
@@ -73,7 +78,15 @@ func makePipelinePlanV100(subtaskMetas []core.SubTaskMeta, scope []*core.Bluepri
 			}
 		}
 
-		err = GetAllJobs(apiClient, "", 100, func(job *models.Job, isPath bool) errors.Error {
+		// check productionPattern and separate it from transformationRules
+		productionPattern, ok := transformationRules["productionPattern"]
+		if ok && productionPattern != nil {
+			delete(transformationRules, "productionPattern")
+		} else {
+			productionPattern = nil
+		}
+
+		err = GetAllJobs(apiClient, "", "", 100, func(job *models.Job, isPath bool) errors.Error {
 			// do not mind path
 			if isPath {
 				return nil
@@ -118,9 +131,8 @@ func makePipelinePlanV100(subtaskMetas []core.SubTaskMeta, scope []*core.Bluepri
 			return nil, err
 		}
 
-		// Dora
-		if productionPattern, ok := transformationRules["productionPattern"]; ok && productionPattern != nil {
-
+		// Dora part
+		if productionPattern != nil {
 			doraOption := make(map[string]interface{})
 			doraOption["prefix"] = "jenkins"
 			doraRules := make(map[string]interface{})

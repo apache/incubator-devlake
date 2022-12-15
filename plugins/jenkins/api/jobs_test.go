@@ -92,7 +92,7 @@ func TestGetAllJobs(t *testing.T) {
 			Description: "",
 		},
 		{
-			FullName:    "job/dir-test/job/dir-test-2/free",
+			FullName:    "dir-test/dir-test-2/free",
 			Path:        "job/dir-test/job/dir-test-2/",
 			Name:        "free",
 			Color:       "blue",
@@ -102,7 +102,7 @@ func TestGetAllJobs(t *testing.T) {
 			Description: "",
 		},
 		{
-			FullName:    "job/dir-test/job/dir-test-2/free1",
+			FullName:    "dir-test/dir-test-2/free1",
 			Path:        "job/dir-test/job/dir-test-2/",
 			Name:        "free1",
 			Color:       "blue",
@@ -126,7 +126,7 @@ func TestGetAllJobs(t *testing.T) {
 			Jobs:        &[]models.Job{{}},
 		},
 		{
-			FullName:    "job/dir-test/dir-test-2",
+			FullName:    "dir-test/dir-test-2",
 			Path:        "job/dir-test/",
 			Name:        "dir-test-2",
 			Color:       "",
@@ -138,7 +138,7 @@ func TestGetAllJobs(t *testing.T) {
 		},
 	}
 
-	mockApiCLient := mocks.NewApiClientGetter(t)
+	mockApiClient := mocks.NewApiClientGetter(t)
 
 	var data struct {
 		Jobs []json.RawMessage `json:"jobs"`
@@ -160,7 +160,7 @@ func TestGetAllJobs(t *testing.T) {
 	res.Body = io.NopCloser(bytes.NewBuffer(js))
 	res.StatusCode = http.StatusOK
 
-	mockApiCLient.On("Get", mock.Anything, mock.Anything, mock.Anything).Return(res, nil).Once()
+	mockApiClient.On("Get", mock.Anything, mock.Anything, mock.Anything).Return(res, nil).Once()
 
 	// second path jobs
 	data.Jobs = []json.RawMessage{}
@@ -176,7 +176,7 @@ func TestGetAllJobs(t *testing.T) {
 	res.Body = io.NopCloser(bytes.NewBuffer(js))
 	res.StatusCode = http.StatusOK
 
-	mockApiCLient.On("Get", mock.Anything, mock.Anything, mock.Anything).Return(res, nil).Once()
+	mockApiClient.On("Get", mock.Anything, mock.Anything, mock.Anything).Return(res, nil).Once()
 
 	// third path jobs
 	data.Jobs = []json.RawMessage{}
@@ -195,7 +195,7 @@ func TestGetAllJobs(t *testing.T) {
 	res.Body = io.NopCloser(bytes.NewBuffer(js))
 	res.StatusCode = http.StatusOK
 
-	mockApiCLient.On("Get", mock.Anything, mock.Anything, mock.Anything).Return(res, nil).Once()
+	mockApiClient.On("Get", mock.Anything, mock.Anything, mock.Anything).Return(res, nil).Once()
 
 	basicRes = unithelper.DummyBasicRes(func(mockDal *mocks.Dal) {})
 
@@ -203,7 +203,7 @@ func TestGetAllJobs(t *testing.T) {
 
 	var paths []*models.Job
 
-	err := GetAllJobs(mockApiCLient, "", testPageSize, func(job *models.Job, isPath bool) errors.Error {
+	err := GetAllJobs(mockApiClient, "", "", testPageSize, func(job *models.Job, isPath bool) errors.Error {
 		if isPath {
 			paths = append(paths, job)
 		} else {
