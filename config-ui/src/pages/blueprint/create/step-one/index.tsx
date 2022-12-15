@@ -28,7 +28,7 @@ import {
 } from '@blueprintjs/core'
 import { Popover2 } from '@blueprintjs/popover2'
 
-import { useStore } from '@/store/store'
+import { useConnection } from '@/store'
 import { Card, Divider, MultiSelector, Loading } from '@/components'
 
 import { ModeEnum } from '../types'
@@ -40,7 +40,7 @@ import * as S from './styled'
 export const StepOne = () => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const { connections, onTestConnections } = useStore()
+  const { connections, onTest } = useConnection()
 
   const {
     mode,
@@ -86,7 +86,7 @@ export const StepOne = () => {
                 uniqueList.includes(cs.unique)
               )}
               onChangeItems={(selectedItems) => {
-                onTestConnections(selectedItems)
+                onTest(selectedItems)
                 onChangeUniqueList(selectedItems.map((sc) => sc.unique))
               }}
             />
