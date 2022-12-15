@@ -119,7 +119,7 @@ func RunTask(
 
 	err = RunPluginTask(
 		ctx,
-		basicRes.NestedLogger(task.Plugin),
+		basicRes.ReplaceLogger(log),
 		task,
 		progress,
 	)

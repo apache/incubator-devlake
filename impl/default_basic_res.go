@@ -54,6 +54,15 @@ func (c *DefaultBasicRes) NestedLogger(name string) core.BasicRes {
 	}
 }
 
+// ReplaceLogger returns a new DefaultBasicRes with the specified logger
+func (c *DefaultBasicRes) ReplaceLogger(logger core.Logger) core.BasicRes {
+	return &DefaultBasicRes{
+		cfg:    c.cfg,
+		logger: logger,
+		db:     c.db,
+	}
+}
+
 // NewDefaultBasicRes creates a new DefaultBasicRes instance
 func NewDefaultBasicRes(
 	cfg *viper.Viper,

@@ -41,5 +41,5 @@ func CreateAppBasicRes() core.BasicRes {
 
 // CreateBasicRes returns a BasicRes based on what was given
 func CreateBasicRes(cfg *viper.Viper, log core.Logger, db *gorm.DB) core.BasicRes {
-	return impl.NewDefaultBasicRes(cfg, logger.Global, dalgorm.NewDalgorm(db))
+	return impl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(db))
 }
