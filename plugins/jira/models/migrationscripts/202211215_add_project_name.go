@@ -18,16 +18,29 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addSourceTable20220407),
-		new(renameSourceTable20220505),
-		new(addInitTables20220716),
-		new(addTransformationRule20221116),
-		new(addProjectName20221215),
-	}
+type jiraIssue20221215 struct {
+	ProjectName string `gorm:"type:varchar(255)"`
+}
+
+func (jiraIssue20221215) TableName() string {
+	return "_tool_jira_issues"
+}
+
+type addProjectName20221215 struct{}
+
+func (script *addProjectName20221215) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &jiraIssue20221215{})
+}
+
+func (*addProjectName20221215) Version() uint64 {
+	return 20221215142316
+}
+
+func (*addProjectName20221215) Name() string {
+	return "add project_name to _tool_jira_issues"
 }
