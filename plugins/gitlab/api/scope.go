@@ -77,7 +77,7 @@ func PutScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 			return nil, err
 		}
 	}
-	err = BasicRes.GetDal().CreateOrUpdate(projects.Data)
+	err = basicRes.GetDal().CreateOrUpdate(projects.Data)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving GitlabProject")
 	}
@@ -102,7 +102,7 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 		return nil, errors.BadInput.New("invalid connectionId or projectId")
 	}
 	var project models.GitlabProject
-	err := BasicRes.GetDal().First(&project, dal.Where("connection_id = ? AND gitlab_id = ?", connectionId, projectId))
+	err := basicRes.GetDal().First(&project, dal.Where("connection_id = ? AND gitlab_id = ?", connectionId, projectId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "getting GitlabProject error")
 	}
@@ -114,7 +114,7 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 	if err != nil {
 		return nil, err
 	}
-	err = BasicRes.GetDal().Update(project)
+	err = basicRes.GetDal().Update(project)
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving GitlabProject")
 	}
@@ -137,7 +137,7 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 		return nil, errors.BadInput.New("invalid path params")
 	}
 	limit, offset := helper.GetLimitOffset(input.Query, "pageSize", "page")
-	err := BasicRes.GetDal().All(&projects, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
+	err := basicRes.GetDal().All(&projects, dal.Where("connection_id = ?", connectionId), dal.Limit(limit), dal.Offset(offset))
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	}
 	var rules []models.GitlabTransformationRule
 	if len(ruleIds) > 0 {
-		err = BasicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
+		err = basicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
 		if err != nil {
 			return nil, err
 		}
@@ -183,7 +183,7 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	if connectionId*projectId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
 	}
-	err := BasicRes.GetDal().First(&project, dal.Where("connection_id = ? AND gitlab_id = ?", connectionId, projectId))
+	err := basicRes.GetDal().First(&project, dal.Where("connection_id = ? AND gitlab_id = ?", connectionId, projectId))
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.NotFound.New("record not found")
 	}
@@ -192,7 +192,7 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	}
 	var rule models.GitlabTransformationRule
 	if project.TransformationRuleId > 0 {
-		err = BasicRes.GetDal().First(&rule, dal.Where("id = ?", project.TransformationRuleId))
+		err = basicRes.GetDal().First(&rule, dal.Where("id = ?", project.TransformationRuleId))
 		if err != nil {
 			return nil, err
 		}

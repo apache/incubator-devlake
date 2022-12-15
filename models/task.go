@@ -18,8 +18,10 @@ limitations under the License.
 package models
 
 import (
+	"encoding/json"
 	"time"
 
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"gorm.io/datatypes"
@@ -88,4 +90,16 @@ func (Task) TableName() string {
 
 func (Subtask) TableName() string {
 	return "_devlake_subtasks"
+}
+
+func (task *Task) GetSubTasks() ([]string, errors.Error) {
+	var subtasks []string
+	err := errors.Convert(json.Unmarshal(task.Subtasks, &subtasks))
+	return subtasks, err
+}
+
+func (task *Task) GetOptions() (map[string]interface{}, errors.Error) {
+	var options map[string]interface{}
+	err := errors.Convert(json.Unmarshal(task.Options, &options))
+	return options, err
 }

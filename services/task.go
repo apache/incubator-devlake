@@ -321,10 +321,8 @@ func runTaskStandalone(parentLog core.Logger, taskId uint64) errors.Error {
 	progress := make(chan core.RunningProgress, 100)
 	go updateTaskProgress(taskId, progress)
 	err = runner.RunTask(
+		runner.CreateBasicRes(cfg, parentLog, db),
 		ctx,
-		cfg,
-		parentLog,
-		db,
 		progress,
 		taskId,
 	)
@@ -347,7 +345,7 @@ func updateTaskProgress(taskId uint64, progress chan core.RunningProgress) {
 	progressDetail := data.ProgressDetail
 	for p := range progress {
 		runningTasks.mu.Lock()
-		runner.UpdateProgressDetail(db, log, taskId, progressDetail, &p)
+		runner.UpdateProgressDetail(basicRes, taskId, progressDetail, &p)
 		runningTasks.mu.Unlock()
 	}
 }

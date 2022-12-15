@@ -19,6 +19,7 @@ package runner
 
 import (
 	"context"
+	"encoding/json"
 	goerror "errors"
 	"fmt"
 	"io"
@@ -27,10 +28,7 @@ import (
 	"runtime"
 	"syscall"
 
-	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/impl"
-	"github.com/apache/incubator-devlake/impl/dalgorm"
-	"github.com/apache/incubator-devlake/logger"
+	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/spf13/cobra"
 )
@@ -50,18 +48,13 @@ func RunCmd(cmd *cobra.Command) {
 // pluginTask: specific built-in plugin, for example: feishu, jira...
 // options: plugin config
 func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, options map[string]interface{}) {
+	basicRes := CreateAppBasicRes()
 	tasks, err := cmd.Flags().GetStringSlice("subtasks")
 	if err != nil {
 		panic(err)
 	}
-	cfg := config.GetConfig()
-	log := logger.Global.Nested(cmd.Use)
-	db, err := NewGormDb(cfg, log)
-	if err != nil {
-		panic(err)
-	}
 	if pluginInit, ok := pluginTask.(core.PluginInit); ok {
-		err = pluginInit.Init(cfg, log, db)
+		err = pluginInit.Init(basicRes)
 		if err != nil {
 			panic(err)
 		}
@@ -73,7 +66,7 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 	}
 
 	// collect migration and run
-	migrator, err := InitMigrator(impl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(db)))
+	migrator, err := InitMigrator(basicRes)
 	if err != nil {
 		panic(err)
 	}
@@ -85,16 +78,20 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 		panic(err)
 	}
 	ctx := createContext()
-	var parentTaskID uint64
+	optionsJson, err := json.Marshal(options)
+	if err != nil {
+		panic(err)
+	}
+	subtasksJson, err := json.Marshal(tasks)
+	task := &models.Task{
+		Plugin:   cmd.Use,
+		Options:  optionsJson,
+		Subtasks: subtasksJson,
+	}
 	err = RunPluginSubTasks(
+		basicRes,
 		ctx,
-		cfg,
-		log,
-		db,
-		parentTaskID,
-		cmd.Use,
-		tasks,
-		options,
+		task,
 		pluginTask,
 		nil,
 	)

@@ -20,10 +20,11 @@ package impl
 import (
 	"context"
 	"fmt"
-	githubImpl "github.com/apache/incubator-devlake/plugins/github/impl"
 	"reflect"
 	"strings"
 	"time"
+
+	githubImpl "github.com/apache/incubator-devlake/plugins/github/impl"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -32,14 +33,11 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github_graphql/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/merico-dev/graphql"
-	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
-	"gorm.io/gorm"
 )
 
 // make sure interface is implemented
 var _ core.PluginMeta = (*GithubGraphql)(nil)
-var _ core.PluginInit = (*GithubGraphql)(nil)
 var _ core.PluginTask = (*GithubGraphql)(nil)
 var _ core.PluginApi = (*GithubGraphql)(nil)
 var _ core.PluginModel = (*GithubGraphql)(nil)
@@ -62,10 +60,6 @@ func (plugin GithubGraphql) TransformationRule() interface{} {
 
 func (plugin GithubGraphql) Description() string {
 	return "collect some GithubGraphql data"
-}
-
-func (plugin GithubGraphql) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	return nil
 }
 
 func (plugin GithubGraphql) GetTablesInfo() []core.Tabler {

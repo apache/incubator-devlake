@@ -26,4 +26,5 @@ type BasicRes interface {
 	GetConfig(name string) string
 	GetLogger() Logger
 	GetDal() dal.Dal
+	NestedLogger(name string) BasicRes
 }

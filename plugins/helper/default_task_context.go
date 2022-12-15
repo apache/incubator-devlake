@@ -20,67 +20,20 @@ package helper
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"github.com/apache/incubator-devlake/impl/dalgorm"
+	"github.com/apache/incubator-devlake/errors"
+
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
-// bridge to current implementation at this point
-// TODO: implement another TaskContext for distributed runner/worker
-
-// DefaultBasicRes offers a defult BasicRes implementation
-// TODO: move to `impl` package
-type DefaultBasicRes struct {
-	cfg    *viper.Viper
-	logger core.Logger
-	db     *gorm.DB
-	dal    dal.Dal
-}
-
-// GetConfig FIXME ...
-func (c *DefaultBasicRes) GetConfig(name string) string {
-	return c.cfg.GetString(name)
-}
-
-// GetDb FIXME ...
-func (c *DefaultBasicRes) GetDb() *gorm.DB {
-	return c.db
-}
-
-// GetDal FIXME ...
-func (c *DefaultBasicRes) GetDal() dal.Dal {
-	return c.dal
-}
-
-// GetLogger FIXME ...
-func (c *DefaultBasicRes) GetLogger() core.Logger {
-	return c.logger
-}
-
-// NewDefaultBasicRes returns a new DefaultBasicRes instance
-func NewDefaultBasicRes(
-	cfg *viper.Viper,
-	logger core.Logger,
-	db *gorm.DB,
-) *DefaultBasicRes {
-	return &DefaultBasicRes{
-		cfg:    cfg,
-		logger: logger,
-		db:     db,
-		dal:    dalgorm.NewDalgorm(db),
-	}
-}
+// TODO: move this file to `impl` module
 
 // shared by TasContext and SubTaskContext
 type defaultExecContext struct {
-	*DefaultBasicRes
+	core.BasicRes
 	ctx      context.Context
 	name     string
 	data     interface{}
@@ -91,20 +44,14 @@ type defaultExecContext struct {
 }
 
 func newDefaultExecContext(
+	basicRes core.BasicRes,
 	ctx context.Context,
-	cfg *viper.Viper,
-	logger core.Logger,
-	db *gorm.DB,
 	name string,
 	data interface{},
 	progress chan core.RunningProgress,
 ) *defaultExecContext {
 	return &defaultExecContext{
-		DefaultBasicRes: NewDefaultBasicRes(
-			cfg,
-			logger,
-			db,
-		),
+		BasicRes: basicRes,
 		ctx:      ctx,
 		name:     name,
 		data:     data,
@@ -157,10 +104,8 @@ func (c *defaultExecContext) IncProgress(progressType core.ProgressType, quantit
 
 func (c *defaultExecContext) fork(name string) *defaultExecContext {
 	return newDefaultExecContext(
+		c.BasicRes.NestedLogger(name),
 		c.ctx,
-		c.cfg,
-		c.logger.Nested(name),
-		c.db,
 		name,
 		c.data,
 		c.progress,
@@ -177,13 +122,13 @@ type DefaultTaskContext struct {
 // SetProgress FIXME ...
 func (c *DefaultTaskContext) SetProgress(current int, total int) {
 	c.defaultExecContext.SetProgress(core.TaskSetProgress, current, total)
-	c.logger.Info("total step: %d", c.total)
+	c.BasicRes.GetLogger().Info("total step: %d", c.total)
 }
 
 // IncProgress FIXME ...
 func (c *DefaultTaskContext) IncProgress(quantity int) {
 	c.defaultExecContext.IncProgress(core.TaskIncProgress, quantity)
-	c.logger.Info("finished step: %d / %d", c.current, c.total)
+	c.BasicRes.GetLogger().Info("finished step: %d / %d", c.current, c.total)
 }
 
 // DefaultSubTaskContext is default implementation
@@ -197,7 +142,7 @@ type DefaultSubTaskContext struct {
 func (c *DefaultSubTaskContext) SetProgress(current int, total int) {
 	c.defaultExecContext.SetProgress(core.SubTaskSetProgress, current, total)
 	if total > -1 {
-		c.logger.Info("total jobs: %d", c.total)
+		c.BasicRes.GetLogger().Info("total jobs: %d", c.total)
 	}
 }
 
@@ -206,24 +151,22 @@ func (c *DefaultSubTaskContext) IncProgress(quantity int) {
 	c.defaultExecContext.IncProgress(core.SubTaskIncProgress, quantity)
 	if c.LastProgressTime.IsZero() || c.LastProgressTime.Add(3*time.Second).Before(time.Now()) || c.current%1000 == 0 {
 		c.LastProgressTime = time.Now()
-		c.logger.Info("finished records: %d", c.current)
+		c.BasicRes.GetLogger().Info("finished records: %d", c.current)
 	} else {
-		c.logger.Debug("finished records: %d", c.current)
+		c.BasicRes.GetLogger().Debug("finished records: %d", c.current)
 	}
 }
 
-// NewDefaultTaskContext FIXME ...
+// NewDefaultTaskContext holds everything needed by the task execution.
 func NewDefaultTaskContext(
+	basicRes core.BasicRes,
 	ctx context.Context,
-	cfg *viper.Viper,
-	logger core.Logger,
-	db *gorm.DB,
 	name string,
 	subtasks map[string]bool,
 	progress chan core.RunningProgress,
 ) core.TaskContext {
 	return &DefaultTaskContext{
-		newDefaultExecContext(ctx, cfg, logger, db, name, nil, progress),
+		newDefaultExecContext(basicRes, ctx, name, nil, progress),
 		subtasks,
 		make(map[string]*DefaultSubTaskContext),
 	}
@@ -258,15 +201,13 @@ func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext
 // Use this if you need to run/debug a subtask without
 // going through the usual workflow.
 func NewStandaloneSubTaskContext(
+	basicRes core.BasicRes,
 	ctx context.Context,
-	cfg *viper.Viper,
-	logger core.Logger,
-	db *gorm.DB,
 	name string,
 	data interface{},
 ) core.SubTaskContext {
 	return &DefaultSubTaskContext{
-		newDefaultExecContext(ctx, cfg, logger, db, name, data, nil),
+		newDefaultExecContext(basicRes, ctx, name, data, nil),
 		nil,
 		time.Time{},
 	}

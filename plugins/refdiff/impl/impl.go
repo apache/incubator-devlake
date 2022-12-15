@@ -22,13 +22,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/refdiff/tasks"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 // make sure interface is implemented
 var _ core.PluginMeta = (*RefDiff)(nil)
-var _ core.PluginInit = (*RefDiff)(nil)
 var _ core.PluginTask = (*RefDiff)(nil)
 var _ core.PluginApi = (*RefDiff)(nil)
 var _ core.PluginModel = (*RefDiff)(nil)
@@ -60,10 +57,6 @@ func (plugin RefDiff) RunAfter() ([]string, errors.Error) {
 }
 
 func (plugin RefDiff) Settings() interface{} {
-	return nil
-}
-
-func (plugin RefDiff) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
 	return nil
 }
 

@@ -23,7 +23,6 @@ import (
 	"sync"
 
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/impl"
 
 	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
@@ -50,28 +49,23 @@ const failToCreateCronJob = "created cron job failed"
 // Init the services module
 func Init() {
 	var err error
-	// basic resources initialization
 	cfg = config.GetConfig()
 	log = logger.Global
-	db, err = runner.NewGormDb(cfg, logger.Global.Nested("db"))
-	if err != nil {
-		panic(err)
-	}
-	// gorm doesn't support creating a PrepareStmt=false session from a PrepareStmt=true
-	// but the lockDatabase needs PrepareStmt=false for table locking, we have to deal with it here
-	lockingDb, err := runner.NewGormDbEx(cfg, logger.Global.Nested("migrator db"), &dal.SessionConfig{
-		PrepareStmt:            false,
-		SkipDefaultTransaction: true,
-	})
-	if err != nil {
-		panic(err)
-	}
-	err = lockDatabase(dalgorm.NewDalgorm(lockingDb))
+	db, err = runner.NewGormDb(cfg, log)
+	print("init db", db)
 	if err != nil {
 		panic(err)
 	}
 
-	basicRes = impl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(db))
+	// TODO: this is ugly, the lockDb / CreateAppBasicRes are coupled via global variables cfg/log
+	// it is too much for this refactor, let's solve it later
+
+	// lock the database to avoid multiple devlake instances from sharing the same one
+	lockDb()
+
+	// basic resources initialization
+	basicRes = runner.CreateBasicRes(cfg, log, db)
+
 	// initialize db migrator
 	migrator, err = runner.InitMigrator(basicRes)
 	if err != nil {
@@ -82,12 +76,7 @@ func Init() {
 
 	// now,
 	// load plugins
-	err = runner.LoadPlugins(
-		cfg.GetString("PLUGIN_DIR"),
-		cfg,
-		logger.Global.Nested("plugin"),
-		db,
-	)
+	err = runner.LoadPlugins(basicRes)
 	if err != nil {
 		panic(err)
 	}
@@ -128,4 +117,20 @@ func ExecuteMigration() errors.Error {
 // MigrationRequireConfirmation returns if there were migration scripts waiting to be executed
 func MigrationRequireConfirmation() bool {
 	return migrator.HasPendingScripts()
+}
+
+func lockDb() {
+	// gorm doesn't support creating a PrepareStmt=false session from a PrepareStmt=true
+	// but the lockDatabase needs PrepareStmt=false for table locking, we have to deal with it here
+	lockingDb, err := runner.NewGormDbEx(cfg, logger.Global.Nested("migrator db"), &dal.SessionConfig{
+		PrepareStmt:            false,
+		SkipDefaultTransaction: true,
+	})
+	if err != nil {
+		panic(err)
+	}
+	err = lockDatabase(dalgorm.NewDalgorm(lockingDb))
+	if err != nil {
+		panic(err)
+	}
 }

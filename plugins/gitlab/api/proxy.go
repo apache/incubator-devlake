@@ -48,7 +48,7 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error)
 		},
 		TimeOut,
 		connection.Proxy,
-		BasicRes,
+		basicRes,
 	)
 	if err != nil {
 		return nil, err

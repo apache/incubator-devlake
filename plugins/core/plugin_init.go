@@ -19,11 +19,9 @@ package core
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 // PluginInit Implement this interface if plugin needed some initialization
 type PluginInit interface {
-	Init(config *viper.Viper, logger Logger, db *gorm.DB) errors.Error
+	Init(basicRes BasicRes) errors.Error
 }

@@ -26,12 +26,11 @@ import (
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 // LoadPlugins load plugins from local directory
-func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
+func LoadPlugins(basicRes core.BasicRes) errors.Error {
+	pluginsDir := basicRes.GetConfig("PLUGIN_DIR")
 	walkErr := filepath.WalkDir(pluginsDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -52,7 +51,7 @@ func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db 
 				return errors.Default.New(fmt.Sprintf("%s PluginEntry must implement PluginMeta interface", pluginName))
 			}
 			if plugin, ok := symPluginEntry.(core.PluginInit); ok {
-				err = plugin.Init(config, logger, db)
+				err = plugin.Init(basicRes)
 				if err != nil {
 					return err
 				}
@@ -62,7 +61,7 @@ func LoadPlugins(pluginsDir string, config *viper.Viper, logger core.Logger, db 
 				return nil
 			}
 
-			logger.Info(`plugin loaded %s`, pluginName)
+			basicRes.GetLogger().Info(`plugin loaded %s`, pluginName)
 		}
 		return nil
 	})

@@ -293,3 +293,7 @@ const LockClause string = "Lock"
 func Lock(write bool, nowait bool) Clause {
 	return Clause{Type: LockClause, Data: []bool{write, nowait}}
 }
+
+func Expr(expr string, params ...interface{}) DalClause {
+	return DalClause{Expr: expr, Params: params}
+}

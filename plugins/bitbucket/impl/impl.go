@@ -27,8 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 var _ core.PluginMeta = (*Bitbucket)(nil)
@@ -42,8 +40,8 @@ var _ core.CloseablePluginTask = (*Bitbucket)(nil)
 
 type Bitbucket string
 
-func (plugin Bitbucket) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
+func (plugin Bitbucket) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 
