@@ -21,7 +21,10 @@ import React, { useState, useEffect } from 'react'
 import { Dialog } from '@/components'
 import { SyncPolicy } from '@/plugins'
 
+import type { BlueprintType } from '../../types'
+
 interface Props {
+  blueprint: BlueprintType
   isManual: boolean
   cronConfig: string
   skipOnFail: boolean
@@ -32,6 +35,7 @@ interface Props {
 }
 
 export const UpdatePolicyDialog = ({
+  blueprint,
   saving,
   onCancel,
   onSubmit,
@@ -47,14 +51,17 @@ export const UpdatePolicyDialog = ({
     setCronConfig(props.cronConfig)
     setSkipOnFail(props.skipOnFail)
     setCreatedDateAfter(props.createdDateAfter)
-  }, [props])
+  }, [])
 
   const handleSubmit = () => {
     onSubmit({
       isManual,
       cronConfig,
       skipOnFail,
-      createdDateAfter
+      settings: {
+        ...blueprint.settings,
+        createdDateAfter
+      }
     })
   }
 

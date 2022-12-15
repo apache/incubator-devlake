@@ -131,13 +131,13 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
       enable: true,
       cronConfig,
       isManual,
-      skipOnFail,
-      createdDateAfter
+      skipOnFail
     }
 
     if (mode === ModeEnum.normal) {
       params.settings = {
         version: '2.0.0',
+        createdDateAfter,
         connections: uniqueList.map((unique) => {
           const connection = connections.find(
             (cs) => cs.unique === unique

@@ -184,7 +184,10 @@ export const Configuration = ({
           <h3>Sync Policy</h3>
           <div className='detail'>
             <span>
-              {cron.label}({dayjs(cron.nextTime).format('HH:mm A')})
+              {cron.label}
+              {cron.value !== 'manual'
+                ? dayjs(cron.nextTime).format('HH:mm A')
+                : null}
             </span>
             <Icon
               icon='annotation'
@@ -208,10 +211,11 @@ export const Configuration = ({
       )}
       {type === 'frequency' && (
         <UpdatePolicyDialog
+          blueprint={blueprint}
           isManual={blueprint.isManual}
           cronConfig={blueprint.cronConfig}
           skipOnFail={blueprint.skipOnFail}
-          createdDateAfter={blueprint.createdDateAfter}
+          createdDateAfter={blueprint.settings.createdDateAfter}
           saving={saving}
           onCancel={handleCancel}
           onSubmit={handleUpdatePolicy}
