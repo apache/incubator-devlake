@@ -28,6 +28,7 @@ import SlackLogo from '@/images/slack-rgb.svg';
 
 import { useMenu, MenuItemType } from './use-menu';
 import * as S from './styled';
+import { useVersion } from "@/store";
 
 interface Props {
   children: React.ReactNode;
@@ -37,6 +38,7 @@ export const BaseLayout = ({ children }: Props) => {
   const menu = useMenu();
   const { pathname } = useLocation();
   const history = useHistory();
+  const { version } = useVersion();
 
   const handlePushPath = (it: MenuItemType) => {
     if (!it.target) {
@@ -74,6 +76,7 @@ export const BaseLayout = ({ children }: Props) => {
           ))}
         </Menu>
         <div className="copyright">
+          <div>{version}</div>
           <span>Apache 2.0 License</span>
         </div>
       </S.Sider>
