@@ -16,33 +16,58 @@
  *
  */
 
-import { Plugins } from '@/plugins'
+import styled from 'styled-components'
 
-export type ConnectionItemType = {
-  icon: string
-  name: string
-  connectionId: ID
-  plugin: Plugins
-  entities: string[]
-  scopeIds: ID[]
-}
+export const ConfigurationPanel = styled.div`
+  .top {
+    display: flex;
+    align-items: flex-start;
 
-export type BlueprintType = {
-  id: ID
-  name: string
-  isManual: boolean
-  cronConfig: string
-  skipOnFail: boolean
-  createdDateAfter: null | string
-  settings: {
-    version: string
-    connections: Array<{
-      plugin: Plugins
-      connectionId: ID
-      scopes: Array<{
-        id: ID
-        entities: string[]
-      }>
-    }>
+    .block + .block {
+      margin-left: 32px;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+    }
+
+    .detail {
+      .bp4-icon {
+        margin-left: 4px;
+        cursor: pointer;
+      }
+    }
   }
-}
+
+  .bottom {
+    margin-top: 32px;
+  }
+`
+
+export const ConnectionColumn = styled.div`
+  display: flex;
+  align-items: center;
+
+  img {
+    margin-right: 4px;
+    width: 20px;
+  }
+`
+
+export const ActionColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  .item + .item {
+    margin-top: 8px;
+  }
+
+  .item {
+    cursor: pointer;
+
+    .bp4-icon {
+      margin-right: 4px;
+    }
+  }
+`

@@ -16,33 +16,7 @@
  *
  */
 
-import { Plugins } from '@/plugins'
-
-export type ConnectionItemType = {
-  icon: string
-  name: string
-  connectionId: ID
-  plugin: Plugins
-  entities: string[]
-  scopeIds: ID[]
-}
-
-export type BlueprintType = {
-  id: ID
-  name: string
-  isManual: boolean
-  cronConfig: string
-  skipOnFail: boolean
-  createdDateAfter: null | string
-  settings: {
-    version: string
-    connections: Array<{
-      plugin: Plugins
-      connectionId: ID
-      scopes: Array<{
-        id: ID
-        entities: string[]
-      }>
-    }>
-  }
-}
+export * from './update-name-dialog'
+export * from './update-policy-dialog'
+export * from './update-scope-dialog'
+export * from './update-transformation-dialog'
