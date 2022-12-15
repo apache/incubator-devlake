@@ -21,7 +21,6 @@ import ReactDOM from 'react-dom'
 import { BrowserRouter as Router } from 'react-router-dom'
 
 import { ErrorBoundary } from '@/components'
-import { StoreContextProvider } from '@/store'
 
 import App from './App'
 import { UIContextProvider } from '@/store/UIContext'
@@ -32,13 +31,11 @@ import './index.css'
 ReactDOM.render(
   <UIContextProvider>
     <IntegrationsContextProvider>
-      <StoreContextProvider>
-        <ErrorBoundary>
-          <Router>
-            <App />
-          </Router>
-        </ErrorBoundary>
-      </StoreContextProvider>
+      <ErrorBoundary>
+        <Router>
+          <App />
+        </Router>
+      </ErrorBoundary>
     </IntegrationsContextProvider>
   </UIContextProvider>,
   document.getElementById('app')
