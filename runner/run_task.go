@@ -35,8 +35,8 @@ import (
 
 // RunTask FIXME ...
 func RunTask(
-	basicRes core.BasicRes,
 	ctx context.Context,
+	basicRes core.BasicRes,
 	progress chan core.RunningProgress,
 	taskId uint64,
 ) (err errors.Error) {
@@ -118,8 +118,8 @@ func RunTask(
 	}
 
 	err = RunPluginTask(
-		basicRes.NestedLogger(task.Plugin),
 		ctx,
+		basicRes.NestedLogger(task.Plugin),
 		task,
 		progress,
 	)
@@ -131,8 +131,8 @@ func RunTask(
 
 // RunPluginTask FIXME ...
 func RunPluginTask(
-	basicRes core.BasicRes,
 	ctx context.Context,
+	basicRes core.BasicRes,
 	task *models.Task,
 	progress chan core.RunningProgress,
 ) errors.Error {
@@ -145,8 +145,8 @@ func RunPluginTask(
 		return errors.Default.New(fmt.Sprintf("plugin %s doesn't support PluginTask interface", task.Plugin))
 	}
 	return RunPluginSubTasks(
-		basicRes,
 		ctx,
+		basicRes,
 		task,
 		pluginTask,
 		progress,
@@ -155,8 +155,8 @@ func RunPluginTask(
 
 // RunPluginSubTasks FIXME ...
 func RunPluginSubTasks(
-	basicRes core.BasicRes,
 	ctx context.Context,
+	basicRes core.BasicRes,
 	task *models.Task,
 	pluginTask core.PluginTask,
 	progress chan core.RunningProgress,
@@ -220,7 +220,7 @@ func RunPluginSubTasks(
 		}
 	}
 
-	taskCtx := helper.NewDefaultTaskContext(basicRes, ctx, task.Plugin, subtasksFlag, progress)
+	taskCtx := helper.NewDefaultTaskContext(ctx, basicRes, task.Plugin, subtasksFlag, progress)
 	if closeablePlugin, ok := pluginTask.(core.CloseablePluginTask); ok {
 		defer closeablePlugin.Close(taskCtx)
 	}

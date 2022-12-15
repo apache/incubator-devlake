@@ -19,6 +19,7 @@ package app
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -43,7 +44,7 @@ func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64, 
 			activity.RecordHeartbeat(ctx, progressDetail)
 		}
 	}()
-	err = runner.RunTask(basicRes, ctx, progChan, taskId)
+	err = runner.RunTask(ctx, basicRes, progChan, taskId)
 	if err != nil {
 		log.Error(err, "failed to execute task #%d", taskId)
 	}

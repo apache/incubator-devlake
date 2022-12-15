@@ -44,8 +44,8 @@ type defaultExecContext struct {
 }
 
 func newDefaultExecContext(
-	basicRes core.BasicRes,
 	ctx context.Context,
+	basicRes core.BasicRes,
 	name string,
 	data interface{},
 	progress chan core.RunningProgress,
@@ -104,8 +104,8 @@ func (c *defaultExecContext) IncProgress(progressType core.ProgressType, quantit
 
 func (c *defaultExecContext) fork(name string) *defaultExecContext {
 	return newDefaultExecContext(
-		c.BasicRes.NestedLogger(name),
 		c.ctx,
+		c.BasicRes.NestedLogger(name),
 		name,
 		c.data,
 		c.progress,
@@ -159,14 +159,14 @@ func (c *DefaultSubTaskContext) IncProgress(quantity int) {
 
 // NewDefaultTaskContext holds everything needed by the task execution.
 func NewDefaultTaskContext(
-	basicRes core.BasicRes,
 	ctx context.Context,
+	basicRes core.BasicRes,
 	name string,
 	subtasks map[string]bool,
 	progress chan core.RunningProgress,
 ) core.TaskContext {
 	return &DefaultTaskContext{
-		newDefaultExecContext(basicRes, ctx, name, nil, progress),
+		newDefaultExecContext(ctx, basicRes, name, nil, progress),
 		subtasks,
 		make(map[string]*DefaultSubTaskContext),
 	}
@@ -201,13 +201,13 @@ func (c *DefaultTaskContext) SubTaskContext(subtask string) (core.SubTaskContext
 // Use this if you need to run/debug a subtask without
 // going through the usual workflow.
 func NewStandaloneSubTaskContext(
-	basicRes core.BasicRes,
 	ctx context.Context,
+	basicRes core.BasicRes,
 	name string,
 	data interface{},
 ) core.SubTaskContext {
 	return &DefaultSubTaskContext{
-		newDefaultExecContext(basicRes, ctx, name, data, nil),
+		newDefaultExecContext(ctx, basicRes, name, data, nil),
 		nil,
 		time.Time{},
 	}

@@ -321,8 +321,8 @@ func runTaskStandalone(parentLog core.Logger, taskId uint64) errors.Error {
 	progress := make(chan core.RunningProgress, 100)
 	go updateTaskProgress(taskId, progress)
 	err = runner.RunTask(
-		runner.CreateBasicRes(cfg, parentLog, db),
 		ctx,
+		runner.CreateBasicRes(cfg, parentLog, db),
 		progress,
 		taskId,
 	)

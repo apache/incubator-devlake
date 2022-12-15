@@ -83,14 +83,17 @@ func DirectRun(cmd *cobra.Command, args []string, pluginTask core.PluginTask, op
 		panic(err)
 	}
 	subtasksJson, err := json.Marshal(tasks)
+	if err != nil {
+		panic(err)
+	}
 	task := &models.Task{
 		Plugin:   cmd.Use,
 		Options:  optionsJson,
 		Subtasks: subtasksJson,
 	}
 	err = RunPluginSubTasks(
-		basicRes,
 		ctx,
+		basicRes,
 		task,
 		pluginTask,
 		nil,

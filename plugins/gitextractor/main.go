@@ -76,8 +76,8 @@ func main() {
 	defer storage.Close()
 	ctx := context.Background()
 	subTaskCtx := helper.NewStandaloneSubTaskContext(
-		basicRes,
 		ctx,
+		basicRes,
 		"git extractor",
 		nil,
 	)
