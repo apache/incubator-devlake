@@ -19,7 +19,7 @@
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 
-import { DEVLAKE_ENDPOINT } from '@/utils/config'
+import { DEVLAKE_ENDPOINT } from '@/config'
 
 const instance = axios.create({
   baseURL: DEVLAKE_ENDPOINT

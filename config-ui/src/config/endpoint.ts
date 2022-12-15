@@ -16,5 +16,4 @@
  *
  */
 
-export * from './cron'
-export * from './endpoint'
+export const DEVLAKE_ENDPOINT = '/api'
