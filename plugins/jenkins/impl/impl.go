@@ -98,39 +98,7 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 	if err != nil {
 		return nil, err
 	}
-	// If this is from BpV200, we should set JobFullName to scopeId
-	if op.JobFullName == "" {
-		op.JobFullName = op.ScopeId
-	}
-	// Validate op and convert JobFullName to JobPath and JobName
-	op, err = tasks.ValidateTaskOptions(op)
-	if err != nil {
-		return nil, err
-	}
-	// get jenkinsJob from db
-	jenkinsJob := &models.JenkinsJob{}
-	err = taskCtx.GetDal().First(jenkinsJob,
-		dal.Where(`connection_id = ? and full_name = ?`,
-			op.ConnectionId, op.ScopeId))
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find jenkinsJob%s", op.ScopeId))
-	}
-	if op.TransformationRuleId == 0 {
-		op.TransformationRuleId = jenkinsJob.TransformationRuleId
-	}
 
-	if !strings.HasSuffix(op.JobPath, "/") {
-		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
-	}
-	// We only set op.JenkinsTransformationRule when it's nil and we have op.TransformationRuleId != 0
-	if op.JenkinsTransformationRule == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.JenkinsTransformationRule
-		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
-		}
-		op.JenkinsTransformationRule = &transformationRule
-	}
 	logger := taskCtx.GetLogger()
 	logger.Debug("%v", options)
 	connection := &models.JenkinsConnection{}
@@ -147,6 +115,11 @@ func (plugin Jenkins) PrepareTaskData(taskCtx core.TaskContext, options map[stri
 	}
 
 	apiClient, err := tasks.CreateApiClient(taskCtx, connection)
+	if err != nil {
+		return nil, err
+	}
+
+	err = EnrichOptions(taskCtx, op, apiClient)
 	if err != nil {
 		return nil, err
 	}
@@ -229,4 +202,91 @@ func (plugin Jenkins) Close(taskCtx core.TaskContext) errors.Error {
 	}
 	data.ApiClient.Release()
 	return nil
+}
+
+func EnrichOptions(taskCtx core.TaskContext,
+	op *tasks.JenkinsOptions,
+	apiClient *helper.ApiAsyncClient) errors.Error {
+	jenkinsJob := &models.JenkinsJob{}
+	// If this is from BpV200, we should set JobFullName to scopeId
+	if op.JobFullName == "" {
+		op.JobFullName = op.ScopeId
+	}
+	// validate the op and set name=owner/repo if this is from advanced mode or bpV100
+	op, err := tasks.ValidateTaskOptions(op)
+	if err != nil {
+		return err
+	}
+	log := taskCtx.GetLogger()
+
+	// We only set op.JenkinsTransformationRule when it's nil and we have op.TransformationRuleId != 0
+	if op.JenkinsTransformationRule == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.JenkinsTransformationRule
+		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+		if err != nil {
+			return errors.BadInput.Wrap(err, "fail to get transformationRule")
+		}
+		op.JenkinsTransformationRule = &transformationRule
+	}
+
+	if op.JenkinsTransformationRule == nil && op.TransformationRuleId == 0 {
+		op.JenkinsTransformationRule = new(models.JenkinsTransformationRule)
+	}
+
+	// for advanced mode or others which we only have name, for bp v200, we have githubId
+	err = taskCtx.GetDal().First(jenkinsJob,
+		dal.Where(`connection_id = ? and full_name = ?`,
+			op.ConnectionId, op.JobFullName))
+	if err == nil {
+		op.Name = jenkinsJob.Name
+		op.JobPath = jenkinsJob.Path
+		if op.TransformationRuleId == 0 {
+			op.TransformationRuleId = jenkinsJob.TransformationRuleId
+		}
+	} else {
+		if taskCtx.GetDal().IsErrorNotFound(err) && op.JobFullName != "" {
+
+			pathSplit := strings.Split(op.JobFullName, "/")
+			lastOne := len(pathSplit)
+
+			path := "job/" + strings.Join(pathSplit[0:lastOne-1], "job/")
+			name := pathSplit[lastOne-1]
+
+			err = api.GetJob(apiClient, path, name, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
+				log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
+				op.Name = job.Name
+				op.JobPath = job.Path
+				jenkinsJob := ConvertJobToJenkinsJob(job, op)
+				err = taskCtx.GetDal().CreateIfNotExist(jenkinsJob)
+				return err
+			})
+			if err != nil {
+				return err
+			}
+		} else {
+			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.Name))
+		}
+	}
+
+	if !strings.HasSuffix(op.JobPath, "/") {
+		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
+	}
+
+	return nil
+}
+
+func ConvertJobToJenkinsJob(job *models.Job, op *tasks.JenkinsOptions) *models.JenkinsJob {
+	return &models.JenkinsJob{
+		ConnectionId:         op.ConnectionId,
+		FullName:             job.FullName,
+		TransformationRuleId: op.TransformationRuleId,
+		Name:                 job.Name,
+		Path:                 job.Path,
+		Class:                job.Class,
+		Color:                job.Color,
+		Base:                 job.Base,
+		Url:                  job.URL,
+		Description:          job.Description,
+		PrimaryView:          job.URL + job.Path + job.Class,
+	}
 }

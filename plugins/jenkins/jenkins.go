@@ -35,7 +35,7 @@ func main() {
 	jenkinsCmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
 			"connectionId":     *connectionId,
-			"jobFullName":      jobFullName,
+			"jobFullName":      *jobFullName,
 			"deployTagPattern": *deployTagPattern,
 			"createdDateAfter": *CreatedDateAfter,
 		})
