@@ -24,6 +24,9 @@ type ConfigReader interface {
 	GetBool(name string) bool
 	GetFloat64(key string) float64
 	GetInt(key string) int
+	GetInt64(key string) int64
+	GetUint(key string) uint
+	GetUint64(key string) uint64
 	GetIntSlice(key string) []int
 	GetString(key string) string
 	GetStringMap(key string) map[string]interface{}

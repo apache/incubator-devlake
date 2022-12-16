@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
 
@@ -40,6 +39,6 @@ func CreateAppBasicRes() core.BasicRes {
 }
 
 // CreateBasicRes returns a BasicRes based on what was given
-func CreateBasicRes(cfg *viper.Viper, log core.Logger, db *gorm.DB) core.BasicRes {
+func CreateBasicRes(cfg core.ConfigReader, log core.Logger, db *gorm.DB) core.BasicRes {
 	return impl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(db))
 }

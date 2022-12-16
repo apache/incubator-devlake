@@ -27,7 +27,6 @@ import (
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -35,7 +34,7 @@ import (
 )
 
 // NewGormDb creates a new *gorm.DB and set it up properly
-func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, errors.Error) {
+func NewGormDb(config core.ConfigReader, logger core.Logger) (*gorm.DB, errors.Error) {
 	return NewGormDbEx(config, logger, &dal.SessionConfig{
 		PrepareStmt:            true,
 		SkipDefaultTransaction: true,
@@ -43,7 +42,7 @@ func NewGormDb(config *viper.Viper, logger core.Logger) (*gorm.DB, errors.Error)
 }
 
 // NewGormDbEx acts like NewGormDb but accept extra sessionConfig
-func NewGormDbEx(config *viper.Viper, logger core.Logger, sessionConfig *dal.SessionConfig) (*gorm.DB, errors.Error) {
+func NewGormDbEx(config core.ConfigReader, logger core.Logger, sessionConfig *dal.SessionConfig) (*gorm.DB, errors.Error) {
 	dbLoggingLevel := gormLogger.Error
 	switch strings.ToLower(config.GetString("DB_LOGGING_LEVEL")) {
 	case "silent":
