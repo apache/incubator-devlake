@@ -18,7 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"context"
 	goerror "errors"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
@@ -32,6 +31,7 @@ import (
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
+	"net/url"
 	"strings"
 	"time"
 
@@ -49,23 +49,8 @@ func MakeDataSourcePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionI
 		return nil, nil, err
 	}
 
-	token := strings.Split(connection.Token, ",")[0]
-	apiClient, err := helper.NewApiClient(
-		context.TODO(),
-		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Bearer %s", token),
-		},
-		10*time.Second,
-		connection.Proxy,
-		basicRes,
-	)
-	if err != nil {
-		return nil, nil, err
-	}
-
 	plan := make(core.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection, apiClient, syncPolicy)
+	plan, err = makeDataSourcePipelinePlanV200(subtaskMetas, plan, bpScopes, connection, syncPolicy)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -82,11 +67,9 @@ func makeDataSourcePipelinePlanV200(
 	plan core.PipelinePlan,
 	bpScopes []*core.BlueprintScopeV200,
 	connection *models.GithubConnection,
-	apiClient helper.ApiClientGetter,
 	syncPolicy *core.BlueprintSyncPolicy,
 ) (core.PipelinePlan, errors.Error) {
 	var err errors.Error
-	var repoRes *tasks.GithubApiRepo
 	for i, bpScope := range bpScopes {
 		stage := plan[i]
 		if stage == nil {
@@ -127,7 +110,8 @@ func makeDataSourcePipelinePlanV200(
 		// construct task options for github
 		op := &tasks.GithubOptions{
 			ConnectionId: githubRepo.ConnectionId,
-			ScopeId:      bpScope.Id,
+			GithubId:     githubRepo.GithubId,
+			Name:         githubRepo.Name,
 		}
 		if syncPolicy.CreatedDateAfter != nil {
 			op.CreatedDateAfter = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
@@ -140,22 +124,24 @@ func makeDataSourcePipelinePlanV200(
 		if err != nil {
 			return nil, err
 		}
-		ownerRepo := strings.Split(githubRepo.Name, "/")
-		if len(ownerRepo) != 2 {
-			return nil, errors.Default.New("Fail to parse githubRepo.Name")
-		}
-		op.Owner = ownerRepo[0]
-		op.Repo = ownerRepo[1]
-		// add gitex stage and add repo to scopes
+
+		// add gitex stage
 		if utils.StringsContains(bpScope.Entities, core.DOMAIN_TYPE_CODE) {
-			repoRes, err = MemorizedGetApiRepo(repoRes, op, apiClient)
+			cloneUrl, err := errors.Convert01(url.Parse(githubRepo.CloneUrl))
 			if err != nil {
 				return nil, err
 			}
-			stage, err = addGitex(bpScope.Entities, connection, repoRes, stage)
-			if err != nil {
-				return nil, err
-			}
+			token := strings.Split(connection.Token, ",")[0]
+			cloneUrl.User = url.UserPassword("git", token)
+			stage = append(stage, &core.PipelineTask{
+				Plugin: "gitextractor",
+				Options: map[string]interface{}{
+					"url":    cloneUrl.String(),
+					"repoId": didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
+					"proxy":  connection.Proxy,
+				},
+			})
+
 		}
 		plan[i] = stage
 	}
@@ -192,7 +178,7 @@ func makeScopesV200(bpScopes []*core.BlueprintScopeV200, connection *models.Gith
 				DomainEntity: domainlayer.DomainEntity{
 					Id: didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId),
 				},
-				Name: fmt.Sprintf("%s/%s", githubRepo.OwnerLogin, githubRepo.Name),
+				Name: githubRepo.Name,
 			}
 			scopes = append(scopes, scopeCICD)
 		}

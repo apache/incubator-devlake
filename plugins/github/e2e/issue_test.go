@@ -34,13 +34,12 @@ func TestIssueDataFlow(t *testing.T) {
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
+			Name:         "panjf2000/ants",
 			GithubId:     134018330,
 			GithubTransformationRule: &models.GithubTransformationRule{
 				PrType:               "type/(.*)$",
 				PrComponent:          "component/(.*)$",
-				PrBodyClosePattern:   "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)",
+				PrBodyClosePattern:   "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/issues\\/)\\d+[ ]*)+)",
 				IssueSeverity:        "severity/(.*)$",
 				IssuePriority:        "^(highest|high|medium|low)$",
 				IssueComponent:       "component/(.*)$",

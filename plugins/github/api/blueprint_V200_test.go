@@ -18,8 +18,6 @@ limitations under the License.
 package api
 
 import (
-	"bytes"
-	"encoding/json"
 	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
@@ -27,12 +25,9 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
-	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"io"
-	"net/http"
 	"testing"
 )
 
@@ -53,20 +48,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			Token: "123",
 		},
 	}
-	mockApiCLient := mocks.NewApiClientGetter(t)
-	repo := &tasks.GithubApiRepo{
-		GithubId: 12345,
-		CloneUrl: "https://this_is_cloneUrl",
-	}
-	js, err := json.Marshal(repo)
-	assert.Nil(t, err)
-	res := &http.Response{}
-	res.Body = io.NopCloser(bytes.NewBuffer(js))
-	res.StatusCode = http.StatusOK
-	mockApiCLient.On("Get", "repos/test/testRepo", mock.Anything, mock.Anything).Return(res, nil)
 	mockMeta := mocks.NewPluginMeta(t)
 	mockMeta.On("RootPkgPath").Return("github.com/apache/incubator-devlake/plugins/github")
-	err = core.RegisterPlugin("github", mockMeta)
+	err := core.RegisterPlugin("github", mockMeta)
 	assert.Nil(t, err)
 	// Refresh Global Variables and set the sql mock
 	basicRes = NewMockBasicRes()
@@ -79,7 +63,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	syncPolicy := &core.BlueprintSyncPolicy{}
 
 	plan := make(core.PipelinePlan, len(bpScopes))
-	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection, mockApiCLient, syncPolicy)
+	plan, err = makeDataSourcePipelinePlanV200(nil, plan, bpScopes, connection, syncPolicy)
 	assert.Nil(t, err)
 	basicRes = NewMockBasicRes()
 	scopes, err := makeScopesV200(bpScopes, connection)
@@ -92,7 +76,8 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 				Subtasks: []string{},
 				Options: map[string]interface{}{
 					"connectionId": uint64(1),
-					"scopeId":      "1",
+					"githubId":     12345,
+					"name":         "test/testRepo",
 				},
 			},
 			{
@@ -145,6 +130,7 @@ func NewMockBasicRes() *mocks.BasicRes {
 		ConnectionId:         1,
 		GithubId:             12345,
 		Name:                 "test/testRepo",
+		CloneUrl:             "https://this_is_cloneUrl",
 		TransformationRuleId: 1,
 	}
 

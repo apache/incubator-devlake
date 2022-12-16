@@ -35,13 +35,12 @@ func TestCommentDataFlow(t *testing.T) {
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
+			Name:         "panjf2000/ants",
 			GithubId:     134018330,
 			GithubTransformationRule: &models.GithubTransformationRule{
 				PrType:               "type/(.*)$",
 				PrComponent:          "component/(.*)$",
-				PrBodyClosePattern:   "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/%s\\/issues\\/)\\d+[ ]*)+)",
+				PrBodyClosePattern:   "(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\\s]*.*(((and )?(#|https:\\/\\/github.com\\/%s\\/issues\\/)\\d+[ ]*)+)",
 				IssueSeverity:        "severity/(.*)$",
 				IssuePriority:        "^(highest|high|medium|low)$",
 				IssueComponent:       "component/(.*)$",
@@ -55,9 +54,9 @@ func TestCommentDataFlow(t *testing.T) {
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_comments.csv", "_raw_github_api_comments")
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_github_api_pull_request_review_comments.csv", "_raw_github_api_pull_request_review_comments")
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_issues.csv", &models.GithubIssue{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_issue_labels.csv", &models.GithubIssueLabel{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_pull_requests.csv", models.GithubPullRequest{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_issues.csv", &models.GithubIssue{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_issue_labels.csv", &models.GithubIssueLabel{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_pull_requests.csv", models.GithubPullRequest{})
 
 	// verify extraction
 	dataflowTester.FlushTabler(&models.GithubIssueComment{})

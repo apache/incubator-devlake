@@ -58,8 +58,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 		Ctx: taskCtx,
 		Params: GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
-			Owner:        data.Options.Owner,
-			Repo:         data.Options.Repo,
+			Name:         data.Options.Name,
 		},
 		Table: RAW_PR_COMMIT_TABLE,
 	}, data.CreatedDateAfter)
@@ -96,7 +95,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 		Incremental: incremental,
 		Input:       iterator,
 
-		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/pulls/{{ .Input.Number }}/commits",
+		UrlTemplate: "repos/{{ .Params.Name }}/pulls/{{ .Input.Number }}/commits",
 
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}

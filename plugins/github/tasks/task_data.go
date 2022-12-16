@@ -18,6 +18,8 @@ limitations under the License.
 package tasks
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -29,12 +31,12 @@ import (
 type GithubOptions struct {
 	ConnectionId                     uint64   `json:"connectionId" mapstructure:"connectionId,omitempty"`
 	TransformationRuleId             uint64   `json:"transformationRuleId" mapstructure:"transformationRuleId,omitempty"`
-	ScopeId                          string   `json:"scopeId" mapstructure:"scopeId,omitempty"`
 	GithubId                         int      `json:"githubId" mapstructure:"githubId,omitempty"`
 	Tasks                            []string `json:"tasks,omitempty" mapstructure:",omitempty"`
 	CreatedDateAfter                 string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
 	Owner                            string   `json:"owner" mapstructure:"owner,omitempty"`
 	Repo                             string   `json:"repo"  mapstructure:"repo,omitempty"`
+	Name                             string   `json:"name"  mapstructure:"name,omitempty"`
 	*models.GithubTransformationRule `mapstructure:"transformationRules,omitempty" json:"transformationRules"`
 }
 
@@ -47,8 +49,7 @@ type GithubTaskData struct {
 
 type GithubApiParams struct {
 	ConnectionId uint64
-	Owner        string
-	Repo         string
+	Name         string
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*GithubOptions, errors.Error) {
@@ -82,18 +83,15 @@ func EncodeTaskOptions(op *GithubOptions) (map[string]interface{}, errors.Error)
 }
 
 func ValidateTaskOptions(op *GithubOptions) errors.Error {
-	if op.Owner == "" {
-		return errors.BadInput.New("owner is required for GitHub execution")
+	if op.Name == "" {
+		op.Name = strings.Trim(fmt.Sprintf("%s/%s", op.Owner, op.Repo), " ")
 	}
-	if op.Repo == "" {
-		return errors.BadInput.New("repo is required for GitHub execution")
+	if op.Name == "" && op.GithubId == 0 {
+		return errors.BadInput.New("no enough info for GitHub execution")
 	}
 	// find the needed GitHub now
 	if op.ConnectionId == 0 {
 		return errors.BadInput.New("connectionId is invalid")
-	}
-	if op.GithubTransformationRule == nil && op.TransformationRuleId == 0 {
-		op.GithubTransformationRule = new(models.GithubTransformationRule)
 	}
 	return nil
 }

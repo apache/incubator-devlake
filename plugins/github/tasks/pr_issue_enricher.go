@@ -46,8 +46,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err errors.Error) {
 	var prBodyCloseRegex *regexp.Regexp
 	prBodyClosePattern := data.Options.PrBodyClosePattern
 	//the pattern before the issue number, sometimes, the issue number is #1098, sometimes it is https://xxx/#1098
-	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Owner, 1)
-	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Repo, 1)
+	prBodyClosePattern = strings.Replace(prBodyClosePattern, "%s", data.Options.Name, 1)
 	if len(prBodyClosePattern) > 0 {
 		prBodyCloseRegex, err = errors.Convert01(regexp.Compile(prBodyClosePattern))
 		if err != nil {
@@ -69,8 +68,7 @@ func EnrichPullRequestIssues(taskCtx core.SubTaskContext) (err errors.Error) {
 			Ctx: taskCtx,
 			Params: GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
+				Name:         data.Options.Name,
 			},
 			Table: RAW_PULL_REQUEST_TABLE,
 		},
