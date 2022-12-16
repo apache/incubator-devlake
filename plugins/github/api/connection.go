@@ -20,10 +20,11 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/api/shared"
 
@@ -84,6 +85,11 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token))}
 				return
 			}
+			if res.StatusCode != http.StatusOK {
+				results <- VerifyResult{err: errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")}
+				return
+			}
+
 			githubUserOfToken := &models.GithubUserOfToken{}
 			err = helper.UnmarshalResponse(res, githubUserOfToken)
 			if err != nil {
@@ -93,10 +99,10 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 				results <- VerifyResult{err: errors.BadInput.Wrap(err, fmt.Sprintf("invalid token for #%v %s", j, token))}
 				return
 			}
+
 			results <- VerifyResult{login: githubUserOfToken.Login}
 		}()
 	}
-
 	// collect verification results
 	logins := make([]string, 0)
 	allErrors := make([]error, 0)
