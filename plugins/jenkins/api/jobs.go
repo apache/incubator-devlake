@@ -29,8 +29,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-// request all jobs
-func GetAllJobs(apiClient helper.ApiClientGetter, path string, beforename string, pageSize int, callback func(job *models.Job, isPath bool) errors.Error) errors.Error {
+func GetJobs(apiClient helper.ApiClientGetter, path string, pageSize int, callback func(job *models.Job) errors.Error) errors.Error {
 	for i := 0; ; i += pageSize {
 		var data struct {
 			Jobs []json.RawMessage `json:"jobs"`
@@ -52,7 +51,7 @@ func GetAllJobs(apiClient helper.ApiClientGetter, path string, beforename string
 			// it is found that if the second page is empty, a 500 error will be returned.
 			// So we don't think it's an error to return 500 in this case
 			if i > 0 && res.StatusCode == http.StatusInternalServerError {
-				break
+				return nil
 			}
 			return err
 		}
@@ -64,29 +63,58 @@ func GetAllJobs(apiClient helper.ApiClientGetter, path string, beforename string
 				return errors.Convert(err1)
 			}
 
-			job.Path = path
-			job.FullName = beforename + job.Name
-
-			if job.Jobs != nil {
-				err = callback(job, true)
-				if err != nil {
-					return err
-				}
-				err = GetAllJobs(apiClient, path+"job/"+job.Name+"/", beforename+job.Name+"/", pageSize, callback)
-			} else {
-				err = callback(job, false)
-			}
-
+			err = callback(job)
 			if err != nil {
 				return err
 			}
 		}
 
-		// break with empty data
 		if len(data.Jobs) < pageSize {
-			break
+			return nil
 		}
 	}
+}
 
-	return nil
+func GetJob(apiClient helper.ApiClientGetter, path string, name string, fullName string, pageSize int, callback func(job *models.Job, isPath bool) errors.Error) errors.Error {
+	var err errors.Error
+
+	return GetJobs(apiClient, path, pageSize, func(job *models.Job) errors.Error {
+		if job.Name != name {
+			return nil
+		}
+		job.Path = path
+		job.FullName = fullName
+
+		if job.Jobs != nil {
+			err = callback(job, true)
+			if err != nil {
+				return err
+			}
+		} else {
+			err = callback(job, false)
+		}
+
+		return err
+	})
+}
+
+// request all jobs
+func GetAllJobs(apiClient helper.ApiClientGetter, path string, beforename string, pageSize int, callback func(job *models.Job, isPath bool) errors.Error) errors.Error {
+	var err errors.Error
+	return GetJobs(apiClient, path, pageSize, func(job *models.Job) errors.Error {
+		job.Path = path
+		job.FullName = beforename + job.Name
+
+		if job.Jobs != nil {
+			err = callback(job, true)
+			if err != nil {
+				return err
+			}
+			err = GetAllJobs(apiClient, path+"job/"+job.Name+"/", beforename+job.Name+"/", pageSize, callback)
+		} else {
+			err = callback(job, false)
+		}
+
+		return err
+	})
 }
