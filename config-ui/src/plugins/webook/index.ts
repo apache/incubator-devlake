@@ -17,6 +17,7 @@
  */
 
 export * from './types'
+export * from './config'
 export * from './connection'
 export * from './create-dialog'
 export * from './delete-dialog'

@@ -16,7 +16,28 @@
  *
  */
 
-export * from './data-scope-list'
-export * from './data-scope'
-export * from './transformation'
-export * from './sync-policy'
+import { PluginType } from '@/plugins'
+
+import Icon from './assets/icon.svg'
+
+export const GitHubConfig = {
+  plugin: 'github',
+  name: 'GitHub',
+  type: PluginType.Connection,
+  icon: Icon,
+  entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
+  transformation: {
+    issueSeverity: '',
+    issueComponent: '',
+    issuePriority: '',
+    issueTypeRequirement: '',
+    issueTypeBug: '',
+    issueTypeIncident: '',
+    prType: '',
+    prComponent: '',
+    prBodyClosePattern: '',
+    productionPattern: '',
+    deploymentPattern: '',
+    refdiff: null
+  }
+}

@@ -16,7 +16,15 @@
  *
  */
 
-export * from './data-scope-list'
-export * from './data-scope'
-export * from './transformation'
-export * from './sync-policy'
+import { PluginType } from '@/plugins'
+
+import Icon from './assets/icon.svg'
+
+export const WebhookConfig = {
+  plugin: 'webhook',
+  name: 'Webhook',
+  type: PluginType.Incoming_Connection,
+  icon: Icon,
+  entities: [],
+  transformation: {}
+}

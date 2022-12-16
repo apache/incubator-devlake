@@ -23,3 +23,8 @@ export enum Plugins {
   Jenkins = 'jenkins',
   Webhook = 'webhook'
 }
+
+export enum PluginType {
+  Connection = 'connection',
+  Incoming_Connection = 'incoming_connection'
+}
