@@ -179,7 +179,7 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 // GetRepoByConnectionIdAndscopeId get tbe repo by the connectionId and the scopeId
 func GetRepoByConnectionIdAndscopeId(connectionId uint64, scopeId string) (*models.GitlabProject, errors.Error) {
 	repo := &models.GitlabProject{}
-	db := BasicRes.GetDal()
+	db := basicRes.GetDal()
 	err := db.First(repo, dal.Where("connection_id = ? AND gitlab_id = ?", connectionId, scopeId))
 	if err != nil {
 		if db.IsErrorNotFound(err) {
@@ -196,7 +196,7 @@ func GetTransformationRuleByRepo(repo *models.GitlabProject) (*models.GitlabTran
 	transformationRules := &models.GitlabTransformationRule{}
 	transformationRuleId := repo.TransformationRuleId
 	if transformationRuleId != 0 {
-		db := BasicRes.GetDal()
+		db := basicRes.GetDal()
 		err := db.First(transformationRules, dal.Where("id = ?", transformationRuleId))
 		if err != nil {
 			if db.IsErrorNotFound(err) {

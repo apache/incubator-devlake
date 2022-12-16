@@ -25,8 +25,9 @@ import {
   Intent
 } from '@blueprintjs/core'
 
+import { Card } from '@/components'
+
 import type { ProjectType } from '../types'
-import * as S from '../styled'
 
 interface Props {
   project: ProjectType
@@ -47,7 +48,7 @@ export const SettingsPanel = ({ project, onUpdate }: Props) => {
   const handleSave = () => onUpdate(name, enableDora)
 
   return (
-    <S.Panel>
+    <Card>
       <div className='settings'>
         <div className='block'>
           <h3>Project Name *</h3>
@@ -71,6 +72,6 @@ export const SettingsPanel = ({ project, onUpdate }: Props) => {
           <Button text='Save' intent={Intent.PRIMARY} onClick={handleSave} />
         </ButtonGroup>
       </div>
-    </S.Panel>
+    </Card>
   )
 }

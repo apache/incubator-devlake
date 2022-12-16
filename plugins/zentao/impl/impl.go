@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -26,8 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/zentao/models"
 	"github.com/apache/incubator-devlake/plugins/zentao/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/zentao/tasks"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 // make sure interface is implemented
@@ -44,8 +43,8 @@ func (plugin Zentao) Description() string {
 	return "collect some Zentao data"
 }
 
-func (plugin Zentao) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
+func (plugin Zentao) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 

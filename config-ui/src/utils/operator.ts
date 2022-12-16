@@ -22,39 +22,40 @@ import { Toast } from '@/components'
 
 export type OperateConfig = {
   setOperating?: (success: boolean) => void
+  formatMessage?: () => string
   formatReason?: (err: unknown) => string
 }
 
 /**
- * 
+ *
  * @param request -> a request
- * @param config 
+ * @param config
  * @param config.setOperating -> Control the status of the request
- * @parma config.formatReason -> Show the reason for the failure
- * @returns 
+ * @param config.formatMessage -> Show the message for the success
+ * @param config.formatReason -> Show the reason for the failure
+ * @returns
  */
 export const operator = async <T>(
   request: () => Promise<T>,
   config?: OperateConfig
 ) => {
-  const { setOperating, formatReason } = config || {}
+  const { setOperating, formatMessage, formatReason } = config || {}
 
   try {
     setOperating?.(true)
     const res = await request()
+    const message = formatMessage?.() ?? 'Operation successfully completed'
     Toast.show({
       intent: Intent.SUCCESS,
-      message: 'Operation successfully completed',
+      message,
       icon: 'endorsed'
     })
     return [true, res]
   } catch (err) {
-    const reason = formatReason?.(err)
+    const reason = formatReason?.(err) ?? 'Operation failed.'
     Toast.show({
       intent: Intent.DANGER,
-      message: reason
-        ? `Operation failed. Reason: ${reason}`
-        : 'Operation failed.',
+      message: reason,
       icon: 'error'
     })
 

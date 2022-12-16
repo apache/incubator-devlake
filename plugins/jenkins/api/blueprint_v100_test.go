@@ -18,13 +18,19 @@ limitations under the License.
 package api
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
+	"net/http"
+	"testing"
+
+	"github.com/apache/incubator-devlake/mocks"
 	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"github.com/stretchr/testify/assert"
-	"testing"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestProcessScope(t *testing.T) {
@@ -48,9 +54,7 @@ func TestProcessScope(t *testing.T) {
 
 	bs := &core.BlueprintScopeV100{
 		Entities: []string{"CICD"},
-		Options: json.RawMessage(`{
-              "jobFullName": "testJob"
-            }`),
+		Options:  json.RawMessage(`{}`),
 		Transformation: json.RawMessage(`{
               "productionPattern": "(?i)build-and-deploy",
               "deploymentPattern": "deploy"
@@ -58,7 +62,39 @@ func TestProcessScope(t *testing.T) {
 	}
 	scopes := make([]*core.BlueprintScopeV100, 0)
 	scopes = append(scopes, bs)
-	plan, err := makePipelinePlanV100(nil, scopes, connection)
+
+	mockApiClient := mocks.NewApiClientGetter(t)
+
+	var remoteData []*models.Job = []*models.Job{
+		{
+			Name:        "devlake",
+			Color:       "blue",
+			Class:       "hudson.model.FreeStyleProject",
+			Base:        "",
+			URL:         "https://test.nddtf.com/job/devlake/",
+			Description: "",
+		},
+	}
+
+	var data struct {
+		Jobs []json.RawMessage `json:"jobs"`
+	}
+
+	// job to apiClient
+	js, err1 := json.Marshal(remoteData[0])
+	assert.Nil(t, err1)
+	data.Jobs = append(data.Jobs, js)
+
+	js, err1 = json.Marshal(data)
+	assert.Nil(t, err1)
+
+	res := &http.Response{}
+	res.Body = io.NopCloser(bytes.NewBuffer(js))
+	res.StatusCode = http.StatusOK
+
+	mockApiClient.On("Get", mock.Anything, mock.Anything, mock.Anything).Return(res, nil).Once()
+
+	plan, err := makePipelinePlanV100(nil, scopes, connection, mockApiClient)
 	assert.Nil(t, err)
 
 	expectPlan := core.PipelinePlan{
@@ -67,7 +103,7 @@ func TestProcessScope(t *testing.T) {
 				Plugin:   "jenkins",
 				Subtasks: []string{},
 				Options: map[string]interface{}{
-					"jobFullName":  "testJob",
+					"jobFullName":  "devlake",
 					"connectionId": uint64(1),
 					"transformationRules": map[string]interface{}{
 						"deploymentPattern": "deploy",

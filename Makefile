@@ -22,11 +22,16 @@ TAG ?= $(shell git tag --points-at HEAD)
 IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
 
-dep:
+go-dep:
 	go install github.com/vektra/mockery/v2@latest
 	go install github.com/swaggo/swag/cmd/swag@v1.8.4
 	go install github.com/atombender/go-jsonschema/cmd/gojsonschema@latest
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.49.0
+
+python-dep:
 	pip install -r requirements.txt
+
+dep: go-dep python-dep
 
 swag:
 	swag init --parseDependency --parseInternal -o ./api/docs -g ./api/api.go -g plugins/*/api/*.go

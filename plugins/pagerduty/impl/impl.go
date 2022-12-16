@@ -19,6 +19,8 @@ package impl
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/helpers/pluginhelper/tap"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -27,9 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/pagerduty/tasks"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
-	"time"
 )
 
 // make sure interface is implemented
@@ -46,8 +45,8 @@ func (plugin PagerDuty) Description() string {
 	return "collect some PagerDuty data"
 }
 
-func (plugin PagerDuty) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
+func (plugin PagerDuty) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 

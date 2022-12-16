@@ -23,7 +23,7 @@
 #While incubation status is not necessarily a reflection of the completeness or stability of the code,
 #it does indicate that the project has yet to be fully endorsed by the ASF.
 
-FROM node:16 as builder
+FROM node:14 as builder
 WORKDIR /home/node/code
 COPY package.json /home/node/code
 COPY package-lock.json /home/node/code

@@ -22,9 +22,6 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/feishu/api"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
@@ -43,36 +40,8 @@ var _ core.CloseablePluginTask = (*Feishu)(nil)
 
 type Feishu struct{}
 
-func (plugin Feishu) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
-
-	// FIXME after config-ui support feishu plugin
-	// save env to db where name=feishu
-	connection := &models.FeishuConnection{}
-	if db.Migrator().HasTable(connection) {
-		if err := db.Find(connection, map[string]string{"name": "Feishu"}).Error; err != nil {
-			return errors.Convert(err)
-		}
-		if connection.ID != 0 {
-			encodeKey := config.GetString(core.EncodeKeyEnvStr)
-			connection.Endpoint = config.GetString(`FEISHU_ENDPOINT`)
-			connection.AppId = config.GetString(`FEISHU_APPID`)
-			connection.SecretKey = config.GetString(`FEISHU_APPSCRECT`)
-			if connection.Endpoint != `` && connection.AppId != `` && connection.SecretKey != `` && encodeKey != `` {
-				err := helper.UpdateEncryptFields(connection, func(plaintext string) (string, errors.Error) {
-					return core.Encrypt(encodeKey, plaintext)
-				})
-				if err != nil {
-					return err
-				}
-				// update from .env and save to db
-				err = errors.Convert(db.Updates(connection).Error)
-				if err != nil {
-					return err
-				}
-			}
-		}
-	}
+func (plugin Feishu) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 

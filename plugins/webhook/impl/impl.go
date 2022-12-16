@@ -22,8 +22,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/webhook/api"
 	"github.com/apache/incubator-devlake/plugins/webhook/models/migrationscripts"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 // make sure interface is implemented
@@ -39,8 +37,8 @@ func (plugin Webhook) Description() string {
 	return "collect some Webhook data"
 }
 
-func (plugin Webhook) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
+func (plugin Webhook) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 

@@ -19,6 +19,8 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useHistory } from 'react-router-dom'
 
+import type { WebhookItemType } from '@/plugins'
+import { Plugins } from '@/plugins'
 import { operator } from '@/utils'
 
 import type { ProjectType } from './types'
@@ -26,11 +28,12 @@ import * as API from './api'
 
 export const useProject = (name: string) => {
   const [loading, setLoading] = useState(false)
-  const [project, setProject] = useState<ProjectType>(null)
+  const [project, setProject] = useState<ProjectType>()
+  const [saving, setSaving] = useState(false)
 
   const history = useHistory()
 
-  const getProject = async (name: string) => {
+  const getProject = async () => {
     setLoading(true)
     try {
       const res = await API.getProject(name)
@@ -50,10 +53,10 @@ export const useProject = (name: string) => {
   }
 
   useEffect(() => {
-    getProject(name)
-  }, [name])
+    getProject()
+  }, [])
 
-  const updateProject = async (newName: string, enableDora: boolean) => {
+  const handleUpdate = async (newName: string, enableDora: boolean) => {
     const payload = {
       name: newName,
       description: '',
@@ -73,12 +76,69 @@ export const useProject = (name: string) => {
     }
   }
 
+  const handleSelectWebhook = async (items: WebhookItemType[]) => {
+    const payload = {
+      ...project?.blueprint,
+      settings: {
+        version: '2.0.0',
+        connections: [
+          ...project?.blueprint.settings.connections,
+          ...items.map((it) => ({
+            plugin: Plugins.Webhook,
+            connectionId: it.id
+          }))
+        ]
+      }
+    }
+
+    const [success] = await operator(
+      () => API.updateBlueprint(project?.blueprint.id, payload),
+      {
+        setOperating: setSaving
+      }
+    )
+
+    if (success) {
+      getProject()
+    }
+  }
+
+  const handleCreateWebhook = async (id: ID) => {
+    const payload = {
+      ...project?.blueprint,
+      settings: {
+        version: '2.0.0',
+        connections: [
+          ...project?.blueprint.settings.connections,
+          {
+            plugin: Plugins.Webhook,
+            connectionId: id
+          }
+        ]
+      }
+    }
+
+    const [success] = await operator(
+      () => API.updateBlueprint(project?.blueprint.id, payload),
+      {
+        setOperating: setSaving
+      }
+    )
+
+    if (success) {
+      getProject()
+    }
+  }
+
   return useMemo(
     () => ({
       loading,
       project,
-      updateProject
+      saving,
+      onUpdate: handleUpdate,
+      onSelectWebhook: handleSelectWebhook,
+      onCreateWebhook: handleCreateWebhook
     }),
-    [loading, project]
+    [loading, project, saving]
   )
 }

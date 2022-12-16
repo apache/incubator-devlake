@@ -16,9 +16,33 @@
  *
  */
 
+import { Plugins } from '@/plugins'
+
+export type ConnectionItemType = {
+  icon: string
+  name: string
+  connectionId: ID
+  plugin: Plugins
+  entities: string[]
+  scopeIds: ID[]
+}
+
 export type BlueprintType = {
   id: ID
   name: string
   isManual: boolean
   cronConfig: string
+  skipOnFail: boolean
+  settings: {
+    version: string
+    createdDateAfter: null | string
+    connections: Array<{
+      plugin: Plugins
+      connectionId: ID
+      scopes: Array<{
+        id: ID
+        entities: string[]
+      }>
+    }>
+  }
 }

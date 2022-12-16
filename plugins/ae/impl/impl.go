@@ -27,8 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/ae/tasks"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 var _ core.PluginMeta = (*AE)(nil)
@@ -41,8 +39,8 @@ var _ core.CloseablePluginTask = (*AE)(nil)
 
 type AE struct{}
 
-func (plugin AE) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
+func (plugin AE) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 

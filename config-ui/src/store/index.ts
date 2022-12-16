@@ -16,5 +16,5 @@
  *
  */
 
-export * from './store'
 export * from './connections'
+export * from './version'

@@ -23,23 +23,25 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 // RunPipeline FIXME ...
 func RunPipeline(
-	_ *viper.Viper,
-	log core.Logger,
-	db *gorm.DB,
+	basicRes core.BasicRes,
 	pipelineId uint64,
 	runTasks func([]uint64) errors.Error,
 ) errors.Error {
 	// load tasks for pipeline
+	db := basicRes.GetDal()
 	var tasks []models.Task
-	err := db.Where("pipeline_id = ? AND status = ?", pipelineId, models.TASK_CREATED).Order("pipeline_row, pipeline_col").Find(&tasks).Error
+	err := db.All(
+		&tasks,
+		dal.Where("pipeline_id = ? AND status = ?", pipelineId, models.TASK_CREATED),
+		dal.Orderby("pipeline_row, pipeline_col"),
+	)
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 	taskIds := make([][]uint64, 0)
 	for _, task := range tasks {
@@ -48,31 +50,32 @@ func RunPipeline(
 		}
 		taskIds[task.PipelineRow-1] = append(taskIds[task.PipelineRow-1], task.ID)
 	}
-	return runPipelineTasks(log, db, pipelineId, taskIds, runTasks)
+	return runPipelineTasks(basicRes, pipelineId, taskIds, runTasks)
 }
 
 func runPipelineTasks(
-	log core.Logger,
-	db *gorm.DB,
+	basicRes core.BasicRes,
 	pipelineId uint64,
 	taskIds [][]uint64,
 	runTasks func([]uint64) errors.Error,
 ) errors.Error {
+	db := basicRes.GetDal()
+	log := basicRes.GetLogger()
 	// load pipeline from db
 	dbPipeline := &models.DbPipeline{}
-	err := db.Find(dbPipeline, pipelineId).Error
+	err := db.First(dbPipeline, dal.Where("id = ?", pipelineId))
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 
 	// This double for loop executes each set of tasks sequentially while
 	// executing the set of tasks concurrently.
 	for i, row := range taskIds {
 		// update stage
-		err = db.Model(dbPipeline).Updates(map[string]interface{}{
-			"status": models.TASK_RUNNING,
-			"stage":  i + 1,
-		}).Error
+		err = db.UpdateColumns(dbPipeline, []dal.DalSet{
+			{ColumnName: "status", Value: models.TASK_RUNNING},
+			{ColumnName: "stage", Value: i + 1},
+		})
 		if err != nil {
 			log.Error(err, "update pipeline state failed")
 			break
@@ -81,18 +84,16 @@ func runPipelineTasks(
 		err = runTasks(row)
 		if err != nil {
 			log.Error(err, "run tasks failed")
-			return errors.Convert(err)
+			return err
 		}
 
 		// update finishedTasks
-		err = db.Model(dbPipeline).Updates(map[string]interface{}{
-			"finished_tasks": gorm.Expr("finished_tasks + ?", len(row)),
-		}).Error
+		err = db.UpdateColumn(dbPipeline, "finished_tasks", dal.Expr("finished_tasks + ?", len(row)))
 		if err != nil {
 			log.Error(err, "update pipeline state failed")
-			return errors.Convert(err)
+			return err
 		}
 	}
 	log.Info("pipeline finished in %d ms: %v", time.Now().UnixMilli()-dbPipeline.BeganAt.UnixMilli(), err)
-	return errors.Convert(err)
+	return err
 }

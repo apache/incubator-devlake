@@ -19,11 +19,11 @@ package api
 
 import (
 	"encoding/csv"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 
+	"github.com/apache/incubator-devlake/errors"
+
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/gocarina/gocsv"
 )
 
@@ -33,8 +33,8 @@ type Handlers struct {
 	store store
 }
 
-func NewHandlers(db dal.Dal, basicRes core.BasicRes) *Handlers {
-	return &Handlers{store: NewDbStore(db, basicRes)}
+func NewHandlers(basicRes core.BasicRes) *Handlers {
+	return &Handlers{store: NewDbStore(basicRes.GetDal(), basicRes)}
 }
 
 func (h *Handlers) unmarshal(r *http.Request, items interface{}) errors.Error {

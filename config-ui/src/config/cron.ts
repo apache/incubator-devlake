@@ -16,6 +16,8 @@
  *
  */
 
+import parser from 'cron-parser'
+
 export const cronPresets = [
   {
     label: 'Hourly',
@@ -46,7 +48,8 @@ export const getCron = (isManual: boolean, config: string) => {
       label: 'Manual',
       value: 'manual',
       description: 'Manual',
-      config: ''
+      config: '',
+      nextTime: ''
     }
   }
 
@@ -55,13 +58,15 @@ export const getCron = (isManual: boolean, config: string) => {
   return preset
     ? {
         ...preset,
-        value: preset.config
+        value: preset.config,
+        nextTime: parser.parseExpression(preset.config).next().toString()
       }
     : {
         label: 'Custom',
         value: 'custom',
         description: 'Custom',
-        config
+        config,
+        nextTime: parser.parseExpression(config).next().toString()
       }
 }
 

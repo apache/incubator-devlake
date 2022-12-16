@@ -22,14 +22,15 @@ import (
 	"flag"
 
 	"github.com/apache/incubator-devlake/config"
+	rootImpl "github.com/apache/incubator-devlake/impl"
+	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/impl"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/runner"
 )
 
 // PluginEntry is a variable exported for Framework to search and load
@@ -42,9 +43,12 @@ func main() {
 	user := flag.String("user", "", "-user")
 	password := flag.String("password", "", "-password")
 	output := flag.String("output", "", "-output")
-	db := flag.String("db", "", "-db")
+	dbUrl := flag.String("db", "", "-db")
 	flag.Parse()
+
+	cfg := config.GetConfig()
 	log := logger.Global.Nested("git extractor")
+
 	var storage models.Store
 	var err error
 	if *url == "" {
@@ -58,23 +62,22 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-	} else if *db != "" {
-		database, err := gorm.Open(mysql.Open(*db))
-		if err != nil {
-			panic(err)
-		}
-		basicRes := helper.NewDefaultBasicRes(nil, log, database)
-		storage = store.NewDatabase(basicRes, *url)
+	} else if *dbUrl != "" {
+		cfg.Set("DB_URL", *dbUrl)
 	} else {
 		panic("either specify `-output` or `-db` argument as destination")
 	}
+	db, err := runner.NewGormDb(cfg, log)
+	if err != nil {
+		panic(err)
+	}
+	basicRes := rootImpl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(db))
+	storage = store.NewDatabase(basicRes, *url)
 	defer storage.Close()
 	ctx := context.Background()
 	subTaskCtx := helper.NewStandaloneSubTaskContext(
 		ctx,
-		config.GetConfig(),
-		log,
-		nil,
+		basicRes,
 		"git extractor",
 		nil,
 	)

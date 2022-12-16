@@ -18,7 +18,6 @@ limitations under the License.
 package impl
 
 import (
-	goerror "errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -31,8 +30,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 var _ core.PluginMeta = (*Jira)(nil)
@@ -60,8 +57,8 @@ func (plugin Jira) TransformationRule() interface{} {
 	return &models.JiraTransformationRule{}
 }
 
-func (plugin *Jira) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
+func (plugin *Jira) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 
@@ -184,7 +181,7 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if op.TransformationRules == nil && op.TransformationRuleId != 0 {
 		var transformationRule models.JiraTransformationRule
 		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+		if err != nil && db.IsErrorNotFound(err) {
 			return nil, errors.BadInput.Wrap(err, "fail to get transformationRule")
 		}
 		op.TransformationRules, err = tasks.MakeTransformationRules(transformationRule)

@@ -207,6 +207,7 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+	// TODO: this defeat the csv mode!
 	db := subtaskCtx.GetDal()
 	components := make([]code.Component, 0)
 	err = db.All(&components, dal.From(components), dal.Where("repo_id= ?", r.id))

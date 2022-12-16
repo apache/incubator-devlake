@@ -16,8 +16,9 @@
  *
  */
 
-import React, { useState } from 'react'
+import React from 'react'
 import { useParams } from 'react-router-dom'
+import { Tabs, Tab } from '@blueprintjs/core'
 
 import { PageHeader, PageLoading } from '@/components'
 
@@ -28,11 +29,16 @@ import * as S from './styled'
 export const ProjectDetailPage = () => {
   const { pname } = useParams<{ pname: string }>()
 
-  const [activeTab, setActiveTab] = useState<'bp' | 'iw' | 'st'>('bp')
+  const {
+    loading,
+    project,
+    saving,
+    onUpdate,
+    onSelectWebhook,
+    onCreateWebhook
+  } = useProject(pname)
 
-  const { loading, project, updateProject } = useProject(pname)
-
-  if (loading) {
+  if (loading || !project) {
     return <PageLoading />
   }
 
@@ -43,31 +49,33 @@ export const ProjectDetailPage = () => {
         { name: pname, path: `/projects/${pname}` }
       ]}
     >
-      <S.Tabs>
-        <S.Tab active={activeTab === 'bp'} onClick={() => setActiveTab('bp')}>
-          Blueprint
-        </S.Tab>
-        <S.Tab
-          active={activeTab === 'iw'}
-          disabled={!project?.blueprint}
-          onClick={() => {
-            if (!project?.blueprint) {
-              return
+      <S.Wrapper>
+        <Tabs>
+          <Tab
+            id='bp'
+            title='Blueprint'
+            panel={<BlueprintPanel project={project} />}
+          />
+          <Tab
+            id='iw'
+            title='Incoming Webhooks'
+            disabled={!project.blueprint}
+            panel={
+              <IncomingWebhooksPanel
+                project={project}
+                saving={saving}
+                onSelectWebhook={onSelectWebhook}
+                onCreateWebhook={onCreateWebhook}
+              />
             }
-            setActiveTab('iw')
-          }}
-        >
-          Incoming Webhooks
-        </S.Tab>
-        <S.Tab active={activeTab === 'st'} onClick={() => setActiveTab('st')}>
-          Settings
-        </S.Tab>
-      </S.Tabs>
-      {activeTab === 'bp' && <BlueprintPanel name={pname} project={project} />}
-      {activeTab === 'iw' && <IncomingWebhooksPanel project={project} />}
-      {activeTab === 'st' && (
-        <SettingsPanel project={project} onUpdate={updateProject} />
-      )}
+          />
+          <Tab
+            id='st'
+            title='Settings'
+            panel={<SettingsPanel project={project} onUpdate={onUpdate} />}
+          />
+        </Tabs>
+      </S.Wrapper>
     </PageHeader>
   )
 }

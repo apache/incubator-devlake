@@ -20,7 +20,7 @@ import React, { useState, useMemo, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import type { ConnectionItemType } from '@/store'
-import { useStore, ConnectionStatusEnum } from '@/store'
+import { useConnection, ConnectionStatusEnum } from '@/store'
 import { operator } from '@/utils'
 
 import type { BPContextType } from './types'
@@ -87,7 +87,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
 
   const history = useHistory()
 
-  const { connections } = useStore()
+  const { connections } = useConnection()
 
   const validRawPlan = (rp: string) => {
     try {
@@ -131,13 +131,13 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
       enable: true,
       cronConfig,
       isManual,
-      skipOnFail,
-      createdDateAfter
+      skipOnFail
     }
 
     if (mode === ModeEnum.normal) {
       params.settings = {
         version: '2.0.0',
+        createdDateAfter,
         connections: uniqueList.map((unique) => {
           const connection = connections.find(
             (cs) => cs.unique === unique
@@ -146,7 +146,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
           return {
             plugin: connection.plugin,
             connectionId: connection.id,
-            scope: scope.map((sc: any) => ({
+            scopes: scope.map((sc: any) => ({
               id: `${sc.id}`,
               entities: sc.entities
             }))

@@ -20,21 +20,23 @@ import React, { useState } from 'react'
 import type { TabId } from '@blueprintjs/core'
 import { Tabs, Tab } from '@blueprintjs/core'
 
-// TO-DO: use new panel to replace it
-import Status from '@/pages/blueprints/blueprint-detail'
-import Configuration from '@/pages/blueprints/blueprint-settings'
-
 import { PageLoading } from '@/components'
 
 import type { UseDetailProps } from './use-detail'
 import { useDetail } from './use-detail'
+import { Configuration } from './panel/configuration'
+// TO-DO: use new panel to replace it
+// import { Status } from './panel/status'
+import Status from '@/pages/blueprints/blueprint-detail'
 
 interface Props extends UseDetailProps {}
 
 export const BlueprintDetail = ({ id }: Props) => {
   const [activeTab, setActiveTab] = useState<TabId>('configuration')
 
-  const { loading, blueprint, saving, onUpdate } = useDetail({ id })
+  const { loading, blueprint, connections, saving, onUpdate } = useDetail({
+    id
+  })
 
   if (loading || !blueprint) {
     return <PageLoading />
@@ -46,7 +48,14 @@ export const BlueprintDetail = ({ id }: Props) => {
       <Tab
         id='configuration'
         title='Configuration'
-        panel={<Configuration id={id} />}
+        panel={
+          <Configuration
+            blueprint={blueprint}
+            connections={connections}
+            saving={saving}
+            onUpdate={onUpdate}
+          />
+        }
       />
     </Tabs>
   )

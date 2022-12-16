@@ -19,6 +19,7 @@ package app
 
 import (
 	"context"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -28,21 +29,22 @@ import (
 
 // DevLakeTaskActivity FIXME ...
 func DevLakeTaskActivity(ctx context.Context, configJson []byte, taskId uint64, loggerConfig *core.LoggerConfig) errors.Error {
-	cfg, log, db, err := loadResources(configJson, loggerConfig)
+	basicRes, err := loadResources(configJson, loggerConfig)
 	if err != nil {
 		return err
 	}
+	log := basicRes.GetLogger()
 	log.Info("received task #%d", taskId)
 	progressDetail := &models.TaskProgressDetail{}
 	progChan := make(chan core.RunningProgress)
 	defer close(progChan)
 	go func() {
 		for p := range progChan {
-			runner.UpdateProgressDetail(db, log, taskId, progressDetail, &p)
+			runner.UpdateProgressDetail(basicRes, taskId, progressDetail, &p)
 			activity.RecordHeartbeat(ctx, progressDetail)
 		}
 	}()
-	err = runner.RunTask(ctx, cfg, log, db, progChan, taskId)
+	err = runner.RunTask(ctx, basicRes, progChan, taskId)
 	if err != nil {
 		log.Error(err, "failed to execute task #%d", taskId)
 	}

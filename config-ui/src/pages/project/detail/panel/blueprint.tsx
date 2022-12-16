@@ -21,24 +21,23 @@ import { useHistory } from 'react-router-dom'
 import { Button, Intent } from '@blueprintjs/core'
 
 import NoData from '@/images/no-data.svg'
+import { Card } from '@/components'
 import { BlueprintDetail } from '@/pages'
 
 import type { ProjectType } from '../types'
-import * as S from '../styled'
 
 interface Props {
-  name: string
-  project?: ProjectType
+  project: ProjectType
 }
 
-export const BlueprintPanel = ({ name, project }: Props) => {
+export const BlueprintPanel = ({ project }: Props) => {
   const history = useHistory()
 
   const handleGoCreateBlueprint = () =>
-    history.push(`/projects/${name}/create-blueprint`)
+    history.push(`/projects/${project.name}/create-blueprint`)
 
-  return !project?.blueprint ? (
-    <S.Panel>
+  return !project.blueprint ? (
+    <Card>
       <div className='blueprint'>
         <div className='logo'>
           <img src={NoData} alt='' />
@@ -55,7 +54,7 @@ export const BlueprintPanel = ({ name, project }: Props) => {
           />
         </div>
       </div>
-    </S.Panel>
+    </Card>
   ) : (
     <BlueprintDetail id={project.blueprint.id} />
   )

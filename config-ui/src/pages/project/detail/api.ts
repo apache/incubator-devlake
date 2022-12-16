@@ -35,3 +35,6 @@ export const updateProject = (name: string, payload: UpdateProjectPayload) =>
     method: 'patch',
     data: payload
   })
+
+export const updateBlueprint = (id: ID, payload: any) =>
+  request(`/blueprints/${id}`, { method: 'patch', data: payload })

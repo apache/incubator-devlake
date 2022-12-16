@@ -29,8 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
 	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/tapd/tasks"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 var _ core.PluginMeta = (*Tapd)(nil)
@@ -43,8 +41,8 @@ var _ core.CloseablePluginTask = (*Tapd)(nil)
 
 type Tapd struct{}
 
-func (plugin Tapd) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
+func (plugin Tapd) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 

@@ -18,50 +18,11 @@
 
 import styled from '@emotion/styled'
 
-export const Tabs = styled.ul`
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
-
-export const Tab = styled.li<{ active: boolean; disabled?: boolean }>`
-  margin-right: 24px;
-  padding: 6px 0;
-  font-size: 14px;
-  border-bottom: 2px solid transparent;
-  transition: all 0.3s ease;
-  cursor: pointer;
-
-  ${({ active }) =>
-    active
-      ? `
-    color: #7497F7;
-    border-color: #7497F7;
-  `
-      : ''}
-
-  ${({ disabled }) =>
-    disabled
-      ? `
-  color: #a1a1a1;
-    cursor: no-drop;
-  `
-      : ''}
-
-  &:last-child {
-    margin-right: 0;
+export const Wrapper = styled.div`
+  & > .bp4-tabs > .bp4-tab-list {
+    display: flex;
+    justify-content: center;
   }
-`
-
-export const Panel = styled.div`
-  margin-top: 24px;
-  background-color: #ffffff;
-  box-shadow: 0px 2.4px 4.8px -0.8px rgba(0, 0, 0, 0.1),
-    0px 1.6px 8px rgba(0, 0, 0, 0.07);
-  border-radius: 4px;
 
   .blueprint,
   .webhook {

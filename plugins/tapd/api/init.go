@@ -21,20 +21,14 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/go-playground/validator/v10"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
-var db *gorm.DB
-var cfg *viper.Viper
 var vld *validator.Validate
 var connectionHelper *helper.ConnectionApiHelper
 var basicRes core.BasicRes
 
-func Init(config *viper.Viper, logger core.Logger, database *gorm.DB) {
-	db = database
-	cfg = config
-	basicRes = helper.NewDefaultBasicRes(cfg, logger, db)
+func Init(br core.BasicRes) {
+	basicRes = br
 	vld = validator.New()
 	connectionHelper = helper.NewConnectionHelper(
 		basicRes,

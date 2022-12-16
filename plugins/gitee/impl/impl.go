@@ -28,8 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitee/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/gitee/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 var _ core.PluginMeta = (*Gitee)(nil)
@@ -42,8 +40,8 @@ var _ core.CloseablePluginTask = (*Gitee)(nil)
 
 type Gitee string
 
-func (plugin Gitee) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
+func (plugin Gitee) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 

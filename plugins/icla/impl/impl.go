@@ -26,8 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/icla/models"
 	"github.com/apache/incubator-devlake/plugins/icla/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/icla/tasks"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 // make sure interface is implemented
@@ -45,7 +43,7 @@ func (plugin Icla) Description() string {
 	return "collect some Icla data"
 }
 
-func (plugin Icla) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
+func (plugin Icla) Init(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 

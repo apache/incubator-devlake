@@ -18,10 +18,10 @@ limitations under the License.
 package main
 
 import (
-	"github.com/apache/incubator-devlake/errors"
 	"log"
 
-	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/errors"
+
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/runner"
 	_ "github.com/apache/incubator-devlake/version"
@@ -31,22 +31,17 @@ import (
 )
 
 func main() {
-	// basic resources
-	cfg := config.GetConfig()
-	db, err := runner.NewGormDb(cfg, logger.Global)
-	if err != nil {
-		panic(err)
-	}
-	err = runner.LoadPlugins(cfg.GetString("PLUGIN_DIR"), cfg, logger.Global, db)
+	basicRes := runner.CreateAppBasicRes()
+	err := runner.LoadPlugins(basicRes)
 	if err != nil {
 		panic(err)
 	}
 
 	// establish temporal connection
-	TASK_QUEUE := cfg.GetString("TEMPORAL_TASK_QUEUE")
+	TASK_QUEUE := basicRes.GetConfig("TEMPORAL_TASK_QUEUE")
 	// Create the client object just once per process
 	c, err := errors.Convert01(client.NewClient(client.Options{
-		HostPort: cfg.GetString("TEMPORAL_URL"),
+		HostPort: basicRes.GetConfig("TEMPORAL_URL"),
 		Logger:   app.NewTemporalLogger(logger.Global),
 	}))
 	if err != nil {

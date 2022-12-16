@@ -19,13 +19,10 @@ package impl
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/org/api"
 	"github.com/apache/incubator-devlake/plugins/org/tasks"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 var _ core.PluginMeta = (*Org)(nil)
@@ -37,9 +34,8 @@ type Org struct {
 	handlers *api.Handlers
 }
 
-func (plugin *Org) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	basicRes := helper.NewDefaultBasicRes(config, logger, db)
-	plugin.handlers = api.NewHandlers(dalgorm.NewDalgorm(db), basicRes)
+func (plugin *Org) Init(basicRes core.BasicRes) errors.Error {
+	plugin.handlers = api.NewHandlers(basicRes)
 	return nil
 }
 

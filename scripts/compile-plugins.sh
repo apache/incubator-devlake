@@ -20,21 +20,19 @@
 #   make dev
 #
 # compile specific plugin and fire up api server:
-#   PLUGIN=<PLUGIN_NAME> make dev
-#   PLUGIN=<PLUGIN_NAME> PLUGIN2=<PLUGIN_NAME2> make dev
+#   PLUGIN=<PLUGIN_NAME[,PLUGIN_NAME2]> make dev
 #
 # compile all plugins and fire up api server in DEBUG MODE with `delve`:
 #   make debug
 #
 # compile specific plugin and fire up api server in DEBUG MODE with `delve`:
-#   PLUGIN=<PLUGIN_NAME> make dev
-#   PLUGIN=<PLUGIN_NAME> PLUGIN2=<PLUGIN_NAME> make dev
+#   PLUGIN=<PLUGIN_NAME[,PLUGIN_NAME2]> make debug
 
 set -e
 
 echo "Usage: "
 echo "  build all plugins:              $0 [golang build flags...]"
-echo "  build and keep one plugin only: PLUGIN=github,jira $0 [golang build flags...]"
+echo "  build and keep specified plugins only: PLUGIN=github,jira $0 [golang build flags...]"
 
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 PLUGIN_SRC_DIR=$SCRIPT_DIR/../plugins
