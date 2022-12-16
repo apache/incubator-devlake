@@ -183,7 +183,7 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 			if err != nil {
 				return nil, err
 			}
-			logger.Debug(fmt.Sprintf("Current project: %s", board))
+			logger.Debug(fmt.Sprintf("Current project: %d", board.ID))
 			scope = board.ToToolLayer(connection.ID)
 			err = taskCtx.GetDal().CreateIfNotExist(&scope)
 			if err != nil {
