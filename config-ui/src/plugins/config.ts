@@ -16,7 +16,16 @@
  *
  */
 
-export * from './data-scope-list'
-export * from './data-scope'
-export * from './transformation'
-export * from './sync-policy'
+import { GitHubConfig } from '@/plugins/github'
+import { JIRAConfig } from '@/plugins/jira'
+import { GitLabConfig } from '@/plugins/gitlab'
+import { JenkinsConfig } from '@/plugins/jenkins'
+import { WebhookConfig } from '@/plugins/webook'
+
+export const PluginConfig = [
+  GitHubConfig,
+  JIRAConfig,
+  GitLabConfig,
+  JenkinsConfig,
+  WebhookConfig
+]

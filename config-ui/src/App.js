@@ -28,9 +28,10 @@ import { BaseLayout } from '@/layouts'
 import {
   ProjectHomePage,
   ProjectDetailPage,
+  ConnectionHomePage,
+  WebHookConnectionPage,
   CreateBlueprintPage,
-  BlueprintDetailPage,
-  WebHookConnectionPage
+  BlueprintDetailPage
 } from '@/pages'
 import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
@@ -54,23 +55,30 @@ function App() {
           path='/projects/:pname/create-blueprint'
           component={() => <CreateBlueprintPage from='project' />}
         />
-        <Route exact path='/integrations' component={() => <Integration />} />
         <Route
-          path='/integrations/:providerId'
+          exact
+          path='/connections'
+          component={() => <ConnectionHomePage />}
+        />
+        <Route
+          exact
+          path='/connections/webhook'
+          component={() => <WebHookConnectionPage />}
+        />
+        <Route
+          exact
+          path='/connections/:providerId'
           component={() => <ManageIntegration />}
         />
         <Route
+          exact
           path='/connections/add/:providerId'
           component={() => <AddConnection />}
         />
         <Route
+          exact
           path='/connections/configure/:providerId/:connectionId'
           component={() => <ConfigureConnection />}
-        />
-        <Route
-          exact
-          path='/connections/incoming-webhook'
-          component={() => <WebHookConnectionPage />}
         />
         <Route exact path='/blueprints' component={() => <Blueprints />} />
         <Route

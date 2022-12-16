@@ -16,7 +16,20 @@
  *
  */
 
-export * from './data-scope-list'
-export * from './data-scope'
-export * from './transformation'
-export * from './sync-policy'
+import { PluginType } from '@/plugins'
+
+import Icon from './assets/icon.svg'
+
+export const JIRAConfig = {
+  plugin: 'jira',
+  name: 'JIRA',
+  type: PluginType.Connection,
+  icon: Icon,
+  entities: ['TICKET', 'CROSS'],
+  transformation: {
+    epicKeyField: '',
+    storyPointField: '',
+    remotelinkCommitShaPattern: '',
+    typeMappings: {}
+  }
+}

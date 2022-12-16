@@ -16,34 +16,15 @@
  *
  */
 
-import React from 'react'
-import { Dialog, Button, Intent } from '@blueprintjs/core'
+export enum Plugins {
+  GitHub = 'github',
+  JIRA = 'jira',
+  GitLab = 'gitlab',
+  Jenkins = 'jenkins',
+  Webhook = 'webhook'
+}
 
-import * as S from './styled'
-
-export const DeleteModal = ({ record, onSubmit, onCancel }) => {
-  const handleSubmit = () => {
-    onSubmit(record.id)
-    onCancel()
-  }
-
-  return (
-    <Dialog
-      isOpen={true}
-      title='Delete this Incoming Webhook?'
-      onClose={onCancel}
-    >
-      <S.FormWrapper>
-        <div className='message'>
-          <p>This Incoming Webhook cannot be recovered once it’s deleted.</p>
-        </div>
-        <div className='btns'>
-          <Button onClick={onCancel}>Cancel</Button>
-          <Button intent={Intent.PRIMARY} onClick={handleSubmit}>
-            Confirm
-          </Button>
-        </div>
-      </S.FormWrapper>
-    </Dialog>
-  )
+export enum PluginType {
+  Connection = 'connection',
+  Incoming_Connection = 'incoming_connection'
 }
