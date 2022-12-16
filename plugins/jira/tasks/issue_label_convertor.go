@@ -42,8 +42,11 @@ func ConvertIssueLabels(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*JiraTaskData)
 
 	cursor, err := db.Cursor(
-		dal.From(&models.JiraIssueLabel{}),
-		dal.Where("connection_id = ?", data.Options.ConnectionId),
+		dal.Select("jil.*"),
+		dal.From("_tool_jira_issue_labels jil"),
+		dal.Join(`LEFT JOIN _tool_jira_board_issues jbi
+              ON jil.connection_id = jbi.connection_id AND jil.issue_id = jbi.issue_id`),
+		dal.Where("jil.connection_id = ? AND jbi.board_id = ?", data.Options.ConnectionId, data.Options.BoardId),
 		dal.Orderby("issue_id ASC"),
 	)
 	if err != nil {

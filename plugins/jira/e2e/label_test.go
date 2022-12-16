@@ -39,7 +39,8 @@ func TestLabelDataFlow(t *testing.T) {
 	}
 
 	dataflowTester.FlushTabler(&ticket.IssueLabel{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_labels.csv", &models.JiraIssueLabel{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_board_issues_for_changelog.csv", &models.JiraBoardIssue{})
+	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_jira_issue_labels_for_convertor.csv", &models.JiraIssueLabel{})
 	dataflowTester.Subtask(tasks.ConvertIssueLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueLabel{},

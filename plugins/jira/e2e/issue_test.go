@@ -185,7 +185,7 @@ func TestIssueDataFlow(t *testing.T) {
 		},
 	)
 
-	dataflowTester.VerifyTable(
+	dataflowTester.VerifyTableWithRawData(
 		models.JiraIssueLabel{},
 		"./snapshot_tables/_tool_jira_issue_labels.csv",
 		[]string{
