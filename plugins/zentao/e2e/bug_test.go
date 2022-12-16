@@ -59,8 +59,9 @@ func TestZentaoBugDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
 	dataflowTester.Subtask(tasks.ConvertBugMeta, taskData)
 	dataflowTester.VerifyTableWithOptions(&ticket.Issue{}, e2ehelper.TableOptions{
-		CSVRelPath:  "./snapshot_tables/issues_bug.csv",
-		IgnoreTypes: []interface{}{common.NoPKModel{}},
+		CSVRelPath:   "./snapshot_tables/issues_bug.csv",
+		IgnoreTypes:  []interface{}{common.NoPKModel{}},
+		IgnoreFields: []string{"original_project"},
 	})
 	dataflowTester.VerifyTableWithOptions(&ticket.BoardIssue{}, e2ehelper.TableOptions{
 		CSVRelPath:  "./snapshot_tables/board_issues_bug.csv",
