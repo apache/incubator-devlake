@@ -19,6 +19,7 @@ package impl
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"net/http"
 	"time"
 
@@ -30,6 +31,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
+	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 )
 
 var _ core.PluginMeta = (*Jira)(nil)
@@ -165,6 +167,33 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "unable to get Jira connection")
 	}
+	jiraApiClient, err := tasks.NewJiraApiClient(taskCtx, connection)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "failed to create jira api client")
+	}
+
+	if op.BoardId != 0 {
+		var scope *models.JiraBoard
+		// support v100 & advance mode
+		// If we still cannot find the record in db, we have to request from remote server and save it to db
+		err = taskCtx.GetDal().First(&scope, dal.Where("connection_id = ? AND board_id = ?", op.ConnectionId, op.BoardId))
+		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+			var board *apiv2models.Board
+			board, err = api.GetApiJira(&op, jiraApiClient)
+			if err != nil {
+				return nil, err
+			}
+			logger.Debug(fmt.Sprintf("Current project: %d", board.ID))
+			scope = board.ToToolLayer(connection.ID)
+			err = taskCtx.GetDal().CreateIfNotExist(&scope)
+			if err != nil {
+				return nil, err
+			}
+		}
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find board: %d", op.BoardId))
+		}
+	}
 
 	if op.BoardId == 0 && op.ScopeId != "" {
 		var jiraBoard models.JiraBoard
@@ -198,10 +227,6 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		}
 	}
 
-	jiraApiClient, err := tasks.NewJiraApiClient(taskCtx, connection)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "failed to create jira api client")
-	}
 	info, code, err := tasks.GetJiraServerInfo(jiraApiClient)
 	if err != nil || code != http.StatusOK || info == nil {
 		return nil, errors.HttpStatus(code).Wrap(err, "fail to get Jira server info")

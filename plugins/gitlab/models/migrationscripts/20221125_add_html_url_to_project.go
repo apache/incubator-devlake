@@ -26,6 +26,7 @@ import (
 
 type gitlabProject20221125 struct {
 	TransformationRuleId uint64
+	HttpUrlToRepo        string
 }
 
 func (gitlabProject20221125) TableName() string {
@@ -43,5 +44,5 @@ func (*addTransformationRule20221125) Version() uint64 {
 }
 
 func (*addTransformationRule20221125) Name() string {
-	return "add table _tool_gitlab_transformation_rules, add transformation_rule_id to _tool_gitlab_projects"
+	return "add table _tool_gitlab_transformation_rules, add transformation_rule_id and html_url to _tool_gitlab_projects"
 }
