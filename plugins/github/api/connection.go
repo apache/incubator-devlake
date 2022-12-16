@@ -81,12 +81,8 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 				return
 			}
 			res, err := apiClient.Get("user", nil, nil)
-			if err != nil {
-				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token))}
-				return
-			}
-			if res.StatusCode != http.StatusOK {
-				results <- VerifyResult{err: errors.Convert(fmt.Errorf("unexpected status code %v while testing connection, maybe github endpoint is invaild", res.StatusCode))}
+			if err != nil || res.StatusCode != http.StatusOK {
+				results <- VerifyResult{err: errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")}
 				return
 			}
 
@@ -108,7 +104,6 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	allErrors := make([]error, 0)
 	i := 0
 	for result := range results {
-		fmt.Println(result.err, result.login)
 		if result.err != nil {
 			allErrors = append(allErrors, result.err)
 		}
