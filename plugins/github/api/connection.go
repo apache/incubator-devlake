@@ -81,7 +81,11 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 				return
 			}
 			res, err := apiClient.Get("user", nil, nil)
-			if err != nil || res.StatusCode != http.StatusOK {
+			if err != nil {
+				results <- VerifyResult{err: errors.Default.Wrap(err, fmt.Sprintf("verify token failed for #%d %s", j, token))}
+				return
+			}
+			if res.StatusCode != http.StatusOK {
 				results <- VerifyResult{err: errors.HttpStatus(res.StatusCode).New("unexpected status code while testing connection")}
 				return
 			}
