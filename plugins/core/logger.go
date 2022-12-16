@@ -18,8 +18,9 @@ limitations under the License.
 package core
 
 import (
-	"github.com/sirupsen/logrus"
 	"io"
+
+	"github.com/sirupsen/logrus"
 )
 
 type LogLevel logrus.Level
@@ -55,10 +56,6 @@ type Logger interface {
 type LoggerStreamConfig struct {
 	Path   string
 	Writer io.Writer
-}
-
-type InjectLogger interface {
-	SetLogger(logger Logger)
 }
 
 // LoggerConfig config related to the Logger. This needs to be serializable, so it can be passed around over the wire.
