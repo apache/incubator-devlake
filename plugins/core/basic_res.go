@@ -23,9 +23,13 @@ import (
 
 // BasicRes defines a set of fundamental resources that needed pretty much everywhere in our system
 type BasicRes interface {
+	// config
+	GetConfigReader() ConfigReader
 	GetConfig(name string) string
+	// logger
 	GetLogger() Logger
-	GetDal() dal.Dal
 	NestedLogger(name string) BasicRes
 	ReplaceLogger(logger Logger) BasicRes
+	// dal
+	GetDal() dal.Dal
 }

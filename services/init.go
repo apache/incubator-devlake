@@ -32,11 +32,10 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/robfig/cron/v3"
-	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
 
-var cfg *viper.Viper
+var cfg core.ConfigReader
 var log core.Logger
 var db *gorm.DB
 var basicRes core.BasicRes

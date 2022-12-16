@@ -20,24 +20,23 @@ package impl
 import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/spf13/viper"
 )
 
 // DefaultBasicRes offers a common implementation for the  BasisRes interface
 type DefaultBasicRes struct {
-	cfg    *viper.Viper
+	cfg    core.ConfigReader
 	logger core.Logger
 	db     dal.Dal
+}
+
+// GetConfigReader returns the ConfigReader instance
+func (c *DefaultBasicRes) GetConfigReader() core.ConfigReader {
+	return c.cfg
 }
 
 // GetConfig returns the value of the specificed name
 func (c *DefaultBasicRes) GetConfig(name string) string {
 	return c.cfg.GetString(name)
-}
-
-// GetDal returns the Dal instance
-func (c *DefaultBasicRes) GetDal() dal.Dal {
-	return c.db
 }
 
 // GetLogger returns the Logger instance
@@ -63,9 +62,14 @@ func (c *DefaultBasicRes) ReplaceLogger(logger core.Logger) core.BasicRes {
 	}
 }
 
+// GetDal returns the Dal instance
+func (c *DefaultBasicRes) GetDal() dal.Dal {
+	return c.db
+}
+
 // NewDefaultBasicRes creates a new DefaultBasicRes instance
 func NewDefaultBasicRes(
-	cfg *viper.Viper,
+	cfg core.ConfigReader,
 	logger core.Logger,
 	db dal.Dal,
 ) *DefaultBasicRes {

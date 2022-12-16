@@ -27,11 +27,6 @@ import (
 )
 
 type addInitTables struct {
-	config core.ConfigGetter
-}
-
-func (u *addInitTables) SetConfigGetter(config core.ConfigGetter) {
-	u.config = config
 }
 
 func (u *addInitTables) Up(basicRes core.BasicRes) errors.Error {

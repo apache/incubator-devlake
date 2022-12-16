@@ -17,10 +17,23 @@ limitations under the License.
 
 package core
 
-type ConfigGetter interface {
-	GetString(name string) string
-}
+import "time"
 
-type InjectConfigGetter interface {
-	SetConfigGetter(getter ConfigGetter)
+type ConfigReader interface {
+	Get(key string) interface{}
+	GetBool(name string) bool
+	GetFloat64(key string) float64
+	GetInt(key string) int
+	GetInt64(key string) int64
+	GetUint(key string) uint
+	GetUint64(key string) uint64
+	GetIntSlice(key string) []int
+	GetString(key string) string
+	GetStringMap(key string) map[string]interface{}
+	GetStringMapString(key string) map[string]string
+	GetStringSlice(key string) []string
+	GetTime(key string) time.Time
+	GetDuration(key string) time.Duration
+	IsSet(key string) bool
+	AllSettings() map[string]interface{}
 }
