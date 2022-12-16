@@ -52,7 +52,6 @@ func Init() {
 	cfg = config.GetConfig()
 	log = logger.Global
 	db, err = runner.NewGormDb(cfg, log)
-	print("init db", db)
 	if err != nil {
 		panic(err)
 	}

@@ -35,7 +35,11 @@ func RunPipeline(
 	// load tasks for pipeline
 	db := basicRes.GetDal()
 	var tasks []models.Task
-	err := db.All(&tasks, dal.Where("pipeline_id = ? AND status = ?", pipelineId, models.TASK_CREATED))
+	err := db.All(
+		&tasks,
+		dal.Where("pipeline_id = ? AND status = ?", pipelineId, models.TASK_CREATED),
+		dal.Orderby("pipeline_row, pipeline_col"),
+	)
 	if err != nil {
 		return err
 	}
