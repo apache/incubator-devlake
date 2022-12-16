@@ -16,34 +16,54 @@
  *
  */
 
-import React from 'react'
-import { Dialog, Button, Intent } from '@blueprintjs/core'
+import styled from 'styled-components'
 
-import * as S from './styled'
-
-export const DeleteModal = ({ record, onSubmit, onCancel }) => {
-  const handleSubmit = () => {
-    onSubmit(record.id)
-    onCancel()
+export const Wrapper = styled.div`
+  .block + .block {
+    margin-top: 48px;
   }
 
-  return (
-    <Dialog
-      isOpen={true}
-      title='Delete this Incoming Webhook?'
-      onClose={onCancel}
-    >
-      <S.FormWrapper>
-        <div className='message'>
-          <p>This Incoming Webhook cannot be recovered once it’s deleted.</p>
-        </div>
-        <div className='btns'>
-          <Button onClick={onCancel}>Cancel</Button>
-          <Button intent={Intent.PRIMARY} onClick={handleSubmit}>
-            Confirm
-          </Button>
-        </div>
-      </S.FormWrapper>
-    </Dialog>
-  )
-}
+  h2 {
+    margin: 0 0 4px;
+  }
+
+  p {
+    margin: 0 0 16px;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+  }
+
+  li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 16px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s linear;
+
+    &:hover {
+      background-color: #eeeeee;
+      border-color: #7497f7;
+      box-shadow: 0 2px 2px 0 rgb(0 0 0 / 16%), 0 0 2px 0 rgb(0 0 0 / 12%);
+    }
+
+    img {
+      width: 50px;
+    }
+
+    span {
+      margin-top: 4px;
+    }
+  }
+
+  li + li {
+    margin-left: 24px;
+  }
+`
