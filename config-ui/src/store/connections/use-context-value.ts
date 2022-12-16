@@ -18,7 +18,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 
-import { Plugins } from '@/registry'
+import { PluginConfig, PluginType } from '@/plugins'
 
 import type { ConnectionItemType } from './types'
 import { ConnectionStatusEnum } from './types'
@@ -30,8 +30,8 @@ export const useContextValue = (plugins: string[]) => {
 
   const allConnections = useMemo(
     () =>
-      Plugins.filter((p) => p.type === 'integration').filter((p) =>
-        !plugins.length ? true : plugins.includes(p.id)
+      PluginConfig.filter((p) => p.plugin === PluginType.Connection).filter(
+        (p) => (!plugins.length ? true : plugins.includes(p.plugin))
       ),
     [plugins]
   )
@@ -48,18 +48,18 @@ export const useContextValue = (plugins: string[]) => {
     setLoading(true)
 
     const res = await Promise.all(
-      allConnections.map((cs) => getConnection(cs.id))
+      allConnections.map((cs) => getConnection(cs.plugin))
     )
 
     const resWithPlugin = res.map((cs, i) =>
       cs.map((it: any) => {
-        const { id, icon, availableDataDomains } = allConnections[i] as any
+        const { plugin, icon, entities } = allConnections[i]
 
         return {
           ...it,
-          plugin: id,
-          icon: `/${icon}`,
-          entities: availableDataDomains
+          plugin,
+          icon,
+          entities
         }
       })
     )

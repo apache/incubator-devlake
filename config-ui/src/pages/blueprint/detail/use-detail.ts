@@ -19,7 +19,7 @@
 import { useState, useEffect, useMemo } from 'react'
 
 import { operator } from '@/utils'
-import { Plugins } from '@/registry'
+import { PluginConfig } from '@/plugins'
 
 import type { BlueprintType, ConnectionItemType } from './types'
 import * as API from './api'
@@ -37,10 +37,10 @@ export const useDetail = ({ id }: UseDetailProps) => {
   const transformConnection = (connections: any) => {
     return connections
       .map((cs: any) => {
-        const plugin = Plugins.find((plugin) => plugin.id === cs.plugin) as any
+        const plugin = PluginConfig.find((p) => p.plugin === cs.plugin)
         if (!plugin) return null
         return {
-          icon: `/${plugin.icon}`,
+          icon: plugin.icon,
           name: plugin.name,
           connectionId: cs.connectionId,
           entities: cs.scopes[0].entities,
@@ -67,7 +67,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
   }, [])
 
   const handleUpdate = async (payload: any) => {
-    const [success, res] = await operator(
+    const [success] = await operator(
       () =>
         API.updateBlueprint(id, {
           ...blueprint,
