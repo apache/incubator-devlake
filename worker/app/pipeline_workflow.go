@@ -30,15 +30,14 @@ import (
 
 // DevLakePipelineWorkflow FIXME ...
 func DevLakePipelineWorkflow(ctx workflow.Context, configJson []byte, pipelineId uint64, loggerConfig *core.LoggerConfig) errors.Error {
-	cfg, log, db, err := loadResources(configJson, loggerConfig)
+	basicRes, err := loadResources(configJson, loggerConfig)
 	if err != nil {
 		return errors.Convert(err)
 	}
+	log := basicRes.GetLogger()
 	log.Info("received pipeline #%d", pipelineId)
 	err = runner.RunPipeline(
-		cfg,
-		log,
-		db,
+		basicRes,
 		pipelineId,
 		func(taskIds []uint64) errors.Error {
 			return runTasks(ctx, configJson, taskIds, log)

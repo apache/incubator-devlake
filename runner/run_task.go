@@ -19,45 +19,42 @@ package runner
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/logger"
 	"time"
 
-	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/logger"
+
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/utils"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 // RunTask FIXME ...
 func RunTask(
 	ctx context.Context,
-	_ *viper.Viper,
-	parentLogger core.Logger,
-	db *gorm.DB,
+	basicRes core.BasicRes,
 	progress chan core.RunningProgress,
 	taskId uint64,
 ) (err errors.Error) {
+	db := basicRes.GetDal()
 	task := &models.Task{}
-	if err := db.Find(task, taskId).Error; err != nil {
-		return errors.Convert(err)
+	if err := db.First(task, dal.Where("id = ?", taskId)); err != nil {
+		return err
 	}
 	if task.Status == models.TASK_COMPLETED {
 		return errors.Default.New("invalid task status")
 	}
 	dbPipeline := &models.DbPipeline{}
-	if err := db.Find(dbPipeline, task.PipelineId).Error; err != nil {
-		return errors.Convert(err)
+	if err := db.First(dbPipeline, dal.Where("id = ? ", task.PipelineId)); err != nil {
+		return err
 	}
-	log, err := getTaskLogger(parentLogger, task)
+	log, err := getTaskLogger(basicRes.GetLogger(), task)
 	if err != nil {
-		return errors.Convert(err)
+		return err
 	}
 	beganAt := time.Now()
 	// make sure task status always correct even if it panicked
@@ -86,23 +83,23 @@ func RunTask(
 			} else {
 				lakeErr = errors.Convert(err)
 			}
-			dbe := db.Model(task).Updates(map[string]interface{}{
-				"status":          models.TASK_FAILED,
-				"message":         lakeErr.Messages().Format(),
-				"finished_at":     finishedAt,
-				"spent_seconds":   spentSeconds,
-				"failed_sub_task": subTaskName,
-			}).Error
+			dbe := db.UpdateColumns(task, []dal.DalSet{
+				{ColumnName: "status", Value: models.TASK_FAILED},
+				{ColumnName: "message", Value: lakeErr.Messages().Format()},
+				{ColumnName: "finished_at", Value: finishedAt},
+				{ColumnName: "spent_seconds", Value: spentSeconds},
+				{ColumnName: "failed_sub_task", Value: subTaskName},
+			})
 			if dbe != nil {
 				log.Error(err, "failed to finalize task status into db (task failed)")
 			}
 		} else {
-			dbe := db.Model(task).Updates(map[string]interface{}{
-				"status":        models.TASK_COMPLETED,
-				"message":       "",
-				"finished_at":   finishedAt,
-				"spent_seconds": spentSeconds,
-			}).Error
+			dbe := db.UpdateColumns(task, []dal.DalSet{
+				{ColumnName: "status", Value: models.TASK_COMPLETED},
+				{ColumnName: "message", Value: ""},
+				{ColumnName: "finished_at", Value: finishedAt},
+				{ColumnName: "spent_seconds", Value: spentSeconds},
+			})
 			if dbe != nil {
 				log.Error(err, "failed to finalize task status into db (task succeeded)")
 			}
@@ -111,34 +108,19 @@ func RunTask(
 
 	// start execution
 	log.Info("start executing task: %d", task.ID)
-	if err := db.Model(task).Updates(map[string]interface{}{
-		"status":   models.TASK_RUNNING,
-		"message":  "",
-		"began_at": beganAt,
-	}).Error; err != nil {
-		return errors.Convert(err)
-	}
-
-	var options map[string]interface{}
-	err = errors.Convert(json.Unmarshal(task.Options, &options))
-	if err != nil {
-		return err
-	}
-	var subtasks []string
-	err = errors.Convert(json.Unmarshal(task.Subtasks, &subtasks))
-	if err != nil {
-		return err
+	dbe := db.UpdateColumns(task, []dal.DalSet{
+		{ColumnName: "status", Value: models.TASK_RUNNING},
+		{ColumnName: "message", Value: ""},
+		{ColumnName: "began_at", Value: beganAt},
+	})
+	if dbe != nil {
+		return dbe
 	}
 
 	err = RunPluginTask(
 		ctx,
-		config.GetConfig(),
-		log.Nested(task.Plugin),
-		db,
-		task.ID,
-		task.Plugin,
-		subtasks,
-		options,
+		basicRes.ReplaceLogger(log),
+		task,
 		progress,
 	)
 	if dbPipeline.SkipOnFail {
@@ -150,32 +132,22 @@ func RunTask(
 // RunPluginTask FIXME ...
 func RunPluginTask(
 	ctx context.Context,
-	cfg *viper.Viper,
-	log core.Logger,
-	db *gorm.DB,
-	taskID uint64,
-	name string,
-	subtasks []string,
-	options map[string]interface{},
+	basicRes core.BasicRes,
+	task *models.Task,
 	progress chan core.RunningProgress,
 ) errors.Error {
-	pluginMeta, err := core.GetPlugin(name)
+	pluginMeta, err := core.GetPlugin(task.Plugin)
 	if err != nil {
 		return errors.Default.WrapRaw(err)
 	}
 	pluginTask, ok := pluginMeta.(core.PluginTask)
 	if !ok {
-		return errors.Default.New(fmt.Sprintf("plugin %s doesn't support PluginTask interface", name))
+		return errors.Default.New(fmt.Sprintf("plugin %s doesn't support PluginTask interface", task.Plugin))
 	}
 	return RunPluginSubTasks(
 		ctx,
-		cfg,
-		log,
-		db,
-		taskID,
-		name,
-		subtasks,
-		options,
+		basicRes,
+		task,
 		pluginTask,
 		progress,
 	)
@@ -184,16 +156,12 @@ func RunPluginTask(
 // RunPluginSubTasks FIXME ...
 func RunPluginSubTasks(
 	ctx context.Context,
-	cfg *viper.Viper,
-	log core.Logger,
-	db *gorm.DB,
-	taskID uint64,
-	name string,
-	subtaskNames []string,
-	options map[string]interface{},
+	basicRes core.BasicRes,
+	task *models.Task,
 	pluginTask core.PluginTask,
 	progress chan core.RunningProgress,
 ) errors.Error {
+	log := basicRes.GetLogger()
 	log.Info("start plugin")
 	// find out all possible subtasks this plugin can offer
 	subtaskMetas := pluginTask.SubTaskMetas()
@@ -210,6 +178,10 @@ func RunPluginSubTasks(
 	*/
 
 	// user specifies what subtasks to run
+	subtaskNames, err := task.GetSubTasks()
+	if err != nil {
+		return err
+	}
 	if len(subtaskNames) != 0 {
 		// decode user specified subtasks
 		var specifiedTasks []string
@@ -248,13 +220,17 @@ func RunPluginSubTasks(
 		}
 	}
 
-	taskCtx := helper.NewDefaultTaskContext(ctx, cfg, log, db, name, subtasksFlag, progress)
+	taskCtx := helper.NewDefaultTaskContext(ctx, basicRes, task.Plugin, subtasksFlag, progress)
 	if closeablePlugin, ok := pluginTask.(core.CloseablePluginTask); ok {
 		defer closeablePlugin.Close(taskCtx)
 	}
+	options, err := task.GetOptions()
+	if err != nil {
+		return err
+	}
 	taskData, err := pluginTask.PrepareTaskData(taskCtx, options)
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error preparing task data for %s", name))
+		return errors.Default.Wrap(err, fmt.Sprintf("error preparing task data for %s", task.Plugin))
 	}
 	taskCtx.SetData(taskData)
 
@@ -282,7 +258,7 @@ func RunPluginSubTasks(
 				SubTaskNumber: subtaskNumber,
 			}
 		}
-		err = runSubtask(log, db, taskID, subtaskNumber, subtaskCtx, subtaskMeta.EntryPoint)
+		err = runSubtask(basicRes, subtaskCtx, task.ID, subtaskNumber, subtaskMeta.EntryPoint)
 		if err != nil {
 			err = errors.SubtaskErr.Wrap(err, fmt.Sprintf("subtask %s ended unexpectedly", subtaskMeta.Name), errors.WithData(&subtaskMeta))
 			log.Error(err, "")
@@ -295,7 +271,7 @@ func RunPluginSubTasks(
 }
 
 // UpdateProgressDetail FIXME ...
-func UpdateProgressDetail(db *gorm.DB, log core.Logger, taskId uint64, progressDetail *models.TaskProgressDetail, p *core.RunningProgress) {
+func UpdateProgressDetail(basicRes core.BasicRes, taskId uint64, progressDetail *models.TaskProgressDetail, p *core.RunningProgress) {
 	task := &models.Task{}
 	task.ID = taskId
 	switch p.Type {
@@ -306,9 +282,9 @@ func UpdateProgressDetail(db *gorm.DB, log core.Logger, taskId uint64, progressD
 		progressDetail.FinishedSubTasks = p.Current
 		// TODO: get rid of db update
 		pct := float32(p.Current) / float32(p.Total)
-		err := db.Model(task).Update("progress", pct).Error
+		err := basicRes.GetDal().UpdateColumn(task, "progress", pct)
 		if err != nil {
-			log.Error(err, "failed to update progress")
+			basicRes.GetLogger().Error(err, "failed to update progress")
 		}
 	case core.SubTaskSetProgress:
 		progressDetail.TotalRecords = p.Total
@@ -322,11 +298,10 @@ func UpdateProgressDetail(db *gorm.DB, log core.Logger, taskId uint64, progressD
 }
 
 func runSubtask(
-	log core.Logger,
-	db *gorm.DB,
+	basicRes core.BasicRes,
+	ctx core.SubTaskContext,
 	parentID uint64,
 	subtaskNumber int,
-	ctx core.SubTaskContext,
 	entryPoint core.SubTaskEntryPoint,
 ) errors.Error {
 	beginAt := time.Now()
@@ -340,14 +315,14 @@ func runSubtask(
 		finishedAt := time.Now()
 		subtask.FinishedAt = &finishedAt
 		subtask.SpentSeconds = finishedAt.Unix() - beginAt.Unix()
-		recordSubtask(log, db, subtask)
+		recordSubtask(basicRes, subtask)
 	}()
 	return entryPoint(ctx)
 }
 
-func recordSubtask(log core.Logger, db *gorm.DB, subtask *models.Subtask) {
-	if err := db.Create(&subtask).Error; err != nil {
-		log.Error(err, "error writing subtask %d status to DB: %v", subtask.ID)
+func recordSubtask(basicRes core.BasicRes, subtask *models.Subtask) {
+	if err := basicRes.GetDal().Create(subtask); err != nil {
+		basicRes.GetLogger().Error(err, "error writing subtask %d status to DB: %v", subtask.ID)
 	}
 }
 

@@ -174,7 +174,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 	assert.Equal(t, err, nil)
 
 	// Refresh Global Variables and set the sql mock
-	BasicRes = unithelper.DummyBasicRes(func(mockDal *mocks.Dal) {
+	basicRes = unithelper.DummyBasicRes(func(mockDal *mocks.Dal) {
 		mockDal.On("First", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 			dst := args.Get(0).(*models.GitlabConnection)
 			*dst = *testGitlabConnection
@@ -191,7 +191,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 		}).Return(nil).Once()
 	})
 	connectionHelper = helper.NewConnectionHelper(
-		BasicRes,
+		basicRes,
 		validator.New(),
 	)
 

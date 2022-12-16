@@ -19,9 +19,10 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -30,8 +31,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/jenkins/models"
 	"github.com/apache/incubator-devlake/plugins/jenkins/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/jenkins/tasks"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 var _ core.PluginMeta = (*Jenkins)(nil)
@@ -45,8 +44,8 @@ var _ core.PluginSource = (*Jenkins)(nil)
 
 type Jenkins struct{}
 
-func (plugin Jenkins) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
+func (plugin Jenkins) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 

@@ -191,7 +191,7 @@ func (t *DataFlowTester) Subtask(subtaskMeta core.SubTaskMeta, taskData interfac
 
 // SubtaskContext creates a subtask context
 func (t *DataFlowTester) SubtaskContext(taskData interface{}) core.SubTaskContext {
-	return helper.NewStandaloneSubTaskContext(context.Background(), t.Cfg, t.Log, t.Db, t.Name, taskData)
+	return helper.NewStandaloneSubTaskContext(context.Background(), runner.CreateBasicRes(t.Cfg, t.Log, t.Db), t.Name, taskData)
 }
 
 func filterColumn(column dal.ColumnMeta, opts TableOptions) bool {

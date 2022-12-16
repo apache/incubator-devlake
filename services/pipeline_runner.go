@@ -39,9 +39,7 @@ type pipelineRunner struct {
 
 func (p *pipelineRunner) runPipelineStandalone() errors.Error {
 	return runner.RunPipeline(
-		cfg,
-		p.logger,
-		db,
+		runner.CreateBasicRes(cfg, p.logger, db),
 		p.pipeline.ID,
 		func(taskIds []uint64) errors.Error {
 			return RunTasksStandalone(p.logger, taskIds)

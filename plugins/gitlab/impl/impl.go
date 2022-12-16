@@ -29,9 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
-
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 var _ interface {
@@ -48,8 +45,8 @@ var _ interface {
 
 type Gitlab string
 
-func (plugin Gitlab) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
+func (plugin Gitlab) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 

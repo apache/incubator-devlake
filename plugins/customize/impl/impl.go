@@ -23,10 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/customize/api"
 	"github.com/apache/incubator-devlake/plugins/customize/tasks"
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/mitchellh/mapstructure"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 var _ core.PluginMeta = (*Customize)(nil)
@@ -38,8 +35,7 @@ type Customize struct {
 	handlers *api.Handlers
 }
 
-func (plugin *Customize) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	basicRes := helper.NewDefaultBasicRes(config, logger, db)
+func (plugin *Customize) Init(basicRes core.BasicRes) errors.Error {
 	plugin.handlers = api.NewHandlers(basicRes.GetDal())
 	return nil
 }

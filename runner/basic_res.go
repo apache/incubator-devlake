@@ -15,46 +15,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package api
+package runner
 
 import (
-	"encoding/csv"
-	"net/http"
-
-	"github.com/apache/incubator-devlake/errors"
-
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/impl"
+	"github.com/apache/incubator-devlake/impl/dalgorm"
+	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/gocarina/gocsv"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
-const maxMemory = 32 << 20 // 32 MB
-
-type Handlers struct {
-	store store
+// CreateAppBasicRes returns a application level BasicRes instance based on .env/environment variables
+// it is useful because multiple places need BasicRes including `main.go` `directrun` and `worker`
+func CreateAppBasicRes() core.BasicRes {
+	cfg := config.GetConfig()
+	log := logger.Global
+	db, err := NewGormDb(cfg, logger.Global)
+	if err != nil {
+		panic(err)
+	}
+	return CreateBasicRes(cfg, log, db)
 }
 
-func NewHandlers(basicRes core.BasicRes) *Handlers {
-	return &Handlers{store: NewDbStore(basicRes.GetDal(), basicRes)}
-}
-
-func (h *Handlers) unmarshal(r *http.Request, items interface{}) errors.Error {
-	if r == nil {
-		return errors.Default.New("request is nil")
-	}
-	if r.MultipartForm == nil {
-		if err := r.ParseMultipartForm(maxMemory); err != nil {
-			return errors.Convert(err)
-		}
-	}
-	f, fh, err := r.FormFile("file")
-	if err != nil {
-		return errors.Convert(err)
-	}
-	f.Close()
-	file, err := fh.Open()
-	if err != nil {
-		return errors.Convert(err)
-	}
-	defer file.Close()
-	return errors.Convert(gocsv.UnmarshalCSV(csv.NewReader(file), items))
+// CreateBasicRes returns a BasicRes based on what was given
+func CreateBasicRes(cfg *viper.Viper, log core.Logger, db *gorm.DB) core.BasicRes {
+	return impl.NewDefaultBasicRes(cfg, log, dalgorm.NewDalgorm(db))
 }

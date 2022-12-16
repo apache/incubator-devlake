@@ -27,8 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/azure/tasks"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 // make sure interface is implemented
@@ -49,8 +47,8 @@ func (plugin Azure) Description() string {
 	return "collect some Azure data"
 }
 
-func (plugin Azure) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
+func (plugin Azure) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 

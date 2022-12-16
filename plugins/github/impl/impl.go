@@ -19,9 +19,11 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -30,8 +32,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/spf13/viper"
-	"gorm.io/gorm"
 )
 
 var _ core.PluginMeta = (*Github)(nil)
@@ -57,8 +57,8 @@ func (plugin Github) TransformationRule() interface{} {
 	return &models.GithubTransformationRule{}
 }
 
-func (plugin Github) Init(config *viper.Viper, logger core.Logger, db *gorm.DB) errors.Error {
-	api.Init(config, logger, db)
+func (plugin Github) Init(basicRes core.BasicRes) errors.Error {
+	api.Init(basicRes)
 	return nil
 }
 

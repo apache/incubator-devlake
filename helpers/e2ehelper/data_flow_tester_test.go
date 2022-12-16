@@ -53,29 +53,16 @@ func ExampleDataFlowTester() {
 	}
 
 	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./tables/_raw_gitlab_api_projects.csv", "_raw_gitlab_api_project")
+	dataflowTester.ImportCsvIntoRawTable("./tables/_raw_gitlab_api_issues.csv", "_raw_gitlab_api_issues")
 
 	// verify extraction
 	dataflowTester.FlushTabler(gitlabModels.GitlabProject{})
-	dataflowTester.Subtask(tasks.ExtractProjectMeta, taskData)
+	dataflowTester.Subtask(tasks.ExtractApiIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
-		gitlabModels.GitlabProject{},
-		"tables/_tool_gitlab_projects.csv",
+		gitlabModels.GitlabIssue{},
+		"tables/_tool_gitlab_issues.csv",
 		[]string{
 			"gitlab_id",
-			"name",
-			"description",
-			"default_branch",
-			"path_with_namespace",
-			"web_url",
-			"creator_id",
-			"visibility",
-			"open_issues_count",
-			"star_count",
-			"forked_from_project_id",
-			"forked_from_project_web_url",
-			"created_date",
-			"updated_date",
 			"_raw_data_params",
 			"_raw_data_table",
 			"_raw_data_id",
