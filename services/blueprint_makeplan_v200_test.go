@@ -61,7 +61,7 @@ func TestMakePlanV200(t *testing.T) {
 	doraName := "TestMakePlanV200-dora"
 	doraOutputPlan := core.PipelinePlan{
 		{
-			{Plugin: "refdiff", Subtasks: []string{"calculateDeploymentDiffs"}, Options: map[string]interface{}{"projectName": projectName}},
+			{Plugin: "refdiff", Subtasks: []string{"calculateProjectDeploymentCommitsDiff"}, Options: map[string]interface{}{"projectName": projectName}},
 			{Plugin: doraName},
 		},
 	}
