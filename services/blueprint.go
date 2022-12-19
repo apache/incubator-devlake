@@ -107,6 +107,9 @@ func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
 
 // GetBlueprintByProjectName returns the detail of a given ProjectName
 func GetBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Error) {
+	if projectName == "" {
+		return nil, errors.Internal.New("can not use the empty projectName to search the unique blueprint")
+	}
 	dbBlueprint, err := GetDbBlueprintByProjectName(projectName)
 	if err != nil {
 		// Allow specific projectName to fail to find the corresponding blueprint
@@ -136,7 +139,18 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 		if err != nil {
 			return errors.Default.Wrap(err, fmt.Sprintf("invalid projectName: [%s] for the blueprint [%s]", blueprint.ProjectName, blueprint.Name))
 		}
+
+		bp, err := GetBlueprintByProjectName(blueprint.ProjectName)
+		if err != nil {
+			return err
+		}
+		if bp != nil {
+			if bp.ID != blueprint.ID {
+				return errors.Default.New(fmt.Sprintf("Each project can only be used by one blueprint. The currently selected projectName: [%s] has been used by blueprint: [id:%d] [name:%s] and cannot be reused.", bp.ProjectName, bp.ID, bp.Name))
+			}
+		}
 	}
+
 	if strings.ToLower(blueprint.CronConfig) == "manual" {
 		blueprint.IsManual = true
 	}
@@ -341,15 +355,15 @@ func MakePlanForBlueprint(blueprint *models.Blueprint) (core.PipelinePlan, error
 		// Notice: v1 not complete SkipOnFail & CreatedDateAfter
 		plan, err = GeneratePlanJsonV100(bpSettings)
 	case "2.0.0":
-		if blueprint.ProjectName == "" {
-			return nil, errors.BadInput.New("projectName is required for blueprint v2.0.0")
-		}
 		// load project metric plugins and convert it to a map
 		metrics := make(map[string]json.RawMessage)
 		projectMetrics := make([]models.ProjectMetric, 0)
-		db.Find(&projectMetrics, "project_name = ? AND enable = ?", blueprint.ProjectName, true)
-		for _, projectMetric := range projectMetrics {
-			metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
+
+		if blueprint.ProjectName != "" {
+			db.Find(&projectMetrics, "project_name = ? AND enable = ?", blueprint.ProjectName, true)
+			for _, projectMetric := range projectMetrics {
+				metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
+			}
 		}
 		plan, err = GeneratePlanJsonV200(blueprint.ProjectName, bpSyncPolicy, bpSettings, metrics)
 	default:
