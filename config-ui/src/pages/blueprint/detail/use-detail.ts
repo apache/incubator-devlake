@@ -56,7 +56,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
     try {
       const res = await API.getBlueprint(id)
       setBlueprint(res)
-      setConnections(transformConnection(res.settings.connections))
+      setConnections(transformConnection(res.settings?.connections || []))
     } finally {
       setLoading(false)
     }

@@ -22,9 +22,11 @@ import { SyncPolicy } from '@/plugins'
 import { Card, Divider } from '@/components'
 
 import { useCreateBP } from '../bp-context'
+import {ModeEnum} from "../types";
 
 export const StepFour = () => {
   const {
+    mode,
     isManual,
     cronConfig,
     skipOnFail,
@@ -43,6 +45,7 @@ export const StepFour = () => {
         isManual={isManual}
         cronConfig={cronConfig}
         skipOnFail={skipOnFail}
+        showTimeFilter={mode == ModeEnum.normal}
         createdDateAfter={createdDateAfter}
         onChangeIsManual={onChangeIsManual}
         onChangeCronConfig={onChangeCronConfig}
