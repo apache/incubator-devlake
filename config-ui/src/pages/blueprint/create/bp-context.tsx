@@ -156,7 +156,9 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
     }
 
     if (mode === ModeEnum.advanced) {
-      params.plan = validRawPlan(rawPlan) ? JSON.parse(rawPlan) : [[]]
+      params.plan = !validRawPlan(rawPlan)
+        ? JSON.parse(rawPlan)
+        : JSON.stringify([[]], null, '  ')
     }
 
     return params
