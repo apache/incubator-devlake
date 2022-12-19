@@ -39,7 +39,7 @@ func TestMakeMetricPluginPipelinePlanV200(t *testing.T) {
 		core.PipelineStage{
 			{
 				Plugin:   "refdiff",
-				Subtasks: []string{"calculateDeploymentDiffs"},
+				Subtasks: []string{"calculateProjectDeploymentCommitsDiff"},
 				Options:  map[string]interface{}{"projectName": projectName},
 			},
 		},

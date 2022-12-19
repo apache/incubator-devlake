@@ -117,7 +117,7 @@ func (plugin Dora) MakeMetricPluginPipelinePlanV200(projectName string, options 
 	stageDeploymentCommitdiff := core.PipelineStage{
 		{
 			Plugin:   "refdiff",
-			Subtasks: []string{"calculateDeploymentDiffs"},
+			Subtasks: []string{"calculateProjectDeploymentCommitsDiff"},
 			Options: map[string]interface{}{
 				"projectName": projectName,
 			},
