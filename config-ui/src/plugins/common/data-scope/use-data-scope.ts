@@ -60,7 +60,7 @@ export const useDataScope = ({
       case plugin === Plugins.GitLab:
         return scope.gitlabId
       case plugin === Plugins.Jenkins:
-        return scope.fullName
+        return scope.jobFullName
     }
   }
 

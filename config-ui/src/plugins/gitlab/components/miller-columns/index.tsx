@@ -60,7 +60,16 @@ export const MillerColumns = ({
         from: ScopeFromEnum.MILLER_COLUMNS,
         connectionId,
         gitlabId: it.id,
-        name: it.name
+        name: it.name,
+        pathWithNamespace: it.pathWithNamespace,
+        creatorId: it.creatorId,
+        defaultBranch: it.defaultBranch,
+        description: it.description,
+        openIssuesCount: it.openIssuesCount,
+        starCount: it.starCount,
+        visibility: it.visibility,
+        webUrl: it.webUrl,
+        httpUrlToRepo: it.httpUrlToRepo
       }))
     onChangeItems(result)
   }, [seletedIds])

@@ -26,4 +26,13 @@ export type ScopeItemType = {
   connectionId: ID
   gitlabId: ID
   name: string
+  pathWithNamespace: string
+  creatorId: ID
+  defaultBranch: string
+  description: string
+  openIssuesCount: number
+  starCount: number
+  visibility: string
+  webUrl: string
+  httpUrlToRepo: string
 }
