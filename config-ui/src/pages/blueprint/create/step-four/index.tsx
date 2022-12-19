@@ -25,6 +25,7 @@ import { useCreateBP } from '../bp-context'
 
 export const StepFour = () => {
   const {
+    mode,
     isManual,
     cronConfig,
     skipOnFail,
@@ -40,6 +41,7 @@ export const StepFour = () => {
       <h2>Set Sync Policy</h2>
       <Divider />
       <SyncPolicy
+        mode={mode}
         isManual={isManual}
         cronConfig={cronConfig}
         skipOnFail={skipOnFail}

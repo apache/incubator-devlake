@@ -15,14 +15,14 @@
  * limitations under the License.
  *
  */
-import {useCallback, useState} from 'react'
-import {DEVLAKE_ENDPOINT} from '@/utils/config'
+import { useCallback, useState } from 'react'
+import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
-import {ToastNotification} from '@/components/Toast'
-import {BlueprintMode, NullBlueprint} from '@/data/NullBlueprint'
+import { ToastNotification } from '@/components/Toast'
+import { BlueprintMode, NullBlueprint } from '@/data/NullBlueprint'
 import cron from 'cron-validate'
 import parser from 'cron-parser'
-import {Intent} from '@blueprintjs/core'
+import { Intent } from '@blueprintjs/core'
 
 function useBlueprintManager(
   blueprintName = `BLUEPRINT WEEKLY ${Date.now()}`,
@@ -244,7 +244,7 @@ function useBlueprintManager(
           enable: enable,
           mode,
           isManual,
-          skipOnFail,
+          skipOnFail
         }
         console.log('>> DISPATCHING BLUEPRINT SAVE REQUEST', blueprintPayload)
         const run = async () => {

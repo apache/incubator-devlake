@@ -159,6 +159,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
       params.plan = !validRawPlan(rawPlan)
         ? JSON.parse(rawPlan)
         : JSON.stringify([[]], null, '  ')
+      params.settings = null
     }
 
     return params
