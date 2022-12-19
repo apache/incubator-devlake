@@ -184,6 +184,13 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
+	// ProcessState contains information about an exited process, available after a call to Wait.
+	defer func() {
+		if !cmd.ProcessState.Success() {
+			log.Error(nil, "dbt run task error, please check!!!")
+		}
+	}()
+
 	// prevent zombie process
 	defer cmd.Wait() //nolint
 
@@ -201,10 +208,6 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}
 	if err := errors.Convert(scanner.Err()); err != nil {
 		return err
-	}
-
-	if !cmd.ProcessState.Success() {
-		log.Error(nil, "dbt run task error, please check!!!")
 	}
 
 	return nil
