@@ -26,4 +26,9 @@ export type ScopeItemType = {
   connectionId: ID
   githubId: number
   name: string
+  ownerId: ID
+  language: string
+  description: string
+  cloneUrl: string
+  HTMLUrl: string
 }

@@ -55,7 +55,7 @@ export const ConnectionColumn = styled.div`
 `
 
 export const ActionColumn = styled.div`
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
 

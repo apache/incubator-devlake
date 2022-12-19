@@ -63,7 +63,12 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
       title: it.name,
       type: 'repo',
       githubId: it.id,
-      name: `${it.owner.login}/${it.name}`
+      name: `${it.owner.login}/${it.name}`,
+      ownerId: it.owner.id,
+      language: it.language,
+      description: it.description,
+      cloneUrl: it.clone_url,
+      HTMLUrl: it.html_url
     }))
 
   const setLoaded = useCallback(

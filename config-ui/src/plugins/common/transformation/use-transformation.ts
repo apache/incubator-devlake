@@ -143,7 +143,7 @@ export const useTransformation = ({
           case plugin === Plugins.GitLab:
             return sc.gitlabId
           case plugin === Plugins.Jenkins:
-            return sc.fullName
+            return sc.jobFullName
         }
       },
       onSave: handleSave,

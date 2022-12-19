@@ -16,7 +16,7 @@
  *
  */
 
-import React, { useState } from 'react'
+import React from 'react'
 import {
   InputGroup,
   TextArea,
@@ -38,8 +38,6 @@ import { DEFAULT_CONFIG } from './example'
 import * as S from './styled'
 
 export const StepOne = () => {
-  const [isOpen, setIsOpen] = useState(false)
-
   const { connections, onTest } = useConnection()
 
   const {
@@ -129,35 +127,46 @@ export const StepOne = () => {
               value={rawPlan}
               onChange={(e) => onChangeRawPlan(e.target.value)}
             />
-            <ButtonGroup minimal>
-              <Button small text='Reset' icon='eraser' />
-              <Popover2
-                placement={Position.TOP}
-                isOpen={isOpen}
-                content={
-                  <Menu>
-                    {DEFAULT_CONFIG.map((it) => (
-                      <MenuItem
-                        key={it.id}
-                        icon='code'
-                        text={it.name}
-                        onClick={() => {
-                          setIsOpen(false)
-                          onChangeRawPlan(JSON.stringify(it.config, null, '  '))
-                        }}
-                      />
-                    ))}
-                  </Menu>
-                }
-              >
+            <div className='btns'>
+              <ButtonGroup className='btns' minimal>
                 <Button
                   small
-                  text='Load Templates'
-                  rightIcon='caret-down'
-                  onClick={() => setIsOpen(!isOpen)}
+                  text='Reset'
+                  icon='eraser'
+                  onClick={() =>
+                    onChangeRawPlan(JSON.stringify([[]], null, '  '))
+                  }
                 />
-              </Popover2>
-            </ButtonGroup>
+                <Popover2
+                  placement={Position.TOP}
+                  content={
+                    <Menu>
+                      {DEFAULT_CONFIG.map((it) => (
+                        <MenuItem
+                          key={it.id}
+                          icon='code'
+                          text={it.name}
+                          onClick={() =>
+                            onChangeRawPlan(
+                              JSON.stringify(it.config, null, '  ')
+                            )
+                          }
+                        />
+                      ))}
+                    </Menu>
+                  }
+                  renderTarget={({ isOpen, ref, ...targetProps }) => (
+                    <Button
+                      {...targetProps}
+                      elementRef={ref}
+                      small
+                      text='Load Templates'
+                      rightIcon='caret-down'
+                    />
+                  )}
+                />
+              </ButtonGroup>
+            </div>
           </Card>
           <S.Tips>
             <span>To visually define blueprint tasks, please use </span>

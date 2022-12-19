@@ -18,6 +18,9 @@
 
 import request from '@/components/utils/request'
 
+export const getDataScope = (plugin: string, connectionId: ID, repoId: ID) =>
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${repoId}`)
+
 export const updateDataScope = (
   plugin: string,
   connectionId: ID,

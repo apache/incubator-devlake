@@ -66,7 +66,7 @@ export const useDataScopeList = ({
           }
         case plugin === Plugins.Jenkins:
           return {
-            id: sc.fullName,
+            id: sc.jobFullName,
             name: sc.name,
             transformationRuleName: sc.transformationRuleName
           }

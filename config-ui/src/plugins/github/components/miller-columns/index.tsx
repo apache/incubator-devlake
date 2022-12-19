@@ -57,7 +57,12 @@ export const MillerColumns = ({
         from: ScopeFromEnum.MILLER_COLUMNS,
         connectionId,
         githubId: it.githubId,
-        name: it.name
+        name: it.name,
+        ownerId: it.ownerId,
+        language: it.language,
+        description: it.description,
+        cloneUrl: it.cloneUrl,
+        HTMLUrl: it.HTMLUrl
       }))
 
     onChangeItems(result)

@@ -43,6 +43,14 @@ export const Content = styled.div`
     font-weight: 600;
   }
 
+  textarea {
+    margin-bottom: 8px;
+    min-height: 240px;
+    font-size: 12px;
+    background-color: #f9f9f9;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
   .back {
     display: flex;
     align-items: center;

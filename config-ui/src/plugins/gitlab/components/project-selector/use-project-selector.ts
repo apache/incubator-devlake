@@ -52,7 +52,16 @@ export const usebProjectSelector = ({
           res.map((it: any) => ({
             from: ScopeFromEnum.PROJECT_SELECTOR,
             gitlabId: it.id,
-            name: it.path_with_namespace
+            name: it.path_with_namespace,
+            pathWithNamespace: it.path_with_namespace,
+            creatorId: it.creator_id,
+            defaultBranch: it.default_branch,
+            description: it.description,
+            openIssuesCount: it.open_issues_count,
+            starCount: it.star_count,
+            visibility: it.visibility,
+            webUrl: it.web_url,
+            httpUrlToRepo: it.http_url_to_repo
           }))
         )
       } finally {

@@ -30,8 +30,8 @@ export const useContextValue = (plugins: string[]) => {
 
   const allConnections = useMemo(
     () =>
-      PluginConfig.filter((p) => p.plugin === PluginType.Connection).filter(
-        (p) => (!plugins.length ? true : plugins.includes(p.plugin))
+      PluginConfig.filter((p) => p.type === PluginType.Connection).filter((p) =>
+        !plugins.length ? true : plugins.includes(p.plugin)
       ),
     [plugins]
   )
