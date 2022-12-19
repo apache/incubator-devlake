@@ -22,7 +22,7 @@ import { SyncPolicy } from '@/plugins'
 import { Card, Divider } from '@/components'
 
 import { useCreateBP } from '../bp-context'
-import {ModeEnum} from "@/pages/blueprint/create/types";
+import {ModeEnum} from "../types";
 
 export const StepFour = () => {
   const {
