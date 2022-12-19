@@ -16,14 +16,14 @@
  *
  */
 
-import React, {useMemo} from 'react'
-import {Checkbox, Icon, InputGroup, Position, Radio, RadioGroup} from '@blueprintjs/core'
-import {Popover2} from '@blueprintjs/popover2'
+import React, { useMemo } from 'react'
+import { Checkbox, Icon, InputGroup, Position, Radio, RadioGroup } from '@blueprintjs/core'
+import { Popover2 } from '@blueprintjs/popover2'
 
 import StartFromSelector from '@/components/blueprints/StartFromSelector'
-import {getCron, getCronOptions} from '@/config'
+import { getCron, getCronOptions } from '@/config'
 import CronHelp from '@/images/cron-help.png'
-import {ModeEnum} from "@/pages/blueprint/create/types";
+import { ModeEnum } from "@/pages/blueprint/create/types";
 
 import * as S from './styled'
 
