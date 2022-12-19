@@ -194,7 +194,7 @@ function useBlueprintManager(
               : NullBlueprint
           )
           setSkipOnFail(blueprintData.skipOnFail)
-          setCreatedDateAfter(blueprintData.settings.createdDateAfter)
+          setCreatedDateAfter(blueprintData.settings?.createdDateAfter)
           setErrors(b.status !== 200 ? [b.data] : [])
           setTimeout(() => {
             setIsFetching(false)

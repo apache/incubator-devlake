@@ -22,6 +22,7 @@ import { SyncPolicy } from '@/plugins'
 import { Card, Divider } from '@/components'
 
 import { useCreateBP } from '../bp-context'
+import {ModeEnum} from "@/pages/blueprint/create/types";
 
 export const StepFour = () => {
   const {
@@ -41,10 +42,10 @@ export const StepFour = () => {
       <h2>Set Sync Policy</h2>
       <Divider />
       <SyncPolicy
-        mode={mode}
         isManual={isManual}
         cronConfig={cronConfig}
         skipOnFail={skipOnFail}
+        showTimeFilter={mode == ModeEnum.normal}
         createdDateAfter={createdDateAfter}
         onChangeIsManual={onChangeIsManual}
         onChangeCronConfig={onChangeCronConfig}

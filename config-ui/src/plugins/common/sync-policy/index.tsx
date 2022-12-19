@@ -28,10 +28,10 @@ import { ModeEnum } from "@/pages/blueprint/create/types";
 import * as S from './styled'
 
 interface Props {
-  mode: ModeEnum
   isManual: boolean
   cronConfig: string
   skipOnFail: boolean
+  showTimeFilter: boolean
   createdDateAfter: string | null
   onChangeIsManual: (val: boolean) => void
   onChangeCronConfig: (val: string) => void
@@ -40,10 +40,10 @@ interface Props {
 }
 
 export const SyncPolicy = ({
-  mode,
   isManual,
   cronConfig,
   skipOnFail,
+  showTimeFilter,
   createdDateAfter,
   onChangeIsManual,
   onChangeCronConfig,
@@ -72,7 +72,7 @@ export const SyncPolicy = ({
 
   return (
     <S.Wrapper>
-      {mode == ModeEnum.normal && <div className='block'>
+      {showTimeFilter && <div className='block'>
         <h3>Time Filter *</h3>
         <p>
           Select the data range you wish to collect. DevLake will collect the
