@@ -43,7 +43,6 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
       parentId: null,
       id: it.id,
       title: it.name,
-      connectionId,
       boardId: it.id,
       name: it.name,
       self: it.self,
