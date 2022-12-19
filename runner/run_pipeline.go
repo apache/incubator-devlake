@@ -84,7 +84,9 @@ func runPipelineTasks(
 		err = runTasks(row)
 		if err != nil {
 			log.Error(err, "run tasks failed")
-			return err
+			if !dbPipeline.SkipOnFail {
+				return err
+			}
 		}
 
 		// update finishedTasks

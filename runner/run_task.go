@@ -123,9 +123,6 @@ func RunTask(
 		task,
 		progress,
 	)
-	if dbPipeline.SkipOnFail {
-		return nil
-	}
 	return err
 }
 
