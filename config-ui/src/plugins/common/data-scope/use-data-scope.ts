@@ -51,42 +51,44 @@ export const useDataScope = ({
     setSelectedEntities(entities ?? [])
   }, [entities])
 
-  const formatScope = (scope: any) => {
-    return scope.map((sc: any) => {
-      switch (true) {
-        case plugin === Plugins.GitHub:
-          return {
-            ...sc,
-            id: sc.githubId,
-            entities: selectedEntities
-          }
-        case plugin === Plugins.JIRA:
-          return {
-            ...sc,
-            id: sc.boardId,
-            entities: selectedEntities
-          }
-        case plugin === Plugins.GitLab:
-          return {
-            ...sc,
-            id: sc.gitlabId,
-            entities: selectedEntities
-          }
-        case plugin === Plugins.Jenkins:
-          return {
-            ...sc,
-            id: sc.fullName,
-            entities: selectedEntities
-          }
+  const getPluginId = (scope: any) => {
+    switch (true) {
+      case plugin === Plugins.GitHub:
+        return scope.githubId
+      case plugin === Plugins.JIRA:
+        return scope.boardId
+      case plugin === Plugins.GitLab:
+        return scope.gitlabId
+      case plugin === Plugins.Jenkins:
+        return scope.fullName
+    }
+  }
+
+  const getDataScope = async (scope: any) => {
+    try {
+      const res = await API.getDataScope(
+        plugin,
+        connectionId,
+        getPluginId(scope)
+      )
+      return {
+        ...scope,
+        transformationRuleId: res.transformationRuleId
       }
-    })
+    } catch {
+      return scope
+    }
   }
 
   const handleSave = async () => {
+    const scope = await Promise.all(
+      selectedScope.map((sc: any) => getDataScope(sc))
+    )
+
     const [success, res] = await operator(
       () =>
         API.updateDataScope(plugin, connectionId, {
-          data: selectedScope.map((sc: any) => omit(sc, 'from'))
+          data: scope.map((sc: any) => omit(sc, 'from'))
         }),
       {
         setOperating: setSaving
@@ -94,7 +96,12 @@ export const useDataScope = ({
     )
 
     if (success) {
-      onSave?.(formatScope(res))
+      onSave?.(
+        res.map((it: any) => ({
+          id: getPluginId(it),
+          entities
+        }))
+      )
     }
   }
 
