@@ -127,11 +127,7 @@ func runPipeline(pipelineId uint64) errors.Error {
 	}
 	if err != nil {
 		dbPipeline.Status = models.TASK_FAILED
-		if lakeErr := errors.AsLakeErrorType(err); lakeErr != nil {
-			dbPipeline.Message = lakeErr.Messages().Format()
-		} else {
-			dbPipeline.Message = err.Error()
-		}
+		dbPipeline.Message = err.Error()
 	} else {
 		dbPipeline.Status = models.TASK_COMPLETED
 		dbPipeline.Message = ""
