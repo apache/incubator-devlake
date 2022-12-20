@@ -72,6 +72,7 @@ type NewTask struct {
 	PipelineId  uint64 `json:"-"`
 	PipelineRow int    `json:"-"`
 	PipelineCol int    `json:"-"`
+	IsRerun     bool   `json:"-"`
 }
 
 type Subtask struct {

@@ -44,8 +44,8 @@ func Delete(c *gin.Context) {
 }
 
 type getTaskResponse struct {
-	Tasks []models.Task `json:"tasks"`
-	Count int           `json:"count"`
+	Tasks []*models.Task `json:"tasks"`
+	Count int            `json:"count"`
 }
 
 // GetTaskByPipeline return most recent tasks
@@ -79,7 +79,7 @@ func GetTaskByPipeline(c *gin.Context) {
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /tasks/{taskId}/rerun [post]
-func RerunTask(c *gin.Context) {
+func PostRerun(c *gin.Context) {
 	taskId := c.Param("taskId")
 	id, err := strconv.ParseUint(taskId, 10, 64)
 	if err != nil {

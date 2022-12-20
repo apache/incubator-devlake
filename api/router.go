@@ -51,7 +51,8 @@ func RegisterRouter(r *gin.Engine) {
 	r.GET("/blueprints/:blueprintId/pipelines", blueprints.GetBlueprintPipelines)
 	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
 	r.GET("/pipelines/:pipelineId/tasks", task.GetTaskByPipeline)
-	r.POST("/pipelines/:pipelineId/tasks", task.RerunTask)
+	r.POST("/pipelines/:pipelineId/rerun", pipelines.PostRerun)
+	r.POST("/tasks/:taskId/rerun", task.PostRerun)
 
 	r.GET("/pipelines/:pipelineId/logging.tar.gz", pipelines.DownloadLogs)
 

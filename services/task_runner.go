@@ -73,7 +73,7 @@ func (rt *RunningTask) setAll(progressDetails map[uint64]*models.TaskProgressDet
 }
 
 // FillProgressDetailToTasks lock less times than GetProgressDetail
-func (rt *RunningTask) FillProgressDetailToTasks(tasks []models.Task) {
+func (rt *RunningTask) FillProgressDetailToTasks(tasks []*models.Task) {
 	rt.mu.Lock()
 	defer rt.mu.Unlock()
 

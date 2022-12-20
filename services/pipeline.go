@@ -191,6 +191,9 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 				dal.Orderby("id ASC"),
 				dal.Limit(1),
 			)
+			if err != nil && !db.IsErrorNotFound(err) {
+				globalPipelineLog.Error(err, "dequeue failed")
+			}
 			cronLocker.Unlock()
 			if !db.IsErrorNotFound(err) {
 				break
@@ -453,9 +456,9 @@ func RerunPipeline(pipelineId uint64, task *models.Task) ([]*models.Task, errors
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "error getting tasks")
 		}
-		for _, task := range tasks {
-			if task.Status == models.TASK_FAILED {
-				failedTasks = append(failedTasks, &task)
+		for _, t := range tasks {
+			if t.Status != models.TASK_COMPLETED {
+				failedTasks = append(failedTasks, t)
 			}
 		}
 	}
@@ -468,31 +471,32 @@ func RerunPipeline(pipelineId uint64, task *models.Task) ([]*models.Task, errors
 	// create new tasks
 	// TODO: this is better to be wrapped inside a transaction
 	rerunTasks := []*models.Task{}
-	for _, task := range failedTasks {
+	for _, t := range failedTasks {
 		// mark previous task failed
-		task.Status = models.TASK_FAILED
-		err := db.Update(task)
+		t.Status = models.TASK_FAILED
+		err := db.UpdateColumn(t, "status", models.TASK_FAILED)
 		if err != nil {
 			return nil, err
 		}
 		// create new task
-		subtasks, err := task.GetSubTasks()
+		subtasks, err := t.GetSubTasks()
 		if err != nil {
 			return nil, err
 		}
-		options, err := task.GetOptions()
+		options, err := t.GetOptions()
 		if err != nil {
 			return nil, err
 		}
 		rerunTask, err := CreateTask(&models.NewTask{
 			PipelineTask: &core.PipelineTask{
-				Plugin:   task.Plugin,
+				Plugin:   t.Plugin,
 				Subtasks: subtasks,
 				Options:  options,
 			},
-			PipelineId:  task.PipelineId,
-			PipelineRow: task.PipelineRow,
-			PipelineCol: task.PipelineCol,
+			PipelineId:  t.PipelineId,
+			PipelineRow: t.PipelineRow,
+			PipelineCol: t.PipelineCol,
+			IsRerun:     true,
 		})
 		if err != nil {
 			return nil, err

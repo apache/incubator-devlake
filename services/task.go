@@ -62,6 +62,9 @@ func CreateTask(newTask *models.NewTask) (*models.Task, errors.Error) {
 		PipelineRow: newTask.PipelineRow,
 		PipelineCol: newTask.PipelineCol,
 	}
+	if newTask.IsRerun {
+		task.Status = models.TASK_RERUN
+	}
 	err = db.Create(task)
 	if err != nil {
 		taskLog.Error(err, "save task failed")
@@ -71,7 +74,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, errors.Error) {
 }
 
 // GetTasks returns paginated tasks that match the given query
-func GetTasks(query *TaskQuery) ([]models.Task, int64, errors.Error) {
+func GetTasks(query *TaskQuery) ([]*models.Task, int64, errors.Error) {
 	// verify query
 	if err := VerifyStruct(query); err != nil {
 		return nil, 0, err
@@ -104,7 +107,7 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, errors.Error) {
 		dal.Offset(query.GetSkip()),
 		dal.Limit(query.GetPageSizeOr(10000)),
 	)
-	tasks := make([]models.Task, 0)
+	tasks := make([]*models.Task, 0)
 	err = db.All(&tasks, clauses...)
 	if err != nil {
 		return nil, count, err
@@ -117,14 +120,14 @@ func GetTasks(query *TaskQuery) ([]models.Task, int64, errors.Error) {
 }
 
 // GetTasksWithLastStatus returns task list of the pipeline, only the most recently tasks would be returned
-func GetTasksWithLastStatus(pipelineId uint64) ([]models.Task, errors.Error) {
-	var tasks []models.Task
-	err := db.All(&models.Task{}, dal.Where("pipeline_id = ?", pipelineId), dal.Orderby("id DESC"))
+func GetTasksWithLastStatus(pipelineId uint64) ([]*models.Task, errors.Error) {
+	var tasks []*models.Task
+	err := db.All(&tasks, dal.Where("pipeline_id = ?", pipelineId), dal.Orderby("id DESC"))
 	if err != nil {
 		return nil, err
 	}
 	taskIds := make(map[int64]struct{})
-	var result []models.Task
+	var result []*models.Task
 	var maxRow, maxCol int
 	for _, task := range tasks {
 		if task.PipelineRow > maxRow {
