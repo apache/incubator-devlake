@@ -471,6 +471,7 @@ func RerunPipeline(pipelineId uint64, task *models.Task) ([]*models.Task, errors
 	}
 
 	// create new tasks
+	// TODO: this is better to be wrapped inside a transaction
 	rerunTasks := []*models.Task{}
 	for _, task := range failedTasks {
 		// mark previous task failed
@@ -498,6 +499,9 @@ func RerunPipeline(pipelineId uint64, task *models.Task) ([]*models.Task, errors
 			PipelineRow: task.PipelineRow,
 			PipelineCol: task.PipelineCol,
 		})
+		if err != nil {
+			return nil, err
+		}
 		// append to result
 		rerunTasks = append(rerunTasks, rerunTask)
 	}
