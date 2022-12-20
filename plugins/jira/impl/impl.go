@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"net/http"
 	"time"
 
@@ -176,8 +175,9 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		var scope *models.JiraBoard
 		// support v100 & advance mode
 		// If we still cannot find the record in db, we have to request from remote server and save it to db
-		err = taskCtx.GetDal().First(&scope, dal.Where("connection_id = ? AND board_id = ?", op.ConnectionId, op.BoardId))
-		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		db := taskCtx.GetDal()
+		err = db.First(&scope, dal.Where("connection_id = ? AND board_id = ?", op.ConnectionId, op.BoardId))
+		if err != nil && db.IsErrorNotFound(err) {
 			var board *apiv2models.Board
 			board, err = api.GetApiJira(&op, jiraApiClient)
 			if err != nil {
@@ -185,7 +185,7 @@ func (plugin Jira) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 			}
 			logger.Debug(fmt.Sprintf("Current project: %d", board.ID))
 			scope = board.ToToolLayer(connection.ID)
-			err = taskCtx.GetDal().CreateIfNotExist(&scope)
+			err = db.CreateIfNotExist(&scope)
 			if err != nil {
 				return nil, err
 			}

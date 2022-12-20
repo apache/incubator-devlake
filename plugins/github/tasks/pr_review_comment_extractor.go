@@ -19,9 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
-	goerror "errors"
 	"fmt"
-	"gorm.io/gorm"
 	"regexp"
 	"strconv"
 
@@ -126,11 +124,11 @@ func enrichGithubPrComment(data *GithubTaskData, db dal.Dal, prUrlRegex *regexp.
 			return 0, errors.Default.Wrap(err, "parse prId failed")
 		}
 		pr := &models.GithubPullRequest{}
-		err = db.First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, prNumber, data.Options.GithubId))
-		if goerror.Is(err, gorm.ErrRecordNotFound) {
+		err1 := db.First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, prNumber, data.Options.GithubId))
+		if db.IsErrorNotFound(err1) {
 			return 0, nil
-		} else if err != nil {
-			return 0, errors.NotFound.Wrap(err, "github pull request parse failed ")
+		} else if err1 != nil {
+			return 0, errors.NotFound.Wrap(err1, "github pull request parse failed ")
 		}
 		return pr.GithubId, nil
 	}

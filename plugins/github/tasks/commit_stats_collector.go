@@ -20,13 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	goerror "github.com/cockroachdb/errors"
-	"gorm.io/gorm"
 	"io"
 	"net/http"
 	"net/url"
 	"reflect"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -56,7 +55,7 @@ func CollectApiCommitStats(taskCtx core.SubTaskContext) errors.Error {
 		dal.Orderby("committed_date DESC"),
 		dal.Limit(1),
 	)
-	if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil && !db.IsErrorNotFound(err) {
 		return errors.Default.Wrap(err, "failed to get latest github commit record")
 	}
 

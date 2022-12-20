@@ -18,10 +18,10 @@ limitations under the License.
 package tasks
 
 import (
-	goerror "errors"
+	"reflect"
+
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
-	"reflect"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"gorm.io/gorm"
 )
 
 var ConnectIncidentToDeploymentMeta = core.SubTaskMeta{
@@ -94,7 +93,7 @@ func ConnectIncidentToDeployment(taskCtx core.SubTaskContext) errors.Error {
 			}
 			err = db.First(cicdTask, cicdTakClauses...)
 			if err != nil {
-				if goerror.Is(err, gorm.ErrRecordNotFound) {
+				if db.IsErrorNotFound(err) {
 					return nil, nil
 				} else {
 					return nil, err

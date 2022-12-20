@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"strconv"
 	"time"
 
@@ -165,8 +164,9 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 		var scope *models.GitlabProject
 		// support v100 & advance mode
 		// If we still cannot find the record in db, we have to request from remote server and save it to db
-		err = taskCtx.GetDal().First(&scope, dal.Where("connection_id = ? AND gitlab_id = ?", op.ConnectionId, op.ProjectId))
-		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		db := taskCtx.GetDal()
+		err = db.First(&scope, dal.Where("connection_id = ? AND gitlab_id = ?", op.ConnectionId, op.ProjectId))
+		if err != nil && db.IsErrorNotFound(err) {
 			var project *tasks.GitlabApiProject
 			project, err = api.GetApiProject(op, apiClient)
 			if err != nil {

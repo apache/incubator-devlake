@@ -20,11 +20,11 @@ package tap
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"gorm.io/gorm"
 )
 
 // CollectorArgs args to initialize a Collector
@@ -83,7 +83,7 @@ func (c *Collector[Stream]) getState() (*State, errors.Error) {
 	rawState := RawState{}
 	rawState.ID = c.getStateId()
 	if err := db.First(&rawState); err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if db.IsErrorNotFound(err) {
 			return nil, errors.NotFound.Wrap(err, "record not found")
 		}
 		return nil, err

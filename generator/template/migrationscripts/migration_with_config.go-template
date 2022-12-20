@@ -18,10 +18,9 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
-	"gorm.io/gorm"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 )
 
 type {{ .Purpose }} struct{
@@ -32,9 +31,11 @@ func (u *{{ .Purpose }}) SetConfigGetter(config core.ConfigGetter) {
 	u.config = config
 }
 
-func (*{{ .Purpose }}) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	// TODO db.Migrator()...
-	return nil
+func (*{{ .Purpose }}) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(
+		basicRes,
+		// TO Add models
+	)
 }
 
 func (*{{ .Purpose }}) Version() uint64 {

@@ -18,8 +18,11 @@ limitations under the License.
 package api
 
 import (
-	goerror "errors"
 	"fmt"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
@@ -30,10 +33,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/tasks"
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/go-playground/validator/v10"
-	"gorm.io/gorm"
-	"net/url"
-	"strings"
-	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
@@ -83,8 +82,9 @@ func makeDataSourcePipelinePlanV200(
 		}
 		transformationRule := &models.GithubTransformationRule{}
 		// get transformation rules from db
-		err = basicRes.GetDal().First(transformationRule, dal.Where(`id = ?`, githubRepo.TransformationRuleId))
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+		db := basicRes.GetDal()
+		err = db.First(transformationRule, dal.Where(`id = ?`, githubRepo.TransformationRuleId))
+		if err != nil && !db.IsErrorNotFound(err) {
 			return nil, err
 		}
 		// refdiff

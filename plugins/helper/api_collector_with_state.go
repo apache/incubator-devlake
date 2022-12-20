@@ -18,11 +18,11 @@ limitations under the License.
 package helper
 
 import (
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"gorm.io/gorm"
-	"time"
 )
 
 // ApiCollectorStateManager save collector state in framework table
@@ -45,7 +45,7 @@ func NewApiCollectorWithState(args RawDataSubTaskArgs, createdDateAfter *time.Ti
 	latestState := models.CollectorLatestState{}
 	err = db.First(&latestState, dal.Where(`raw_data_table = ? AND raw_data_params = ?`, rawDataSubTask.table, rawDataSubTask.params))
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if db.IsErrorNotFound(err) {
 			latestState = models.CollectorLatestState{
 				RawDataTable:  rawDataSubTask.table,
 				RawDataParams: rawDataSubTask.params,
