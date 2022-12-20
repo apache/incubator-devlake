@@ -20,11 +20,11 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 // GeneratePlanJsonV200 generates pipeline plan according v2.0.0 definition
@@ -41,17 +41,28 @@ func GeneratePlanJsonV200(
 	}
 	// refresh project_mapping table to reflect project/scopes relationship
 	if len(scopes) > 0 {
-		if projectName != "" {
-			e := db.Where("project_name = ?", projectName).Delete(&crossdomain.ProjectMapping{}).Error
-			if e != nil {
-				return nil, errors.Default.Wrap(e, fmt.Sprintf("projectName:[%s]", projectName))
-			}
-		}
 		for _, scope := range scopes {
 			e := basicRes.GetDal().CreateOrUpdate(scope)
 			if e != nil {
 				scopeInfo := fmt.Sprintf("[Id:%s][Name:%s][TableName:%s]", scope.ScopeId(), scope.ScopeName(), scope.TableName())
 				return nil, errors.Default.Wrap(e, fmt.Sprintf("failed to create scopes:[%s]", scopeInfo))
+			}
+		}
+	}
+	if len(projectName) != 0 {
+		err = basicRes.GetDal().Delete(&crossdomain.ProjectMapping{}, dal.Where("project_name = ?", projectName))
+		if err != nil {
+			return nil, err
+		}
+		for _, scope := range scopes {
+			projectMapping := &crossdomain.ProjectMapping{
+				ProjectName: projectName,
+				Table:       scope.TableName(),
+				RowId:       scope.ScopeId(),
+			}
+			err = basicRes.GetDal().CreateIfNotExist(projectMapping)
+			if err != nil {
+				return nil, err
 			}
 		}
 	}
@@ -93,7 +104,7 @@ func genPlanJsonV200(
 			if err != nil {
 				return nil, nil, err
 			}
-			// collect scopes for the project. a github repository may produces
+			// collect scopes for the project. a github repository may produce
 			// 2 scopes, 1 repo and 1 board
 			scopes = append(scopes, pluginScopes...)
 		} else {
