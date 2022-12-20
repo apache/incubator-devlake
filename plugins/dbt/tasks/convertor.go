@@ -56,7 +56,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	profilesPath := data.Options.ProfilesPath
 	profile := data.Options.Profile
 
-	defaultProfilesPath := filepath.Join(projectPath, "/profiles.yml")
+	defaultProfilesPath := filepath.Join(projectPath, "profiles.yml")
 	_, err := errors.Convert01(os.Stat(defaultProfilesPath))
 	// if profiles.yml not exist, create it manually
 	if err != nil {
@@ -112,7 +112,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		}
 	}
 	// if package.yml exist, install dbt dependencies
-	defaultPackagesPath := filepath.Join(projectPath, "/packages.yml")
+	defaultPackagesPath := filepath.Join(projectPath, "packages.yml")
 	_, err = errors.Convert01(os.Stat(defaultPackagesPath))
 	if err == nil {
 		cmd := exec.Command("dbt", "deps")
