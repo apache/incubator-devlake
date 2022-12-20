@@ -53,7 +53,7 @@ func GetProjects(query *ProjectQuery) ([]*models.Project, int64, errors.Error) {
 		dal.Limit(query.GetPageSize()),
 	)
 	projects := make([]*models.Project, 0)
-	err = db.All(projects, clauses...)
+	err = db.All(&projects, clauses...)
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error finding DB project")
 	}
