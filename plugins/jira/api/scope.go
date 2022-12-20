@@ -20,7 +20,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"gorm.io/gorm"
 	"io"
 	"net/http"
 	"strconv"
@@ -184,8 +183,9 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	if connectionId*boardId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
 	}
-	err := basicRes.GetDal().First(&board, dal.Where("connection_id = ? AND board_id = ?", connectionId, boardId))
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	db := basicRes.GetDal()
+	err := db.First(&board, dal.Where("connection_id = ? AND board_id = ?", connectionId, boardId))
+	if db.IsErrorNotFound(err) {
 		return nil, errors.NotFound.New("record not found")
 	}
 	if err != nil {

@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	goerror "errors"
 	"fmt"
 	"regexp"
 	"sort"
@@ -26,7 +25,6 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
-	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -207,7 +205,7 @@ func CalculateCommitPairs(db dal.Dal, repoId string, pairs []RefPair, rs Refs) (
 		}
 		ref.Id = fmt.Sprintf("%s:%s", repoId, refName)
 		err := db.First(ref)
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+		if err != nil && !db.IsErrorNotFound(err) {
 			return "", errors.NotFound.Wrap(err, fmt.Sprintf("faild to load Ref info for repoId:%s, refName:%s", repoId, refName))
 		}
 		return ref.CommitSha, nil

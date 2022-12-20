@@ -18,16 +18,15 @@ limitations under the License.
 package tasks
 
 import (
-	goerror "errors"
 	"fmt"
+	"net/url"
+	"time"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"gorm.io/gorm"
-	"net/url"
-	"time"
 )
 
 const RAW_STORY_CHANGELOG_TABLE = "tapd_api_story_changelogs"
@@ -49,7 +48,7 @@ func CollectStoryChangelogs(taskCtx core.SubTaskContext) errors.Error {
 			dal.Orderby("created DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+		if err != nil && !db.IsErrorNotFound(err) {
 			return errors.NotFound.Wrap(err, "failed to get latest tapd changelog record")
 		}
 		if latestUpdated.Id > 0 {

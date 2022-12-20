@@ -28,7 +28,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/mitchellh/mapstructure"
-	"gorm.io/gorm"
 )
 
 type apiRepo struct {
@@ -184,8 +183,9 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	if connectionId*repoId == 0 {
 		return nil, errors.BadInput.New("invalid path params")
 	}
-	err := basicRes.GetDal().First(&repo, dal.Where("connection_id = ? AND github_id = ?", connectionId, repoId))
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	db := basicRes.GetDal()
+	err := db.First(&repo, dal.Where("connection_id = ? AND github_id = ?", connectionId, repoId))
+	if db.IsErrorNotFound(err) {
 		return nil, errors.NotFound.New("record not found")
 	}
 	if err != nil {

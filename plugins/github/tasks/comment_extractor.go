@@ -19,9 +19,8 @@ package tasks
 
 import (
 	"encoding/json"
-	goerror "errors"
+
 	"github.com/apache/incubator-devlake/errors"
-	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -78,15 +77,16 @@ func ExtractApiComments(taskCtx core.SubTaskContext) errors.Error {
 				return nil, err
 			}
 			issue := &models.GithubIssue{}
-			err = taskCtx.GetDal().All(issue, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Options.GithubId))
-			if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+			db := taskCtx.GetDal()
+			err = db.All(issue, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Options.GithubId))
+			if err != nil && !db.IsErrorNotFound(err) {
 				return nil, err
 			}
 			//if we can not find issues with issue number above, move the comments to github_pull_request_comments
 			if issue.GithubId == 0 {
 				pr := &models.GithubPullRequest{}
-				err = taskCtx.GetDal().First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Options.GithubId))
-				if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+				err = db.First(pr, dal.Where("connection_id = ? and number = ? and repo_id = ?", data.Options.ConnectionId, issueINumber, data.Options.GithubId))
+				if err != nil && !db.IsErrorNotFound(err) {
 					return nil, err
 				}
 				githubPrComment := &models.GithubPrComment{
