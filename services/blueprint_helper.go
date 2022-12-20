@@ -18,7 +18,6 @@ limitations under the License.
 package services
 
 import (
-	goerror "errors"
 	"fmt"
 
 	"github.com/apache/incubator-devlake/config"
@@ -26,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"gorm.io/gorm"
 )
 
 // SaveDbBlueprint accepts a Blueprint instance and upsert it to database
@@ -124,7 +122,7 @@ func GetDbBlueprintByProjectName(projectName string) (*models.DbBlueprint, error
 	dbBlueprint := &models.DbBlueprint{}
 	err := db.First(dbBlueprint, dal.Where("project_name = ?", projectName))
 	if err != nil {
-		if goerror.Is(err, gorm.ErrRecordNotFound) {
+		if db.IsErrorNotFound(err) {
 			return nil, errors.NotFound.Wrap(err, fmt.Sprintf("could not find blueprint in DB by projectName %s", projectName))
 		}
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprint from DB by projectName %s", projectName))

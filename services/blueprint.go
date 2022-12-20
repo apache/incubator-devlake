@@ -19,7 +19,6 @@ package services
 
 import (
 	"encoding/json"
-	goerror "errors"
 	"fmt"
 	"strings"
 
@@ -30,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/robfig/cron/v3"
-	"gorm.io/gorm"
 )
 
 // BlueprintQuery is a query for GetBlueprints
@@ -90,7 +88,7 @@ func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Er
 func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
 	dbBlueprint, err := GetDbBlueprint(blueprintId)
 	if err != nil {
-		if goerror.Is(err, gorm.ErrRecordNotFound) {
+		if db.IsErrorNotFound(err) {
 			return nil, errors.NotFound.New("blueprint not found")
 		}
 		return nil, errors.Internal.Wrap(err, "error getting the blueprint from database")
@@ -111,7 +109,7 @@ func GetBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Er
 	dbBlueprint, err := GetDbBlueprintByProjectName(projectName)
 	if err != nil {
 		// Allow specific projectName to fail to find the corresponding blueprint
-		if goerror.Is(err, gorm.ErrRecordNotFound) {
+		if db.IsErrorNotFound(err) {
 			return nil, nil
 		}
 		return nil, errors.Internal.Wrap(err, fmt.Sprintf("error getting the blueprint from database with project %s", projectName))
