@@ -82,7 +82,7 @@ func RunTask(
 			}
 			dbe := db.Model(task).Updates(map[string]interface{}{
 				"status":          models.TASK_FAILED,
-				"message":         lakeErr.Messages().Format(),
+				"message":         lakeErr.Error(),
 				"finished_at":     finishedAt,
 				"spent_seconds":   spentSeconds,
 				"failed_sub_task": subTaskName,

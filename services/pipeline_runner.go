@@ -125,11 +125,7 @@ func runPipeline(pipelineId uint64) errors.Error {
 	pipeline.SpentSeconds = int(finishedAt.Unix() - pipeline.BeganAt.Unix())
 	if err != nil {
 		pipeline.Status = models.TASK_FAILED
-		if lakeErr := errors.AsLakeErrorType(err); lakeErr != nil {
-			pipeline.Message = lakeErr.Messages().Format()
-		} else {
-			pipeline.Message = err.Error()
-		}
+		pipeline.Message = err.Error()
 	} else {
 		pipeline.Status = models.TASK_COMPLETED
 		pipeline.Message = ""
