@@ -75,14 +75,15 @@ func pipelineServiceInit() {
 	} else {
 		// standalone mode: reset pipeline status
 		db.UpdateColumn(
-			&models.DbPipeline{},
-			"status", models.TASK_FAILED,
-			dal.Where("status <> ?", models.TASK_COMPLETED),
+			&models.Task{},
+			"_devlake_tasks.status", models.TASK_FAILED,
+			dal.Join("_devlake_pipelines p ON (p.id = _devlake_tasks.id)"),
+			dal.Where("p.status = ? AND _devlake_tasks.status != ?", models.TASK_RUNNING, models.TASK_COMPLETED),
 		)
 		db.UpdateColumn(
-			&models.Task{},
+			&models.DbPipeline{},
 			"status", models.TASK_FAILED,
-			dal.Where("status <> ?", models.TASK_COMPLETED),
+			dal.Where("status = ?", models.TASK_RUNNING),
 		)
 	}
 
