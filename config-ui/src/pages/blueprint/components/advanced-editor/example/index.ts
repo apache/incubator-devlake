@@ -27,7 +27,7 @@ import feishu from './feishu'
 import dbt from './dbt'
 import starrocks from './starrocks'
 
-export const DEFAULT_CONFIG = [
+export const EXAMPLE_CONFIG = [
   {
     id: 'general',
     name: 'Load General Configuration',

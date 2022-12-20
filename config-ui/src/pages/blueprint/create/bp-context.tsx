@@ -23,6 +23,8 @@ import type { ConnectionItemType } from '@/store'
 import { useConnection, ConnectionStatusEnum } from '@/store'
 import { operator } from '@/utils'
 
+import { validRawPlan } from '../utils'
+
 import type { BPContextType } from './types'
 import { FromEnum, ModeEnum } from './types'
 import * as API from './api'
@@ -88,18 +90,6 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
   const history = useHistory()
 
   const { connections } = useConnection()
-
-  const validRawPlan = (rp: string) => {
-    try {
-      const p = JSON.parse(rp)
-      if (p.flat().length === 0) {
-        return true
-      }
-      return false
-    } catch {
-      return true
-    }
-  }
 
   const error = useMemo(() => {
     switch (true) {

@@ -16,14 +16,17 @@
  *
  */
 
-import React, { useState, useMemo } from 'react'
-import { Icon, Colors } from '@blueprintjs/core'
+import React, { useState, useEffect, useMemo } from 'react'
+import { Icon, Button, Colors, Intent } from '@blueprintjs/core'
 import dayjs from 'dayjs'
 
 import { Table, ColumnType } from '@/components'
 import { getCron } from '@/config'
 import { DataScopeList } from '@/plugins'
 
+import { ModeEnum } from '../../types'
+import { validRawPlan } from '../../utils'
+import { AdvancedEditor } from '../../components'
 import type { BlueprintType, ConnectionItemType } from '../types'
 import {
   UpdateNameDialog,
@@ -50,6 +53,11 @@ export const Configuration = ({
 }: Props) => {
   const [type, setType] = useState<Type>()
   const [curConnection, setCurConnection] = useState<ConnectionItemType>()
+  const [rawPlan, setRawPlan] = useState('')
+
+  useEffect(() => {
+    setRawPlan(JSON.stringify(blueprint.plan, null, '  '))
+  }, [blueprint])
 
   const cron = useMemo(
     () => getCron(blueprint.isManual, blueprint.cronConfig),
@@ -81,6 +89,14 @@ export const Configuration = ({
             : cs
         )
       }
+    })
+  }
+
+  const handleUpdatePlan = async () => {
+    await onUpdate({
+      plan: !validRawPlan(rawPlan)
+        ? JSON.parse(rawPlan)
+        : JSON.stringify([[]], null, '  ')
     })
   }
 
@@ -197,10 +213,25 @@ export const Configuration = ({
           </div>
         </div>
       </div>
-      <div className='bottom'>
-        <h3>Data Scope and Transformation</h3>
-        <Table columns={columns} dataSource={connections} />
-      </div>
+      {blueprint.mode === ModeEnum.normal && (
+        <div className='bottom'>
+          <h3>Data Scope and Transformation</h3>
+          <Table columns={columns} dataSource={connections} />
+        </div>
+      )}
+      {blueprint.mode === ModeEnum.advanced && (
+        <div className='bottom'>
+          <h3>JSON Configuration</h3>
+          <AdvancedEditor value={rawPlan} onChange={setRawPlan} />
+          <div className='btns'>
+            <Button
+              intent={Intent.PRIMARY}
+              text='Save'
+              onClick={handleUpdatePlan}
+            />
+          </div>
+        </div>
+      )}
       {type === 'name' && (
         <UpdateNameDialog
           name={blueprint.name}

@@ -16,56 +16,14 @@
  *
  */
 
-import styled from 'styled-components'
-
-export const Container = styled.div``
-
-export const Content = styled.div`
-  margin-top: 36px;
-  margin-bottom: 24px;
-  font-size: 12px;
-
-  .card + .card {
-    margin-top: 24px;
-  }
-
-  h2 {
-    margin: 0;
-    padding: 0;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  h3 {
-    margin: 0 0 8px;
-    padding: 0;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  .back {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-    color: #7497f7;
-    cursor: pointer;
-
-    span.bp4-icon {
-      margin-right: 4px;
-      cursor: pointer;
+export const validRawPlan = (rp: string) => {
+  try {
+    const p = JSON.parse(rp)
+    if (p.flat().length === 0) {
+      return true
     }
+    return false
+  } catch {
+    return true
   }
-
-  .connection {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-
-    span {
-      margin-left: 8px;
-      font-size: 14px;
-      color: #292b3f;
-      font-weight: 600;
-    }
-  }
-`
+}

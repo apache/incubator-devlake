@@ -17,7 +17,8 @@
  */
 
 import { Plugins } from '@/plugins'
-import {ModeEnum} from "@/pages/blueprint/create/types";
+
+import { ModeEnum } from '../types'
 
 export type ConnectionItemType = {
   icon: string
@@ -35,6 +36,7 @@ export type BlueprintType = {
   isManual: boolean
   cronConfig: string
   skipOnFail: boolean
+  plan: any
   settings: {
     version: string
     createdDateAfter: null | string
