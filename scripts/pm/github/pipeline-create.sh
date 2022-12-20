@@ -18,6 +18,22 @@
 
 . "$(dirname $0)/../vars/active-vars.sh"
 
-pipeline_id=${1-"31"}
-
-curl -sv $LAKE_ENDPOINT/pipelines/$pipeline_id | jq
+curl -sv $LAKE_ENDPOINT/pipelines --data @- <<JSON | jq
+{
+    "name": "test-github",
+    "plan": [
+        [
+            {
+                "plugin": "github",
+                "subtasks": ["collectApiIssues"],
+                "options": {
+                    "connectionId": 1,
+                    "owner": "apache",
+                    "repo": "incubator-devlake"
+                }
+            }
+        ]
+    ],
+    "labels": [ "foobar" ]
+}
+JSON
