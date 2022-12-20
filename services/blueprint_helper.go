@@ -69,7 +69,7 @@ func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, error
 	if query.Label != "" {
 		clauses = append(clauses,
 			dal.Join("left join _devlake_blueprint_labels bl ON bl.blueprint_id = _devlake_blueprints.id"),
-			dal.Where("_devlake_blueprint_labels.name = ?", query.Label),
+			dal.Where("bl.name = ?", query.Label),
 		)
 	}
 
