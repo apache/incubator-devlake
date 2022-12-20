@@ -140,8 +140,8 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.E
 	}
 	if query.Label != "" {
 		clauses = append(clauses,
-			dal.Join("left join _devlake_pipeline_labels bl ON bl.pipeline_id = _devlake_pipelines.id"),
-			dal.Where(`_devlake_pipeline_labels.name = ?`, query.Label),
+			dal.Join("LEFT JOIN _devlake_pipeline_labels bl ON bl.pipeline_id = _devlake_pipelines.id"),
+			dal.Where("bl.name = ?", query.Label),
 		)
 	}
 
