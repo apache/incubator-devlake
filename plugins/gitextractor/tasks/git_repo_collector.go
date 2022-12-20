@@ -54,6 +54,7 @@ func CollectGitCommits(subTaskCtx core.SubTaskContext) errors.Error {
 	if count, err := repo.CountCommits(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get commit count")
 		subTaskCtx.SetProgress(0, -1)
+		return err
 	} else {
 		subTaskCtx.SetProgress(0, count)
 	}
@@ -65,6 +66,7 @@ func CollectGitBranches(subTaskCtx core.SubTaskContext) errors.Error {
 	if count, err := repo.CountBranches(subTaskCtx.GetContext()); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get branch count")
 		subTaskCtx.SetProgress(0, -1)
+		return err
 	} else {
 		subTaskCtx.SetProgress(0, count)
 	}
@@ -76,6 +78,7 @@ func CollectGitTags(subTaskCtx core.SubTaskContext) errors.Error {
 	if count, err := repo.CountTags(); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get tag count")
 		subTaskCtx.SetProgress(0, -1)
+		return err
 	} else {
 		subTaskCtx.SetProgress(0, count)
 	}
@@ -87,6 +90,7 @@ func CollectGitDiffLines(subTaskCtx core.SubTaskContext) errors.Error {
 	if count, err := repo.CountTags(); err != nil {
 		subTaskCtx.GetLogger().Error(err, "unable to get line content")
 		subTaskCtx.SetProgress(0, -1)
+		return err
 	} else {
 		subTaskCtx.SetProgress(0, count)
 	}
