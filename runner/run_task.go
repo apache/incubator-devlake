@@ -85,7 +85,7 @@ func RunTask(
 			}
 			dbe := db.UpdateColumns(task, []dal.DalSet{
 				{ColumnName: "status", Value: models.TASK_FAILED},
-				{ColumnName: "message", Value: lakeErr.Messages().Format()},
+				{ColumnName: "message", Value: lakeErr.Error()},
 				{ColumnName: "finished_at", Value: finishedAt},
 				{ColumnName: "spent_seconds", Value: spentSeconds},
 				{ColumnName: "failed_sub_task", Value: subTaskName},

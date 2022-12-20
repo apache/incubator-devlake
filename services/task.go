@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -301,7 +302,12 @@ func RunTasksStandalone(parentLogger core.Logger, taskIds []uint64) errors.Error
 		}
 	}
 	if len(errs) > 0 {
-		err = errors.Default.Combine(errs)
+		var sb strings.Builder
+		for _, e := range errs {
+			_, _ = sb.WriteString(e.Error())
+			_, _ = sb.WriteString("\n")
+		}
+		err = errors.Default.New(sb.String())
 	}
 	return errors.Convert(err)
 }
