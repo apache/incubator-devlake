@@ -212,7 +212,7 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	// Blueprint
 	err = tx.UpdateColumn(
 		&models.DbBlueprint{},
-		"ennable", projectInput.Enable,
+		"enable", projectInput.Enable,
 		dal.Where("project_name = ?", name),
 	)
 	if err != nil {
