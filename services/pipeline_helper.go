@@ -128,7 +128,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 // GetDbPipelines by query
 func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.Error) {
 	// process query parameters
-	clauses := []dal.Clause{}
+	clauses := []dal.Clause{dal.From(&models.DbPipeline{})}
 	if query.BlueprintId != 0 {
 		clauses = append(clauses, dal.Where("blueprint_id = ?", query.BlueprintId))
 	}
