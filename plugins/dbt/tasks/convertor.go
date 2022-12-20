@@ -55,11 +55,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	profilesPath := data.Options.ProfilesPath
 	profile := data.Options.Profile
 
-	err := errors.Convert(os.Chdir(projectPath))
-	if err != nil {
-		return err
-	}
-	_, err = errors.Convert01(os.Stat("profiles.yml"))
+	_, err := errors.Convert01(os.Stat(projectPath + "/profiles.yml"))
 	// if profiles.yml not exist, create it manually
 	if err != nil {
 		dbUrl := taskCtx.GetConfig("DB_URL")
@@ -108,13 +104,13 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 			config.Set(projectName+".outputs."+projectTarget+".user", dbUsername)
 			config.Set(projectName+".outputs."+projectTarget+".dbname", dbDataBase)
 		}
-		err = errors.Convert(config.WriteConfigAs("profiles.yml"))
+		err = errors.Convert(config.WriteConfigAs(projectPath + "/profiles.yml"))
 		if err != nil {
 			return err
 		}
 	}
 	// if package.yml exist, install dbt dependencies
-	_, err = errors.Convert01(os.Stat("packages.yml"))
+	_, err = errors.Convert01(os.Stat(projectPath + "/packages.yml"))
 	if err == nil {
 		cmd := exec.Command("dbt", "deps")
 		err = errors.Convert(cmd.Start())
@@ -172,6 +168,10 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	if profilesPath != "" {
 		dbtExecParams = append(dbtExecParams, "--profiles-dir")
 		dbtExecParams = append(dbtExecParams, profilesPath)
+	} else {
+		// default projectPath
+		dbtExecParams = append(dbtExecParams, "--profiles-dir")
+		dbtExecParams = append(dbtExecParams, projectPath)
 	}
 	if profile != "" {
 		dbtExecParams = append(dbtExecParams, "--profile")
