@@ -19,11 +19,13 @@ package impl
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"strconv"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitlab/api"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts"
@@ -156,6 +158,30 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
 		if err != nil {
 			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
+		}
+	}
+
+	if op.ProjectId != 0 {
+		var scope *models.GitlabProject
+		// support v100 & advance mode
+		// If we still cannot find the record in db, we have to request from remote server and save it to db
+		err = taskCtx.GetDal().First(&scope, dal.Where("connection_id = ? AND gitlab_id = ?", op.ConnectionId, op.ProjectId))
+		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+			var project *tasks.GitlabApiProject
+			project, err = api.GetApiProject(op, apiClient)
+			if err != nil {
+				return nil, err
+			}
+			logger.Debug(fmt.Sprintf("Current project: %d", project.GitlabId))
+			scope = tasks.ConvertProject(project)
+			scope.ConnectionId = op.ConnectionId
+			err = taskCtx.GetDal().CreateIfNotExist(&scope)
+			if err != nil {
+				return nil, err
+			}
+		}
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find project: %d", op.ProjectId))
 		}
 	}
 

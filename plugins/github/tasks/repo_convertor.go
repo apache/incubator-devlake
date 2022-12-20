@@ -84,8 +84,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
+				Name:         data.Options.Name,
 			},
 			Table: RAW_REPOSITORIES_TABLE,
 		},
@@ -95,7 +94,7 @@ func ConvertRepo(taskCtx core.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
 				},
-				Name:        fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name),
+				Name:        repository.Name,
 				Url:         repository.HTMLUrl,
 				Description: repository.Description,
 				ForkedFrom:  repository.ParentHTMLUrl,
@@ -103,16 +102,11 @@ func ConvertRepo(taskCtx core.SubTaskContext) errors.Error {
 				CreatedDate: repository.CreatedDate,
 				UpdatedDate: repository.UpdatedDate,
 			}
-			if repository.OwnerLogin != "" {
-				domainRepository.Name = fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name)
-			} else {
-				domainRepository.Name = repository.Name
-			}
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
 					Id: repoIdGen.Generate(data.Options.ConnectionId, repository.GithubId),
 				},
-				Name:        fmt.Sprintf("%s/%s", repository.OwnerLogin, repository.Name),
+				Name:        repository.Name,
 				Url:         fmt.Sprintf("%s/%s", repository.HTMLUrl, "issues"),
 				Description: repository.Description,
 				CreatedDate: repository.CreatedDate,

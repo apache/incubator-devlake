@@ -22,6 +22,7 @@ import { Dialog } from '@/components'
 import { SyncPolicy } from '@/plugins'
 
 import type { BlueprintType } from '../../types'
+import {ModeEnum} from "@/pages/blueprint/create/types";
 
 interface Props {
   blueprint: BlueprintType
@@ -81,6 +82,7 @@ export const UpdatePolicyDialog = ({
         isManual={isManual}
         cronConfig={cronConfig}
         skipOnFail={skipOnFail}
+        showTimeFilter={blueprint.mode == ModeEnum.normal}
         createdDateAfter={createdDateAfter}
         onChangeIsManual={setIsManual}
         onChangeCronConfig={setCronConfig}

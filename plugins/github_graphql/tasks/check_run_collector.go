@@ -117,8 +117,7 @@ func CollectCheckRun(taskCtx core.SubTaskContext) errors.Error {
 			Ctx: taskCtx,
 			Params: githubTasks.GithubApiParams{
 				ConnectionId: data.Options.ConnectionId,
-				Owner:        data.Options.Owner,
-				Repo:         data.Options.Repo,
+				Name:         data.Options.Name,
 			},
 			Table: RAW_CHECK_RUNS_TABLE,
 		},

@@ -71,6 +71,7 @@ func TestIssueDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&models.JiraWorklog{})
 	dataflowTester.FlushTabler(&models.JiraAccount{})
 	dataflowTester.FlushTabler(&models.JiraIssueType{})
+	dataflowTester.FlushTabler(&models.JiraIssueLabel{})
 	dataflowTester.Subtask(tasks.ExtractIssueTypesMeta, taskData)
 	dataflowTester.Subtask(tasks.ExtractIssuesMeta, taskData)
 	dataflowTester.VerifyTable(
@@ -97,6 +98,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"connection_id",
 			"issue_id",
 			"project_id",
+			"project_name",
 			"self",
 			"issue_key",
 			"summary",
@@ -183,6 +185,15 @@ func TestIssueDataFlow(t *testing.T) {
 		},
 	)
 
+	dataflowTester.VerifyTableWithRawData(
+		models.JiraIssueLabel{},
+		"./snapshot_tables/_tool_jira_issue_labels.csv",
+		[]string{
+			"connection_id",
+			"issue_id",
+			"label_name",
+		})
+
 	// verify issue conversion
 	dataflowTester.FlushTabler(&ticket.Issue{})
 	dataflowTester.FlushTabler(&ticket.BoardIssue{})
@@ -217,6 +228,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"assignee_name",
 			"severity",
 			"component",
+			"original_project",
 		},
 	)
 	dataflowTester.VerifyTable(

@@ -159,6 +159,7 @@ func (i Issue) toToolLayer(connectionId uint64) *models.JiraIssue {
 		ConnectionId:       connectionId,
 		IssueId:            i.ID,
 		ProjectId:          i.Fields.Project.ID,
+		ProjectName:        i.Fields.Project.Name,
 		Self:               i.Self,
 		IconURL:            i.Fields.Issuetype.IconURL,
 		IssueKey:           i.Key,

@@ -1,2 +1,2 @@
-id,created_at,updated_at,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark,name,url,status,started_date,ended_date,completed_date,original_board_id
-github:GithubMilestone:1:7856149,2022-10-12T08:09:19.542+00:00,2022-10-12T08:09:19.542+00:00,"{""ConnectionId"":1,""Owner"":""panjf2000"",""Repo"":""ants""}",_raw_github_milestones,109,,v0.11.0,https://api.github.com/repos/apache/incubator-devlake/milestones/7,open,2022-04-08T02:05:35.000+00:00,,,github:GithubRepo:1:134018330
+id,name,url,status,started_date,ended_date,completed_date,original_board_id,_raw_data_params,_raw_data_table,_raw_data_id,_raw_data_remark
+github:GithubMilestone:1:7856149,v0.11.0,https://api.github.com/repos/apache/incubator-devlake/milestones/7,open,2022-04-08T02:05:35.000+00:00,,,github:GithubRepo:1:134018330,"{""ConnectionId"":1,""Name"":""panjf2000/ants""}",_raw_github_milestones,109,

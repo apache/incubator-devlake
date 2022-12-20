@@ -43,7 +43,7 @@ export const MillerColumns = ({
   })
 
   useEffect(() => {
-    setSelectedIds(selectedItems.map((it) => it.fullName))
+    setSelectedIds(selectedItems.map((it) => it.jobFullName))
   }, [])
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export const MillerColumns = ({
       .filter((it) => seletedIds.includes(it.id) && it.type !== 'folder')
       .map((it: any) => ({
         connectionId,
-        fullName: it.name
+        jobFullName: it.name
       }))
 
     onChangeItems(result)

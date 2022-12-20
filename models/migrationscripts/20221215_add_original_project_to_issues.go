@@ -21,27 +21,26 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/github/models/migrationscripts/archived"
 )
 
-type githubRepo20221124 struct {
-	TransformationRuleId uint64
+type issue20221215 struct {
+	OriginalProject string `gorm:"type:varchar(255)"`
 }
 
-func (githubRepo20221124) TableName() string {
-	return "_tool_github_repos"
+func (issue20221215) TableName() string {
+	return "issues"
 }
 
-type addTransformationRule20221124 struct{}
+type addOriginalProject struct{}
 
-func (*addTransformationRule20221124) Up(basicRes core.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(basicRes, &githubRepo20221124{}, &archived.GithubTransformationRule{})
+func (script *addOriginalProject) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &issue20221215{})
 }
 
-func (*addTransformationRule20221124) Version() uint64 {
-	return 20221202095900
+func (*addOriginalProject) Version() uint64 {
+	return 20221215142543
 }
 
-func (*addTransformationRule20221124) Name() string {
-	return "add table _tool_github_transformation_rules, add transformation_rule_id to _tool_github_repos"
+func (*addOriginalProject) Name() string {
+	return "add original_project to issues"
 }

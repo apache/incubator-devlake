@@ -47,7 +47,12 @@ export const useRepoSelector = ({ connectionId }: UseRepoSelectorProps) => {
             from: ScopeFromEnum.REPO_SELECTOR,
             connectionId,
             githubId: it.id,
-            name: `${it.owner.login}/${it.name}`
+            name: `${it.owner.login}/${it.name}`,
+            ownerId: it.owner.id,
+            language: it.language,
+            description: it.description,
+            cloneUrl: it.clone_url,
+            HTMLUrl: it.html_url
           }))
         )
       } finally {

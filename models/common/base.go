@@ -29,9 +29,9 @@ type Model struct {
 }
 
 type NoPKModel struct {
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-	RawDataOrigin
+	CreatedAt     time.Time `json:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt"`
+	RawDataOrigin `swaggerignore:"true"`
 }
 
 // embedded fields for tool layer tables

@@ -79,8 +79,9 @@ func TestIncidentDataFlow(t *testing.T) {
 	dataflowTester.VerifyTableWithOptions(
 		ticket.Issue{},
 		e2ehelper.TableOptions{
-			CSVRelPath:  "./snapshot_tables/issues.csv",
-			IgnoreTypes: []any{common.NoPKModel{}},
+			CSVRelPath:   "./snapshot_tables/issues.csv",
+			IgnoreTypes:  []any{common.NoPKModel{}},
+			IgnoreFields: []string{"original_project"},
 		},
 	)
 }

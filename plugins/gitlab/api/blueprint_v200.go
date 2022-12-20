@@ -18,14 +18,15 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/utils"
-
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
@@ -33,7 +34,9 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitlab/models"
+	"github.com/apache/incubator-devlake/plugins/gitlab/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/utils"
 )
 
 func MakePipelinePlanV200(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV200, syncPolicy *core.BlueprintSyncPolicy) (core.PipelinePlan, []core.Scope, errors.Error) {
@@ -209,4 +212,25 @@ func GetTransformationRuleByRepo(repo *models.GitlabProject) (*models.GitlabTran
 	}
 
 	return transformationRules, nil
+}
+
+func GetApiProject(op *tasks.GitlabOptions, apiClient helper.ApiClientGetter) (*tasks.GitlabApiProject, errors.Error) {
+	repoRes := &tasks.GitlabApiProject{}
+	res, err := apiClient.Get(fmt.Sprintf("projects/%d", op.ProjectId), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code when requesting repo detail from %s", res.Request.URL.String()))
+	}
+	body, err := errors.Convert01(io.ReadAll(res.Body))
+	if err != nil {
+		return nil, err
+	}
+	err = errors.Convert(json.Unmarshal(body, repoRes))
+	if err != nil {
+		return nil, err
+	}
+	return repoRes, nil
 }

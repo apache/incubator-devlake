@@ -580,7 +580,7 @@ function useConnectionManager(
           })
       )
       if (!updateMode) {
-        history.replace(`/integrations/${provider?.id}`)
+        history.replace(`/connections/${provider?.id}`)
         notifyConnectionSaveSuccess()
       } else {
         notifyConnectionSaveSuccess()

@@ -36,8 +36,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) errors.Error {
 		Ctx: taskCtx,
 		Params: GithubApiParams{
 			ConnectionId: data.Options.ConnectionId,
-			Owner:        data.Options.Owner,
-			Repo:         data.Options.Repo,
+			Name:         data.Options.Name,
 		},
 		Table: RAW_COMMENTS_TABLE,
 	}, data.CreatedDateAfter)
@@ -51,7 +50,7 @@ func CollectApiComments(taskCtx core.SubTaskContext) errors.Error {
 		PageSize:    100,
 		Incremental: incremental,
 
-		UrlTemplate: "repos/{{ .Params.Owner }}/{{ .Params.Repo }}/issues/comments",
+		UrlTemplate: "repos/{{ .Params.Name }}/issues/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("state", "all")

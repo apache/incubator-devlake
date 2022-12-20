@@ -18,6 +18,10 @@ limitations under the License.
 package api
 
 import (
+	"encoding/json"
+	"fmt"
+	"gorm.io/gorm"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -26,8 +30,9 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
+	"github.com/apache/incubator-devlake/plugins/jira/tasks"
+	"github.com/apache/incubator-devlake/plugins/jira/tasks/apiv2models"
 	"github.com/mitchellh/mapstructure"
-	"gorm.io/gorm"
 )
 
 type apiBoard struct {
@@ -210,4 +215,25 @@ func verifyBoard(board *models.JiraBoard) errors.Error {
 		return errors.BadInput.New("invalid boardId")
 	}
 	return nil
+}
+
+func GetApiJira(op *tasks.JiraOptions, apiClient helper.ApiClientGetter) (*apiv2models.Board, errors.Error) {
+	boardRes := &apiv2models.Board{}
+	res, err := apiClient.Get(fmt.Sprintf("agile/1.0/board/%d", op.BoardId), nil, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code when requesting repo detail from %s", res.Request.URL.String()))
+	}
+	body, err := errors.Convert01(io.ReadAll(res.Body))
+	if err != nil {
+		return nil, err
+	}
+	err = errors.Convert(json.Unmarshal(body, boardRes))
+	if err != nil {
+		return nil, err
+	}
+	return boardRes, nil
 }

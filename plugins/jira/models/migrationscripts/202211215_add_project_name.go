@@ -21,27 +21,26 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/gitlab/models/migrationscripts/archived"
 )
 
-type gitlabProject20221125 struct {
-	TransformationRuleId uint64
+type jiraIssue20221215 struct {
+	ProjectName string `gorm:"type:varchar(255)"`
 }
 
-func (gitlabProject20221125) TableName() string {
-	return "_tool_gitlab_projects"
+func (jiraIssue20221215) TableName() string {
+	return "_tool_jira_issues"
 }
 
-type addTransformationRule20221125 struct{}
+type addProjectName20221215 struct{}
 
-func (*addTransformationRule20221125) Up(basicRes core.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(basicRes, &gitlabProject20221125{}, &archived.GitlabTransformationRule{})
+func (script *addProjectName20221215) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes, &jiraIssue20221215{})
 }
 
-func (*addTransformationRule20221125) Version() uint64 {
-	return 20221125102500
+func (*addProjectName20221215) Version() uint64 {
+	return 20221215142316
 }
 
-func (*addTransformationRule20221125) Name() string {
-	return "add table _tool_gitlab_transformation_rules, add transformation_rule_id to _tool_gitlab_projects"
+func (*addProjectName20221215) Name() string {
+	return "add project_name to _tool_jira_issues"
 }

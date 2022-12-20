@@ -34,8 +34,7 @@ func TestAccountDataFlow(t *testing.T) {
 	taskData := &tasks.GithubTaskData{
 		Options: &tasks.GithubOptions{
 			ConnectionId: 1,
-			Owner:        "panjf2000",
-			Repo:         "ants",
+			Name:         "panjf2000/ants",
 			GithubId:     134018330,
 		},
 	}
@@ -88,7 +87,7 @@ func TestAccountDataFlow(t *testing.T) {
 	)
 
 	// ConvertAccountsMeta only convert the account in this repo
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_github_repo_accounts.csv", &models.GithubRepoAccount{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_github_repo_accounts.csv", &models.GithubRepoAccount{})
 
 	// verify converter
 	dataflowTester.FlushTabler(&crossdomain.Account{})

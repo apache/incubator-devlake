@@ -32,6 +32,84 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+func TestGetJob(t *testing.T) {
+	const testPageSize int = 100
+	var remoteData []*models.Job = []*models.Job{
+		{
+			Name:        "free",
+			Color:       "blue",
+			Class:       "hudson.model.FreeStyleProject",
+			Base:        "",
+			URL:         "https://test.nddtf.com/job/dir-test/job/dir-test-2/job/free/",
+			Description: "",
+		},
+		{
+			Name:        "free1",
+			Color:       "blue",
+			Class:       "hudson.model.FreeStyleProject",
+			Base:        "",
+			URL:         "https://test.nddtf.com/job/dir-test/job/dir-test-2/job/free1/",
+			Description: "",
+		},
+	}
+
+	var expectJobs []*models.Job = []*models.Job{
+		{
+			FullName:    "dir-test/dir-test-2/free1",
+			Path:        "job/dir-test/job/dir-test-2/",
+			Name:        "free1",
+			Color:       "blue",
+			Class:       "hudson.model.FreeStyleProject",
+			Base:        "",
+			URL:         "https://test.nddtf.com/job/dir-test/job/dir-test-2/job/free1/",
+			Description: "",
+		},
+	}
+
+	mockApiClient := mocks.NewApiClientGetter(t)
+
+	var data struct {
+		Jobs []json.RawMessage `json:"jobs"`
+	}
+
+	// jobs
+	data.Jobs = []json.RawMessage{}
+	js, err1 := json.Marshal(remoteData[0])
+	assert.Nil(t, err1)
+	data.Jobs = append(data.Jobs, js)
+
+	js, err1 = json.Marshal(remoteData[1])
+	assert.Nil(t, err1)
+	data.Jobs = append(data.Jobs, js)
+
+	js, err1 = json.Marshal(data)
+	assert.Nil(t, err1)
+
+	res := &http.Response{}
+	res.Body = io.NopCloser(bytes.NewBuffer(js))
+	res.StatusCode = http.StatusOK
+
+	mockApiClient.On("Get", mock.Anything, mock.Anything, mock.Anything).Return(res, nil).Once()
+
+	basicRes = unithelper.DummyBasicRes(func(mockDal *mocks.Dal) {})
+
+	var jobs []*models.Job
+
+	var paths []*models.Job
+
+	err := GetJob(mockApiClient, "job/dir-test/job/dir-test-2/", "free1", "dir-test/dir-test-2/free1", testPageSize, func(job *models.Job, isPath bool) errors.Error {
+		if isPath {
+			paths = append(paths, job)
+		} else {
+			jobs = append(jobs, job)
+		}
+		return nil
+	})
+
+	assert.Equal(t, err, nil)
+	assert.Equal(t, expectJobs, jobs)
+}
+
 func TestGetAllJobs(t *testing.T) {
 	const testPageSize int = 100
 

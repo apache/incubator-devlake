@@ -18,5 +18,5 @@
 
 export type ScopeItemType = {
   connectionId: ID
-  fullName: string
+  jobFullName: string
 }
