@@ -15,14 +15,41 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package core
+package services
 
-import (
-	"github.com/apache/incubator-devlake/errors"
-)
+import "github.com/apache/incubator-devlake/errors"
 
-type PluginHandle interface {
-	// When the projectName in the framework layer is changed
-	// this interface will be checked and this method will be called to synchronize the projectName of each plugin
-	RenameProjectName(oldName string, newName string) errors.Error
+type Pagination struct {
+	Page     int `form:"page"`
+	PageSize int `form:"pageSize"`
+}
+
+func (p *Pagination) GetPage() int {
+	if p.Page < 1 {
+		return 1
+	}
+	return p.Page
+}
+
+func (p *Pagination) GetPageSize() int {
+	return p.GetPageSizeOr(50)
+}
+
+func (p *Pagination) GetPageSizeOr(defaultVal int) int {
+	if p.PageSize < 1 {
+		return defaultVal
+	}
+	return p.PageSize
+}
+
+func (p *Pagination) GetSkip() int {
+	return (p.GetPage() - 1) * p.GetPageSize()
+}
+
+func VerifyStruct(v interface{}) errors.Error {
+	err := vld.Struct(v)
+	if err != nil {
+		return errors.BadInput.Wrap(err, "data verification failed")
+	}
+	return nil
 }

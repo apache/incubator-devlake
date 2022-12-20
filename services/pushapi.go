@@ -17,13 +17,16 @@ limitations under the License.
 
 package services
 
-import "github.com/apache/incubator-devlake/errors"
+import (
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
+)
 
 // InsertRow FIXME ...
 func InsertRow(table string, rows []map[string]interface{}) (int64, errors.Error) {
-	tx := db.Table(table).Create(rows)
-	if tx.Error != nil {
-		return 0, errors.Convert(tx.Error)
+	err := db.Create(rows, dal.From(table))
+	if err != nil {
+		return 0, err
 	}
-	return tx.RowsAffected, nil
+	return 1, nil
 }

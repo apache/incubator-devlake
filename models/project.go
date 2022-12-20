@@ -20,7 +20,7 @@ package models
 import "github.com/apache/incubator-devlake/models/common"
 
 type BaseProject struct {
-	Name        string `json:"name" mapstructure:"name" gorm:"primaryKey;type:varchar(255)"`
+	Name        string `json:"name" mapstructure:"name" gorm:"primaryKey;type:varchar(255)" validate:"required"`
 	Description string `json:"description" mapstructure:"description" gorm:"type:text"`
 }
 
@@ -34,7 +34,7 @@ func (Project) TableName() string {
 }
 
 type BaseMetric struct {
-	PluginName   string `json:"pluginName" mapstructure:"pluginName" gorm:"primaryKey;type:varchar(255)"`
+	PluginName   string `json:"pluginName" mapstructure:"pluginName" gorm:"primaryKey;type:varchar(255)" validate:"required"`
 	PluginOption string `json:"pluginOption" mapstructure:"pluginOption" gorm:"type:text"`
 	Enable       bool   `json:"enable" mapstructure:"enable" gorm:"type:boolean"`
 }

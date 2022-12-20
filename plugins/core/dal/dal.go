@@ -140,8 +140,10 @@ type Dal interface {
 	Session(config SessionConfig) Dal
 	// Begin create a new transaction
 	Begin() Transaction
-	// checking if the sql error is not found.
+	// IsErrorNotFound returns true if error is record-not-found
 	IsErrorNotFound(err errors.Error) bool
+	// IsDuplicationError returns true if error is duplicate-error
+	IsDuplicationError(err errors.Error) bool
 }
 
 type Transaction interface {

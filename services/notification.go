@@ -22,12 +22,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"io"
 	"math/rand"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/models"
 )
@@ -78,7 +79,7 @@ func (n *NotificationService) sendNotification(notificationType models.Notificat
 	nonce := randSeq(16)
 	notification.Nonce = nonce
 
-	err = db.Save(&notification).Error
+	err = db.Create(&notification)
 	if err != nil {
 		return errors.Convert(err)
 	}
@@ -97,7 +98,7 @@ func (n *NotificationService) sendNotification(notificationType models.Notificat
 		return errors.Convert(err)
 	}
 	notification.Response = string(respBody)
-	return errors.Convert(db.Save(&notification).Error)
+	return db.Update(notification)
 }
 
 func (n *NotificationService) signature(input, nouce string) string {

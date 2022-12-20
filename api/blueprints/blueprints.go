@@ -111,26 +111,26 @@ func Get(c *gin.Context) {
 	shared.ApiOutputSuccess(c, blueprint, http.StatusOK)
 }
 
-// @Summary delete blueprints
-// @Description Delete BluePrints
-// @Tags framework/blueprints
-// @Param blueprintId path string true "blueprintId"
-// @Success 200
-// @Failure 400  {object} shared.ApiBody "Bad Request"
-// @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /blueprints/{blueprintId} [delete]
-func Delete(c *gin.Context) {
-	pipelineId := c.Param("blueprintId")
-	id, err := strconv.ParseUint(pipelineId, 10, 64)
-	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad blueprintID format supplied"))
-		return
-	}
-	err = services.DeleteBlueprint(id)
-	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error deleting blueprint"))
-	}
-}
+// // @Summary delete blueprints
+// // @Description Delete BluePrints
+// // @Tags framework/blueprints
+// // @Param blueprintId path string true "blueprintId"
+// // @Success 200
+// // @Failure 400  {object} shared.ApiBody "Bad Request"
+// // @Failure 500  {object} shared.ApiBody "Internal Error"
+// // @Router /blueprints/{blueprintId} [delete]
+// func Delete(c *gin.Context) {
+// 	pipelineId := c.Param("blueprintId")
+// 	id, err := strconv.ParseUint(pipelineId, 10, 64)
+// 	if err != nil {
+// 		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad blueprintID format supplied"))
+// 		return
+// 	}
+// 	err = services.DeleteBlueprint(id)
+// 	if err != nil {
+// 		shared.ApiOutputError(c, errors.Default.Wrap(err, "error deleting blueprint"))
+// 	}
+// }
 
 // @Summary patch blueprints
 // @Description patch blueprints

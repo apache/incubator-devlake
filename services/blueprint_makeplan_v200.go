@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 // GeneratePlanJsonV200 generates pipeline plan according v2.0.0 definition
@@ -41,15 +42,15 @@ func GeneratePlanJsonV200(
 	}
 	// refresh project_mapping table to reflect project/scopes relationship
 	if len(scopes) > 0 {
-		e := db.Where("project_name = ?", projectName).Delete(&crossdomain.ProjectMapping{}).Error
-		if e != nil {
-			return nil, errors.Default.Wrap(e, fmt.Sprintf("projectName:[%s]", projectName))
+		err = db.Delete(&crossdomain.ProjectMapping{}, dal.Where("project_name = ?", projectName))
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("projectName:[%s]", projectName))
 		}
 		for _, scope := range scopes {
-			e = basicRes.GetDal().CreateOrUpdate(scope)
-			if e != nil {
+			err = db.CreateOrUpdate(scope)
+			if err != nil {
 				scopeInfo := fmt.Sprintf("[Id:%s][Name:%s][TableName:%s]", scope.ScopeId(), scope.ScopeName(), scope.TableName())
-				return nil, errors.Default.Wrap(e, fmt.Sprintf("failed to create scopes:[%s]", scopeInfo))
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to create scopes:[%s]", scopeInfo))
 			}
 		}
 	}

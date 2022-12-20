@@ -22,112 +22,260 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
-	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 // ProjectQuery used to query projects as the api project input
 type ProjectQuery struct {
-	Page     int `form:"page"`
-	PageSize int `form:"pageSize"`
+	Pagination
+}
+
+// GetProjects returns a paginated list of Projects based on `query`
+func GetProjects(query *ProjectQuery) ([]*models.Project, int64, errors.Error) {
+	// verify input
+	if err := VerifyStruct(query); err != nil {
+		return nil, 0, err
+	}
+	clauses := []dal.Clause{
+		dal.From(&models.Project{}),
+	}
+
+	count, err := db.Count(clauses...)
+	if err != nil {
+		return nil, 0, errors.Default.Wrap(err, "error getting DB count of project")
+	}
+
+	clauses = append(clauses,
+		dal.Orderby("created_at DESC"),
+		dal.Offset(query.GetSkip()),
+		dal.Limit(query.GetPageSize()),
+	)
+	projects := make([]*models.Project, 0)
+	err = db.All(projects, clauses...)
+	if err != nil {
+		return nil, 0, errors.Default.Wrap(err, "error finding DB project")
+	}
+
+	return projects, count, nil
 }
 
 // CreateProject accepts a project instance and insert it to database
-func CreateProject(project *models.Project) errors.Error {
-	if project.Name == "" {
-		return errors.Default.New("can not use empty name for project")
+func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProject, errors.Error) {
+	// verify input
+	if err := VerifyStruct(projectInput); err != nil {
+		return nil, err
 	}
 
-	/*project, err := encryptProject(project)
-	if err != nil {
-		return err
-	}*/
-	err := CreateDbProject(project)
-	if err != nil {
-		return err
-	}
-	return nil
-}
+	// create transaction to updte multiple tables
+	var err errors.Error
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil || err != nil {
+			tx.Rollback()
+		}
+	}()
 
-// CreateProjectMetric accepts a ProjectMetric instance and insert it to database
-func CreateProjectMetric(projectMetric *models.ProjectMetric) errors.Error {
-	/*enProjectMetric, err := encryptProjectMetric(projectMetric)
+	// create project first
+	project := &models.Project{}
+	project.BaseProject = projectInput.BaseProject
+	err = db.Create(project)
 	if err != nil {
-		return err
-	}*/
-	err := CreateDbProjectMetric(projectMetric)
-	if err != nil {
-		return err
+		if db.IsDuplicationError(err) {
+			return nil, errors.BadInput.New(fmt.Sprintf("A project with name [%s] already exists", project.Name))
+		}
+		return nil, errors.Default.Wrap(err, "error creating DB project")
 	}
-	return nil
+
+	// check if need flush the Metrics
+	if projectInput.Metrics != nil {
+		err = refreshProjectMetrics(tx, projectInput)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// all good, commit transaction
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return makeProjectOutput(&projectInput.BaseProject)
 }
 
 // GetProject returns a Project
-func GetProject(name string) (*models.Project, errors.Error) {
-	project, err := GetDbProject(name)
-	if err != nil {
-		return nil, errors.Convert(err)
+func GetProject(name string) (*models.ApiOutputProject, errors.Error) {
+	// verify input
+	if name == "" {
+		return nil, errors.BadInput.New("project name is missing")
 	}
 
-	/*project, err = decryptProject(project)
+	// load project
+	project := &models.Project{}
+	err := db.First(project, dal.Where("name = ?", name))
 	if err != nil {
-		return nil, errors.Convert(err)
-	}*/
+		if db.IsErrorNotFound(err) {
+			return nil, errors.NotFound.Wrap(err, fmt.Sprintf("could not find project [%s] in DB", name))
+		}
+		return nil, errors.Default.Wrap(err, "error getting project from DB")
+	}
 
-	return project, nil
+	// convert to api output
+	return makeProjectOutput(&project.BaseProject)
 }
 
-// GetProjectMetric returns a ProjectMetric
-func GetProjectMetric(projectName string, pluginName string) (*models.ProjectMetric, errors.Error) {
-	projectMetric, err := GetDbProjectMetric(projectName, pluginName)
+// PatchProject FIXME ...
+func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputProject, errors.Error) {
+	projectInput := &models.ApiInputProject{}
+
+	// load input
+	err := helper.DecodeMapStruct(body, projectInput)
 	if err != nil {
-		return nil, errors.Convert(err)
+		return nil, err
 	}
 
-	/*projectMetric, err = decryptProjectMetric(projectMetric)
-	if err != nil {
-		return nil, errors.Convert(err)
-	}*/
+	// wrap all operation inside a transaction
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil || err != nil {
+			tx.Rollback()
+		}
+	}()
 
-	return projectMetric, nil
+	project := &models.Project{}
+	err = tx.First(project, dal.Where("name = ?", name), dal.Lock(true, false))
+	if err != nil {
+		return nil, err
+	}
+
+	// allowed to changed the name
+	if projectInput.Name == "" {
+		projectInput.Name = name
+	}
+	project.BaseProject = projectInput.BaseProject
+
+	// name changed, updates the related entities as well
+	if name != project.Name {
+		// ProjectMetric
+		err = tx.UpdateColumn(
+			&models.ProjectMetric{},
+			"project_name", project.Name,
+			dal.Where("project_name = ?", name),
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// ProjectPrMetric
+		err = tx.UpdateColumn(
+			&crossdomain.ProjectPrMetric{},
+			"project_name", project.Name,
+			dal.Where("project_name = ?", name),
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// ProjectIssueMetric
+		err = tx.UpdateColumn(
+			&crossdomain.ProjectIssueMetric{},
+			"project_name", project.Name,
+			dal.Where("project_name = ?", name),
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// ProjectMapping
+		err = tx.UpdateColumn(
+			&crossdomain.ProjectMapping{},
+			"project_name", project.Name,
+			dal.Where("project_name = ?", name),
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// Blueprint
+		err = tx.UpdateColumn(
+			&models.DbBlueprint{},
+			"project_name", project.Name,
+			dal.Where("project_name = ?", name),
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Blueprint
+	err = tx.UpdateColumn(
+		&models.DbBlueprint{},
+		"ennable", projectInput.Enable,
+		dal.Where("project_name = ?", name),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// refresh project metrics if needed
+	if projectInput.Metrics != nil {
+		err = refreshProjectMetrics(tx, projectInput)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// update project itself
+	err = tx.Update(project)
+	if err != nil {
+		return nil, err
+	}
+
+	// commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	// all good, render output
+	return makeProjectOutput(&projectInput.BaseProject)
 }
 
-// FlushProjectMetrics remove all Project metrics by project name and create new metrics by baseMetrics
-func FlushProjectMetrics(projectName string, baseMetrics *[]models.BaseMetric) errors.Error {
-	err := removeAllDbProjectMetricsByProjectName(projectName)
+func refreshProjectMetrics(tx dal.Transaction, projectInput *models.ApiInputProject) errors.Error {
+	err := tx.Delete(&models.ProjectMetric{}, dal.Where("project_name = ?", projectInput.Name))
 	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("error to removeAllDbProjectMetricsByProjectName for %s", projectName))
+		return err
 	}
 
-	for _, baseMetric := range *baseMetrics {
-		err = CreateProjectMetric(&models.ProjectMetric{
+	for _, baseMetric := range *projectInput.Metrics {
+		err = tx.Create(&models.ProjectMetric{
 			BaseProjectMetric: models.BaseProjectMetric{
-				ProjectName: projectName,
+				ProjectName: projectInput.Name,
 				BaseMetric:  baseMetric,
 			},
 		})
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("failed to  CreateProjectMetric for [%s][%s]", projectName, baseMetric.PluginName))
+			return err
 		}
 	}
-
 	return nil
 }
 
-// LoadBluePrintAndMetrics load the blueprint and ProjectMetrics for projectOutputv
-func LoadBluePrintAndMetrics(projectOutput *models.ApiOutputProject) errors.Error {
-	var err errors.Error
-
-	// load Metrics
-	projectMetrics, count, err := GetProjectMetrics(projectOutput.Name)
+func makeProjectOutput(baseProject *models.BaseProject) (*models.ApiOutputProject, errors.Error) {
+	projectOutput := &models.ApiOutputProject{}
+	projectOutput.BaseProject = *baseProject
+	// load project metrics
+	projectMetrics := make([]models.ProjectMetric, 0)
+	err := db.All(&projectMetrics, dal.Where("project_name = ?", projectOutput.Name))
 	if err != nil {
-		return errors.Default.Wrap(err, "Failed to get project metrics by project")
+		return nil, errors.Default.Wrap(err, "failed to load project metrics")
 	}
-	if count == 0 {
-		projectOutput.Metrics = nil
-	} else {
-		baseMetric := make([]models.BaseMetric, len(*projectMetrics))
-		for i, projectMetric := range *projectMetrics {
+	// convert metric to api output
+	if len(projectMetrics) > 0 {
+		baseMetric := make([]models.BaseMetric, len(projectMetrics))
+		for i, projectMetric := range projectMetrics {
 			baseMetric[i] = projectMetric.BaseMetric
 		}
 		projectOutput.Metrics = &baseMetric
@@ -136,172 +284,7 @@ func LoadBluePrintAndMetrics(projectOutput *models.ApiOutputProject) errors.Erro
 	// load blueprint
 	projectOutput.Blueprint, err = GetBlueprintByProjectName(projectOutput.Name)
 	if err != nil {
-		return errors.Default.Wrap(err, "Error to get blueprint by project")
+		return nil, errors.Default.Wrap(err, "Error to get blueprint by project")
 	}
-
-	return nil
-}
-
-// GetProjectMetrics returns all ProjectMetric of the project
-func GetProjectMetrics(projectName string) (*[]models.ProjectMetric, int64, errors.Error) {
-	projectMetrics, count, err := GetDbProjectMetrics(projectName)
-	if err != nil {
-		return nil, 0, errors.Convert(err)
-	}
-
-	/*for i, projectMetric := range projectMetrics {
-		projectMetrics[i], err = decryptProjectMetric(projectMetric)
-		if err != nil {
-			return nil, 0, err
-		}
-	}*/
-
-	return projectMetrics, count, nil
-}
-
-// GetProjects returns a paginated list of Projects based on `query`
-func GetProjects(query *ProjectQuery) ([]*models.Project, int64, errors.Error) {
-	projects, count, err := GetDbProjects(query)
-	if err != nil {
-		return nil, 0, errors.Convert(err)
-	}
-
-	/*for i, project := range projects {
-		projects[i], err = decryptProject(project)
-		if err != nil {
-			return nil, 0, err
-		}
-	}*/
-
-	return projects, count, nil
-}
-
-// PatchProject FIXME ...
-func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputProject, errors.Error) {
-	projectInput := &models.ApiInputProject{}
-	projectOutput := &models.ApiOutputProject{}
-
-	// load record from db
-	project, err := GetProject(name)
-	if err != nil {
-		return nil, err
-	}
-
-	err = helper.DecodeMapStruct(body, projectInput)
-	if err != nil {
-		return nil, err
-	}
-	// allowed to changed the name
-	if projectInput.Name == "" {
-		projectInput.Name = name
-	}
-	project.BaseProject = projectInput.BaseProject
-
-	/*enProject, err := encryptProject(project)
-	if err != nil {
-		return nil, err
-	}*/
-
-	// check if the name has changed, with the project name changing, we have to change the other table at the same time as follows
-	if name != project.Name {
-		//project name
-		err = RenameProjectName(name, project.Name)
-		if err != nil {
-			return nil, err
-		}
-
-		//ProjectMetric
-		err = RenameProjectNameForProjectMetric(name, project.Name)
-		if err != nil {
-			return nil, err
-		}
-
-		//ProjectPrMetric
-		err = RenameProjectNameForProjectPrMetric(name, project.Name)
-		if err != nil {
-			return nil, err
-		}
-
-		//ProjectMapping
-		err = RenameProjectNameForProjectIssueMetric(name, project.Name)
-		if err != nil {
-			return nil, err
-		}
-
-		//Blueprint
-		err = RenameProjectNameForBlueprint(name, project.Name)
-		if err != nil {
-			return nil, err
-		}
-
-		// rename the project for each plugin
-		err = core.TraversalPlugin(func(name string, plugin core.PluginMeta) errors.Error {
-			if handle, ok := plugin.(core.PluginHandle); ok {
-				return handle.RenameProjectName(name, project.Name)
-			}
-			return nil
-		})
-		if err != nil {
-			return nil, errors.Internal.Wrap(err, "error to rename project name for plugins")
-		}
-	}
-
-	// save
-	err = SaveDbProject(project)
-	if err != nil {
-		return nil, errors.Internal.Wrap(err, "error saving project")
-	}
-
-	// check if need to changed the blueprint setting
-	if projectInput.Enable != nil {
-		_, err = PatchBlueprintEnableByProjectName(projectInput.Name, *projectInput.Enable)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "Failed to set if project enable")
-		}
-	}
-
-	// check if need flush the Metrics
-	if projectInput.Metrics != nil {
-		err = FlushProjectMetrics(projectInput.Name, projectInput.Metrics)
-		if err != nil {
-			return nil, errors.Default.Wrap(err, "Failed to flush project metrics")
-		}
-	}
-
-	projectOutput.BaseProject = projectInput.BaseProject
-	err = LoadBluePrintAndMetrics(projectOutput)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, fmt.Sprintf("Failed to LoadBluePrintAndMetrics on PatchProject for %s", projectOutput.Name))
-	}
-
-	// done
-	return projectOutput, nil
-}
-
-// PatchProjectMetric FIXME ...
-func PatchProjectMetric(projectName string, pluginName string, body map[string]interface{}) (*models.ProjectMetric, errors.Error) {
-	// load record from db
-	projectMetric, err := GetDbProjectMetric(projectName, pluginName)
-	if err != nil {
-		return nil, err
-	}
-
-	err = helper.DecodeMapStruct(body, projectMetric)
-	if err != nil {
-		return nil, err
-	}
-
-	/*enProjectMetric, err := encryptProjectMetric(projectMetric)
-	if err != nil {
-		return nil, err
-	}*/
-
-	// save
-	err = SaveDbProjectMetric(projectMetric)
-	if err != nil {
-		return nil, errors.Internal.Wrap(err, "error saving project")
-	}
-
-	// done
-	return projectMetric, nil
+	return projectOutput, err
 }

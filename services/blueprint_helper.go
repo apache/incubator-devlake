@@ -25,6 +25,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"gorm.io/gorm"
 )
 
@@ -32,14 +33,14 @@ import (
 func SaveDbBlueprint(dbBlueprint *models.DbBlueprint) errors.Error {
 	var err error
 	if dbBlueprint.ID != 0 {
-		err = db.Save(&dbBlueprint).Error
+		err = db.Update(&dbBlueprint)
 	} else {
-		err = db.Create(&dbBlueprint).Error
+		err = db.Create(&dbBlueprint)
 	}
 	if err != nil {
 		return errors.Default.Wrap(err, "error creating DB blueprint")
 	}
-	err = db.Delete(&models.DbBlueprintLabel{}, `blueprint_id = ?`, dbBlueprint.ID).Error
+	err = db.Delete(&models.DbBlueprintLabel{}, dal.Where(`blueprint_id = ?`, dbBlueprint.ID))
 	if err != nil {
 		return errors.Default.Wrap(err, "error delete DB blueprint's old labelModels")
 	}
@@ -47,7 +48,7 @@ func SaveDbBlueprint(dbBlueprint *models.DbBlueprint) errors.Error {
 		for i := range dbBlueprint.Labels {
 			dbBlueprint.Labels[i].BlueprintId = dbBlueprint.ID
 		}
-		err = db.Create(&dbBlueprint.Labels).Error
+		err = db.Create(&dbBlueprint.Labels)
 		if err != nil {
 			return errors.Default.Wrap(err, "error creating DB blueprint's labelModels")
 		}
@@ -57,45 +58,45 @@ func SaveDbBlueprint(dbBlueprint *models.DbBlueprint) errors.Error {
 
 // GetDbBlueprints returns a paginated list of Blueprints based on `query`
 func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, errors.Error) {
-	dbBlueprints := make([]*models.DbBlueprint, 0)
-	dbQuery := db.Model(dbBlueprints).Order("id DESC")
+	// process query parameters
+	clauses := []dal.Clause{dal.From(&models.DbBlueprint{})}
 	if query.Enable != nil {
-		dbQuery = dbQuery.Where("enable = ?", *query.Enable)
+		clauses = append(clauses, dal.Where("enable = ?", *query.Enable))
 	}
 	if query.IsManual != nil {
-		dbQuery = dbQuery.Where("is_manual = ?", *query.IsManual)
+		clauses = append(clauses, dal.Where("is_manual = ?", *query.IsManual))
 	}
 	if query.Label != "" {
-		dbQuery = dbQuery.
-			Joins(`left join _devlake_blueprint_labels ON _devlake_blueprint_labels.blueprint_id = _devlake_blueprints.id`).
-			Where(`_devlake_blueprint_labels.name = ?`, query.Label)
+		clauses = append(clauses,
+			dal.Join("left join _devlake_blueprint_labels bl ON bl.blueprint_id = _devlake_blueprints.id"),
+			dal.Where("_devlake_blueprint_labels.name = ?", query.Label),
+		)
 	}
 
-	var count int64
-	err := dbQuery.Count(&count).Error
+	// count total records
+	count, err := db.Count(clauses...)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// load paginated blueprints from database
+	clauses = append(clauses,
+		dal.Orderby("id DESC"),
+		dal.Offset(query.GetSkip()),
+		dal.Limit(query.GetPageSize()),
+	)
+	dbBlueprints := make([]*models.DbBlueprint, 0)
+	err = db.All(&dbBlueprints, clauses...)
 	if err != nil {
 		return nil, 0, errors.Default.Wrap(err, "error getting DB count of blueprints")
 	}
 
-	dbQuery = processDbClausesWithPager(dbQuery, query.PageSize, query.Page)
-
-	err = dbQuery.Find(&dbBlueprints).Error
-	if err != nil {
-		return nil, 0, errors.Default.Wrap(err, "error finding DB blueprints")
-	}
-
-	var blueprintIds []uint64
+	// load labels for blueprints
 	for _, dbBlueprint := range dbBlueprints {
-		blueprintIds = append(blueprintIds, dbBlueprint.ID)
-	}
-	var dbLabels []models.DbBlueprintLabel
-	dbLabelsMap := map[uint64][]models.DbBlueprintLabel{}
-	db.Where(`blueprint_id in ?`, blueprintIds).Find(&dbLabels)
-	for _, dbLabel := range dbLabels {
-		dbLabelsMap[dbLabel.BlueprintId] = append(dbLabelsMap[dbLabel.BlueprintId], dbLabel)
-	}
-	for _, dbBlueprint := range dbBlueprints {
-		dbBlueprint.Labels = dbLabelsMap[dbBlueprint.ID]
+		err = fillBlueprintDetail(dbBlueprint)
+		if err != nil {
+			return nil, 0, err
+		}
 	}
 
 	return dbBlueprints, count, nil
@@ -104,16 +105,16 @@ func GetDbBlueprints(query *BlueprintQuery) ([]*models.DbBlueprint, int64, error
 // GetDbBlueprint returns the detail of a given Blueprint ID
 func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, errors.Error) {
 	dbBlueprint := &models.DbBlueprint{}
-	err := db.First(dbBlueprint, dbBlueprintId).Error
+	err := db.First(dbBlueprint, dal.Where("id = ?", dbBlueprintId))
 	if err != nil {
-		if goerror.Is(err, gorm.ErrRecordNotFound) {
+		if db.IsErrorNotFound(err) {
 			return nil, errors.NotFound.Wrap(err, "could not find blueprint in DB")
 		}
 		return nil, errors.Default.Wrap(err, "error getting blueprint from DB")
 	}
-	err = db.Find(&dbBlueprint.Labels, "blueprint_id = ?", dbBlueprint.ID).Error
+	err = fillBlueprintDetail(dbBlueprint)
 	if err != nil {
-		return nil, errors.Internal.Wrap(err, "error getting the blueprint labels from database")
+		return nil, err
 	}
 	return dbBlueprint, nil
 }
@@ -121,41 +122,18 @@ func GetDbBlueprint(dbBlueprintId uint64) (*models.DbBlueprint, errors.Error) {
 // GetDbBlueprintByProjectName returns the detail of a given projectName
 func GetDbBlueprintByProjectName(projectName string) (*models.DbBlueprint, errors.Error) {
 	dbBlueprint := &models.DbBlueprint{}
-	err := db.Where("project_name = ?", projectName).First(dbBlueprint).Error
+	err := db.First(dbBlueprint, dal.Where("project_name = ?", projectName))
 	if err != nil {
 		if goerror.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NotFound.Wrap(err, fmt.Sprintf("could not find blueprint in DB by projectName %s", projectName))
 		}
 		return nil, errors.Default.Wrap(err, fmt.Sprintf("error getting blueprint from DB by projectName %s", projectName))
 	}
-	err = db.Find(&dbBlueprint.Labels, "blueprint_id = ?", dbBlueprint.ID).Error
+	err = fillBlueprintDetail(dbBlueprint)
 	if err != nil {
-		return nil, errors.Internal.Wrap(err, "error getting the blueprint labels from database")
+		return nil, err
 	}
 	return dbBlueprint, nil
-}
-
-// RenameProjectNameForBlueprint FIXME ...
-func RenameProjectNameForBlueprint(oldProjectName string, newProjectName string) errors.Error {
-	err := db.Model(&models.DbBlueprint{}).
-		Where("project_name = ?", oldProjectName).
-		Updates(map[string]interface{}{
-			"project_name": newProjectName,
-		}).Error
-	if err != nil {
-		return errors.Default.Wrap(err, fmt.Sprintf("Failed to RenameProjectNameForBlueprint from [%s] to [%s]", oldProjectName, newProjectName))
-	}
-
-	return nil
-}
-
-// DeleteDbBlueprint deletes blueprint by id
-func DeleteDbBlueprint(id uint64) errors.Error {
-	err := db.Delete(&models.DbBlueprint{}, "id = ?", id).Error
-	if err != nil {
-		return errors.Default.Wrap(err, "error deleting blueprint from DB")
-	}
-	return nil
 }
 
 // parseBlueprint
@@ -235,4 +213,12 @@ func decryptDbBlueprint(dbBlueprint *models.DbBlueprint) (*models.DbBlueprint, e
 		return nil, err
 	}
 	return dbBlueprint, nil
+}
+
+func fillBlueprintDetail(blueprint *models.DbBlueprint) errors.Error {
+	err := db.All(&blueprint.Labels, dal.Where("blueprint_id = ?", blueprint.ID))
+	if err != nil {
+		return errors.Internal.Wrap(err, "error getting the blueprint labels from database")
+	}
+	return nil
 }

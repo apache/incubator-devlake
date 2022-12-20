@@ -27,24 +27,22 @@ import (
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/go-playground/validator/v10"
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 )
 
 // BlueprintQuery is a query for GetBlueprints
 type BlueprintQuery struct {
+	Pagination
 	Enable   *bool  `form:"enable,omitempty"`
 	IsManual *bool  `form:"is_manual"`
-	Page     int    `form:"page"`
-	PageSize int    `form:"pageSize"`
 	Label    string `form:"label"`
 }
 
 var (
 	blueprintLog = logger.Global.Nested("blueprint")
-	vld          = validator.New()
 )
 
 // CreateBlueprint accepts a Blueprint instance and insert it to database
@@ -197,27 +195,6 @@ func saveBlueprint(blueprint *models.Blueprint) (*models.Blueprint, errors.Error
 	return blueprint, nil
 }
 
-// PatchBlueprintEnableByProjectName FIXME ...
-func PatchBlueprintEnableByProjectName(projectName string, enable bool) (*models.Blueprint, errors.Error) {
-	blueprint, err := GetBlueprintByProjectName(projectName)
-	if err != nil {
-		return nil, err
-	}
-
-	if blueprint == nil {
-		return nil, errors.Default.New(fmt.Sprintf("do not surpport to set enable for projectName:[%s] ,because it has no blueprint.", projectName))
-	}
-
-	blueprint.Enable = enable
-
-	blueprint, err = saveBlueprint(blueprint)
-	if err != nil {
-		return nil, err
-	}
-
-	return blueprint, nil
-}
-
 // PatchBlueprint FIXME ...
 func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, errors.Error) {
 	// load record from db
@@ -242,19 +219,6 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 	}
 
 	return blueprint, nil
-}
-
-// DeleteBlueprint FIXME ...
-func DeleteBlueprint(id uint64) errors.Error {
-	err := DeleteDbBlueprint(id)
-	if err != nil {
-		return errors.Internal.Wrap(err, fmt.Sprintf("error deleting blueprint %d", id))
-	}
-	err = ReloadBlueprints(cronManager)
-	if err != nil {
-		return errors.Internal.Wrap(err, "error reloading blueprints")
-	}
-	return nil
 }
 
 // ReloadBlueprints FIXME ...
@@ -347,7 +311,10 @@ func MakePlanForBlueprint(blueprint *models.Blueprint) (core.PipelinePlan, error
 		// load project metric plugins and convert it to a map
 		metrics := make(map[string]json.RawMessage)
 		projectMetrics := make([]models.ProjectMetric, 0)
-		db.Find(&projectMetrics, "project_name = ? AND enable = ?", blueprint.ProjectName, true)
+		err = db.All(&projectMetrics, dal.Where("project_name = ? AND enable = ?", blueprint.ProjectName, true))
+		if err != nil {
+			return nil, err
+		}
 		for _, projectMetric := range projectMetrics {
 			metrics[projectMetric.PluginName] = json.RawMessage(projectMetric.PluginOption)
 		}

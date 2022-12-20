@@ -39,7 +39,7 @@ type pipelineRunner struct {
 
 func (p *pipelineRunner) runPipelineStandalone() errors.Error {
 	return runner.RunPipeline(
-		runner.CreateBasicRes(cfg, p.logger, db),
+		basicRes.ReplaceLogger(p.logger),
 		p.pipeline.ID,
 		func(taskIds []uint64) errors.Error {
 			return RunTasksStandalone(p.logger, taskIds)
@@ -136,10 +136,10 @@ func runPipeline(pipelineId uint64) errors.Error {
 		dbPipeline.Status = models.TASK_COMPLETED
 		dbPipeline.Message = ""
 	}
-	dbe := db.Model(dbPipeline).Updates(dbPipeline).Error
-	if dbe != nil {
-		globalPipelineLog.Error(dbe, "update pipeline state failed")
-		return errors.Convert(dbe)
+	err = db.Update(dbPipeline)
+	if err != nil {
+		globalPipelineLog.Error(err, "update pipeline state failed")
+		return errors.Convert(err)
 	}
 	// notify external webhook
 	return NotifyExternal(pipelineId)
