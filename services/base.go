@@ -19,11 +19,13 @@ package services
 
 import "github.com/apache/incubator-devlake/errors"
 
+// Pagination holds the paginate information
 type Pagination struct {
 	Page     int `form:"page"`
 	PageSize int `form:"pageSize"`
 }
 
+// GetPage returns current page number
 func (p *Pagination) GetPage() int {
 	if p.Page < 1 {
 		return 1
@@ -31,10 +33,12 @@ func (p *Pagination) GetPage() int {
 	return p.Page
 }
 
+// GetPageSize returns a sensible page size based on input
 func (p *Pagination) GetPageSize() int {
 	return p.GetPageSizeOr(50)
 }
 
+// GetPageSizeOr returns the page size or fallback to `defaultVal`
 func (p *Pagination) GetPageSizeOr(defaultVal int) int {
 	if p.PageSize < 1 {
 		return defaultVal
@@ -42,10 +46,12 @@ func (p *Pagination) GetPageSizeOr(defaultVal int) int {
 	return p.PageSize
 }
 
+// GetSkip returns how many records  should be skipped for specified page
 func (p *Pagination) GetSkip() int {
 	return (p.GetPage() - 1) * p.GetPageSize()
 }
 
+// VerifyStruct verifies given struct with `validator`
 func VerifyStruct(v interface{}) errors.Error {
 	err := vld.Struct(v)
 	if err != nil {

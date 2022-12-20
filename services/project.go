@@ -73,7 +73,10 @@ func CreateProject(projectInput *models.ApiInputProject) (*models.ApiOutputProje
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil || err != nil {
-			tx.Rollback()
+			err = tx.Rollback()
+			if err != nil {
+				log.Error(err, "PatchProject: failed to rollback")
+			}
 		}
 	}()
 
@@ -140,7 +143,10 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	tx := db.Begin()
 	defer func() {
 		if r := recover(); r != nil || err != nil {
-			tx.Rollback()
+			err = tx.Rollback()
+			if err != nil {
+				log.Error(err, "PatchProject: failed to rollback")
+			}
 		}
 	}()
 

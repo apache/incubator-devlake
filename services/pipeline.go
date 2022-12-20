@@ -74,11 +74,14 @@ func pipelineServiceInit() {
 		watchTemporalPipelines()
 	} else {
 		// standalone mode: reset pipeline status
-		db.UpdateColumn(
+		err := db.UpdateColumn(
 			&models.DbPipeline{},
 			"status", models.TASK_FAILED,
 			dal.Where("status = ?", models.TASK_RUNNING),
 		)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	err := ReloadBlueprints(cronManager)
@@ -424,7 +427,7 @@ func getPipelineLogsPath(pipeline *models.Pipeline) (string, errors.Error) {
 	return "", errors.Default.Wrap(err, fmt.Sprintf("error validating logs path for pipeline #%d", pipeline.ID))
 }
 
-// Rerun would rerun all failed tasks or specified task
+// RerunPipeline would rerun all failed tasks or specified task
 func RerunPipeline(pipelineId uint64, task *models.Task) ([]*models.Task, errors.Error) {
 	// prevent pipeline executor from doing anything that might jeopardize the integrity
 	cronLocker.Lock()
