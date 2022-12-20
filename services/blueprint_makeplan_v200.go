@@ -56,6 +56,23 @@ func GeneratePlanJsonV200(
 			}
 		}
 	}
+	if len(projectName) != 0 {
+		err = basicRes.GetDal().Delete(&crossdomain.ProjectMapping{}, dal.Where("project_name = ?", projectName))
+		if err != nil {
+			return nil, err
+		}
+		for _, scope := range scopes {
+			projectMapping := &crossdomain.ProjectMapping{
+				ProjectName: projectName,
+				Table:       scope.TableName(),
+				RowId:       scope.ScopeId(),
+			}
+			err = basicRes.GetDal().CreateIfNotExist(projectMapping)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
 	return plan, err
 }
 
@@ -94,7 +111,7 @@ func genPlanJsonV200(
 			if err != nil {
 				return nil, nil, err
 			}
-			// collect scopes for the project. a github repository may produces
+			// collect scopes for the project. a github repository may produce
 			// 2 scopes, 1 repo and 1 board
 			scopes = append(scopes, pluginScopes...)
 		} else {

@@ -115,7 +115,10 @@ func (r *GitRepo) CountCommits(ctx context.Context) (int, errors.Error) {
 			return ctx.Err()
 		default:
 		}
-		commit, _ := r.repo.LookupCommit(id)
+		commit, e := r.repo.LookupCommit(id)
+		if e != nil {
+			r.logger.Error(e, "")
+		}
 		if commit != nil {
 			count++
 		}
@@ -135,7 +138,12 @@ func (r *GitRepo) CollectTags(subtaskCtx core.SubTaskContext) errors.Error {
 		var err1 error
 		var tag *git.Tag
 		var tagCommit string
-		tag, _ = r.repo.LookupTag(id)
+		tag, err1 = r.repo.LookupTag(id)
+		if err1 != nil {
+			if err1 != nil {
+				r.logger.Error(err1, "")
+			}
+		}
 		if tag != nil {
 			tagCommit = tag.TargetId().String()
 		} else {
@@ -189,7 +197,10 @@ func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) errors.Error {
 				CommitSha:    sha,
 				RefType:      BRANCH,
 			}
-			ref.IsDefault, _ = branch.IsHead()
+			ref.IsDefault, err1 = branch.IsHead()
+			if err1 != nil {
+				r.logger.Error(err1, "")
+			}
 			err1 = r.store.Refs(ref)
 			if err1 != nil {
 				return err1
@@ -228,7 +239,10 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) errors.Error {
 			return subtaskCtx.GetContext().Err()
 		default:
 		}
-		commit, _ := r.repo.LookupCommit(id)
+		commit, err1 := r.repo.LookupCommit(id)
+		if err1 != nil {
+			r.logger.Error(err1, "")
+		}
 		if commit == nil {
 			return nil
 		}
@@ -401,14 +415,23 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 	commitList := make([]git.Commit, 0)
 	//get currently head commitsha, dafault is master branch
 	// check branch, if not master, checkout to branch's head
-	commitOid, _ := repo.Head()
+	commitOid, err1 := repo.Head()
+	if err1 != nil {
+		r.logger.Error(err1, "")
+	}
 	//get head commit object and add into commitList
-	commit, _ := repo.LookupCommit(commitOid.Target())
+	commit, err1 := repo.LookupCommit(commitOid.Target())
+	if err1 != nil {
+		r.logger.Error(err1, "")
+	}
 	commitList = append(commitList, *commit)
 	// if current head has parents, get parent commitsha
 	for commit != nil && commit.ParentCount() > 0 {
 		pid := commit.ParentId(0)
-		commit, _ = repo.LookupCommit(pid)
+		commit, err1 = repo.LookupCommit(pid)
+		if err1 != nil {
+			r.logger.Error(err1, "")
+		}
 		commitList = append(commitList, *commit)
 	}
 	// reverse commitList
