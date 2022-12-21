@@ -99,7 +99,7 @@ export const useDataScope = ({
       onSave?.(
         res.map((it: any) => ({
           id: getPluginId(it),
-          entities
+          entities: selectedEntities
         }))
       )
     }
