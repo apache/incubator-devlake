@@ -40,14 +40,8 @@ func GeneratePlanJsonV200(
 	if err != nil {
 		return nil, err
 	}
-	// refresh project_mapping table to reflect project/scopes relationship
+	// save scopes to database
 	if len(scopes) > 0 {
-		if projectName != "" {
-			err = db.Delete(&crossdomain.ProjectMapping{}, dal.Where("project_name = ?", projectName))
-			if err != nil {
-				return nil, errors.Default.Wrap(err, fmt.Sprintf("projectName:[%s]", projectName))
-			}
-		}
 		for _, scope := range scopes {
 			err = db.CreateOrUpdate(scope)
 			if err != nil {
@@ -56,8 +50,9 @@ func GeneratePlanJsonV200(
 			}
 		}
 	}
+	// refresh project_mapping table to reflect project/scopes relationship
 	if len(projectName) != 0 {
-		err = basicRes.GetDal().Delete(&crossdomain.ProjectMapping{}, dal.Where("project_name = ?", projectName))
+		err = db.Delete(&crossdomain.ProjectMapping{}, dal.Where("project_name = ?", projectName))
 		if err != nil {
 			return nil, err
 		}
@@ -67,7 +62,7 @@ func GeneratePlanJsonV200(
 				Table:       scope.TableName(),
 				RowId:       scope.ScopeId(),
 			}
-			err = basicRes.GetDal().CreateIfNotExist(projectMapping)
+			err = db.Create(projectMapping)
 			if err != nil {
 				return nil, err
 			}

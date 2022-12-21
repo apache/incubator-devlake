@@ -362,7 +362,7 @@ func (d *Dalgorm) IsErrorNotFound(err errors.Error) bool {
 
 // IsDuplicationError checking if the sql error is not found.
 func (d *Dalgorm) IsDuplicationError(err errors.Error) bool {
-	return errors.Is(err, gorm.ErrRecordNotFound)
+	return strings.Contains(err.Error(), "duplicate")
 }
 
 // NewDalgorm creates a *Dalgorm
