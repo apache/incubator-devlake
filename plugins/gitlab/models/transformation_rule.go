@@ -35,6 +35,7 @@ type GitlabTransformationRule struct {
 	IssueTypeIncident    string            `mapstructure:"issueTypeIncident" json:"issueTypeIncident"`
 	IssueTypeRequirement string            `mapstructure:"issueTypeRequirement" json:"issueTypeRequirement"`
 	DeploymentPattern    string            `mapstructure:"deploymentPattern" json:"deploymentPattern"`
+	ProductionPattern    string            `mapstructure:"productionPattern,omitempty" json:"productionPattern" gorm:"type:varchar(255)"`
 	Refdiff              datatypes.JSONMap `mapstructure:"refdiff,omitempty" json:"refdiff" swaggertype:"object" format:"json"`
 }
 
