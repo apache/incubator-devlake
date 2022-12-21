@@ -41,6 +41,11 @@ export const ConfigurationPanel = styled.div`
 
   .bottom {
     margin-top: 32px;
+
+    .btns {
+      margin-top: 16px;
+      text-align: right;
+    }
   }
 `
 

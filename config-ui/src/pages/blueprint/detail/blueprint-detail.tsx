@@ -32,7 +32,7 @@ import Status from '@/pages/blueprints/blueprint-detail'
 interface Props extends UseDetailProps {}
 
 export const BlueprintDetail = ({ id }: Props) => {
-  const [activeTab, setActiveTab] = useState<TabId>('status')
+  const [activeTab, setActiveTab] = useState<TabId>('configuration')
 
   const { loading, blueprint, connections, saving, onUpdate } = useDetail({
     id

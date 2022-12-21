@@ -17,24 +17,15 @@
  */
 
 import React from 'react'
-import {
-  InputGroup,
-  TextArea,
-  ButtonGroup,
-  Button,
-  Menu,
-  MenuItem,
-  Position
-} from '@blueprintjs/core'
-import { Popover2 } from '@blueprintjs/popover2'
+import { InputGroup } from '@blueprintjs/core'
 
 import { useConnection } from '@/store'
 import { Card, Divider, MultiSelector, Loading } from '@/components'
 
-import { ModeEnum } from '../types'
+import { ModeEnum } from '../../types'
+import { AdvancedEditor } from '../../components'
 import { useCreateBP } from '../bp-context'
 
-import { DEFAULT_CONFIG } from './example'
 import * as S from './styled'
 
 export const StepOne = () => {
@@ -120,53 +111,7 @@ export const StepOne = () => {
           <Card className='card'>
             <h2>JSON Configuration</h2>
             <Divider />
-            <h3>Task Editor</h3>
-            <p>Enter JSON Configuration or preload from a template</p>
-            <TextArea
-              fill
-              value={rawPlan}
-              onChange={(e) => onChangeRawPlan(e.target.value)}
-            />
-            <div className='btns'>
-              <ButtonGroup className='btns' minimal>
-                <Button
-                  small
-                  text='Reset'
-                  icon='eraser'
-                  onClick={() =>
-                    onChangeRawPlan(JSON.stringify([[]], null, '  '))
-                  }
-                />
-                <Popover2
-                  placement={Position.TOP}
-                  content={
-                    <Menu>
-                      {DEFAULT_CONFIG.map((it) => (
-                        <MenuItem
-                          key={it.id}
-                          icon='code'
-                          text={it.name}
-                          onClick={() =>
-                            onChangeRawPlan(
-                              JSON.stringify(it.config, null, '  ')
-                            )
-                          }
-                        />
-                      ))}
-                    </Menu>
-                  }
-                  renderTarget={({ isOpen, ref, ...targetProps }) => (
-                    <Button
-                      {...targetProps}
-                      elementRef={ref}
-                      small
-                      text='Load Templates'
-                      rightIcon='caret-down'
-                    />
-                  )}
-                />
-              </ButtonGroup>
-            </div>
+            <AdvancedEditor value={rawPlan} onChange={onChangeRawPlan} />
           </Card>
           <S.Tips>
             <span>To visually define blueprint tasks, please use </span>
