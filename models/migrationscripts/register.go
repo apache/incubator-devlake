@@ -66,5 +66,6 @@ func All() []core.MigrationScript {
 		new(addCollectorMeta20221125),
 		new(addOriginalProject),
 		new(addErrorName),
+		new(encryptTask221221),
 	}
 }

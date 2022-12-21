@@ -17,6 +17,7 @@ limitations under the License.
 
 package core
 
+// TODO: replace with dal.Tabler
 type Tabler interface {
 	TableName() string
 }

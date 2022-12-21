@@ -24,9 +24,10 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"math/rand"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 )
 
 const EncodeKeyEnvStr = "ENCODE_KEY"

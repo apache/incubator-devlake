@@ -51,7 +51,7 @@ type Task struct {
 	common.Model
 	Plugin         string              `json:"plugin" gorm:"index"`
 	Subtasks       datatypes.JSON      `json:"subtasks"`
-	Options        datatypes.JSON      `json:"options"`
+	Options        string              `json:"options" gorm:"serializer:encdec"`
 	Status         string              `json:"status"`
 	Message        string              `json:"message"`
 	ErrorName      string              `json:"errorName"`
@@ -102,6 +102,6 @@ func (task *Task) GetSubTasks() ([]string, errors.Error) {
 
 func (task *Task) GetOptions() (map[string]interface{}, errors.Error) {
 	var options map[string]interface{}
-	err := errors.Convert(json.Unmarshal(task.Options, &options))
+	err := errors.Convert(json.Unmarshal([]byte(task.Options), &options))
 	return options, err
 }
