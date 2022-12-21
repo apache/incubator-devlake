@@ -89,61 +89,48 @@ export const useContextValue = (plugins: string[]) => {
   }, [])
 
   const handleTest = useCallback(
-    async (selectedConnections: ConnectionItemType[]) => {
-      const uniqueList = selectedConnections.map((cs) => cs.unique)
-
-      const initConnections = connections.map((cs) =>
-        uniqueList.includes(cs.unique) &&
-        cs.status === ConnectionStatusEnum.NULL
-          ? {
-              ...cs,
-              status: ConnectionStatusEnum.WAITING
-            }
-          : cs
-      )
-
-      setConnections(initConnections)
-
-      const [updatedConnection] = await Promise.all(
-        initConnections
-          .filter((cs) => cs.status === ConnectionStatusEnum.WAITING)
-          .map(async (cs) => {
-            setConnections(
-              initConnections.map((it) =>
-                it.unique === cs.unique
-                  ? { ...it, status: ConnectionStatusEnum.TESTING }
-                  : it
-              )
-            )
-            const { plugin, endpoint, proxy, token, username, password } = cs
-            let status
-
-            try {
-              const res = await API.testConnection(plugin, {
-                endpoint,
-                proxy,
-                token,
-                username,
-                password
-              })
-              status = res.success
-                ? ConnectionStatusEnum.ONLINE
-                : ConnectionStatusEnum.OFFLINE
-            } catch {
-              status = ConnectionStatusEnum.OFFLINE
-            }
-
-            return { ...cs, status }
-          })
-      )
-
-      if (updatedConnection) {
-        setConnections((connections) =>
-          connections.map((cs) =>
-            cs.unique === updatedConnection.unique ? updatedConnection : cs
-          )
+    async (selectedConnection: ConnectionItemType) => {
+      setConnections((connections) =>
+        connections.map((cs) =>
+          cs.unique === selectedConnection.unique
+            ? {
+                ...cs,
+                status: ConnectionStatusEnum.TESTING
+              }
+            : cs
         )
+      )
+
+      const { plugin, endpoint, proxy, token, username, password } =
+        selectedConnection
+
+      let status = ConnectionStatusEnum.OFFLINE
+
+      try {
+        const res = await API.testConnection(plugin, {
+          endpoint,
+          proxy,
+          token,
+          username,
+          password
+        })
+        status = res.success
+          ? ConnectionStatusEnum.ONLINE
+          : ConnectionStatusEnum.OFFLINE
+      } catch {
+        status = ConnectionStatusEnum.OFFLINE
       }
+
+      setConnections((connections) =>
+        connections.map((cs) =>
+          cs.unique === selectedConnection.unique
+            ? {
+                ...cs,
+                status
+              }
+            : cs
+        )
+      )
     },
     [connections]
   )

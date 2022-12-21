@@ -27,7 +27,7 @@ import { useContextValue } from './use-context-value'
 const ConnectionContext = React.createContext<{
   connections: ConnectionItemType[]
   onRefresh: () => void
-  onTest: (selectedConnections: ConnectionItemType[]) => void
+  onTest: (selectedConnection: ConnectionItemType) => void
 }>({
   connections: [],
   onRefresh: () => {},
