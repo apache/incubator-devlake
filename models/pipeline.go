@@ -37,6 +37,7 @@ type Pipeline struct {
 	FinishedAt    *time.Time     `json:"finishedAt" gorm:"index"`
 	Status        string         `json:"status"`
 	Message       string         `json:"message"`
+	ErrorName     string         `json:"errorName"`
 	SpentSeconds  int            `json:"spentSeconds"`
 	Stage         int            `json:"stage"`
 	Labels        []string       `json:"labels"`
@@ -64,6 +65,7 @@ type DbPipeline struct {
 	FinishedAt    *time.Time `json:"finishedAt" gorm:"index"`
 	Status        string     `json:"status"`
 	Message       string     `json:"message"`
+	ErrorName     string     `json:"errorName"`
 	SpentSeconds  int        `json:"spentSeconds"`
 	Stage         int        `json:"stage"`
 	SkipOnFail    bool       `json:"skipOnFail"`

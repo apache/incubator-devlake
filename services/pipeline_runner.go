@@ -128,6 +128,7 @@ func runPipeline(pipelineId uint64) errors.Error {
 	if err != nil {
 		dbPipeline.Status = models.TASK_FAILED
 		dbPipeline.Message = err.Error()
+		dbPipeline.ErrorName = err.Messages().Format()
 	} else {
 		dbPipeline.Status = models.TASK_COMPLETED
 		dbPipeline.Message = ""
