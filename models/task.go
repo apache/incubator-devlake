@@ -54,6 +54,7 @@ type Task struct {
 	Options        datatypes.JSON      `json:"options"`
 	Status         string              `json:"status"`
 	Message        string              `json:"message"`
+	ErrorName      string              `json:"errorName"`
 	Progress       float32             `json:"progress"`
 	ProgressDetail *TaskProgressDetail `json:"progressDetail" gorm:"-"`
 

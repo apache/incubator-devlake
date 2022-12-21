@@ -208,6 +208,7 @@ func parsePipeline(dbPipeline *models.DbPipeline) *models.Pipeline {
 		FinishedAt:    dbPipeline.FinishedAt,
 		Status:        dbPipeline.Status,
 		Message:       dbPipeline.Message,
+		ErrorName:     dbPipeline.ErrorName,
 		SpentSeconds:  dbPipeline.SpentSeconds,
 		Stage:         dbPipeline.Stage,
 		SkipOnFail:    dbPipeline.SkipOnFail,

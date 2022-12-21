@@ -65,5 +65,6 @@ func All() []core.MigrationScript {
 		new(addEnableToProjectMetric),
 		new(addCollectorMeta20221125),
 		new(addOriginalProject),
+		new(addErrorName),
 	}
 }
