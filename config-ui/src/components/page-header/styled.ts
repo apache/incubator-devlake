@@ -46,7 +46,7 @@ export const Breadcrumb = styled.li`
     align-items: center;
     color: #292b3f;
 
-    .bp3-icon {
+    .bp4-icon {
       margin: 0 10px;
     }
   }

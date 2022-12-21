@@ -24,7 +24,7 @@ export const Container = styled.div`
   justify-content: space-between;
   margin-top: 36px;
 
-  .bp3-button + .bp3-button {
+  .bp4-button + .bp4-button {
     margin-left: 8px;
   }
 `
@@ -33,7 +33,7 @@ export const Error = styled.div`
   padding: 6px 10px;
   color: #94959f;
 
-  span.bp3-icon {
+  span.bp4-icon {
     margin-right: 4px;
   }
 `
