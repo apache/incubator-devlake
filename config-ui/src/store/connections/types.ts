@@ -21,7 +21,6 @@ import { Plugins } from '@/plugins'
 export enum ConnectionStatusEnum {
   ONLINE = 'online',
   OFFLINE = 'offline',
-  WAITING = 'waiting',
   TESTING = 'testing',
   NULL = 'null'
 }

@@ -17,9 +17,9 @@
  */
 
 import React from 'react'
-import { InputGroup } from '@blueprintjs/core'
+import { InputGroup, Icon } from '@blueprintjs/core'
 
-import { useConnection } from '@/store'
+import { useConnection, ConnectionStatusEnum } from '@/store'
 import { Card, Divider, MultiSelector, Loading } from '@/components'
 
 import { ModeEnum } from '../../types'
@@ -75,7 +75,7 @@ export const StepOne = () => {
                 uniqueList.includes(cs.unique)
               )}
               onChangeItems={(selectedItems) => {
-                onTest(selectedItems)
+                onTest(selectedItems[selectedItems.length - 1])
                 onChangeUniqueList(selectedItems.map((sc) => sc.unique))
               }}
             />
@@ -86,8 +86,16 @@ export const StepOne = () => {
                   <li key={cs.unique}>
                     <span className='name'>{cs.name}</span>
                     <span className={`status ${cs.status}`}>
-                      {cs.status === 'testing' && (
+                      {cs.status === ConnectionStatusEnum.TESTING && (
                         <Loading size={14} style={{ marginRight: 4 }} />
+                      )}
+                      {cs.status === ConnectionStatusEnum.OFFLINE && (
+                        <Icon
+                          size={14}
+                          icon='repeat'
+                          style={{ marginRight: 4, cursor: 'pointer' }}
+                          onClick={() => onTest(cs)}
+                        />
                       )}
                       {cs.status}
                     </span>
