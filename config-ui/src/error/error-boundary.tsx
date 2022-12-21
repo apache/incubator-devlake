@@ -20,7 +20,7 @@ import React from 'react'
 import { Logo } from '@/components'
 
 import { Error } from './types'
-import { DBMigrate, Offline, Default } from './components'
+import { DBMigrate, Offline, Default, BPUpgrade } from './components'
 
 import * as S from './styled'
 
@@ -69,6 +69,9 @@ export class ErrorBoundary extends React.Component<Props, State> {
           )}
           {error === Error.API_OFFLINE && (
             <Offline onResetError={this.handleResetError} />
+          )}
+          {error === Error.BP_NEED_TO_UPGRADE && (
+            <BPUpgrade onResetError={this.handleResetError} />
           )}
           {!Object.keys(Error).includes(error) && (
             <Default error={error} onResetError={this.handleResetError} />

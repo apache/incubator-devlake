@@ -52,8 +52,11 @@ export const MillerColumns = ({
         .filter((it) => seletedIds.includes(it.id))
         .map((it) => ({
           connectionId,
-          boardId: it.id,
-          name: it.name
+          boardId: it.boardId,
+          name: it.name,
+          self: it.self,
+          type: it.type,
+          projectId: it.projectId
         }))
     )
   }, [seletedIds])

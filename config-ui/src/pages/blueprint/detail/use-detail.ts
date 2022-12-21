@@ -18,6 +18,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 
+import { Error } from '@/error'
 import { operator } from '@/utils'
 import { PluginConfig } from '@/plugins'
 
@@ -33,6 +34,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
   const [saving, setSaving] = useState(false)
   const [blueprint, setBlueprint] = useState<BlueprintType>()
   const [connections, setConnections] = useState<ConnectionItemType[]>([])
+  const [, setError] = useState()
 
   const transformConnection = (connections: any) => {
     return connections
@@ -55,6 +57,14 @@ export const useDetail = ({ id }: UseDetailProps) => {
     setLoading(true)
     try {
       const res = await API.getBlueprint(id)
+
+      // need to upgrade 2.0.0
+      if (res.settings.version === '1.0.0') {
+        setError(() => {
+          throw Error.BP_NEED_TO_UPGRADE
+        })
+      }
+
       setBlueprint(res)
       setConnections(transformConnection(res.settings?.connections || []))
     } finally {
