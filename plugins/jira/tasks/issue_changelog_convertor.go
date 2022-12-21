@@ -18,11 +18,12 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -64,7 +65,7 @@ func ConvertIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 	}
 	statusMap := make(map[string]models.JiraStatus)
 	for _, v := range allStatus {
-		statusMap[v.Name] = v
+		statusMap[v.ID] = v
 	}
 	// select all changelogs belongs to the board
 	clauses := []dal.Clause{
@@ -137,10 +138,12 @@ func ConvertIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 				}
 			}
 			if row.Field == "status" {
-				if fromStatus, ok := statusMap[row.FromString]; ok {
+				if fromStatus, ok := statusMap[row.FromValue]; ok {
+					changelog.OriginalFromValue = fromStatus.Name
 					changelog.FromValue = getStdStatus(fromStatus.StatusCategory)
 				}
-				if toStatus, ok := statusMap[row.ToString]; ok {
+				if toStatus, ok := statusMap[row.ToValue]; ok {
+					changelog.OriginalToValue = toStatus.Name
 					changelog.ToValue = getStdStatus(toStatus.StatusCategory)
 				}
 			}

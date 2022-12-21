@@ -35,3 +35,7 @@ connection_id,id,name,status_category,_raw_data_params,_raw_data_table,_raw_data
 2,10147,分析中,new,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_status,490,
 2,3,In Progress,indeterminate,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_status,452,
 2,6,Closed,done,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_status,454,
+2,5,Resolved,done,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_status,500,
+2,10000,待办,new,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_status,501,
+2,10020,Inbox,new,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_status,502,
+2,10029,待开发,new,"{""ConnectionId"":2,""BoardId"":8}",_raw_jira_api_status,503,
