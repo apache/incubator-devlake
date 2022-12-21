@@ -37,7 +37,7 @@ func RunPipeline(
 	var tasks []models.Task
 	err := db.All(
 		&tasks,
-		dal.Where("pipeline_id = ? AND status = ?", pipelineId, models.TASK_CREATED),
+		dal.Where("pipeline_id = ? AND status in ?", pipelineId, []string{models.TASK_CREATED, models.TASK_RERUN}),
 		dal.Orderby("pipeline_row, pipeline_col"),
 	)
 	if err != nil {

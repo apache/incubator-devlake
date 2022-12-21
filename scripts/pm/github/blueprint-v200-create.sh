@@ -18,6 +18,33 @@
 
 . "$(dirname $0)/../vars/active-vars.sh"
 
-pipeline_id=${1-"31"}
+PROJECT_NAME=${1-"testproject"}
 
-curl -sv $LAKE_ENDPOINT/pipelines/$pipeline_id | jq
+curl -sv $LAKE_ENDPOINT/blueprints \
+    -H "Content-Type: application/json" \
+    --data @- <<JSON | jq
+{
+	"cronConfig": "0 0 * * 1",
+	"enable": true,
+	"isManual": true,
+	"mode": "NORMAL",
+	"name": "My GitHub Blueprint",
+    "settings": {
+        "version": "2.0.0",
+        "skipOnFail": false,
+        "connections": [
+            {
+                "plugin": "github",
+                "connectionId": 1,
+                "scopes": [
+                    {
+                        "id": "384111310",
+                        "entities":["CODE","CODEREVIEW"]
+                    }
+                ]
+            }
+        ]
+    },
+    "labels": ["foobar"]
+}
+JSON

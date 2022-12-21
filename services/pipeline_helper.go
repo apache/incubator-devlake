@@ -19,14 +19,12 @@ package services
 
 import (
 	"encoding/json"
-	goerror "errors"
 	"fmt"
 
-	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 // ErrBlueprintRunning indicates there is a running pipeline with the specified blueprint_id
@@ -37,8 +35,10 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	cronLocker.Lock()
 	defer cronLocker.Unlock()
 	if newPipeline.BlueprintId > 0 {
-		var count int64
-		err := db.Model(&models.DbPipeline{}).Where("blueprint_id = ? AND status IN ?", newPipeline.BlueprintId, models.PendingTaskStatus).Count(&count).Error
+		count, err := db.Count(
+			dal.From(&models.DbPipeline{}),
+			dal.Where("blueprint_id = ? AND status IN ?", newPipeline.BlueprintId, models.PendingTaskStatus),
+		)
 		if err != nil {
 			return nil, errors.Default.Wrap(err, "query pipelines error")
 		}
@@ -69,7 +69,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	}
 
 	// save pipeline to database
-	if err := db.Create(&dbPipeline).Error; err != nil {
+	if err := db.Create(&dbPipeline); err != nil {
 		globalPipelineLog.Error(err, "create pipeline failed: %v", err)
 		return nil, errors.Internal.Wrap(err, "create pipeline failed")
 	}
@@ -82,7 +82,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 		})
 	}
 	if len(dbPipeline.Labels) > 0 {
-		if err := db.Create(&dbPipeline.Labels).Error; err != nil {
+		if err := db.Create(&dbPipeline.Labels); err != nil {
 			globalPipelineLog.Error(err, "create pipeline's labelModels failed: %v", err)
 			return nil, errors.Internal.Wrap(err, "create pipeline's labelModels failed")
 		}
@@ -117,9 +117,7 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 	}
 
 	// update tasks state
-	if err := db.Model(dbPipeline).Updates(map[string]interface{}{
-		"total_tasks": dbPipeline.TotalTasks,
-	}).Error; err != nil {
+	if err := db.Update(dbPipeline); err != nil {
 		globalPipelineLog.Error(err, "update pipline state failed: %v", err)
 		return nil, errors.Internal.Wrap(err, "update pipline state failed")
 	}
@@ -129,47 +127,48 @@ func CreateDbPipeline(newPipeline *models.NewPipeline) (*models.DbPipeline, erro
 
 // GetDbPipelines by query
 func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.Error) {
-	dbPipelines := make([]*models.DbPipeline, 0)
-	dbQuery := db.Model(dbPipelines).Order("id DESC")
+	// process query parameters
+	clauses := []dal.Clause{dal.From(&models.DbPipeline{})}
 	if query.BlueprintId != 0 {
-		dbQuery = dbQuery.Where("blueprint_id = ?", query.BlueprintId)
+		clauses = append(clauses, dal.Where("blueprint_id = ?", query.BlueprintId))
 	}
 	if query.Status != "" {
-		dbQuery = dbQuery.Where("status = ?", query.Status)
+		clauses = append(clauses, dal.Where("status = ?", query.Status))
 	}
 	if query.Pending > 0 {
-		dbQuery = dbQuery.Where("finished_at is null and status IN ?", models.PendingTaskStatus)
+		clauses = append(clauses, dal.Where("finished_at is null and status IN ?", models.PendingTaskStatus))
 	}
 	if query.Label != "" {
-		dbQuery = dbQuery.
-			Joins(`left join _devlake_pipeline_labels ON _devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id`).
-			Where(`_devlake_pipeline_labels.name = ?`, query.Label)
+		clauses = append(clauses,
+			dal.Join("LEFT JOIN _devlake_pipeline_labels bl ON bl.pipeline_id = _devlake_pipelines.id"),
+			dal.Where("bl.name = ?", query.Label),
+		)
 	}
-	var count int64
-	err := dbQuery.Count(&count).Error
+
+	// count total records
+	count, err := db.Count(clauses...)
 	if err != nil {
-		return nil, 0, errors.Default.Wrap(err, "error getting DB pipelines count")
+		return nil, 0, err
 	}
 
-	dbQuery = processDbClausesWithPager(dbQuery, query.PageSize, query.Page)
-
-	err = dbQuery.Find(&dbPipelines).Error
+	// load paginated blueprints from database
+	clauses = append(clauses,
+		dal.Orderby("id DESC"),
+		dal.Offset(query.GetSkip()),
+		dal.Limit(query.GetPageSize()),
+	)
+	dbPipelines := make([]*models.DbPipeline, 0)
+	err = db.All(&dbPipelines, clauses...)
 	if err != nil {
-		return nil, count, errors.Default.Wrap(err, "error finding DB pipelines")
+		return nil, 0, errors.Default.Wrap(err, "error getting DB count of pipelines")
 	}
 
-	var pipelineIds []uint64
+	// load labels for blueprints
 	for _, dbPipeline := range dbPipelines {
-		pipelineIds = append(pipelineIds, dbPipeline.ID)
-	}
-	dbLabels := []models.DbPipelineLabel{}
-	db.Where(`pipeline_id in ?`, pipelineIds).Find(&dbLabels)
-	dbLabelsMap := map[uint64][]models.DbPipelineLabel{}
-	for _, dbLabel := range dbLabels {
-		dbLabelsMap[dbLabel.PipelineId] = append(dbLabelsMap[dbLabel.PipelineId], dbLabel)
-	}
-	for _, dbPipeline := range dbPipelines {
-		dbPipeline.Labels = dbLabelsMap[dbPipeline.ID]
+		err = fillPipelineDetail(dbPipeline)
+		if err != nil {
+			return nil, 0, err
+		}
 	}
 
 	return dbPipelines, count, nil
@@ -178,16 +177,16 @@ func GetDbPipelines(query *PipelineQuery) ([]*models.DbPipeline, int64, errors.E
 // GetDbPipeline by id
 func GetDbPipeline(pipelineId uint64) (*models.DbPipeline, errors.Error) {
 	dbPipeline := &models.DbPipeline{}
-	err := db.First(dbPipeline, pipelineId).Error
+	err := db.First(dbPipeline, dal.Where("id = ?", pipelineId))
 	if err != nil {
-		if goerror.Is(err, gorm.ErrRecordNotFound) {
+		if db.IsErrorNotFound(err) {
 			return nil, errors.NotFound.New("pipeline not found")
 		}
 		return nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
 	}
-	err = db.Find(&dbPipeline.Labels, "pipeline_id = ?", pipelineId).Error
+	err = fillPipelineDetail(dbPipeline)
 	if err != nil {
-		return nil, errors.Internal.Wrap(err, "error getting the pipeline from database")
+		return nil, err
 	}
 	return dbPipeline, nil
 }
@@ -248,7 +247,7 @@ func parseDbPipeline(pipeline *models.Pipeline) *models.DbPipeline {
 
 // encryptDbPipeline encrypts dbPipeline.Plan
 func encryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, errors.Error) {
-	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
+	encKey := cfg.GetString(core.EncodeKeyEnvStr)
 	planEncrypt, err := core.Encrypt(encKey, dbPipeline.Plan)
 	if err != nil {
 		return nil, err
@@ -259,7 +258,7 @@ func encryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, error
 
 // encryptDbPipeline decrypts dbPipeline.Plan
 func decryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, errors.Error) {
-	encKey := config.GetConfig().GetString(core.EncodeKeyEnvStr)
+	encKey := cfg.GetString(core.EncodeKeyEnvStr)
 	plan, err := core.Decrypt(encKey, dbPipeline.Plan)
 	if err != nil {
 		return nil, err
@@ -268,11 +267,10 @@ func decryptDbPipeline(dbPipeline *models.DbPipeline) (*models.DbPipeline, error
 	return dbPipeline, nil
 }
 
-// UpdateDbPipelineStatus update the status of pipeline
-func UpdateDbPipelineStatus(pipelineId uint64, status string) errors.Error {
-	err := db.Model(&models.DbPipeline{}).Where("id = ?", pipelineId).Update("status", status).Error
+func fillPipelineDetail(pipeline *models.DbPipeline) errors.Error {
+	err := db.All(&pipeline.Labels, dal.Where("pipeline_id = ?", pipeline.ID))
 	if err != nil {
-		return errors.Convert(err)
+		return errors.Internal.Wrap(err, "error getting the pipeline labels from database")
 	}
 	return nil
 }

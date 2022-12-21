@@ -18,6 +18,6 @@
 
 . "$(dirname $0)/../vars/active-vars.sh"
 
-pipeline_id=${1-"31"}
+blueprint_id=${1-"3"}
 
-curl -sv $LAKE_ENDPOINT/pipelines/$pipeline_id | jq
+curl -sv -XPOST $LAKE_ENDPOINT/blueprints/$blueprint_id/trigger | jq

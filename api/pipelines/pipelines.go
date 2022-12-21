@@ -31,17 +31,6 @@ import (
 	"github.com/gin-gonic/gin/binding"
 )
 
-/*
-Create and run a new pipeline
-POST /pipelines
-{
-	"name": "name-of-pipeline",
-	"tasks": [
-		[ {"plugin": "gitlab", ...}, {"plugin": "jira"} ],
-		[ {"plugin": "github", ...}],
-	]
-}
-*/
 // @Summary Create and run a new pipeline
 // @Description Create and run a new pipeline
 // @Tags framework/pipelines
@@ -68,17 +57,6 @@ func Post(c *gin.Context) {
 	}
 	shared.ApiOutputSuccess(c, pipeline, http.StatusCreated)
 }
-
-/*
-Get list of pipelines
-GET /pipelines?status=TASK_RUNNING&pending=1&page=1&pagesize=10
-{
-	"pipelines": [
-		{"id": 1, "name": "test-pipeline", ...}
-	],
-	"count": 5
-}
-*/
 
 // @Summary Get list of pipelines
 // @Description GET /pipelines?status=TASK_RUNNING&pending=1&label=search_text&page=1&pagesize=10
@@ -108,16 +86,7 @@ func Index(c *gin.Context) {
 	shared.ApiOutputSuccess(c, shared.ResponsePipelines{Pipelines: pipelines, Count: count}, http.StatusOK)
 }
 
-/*
-Get detail of a pipeline
-GET /pipelines/:pipelineId
-{
-	"id": 1,
-	"name": "test-pipeline",
-	...
-}
-*/
-// @Get detail of a pipeline
+// @Summary Get detail of a pipeline
 // @Description GET /pipelines/:pipelineId
 // @Description RETURN SAMPLE
 // @Description {
@@ -146,11 +115,7 @@ func Get(c *gin.Context) {
 	shared.ApiOutputSuccess(c, pipeline, http.StatusOK)
 }
 
-/*
-Cancel a pending pipeline
-DELETE /pipelines/:pipelineId
-*/
-// @Cancel a pending pipeline
+// @Summary Cancel a pending pipeline
 // @Description Cancel a pending pipeline
 // @Tags framework/pipelines
 // @Param pipelineId path int true "pipeline ID"
@@ -173,11 +138,7 @@ func Delete(c *gin.Context) {
 	shared.ApiOutputSuccess(c, nil, http.StatusOK)
 }
 
-/*
-Get download logs of a pipeline
-GET /pipelines/:pipelineId/logging.tar.gz
-*/
-// download logs of a pipeline
+// @Summary download logs of a pipeline
 // @Description GET /pipelines/:pipelineId/logging.tar.gz
 // @Tags framework/pipelines
 // @Param pipelineId path int true "query"
@@ -205,4 +166,28 @@ func DownloadLogs(c *gin.Context) {
 	}
 	defer os.Remove(archive)
 	c.FileAttachment(archive, filepath.Base(archive))
+}
+
+// RerunPipeline rerun all failed tasks of the specified pipeline
+// @Summary rerun tasks
+// @Tags framework/pipeline
+// @Accept application/json
+// @Param pipelineId path int true "pipelineId"
+// @Success 200  {object} []models.Task
+// @Failure 400  {object} shared.ApiBody "Bad Request"
+// @Failure 500  {object} shared.ApiBody "Internal Error"
+// @Router /pipeline/{pipelineId}/rerun [post]
+func PostRerun(c *gin.Context) {
+	pipelineId := c.Param("pipelineId")
+	id, err := strconv.ParseUint(pipelineId, 10, 64)
+	if err != nil {
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad pipelineID format supplied"))
+		return
+	}
+	rerunTasks, err := services.RerunPipeline(id, nil)
+	if err != nil {
+		shared.ApiOutputError(c, errors.Default.Wrap(err, "failed to rerun pipeline"))
+		return
+	}
+	shared.ApiOutputSuccess(c, rerunTasks, http.StatusOK)
 }

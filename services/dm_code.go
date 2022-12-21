@@ -20,20 +20,12 @@ package services
 import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
 
 // GetRepos FIXME ...
 func GetRepos() ([]*code.Repo, int64, errors.Error) {
 	repos := make([]*code.Repo, 0)
-	db := db.Model(repos).Order("id DESC")
-	var count int64
-	err := db.Count(&count).Error
-	if err != nil {
-		return nil, 0, errors.Convert(err)
-	}
-	err = db.Find(&repos).Error
-	if err != nil {
-		return nil, count, errors.Convert(err)
-	}
-	return repos, count, nil
+	err := db.All(&repos, dal.Orderby("id DESC"))
+	return repos, int64(len(repos)), err
 }

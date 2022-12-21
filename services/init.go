@@ -23,8 +23,8 @@ import (
 	"sync"
 
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/go-playground/validator/v10"
 
-	"github.com/apache/incubator-devlake/config"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models/migrationscripts"
@@ -32,37 +32,32 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/robfig/cron/v3"
-	"gorm.io/gorm"
 )
 
 var cfg core.ConfigReader
 var log core.Logger
-var db *gorm.DB
+var db dal.Dal
 var basicRes core.BasicRes
 var migrator core.Migrator
 var cronManager *cron.Cron
 var cronLocker sync.Mutex
+var vld *validator.Validate
 
 const failToCreateCronJob = "created cron job failed"
 
 // Init the services module
 func Init() {
 	var err error
-	cfg = config.GetConfig()
-	log = logger.Global
-	db, err = runner.NewGormDb(cfg, log)
-	if err != nil {
-		panic(err)
-	}
 
-	// TODO: this is ugly, the lockDb / CreateAppBasicRes are coupled via global variables cfg/log
-	// it is too much for this refactor, let's solve it later
+	// basic resources initialization
+	vld = validator.New()
+	basicRes = runner.CreateAppBasicRes()
+	cfg = basicRes.GetConfigReader()
+	log = basicRes.GetLogger()
+	db = basicRes.GetDal()
 
 	// lock the database to avoid multiple devlake instances from sharing the same one
 	lockDb()
-
-	// basic resources initialization
-	basicRes = runner.CreateBasicRes(cfg, log, db)
 
 	// initialize db migrator
 	migrator, err = runner.InitMigrator(basicRes)
@@ -72,17 +67,20 @@ func Init() {
 	log.Info("migration initialized")
 	migrator.Register(migrationscripts.All(), "Framework")
 
-	// now,
-	// load plugins
+	// now, load the plugins
 	err = runner.LoadPlugins(basicRes)
 	if err != nil {
 		panic(err)
 	}
+
+	// pull migration scripts from plugins to migrator
 	for pluginName, pluginInst := range core.AllPlugins() {
 		if migratable, ok := pluginInst.(core.PluginMigration); ok {
 			migrator.Register(migratable.MigrationScripts(), pluginName)
 		}
 	}
+
+	// check if there are pending migration
 	forceMigration := cfg.GetBool("FORCE_MIGRATION")
 	if !migrator.HasPendingScripts() || forceMigration {
 		err = ExecuteMigration()
@@ -107,7 +105,8 @@ func ExecuteMigration() errors.Error {
 	if err != nil {
 		panic(err)
 	}
-	// call service init
+
+	// initialize pipeline server, mainly to start the pipeline consuming process
 	pipelineServiceInit()
 	return nil
 }

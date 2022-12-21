@@ -51,7 +51,8 @@ func RegisterRouter(r *gin.Engine) {
 	r.GET("/blueprints/:blueprintId/pipelines", blueprints.GetBlueprintPipelines)
 	r.DELETE("/pipelines/:pipelineId", pipelines.Delete)
 	r.GET("/pipelines/:pipelineId/tasks", task.GetTaskByPipeline)
-	r.POST("/pipelines/:pipelineId/tasks", task.RerunTask)
+	r.POST("/pipelines/:pipelineId/rerun", pipelines.PostRerun)
+	r.POST("/tasks/:taskId/rerun", task.PostRerun)
 
 	r.GET("/pipelines/:pipelineId/logging.tar.gz", pipelines.DownloadLogs)
 
@@ -70,12 +71,6 @@ func RegisterRouter(r *gin.Engine) {
 	//r.DELETE("/projects/:projectName", project.DeleteProject)
 	r.POST("/projects", project.PostProject)
 	r.GET("/projects", project.GetProjects)
-
-	// project metric api
-	r.GET("/projects/:projectName/metrics/:pluginName", project.GetProjectMetrics)
-	r.PATCH("/projects/:projectName/metrics/:pluginName", project.PatchProjectMetrics)
-	//r.DELETE("/projects/:projectName/metrics/:pluginName", project.DeleteProjectMetrics)
-	r.POST("/projects/:projectName/metrics", project.PostProjectMetrics)
 
 	// mount all api resources for all plugins
 	pluginsApiResources, err := services.GetPluginsApiResources()

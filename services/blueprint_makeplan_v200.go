@@ -20,6 +20,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
@@ -39,18 +40,19 @@ func GeneratePlanJsonV200(
 	if err != nil {
 		return nil, err
 	}
-	// refresh project_mapping table to reflect project/scopes relationship
+	// save scopes to database
 	if len(scopes) > 0 {
 		for _, scope := range scopes {
-			e := basicRes.GetDal().CreateOrUpdate(scope)
-			if e != nil {
+			err = db.CreateOrUpdate(scope)
+			if err != nil {
 				scopeInfo := fmt.Sprintf("[Id:%s][Name:%s][TableName:%s]", scope.ScopeId(), scope.ScopeName(), scope.TableName())
-				return nil, errors.Default.Wrap(e, fmt.Sprintf("failed to create scopes:[%s]", scopeInfo))
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("failed to create scopes:[%s]", scopeInfo))
 			}
 		}
 	}
+	// refresh project_mapping table to reflect project/scopes relationship
 	if len(projectName) != 0 {
-		err = basicRes.GetDal().Delete(&crossdomain.ProjectMapping{}, dal.Where("project_name = ?", projectName))
+		err = db.Delete(&crossdomain.ProjectMapping{}, dal.Where("project_name = ?", projectName))
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +62,7 @@ func GeneratePlanJsonV200(
 				Table:       scope.TableName(),
 				RowId:       scope.ScopeId(),
 			}
-			err = basicRes.GetDal().CreateIfNotExist(projectMapping)
+			err = db.Create(projectMapping)
 			if err != nil {
 				return nil, err
 			}

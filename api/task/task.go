@@ -44,8 +44,8 @@ func Delete(c *gin.Context) {
 }
 
 type getTaskResponse struct {
-	Tasks []models.Task `json:"tasks"`
-	Count int           `json:"count"`
+	Tasks []*models.Task `json:"tasks"`
+	Count int            `json:"count"`
 }
 
 // GetTaskByPipeline return most recent tasks
@@ -71,88 +71,25 @@ func GetTaskByPipeline(c *gin.Context) {
 	shared.ApiOutputSuccess(c, getTaskResponse{Tasks: tasks, Count: len(tasks)}, http.StatusOK)
 }
 
-type rerunRequest struct {
-	TaskId uint64 `json:"taskId"`
-}
-
-// RerunTask rerun the specified the task. If taskId is 0, all failed tasks of this pipeline will rerun
-// @Summary rerun tasks
+// RerunTask rerun the specified task.
+// @Summary rerun task
 // @Tags framework/task
 // @Accept application/json
-// @Param pipelineId path int true "pipelineId"
-// @Param request body rerunRequest false "specify the task to rerun. If it's 0, all failed tasks of this pipeline will rerun"
-// @Success 200  {object} shared.ApiBody
+// @Success 200  {object} models.Task
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /pipelines/{pipelineId}/tasks [post]
-func RerunTask(c *gin.Context) {
-	var request rerunRequest
-	err := c.BindJSON(&request)
+// @Router /tasks/{taskId}/rerun [post]
+func PostRerun(c *gin.Context) {
+	taskId := c.Param("taskId")
+	id, err := strconv.ParseUint(taskId, 10, 64)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "invalid task ID format"))
+		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "bad taskId format supplied"))
 		return
 	}
-	pipelineId, err := strconv.ParseUint(c.Param("pipelineId"), 10, 64)
+	task, err := services.RerunTask(id)
 	if err != nil {
-		shared.ApiOutputError(c, errors.BadInput.Wrap(err, "invalid pipeline ID format"))
+		shared.ApiOutputError(c, err)
 		return
 	}
-	pipeline, err := services.GetPipeline(pipelineId)
-	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error get pipeline"))
-		return
-	}
-	if pipeline.Status == models.TASK_RUNNING {
-		shared.ApiOutputError(c, errors.BadInput.New("pipeline is running"))
-		return
-	}
-	if pipeline.Status == models.TASK_CREATED || pipeline.Status == models.TASK_RERUN {
-		shared.ApiOutputError(c, errors.BadInput.New("pipeline is waiting to run"))
-		return
-	}
-
-	var failedTasks []models.Task
-	if request.TaskId > 0 {
-		failedTask, err := services.GetTask(request.TaskId)
-		if err != nil || failedTask == nil {
-			shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting failed task"))
-			return
-		}
-		if failedTask.PipelineId != pipelineId {
-			shared.ApiOutputError(c, errors.BadInput.New("the task ID and pipeline ID doesn't match"))
-			return
-		}
-		failedTasks = append(failedTasks, *failedTask)
-	} else {
-		tasks, err := services.GetTasksWithLastStatus(pipelineId)
-		if err != nil {
-			shared.ApiOutputError(c, errors.Default.Wrap(err, "error getting tasks"))
-			return
-		}
-		for _, task := range tasks {
-			if task.Status == models.TASK_FAILED {
-				failedTasks = append(failedTasks, task)
-			}
-		}
-	}
-	if len(failedTasks) == 0 {
-		shared.ApiOutputSuccess(c, nil, http.StatusOK)
-		return
-	}
-	err = services.DeleteCreatedTasks(pipelineId)
-	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error delete tasks"))
-		return
-	}
-	_, err = services.SpawnTasks(failedTasks)
-	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error create tasks"))
-		return
-	}
-	err = services.UpdateDbPipelineStatus(pipelineId, models.TASK_RERUN)
-	if err != nil {
-		shared.ApiOutputError(c, errors.Default.Wrap(err, "error create tasks"))
-		return
-	}
-	shared.ApiOutputSuccess(c, nil, http.StatusOK)
+	shared.ApiOutputSuccess(c, task, http.StatusOK)
 }

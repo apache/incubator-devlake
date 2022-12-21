@@ -17,6 +17,6 @@
 #
 
 . "$(dirname $0)/../vars/active-vars.sh"
-ID=${1-17}
+ID=${1-32}
 
 curl -sv -XDELETE $LAKE_ENDPOINT/pipelines/$ID | jq

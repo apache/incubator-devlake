@@ -29,6 +29,8 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/google/uuid"
 	v11 "go.temporal.io/api/enums/v1"
@@ -43,10 +45,9 @@ var globalPipelineLog = logger.Global.Nested("pipeline service")
 
 // PipelineQuery is a query for GetPipelines
 type PipelineQuery struct {
+	Pagination
 	Status      string `form:"status"`
 	Pending     int    `form:"pending"`
-	Page        int    `form:"page"`
-	PageSize    int    `form:"pageSize"`
 	BlueprintId uint64 `uri:"blueprintId" form:"blueprint_id"`
 	Label       string `form:"label"`
 }
@@ -73,8 +74,14 @@ func pipelineServiceInit() {
 		watchTemporalPipelines()
 	} else {
 		// standalone mode: reset pipeline status
-		db.Model(&models.DbPipeline{}).Where("status <> ?", models.TASK_COMPLETED).Update("status", models.TASK_FAILED)
-		db.Model(&models.Task{}).Where("status <> ?", models.TASK_COMPLETED).Update("status", models.TASK_FAILED)
+		err := db.UpdateColumn(
+			&models.DbPipeline{},
+			"status", models.TASK_FAILED,
+			dal.Where("status = ?", models.TASK_RUNNING),
+		)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	err := ReloadBlueprints(cronManager)
@@ -159,6 +166,7 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 	sema := semaphore.NewWeighted(pipelineMaxParallel)
 	runningParallelLabels := []string{}
 	var runningParallelLabelLock sync.Mutex
+	dbPipeline := &models.DbPipeline{}
 	for {
 		globalPipelineLog.Info("acquire lock")
 		// start goroutine when sema lock ready and pipeline exist.
@@ -168,31 +176,45 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 			panic(err)
 		}
 		globalPipelineLog.Info("get lock and wait next pipeline")
-		dbPipeline := &models.DbPipeline{}
 		for {
 			cronLocker.Lock()
 			// prepare query to find an appropriate pipeline to execute
-			db.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}).
-				Joins(`left join _devlake_pipeline_labels ON
+			err := db.First(dbPipeline,
+				dal.Where("status IN ?", []string{models.TASK_CREATED, models.TASK_RERUN}),
+				dal.Join(
+					`left join _devlake_pipeline_labels ON
 						_devlake_pipeline_labels.pipeline_id = _devlake_pipelines.id AND
 						_devlake_pipeline_labels.name LIKE 'parallel/%' AND
-						_devlake_pipeline_labels.name in ?`, runningParallelLabels).
-				Group(`id`).
-				Having(`count(_devlake_pipeline_labels.name)=0`).
-				Select("id").
-				Order("id ASC").Limit(1).Find(dbPipeline)
+						_devlake_pipeline_labels.name in ?`,
+					runningParallelLabels,
+				),
+				dal.Groupby("id"),
+				dal.Having("count(_devlake_pipeline_labels.name)=0"),
+				dal.Select("id"),
+				dal.Orderby("id ASC"),
+				dal.Limit(1),
+			)
+			if err != nil && !db.IsErrorNotFound(err) {
+				globalPipelineLog.Error(err, "dequeue failed")
+			}
 			cronLocker.Unlock()
-			if dbPipeline.ID != 0 {
+			if !db.IsErrorNotFound(err) {
 				break
 			}
 			time.Sleep(time.Second)
 		}
 
-		db.Model(&models.DbPipeline{}).Where("id = ?", dbPipeline.ID).Updates(map[string]interface{}{
-			"status":   models.TASK_RUNNING,
-			"message":  "",
-			"began_at": time.Now(),
-		})
+		// mark the pipeline running
+		err = db.UpdateColumns(&models.DbPipeline{}, []dal.DalSet{
+			{ColumnName: "status", Value: models.TASK_RUNNING},
+			{ColumnName: "message", Value: ""},
+			{ColumnName: "began_at", Value: time.Now()},
+		}, dal.Where("id = ?", dbPipeline.ID))
+		if err != nil {
+			panic(err)
+		}
+
+		// load pipeline
 		dbPipeline, err = GetDbPipeline(dbPipeline.ID)
 		if err != nil {
 			panic(err)
@@ -234,7 +256,7 @@ func watchTemporalPipelines() {
 		for range ticker.C {
 			// load all running pipeline from database
 			runningDbPipelines := make([]models.DbPipeline, 0)
-			err := db.Find(&runningDbPipelines, "status = ?", models.TASK_RUNNING).Error
+			err := db.All(&runningDbPipelines, dal.Where("status = ?", models.TASK_RUNNING))
 			if err != nil {
 				panic(err)
 			}
@@ -277,11 +299,11 @@ func watchTemporalPipelines() {
 						}
 					}
 					rp.FinishedAt = desc.WorkflowExecutionInfo.CloseTime
-					err = db.Model(rp).Updates(map[string]interface{}{
-						"status":      rp.Status,
-						"message":     rp.Message,
-						"finished_at": rp.FinishedAt,
-					}).Error
+					err = db.UpdateColumns(rp, []dal.DalSet{
+						{ColumnName: "status", Value: rp.Status},
+						{ColumnName: "message", Value: rp.Message},
+						{ColumnName: "finished_at", Value: rp.FinishedAt},
+					})
 					if err != nil {
 						globalPipelineLog.Error(err, "failed to update db: %v", err)
 					}
@@ -352,23 +374,25 @@ func CancelPipeline(pipelineId uint64) errors.Error {
 	cronLocker.Lock()
 	defer cronLocker.Unlock()
 	pipeline := &models.DbPipeline{}
-	err := db.First(pipeline, pipelineId).Error
+	err := db.First(pipeline, dal.Where("id = ?", pipelineId))
 	if err != nil {
 		return errors.BadInput.New("pipeline not found")
 	}
 	if pipeline.Status == models.TASK_CREATED || pipeline.Status == models.TASK_RERUN {
 		pipeline.Status = models.TASK_CANCELLED
-		result := db.Save(pipeline)
-		if result.Error != nil {
-			return errors.Default.Wrap(result.Error, "faile to update pipeline")
+		err = db.Update(pipeline)
+		if err != nil {
+			return errors.Default.Wrap(err, "faile to update pipeline")
 		}
 		// now, with RunPipelineInQueue being block and target pipeline got updated
 		// we should update the related tasks as well
-		result = db.Model(&models.Task{}).
-			Where("pipeline_id = ?", pipelineId).
-			Update("status", models.TASK_CANCELLED)
-		if result.Error != nil {
-			return errors.Default.Wrap(result.Error, "faile to update pipeline tasks")
+		err = db.UpdateColumn(
+			&models.Task{},
+			"status", models.TASK_CANCELLED,
+			dal.Where("pipeline_id = ?", pipelineId),
+		)
+		if err != nil {
+			return errors.Default.Wrap(err, "faile to update pipeline tasks")
 		}
 		// the target pipeline is pending, no running, no need to perform the actual cancel operation
 		return nil
@@ -376,7 +400,7 @@ func CancelPipeline(pipelineId uint64) errors.Error {
 	if temporalClient != nil {
 		return errors.Convert(temporalClient.CancelWorkflow(context.Background(), getTemporalWorkflowId(pipelineId), ""))
 	}
-	pendingTasks, count, err := GetTasks(&TaskQuery{PipelineId: pipelineId, Pending: 1, PageSize: -1})
+	pendingTasks, count, err := GetTasks(&TaskQuery{PipelineId: pipelineId, Pending: 1, Pagination: Pagination{PageSize: -1}})
 	if err != nil {
 		return errors.Convert(err)
 	}
@@ -401,4 +425,96 @@ func getPipelineLogsPath(pipeline *models.Pipeline) (string, errors.Error) {
 		return "", errors.NotFound.Wrap(err, fmt.Sprintf("logs for pipeline #%d not found", pipeline.ID))
 	}
 	return "", errors.Default.Wrap(err, fmt.Sprintf("error validating logs path for pipeline #%d", pipeline.ID))
+}
+
+// RerunPipeline would rerun all failed tasks or specified task
+func RerunPipeline(pipelineId uint64, task *models.Task) ([]*models.Task, errors.Error) {
+	// prevent pipeline executor from doing anything that might jeopardize the integrity
+	cronLocker.Lock()
+	defer cronLocker.Unlock()
+
+	// load the pipeline
+	pipeline, err := GetPipeline(pipelineId)
+	if err != nil {
+		return nil, err
+	}
+
+	// verify the status
+	if pipeline.Status == models.TASK_RUNNING {
+		return nil, errors.BadInput.New("pipeline is running")
+	}
+	if pipeline.Status == models.TASK_CREATED || pipeline.Status == models.TASK_RERUN {
+		return nil, errors.BadInput.New("pipeline is waiting to run")
+	}
+
+	// determine which tasks to rerun
+	var failedTasks []*models.Task
+	if task != nil {
+		if task.PipelineId != pipelineId {
+			return nil, errors.BadInput.New("the task ID and pipeline ID doesn't match")
+		}
+		failedTasks = append(failedTasks, task)
+	} else {
+		tasks, err := GetTasksWithLastStatus(pipelineId)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, "error getting tasks")
+		}
+		for _, t := range tasks {
+			if t.Status != models.TASK_COMPLETED {
+				failedTasks = append(failedTasks, t)
+			}
+		}
+	}
+
+	// no tasks to rerun
+	if len(failedTasks) == 0 {
+		return nil, errors.BadInput.New("no tasks to be re-ran")
+	}
+
+	// create new tasks
+	// TODO: this is better to be wrapped inside a transaction
+	rerunTasks := []*models.Task{}
+	for _, t := range failedTasks {
+		// mark previous task failed
+		t.Status = models.TASK_FAILED
+		err := db.UpdateColumn(t, "status", models.TASK_FAILED)
+		if err != nil {
+			return nil, err
+		}
+		// create new task
+		subtasks, err := t.GetSubTasks()
+		if err != nil {
+			return nil, err
+		}
+		options, err := t.GetOptions()
+		if err != nil {
+			return nil, err
+		}
+		rerunTask, err := CreateTask(&models.NewTask{
+			PipelineTask: &core.PipelineTask{
+				Plugin:   t.Plugin,
+				Subtasks: subtasks,
+				Options:  options,
+			},
+			PipelineId:  t.PipelineId,
+			PipelineRow: t.PipelineRow,
+			PipelineCol: t.PipelineCol,
+			IsRerun:     true,
+		})
+		if err != nil {
+			return nil, err
+		}
+		// append to result
+		rerunTasks = append(rerunTasks, rerunTask)
+	}
+
+	// mark pipline rerun
+	err = db.UpdateColumn(&models.DbPipeline{},
+		"status", models.TASK_RERUN,
+		dal.Where("id = ?", pipelineId),
+	)
+	if err != nil {
+		return nil, err
+	}
+	return rerunTasks, nil
 }
