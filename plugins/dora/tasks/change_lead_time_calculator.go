@@ -18,18 +18,17 @@ limitations under the License.
 package tasks
 
 import (
-	goerror "errors"
-	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
-	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"reflect"
 	"time"
+
+	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
+	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"gorm.io/gorm"
 )
 
 func CalculateChangeLeadTime(taskCtx core.SubTaskContext) errors.Error {
@@ -166,7 +165,7 @@ func getFirstCommit(prId string, db dal.Dal) (*code.Commit, errors.Error) {
 		dal.Orderby("commits.authored_date ASC"),
 	}
 	err := db.First(commit, commitClauses...)
-	if goerror.Is(err, gorm.ErrRecordNotFound) {
+	if db.IsErrorNotFound(err) {
 		return nil, nil
 	}
 	if err != nil {
@@ -183,7 +182,7 @@ func getFirstReview(prId string, prCreator string, db dal.Dal) (*code.PullReques
 		dal.Orderby("created_date ASC"),
 	}
 	err := db.First(review, commentClauses...)
-	if goerror.Is(err, gorm.ErrRecordNotFound) {
+	if db.IsErrorNotFound(err) {
 		return nil, nil
 	}
 	if err != nil {
@@ -207,7 +206,7 @@ func getDeployment(mergeSha string, repoId string, deploymentPairList []deployme
 		if err == nil {
 			return &pair, nil
 		}
-		if goerror.Is(err, gorm.ErrRecordNotFound) {
+		if db.IsErrorNotFound(err) {
 			continue
 		}
 		if err != nil {

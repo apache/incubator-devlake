@@ -19,13 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
-	goerror "errors"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	"gorm.io/gorm"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -52,7 +51,7 @@ func CollectIterations(taskCtx core.SubTaskContext) errors.Error {
 			dal.Orderby("modified DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+		if err != nil && !db.IsErrorNotFound(err) {
 			return errors.NotFound.Wrap(err, "failed to get latest tapd changelog record")
 		}
 		if latestUpdated.Id > 0 {

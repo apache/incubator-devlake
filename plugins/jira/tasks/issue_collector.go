@@ -19,9 +19,7 @@ package tasks
 
 import (
 	"encoding/json"
-	goerror "errors"
 	"fmt"
-	"gorm.io/gorm"
 	"io"
 	"net/http"
 	"net/url"
@@ -90,7 +88,7 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 			dal.Orderby("_tool_jira_issues.updated DESC"),
 		}
 		err := db.First(&latestUpdated, clauses...)
-		if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+		if err != nil && !db.IsErrorNotFound(err) {
 			return errors.NotFound.Wrap(err, "failed to get latest jira issue record")
 		}
 		if latestUpdated.IssueId > 0 {

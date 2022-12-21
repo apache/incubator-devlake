@@ -19,8 +19,12 @@ package tasks
 
 import (
 	"encoding/json"
-	goerror "errors"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"strings"
+
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
@@ -28,11 +32,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
-	"gorm.io/gorm"
-	"io"
-	"net/http"
-	"net/url"
-	"strings"
 )
 
 type Page struct {
@@ -99,7 +98,7 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 			data.Options.ConnectionId, data.Options.WorkspaceId, old),
 	}
 	err = db.First(iterationFrom, clauses...)
-	if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil && !db.IsErrorNotFound(err) {
 		return 0, 0, err
 	}
 
@@ -110,7 +109,7 @@ func parseIterationChangelog(taskCtx core.SubTaskContext, old string, new string
 			data.Options.ConnectionId, data.Options.WorkspaceId, new),
 	}
 	err = db.First(iterationTo, clauses...)
-	if err != nil && !goerror.Is(err, gorm.ErrRecordNotFound) {
+	if err != nil && !db.IsErrorNotFound(err) {
 		return 0, 0, err
 	}
 	return iterationFrom.Id, iterationTo.Id, nil

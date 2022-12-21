@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"gorm.io/gorm"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -287,8 +286,9 @@ func EnrichOptions(taskCtx core.TaskContext,
 	// Set GithubTransformationRule if it's nil, this has lower priority
 	if op.GithubTransformationRule == nil && op.TransformationRuleId != 0 {
 		var transformationRule models.GithubTransformationRule
-		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", githubRepo.TransformationRuleId))
-		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		db := taskCtx.GetDal()
+		err = db.First(&transformationRule, dal.Where("id = ?", githubRepo.TransformationRuleId))
+		if err != nil && !db.IsErrorNotFound(err) {
 			return errors.BadInput.Wrap(err, "fail to get transformationRule")
 		}
 		op.GithubTransformationRule = &transformationRule
