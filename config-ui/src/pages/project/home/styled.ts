@@ -39,7 +39,7 @@ export const DialogWrapper = styled.div`
     margin-top: 16px;
   }
 
-  .bp3-input-group {
+  .bp4-input-group {
     width: 386px;
   }
 

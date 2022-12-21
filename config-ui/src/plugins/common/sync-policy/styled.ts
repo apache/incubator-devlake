@@ -38,7 +38,7 @@ export const Help = styled.div`
     font-size: 14px;
     font-weight: 700px;
 
-    span.bp3-icon {
+    span.bp4-icon {
       margin-right: 4px;
     }
   }

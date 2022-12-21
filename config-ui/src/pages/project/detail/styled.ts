@@ -57,7 +57,7 @@ export const Wrapper = styled.div`
       margin-bottom: 16px;
     }
 
-    .bp3-input-group {
+    .bp4-input-group {
       width: 386px;
     }
   }

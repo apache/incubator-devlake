@@ -94,11 +94,15 @@ export const useBPUpgrade = ({ id, onResetError }: UseBPUpgradeProps) => {
   }
 
   const upgradeScope = async (plugin: string, connectionId: ID, scope: any) => {
-    // create transfromation template
-    const transfromationRule = await API.createTransformation(plugin, {
-      ...scope.transformation,
-      name: `upgrade-${plugin}-${connectionId}-${new Date().getTime()}`
-    })
+    let transfromationRule
+
+    if (scope.transformation) {
+      // create transfromation template
+      transfromationRule = await API.createTransformation(plugin, {
+        ...scope.transformation,
+        name: `upgrade-${plugin}-${connectionId}-${new Date().getTime()}`
+      })
+    }
 
     // get data scope detail
     const scopeDetail = await getScopeDetail(
@@ -114,7 +118,7 @@ export const useBPUpgrade = ({ id, onResetError }: UseBPUpgradeProps) => {
       getScopeId(plugin, scopeDetail),
       {
         ...scopeDetail,
-        transformationRuleId: transfromationRule.id
+        transformationRuleId: transfromationRule?.id
       }
     )
 

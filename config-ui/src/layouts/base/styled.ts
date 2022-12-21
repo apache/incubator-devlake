@@ -53,11 +53,7 @@ export const Sider = styled.div`
         background-color: rgba(167, 182, 194, 0.3);
       }
 
-      &.bp3-active:hover {
-        background-color: #7497f7;
-      }
-
-      .bp3-icon {
+      .bp4-icon {
         svg {
           width: 12px;
           height: 12px;
