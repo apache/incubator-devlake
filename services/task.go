@@ -56,7 +56,7 @@ func CreateTask(newTask *models.NewTask) (*models.Task, errors.Error) {
 	task := &models.Task{
 		Plugin:      newTask.Plugin,
 		Subtasks:    s,
-		Options:     b,
+		Options:     string(b),
 		Status:      models.TASK_CREATED,
 		Message:     "",
 		PipelineId:  newTask.PipelineId,
