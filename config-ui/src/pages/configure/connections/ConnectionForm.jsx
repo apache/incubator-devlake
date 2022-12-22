@@ -220,7 +220,7 @@ export default function ConnectionForm(props) {
   }
 
   const syncPersonalAcessTokens = useCallback(() => {
-    onTokenChange(personalAccessTokens.join(',').trim())
+    onTokenChange(personalAccessTokens.filter(Boolean).join(',').trim())
     // eslint-disable-next-line no-unused-vars
     const tokenTestResponses = personalAccessTokens
       .filter((t) => t !== '')
@@ -262,7 +262,7 @@ export default function ConnectionForm(props) {
 
   useEffect(() => {
     console.log('>> PERSONAL TOKEN STORE UPDATED...', tokenStore)
-    setPersonalAccessTokens(Object.values(tokenStore).filter((t) => t !== ''))
+    setPersonalAccessTokens(Object.values(tokenStore))
   }, [tokenStore])
 
   useEffect(() => {
@@ -292,26 +292,24 @@ export default function ConnectionForm(props) {
   useEffect(() => {
     console.log('>> ALL TEST RESPONSES FROM CONN MGR...', allTestResponses)
     setTokenTests(
-      personalAccessTokens
-        .filter((t) => t !== '')
-        .map((t, tIdx) => {
-          return {
-            id: tIdx,
-            token: t,
-            response: allTestResponses ? allTestResponses[t] : null,
-            success: allTestResponses ? allTestResponses[t]?.success : false,
-            message: allTestResponses
-              ? allTestResponses[t]?.message
-              : 'invalid token',
-            username: allTestResponses ? allTestResponses[t]?.login : '',
-            status: getValidityStatus(
-              t,
-              allTestResponses ? allTestResponses[t] : null,
-              allTestResponses
-            ),
-            isDuplicate: !!(allTestResponses && allTestResponses[t])
-          }
-        })
+      personalAccessTokens.map((t, tIdx) => {
+        return {
+          id: tIdx,
+          token: t,
+          response: allTestResponses ? allTestResponses[t] : null,
+          success: allTestResponses ? allTestResponses[t]?.success : false,
+          message: allTestResponses
+            ? allTestResponses[t]?.message
+            : 'invalid token',
+          username: allTestResponses ? allTestResponses[t]?.login : '',
+          status: getValidityStatus(
+            t,
+            allTestResponses ? allTestResponses[t] : null,
+            allTestResponses
+          ),
+          isDuplicate: !!(allTestResponses && allTestResponses[t])
+        }
+      })
     )
   }, [allTestResponses, personalAccessTokens, getValidityStatus])
 

@@ -16,7 +16,7 @@
  *
  */
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { InputGroup, Icon } from '@blueprintjs/core'
 
 import { useConnection, ConnectionStatusEnum } from '@/store'
@@ -25,10 +25,15 @@ import { Card, Divider, MultiSelector, Loading } from '@/components'
 import { ModeEnum } from '../../types'
 import { AdvancedEditor } from '../../components'
 import { useCreateBP } from '../bp-context'
+import { FromEnum } from '../types'
 
 import * as S from './styled'
 
-export const StepOne = () => {
+interface Props {
+  from: FromEnum
+}
+
+export const StepOne = ({ from }: Props) => {
   const { connections, onTest } = useConnection()
 
   const {
@@ -41,6 +46,8 @@ export const StepOne = () => {
     onChangeRawPlan,
     onChangeUniqueList
   } = useCreateBP()
+
+  const fromProject = useMemo(() => from === FromEnum.project, [from])
 
   return (
     <>
@@ -103,18 +110,20 @@ export const StepOne = () => {
                 ))}
             </S.ConnectionList>
           </Card>
-          <S.Tips>
-            <span>
-              To customize how tasks are executed in the blueprint, please use{' '}
-            </span>
-            <span onClick={() => onChangeMode(ModeEnum.advanced)}>
-              Advanced Mode.
-            </span>
-          </S.Tips>
+          {!fromProject && (
+            <S.Tips>
+              <span>
+                To customize how tasks are executed in the blueprint, please use{' '}
+              </span>
+              <span onClick={() => onChangeMode(ModeEnum.advanced)}>
+                Advanced Mode.
+              </span>
+            </S.Tips>
+          )}
         </>
       )}
 
-      {mode === ModeEnum.advanced && (
+      {mode === ModeEnum.advanced && !fromProject && (
         <>
           <Card className='card'>
             <h2>JSON Configuration</h2>

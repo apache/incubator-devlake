@@ -380,7 +380,11 @@ const BlueprintDetail = ({ id }) => {
       <main className='main'>
         <div
           className='blueprint-info'
-          style={{ display: 'flex', alignItems: 'center' }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end'
+          }}
         >
           <div className='blueprint-schedule'>
             <span

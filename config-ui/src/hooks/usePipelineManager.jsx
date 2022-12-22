@@ -263,6 +263,8 @@ function usePipelineManager(
   }
 
   const rerunTask = async (taskId) => {
+    setIsRunning(true)
+    setErrors([])
     try {
       const res = await request.post(
         `${DEVLAKE_ENDPOINT}/pipelines/${activePipeline.id}/tasks`,
@@ -273,7 +275,10 @@ function usePipelineManager(
       if (res?.data?.success) {
         fetchPipeline(activePipeline.id)
       }
-    } catch (err) {}
+    } catch (err) {
+    } finally {
+      setIsRunning(false)
+    }
   }
 
   useEffect(() => {

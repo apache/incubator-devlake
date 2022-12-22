@@ -20,9 +20,8 @@ import { useState, useEffect, useMemo } from 'react'
 
 import { Error } from '@/error'
 import { operator } from '@/utils'
-import { PluginConfig } from '@/plugins'
 
-import type { BlueprintType, ConnectionItemType } from './types'
+import type { BlueprintType } from './types'
 import * as API from './api'
 
 export interface UseDetailProps {
@@ -33,25 +32,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [blueprint, setBlueprint] = useState<BlueprintType>()
-  const [connections, setConnections] = useState<ConnectionItemType[]>([])
   const [, setError] = useState()
-
-  const transformConnection = (connections: any) => {
-    return connections
-      .map((cs: any) => {
-        const plugin = PluginConfig.find((p) => p.plugin === cs.plugin)
-        if (!plugin) return null
-        return {
-          icon: plugin.icon,
-          name: plugin.name,
-          connectionId: cs.connectionId,
-          entities: cs.scopes[0].entities,
-          plugin: cs.plugin,
-          scopeIds: cs.scopes.map((sc: any) => sc.id)
-        }
-      })
-      .filter(Boolean)
-  }
 
   const getBlueprint = async () => {
     setLoading(true)
@@ -59,14 +40,13 @@ export const useDetail = ({ id }: UseDetailProps) => {
       const res = await API.getBlueprint(id)
 
       // need to upgrade 2.0.0
-      if (res.settings.version === '1.0.0') {
+      if (res.settings?.version === '1.0.0') {
         setError(() => {
           throw Error.BP_NEED_TO_UPGRADE
         })
       }
 
       setBlueprint(res)
-      setConnections(transformConnection(res.settings?.connections || []))
     } finally {
       setLoading(false)
     }
@@ -98,10 +78,9 @@ export const useDetail = ({ id }: UseDetailProps) => {
       loading,
       saving,
       blueprint,
-      connections,
       onUpdate: handleUpdate,
       onRefresh: getBlueprint
     }),
-    [loading, saving, blueprint, connections]
+    [loading, saving, blueprint]
   )
 }

@@ -32,7 +32,7 @@ export default function ZentaoSettings(props) {
   const history = useHistory()
 
   const cancel = () => {
-    history.push(`/integrations/${provider.id}`)
+    history.push(`/connections/${provider.id}`)
   }
 
   return (

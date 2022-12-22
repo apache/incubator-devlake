@@ -41,7 +41,7 @@ export default function Integration() {
     const theProvider = Plugins.find((p) => p.id === providerId)
     if (theProvider) {
       setActiveProvider(theProvider)
-      history.push(`/integrations/${theProvider.id}`)
+      history.push(`/connections/${theProvider.id}`)
     } else {
       setActiveProvider(Plugins.find[0])
     }

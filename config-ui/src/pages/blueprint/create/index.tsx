@@ -66,7 +66,7 @@ export const CreateBlueprintPage = ({ from }: Props) => {
               <S.Container>
                 <WorkFlow />
                 <S.Content>
-                  {step === 1 && <StepOne />}
+                  {step === 1 && <StepOne from={from} />}
                   {mode === ModeEnum.normal && step === 2 && <StepTwo />}
                   {step === 3 && <StepThree />}
                   {((mode === ModeEnum.normal && step === 4) ||

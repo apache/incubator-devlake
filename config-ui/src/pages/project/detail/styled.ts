@@ -46,8 +46,6 @@ export const Wrapper = styled.div`
   }
 
   .settings {
-    padding: 24px;
-
     h3 {
       margin: 0;
       padding: 0;
