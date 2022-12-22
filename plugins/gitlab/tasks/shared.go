@@ -94,7 +94,7 @@ func GetRawMessageCreatedAtAfter(createDateAfter *time.Time) func(res *http.Resp
 				return nil, err
 			}
 			if createDateAfter == nil || createDateAfter.Before(apiModel.CreatedAt.ToTime()) {
-				// only finish when all item before `createDateAfter`
+				// only finish when all items created before `createDateAfter`
 				// because gitlab's order may not strict enough
 				isFinish = false
 				filterRawMessages = append(filterRawMessages, rawMessage)
