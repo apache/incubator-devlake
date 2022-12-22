@@ -40,7 +40,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
       const res = await API.getBlueprint(id)
 
       // need to upgrade 2.0.0
-      if (res.settings.version === '1.0.0') {
+      if (res.settings?.version === '1.0.0') {
         setError(() => {
           throw Error.BP_NEED_TO_UPGRADE
         })

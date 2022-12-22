@@ -66,7 +66,7 @@ export const Configuration = ({
 
   const connections = useMemo(
     () =>
-      blueprint.settings.connections
+      blueprint.settings?.connections
         .filter((cs) => cs.plugin !== Plugins.Webhook)
         .map((cs: any) => {
           const plugin = PluginConfig.find((p) => p.plugin === cs.plugin) as any
