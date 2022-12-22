@@ -34,10 +34,9 @@ interface Props extends UseDetailProps {}
 export const BlueprintDetail = ({ id }: Props) => {
   const [activeTab, setActiveTab] = useState<TabId>('status')
 
-  const { loading, blueprint, connections, saving, onUpdate, onRefresh } =
-    useDetail({
-      id
-    })
+  const { loading, blueprint, saving, onUpdate, onRefresh } = useDetail({
+    id
+  })
 
   if (loading || !blueprint) {
     return <PageLoading />
@@ -52,7 +51,6 @@ export const BlueprintDetail = ({ id }: Props) => {
         panel={
           <Configuration
             blueprint={blueprint}
-            connections={connections}
             saving={saving}
             onUpdate={onUpdate}
             onRefresh={onRefresh}

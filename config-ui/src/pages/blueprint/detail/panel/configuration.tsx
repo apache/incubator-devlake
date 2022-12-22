@@ -22,7 +22,7 @@ import dayjs from 'dayjs'
 
 import { Table, ColumnType } from '@/components'
 import { getCron } from '@/config'
-import { DataScopeList } from '@/plugins'
+import { PluginConfig, PluginType, DataScopeList, Plugins } from '@/plugins'
 
 import { ModeEnum } from '../../types'
 import { validRawPlan } from '../../utils'
@@ -40,7 +40,6 @@ type Type = 'name' | 'frequency' | 'scope' | 'transformation'
 
 interface Props {
   blueprint: BlueprintType
-  connections: ConnectionItemType[]
   saving: boolean
   onUpdate: (bp: any) => void
   onRefresh: () => void
@@ -48,7 +47,6 @@ interface Props {
 
 export const Configuration = ({
   blueprint,
-  connections,
   saving,
   onUpdate,
   onRefresh
@@ -63,6 +61,25 @@ export const Configuration = ({
 
   const cron = useMemo(
     () => getCron(blueprint.isManual, blueprint.cronConfig),
+    [blueprint]
+  )
+
+  const connections = useMemo(
+    () =>
+      blueprint.settings.connections
+        .filter((cs) => cs.plugin !== Plugins.Webhook)
+        .map((cs: any) => {
+          const plugin = PluginConfig.find((p) => p.plugin === cs.plugin) as any
+          return {
+            icon: plugin.icon,
+            name: plugin.name,
+            connectionId: cs.connectionId,
+            entities: cs.scopes[0].entities,
+            plugin: cs.plugin,
+            scopeIds: cs.scopes.map((sc: any) => sc.id)
+          }
+        })
+        .filter(Boolean),
     [blueprint]
   )
 
