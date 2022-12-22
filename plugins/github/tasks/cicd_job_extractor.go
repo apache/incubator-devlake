@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"strings"
 )
 
 var ExtractJobsMeta = core.SubTaskMeta{
@@ -64,8 +65,8 @@ func ExtractJobs(taskCtx core.SubTaskContext) errors.Error {
 				HeadSha:       githubJob.HeadSha,
 				URL:           githubJob.URL,
 				HTMLURL:       githubJob.HTMLURL,
-				Status:        githubJob.Status,
-				Conclusion:    githubJob.Conclusion,
+				Status:        strings.ToUpper(githubJob.Status),
+				Conclusion:    strings.ToUpper(githubJob.Conclusion),
 				StartedAt:     githubJob.StartedAt,
 				CompletedAt:   githubJob.CompletedAt,
 				Name:          githubJob.Name,

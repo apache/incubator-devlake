@@ -27,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/merico-dev/graphql"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -162,8 +163,8 @@ func CollectCheckRun(taskCtx core.SubTaskContext) errors.Error {
 						ID:           checkRun.DatabaseId,
 						NodeID:       checkRun.Id,
 						HTMLURL:      checkRun.DetailsUrl,
-						Status:       checkRun.Status,
-						Conclusion:   checkRun.Conclusion,
+						Status:       strings.ToUpper(checkRun.Status),
+						Conclusion:   strings.ToUpper(checkRun.Conclusion),
 						StartedAt:    checkRun.StartedAt,
 						CompletedAt:  checkRun.CompletedAt,
 						Name:         checkRun.Name,
