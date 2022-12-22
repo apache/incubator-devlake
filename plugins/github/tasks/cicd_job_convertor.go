@@ -95,17 +95,17 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 			domainJob.Type = regexEnricher.GetEnrichResult(deploymentPattern, line.Name, devops.DEPLOYMENT)
 			domainJob.Environment = regexEnricher.GetEnrichResult(productionPattern, line.Name, devops.PRODUCTION)
 
-			if strings.Contains(line.Conclusion, "success") {
+			if strings.Contains(line.Conclusion, "SUCCESS") {
 				domainJob.Result = devops.SUCCESS
-			} else if strings.Contains(line.Conclusion, "failure") {
+			} else if strings.Contains(line.Conclusion, "FAILURE") {
 				domainJob.Result = devops.FAILURE
-			} else if strings.Contains(line.Conclusion, "abort") {
+			} else if strings.Contains(line.Conclusion, "ABORT") {
 				domainJob.Result = devops.ABORT
 			} else {
 				domainJob.Result = ""
 			}
 
-			if line.Status != "completed" {
+			if line.Status != "COMPLETED" {
 				domainJob.Status = devops.IN_PROGRESS
 			} else {
 				domainJob.Status = devops.DONE
