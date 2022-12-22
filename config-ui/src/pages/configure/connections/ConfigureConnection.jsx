@@ -127,7 +127,7 @@ export default function ConfigureConnection() {
   })
 
   const cancel = () => {
-    history.push(`/integrations/${activeProvider?.id}`)
+    history.push(`/connections/${activeProvider?.id}`)
   }
 
   // @todo: cleanup unused render helper
@@ -170,7 +170,7 @@ export default function ConfigureConnection() {
   useEffect(() => {
     if (deleteComplete) {
       console.log('>>> DELETE COMPLETE!')
-      history.replace(`/integrations/${deleteComplete.provider?.id}`)
+      history.replace(`/connections/${deleteComplete.provider?.id}`)
     }
   }, [deleteComplete, history])
 
@@ -188,7 +188,7 @@ export default function ConfigureConnection() {
               marginLeft: '10px',
               color: '#777777'
             }}
-            to={`/integrations/${activeProvider?.id}`}
+            to={`/connections/${activeProvider?.id}`}
           >
             <Icon icon='fast-backward' size={16} /> Connection List
           </Link>

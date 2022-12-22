@@ -108,7 +108,7 @@ export default function AddConnection() {
   })
 
   const cancel = () => {
-    history.push(`/integrations/${activeProvider?.id}`)
+    history.push(`/connections/${activeProvider?.id}`)
   }
 
   // const resetForm = () => {
@@ -149,7 +149,7 @@ export default function AddConnection() {
       <div style={{ width: '100%' }}>
         <Link
           style={{ float: 'right', marginLeft: '10px', color: '#777777' }}
-          to={`/integrations/${activeProvider?.id}`}
+          to={`/connections/${activeProvider?.id}`}
         >
           <Icon icon='undo' size={16} /> Go Back
         </Link>
