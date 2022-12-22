@@ -166,7 +166,6 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 	sema := semaphore.NewWeighted(pipelineMaxParallel)
 	runningParallelLabels := []string{}
 	var runningParallelLabelLock sync.Mutex
-	dbPipeline := &models.DbPipeline{}
 	for {
 		globalPipelineLog.Info("acquire lock")
 		// start goroutine when sema lock ready and pipeline exist.
@@ -176,6 +175,7 @@ func RunPipelineInQueue(pipelineMaxParallel int64) {
 			panic(err)
 		}
 		globalPipelineLog.Info("get lock and wait next pipeline")
+		dbPipeline := &models.DbPipeline{}
 		for {
 			cronLocker.Lock()
 			// prepare query to find an appropriate pipeline to execute
