@@ -367,7 +367,12 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 		// convert body to array of RawJSON
 		items, err := collector.args.ResponseParser(res)
 		if err != nil {
-			return errors.Default.Wrap(err, fmt.Sprintf("error parsing response from %s", apiUrl))
+			if errors.Is(err, ErrFinishCollect) {
+				logger.Info("a fetch stop by parser, reqInput: #%d", reqData.Params)
+				handler = nil
+			} else {
+				return errors.Default.Wrap(err, fmt.Sprintf("error parsing response from %s", apiUrl))
+			}
 		}
 		// save to db
 		count := len(items)
@@ -394,6 +399,7 @@ func (collector *ApiCollector) fetchAsync(reqData *RequestData, handler func(int
 		// increase progress only when it was not nested
 		collector.args.Ctx.IncProgress(1)
 		if handler != nil {
+			// trigger next fetch, but return if ErrFinishCollect got from ResponseParser
 			res.Body = io.NopCloser(bytes.NewBuffer(body))
 			return handler(count, body, res)
 		}

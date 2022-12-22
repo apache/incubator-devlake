@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -72,6 +73,38 @@ func GetRawMessageFromResponse(res *http.Response) ([]json.RawMessage, errors.Er
 	}
 
 	return rawMessages, nil
+}
+
+func GetRawMessageCreatedAtAfter(createDateAfter *time.Time) func(res *http.Response) ([]json.RawMessage, errors.Error) {
+	type ApiModel struct {
+		CreatedAt *helper.Iso8601Time `json:"created_at"`
+	}
+
+	return func(res *http.Response) ([]json.RawMessage, errors.Error) {
+		rawMessages, err := GetRawMessageFromResponse(res)
+		if err != nil {
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("error reading response from %s", res.Request.URL.String()))
+		}
+		isFinish := true
+		filterRawMessages := []json.RawMessage{}
+		for _, rawMessage := range rawMessages {
+			apiModel := &ApiModel{}
+			err = errors.Convert(json.Unmarshal(rawMessage, apiModel))
+			if err != nil {
+				return nil, err
+			}
+			if createDateAfter == nil || createDateAfter.Before(apiModel.CreatedAt.ToTime()) {
+				// only finish when all items are created before `createDateAfter`
+				// because gitlab's order may not strict enough
+				isFinish = false
+				filterRawMessages = append(filterRawMessages, rawMessage)
+			}
+		}
+		if isFinish {
+			return filterRawMessages, helper.ErrFinishCollect
+		}
+		return filterRawMessages, nil
+	}
 }
 
 func GetQuery(reqData *helper.RequestData) (url.Values, errors.Error) {

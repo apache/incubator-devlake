@@ -43,7 +43,7 @@ func CollectApiJobs(taskCtx core.SubTaskContext) errors.Error {
 		Incremental:        false,
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/jobs",
 		Query:              GetQuery,
-		ResponseParser:     GetRawMessageFromResponse,
+		ResponseParser:     GetRawMessageCreatedAtAfter(data.CreatedDateAfter),
 		AfterResponse:      ignoreHTTPStatus403, // ignore 403 for CI/CD disable
 	})
 
