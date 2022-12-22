@@ -26,12 +26,22 @@ import type { ConnectionItemType } from '../../types'
 interface Props {
   connection?: ConnectionItemType
   onCancel: () => void
+  onRefresh: () => void
 }
 
-export const UpdateTransformationDialog = ({ connection, onCancel }: Props) => {
+export const UpdateTransformationDialog = ({
+  connection,
+  onCancel,
+  onRefresh
+}: Props) => {
   if (!connection) return null
 
   const { plugin, connectionId, scopeIds } = connection
+
+  const handleSaveAfter = () => {
+    onRefresh()
+    onCancel()
+  }
 
   return (
     <Dialog
@@ -46,7 +56,7 @@ export const UpdateTransformationDialog = ({ connection, onCancel }: Props) => {
         connectionId={connectionId}
         scopeIds={scopeIds}
         onCancel={onCancel}
-        onSave={onCancel}
+        onSave={handleSaveAfter}
       />
     </Dialog>
   )
