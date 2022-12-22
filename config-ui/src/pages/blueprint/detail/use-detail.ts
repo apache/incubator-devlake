@@ -99,7 +99,8 @@ export const useDetail = ({ id }: UseDetailProps) => {
       saving,
       blueprint,
       connections,
-      onUpdate: handleUpdate
+      onUpdate: handleUpdate,
+      onRefresh: getBlueprint
     }),
     [loading, saving, blueprint, connections]
   )

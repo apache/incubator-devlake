@@ -42,14 +42,16 @@ interface Props {
   blueprint: BlueprintType
   connections: ConnectionItemType[]
   saving: boolean
-  onUpdate: (bp: any) => Promise<void>
+  onUpdate: (bp: any) => void
+  onRefresh: () => void
 }
 
 export const Configuration = ({
   blueprint,
   connections,
   saving,
-  onUpdate
+  onUpdate,
+  onRefresh
 }: Props) => {
   const [type, setType] = useState<Type>()
   const [curConnection, setCurConnection] = useState<ConnectionItemType>()
@@ -75,11 +77,11 @@ export const Configuration = ({
 
   const handleUpdatePolicy = async (policy: any) => {
     await onUpdate(policy)
-    handleCancel
+    handleCancel()
   }
 
-  const handleUpdateConnection = async (updated: any) => {
-    await onUpdate({
+  const handleUpdateConnection = (updated: any) =>
+    onUpdate({
       settings: {
         version: '2.0.0',
         connections: blueprint.settings.connections.map((cs) =>
@@ -90,15 +92,13 @@ export const Configuration = ({
         )
       }
     })
-  }
 
-  const handleUpdatePlan = async () => {
-    await onUpdate({
+  const handleUpdatePlan = () =>
+    onUpdate({
       plan: !validRawPlan(rawPlan)
         ? JSON.parse(rawPlan)
         : JSON.stringify([[]], null, '  ')
     })
-  }
 
   const columns = useMemo(
     () =>
@@ -263,6 +263,7 @@ export const Configuration = ({
         <UpdateTransformationDialog
           connection={curConnection}
           onCancel={handleCancel}
+          onRefresh={onRefresh}
         />
       )}
     </S.ConfigurationPanel>
