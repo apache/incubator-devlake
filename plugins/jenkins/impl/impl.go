@@ -173,7 +173,7 @@ func (plugin Jenkins) ApiResources() map[string]map[string]core.ApiResourceHandl
 			"DELETE": api.DeleteConnection,
 			"GET":    api.GetConnection,
 		},
-		"connections/:connectionId/scopes/:fullName": {
+		"connections/:connectionId/scopes/*fullName": {
 			"GET":   api.GetScope,
 			"PATCH": api.UpdateScope,
 		},

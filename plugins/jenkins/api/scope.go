@@ -20,6 +20,7 @@ package api
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -121,7 +122,7 @@ func UpdateScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.
 // @Success 200  {object} []apiJob
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /plugins/jenkins/connections/{connectionId}/scopes/ [GET]
+// @Router /plugins/jenkins/connections/{connectionId}/scopes [GET]
 func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var jobs []models.JenkinsJob
 	connectionId, _ := strconv.ParseUint(input.Params["connectionId"], 10, 64)
@@ -196,8 +197,9 @@ func extractParam(params map[string]string) (uint64, string, errors.Error) {
 	if connectionId == 0 {
 		return 0, "", errors.BadInput.New("invalid connectionId")
 	}
-	if params["fullName"] == "" {
+	fullName := strings.TrimLeft(params["fullName"], "/")
+	if fullName == "" {
 		return 0, "", errors.BadInput.New("invalid fullName")
 	}
-	return connectionId, params["fullName"], nil
+	return connectionId, fullName, nil
 }
