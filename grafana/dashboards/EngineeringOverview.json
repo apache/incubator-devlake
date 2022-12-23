@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 22,
-  "iteration": 1671534980893,
+  "id": 26,
+  "iteration": 1671764846277,
   "links": [],
   "panels": [
     {
@@ -100,7 +100,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  count(*)\nfrom\n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in ($project) and\n  i.priority in ($critical) and\n  i.type = 'BUG' and\n  date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY;",
+          "rawSql": "select\n  count(*)\nfrom\n  lake.issues i\n\tjoin board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in ($project) and\n  i.priority in ($priority) and\n  i.type = 'BUG' and\n  date(i.created_date) between STR_TO_DATE('$month','%Y-%m-%d') and STR_TO_DATE('$month','%Y-%m-%d') + INTERVAL 1 MONTH - INTERVAL 1 DAY;",
           "refId": "A",
           "select": [
             [
@@ -196,7 +196,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "with _issues as(\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(*) as defect_count\n  from\n    lake.issues i\n    join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n  where\n    pm.project_name in ($project) and\n    i.priority in ($critical)\n    and i.type = 'BUG'\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  defect_count\nfrom _issues\norder by time asc\n",
+          "rawSql": "with _issues as(\n  select\n    DATE_ADD(date(i.created_date), INTERVAL -DAY(date(i.created_date))+1 DAY) as time,\n    count(*) as defect_count\n  from\n    lake.issues i\n    join board_issues bi on i.id = bi.issue_id\n\t  join boards b on bi.board_id = b.id\n\t  join project_mapping pm on b.id = pm.row_id\n  where\n    pm.project_name in ($project) and\n    i.priority in ($priority)\n    and i.type = 'BUG'\n    and $__timeFilter(i.created_date)\n    and i.created_date >= DATE_ADD(DATE_ADD($__timeFrom(), INTERVAL -DAY($__timeFrom())+1 DAY), INTERVAL +1 MONTH)\n  group by time\n)\n\nselect\n  date_format(time,'%M %Y') as month,\n  defect_count\nfrom _issues\norder by time asc\n",
           "refId": "A",
           "select": [
             [
@@ -1595,7 +1595,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select\n  i.priority as 'Priority',\n  AVG(TIMESTAMPDIFF(MINUTE, i.created_date, NOW()) / 1440) as 'Average Age'\nfrom\n  lake.issues i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in ($project) and\n  i.status = 'TODO'\n  and i.type = 'BUG'\n  and i.priority in ($critical)\ngroup by\n  i.priority",
+          "rawSql": "select\n  i.priority as 'Priority',\n  AVG(TIMESTAMPDIFF(MINUTE, i.created_date, NOW()) / 1440) as 'Average Age'\nfrom\n  lake.issues i\n  join board_issues bi on i.id = bi.issue_id\n\tjoin boards b on bi.board_id = b.id\n\tjoin project_mapping pm on b.id = pm.row_id\nwhere\n  pm.project_name in ($project) and\n  i.status = 'TODO'\n  and i.type = 'BUG'\n  and i.priority in ($priority)\ngroup by\n  i.priority",
           "refId": "A",
           "select": [
             [
@@ -1739,15 +1739,11 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": [
-            "p2"
-          ],
-          "value": [
-            "p2"
-          ]
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": "mysql",
-        "definition": "select project_name from project_mapping",
+        "definition": "select distinct project_name from project_mapping",
         "description": null,
         "error": null,
         "hide": 0,
@@ -1756,7 +1752,7 @@
         "multi": true,
         "name": "project",
         "options": [],
-        "query": "select project_name from project_mapping",
+        "query": "select distinct project_name from project_mapping",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1766,7 +1762,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -1782,7 +1778,7 @@
         "includeAll": true,
         "label": "Prioriti(es) of Critical Issues",
         "multi": true,
-        "name": "critical",
+        "name": "priority",
         "options": [],
         "query": "select distinct priority from issues",
         "refresh": 1,
@@ -1849,5 +1845,5 @@
   "timezone": "",
   "title": "Engineering Overview",
   "uid": "ZF6abXX7z",
-  "version": 37
+  "version": 5
 }

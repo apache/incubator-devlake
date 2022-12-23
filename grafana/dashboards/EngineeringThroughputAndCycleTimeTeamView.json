@@ -2512,7 +2512,7 @@
           ]
         },
         "datasource": "mysql",
-        "definition": "select project_name from project_mapping",
+        "definition": "select distinct project_name from project_mapping",
         "description": null,
         "error": null,
         "hide": 0,
@@ -2521,7 +2521,7 @@
         "multi": true,
         "name": "project",
         "options": [],
-        "query": "select project_name from project_mapping",
+        "query": "select distinct project_name from project_mapping",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
