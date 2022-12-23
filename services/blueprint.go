@@ -319,7 +319,7 @@ func MakePlanForBlueprint(blueprint *models.Blueprint) (core.PipelinePlan, error
 	case "2.0.0":
 		// load project metric plugins and convert it to a map
 		metrics := make(map[string]json.RawMessage)
-		projectMetrics := make([]models.ProjectMetric, 0)
+		projectMetrics := make([]models.ProjectMetricSetting, 0)
 		if blueprint.ProjectName != "" {
 			err = db.All(&projectMetrics, dal.Where("project_name = ? AND enable = ?", blueprint.ProjectName, true))
 			if err != nil {

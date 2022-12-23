@@ -39,18 +39,18 @@ type BaseMetric struct {
 	Enable       bool   `json:"enable" mapstructure:"enable" gorm:"type:boolean"`
 }
 
-type BaseProjectMetric struct {
+type BaseProjectMetricSetting struct {
 	ProjectName string `json:"projectName" mapstructure:"projectName" gorm:"primaryKey;type:varchar(255)"`
 	BaseMetric  `mapstructure:",squash"`
 }
 
-type ProjectMetric struct {
-	BaseProjectMetric `mapstructure:",squash"`
+type ProjectMetricSetting struct {
+	BaseProjectMetricSetting `mapstructure:",squash"`
 	common.NoPKModel
 }
 
-func (ProjectMetric) TableName() string {
-	return "project_metrics"
+func (ProjectMetricSetting) TableName() string {
+	return "project_metric_settings"
 }
 
 type ApiInputProject struct {
