@@ -42,6 +42,12 @@ export const MillerColumns = ({
     connectionId
   })
 
+  const getJobFullName = (item: any): string => {
+    if (!item.parentId) return item.title
+    const parentItem = items.find((it) => it.id === item.parentId)
+    return `${getJobFullName(parentItem)}/${item.title}`
+  }
+
   useEffect(() => {
     setSelectedIds(selectedItems.map((it) => it.jobFullName))
   }, [])
@@ -51,7 +57,7 @@ export const MillerColumns = ({
       .filter((it) => seletedIds.includes(it.id) && it.type !== 'folder')
       .map((it: any) => ({
         connectionId,
-        jobFullName: it.name
+        jobFullName: getJobFullName(it)
       }))
 
     onChangeItems(result)
