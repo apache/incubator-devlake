@@ -18,6 +18,7 @@ limitations under the License.
 package impl
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -94,6 +95,8 @@ func NewGitRepo(logger core.Logger, storage models.Store, op tasks.GitExtractorO
 		repo, err = p.CloneOverSSH(op.RepoId, url, op.PrivateKey, op.Passphrase)
 	} else if strings.HasPrefix(op.Url, "/") {
 		repo, err = p.LocalRepo(op.Url, op.RepoId)
+	} else {
+		return nil, errors.BadInput.New(fmt.Sprintf("unsupported url [%s]", op.Url))
 	}
 	return repo, err
 }

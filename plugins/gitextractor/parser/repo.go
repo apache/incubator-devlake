@@ -270,17 +270,16 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) errors.Error {
 		if err != nil {
 			return err
 		}
+		var parent *git.Commit
 		if commit.ParentCount() > 0 {
-			parent := commit.Parent(0)
-			if parent != nil {
-				var stats *git.DiffStats
-				if stats, err = r.getDiffComparedToParent(c.Sha, commit, parent, opts, componentMap); err != nil {
-					return err
-				}
-				c.Additions += stats.Insertions()
-				c.Deletions += stats.Deletions()
-			}
+			parent = commit.Parent(0)
 		}
+		var stats *git.DiffStats
+		if stats, err = r.getDiffComparedToParent(c.Sha, commit, parent, opts, componentMap); err != nil {
+			return err
+		}
+		c.Additions += stats.Insertions()
+		c.Deletions += stats.Deletions()
 		err = r.store.Commits(c)
 		if err != nil {
 			return err
@@ -317,7 +316,9 @@ func (r *GitRepo) storeParentCommits(commitSha string, commit *git.Commit) error
 func (r *GitRepo) getDiffComparedToParent(commitSha string, commit *git.Commit, parent *git.Commit, opts *git.DiffOptions, componentMap map[string]*regexp.Regexp) (*git.DiffStats, errors.Error) {
 	var err error
 	var parentTree, tree *git.Tree
-	parentTree, err = parent.Tree()
+	if parent != nil {
+		parentTree, err = parent.Tree()
+	}
 	if err != nil {
 		return nil, errors.Convert(err)
 	}
