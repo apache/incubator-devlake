@@ -169,7 +169,7 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 	} else if blueprint.Mode == models.BLUEPRINT_MODE_NORMAL {
 		plan, err := MakePlanForBlueprint(blueprint)
 		if err != nil {
-			return errors.Default.Wrap(err, "invalid plan")
+			return errors.Default.Wrap(err, "make plan for blueprint failed")
 		}
 		blueprint.Plan, err = errors.Convert01(json.Marshal(plan))
 		if err != nil {
