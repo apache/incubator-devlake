@@ -20,7 +20,7 @@ package tap
 import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"gorm.io/datatypes"
 	"time"
 )
