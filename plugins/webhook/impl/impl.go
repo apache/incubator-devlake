@@ -20,6 +20,7 @@ package impl
 import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/webhook/api"
 	"github.com/apache/incubator-devlake/plugins/webhook/models/migrationscripts"
 )
@@ -42,8 +43,8 @@ func (plugin Webhook) Init(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin Webhook) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
+func (plugin Webhook) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{}
 }
 
 func (plugin Webhook) MakeDataSourcePipelinePlanV200(connectionId uint64, _ []*core.BlueprintScopeV200, _ core.BlueprintSyncPolicy) (pp core.PipelinePlan, sc []core.Scope, err errors.Error) {

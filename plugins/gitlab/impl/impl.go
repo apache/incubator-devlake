@@ -67,8 +67,8 @@ func (plugin Gitlab) MakeDataSourcePipelinePlanV200(connectionId uint64, scopes 
 	return api.MakePipelinePlanV200(plugin.SubTaskMetas(), connectionId, scopes, &syncPolicy)
 }
 
-func (plugin Gitlab) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{
+func (plugin Gitlab) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
 		&models.GitlabConnection{},
 		&models.GitlabAccount{},
 		&models.GitlabCommit{},

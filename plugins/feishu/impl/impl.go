@@ -23,6 +23,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/feishu/api"
 	"github.com/apache/incubator-devlake/plugins/feishu/models"
 	"github.com/apache/incubator-devlake/plugins/feishu/models/migrationscripts"
@@ -45,8 +46,8 @@ func (plugin Feishu) Init(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin Feishu) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{
+func (plugin Feishu) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
 		&models.FeishuConnection{},
 		&models.FeishuMeetingTopUserItem{},
 	}

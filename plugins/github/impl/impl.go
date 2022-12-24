@@ -60,8 +60,8 @@ func (plugin Github) Init(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin Github) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{
+func (plugin Github) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
 		&models.GithubConnection{},
 		&models.GithubAccount{},
 		&models.GithubAccountOrg{},

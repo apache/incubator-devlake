@@ -19,6 +19,7 @@ package impl
 
 import (
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -44,8 +45,8 @@ func (plugin Dbt) SubTaskMetas() []core.SubTaskMeta {
 	}
 }
 
-func (plugin Dbt) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
+func (plugin Dbt) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{}
 }
 
 func (plugin Dbt) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {

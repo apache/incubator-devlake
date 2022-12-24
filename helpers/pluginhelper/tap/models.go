@@ -86,4 +86,4 @@ func ToState(raw *RawState) *State {
 	}
 }
 
-var _ core.Tabler = (*RawState)(nil)
+var _ dal.Tabler = (*RawState)(nil)

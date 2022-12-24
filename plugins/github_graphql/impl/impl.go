@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	githubImpl "github.com/apache/incubator-devlake/plugins/github/impl"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -62,8 +63,8 @@ func (plugin GithubGraphql) Description() string {
 	return "collect some GithubGraphql data"
 }
 
-func (plugin GithubGraphql) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
+func (plugin GithubGraphql) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{}
 }
 
 func (plugin GithubGraphql) SubTaskMetas() []core.SubTaskMeta {

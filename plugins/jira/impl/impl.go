@@ -63,8 +63,8 @@ func (plugin *Jira) Init(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin Jira) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{
+func (plugin Jira) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
 		&models.ApiMyselfResponse{},
 		&models.JiraAccount{},
 		&models.JiraBoard{},

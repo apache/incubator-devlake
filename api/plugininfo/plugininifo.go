@@ -28,6 +28,7 @@ import (
 	"github.com/apache/incubator-devlake/api/shared"
 	"github.com/apache/incubator-devlake/models/domainlayer/domaininfo"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/utils"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm/schema"
@@ -82,7 +83,7 @@ type PluginMeta struct {
 
 type PluginMetas []PluginMeta
 
-func NewTableInfos(table core.Tabler) *TableInfos {
+func NewTableInfos(table dal.Tabler) *TableInfos {
 	tableInfos := &TableInfos{
 		TableName: table.TableName(),
 		Error:     nil,

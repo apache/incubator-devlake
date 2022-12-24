@@ -61,8 +61,8 @@ func (plugin Jenkins) TransformationRule() interface{} {
 	return &models.JenkinsTransformationRule{}
 }
 
-func (plugin Jenkins) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{
+func (plugin Jenkins) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
 		&models.JenkinsBuild{},
 		&models.JenkinsBuildCommit{},
 		&models.JenkinsConnection{},

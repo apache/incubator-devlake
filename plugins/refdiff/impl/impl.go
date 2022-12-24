@@ -20,6 +20,7 @@ package impl
 import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/refdiff/tasks"
 )
@@ -44,8 +45,8 @@ func (plugin RefDiff) RequiredDataEntities() (data []map[string]interface{}, err
 	return []map[string]interface{}{}, nil
 }
 
-func (plugin RefDiff) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
+func (plugin RefDiff) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{}
 }
 
 func (plugin RefDiff) IsProjectMetric() bool {

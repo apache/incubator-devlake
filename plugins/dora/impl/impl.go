@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/dora/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/dora/tasks"
 )
@@ -63,8 +64,8 @@ func (plugin Dora) RequiredDataEntities() (data []map[string]interface{}, err er
 	}, nil
 }
 
-func (plugin Dora) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
+func (plugin Dora) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{}
 }
 
 func (plugin Dora) IsProjectMetric() bool {

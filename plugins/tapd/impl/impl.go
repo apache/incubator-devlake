@@ -24,6 +24,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
@@ -46,8 +47,8 @@ func (plugin Tapd) Init(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin Tapd) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{
+func (plugin Tapd) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
 		&models.TapdAccount{},
 		&models.TapdBug{},
 		&models.TapdBugChangelog{},
