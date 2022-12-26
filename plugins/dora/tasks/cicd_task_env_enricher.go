@@ -18,16 +18,12 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-	"regexp"
-
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/models/domainlayer/devops"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
-	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
+// EnrichTaskEnvMeta will be removed in v0.17
+// DEPRECATED
 var EnrichTaskEnvMeta = core.SubTaskMeta{
 	Name:             "EnrichTaskEnv",
 	EntryPoint:       EnrichTasksEnv,
@@ -37,49 +33,5 @@ var EnrichTaskEnvMeta = core.SubTaskMeta{
 }
 
 func EnrichTasksEnv(taskCtx core.SubTaskContext) (err errors.Error) {
-	db := taskCtx.GetDal()
-	data := taskCtx.GetData().(*DoraTaskData)
-	projectName := data.Options.ProjectName
-
-	productionNamePattern := data.Options.ProductionPattern
-	productionNameRegexp, err := errors.Convert01(regexp.Compile(productionNamePattern))
-	if err != nil {
-		return err
-	}
-
-	cursor, err := db.Cursor(
-		dal.From(`cicd_tasks ct`),
-		dal.Join("left join project_mapping pm on pm.row_id = ct.cicd_scope_id"),
-		dal.Where(`pm.project_name = ? and pm.table = ?`, projectName, "cicd_scopes"),
-	)
-
-	if err != nil {
-		return err
-	}
-
-	defer cursor.Close()
-	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: DoraApiParams{
-				ProjectName: projectName,
-			},
-			Table: "cicd_tasks",
-		},
-		InputRowType: reflect.TypeOf(devops.CICDTask{}),
-		Input:        cursor,
-		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
-			cicdTask := inputRow.(*devops.CICDTask)
-			if productionNamePattern == "" || productionNameRegexp.FindString(cicdTask.Name) != "" {
-				cicdTask.Environment = devops.PRODUCTION
-				return []interface{}{cicdTask}, nil
-			}
-			return nil, nil
-		},
-	})
-	if err != nil {
-		return err
-	}
-
-	return converter.Execute()
+	return nil
 }

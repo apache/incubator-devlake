@@ -90,7 +90,8 @@ func TestMakePipelinePlan(t *testing.T) {
 					"owner":        "test",
 					"repo":         "testRepo",
 					"transformationRules": map[string]interface{}{
-						"prType": "hey,man,wasup",
+						"prType":            "hey,man,wasup",
+						"productionPattern": "xxxx",
 					},
 				},
 			},
@@ -107,6 +108,7 @@ func TestMakePipelinePlan(t *testing.T) {
 			{
 				Plugin: "refdiff",
 				Options: map[string]interface{}{
+					"repoId":      "github:GithubRepo:1:12345",
 					"tagsLimit":   float64(10),
 					"tagsOrder":   "reverse semver",
 					"tagsPattern": "pattern",
@@ -117,12 +119,7 @@ func TestMakePipelinePlan(t *testing.T) {
 			{
 				Plugin:   "dora",
 				Subtasks: []string{"EnrichTaskEnv"},
-				Options: map[string]interface{}{
-					"repoId": "github:GithubRepo:1:12345",
-					"transformationRules": map[string]interface{}{
-						"productionPattern": "xxxx",
-					},
-				},
+				Options:  map[string]interface{}{},
 			},
 		},
 	}

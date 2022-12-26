@@ -130,20 +130,16 @@ func makePipelinePlanV100(subtaskMetas []core.SubTaskMeta, scope []*core.Bluepri
 		if err != nil {
 			return nil, err
 		}
-
+		// This is just to add a dora subtask, then we can add another two subtasks at the end of plans
+		// The only purpose is to adapt old blueprints
+		// DEPRECATED, will be removed in v0.17
 		// Dora part
 		if productionPattern != nil {
-			doraOption := make(map[string]interface{})
-			doraOption["prefix"] = "jenkins"
-			doraRules := make(map[string]interface{})
-			doraRules["productionPattern"] = productionPattern
-			doraOption["transformationRules"] = doraRules
-
 			stageDora := core.PipelineStage{
 				{
 					Plugin:   "dora",
 					Subtasks: []string{"EnrichTaskEnv"},
-					Options:  doraOption,
+					Options:  map[string]interface{}{},
 				},
 			}
 
