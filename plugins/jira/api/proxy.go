@@ -35,12 +35,16 @@ func Proxy(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error)
 	if err != nil {
 		return nil, err
 	}
+	headers := map[string]string{
+		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
+	}
+	if connection.Username == "_BEARER_TOKEN_" {
+		headers["Authorization"] = fmt.Sprintf("Bearer %v", connection.Password)
+	}
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
 		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
-		},
+		headers,
 		30*time.Second,
 		connection.Proxy,
 		basicRes,

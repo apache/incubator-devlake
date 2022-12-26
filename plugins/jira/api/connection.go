@@ -48,13 +48,17 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
+	headers := map[string]string{
+		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
+	}
+	if connection.Username == "_BEARER_TOKEN_" {
+		headers["Authorization"] = fmt.Sprintf("Bearer %v", connection.Password)
+	}
 	// test connection
 	apiClient, err := helper.NewApiClient(
 		context.TODO(),
 		connection.Endpoint,
-		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
-		},
+		headers,
 		3*time.Second,
 		connection.Proxy,
 		basicRes,
