@@ -19,8 +19,9 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
+
+	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -31,6 +32,9 @@ func NewJiraApiClient(taskCtx core.TaskContext, connection *models.JiraConnectio
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
+	}
+	if connection.Username == "_BEARER_TOKEN_" {
+		headers["Authorization"] = fmt.Sprintf("Bearer %v", connection.Password)
 	}
 
 	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
