@@ -15,11 +15,12 @@
  * limitations under the License.
  *
  */
-import * as dayjs from 'dayjs'
-import * as relativeTime from 'dayjs/plugin/relativeTime'
-import * as updateLocale from 'dayjs/plugin/updateLocale'
-import * as LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import * as utc from 'dayjs/plugin/utc'
+
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import updateLocale from 'dayjs/plugin/updateLocale'
+import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import utc from 'dayjs/plugin/utc'
 
 const localeConfiguration = {
   relativeTime: {
@@ -45,4 +46,15 @@ dayjs.extend(LocalizedFormat)
 dayjs.extend(utc)
 dayjs.updateLocale('en', localeConfiguration)
 
-export default dayjs
+export const formatTime = (val: string, format = 'YYYY-MM-DD HH:mm') =>
+  dayjs(val).format(format)
+
+export const duration = (beganAt?: string, finishedAt?: string) => {
+  if (beganAt && finishedAt) {
+    return dayjs(beganAt).from(finishedAt, true)
+  } else if (beganAt) {
+    return dayjs(beganAt).toNow(true)
+  } else {
+    return '-'
+  }
+}
