@@ -16,20 +16,13 @@
  *
  */
 
-import { GitHubConfig } from '@/plugins/github'
-import { JIRAConfig } from '@/plugins/jira'
-import { GitLabConfig } from '@/plugins/gitlab'
-import { JenkinsConfig } from '@/plugins/jenkins'
-import { WebhookConfig } from '@/plugins/webook'
-import { GitHubGraphqlConfig } from '@/plugins/github_graphql'
-import { GitExtractorConfig } from '@/plugins/gitextractor'
+import { PluginType } from '@/plugins'
 
-export const PluginConfig = [
-  GitHubConfig,
-  JIRAConfig,
-  GitLabConfig,
-  JenkinsConfig,
-  WebhookConfig,
-  GitHubGraphqlConfig,
-  GitExtractorConfig
-]
+import Icon from './assets/icon.svg'
+
+export const GitHubGraphqlConfig = {
+  plugin: 'github_graphql',
+  name: 'GitHubGraphql',
+  type: PluginType.Pipeline,
+  icon: Icon
+}
