@@ -25,8 +25,10 @@ import {
   Colors,
   IconName
 } from '@blueprintjs/core'
+import { saveAs } from 'file-saver'
 import styled from 'styled-components'
 
+import { DEVLAKE_ENDPOINT } from '@/config'
 import { Card, Table, ColumnType, Loading } from '@/components'
 import {
   PipelineType,
@@ -36,6 +38,8 @@ import {
   STATUS_CLS
 } from '@/pages'
 import { formatTime, duration } from '@/utils'
+
+import * as API from './api'
 
 const StatusColumn = styled.div`
   display: flex;
@@ -68,6 +72,16 @@ interface Props {
 }
 
 export const PipelineList = ({ pipelines }: Props) => {
+  const handleDownloadLog = async (id: ID) => {
+    const res = await API.getPipelineLog(id)
+    if (res) {
+      saveAs(
+        `${DEVLAKE_ENDPOINT}/pipelines/${id}/logging.tar.gz`,
+        'logging.tar.gz'
+      )
+    }
+  }
+
   const columns = useMemo(
     () =>
       [
@@ -111,12 +125,18 @@ export const PipelineList = ({ pipelines }: Props) => {
         },
         {
           title: '',
+          dataIndex: 'id',
           key: 'action',
-          render: () => (
+          render: (id: ID) => (
             <ButtonGroup>
-              <Button minimal intent={Intent.PRIMARY} icon='code' />
-              <Button minimal intent={Intent.PRIMARY} icon='document' />
-              <Button minimal intent={Intent.PRIMARY} icon='chevron-right' />
+              {/* <Button minimal intent={Intent.PRIMARY} icon='code' /> */}
+              <Button
+                minimal
+                intent={Intent.PRIMARY}
+                icon='document'
+                onClick={() => handleDownloadLog(id)}
+              />
+              {/* <Button minimal intent={Intent.PRIMARY} icon='chevron-right' /> */}
             </ButtonGroup>
           )
         }

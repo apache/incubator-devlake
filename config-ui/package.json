@@ -53,6 +53,7 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.1",
     "@testing-library/user-event": "^13.2.1",
+    "@types/file-saver": "^2.0.5",
     "@types/react": "^18.0.24",
     "@types/react-copy-to-clipboard": "^5.0.4",
     "@types/react-router-dom": "^5.3.3",
