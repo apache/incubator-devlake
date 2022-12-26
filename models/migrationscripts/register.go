@@ -67,5 +67,6 @@ func All() []core.MigrationScript {
 		new(addOriginalProject),
 		new(addErrorName),
 		new(encryptTask221221),
+		new(renameProjectMetrics),
 	}
 }

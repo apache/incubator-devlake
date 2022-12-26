@@ -166,7 +166,7 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 	if name != project.Name {
 		// ProjectMetric
 		err = tx.UpdateColumn(
-			&models.ProjectMetric{},
+			&models.ProjectMetricSetting{},
 			"project_name", project.Name,
 			dal.Where("project_name = ?", name),
 		)
@@ -250,14 +250,14 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 }
 
 func refreshProjectMetrics(tx dal.Transaction, projectInput *models.ApiInputProject) errors.Error {
-	err := tx.Delete(&models.ProjectMetric{}, dal.Where("project_name = ?", projectInput.Name))
+	err := tx.Delete(&models.ProjectMetricSetting{}, dal.Where("project_name = ?", projectInput.Name))
 	if err != nil {
 		return err
 	}
 
 	for _, baseMetric := range *projectInput.Metrics {
-		err = tx.Create(&models.ProjectMetric{
-			BaseProjectMetric: models.BaseProjectMetric{
+		err = tx.Create(&models.ProjectMetricSetting{
+			BaseProjectMetricSetting: models.BaseProjectMetricSetting{
 				ProjectName: projectInput.Name,
 				BaseMetric:  baseMetric,
 			},
@@ -273,7 +273,7 @@ func makeProjectOutput(baseProject *models.BaseProject) (*models.ApiOutputProjec
 	projectOutput := &models.ApiOutputProject{}
 	projectOutput.BaseProject = *baseProject
 	// load project metrics
-	projectMetrics := make([]models.ProjectMetric, 0)
+	projectMetrics := make([]models.ProjectMetricSetting, 0)
 	err := db.All(&projectMetrics, dal.Where("project_name = ?", projectOutput.Name))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "failed to load project metrics")
