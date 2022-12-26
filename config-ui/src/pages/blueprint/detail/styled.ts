@@ -76,3 +76,23 @@ export const ActionColumn = styled.div`
     }
   }
 `
+
+export const StatusPanel = styled.div`
+  & > .info {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    & > span {
+      margin-left: 16px;
+    }
+
+    .bp4-switch {
+      margin-bottom: 0;
+    }
+  }
+
+  .block + .block {
+    margin-top: 32px;
+  }
+`

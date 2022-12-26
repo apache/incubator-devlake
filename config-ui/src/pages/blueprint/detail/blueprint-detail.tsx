@@ -25,16 +25,24 @@ import { PageLoading } from '@/components'
 import type { UseDetailProps } from './use-detail'
 import { useDetail } from './use-detail'
 import { Configuration } from './panel/configuration'
-// TO-DO: use new panel to replace it
-// import { Status } from './panel/status'
-import Status from '@/pages/blueprints/blueprint-detail'
+import { Status } from './panel/status'
 
 interface Props extends UseDetailProps {}
 
 export const BlueprintDetail = ({ id }: Props) => {
   const [activeTab, setActiveTab] = useState<TabId>('status')
 
-  const { loading, blueprint, saving, onUpdate, onRefresh } = useDetail({
+  const {
+    loading,
+    blueprint,
+    pipelines,
+    pipelineId,
+    operating,
+    onRun,
+    onUpdate,
+    onDelete,
+    onRefresh
+  } = useDetail({
     id
   })
 
@@ -44,7 +52,21 @@ export const BlueprintDetail = ({ id }: Props) => {
 
   return (
     <Tabs selectedTabId={activeTab} onChange={(at) => setActiveTab(at)}>
-      <Tab id='status' title='Status' panel={<Status id={id} />} />
+      <Tab
+        id='status'
+        title='Status'
+        panel={
+          <Status
+            blueprint={blueprint}
+            pipelines={pipelines}
+            pipelineId={pipelineId}
+            operating={operating}
+            onRun={onRun}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+          />
+        }
+      />
       <Tab
         id='configuration'
         title='Configuration'
