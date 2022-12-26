@@ -16,7 +16,6 @@
  *
  */
 
-export * from './project'
-export * from './connection'
-export * from './blueprint'
-export * from './pipeline'
+export * from './types'
+export * from './misc'
+export * from './detail'

@@ -16,7 +16,38 @@
  *
  */
 
-export * from './project'
-export * from './connection'
-export * from './blueprint'
-export * from './pipeline'
+import { Plugins } from '@/plugins'
+
+export enum StatusEnum {
+  CREATED = 'TASK_CREATED',
+  PENDING = 'TASK_PENDING',
+  ACTIVE = 'TASK_ACTIVE',
+  RUNNING = 'TASK_RUNNING',
+  RERUN = 'TASK_RERUN',
+  COMPLETED = 'TASK_COMPLETED',
+  FAILED = 'TASK_FAILED',
+  CANCELLED = 'TASK_CANCELLED'
+}
+
+export type PipelineType = {
+  id: ID
+  status: StatusEnum
+  beganAt: string
+  finishedAt: string
+  stage: number
+  finishedTasks: number
+  totalTasks: number
+  message: string
+}
+
+export type TaskType = {
+  id: ID
+  plugin: Plugins
+  status: StatusEnum
+  pipelineRow: number
+  pipelineCol: number
+  beganAt?: string
+  finishedAt?: string
+  options: string
+  message: string
+}
