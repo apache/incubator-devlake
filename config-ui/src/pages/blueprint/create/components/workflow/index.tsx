@@ -18,7 +18,7 @@
 
 import React, { useMemo } from 'react'
 
-import { ModeEnum } from '../../types'
+import { ModeEnum } from '../../../types'
 import { useCreateBP } from '../../bp-context'
 
 import * as S from './styled'

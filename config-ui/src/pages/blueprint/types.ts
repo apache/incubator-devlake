@@ -16,7 +16,32 @@
  *
  */
 
+import { Plugins } from '@/plugins'
+
 export enum ModeEnum {
   advanced = 'ADVANCED',
   normal = 'NORMAL'
+}
+
+export type BlueprintType = {
+  id: ID
+  enable: boolean
+  name: string
+  mode: ModeEnum
+  isManual: boolean
+  cronConfig: string
+  skipOnFail: boolean
+  plan: any
+  settings: {
+    version: string
+    createdDateAfter: null | string
+    connections: Array<{
+      plugin: Plugins
+      connectionId: ID
+      scopes: Array<{
+        id: ID
+        entities: string[]
+      }>
+    }>
+  }
 }

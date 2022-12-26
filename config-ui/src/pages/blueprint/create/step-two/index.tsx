@@ -20,24 +20,22 @@ import React, { useState, useMemo } from 'react'
 import { Icon } from '@blueprintjs/core'
 
 import { Card, Table, Divider } from '@/components'
-import type { ConnectionItemType } from '@/store'
 import { useConnection } from '@/store'
 import { DataScope } from '@/plugins'
 
+import type { BPConnectionItemType } from '../types'
 import { useCreateBP } from '../bp-context'
 
 import { useColumns } from './use-columns'
 
 export const StepTwo = () => {
-  const [connection, setConnection] = useState<
-    ConnectionItemType & { scope: any }
-  >()
+  const [connection, setConnection] = useState<BPConnectionItemType>()
 
   const { connections } = useConnection()
   const { uniqueList, scopeMap, onChangeScopeMap, onChangeShowDetail } =
     useCreateBP()
 
-  const handleGoDetail = (c: ConnectionItemType & { scope: any }) => {
+  const handleGoDetail = (c: BPConnectionItemType) => {
     setConnection(c)
     onChangeShowDetail(true)
   }
@@ -62,7 +60,7 @@ export const StepTwo = () => {
       uniqueList.map((unique) => {
         const connection = connections.find(
           (cs) => cs.unique === unique
-        ) as ConnectionItemType
+        ) as BPConnectionItemType
         const scope = scopeMap[unique] ?? []
         return {
           ...connection,

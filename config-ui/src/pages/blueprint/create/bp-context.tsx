@@ -23,10 +23,11 @@ import type { ConnectionItemType } from '@/store'
 import { useConnection, ConnectionStatusEnum } from '@/store'
 import { operator } from '@/utils'
 
+import { ModeEnum } from '../types'
 import { validRawPlan } from '../utils'
 
 import type { BPContextType } from './types'
-import { FromEnum, ModeEnum } from './types'
+import { FromEnum } from './types'
 import * as API from './api'
 
 export const BPContext = React.createContext<BPContextType>({

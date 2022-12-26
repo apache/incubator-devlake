@@ -21,8 +21,8 @@ import React from 'react'
 import { SyncPolicy } from '@/plugins'
 import { Card, Divider } from '@/components'
 
+import { ModeEnum } from '../../types'
 import { useCreateBP } from '../bp-context'
-import {ModeEnum} from "../types";
 
 export const StepFour = () => {
   const {
