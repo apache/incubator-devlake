@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/tasks"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -45,8 +46,8 @@ func (plugin Bitbucket) Init(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin Bitbucket) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{
+func (plugin Bitbucket) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
 		&models.BitbucketConnection{},
 		&models.BitbucketAccount{},
 		&models.BitbucketCommit{},

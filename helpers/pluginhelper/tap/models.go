@@ -20,7 +20,7 @@ package tap
 import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
-	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"gorm.io/datatypes"
 	"time"
 )
@@ -86,4 +86,4 @@ func ToState(raw *RawState) *State {
 	}
 }
 
-var _ core.Tabler = (*RawState)(nil)
+var _ dal.Tabler = (*RawState)(nil)

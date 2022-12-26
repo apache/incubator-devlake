@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/azure/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/azure/tasks"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -52,8 +53,8 @@ func (plugin Azure) Init(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin Azure) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{
+func (plugin Azure) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
 		&models.AzureBuild{},
 		&models.AzureBuildDefinition{},
 		&models.AzureConnection{},

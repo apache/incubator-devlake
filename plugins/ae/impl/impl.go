@@ -26,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/ae/models/migrationscripts"
 	"github.com/apache/incubator-devlake/plugins/ae/tasks"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -44,8 +45,8 @@ func (plugin AE) Init(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin AE) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{
+func (plugin AE) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
 		&models.AECommit{},
 		&models.AEProject{},
 		&models.AeConnection{},

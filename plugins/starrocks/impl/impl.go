@@ -20,6 +20,7 @@ package impl
 import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/starrocks/tasks"
 )
@@ -49,8 +50,8 @@ func (s StarRocks) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	return &op, nil
 }
 
-func (s StarRocks) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
+func (s StarRocks) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{}
 }
 
 func (s StarRocks) Description() string {

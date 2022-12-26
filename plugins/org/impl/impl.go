@@ -20,6 +20,7 @@ package impl
 import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/org/api"
 	"github.com/apache/incubator-devlake/plugins/org/tasks"
@@ -39,8 +40,8 @@ func (plugin *Org) Init(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin Org) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
+func (plugin Org) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{}
 }
 
 func (plugin Org) Description() string {

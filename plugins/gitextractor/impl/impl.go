@@ -23,6 +23,7 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/models"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/parser"
 	"github.com/apache/incubator-devlake/plugins/gitextractor/store"
@@ -36,8 +37,8 @@ var _ core.PluginModel = (*GitExtractor)(nil)
 
 type GitExtractor struct{}
 
-func (plugin GitExtractor) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
+func (plugin GitExtractor) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{}
 }
 
 func (plugin GitExtractor) Description() string {

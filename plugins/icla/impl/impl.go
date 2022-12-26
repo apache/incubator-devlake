@@ -22,6 +22,7 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/icla/models"
 	"github.com/apache/incubator-devlake/plugins/icla/models/migrationscripts"
@@ -47,8 +48,8 @@ func (plugin Icla) Init(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin Icla) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{
+func (plugin Icla) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{
 		&models.IclaCommitter{},
 	}
 }

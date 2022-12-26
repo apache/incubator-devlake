@@ -132,7 +132,7 @@ func TestTransformTable(t *testing.T) {
 
 	// for Primarykey  autoincrement cheking
 	mockDal.On("GetColumns", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
-		tableName := args.Get(0).(core.Tabler).TableName()
+		tableName := args.Get(0).(dal.Tabler).TableName()
 		assert.Equal(t, tableName, TestTableNameSrc)
 	}).Return([]dal.ColumnMeta{}, nil).Once()
 
@@ -203,7 +203,7 @@ func TestTransformTable_RollBack(t *testing.T) {
 
 	// for Primarykey  autoincrement cheking
 	mockDal.On("GetColumns", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
-		tableName := args.Get(0).(core.Tabler).TableName()
+		tableName := args.Get(0).(dal.Tabler).TableName()
 		assert.Equal(t, tableName, TestTableNameSrc)
 	}).Return([]dal.ColumnMeta{}, nil).Once()
 
@@ -296,7 +296,7 @@ func TestCopyTableColumns(t *testing.T) {
 
 	// for Primarykey  autoincrement cheking
 	mockDal.On("GetColumns", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
-		tableName := args.Get(0).(core.Tabler).TableName()
+		tableName := args.Get(0).(dal.Tabler).TableName()
 		assert.Equal(t, tableName, TestTableNameSrc)
 	}).Return([]dal.ColumnMeta{}, nil).Once()
 
@@ -367,7 +367,7 @@ func TestCopyTableColumns_RollBack(t *testing.T) {
 
 	// for Primarykey  autoincrement cheking
 	mockDal.On("GetColumns", mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
-		tableName := args.Get(0).(core.Tabler).TableName()
+		tableName := args.Get(0).(dal.Tabler).TableName()
 		assert.Equal(t, tableName, TestTableNameSrc)
 	}).Return([]dal.ColumnMeta{}, nil).Once()
 

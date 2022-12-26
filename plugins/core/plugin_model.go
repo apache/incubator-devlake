@@ -17,12 +17,9 @@ limitations under the License.
 
 package core
 
-// TODO: replace with dal.Tabler
-type Tabler interface {
-	TableName() string
-}
+import "github.com/apache/incubator-devlake/plugins/core/dal"
 
 type PluginModel interface {
 	// This method returns all models of the current plugin
-	GetTablesInfo() []Tabler
+	GetTablesInfo() []dal.Tabler
 }

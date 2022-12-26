@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/customize/api"
 	"github.com/apache/incubator-devlake/plugins/customize/tasks"
 	"github.com/mitchellh/mapstructure"
@@ -40,8 +41,8 @@ func (plugin *Customize) Init(basicRes core.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin Customize) GetTablesInfo() []core.Tabler {
-	return []core.Tabler{}
+func (plugin Customize) GetTablesInfo() []dal.Tabler {
+	return []dal.Tabler{}
 }
 
 func (plugin Customize) SubTaskMetas() []core.SubTaskMeta {
