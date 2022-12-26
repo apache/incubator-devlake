@@ -22,12 +22,14 @@ import dayjs from 'dayjs'
 
 import { Table, ColumnType } from '@/components'
 import { getCron } from '@/config'
-import { PluginConfig, PluginType, DataScopeList, Plugins } from '@/plugins'
+import { PluginConfig, DataScopeList, Plugins } from '@/plugins'
 
+import type { BlueprintType } from '../../types'
 import { ModeEnum } from '../../types'
 import { validRawPlan } from '../../utils'
 import { AdvancedEditor } from '../../components'
-import type { BlueprintType, ConnectionItemType } from '../types'
+
+import type { ConfigConnectionItemType } from '../types'
 import {
   UpdateNameDialog,
   UpdatePolicyDialog,
@@ -40,19 +42,19 @@ type Type = 'name' | 'frequency' | 'scope' | 'transformation'
 
 interface Props {
   blueprint: BlueprintType
-  saving: boolean
+  operating: boolean
   onUpdate: (bp: any) => void
   onRefresh: () => void
 }
 
 export const Configuration = ({
   blueprint,
-  saving,
+  operating,
   onUpdate,
   onRefresh
 }: Props) => {
   const [type, setType] = useState<Type>()
-  const [curConnection, setCurConnection] = useState<ConnectionItemType>()
+  const [curConnection, setCurConnection] = useState<ConfigConnectionItemType>()
   const [rawPlan, setRawPlan] = useState('')
 
   useEffect(() => {
@@ -127,7 +129,7 @@ export const Configuration = ({
           render: ({
             icon,
             name
-          }: Pick<ConnectionItemType, 'icon' | 'name'>) => (
+          }: Pick<ConfigConnectionItemType, 'icon' | 'name'>) => (
             <S.ConnectionColumn>
               <img src={icon} alt='' />
               <span>{name}</span>
@@ -155,7 +157,7 @@ export const Configuration = ({
             connectionId,
             scopeIds
           }: Pick<
-            ConnectionItemType,
+            ConfigConnectionItemType,
             'plugin' | 'connectionId' | 'scopeIds'
           >) => (
             <DataScopeList
@@ -170,7 +172,7 @@ export const Configuration = ({
           title: '',
           key: 'action',
           align: 'center',
-          render: (_, row: ConnectionItemType) => (
+          render: (_, row: ConfigConnectionItemType) => (
             <S.ActionColumn>
               <div
                 className='item'
@@ -195,7 +197,7 @@ export const Configuration = ({
             </S.ActionColumn>
           )
         }
-      ] as ColumnType<ConnectionItemType>,
+      ] as ColumnType<ConfigConnectionItemType>,
     []
   )
 
@@ -252,7 +254,7 @@ export const Configuration = ({
       {type === 'name' && (
         <UpdateNameDialog
           name={blueprint.name}
-          saving={saving}
+          operating={operating}
           onCancel={handleCancel}
           onSubmit={handleUpdateName}
         />
@@ -264,7 +266,7 @@ export const Configuration = ({
           cronConfig={blueprint.cronConfig}
           skipOnFail={blueprint.skipOnFail}
           createdDateAfter={blueprint.settings?.createdDateAfter}
-          saving={saving}
+          operating={operating}
           onCancel={handleCancel}
           onSubmit={handleUpdatePolicy}
         />

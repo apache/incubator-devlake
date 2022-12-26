@@ -21,10 +21,10 @@ import React from 'react'
 import { Dialog } from '@/components'
 import { DataScope } from '@/plugins'
 
-import type { ConnectionItemType } from '../../types'
+import type { ConfigConnectionItemType } from '../../types'
 
 interface Props {
-  connection?: ConnectionItemType
+  connection?: ConfigConnectionItemType
   onCancel: () => void
   onSubmit: (connection: any) => void
 }

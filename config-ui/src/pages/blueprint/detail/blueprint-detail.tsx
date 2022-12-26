@@ -51,7 +51,7 @@ export const BlueprintDetail = ({ id }: Props) => {
         panel={
           <Configuration
             blueprint={blueprint}
-            saving={saving}
+            operating={operating}
             onUpdate={onUpdate}
             onRefresh={onRefresh}
           />

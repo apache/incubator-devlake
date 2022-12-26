@@ -21,10 +21,10 @@ import React from 'react'
 import { Dialog } from '@/components'
 import { Transformation } from '@/plugins'
 
-import type { ConnectionItemType } from '../../types'
+import type { ConfigConnectionItemType } from '../../types'
 
 interface Props {
-  connection?: ConnectionItemType
+  connection?: ConfigConnectionItemType
   onCancel: () => void
   onRefresh: () => void
 }
