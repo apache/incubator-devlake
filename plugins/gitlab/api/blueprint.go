@@ -79,22 +79,6 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 				return nil, err
 			}
 		}
-		// refdiff
-		if refdiffRules, ok := transformationRules["refdiff"]; ok && refdiffRules != nil {
-			// add a new task to next stage
-			j := i + 1
-			if j == len(plan) {
-				plan = append(plan, nil)
-			}
-			plan[j] = core.PipelineStage{
-				{
-					Plugin:  "refdiff",
-					Options: refdiffRules.(map[string]interface{}),
-				},
-			}
-			// remove it from github transformationRules
-			delete(transformationRules, "refdiff")
-		}
 		// construct task options for github
 		options := make(map[string]interface{})
 		err = errors.Convert(json.Unmarshal(scopeElem.Options, &options))
@@ -114,6 +98,29 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 				repo, err = getApiRepo(op, apiClient)
 			}
 			return repo, err
+		}
+
+		// refdiff
+		if refdiffRules, ok := transformationRules["refdiff"]; ok && refdiffRules != nil {
+			// add a new task to next stage
+			j := i + 1
+			if j == len(plan) {
+				plan = append(plan, nil)
+			}
+			repo, err = memorizedGetApiRepo()
+			if err != nil {
+				return nil, err
+			}
+			ops := refdiffRules.(map[string]interface{})
+			ops["repoId"] = didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, repo.GitlabId)
+			plan[j] = core.PipelineStage{
+				{
+					Plugin:  "refdiff",
+					Options: ops,
+				},
+			}
+			// remove it from github transformationRules
+			delete(transformationRules, "refdiff")
 		}
 
 		// construct subtasks
@@ -151,6 +158,9 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 				},
 			})
 		}
+		// This is just to add a dora subtask, then we can add another two subtasks at the end of plans
+		// The only purpose is to adapt old blueprints
+		// DEPRECATED, will be removed in v0.17
 		// dora
 		if productionPattern, ok := transformationRules["productionPattern"]; ok && productionPattern != nil {
 			j := i + 1
@@ -170,18 +180,13 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 			}
 			plan[j] = core.PipelineStage{
 				{
-					Plugin:   "dora",
+					Plugin: "dora",
+					// This is just to add a dora subtask, then we can add another two subtasks at the end of plans
+					// The only purpose is to adapt old blueprints
 					Subtasks: []string{"EnrichTaskEnv"},
-					Options: map[string]interface{}{
-						"repoId": didgen.NewDomainIdGenerator(&models.GitlabProject{}).Generate(connection.ID, repo.GitlabId),
-						"transformationRules": map[string]interface{}{
-							"productionPattern": productionPattern,
-						},
-					},
+					Options:  map[string]interface{}{},
 				},
 			}
-			// remove it from github transformationRules
-			delete(transformationRules, "productionPattern")
 		}
 		plan[i] = stage
 		repo = nil

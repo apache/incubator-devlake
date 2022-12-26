@@ -115,12 +115,7 @@ func TestProcessScope(t *testing.T) {
 			{
 				Plugin:   "dora",
 				Subtasks: []string{"EnrichTaskEnv"},
-				Options: map[string]interface{}{
-					"prefix": "jenkins",
-					"transformationRules": map[string]interface{}{
-						"productionPattern": "(?i)build-and-deploy",
-					},
-				},
+				Options:  map[string]interface{}{},
 			},
 		},
 	}

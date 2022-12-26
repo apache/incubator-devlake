@@ -95,7 +95,8 @@ func TestProcessScope(t *testing.T) {
 					"connectionId": uint64(1),
 					"projectId":    float64(12345),
 					"transformationRules": map[string]interface{}{
-						"prType": "hey,man,wasup",
+						"prType":            "hey,man,wasup",
+						"productionPattern": "xxxx",
 					},
 				},
 			},
@@ -112,6 +113,7 @@ func TestProcessScope(t *testing.T) {
 			{
 				Plugin: "refdiff",
 				Options: map[string]interface{}{
+					"repoId":      "gitlab:GitlabProject:1:12345",
 					"tagsLimit":   float64(10),
 					"tagsOrder":   "reverse semver",
 					"tagsPattern": "pattern",
@@ -122,12 +124,7 @@ func TestProcessScope(t *testing.T) {
 			{
 				Plugin:   "dora",
 				Subtasks: []string{"EnrichTaskEnv"},
-				Options: map[string]interface{}{
-					"repoId": "gitlab:GitlabProject:1:12345",
-					"transformationRules": map[string]interface{}{
-						"productionPattern": "xxxx",
-					},
-				},
+				Options:  map[string]interface{}{},
 			},
 		},
 	}
