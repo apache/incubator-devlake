@@ -39,8 +39,10 @@ export const Table = <T extends Record<string, any>>({
       <S.Container>
         <S.TableWrapper loading={loading ? 1 : 0}>
           <S.TableHeader>
-            {columns.map(({ key, title }) => (
-              <span key={key}>{title}</span>
+            {columns.map(({ key, align = 'left', title }) => (
+              <span key={key} style={{ textAlign: align }}>
+                {title}
+              </span>
             ))}
           </S.TableHeader>
           {dataSource.map((data, i) => (
