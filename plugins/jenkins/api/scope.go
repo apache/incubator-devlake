@@ -142,7 +142,7 @@ func GetScopeList(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors
 	}
 	var rules []models.JenkinsTransformationRule
 	if len(ruleIds) > 0 {
-		err = basicRes.GetDal().All(&rules, dal.Where("transformation_rule_id IN (?)", ruleIds))
+		err = basicRes.GetDal().All(&rules, dal.Where("id IN (?)", ruleIds))
 		if err != nil {
 			return nil, err
 		}
