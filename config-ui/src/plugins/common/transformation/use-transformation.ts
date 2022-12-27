@@ -146,6 +146,14 @@ export const useTransformation = ({
             return sc.jobFullName
         }
       },
+      getScopeName(sc: any) {
+        switch (true) {
+          case plugin === Plugins.Jenkins:
+            return sc.jobFullName
+          default:
+            return sc.name
+        }
+      },
       onSave: handleSave,
       onUpdateScope: handleUpdateScope,
       onChangeTransformation: setTransformation

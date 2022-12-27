@@ -65,6 +65,7 @@ export const Transformation = ({
     saving,
     transformation,
     getScopeKey,
+    getScopeName,
     onSave,
     onUpdateScope,
     onChangeTransformation
@@ -146,7 +147,7 @@ export const Transformation = ({
                 loading={loading}
                 items={scope}
                 getKey={getScopeKey}
-                getName={(sc) => sc.name}
+                getName={getScopeName}
                 selectedItems={selectedScope}
                 onChangeItems={setSelectedScope}
               />
