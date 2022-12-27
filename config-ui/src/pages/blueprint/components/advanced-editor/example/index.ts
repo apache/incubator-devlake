@@ -26,6 +26,8 @@ import jenkins from './jenkins'
 import feishu from './feishu'
 import dbt from './dbt'
 import starrocks from './starrocks'
+import tapd from './tapd'
+import zentao from './zentao'
 
 export const EXAMPLE_CONFIG = [
   {
@@ -72,6 +74,16 @@ export const EXAMPLE_CONFIG = [
     id: 'dbt',
     name: 'Load DBT Configuration',
     config: dbt
+  },
+  {
+    id: 'tapd',
+    name: 'Load TAPD Configuration',
+    config: tapd
+  },
+  {
+    id: 'zentao',
+    name: 'Load ZENTAO Configuration',
+    config: zentao
   },
   {
     id: 'starrocks',

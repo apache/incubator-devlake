@@ -124,7 +124,7 @@ export const CodeReview = ({
       >
         <TextArea
           value={transformation.prBodyClosePattern}
-          placeholder='(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and )?(#|https:\/\/github.com\/%s\/%s\/issues\/)\d+[ ]*)+)'
+          placeholder='(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and )?(#|https:\/\/github.com\/%s\/issues\/)\d+[ ]*)+)'
           onChange={(e) =>
             setTransformation({
               ...transformation,
