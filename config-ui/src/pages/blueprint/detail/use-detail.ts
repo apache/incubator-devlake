@@ -53,7 +53,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
 
       setBlueprint(bpRes)
       setPipelines(plRes.pipelines)
-      setPipelineId(plRes.pipelines[0].id)
+      setPipelineId(plRes.pipelines?.[0]?.id)
     } finally {
       setLoading(false)
     }
