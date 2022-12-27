@@ -131,7 +131,7 @@ export const Tasks = styled.ul`
   margin: 0;
   list-style: none;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 
   li {
     flex: 1;
