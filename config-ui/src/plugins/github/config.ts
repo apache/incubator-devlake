@@ -16,15 +16,65 @@
  *
  */
 
-import { PluginType } from '@/plugins'
+import type { PluginConfigType } from '@/plugins'
+import { Plugins, PluginType } from '@/plugins'
 
 import Icon from './assets/icon.svg'
 
-export const GitHubConfig = {
-  plugin: 'github',
+export const GitHubConfig: PluginConfigType = {
+  plugin: Plugins.GitHub,
   name: 'GitHub',
   type: PluginType.Connection,
   icon: Icon,
+  connection: {
+    initialValues: {
+      enableGraphql: true
+    },
+    fields: [
+      {
+        key: 'name',
+        label: 'Connection Name',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. GitHub'
+      },
+      {
+        key: 'endpoint',
+        label: 'Endpoint URL',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. https://api.github.com/'
+      },
+      {
+        key: 'token',
+        label: 'Basic Auth Token',
+        type: 'github-token',
+        required: true,
+        tooltip:
+          "Due to Github's rate limit, input more tokens, \ncomma separated, to accelerate data collection."
+      },
+      {
+        key: 'proxy',
+        label: 'Proxy URL',
+        type: 'text',
+        placeholder: 'eg. http://proxy.localhost:8080'
+      },
+      {
+        key: 'enableGraphql',
+        label: 'Use Graphql APIs',
+        type: 'switch',
+        tooltip:
+          'GraphQL APIs are 10+ times faster than REST APIs, but it may not be supported in GitHub on-premise versions.'
+      },
+      {
+        key: 'rateLimitPerHour',
+        label: 'Rate Limit (per hour)',
+        type: 'numeric',
+        tooltip:
+          'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.'
+      }
+    ]
+  },
   entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
   transformation: {
     issueSeverity: '',

@@ -16,20 +16,43 @@
  *
  */
 
-import { GitHubConfig } from '@/plugins/github'
-import { JIRAConfig } from '@/plugins/jira'
-import { GitLabConfig } from '@/plugins/gitlab'
-import { JenkinsConfig } from '@/plugins/jenkins'
-import { WebhookConfig } from '@/plugins/webook'
-import { GitHubGraphqlConfig } from '@/plugins/github_graphql'
-import { GitExtractorConfig } from '@/plugins/gitextractor'
+import type { PluginConfigType } from './types'
+import { AEConfig } from './ae'
+import { AzureConfig } from './azure'
+import { BitBucketConfig } from './bitbucket'
+import { DBTConfig } from './dbt'
+import { DORAConfig } from './dora'
+import { FeiShuConfig } from './feishu'
+import { GiteeConfig } from './gitee'
+import { GitExtractorConfig } from './gitextractor'
+import { GitHubConfig } from './github'
+import { GitHubGraphqlConfig } from './github_graphql'
+import { GitLabConfig } from './gitlab'
+import { JenkinsConfig } from './jenkins'
+import { JIRAConfig } from './jira'
+import { RefDiffConfig } from './refdiff'
+import { StarRocksConfig } from './starrocks'
+import { TAPDConfig } from './tapd'
+import { WebhookConfig } from './webook'
+import { ZenTaoConfig } from './zentao'
 
-export const PluginConfig = [
+export const PluginConfig: PluginConfigType[] = [
+  AEConfig,
+  AzureConfig,
+  BitBucketConfig,
+  DBTConfig,
+  DORAConfig,
+  FeiShuConfig,
+  GiteeConfig,
+  GitExtractorConfig,
   GitHubConfig,
-  JIRAConfig,
+  GitHubGraphqlConfig,
   GitLabConfig,
   JenkinsConfig,
+  JIRAConfig,
+  RefDiffConfig,
+  StarRocksConfig,
+  TAPDConfig,
   WebhookConfig,
-  GitHubGraphqlConfig,
-  GitExtractorConfig
+  ZenTaoConfig
 ]

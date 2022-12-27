@@ -16,15 +16,54 @@
  *
  */
 
-import { PluginType } from '@/plugins'
+import type { PluginConfigType } from '@/plugins'
+import { Plugins, PluginType } from '@/plugins'
 
 import Icon from './assets/icon.svg'
 
-export const GitLabConfig = {
-  plugin: 'gitlab',
+export const GitLabConfig: PluginConfigType = {
+  plugin: Plugins.GitLab,
   name: 'GitLab',
   type: PluginType.Connection,
   icon: Icon,
+  connection: {
+    fields: [
+      {
+        key: 'name',
+        label: 'Connection Name',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. GitLab'
+      },
+      {
+        key: 'endpoint',
+        label: 'Endpoint URL',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. https://gitlab.com/api/v4/'
+      },
+      {
+        key: 'token',
+        label: 'Access Token',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. ff9d1ad0e5c04f1f98fa'
+      },
+      {
+        key: 'proxy',
+        label: 'Proxy URL',
+        type: 'text',
+        placeholder: 'eg. http://proxy.localhost:8080'
+      },
+      {
+        key: 'rateLimitPerHour',
+        label: 'Rate Limit (per hour)',
+        type: 'numeric',
+        tooltip:
+          'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.'
+      }
+    ]
+  },
   entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
   transformation: {
     productionPattern: '',
