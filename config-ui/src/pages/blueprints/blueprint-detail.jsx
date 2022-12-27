@@ -20,7 +20,7 @@ import { useParams, useHistory } from 'react-router-dom'
 // import { CSSTransition } from 'react-transition-group'
 import { DEVLAKE_ENDPOINT } from '@/utils/config'
 import request from '@/utils/request'
-import dayjs from '@/utils/time'
+import dayjs from 'dayjs'
 import { saveAs } from 'file-saver'
 import {
   Button,

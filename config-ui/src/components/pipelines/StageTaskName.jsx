@@ -28,7 +28,7 @@ import {
   H3,
   Classes
 } from '@blueprintjs/core'
-import dayjs from '@/utils/time'
+import dayjs from 'dayjs'
 
 const StageTaskName = (props) => {
   const { task, showDetails = null, onClose = () => {} } = props

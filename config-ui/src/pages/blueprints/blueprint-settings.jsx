@@ -18,7 +18,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 import { ENVIRONMENT } from '@/config/environment'
-import dayjs from '@/utils/time'
+import dayjs from 'dayjs'
 import {
   BOARDS_ENDPOINT,
   ISSUE_FIELDS_ENDPOINT,

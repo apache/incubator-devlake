@@ -29,7 +29,7 @@ import {
   Intent,
   Popover
 } from '@blueprintjs/core'
-import dayjs from '@/utils/time'
+import dayjs from 'dayjs'
 import StageLane from '@/components/pipelines/StageLane'
 
 const TaskActivity = (props) => {

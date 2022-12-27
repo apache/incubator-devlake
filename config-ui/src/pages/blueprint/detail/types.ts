@@ -18,35 +18,11 @@
 
 import { Plugins } from '@/plugins'
 
-import { ModeEnum } from '../types'
-
-export type ConnectionItemType = {
+export type ConfigConnectionItemType = {
   icon: string
   name: string
   connectionId: ID
   plugin: Plugins
   entities: string[]
   scopeIds: ID[]
-}
-
-export type BlueprintType = {
-  id: ID
-  mode: ModeEnum
-  name: string
-  isManual: boolean
-  cronConfig: string
-  skipOnFail: boolean
-  plan: any
-  settings: {
-    version: string
-    createdDateAfter: null | string
-    connections: Array<{
-      plugin: Plugins
-      connectionId: ID
-      scopes: Array<{
-        id: ID
-        entities: string[]
-      }>
-    }>
-  }
 }

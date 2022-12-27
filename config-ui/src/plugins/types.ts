@@ -21,10 +21,13 @@ export enum Plugins {
   JIRA = 'jira',
   GitLab = 'gitlab',
   Jenkins = 'jenkins',
-  Webhook = 'webhook'
+  Webhook = 'webhook',
+  GitHubGraphql = 'github_graphql',
+  GitExtractor = 'gitextractor'
 }
 
 export enum PluginType {
   Connection = 'connection',
-  Incoming_Connection = 'incoming_connection'
+  Incoming_Connection = 'incoming_connection',
+  Pipeline = 'pipeline'
 }

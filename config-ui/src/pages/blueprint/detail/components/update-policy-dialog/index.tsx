@@ -21,8 +21,8 @@ import React, { useState, useEffect } from 'react'
 import { Dialog } from '@/components'
 import { SyncPolicy } from '@/plugins'
 
-import type { BlueprintType } from '../../types'
-import {ModeEnum} from "@/pages/blueprint/create/types";
+import type { BlueprintType } from '../../../types'
+import { ModeEnum } from '../../../types'
 
 interface Props {
   blueprint: BlueprintType
@@ -30,14 +30,14 @@ interface Props {
   cronConfig: string
   skipOnFail: boolean
   createdDateAfter: string | null
-  saving: boolean
+  operating: boolean
   onCancel: () => void
   onSubmit: (params: any) => Promise<void>
 }
 
 export const UpdatePolicyDialog = ({
   blueprint,
-  saving,
+  operating,
   onCancel,
   onSubmit,
   ...props
@@ -74,7 +74,7 @@ export const UpdatePolicyDialog = ({
         width: 720
       }}
       okText='Save'
-      okLoading={saving}
+      okLoading={operating}
       onCancel={onCancel}
       onOk={handleSubmit}
     >

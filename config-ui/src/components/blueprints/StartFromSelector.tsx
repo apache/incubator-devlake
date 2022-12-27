@@ -19,7 +19,7 @@ import React, {useCallback, useEffect, useMemo} from 'react'
 import {Tag} from '@blueprintjs/core'
 import {TimePrecision} from "@blueprintjs/datetime"
 import {DateInput2} from "@blueprintjs/datetime2"
-import dayjs from '@/utils/time'
+import dayjs from 'dayjs'
 
 const StartFromSelector = (
   {

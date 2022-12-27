@@ -21,11 +21,15 @@ import { JIRAConfig } from '@/plugins/jira'
 import { GitLabConfig } from '@/plugins/gitlab'
 import { JenkinsConfig } from '@/plugins/jenkins'
 import { WebhookConfig } from '@/plugins/webook'
+import { GitHubGraphqlConfig } from '@/plugins/github_graphql'
+import { GitExtractorConfig } from '@/plugins/gitextractor'
 
 export const PluginConfig = [
   GitHubConfig,
   JIRAConfig,
   GitLabConfig,
   JenkinsConfig,
-  WebhookConfig
+  WebhookConfig,
+  GitHubGraphqlConfig,
+  GitExtractorConfig
 ]

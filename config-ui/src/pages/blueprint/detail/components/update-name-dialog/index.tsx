@@ -23,13 +23,13 @@ import { Dialog } from '@/components'
 
 interface Props {
   name: string
-  saving: boolean
+  operating: boolean
   onCancel: () => void
   onSubmit: (name: string) => void
 }
 
 export const UpdateNameDialog = ({
-  saving,
+  operating,
   onCancel,
   onSubmit,
   ...props
@@ -46,7 +46,7 @@ export const UpdateNameDialog = ({
       title='Change Blueprint Name'
       okText='Save'
       okDisabled={!name || name === props.name}
-      okLoading={saving}
+      okLoading={operating}
       onCancel={onCancel}
       onOk={() => onSubmit(name)}
     >

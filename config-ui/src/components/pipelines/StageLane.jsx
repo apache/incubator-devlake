@@ -18,7 +18,7 @@
 import React, { useState, useEffect } from 'react'
 import { CSSTransition } from 'react-transition-group'
 import { Icon, Colors, H4, Spinner, Intent } from '@blueprintjs/core'
-import dayjs from '@/utils/time'
+import dayjs from 'dayjs'
 import StageTask from '@/components/pipelines/StageTask'
 import StageLaneStatus from '@/components/pipelines/StageLaneStatus'
 

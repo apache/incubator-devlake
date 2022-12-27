@@ -16,7 +16,7 @@
  *
  */
 import React, { useEffect } from 'react'
-import dayjs from '@/utils/time'
+import dayjs from 'dayjs'
 import {
   Button,
   ButtonGroup,

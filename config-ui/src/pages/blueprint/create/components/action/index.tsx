@@ -27,7 +27,7 @@ import {
 } from '@blueprintjs/core'
 import { Popover2 } from '@blueprintjs/popover2'
 
-import { ModeEnum } from '../../types'
+import { ModeEnum } from '../../../types'
 import { useCreateBP } from '../../bp-context'
 
 import * as S from './styled'
