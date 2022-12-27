@@ -21,12 +21,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/http"
 	"net/url"
 	"time"
-
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
 const RAW_RUN_TABLE = "github_api_runs"
@@ -41,24 +40,35 @@ var CollectRunsMeta = core.SubTaskMeta{
 
 func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*GithubTaskData)
-
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_RUN_TABLE,
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Name:         data.Options.Name,
 		},
+		Table: RAW_RUN_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
+
+	incremental := collectorWithState.CanIncrementCollect()
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
 		PageSize:    30,
-		Incremental: false,
+		Incremental: incremental,
 		UrlTemplate: "repos/{{ .Params.Name }}/actions/runs",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			if data.CreatedDateAfter != nil {
-				query.Set("created", fmt.Sprintf(">%s", data.CreatedDateAfter.Format(time.RFC3339)))
+			// data.CreatedDateAfter need to be used to filter data, but now no params supported
+			if incremental {
+				startDate := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
+				endDate := time.Now().Format("2006-01-02")
+				query.Set("created", fmt.Sprintf("%s..%s", startDate, endDate))
+			} else if data.CreatedDateAfter != nil {
+				startDate := data.CreatedDateAfter.Format("2006-01-02")
+				endDate := time.Now().Format("2006-01-02")
+				query.Set("created", fmt.Sprintf("%s..%s", startDate, endDate))
 			}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
@@ -74,11 +84,12 @@ func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 			return body.GithubWorkflowRuns, nil
 		},
 	})
+
 	if err != nil {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
 
 type GithubRawRunsResult struct {
