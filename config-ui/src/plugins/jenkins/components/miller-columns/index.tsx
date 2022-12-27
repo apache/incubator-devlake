@@ -57,7 +57,8 @@ export const MillerColumns = ({
       .filter((it) => seletedIds.includes(it.id) && it.type !== 'folder')
       .map((it: any) => ({
         connectionId,
-        jobFullName: getJobFullName(it)
+        jobFullName: getJobFullName(it),
+        name: getJobFullName(it),
       }))
 
     onChangeItems(result)
