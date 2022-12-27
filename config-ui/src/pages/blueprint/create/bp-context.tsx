@@ -192,7 +192,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
     })
 
     if (success) {
-      handleSaveAfter(res.id)
+      handleSaveAfter(res.blueprintId)
     }
   }
 
