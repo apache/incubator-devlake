@@ -41,7 +41,7 @@ module.exports = (env = {}) => {
         {
           test: /\.(tsx?|jsx?)$/,
           use: ['babel-loader'],
-          exclude: [/node_modules/, /packages/, /cypress/, /^config$/]
+          exclude: [/node_modules/, /packages/, /^config$/]
         },
         {
           test: /\.css$/,
@@ -128,7 +128,7 @@ module.exports = (env = {}) => {
         // Do NOT auto-fix w/ eslint on webpack startup!
         fix: false,
         context: path.resolve(__dirname, './'),
-        exclude: ['dist', 'packages', 'cypress', 'config', 'node_modules']
+        exclude: ['dist', 'packages', 'config', 'node_modules']
       }),
       ...optionalPlugins
     ],
