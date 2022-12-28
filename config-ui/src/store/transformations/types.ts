@@ -16,6 +16,10 @@
  *
  */
 
-export * from './version'
-export * from './connections'
-export * from './transformations'
+import { Plugins } from '@/plugins'
+
+export type TransformationItemType = {
+  id: ID
+  name: string
+  plugin: Plugins
+}
