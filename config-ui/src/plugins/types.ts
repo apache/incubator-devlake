@@ -43,12 +43,12 @@ export enum PluginType {
   Pipeline = 'pipeline'
 }
 
-export type PluginConfigType = {
+export type PluginConfigConnectionType = {
   plugin: Plugins
   name: string
-  type: PluginType
+  type: PluginType.Connection
   icon: string
-  connection?: {
+  connection: {
     initialValues?: Record<string, any>
     fields: Array<{
       key: string
@@ -59,6 +59,17 @@ export type PluginConfigType = {
       tooltip?: string
     }>
   }
-  entities?: string[]
-  transformation?: any
+  entities: string[]
+  transformation: any
 }
+
+export type PluginConfigAnotherType = {
+  plugin: Plugins
+  name: string
+  type: PluginType.Incoming_Connection | PluginType.Pipeline
+  icon: string
+}
+
+export type PluginConfigType =
+  | PluginConfigConnectionType
+  | PluginConfigAnotherType
