@@ -16,15 +16,63 @@
  *
  */
 
-import { PluginType } from '@/plugins'
+import type { PluginConfigType } from '@/plugins'
+import { Plugins, PluginType } from '@/plugins'
 
 import Icon from './assets/icon.svg'
 
-export const JIRAConfig = {
-  plugin: 'jira',
+export const JIRAConfig: PluginConfigType = {
+  plugin: Plugins.JIRA,
   name: 'JIRA',
   type: PluginType.Connection,
   icon: Icon,
+  connection: {
+    fields: [
+      {
+        key: 'name',
+        label: 'Connection Name',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. JIRA'
+      },
+      {
+        key: 'endpoint',
+        label: 'Endpoint URL',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. https://your-domain.atlassian.net/rest/'
+      },
+      {
+        key: 'username',
+        label: 'Username / E-mail',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. admin'
+      },
+      {
+        key: 'password',
+        label: 'Password',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. ************',
+        tooltip:
+          'If you are using JIRA Cloud or JIRA Server,\nyour API Token should be used as password.'
+      },
+      {
+        key: 'proxy',
+        label: 'Proxy URL',
+        type: 'text',
+        placeholder: 'eg. http://proxy.localhost:8080'
+      },
+      {
+        key: 'rateLimitPerHour',
+        label: 'Rate Limit (per hour)',
+        type: 'numeric',
+        tooltip:
+          'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.'
+      }
+    ]
+  },
   entities: ['TICKET', 'CROSS'],
   transformation: {
     epicKeyField: '',

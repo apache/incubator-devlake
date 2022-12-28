@@ -21,9 +21,9 @@ import { Plugins, PluginType } from '@/plugins'
 
 import Icon from './assets/icon.svg'
 
-export const GitExtractorConfig: PluginConfigType = {
-  plugin: Plugins.GitExtractor,
-  name: 'GitExtractor',
+export const FeiShuConfig: PluginConfigType = {
+  plugin: Plugins.FeiShu,
+  name: 'FeiShu',
   type: PluginType.Pipeline,
   icon: Icon
 }

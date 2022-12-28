@@ -16,15 +16,61 @@
  *
  */
 
-import { PluginType } from '@/plugins'
+import type { PluginConfigType } from '@/plugins'
+import { Plugins, PluginType } from '@/plugins'
 
 import Icon from './assets/icon.svg'
 
-export const JenkinsConfig = {
-  plugin: 'jenkins',
+export const JenkinsConfig: PluginConfigType = {
+  plugin: Plugins.Jenkins,
   name: 'Jenkins',
   type: PluginType.Connection,
   icon: Icon,
+  connection: {
+    fields: [
+      {
+        key: 'name',
+        label: 'Connection Name',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. GitLab'
+      },
+      {
+        key: 'endpoint',
+        label: 'Endpoint URL',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. https://gitlab.com/api/v4/'
+      },
+      {
+        key: 'username',
+        label: 'Username',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. admin'
+      },
+      {
+        key: 'password',
+        label: 'Password',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. ************",'
+      },
+      {
+        key: 'proxy',
+        label: 'Proxy URL',
+        type: 'text',
+        placeholder: 'eg. http://proxy.localhost:8080'
+      },
+      {
+        key: 'rateLimitPerHour',
+        label: 'Rate Limit (per hour)',
+        type: 'numeric',
+        tooltip:
+          'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.'
+      }
+    ]
+  },
   entities: ['CICD'],
   transformation: {
     productionPattern: '',

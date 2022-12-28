@@ -21,9 +21,9 @@ import { Plugins, PluginType } from '@/plugins'
 
 import Icon from './assets/icon.svg'
 
-export const GitExtractorConfig: PluginConfigType = {
-  plugin: Plugins.GitExtractor,
-  name: 'GitExtractor',
+export const TAPDConfig: PluginConfigType = {
+  plugin: Plugins.TAPD,
+  name: 'TAPD',
   type: PluginType.Pipeline,
   icon: Icon
 }
