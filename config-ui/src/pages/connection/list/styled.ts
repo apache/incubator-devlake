@@ -16,14 +16,32 @@
  *
  */
 
-import type { PluginConfigType } from '@/plugins'
-import { Plugins, PluginType } from '@/plugins'
+import styled from 'styled-components'
 
-import Icon from './assets/icon.svg'
+export const Wrapper = styled.div`
+  .action {
+    margin-bottom: 16px;
 
-export const WebhookConfig: PluginConfigType = {
-  plugin: Plugins.Webhook,
-  name: 'Webhook',
-  type: PluginType.Incoming_Connection,
-  icon: Icon
-}
+    .bp4-button + .bp4-button {
+      margin-left: 8px;
+    }
+  }
+`
+
+export const DeleteConfirm = styled.div`
+  padding: 16px 24px;
+
+  h3 {
+    margin: 0;
+    padding: 0;
+  }
+
+  p {
+    margin: 8px 0;
+  }
+
+  .bp4-button-group {
+    display: flex;
+    justify-content: flex-end;
+  }
+`

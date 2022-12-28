@@ -29,16 +29,14 @@ import {
   ProjectHomePage,
   ProjectDetailPage,
   ConnectionHomePage,
-  WebHookConnectionPage,
+  ConnectionListPage,
+  ConnectionFormPage,
   CreateBlueprintPage,
   BlueprintHomePage,
   BlueprintDetailPage,
   TransformationHomePage,
   TransformationDetailPage
 } from '@/pages'
-import ManageIntegration from '@/pages/configure/integration/manage'
-import AddConnection from '@/pages/configure/connections/AddConnection'
-import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
 
 function App() {
   return (
@@ -63,23 +61,18 @@ function App() {
         />
         <Route
           exact
-          path='/connections/webhook'
-          component={() => <WebHookConnectionPage />}
+          path='/connections/:plugin'
+          component={() => <ConnectionListPage />}
         />
         <Route
           exact
-          path='/connections/:providerId'
-          component={() => <ManageIntegration />}
+          path='/connections/:plugin/create'
+          component={() => <ConnectionFormPage />}
         />
         <Route
           exact
-          path='/connections/add/:providerId'
-          component={() => <AddConnection />}
-        />
-        <Route
-          exact
-          path='/connections/configure/:providerId/:connectionId'
-          component={() => <ConfigureConnection />}
+          path='/connections/:plugin/:cid'
+          component={() => <ConnectionFormPage />}
         />
         <Route
           exact
