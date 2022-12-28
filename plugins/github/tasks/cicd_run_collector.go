@@ -25,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"net/http"
 	"net/url"
-	"time"
 )
 
 const RAW_RUN_TABLE = "github_api_runs"
@@ -52,26 +51,25 @@ func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	incremental := collectorWithState.CanIncrementCollect()
+	//incremental := collectorWithState.CanIncrementCollect()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
-		ApiClient:   data.ApiClient,
-		PageSize:    30,
-		Incremental: incremental,
+		ApiClient: data.ApiClient,
+		PageSize:  30,
+		//Incremental: incremental,
 		UrlTemplate: "repos/{{ .Params.Name }}/actions/runs",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			// if data.CreatedDateAfter != nil, we set since once
-			if data.CreatedDateAfter != nil {
-				startDate := data.CreatedDateAfter.Format("2006-01-02")
-				endDate := time.Now().Format("2006-01-02")
-				query.Set("created", fmt.Sprintf("%s..%s", startDate, endDate))
-			}
-			// if incremental == true, we overwrite it
-			if incremental {
-				startDate := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
-				endDate := time.Now().Format("2006-01-02")
-				query.Set("created", fmt.Sprintf("%s..%s", startDate, endDate))
-			}
+			// There is a bug for github rest api, so temporarily commented the following code
+			//if data.CreatedDateAfter != nil {
+			//	startDate := data.CreatedDateAfter.Format("2006-01-02")
+			//	query.Set("created", fmt.Sprintf("%s..*", startDate))
+			//}
+			//// if incremental == true, we overwrite it
+			//if incremental {
+			//	startDate := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
+			//	query.Set("created", fmt.Sprintf("%s..*", startDate))
+			//}
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("per_page", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil

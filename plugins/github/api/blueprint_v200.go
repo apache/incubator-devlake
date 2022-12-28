@@ -95,9 +95,7 @@ func makeDataSourcePipelinePlanV200(
 				plan = append(plan, nil)
 			}
 			refdiffOp := transformationRule.Refdiff
-			if err != nil {
-				return nil, err
-			}
+			refdiffOp["repoId"] = didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, githubRepo.GithubId)
 			plan[j] = core.PipelineStage{
 				{
 					Plugin:  "refdiff",

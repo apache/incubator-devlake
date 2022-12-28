@@ -64,7 +64,7 @@ type ApiCollectorArgs struct {
 	// PageSize tells ApiCollector the page size
 	PageSize int
 	// Incremental indicate if this is a incremental collection, the existing data won't get deleted if it was true
-	Incremental bool `comment:""`
+	Incremental bool `comment:"indicate if this collection is incremental update"`
 	// ApiClient is a asynchronize api request client with qps
 	ApiClient RateLimitedApiClient
 	// Input helps us collect data based on previous collected data, like collecting changelogs based on jira

@@ -85,7 +85,7 @@ func CalculateChangeLeadTimeOld(taskCtx core.SubTaskContext) errors.Error {
 			if firstReview != nil {
 				projectPrMetric.PrPickupTime = processNegativeValue(int64(firstReview.CreatedDate.Sub(pr.CreatedDate).Minutes()))
 				projectPrMetric.PrReviewTime = processNegativeValue(int64(pr.MergedDate.Sub(firstReview.CreatedDate).Minutes()))
-				projectPrMetric.FirstReviewId = firstReview.ReviewId
+				projectPrMetric.FirstReviewId = firstReview.Id
 			}
 			deployment, err := getDeploymentOld(devops.PRODUCTION, *pr.MergedDate, db)
 			if err != nil {

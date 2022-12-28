@@ -29,6 +29,7 @@ import (
 type ApiCollectorStateManager struct {
 	RawDataSubTaskArgs
 	*ApiCollector
+	*GraphqlCollector
 	LatestState      models.CollectorLatestState
 	CreatedDateAfter *time.Time
 	ExecuteStart     time.Time
@@ -79,9 +80,30 @@ func (m *ApiCollectorStateManager) InitCollector(args ApiCollectorArgs) (err err
 	return err
 }
 
+// InitGraphQLCollector init the embedded collector
+func (m *ApiCollectorStateManager) InitGraphQLCollector(args GraphqlCollectorArgs) (err errors.Error) {
+	args.RawDataSubTaskArgs = m.RawDataSubTaskArgs
+	m.GraphqlCollector, err = NewGraphqlCollector(args)
+	return err
+}
+
 // Execute the embedded collector and record execute state
 func (m ApiCollectorStateManager) Execute() errors.Error {
 	err := m.ApiCollector.Execute()
+	if err != nil {
+		return err
+	}
+
+	db := m.Ctx.GetDal()
+	m.LatestState.LatestSuccessStart = &m.ExecuteStart
+	m.LatestState.CreatedDateAfter = m.CreatedDateAfter
+	err = db.CreateOrUpdate(&m.LatestState)
+	return err
+}
+
+// ExecuteGraphQL the embedded collector and record execute state
+func (m ApiCollectorStateManager) ExecuteGraphQL() errors.Error {
+	err := m.GraphqlCollector.Execute()
 	if err != nil {
 		return err
 	}
