@@ -16,6 +16,8 @@
  *
  */
 
-import { WebHookConnection } from '@/plugins'
+import { Plugins } from '@/plugins'
+import request from '@/components/utils/request'
 
-export const WebHookConnectionPage = WebHookConnection
+export const deleteConnection = (plugin: Plugins, id: ID) =>
+  request(`/plugins/${plugin}/connections/${id}`, { method: 'delete' })

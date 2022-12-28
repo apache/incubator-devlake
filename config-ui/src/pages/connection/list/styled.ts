@@ -16,5 +16,32 @@
  *
  */
 
-export * from './home'
-export * from './list'
+import styled from 'styled-components'
+
+export const Wrapper = styled.div`
+  .action {
+    margin-bottom: 16px;
+
+    .bp4-button + .bp4-button {
+      margin-left: 8px;
+    }
+  }
+`
+
+export const DeleteConfirm = styled.div`
+  padding: 16px 24px;
+
+  h3 {
+    margin: 0;
+    padding: 0;
+  }
+
+  p {
+    margin: 8px 0;
+  }
+
+  .bp4-button-group {
+    display: flex;
+    justify-content: flex-end;
+  }
+`
