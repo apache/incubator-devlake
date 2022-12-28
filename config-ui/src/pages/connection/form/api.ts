@@ -16,6 +16,20 @@
  *
  */
 
-export * from './home'
-export * from './list'
-export * from './form'
+import { Plugins } from '@/plugins'
+import request from '@/components/utils/request'
+
+export const testConnection = (plugin: Plugins, payload: any) =>
+  request(`/plugins/${plugin}/test`, { method: 'post', data: payload })
+
+export const createConnection = (plugin: Plugins, payload: any) =>
+  request(`/plugins/${plugin}/connections`, { method: 'post', data: payload })
+
+export const getConnection = (plugin: Plugins, id: ID) =>
+  request(`/plugins/${plugin}/connections/${id}`)
+
+export const updateConnection = (plugin: Plugins, id: ID, payload: any) =>
+  request(`/plugins/${plugin}/connections/${id}`, {
+    method: 'patch',
+    data: payload
+  })
