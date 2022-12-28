@@ -20,6 +20,8 @@ import React from 'react'
 
 import { Divider } from '@/components'
 
+import * as S from './styled'
+
 import {
   IssueTracking,
   CiCd,
@@ -34,13 +36,13 @@ interface Props {
 
 export const GitHubTransformation = ({ ...props }: Props) => {
   return (
-    <>
+    <S.TransformationWrapper>
       <IssueTracking {...props} />
       <Divider />
       <CiCd {...props} />
       <Divider />
       <CodeReview {...props} />
       <AdditionalSettings {...props} />
-    </>
+    </S.TransformationWrapper>
   )
 }

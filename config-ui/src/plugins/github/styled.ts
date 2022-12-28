@@ -16,25 +16,31 @@
  *
  */
 
-import React from 'react'
+import styled from 'styled-components'
 
-import { Divider } from '@/components'
+export const TransformationWrapper = styled.div`
+  h3 {
+    margin: 0 0 8px;
 
-import { IssueTracking, AdditionalSettings } from './components'
-import * as S from './styled'
+    .bp4-tag {
+      margin-left: 6px;
+    }
+  }
 
-interface Props {
-  connectionId: ID
-  transformation: any
-  setTransformation: React.Dispatch<React.SetStateAction<any>>
-}
+  p {
+    margin: 0 0 8px;
+  }
 
-export const JIRATransformation = ({ ...props }: Props) => {
-  return (
-    <S.TransformationWrapper>
-      <IssueTracking {...props} />
-      <Divider />
-      <AdditionalSettings {...props} />
-    </S.TransformationWrapper>
-  )
-}
+  .bp4-form-group {
+    display: flex;
+    align-items: center;
+
+    .bp4-label {
+      flex: 0 0 150px;
+    }
+
+    .bp4-form-content {
+      flex: auto;
+    }
+  }
+`
