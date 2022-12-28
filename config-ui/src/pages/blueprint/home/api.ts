@@ -16,7 +16,6 @@
  *
  */
 
-export * from './types'
-export * from './home'
-export * from './create'
-export * from './detail'
+import request from '@/components/utils/request'
+
+export const getBlueprints = () => request('/blueprints')

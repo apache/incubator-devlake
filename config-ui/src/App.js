@@ -31,13 +31,12 @@ import {
   ConnectionHomePage,
   WebHookConnectionPage,
   CreateBlueprintPage,
+  BlueprintHomePage,
   BlueprintDetailPage
 } from '@/pages'
-import Integration from '@/pages/configure/integration/index'
 import ManageIntegration from '@/pages/configure/integration/manage'
 import AddConnection from '@/pages/configure/connections/AddConnection'
 import ConfigureConnection from '@/pages/configure/connections/ConfigureConnection'
-import Blueprints from '@/pages/blueprints/index'
 
 function App() {
   return (
@@ -80,7 +79,11 @@ function App() {
           path='/connections/configure/:providerId/:connectionId'
           component={() => <ConfigureConnection />}
         />
-        <Route exact path='/blueprints' component={() => <Blueprints />} />
+        <Route
+          exact
+          path='/blueprints'
+          component={() => <BlueprintHomePage />}
+        />
         <Route
           exact
           path='/blueprints/create'
