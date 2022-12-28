@@ -81,6 +81,12 @@ export const useMenu = () => {
           ]
         },
         {
+          key: 'transformation',
+          title: 'Transformation',
+          icon: 'function',
+          path: '/transformations'
+        },
+        {
           key: 'dashboard',
           title: 'Dashboard',
           icon: 'dashboard',

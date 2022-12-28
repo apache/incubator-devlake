@@ -32,7 +32,9 @@ import {
   WebHookConnectionPage,
   CreateBlueprintPage,
   BlueprintHomePage,
-  BlueprintDetailPage
+  BlueprintDetailPage,
+  TransformationHomePage,
+  TransformationDetailPage
 } from '@/pages'
 import ManageIntegration from '@/pages/configure/integration/manage'
 import AddConnection from '@/pages/configure/connections/AddConnection'
@@ -93,6 +95,21 @@ function App() {
           exact
           path='/blueprints/:id'
           component={() => <BlueprintDetailPage />}
+        />
+        <Route
+          exact
+          path='/transformations'
+          component={() => <TransformationHomePage />}
+        />
+        <Route
+          exact
+          path='/transformations/:plugin/create'
+          component={() => <TransformationDetailPage />}
+        />
+        <Route
+          exact
+          path='/transformations/:plugin/:tid'
+          component={() => <TransformationDetailPage />}
         />
       </Switch>
     </BaseLayout>

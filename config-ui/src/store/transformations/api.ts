@@ -16,6 +16,9 @@
  *
  */
 
-export * from './version'
-export * from './connections'
-export * from './transformations'
+import request from '@/components/utils/request'
+
+import { Plugins } from '@/plugins'
+
+export const getTransformation = (plugin: Plugins) =>
+  request(`/plugins/${plugin}/transformation_rules`)

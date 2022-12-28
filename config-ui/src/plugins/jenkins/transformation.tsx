@@ -19,6 +19,7 @@
 import React from 'react'
 
 import { CiCd } from './components'
+import * as S from './styled'
 
 interface Props {
   transformation: any
@@ -27,8 +28,8 @@ interface Props {
 
 export const JenkinsTransformation = ({ ...props }: Props) => {
   return (
-    <>
+    <S.TransformationWrapper>
       <CiCd {...props} />
-    </>
+    </S.TransformationWrapper>
   )
 }

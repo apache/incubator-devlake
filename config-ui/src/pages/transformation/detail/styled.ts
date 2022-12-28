@@ -16,6 +16,26 @@
  *
  */
 
-export * from './version'
-export * from './connections'
-export * from './transformations'
+import styled from 'styled-components'
+
+export const Wrapper = styled.div`
+  .card + .card {
+    margin-top: 32px;
+  }
+
+  .name {
+    h3 {
+      margin: 0 0 8px;
+    }
+
+    p {
+      margin: 0 0 8px;
+    }
+  }
+
+  .action {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+`

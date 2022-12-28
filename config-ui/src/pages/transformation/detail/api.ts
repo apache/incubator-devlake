@@ -16,6 +16,20 @@
  *
  */
 
-export * from './version'
-export * from './connections'
-export * from './transformations'
+import request from '@/components/utils/request'
+import { Plugins } from '@/plugins'
+
+export const createTransformation = (plugin: Plugins, payload: any) =>
+  request(`/plugins/${plugin}/transformation_rules`, {
+    method: 'post',
+    data: payload
+  })
+
+export const getTransformation = (plugin: Plugins, id: ID) =>
+  request(`/plugins/${plugin}/transformation_rules/${id}`)
+
+export const updateTransformation = (plugin: Plugins, id: ID, payload: any) =>
+  request(`/plugins/${plugin}/transformation_rules/${id}`, {
+    method: 'patch',
+    data: payload
+  })

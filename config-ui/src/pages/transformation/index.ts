@@ -16,6 +16,5 @@
  *
  */
 
-export * from './version'
-export * from './connections'
-export * from './transformations'
+export * from './home'
+export * from './detail'

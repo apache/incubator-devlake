@@ -21,6 +21,7 @@ import React from 'react'
 import { Divider } from '@/components'
 
 import { IssueTracking, AdditionalSettings } from './components'
+import * as S from './styled'
 
 interface Props {
   connectionId: ID
@@ -30,10 +31,10 @@ interface Props {
 
 export const JIRATransformation = ({ ...props }: Props) => {
   return (
-    <>
+    <S.TransformationWrapper>
       <IssueTracking {...props} />
       <Divider />
       <AdditionalSettings {...props} />
-    </>
+    </S.TransformationWrapper>
   )
 }
