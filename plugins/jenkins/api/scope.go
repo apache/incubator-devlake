@@ -182,9 +182,10 @@ func GetScope(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Err
 	if err != nil {
 		return nil, err
 	}
-	var rule models.JenkinsJob
+
+	var rule models.JenkinsTransformationRule
 	if job.TransformationRuleId > 0 {
-		err = basicRes.GetDal().First(&rule, dal.Where("transformation_rule_id = ?", job.TransformationRuleId))
+		err = basicRes.GetDal().First(&rule, dal.Where("id = ?", job.TransformationRuleId))
 		if err != nil {
 			return nil, err
 		}
