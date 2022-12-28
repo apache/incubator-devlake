@@ -28,7 +28,7 @@ import * as API from './api'
 const pollTimer = 5000
 
 export interface UseDetailProps {
-  id: ID
+  id?: ID
 }
 
 export const useDetail = ({ id }: UseDetailProps) => {
@@ -41,6 +41,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
   const timer = useRef<any>()
 
   const getPipeline = async () => {
+    if (!id) return
     setLoading(true)
     try {
       const [pipeRes, taskRes] = await Promise.all([
@@ -78,6 +79,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
   }, [pipeline])
 
   const handlePipelineCancel = async () => {
+    if (!id) return
     const [success] = await operator(() => API.deletePipeline(id), {
       setOperating
     })
@@ -89,6 +91,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
   }
 
   const handlePipelineRerun = async () => {
+    if (!id) return
     const [success] = await operator(() => API.pipeLineRerun(id), {
       setOperating
     })
@@ -100,6 +103,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
   }
 
   const handleTaskRertun = async (id: ID) => {
+    if (!id) return
     const [success] = await operator(() => API.taskRerun(id), {
       setOperating
     })
