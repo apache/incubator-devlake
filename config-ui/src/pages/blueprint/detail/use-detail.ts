@@ -33,7 +33,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
   const [operating, setOperating] = useState(false)
   const [blueprint, setBlueprint] = useState<BlueprintType>()
   const [pipelines, setPipelines] = useState<PipelineType[]>([])
-  const [pipelineId, setPipelineId] = useState<ID>('')
+  const [pipelineId, setPipelineId] = useState<ID>()
   const [, setError] = useState()
 
   const getBlueprint = async () => {

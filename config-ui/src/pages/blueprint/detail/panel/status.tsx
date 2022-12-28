@@ -32,7 +32,7 @@ import * as S from '../styled'
 interface Props {
   blueprint: BlueprintType
   pipelines: PipelineType[]
-  pipelineId: ID
+  pipelineId?: ID
   operating: boolean
   onRun: () => void
   onUpdate: (payload: any) => void
