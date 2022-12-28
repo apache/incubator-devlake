@@ -119,7 +119,7 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) errors.Error {
 				// if pr.Type has not been set and prType is set in .env, process the below
 				if labelTypeRegex != nil {
 					groups := labelTypeRegex.FindStringSubmatch(label)
-					if len(groups) > 0 {
+					if len(groups) > 1 {
 						gitlabMergeRequest.Type = groups[1]
 					}
 				}
@@ -127,7 +127,7 @@ func ExtractApiMergeRequests(taskCtx core.SubTaskContext) errors.Error {
 				// if pr.Component has not been set and prComponent is set in .env, process
 				if labelComponentRegex != nil {
 					groups := labelComponentRegex.FindStringSubmatch(label)
-					if len(groups) > 0 {
+					if len(groups) > 1 {
 						gitlabMergeRequest.Component = groups[1]
 					}
 				}
