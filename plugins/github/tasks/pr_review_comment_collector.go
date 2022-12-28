@@ -56,6 +56,11 @@ func CollectPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 		UrlTemplate: "repos/{{ .Params.Name }}/pulls/comments",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
+			// if data.CreatedDateAfter != nil, we set since once
+			if data.CreatedDateAfter != nil {
+				query.Set("since", data.CreatedDateAfter.String())
+			}
+			// if incremental == true, we overwrite it
 			if incremental {
 				query.Set("since", collectorWithState.LatestState.LatestSuccessStart.String())
 			}
