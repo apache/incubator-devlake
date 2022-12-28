@@ -24,7 +24,7 @@ import (
 
 type GitlabTransformationRule struct {
 	common.Model
-	Name                 string            `gorm:"type:varchar(255)"`
+	Name                 string            `gorm:"type:varchar(255)" mapstructure:"name" json:"name"`
 	PrType               string            `mapstructure:"prType" json:"prType"`
 	PrComponent          string            `mapstructure:"prComponent" json:"prComponent"`
 	PrBodyClosePattern   string            `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern"`
