@@ -60,13 +60,15 @@ func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 		UrlTemplate: "repos/{{ .Params.Name }}/actions/runs",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
-			// data.CreatedDateAfter need to be used to filter data, but now no params supported
-			if incremental {
-				startDate := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
+			// if data.CreatedDateAfter != nil, we set since once
+			if data.CreatedDateAfter != nil {
+				startDate := data.CreatedDateAfter.Format("2006-01-02")
 				endDate := time.Now().Format("2006-01-02")
 				query.Set("created", fmt.Sprintf("%s..%s", startDate, endDate))
-			} else if data.CreatedDateAfter != nil {
-				startDate := data.CreatedDateAfter.Format("2006-01-02")
+			}
+			// if incremental == true, we overwrite it
+			if incremental {
+				startDate := collectorWithState.LatestState.LatestSuccessStart.Format("2006-01-02")
 				endDate := time.Now().Format("2006-01-02")
 				query.Set("created", fmt.Sprintf("%s..%s", startDate, endDate))
 			}
