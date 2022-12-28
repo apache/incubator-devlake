@@ -16,8 +16,25 @@
  *
  */
 
-export * from './project'
-export * from './connection'
-export * from './blueprint'
-export * from './pipeline'
-export * from './transformation'
+import { Colors } from '@blueprintjs/core'
+import styled from 'styled-components'
+
+export const Wrapper = styled.div`
+  .action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+`
+
+export const DialogWrapper = styled.div`
+  .warning {
+    margin-top: 16px;
+
+    .bp4-icon {
+      color: ${Colors.ORANGE3};
+      margin-right: 4px;
+    }
+  }
+`
