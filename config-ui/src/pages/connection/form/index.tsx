@@ -68,13 +68,15 @@ export const ConnectionFormPage = () => {
     })
 
     setGitHubTokens(
-      (connection ?? { token: '' }).token
+      (connection?.token ?? '')
         .split(',')
-        .reduce((acc, cur, index) => {
+        .reduce((acc: any, cur: string, index: number) => {
           acc[index] = cur
           return acc
         }, {} as any)
     )
+
+    setShowRateLimit(connection?.rateLimitPerHour ? true : false)
   }, [initialValues, connection])
 
   useEffect(() => {
@@ -173,6 +175,7 @@ export const ConnectionFormPage = () => {
             {showRateLimit && (
               <NumericInput
                 placeholder={placeholder}
+                value={form[key]}
                 onValueChange={(value) =>
                   setForm({
                     ...form,
