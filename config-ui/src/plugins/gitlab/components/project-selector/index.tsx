@@ -35,6 +35,7 @@ interface Props extends UseProjectSelectorProps {
 
 export const ProjectSelector = ({
   connectionId,
+  disabledItems,
   selectedItems,
   onChangeItems
 }: Props) => {
@@ -50,6 +51,7 @@ export const ProjectSelector = ({
         items={items}
         getKey={(it) => `${it.gitlabId}`}
         getName={(it) => it.name}
+        disabledItems={disabledItems}
         selectedItems={selectedItems}
         onChangeItems={onChangeItems}
         loading={loading}
