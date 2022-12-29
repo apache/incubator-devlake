@@ -52,7 +52,7 @@ export const JenkinsConfig: PluginConfigType = {
       {
         key: 'password',
         label: 'Password',
-        type: 'text',
+        type: 'password',
         required: true,
         placeholder: 'eg. ************",'
       },

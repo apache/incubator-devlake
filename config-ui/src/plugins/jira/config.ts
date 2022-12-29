@@ -52,7 +52,7 @@ export const JIRAConfig: PluginConfigType = {
       {
         key: 'password',
         label: 'Password',
-        type: 'text',
+        type: 'password',
         required: true,
         placeholder: 'eg. ************',
         tooltip:
