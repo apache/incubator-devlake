@@ -18,6 +18,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 
+import type { PluginConfigConnectionType } from '@/plugins'
 import { PluginConfig, PluginType } from '@/plugins'
 
 import type { ConnectionItemType } from './types'
@@ -32,7 +33,7 @@ export const useContextValue = (plugins: string[]) => {
     () =>
       PluginConfig.filter((p) => p.type === PluginType.Connection).filter((p) =>
         !plugins.length ? true : plugins.includes(p.plugin)
-      ),
+      ) as PluginConfigConnectionType[],
     [plugins]
   )
 
@@ -86,7 +87,7 @@ export const useContextValue = (plugins: string[]) => {
 
   useEffect(() => {
     handleRefresh()
-  }, [])
+  }, [allConnections])
 
   const handleTest = useCallback(
     async (selectedConnection: ConnectionItemType) => {
