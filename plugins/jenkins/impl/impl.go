@@ -236,6 +236,9 @@ func EnrichOptions(taskCtx core.TaskContext,
 			lastOne := len(pathSplit)
 
 			path := "job/" + strings.Join(pathSplit[0:lastOne-1], "job/")
+			if path == "job/" {
+				path = ""
+			}
 			name := pathSplit[lastOne-1]
 
 			err = api.GetJob(apiClient, path, name, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {

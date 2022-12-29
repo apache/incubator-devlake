@@ -78,7 +78,7 @@ func GetJobs(apiClient helper.ApiClientGetter, path string, pageSize int, callba
 func GetJob(apiClient helper.ApiClientGetter, path string, name string, fullName string, pageSize int, callback func(job *models.Job, isPath bool) errors.Error) errors.Error {
 	var err errors.Error
 
-	return GetJobs(apiClient, path+name, pageSize, func(job *models.Job) errors.Error {
+	return GetJobs(apiClient, path, pageSize, func(job *models.Job) errors.Error {
 		if job.Name != name {
 			return nil
 		}
