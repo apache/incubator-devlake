@@ -8,23 +8,12 @@
     "plugin:react-hooks/recommended",
     "prettier"
   ],
-  "ignorePatterns": [
-    "dist/*",
-    "/packages/*",
-    "/cypress/",
-    "/config/",
-    "/node_modules/"
-  ],
+  "ignorePatterns": ["dist/*", "/packages/*", "/config/", "/node_modules/"],
   "env": {
     "browser": true,
     "jest": true
   },
-  "plugins": [
-    "unicorn",
-    "babel",
-    "header",
-    "prettier"
-  ],
+  "plugins": ["unicorn", "babel", "header", "prettier"],
   "parserOptions": {
     "ecmaVersion": 6,
     "ecmaFeatures": {
@@ -36,19 +25,12 @@
       "alias": {
         "extensions": [".js"],
         "map": [
-          [
-            "@", "./src/"
-          ],
-          [
-            "@config", "./config/"
-          ]
+          ["@", "./src/"],
+          ["@config", "./config/"]
         ]
       },
       "babel-module": {
-        "extensions": [
-          ".js",
-          ".ts"
-        ]
+        "extensions": [".js", ".ts"]
       }
     }
   },
@@ -62,15 +44,9 @@
     "react/jsx-indent": ["error", 2],
     "react/jsx-wrap-multilines": 0,
     "react/jsx-first-prop-new-line": [2, "multiline"],
-    "react/jsx-max-props-per-line": [
-      2,
-      { "maximum": 1, "when": "multiline" }
-    ],
+    "react/jsx-max-props-per-line": [2, { "maximum": 1, "when": "multiline" }],
     "react/jsx-indent-props": [2, 2],
-    "react/jsx-closing-bracket-location": [
-      2,
-      "tag-aligned"
-    ],
+    "react/jsx-closing-bracket-location": [2, "tag-aligned"],
     "import/no-named-as-default": "off",
     "comma-dangle": "off",
     "react/prop-types": "off",

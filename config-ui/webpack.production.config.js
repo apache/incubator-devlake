@@ -42,7 +42,7 @@ module.exports = (env = {}) => {
       rules: [
         {
           test: /\.(tsx?|jsx?)$/,
-          exclude: [/node_modules/, /packages/, /cypress/, /^config$/],
+          exclude: [/node_modules/, /packages/, /^config$/],
           use: {
             loader: 'babel-loader'
           }
@@ -173,7 +173,7 @@ module.exports = (env = {}) => {
       }),
       new ESLintPlugin({
         context: path.resolve(__dirname, './'),
-        exclude: ['dist', 'packages', 'cypress', 'config', 'node_modules']
+        exclude: ['dist', 'packages', 'config', 'node_modules']
       }),
       ...optionalPlugins
     ]
