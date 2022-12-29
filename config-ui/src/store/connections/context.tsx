@@ -19,9 +19,9 @@
 import React, { useContext } from 'react'
 
 import { PageLoading } from '@/components'
-import { Plugins } from '@/plugins'
 
 import type { ConnectionItemType } from './types'
+import type { UseContextValueProps } from './use-context-value'
 import { useContextValue } from './use-context-value'
 
 const ConnectionContext = React.createContext<{
@@ -34,16 +34,14 @@ const ConnectionContext = React.createContext<{
   onTest: () => {}
 })
 
-interface Props {
-  plugins?: Plugins[]
+interface Props extends UseContextValueProps {
   children?: React.ReactNode
 }
 
-export const ConnectionContextProvider = ({
-  plugins = [],
-  children
-}: Props) => {
-  const { loading, connections, onRefresh, onTest } = useContextValue(plugins)
+export const ConnectionContextProvider = ({ children, ...props }: Props) => {
+  const { loading, connections, onRefresh, onTest } = useContextValue({
+    ...props
+  })
 
   if (loading) {
     return <PageLoading />

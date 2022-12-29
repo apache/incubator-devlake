@@ -42,10 +42,7 @@ import * as S from './styled'
 export const ConnectionFormPage = () => {
   const [form, setForm] = useState<Record<string, any>>({})
   const [showRateLimit, setShowRateLimit] = useState(false)
-  const [githubTokens, setGitHubTokens] = useState<Record<string, string>>({
-    '0': '',
-    '1': ''
-  })
+  const [githubTokens, setGitHubTokens] = useState<Record<string, string>>({})
 
   const history = useHistory()
   const { plugin, cid } = useParams<{ plugin: Plugins; cid?: string }>()
@@ -67,10 +64,27 @@ export const ConnectionFormPage = () => {
     setForm({
       ...form,
       ...(initialValues ?? {}),
-      ...(connection ?? {}),
+      ...(connection ?? {})
+    })
+
+    setGitHubTokens(
+      (connection?.token ?? '')
+        .split(',')
+        .reduce((acc: any, cur: string, index: number) => {
+          acc[index] = cur
+          return acc
+        }, {} as any)
+    )
+
+    setShowRateLimit(connection?.rateLimitPerHour ? true : false)
+  }, [initialValues, connection])
+
+  useEffect(() => {
+    setForm({
+      ...form,
       token: Object.values(githubTokens).filter(Boolean).join(',')
     })
-  }, [githubTokens, initialValues, connection])
+  }, [githubTokens])
 
   const error = useMemo(
     () =>
@@ -141,52 +155,17 @@ export const ConnectionFormPage = () => {
         labelFor={key}
         labelInfo={required ? '*' : ''}
       >
-        {type === 'github-token' && (
-          <S.GitHubToken>
-            <p>
-              Add one or more personal token(s) for authentication from you and
-              your organization members. Multiple tokens can help speed up the
-              data collection process.{' '}
-            </p>
-            <p>
-              <a
-                href='https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token'
-                target='_blank'
-                rel='noreferrer'
-              >
-                Learn about how to create a personal access token
-              </a>
-            </p>
-            <h3>Personal Access Token(s)</h3>
-            {Object.entries(githubTokens).map(([key, value]) => (
-              <div className='token' key={key}>
-                <InputGroup
-                  placeholder='token'
-                  value={value}
-                  onChange={(e) => handleChangeGitHubToken(key, e.target.value)}
-                />
-                <Button
-                  minimal
-                  icon='cross'
-                  onClick={() => handleRemoveToken(key)}
-                />
-              </div>
-            ))}
-            <div className='action'>
-              <Button
-                outlined
-                small
-                intent={Intent.PRIMARY}
-                text='Another Token'
-                icon='plus'
-                onClick={handleCreateToken}
-              />
-            </div>
-          </S.GitHubToken>
-        )}
         {type === 'text' && (
           <InputGroup
             placeholder={placeholder}
+            value={form[key] ?? ''}
+            onChange={(e) => setForm({ ...form, [`${key}`]: e.target.value })}
+          />
+        )}
+        {type === 'password' && (
+          <InputGroup
+            placeholder={placeholder}
+            type='password'
             value={form[key] ?? ''}
             onChange={(e) => setForm({ ...form, [`${key}`]: e.target.value })}
           />
@@ -196,6 +175,7 @@ export const ConnectionFormPage = () => {
             {showRateLimit && (
               <NumericInput
                 placeholder={placeholder}
+                value={form[key]}
                 onValueChange={(value) =>
                   setForm({
                     ...form,
@@ -222,6 +202,50 @@ export const ConnectionFormPage = () => {
               })
             }
           />
+        )}
+        {type === 'github-token' && (
+          <S.GitHubToken>
+            <p>
+              Add one or more personal token(s) for authentication from you and
+              your organization members. Multiple tokens can help speed up the
+              data collection process.{' '}
+            </p>
+            <p>
+              <a
+                href='https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token'
+                target='_blank'
+                rel='noreferrer'
+              >
+                Learn about how to create a personal access token
+              </a>
+            </p>
+            <h3>Personal Access Token(s)</h3>
+            {Object.entries(githubTokens).map(([key, value]) => (
+              <div className='token' key={key}>
+                <InputGroup
+                  placeholder='token'
+                  type='password'
+                  value={value}
+                  onChange={(e) => handleChangeGitHubToken(key, e.target.value)}
+                />
+                <Button
+                  minimal
+                  icon='cross'
+                  onClick={() => handleRemoveToken(key)}
+                />
+              </div>
+            ))}
+            <div className='action'>
+              <Button
+                outlined
+                small
+                intent={Intent.PRIMARY}
+                text='Another Token'
+                icon='plus'
+                onClick={handleCreateToken}
+              />
+            </div>
+          </S.GitHubToken>
         )}
       </FormGroup>
     )

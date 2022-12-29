@@ -85,7 +85,10 @@ export const StepOne = ({ from }: Props) => {
                 uniqueList.includes(cs.unique)
               )}
               onChangeItems={(selectedItems) => {
-                onTest(selectedItems[selectedItems.length - 1])
+                const lastItem = selectedItems[selectedItems.length - 1]
+                if (lastItem) {
+                  onTest(lastItem)
+                }
                 const uniqueList = selectedItems.map((sc) => sc.unique)
                 onChangeUniqueList(uniqueList)
                 onChangeScopeMap(pick(scopeMap, uniqueList))

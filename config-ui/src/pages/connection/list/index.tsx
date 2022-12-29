@@ -35,7 +35,7 @@ export const ConnectionListPage = () => {
   )
 
   return (
-    <ConnectionContextProvider plugins={[plugin]}>
+    <ConnectionContextProvider plugin={plugin}>
       <PageHeader
         breadcrumbs={[
           { name: 'Connections', path: '/connections' },

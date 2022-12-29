@@ -52,7 +52,7 @@ export type PluginConfigConnectionType = {
     initialValues?: Record<string, any>
     fields: Array<{
       key: string
-      type: 'text' | 'numeric' | 'switch' | 'github-token'
+      type: 'text' | 'password' | 'numeric' | 'switch' | 'github-token'
       label: string
       required?: boolean
       placeholder?: string

@@ -32,7 +32,7 @@ interface Props {
 export const useForm = ({ plugin, id }: Props) => {
   const [loading, setLoading] = useState(false)
   const [operating, setOperating] = useState(false)
-  const [connection, setConnection] = useState()
+  const [connection, setConnection] = useState<any>({})
 
   const history = useHistory()
 
@@ -57,7 +57,7 @@ export const useForm = ({ plugin, id }: Props) => {
       () => API.testConnection(plugin, payload),
       {
         setOperating,
-        formatReason: () => 'Test connection link failed.'
+        formatReason: (err) => (err as any)?.response?.data?.message
       }
     )
 

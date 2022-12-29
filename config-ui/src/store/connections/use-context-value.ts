@@ -18,22 +18,27 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 
-import { PluginConfig, PluginType } from '@/plugins'
+import type { PluginConfigConnectionType } from '@/plugins'
+import { Plugins, PluginConfig, PluginType } from '@/plugins'
 
 import type { ConnectionItemType } from './types'
 import { ConnectionStatusEnum } from './types'
 import * as API from './api'
 
-export const useContextValue = (plugins: string[]) => {
+export interface UseContextValueProps {
+  plugin?: Plugins
+}
+
+export const useContextValue = ({ plugin }: UseContextValueProps) => {
   const [loading, setLoading] = useState(false)
   const [connections, setConnections] = useState<ConnectionItemType[]>([])
 
   const allConnections = useMemo(
     () =>
       PluginConfig.filter((p) => p.type === PluginType.Connection).filter((p) =>
-        !plugins.length ? true : plugins.includes(p.plugin)
-      ),
-    [plugins]
+        plugin ? p.plugin === plugin : true
+      ) as PluginConfigConnectionType[],
+    [plugin]
   )
 
   const getConnection = async (plugin: string) => {
@@ -86,7 +91,7 @@ export const useContextValue = (plugins: string[]) => {
 
   useEffect(() => {
     handleRefresh()
-  }, [])
+  }, [allConnections])
 
   const handleTest = useCallback(
     async (selectedConnection: ConnectionItemType) => {
