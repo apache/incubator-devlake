@@ -58,18 +58,11 @@ func makeDataSourcePipelinePlanV200(
 		if stage == nil {
 			stage = core.PipelineStage{}
 		}
-		jenkinsJob := &models.JenkinsJob{}
-		// get transformation_rule_id from db
-		err := basicRes.GetDal().First(jenkinsJob, dal.Where(`connection_id = ? AND full_name = ?`, connectionId, bpScope.Id))
-		if err != nil {
-			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find transformation_rule_id by %s", bpScope.Id))
-		}
 
 		// construct task options for Jenkins
 		options := make(map[string]interface{})
 		options["scopeId"] = bpScope.Id
 		options["connectionId"] = connectionId
-		options["TransformationRuleId"] = jenkinsJob.TransformationRuleId
 
 		if syncPolicy.CreatedDateAfter != nil {
 			options["createdDateAfter"] = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
