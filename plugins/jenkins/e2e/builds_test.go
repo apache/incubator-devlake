@@ -63,7 +63,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"job_name",
 			"job_path",
 			"duration",
-			"full_display_name",
+			"full_name",
 			"estimated_duration",
 			"number",
 			"result",
@@ -96,7 +96,7 @@ func TestJenkinsBuildsDataFlow(t *testing.T) {
 			"connection_id",
 			"job_name",
 			"duration",
-			"full_display_name",
+			"full_name",
 			"has_stages",
 		},
 	)

@@ -102,7 +102,7 @@ func ConvertBuildsToCICD(taskCtx core.SubTaskContext) (err errors.Error) {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: buildIdGen.Generate(jenkinsBuild.ConnectionId, jenkinsBuild.FullName),
 				},
-				Name:         jenkinsBuild.FullDisplayName,
+				Name:         jenkinsBuild.FullName,
 				Result:       jenkinsPipelineResult,
 				Status:       jenkinsPipelineStatus,
 				FinishedDate: jenkinsPipelineFinishedDate,

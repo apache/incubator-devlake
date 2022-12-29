@@ -66,7 +66,6 @@ func ExtractApiBuilds(taskCtx core.SubTaskContext) errors.Error {
 				JobPath:           data.Options.JobPath,
 				Duration:          body.Duration,
 				FullName:          fmt.Sprintf(`%s#%d`, data.Options.JobFullName, body.Number),
-				FullDisplayName:   body.DisplayName,
 				EstimatedDuration: body.EstimatedDuration,
 				Number:            body.Number,
 				Result:            body.Result,
