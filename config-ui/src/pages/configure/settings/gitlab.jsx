@@ -20,9 +20,6 @@ import { useHistory } from 'react-router-dom'
 import { DataDomainTypes } from '@/data/DataDomains'
 import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 
-import '@/styles/integration.scss'
-import '@/styles/connections.scss'
-
 export default function GitlabSettings(props) {
   const {
     provider,

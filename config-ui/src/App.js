@@ -19,11 +19,6 @@
 import React from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 
-import '@/styles/app.scss'
-import '@fontsource/inter/400.css'
-import '@fontsource/inter/600.css'
-import '@fontsource/inter/variable-full.css'
-
 import { BaseLayout } from '@/layouts'
 import {
   ProjectHomePage,

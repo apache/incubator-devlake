@@ -25,8 +25,6 @@ import {
   Intent
 } from '@blueprintjs/core'
 import { Buffer } from 'buffer'
-import '@/styles/integration.scss'
-import '@/styles/connections.scss'
 
 export default function GenerateTokenForm(props) {
   const { isTesting, isSaving, isLocked, onTokenChange, setShowTokenCreator } =

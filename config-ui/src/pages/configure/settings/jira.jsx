@@ -32,9 +32,6 @@ import {
 import { MultiSelect, Select } from '@blueprintjs/select'
 import { DataDomainTypes } from '@/data/DataDomains'
 
-import '@/styles/integration.scss'
-import '@/styles/connections.scss'
-
 const MAPPING_TYPES = {
   Requirement: 'Requirement',
   Incident: 'Incident',

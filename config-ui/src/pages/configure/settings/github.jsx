@@ -32,9 +32,6 @@ import {
 import { DataDomainTypes } from '@/data/DataDomains'
 import Deployment from '@/components/blueprints/transformations/CICD/Deployment'
 
-import '@/styles/integration.scss'
-import '@/styles/connections.scss'
-
 export default function GithubSettings(props) {
   const {
     provider,

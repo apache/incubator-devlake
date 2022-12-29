@@ -27,10 +27,6 @@ import DeleteAction from '@/components/actions/DeleteAction'
 import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
 import { NullSettings } from '@/data/NullSettings'
 
-import '@/styles/integration.scss'
-import '@/styles/connections.scss'
-import '@/styles/configure.scss'
-
 export default function ConfigureConnection() {
   const history = useHistory()
   const { providerId, connectionId } = useParams()

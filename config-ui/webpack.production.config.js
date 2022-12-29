@@ -57,43 +57,6 @@ module.exports = (env = {}) => {
           ]
         },
         {
-          test: /\.scss$/,
-          use: [
-            {
-              loader: MiniCssExtractPlugin.loader
-            },
-            {
-              loader: require.resolve('css-loader'),
-              options: {
-                importLoaders: 1
-              }
-            },
-            {
-              loader: require.resolve('postcss-loader'),
-              options: {
-                postcssOptions: {
-                  plugins: [
-                    require('autoprefixer'),
-                    require('cssnano')({ preset: 'default' })
-                  ]
-                }
-              }
-            },
-            {
-              loader: 'resolve-url-loader'
-            },
-            {
-              loader: 'sass-loader',
-              options: {
-                implementation: require('node-sass'),
-                sourceMap: true,
-                additionalData: '@import "@/styles/theme.scss";'
-              }
-            }
-          ]
-          // sideEffects: true
-        },
-        {
           test: /\.html$/,
           use: ['html-loader']
         },
@@ -135,7 +98,7 @@ module.exports = (env = {}) => {
         '@config': path.resolve(__dirname, './config/')
       },
       // modules: ['node_modules'],
-      extensions: ['*', '.js', '.jsx', '.scss', '.ts', '.tsx']
+      extensions: ['*', '.js', '.jsx', '.ts', '.tsx']
     },
     output: {
       path: path.resolve(__dirname, './dist'),

@@ -47,9 +47,6 @@ import IntegrationsContext from '@/store/integrations-context'
 import FormValidationErrors from '@/components/messages/FormValidationErrors'
 import InputValidationError from '@/components/validation/InputValidationError'
 
-import '@/styles/integration.scss'
-import '@/styles/connections.scss'
-
 const TooltipIcon = (props) => (
   <Icon
     icon='info-sign'
