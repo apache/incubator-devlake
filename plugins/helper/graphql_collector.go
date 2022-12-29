@@ -66,6 +66,8 @@ type GraphqlCollectorArgs struct {
 	// how many times fetched from input, default 1 means only fetch once
 	// NOTICE: InputStep=1 will fill value as item and InputStep>1 will fill value as []item
 	InputStep int
+	// Incremental indicate if this is a incremental collection, the existing data won't get deleted if it was true
+	Incremental bool `comment:"indicate if this collection is incremental update"`
 	// GetPageInfo is to tell `GraphqlCollector` is page information
 	GetPageInfo func(query interface{}, args *GraphqlCollectorArgs) (*GraphqlQueryPageInfo, error)
 	BatchSize   int
@@ -102,7 +104,7 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, errors.E
 	if args.ResponseParser == nil && args.ResponseParserWithDataErrors == nil {
 		return nil, errors.Default.New("one of ResponseParser and ResponseParserWithDataErrors is required")
 	}
-	apicllector := &GraphqlCollector{
+	apiCollector := &GraphqlCollector{
 		RawDataSubTask: rawDataSubTask,
 		args:           &args,
 	}
@@ -112,7 +114,7 @@ func NewGraphqlCollector(args GraphqlCollectorArgs) (*GraphqlCollector, errors.E
 	if args.InputStep == 0 {
 		args.InputStep = 1
 	}
-	return apicllector, nil
+	return apiCollector, nil
 }
 
 // Execute api collection
@@ -126,12 +128,14 @@ func (collector *GraphqlCollector) Execute() errors.Error {
 	if err != nil {
 		return errors.Default.Wrap(err, "error running auto-migrate")
 	}
-
 	// flush data if not incremental collection
-	err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
-	if err != nil {
-		return errors.Default.Wrap(err, "error deleting from collector table")
+	if !collector.args.Incremental {
+		err = db.Delete(&RawData{}, dal.From(collector.table), dal.Where("params = ?", collector.params))
+		if err != nil {
+			return errors.Default.Wrap(err, "error deleting data from collector")
+		}
 	}
+
 	divider := NewBatchSaveDivider(collector.args.Ctx, collector.args.BatchSize, collector.table, collector.params)
 
 	collector.args.Ctx.SetProgress(0, -1)

@@ -93,6 +93,7 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 			{
 				Plugin: "refdiff",
 				Options: map[string]interface{}{
+					"repoId":      "github:GithubRepo:1:12345",
 					"tagsLimit":   10,
 					"tagsOrder":   "reverse semver",
 					"tagsPattern": "pattern",

@@ -100,30 +100,48 @@ func CollectCheckRun(taskCtx core.SubTaskContext) errors.Error {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*githubTasks.GithubTaskData)
 
-	cursor, err := db.Cursor(
+	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
+		Ctx: taskCtx,
+		Params: githubTasks.GithubApiParams{
+			ConnectionId: data.Options.ConnectionId,
+			Name:         data.Options.Name,
+		},
+		Table: RAW_CHECK_RUNS_TABLE,
+	}, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
+
+	incremental := collectorWithState.CanIncrementCollect()
+
+	clauses := []dal.Clause{
 		dal.Select("check_suite_node_id"),
 		dal.From(models.GithubRun{}.TableName()),
 		dal.Where("repo_id = ? and connection_id=?", data.Options.GithubId, data.Options.ConnectionId),
+		dal.Orderby("github_updated_at DESC"),
+	}
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("github_created_at > ?", *collectorWithState.CreatedDateAfter))
+	}
+	if incremental {
+		clauses = append(clauses, dal.Where("github_updated_at > ?", *collectorWithState.LatestState.LatestSuccessStart))
+	}
+	cursor, err := db.Cursor(
+		clauses...,
 	)
 	if err != nil {
 		return err
 	}
+	defer cursor.Close()
 	iterator, err := helper.NewDalCursorIterator(db, cursor, reflect.TypeOf(SimpleWorkflowRun{}))
 	if err != nil {
 		return err
 	}
 
-	collector, err := helper.NewGraphqlCollector(helper.GraphqlCollectorArgs{
-		RawDataSubTaskArgs: helper.RawDataSubTaskArgs{
-			Ctx: taskCtx,
-			Params: githubTasks.GithubApiParams{
-				ConnectionId: data.Options.ConnectionId,
-				Name:         data.Options.Name,
-			},
-			Table: RAW_CHECK_RUNS_TABLE,
-		},
+	err = collectorWithState.InitGraphQLCollector(helper.GraphqlCollectorArgs{
 		Input:         iterator,
 		InputStep:     60,
+		Incremental:   incremental,
 		GraphqlClient: data.GraphqlClient,
 		BuildQuery: func(reqData *helper.GraphqlRequestData) (interface{}, map[string]interface{}, error) {
 			workflowRuns := reqData.Input.([]interface{})
@@ -189,5 +207,5 @@ func CollectCheckRun(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	return collector.Execute()
+	return collectorWithState.ExecuteGraphQL()
 }
