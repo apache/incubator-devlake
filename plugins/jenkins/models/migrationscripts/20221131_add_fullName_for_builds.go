@@ -44,7 +44,6 @@ type jenkinsBuild20221131Before struct {
 	JobPath           string    `gorm:"index;type:varchar(255)"`
 	Duration          float64   // build time
 	FullName          string    `gorm:"primaryKey;type:varchar(255)"` // "path/job name#7" PREPARE TO ADD THIS
-	FullDisplayName   string    `gorm:"primaryKey;type:varchar(255)"` // "path » job name #7"
 	EstimatedDuration float64   // EstimatedDuration
 	Number            int64     `gorm:"index"`
 	Result            string    // Result
@@ -69,7 +68,6 @@ type jenkinsBuild20221131After struct {
 	JobPath           string    `gorm:"index;type:varchar(255)"`
 	Duration          float64   // build time
 	FullName          string    `gorm:"primaryKey;type:varchar(255)"` // "path/job name#7" ADD THIS
-	FullDisplayName   string    `gorm:"type:varchar(255)"`            // "path » job name #7"
 	EstimatedDuration float64   // EstimatedDuration
 	Number            int64     `gorm:"index"`
 	Result            string    // Result
