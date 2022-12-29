@@ -23,6 +23,11 @@ export enum ModeEnum {
   normal = 'NORMAL'
 }
 
+export enum FromEnum {
+  project = 'project',
+  blueprint = 'blueprint'
+}
+
 export type BlueprintType = {
   id: ID
   enable: boolean

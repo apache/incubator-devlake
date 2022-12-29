@@ -23,10 +23,9 @@ import { InputGroup, Icon } from '@blueprintjs/core'
 import { useConnection, ConnectionStatusEnum } from '@/store'
 import { Card, Divider, MultiSelector, Loading } from '@/components'
 
-import { ModeEnum } from '../../types'
+import { ModeEnum, FromEnum } from '../../types'
 import { AdvancedEditor } from '../../components'
 import { useCreateBP } from '../bp-context'
-import { FromEnum } from '../types'
 
 import * as S from './styled'
 

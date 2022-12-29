@@ -22,9 +22,8 @@ import { useParams } from 'react-router-dom'
 import { PageHeader } from '@/components'
 import { ConnectionContextProvider } from '@/store'
 
-import { ModeEnum } from '../types'
+import { ModeEnum, FromEnum } from '../types'
 
-import { FromEnum } from './types'
 import { BPContext, BPContextProvider } from './bp-context'
 import { WorkFlow, Action, Inspector } from './components'
 import { StepOne } from './step-one'
