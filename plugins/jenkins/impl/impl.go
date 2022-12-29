@@ -219,21 +219,7 @@ func EnrichOptions(taskCtx core.TaskContext,
 	}
 	log := taskCtx.GetLogger()
 
-	// We only set op.JenkinsTransformationRule when it's nil and we have op.TransformationRuleId != 0
-	if op.JenkinsTransformationRule == nil && op.TransformationRuleId != 0 {
-		var transformationRule models.JenkinsTransformationRule
-		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
-		if err != nil {
-			return errors.BadInput.Wrap(err, "fail to get transformationRule")
-		}
-		op.JenkinsTransformationRule = &transformationRule
-	}
-
-	if op.JenkinsTransformationRule == nil && op.TransformationRuleId == 0 {
-		op.JenkinsTransformationRule = new(models.JenkinsTransformationRule)
-	}
-
-	// for advanced mode or others which we only have name, for bp v200, we have githubId
+	// for advanced mode or others which we only have name, for bp v200, we have TransformationRuleId
 	err = taskCtx.GetDal().First(jenkinsJob,
 		dal.Where(`connection_id = ? and full_name = ?`,
 			op.ConnectionId, op.JobFullName))
@@ -250,6 +236,9 @@ func EnrichOptions(taskCtx core.TaskContext,
 			lastOne := len(pathSplit)
 
 			path := "job/" + strings.Join(pathSplit[0:lastOne-1], "job/")
+			if path == "job/" {
+				path = ""
+			}
 			name := pathSplit[lastOne-1]
 
 			err = api.GetJob(apiClient, path, name, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
@@ -270,6 +259,20 @@ func EnrichOptions(taskCtx core.TaskContext,
 
 	if !strings.HasSuffix(op.JobPath, "/") {
 		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
+	}
+
+	// We only set op.JenkinsTransformationRule when it's nil and we have op.TransformationRuleId != 0
+	if op.JenkinsTransformationRule == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.JenkinsTransformationRule
+		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
+		if err != nil {
+			return errors.BadInput.Wrap(err, "fail to get transformationRule")
+		}
+		op.JenkinsTransformationRule = &transformationRule
+	}
+
+	if op.JenkinsTransformationRule == nil && op.TransformationRuleId == 0 {
+		op.JenkinsTransformationRule = new(models.JenkinsTransformationRule)
 	}
 
 	return nil

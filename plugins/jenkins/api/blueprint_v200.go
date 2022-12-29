@@ -58,10 +58,12 @@ func makeDataSourcePipelinePlanV200(
 		if stage == nil {
 			stage = core.PipelineStage{}
 		}
-		// construct task options for Jira
+
+		// construct task options for Jenkins
 		options := make(map[string]interface{})
 		options["scopeId"] = bpScope.Id
 		options["connectionId"] = connectionId
+
 		if syncPolicy.CreatedDateAfter != nil {
 			options["createdDateAfter"] = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
 		}
