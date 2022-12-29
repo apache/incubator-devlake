@@ -35,7 +35,7 @@ interface Props {
 }
 
 export const Task = ({ task, operating, onRerun }: Props) => {
-  const { beganAt, finishedAt, status, message } = task
+  const { beganAt, finishedAt, status, message, progressDetail } = task
 
   const [icon, name] = useMemo(() => {
     const config = PluginConfig.find((p) => p.plugin === task.plugin) as any
@@ -75,7 +75,12 @@ export const Task = ({ task, operating, onRerun }: Props) => {
         ) && <p className={statusCls}>Subtasks pending</p>}
 
         {[StatusEnum.ACTIVE, StatusEnum.RUNNING].includes(status) && (
-          <p className={statusCls}>Subtasks running</p>
+          <p className={statusCls}>
+            Subtasks running
+            <strong style={{ marginLeft: 8 }}>
+              {progressDetail?.finishedSubTasks}/{progressDetail?.totalSubTasks}
+            </strong>
+          </p>
         )}
 
         {status === StatusEnum.COMPLETED && (
@@ -93,7 +98,11 @@ export const Task = ({ task, operating, onRerun }: Props) => {
         )}
       </S.Info>
       <S.Duration>
-        <Icon icon='repeat' onClick={handleRerun} />
+        {[
+          StatusEnum.COMPLETED,
+          StatusEnum.FAILED,
+          StatusEnum.CANCELLED
+        ].includes(status) && <Icon icon='repeat' onClick={handleRerun} />}
         <span>{duration(beganAt, finishedAt)}</span>
       </S.Duration>
     </S.Wrapper>
