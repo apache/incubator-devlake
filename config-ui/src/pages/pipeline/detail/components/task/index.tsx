@@ -44,11 +44,14 @@ export const Task = ({ task, operating, onRerun }: Props) => {
     let name = config.name
 
     switch (true) {
-      case config.plugin === Plugins.GitHubGraphql:
+      case [Plugins.GitHub, Plugins.GitHubGraphql].includes(config.plugin):
         name = `${name}:${options.name}`
         break
       case config.plugin === Plugins.GitExtractor:
         name = `${name}:${options.repoId}`
+        break
+      case [Plugins.DORA, Plugins.RefDiff].includes(config.plugin):
+        name = `${name}:${options.projectName}`
         break
     }
 
