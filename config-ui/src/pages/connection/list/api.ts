@@ -17,7 +17,7 @@
  */
 
 import { Plugins } from '@/plugins'
-import request from '@/components/utils/request'
+import { request } from '@/utils'
 
 export const deleteConnection = (plugin: Plugins, id: ID) =>
   request(`/plugins/${plugin}/connections/${id}`, { method: 'delete' })

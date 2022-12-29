@@ -16,6 +16,6 @@
  *
  */
 
-import request from '@/components/utils/request'
+import { request } from '@/utils'
 
 export const getVersion = () => request('/version')

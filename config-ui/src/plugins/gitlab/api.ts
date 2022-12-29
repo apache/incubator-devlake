@@ -16,7 +16,7 @@
  *
  */
 
-import request from '@/components/utils/request'
+import { request } from '@/utils'
 
 type PaginationParams = {
   page: number

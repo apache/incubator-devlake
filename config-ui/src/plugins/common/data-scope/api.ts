@@ -16,7 +16,7 @@
  *
  */
 
-import request from '@/components/utils/request'
+import { request } from '@/utils'
 
 export const getDataScope = (plugin: string, connectionId: ID, repoId: ID) =>
   request(`/plugins/${plugin}/connections/${connectionId}/scopes/${repoId}`)

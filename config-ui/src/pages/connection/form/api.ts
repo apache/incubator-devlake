@@ -17,7 +17,7 @@
  */
 
 import { Plugins } from '@/plugins'
-import request from '@/components/utils/request'
+import { request } from '@/utils'
 
 export const testConnection = (plugin: Plugins, payload: any) =>
   request(`/plugins/${plugin}/test`, { method: 'post', data: payload })
