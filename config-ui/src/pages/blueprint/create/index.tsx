@@ -36,7 +36,7 @@ interface Props {
   from: FromEnum
 }
 
-export const CreateBlueprintPage = ({ from }: Props) => {
+export const BlueprintCreatePage = ({ from }: Props) => {
   const { pname } = useParams<{ pname: string }>()
 
   const breadcrumbs = useMemo(

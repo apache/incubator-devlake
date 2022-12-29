@@ -28,7 +28,7 @@ import {
   ConnectionListPage,
   ConnectionFormPage,
   BlueprintHomePage,
-  CreateBlueprintPage,
+  BlueprintCreatePage,
   BlueprintDetailPage,
   TransformationHomePage,
   TransformationDetailPage
@@ -48,7 +48,7 @@ function App() {
         <Route
           exact
           path='/projects/:pname/create-blueprint'
-          component={() => <CreateBlueprintPage from={FromEnum.project} />}
+          component={() => <BlueprintCreatePage from={FromEnum.project} />}
         />
         <Route
           exact
@@ -78,7 +78,7 @@ function App() {
         <Route
           exact
           path='/blueprints/create'
-          component={() => <CreateBlueprintPage from={FromEnum.blueprint} />}
+          component={() => <BlueprintCreatePage from={FromEnum.blueprint} />}
         />
         <Route
           exact
