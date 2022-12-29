@@ -158,7 +158,7 @@ func (c *CsvStore) CommitLineChange(commitLineChange *code.CommitLineChange) err
 }
 
 func (c *CsvStore) RepoSnapshot(ss *code.RepoSnapshot) errors.Error {
-	return c.commitLineChangeWriter.Write(ss)
+	return c.snapshotWriter.Write(ss)
 }
 
 func (c *CsvStore) CommitParents(pp []*code.CommitParent) errors.Error {

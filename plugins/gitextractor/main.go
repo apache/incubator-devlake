@@ -69,9 +69,8 @@ func main() {
 		}
 	} else if *dbUrl != "" {
 		cfg.Set("DB_URL", *dbUrl)
-	} else {
-		panic("either specify `-output` or `-db` argument as destination")
 	}
+	// If we didn't specify output or dburl, we will use db by default
 	if storage == nil {
 		storage = store.NewDatabase(basicRes, *url)
 	}
