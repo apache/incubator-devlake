@@ -50,4 +50,8 @@ export type TaskType = {
   finishedAt?: string
   options: string
   message: string
+  progressDetail?: {
+    finishedSubTasks: number;
+    totalSubTasks: number;
+  }
 }

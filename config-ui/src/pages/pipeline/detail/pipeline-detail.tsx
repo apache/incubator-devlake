@@ -136,69 +136,71 @@ export const PipelineDetail = ({ ...props }: Props) => {
         )}
       </Card>
       <Card className='card'>
-        <S.Header>
-          {Object.keys(stages).map((key) => {
-            let status
+        <S.Inner>
+          <S.Header>
+            {Object.keys(stages).map((key) => {
+              let status
 
-            switch (true) {
-              case !!stages[key].find((task) =>
-                [StatusEnum.ACTIVE, StatusEnum.RUNNING].includes(task.status)
-              ):
-                status = 'loading'
-                break
-              case stages[key].every(
-                (task) => task.status === StatusEnum.COMPLETED
-              ):
-                status = 'success'
-                break
-              case !!stages[key].find(
-                (task) => task.status === StatusEnum.FAILED
-              ):
-                status = 'error'
-                break
-              case !!stages[key].find(
-                (task) => task.status === StatusEnum.CANCELLED
-              ):
-                status = 'cancel'
-                break
-              default:
-                status = 'ready'
-                break
-            }
+              switch (true) {
+                case !!stages[key].find((task) =>
+                  [StatusEnum.ACTIVE, StatusEnum.RUNNING].includes(task.status)
+                ):
+                  status = 'loading'
+                  break
+                case stages[key].every(
+                  (task) => task.status === StatusEnum.COMPLETED
+                ):
+                  status = 'success'
+                  break
+                case !!stages[key].find(
+                  (task) => task.status === StatusEnum.FAILED
+                ):
+                  status = 'error'
+                  break
+                case !!stages[key].find(
+                  (task) => task.status === StatusEnum.CANCELLED
+                ):
+                  status = 'cancel'
+                  break
+                default:
+                  status = 'ready'
+                  break
+              }
 
-            return (
-              <li key={key} className={status}>
-                <strong>Stage {key}</strong>
-                {status === 'loading' && <Loading size={14} />}
-                {status === 'success' && <Icon icon='tick-circle' />}
-                {status === 'error' && <Icon icon='cross-circle' />}
-                {status === 'cancel' && <Icon icon='disable' />}
-              </li>
-            )
-          })}
-        </S.Header>
+              return (
+                <li key={key} className={status}>
+                  <strong>Stage {key}</strong>
+                  {status === 'loading' && <Loading size={14} />}
+                  {status === 'success' && <Icon icon='tick-circle' />}
+                  {status === 'error' && <Icon icon='cross-circle' />}
+                  {status === 'cancel' && <Icon icon='disable' />}
+                </li>
+              )
+            })}
+          </S.Header>
+          <Collapse isOpen={isOpen}>
+            <S.Tasks>
+              {Object.keys(stages).map((key) => (
+                <li key={key}>
+                  {stages[key].map((task) => (
+                    <Task
+                      key={task.id}
+                      task={task}
+                      operating={operating}
+                      onRerun={onRerunTask}
+                    />
+                  ))}
+                </li>
+              ))}
+            </S.Tasks>
+          </Collapse>
+        </S.Inner>
         <Button
           className='collapse-control'
           minimal
           icon={isOpen ? 'chevron-down' : 'chevron-up'}
           onClick={handleToggleOpen}
         />
-        <Collapse isOpen={isOpen}>
-          <S.Tasks>
-            {Object.keys(stages).map((key) => (
-              <li key={key}>
-                {stages[key].map((task) => (
-                  <Task
-                    key={task.id}
-                    task={task}
-                    operating={operating}
-                    onRerun={onRerunTask}
-                  />
-                ))}
-              </li>
-            ))}
-          </S.Tasks>
-        </Collapse>
       </Card>
     </S.Wrapper>
   )

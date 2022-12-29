@@ -85,6 +85,10 @@ export const Pipeline = styled.ul`
   }
 `
 
+export const Inner = styled.div`
+  overflow: auto;
+`
+
 export const Header = styled.ul`
   padding: 0;
   margin: 0;
@@ -96,7 +100,7 @@ export const Header = styled.ul`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex: 1;
+    flex: 0 0 45%;
     padding: 8px 12px;
 
     &.ready,
@@ -134,7 +138,7 @@ export const Tasks = styled.ul`
   align-items: flex-start;
 
   li {
-    flex: 1;
+    flex: 0 0 45%;
     overflow: hidden;
   }
 
