@@ -17,6 +17,7 @@
  */
 
 import React, { useMemo } from 'react'
+import { pick } from 'lodash'
 import { InputGroup, Icon } from '@blueprintjs/core'
 
 import { useConnection, ConnectionStatusEnum } from '@/store'
@@ -41,10 +42,12 @@ export const StepOne = ({ from }: Props) => {
     name,
     rawPlan,
     uniqueList,
+    scopeMap,
     onChangeMode,
     onChangeName,
     onChangeRawPlan,
-    onChangeUniqueList
+    onChangeUniqueList,
+    onChangeScopeMap
   } = useCreateBP()
 
   const fromProject = useMemo(() => from === FromEnum.project, [from])
@@ -83,7 +86,9 @@ export const StepOne = ({ from }: Props) => {
               )}
               onChangeItems={(selectedItems) => {
                 onTest(selectedItems[selectedItems.length - 1])
-                onChangeUniqueList(selectedItems.map((sc) => sc.unique))
+                const uniqueList = selectedItems.map((sc) => sc.unique)
+                onChangeUniqueList(uniqueList)
+                onChangeScopeMap(pick(scopeMap, uniqueList))
               }}
             />
             <S.ConnectionList>
