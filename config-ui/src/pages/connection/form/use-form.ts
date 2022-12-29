@@ -57,7 +57,7 @@ export const useForm = ({ plugin, id }: Props) => {
       () => API.testConnection(plugin, payload),
       {
         setOperating,
-        formatReason: () => 'Test connection link failed.'
+        formatReason: (err) => (err as any)?.response?.data?.message
       }
     )
 
