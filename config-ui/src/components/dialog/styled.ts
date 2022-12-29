@@ -16,7 +16,7 @@
  *
  */
 
-import styled from '@emotion/styled'
+import styled from 'styled-components'
 import { Dialog } from '@blueprintjs/core'
 
 export const Container = styled(Dialog)`

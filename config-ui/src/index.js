@@ -24,22 +24,16 @@ import { ErrorBoundary } from '@/error'
 import { VersionContextProvider } from '@/store'
 
 import App from './App'
-import { UIContextProvider } from '@/store/UIContext'
-import { IntegrationsContextProvider } from '@/store/integrations-context'
 
 import './index.css'
 
 ReactDOM.render(
-  <UIContextProvider>
-    <IntegrationsContextProvider>
-      <BrowserRouter>
-        <ErrorBoundary>
-          <VersionContextProvider>
-            <App />
-          </VersionContextProvider>
-        </ErrorBoundary>
-      </BrowserRouter>
-    </IntegrationsContextProvider>
-  </UIContextProvider>,
+  <BrowserRouter>
+    <ErrorBoundary>
+      <VersionContextProvider>
+        <App />
+      </VersionContextProvider>
+    </ErrorBoundary>
+  </BrowserRouter>,
   document.getElementById('app')
 )

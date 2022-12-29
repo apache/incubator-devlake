@@ -17,13 +17,20 @@
  */
 
 import React, { useMemo } from 'react'
-import { Checkbox, Icon, InputGroup, Position, Radio, RadioGroup } from '@blueprintjs/core'
+import {
+  Checkbox,
+  Icon,
+  InputGroup,
+  Position,
+  Radio,
+  RadioGroup
+} from '@blueprintjs/core'
 import { Popover2 } from '@blueprintjs/popover2'
 
-import StartFromSelector from '@/components/blueprints/StartFromSelector'
 import { getCron, getCronOptions } from '@/config'
 import CronHelp from '@/images/cron-help.png'
 
+import StartFromSelector from './StartFromSelector'
 import * as S from './styled'
 
 interface Props {
@@ -71,18 +78,20 @@ export const SyncPolicy = ({
 
   return (
     <S.Wrapper>
-      {showTimeFilter && <div className='block'>
-        <h3>Time Filter *</h3>
-        <p>
-          Select the data range you wish to collect. DevLake will collect the
-          last six months of data by default.
-        </p>
-        <StartFromSelector
-          autoFillDefault={true}
-          date={createdDateAfter}
-          onSave={onChangeCreatedDateAfter}
-        />
-      </div>}
+      {showTimeFilter && (
+        <div className='block'>
+          <h3>Time Filter *</h3>
+          <p>
+            Select the data range you wish to collect. DevLake will collect the
+            last six months of data by default.
+          </p>
+          <StartFromSelector
+            autoFillDefault={true}
+            date={createdDateAfter}
+            onSave={onChangeCreatedDateAfter}
+          />
+        </div>
+      )}
       <div className='block'>
         <h3>Frequency</h3>
         <p>Blueprints will run recurringly based on the sync frequency.</p>

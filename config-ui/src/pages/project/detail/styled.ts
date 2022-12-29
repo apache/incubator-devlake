@@ -16,7 +16,7 @@
  *
  */
 
-import styled from '@emotion/styled'
+import styled from 'styled-components'
 
 export const Wrapper = styled.div`
   & > .bp4-tabs > .bp4-tab-list {
