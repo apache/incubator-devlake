@@ -42,10 +42,7 @@ import * as S from './styled'
 export const ConnectionFormPage = () => {
   const [form, setForm] = useState<Record<string, any>>({})
   const [showRateLimit, setShowRateLimit] = useState(false)
-  const [githubTokens, setGitHubTokens] = useState<Record<string, string>>({
-    '0': '',
-    '1': ''
-  })
+  const [githubTokens, setGitHubTokens] = useState<Record<string, string>>({})
 
   const history = useHistory()
   const { plugin, cid } = useParams<{ plugin: Plugins; cid?: string }>()
@@ -67,10 +64,25 @@ export const ConnectionFormPage = () => {
     setForm({
       ...form,
       ...(initialValues ?? {}),
-      ...(connection ?? {}),
+      ...(connection ?? {})
+    })
+
+    setGitHubTokens(
+      (connection ?? { token: '' }).token
+        .split(',')
+        .reduce((acc, cur, index) => {
+          acc[index] = cur
+          return acc
+        }, {} as any)
+    )
+  }, [initialValues, connection])
+
+  useEffect(() => {
+    setForm({
+      ...form,
       token: Object.values(githubTokens).filter(Boolean).join(',')
     })
-  }, [githubTokens, initialValues, connection])
+  }, [githubTokens])
 
   const error = useMemo(
     () =>
@@ -209,7 +221,7 @@ export const ConnectionFormPage = () => {
               <div className='token' key={key}>
                 <InputGroup
                   placeholder='token'
-                  type="password"
+                  type='password'
                   value={value}
                   onChange={(e) => handleChangeGitHubToken(key, e.target.value)}
                 />
