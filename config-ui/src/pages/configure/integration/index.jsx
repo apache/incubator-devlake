@@ -23,8 +23,6 @@ import { Colors, Icon } from '@blueprintjs/core'
 import useIntegrations from '@/hooks/useIntegrations'
 import { ReactComponent as WebHookProviderIcon } from '@/images/integrations/incoming-webhook.svg'
 
-import '@/styles/integration.scss'
-
 export default function Integration() {
   const history = useHistory()
 

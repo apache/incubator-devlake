@@ -19,9 +19,6 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import { DataDomainTypes } from '@/data/DataDomains'
 
-import '@/styles/integration.scss'
-import '@/styles/connections.scss'
-
 export default function TapdSettings(props) {
   const {
     provider,

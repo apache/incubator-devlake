@@ -32,9 +32,6 @@ import useIntegrations from '@/hooks/useIntegrations'
 import useConnectionManager from '@/hooks/useConnectionManager'
 import useConnectionValidation from '@/hooks/useConnectionValidation'
 
-import '@/styles/integration.scss'
-import '@/styles/connections.scss'
-
 export default function AddConnection() {
   const history = useHistory()
   const { providerId } = useParams()

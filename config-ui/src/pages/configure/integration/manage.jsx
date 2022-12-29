@@ -37,8 +37,6 @@ import DeleteAction from '@/components/actions/DeleteAction'
 import DeleteConfirmationMessage from '@/components/actions/DeleteConfirmationMessage'
 import ContentLoader from '@/components/loaders/ContentLoader'
 
-import '@/styles/integration.scss'
-
 export default function ManageIntegration() {
   const history = useHistory()
 
