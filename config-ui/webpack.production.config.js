@@ -126,7 +126,7 @@ module.exports = (env = {}) => {
       new webpack.HotModuleReplacementPlugin(),
       new MiniCssExtractPlugin({ filename: '[name].[hash].css' }),
       new HtmlWebpackPlugin({
-        template: path.resolve(__dirname, './src/index-production.html'),
+        template: path.resolve(__dirname, './src/index.html'),
         filename: 'index.html',
         favicon: path.resolve(__dirname, './src/images/favicon.ico')
       }),

@@ -20,11 +20,6 @@ import type { ConnectionItemType } from '@/store'
 
 import { ModeEnum } from '../types'
 
-export enum FromEnum {
-  project = 'project',
-  blueprint = 'blueprint'
-}
-
 export type BPConnectionItemType = ConnectionItemType & {
   scope: Array<{ id: ID; entities: string[] }>
 }

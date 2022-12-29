@@ -16,7 +16,7 @@
  *
  */
 
-import request from '@/components/utils/request'
+import { request } from '@/utils'
 
 export const getJobs = (prefix: string) =>
   request(`${prefix}/api/json?tree=jobs[name,jobs]{0,10000}`)

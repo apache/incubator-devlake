@@ -16,7 +16,7 @@
  *
  */
 
-import request from '@/components/utils/request'
+import { request } from '@/utils'
 
 export const getPipelineLog = (id: ID) =>
   request(`/pipelines/${id}/logging.tar.gz`)

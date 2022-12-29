@@ -22,9 +22,8 @@ import { useParams } from 'react-router-dom'
 import { PageHeader } from '@/components'
 import { ConnectionContextProvider } from '@/store'
 
-import { ModeEnum } from '../types'
+import { ModeEnum, FromEnum } from '../types'
 
-import { FromEnum } from './types'
 import { BPContext, BPContextProvider } from './bp-context'
 import { WorkFlow, Action, Inspector } from './components'
 import { StepOne } from './step-one'
@@ -37,7 +36,7 @@ interface Props {
   from: FromEnum
 }
 
-export const CreateBlueprintPage = ({ from }: Props) => {
+export const BlueprintCreatePage = ({ from }: Props) => {
   const { pname } = useParams<{ pname: string }>()
 
   const breadcrumbs = useMemo(

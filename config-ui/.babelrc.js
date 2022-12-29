@@ -22,5 +22,5 @@ module.exports = {
     '@babel/preset-react',
     '@babel/preset-typescript'
   ],
-  plugins: ['@emotion', '@babel/plugin-transform-runtime']
+  plugins: ['@babel/plugin-transform-runtime']
 }
