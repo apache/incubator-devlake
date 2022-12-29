@@ -258,8 +258,8 @@ func EnrichOptions(taskCtx core.TaskContext,
 		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
 	}
 
-	// bp v200
-	if op.TransformationRuleId != 0 {
+	// We only set op.JenkinsTransformationRule when it's nil and we have op.TransformationRuleId != 0
+	if op.JenkinsTransformationRule == nil && op.TransformationRuleId != 0 {
 		var transformationRule models.JenkinsTransformationRule
 		err = taskCtx.GetDal().First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
 		if err != nil {
