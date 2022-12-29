@@ -20,14 +20,15 @@ import React from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 
 import { BaseLayout } from '@/layouts'
+import { FromEnum } from '@/pages'
 import {
   ProjectHomePage,
   ProjectDetailPage,
   ConnectionHomePage,
   ConnectionListPage,
   ConnectionFormPage,
-  CreateBlueprintPage,
   BlueprintHomePage,
+  CreateBlueprintPage,
   BlueprintDetailPage,
   TransformationHomePage,
   TransformationDetailPage
@@ -47,7 +48,7 @@ function App() {
         <Route
           exact
           path='/projects/:pname/create-blueprint'
-          component={() => <CreateBlueprintPage from='project' />}
+          component={() => <CreateBlueprintPage from={FromEnum.project} />}
         />
         <Route
           exact
@@ -77,7 +78,7 @@ function App() {
         <Route
           exact
           path='/blueprints/create'
-          component={() => <CreateBlueprintPage from='blueprint' />}
+          component={() => <CreateBlueprintPage from={FromEnum.blueprint} />}
         />
         <Route
           exact
