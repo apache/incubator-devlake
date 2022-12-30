@@ -33,14 +33,14 @@ export const JenkinsConfig: PluginConfigType = {
         label: 'Connection Name',
         type: 'text',
         required: true,
-        placeholder: 'eg. GitLab',
+        placeholder: 'eg. Jenkins',
       },
       {
         key: 'endpoint',
         label: 'Endpoint URL',
         type: 'text',
         required: true,
-        placeholder: 'eg. https://gitlab.com/api/v4/',
+        placeholder: 'eg. https://api.jenkins.io/',
       },
       {
         key: 'username',
@@ -54,7 +54,7 @@ export const JenkinsConfig: PluginConfigType = {
         label: 'Password',
         type: 'password',
         required: true,
-        placeholder: 'eg. ************",',
+        placeholder: 'eg. ************',
       },
       {
         key: 'proxy',

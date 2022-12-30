@@ -66,6 +66,7 @@ export const useProject = <T>({ name, enableDora, onHideDialog }: Props) => {
 
     const [success] = await operator(() => API.createProject(payload), {
       setOperating,
+      formatReason: () => 'This project name is been used. Please use a new one.',
     });
 
     if (success) {

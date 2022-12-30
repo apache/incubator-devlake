@@ -25,3 +25,4 @@ export * from './table';
 export * from './toast';
 export * from './logo';
 export * from './card';
+export * from './inspector';

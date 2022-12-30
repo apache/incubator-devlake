@@ -19,13 +19,13 @@
 import React, { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { PageHeader } from '@/components';
+import { PageHeader, Inspector } from '@/components';
 import { ConnectionContextProvider } from '@/store';
 
 import { ModeEnum, FromEnum } from '../types';
 
 import { BPContext, BPContextProvider } from './bp-context';
-import { WorkFlow, Action, Inspector } from './components';
+import { WorkFlow, Action } from './components';
 import { StepOne } from './step-one';
 import { StepTwo } from './step-two';
 import { StepThree } from './step-three';
@@ -61,7 +61,7 @@ export const BlueprintCreatePage = ({ from }: Props) => {
     <ConnectionContextProvider>
       <BPContextProvider from={from} projectName={pname}>
         <BPContext.Consumer>
-          {({ step, mode }) => (
+          {({ step, mode, name, payload, showInspector, onChangeShowInspector }) => (
             <PageHeader breadcrumbs={breadcrumbs}>
               <S.Container>
                 <WorkFlow />
@@ -74,7 +74,12 @@ export const BlueprintCreatePage = ({ from }: Props) => {
                   )}
                 </S.Content>
                 <Action />
-                <Inspector />
+                <Inspector
+                  isOpen={showInspector}
+                  title={name}
+                  data={payload}
+                  onClose={() => onChangeShowInspector(false)}
+                />
               </S.Container>
             </PageHeader>
           )}
