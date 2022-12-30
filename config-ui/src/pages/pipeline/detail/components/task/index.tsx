@@ -20,6 +20,7 @@ import React, { useMemo } from 'react'
 import { Icon, Intent } from '@blueprintjs/core'
 import { Tooltip2 } from '@blueprintjs/popover2'
 
+import type { PluginConfigType } from '@/plugins'
 import { Plugins, PluginConfig } from '@/plugins'
 import { duration } from '@/utils'
 
@@ -38,7 +39,7 @@ export const Task = ({ task, operating, onRerun }: Props) => {
   const { beganAt, finishedAt, status, message, progressDetail } = task
 
   const [icon, name] = useMemo(() => {
-    const config = PluginConfig.find((p) => p.plugin === task.plugin) as any
+    const config = PluginConfig.find((p) => p.plugin === task.plugin) as PluginConfigType
     const options = JSON.parse(task.options)
 
     let name = config.name
@@ -47,11 +48,14 @@ export const Task = ({ task, operating, onRerun }: Props) => {
       case [Plugins.GitHub, Plugins.GitHubGraphql].includes(config.plugin):
         name = `${name}:${options.name}`
         break
-      case config.plugin === Plugins.GitExtractor:
+      case Plugins.GitExtractor === config.plugin:
         name = `${name}:${options.repoId}`
         break
       case [Plugins.DORA, Plugins.RefDiff].includes(config.plugin):
         name = `${name}:${options.projectName}`
+        break
+      case Plugins.GitLab === config.plugin:
+        name = `${name}:projectId:${options.projectId}`
         break
     }
 
