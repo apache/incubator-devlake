@@ -16,53 +16,41 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
 type PaginationParams = {
-  page: number
-  per_page: number
-}
+  page: number;
+  per_page: number;
+};
 
-export const getUser = (prefix: string) => request(`${prefix}/user`)
+export const getUser = (prefix: string) => request(`${prefix}/user`);
 
 export const getUserGroups = (prefix: string, params: PaginationParams) =>
   request(`${prefix}/groups`, {
-    data: { top_level_only: 1, ...params }
-  })
+    data: { top_level_only: 1, ...params },
+  });
 
-export const getUserProjects = (
-  prefix: string,
-  uid: ID,
-  params: PaginationParams
-) =>
+export const getUserProjects = (prefix: string, uid: ID, params: PaginationParams) =>
   request(`${prefix}/users/${uid}/projects`, {
-    data: params
-  })
+    data: params,
+  });
 
-export const getGroupSubgroups = (
-  prefix: string,
-  gid: ID,
-  params: PaginationParams
-) =>
+export const getGroupSubgroups = (prefix: string, gid: ID, params: PaginationParams) =>
   request(`${prefix}/groups/${gid}/subgroups`, {
-    data: params
-  })
+    data: params,
+  });
 
-export const getGroupProjects = (
-  prefix: string,
-  gid: ID,
-  params: PaginationParams
-) =>
+export const getGroupProjects = (prefix: string, gid: ID, params: PaginationParams) =>
   request(`${prefix}/groups/${gid}/projects`, {
-    data: params
-  })
+    data: params,
+  });
 
 type SearchProjectParams = {
-  search: string
-  membership: boolean
-}
+  search: string;
+  membership: boolean;
+};
 
 export const searchProject = (prefix: string, params: SearchProjectParams) =>
   request(`${prefix}/projects`, {
-    data: params
-  })
+    data: params,
+  });

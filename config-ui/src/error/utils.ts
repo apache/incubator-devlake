@@ -16,15 +16,15 @@
  *
  */
 
-import { Error } from './types'
+import { Error } from './types';
 
 export const transformError = (error: any) => {
   switch (error?.response?.status) {
     case 428:
-      return Error.DB_NEED_MIGRATE
+      return Error.DB_NEED_MIGRATE;
     case 504:
-      return Error.API_OFFLINE
+      return Error.API_OFFLINE;
     default:
-      return error
+      return error;
   }
-}
+};

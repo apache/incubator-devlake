@@ -16,43 +16,43 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
-import type { ItemType } from 'miller-columns-select'
+import { useState, useEffect, useMemo } from 'react';
+import type { ItemType } from 'miller-columns-select';
 
-import * as API from '../../api'
+import * as API from '../../api';
 
 type WebhookItemType = ItemType<{
-  id: ID
-  name: string
-}>
+  id: ID;
+  name: string;
+}>;
 
 export const useMillerColumns = () => {
-  const [items, setItems] = useState<WebhookItemType[]>([])
-  const [isLast, setIsLast] = useState(false)
+  const [items, setItems] = useState<WebhookItemType[]>([]);
+  const [isLast, setIsLast] = useState(false);
 
   const updateItems = (arr: any) =>
     arr.map((it: any) => ({
       parentId: null,
       id: it.id,
       title: it.name,
-      name: it.name
-    }))
+      name: it.name,
+    }));
 
   useEffect(() => {
-    ;(async () => {
-      const res = await API.getConnections()
-      setItems([...updateItems(res)])
-      setIsLast(true)
-    })()
-  }, [])
+    (async () => {
+      const res = await API.getConnections();
+      setItems([...updateItems(res)]);
+      setIsLast(true);
+    })();
+  }, []);
 
   return useMemo(
     () => ({
       items,
       getHasMore() {
-        return !isLast
-      }
+        return !isLast;
+      },
     }),
-    [items, isLast]
-  )
-}
+    [items, isLast],
+  );
+};

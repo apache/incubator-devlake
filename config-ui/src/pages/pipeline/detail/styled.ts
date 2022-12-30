@@ -16,8 +16,8 @@
  *
  */
 
-import { Colors } from '@blueprintjs/core'
-import styled from 'styled-components'
+import { Colors } from '@blueprintjs/core';
+import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   .card + .card {
@@ -42,7 +42,7 @@ export const Wrapper = styled.div`
       color: ${Colors.RED3};
     }
   }
-`
+`;
 
 export const Pipeline = styled.ul`
   margin: 0;
@@ -83,11 +83,11 @@ export const Pipeline = styled.ul`
       margin-top: 8px;
     }
   }
-`
+`;
 
 export const Inner = styled.div`
   overflow: auto;
-`
+`;
 
 export const Header = styled.ul`
   padding: 0;
@@ -128,7 +128,7 @@ export const Header = styled.ul`
   li + li {
     margin-left: 16px;
   }
-`
+`;
 
 export const Tasks = styled.ul`
   padding: 0;
@@ -146,4 +146,4 @@ export const Tasks = styled.ul`
   li + li {
     margin-left: 16px;
   }
-`
+`;

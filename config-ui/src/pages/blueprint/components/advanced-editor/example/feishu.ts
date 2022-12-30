@@ -16,11 +16,13 @@
  *
  */
 
-export default [
+const feishu = [
   [
     {
       plugin: 'feishu',
-      options: {}
-    }
-  ]
-]
+      options: {},
+    },
+  ],
+];
+
+export default feishu;

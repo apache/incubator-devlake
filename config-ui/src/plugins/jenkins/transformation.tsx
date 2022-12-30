@@ -16,14 +16,14 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import { CiCd } from './components'
-import * as S from './styled'
+import { CiCd } from './components';
+import * as S from './styled';
 
 interface Props {
-  transformation: any
-  setTransformation: React.Dispatch<React.SetStateAction<any>>
+  transformation: any;
+  setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export const JenkinsTransformation = ({ ...props }: Props) => {
@@ -31,5 +31,5 @@ export const JenkinsTransformation = ({ ...props }: Props) => {
     <S.TransformationWrapper>
       <CiCd {...props} />
     </S.TransformationWrapper>
-  )
-}
+  );
+};

@@ -16,13 +16,13 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import { SyncPolicy } from '@/plugins'
-import { Card, Divider } from '@/components'
+import { SyncPolicy } from '@/plugins';
+import { Card, Divider } from '@/components';
 
-import { ModeEnum } from '../../types'
-import { useCreateBP } from '../bp-context'
+import { ModeEnum } from '../../types';
+import { useCreateBP } from '../bp-context';
 
 export const StepFour = () => {
   const {
@@ -34,8 +34,8 @@ export const StepFour = () => {
     onChangeIsManual,
     onChangeCronConfig,
     onChangeSkipOnFail,
-    onChangeCreatedDateAfter
-  } = useCreateBP()
+    onChangeCreatedDateAfter,
+  } = useCreateBP();
 
   return (
     <Card>
@@ -45,7 +45,7 @@ export const StepFour = () => {
         isManual={isManual}
         cronConfig={cronConfig}
         skipOnFail={skipOnFail}
-        showTimeFilter={mode == ModeEnum.normal}
+        showTimeFilter={mode === ModeEnum.normal}
         createdDateAfter={createdDateAfter}
         onChangeIsManual={onChangeIsManual}
         onChangeCronConfig={onChangeCronConfig}
@@ -53,5 +53,5 @@ export const StepFour = () => {
         onChangeCreatedDateAfter={onChangeCreatedDateAfter}
       />
     </Card>
-  )
-}
+  );
+};

@@ -16,41 +16,41 @@
  *
  */
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react';
 
-import { operator } from '@/utils'
+import { operator } from '@/utils';
 
-import * as API from '../api'
+import * as API from '../api';
 
 export interface UseCreateProps {
-  onSubmitAfter?: (id: ID) => void
+  onSubmitAfter?: (id: ID) => void;
 }
 
 export const useCreate = ({ onSubmitAfter }: UseCreateProps) => {
-  const [saving, setSaving] = useState(false)
-  const [step, setStep] = useState(1)
-  const [name, setName] = useState('')
+  const [saving, setSaving] = useState(false);
+  const [step, setStep] = useState(1);
+  const [name, setName] = useState('');
   const [record, setRecord] = useState({
     postIssuesEndpoint: '',
     closeIssuesEndpoint: '',
-    postDeploymentsCurl: ''
-  })
+    postDeploymentsCurl: '',
+  });
 
-  const prefix = useMemo(() => `${window.location.origin}/api`, [])
+  const prefix = useMemo(() => `${window.location.origin}/api`, []);
 
   const handleCreate = async () => {
     const [success, res] = await operator(
       async () => {
-        const res = await API.createConnection({ name })
-        return API.getConnection(res.id)
+        const res = await API.createConnection({ name });
+        return API.getConnection(res.id);
       },
       {
-        setOperating: setSaving
-      }
-    )
+        setOperating: setSaving,
+      },
+    );
 
     if (success) {
-      setStep(2)
+      setStep(2);
       setRecord({
         postIssuesEndpoint: `${prefix}${res.postIssuesEndpoint}`,
         closeIssuesEndpoint: `${prefix}${res.closeIssuesEndpoint}`,
@@ -58,11 +58,11 @@ export const useCreate = ({ onSubmitAfter }: UseCreateProps) => {
         \\"commit_sha\\":\\"the sha of deployment commit\\",
         \\"repo_url\\":\\"the repo URL of the deployment commit\\",
         \\"start_time\\":\\"Optional, eg. 2020-01-01T12:00:00+00:00\\"
-      }"`
-      })
-      onSubmitAfter?.(res.id)
+      }"`,
+      });
+      onSubmitAfter?.(res.id);
     }
-  }
+  };
 
   return useMemo(
     () => ({
@@ -71,8 +71,8 @@ export const useCreate = ({ onSubmitAfter }: UseCreateProps) => {
       name,
       record,
       onChangeName: setName,
-      onSubmit: handleCreate
+      onSubmit: handleCreate,
     }),
-    [saving, step, name, record]
-  )
-}
+    [saving, step, name, record],
+  );
+};

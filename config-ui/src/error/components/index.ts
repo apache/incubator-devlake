@@ -13,9 +13,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-export * from './db-migrate'
-export * from './offline'
-export * from './default'
-export * from './bp-upgrade'
+export * from './db-migrate';
+export * from './offline';
+export * from './default';
+export * from './bp-upgrade';

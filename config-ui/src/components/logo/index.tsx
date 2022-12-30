@@ -16,18 +16,18 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import LogoImg from '@/images/devlake-logo.svg'
-import LogoTextImg from '@/images/devlake-textmark.svg'
+import LogoImg from '@/images/devlake-logo.svg';
+import LogoTextImg from '@/images/devlake-textmark.svg';
 
-import * as S from './styled'
+import * as S from './styled';
 
 export const Logo = () => {
   return (
     <S.Wrapper>
-      <img src={LogoImg} alt='' />
-      <img src={LogoTextImg} alt='' />
+      <img src={LogoImg} alt="" />
+      <img src={LogoTextImg} alt="" />
     </S.Wrapper>
-  )
-}
+  );
+};

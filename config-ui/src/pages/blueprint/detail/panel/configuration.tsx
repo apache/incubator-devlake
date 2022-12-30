@@ -16,108 +16,90 @@
  *
  */
 
-import React, { useState, useEffect, useMemo } from 'react'
-import { Icon, Button, Colors, Intent } from '@blueprintjs/core'
-import dayjs from 'dayjs'
+import React, { useState, useEffect, useMemo } from 'react';
+import { Icon, Button, Colors, Intent } from '@blueprintjs/core';
+import dayjs from 'dayjs';
 
-import { Table, ColumnType } from '@/components'
-import { getCron } from '@/config'
-import { PluginConfig, DataScopeList, Plugins } from '@/plugins'
+import { Table, ColumnType } from '@/components';
+import { getCron } from '@/config';
+import { PluginConfig, DataScopeList, Plugins } from '@/plugins';
 
-import type { BlueprintType } from '../../types'
-import { ModeEnum } from '../../types'
-import { validRawPlan } from '../../utils'
-import { AdvancedEditor } from '../../components'
+import type { BlueprintType } from '../../types';
+import { ModeEnum } from '../../types';
+import { validRawPlan } from '../../utils';
+import { AdvancedEditor } from '../../components';
 
-import type { ConfigConnectionItemType } from '../types'
-import {
-  UpdateNameDialog,
-  UpdatePolicyDialog,
-  UpdateScopeDialog,
-  UpdateTransformationDialog
-} from '../components'
-import * as S from '../styled'
+import type { ConfigConnectionItemType } from '../types';
+import { UpdateNameDialog, UpdatePolicyDialog, UpdateScopeDialog, UpdateTransformationDialog } from '../components';
+import * as S from '../styled';
 
-type Type = 'name' | 'frequency' | 'scope' | 'transformation'
+type Type = 'name' | 'frequency' | 'scope' | 'transformation';
 
 interface Props {
-  blueprint: BlueprintType
-  operating: boolean
-  onUpdate: (bp: any) => void
-  onRefresh: () => void
+  blueprint: BlueprintType;
+  operating: boolean;
+  onUpdate: (bp: any) => void;
+  onRefresh: () => void;
 }
 
-export const Configuration = ({
-  blueprint,
-  operating,
-  onUpdate,
-  onRefresh
-}: Props) => {
-  const [type, setType] = useState<Type>()
-  const [curConnection, setCurConnection] = useState<ConfigConnectionItemType>()
-  const [rawPlan, setRawPlan] = useState('')
+export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Props) => {
+  const [type, setType] = useState<Type>();
+  const [curConnection, setCurConnection] = useState<ConfigConnectionItemType>();
+  const [rawPlan, setRawPlan] = useState('');
 
   useEffect(() => {
-    setRawPlan(JSON.stringify(blueprint.plan, null, '  '))
-  }, [blueprint])
+    setRawPlan(JSON.stringify(blueprint.plan, null, '  '));
+  }, [blueprint]);
 
-  const cron = useMemo(
-    () => getCron(blueprint.isManual, blueprint.cronConfig),
-    [blueprint]
-  )
+  const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
   const connections = useMemo(
     () =>
       blueprint.settings?.connections
         .filter((cs) => cs.plugin !== Plugins.Webhook)
         .map((cs: any) => {
-          const plugin = PluginConfig.find((p) => p.plugin === cs.plugin) as any
+          const plugin = PluginConfig.find((p) => p.plugin === cs.plugin) as any;
           return {
             icon: plugin.icon,
             name: plugin.name,
             connectionId: cs.connectionId,
             entities: cs.scopes[0].entities,
             plugin: cs.plugin,
-            scopeIds: cs.scopes.map((sc: any) => sc.id)
-          }
+            scopeIds: cs.scopes.map((sc: any) => sc.id),
+          };
         })
         .filter(Boolean),
-    [blueprint]
-  )
+    [blueprint],
+  );
 
   const handleCancel = () => {
-    setType(undefined)
-  }
+    setType(undefined);
+  };
 
   const handleUpdateName = async (name: string) => {
-    await onUpdate({ name })
-    handleCancel()
-  }
+    await onUpdate({ name });
+    handleCancel();
+  };
 
   const handleUpdatePolicy = async (policy: any) => {
-    await onUpdate(policy)
-    handleCancel()
-  }
+    await onUpdate(policy);
+    handleCancel();
+  };
 
   const handleUpdateConnection = (updated: any) =>
     onUpdate({
       settings: {
         version: '2.0.0',
         connections: blueprint.settings.connections.map((cs) =>
-          cs.plugin === updated.plugin &&
-          cs.connectionId === updated.connectionId
-            ? updated
-            : cs
-        )
-      }
-    })
+          cs.plugin === updated.plugin && cs.connectionId === updated.connectionId ? updated : cs,
+        ),
+      },
+    });
 
   const handleUpdatePlan = () =>
     onUpdate({
-      plan: !validRawPlan(rawPlan)
-        ? JSON.parse(rawPlan)
-        : JSON.stringify([[]], null, '  ')
-    })
+      plan: !validRawPlan(rawPlan) ? JSON.parse(rawPlan) : JSON.stringify([[]], null, '  '),
+    });
 
   const columns = useMemo(
     () =>
@@ -126,15 +108,12 @@ export const Configuration = ({
           title: 'Data Connections',
           dataIndex: ['icon', 'name'],
           key: 'connection',
-          render: ({
-            icon,
-            name
-          }: Pick<ConfigConnectionItemType, 'icon' | 'name'>) => (
+          render: ({ icon, name }: Pick<ConfigConnectionItemType, 'icon' | 'name'>) => (
             <S.ConnectionColumn>
-              <img src={icon} alt='' />
+              <img src={icon} alt="" />
               <span>{name}</span>
             </S.ConnectionColumn>
-          )
+          ),
         },
         {
           title: 'Data Entities',
@@ -146,7 +125,7 @@ export const Configuration = ({
                 <div key={it}>{it}</div>
               ))}
             </>
-          )
+          ),
         },
         {
           title: 'Data Scope and Transformation',
@@ -155,18 +134,10 @@ export const Configuration = ({
           render: ({
             plugin,
             connectionId,
-            scopeIds
-          }: Pick<
-            ConfigConnectionItemType,
-            'plugin' | 'connectionId' | 'scopeIds'
-          >) => (
-            <DataScopeList
-              groupByTs
-              plugin={plugin}
-              connectionId={connectionId}
-              scopeIds={scopeIds}
-            />
-          )
+            scopeIds,
+          }: Pick<ConfigConnectionItemType, 'plugin' | 'connectionId' | 'scopeIds'>) => (
+            <DataScopeList groupByTs plugin={plugin} connectionId={connectionId} scopeIds={scopeIds} />
+          ),
         },
         {
           title: '',
@@ -175,79 +146,65 @@ export const Configuration = ({
           render: (_, row: ConfigConnectionItemType) => (
             <S.ActionColumn>
               <div
-                className='item'
+                className="item"
                 onClick={() => {
-                  setType('scope')
-                  setCurConnection(row)
+                  setType('scope');
+                  setCurConnection(row);
                 }}
               >
-                <Icon icon='annotation' color={Colors.BLUE2} />
+                <Icon icon="annotation" color={Colors.BLUE2} />
                 <span>Change Data Scope</span>
               </div>
               <div
-                className='item'
+                className="item"
                 onClick={() => {
-                  setType('transformation')
-                  setCurConnection(row)
+                  setType('transformation');
+                  setCurConnection(row);
                 }}
               >
-                <Icon icon='annotation' color={Colors.BLUE2} />
+                <Icon icon="annotation" color={Colors.BLUE2} />
                 <span>Change Transformation</span>
               </div>
             </S.ActionColumn>
-          )
-        }
+          ),
+        },
       ] as ColumnType<ConfigConnectionItemType>,
-    []
-  )
+    [],
+  );
 
   return (
     <S.ConfigurationPanel>
-      <div className='top'>
-        <div className='block'>
+      <div className="top">
+        <div className="block">
           <h3>Name</h3>
-          <div className='detail'>
+          <div className="detail">
             <span>{blueprint.name}</span>
-            <Icon
-              icon='annotation'
-              color={Colors.BLUE2}
-              onClick={() => setType('name')}
-            />
+            <Icon icon="annotation" color={Colors.BLUE2} onClick={() => setType('name')} />
           </div>
         </div>
-        <div className='block'>
+        <div className="block">
           <h3>Sync Policy</h3>
-          <div className='detail'>
+          <div className="detail">
             <span>
               {cron.label}
-              {cron.value !== 'manual'
-                ? dayjs(cron.nextTime).format('HH:mm A')
-                : null}
+              {cron.value !== 'manual' ? dayjs(cron.nextTime).format('HH:mm A') : null}
             </span>
-            <Icon
-              icon='annotation'
-              color={Colors.BLUE2}
-              onClick={() => setType('frequency')}
-            />
+            <Icon icon="annotation" color={Colors.BLUE2} onClick={() => setType('frequency')} />
           </div>
         </div>
       </div>
       {blueprint.mode === ModeEnum.normal && (
-        <div className='bottom'>
+        <div className="bottom">
           <h3>Data Scope and Transformation</h3>
           <Table columns={columns} dataSource={connections} />
         </div>
       )}
       {blueprint.mode === ModeEnum.advanced && (
-        <div className='bottom'>
+        <div className="bottom">
           <h3>JSON Configuration</h3>
           <AdvancedEditor value={rawPlan} onChange={setRawPlan} />
-          <div className='btns'>
-            <Button
-              intent={Intent.PRIMARY}
-              text='Save'
-              onClick={handleUpdatePlan}
-            />
+          <div className="btns">
+            <Button intent={Intent.PRIMARY} text="Save" onClick={handleUpdatePlan} />
           </div>
         </div>
       )}
@@ -272,19 +229,11 @@ export const Configuration = ({
         />
       )}
       {type === 'scope' && (
-        <UpdateScopeDialog
-          connection={curConnection}
-          onCancel={handleCancel}
-          onSubmit={handleUpdateConnection}
-        />
+        <UpdateScopeDialog connection={curConnection} onCancel={handleCancel} onSubmit={handleUpdateConnection} />
       )}
       {type === 'transformation' && (
-        <UpdateTransformationDialog
-          connection={curConnection}
-          onCancel={handleCancel}
-          onRefresh={onRefresh}
-        />
+        <UpdateTransformationDialog connection={curConnection} onCancel={handleCancel} onRefresh={onRefresh} />
       )}
     </S.ConfigurationPanel>
-  )
-}
+  );
+};

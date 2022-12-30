@@ -16,48 +16,48 @@
  *
  */
 
-import type { AxiosRequestConfig } from 'axios'
-import axios from 'axios'
+import type { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 
-import { DEVLAKE_ENDPOINT } from '@/config'
+import { DEVLAKE_ENDPOINT } from '@/config';
 
 const instance = axios.create({
-  baseURL: DEVLAKE_ENDPOINT
-})
+  baseURL: DEVLAKE_ENDPOINT,
+});
 
 export type ReuqestConfig = {
-  method?: AxiosRequestConfig['method']
-  data?: unknown
-  timeout?: number
-  signal?: AbortSignal
-  headers?: Record<string, string>
-}
+  method?: AxiosRequestConfig['method'];
+  data?: unknown;
+  timeout?: number;
+  signal?: AbortSignal;
+  headers?: Record<string, string>;
+};
 
 export const request = (path: string, config?: ReuqestConfig) => {
-  const { method = 'get', data, timeout, headers, signal } = config || {}
+  const { method = 'get', data, timeout, headers, signal } = config || {};
 
-  const cancelTokenSource = axios.CancelToken.source()
+  const cancelTokenSource = axios.CancelToken.source();
   const params: any = {
     url: path,
     method,
     timeout,
     headers,
-    cancelToken: cancelTokenSource?.token
-  }
+    cancelToken: cancelTokenSource?.token,
+  };
 
   if (['GET', 'get'].includes(method)) {
-    params.params = data
+    params.params = data;
   } else {
-    params.data = data
+    params.data = data;
   }
 
-  const promise = instance.request(params).then((resp) => resp.data)
+  const promise = instance.request(params).then((resp) => resp.data);
 
   if (signal) {
     signal.addEventListener('abort', () => {
-      cancelTokenSource?.cancel()
-    })
+      cancelTokenSource?.cancel();
+    });
   }
 
-  return promise
-}
+  return promise;
+};

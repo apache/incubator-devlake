@@ -16,23 +16,23 @@
  *
  */
 
-import styled, { keyframes } from 'styled-components'
+import styled, { keyframes } from 'styled-components';
 
 const SpinKeyframes = keyframes({
   '0%': {
-    transform: 'rotate(0deg)'
+    transform: 'rotate(0deg)',
   },
   '100%': {
-    transform: 'rotate(360deg)'
-  }
-})
+    transform: 'rotate(360deg)',
+  },
+});
 
 export const Wrapper = styled.div`
   display: inline-flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-`
+`;
 
 export const Spin = styled.div<{ size: number }>`
   width: ${({ size }) => size}px;
@@ -45,15 +45,15 @@ export const Spin = styled.div<{ size: number }>`
   animation-duration: 1s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
-`
+`;
 
 export const Text = styled.div`
   margin-top: 12px;
-`
+`;
 
 export const PageWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 400px;
-`
+`;

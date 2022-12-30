@@ -16,45 +16,35 @@
  *
  */
 
-import React, { useState } from 'react'
-import type { TabId } from '@blueprintjs/core'
-import { Tabs, Tab } from '@blueprintjs/core'
+import React, { useState } from 'react';
+import type { TabId } from '@blueprintjs/core';
+import { Tabs, Tab } from '@blueprintjs/core';
 
-import { PageLoading } from '@/components'
+import { PageLoading } from '@/components';
 
-import type { UseDetailProps } from './use-detail'
-import { useDetail } from './use-detail'
-import { Configuration } from './panel/configuration'
-import { Status } from './panel/status'
+import type { UseDetailProps } from './use-detail';
+import { useDetail } from './use-detail';
+import { Configuration } from './panel/configuration';
+import { Status } from './panel/status';
 
 interface Props extends UseDetailProps {}
 
 export const BlueprintDetail = ({ id }: Props) => {
-  const [activeTab, setActiveTab] = useState<TabId>('status')
+  const [activeTab, setActiveTab] = useState<TabId>('status');
 
-  const {
-    loading,
-    blueprint,
-    pipelines,
-    pipelineId,
-    operating,
-    onRun,
-    onUpdate,
-    onDelete,
-    onRefresh
-  } = useDetail({
-    id
-  })
+  const { loading, blueprint, pipelines, pipelineId, operating, onRun, onUpdate, onDelete, onRefresh } = useDetail({
+    id,
+  });
 
   if (loading || !blueprint) {
-    return <PageLoading />
+    return <PageLoading />;
   }
 
   return (
     <Tabs selectedTabId={activeTab} onChange={(at) => setActiveTab(at)}>
       <Tab
-        id='status'
-        title='Status'
+        id="status"
+        title="Status"
         panel={
           <Status
             blueprint={blueprint}
@@ -68,17 +58,10 @@ export const BlueprintDetail = ({ id }: Props) => {
         }
       />
       <Tab
-        id='configuration'
-        title='Configuration'
-        panel={
-          <Configuration
-            blueprint={blueprint}
-            operating={operating}
-            onUpdate={onUpdate}
-            onRefresh={onRefresh}
-          />
-        }
+        id="configuration"
+        title="Configuration"
+        panel={<Configuration blueprint={blueprint} operating={operating} onUpdate={onUpdate} onRefresh={onRefresh} />}
       />
     </Tabs>
-  )
-}
+  );
+};

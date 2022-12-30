@@ -16,13 +16,13 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   .bp4-button-group {
     margin-bottom: 16px;
   }
-`
+`;
 
 export const Action = styled.div`
   color: #7497f7;
@@ -34,4 +34,4 @@ export const Action = styled.div`
   span + span {
     margin-left: 8px;
   }
-`
+`;

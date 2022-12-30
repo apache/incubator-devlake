@@ -16,14 +16,14 @@
  *
  */
 
-import type { PluginConfigType } from '@/plugins'
-import { Plugins, PluginType } from '@/plugins'
+import type { PluginConfigType } from '@/plugins';
+import { Plugins, PluginType } from '@/plugins';
 
-import Icon from './assets/icon.svg'
+import Icon from './assets/icon.svg';
 
 export const DORAConfig: PluginConfigType = {
   plugin: Plugins.DORA,
   name: 'DORA',
   type: PluginType.Pipeline,
-  icon: Icon
-}
+  icon: Icon,
+};

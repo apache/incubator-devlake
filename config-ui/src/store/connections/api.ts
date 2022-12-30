@@ -16,21 +16,20 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
 type TestConnectionPayload = {
-  endpoint: string
-  proxy: string
-  token?: string
-  username?: string
-  password?: string
-}
+  endpoint: string;
+  proxy: string;
+  token?: string;
+  username?: string;
+  password?: string;
+};
 
-export const getConnection = (plugin: string) =>
-  request(`/plugins/${plugin}/connections`)
+export const getConnection = (plugin: string) => request(`/plugins/${plugin}/connections`);
 
 export const testConnection = (plugin: string, data: TestConnectionPayload) =>
   request(`/plugins/${plugin}/test`, {
     method: 'post',
-    data
-  })
+    data,
+  });

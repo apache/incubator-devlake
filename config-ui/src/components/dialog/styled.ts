@@ -16,13 +16,13 @@
  *
  */
 
-import styled from 'styled-components'
-import { Dialog } from '@blueprintjs/core'
+import styled from 'styled-components';
+import { Dialog } from '@blueprintjs/core';
 
 export const Container = styled(Dialog)`
   position: relative;
   background-color: #fff;
-`
+`;
 
 export const Header = styled.div`
   display: flex;
@@ -43,8 +43,8 @@ export const Header = styled.div`
   & > span {
     cursor: pointer;
   }
-`
+`;
 
-export const Body = styled.div``
+export const Body = styled.div``;
 
-export const Footer = styled.div``
+export const Footer = styled.div``;

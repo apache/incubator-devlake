@@ -16,23 +16,23 @@
  *
  */
 
-import React from 'react'
-import { Button, Icon, Intent, Classes } from '@blueprintjs/core'
+import React from 'react';
+import { Button, Icon, Intent, Classes } from '@blueprintjs/core';
 
-import * as S from './styled'
+import * as S from './styled';
 
 interface Props {
-  isOpen: boolean
-  children: React.ReactNode
-  style?: React.CSSProperties
-  title?: string
-  footer?: React.ReactNode | null
-  cancelText?: string
-  okText?: string
-  okDisabled?: boolean
-  okLoading?: boolean
-  onCancel?: () => void
-  onOk?: () => void
+  isOpen: boolean;
+  children: React.ReactNode;
+  style?: React.CSSProperties;
+  title?: string;
+  footer?: React.ReactNode | null;
+  cancelText?: string;
+  okText?: string;
+  okDisabled?: boolean;
+  okLoading?: boolean;
+  onCancel?: () => void;
+  onOk?: () => void;
 }
 
 export const Dialog = ({
@@ -46,14 +46,14 @@ export const Dialog = ({
   okDisabled,
   okLoading,
   onCancel,
-  onOk
+  onOk,
 }: Props) => {
   return (
     <S.Container isOpen={isOpen} style={style}>
       {title && (
         <S.Header className={Classes.DIALOG_HEADER}>
           <h2>{title}</h2>
-          <Icon icon='cross' onClick={onCancel} />
+          <Icon icon="cross" onClick={onCancel} />
         </S.Header>
       )}
       <S.Body className={Classes.DIALOG_BODY}>{children}</S.Body>
@@ -62,22 +62,11 @@ export const Dialog = ({
       ) : footer !== null ? (
         <S.Footer className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button
-              outlined
-              intent={Intent.PRIMARY}
-              onClick={onCancel}
-              text={cancelText}
-            />
-            <Button
-              disabled={okDisabled}
-              loading={okLoading}
-              intent={Intent.PRIMARY}
-              text={okText}
-              onClick={onOk}
-            />
+            <Button outlined intent={Intent.PRIMARY} onClick={onCancel} text={cancelText} />
+            <Button disabled={okDisabled} loading={okLoading} intent={Intent.PRIMARY} text={okText} onClick={onOk} />
           </div>
         </S.Footer>
       ) : null}
     </S.Container>
-  )
-}
+  );
+};

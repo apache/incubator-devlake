@@ -16,41 +16,36 @@
  *
  */
 
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
-import { Dialog } from '@/components'
+import { Dialog } from '@/components';
 
-import type { WebhookItemType } from '../types'
+import type { WebhookItemType } from '../types';
 
-import { MillerColumns } from '../components'
+import { MillerColumns } from '../components';
 
-import * as S from './styled'
+import * as S from './styled';
 
 interface Props {
-  isOpen: boolean
-  saving: boolean
-  onCancel: () => void
-  onSubmit: (items: WebhookItemType[]) => void
+  isOpen: boolean;
+  saving: boolean;
+  onCancel: () => void;
+  onSubmit: (items: WebhookItemType[]) => void;
 }
 
-export const WebhookSelectorDialog = ({
-  isOpen,
-  saving,
-  onCancel,
-  onSubmit
-}: Props) => {
-  const [selectedItems, setSelectedItems] = useState<WebhookItemType[]>([])
+export const WebhookSelectorDialog = ({ isOpen, saving, onCancel, onSubmit }: Props) => {
+  const [selectedItems, setSelectedItems] = useState<WebhookItemType[]>([]);
 
-  const handleSubmit = () => onSubmit(selectedItems)
+  const handleSubmit = () => onSubmit(selectedItems);
 
   return (
     <Dialog
       isOpen={isOpen}
-      title='Select Existing Webhooks'
+      title="Select Existing Webhooks"
       style={{
-        width: 820
+        width: 820,
       }}
-      okText='Confrim'
+      okText="Confrim"
       okLoading={saving}
       okDisabled={!selectedItems.length}
       onCancel={onCancel}
@@ -59,11 +54,8 @@ export const WebhookSelectorDialog = ({
       <S.Wrapper>
         <h3>Webhooks</h3>
         <p>Select an existing Webhook to import to the current project.</p>
-        <MillerColumns
-          selectedItems={selectedItems}
-          onChangeItems={setSelectedItems}
-        />
+        <MillerColumns selectedItems={selectedItems} onChangeItems={setSelectedItems} />
       </S.Wrapper>
     </Dialog>
-  )
-}
+  );
+};

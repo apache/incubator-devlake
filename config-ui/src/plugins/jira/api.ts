@@ -16,17 +16,16 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
 export type GetBoardsParams = {
-  startAt: number
-  maxResults: number
-}
+  startAt: number;
+  maxResults: number;
+};
 
 export const getBoards = (prefix: string, params: GetBoardsParams) =>
-  request(`${prefix}/agile/1.0/board`, { data: params })
+  request(`${prefix}/agile/1.0/board`, { data: params });
 
-export const getIssueType = (prefix: string) =>
-  request(`${prefix}/api/2/issuetype`)
+export const getIssueType = (prefix: string) => request(`${prefix}/api/2/issuetype`);
 
-export const getField = (prefix: string) => request(`${prefix}/api/2/field`)
+export const getField = (prefix: string) => request(`${prefix}/api/2/field`);

@@ -16,18 +16,15 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
-export const getBlueprint = (id: ID) => request(`/blueprints/${id}`)
+export const getBlueprint = (id: ID) => request(`/blueprints/${id}`);
 
-export const getBlueprintPipelines = (id: ID) =>
-  request(`/blueprints/${id}/pipelines`)
+export const getBlueprintPipelines = (id: ID) => request(`/blueprints/${id}/pipelines`);
 
-export const runBlueprint = (id: ID) =>
-  request(`/blueprints/${id}/trigger`, { method: 'post' })
+export const runBlueprint = (id: ID) => request(`/blueprints/${id}/trigger`, { method: 'post' });
 
 export const updateBlueprint = (id: ID, payload: any) =>
-  request(`/blueprints/${id}`, { method: 'patch', data: payload })
+  request(`/blueprints/${id}`, { method: 'patch', data: payload });
 
-export const deleteBluprint = (id: ID) =>
-  request(`/blueprints/${id}`, { method: 'delete' })
+export const deleteBluprint = (id: ID) => request(`/blueprints/${id}`, { method: 'delete' });

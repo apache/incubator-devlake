@@ -16,10 +16,7 @@
  *
  */
 
-import { useMemo } from 'react'
+import { useMemo } from 'react';
 
 export const useProxyPrefix = (connectionId: ID) =>
-  useMemo(
-    () => `/plugins/jira/connections/${connectionId}/proxy/rest`,
-    [connectionId]
-  )
+  useMemo(() => `/plugins/jira/connections/${connectionId}/proxy/rest`, [connectionId]);

@@ -16,6 +16,6 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
-export const getBlueprints = () => request('/blueprints')
+export const getBlueprints = () => request('/blueprints');

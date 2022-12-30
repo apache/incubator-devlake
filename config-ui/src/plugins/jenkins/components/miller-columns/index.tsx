@@ -16,41 +16,37 @@
  *
  */
 
-import React, { useState, useEffect } from 'react'
-import MillerColumnsSelect from 'miller-columns-select'
+import React, { useState, useEffect } from 'react';
+import MillerColumnsSelect from 'miller-columns-select';
 
-import { Loading } from '@/components'
+import { Loading } from '@/components';
 
-import type { ScopeItemType } from '../../types'
+import type { ScopeItemType } from '../../types';
 
-import type { UseMillerColumnsProps } from './use-miller-columns'
-import { useMillerColumns } from './use-miller-columns'
+import type { UseMillerColumnsProps } from './use-miller-columns';
+import { useMillerColumns } from './use-miller-columns';
 
 interface Props extends UseMillerColumnsProps {
-  selectedItems: ScopeItemType[]
-  onChangeItems: (selectedItems: ScopeItemType[]) => void
+  selectedItems: ScopeItemType[];
+  onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const MillerColumns = ({
-  connectionId,
-  selectedItems,
-  onChangeItems
-}: Props) => {
-  const [seletedIds, setSelectedIds] = useState<ID[]>([])
+export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Props) => {
+  const [seletedIds, setSelectedIds] = useState<ID[]>([]);
 
   const { items, getHasMore, onExpandItem } = useMillerColumns({
-    connectionId
-  })
+    connectionId,
+  });
 
   const getJobFullName = (item: any): string => {
-    if (!item.parentId) return item.title
-    const parentItem = items.find((it) => it.id === item.parentId)
-    return `${getJobFullName(parentItem)}/${item.title}`
-  }
+    if (!item.parentId) return item.title;
+    const parentItem = items.find((it) => it.id === item.parentId);
+    return `${getJobFullName(parentItem)}/${item.title}`;
+  };
 
   useEffect(() => {
-    setSelectedIds(selectedItems.map((it) => it.jobFullName))
-  }, [])
+    setSelectedIds(selectedItems.map((it) => it.jobFullName));
+  }, []);
 
   useEffect(() => {
     const result = items
@@ -59,14 +55,14 @@ export const MillerColumns = ({
         connectionId,
         jobFullName: getJobFullName(it),
         name: getJobFullName(it),
-      }))
+      }));
 
-    onChangeItems(result)
-  }, [seletedIds])
+    onChangeItems(result);
+  }, [seletedIds]);
 
   const renderLoading = () => {
-    return <Loading size={20} style={{ padding: '4px 12px' }} />
-  }
+    return <Loading size={20} style={{ padding: '4px 12px' }} />;
+  };
 
   return (
     <MillerColumnsSelect
@@ -80,5 +76,5 @@ export const MillerColumns = ({
       onSelectItemIds={setSelectedIds}
       onExpandItem={onExpandItem}
     />
-  )
-}
+  );
+};

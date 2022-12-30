@@ -16,10 +16,10 @@
  *
  */
 
-import { Plugins } from '@/plugins'
+import { Plugins } from '@/plugins';
 
 export type TransformationItemType = {
-  id: ID
-  name: string
-  plugin: Plugins
-}
+  id: ID;
+  name: string;
+  plugin: Plugins;
+};

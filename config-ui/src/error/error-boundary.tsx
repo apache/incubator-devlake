@@ -13,71 +13,64 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-import React from 'react'
+import React from 'react';
 
-import { Logo } from '@/components'
+import { Logo } from '@/components';
 
-import { Error } from './types'
-import { DBMigrate, Offline, Default, BPUpgrade } from './components'
+import { Error } from './types';
+import { DBMigrate, Offline, Default, BPUpgrade } from './components';
 
-import * as S from './styled'
+import * as S from './styled';
 
 type Props = {
-  children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
 type State = {
-  hasError: boolean
-  error?: any
-}
+  hasError: boolean;
+  error?: any;
+};
 
 export class ErrorBoundary extends React.Component<Props, State> {
   constructor(props: Props) {
-    super(props)
-    this.state = { hasError: false }
+    super(props);
+    this.state = { hasError: false };
   }
 
   static getDerivedStateFromError(error: any) {
     return {
       hasError: true,
-      error
-    }
+      error,
+    };
   }
 
   handleResetError = () => {
     this.setState({
       hasError: false,
-      error: undefined
-    })
-  }
+      error: undefined,
+    });
+  };
 
   render() {
-    const { hasError, error } = this.state
+    const { hasError, error } = this.state;
 
     if (!hasError) {
-      return this.props.children
+      return this.props.children;
     }
 
     return (
       <S.Wrapper>
         <Logo />
         <S.Inner>
-          {error === Error.DB_NEED_MIGRATE && (
-            <DBMigrate onResetError={this.handleResetError} />
-          )}
-          {error === Error.API_OFFLINE && (
-            <Offline onResetError={this.handleResetError} />
-          )}
-          {error === Error.BP_NEED_TO_UPGRADE && (
-            <BPUpgrade onResetError={this.handleResetError} />
-          )}
-          {!Object.keys(Error).includes(error) && (
-            <Default error={error} onResetError={this.handleResetError} />
-          )}
+          {error === Error.DB_NEED_MIGRATE && <DBMigrate onResetError={this.handleResetError} />}
+          {error === Error.API_OFFLINE && <Offline onResetError={this.handleResetError} />}
+          {error === Error.BP_NEED_TO_UPGRADE && <BPUpgrade onResetError={this.handleResetError} />}
+          {!Object.keys(Error).includes(error) && <Default error={error} onResetError={this.handleResetError} />}
         </S.Inner>
       </S.Wrapper>
-    )
+    );
   }
 }

@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Container = styled.div`
   padding: 16px 24px;
@@ -52,4 +52,4 @@ export const Container = styled.div`
       font-size: 10px;
     }
   }
-`
+`;

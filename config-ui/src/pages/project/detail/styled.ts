@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   & > .bp4-tabs > .bp4-tab-list {
@@ -59,4 +59,4 @@ export const Wrapper = styled.div`
       width: 386px;
     }
   }
-`
+`;

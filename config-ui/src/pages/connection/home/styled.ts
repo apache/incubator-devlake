@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   .block + .block {
@@ -66,4 +66,4 @@ export const Wrapper = styled.div`
   li + li {
     margin-left: 24px;
   }
-`
+`;

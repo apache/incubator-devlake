@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const ConnectionColumn = styled.div`
   display: flex;
@@ -26,4 +26,4 @@ export const ConnectionColumn = styled.div`
     margin-right: 4px;
     width: 20px;
   }
-`
+`;

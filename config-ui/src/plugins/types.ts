@@ -34,42 +34,40 @@ export enum Plugins {
   StarRocks = 'starrocks',
   TAPD = 'tapd',
   Webhook = 'webhook',
-  ZenTao = 'zentao'
+  ZenTao = 'zentao',
 }
 
 export enum PluginType {
   Connection = 'connection',
   Incoming_Connection = 'incoming_connection',
-  Pipeline = 'pipeline'
+  Pipeline = 'pipeline',
 }
 
 export type PluginConfigConnectionType = {
-  plugin: Plugins
-  name: string
-  type: PluginType.Connection
-  icon: string
+  plugin: Plugins;
+  name: string;
+  type: PluginType.Connection;
+  icon: string;
   connection: {
-    initialValues?: Record<string, any>
+    initialValues?: Record<string, any>;
     fields: Array<{
-      key: string
-      type: 'text' | 'password' | 'numeric' | 'switch' | 'github-token'
-      label: string
-      required?: boolean
-      placeholder?: string
-      tooltip?: string
-    }>
-  }
-  entities: string[]
-  transformation: any
-}
+      key: string;
+      type: 'text' | 'password' | 'numeric' | 'switch' | 'github-token';
+      label: string;
+      required?: boolean;
+      placeholder?: string;
+      tooltip?: string;
+    }>;
+  };
+  entities: string[];
+  transformation: any;
+};
 
 export type PluginConfigAnotherType = {
-  plugin: Plugins
-  name: string
-  type: PluginType.Incoming_Connection | PluginType.Pipeline
-  icon: string
-}
+  plugin: Plugins;
+  name: string;
+  type: PluginType.Incoming_Connection | PluginType.Pipeline;
+  icon: string;
+};
 
-export type PluginConfigType =
-  | PluginConfigConnectionType
-  | PluginConfigAnotherType
+export type PluginConfigType = PluginConfigConnectionType | PluginConfigAnotherType;

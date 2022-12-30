@@ -16,6 +16,6 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
-export const getVersion = () => request('/version')
+export const getVersion = () => request('/version');

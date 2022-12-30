@@ -16,32 +16,28 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
-import { groupBy } from 'lodash'
+import { useState, useEffect, useMemo } from 'react';
+import { groupBy } from 'lodash';
 
-import { Plugins } from '@/plugins'
+import { Plugins } from '@/plugins';
 
-import * as API from './api'
+import * as API from './api';
 
 type ScopeItem = {
-  id: ID
-  name: string
-  transformationRuleName?: string
-}
+  id: ID;
+  name: string;
+  transformationRuleName?: string;
+};
 
 export interface UseDataScopeList {
-  plugin: Plugins
-  connectionId: ID
-  scopeIds: ID[]
+  plugin: Plugins;
+  connectionId: ID;
+  scopeIds: ID[];
 }
 
-export const useDataScopeList = ({
-  plugin,
-  connectionId,
-  scopeIds
-}: UseDataScopeList) => {
-  const [loading, setLoading] = useState(false)
-  const [scope, setScope] = useState<ScopeItem[]>([])
+export const useDataScopeList = ({ plugin, connectionId, scopeIds }: UseDataScopeList) => {
+  const [loading, setLoading] = useState(false);
+  const [scope, setScope] = useState<ScopeItem[]>([]);
 
   const formatScope = (scope: any) => {
     return scope.map((sc: any) => {
@@ -50,55 +46,56 @@ export const useDataScopeList = ({
           return {
             id: sc.githubId,
             name: sc.name,
-            transformationRuleName: sc.transformationRuleName
-          }
+            transformationRuleName: sc.transformationRuleName,
+          };
         case plugin === Plugins.JIRA:
           return {
             id: sc.boardId,
             name: sc.name,
-            transformationRuleName: sc.transformationRuleName
-          }
+            transformationRuleName: sc.transformationRuleName,
+          };
         case plugin === Plugins.GitLab:
           return {
             id: sc.gitlabId,
             name: sc.name,
-            transformationRuleName: sc.transformationRuleName
-          }
+            transformationRuleName: sc.transformationRuleName,
+          };
         case plugin === Plugins.Jenkins:
           return {
             id: sc.jobFullName,
             name: sc.jobFullName,
-            transformationRuleName: sc.transformationRuleName
-          }
+            transformationRuleName: sc.transformationRuleName,
+          };
+        default:
+          return {
+            id: sc.id,
+            name: sc.name,
+            transformationRuleName: sc.transformationRuleName,
+          };
       }
-    })
-  }
+    });
+  };
 
   const getScopeDetail = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await Promise.all(
-        scopeIds.map((id) => API.getDataScopeRepo(plugin, connectionId, id))
-      )
-      setScope(formatScope(res))
+      const res = await Promise.all(scopeIds.map((id) => API.getDataScopeRepo(plugin, connectionId, id)));
+      setScope(formatScope(res));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    getScopeDetail()
-  }, [])
+    getScopeDetail();
+  }, []);
 
   return useMemo(
     () => ({
       loading,
       scope,
-      scopeTsMap: groupBy(
-        scope,
-        (it) => it.transformationRuleName ?? 'No Transformation'
-      )
+      scopeTsMap: groupBy(scope, (it) => it.transformationRuleName ?? 'No Transformation'),
     }),
-    [loading, scope]
-  )
-}
+    [loading, scope],
+  );
+};

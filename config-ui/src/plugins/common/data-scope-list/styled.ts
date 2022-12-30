@@ -16,13 +16,13 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const ScopeList = styled.ul`
   list-style: none;
   margin: 0;
   padding: 0;
-`
+`;
 
 export const ScopeItem = styled.li`
   margin-bottom: 4px;
@@ -30,7 +30,7 @@ export const ScopeItem = styled.li`
   &:last-child {
     margin-bottom: 0;
   }
-`
+`;
 
 export const ScopeItemMap = styled(ScopeItem)`
   margin-bottom: 12px;
@@ -70,4 +70,4 @@ export const ScopeItemMap = styled(ScopeItem)`
     padding-left: 24px;
     margin-top: 4px;
   }
-`
+`;

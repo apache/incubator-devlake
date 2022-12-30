@@ -16,49 +16,46 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
-import { uniqWith } from 'lodash'
+import { useState, useEffect, useMemo } from 'react';
+import { uniqWith } from 'lodash';
 
-import { useProxyPrefix } from '../../hooks'
-import * as API from '../../api'
+import { useProxyPrefix } from '../../hooks';
+import * as API from '../../api';
 
 export type IssueTypeItem = {
-  id: string
-  name: string
-  iconUrl: string
-}
+  id: string;
+  name: string;
+  iconUrl: string;
+};
 
 export type FieldItem = {
-  id: string
-  name: string
-}
+  id: string;
+  name: string;
+};
 
 export interface UseIssueTrackingProps {
-  connectionId: ID
+  connectionId: ID;
 }
 
 export const useIssueTracking = ({ connectionId }: UseIssueTrackingProps) => {
-  const [issueTypes, setIssueTypes] = useState<IssueTypeItem[]>([])
-  const [fields, setFields] = useState<FieldItem[]>([])
+  const [issueTypes, setIssueTypes] = useState<IssueTypeItem[]>([]);
+  const [fields, setFields] = useState<FieldItem[]>([]);
 
-  const prefix = useProxyPrefix(connectionId)
+  const prefix = useProxyPrefix(connectionId);
 
   useEffect(() => {
-    ;(async () => {
-      const [its, fds] = await Promise.all([
-        API.getIssueType(prefix),
-        API.getField(prefix)
-      ])
-      setIssueTypes(uniqWith(its, (it, oit) => it.name === oit.name))
-      setFields(fds)
-    })()
-  }, [prefix])
+    (async () => {
+      const [its, fds] = await Promise.all([API.getIssueType(prefix), API.getField(prefix)]);
+      setIssueTypes(uniqWith(its, (it, oit) => it.name === oit.name));
+      setFields(fds);
+    })();
+  }, [prefix]);
 
   return useMemo(
     () => ({
       issueTypes,
-      fields
+      fields,
     }),
-    [issueTypes, fields]
-  )
-}
+    [issueTypes, fields],
+  );
+};

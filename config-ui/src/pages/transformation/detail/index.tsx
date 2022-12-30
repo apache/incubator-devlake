@@ -16,35 +16,30 @@
  *
  */
 
-import React from 'react'
-import { useParams, useHistory } from 'react-router-dom'
-import { InputGroup, ButtonGroup, Button, Intent } from '@blueprintjs/core'
+import React from 'react';
+import { useParams, useHistory } from 'react-router-dom';
+import { InputGroup, ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
-import { PageLoading, PageHeader, Card } from '@/components'
-import { Plugins } from '@/plugins'
-import { GitHubTransformation } from '@/plugins/github'
-import { GitLabTransformation } from '@/plugins/gitlab'
-import { JenkinsTransformation } from '@/plugins/jenkins'
+import { PageLoading, PageHeader, Card } from '@/components';
+import { Plugins } from '@/plugins';
+import { GitHubTransformation } from '@/plugins/github';
+import { GitLabTransformation } from '@/plugins/gitlab';
+import { JenkinsTransformation } from '@/plugins/jenkins';
 
-import { useDetail } from './use-detail'
-import * as S from './styled'
+import { useDetail } from './use-detail';
+import * as S from './styled';
 
 export const TransformationDetailPage = () => {
-  const { plugin, tid } = useParams<{ plugin: Plugins; tid?: string }>()
-  const history = useHistory()
+  const { plugin, tid } = useParams<{ plugin: Plugins; tid?: string }>();
+  const history = useHistory();
 
-  const {
-    loading,
-    operating,
-    name,
-    transformation,
-    onChangeName,
-    onChangeTransformation,
-    onSave
-  } = useDetail({ plugin, id: tid })
+  const { loading, operating, name, transformation, onChangeName, onChangeTransformation, onSave } = useDetail({
+    plugin,
+    id: tid,
+  });
 
   if (loading) {
-    return <PageLoading />
+    return <PageLoading />;
   }
 
   return (
@@ -53,61 +48,44 @@ export const TransformationDetailPage = () => {
         { name: 'Transformations', path: '/transformations' },
         {
           name: plugin,
-          path: '/transformations'
+          path: '/transformations',
         },
         {
           name: 'Create',
-          path: `/transformations/${plugin}/${tid ? tid : 'Create'}`
-        }
+          path: `/transformations/${plugin}/${tid ? tid : 'Create'}`,
+        },
       ]}
     >
       <S.Wrapper>
-        <Card className='name card'>
+        <Card className="name card">
           <h3>Transformation Name *</h3>
-          <p>
-            Give this set of transformation rules a unique name so that you can
-            identify it in the future.
-          </p>
+          <p>Give this set of transformation rules a unique name so that you can identify it in the future.</p>
           <InputGroup
-            placeholder='Enter Transformation Name'
+            placeholder="Enter Transformation Name"
             value={name}
             onChange={(e) => onChangeName(e.target.value)}
           />
         </Card>
-        <Card className='card'>
+        <Card className="card">
           {plugin === Plugins.GitHub && (
-            <GitHubTransformation
-              transformation={transformation}
-              setTransformation={onChangeTransformation}
-            />
+            <GitHubTransformation transformation={transformation} setTransformation={onChangeTransformation} />
           )}
           {plugin === Plugins.GitLab && (
-            <GitLabTransformation
-              transformation={transformation}
-              setTransformation={onChangeTransformation}
-            />
+            <GitLabTransformation transformation={transformation} setTransformation={onChangeTransformation} />
           )}
 
           {plugin === Plugins.Jenkins && (
-            <JenkinsTransformation
-              transformation={transformation}
-              setTransformation={onChangeTransformation}
-            />
+            <JenkinsTransformation transformation={transformation} setTransformation={onChangeTransformation} />
           )}
-          <div className='action'>
+          <div className="action">
             <ButtonGroup>
-              <Button
-                disabled={operating}
-                outlined
-                text='Cancel'
-                onClick={() => history.push('/transformations')}
-              />
+              <Button disabled={operating} outlined text="Cancel" onClick={() => history.push('/transformations')} />
               <Button
                 disabled={!name}
                 loading={operating}
                 outlined
                 intent={Intent.PRIMARY}
-                text='Save'
+                text="Save"
                 onClick={onSave}
               />
             </ButtonGroup>
@@ -115,5 +93,5 @@ export const TransformationDetailPage = () => {
         </Card>
       </S.Wrapper>
     </PageHeader>
-  )
-}
+  );
+};

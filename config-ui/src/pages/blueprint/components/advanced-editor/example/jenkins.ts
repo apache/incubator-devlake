@@ -16,14 +16,16 @@
  *
  */
 
-export default [
+const jenkins = [
   [
     {
       plugin: 'jenkins',
       options: {
         connectionId: 1,
-        jobName: 'unit_test'
-      }
-    }
-  ]
-]
+        jobName: 'unit_test',
+      },
+    },
+  ],
+];
+
+export default jenkins;

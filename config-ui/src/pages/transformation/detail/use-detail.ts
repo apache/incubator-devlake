@@ -16,65 +16,62 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useState, useEffect, useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
 
-import { Plugins, PluginConfig } from '@/plugins'
-import { operator } from '@/utils'
+import { Plugins, PluginConfig } from '@/plugins';
+import { operator } from '@/utils';
 
-import * as API from './api'
+import * as API from './api';
 
 interface Props {
-  plugin: Plugins
-  id?: ID
+  plugin: Plugins;
+  id?: ID;
 }
 
 export const useDetail = ({ plugin, id }: Props) => {
-  const [loading, setLoading] = useState(false)
-  const [operating, setOperating] = useState(false)
-  const [name, setName] = useState('')
+  const [loading, setLoading] = useState(false);
+  const [operating, setOperating] = useState(false);
+  const [name, setName] = useState('');
   const [transformation, setTransformation] = useState<any>(
-    PluginConfig.find((pc) => pc.plugin === plugin)?.transformation
-  )
+    PluginConfig.find((pc) => pc.plugin === plugin)?.transformation,
+  );
 
-  const history = useHistory()
+  const history = useHistory();
 
   const getTransformation = async () => {
-    if (!id) return
-    setLoading(true)
+    if (!id) return;
+    setLoading(true);
     try {
-      const res = await API.getTransformation(plugin, id)
-      setName(res.name)
-      setTransformation(res)
+      const res = await API.getTransformation(plugin, id);
+      setName(res.name);
+      setTransformation(res);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    getTransformation()
-  }, [])
+    getTransformation();
+  }, []);
 
   const handleSave = async () => {
     const payload = {
       ...transformation,
-      name
-    }
+      name,
+    };
 
     const [success] = await operator(
-      () =>
-        id
-          ? API.updateTransformation(plugin, id, payload)
-          : API.createTransformation(plugin, payload),
+      () => (id ? API.updateTransformation(plugin, id, payload) : API.createTransformation(plugin, payload)),
       {
-        setOperating
-      }
-    )
+        setOperating,
+      },
+    );
 
     if (success) {
-      history.push('/transformations')
+      history.push('/transformations');
     }
-  }
+  };
 
   return useMemo(
     () => ({
@@ -84,8 +81,8 @@ export const useDetail = ({ plugin, id }: Props) => {
       transformation,
       onChangeName: setName,
       onChangeTransformation: setTransformation,
-      onSave: handleSave
+      onSave: handleSave,
     }),
-    [loading, operating, name, transformation]
-  )
-}
+    [loading, operating, name, transformation],
+  );
+};

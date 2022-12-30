@@ -13,10 +13,11 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-import styled from 'styled-components'
-import { Colors } from '@blueprintjs/core'
+import styled from 'styled-components';
+import { Colors } from '@blueprintjs/core';
 
 export const Wrapper = styled.div`
   display: flex;
@@ -26,7 +27,7 @@ export const Wrapper = styled.div`
   height: 100vh;
   background-color: #f9f9fa;
   box-sizing: border-box;
-`
+`;
 
 export const Inner = styled.div`
   margin: 32px auto 0;
@@ -54,4 +55,4 @@ export const Inner = styled.div`
     display: flex;
     justify-content: center;
   }
-`
+`;

@@ -16,40 +16,40 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react';
 
-import { operator } from '@/utils'
+import { operator } from '@/utils';
 
-import * as API from './api'
+import * as API from './api';
 
 interface Props {
-  name: string
-  enableDora: boolean
-  onHideDialog: () => void
+  name: string;
+  enableDora: boolean;
+  onHideDialog: () => void;
 }
 
 export const useProject = <T>({ name, enableDora, onHideDialog }: Props) => {
-  const [loading, setLoading] = useState(false)
-  const [operating, setOperating] = useState(false)
-  const [projects, setProjects] = useState<T[]>([])
+  const [loading, setLoading] = useState(false);
+  const [operating, setOperating] = useState(false);
+  const [projects, setProjects] = useState<T[]>([]);
 
   const getProjects = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await API.getProjects({ page: 1, pageSize: 100 })
+      const res = await API.getProjects({ page: 1, pageSize: 100 });
       setProjects(
         res.projects.map((it: any) => ({
-          name: it.name
-        }))
-      )
+          name: it.name,
+        })),
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    getProjects()
-  }, [])
+    getProjects();
+  }, []);
 
   const handleSave = async () => {
     const payload = {
@@ -59,28 +59,28 @@ export const useProject = <T>({ name, enableDora, onHideDialog }: Props) => {
         {
           pluginName: 'dora',
           pluginOption: '',
-          enable: enableDora
-        }
-      ]
-    }
+          enable: enableDora,
+        },
+      ],
+    };
 
     const [success] = await operator(() => API.createProject(payload), {
-      setOperating
-    })
+      setOperating,
+    });
 
     if (success) {
-      onHideDialog()
-      getProjects()
+      onHideDialog();
+      getProjects();
     }
-  }
+  };
 
   return useMemo(
     () => ({
       loading,
       operating,
       projects,
-      onSave: handleSave
+      onSave: handleSave,
     }),
-    [loading, operating, projects, name, enableDora]
-  )
-}
+    [loading, operating, projects, name, enableDora],
+  );
+};

@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Tips = styled.p`
   margin: 24px 0 0;
@@ -25,4 +25,4 @@ export const Tips = styled.p`
     color: #7497f7;
     cursor: pointer;
   }
-`
+`;

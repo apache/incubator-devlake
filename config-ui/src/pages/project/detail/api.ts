@@ -16,25 +16,25 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
-export const getProject = (name: string) => request(`/projects/${name}`)
+export const getProject = (name: string) => request(`/projects/${name}`);
 
 type UpdateProjectPayload = {
-  name: string
-  description: string
+  name: string;
+  description: string;
   metrics: Array<{
-    pluginName: string
-    pluginOption: string
-    enable: boolean
-  }>
-}
+    pluginName: string;
+    pluginOption: string;
+    enable: boolean;
+  }>;
+};
 
 export const updateProject = (name: string, payload: UpdateProjectPayload) =>
   request(`/projects/${name}`, {
     method: 'patch',
-    data: payload
-  })
+    data: payload,
+  });
 
 export const updateBlueprint = (id: ID, payload: any) =>
-  request(`/blueprints/${id}`, { method: 'patch', data: payload })
+  request(`/blueprints/${id}`, { method: 'patch', data: payload });

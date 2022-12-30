@@ -16,4 +16,4 @@
  *
  */
 
-export const DEVLAKE_ENDPOINT = '/api'
+export const DEVLAKE_ENDPOINT = '/api';

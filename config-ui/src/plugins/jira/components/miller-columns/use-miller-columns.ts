@@ -16,27 +16,27 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
-import type { ItemType } from 'miller-columns-select'
+import { useState, useEffect, useMemo } from 'react';
+import type { ItemType } from 'miller-columns-select';
 
-import type { ScopeItemType } from '../../types'
-import { useProxyPrefix } from '../../hooks'
-import * as API from '../../api'
+import type { ScopeItemType } from '../../types';
+import { useProxyPrefix } from '../../hooks';
+import * as API from '../../api';
 
-const DEFAULT_PAGE_SIZE = 50
+const DEFAULT_PAGE_SIZE = 50;
 
-type JIRAItemType = ItemType<ScopeItemType>
+type JIRAItemType = ItemType<ScopeItemType>;
 
 export interface UseMillerColumnsProps {
-  connectionId: ID
+  connectionId: ID;
 }
 
 export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
-  const [items, setItems] = useState<JIRAItemType[]>([])
-  const [isLast, setIsLast] = useState(false)
-  const [page, setPage] = useState(1)
+  const [items, setItems] = useState<JIRAItemType[]>([]);
+  const [isLast, setIsLast] = useState(false);
+  const [page, setPage] = useState(1);
 
-  const prefix = useProxyPrefix(connectionId)
+  const prefix = useProxyPrefix(connectionId);
 
   const updateItems = (arr: any) =>
     arr.map((it: any) => ({
@@ -47,30 +47,30 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
       name: it.name,
       self: it.self,
       type: it.type,
-      projectId: it?.location?.projectId
-    }))
+      projectId: it?.location?.projectId,
+    }));
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       const res = await API.getBoards(prefix, {
         startAt: (page - 1) * DEFAULT_PAGE_SIZE,
-        maxResults: DEFAULT_PAGE_SIZE
-      })
-      setIsLast(res.isLast)
-      setItems([...items, ...updateItems(res.values)])
-    })()
-  }, [prefix, page])
+        maxResults: DEFAULT_PAGE_SIZE,
+      });
+      setIsLast(res.isLast);
+      setItems([...items, ...updateItems(res.values)]);
+    })();
+  }, [prefix, page]);
 
   return useMemo(
     () => ({
       items,
       getHasMore() {
-        return !isLast
+        return !isLast;
       },
       onScrollColumn() {
-        setPage(page + 1)
-      }
+        setPage(page + 1);
+      },
     }),
-    [items, isLast, page]
-  )
-}
+    [items, isLast, page],
+  );
+};

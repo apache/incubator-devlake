@@ -16,32 +16,32 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react';
 
-import type { ScopeItemType } from '../../types'
-import { ScopeFromEnum } from '../../types'
-import { useProxyPrefix } from '../../hooks'
-import * as API from '../../api'
+import type { ScopeItemType } from '../../types';
+import { ScopeFromEnum } from '../../types';
+import { useProxyPrefix } from '../../hooks';
+import * as API from '../../api';
 
 export interface UseRepoSelectorProps {
-  connectionId: ID
+  connectionId: ID;
 }
 
 export const useRepoSelector = ({ connectionId }: UseRepoSelectorProps) => {
-  const [loading, setLoading] = useState(false)
-  const [items, setItems] = useState<ScopeItemType[]>([])
-  const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState<ScopeItemType[]>([]);
+  const [search, setSearch] = useState('');
 
-  const prefix = useProxyPrefix(connectionId)
+  const prefix = useProxyPrefix(connectionId);
 
   useEffect(() => {
-    if (!search) return
-    setItems([])
-    setLoading(true)
+    if (!search) return;
+    setItems([]);
+    setLoading(true);
 
     const timer = setTimeout(async () => {
       try {
-        const res = await API.searchRepo(prefix, { q: search })
+        const res = await API.searchRepo(prefix, { q: search });
         setItems(
           res.items.map((it: any) => ({
             from: ScopeFromEnum.REPO_SELECTOR,
@@ -52,25 +52,25 @@ export const useRepoSelector = ({ connectionId }: UseRepoSelectorProps) => {
             language: it.language,
             description: it.description,
             cloneUrl: it.clone_url,
-            HTMLUrl: it.html_url
-          }))
-        )
+            HTMLUrl: it.html_url,
+          })),
+        );
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }, 1000)
+    }, 1000);
 
-    return () => clearTimeout(timer)
-  }, [prefix, search])
+    return () => clearTimeout(timer);
+  }, [prefix, search]);
 
   return useMemo(
     () => ({
       loading,
       items,
       onSearch(s: string) {
-        setSearch(s)
-      }
+        setSearch(s);
+      },
     }),
-    [loading, items]
-  )
-}
+    [loading, items],
+  );
+};

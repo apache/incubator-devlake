@@ -16,26 +16,26 @@
  *
  */
 
-import { Plugins } from '@/plugins'
+import { Plugins } from '@/plugins';
 
 export enum ConnectionStatusEnum {
   ONLINE = 'online',
   OFFLINE = 'offline',
   TESTING = 'testing',
-  NULL = 'null'
+  NULL = 'null',
 }
 
 export type ConnectionItemType = {
-  unique: string
-  status: ConnectionStatusEnum
-  plugin: Plugins
-  id: ID
-  name: string
-  icon: string
-  entities: string[]
-  endpoint: string
-  proxy: string
-  token?: string
-  username?: string
-  password?: string
-}
+  unique: string;
+  status: ConnectionStatusEnum;
+  plugin: Plugins;
+  id: ID;
+  name: string;
+  icon: string;
+  entities: string[];
+  endpoint: string;
+  proxy: string;
+  token?: string;
+  username?: string;
+  password?: string;
+};

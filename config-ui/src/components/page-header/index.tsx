@@ -16,19 +16,19 @@
  *
  */
 
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { Icon } from '@blueprintjs/core'
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Icon } from '@blueprintjs/core';
 
-import * as S from './styled'
+import * as S from './styled';
 
 interface Props {
   breadcrumbs: Array<{
-    name: string
-    path: string
-  }>
-  extra?: React.ReactNode
-  children: React.ReactNode
+    name: string;
+    path: string;
+  }>;
+  extra?: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export const PageHeader = ({ breadcrumbs, extra, children }: Props) => {
@@ -41,7 +41,7 @@ export const PageHeader = ({ breadcrumbs, extra, children }: Props) => {
               {breadcrumbs.length !== i + 1 ? (
                 <Link to={path}>
                   {name}
-                  <Icon icon='chevron-right' />
+                  <Icon icon="chevron-right" />
                 </Link>
               ) : (
                 <span>{name}</span>
@@ -53,5 +53,5 @@ export const PageHeader = ({ breadcrumbs, extra, children }: Props) => {
       </S.Title>
       <S.Content>{children}</S.Content>
     </S.Container>
-  )
-}
+  );
+};

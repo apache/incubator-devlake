@@ -16,9 +16,9 @@
  *
  */
 
-import classNames from 'classnames'
+import classNames from 'classnames';
 
-import { StatusEnum } from './types'
+import { StatusEnum } from './types';
 
 export const STATUS_ICON = {
   [StatusEnum.CREATED]: 'stopwatch',
@@ -28,8 +28,8 @@ export const STATUS_ICON = {
   [StatusEnum.RERUN]: 'loading',
   [StatusEnum.COMPLETED]: 'tick-circle',
   [StatusEnum.FAILED]: 'delete',
-  [StatusEnum.CANCELLED]: 'undo'
-}
+  [StatusEnum.CANCELLED]: 'undo',
+};
 
 export const STATUS_LABEL = {
   [StatusEnum.CREATED]: 'Created (Pending)',
@@ -39,16 +39,14 @@ export const STATUS_LABEL = {
   [StatusEnum.RERUN]: 'In Progress',
   [StatusEnum.COMPLETED]: 'Succeeded',
   [StatusEnum.FAILED]: 'Failed',
-  [StatusEnum.CANCELLED]: 'Cancelled'
-}
+  [StatusEnum.CANCELLED]: 'Cancelled',
+};
 
 export const STATUS_CLS = (status: StatusEnum) =>
   classNames({
     ready: [StatusEnum.CREATED, StatusEnum.PENDING].includes(status),
-    loading: [StatusEnum.ACTIVE, StatusEnum.RUNNING, StatusEnum.RERUN].includes(
-      status
-    ),
+    loading: [StatusEnum.ACTIVE, StatusEnum.RUNNING, StatusEnum.RERUN].includes(status),
     success: status === StatusEnum.COMPLETED,
     error: status === StatusEnum.FAILED,
-    cancel: status === StatusEnum.CANCELLED
-  })
+    cancel: status === StatusEnum.CANCELLED,
+  });

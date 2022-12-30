@@ -16,31 +16,30 @@
  *
  */
 
-import parser from 'cron-parser'
+import parser from 'cron-parser';
 
 export const cronPresets = [
   {
     label: 'Hourly',
     config: '59 * * * *',
-    description: 'At minute 59 on every day-of-week from Monday through Sunday.'
+    description: 'At minute 59 on every day-of-week from Monday through Sunday.',
   },
   {
     label: 'Daily',
     config: '0 0 * * *',
-    description:
-      'At 00:00 (Midnight) on every day-of-week from Monday through Sunday.'
+    description: 'At 00:00 (Midnight) on every day-of-week from Monday through Sunday.',
   },
   {
     label: 'Weekly',
     config: '0 0 * * 1',
-    description: 'At 00:00 (Midnight) on Monday.'
+    description: 'At 00:00 (Midnight) on Monday.',
   },
   {
     label: 'Monthly',
     config: '0 0 1 * *',
-    description: 'At 00:00 (Midnight) on day-of-month 1.'
-  }
-]
+    description: 'At 00:00 (Midnight) on day-of-month 1.',
+  },
+];
 
 export const getCron = (isManual: boolean, config: string) => {
   if (isManual) {
@@ -49,44 +48,44 @@ export const getCron = (isManual: boolean, config: string) => {
       value: 'manual',
       description: 'Manual',
       config: '',
-      nextTime: ''
-    }
+      nextTime: '',
+    };
   }
 
-  const preset = cronPresets.find((preset) => preset.config === config)
+  const preset = cronPresets.find((preset) => preset.config === config);
 
   return preset
     ? {
         ...preset,
         value: preset.config,
-        nextTime: parser.parseExpression(preset.config).next().toString()
+        nextTime: parser.parseExpression(preset.config).next().toString(),
       }
     : {
         label: 'Custom',
         value: 'custom',
         description: 'Custom',
         config,
-        nextTime: parser.parseExpression(config).next().toString()
-      }
-}
+        nextTime: parser.parseExpression(config).next().toString(),
+      };
+};
 
 export const getCronOptions = () => {
   return [
     {
       label: 'Manual',
-      value: 'manual'
-    }
+      value: 'manual',
+    },
   ]
     .concat(
       cronPresets.map((cp) => ({
         label: cp.label,
-        value: cp.config
-      }))
+        value: cp.config,
+      })),
     )
     .concat([
       {
         label: 'Custom',
-        value: 'custom'
-      }
-    ])
-}
+        value: 'custom',
+      },
+    ]);
+};

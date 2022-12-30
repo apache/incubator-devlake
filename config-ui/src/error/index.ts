@@ -16,6 +16,6 @@
  *
  */
 
-export * from './types'
-export * from './utils'
-export * from './error-boundary'
+export * from './types';
+export * from './utils';
+export * from './error-boundary';

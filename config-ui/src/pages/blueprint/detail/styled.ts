@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const ConfigurationPanel = styled.div`
   .top {
@@ -47,7 +47,7 @@ export const ConfigurationPanel = styled.div`
       text-align: right;
     }
   }
-`
+`;
 
 export const ConnectionColumn = styled.div`
   display: flex;
@@ -57,7 +57,7 @@ export const ConnectionColumn = styled.div`
     margin-right: 4px;
     width: 20px;
   }
-`
+`;
 
 export const ActionColumn = styled.div`
   display: inline-flex;
@@ -75,7 +75,7 @@ export const ActionColumn = styled.div`
       margin-right: 4px;
     }
   }
-`
+`;
 
 export const StatusPanel = styled.div`
   & > .info {
@@ -95,4 +95,4 @@ export const StatusPanel = styled.div`
   .block + .block {
     margin-top: 32px;
   }
-`
+`;

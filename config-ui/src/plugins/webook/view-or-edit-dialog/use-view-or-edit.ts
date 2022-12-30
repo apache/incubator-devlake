@@ -16,35 +16,32 @@
  *
  */
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react';
 
-import { operator } from '@/utils'
+import { operator } from '@/utils';
 
-import * as API from '../api'
+import * as API from '../api';
 
 export interface UseViewOrEditProps {
   initialValues?: {
-    id: ID
-  } & any
-  onSubmitAfter?: (id: ID) => void
+    id: ID;
+  } & any;
+  onSubmitAfter?: (id: ID) => void;
 }
 
-export const useViewOrEdit = ({
-  initialValues,
-  onSubmitAfter
-}: UseViewOrEditProps) => {
-  const [saving, setSaving] = useState(false)
-  const [name, setName] = useState('')
+export const useViewOrEdit = ({ initialValues, onSubmitAfter }: UseViewOrEditProps) => {
+  const [saving, setSaving] = useState(false);
+  const [name, setName] = useState('');
   const [record, setRecord] = useState({
     postIssuesEndpoint: '',
     closeIssuesEndpoint: '',
-    postDeploymentsCurl: ''
-  })
+    postDeploymentsCurl: '',
+  });
 
-  const prefix = useMemo(() => `${window.location.origin}/api`, [])
+  const prefix = useMemo(() => `${window.location.origin}/api`, []);
 
   useEffect(() => {
-    setName(initialValues.name)
+    setName(initialValues.name);
     setRecord({
       postIssuesEndpoint: `${prefix}${initialValues.postIssuesEndpoint}`,
       closeIssuesEndpoint: `${prefix}${initialValues.closeIssuesEndpoint}`,
@@ -52,24 +49,21 @@ export const useViewOrEdit = ({
 \\"commit_sha\\":\\"the sha of deployment commit\\",
 \\"repo_url\\":\\"the repo URL of the deployment commit\\",
 \\"start_time\\":\\"Optional, eg. 2020-01-01T12:00:00+00:00\\"
-}"`
-    })
-  }, [initialValues])
+}"`,
+    });
+  }, [initialValues]);
 
   const handleUpdate = async () => {
-    if (!initialValues) return
+    if (!initialValues) return;
 
-    const [success] = await operator(
-      () => API.updateConnection(initialValues.id, { name }),
-      {
-        setOperating: setSaving
-      }
-    )
+    const [success] = await operator(() => API.updateConnection(initialValues.id, { name }), {
+      setOperating: setSaving,
+    });
 
     if (success) {
-      onSubmitAfter?.(initialValues.id)
+      onSubmitAfter?.(initialValues.id);
     }
-  }
+  };
 
   return useMemo(
     () => ({
@@ -77,8 +71,8 @@ export const useViewOrEdit = ({
       name,
       record,
       onChangeName: setName,
-      onSubmit: handleUpdate
+      onSubmit: handleUpdate,
     }),
-    [saving, name, record]
-  )
-}
+    [saving, name, record],
+  );
+};

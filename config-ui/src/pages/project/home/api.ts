@@ -16,28 +16,27 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
 type GetProjectsParams = {
-  page: number
-  pageSize: number
-}
+  page: number;
+  pageSize: number;
+};
 
-export const getProjects = (params: GetProjectsParams) =>
-  request('/projects', { data: params })
+export const getProjects = (params: GetProjectsParams) => request('/projects', { data: params });
 
 type CreateProjectPayload = {
-  name: string
-  description: string
+  name: string;
+  description: string;
   metrics: Array<{
-    pluginName: string
-    pluginOption: string
-    enable: boolean
-  }>
-}
+    pluginName: string;
+    pluginOption: string;
+    enable: boolean;
+  }>;
+};
 
 export const createProject = (payload: CreateProjectPayload) =>
   request('/projects', {
     method: 'post',
-    data: payload
-  })
+    data: payload,
+  });

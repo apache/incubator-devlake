@@ -16,18 +16,18 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
-export const Container = styled.div``
+export const Container = styled.div``;
 
 export const Title = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 24px;
-`
+`;
 
-export const Content = styled.div``
+export const Content = styled.div``;
 
 export const Breadcrumbs = styled.ul`
   margin: 0;
@@ -35,7 +35,7 @@ export const Breadcrumbs = styled.ul`
   list-style: none;
   display: flex;
   align-items: center;
-`
+`;
 
 export const Breadcrumb = styled.li`
   font-size: 20px;
@@ -50,5 +50,5 @@ export const Breadcrumb = styled.li`
       margin: 0 10px;
     }
   }
-`
-export const Extra = styled.div``
+`;
+export const Extra = styled.div``;

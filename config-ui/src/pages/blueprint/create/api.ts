@@ -16,15 +16,15 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
 export const createBlueprint = (payload: any) =>
   request('/blueprints', {
     method: 'post',
-    data: payload
-  })
+    data: payload,
+  });
 
 export const runBlueprint = (id: ID) =>
   request(`/blueprints/${id}/trigger`, {
-    method: 'post'
-  })
+    method: 'post',
+  });

@@ -16,78 +16,45 @@
  *
  */
 
-import React, { useMemo } from 'react'
-import {
-  ButtonGroup,
-  Button,
-  Icon,
-  Intent,
-  Position,
-  Colors
-} from '@blueprintjs/core'
-import { Popover2 } from '@blueprintjs/popover2'
+import React, { useMemo } from 'react';
+import { ButtonGroup, Button, Icon, Intent, Position, Colors } from '@blueprintjs/core';
+import { Popover2 } from '@blueprintjs/popover2';
 
-import { ModeEnum } from '../../../types'
-import { useCreateBP } from '../../bp-context'
+import { ModeEnum } from '../../../types';
+import { useCreateBP } from '../../bp-context';
 
-import * as S from './styled'
+import * as S from './styled';
 
 export const Action = () => {
-  const {
-    step,
-    mode,
-    error,
-    showDetail,
-    onChangeStep,
-    onChangeShowInspector,
-    onSave,
-    onSaveAndRun
-  } = useCreateBP()
+  const { step, mode, error, showDetail, onChangeStep, onChangeShowInspector, onSave, onSaveAndRun } = useCreateBP();
 
   const [isFirst, isLast] = useMemo(() => {
-    return [
-      step === 1,
-      (mode === ModeEnum.normal && step === 4) ||
-        (mode === ModeEnum.advanced && step === 2)
-    ]
-  }, [step, mode])
+    return [step === 1, (mode === ModeEnum.normal && step === 4) || (mode === ModeEnum.advanced && step === 2)];
+  }, [step, mode]);
 
   if (showDetail) {
-    return null
+    return null;
   }
 
   return (
     <S.Container>
       <ButtonGroup>
         {!isFirst && (
-          <Button
-            outlined
-            intent={Intent.PRIMARY}
-            text='Previous Step'
-            onClick={() => onChangeStep(step - 1)}
-          />
+          <Button outlined intent={Intent.PRIMARY} text="Previous Step" onClick={() => onChangeStep(step - 1)} />
         )}
       </ButtonGroup>
       <ButtonGroup>
         <Button
           minimal
           intent={Intent.PRIMARY}
-          icon='code'
-          text='Inspect'
+          icon="code"
+          text="Inspect"
           onClick={() => onChangeShowInspector(true)}
         />
         {isLast ? (
           <>
-            <Button
-              intent={Intent.PRIMARY}
-              text='Save Blueprint'
-              onClick={onSave}
-            />
-            <Button
-              intent={Intent.DANGER}
-              text='Save and Run Now'
-              onClick={onSaveAndRun}
-            />
+            <Button intent={Intent.PRIMARY} text="Save Blueprint" onClick={onSave} />
+            <Button intent={Intent.DANGER} text="Save and Run Now" onClick={onSaveAndRun} />
           </>
         ) : (
           <Button
@@ -100,24 +67,20 @@ export const Action = () => {
                   placement={Position.TOP}
                   content={
                     <S.Error>
-                      <Icon icon='warning-sign' color={Colors.ORANGE5} />
+                      <Icon icon="warning-sign" color={Colors.ORANGE5} />
                       <span>{error}</span>
                     </S.Error>
                   }
                 >
-                  <Icon
-                    icon='warning-sign'
-                    color={Colors.ORANGE5}
-                    style={{ margin: 0 }}
-                  />
+                  <Icon icon="warning-sign" color={Colors.ORANGE5} style={{ margin: 0 }} />
                 </Popover2>
               ) : null
             }
-            text='Next Step'
+            text="Next Step"
             onClick={() => onChangeStep(step + 1)}
           />
         )}
       </ButtonGroup>
     </S.Container>
-  )
-}
+  );
+};

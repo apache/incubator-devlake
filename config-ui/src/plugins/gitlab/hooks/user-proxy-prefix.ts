@@ -16,10 +16,7 @@
  *
  */
 
-import { useMemo } from 'react'
+import { useMemo } from 'react';
 
 export const useProxyPrefix = (connectionId: ID) =>
-  useMemo(
-    () => `/plugins/gitlab/connections/${connectionId}/proxy/rest`,
-    [connectionId]
-  )
+  useMemo(() => `/plugins/gitlab/connections/${connectionId}/proxy/rest`, [connectionId]);

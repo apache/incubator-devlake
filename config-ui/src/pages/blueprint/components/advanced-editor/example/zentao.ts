@@ -16,7 +16,7 @@
  *
  */
 
-export default [
+const zentao = [
   [
     {
       plugin: 'zentao',
@@ -24,8 +24,10 @@ export default [
         connectionId: 1,
         productId: 1,
         projectId: 1,
-        executionId: 1
-      }
-    }
-  ]
-]
+        executionId: 1,
+      },
+    },
+  ],
+];
+
+export default zentao;

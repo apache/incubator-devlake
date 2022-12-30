@@ -16,15 +16,15 @@
  *
  */
 
-import { Intent } from '@blueprintjs/core'
+import { Intent } from '@blueprintjs/core';
 
-import { Toast } from '@/components'
+import { Toast } from '@/components';
 
 export type OperateConfig = {
-  setOperating?: (success: boolean) => void
-  formatMessage?: () => string
-  formatReason?: (err: unknown) => string
-}
+  setOperating?: (success: boolean) => void;
+  formatMessage?: () => string;
+  formatReason?: (err: unknown) => string;
+};
 
 /**
  *
@@ -35,32 +35,29 @@ export type OperateConfig = {
  * @param config.formatReason -> Show the reason for the failure
  * @returns
  */
-export const operator = async <T>(
-  request: () => Promise<T>,
-  config?: OperateConfig
-) => {
-  const { setOperating, formatMessage, formatReason } = config || {}
+export const operator = async <T>(request: () => Promise<T>, config?: OperateConfig) => {
+  const { setOperating, formatMessage, formatReason } = config || {};
 
   try {
-    setOperating?.(true)
-    const res = await request()
-    const message = formatMessage?.() ?? 'Operation successfully completed'
+    setOperating?.(true);
+    const res = await request();
+    const message = formatMessage?.() ?? 'Operation successfully completed';
     Toast.show({
       intent: Intent.SUCCESS,
       message,
-      icon: 'endorsed'
-    })
-    return [true, res]
+      icon: 'endorsed',
+    });
+    return [true, res];
   } catch (err) {
-    const reason = formatReason?.(err) ?? 'Operation failed.'
+    const reason = formatReason?.(err) ?? 'Operation failed.';
     Toast.show({
       intent: Intent.DANGER,
       message: reason,
-      icon: 'error'
-    })
+      icon: 'error',
+    });
 
-    return [false]
+    return [false];
   } finally {
-    setOperating?.(false)
+    setOperating?.(false);
   }
-}
+};

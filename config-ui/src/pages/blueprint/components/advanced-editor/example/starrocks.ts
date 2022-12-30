@@ -16,7 +16,7 @@
  *
  */
 
-export default [
+const starrocks = [
   [
     {
       plugin: 'starrocks',
@@ -34,8 +34,10 @@ export default [
         batch_size: 10000,
         order_by: {},
         extra: {}, // will append to create table sql
-        domain_layer: '' // priority over tables
-      }
-    }
-  ]
-]
+        domain_layer: '', // priority over tables
+      },
+    },
+  ],
+];
+
+export default starrocks;

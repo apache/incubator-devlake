@@ -16,86 +16,67 @@
  *
  */
 
-import React, { useState, useEffect, useMemo } from 'react'
-import { Tag, Intent } from '@blueprintjs/core'
+import React, { useState, useEffect, useMemo } from 'react';
+import { Tag, Intent } from '@blueprintjs/core';
 
-import { MultiSelector, Selector } from '@/components'
+import { MultiSelector, Selector } from '@/components';
 
-import type {
-  UseIssueTrackingProps,
-  IssueTypeItem,
-  FieldItem
-} from './use-issue-tracking'
-import { useIssueTracking } from './use-issue-tracking'
-import * as S from './styled'
+import type { UseIssueTrackingProps, IssueTypeItem } from './use-issue-tracking';
+import { useIssueTracking } from './use-issue-tracking';
+import * as S from './styled';
 
 enum StandardType {
   Requirement = 'REQUIREMENT',
   Bug = 'BUG',
-  Incident = 'INCIDENT'
+  Incident = 'INCIDENT',
 }
 
 interface Props extends UseIssueTrackingProps {
-  transformation: any
-  setTransformation: React.Dispatch<any>
+  transformation: any;
+  setTransformation: React.Dispatch<any>;
 }
 
-export const IssueTracking = ({
-  connectionId,
-  transformation,
-  setTransformation
-}: Props) => {
-  const [requirements, setRequirements] = useState<IssueTypeItem['name'][]>([])
-  const [bugs, setBugs] = useState<IssueTypeItem['name'][]>([])
-  const [incidents, setIncidents] = useState<IssueTypeItem['name'][]>([])
+export const IssueTracking = ({ connectionId, transformation, setTransformation }: Props) => {
+  const [requirements, setRequirements] = useState<IssueTypeItem['name'][]>([]);
+  const [bugs, setBugs] = useState<IssueTypeItem['name'][]>([]);
+  const [incidents, setIncidents] = useState<IssueTypeItem['name'][]>([]);
 
-  const { issueTypes, fields } = useIssueTracking({ connectionId })
+  const { issueTypes, fields } = useIssueTracking({ connectionId });
 
   useEffect(() => {
-    const types = Object.entries(transformation.typeMappings ?? {}).map(
-      ([key, value]: any) => ({ name: key, ...value })
-    )
+    const types = Object.entries(transformation.typeMappings ?? {}).map(([key, value]: any) => ({
+      name: key,
+      ...value,
+    }));
 
-    setRequirements(
-      types
-        .filter((it) => it.standardType === StandardType.Requirement)
-        .map((it) => it.name)
-    )
-    setBugs(
-      types
-        .filter((it) => it.standardType === StandardType.Bug)
-        .map((it) => it.name)
-    )
-    setIncidents(
-      types
-        .filter((it) => it.standardType === StandardType.Incident)
-        .map((it) => it.name)
-    )
-  }, [transformation])
+    setRequirements(types.filter((it) => it.standardType === StandardType.Requirement).map((it) => it.name));
+    setBugs(types.filter((it) => it.standardType === StandardType.Bug).map((it) => it.name));
+    setIncidents(types.filter((it) => it.standardType === StandardType.Incident).map((it) => it.name));
+  }, [transformation]);
 
   const [requirementItems, bugItems, incidentItems] = useMemo(() => {
     return [
       issueTypes.filter((it) => requirements.includes(it.name)),
       issueTypes.filter((it) => bugs.includes(it.name)),
-      issueTypes.filter((it) => incidents.includes(it.name))
-    ]
-  }, [requirements, bugs, incidents, issueTypes])
+      issueTypes.filter((it) => incidents.includes(it.name)),
+    ];
+  }, [requirements, bugs, incidents, issueTypes]);
 
   const transformaType = (its: IssueTypeItem[], standardType: StandardType) => {
     return its.reduce((acc, cur) => {
       acc[cur.name] = {
-        standardType
-      }
-      return acc
-    }, {} as any)
-  }
+        standardType,
+      };
+      return acc;
+    }, {} as any);
+  };
 
   return (
     <S.Container>
       <h3>Issue Tracking</h3>
       <p>
-        Convert your issue labels with each category to view metrics such as
-        Requirement Lead Time, Bug Count, Mean Time to Recover, etc.
+        Convert your issue labels with each category to view metrics such as Requirement Lead Time, Bug Count, Mean Time
+        to Recover, etc.
       </p>
       <S.Item>
         <span>Requirement</span>
@@ -112,8 +93,8 @@ export const IssueTracking = ({
               typeMappings: {
                 ...transformaType(selectedItems, StandardType.Requirement),
                 ...transformaType(bugItems, StandardType.Bug),
-                ...transformaType(incidentItems, StandardType.Incident)
-              }
+                ...transformaType(incidentItems, StandardType.Incident),
+              },
             })
           }
         />
@@ -133,8 +114,8 @@ export const IssueTracking = ({
               typeMappings: {
                 ...transformaType(requirementItems, StandardType.Requirement),
                 ...transformaType(selectedItems, StandardType.Bug),
-                ...transformaType(incidentItems, StandardType.Incident)
-              }
+                ...transformaType(incidentItems, StandardType.Incident),
+              },
             })
           }
         />
@@ -159,8 +140,8 @@ export const IssueTracking = ({
               typeMappings: {
                 ...transformaType(requirementItems, StandardType.Requirement),
                 ...transformaType(bugItems, StandardType.Bug),
-                ...transformaType(selectedItems, StandardType.Incident)
-              }
+                ...transformaType(selectedItems, StandardType.Incident),
+              },
             })
           }
         />
@@ -170,19 +151,15 @@ export const IssueTracking = ({
         <Selector
           items={fields}
           disabledItems={
-            transformation.storyPoint
-              ? fields.filter((it) => it.id === transformation.storyPointField)
-              : []
+            transformation.storyPoint ? fields.filter((it) => it.id === transformation.storyPointField) : []
           }
           getKey={(it) => it.id}
           getName={(it) => it.name}
-          selectedItem={fields.find(
-            (it) => it.id === transformation.epicKeyField
-          )}
+          selectedItem={fields.find((it) => it.id === transformation.epicKeyField)}
           onChangeItem={(selectedItem) =>
             setTransformation({
               ...transformation,
-              epicKeyField: selectedItem.id
+              epicKeyField: selectedItem.id,
             })
           }
         />
@@ -192,23 +169,19 @@ export const IssueTracking = ({
         <Selector
           items={fields}
           disabledItems={
-            transformation.epicKeyField
-              ? fields.filter((it) => it.id === transformation.epicKeyField)
-              : []
+            transformation.epicKeyField ? fields.filter((it) => it.id === transformation.epicKeyField) : []
           }
           getKey={(it) => it.id}
           getName={(it) => it.name}
-          selectedItem={fields.find(
-            (it) => it.id === transformation.storyPointField
-          )}
+          selectedItem={fields.find((it) => it.id === transformation.storyPointField)}
           onChangeItem={(selectedItem) =>
             setTransformation({
               ...transformation,
-              storyPointField: selectedItem.id
+              storyPointField: selectedItem.id,
             })
           }
         />
       </S.Item>
     </S.Container>
-  )
-}
+  );
+};

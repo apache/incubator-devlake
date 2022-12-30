@@ -16,4 +16,4 @@
  *
  */
 
-export type VersionType = string
+export type VersionType = string;

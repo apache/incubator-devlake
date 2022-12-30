@@ -16,6 +16,6 @@
  *
  */
 
-export * from './config'
-export * from './data-scope'
-export * from './transformation'
+export * from './config';
+export * from './data-scope';
+export * from './transformation';

@@ -16,6 +16,6 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
-export const ping = () => request('/ping')
+export const ping = () => request('/ping');

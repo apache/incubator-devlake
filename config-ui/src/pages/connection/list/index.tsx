@@ -16,38 +16,31 @@
  *
  */
 
-import React, { useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
-import { PageHeader } from '@/components'
-import type { PluginConfigType } from '@/plugins'
-import { Plugins, PluginConfig, WebHookConnection } from '@/plugins'
-import { ConnectionContextProvider } from '@/store'
+import { PageHeader } from '@/components';
+import type { PluginConfigType } from '@/plugins';
+import { Plugins, PluginConfig, WebHookConnection } from '@/plugins';
+import { ConnectionContextProvider } from '@/store';
 
-import { Connection } from './connection'
+import { Connection } from './connection';
 
 export const ConnectionListPage = () => {
-  const { plugin } = useParams<{ plugin: Plugins }>()
+  const { plugin } = useParams<{ plugin: Plugins }>();
 
-  const config = useMemo(
-    () => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType,
-    [plugin]
-  )
+  const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigType, [plugin]);
 
   return (
     <ConnectionContextProvider plugin={plugin}>
       <PageHeader
         breadcrumbs={[
           { name: 'Connections', path: '/connections' },
-          { name: config.name, path: `/connections/${plugin}` }
+          { name: config.name, path: `/connections/${plugin}` },
         ]}
       >
-        {plugin === Plugins.Webhook ? (
-          <WebHookConnection />
-        ) : (
-          <Connection plugin={plugin} />
-        )}
+        {plugin === Plugins.Webhook ? <WebHookConnection /> : <Connection plugin={plugin} />}
       </PageHeader>
     </ConnectionContextProvider>
-  )
-}
+  );
+};

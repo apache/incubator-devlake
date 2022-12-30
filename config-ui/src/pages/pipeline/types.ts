@@ -16,7 +16,7 @@
  *
  */
 
-import { Plugins } from '@/plugins'
+import { Plugins } from '@/plugins';
 
 export enum StatusEnum {
   CREATED = 'TASK_CREATED',
@@ -26,32 +26,32 @@ export enum StatusEnum {
   RERUN = 'TASK_RERUN',
   COMPLETED = 'TASK_COMPLETED',
   FAILED = 'TASK_FAILED',
-  CANCELLED = 'TASK_CANCELLED'
+  CANCELLED = 'TASK_CANCELLED',
 }
 
 export type PipelineType = {
-  id: ID
-  status: StatusEnum
-  beganAt: string
-  finishedAt: string
-  stage: number
-  finishedTasks: number
-  totalTasks: number
-  message: string
-}
+  id: ID;
+  status: StatusEnum;
+  beganAt: string;
+  finishedAt: string;
+  stage: number;
+  finishedTasks: number;
+  totalTasks: number;
+  message: string;
+};
 
 export type TaskType = {
-  id: ID
-  plugin: Plugins
-  status: StatusEnum
-  pipelineRow: number
-  pipelineCol: number
-  beganAt?: string
-  finishedAt?: string
-  options: string
-  message: string
+  id: ID;
+  plugin: Plugins;
+  status: StatusEnum;
+  pipelineRow: number;
+  pipelineCol: number;
+  beganAt?: string;
+  finishedAt?: string;
+  options: string;
+  message: string;
   progressDetail?: {
     finishedSubTasks: number;
     totalSubTasks: number;
-  }
-}
+  };
+};

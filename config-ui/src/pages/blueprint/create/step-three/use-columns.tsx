@@ -16,18 +16,18 @@
  *
  */
 
-import React, { useMemo } from 'react'
-import { Button, Intent } from '@blueprintjs/core'
+import React, { useMemo } from 'react';
+import { Button, Intent } from '@blueprintjs/core';
 
-import type { ColumnType } from '@/components'
-import { DataScopeList } from '@/plugins'
+import type { ColumnType } from '@/components';
+import { DataScopeList } from '@/plugins';
 
-import type { BPConnectionItemType } from '../types'
+import type { BPConnectionItemType } from '../types';
 
-import * as S from './styled'
+import * as S from './styled';
 
 interface Props {
-  onDetail: (connection: BPConnectionItemType) => void
+  onDetail: (connection: BPConnectionItemType) => void;
 }
 
 export const useColumns = ({ onDetail }: Props) => {
@@ -38,32 +38,20 @@ export const useColumns = ({ onDetail }: Props) => {
           title: 'Data Connections',
           dataIndex: ['icon', 'name'],
           key: 'connection',
-          render: ({
-            icon,
-            name
-          }: Pick<BPConnectionItemType, 'icon' | 'name'>) => (
+          render: ({ icon, name }: Pick<BPConnectionItemType, 'icon' | 'name'>) => (
             <S.ConnectionColumn>
-              <img src={icon} alt='' />
+              <img src={icon} alt="" />
               <span>{name}</span>
             </S.ConnectionColumn>
-          )
+          ),
         },
         {
           title: 'Data Scope and Transformation',
           dataIndex: ['plugin', 'id', 'scope'],
           key: 'unique',
-          render: ({
-            plugin,
-            id,
-            scope
-          }: Pick<BPConnectionItemType, 'plugin' | 'id' | 'scope'>) => (
-            <DataScopeList
-              groupByTs
-              plugin={plugin}
-              connectionId={id}
-              scopeIds={scope.map((sc) => sc.id)}
-            />
-          )
+          render: ({ plugin, id, scope }: Pick<BPConnectionItemType, 'plugin' | 'id' | 'scope'>) => (
+            <DataScopeList groupByTs plugin={plugin} connectionId={id} scopeIds={scope.map((sc) => sc.id)} />
+          ),
         },
         {
           title: '',
@@ -74,13 +62,13 @@ export const useColumns = ({ onDetail }: Props) => {
               small
               minimal
               intent={Intent.PRIMARY}
-              icon='add'
-              text='Add Transformation'
+              icon="add"
+              text="Add Transformation"
               onClick={() => onDetail(connection)}
             />
-          )
-        }
+          ),
+        },
       ] as ColumnType<BPConnectionItemType>,
-    []
-  )
-}
+    [],
+  );
+};

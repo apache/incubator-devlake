@@ -16,42 +16,42 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import { Dialog } from '@/components'
+import { Dialog } from '@/components';
 
-import type { UseDeleteProps } from './use-delete'
-import { useDelete } from './use-delete'
-import * as S from './styled'
+import type { UseDeleteProps } from './use-delete';
+import { useDelete } from './use-delete';
+import * as S from './styled';
 
 interface Props extends UseDeleteProps {
-  isOpen: boolean
-  onCancel: () => void
+  isOpen: boolean;
+  onCancel: () => void;
 }
 
 export const WebhookDeleteDialog = ({ isOpen, onCancel, ...props }: Props) => {
-  const { saving, onSubmit } = useDelete({ ...props })
+  const { saving, onSubmit } = useDelete({ ...props });
 
   const handleSubmit = () => {
-    onSubmit()
-    onCancel()
-  }
+    onSubmit();
+    onCancel();
+  };
 
   return (
     <Dialog
       isOpen={isOpen}
-      title='Delete this Incoming Webhook?'
+      title="Delete this Incoming Webhook?"
       style={{ width: 600 }}
-      okText='Confirm'
+      okText="Confirm"
       okLoading={saving}
       onCancel={onCancel}
       onOk={handleSubmit}
     >
       <S.Wrapper>
-        <div className='message'>
+        <div className="message">
           <p>This Incoming Webhook cannot be recovered once it’s deleted.</p>
         </div>
       </S.Wrapper>
     </Dialog>
-  )
-}
+  );
+};

@@ -16,6 +16,6 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
-export const migrate = () => request('/proceed-db-migration')
+export const migrate = () => request('/proceed-db-migration');

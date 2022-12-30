@@ -16,45 +16,45 @@
  *
  */
 
-import type { ConnectionItemType } from '@/store'
+import type { ConnectionItemType } from '@/store';
 
-import { ModeEnum } from '../types'
+import { ModeEnum } from '../types';
 
 export type BPConnectionItemType = ConnectionItemType & {
-  scope: Array<{ id: ID; entities: string[] }>
-}
+  scope: Array<{ id: ID; entities: string[] }>;
+};
 
 export type BPContextType = {
-  step: number
-  error: string
-  showInspector: boolean
-  showDetail: boolean
-  payload: any
+  step: number;
+  error: string;
+  showInspector: boolean;
+  showDetail: boolean;
+  payload: any;
 
-  name: string
-  mode: ModeEnum
-  rawPlan: string
-  uniqueList: string[]
-  scopeMap: Record<string, any>
-  cronConfig: string
-  isManual: boolean
-  skipOnFail: boolean
-  createdDateAfter: string | null
+  name: string;
+  mode: ModeEnum;
+  rawPlan: string;
+  uniqueList: string[];
+  scopeMap: Record<string, any>;
+  cronConfig: string;
+  isManual: boolean;
+  skipOnFail: boolean;
+  createdDateAfter: string | null;
 
-  onChangeStep: React.Dispatch<React.SetStateAction<number>>
-  onChangeShowInspector: React.Dispatch<React.SetStateAction<boolean>>
-  onChangeShowDetail: React.Dispatch<React.SetStateAction<boolean>>
+  onChangeStep: React.Dispatch<React.SetStateAction<number>>;
+  onChangeShowInspector: React.Dispatch<React.SetStateAction<boolean>>;
+  onChangeShowDetail: React.Dispatch<React.SetStateAction<boolean>>;
 
-  onChangeName: React.Dispatch<React.SetStateAction<string>>
-  onChangeMode: (mode: ModeEnum) => void
-  onChangeRawPlan: React.Dispatch<React.SetStateAction<string>>
-  onChangeUniqueList: React.Dispatch<React.SetStateAction<string[]>>
-  onChangeScopeMap: React.Dispatch<React.SetStateAction<Record<string, any>>>
-  onChangeCronConfig: React.Dispatch<React.SetStateAction<string>>
-  onChangeIsManual: React.Dispatch<React.SetStateAction<boolean>>
-  onChangeSkipOnFail: React.Dispatch<React.SetStateAction<boolean>>
-  onChangeCreatedDateAfter: React.Dispatch<React.SetStateAction<string | null>>
+  onChangeName: React.Dispatch<React.SetStateAction<string>>;
+  onChangeMode: (mode: ModeEnum) => void;
+  onChangeRawPlan: React.Dispatch<React.SetStateAction<string>>;
+  onChangeUniqueList: React.Dispatch<React.SetStateAction<string[]>>;
+  onChangeScopeMap: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+  onChangeCronConfig: React.Dispatch<React.SetStateAction<string>>;
+  onChangeIsManual: React.Dispatch<React.SetStateAction<boolean>>;
+  onChangeSkipOnFail: React.Dispatch<React.SetStateAction<boolean>>;
+  onChangeCreatedDateAfter: React.Dispatch<React.SetStateAction<string | null>>;
 
-  onSave: () => void
-  onSaveAndRun: () => void
-}
+  onSave: () => void;
+  onSaveAndRun: () => void;
+};

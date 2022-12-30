@@ -16,39 +16,34 @@
  *
  */
 
-import React, { useState, useEffect } from 'react'
-import type { ID, ColumnType } from 'miller-columns-select'
-import MillerColumnsSelect from 'miller-columns-select'
+import React, { useState, useEffect } from 'react';
+import type { ID, ColumnType } from 'miller-columns-select';
+import MillerColumnsSelect from 'miller-columns-select';
 
-import { Loading } from '@/components'
+import { Loading } from '@/components';
 
-import type { ScopeItemType } from '../../types'
-import { ScopeFromEnum } from '../../types'
+import type { ScopeItemType } from '../../types';
+import { ScopeFromEnum } from '../../types';
 
-import { useMillerColumns, UseMillerColumnsProps } from './use-miller-columns'
-import * as S from './styled'
+import { useMillerColumns, UseMillerColumnsProps } from './use-miller-columns';
+import * as S from './styled';
 
 interface Props extends UseMillerColumnsProps {
-  disabledItems: ScopeItemType[]
-  selectedItems: ScopeItemType[]
-  onChangeItems: (selectedItems: ScopeItemType[]) => void
+  disabledItems: ScopeItemType[];
+  selectedItems: ScopeItemType[];
+  onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const MillerColumns = ({
-  connectionId,
-  disabledItems,
-  selectedItems,
-  onChangeItems
-}: Props) => {
-  const [seletedIds, setSelectedIds] = useState<ID[]>([])
+export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
+  const [seletedIds, setSelectedIds] = useState<ID[]>([]);
 
   const { items, getHasMore, onExpandItem, onScrollColumn } = useMillerColumns({
-    connectionId
-  })
+    connectionId,
+  });
 
   useEffect(() => {
-    setSelectedIds(selectedItems.map((it) => it.githubId))
-  }, [])
+    setSelectedIds(selectedItems.map((it) => it.githubId));
+  }, []);
 
   useEffect(() => {
     const result = items
@@ -62,21 +57,19 @@ export const MillerColumns = ({
         language: it.language,
         description: it.description,
         cloneUrl: it.cloneUrl,
-        HTMLUrl: it.HTMLUrl
-      }))
+        HTMLUrl: it.HTMLUrl,
+      }));
 
-    onChangeItems(result)
-  }, [seletedIds])
+    onChangeItems(result);
+  }, [seletedIds]);
 
   const renderTitle = (column: ColumnType<any>) => {
-    return (
-      !column.parentId && <S.ColumnTitle>Organizations/Owners</S.ColumnTitle>
-    )
-  }
+    return !column.parentId && <S.ColumnTitle>Organizations/Owners</S.ColumnTitle>;
+  };
 
   const renderLoading = () => {
-    return <Loading size={20} style={{ padding: '4px 12px' }} />
-  }
+    return <Loading size={20} style={{ padding: '4px 12px' }} />;
+  };
 
   return (
     <MillerColumnsSelect
@@ -93,5 +86,5 @@ export const MillerColumns = ({
       onExpandItem={onExpandItem}
       onScrollColumn={onScrollColumn}
     />
-  )
-}
+  );
+};

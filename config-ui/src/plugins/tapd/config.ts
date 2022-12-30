@@ -16,14 +16,14 @@
  *
  */
 
-import type { PluginConfigType } from '@/plugins'
-import { Plugins, PluginType } from '@/plugins'
+import type { PluginConfigType } from '@/plugins';
+import { Plugins, PluginType } from '@/plugins';
 
-import Icon from './assets/icon.svg'
+import Icon from './assets/icon.svg';
 
 export const TAPDConfig: PluginConfigType = {
   plugin: Plugins.TAPD,
   name: 'TAPD',
   type: PluginType.Pipeline,
-  icon: Icon
-}
+  icon: Icon,
+};

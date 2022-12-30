@@ -16,80 +16,71 @@
  *
  */
 
-import { useState, useMemo, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useState, useMemo, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 
-import { Plugins } from '@/plugins'
-import { operator } from '@/utils'
+import { Plugins } from '@/plugins';
+import { operator } from '@/utils';
 
-import * as API from './api'
+import * as API from './api';
 
 interface Props {
-  plugin: Plugins
-  id?: ID
+  plugin: Plugins;
+  id?: ID;
 }
 
 export const useForm = ({ plugin, id }: Props) => {
-  const [loading, setLoading] = useState(false)
-  const [operating, setOperating] = useState(false)
-  const [connection, setConnection] = useState<any>({})
+  const [loading, setLoading] = useState(false);
+  const [operating, setOperating] = useState(false);
+  const [connection, setConnection] = useState<any>({});
 
-  const history = useHistory()
+  const history = useHistory();
 
   const getConnection = async () => {
-    if (!id) return
+    if (!id) return;
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await API.getConnection(plugin, id)
-      setConnection(res)
+      const res = await API.getConnection(plugin, id);
+      setConnection(res);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    getConnection()
-  }, [])
+    getConnection();
+  }, []);
 
   const handleTest = async (payload: any) => {
-    const [success] = await operator(
-      () => API.testConnection(plugin, payload),
-      {
-        setOperating,
-        formatReason: (err) => (err as any)?.response?.data?.message
-      }
-    )
+    const [success] = await operator(() => API.testConnection(plugin, payload), {
+      setOperating,
+      formatReason: (err) => (err as any)?.response?.data?.message,
+    });
 
     if (success) {
     }
-  }
+  };
 
   const handleCreate = async (payload: any) => {
-    const [success] = await operator(
-      () => API.createConnection(plugin, payload),
-      {
-        setOperating
-      }
-    )
+    const [success] = await operator(() => API.createConnection(plugin, payload), {
+      setOperating,
+    });
 
     if (success) {
-      history.push(`/connections/${plugin}`)
+      history.push(`/connections/${plugin}`);
     }
-  }
+  };
 
   const handleUpdate = async (id: ID, payload: any) => {
-    const [success] = await operator(
-      () => API.updateConnection(plugin, id, payload),
-      {
-        setOperating
-      }
-    )
+    const [success] = await operator(() => API.updateConnection(plugin, id, payload), {
+      setOperating,
+    });
 
     if (success) {
-      history.push(`/connections/${plugin}`)
+      history.push(`/connections/${plugin}`);
     }
-  }
+  };
 
   return useMemo(
     () => ({
@@ -98,8 +89,8 @@ export const useForm = ({ plugin, id }: Props) => {
       connection,
       onTest: handleTest,
       onCreate: handleCreate,
-      onUpdate: handleUpdate
+      onUpdate: handleUpdate,
     }),
-    [loading, operating, connection]
-  )
-}
+    [loading, operating, connection],
+  );
+};

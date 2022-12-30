@@ -16,30 +16,17 @@
  *
  */
 
-import React, { useMemo } from 'react'
-import {
-  ButtonGroup,
-  Button,
-  Icon,
-  Intent,
-  Colors,
-  IconName
-} from '@blueprintjs/core'
-import { saveAs } from 'file-saver'
-import styled from 'styled-components'
+import React, { useMemo } from 'react';
+import { ButtonGroup, Button, Icon, Intent, Colors, IconName } from '@blueprintjs/core';
+import { saveAs } from 'file-saver';
+import styled from 'styled-components';
 
-import { DEVLAKE_ENDPOINT } from '@/config'
-import { Card, Table, ColumnType, Loading } from '@/components'
-import {
-  PipelineType,
-  StatusEnum,
-  STATUS_ICON,
-  STATUS_LABEL,
-  STATUS_CLS
-} from '@/pages'
-import { formatTime, duration } from '@/utils'
+import { DEVLAKE_ENDPOINT } from '@/config';
+import { Card, Table, ColumnType, Loading } from '@/components';
+import { PipelineType, StatusEnum, STATUS_ICON, STATUS_LABEL, STATUS_CLS } from '@/pages';
+import { formatTime, duration } from '@/utils';
 
-import * as API from './api'
+import * as API from './api';
 
 const StatusColumn = styled.div`
   display: flex;
@@ -65,22 +52,19 @@ const StatusColumn = styled.div`
   &.error {
     color: ${Colors.RED3};
   }
-`
+`;
 
 interface Props {
-  pipelines: PipelineType[]
+  pipelines: PipelineType[];
 }
 
 export const PipelineList = ({ pipelines }: Props) => {
   const handleDownloadLog = async (id: ID) => {
-    const res = await API.getPipelineLog(id)
+    const res = await API.getPipelineLog(id);
     if (res) {
-      saveAs(
-        `${DEVLAKE_ENDPOINT}/pipelines/${id}/logging.tar.gz`,
-        'logging.tar.gz'
-      )
+      saveAs(`${DEVLAKE_ENDPOINT}/pipelines/${id}/logging.tar.gz`, 'logging.tar.gz');
     }
-  }
+  };
 
   const columns = useMemo(
     () =>
@@ -94,34 +78,29 @@ export const PipelineList = ({ pipelines }: Props) => {
               {STATUS_ICON[val] === 'loading' ? (
                 <Loading style={{ marginRight: 4 }} size={14} />
               ) : (
-                <Icon
-                  style={{ marginRight: 4 }}
-                  icon={STATUS_ICON[val] as IconName}
-                />
+                <Icon style={{ marginRight: 4 }} icon={STATUS_ICON[val] as IconName} />
               )}
               <span>{STATUS_LABEL[val]}</span>
             </StatusColumn>
-          )
+          ),
         },
         {
           title: 'Started at',
           dataIndex: 'beganAt',
           key: 'beganAt',
-          render: (val: string) => (val ? formatTime(val) : '-')
+          render: (val: string) => (val ? formatTime(val) : '-'),
         },
         {
           title: 'Completed at',
           dataIndex: 'finishedAt',
           key: 'finishedAt',
-          render: (val: string) => (val ? formatTime(val) : '-')
+          render: (val: string) => (val ? formatTime(val) : '-'),
         },
         {
           title: 'Duration',
           dataIndex: ['beganAt', 'finishedAt'],
           key: 'duration',
-          render: ({ beganAt, finishedAt }) => (
-            <span>{duration(beganAt, finishedAt)}</span>
-          )
+          render: ({ beganAt, finishedAt }) => <span>{duration(beganAt, finishedAt)}</span>,
         },
         {
           title: '',
@@ -130,23 +109,18 @@ export const PipelineList = ({ pipelines }: Props) => {
           render: (id: ID) => (
             <ButtonGroup>
               {/* <Button minimal intent={Intent.PRIMARY} icon='code' /> */}
-              <Button
-                minimal
-                intent={Intent.PRIMARY}
-                icon='document'
-                onClick={() => handleDownloadLog(id)}
-              />
+              <Button minimal intent={Intent.PRIMARY} icon="document" onClick={() => handleDownloadLog(id)} />
               {/* <Button minimal intent={Intent.PRIMARY} icon='chevron-right' /> */}
             </ButtonGroup>
-          )
-        }
+          ),
+        },
       ] as ColumnType<PipelineType>,
-    []
-  )
+    [],
+  );
 
   return !pipelines.length ? (
     <Card>There are no historical runs associated with this blueprint.</Card>
   ) : (
     <Table columns={columns} dataSource={pipelines} />
-  )
-}
+  );
+};

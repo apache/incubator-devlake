@@ -16,52 +16,52 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react';
 
-import { cronPresets } from '@/config'
+import { cronPresets } from '@/config';
 
-import type { BlueprintType } from '../types'
+import type { BlueprintType } from '../types';
 
-import * as API from './api'
+import * as API from './api';
 
 export const useHome = () => {
-  const [loading, setLoading] = useState(false)
-  const [blueprints, setBlueprints] = useState<BlueprintType[]>([])
-  const [dataSource, setDataSource] = useState<BlueprintType[]>([])
-  const [type, setType] = useState('all')
+  const [loading, setLoading] = useState(false);
+  const [blueprints, setBlueprints] = useState<BlueprintType[]>([]);
+  const [dataSource, setDataSource] = useState<BlueprintType[]>([]);
+  const [type, setType] = useState('all');
 
-  const presets = cronPresets.map((preset) => preset.config)
+  const presets = cronPresets.map((preset) => preset.config);
 
   const getBlueprints = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await API.getBlueprints()
-      setBlueprints(res.blueprints)
+      const res = await API.getBlueprints();
+      setBlueprints(res.blueprints);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    getBlueprints()
-  }, [])
+    getBlueprints();
+  }, []);
 
   useEffect(() => {
     setDataSource(
       blueprints.filter((bp) => {
         switch (type) {
           case 'all':
-            return true
+            return true;
           case 'manual':
-            return bp.isManual
+            return bp.isManual;
           case 'custom':
-            return !presets.includes(bp.cronConfig)
+            return !presets.includes(bp.cronConfig);
           default:
-            return bp.cronConfig === type
+            return bp.cronConfig === type;
         }
-      })
-    )
-  }, [blueprints, type])
+      }),
+    );
+  }, [blueprints, type]);
 
   return useMemo(
     () => ({
@@ -69,8 +69,8 @@ export const useHome = () => {
       blueprints,
       dataSource,
       type,
-      onChangeType: setType
+      onChangeType: setType,
     }),
-    [loading, blueprints, dataSource, type]
-  )
-}
+    [loading, blueprints, dataSource, type],
+  );
+};

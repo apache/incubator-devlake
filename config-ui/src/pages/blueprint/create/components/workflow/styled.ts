@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const List = styled.ul`
   display: flex;
@@ -24,7 +24,7 @@ export const List = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
-`
+`;
 
 export const Item = styled.li<{ active?: boolean }>`
   position: relative;
@@ -90,4 +90,4 @@ export const Item = styled.li<{ active?: boolean }>`
     color: #70727f;
     font-weight: 600;
   }
-`
+`;

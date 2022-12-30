@@ -18,21 +18,21 @@
 
 export enum ScopeFromEnum {
   MILLER_COLUMNS = 'miller-columns',
-  PROJECT_SELECTOR = 'project-selector'
+  PROJECT_SELECTOR = 'project-selector',
 }
 
 export type ScopeItemType = {
-  from: ScopeFromEnum
-  connectionId: ID
-  gitlabId: ID
-  name: string
-  pathWithNamespace: string
-  creatorId: ID
-  defaultBranch: string
-  description: string
-  openIssuesCount: number
-  starCount: number
-  visibility: string
-  webUrl: string
-  httpUrlToRepo: string
-}
+  from: ScopeFromEnum;
+  connectionId: ID;
+  gitlabId: ID;
+  name: string;
+  pathWithNamespace: string;
+  creatorId: ID;
+  defaultBranch: string;
+  description: string;
+  openIssuesCount: number;
+  starCount: number;
+  visibility: string;
+  webUrl: string;
+  httpUrlToRepo: string;
+};

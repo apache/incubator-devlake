@@ -16,38 +16,32 @@
  *
  */
 
-import React from 'react'
-import { Checkbox } from '@blueprintjs/core'
+import React from 'react';
+import { Checkbox } from '@blueprintjs/core';
 
-import { MultiSelector } from '@/components'
+import { MultiSelector } from '@/components';
 
-import type { ScopeItemType } from '../../types'
+import type { ScopeItemType } from '../../types';
 
-import type { UseProjectSelectorProps } from './use-project-selector'
-import { usebProjectSelector } from './use-project-selector'
-import * as S from './styled'
+import type { UseProjectSelectorProps } from './use-project-selector';
+import { useProjectSelector } from './use-project-selector';
+import * as S from './styled';
 
 interface Props extends UseProjectSelectorProps {
-  disabledItems: ScopeItemType[]
-  selectedItems: ScopeItemType[]
-  onChangeItems: (selectedItems: ScopeItemType[]) => void
+  disabledItems: ScopeItemType[];
+  selectedItems: ScopeItemType[];
+  onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const ProjectSelector = ({
-  connectionId,
-  disabledItems,
-  selectedItems,
-  onChangeItems
-}: Props) => {
-  const { loading, items, membership, onSearch, onChangeMembership } =
-    usebProjectSelector({
-      connectionId
-    })
+export const ProjectSelector = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
+  const { loading, items, membership, onSearch, onChangeMembership } = useProjectSelector({
+    connectionId,
+  });
 
   return (
     <S.Container>
       <MultiSelector
-        placeholder='Select Projects...'
+        placeholder="Select Projects..."
         items={items}
         getKey={(it) => `${it.gitlabId}`}
         getName={(it) => it.name}
@@ -55,15 +49,15 @@ export const ProjectSelector = ({
         selectedItems={selectedItems}
         onChangeItems={onChangeItems}
         loading={loading}
-        noResult='No Projects Available.'
+        noResult="No Projects Available."
         onQueryChange={onSearch}
       />
       <Checkbox
-        className='checkbox'
-        label='Only search my repositories'
+        className="checkbox"
+        label="Only search my repositories"
         checked={membership}
         onChange={onChangeMembership}
       />
     </S.Container>
-  )
-}
+  );
+};

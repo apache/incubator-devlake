@@ -16,49 +16,38 @@
  *
  */
 
-import React from 'react'
-import { useParams } from 'react-router-dom'
-import { Tabs, Tab } from '@blueprintjs/core'
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import { Tabs, Tab } from '@blueprintjs/core';
 
-import { PageHeader, PageLoading } from '@/components'
+import { PageHeader, PageLoading } from '@/components';
 
-import { useProject } from './use-project'
-import { BlueprintPanel, IncomingWebhooksPanel, SettingsPanel } from './panel'
-import * as S from './styled'
+import { useProject } from './use-project';
+import { BlueprintPanel, IncomingWebhooksPanel, SettingsPanel } from './panel';
+import * as S from './styled';
 
 export const ProjectDetailPage = () => {
-  const { pname } = useParams<{ pname: string }>()
+  const { pname } = useParams<{ pname: string }>();
 
-  const {
-    loading,
-    project,
-    saving,
-    onUpdate,
-    onSelectWebhook,
-    onCreateWebhook
-  } = useProject(pname)
+  const { loading, project, saving, onUpdate, onSelectWebhook, onCreateWebhook } = useProject(pname);
 
   if (loading || !project) {
-    return <PageLoading />
+    return <PageLoading />;
   }
 
   return (
     <PageHeader
       breadcrumbs={[
         { name: 'Projects', path: '/projects' },
-        { name: pname, path: `/projects/${pname}` }
+        { name: pname, path: `/projects/${pname}` },
       ]}
     >
       <S.Wrapper>
         <Tabs>
+          <Tab id="bp" title="Blueprint" panel={<BlueprintPanel project={project} />} />
           <Tab
-            id='bp'
-            title='Blueprint'
-            panel={<BlueprintPanel project={project} />}
-          />
-          <Tab
-            id='iw'
-            title='Incoming Webhooks'
+            id="iw"
+            title="Incoming Webhooks"
             disabled={!project.blueprint}
             panel={
               <IncomingWebhooksPanel
@@ -69,13 +58,9 @@ export const ProjectDetailPage = () => {
               />
             }
           />
-          <Tab
-            id='st'
-            title='Settings'
-            panel={<SettingsPanel project={project} onUpdate={onUpdate} />}
-          />
+          <Tab id="st" title="Settings" panel={<SettingsPanel project={project} onUpdate={onUpdate} />} />
         </Tabs>
       </S.Wrapper>
     </PageHeader>
-  )
-}
+  );
+};

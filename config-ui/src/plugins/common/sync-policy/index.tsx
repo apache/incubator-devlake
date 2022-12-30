@@ -16,33 +16,26 @@
  *
  */
 
-import React, { useMemo } from 'react'
-import {
-  Checkbox,
-  Icon,
-  InputGroup,
-  Position,
-  Radio,
-  RadioGroup
-} from '@blueprintjs/core'
-import { Popover2 } from '@blueprintjs/popover2'
+import React, { useMemo } from 'react';
+import { Checkbox, Icon, InputGroup, Position, Radio, RadioGroup } from '@blueprintjs/core';
+import { Popover2 } from '@blueprintjs/popover2';
 
-import { getCron, getCronOptions } from '@/config'
-import CronHelp from '@/images/cron-help.png'
+import { getCron, getCronOptions } from '@/config';
+import CronHelp from '@/images/cron-help.png';
 
-import StartFromSelector from './StartFromSelector'
-import * as S from './styled'
+import StartFromSelector from './StartFromSelector';
+import * as S from './styled';
 
 interface Props {
-  isManual: boolean
-  cronConfig: string
-  skipOnFail: boolean
-  showTimeFilter: boolean
-  createdDateAfter: string | null
-  onChangeIsManual: (val: boolean) => void
-  onChangeCronConfig: (val: string) => void
-  onChangeSkipOnFail: (val: boolean) => void
-  onChangeCreatedDateAfter: (val: string | null) => void
+  isManual: boolean;
+  cronConfig: string;
+  skipOnFail: boolean;
+  showTimeFilter: boolean;
+  createdDateAfter: string | null;
+  onChangeIsManual: (val: boolean) => void;
+  onChangeCronConfig: (val: string) => void;
+  onChangeSkipOnFail: (val: boolean) => void;
+  onChangeCreatedDateAfter: (val: string | null) => void;
 }
 
 export const SyncPolicy = ({
@@ -54,45 +47,35 @@ export const SyncPolicy = ({
   onChangeIsManual,
   onChangeCronConfig,
   onChangeSkipOnFail,
-  onChangeCreatedDateAfter
+  onChangeCreatedDateAfter,
 }: Props) => {
-  const cron = useMemo(
-    () => getCron(isManual, cronConfig),
-    [isManual, cronConfig]
-  )
+  const cron = useMemo(() => getCron(isManual, cronConfig), [isManual, cronConfig]);
 
-  const options = useMemo(() => getCronOptions(), [])
+  const options = useMemo(() => getCronOptions(), []);
 
   const handleChangeFrequency = (e: React.FormEvent<HTMLInputElement>) => {
-    const value = (e.target as HTMLInputElement).value
+    const value = (e.target as HTMLInputElement).value;
     if (value === 'manual') {
-      onChangeIsManual(true)
+      onChangeIsManual(true);
     } else if (value === 'custom') {
-      onChangeIsManual(false)
-      onChangeCronConfig('* * * * *')
+      onChangeIsManual(false);
+      onChangeCronConfig('* * * * *');
     } else {
-      onChangeIsManual(false)
-      onChangeCronConfig(value)
+      onChangeIsManual(false);
+      onChangeCronConfig(value);
     }
-  }
+  };
 
   return (
     <S.Wrapper>
       {showTimeFilter && (
-        <div className='block'>
+        <div className="block">
           <h3>Time Filter *</h3>
-          <p>
-            Select the data range you wish to collect. DevLake will collect the
-            last six months of data by default.
-          </p>
-          <StartFromSelector
-            autoFillDefault={true}
-            date={createdDateAfter}
-            onSave={onChangeCreatedDateAfter}
-          />
+          <p>Select the data range you wish to collect. DevLake will collect the last six months of data by default.</p>
+          <StartFromSelector autoFillDefault={true} date={createdDateAfter} onSave={onChangeCreatedDateAfter} />
         </div>
       )}
-      <div className='block'>
+      <div className="block">
         <h3>Frequency</h3>
         <p>Blueprints will run recurringly based on the sync frequency.</p>
         <p style={{ margin: '10px 0' }}>{cron.description}</p>
@@ -103,62 +86,50 @@ export const SyncPolicy = ({
         </RadioGroup>
         {cron.value === 'custom' && (
           <S.Input>
-            <InputGroup
-              value={cronConfig}
-              onChange={(e) => onChangeCronConfig(e.target.value)}
-            />
+            <InputGroup value={cronConfig} onChange={(e) => onChangeCronConfig(e.target.value)} />
             <Popover2
               position={Position.RIGHT}
               content={
                 <S.Help>
-                  <div className='title'>
-                    <Icon icon='help' />
+                  <div className="title">
+                    <Icon icon="help" />
                     <span>Cron Expression Format</span>
                   </div>
                   <p>
-                    Need Help? &mdash; For additional information on{' '}
-                    <strong>Crontab</strong>, please reference the{' '}
+                    Need Help? &mdash; For additional information on <strong>Crontab</strong>, please reference the{' '}
                     <a
-                      href='https://man7.org/linux/man-pages/man5/crontab.5.html'
-                      rel='noreferrer'
-                      target='_blank'
+                      href="https://man7.org/linux/man-pages/man5/crontab.5.html"
+                      rel="noreferrer"
+                      target="_blank"
                       style={{ textDecoration: 'underline' }}
                     >
                       Crontab Linux manual
                     </a>
                     .
                   </p>
-                  <img src={CronHelp} alt='' />
+                  <img src={CronHelp} alt="" />
                 </S.Help>
               }
             >
-              <Icon
-                icon='help'
-                size={14}
-                style={{ marginLeft: '10px', transition: 'none' }}
-              />
+              <Icon icon="help" size={14} style={{ marginLeft: '10px', transition: 'none' }} />
             </Popover2>
           </S.Input>
         )}
       </div>
-      <div className='block'>
+      <div className="block">
         <h3>Running Policy</h3>
         <Checkbox
-          label='Skip failed tasks (Recommended when collecting large volume of data, eg. 10+ GitHub repos/Jira boards)'
+          label="Skip failed tasks (Recommended when collecting large volume of data, eg. 10+ GitHub repos/Jira boards)"
           checked={skipOnFail}
-          onChange={(e) =>
-            onChangeSkipOnFail((e.target as HTMLInputElement).checked)
-          }
+          onChange={(e) => onChangeSkipOnFail((e.target as HTMLInputElement).checked)}
         />
         <p>
-          A task is a unit of a pipeline. A pipeline is an execution of a
-          blueprint. By default, when a task is failed, the whole pipeline will
-          fail and all the data that has been collected will be discarded. By
-          skipping failed tasks, the pipeline will continue to run, and the data
-          collected by other tasks will not be affected. After the pipeline is
-          finished, you can rerun these failed tasks.
+          A task is a unit of a pipeline. A pipeline is an execution of a blueprint. By default, when a task is failed,
+          the whole pipeline will fail and all the data that has been collected will be discarded. By skipping failed
+          tasks, the pipeline will continue to run, and the data collected by other tasks will not be affected. After
+          the pipeline is finished, you can rerun these failed tasks.
         </p>
       </div>
     </S.Wrapper>
-  )
-}
+  );
+};

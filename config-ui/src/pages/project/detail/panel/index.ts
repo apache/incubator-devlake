@@ -16,6 +16,6 @@
  *
  */
 
-export * from './blueprint'
-export * from './incoming-webhooks'
-export * from './settings'
+export * from './blueprint';
+export * from './incoming-webhooks';
+export * from './settings';

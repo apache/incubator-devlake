@@ -16,14 +16,14 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import * as S from './styled'
+import * as S from './styled';
 
 interface Props {
-  size?: number
-  text?: string
-  style?: React.CSSProperties
+  size?: number;
+  text?: string;
+  style?: React.CSSProperties;
 }
 
 export const Loading = ({ size = 24, text, style }: Props) => {
@@ -32,5 +32,5 @@ export const Loading = ({ size = 24, text, style }: Props) => {
       <S.Spin size={size} />
       {text && <S.Text>{text}</S.Text>}
     </S.Wrapper>
-  )
-}
+  );
+};

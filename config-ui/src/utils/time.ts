@@ -16,11 +16,11 @@
  *
  */
 
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import updateLocale from 'dayjs/plugin/updateLocale'
-import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import utc from 'dayjs/plugin/utc'
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import updateLocale from 'dayjs/plugin/updateLocale';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat';
+import utc from 'dayjs/plugin/utc';
 
 const localeConfiguration = {
   relativeTime: {
@@ -36,25 +36,24 @@ const localeConfiguration = {
     M: 'a month',
     MM: '%d months',
     y: 'a year',
-    yy: '%d years'
-  }
-}
+    yy: '%d years',
+  },
+};
 
-dayjs.extend(relativeTime)
-dayjs.extend(updateLocale)
-dayjs.extend(LocalizedFormat)
-dayjs.extend(utc)
-dayjs.updateLocale('en', localeConfiguration)
+dayjs.extend(relativeTime);
+dayjs.extend(updateLocale);
+dayjs.extend(LocalizedFormat);
+dayjs.extend(utc);
+dayjs.updateLocale('en', localeConfiguration);
 
-export const formatTime = (val: string | null, format = 'YYYY-MM-DD HH:mm') =>
-  val ? dayjs(val).format(format) : '-'
+export const formatTime = (val: string | null, format = 'YYYY-MM-DD HH:mm') => (val ? dayjs(val).format(format) : '-');
 
 export const duration = (beganAt?: string, finishedAt?: string) => {
   if (beganAt && finishedAt) {
-    return dayjs(beganAt).from(finishedAt, true)
+    return dayjs(beganAt).from(finishedAt, true);
   } else if (beganAt) {
-    return dayjs(beganAt).toNow(true)
+    return dayjs(beganAt).toNow(true);
   } else {
-    return '-'
+    return '-';
   }
-}
+};

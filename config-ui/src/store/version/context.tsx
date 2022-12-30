@@ -16,35 +16,31 @@
  *
  */
 
-import React, { useContext } from 'react'
+import React, { useContext } from 'react';
 
-import { PageLoading } from '@/components'
+import { PageLoading } from '@/components';
 
-import type { VersionType } from './types'
-import { useContextValue } from './use-context-value'
+import type { VersionType } from './types';
+import { useContextValue } from './use-context-value';
 
 const VersionContext = React.createContext<{
-  version?: VersionType
-}>({})
+  version?: VersionType;
+}>({});
 
 interface Props {
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 export const VersionContextProvider = ({ children }: Props) => {
-  const { loading, version } = useContextValue()
+  const { loading, version } = useContextValue();
 
   if (loading) {
-    return <PageLoading />
+    return <PageLoading />;
   }
 
-  return (
-    <VersionContext.Provider value={{ version }}>
-      {children}
-    </VersionContext.Provider>
-  )
-}
+  return <VersionContext.Provider value={{ version }}>{children}</VersionContext.Provider>;
+};
 
-export const VersionContextConsumer = VersionContext.Consumer
+export const VersionContextConsumer = VersionContext.Consumer;
 
-export const useVersion = () => useContext(VersionContext)
+export const useVersion = () => useContext(VersionContext);

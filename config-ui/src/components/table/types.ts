@@ -17,9 +17,9 @@
  */
 
 export type ColumnType<T> = Array<{
-  title: string
-  dataIndex: string | string[]
-  key: string
-  align?: 'left' | 'center' | 'right'
-  render?: (value: any, row: T) => React.ReactNode
-}>
+  title: string;
+  dataIndex: string | string[];
+  key: string;
+  align?: 'left' | 'center' | 'right';
+  render?: (value: any, row: T) => React.ReactNode;
+}>;

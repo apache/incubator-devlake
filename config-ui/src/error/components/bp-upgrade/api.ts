@@ -16,38 +16,30 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
-export const getBlueprint = (id: ID) => request(`/blueprints/${id}`)
+export const getBlueprint = (id: ID) => request(`/blueprints/${id}`);
 
 export const updateBlueprint = (id: ID, payload: any) =>
   request(`/blueprints/${id}`, {
     method: 'patch',
-    data: payload
-  })
+    data: payload,
+  });
 
 export const createTransformation = (plugin: string, payload: any) =>
   request(`/plugins/${plugin}/transformation_rules`, {
     method: 'post',
-    data: payload
-  })
+    data: payload,
+  });
 
-export const getGitHub = (prefix: string, owner: string, repo: string) =>
-  request(`${prefix}/repos/${owner}/${repo}`)
+export const getGitHub = (prefix: string, owner: string, repo: string) => request(`${prefix}/repos/${owner}/${repo}`);
 
-export const getGitLab = (prefix: string, id: ID) =>
-  request(`${prefix}/projects/${id}`)
+export const getGitLab = (prefix: string, id: ID) => request(`${prefix}/projects/${id}`);
 
-export const getJIRA = (prefix: string, id: ID) =>
-  request(`${prefix}/agile/1.0/board/${id}`)
+export const getJIRA = (prefix: string, id: ID) => request(`${prefix}/agile/1.0/board/${id}`);
 
-export const updateDataScope = (
-  plugin: string,
-  connectionId: ID,
-  repoId: ID,
-  payload: any
-) =>
+export const updateDataScope = (plugin: string, connectionId: ID, repoId: ID, payload: any) =>
   request(`/plugins/${plugin}/connections/${connectionId}/scopes/${repoId}`, {
     method: 'patch',
-    data: payload
-  })
+    data: payload,
+  });

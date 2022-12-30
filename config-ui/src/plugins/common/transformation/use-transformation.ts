@@ -16,23 +16,23 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react';
 
-import { Plugins } from '@/plugins'
-import { operator } from '@/utils'
+import type { PluginConfigConnectionType } from '@/plugins';
+import { Plugins, PluginConfig } from '@/plugins';
+import { operator } from '@/utils';
 
-import type { RuleItem, ScopeItem } from './types'
-import { defaultConfig } from './config'
-import * as API from './api'
+import type { RuleItem, ScopeItem } from './types';
+import * as API from './api';
 
 export interface UseTransformationProps {
-  plugin: Plugins
-  connectionId: ID
-  scopeIds: ID[]
-  name: string
-  selectedRule?: RuleItem
-  selectedScope?: ScopeItem[]
-  onSave?: () => void
+  plugin: Plugins;
+  connectionId: ID;
+  scopeIds: ID[];
+  name: string;
+  selectedRule?: RuleItem;
+  selectedScope?: ScopeItem[];
+  onSave?: () => void;
 }
 
 export const useTransformation = ({
@@ -42,90 +42,90 @@ export const useTransformation = ({
   name,
   selectedRule,
   selectedScope,
-  onSave
+  onSave,
 }: UseTransformationProps) => {
-  const [loading, setLoading] = useState(false)
-  const [rules, setRules] = useState<RuleItem[]>([])
-  const [scope, setScope] = useState<ScopeItem[]>([])
-  const [saving, setSaving] = useState(false)
-  const [transformation, setTransformation] = useState({})
+  const [loading, setLoading] = useState(false);
+  const [rules, setRules] = useState<RuleItem[]>([]);
+  const [scope, setScope] = useState<ScopeItem[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [transformation, setTransformation] = useState({});
+
+  const config = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigConnectionType, []);
 
   useEffect(() => {
-    setTransformation(selectedRule ? selectedRule : defaultConfig[plugin])
-  }, [selectedRule])
+    setTransformation(selectedRule ? selectedRule : config.transformation);
+  }, [selectedRule]);
 
   const getRules = async () => {
-    const res = await API.getRules(plugin)
-    setRules(res)
-  }
+    const res = await API.getRules(plugin);
+    setRules(res);
+  };
 
   const getScope = async () => {
-    const res = await Promise.all(
-      scopeIds.map((id) => API.getDataScopeRepo(plugin, connectionId, id))
-    )
-    setScope(res)
-  }
+    const res = await Promise.all(scopeIds.map((id) => API.getDataScopeRepo(plugin, connectionId, id)));
+    setScope(res);
+  };
 
   const init = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      await getRules()
-      await getScope()
+      await getRules();
+      await getScope();
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    init()
-  }, [])
+    init();
+  }, []);
 
   const handleUpdateScope = async (tid?: ID) => {
-    if (!tid) return
+    if (!tid) return;
 
     const payload = (selectedScope ?? []).map((sc: any) => ({
       ...sc,
-      transformationRuleId: tid
-    }))
+      transformationRuleId: tid,
+    }));
 
     const [success] = await operator(() =>
       API.updateDataScope(plugin, connectionId, {
-        data: payload
-      })
-    )
+        data: payload,
+      }),
+    );
 
     if (success) {
-      onSave?.()
+      onSave?.();
     }
-  }
+  };
 
   const handleSave = async () => {
     const [success, res] = await operator(
       () =>
         API.createTransformation(plugin, {
           ...transformation,
-          name
+          name,
         }),
       {
-        setOperating: setSaving
-      }
-    )
+        setOperating: setSaving,
+      },
+    );
 
     if (success) {
       const payload = (selectedScope ?? []).map((sc: any) => ({
         ...sc,
-        transformationRuleId: res.id
-      }))
+        transformationRuleId: res.id,
+      }));
 
       if (payload.length) {
         API.updateDataScope(plugin, connectionId, {
-          data: payload
-        })
+          data: payload,
+        });
       }
 
-      onSave?.()
+      onSave?.();
     }
-  }
+  };
 
   return useMemo(
     () => ({
@@ -137,28 +137,19 @@ export const useTransformation = ({
       getScopeKey(sc: any) {
         switch (true) {
           case plugin === Plugins.GitHub:
-            return sc.githubId
+            return sc.githubId;
           case plugin === Plugins.JIRA:
-            return sc.boardId
+            return sc.boardId;
           case plugin === Plugins.GitLab:
-            return sc.gitlabId
+            return sc.gitlabId;
           case plugin === Plugins.Jenkins:
-            return sc.jobFullName
+            return sc.jobFullName;
         }
       },
       onSave: handleSave,
       onUpdateScope: handleUpdateScope,
-      onChangeTransformation: setTransformation
+      onChangeTransformation: setTransformation,
     }),
-    [
-      loading,
-      rules,
-      scope,
-      saving,
-      transformation,
-      plugin,
-      selectedScope,
-      onSave
-    ]
-  )
-}
+    [loading, rules, scope, saving, transformation, plugin, selectedScope, onSave],
+  );
+};
