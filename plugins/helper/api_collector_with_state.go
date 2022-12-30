@@ -63,12 +63,12 @@ func NewApiCollectorWithState(args RawDataSubTaskArgs, createdDateAfter *time.Ti
 	}, nil
 }
 
-// CanIncrementCollect return if the old data can support collect incrementally.
+// IsIncremental return if the old data can support collect incrementally.
 // only when latest collection is success &&
 // (m.LatestState.CreatedDateAfter == nil means all data have been collected ||
 // CreatedDateAfter at this time exists and no before than in the LatestState)
 // if CreatedDateAfter at this time not exists, collect incrementally only when "m.LatestState.CreatedDateAfter == nil"
-func (m ApiCollectorStateManager) CanIncrementCollect() bool {
+func (m ApiCollectorStateManager) IsIncremental() bool {
 	return m.LatestState.LatestSuccessStart != nil &&
 		(m.LatestState.CreatedDateAfter == nil || m.CreatedDateAfter != nil && !m.CreatedDateAfter.Before(*m.LatestState.CreatedDateAfter))
 }

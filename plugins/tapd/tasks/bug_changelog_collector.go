@@ -19,15 +19,11 @@ package tasks
 
 import (
 	"fmt"
-	"net/url"
-	"time"
-
 	"github.com/apache/incubator-devlake/errors"
+	"net/url"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
 const RAW_BUG_CHANGELOG_TABLE = "tapd_api_bug_changelogs"
@@ -36,42 +32,34 @@ var _ core.SubTaskEntryPoint = CollectBugChangelogs
 
 func CollectBugChangelogs(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_BUG_CHANGELOG_TABLE, false)
-	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect storyChangelogs")
-	since := data.Since
-	incremental := false
-	if since == nil {
-		// user didn't specify a time range to sync, try load from database
-		var latestUpdated models.TapdBugChangelog
-		clauses := []dal.Clause{
-			dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
-			dal.Orderby("created DESC"),
-		}
-		err := db.First(&latestUpdated, clauses...)
-		if err != nil && !db.IsErrorNotFound(err) {
-			return errors.NotFound.Wrap(err, "failed to get latest tapd changelog record")
-		}
-		if latestUpdated.Id > 0 {
-			since = (*time.Time)(latestUpdated.Created)
-			incremental = true
-		}
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	if err != nil {
+		return err
 	}
+	incremental := collectorWithState.IsIncremental()
 
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Incremental:        incremental,
-		ApiClient:          data.ApiClient,
-		PageSize:           100,
-		UrlTemplate:        "bug_changes",
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		Incremental: incremental,
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
+		UrlTemplate: "bug_changes",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
-			query.Set("order", "created asc")
-			if since != nil {
-				query.Set("created", fmt.Sprintf(">%s", since.In(data.Options.CstZone).Format("2006-01-02")))
+			query.Set("order", "created%20desc")
+			if data.CreatedDateAfter != nil {
+				query.Set("created",
+					fmt.Sprintf(">%s",
+						data.CreatedDateAfter.In(data.Options.CstZone).Format("2006-01-02")))
+			}
+			if incremental {
+				query.Set("created",
+					fmt.Sprintf(">%s",
+						collectorWithState.LatestState.LatestSuccessStart.In(data.Options.CstZone).Format("2006-01-02")))
 			}
 			return query, nil
 		},
@@ -81,7 +69,7 @@ func CollectBugChangelogs(taskCtx core.SubTaskContext) errors.Error {
 		logger.Error(err, "collect story changelog error")
 		return err
 	}
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
 
 var CollectBugChangelogMeta = core.SubTaskMeta{

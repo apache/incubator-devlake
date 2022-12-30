@@ -163,6 +163,7 @@ func (plugin Tapd) SubTaskMetas() []core.SubTaskMeta {
 }
 
 func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+	logger := taskCtx.GetLogger()
 	var op tasks.TapdOptions
 	err := helper.Decode(options, &op, nil)
 	if err != nil {
@@ -180,16 +181,8 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if err != nil {
 		return nil, err
 	}
-
-	var since time.Time
-	if op.Since != "" {
-		since, err = errors.Convert01(time.Parse(time.RFC3339, op.Since))
-		if err != nil {
-			return nil, errors.BadInput.Wrap(err, "invalid value for `since`")
-		}
-	}
 	if connection.RateLimitPerHour == 0 {
-		connection.RateLimitPerHour = 6000
+		connection.RateLimitPerHour = 3600
 	}
 	tapdApiClient, err := tasks.NewTapdApiClient(taskCtx, connection)
 	if err != nil {
@@ -205,8 +198,16 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 		ApiClient:  tapdApiClient,
 		Connection: connection,
 	}
-	if !since.IsZero() {
-		taskData.Since = &since
+	var createdDateAfter time.Time
+	if op.CreatedDateAfter != "" {
+		createdDateAfter, err = errors.Convert01(time.Parse(time.RFC3339, op.CreatedDateAfter))
+		if err != nil {
+			return nil, errors.BadInput.Wrap(err, "invalid value for `createdDateAfter`")
+		}
+	}
+	if !createdDateAfter.IsZero() {
+		taskData.CreatedDateAfter = &createdDateAfter
+		logger.Debug("collect data updated createdDateAfter %s", createdDateAfter)
 	}
 	return taskData, nil
 }

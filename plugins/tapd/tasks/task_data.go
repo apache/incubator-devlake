@@ -29,16 +29,16 @@ type TapdOptions struct {
 	WorkspaceId         uint64   `mapstruct:"workspaceId"`
 	CompanyId           uint64   `mapstruct:"companyId"`
 	Tasks               []string `mapstruct:"tasks,omitempty"`
-	Since               string
+	CreatedDateAfter    string   `json:"createdDateAfter" mapstructure:"createdDateAfter,omitempty"`
 	CstZone             *time.Location
 	TransformationRules TransformationRules `json:"transformationRules"`
 }
 
 type TapdTaskData struct {
-	Options    *TapdOptions
-	ApiClient  *helper.ApiAsyncClient
-	Since      *time.Time
-	Connection *models.TapdConnection
+	Options          *TapdOptions
+	ApiClient        *helper.ApiAsyncClient
+	CreatedDateAfter *time.Time
+	Connection       *models.TapdConnection
 }
 
 type TypeMapping struct {

@@ -66,7 +66,7 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	incremental := collectorWithState.CanIncrementCollect()
+	incremental := collectorWithState.IsIncremental()
 
 	clauses := []dal.Clause{
 		dal.Select("number, github_id"),

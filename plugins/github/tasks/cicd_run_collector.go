@@ -51,7 +51,7 @@ func CollectRuns(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	//incremental := collectorWithState.CanIncrementCollect()
+	//incremental := collectorWithState.IsIncremental()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient: data.ApiClient,
 		PageSize:  30,

@@ -112,7 +112,7 @@ func CollectCheckRun(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	incremental := collectorWithState.CanIncrementCollect()
+	incremental := collectorWithState.IsIncremental()
 
 	clauses := []dal.Clause{
 		dal.Select("check_suite_node_id"),
