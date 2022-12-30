@@ -17,7 +17,11 @@
  */
 
 module.exports = {
-  printWidth: 120,
-  singleQuote: true,
-  trailingComma: 'all'
-}
+  extends: ['react-app', 'react-app/jest', 'prettier'],
+  plugins: ['header', 'prettier'],
+  rules: {
+    'prettier/prettier': 'warn',
+    'header/header': ['error', '.file-headerrc'],
+    'react-hooks/exhaustive-deps': 'off',
+  },
+};

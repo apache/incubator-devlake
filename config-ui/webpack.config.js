@@ -22,7 +22,6 @@ const BundleAnalyzerPlugin =
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const ESLintPlugin = require('eslint-webpack-plugin')
 const Dotenv = require('dotenv-webpack')
 
 module.exports = (env = {}) => {
@@ -80,7 +79,6 @@ module.exports = (env = {}) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src/'),
-        '@config': path.resolve(__dirname, './config/')
       },
       extensions: ['*', '.js', '.jsx', '.ts', '.tsx']
     },
@@ -106,12 +104,6 @@ module.exports = (env = {}) => {
       new webpack.EnvironmentPlugin({ ...process.env }),
       new CopyPlugin({
         patterns: [{ from: 'src/images/logo.svg', to: 'logo.svg' }]
-      }),
-      new ESLintPlugin({
-        // Do NOT auto-fix w/ eslint on webpack startup!
-        fix: false,
-        context: path.resolve(__dirname, './'),
-        exclude: ['dist', 'packages', 'config', 'node_modules']
       }),
       ...optionalPlugins
     ],

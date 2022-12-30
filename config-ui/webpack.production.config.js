@@ -22,7 +22,6 @@ const BundleAnalyzerPlugin =
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const ESLintPlugin = require('eslint-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
@@ -94,8 +93,7 @@ module.exports = (env = {}) => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, './src/'),
-        '@config': path.resolve(__dirname, './config/')
+        '@': path.resolve(__dirname, './src/')
       },
       // modules: ['node_modules'],
       extensions: ['*', '.js', '.jsx', '.ts', '.tsx']
@@ -133,10 +131,6 @@ module.exports = (env = {}) => {
       new webpack.EnvironmentPlugin({ ...process.env }),
       new CopyPlugin({
         patterns: [{ from: 'src/images/logo.svg', to: 'logo.svg' }]
-      }),
-      new ESLintPlugin({
-        context: path.resolve(__dirname, './'),
-        exclude: ['dist', 'packages', 'config', 'node_modules']
       }),
       ...optionalPlugins
     ]
