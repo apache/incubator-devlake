@@ -143,7 +143,7 @@ export const Configuration = ({
           render: (val: string[]) => (
             <>
               {val.map((it) => (
-                <div>{it}</div>
+                <div key={it}>{it}</div>
               ))}
             </>
           )

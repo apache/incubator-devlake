@@ -139,6 +139,7 @@ export const Tasks = styled.ul`
 
   li {
     flex: 0 0 45%;
+    padding-bottom: 8px;
     overflow: hidden;
   }
 
