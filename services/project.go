@@ -213,6 +213,13 @@ func PatchProject(name string, body map[string]interface{}) (*models.ApiOutputPr
 		if err != nil {
 			return nil, err
 		}
+
+		// rename project
+		err = tx.UpdateColumn(
+			&models.Project{},
+			"name", project.Name,
+			dal.Where("name = ?", name),
+		)
 	}
 
 	// Blueprint
