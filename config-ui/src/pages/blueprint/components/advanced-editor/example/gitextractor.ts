@@ -16,14 +16,16 @@
  *
  */
 
-export default [
+const gitextractor = [
   [
     {
       plugin: 'gitextractor',
       options: {
         url: 'https://github.com/apache/incubator-devlake.git',
-        repoId: 'github:GithubRepo:384111310'
-      }
-    }
-  ]
-]
+        repoId: 'github:GithubRepo:384111310',
+      },
+    },
+  ],
+];
+
+export default gitextractor;

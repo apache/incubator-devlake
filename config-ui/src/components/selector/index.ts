@@ -16,5 +16,5 @@
  *
  */
 
-export * from './selector'
-export * from './multi-selector'
+export * from './selector';
+export * from './multi-selector';

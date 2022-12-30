@@ -16,35 +16,31 @@
  *
  */
 
-import React, { useState, useEffect } from 'react'
-import MillerColumnsSelect from 'miller-columns-select'
+import React, { useState, useEffect } from 'react';
+import MillerColumnsSelect from 'miller-columns-select';
 
-import { Loading } from '@/components'
+import { Loading } from '@/components';
 
-import { ScopeItemType } from '../../types'
+import { ScopeItemType } from '../../types';
 
-import type { UseMillerColumnsProps } from './use-miller-columns'
-import { useMillerColumns } from './use-miller-columns'
+import type { UseMillerColumnsProps } from './use-miller-columns';
+import { useMillerColumns } from './use-miller-columns';
 
 interface Props extends UseMillerColumnsProps {
-  selectedItems: ScopeItemType[]
-  onChangeItems: (selectedItems: ScopeItemType[]) => void
+  selectedItems: ScopeItemType[];
+  onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const MillerColumns = ({
-  connectionId,
-  selectedItems,
-  onChangeItems
-}: Props) => {
-  const [seletedIds, setSelectedIds] = useState<ID[]>([])
+export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Props) => {
+  const [seletedIds, setSelectedIds] = useState<ID[]>([]);
 
   const { items, getHasMore, onScrollColumn } = useMillerColumns({
-    connectionId
-  })
+    connectionId,
+  });
 
   useEffect(() => {
-    setSelectedIds(selectedItems.map((it) => it.boardId))
-  }, [])
+    setSelectedIds(selectedItems.map((it) => it.boardId));
+  }, []);
 
   useEffect(() => {
     onChangeItems(
@@ -56,14 +52,14 @@ export const MillerColumns = ({
           name: it.name,
           self: it.self,
           type: it.type,
-          projectId: it.projectId
-        }))
-    )
-  }, [seletedIds])
+          projectId: it.projectId,
+        })),
+    );
+  }, [seletedIds]);
 
   const renderLoading = () => {
-    return <Loading size={20} style={{ padding: '4px 12px' }} />
-  }
+    return <Loading size={20} style={{ padding: '4px 12px' }} />;
+  };
 
   return (
     <MillerColumnsSelect
@@ -76,5 +72,5 @@ export const MillerColumns = ({
       onSelectItemIds={setSelectedIds}
       onScrollColumn={onScrollColumn}
     />
-  )
-}
+  );
+};

@@ -15,23 +15,21 @@
  * limitations under the License.
  *
  */
-const path = require('path')
-const webpack = require('webpack')
-const BundleAnalyzerPlugin =
-  require('webpack-bundle-analyzer').BundleAnalyzerPlugin
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const CopyPlugin = require('copy-webpack-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const ESLintPlugin = require('eslint-webpack-plugin')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
-const TerserPlugin = require('terser-webpack-plugin')
+const path = require('path');
+const webpack = require('webpack');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = (env = {}) => {
-  const optionalPlugins = []
+  const optionalPlugins = [];
 
   if (env.ANALYZE_BUILD === 1) {
-    optionalPlugins.push(new BundleAnalyzerPlugin())
+    optionalPlugins.push(new BundleAnalyzerPlugin());
   }
 
   return {
@@ -44,8 +42,8 @@ module.exports = (env = {}) => {
           test: /\.(tsx?|jsx?)$/,
           exclude: [/node_modules/, /packages/, /^config$/],
           use: {
-            loader: 'babel-loader'
-          }
+            loader: 'babel-loader',
+          },
         },
         {
           test: /\.css$/,
@@ -53,57 +51,53 @@ module.exports = (env = {}) => {
             // !WARNING! We only use style-loader for DEV MODE!
             // 'style-loader',
             MiniCssExtractPlugin.loader,
-            'css-loader'
-          ]
+            'css-loader',
+          ],
         },
         {
           test: /\.html$/,
-          use: ['html-loader']
+          use: ['html-loader'],
         },
         {
           test: /\.(png|gif|jpe?g)$/,
           loader: require.resolve('file-loader'),
           options: {
             name: '[name].[ext]?[hash]',
-            outputPath: 'assets/'
-          }
+            outputPath: 'assets/',
+          },
         },
         {
           test: /\.(eot|ttf|woff|woff2|svg)$/,
           loader: require.resolve('file-loader'),
-          include: [
-            path.resolve(__dirname, './src/fonts/'),
-            path.resolve(__dirname, './node_modules/')
-          ],
+          include: [path.resolve(__dirname, './src/fonts/'), path.resolve(__dirname, './node_modules/')],
           options: {
             name: '[name].[ext]',
             outputPath: 'fonts/',
-            esModule: false
-          }
+            esModule: false,
+          },
         },
         {
           test: /\.svg$/,
           exclude: path.resolve(__dirname, './src/fonts'),
-          use: ['@svgr/webpack', 'url-loader']
+          use: ['@svgr/webpack', 'url-loader'],
         },
         {
           test: /\.po$/,
-          use: ['@lingui/loader']
-        }
-      ]
+          use: ['@lingui/loader'],
+        },
+      ],
     },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src/'),
-        '@config': path.resolve(__dirname, './config/')
       },
       // modules: ['node_modules'],
-      extensions: ['*', '.js', '.jsx', '.ts', '.tsx']
+      extensions: ['*', '.js', '.jsx', '.ts', '.tsx'],
     },
     output: {
       path: path.resolve(__dirname, './dist'),
       filename: '[name].[hash].js',
-      publicPath: '/'
+      publicPath: '/',
     },
     optimization: {
       minimize: true,
@@ -115,11 +109,11 @@ module.exports = (env = {}) => {
             parallel: true,
             sourceMap: false,
             compress: {
-              drop_console: true
-            }
-          }
-        })
-      ]
+              drop_console: true,
+            },
+          },
+        }),
+      ],
     },
     plugins: [
       new CleanWebpackPlugin(),
@@ -128,17 +122,13 @@ module.exports = (env = {}) => {
       new HtmlWebpackPlugin({
         template: path.resolve(__dirname, './src/index.html'),
         filename: 'index.html',
-        favicon: path.resolve(__dirname, './src/images/favicon.ico')
+        favicon: path.resolve(__dirname, './src/images/favicon.ico'),
       }),
       new webpack.EnvironmentPlugin({ ...process.env }),
       new CopyPlugin({
-        patterns: [{ from: 'src/images/logo.svg', to: 'logo.svg' }]
+        patterns: [{ from: 'src/images/logo.svg', to: 'logo.svg' }],
       }),
-      new ESLintPlugin({
-        context: path.resolve(__dirname, './'),
-        exclude: ['dist', 'packages', 'config', 'node_modules']
-      }),
-      ...optionalPlugins
-    ]
-  }
-}
+      ...optionalPlugins,
+    ],
+  };
+};

@@ -16,9 +16,12 @@
  *
  */
 
-export default {
-  epicKeyField: '',
-  storyPointField: '',
-  remotelinkCommitShaPattern: '',
-  typeMappings: {}
-}
+module.exports = {
+  extends: ['react-app', 'react-app/jest', 'prettier'],
+  plugins: ['header', 'prettier'],
+  rules: {
+    'prettier/prettier': 'warn',
+    'header/header': ['error', '.file-headerrc'],
+    'react-hooks/exhaustive-deps': 'off',
+  },
+};

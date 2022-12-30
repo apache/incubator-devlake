@@ -16,27 +16,23 @@
  *
  */
 
-import React, { useState, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
-import { ButtonGroup, Button, Icon, Intent } from '@blueprintjs/core'
+import React, { useState, useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
+import { ButtonGroup, Button, Icon, Intent } from '@blueprintjs/core';
 
-import { PageHeader, Table, ColumnType, Dialog, Selector } from '@/components'
-import type { PluginConfigType } from '@/plugins'
-import { Plugins } from '@/plugins'
-import {
-  TransformationContextProvider,
-  TransformationContextConsumer,
-  TransformationItemType
-} from '@/store'
+import { PageHeader, Table, ColumnType, Dialog, Selector } from '@/components';
+import type { PluginConfigType } from '@/plugins';
+import { Plugins } from '@/plugins';
+import { TransformationContextProvider, TransformationContextConsumer, TransformationItemType } from '@/store';
 
-import * as S from './styled'
+import * as S from './styled';
 
 export const TransformationHomePage = () => {
-  const [active, setActive] = useState('All')
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedPlugin, setSelectedPlugin] = useState<PluginConfigType>()
+  const [active, setActive] = useState('All');
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedPlugin, setSelectedPlugin] = useState<PluginConfigType>();
 
-  const history = useHistory()
+  const history = useHistory();
 
   const columns = useMemo(
     () =>
@@ -44,12 +40,12 @@ export const TransformationHomePage = () => {
         {
           title: 'Name',
           dataIndex: 'name',
-          key: 'name'
+          key: 'name',
         },
         {
           title: 'Data Source',
           dataIndex: 'plugin',
-          key: 'plugin'
+          key: 'plugin',
         },
         {
           title: '',
@@ -60,69 +56,49 @@ export const TransformationHomePage = () => {
               <Button
                 minimal
                 intent={Intent.PRIMARY}
-                icon='cog'
-                onClick={() =>
-                  history.push(`/transformations/${row.plugin}/${row.id}`)
-                }
+                icon="cog"
+                onClick={() => history.push(`/transformations/${row.plugin}/${row.id}`)}
               />
-            )
-        }
+            ),
+        },
       ] as ColumnType<TransformationItemType>,
-    []
-  )
+    [],
+  );
 
   return (
     <TransformationContextProvider>
       <TransformationContextConsumer>
         {({ plugins, transformations }) => (
-          <PageHeader
-            breadcrumbs={[
-              { name: 'Transformations', path: '/transformations' }
-            ]}
-          >
+          <PageHeader breadcrumbs={[{ name: 'Transformations', path: '/transformations' }]}>
             <S.Wrapper>
-              <div className='action'>
+              <div className="action">
                 <ButtonGroup>
                   <Button
                     intent={active === 'All' ? Intent.PRIMARY : Intent.NONE}
-                    text='All'
+                    text="All"
                     onClick={() => setActive('All')}
                   />
                   {plugins.map((p) => (
                     <Button
                       key={p.plugin}
-                      intent={
-                        active === p.plugin ? Intent.PRIMARY : Intent.NONE
-                      }
+                      intent={active === p.plugin ? Intent.PRIMARY : Intent.NONE}
                       text={p.name}
                       onClick={() => setActive(p.plugin)}
                     />
                   ))}
                 </ButtonGroup>
-                <Button
-                  intent={Intent.PRIMARY}
-                  text='Create Transfromation'
-                  onClick={() => setIsOpen(true)}
-                />
+                <Button intent={Intent.PRIMARY} text="Create Transfromation" onClick={() => setIsOpen(true)} />
               </div>
               <Table
                 columns={columns}
-                dataSource={transformations.filter((ts) =>
-                  active === 'All' ? true : ts.plugin === active
-                )}
+                dataSource={transformations.filter((ts) => (active === 'All' ? true : ts.plugin === active))}
               />
               <Dialog
                 isOpen={isOpen}
-                title='Select a Data Source'
-                okText='Continue'
-                okDisabled={
-                  !selectedPlugin || selectedPlugin.plugin === Plugins.JIRA
-                }
-                onOk={() =>
-                  history.push(
-                    `/transformations/${selectedPlugin?.plugin}/create`
-                  )
-                }
+                title="Select a Data Source"
+                okText="Continue"
+                okDisabled={!selectedPlugin || selectedPlugin.plugin === Plugins.JIRA}
+                onOk={() => history.push(`/transformations/${selectedPlugin?.plugin}/create`)}
                 onCancel={() => setIsOpen(false)}
               >
                 <S.DialogWrapper>
@@ -132,17 +108,14 @@ export const TransformationHomePage = () => {
                     getKey={(it) => it.plugin}
                     getName={(it) => it.name}
                     selectedItem={selectedPlugin}
-                    onChangeItem={(selectedItem) =>
-                      setSelectedPlugin(selectedItem)
-                    }
+                    onChangeItem={(selectedItem) => setSelectedPlugin(selectedItem)}
                   />
                   {selectedPlugin?.plugin === Plugins.JIRA && (
-                    <div className='warning'>
-                      <Icon icon='error' />
+                    <div className="warning">
+                      <Icon icon="error" />
                       <span>
-                        Because Jira transformation is specific to every Jira
-                        connection, you can only add a Transformation in
-                        Blueprints.
+                        Because Jira transformation is specific to every Jira connection, you can only add a
+                        Transformation in Blueprints.
                       </span>
                     </div>
                   )}
@@ -153,5 +126,5 @@ export const TransformationHomePage = () => {
         )}
       </TransformationContextConsumer>
     </TransformationContextProvider>
-  )
-}
+  );
+};

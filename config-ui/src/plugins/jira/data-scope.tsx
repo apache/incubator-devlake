@@ -16,32 +16,24 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import type { ScopeItemType } from './types'
+import type { ScopeItemType } from './types';
 
-import { MillerColumns } from './components/miller-columns'
+import { MillerColumns } from './components/miller-columns';
 
 interface Props {
-  connectionId: ID
-  selectedItems: ScopeItemType[]
-  onChangeItems: (selectedItems: ScopeItemType[]) => void
+  connectionId: ID;
+  selectedItems: ScopeItemType[];
+  onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const JIRADataScope = ({
-  connectionId,
-  selectedItems,
-  onChangeItems
-}: Props) => {
+export const JIRADataScope = ({ connectionId, selectedItems, onChangeItems }: Props) => {
   return (
     <>
       <h3>Boards *</h3>
       <p>Select the boards you would like to sync.</p>
-      <MillerColumns
-        connectionId={connectionId}
-        selectedItems={selectedItems}
-        onChangeItems={onChangeItems}
-      />
+      <MillerColumns connectionId={connectionId} selectedItems={selectedItems} onChangeItems={onChangeItems} />
     </>
-  )
-}
+  );
+};

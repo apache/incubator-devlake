@@ -16,86 +16,86 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
-import type { ItemType, ColumnType } from 'miller-columns-select'
+import { useState, useEffect, useMemo } from 'react';
+import type { ItemType, ColumnType } from 'miller-columns-select';
 
-import type { ScopeItemType } from '../../types'
-import { useProxyPrefix } from '../../hooks'
-import * as API from '../../api'
+import type { ScopeItemType } from '../../types';
+import { useProxyPrefix } from '../../hooks';
+import * as API from '../../api';
 
 export type JenkinsItemType = ItemType<
   {
-    type: 'folder' | 'file'
+    type: 'folder' | 'file';
   } & ScopeItemType
->
+>;
 
 export type JenkinsColumnType = ColumnType<
   {
-    type: 'folder' | 'file'
+    type: 'folder' | 'file';
   } & ScopeItemType
->
+>;
 
 export interface UseMillerColumnsProps {
-  connectionId: ID
+  connectionId: ID;
 }
 
 export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
-  const [items, setItems] = useState<JenkinsItemType[]>([])
-  const [loadedIds, setLoadedIds] = useState<ID[]>([])
-  const [expandedIds, setExpandedIds] = useState<ID[]>([])
+  const [items, setItems] = useState<JenkinsItemType[]>([]);
+  const [loadedIds, setLoadedIds] = useState<ID[]>([]);
+  const [expandedIds, setExpandedIds] = useState<ID[]>([]);
 
-  const prefix = useProxyPrefix(connectionId)
+  const prefix = useProxyPrefix(connectionId);
 
   const formatJobs = (jobs: any, parentId: ID | null = null) =>
     jobs.map((it: any) => ({
       parentId,
       id: it.name,
       title: it.name,
-      type: it.jobs ? 'folder' : 'file'
-    }))
+      type: it.jobs ? 'folder' : 'file',
+    }));
 
   useEffect(() => {
-    ;(async () => {
-      const res = await API.getJobs(prefix)
-      setItems(formatJobs(res.jobs))
-      setLoadedIds(['root'])
-    })()
-  }, [prefix])
+    (async () => {
+      const res = await API.getJobs(prefix);
+      setItems(formatJobs(res.jobs));
+      setLoadedIds(['root']);
+    })();
+  }, [prefix]);
 
   const getJobs = (item?: JenkinsItemType): ID[] => {
-    let result = []
+    let result = [];
 
     if (item) {
-      result.push(item.id)
-      result.unshift(...getJobs(items.find((it) => it.id === item.parentId)))
+      result.push(item.id);
+      result.unshift(...getJobs(items.find((it) => it.id === item.parentId)));
     }
-    return result
-  }
+    return result;
+  };
 
   const onExpandItem = async (item: JenkinsItemType) => {
     if (expandedIds.includes(item.id)) {
-      return
+      return;
     }
 
-    const jobs = getJobs(item)
-    const res = await API.getJobChildJobs(prefix, jobs.join('/job/'))
+    const jobs = getJobs(item);
+    const res = await API.getJobChildJobs(prefix, jobs.join('/job/'));
 
-    setExpandedIds([...expandedIds, item.id])
-    setLoadedIds([...loadedIds, item.id])
-    setItems([...items, ...formatJobs(res.jobs, item.id)])
-  }
+    setExpandedIds([...expandedIds, item.id]);
+    setLoadedIds([...loadedIds, item.id]);
+    setItems([...items, ...formatJobs(res.jobs, item.id)]);
+  };
 
   return useMemo(
     () => ({
       items,
       getHasMore(column: JenkinsColumnType) {
         if (loadedIds.includes(column.parentId ?? 'root')) {
-          return false
+          return false;
         }
-        return true
+        return true;
       },
-      onExpandItem
+      onExpandItem,
     }),
-    [items, loadedIds]
-  )
-}
+    [items, loadedIds],
+  );
+};

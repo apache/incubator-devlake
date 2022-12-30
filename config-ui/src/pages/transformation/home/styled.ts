@@ -16,8 +16,8 @@
  *
  */
 
-import { Colors } from '@blueprintjs/core'
-import styled from 'styled-components'
+import { Colors } from '@blueprintjs/core';
+import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   .action {
@@ -26,7 +26,7 @@ export const Wrapper = styled.div`
     align-items: center;
     margin-bottom: 16px;
   }
-`
+`;
 
 export const DialogWrapper = styled.div`
   .warning {
@@ -37,4 +37,4 @@ export const DialogWrapper = styled.div`
       margin-right: 4px;
     }
   }
-`
+`;

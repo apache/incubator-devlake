@@ -17,10 +17,10 @@
  */
 
 export type ScopeItemType = {
-  connectionId: ID
-  boardId: ID
-  name: string
-  projectId: ID
-  self: string
-  type: string
-}
+  connectionId: ID;
+  boardId: ID;
+  name: string;
+  projectId: ID;
+  self: string;
+  type: string;
+};

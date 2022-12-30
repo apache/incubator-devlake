@@ -16,4 +16,4 @@
  *
  */
 
-export * from './advanced-editor'
+export * from './advanced-editor';

@@ -16,28 +16,28 @@
  *
  */
 
-import React, { useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
-import { PageHeader } from '@/components'
-import { ConnectionContextProvider } from '@/store'
+import { PageHeader } from '@/components';
+import { ConnectionContextProvider } from '@/store';
 
-import { ModeEnum, FromEnum } from '../types'
+import { ModeEnum, FromEnum } from '../types';
 
-import { BPContext, BPContextProvider } from './bp-context'
-import { WorkFlow, Action, Inspector } from './components'
-import { StepOne } from './step-one'
-import { StepTwo } from './step-two'
-import { StepThree } from './step-three'
-import { StepFour } from './step-four'
-import * as S from './styled'
+import { BPContext, BPContextProvider } from './bp-context';
+import { WorkFlow, Action, Inspector } from './components';
+import { StepOne } from './step-one';
+import { StepTwo } from './step-two';
+import { StepThree } from './step-three';
+import { StepFour } from './step-four';
+import * as S from './styled';
 
 interface Props {
-  from: FromEnum
+  from: FromEnum;
 }
 
 export const BlueprintCreatePage = ({ from }: Props) => {
-  const { pname } = useParams<{ pname: string }>()
+  const { pname } = useParams<{ pname: string }>();
 
   const breadcrumbs = useMemo(
     () =>
@@ -47,15 +47,15 @@ export const BlueprintCreatePage = ({ from }: Props) => {
             { name: pname, path: `/projects/${pname}` },
             {
               name: 'Create a Blueprint',
-              path: `/projects/${pname}/create-blueprint`
-            }
+              path: `/projects/${pname}/create-blueprint`,
+            },
           ]
         : [
             { name: 'Blueprints', path: '/blueprints' },
-            { name: 'Create a Blueprint', path: '/blueprints/create' }
+            { name: 'Create a Blueprint', path: '/blueprints/create' },
           ],
-    [from, pname]
-  )
+    [from, pname],
+  );
 
   return (
     <ConnectionContextProvider>
@@ -69,8 +69,9 @@ export const BlueprintCreatePage = ({ from }: Props) => {
                   {step === 1 && <StepOne from={from} />}
                   {mode === ModeEnum.normal && step === 2 && <StepTwo />}
                   {step === 3 && <StepThree />}
-                  {((mode === ModeEnum.normal && step === 4) ||
-                    (mode === ModeEnum.advanced && step === 2)) && <StepFour />}
+                  {((mode === ModeEnum.normal && step === 4) || (mode === ModeEnum.advanced && step === 2)) && (
+                    <StepFour />
+                  )}
                 </S.Content>
                 <Action />
                 <Inspector />
@@ -80,5 +81,5 @@ export const BlueprintCreatePage = ({ from }: Props) => {
         </BPContext.Consumer>
       </BPContextProvider>
     </ConnectionContextProvider>
-  )
-}
+  );
+};

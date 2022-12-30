@@ -16,10 +16,10 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Container = styled.div`
   .checkbox {
     margin: 8px 0 0;
   }
-`
+`;

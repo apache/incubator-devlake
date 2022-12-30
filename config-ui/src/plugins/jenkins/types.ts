@@ -17,6 +17,6 @@
  */
 
 export type ScopeItemType = {
-  connectionId: ID
-  jobFullName: string
-}
+  connectionId: ID;
+  jobFullName: string;
+};

@@ -16,31 +16,31 @@
  *
  */
 
-import React from 'react'
-import { useParams } from 'react-router-dom'
+import React from 'react';
+import { useParams } from 'react-router-dom';
 
-import { PageHeader, PageLoading } from '@/components'
+import { PageHeader, PageLoading } from '@/components';
 
-import { useDetail } from './use-detail'
-import { BlueprintDetail } from './blueprint-detail'
+import { useDetail } from './use-detail';
+import { BlueprintDetail } from './blueprint-detail';
 
 export const BlueprintDetailPage = () => {
-  const { id } = useParams<{ id: string }>()
+  const { id } = useParams<{ id: string }>();
 
-  const { loading, blueprint } = useDetail({ id })
+  const { loading, blueprint } = useDetail({ id });
 
   if (loading || !blueprint) {
-    return <PageLoading />
+    return <PageLoading />;
   }
 
   return (
     <PageHeader
       breadcrumbs={[
         { name: 'Blueprints', path: '/blueprints' },
-        { name: blueprint.name, path: `/blueprints/${blueprint.id}` }
+        { name: blueprint.name, path: `/blueprints/${blueprint.id}` },
       ]}
     >
       <BlueprintDetail id={blueprint.id} />
     </PageHeader>
-  )
-}
+  );
+};

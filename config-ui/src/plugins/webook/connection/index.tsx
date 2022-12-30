@@ -16,55 +16,53 @@
  *
  */
 
-import React, { useState } from 'react'
-import { ButtonGroup, Button, Icon, Intent } from '@blueprintjs/core'
+import React, { useState } from 'react';
+import { ButtonGroup, Button, Icon, Intent } from '@blueprintjs/core';
 
-import { Table, ColumnType } from '@/components'
+import { Table, ColumnType } from '@/components';
 
-import type { WebhookItemType } from '../types'
-import { WebhookCreateDialog } from '../create-dialog'
-import { WebhookDeleteDialog } from '../delete-dialog'
-import { WebhookViewOrEditDialog } from '../view-or-edit-dialog'
+import type { WebhookItemType } from '../types';
+import { WebhookCreateDialog } from '../create-dialog';
+import { WebhookDeleteDialog } from '../delete-dialog';
+import { WebhookViewOrEditDialog } from '../view-or-edit-dialog';
 
-import type { UseConnectionProps } from './use-connection'
-import { useConnection } from './use-connection'
-import * as S from './styled'
+import type { UseConnectionProps } from './use-connection';
+import { useConnection } from './use-connection';
+import * as S from './styled';
 
-type Type = 'add' | 'edit' | 'show' | 'delete'
+type Type = 'add' | 'edit' | 'show' | 'delete';
 
 interface Props extends UseConnectionProps {
-  onCreateAfter?: (id: ID) => void
+  onCreateAfter?: (id: ID) => void;
 }
 
 export const WebHookConnection = ({ onCreateAfter, ...props }: Props) => {
-  const [type, setType] = useState<Type>()
-  const [record, setRecord] = useState<WebhookItemType>()
+  const [type, setType] = useState<Type>();
+  const [record, setRecord] = useState<WebhookItemType>();
 
-  const { loading, connections, onRefresh } = useConnection({ ...props })
+  const { loading, connections, onRefresh } = useConnection({ ...props });
 
   const handleHideDialog = () => {
-    setType(undefined)
-    setRecord(undefined)
-  }
+    setType(undefined);
+    setRecord(undefined);
+  };
 
   const handleShowDialog = (t: Type, r?: WebhookItemType) => {
-    setType(t)
-    setRecord(r)
-  }
+    setType(t);
+    setRecord(r);
+  };
 
   const columns: ColumnType<WebhookItemType> = [
     {
       title: 'ID',
       dataIndex: 'id',
-      key: 'id'
+      key: 'id',
     },
     {
       title: 'Incoming Webhook Name',
       dataIndex: 'name',
       key: 'name',
-      render: (name, row) => (
-        <span onClick={() => handleShowDialog('show', row)}>{name}</span>
-      )
+      render: (name, row) => <span onClick={() => handleShowDialog('show', row)}>{name}</span>,
     },
     {
       title: '',
@@ -73,22 +71,17 @@ export const WebHookConnection = ({ onCreateAfter, ...props }: Props) => {
       align: 'center',
       render: (_, row) => (
         <S.Action>
-          <Icon icon='edit' onClick={() => handleShowDialog('edit', row)} />
-          <Icon icon='trash' onClick={() => handleShowDialog('delete', row)} />
+          <Icon icon="edit" onClick={() => handleShowDialog('edit', row)} />
+          <Icon icon="trash" onClick={() => handleShowDialog('delete', row)} />
         </S.Action>
-      )
-    }
-  ]
+      ),
+    },
+  ];
 
   return (
     <S.Wrapper>
       <ButtonGroup>
-        <Button
-          icon='plus'
-          text='Add a Webhook'
-          intent={Intent.PRIMARY}
-          onClick={() => handleShowDialog('add')}
-        />
+        <Button icon="plus" text="Add a Webhook" intent={Intent.PRIMARY} onClick={() => handleShowDialog('add')} />
       </ButtonGroup>
       <Table loading={loading} columns={columns} dataSource={connections} />
       {type === 'add' && (
@@ -96,18 +89,13 @@ export const WebHookConnection = ({ onCreateAfter, ...props }: Props) => {
           isOpen
           onCancel={handleHideDialog}
           onSubmitAfter={(id) => {
-            onRefresh()
-            onCreateAfter?.(id)
+            onRefresh();
+            onCreateAfter?.(id);
           }}
         />
       )}
       {type === 'delete' && (
-        <WebhookDeleteDialog
-          isOpen
-          initialValues={record}
-          onCancel={handleHideDialog}
-          onSubmitAfter={onRefresh}
-        />
+        <WebhookDeleteDialog isOpen initialValues={record} onCancel={handleHideDialog} onSubmitAfter={onRefresh} />
       )}
       {(type === 'edit' || type === 'show') && (
         <WebhookViewOrEditDialog
@@ -119,5 +107,5 @@ export const WebHookConnection = ({ onCreateAfter, ...props }: Props) => {
         />
       )}
     </S.Wrapper>
-  )
-}
+  );
+};

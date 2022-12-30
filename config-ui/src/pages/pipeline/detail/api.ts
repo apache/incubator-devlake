@@ -16,23 +16,23 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
-export const getPipeline = (id: ID) => request(`/pipelines/${id}`)
+export const getPipeline = (id: ID) => request(`/pipelines/${id}`);
 
-export const getPipelineTasks = (id: ID) => request(`/pipelines/${id}/tasks`)
+export const getPipelineTasks = (id: ID) => request(`/pipelines/${id}/tasks`);
 
 export const deletePipeline = (id: ID) =>
   request(`/pipelines/${id}`, {
-    method: 'delete'
-  })
+    method: 'delete',
+  });
 
 export const pipeLineRerun = (id: ID) =>
   request(`/pipeline/${id}/rerun`, {
-    method: 'post'
-  })
+    method: 'post',
+  });
 
 export const taskRerun = (id: ID) =>
   request(`/tasks/${id}/rerun`, {
-    method: 'post'
-  })
+    method: 'post',
+  });

@@ -16,36 +16,38 @@
  *
  */
 
-export default [
+const general = [
   [
     {
       plugin: 'gitlab',
       options: {
         projectId: 8967944,
-        connectionId: 1
-      }
+        connectionId: 1,
+      },
     },
     {
       plugin: 'jira',
       options: {
         boardId: 8,
-        connectionId: 1
-      }
+        connectionId: 1,
+      },
     },
     {
       plugin: 'jenkins',
       options: {
         connectionId: 1,
-        jobName: 'unit_test'
-      }
+        jobName: 'unit_test',
+      },
     },
     {
       plugin: 'github',
       options: {
         repo: 'lake',
         owner: 'merico-dev',
-        connectionId: 1
-      }
-    }
-  ]
-]
+        connectionId: 1,
+      },
+    },
+  ],
+];
+
+export default general;

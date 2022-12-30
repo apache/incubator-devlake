@@ -16,46 +16,40 @@
  *
  */
 
-import React from 'react'
-import { useHistory } from 'react-router-dom'
-import { Button, Intent } from '@blueprintjs/core'
+import React from 'react';
+import { useHistory } from 'react-router-dom';
+import { Button, Intent } from '@blueprintjs/core';
 
-import NoData from '@/images/no-data.svg'
-import { Card } from '@/components'
-import { BlueprintDetail } from '@/pages'
+import NoData from '@/images/no-data.svg';
+import { Card } from '@/components';
+import { BlueprintDetail } from '@/pages';
 
-import type { ProjectType } from '../types'
+import type { ProjectType } from '../types';
 
 interface Props {
-  project: ProjectType
+  project: ProjectType;
 }
 
 export const BlueprintPanel = ({ project }: Props) => {
-  const history = useHistory()
+  const history = useHistory();
 
-  const handleGoCreateBlueprint = () =>
-    history.push(`/projects/${project.name}/create-blueprint`)
+  const handleGoCreateBlueprint = () => history.push(`/projects/${project.name}/create-blueprint`);
 
   return !project.blueprint ? (
     <Card>
-      <div className='blueprint'>
-        <div className='logo'>
-          <img src={NoData} alt='' />
+      <div className="blueprint">
+        <div className="logo">
+          <img src={NoData} alt="" />
         </div>
-        <div className='desc'>
+        <div className="desc">
           <p>Create a blueprint to collect data from data sources.</p>
         </div>
-        <div className='action'>
-          <Button
-            intent={Intent.PRIMARY}
-            icon='plus'
-            text='Create a Blueprint'
-            onClick={handleGoCreateBlueprint}
-          />
+        <div className="action">
+          <Button intent={Intent.PRIMARY} icon="plus" text="Create a Blueprint" onClick={handleGoCreateBlueprint} />
         </div>
       </div>
     </Card>
   ) : (
     <BlueprintDetail id={project.blueprint.id} />
-  )
-}
+  );
+};

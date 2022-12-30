@@ -16,19 +16,12 @@
  *
  */
 
-import React from 'react'
-import {
-  TextArea,
-  ButtonGroup,
-  Button,
-  Menu,
-  MenuItem,
-  Position
-} from '@blueprintjs/core'
-import { Popover2 } from '@blueprintjs/popover2'
-import styled from 'styled-components'
+import React from 'react';
+import { TextArea, ButtonGroup, Button, Menu, MenuItem, Position } from '@blueprintjs/core';
+import { Popover2 } from '@blueprintjs/popover2';
+import styled from 'styled-components';
 
-import { EXAMPLE_CONFIG } from './example'
+import { EXAMPLE_CONFIG } from './example';
 
 const Wrapper = styled.div`
   h2 {
@@ -55,11 +48,11 @@ const Wrapper = styled.div`
     font-size: 12px;
     font-family: 'JetBrains Mono', monospace;
   }
-`
+`;
 
 interface Props {
-  value: string
-  onChange: (value: string) => void
+  value: string;
+  onChange: (value: string) => void;
 }
 
 export const AdvancedEditor = ({ value, onChange }: Props) => {
@@ -69,12 +62,7 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
       <p>Enter JSON Configuration or preload from a template</p>
       <TextArea fill value={value} onChange={(e) => onChange(e.target.value)} />
       <ButtonGroup minimal>
-        <Button
-          small
-          text='Reset'
-          icon='eraser'
-          onClick={() => onChange(JSON.stringify([[]], null, '  '))}
-        />
+        <Button small text="Reset" icon="eraser" onClick={() => onChange(JSON.stringify([[]], null, '  '))} />
         <Popover2
           placement={Position.TOP}
           content={
@@ -82,26 +70,18 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
               {EXAMPLE_CONFIG.map((it) => (
                 <MenuItem
                   key={it.id}
-                  icon='code'
+                  icon="code"
                   text={it.name}
-                  onClick={() =>
-                    onChange(JSON.stringify(it.config, null, '  '))
-                  }
+                  onClick={() => onChange(JSON.stringify(it.config, null, '  '))}
                 />
               ))}
             </Menu>
           }
           renderTarget={({ isOpen, ref, ...targetProps }) => (
-            <Button
-              {...targetProps}
-              elementRef={ref}
-              small
-              text='Load Templates'
-              rightIcon='caret-down'
-            />
+            <Button {...targetProps} elementRef={ref} small text="Load Templates" rightIcon="caret-down" />
           )}
         />
       </ButtonGroup>
     </Wrapper>
-  )
-}
+  );
+};

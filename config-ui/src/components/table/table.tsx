@@ -16,24 +16,20 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import { Loading, Card } from '@/components'
+import { Loading, Card } from '@/components';
 
-import { ColumnType } from './types'
-import * as S from './styled'
+import { ColumnType } from './types';
+import * as S from './styled';
 
 interface Props<T> {
-  loading?: boolean
-  columns: ColumnType<T>
-  dataSource: T[]
+  loading?: boolean;
+  columns: ColumnType<T>;
+  dataSource: T[];
 }
 
-export const Table = <T extends Record<string, any>>({
-  loading,
-  columns,
-  dataSource
-}: Props<T>) => {
+export const Table = <T extends Record<string, any>>({ loading, columns, dataSource }: Props<T>) => {
   return (
     <Card style={{ padding: 0 }}>
       <S.Container>
@@ -50,15 +46,15 @@ export const Table = <T extends Record<string, any>>({
               {columns.map(({ key, align = 'left', dataIndex, render }) => {
                 const value = Array.isArray(dataIndex)
                   ? dataIndex.reduce((acc, cur) => {
-                      acc[cur] = data[cur]
-                      return acc
+                      acc[cur] = data[cur];
+                      return acc;
                     }, {} as any)
-                  : data[dataIndex]
+                  : data[dataIndex];
                 return (
                   <span key={key} style={{ textAlign: align }}>
                     {render ? render(value, data) : value}
                   </span>
-                )
+                );
               })}
             </S.TableRow>
           ))}
@@ -70,5 +66,5 @@ export const Table = <T extends Record<string, any>>({
         )}
       </S.Container>
     </Card>
-  )
-}
+  );
+};

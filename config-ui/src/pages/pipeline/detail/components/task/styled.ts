@@ -16,8 +16,8 @@
  *
  */
 
-import { Colors } from '@blueprintjs/core'
-import styled from 'styled-components'
+import { Colors } from '@blueprintjs/core';
+import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   display: flex;
@@ -27,7 +27,7 @@ export const Wrapper = styled.div`
   height: 80px;
   border-bottom: 1px solid #dbe4fd;
   box-sizing: border-box;
-`
+`;
 
 export const Info = styled.div`
   flex: auto;
@@ -65,7 +65,7 @@ export const Info = styled.div`
       color: ${Colors.RED3};
     }
   }
-`
+`;
 
 export const Duration = styled.div`
   display: flex;
@@ -78,4 +78,4 @@ export const Duration = styled.div`
     margin-top: 4px;
     cursor: pointer;
   }
-`
+`;

@@ -17,8 +17,8 @@
  */
 
 export type ProjectType = {
-  name: string
-  description: string
-  blueprint: any | null
-  enableDora: boolean
-}
+  name: string;
+  description: string;
+  blueprint: any | null;
+  enableDora: boolean;
+};

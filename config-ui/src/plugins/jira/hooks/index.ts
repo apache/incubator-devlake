@@ -16,4 +16,4 @@
  *
  */
 
-export * from './user-proxy-prefix'
+export * from './user-proxy-prefix';

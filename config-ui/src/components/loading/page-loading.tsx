@@ -16,15 +16,15 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import { Loading } from './loading'
-import * as S from './styled'
+import { Loading } from './loading';
+import * as S from './styled';
 
 export const PageLoading = () => {
   return (
     <S.PageWrapper>
-      <Loading size={40} text='Loading...' />
+      <Loading size={40} text="Loading..." />
     </S.PageWrapper>
-  )
-}
+  );
+};

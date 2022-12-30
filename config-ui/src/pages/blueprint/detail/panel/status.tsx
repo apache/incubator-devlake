@@ -16,58 +16,43 @@
  *
  */
 
-import React, { useMemo } from 'react'
-import { Button, Switch, Intent } from '@blueprintjs/core'
-import dayjs from 'dayjs'
+import React, { useMemo } from 'react';
+import { Button, Switch, Intent } from '@blueprintjs/core';
+import dayjs from 'dayjs';
 
-import { getCron } from '@/config'
-import type { PipelineType } from '@/pages'
-import { PipelineDetail } from '@/pages'
+import { getCron } from '@/config';
+import type { PipelineType } from '@/pages';
+import { PipelineDetail } from '@/pages';
 
-import type { BlueprintType } from '../../types'
+import type { BlueprintType } from '../../types';
 
-import { PipelineList } from '../components'
-import * as S from '../styled'
+import { PipelineList } from '../components';
+import * as S from '../styled';
 
 interface Props {
-  blueprint: BlueprintType
-  pipelines: PipelineType[]
-  pipelineId?: ID
-  operating: boolean
-  onRun: () => void
-  onUpdate: (payload: any) => void
-  onDelete: () => void
+  blueprint: BlueprintType;
+  pipelines: PipelineType[];
+  pipelineId?: ID;
+  operating: boolean;
+  onRun: () => void;
+  onUpdate: (payload: any) => void;
+  onDelete: () => void;
 }
 
-export const Status = ({
-  blueprint,
-  pipelines,
-  pipelineId,
-  operating,
-  onRun,
-  onUpdate,
-  onDelete
-}: Props) => {
-  const cron = useMemo(
-    () => getCron(blueprint.isManual, blueprint.cronConfig),
-    [blueprint]
-  )
+export const Status = ({ blueprint, pipelines, pipelineId, operating, onRun, onUpdate, onDelete }: Props) => {
+  const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
-  const handleRunNow = () => onRun()
+  const handleRunNow = () => onRun();
 
-  const handleToggleEnabled = (checked: boolean) =>
-    onUpdate({ enable: checked })
+  const handleToggleEnabled = (checked: boolean) => onUpdate({ enable: checked });
 
-  const handleDelete = () => onDelete()
+  const handleDelete = () => onDelete();
 
   return (
     <S.StatusPanel>
-      <div className='info'>
+      <div className="info">
         <span>
-          {cron.label}{' '}
-          {cron.value !== 'manual'
-            ? dayjs(cron.nextTime).format('HH:mm A')
-            : null}
+          {cron.label} {cron.value !== 'manual' ? dayjs(cron.nextTime).format('HH:mm A') : null}
         </span>
         <span>
           <Button
@@ -75,17 +60,15 @@ export const Status = ({
             loading={operating}
             small
             intent={Intent.PRIMARY}
-            text='Run Now'
+            text="Run Now"
             onClick={handleRunNow}
           />
         </span>
         <span>
           <Switch
-            label='Blueprint Enabled'
+            label="Blueprint Enabled"
             checked={blueprint.enable}
-            onChange={(e) =>
-              handleToggleEnabled((e.target as HTMLInputElement).checked)
-            }
+            onChange={(e) => handleToggleEnabled((e.target as HTMLInputElement).checked)}
           />
         </span>
         <span>
@@ -94,19 +77,19 @@ export const Status = ({
             loading={operating}
             small
             intent={Intent.DANGER}
-            icon='trash'
+            icon="trash"
             onClick={handleDelete}
           />
         </span>
       </div>
-      <div className='block'>
+      <div className="block">
         <h3>Current Pipeline</h3>
         <PipelineDetail id={pipelineId} />
       </div>
-      <div className='block'>
+      <div className="block">
         <h3>Historical Pipelines</h3>
         <PipelineList pipelines={pipelines} />
       </div>
     </S.StatusPanel>
-  )
-}
+  );
+};

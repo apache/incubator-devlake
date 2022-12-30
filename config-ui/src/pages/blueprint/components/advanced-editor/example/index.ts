@@ -16,78 +16,78 @@
  *
  */
 
-import general from './general'
-import refdiff from './refdiff'
-import gitextractor from './gitextractor'
-import github from './github'
-import gitlab from './gitlab'
-import jira from './jira'
-import jenkins from './jenkins'
-import feishu from './feishu'
-import dbt from './dbt'
-import starrocks from './starrocks'
-import tapd from './tapd'
-import zentao from './zentao'
+import general from './general';
+import refdiff from './refdiff';
+import gitextractor from './gitextractor';
+import github from './github';
+import gitlab from './gitlab';
+import jira from './jira';
+import jenkins from './jenkins';
+import feishu from './feishu';
+import dbt from './dbt';
+import starrocks from './starrocks';
+import tapd from './tapd';
+import zentao from './zentao';
 
 export const EXAMPLE_CONFIG = [
   {
     id: 'general',
     name: 'Load General Configuration',
-    config: general
+    config: general,
   },
   {
     id: 'refdiff',
     name: 'Load RefDiff Configuration',
-    config: refdiff
+    config: refdiff,
   },
   {
     id: 'gitextractor',
     name: 'Load GitExtractor Configuration',
-    config: gitextractor
+    config: gitextractor,
   },
   {
     id: 'github',
     name: 'Load GitHub Configuration',
-    config: github
+    config: github,
   },
   {
     id: 'gitlab',
     name: 'Load GitLab Configuration',
-    config: gitlab
+    config: gitlab,
   },
   {
     id: 'jira',
     name: 'Load JIRA Configuration',
-    config: jira
+    config: jira,
   },
   {
     id: 'jenkins',
     name: 'Load Jenkins Configuration',
-    config: jenkins
+    config: jenkins,
   },
   {
     id: 'feishu',
     name: 'Load Feishu Configuration',
-    config: feishu
+    config: feishu,
   },
   {
     id: 'dbt',
     name: 'Load DBT Configuration',
-    config: dbt
+    config: dbt,
   },
   {
     id: 'tapd',
     name: 'Load TAPD Configuration',
-    config: tapd
+    config: tapd,
   },
   {
     id: 'zentao',
     name: 'Load ZENTAO Configuration',
-    config: zentao
+    config: zentao,
   },
   {
     id: 'starrocks',
     name: 'Load StarRocks Configuration',
-    config: starrocks
-  }
-]
+    config: starrocks,
+  },
+];

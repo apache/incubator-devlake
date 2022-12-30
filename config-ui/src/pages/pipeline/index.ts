@@ -16,6 +16,6 @@
  *
  */
 
-export * from './types'
-export * from './misc'
-export * from './detail'
+export * from './types';
+export * from './misc';
+export * from './detail';

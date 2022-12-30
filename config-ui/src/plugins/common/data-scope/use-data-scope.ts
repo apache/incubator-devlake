@@ -16,94 +16,82 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
-import { omit } from 'lodash'
+import { useState, useEffect, useMemo } from 'react';
+import { omit } from 'lodash';
 
-import { Plugins } from '@/plugins'
-import { operator } from '@/utils'
+import { Plugins } from '@/plugins';
+import { operator } from '@/utils';
 
-import * as API from './api'
+import * as API from './api';
 
 export interface UseDataScope {
-  plugin: string
-  connectionId: ID
-  entities: string[]
-  initialValues?: any
-  onSave?: (scope: any) => void
+  plugin: string;
+  connectionId: ID;
+  entities: string[];
+  initialValues?: any;
+  onSave?: (scope: any) => void;
 }
 
-export const useDataScope = ({
-  plugin,
-  connectionId,
-  entities,
-  initialValues,
-  onSave
-}: UseDataScope) => {
-  const [saving, setSaving] = useState(false)
-  const [selectedScope, setSelectedScope] = useState<any>([])
-  const [selectedEntities, setSelectedEntities] = useState<string[]>([])
+export const useDataScope = ({ plugin, connectionId, entities, initialValues, onSave }: UseDataScope) => {
+  const [saving, setSaving] = useState(false);
+  const [selectedScope, setSelectedScope] = useState<any>([]);
+  const [selectedEntities, setSelectedEntities] = useState<string[]>([]);
 
   useEffect(() => {
-    setSelectedScope(initialValues ?? [])
-  }, [initialValues])
+    setSelectedScope(initialValues ?? []);
+  }, [initialValues]);
 
   useEffect(() => {
-    setSelectedEntities(entities ?? [])
-  }, [entities])
+    setSelectedEntities(entities ?? []);
+  }, [entities]);
 
   const getPluginId = (scope: any) => {
     switch (true) {
       case plugin === Plugins.GitHub:
-        return scope.githubId
+        return scope.githubId;
       case plugin === Plugins.JIRA:
-        return scope.boardId
+        return scope.boardId;
       case plugin === Plugins.GitLab:
-        return scope.gitlabId
+        return scope.gitlabId;
       case plugin === Plugins.Jenkins:
-        return scope.jobFullName
+        return scope.jobFullName;
     }
-  }
+  };
 
   const getDataScope = async (scope: any) => {
     try {
-      const res = await API.getDataScope(
-        plugin,
-        connectionId,
-        getPluginId(scope)
-      )
+      const res = await API.getDataScope(plugin, connectionId, getPluginId(scope));
       return {
         ...scope,
-        transformationRuleId: res.transformationRuleId
-      }
+        transformationRuleId: res.transformationRuleId,
+      };
     } catch {
-      return scope
+      return scope;
     }
-  }
+  };
 
   const handleSave = async () => {
-    const scope = await Promise.all(
-      selectedScope.map((sc: any) => getDataScope(sc))
-    )
+    const scope = await Promise.all(selectedScope.map((sc: any) => getDataScope(sc)));
 
     const [success, res] = await operator(
       () =>
         API.updateDataScope(plugin, connectionId, {
-          data: scope.map((sc: any) => omit(sc, 'from'))
+          data: scope.map((sc: any) => omit(sc, 'from')),
         }),
       {
-        setOperating: setSaving
-      }
-    )
+        setOperating: setSaving,
+      },
+    );
 
     if (success) {
       onSave?.(
         res.map((it: any) => ({
           id: getPluginId(it),
-          entities: selectedEntities
-        }))
-      )
+          entities: selectedEntities,
+        })),
+      );
     }
-  }
+  };
 
   return useMemo(
     () => ({
@@ -112,8 +100,8 @@ export const useDataScope = ({
       selectedEntities,
       onChangeScope: setSelectedScope,
       onChangeEntites: setSelectedEntities,
-      onSave: handleSave
+      onSave: handleSave,
     }),
-    [saving, selectedScope, selectedEntities]
-  )
-}
+    [saving, selectedScope, selectedEntities],
+  );
+};

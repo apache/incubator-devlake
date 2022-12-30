@@ -16,13 +16,13 @@
  *
  */
 
-export type TransformationType = 'create' | 'createByExist' | 'selectExist'
+export type TransformationType = 'create' | 'createByExist' | 'selectExist';
 
 export type RuleItem = {
-  id: ID
-  name: string
-}
+  id: ID;
+  name: string;
+};
 
 export type ScopeItem = {
-  name: string
-} & any
+  name: string;
+} & any;

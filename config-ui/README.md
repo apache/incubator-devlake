@@ -3,40 +3,51 @@
 The **Config-UI Application** is a **React.js** SPA (Single-Page-Application) that manages the setup and configuration of a **DevLake** Instance.
 
 #### Technology / Stack Overview
+
 - React.js
 - BlueprintJS
 - Webpack
 
 ## Development
+
 In order to develop on this project you will need a properly working **React Development Environment**.
 
 ### Environment Setup
+
 Install Package Dependencies before attempting to start the UI. The application will not start unless all packages are installed without errors.
 
 #### Install NPM Dependencies
+
 ```
 [config-ui@main] $> npm -i
 ```
 
 #### Start Development Server
+
 ❗ Please ensure the **DevLake API** is **online** before starting the **UI**, otherwise the application will remain in offline mode and errors will be displayed.
 
 ```
 [config-ui@main] $> npm start
 ```
+
 Server will listen on `http://localhost:4000`
 
 #### Production Build
+
 To Build static and minified production assets to the `dist/` directory.
+
 ```
 [config-ui@main] $> npm run build
 ```
 
 #### TEST / RUN Production Build
+
 Build production assets and listen to emulate a production environment. This is to verify minified bundled/assets are operating correctly.
+
 ```
 [config-ui@main] $> npm run start-production
 ```
+
 Server will listen on `http://localhost:9000`
 
 For actual production use, the **Docker Image** for Config-UI should be used as outlined in the main project README.md
@@ -44,6 +55,7 @@ For actual production use, the **Docker Image** for Config-UI should be used as 
 ## Plugin Registration
 
 ### Step 1. Create Registry JSON Configuration
+
 Depending on the nature of the plugin, see a similar integration in `registry/plugins/` folder and copy as base template. For example, to model after GitHub copy `registry/plugins/github.json` to a uniquely named JSON registry file.
 
 ```
@@ -61,7 +73,7 @@ Since not all Plugins created may have **UI** capabilities, the `type` property 
 - pipeline
 - webhook
 
-The **Enabled** property (`enabled`) must be set to `true` to allow the plugin the be registered. 
+The **Enabled** property (`enabled`) must be set to `true` to allow the plugin the be registered.
 
 ```
 # Sample Config for "Merico" Plugin
@@ -81,7 +93,9 @@ The **Enabled** property (`enabled`) must be set to `true` to allow the plugin t
 ```
 
 ### Step 2. Register the JSON Configuration
-Next, the new plugin needs to be registered with the **Integrations Manager Hook** (`@hooks/useIntegrations.jsx`). 
+
+Next, the new plugin needs to be registered with the **Integrations Manager Hook** (`@hooks/useIntegrations.jsx`).
+
 1. Import the new Plugin JSON File
 2. Add Plugin to the bottom of `pluginRegistry` Array
 
@@ -129,13 +143,13 @@ export default function MericoSettings(props) {
 
   return (
     <>
-     
+
     </>
   )
 }
 ```
 
-3. Import & **Register Provider Transformation Settings** in `components/blueprints/ProviderTransformationSettings.jsx`.  Update the `TransformationComponents` Map to Load the Plugin
+3. Import & **Register Provider Transformation Settings** in `components/blueprints/ProviderTransformationSettings.jsx`. Update the `TransformationComponents` Map to Load the Plugin
 
 ```jsx
 # components/blueprints/ProviderTransformationSettings.jsx
@@ -145,7 +159,7 @@ import GiteeSettings from '@/pages/configure/settings/gitee'
 # Import/Register Merico Plugin
 + import MericoSettings from '@/pages/configure/settings/merico'
 
-const ProviderTransformationSettings = (props) => { 
+const ProviderTransformationSettings = (props) => {
   ...
   ...
   ...

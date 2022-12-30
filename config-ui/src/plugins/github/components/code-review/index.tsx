@@ -16,56 +16,40 @@
  *
  */
 
-import React from 'react'
-import {
-  Tag,
-  FormGroup,
-  InputGroup,
-  TextArea,
-  Icon,
-  Colors,
-  Position
-} from '@blueprintjs/core'
-import { Popover2 } from '@blueprintjs/popover2'
+import React from 'react';
+import { Tag, FormGroup, InputGroup, TextArea, Icon, Colors, Position } from '@blueprintjs/core';
+import { Popover2 } from '@blueprintjs/popover2';
 
-import * as S from './styled'
+import * as S from './styled';
 
 interface Props {
-  transformation: any
-  setTransformation: React.Dispatch<React.SetStateAction<any>>
+  transformation: any;
+  setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export const CodeReview = ({
-  transformation,
-  setTransformation
-}: Props) => {
+export const CodeReview = ({ transformation, setTransformation }: Props) => {
   return (
     <>
       <h3>
         <span>Code Review</span>
         <Tag minimal>RegExp</Tag>
       </h3>
-      <p>
-        Map your pull requests labels with each category to view corresponding
-        metrics in the dashboard.
-      </p>
-      <FormGroup inline label='Type'>
+      <p>Map your pull requests labels with each category to view corresponding metrics in the dashboard.</p>
+      <FormGroup inline label="Type">
         <InputGroup
-          placeholder='type/(.*)$'
+          placeholder="type/(.*)$"
           value={transformation.prType}
-          onChange={(e) =>
-            setTransformation({ ...transformation, prType: e.target.value })
-          }
+          onChange={(e) => setTransformation({ ...transformation, prType: e.target.value })}
         />
       </FormGroup>
-      <FormGroup inline label='Component'>
+      <FormGroup inline label="Component">
         <InputGroup
-          placeholder='component/(.*)$'
+          placeholder="component/(.*)$"
           value={transformation.prComponent}
           onChange={(e) =>
             setTransformation({
               ...transformation,
-              prComponent: e.target.value
+              prComponent: e.target.value,
             })
           }
         />
@@ -75,8 +59,8 @@ export const CodeReview = ({
         <Tag minimal>RegExp</Tag>
       </h3>
       <p>
-        Extract the issue numbers closed by pull requests. The issue numbers are
-        parsed from PR bodies that meet the following RegEx.
+        Extract the issue numbers closed by pull requests. The issue numbers are parsed from PR bodies that meet the
+        following RegEx.
       </p>
       <FormGroup
         inline
@@ -88,47 +72,30 @@ export const CodeReview = ({
               content={
                 <S.Tips>
                   <p>
-                    <Icon
-                      icon='tick-circle'
-                      size={10}
-                      color={Colors.GREEN4}
-                      style={{ marginRight: '4px' }}
-                    />
-                    Example 1: PR #321 body contains "
-                    <strong>Closes #1234</strong>" (PR #321 and issue #1234 will
-                    be mapped by the following RegEx)
+                    <Icon icon="tick-circle" size={10} color={Colors.GREEN4} style={{ marginRight: '4px' }} />
+                    Example 1: PR #321 body contains "<strong>Closes #1234</strong>" (PR #321 and issue #1234 will be
+                    mapped by the following RegEx)
                   </p>
                   <p>
-                    <Icon
-                      icon='delete'
-                      size={10}
-                      color={Colors.RED4}
-                      style={{ marginRight: '4px' }}
-                    />
-                    Example 2: PR #321 body contains "
-                    <strong>Related to #1234</strong>" (PR #321 and issue #1234
-                    will NOT be mapped by the following RegEx)
+                    <Icon icon="delete" size={10} color={Colors.RED4} style={{ marginRight: '4px' }} />
+                    Example 2: PR #321 body contains "<strong>Related to #1234</strong>" (PR #321 and issue #1234 will
+                    NOT be mapped by the following RegEx)
                   </p>
                 </S.Tips>
               }
             >
-              <Icon
-                icon='help'
-                size={12}
-                color={Colors.GRAY3}
-                style={{ marginLeft: '4px', marginBottom: '4px' }}
-              />
+              <Icon icon="help" size={12} color={Colors.GRAY3} style={{ marginLeft: '4px', marginBottom: '4px' }} />
             </Popover2>
           </span>
         }
       >
         <TextArea
           value={transformation.prBodyClosePattern}
-          placeholder='(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and )?(#|https:\/\/github.com\/%s\/issues\/)\d+[ ]*)+)'
+          placeholder="(?mi)(fix|close|resolve|fixes|closes|resolves|fixed|closed|resolved)[\s]*.*(((and )?(#|https:\/\/github.com\/%s\/issues\/)\d+[ ]*)+)"
           onChange={(e) =>
             setTransformation({
               ...transformation,
-              prBodyClosePattern: e.target.value
+              prBodyClosePattern: e.target.value,
             })
           }
           fill
@@ -136,5 +103,5 @@ export const CodeReview = ({
         />
       </FormGroup>
     </>
-  )
-}
+  );
+};

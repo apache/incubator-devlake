@@ -16,37 +16,27 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import type { ScopeItemType } from './types'
-import { ScopeFromEnum } from './types'
+import type { ScopeItemType } from './types';
+import { ScopeFromEnum } from './types';
 
-import { MillerColumns, RepoSelector } from './components'
+import { MillerColumns, RepoSelector } from './components';
 
 interface Props {
-  connectionId: ID
-  selectedItems: ScopeItemType[]
-  onChangeItems: (selectedItems: ScopeItemType[]) => void
+  connectionId: ID;
+  selectedItems: ScopeItemType[];
+  onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const GitHubDataScope = ({
-  connectionId,
-  selectedItems,
-  onChangeItems
-}: Props) => {
+export const GitHubDataScope = ({ connectionId, selectedItems, onChangeItems }: Props) => {
   const handleChangeMillerColumnsItems = (sis: ScopeItemType[]) => {
-    onChangeItems([
-      ...selectedItems.filter((it) => it.from !== ScopeFromEnum.MILLER_COLUMNS),
-      ...sis
-    ])
-  }
+    onChangeItems([...selectedItems.filter((it) => it.from !== ScopeFromEnum.MILLER_COLUMNS), ...sis]);
+  };
 
   const handleChangeRepoSelectorItems = (sis: ScopeItemType[]) => {
-    onChangeItems([
-      ...selectedItems.filter((it) => it.from !== ScopeFromEnum.REPO_SELECTOR),
-      ...sis
-    ])
-  }
+    onChangeItems([...selectedItems.filter((it) => it.from !== ScopeFromEnum.REPO_SELECTOR), ...sis]);
+  };
 
   return (
     <>
@@ -54,26 +44,18 @@ export const GitHubDataScope = ({
       <p>Select the repositories you would like to sync.</p>
       <MillerColumns
         connectionId={connectionId}
-        disabledItems={selectedItems.filter(
-          (it) => it.from !== ScopeFromEnum.MILLER_COLUMNS
-        )}
-        selectedItems={selectedItems.filter(
-          (it) => it.from === ScopeFromEnum.MILLER_COLUMNS
-        )}
+        disabledItems={selectedItems.filter((it) => it.from !== ScopeFromEnum.MILLER_COLUMNS)}
+        selectedItems={selectedItems.filter((it) => it.from === ScopeFromEnum.MILLER_COLUMNS)}
         onChangeItems={handleChangeMillerColumnsItems}
       />
       <h4>Add repositories outside of your organizations</h4>
       <p>Search for repositories and add to them</p>
       <RepoSelector
         connectionId={connectionId}
-        disabledItems={selectedItems.filter(
-          (it) => it.from !== ScopeFromEnum.REPO_SELECTOR
-        )}
-        selectedItems={selectedItems.filter(
-          (it) => it.from === ScopeFromEnum.REPO_SELECTOR
-        )}
+        disabledItems={selectedItems.filter((it) => it.from !== ScopeFromEnum.REPO_SELECTOR)}
+        selectedItems={selectedItems.filter((it) => it.from === ScopeFromEnum.REPO_SELECTOR)}
         onChangeItems={handleChangeRepoSelectorItems}
       />
     </>
-  )
-}
+  );
+};

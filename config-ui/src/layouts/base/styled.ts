@@ -16,15 +16,15 @@
  *
  */
 
-import styled from 'styled-components'
-import { Navbar } from '@blueprintjs/core'
+import styled from 'styled-components';
+import { Navbar } from '@blueprintjs/core';
 
 export const Container = styled.div`
   display: flex;
   height: 100vh;
   background-color: #f9f9fa;
   overflow: hidden;
-`
+`;
 
 export const Sider = styled.div`
   flex: 0 0 200px;
@@ -74,7 +74,7 @@ export const Sider = styled.div`
     text-align: center;
     color: rgba(124, 124, 124, 0.7);
   }
-`
+`;
 
 export const Inner = styled.div`
   display: flex;
@@ -82,20 +82,20 @@ export const Inner = styled.div`
   flex: auto;
   height: 100vh;
   overflow: auto;
-`
+`;
 
 export const Header = styled(Navbar)`
   flex: 0 0 50px;
   background-color: #f9f9fa;
   box-shadow: none;
-`
+`;
 
 export const Content = styled.div`
   flex: auto;
   margin: 24px auto;
   max-width: 900px;
   width: 100%;
-`
+`;
 
 export const SlackContainer = styled.div`
   padding: 10px;
@@ -112,4 +112,4 @@ export const SlackContainer = styled.div`
   & > p {
     text-align: center;
   }
-`
+`;

@@ -16,41 +16,39 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react';
 
-import type { WebhookItemType } from '../types'
-import * as API from '../api'
+import type { WebhookItemType } from '../types';
+import * as API from '../api';
 
 export interface UseConnectionProps {
-  filterIds?: ID[]
+  filterIds?: ID[];
 }
 
 export const useConnection = ({ filterIds }: UseConnectionProps) => {
-  const [loading, setLoading] = useState(false)
-  const [connections, setConnections] = useState<WebhookItemType[]>([])
+  const [loading, setLoading] = useState(false);
+  const [connections, setConnections] = useState<WebhookItemType[]>([]);
 
   const getConnections = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await API.getConnections()
-      setConnections(
-        res.filter((cs: any) => (filterIds ? filterIds.includes(cs.id) : true))
-      )
+      const res = await API.getConnections();
+      setConnections(res.filter((cs: any) => (filterIds ? filterIds.includes(cs.id) : true)));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    getConnections()
-  }, [])
+    getConnections();
+  }, []);
 
   return useMemo(
     () => ({
       loading,
       connections,
-      onRefresh: getConnections
+      onRefresh: getConnections,
     }),
-    [loading, connections]
-  )
-}
+    [loading, connections],
+  );
+};

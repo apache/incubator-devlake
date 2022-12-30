@@ -16,43 +16,37 @@
  *
  */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 
-import { Dialog } from '@/components'
-import { SyncPolicy } from '@/plugins'
+import { Dialog } from '@/components';
+import { SyncPolicy } from '@/plugins';
 
-import type { BlueprintType } from '../../../types'
-import { ModeEnum } from '../../../types'
+import type { BlueprintType } from '../../../types';
+import { ModeEnum } from '../../../types';
 
 interface Props {
-  blueprint: BlueprintType
-  isManual: boolean
-  cronConfig: string
-  skipOnFail: boolean
-  createdDateAfter: string | null
-  operating: boolean
-  onCancel: () => void
-  onSubmit: (params: any) => Promise<void>
+  blueprint: BlueprintType;
+  isManual: boolean;
+  cronConfig: string;
+  skipOnFail: boolean;
+  createdDateAfter: string | null;
+  operating: boolean;
+  onCancel: () => void;
+  onSubmit: (params: any) => Promise<void>;
 }
 
-export const UpdatePolicyDialog = ({
-  blueprint,
-  operating,
-  onCancel,
-  onSubmit,
-  ...props
-}: Props) => {
-  const [isManual, setIsManual] = useState(false)
-  const [cronConfig, setCronConfig] = useState('')
-  const [skipOnFail, setSkipOnFail] = useState(false)
-  const [createdDateAfter, setCreatedDateAfter] = useState<string | null>(null)
+export const UpdatePolicyDialog = ({ blueprint, operating, onCancel, onSubmit, ...props }: Props) => {
+  const [isManual, setIsManual] = useState(false);
+  const [cronConfig, setCronConfig] = useState('');
+  const [skipOnFail, setSkipOnFail] = useState(false);
+  const [createdDateAfter, setCreatedDateAfter] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsManual(props.isManual)
-    setCronConfig(props.cronConfig)
-    setSkipOnFail(props.skipOnFail)
-    setCreatedDateAfter(props.createdDateAfter)
-  }, [])
+    setIsManual(props.isManual);
+    setCronConfig(props.cronConfig);
+    setSkipOnFail(props.skipOnFail);
+    setCreatedDateAfter(props.createdDateAfter);
+  }, []);
 
   const handleSubmit = () => {
     onSubmit({
@@ -61,19 +55,19 @@ export const UpdatePolicyDialog = ({
       skipOnFail,
       settings: {
         ...blueprint.settings,
-        createdDateAfter
-      }
-    })
-  }
+        createdDateAfter,
+      },
+    });
+  };
 
   return (
     <Dialog
       isOpen
-      title='Change Sync Policy'
+      title="Change Sync Policy"
       style={{
-        width: 720
+        width: 720,
       }}
-      okText='Save'
+      okText="Save"
       okLoading={operating}
       onCancel={onCancel}
       onOk={handleSubmit}
@@ -82,7 +76,7 @@ export const UpdatePolicyDialog = ({
         isManual={isManual}
         cronConfig={cronConfig}
         skipOnFail={skipOnFail}
-        showTimeFilter={blueprint.mode == ModeEnum.normal}
+        showTimeFilter={blueprint.mode === ModeEnum.normal}
         createdDateAfter={createdDateAfter}
         onChangeIsManual={setIsManual}
         onChangeCronConfig={setCronConfig}
@@ -90,5 +84,5 @@ export const UpdatePolicyDialog = ({
         onChangeCreatedDateAfter={setCreatedDateAfter}
       />
     </Dialog>
-  )
-}
+  );
+};

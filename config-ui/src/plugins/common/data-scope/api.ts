@@ -16,17 +16,13 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
 export const getDataScope = (plugin: string, connectionId: ID, repoId: ID) =>
-  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${repoId}`)
+  request(`/plugins/${plugin}/connections/${connectionId}/scopes/${repoId}`);
 
-export const updateDataScope = (
-  plugin: string,
-  connectionId: ID,
-  payload: any
-) =>
+export const updateDataScope = (plugin: string, connectionId: ID, payload: any) =>
   request(`/plugins/${plugin}/connections/${connectionId}/scopes`, {
     method: 'put',
-    data: payload
-  })
+    data: payload,
+  });

@@ -16,35 +16,25 @@
  *
  */
 
-import React, { useState, useMemo } from 'react'
-import { Button, Intent } from '@blueprintjs/core'
+import React, { useState, useMemo } from 'react';
+import { Button, Intent } from '@blueprintjs/core';
 
-import NoData from '@/images/no-webhook.svg'
-import { Card } from '@/components'
-import type { WebhookItemType } from '@/plugins'
-import {
-  Plugins,
-  WebhookCreateDialog,
-  WebhookSelectorDialog,
-  WebHookConnection
-} from '@/plugins'
+import NoData from '@/images/no-webhook.svg';
+import { Card } from '@/components';
+import type { WebhookItemType } from '@/plugins';
+import { Plugins, WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins';
 
-import type { ProjectType } from '../types'
+import type { ProjectType } from '../types';
 
 interface Props {
-  project: ProjectType
-  saving: boolean
-  onSelectWebhook: (items: WebhookItemType[]) => void
-  onCreateWebhook: (id: ID) => any
+  project: ProjectType;
+  saving: boolean;
+  onSelectWebhook: (items: WebhookItemType[]) => void;
+  onCreateWebhook: (id: ID) => any;
 }
 
-export const IncomingWebhooksPanel = ({
-  project,
-  saving,
-  onSelectWebhook,
-  onCreateWebhook
-}: Props) => {
-  const [type, setType] = useState<'selectExist' | 'create'>()
+export const IncomingWebhooksPanel = ({ project, saving, onSelectWebhook, onCreateWebhook }: Props) => {
+  const [type, setType] = useState<'selectExist' | 'create'>();
 
   const webhookIds = useMemo(
     () =>
@@ -53,58 +43,39 @@ export const IncomingWebhooksPanel = ({
             .filter((cs: any) => cs.plugin === Plugins.Webhook)
             .map((cs: any) => cs.connectionId)
         : [],
-    [project]
-  )
+    [project],
+  );
 
   const handleCancel = () => {
-    setType(undefined)
-  }
+    setType(undefined);
+  };
 
   return !webhookIds.length ? (
     <Card>
-      <div className='webhook'>
-        <div className='logo'>
-          <img src={NoData} alt='' />
+      <div className="webhook">
+        <div className="logo">
+          <img src={NoData} alt="" />
         </div>
-        <div className='desc'>
-          <p>
-            Push `incidents` or `deployments` from your tools by incoming
-            webhooks.
-          </p>
+        <div className="desc">
+          <p>Push `incidents` or `deployments` from your tools by incoming webhooks.</p>
         </div>
-        <div className='action'>
-          <Button
-            intent={Intent.PRIMARY}
-            icon='plus'
-            text='Add a Webhook'
-            onClick={() => setType('create')}
-          />
-          <span className='or'>or</span>
+        <div className="action">
+          <Button intent={Intent.PRIMARY} icon="plus" text="Add a Webhook" onClick={() => setType('create')} />
+          <span className="or">or</span>
           <Button
             outlined
             intent={Intent.PRIMARY}
-            text='Select Existing Webhooks'
+            text="Select Existing Webhooks"
             onClick={() => setType('selectExist')}
           />
         </div>
       </div>
-      {type === 'create' && (
-        <WebhookCreateDialog
-          isOpen
-          onCancel={handleCancel}
-          onSubmitAfter={onCreateWebhook}
-        />
-      )}
+      {type === 'create' && <WebhookCreateDialog isOpen onCancel={handleCancel} onSubmitAfter={onCreateWebhook} />}
       {type === 'selectExist' && (
-        <WebhookSelectorDialog
-          isOpen
-          saving={saving}
-          onCancel={handleCancel}
-          onSubmit={onSelectWebhook}
-        />
+        <WebhookSelectorDialog isOpen saving={saving} onCancel={handleCancel} onSubmit={onSelectWebhook} />
       )}
     </Card>
   ) : (
     <WebHookConnection filterIds={webhookIds} onCreateAfter={onCreateWebhook} />
-  )
-}
+  );
+};

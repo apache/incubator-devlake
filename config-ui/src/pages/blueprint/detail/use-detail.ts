@@ -16,89 +16,86 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react';
 
-import { Error } from '@/error'
-import { operator } from '@/utils'
+import { Error } from '@/error';
+import { operator } from '@/utils';
 
-import type { BlueprintType, PipelineType } from '@/pages'
-import * as API from './api'
+import type { BlueprintType, PipelineType } from '@/pages';
+import * as API from './api';
 
 export interface UseDetailProps {
-  id: ID
+  id: ID;
 }
 
 export const useDetail = ({ id }: UseDetailProps) => {
-  const [loading, setLoading] = useState(false)
-  const [operating, setOperating] = useState(false)
-  const [blueprint, setBlueprint] = useState<BlueprintType>()
-  const [pipelines, setPipelines] = useState<PipelineType[]>([])
-  const [pipelineId, setPipelineId] = useState<ID>()
-  const [, setError] = useState()
+  const [loading, setLoading] = useState(false);
+  const [operating, setOperating] = useState(false);
+  const [blueprint, setBlueprint] = useState<BlueprintType>();
+  const [pipelines, setPipelines] = useState<PipelineType[]>([]);
+  const [pipelineId, setPipelineId] = useState<ID>();
+  const [, setError] = useState();
 
   const getBlueprint = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const [bpRes, plRes] = await Promise.all([
-        API.getBlueprint(id),
-        API.getBlueprintPipelines(id)
-      ])
+      const [bpRes, plRes] = await Promise.all([API.getBlueprint(id), API.getBlueprintPipelines(id)]);
 
       // need to upgrade 2.0.0
       if (bpRes.settings?.version === '1.0.0') {
         setError(() => {
-          throw Error.BP_NEED_TO_UPGRADE
-        })
+          throw Error.BP_NEED_TO_UPGRADE;
+        });
       }
 
-      setBlueprint(bpRes)
-      setPipelines(plRes.pipelines)
-      setPipelineId(plRes.pipelines?.[0]?.id)
+      setBlueprint(bpRes);
+      setPipelines(plRes.pipelines);
+      setPipelineId(plRes.pipelines?.[0]?.id);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    getBlueprint()
-  }, [])
+    getBlueprint();
+  }, []);
 
   const handleRun = async () => {
     const [success] = await operator(() => API.runBlueprint(id), {
-      setOperating
-    })
+      setOperating,
+    });
 
     if (success) {
-      getBlueprint()
+      getBlueprint();
     }
-  }
+  };
 
   const handleUpdate = async (payload: any) => {
     const [success] = await operator(
       () =>
         API.updateBlueprint(id, {
           ...blueprint,
-          ...payload
+          ...payload,
         }),
       {
-        setOperating
-      }
-    )
+        setOperating,
+      },
+    );
 
     if (success) {
-      getBlueprint()
+      getBlueprint();
     }
-  }
+  };
 
   const handleDelete = async () => {
     const [success] = await operator(() => API.deleteBluprint(id), {
-      setOperating
-    })
+      setOperating,
+    });
 
     if (success) {
-      getBlueprint()
+      getBlueprint();
     }
-  }
+  };
 
   return useMemo(
     () => ({
@@ -110,8 +107,8 @@ export const useDetail = ({ id }: UseDetailProps) => {
       onRun: handleRun,
       onUpdate: handleUpdate,
       onDelete: handleDelete,
-      onRefresh: getBlueprint
+      onRefresh: getBlueprint,
     }),
-    [loading, operating, blueprint, pipelines, pipelineId]
-  )
-}
+    [loading, operating, blueprint, pipelines, pipelineId],
+  );
+};

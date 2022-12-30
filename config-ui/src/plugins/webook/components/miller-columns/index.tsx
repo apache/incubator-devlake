@@ -16,26 +16,26 @@
  *
  */
 
-import React, { useState, useEffect } from 'react'
-import MillerColumnsSelect from 'miller-columns-select'
+import React, { useState, useEffect } from 'react';
+import MillerColumnsSelect from 'miller-columns-select';
 
-import { Loading } from '@/components'
+import { Loading } from '@/components';
 
-import { useMillerColumns } from './use-miller-columns'
+import { useMillerColumns } from './use-miller-columns';
 
 interface Props {
-  selectedItems: any[]
-  onChangeItems: (selectedItems: any[]) => void
+  selectedItems: any[];
+  onChangeItems: (selectedItems: any[]) => void;
 }
 
 export const MillerColumns = ({ selectedItems, onChangeItems }: Props) => {
-  const [seletedIds, setSelectedIds] = useState<ID[]>([])
+  const [seletedIds, setSelectedIds] = useState<ID[]>([]);
 
-  const { items, getHasMore } = useMillerColumns()
+  const { items, getHasMore } = useMillerColumns();
 
   useEffect(() => {
-    setSelectedIds(selectedItems.map((it) => it.boardId))
-  }, [])
+    setSelectedIds(selectedItems.map((it) => it.boardId));
+  }, []);
 
   useEffect(() => {
     onChangeItems(
@@ -43,14 +43,14 @@ export const MillerColumns = ({ selectedItems, onChangeItems }: Props) => {
         .filter((it) => seletedIds.includes(it.id))
         .map((it) => ({
           id: it.id,
-          name: it.name
-        }))
-    )
-  }, [seletedIds])
+          name: it.name,
+        })),
+    );
+  }, [seletedIds]);
 
   const renderLoading = () => {
-    return <Loading size={20} style={{ padding: '4px 12px' }} />
-  }
+    return <Loading size={20} style={{ padding: '4px 12px' }} />;
+  };
 
   return (
     <MillerColumnsSelect
@@ -62,5 +62,5 @@ export const MillerColumns = ({ selectedItems, onChangeItems }: Props) => {
       selectedIds={seletedIds}
       onSelectItemIds={setSelectedIds}
     />
-  )
-}
+  );
+};

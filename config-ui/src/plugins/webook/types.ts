@@ -17,6 +17,6 @@
  */
 
 export type WebhookItemType = {
-  id: ID
-  name: string
-}
+  id: ID;
+  name: string;
+};

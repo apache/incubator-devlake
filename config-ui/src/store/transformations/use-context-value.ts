@@ -16,64 +16,57 @@
  *
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
-import { PluginConfig, PluginType, Plugins } from '@/plugins'
+import { PluginConfig, PluginType, Plugins } from '@/plugins';
 
-import type { TransformationItemType } from './types'
-import * as API from './api'
+import type { TransformationItemType } from './types';
+import * as API from './api';
 
 export const useContextValue = () => {
-  const [loading, setLoading] = useState(false)
-  const [transformations, setTransformations] = useState<
-    TransformationItemType[]
-  >([])
+  const [loading, setLoading] = useState(false);
+  const [transformations, setTransformations] = useState<TransformationItemType[]>([]);
 
-  const allConnections = useMemo(
-    () => PluginConfig.filter((p) => p.type === PluginType.Connection),
-    []
-  )
+  const allConnections = useMemo(() => PluginConfig.filter((p) => p.type === PluginType.Connection), []);
 
   const getTransformation = async (plugin: Plugins) => {
     try {
-      return await API.getTransformation(plugin)
+      return await API.getTransformation(plugin);
     } catch {
-      return []
+      return [];
     }
-  }
+  };
 
   const handleRefresh = useCallback(async () => {
-    setLoading(true)
+    setLoading(true);
 
-    const res = await Promise.all(
-      allConnections.map((cs) => getTransformation(cs.plugin))
-    )
+    const res = await Promise.all(allConnections.map((cs) => getTransformation(cs.plugin)));
 
     const resWithPlugin = res.map((ts, i) =>
       ts.map((it: any) => {
-        const { plugin } = allConnections[i]
+        const { plugin } = allConnections[i];
 
         return {
           ...it,
-          plugin
-        }
-      })
-    )
+          plugin,
+        };
+      }),
+    );
 
-    setTransformations(resWithPlugin.flat())
-    setLoading(false)
-  }, [allConnections])
+    setTransformations(resWithPlugin.flat());
+    setLoading(false);
+  }, [allConnections]);
 
   useEffect(() => {
-    handleRefresh()
-  }, [])
+    handleRefresh();
+  }, []);
 
   return useMemo(
     () => ({
       loading,
       plugins: allConnections,
-      transformations
+      transformations,
     }),
-    [loading, allConnections, transformations]
-  )
-}
+    [loading, allConnections, transformations],
+  );
+};

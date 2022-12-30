@@ -16,65 +16,57 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
-import { ItemType, ColumnType } from 'miller-columns-select'
+import { useState, useEffect, useMemo } from 'react';
+import { ItemType, ColumnType } from 'miller-columns-select';
 
-import type { ScopeItemType } from '../../types'
-import { useProxyPrefix } from '../../hooks'
-import * as API from '../../api'
+import type { ScopeItemType } from '../../types';
+import { useProxyPrefix } from '../../hooks';
+import * as API from '../../api';
 
-const DEFAULT_PAGE_SIZE = 20
+const DEFAULT_PAGE_SIZE = 20;
 
 export type GitLabItemType = ItemType<
   {
-    type: 'group' | 'project'
+    type: 'group' | 'project';
   } & ScopeItemType
->
+>;
 
 export type GitLabColumnType = ColumnType<
   {
-    type: 'group' | 'project'
+    type: 'group' | 'project';
   } & ScopeItemType
->
+>;
 
 type MapValueType = {
-  groupPage: number
-  groupLoaded: boolean
-  projectPage: number
-  projectLoaded: boolean
-}
+  groupPage: number;
+  groupLoaded: boolean;
+  projectPage: number;
+  projectLoaded: boolean;
+};
 
-type MapType = Record<ID, MapValueType>
+type MapType = Record<ID, MapValueType>;
 
 export interface UseMillerColumnsProps {
-  connectionId: ID
+  connectionId: ID;
 }
 
-export const useMillerColumns = <T>({
-  connectionId
-}: UseMillerColumnsProps) => {
-  const [user, setUser] = useState<any>({})
-  const [items, setItems] = useState<GitLabItemType[]>([])
-  const [expandedIds, setExpandedIds] = useState<ID[]>([])
-  const [map, setMap] = useState<MapType>({})
+export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
+  const [user, setUser] = useState<any>({});
+  const [items, setItems] = useState<GitLabItemType[]>([]);
+  const [expandedIds, setExpandedIds] = useState<ID[]>([]);
+  const [map, setMap] = useState<MapType>({});
 
-  const prefix = useProxyPrefix(connectionId)
+  const prefix = useProxyPrefix(connectionId);
 
-  const formatGroups = (
-    arr: any,
-    parentId: ID | null = null
-  ): GitLabItemType[] =>
+  const formatGroups = (arr: any, parentId: ID | null = null): GitLabItemType[] =>
     arr.map((it: any) => ({
       parentId,
       id: it.id,
       title: it.name,
-      type: 'group'
-    }))
+      type: 'group',
+    }));
 
-  const formatProjects = (
-    arr: any,
-    parentId: ID | null = null
-  ): GitLabItemType[] =>
+  const formatProjects = (arr: any, parentId: ID | null = null): GitLabItemType[] =>
     arr.map((it: any) => ({
       parentId,
       id: it.id,
@@ -90,154 +82,144 @@ export const useMillerColumns = <T>({
       starCount: it.star_count,
       visibility: it.visibility,
       webUrl: it.web_url,
-      httpUrlToRepo: it.http_url_to_repo
-    }))
+      httpUrlToRepo: it.http_url_to_repo,
+    }));
 
   const setLoaded = (id: ID, params: MapValueType) => {
     setMap({
       ...map,
-      [`${id}`]: params
-    })
-  }
+      [`${id}`]: params,
+    });
+  };
 
   useEffect(() => {
-    ;(async () => {
-      const user = await API.getUser(prefix)
-      setUser(user)
+    (async () => {
+      const user = await API.getUser(prefix);
+      setUser(user);
 
-      let groupLoaded = false
-      let projectLoaded = false
-      let groups = []
-      let projects = []
+      let groupLoaded = false;
+      let projectLoaded = false;
+      let groups = [];
+      let projects = [];
 
       groups = await API.getUserGroups(prefix, {
         page: 1,
-        per_page: DEFAULT_PAGE_SIZE
-      })
+        per_page: DEFAULT_PAGE_SIZE,
+      });
 
-      groupLoaded = !groups.length || groups.length < DEFAULT_PAGE_SIZE
+      groupLoaded = !groups.length || groups.length < DEFAULT_PAGE_SIZE;
 
       if (groupLoaded) {
         projects = await API.getUserProjects(prefix, user.id, {
           page: 1,
-          per_page: DEFAULT_PAGE_SIZE
-        })
+          per_page: DEFAULT_PAGE_SIZE,
+        });
 
-        projectLoaded = !projects.length || projects.length < DEFAULT_PAGE_SIZE
+        projectLoaded = !projects.length || projects.length < DEFAULT_PAGE_SIZE;
       }
 
       setLoaded('root', {
         groupLoaded,
         groupPage: groupLoaded ? 1 : 2,
         projectLoaded,
-        projectPage: projectLoaded ? 1 : 2
-      })
-      setItems([...formatGroups(groups), ...formatProjects(projects)])
-    })()
-  }, [prefix])
+        projectPage: projectLoaded ? 1 : 2,
+      });
+      setItems([...formatGroups(groups), ...formatProjects(projects)]);
+    })();
+  }, [prefix]);
 
   const onExpandItem = async (item: GitLabItemType) => {
     if (expandedIds.includes(item.id)) {
-      return
+      return;
     }
 
-    let groupLoaded = false
-    let projectLoaded = false
-    let groups = []
-    let projects = []
+    let groupLoaded = false;
+    let projectLoaded = false;
+    let groups = [];
+    let projects = [];
 
     groups = await API.getGroupSubgroups(prefix, item.id, {
       page: 1,
-      per_page: DEFAULT_PAGE_SIZE
-    })
+      per_page: DEFAULT_PAGE_SIZE,
+    });
 
-    groupLoaded = !groups.length || groups.length < DEFAULT_PAGE_SIZE
+    groupLoaded = !groups.length || groups.length < DEFAULT_PAGE_SIZE;
 
     if (groupLoaded) {
       projects = await API.getGroupProjects(prefix, item.id, {
         page: 1,
-        per_page: DEFAULT_PAGE_SIZE
-      })
+        per_page: DEFAULT_PAGE_SIZE,
+      });
 
-      projectLoaded = !projects.length || projects.length < DEFAULT_PAGE_SIZE
+      projectLoaded = !projects.length || projects.length < DEFAULT_PAGE_SIZE;
     }
 
     setLoaded(item.id, {
       groupLoaded,
       groupPage: groupLoaded ? 1 : 2,
       projectLoaded,
-      projectPage: projectLoaded ? 1 : 2
-    })
-    setExpandedIds([...expandedIds, item.id])
-    setItems([
-      ...items,
-      ...formatGroups(groups, item.id),
-      ...formatProjects(projects, item.id)
-    ])
-  }
+      projectPage: projectLoaded ? 1 : 2,
+    });
+    setExpandedIds([...expandedIds, item.id]);
+    setItems([...items, ...formatGroups(groups, item.id), ...formatProjects(projects, item.id)]);
+  };
 
   const onScrollColumn = async (column: GitLabColumnType) => {
-    const mapValue = map[column.parentId ?? 'root']
+    const mapValue = map[column.parentId ?? 'root'];
 
-    let groupLoaded = mapValue.groupLoaded
-    let projectLoaded = mapValue.projectLoaded
-    let groups = []
-    let projects = []
+    let groupLoaded = mapValue.groupLoaded;
+    let projectLoaded = mapValue.projectLoaded;
+    let groups = [];
+    let projects = [];
 
     if (!groupLoaded) {
       groups = column.parentId
         ? await API.getGroupSubgroups(prefix, column.parentId, {
             page: mapValue.groupPage,
-            per_page: DEFAULT_PAGE_SIZE
+            per_page: DEFAULT_PAGE_SIZE,
           })
         : await API.getUserGroups(prefix, {
             page: mapValue.groupPage,
-            per_page: DEFAULT_PAGE_SIZE
-          })
+            per_page: DEFAULT_PAGE_SIZE,
+          });
 
-      groupLoaded = !groups.length || groups.length < DEFAULT_PAGE_SIZE
+      groupLoaded = !groups.length || groups.length < DEFAULT_PAGE_SIZE;
     } else if (!projectLoaded) {
       projects = column.parentId
         ? await API.getGroupProjects(prefix, column.parentId, {
             page: mapValue.projectPage,
-            per_page: DEFAULT_PAGE_SIZE
+            per_page: DEFAULT_PAGE_SIZE,
           })
         : await API.getUserProjects(prefix, user.id, {
             page: mapValue.projectPage,
-            per_page: DEFAULT_PAGE_SIZE
-          })
+            per_page: DEFAULT_PAGE_SIZE,
+          });
 
-      projectLoaded = !projects.length || projects.length < DEFAULT_PAGE_SIZE
+      projectLoaded = !projects.length || projects.length < DEFAULT_PAGE_SIZE;
     }
 
     setLoaded(column.parentId ?? 'root', {
       groupLoaded,
       groupPage: groupLoaded ? mapValue.groupPage : mapValue.groupPage + 1,
       projectLoaded,
-      projectPage: projectLoaded
-        ? mapValue.projectPage
-        : mapValue.projectPage + 1
-    })
-    setItems([
-      ...items,
-      ...formatGroups(groups, column.parentId),
-      ...formatProjects(projects, column.parentId)
-    ])
-  }
+      projectPage: projectLoaded ? mapValue.projectPage : mapValue.projectPage + 1,
+    });
+    setItems([...items, ...formatGroups(groups, column.parentId), ...formatProjects(projects, column.parentId)]);
+  };
 
   return useMemo(
     () => ({
       items,
       getHasMore(column: GitLabColumnType) {
-        const mapValue = map[column.parentId ?? 'root']
+        const mapValue = map[column.parentId ?? 'root'];
         if (mapValue?.groupLoaded && mapValue?.projectLoaded) {
-          return false
+          return false;
         }
-        return true
+        return true;
       },
       onExpandItem,
-      onScrollColumn
+      onScrollColumn,
     }),
-    [items, map]
-  )
-}
+    [items, map],
+  );
+};

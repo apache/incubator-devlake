@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   .action {
@@ -25,4 +25,4 @@ export const Wrapper = styled.div`
     align-items: center;
     margin-bottom: 16px;
   }
-`
+`;

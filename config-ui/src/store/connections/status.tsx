@@ -16,15 +16,15 @@
  *
  */
 
-import React from 'react'
-import { Icon, Colors, Position, Intent } from '@blueprintjs/core'
-import { Tooltip2 } from '@blueprintjs/popover2'
-import styled from 'styled-components'
+import React from 'react';
+import { Icon, Colors, Position, Intent } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
+import styled from 'styled-components';
 
-import { Loading } from '@/components'
+import { Loading } from '@/components';
 
-import type { ConnectionItemType } from './types'
-import { ConnectionStatusEnum } from './types'
+import type { ConnectionItemType } from './types';
+import { ConnectionStatusEnum } from './types';
 
 const Wrapper = styled.div`
   display: inline-flex;
@@ -41,37 +41,31 @@ const Wrapper = styled.div`
   & > span.testing {
     color: #7497f7;
   }
-`
+`;
 
 const STATUS_MAP = {
   [`${ConnectionStatusEnum.NULL}`]: 'Init',
   [`${ConnectionStatusEnum.TESTING}`]: 'Testing',
   [`${ConnectionStatusEnum.ONLINE}`]: 'Online',
-  [`${ConnectionStatusEnum.OFFLINE}`]: 'Offline'
-}
+  [`${ConnectionStatusEnum.OFFLINE}`]: 'Offline',
+};
 
 interface Props {
-  connection: ConnectionItemType
-  onTest: (connection: ConnectionItemType) => void
+  connection: ConnectionItemType;
+  onTest: (connection: ConnectionItemType) => void;
 }
 
 export const ConnectionStatus = ({ connection, onTest }: Props) => {
-  const { status } = connection
+  const { status } = connection;
 
   return (
     <Wrapper>
-      {status === ConnectionStatusEnum.TESTING && (
-        <Loading size={14} style={{ marginRight: 4 }} />
-      )}
+      {status === ConnectionStatusEnum.TESTING && <Loading size={14} style={{ marginRight: 4 }} />}
       {status === ConnectionStatusEnum.OFFLINE && (
-        <Tooltip2
-          intent={Intent.PRIMARY}
-          position={Position.TOP}
-          content='Retry'
-        >
+        <Tooltip2 intent={Intent.PRIMARY} position={Position.TOP} content="Retry">
           <Icon
             size={14}
-            icon='repeat'
+            icon="repeat"
             style={{ marginRight: 4, color: Colors.RED3, cursor: 'pointer' }}
             onClick={() => onTest(connection)}
           />
@@ -79,5 +73,5 @@ export const ConnectionStatus = ({ connection, onTest }: Props) => {
       )}
       <span className={status}>{STATUS_MAP[status]}</span>
     </Wrapper>
-  )
-}
+  );
+};

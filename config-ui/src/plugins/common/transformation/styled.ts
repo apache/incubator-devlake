@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   .block {
@@ -57,4 +57,4 @@ export const Wrapper = styled.div`
     justify-content: flex-end;
     margin-top: 16px;
   }
-`
+`;

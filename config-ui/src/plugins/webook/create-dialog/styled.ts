@@ -16,8 +16,8 @@
  *
  */
 
-import styled from 'styled-components'
-import { Colors } from '@blueprintjs/core'
+import styled from 'styled-components';
+import { Colors } from '@blueprintjs/core';
 
 export const Wrapper = styled.div`
   h2 {
@@ -48,4 +48,4 @@ export const Wrapper = styled.div`
     padding: 10px 16px;
     background: #f0f4fe;
   }
-`
+`;

@@ -16,27 +16,23 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import { Dialog } from '@/components'
-import { DataScope } from '@/plugins'
+import { Dialog } from '@/components';
+import { DataScope } from '@/plugins';
 
-import type { ConfigConnectionItemType } from '../../types'
+import type { ConfigConnectionItemType } from '../../types';
 
 interface Props {
-  connection?: ConfigConnectionItemType
-  onCancel: () => void
-  onSubmit: (connection: any) => void
+  connection?: ConfigConnectionItemType;
+  onCancel: () => void;
+  onSubmit: (connection: any) => void;
 }
 
-export const UpdateScopeDialog = ({
-  connection,
-  onCancel,
-  onSubmit
-}: Props) => {
-  if (!connection) return null
+export const UpdateScopeDialog = ({ connection, onCancel, onSubmit }: Props) => {
+  if (!connection) return null;
 
-  const { plugin, connectionId, entities } = connection
+  const { plugin, connectionId, entities } = connection;
 
   const handleSaveScope = (sc: any) => {
     onSubmit({
@@ -44,19 +40,13 @@ export const UpdateScopeDialog = ({
       connectionId,
       scopes: sc.map((it: any) => ({
         ...it,
-        id: `${it.id}`
-      }))
-    })
-  }
+        id: `${it.id}`,
+      })),
+    });
+  };
 
   return (
-    <Dialog
-      isOpen
-      title='Change Data Scope'
-      footer={null}
-      style={{ width: 900 }}
-      onCancel={onCancel}
-    >
+    <Dialog isOpen title="Change Data Scope" footer={null} style={{ width: 900 }} onCancel={onCancel}>
       <DataScope
         plugin={plugin}
         connectionId={connectionId}
@@ -65,5 +55,5 @@ export const UpdateScopeDialog = ({
         onSave={handleSaveScope}
       />
     </Dialog>
-  )
-}
+  );
+};

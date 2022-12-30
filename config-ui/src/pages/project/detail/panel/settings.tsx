@@ -16,62 +16,51 @@
  *
  */
 
-import React, { useEffect, useState } from 'react'
-import {
-  InputGroup,
-  Checkbox,
-  ButtonGroup,
-  Button,
-  Intent
-} from '@blueprintjs/core'
+import React, { useEffect, useState } from 'react';
+import { InputGroup, Checkbox, ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
-import { Card } from '@/components'
+import { Card } from '@/components';
 
-import type { ProjectType } from '../types'
+import type { ProjectType } from '../types';
 
 interface Props {
-  project: ProjectType
-  onUpdate: (name: string, enableDora: boolean) => void
+  project: ProjectType;
+  onUpdate: (name: string, enableDora: boolean) => void;
 }
 
 export const SettingsPanel = ({ project, onUpdate }: Props) => {
-  const [name, setName] = useState('')
-  const [enableDora, setEnableDora] = useState(false)
+  const [name, setName] = useState('');
+  const [enableDora, setEnableDora] = useState(false);
 
   useEffect(() => {
     if (project) {
-      setName(project.name)
-      setEnableDora(project.enableDora)
+      setName(project.name);
+      setEnableDora(project.enableDora);
     }
-  }, [project])
+  }, [project]);
 
-  const handleSave = () => onUpdate(name, enableDora)
+  const handleSave = () => onUpdate(name, enableDora);
 
   return (
     <Card>
-      <div className='settings'>
-        <div className='block'>
+      <div className="settings">
+        <div className="block">
           <h3>Project Name *</h3>
           <p>Edit your project name.</p>
           <InputGroup value={name} onChange={(e) => setName(e.target.value)} />
         </div>
-        <div className='block'>
+        <div className="block">
           <Checkbox
-            label='Enable DORA Metrics'
+            label="Enable DORA Metrics"
             checked={enableDora}
-            onChange={(e) =>
-              setEnableDora((e.target as HTMLInputElement).checked)
-            }
+            onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
           />
-          <p>
-            DORA metrics are four widely-adopted metrics for measuring software
-            delivery performance.
-          </p>
+          <p>DORA metrics are four widely-adopted metrics for measuring software delivery performance.</p>
         </div>
         <ButtonGroup>
-          <Button text='Save' intent={Intent.PRIMARY} onClick={handleSave} />
+          <Button text="Save" intent={Intent.PRIMARY} onClick={handleSave} />
         </ButtonGroup>
       </div>
     </Card>
-  )
-}
+  );
+};

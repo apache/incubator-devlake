@@ -16,10 +16,10 @@
  *
  */
 
-import type { PluginConfigType } from '@/plugins'
-import { Plugins, PluginType } from '@/plugins'
+import type { PluginConfigType } from '@/plugins';
+import { Plugins, PluginType } from '@/plugins';
 
-import Icon from './assets/icon.svg'
+import Icon from './assets/icon.svg';
 
 export const GitHubConfig: PluginConfigType = {
   plugin: Plugins.GitHub,
@@ -28,7 +28,7 @@ export const GitHubConfig: PluginConfigType = {
   icon: Icon,
   connection: {
     initialValues: {
-      enableGraphql: true
+      enableGraphql: true,
     },
     fields: [
       {
@@ -36,44 +36,42 @@ export const GitHubConfig: PluginConfigType = {
         label: 'Connection Name',
         type: 'text',
         required: true,
-        placeholder: 'eg. GitHub'
+        placeholder: 'eg. GitHub',
       },
       {
         key: 'endpoint',
         label: 'Endpoint URL',
         type: 'text',
         required: true,
-        placeholder: 'eg. https://api.github.com/'
+        placeholder: 'eg. https://api.github.com/',
       },
       {
         key: 'token',
         label: 'Basic Auth Token',
         type: 'github-token',
         required: true,
-        tooltip:
-          "Due to Github's rate limit, input more tokens, \ncomma separated, to accelerate data collection."
+        tooltip: "Due to Github's rate limit, input more tokens, \ncomma separated, to accelerate data collection.",
       },
       {
         key: 'proxy',
         label: 'Proxy URL',
         type: 'text',
-        placeholder: 'eg. http://proxy.localhost:8080'
+        placeholder: 'eg. http://proxy.localhost:8080',
       },
       {
         key: 'enableGraphql',
         label: 'Use Graphql APIs',
         type: 'switch',
         tooltip:
-          'GraphQL APIs are 10+ times faster than REST APIs, but it may not be supported in GitHub on-premise versions.'
+          'GraphQL APIs are 10+ times faster than REST APIs, but it may not be supported in GitHub on-premise versions.',
       },
       {
         key: 'rateLimitPerHour',
         label: 'Rate Limit (per hour)',
         type: 'numeric',
-        tooltip:
-          'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.'
-      }
-    ]
+        tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
+      },
+    ],
   },
   entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],
   transformation: {
@@ -88,6 +86,6 @@ export const GitHubConfig: PluginConfigType = {
     prBodyClosePattern: '',
     productionPattern: '',
     deploymentPattern: '',
-    refdiff: null
-  }
-}
+    refdiff: null,
+  },
+};

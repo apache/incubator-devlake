@@ -16,38 +16,26 @@
  *
  */
 
-import React, { useMemo } from 'react'
-import {
-  Icon,
-  Tag,
-  ButtonGroup,
-  Button,
-  Intent,
-  Colors,
-  IconName
-} from '@blueprintjs/core'
+import React, { useMemo } from 'react';
+import { Icon, Tag, ButtonGroup, Button, Intent, Colors, IconName } from '@blueprintjs/core';
 
-import { Card } from '@/components'
-import { DEVLAKE_ENDPOINT } from '@/config'
+import { Card } from '@/components';
+import { DEVLAKE_ENDPOINT } from '@/config';
 
-import type { UseOfflineProps } from './use-offline'
-import { useOffline } from './use-offline'
+import type { UseOfflineProps } from './use-offline';
+import { useOffline } from './use-offline';
 
 interface Props extends UseOfflineProps {}
 
 export const Offline = ({ ...props }: Props) => {
   const { processing, offline, onRefresh, onContinue } = useOffline({
-    ...props
-  })
+    ...props,
+  });
 
   const [icon, color, text] = useMemo(
-    () => [
-      offline ? 'offline' : 'endorsed',
-      offline ? Colors.RED3 : Colors.GREEN3,
-      offline ? 'Offline' : 'Online'
-    ],
-    [offline]
-  )
+    () => [offline ? 'offline' : 'endorsed', offline ? Colors.RED3 : Colors.GREEN3, offline ? 'Offline' : 'Online'],
+    [offline],
+  );
 
   return (
     <Card>
@@ -63,36 +51,25 @@ export const Offline = ({ ...props }: Props) => {
         <>
           <p>
             Please wait for the&nbsp;
-            <strong>Lake API</strong> to start before accessing the{' '}
-            <strong>Configuration Interface</strong>.
+            <strong>Lake API</strong> to start before accessing the <strong>Configuration Interface</strong>.
           </p>
           <ButtonGroup>
-            <Button
-              loading={processing}
-              icon='refresh'
-              intent={Intent.PRIMARY}
-              text='Refresh'
-              onClick={onRefresh}
-            />
+            <Button loading={processing} icon="refresh" intent={Intent.PRIMARY} text="Refresh" onClick={onRefresh} />
           </ButtonGroup>
         </>
       ) : (
         <>
           <p>Connectivity to the Lake API service was successful.</p>
           <ButtonGroup>
+            <Button intent={Intent.PRIMARY} text="Continue" onClick={onContinue} />
             <Button
-              intent={Intent.PRIMARY}
-              text='Continue'
-              onClick={onContinue}
-            />
-            <Button
-              icon='help'
-              text='Read Documentation'
+              icon="help"
+              text="Read Documentation"
               onClick={() =>
                 window.open(
                   'https://github.com/apache/incubator-devlake/blob/main/README.md',
                   '_blank',
-                  'noopener,noreferrer'
+                  'noopener,noreferrer',
                 )
               }
             />
@@ -100,5 +77,5 @@ export const Offline = ({ ...props }: Props) => {
         </>
       )}
     </Card>
-  )
-}
+  );
+};

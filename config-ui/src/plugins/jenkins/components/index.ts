@@ -16,5 +16,5 @@
  *
  */
 
-export * from './miller-columns'
-export * from './ci-cd'
+export * from './miller-columns';
+export * from './ci-cd';

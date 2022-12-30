@@ -16,15 +16,15 @@
  *
  */
 
-import React from 'react'
-import { Drawer, DrawerSize, Classes, IconName } from '@blueprintjs/core'
+import React from 'react';
+import { Drawer, DrawerSize, Classes, IconName } from '@blueprintjs/core';
 
-import { useCreateBP } from '../../bp-context'
+import { useCreateBP } from '../../bp-context';
 
-import * as S from './styled'
+import * as S from './styled';
 
 export const Inspector = () => {
-  const { name, payload, showInspector, onChangeShowInspector } = useCreateBP()
+  const { name, payload, showInspector, onChangeShowInspector } = useCreateBP();
 
   const props = {
     icon: 'code' as IconName,
@@ -37,22 +37,22 @@ export const Inspector = () => {
     usePortal: true,
     isOpen: showInspector,
     title: name,
-    onClose: () => onChangeShowInspector(false)
-  }
+    onClose: () => onChangeShowInspector(false),
+  };
 
   return (
     <Drawer {...props}>
       <S.Container className={Classes.DRAWER_BODY}>
-        <div className='title'>
+        <div className="title">
           <h3>JSON CONFIGURATION</h3>
           <span>application/json</span>
         </div>
-        <div className='content'>
+        <div className="content">
           <code>
             <pre>{JSON.stringify(payload, null, '  ')}</pre>
           </code>
         </div>
       </S.Container>
     </Drawer>
-  )
-}
+  );
+};

@@ -16,8 +16,8 @@
  *
  */
 
-import { Colors } from '@blueprintjs/core'
-import styled from 'styled-components'
+import { Colors } from '@blueprintjs/core';
+import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   .bp4-form-group {
@@ -52,12 +52,12 @@ export const Wrapper = styled.div`
     justify-content: space-between;
     margin-top: 32px;
   }
-`
+`;
 
 export const Label = styled.span`
   display: inline-flex;
   align-items: center;
-`
+`;
 
 export const RateLimit = styled.div`
   display: flex;
@@ -66,7 +66,7 @@ export const RateLimit = styled.div`
   & > .bp4-numeric-input {
     margin-right: 8px;
   }
-`
+`;
 
 export const GitHubToken = styled.div`
   p {
@@ -85,4 +85,4 @@ export const GitHubToken = styled.div`
     justify-content: space-between;
     margin-bottom: 8px;
   }
-`
+`;

@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   .action {
@@ -26,7 +26,7 @@ export const Wrapper = styled.div`
       margin-left: 8px;
     }
   }
-`
+`;
 
 export const DeleteConfirm = styled.div`
   padding: 16px 24px;
@@ -44,4 +44,4 @@ export const DeleteConfirm = styled.div`
     display: flex;
     justify-content: flex-end;
   }
-`
+`;

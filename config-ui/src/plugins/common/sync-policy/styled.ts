@@ -16,17 +16,17 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Wrapper = styled.div`
   .block + .block {
     margin-top: 24px;
   }
-`
+`;
 export const Input = styled.div`
   display: flex;
   align-items: center;
-`
+`;
 
 export const Help = styled.div`
   padding: 10px;
@@ -46,4 +46,4 @@ export const Help = styled.div`
   img {
     width: 100%;
   }
-`
+`;

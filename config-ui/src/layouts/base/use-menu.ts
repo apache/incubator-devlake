@@ -16,30 +16,28 @@
  *
  */
 
-import { useMemo } from 'react'
-import { IconName } from '@blueprintjs/core'
+import { useMemo } from 'react';
+import { IconName } from '@blueprintjs/core';
 
-import { PluginConfig, PluginType } from '@/plugins'
+import { PluginConfig, PluginType } from '@/plugins';
 
 export type MenuItemType = {
-  key: string
-  title: string
-  icon?: IconName
-  iconUrl?: string
-  path: string
-  children?: MenuItemType[]
-  target?: boolean
-}
+  key: string;
+  title: string;
+  icon?: IconName;
+  iconUrl?: string;
+  path: string;
+  children?: MenuItemType[];
+  target?: boolean;
+};
 
 export const useMenu = () => {
   const getGrafanaUrl = () => {
-    const suffix = '/d/0Rjxknc7z/demo-homepage?orgId=1'
-    const { protocol, hostname } = window.location
+    const suffix = '/d/0Rjxknc7z/demo-homepage?orgId=1';
+    const { protocol, hostname } = window.location;
 
-    return process.env.LOCAL
-      ? `${protocol}//${hostname}:3002${suffix}`
-      : `/grafana/${suffix}`
-  }
+    return process.env.LOCAL ? `${protocol}//${hostname}:3002${suffix}` : `/grafana/${suffix}`;
+  };
 
   return useMemo(
     () =>
@@ -48,7 +46,7 @@ export const useMenu = () => {
           key: 'project',
           title: 'Projects',
           icon: 'home',
-          path: '/projects'
+          path: '/projects',
         },
         {
           key: 'connection',
@@ -56,15 +54,13 @@ export const useMenu = () => {
           icon: 'data-connection',
           path: '/connections',
           children: PluginConfig.filter((p) =>
-            [PluginType.Connection, PluginType.Incoming_Connection].includes(
-              p.type
-            )
+            [PluginType.Connection, PluginType.Incoming_Connection].includes(p.type),
           ).map((it) => ({
             key: it.plugin,
             title: it.name,
             iconUrl: it.icon,
-            path: `/connections/${it.plugin}`
-          }))
+            path: `/connections/${it.plugin}`,
+          })),
         },
         {
           key: 'blueprint',
@@ -76,24 +72,24 @@ export const useMenu = () => {
               key: 'create-blueprint',
               title: 'Create Blueprint',
               icon: 'git-pull',
-              path: '/blueprints/create'
-            }
-          ]
+              path: '/blueprints/create',
+            },
+          ],
         },
         {
           key: 'transformation',
           title: 'Transformation',
           icon: 'function',
-          path: '/transformations'
+          path: '/transformations',
         },
         {
           key: 'dashboard',
           title: 'Dashboard',
           icon: 'dashboard',
           path: getGrafanaUrl(),
-          target: true
-        }
+          target: true,
+        },
       ] as MenuItemType[],
-    []
-  )
-}
+    [],
+  );
+};

@@ -16,42 +16,39 @@
  *
  */
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react';
 
-import { operator } from '@/utils'
+import { operator } from '@/utils';
 
-import * as API from '../api'
+import * as API from '../api';
 
 export interface UseDeleteProps {
   initialValues?: {
-    id: ID
-  }
-  onSubmitAfter?: (id: ID) => void
+    id: ID;
+  };
+  onSubmitAfter?: (id: ID) => void;
 }
 
 export const useDelete = ({ initialValues, onSubmitAfter }: UseDeleteProps) => {
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving] = useState(false);
 
   const handleDelete = async () => {
-    if (!initialValues) return
+    if (!initialValues) return;
 
-    const [success] = await operator(
-      () => API.deleteConnection(initialValues.id),
-      {
-        setOperating: setSaving
-      }
-    )
+    const [success] = await operator(() => API.deleteConnection(initialValues.id), {
+      setOperating: setSaving,
+    });
 
     if (success) {
-      onSubmitAfter?.(initialValues.id)
+      onSubmitAfter?.(initialValues.id);
     }
-  }
+  };
 
   return useMemo(
     () => ({
       saving,
-      onSubmit: handleDelete
+      onSubmit: handleDelete,
     }),
-    [saving]
-  )
-}
+    [saving],
+  );
+};

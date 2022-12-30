@@ -16,4 +16,4 @@
  *
  */
 
-export * from './pipeline-detail'
+export * from './pipeline-detail';

@@ -16,70 +16,70 @@
  *
  */
 
-import React, { useMemo } from 'react'
-import { Icon, Intent } from '@blueprintjs/core'
-import { Tooltip2 } from '@blueprintjs/popover2'
+import React, { useMemo } from 'react';
+import { Icon, Intent } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
 
-import type { PluginConfigType } from '@/plugins'
-import { Plugins, PluginConfig } from '@/plugins'
-import { duration } from '@/utils'
+import type { PluginConfigType } from '@/plugins';
+import { Plugins, PluginConfig } from '@/plugins';
+import { duration } from '@/utils';
 
-import { StatusEnum, TaskType } from '../../../types'
-import { STATUS_CLS } from '../../../misc'
+import { StatusEnum, TaskType } from '../../../types';
+import { STATUS_CLS } from '../../../misc';
 
-import * as S from './styled'
+import * as S from './styled';
 
 interface Props {
-  task: TaskType
-  operating: boolean
-  onRerun: (id: ID) => void
+  task: TaskType;
+  operating: boolean;
+  onRerun: (id: ID) => void;
 }
 
 export const Task = ({ task, operating, onRerun }: Props) => {
-  const { beganAt, finishedAt, status, message, progressDetail } = task
+  const { beganAt, finishedAt, status, message, progressDetail } = task;
 
   const [icon, name] = useMemo(() => {
-    const config = PluginConfig.find((p) => p.plugin === task.plugin) as PluginConfigType
-    const options = JSON.parse(task.options)
+    const config = PluginConfig.find((p) => p.plugin === task.plugin) as PluginConfigType;
+    const options = JSON.parse(task.options);
 
-    let name = config.name
+    let name = config.name;
 
     switch (true) {
       case [Plugins.GitHub, Plugins.GitHubGraphql].includes(config.plugin):
-        name = `${name}:${options.name}`
-        break
+        name = `${name}:${options.name}`;
+        break;
       case Plugins.GitExtractor === config.plugin:
-        name = `${name}:${options.repoId}`
-        break
+        name = `${name}:${options.repoId}`;
+        break;
       case [Plugins.DORA, Plugins.RefDiff].includes(config.plugin):
-        name = `${name}:${options.projectName}`
-        break
+        name = `${name}:${options.projectName}`;
+        break;
       case Plugins.GitLab === config.plugin:
-        name = `${name}:projectId:${options.projectId}`
-        break
+        name = `${name}:projectId:${options.projectId}`;
+        break;
     }
 
-    return [config.icon, name]
-  }, [task])
+    return [config.icon, name];
+  }, [task]);
 
-  const statusCls = STATUS_CLS(status)
+  const statusCls = STATUS_CLS(status);
 
   const handleRerun = () => {
-    if (operating) return
-    onRerun(task.id)
-  }
+    if (operating) return;
+    onRerun(task.id);
+  };
 
   return (
     <S.Wrapper>
       <S.Info>
-        <div className='title'>
-          <img src={icon} alt='' />
+        <div className="title">
+          <img src={icon} alt="" />
           <strong>Task{task.id}</strong>
           <span title={name}>{name}</span>
         </div>
-        {[status === StatusEnum.CREATED, StatusEnum.PENDING].includes(
-          status
-        ) && <p className={statusCls}>Subtasks pending</p>}
+        {[status === StatusEnum.CREATED, StatusEnum.PENDING].includes(status) && (
+          <p className={statusCls}>Subtasks pending</p>
+        )}
 
         {[StatusEnum.ACTIVE, StatusEnum.RUNNING].includes(status) && (
           <p className={statusCls}>
@@ -90,9 +90,7 @@ export const Task = ({ task, operating, onRerun }: Props) => {
           </p>
         )}
 
-        {status === StatusEnum.COMPLETED && (
-          <p className={statusCls}>All Subtasks completed</p>
-        )}
+        {status === StatusEnum.COMPLETED && <p className={statusCls}>All Subtasks completed</p>}
 
         {status === StatusEnum.FAILED && (
           <Tooltip2 content={message} intent={Intent.DANGER}>
@@ -100,18 +98,14 @@ export const Task = ({ task, operating, onRerun }: Props) => {
           </Tooltip2>
         )}
 
-        {status === StatusEnum.CANCELLED && (
-          <p className={statusCls}>Subtasks canceled</p>
-        )}
+        {status === StatusEnum.CANCELLED && <p className={statusCls}>Subtasks canceled</p>}
       </S.Info>
       <S.Duration>
-        {[
-          StatusEnum.COMPLETED,
-          StatusEnum.FAILED,
-          StatusEnum.CANCELLED
-        ].includes(status) && <Icon icon='repeat' onClick={handleRerun} />}
+        {[StatusEnum.COMPLETED, StatusEnum.FAILED, StatusEnum.CANCELLED].includes(status) && (
+          <Icon icon="repeat" onClick={handleRerun} />
+        )}
         <span>{duration(beganAt, finishedAt)}</span>
       </S.Duration>
     </S.Wrapper>
-  )
-}
+  );
+};

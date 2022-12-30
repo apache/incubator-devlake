@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Container = styled.div`
   display: flex;
@@ -27,7 +27,7 @@ export const Container = styled.div`
   .bp4-button + .bp4-button {
     margin-left: 8px;
   }
-`
+`;
 
 export const Error = styled.div`
   padding: 6px 10px;
@@ -36,4 +36,4 @@ export const Error = styled.div`
   span.bp4-icon {
     margin-right: 4px;
   }
-`
+`;

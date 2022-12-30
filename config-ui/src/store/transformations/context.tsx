@@ -16,46 +16,45 @@
  *
  */
 
-import React, { useContext } from 'react'
+import React, { useContext } from 'react';
 
-import { PageLoading } from '@/components'
-import type { PluginConfigType } from '@/plugins'
-import { Plugins } from '@/plugins'
+import { PageLoading } from '@/components';
+import type { PluginConfigType } from '@/plugins';
 
-import type { TransformationItemType } from './types'
-import { useContextValue } from './use-context-value'
+import type { TransformationItemType } from './types';
+import { useContextValue } from './use-context-value';
 
 const TransformationContext = React.createContext<{
-  plugins: PluginConfigType[]
-  transformations: TransformationItemType[]
+  plugins: PluginConfigType[];
+  transformations: TransformationItemType[];
 }>({
   plugins: [],
-  transformations: []
-})
+  transformations: [],
+});
 
 interface Props {
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 export const TransformationContextProvider = ({ children }: Props) => {
-  const { loading, plugins, transformations } = useContextValue()
+  const { loading, plugins, transformations } = useContextValue();
 
   if (loading) {
-    return <PageLoading />
+    return <PageLoading />;
   }
 
   return (
     <TransformationContext.Provider
       value={{
         plugins,
-        transformations
+        transformations,
       }}
     >
       {children}
     </TransformationContext.Provider>
-  )
-}
+  );
+};
 
-export const TransformationContextConsumer = TransformationContext.Consumer
+export const TransformationContextConsumer = TransformationContext.Consumer;
 
-export const useTransformation = () => useContext(TransformationContext)
+export const useTransformation = () => useContext(TransformationContext);

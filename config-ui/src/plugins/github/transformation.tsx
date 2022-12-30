@@ -16,22 +16,17 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import { Divider } from '@/components'
+import { Divider } from '@/components';
 
-import * as S from './styled'
+import * as S from './styled';
 
-import {
-  IssueTracking,
-  CiCd,
-  CodeReview,
-  AdditionalSettings
-} from './components'
+import { IssueTracking, CiCd, CodeReview, AdditionalSettings } from './components';
 
 interface Props {
-  transformation: any
-  setTransformation: React.Dispatch<React.SetStateAction<any>>
+  transformation: any;
+  setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export const GitHubTransformation = ({ ...props }: Props) => {
@@ -44,5 +39,5 @@ export const GitHubTransformation = ({ ...props }: Props) => {
       <CodeReview {...props} />
       <AdditionalSettings {...props} />
     </S.TransformationWrapper>
-  )
-}
+  );
+};

@@ -16,42 +16,34 @@
  *
  */
 
-import React, { useState } from 'react'
-import {
-  Checkbox,
-  FormGroup,
-  InputGroup,
-  NumericInput
-} from '@blueprintjs/core'
+import React, { useState } from 'react';
+import { Checkbox, FormGroup, InputGroup, NumericInput } from '@blueprintjs/core';
 
 interface Props {
-  transformation: any
-  setTransformation: React.Dispatch<React.SetStateAction<any>>
+  transformation: any;
+  setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export const AdditionalSettings = ({
-  transformation,
-  setTransformation
-}: Props) => {
-  const [enable, setEnable] = useState(false)
+export const AdditionalSettings = ({ transformation, setTransformation }: Props) => {
+  const [enable, setEnable] = useState(false);
 
   const handleToggleEnable = () => {
-    setEnable(!enable)
-  }
+    setEnable(!enable);
+  };
 
   return (
     <>
       <h3>Additional Settings</h3>
       <Checkbox
         checked={enable}
-        label='Enable calculation of commit and issue difference'
+        label="Enable calculation of commit and issue difference"
         onChange={handleToggleEnable}
       />
       {enable && (
-        <div className='additional-settings-refdiff'>
-          <FormGroup inline label='Tags Limit'>
+        <div className="additional-settings-refdiff">
+          <FormGroup inline label="Tags Limit">
             <NumericInput
-              placeholder='10'
+              placeholder="10"
               allowNumericCharactersOnly={true}
               value={transformation.refdiff?.tagsLimit}
               onValueChange={(tagsLimit) =>
@@ -59,38 +51,38 @@ export const AdditionalSettings = ({
                   ...transformation,
                   refdiff: {
                     ...transformation?.refdiff,
-                    tagsLimit
-                  }
+                    tagsLimit,
+                  },
                 })
               }
             />
           </FormGroup>
-          <FormGroup inline label='Tags Pattern'>
+          <FormGroup inline label="Tags Pattern">
             <InputGroup
-              placeholder='(regex)$'
+              placeholder="(regex)$"
               value={transformation.refdiff?.tagsPattern}
               onChange={(e) =>
                 setTransformation({
                   ...transformation,
                   refdiff: {
                     ...transformation?.refdiff,
-                    tagsPattern: e.target.value
-                  }
+                    tagsPattern: e.target.value,
+                  },
                 })
               }
             />
           </FormGroup>
-          <FormGroup inline label='Tags Order'>
+          <FormGroup inline label="Tags Order">
             <InputGroup
-              placeholder='reverse semver'
+              placeholder="reverse semver"
               value={transformation.refdiff?.tagsOrder}
               onChange={(e) =>
                 setTransformation({
                   ...transformation,
                   refdiff: {
                     ...transformation?.refdiff,
-                    tagsOrder: e.target.value
-                  }
+                    tagsOrder: e.target.value,
+                  },
                 })
               }
             />
@@ -98,5 +90,5 @@ export const AdditionalSettings = ({
         </div>
       )}
     </>
-  )
-}
+  );
+};

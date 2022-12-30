@@ -16,15 +16,17 @@
  *
  */
 
-export default [
+const tapd = [
   [
     {
       plugin: 'tapd',
       options: {
         companyId: 1,
         workspaceId: 1,
-        connectionId: 1
-      }
-    }
-  ]
-]
+        connectionId: 1,
+      },
+    },
+  ],
+];
+
+export default tapd;

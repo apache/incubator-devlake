@@ -16,10 +16,9 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
-export const getJobs = (prefix: string) =>
-  request(`${prefix}/api/json?tree=jobs[name,jobs]{0,10000}`)
+export const getJobs = (prefix: string) => request(`${prefix}/api/json?tree=jobs[name,jobs]{0,10000}`);
 
 export const getJobChildJobs = (prefix: string, childPath: string) =>
-  request(`${prefix}/job/${childPath}/api/json?tree=jobs[name,jobs]{0,10000}`)
+  request(`${prefix}/job/${childPath}/api/json?tree=jobs[name,jobs]{0,10000}`);

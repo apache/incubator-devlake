@@ -16,56 +16,56 @@
  *
  */
 
-import { useState, useEffect, useMemo, useRef } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useHistory } from 'react-router-dom';
 
-import { operator } from '@/utils'
+import { operator } from '@/utils';
 
-import * as API from './api'
+import * as API from './api';
 
-const pollTimer = 10000
-const retryLimit = 10
+const pollTimer = 10000;
+const retryLimit = 10;
 
 export interface UseOfflineProps {
-  onResetError: () => void
+  onResetError: () => void;
 }
 
 export const useOffline = ({ onResetError }: UseOfflineProps) => {
-  const [processing, setProcessing] = useState(false)
-  const [offline, setOffline] = useState(true)
+  const [processing, setProcessing] = useState(false);
+  const [offline, setOffline] = useState(true);
 
-  const history = useHistory()
+  const history = useHistory();
 
-  const timer = useRef<any>()
-  const retryCount = useRef<number>(0)
+  const timer = useRef<any>();
+  const retryCount = useRef<number>(0);
 
   const ping = async (auto = true) => {
     const [success] = await operator(() => API.ping(), {
       setOperating: setProcessing,
-      formatReason: () => 'Attempt to connect to the API failed'
-    })
+      formatReason: () => 'Attempt to connect to the API failed',
+    });
 
     if (success) {
-      setOffline(false)
+      setOffline(false);
     }
 
     if (auto) {
-      retryCount.current += 1
+      retryCount.current += 1;
     }
-  }
+  };
 
   useEffect(() => {
     timer.current = setInterval(() => {
-      ping()
-    }, pollTimer)
-    return () => clearInterval(timer.current)
-  }, [])
+      ping();
+    }, pollTimer);
+    return () => clearInterval(timer.current);
+  }, []);
 
   useEffect(() => {
     if (retryCount.current >= retryLimit || !offline) {
-      clearInterval(timer.current)
+      clearInterval(timer.current);
     }
-  }, [retryCount.current, offline])
+  }, [retryCount.current, offline]);
 
   return useMemo(
     () => ({
@@ -73,10 +73,10 @@ export const useOffline = ({ onResetError }: UseOfflineProps) => {
       offline,
       onRefresh: () => ping(false),
       onContinue: () => {
-        onResetError()
-        history.push('/')
-      }
+        onResetError();
+        history.push('/');
+      },
     }),
-    [processing, offline]
-  )
-}
+    [processing, offline],
+  );
+};

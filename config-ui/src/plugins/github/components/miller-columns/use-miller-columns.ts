@@ -16,45 +16,45 @@
  *
  */
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
-import { ItemType, ColumnType } from 'miller-columns-select'
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { ItemType, ColumnType } from 'miller-columns-select';
 
-import type { ScopeItemType } from '../../types'
-import { useProxyPrefix } from '../../hooks'
-import * as API from '../../api'
+import type { ScopeItemType } from '../../types';
+import { useProxyPrefix } from '../../hooks';
+import * as API from '../../api';
 
-const DEFAULT_PAGE_SIZE = 30
+const DEFAULT_PAGE_SIZE = 30;
 
 type ExtraType = {
-  type: 'org' | 'repo'
-} & ScopeItemType
+  type: 'org' | 'repo';
+} & ScopeItemType;
 
-type GitHubItemType = ItemType<ExtraType>
+type GitHubItemType = ItemType<ExtraType>;
 
-type GitHubColumnType = ColumnType<ExtraType>
+type GitHubColumnType = ColumnType<ExtraType>;
 
-type MapPageType = Record<ID | 'root', number>
+type MapPageType = Record<ID | 'root', number>;
 
 export interface UseMillerColumnsProps {
-  connectionId: string | number
+  connectionId: string | number;
 }
 
 export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
-  const [user, setUser] = useState<any>({})
-  const [items, setItems] = useState<GitHubItemType[]>([])
-  const [expandedIds, setExpandedIds] = useState<ID[]>([])
-  const [loadedIds, setLoadedIds] = useState<ID[]>([])
-  const [mapPage, setMapPage] = useState<MapPageType>({})
+  const [user, setUser] = useState<any>({});
+  const [items, setItems] = useState<GitHubItemType[]>([]);
+  const [expandedIds, setExpandedIds] = useState<ID[]>([]);
+  const [loadedIds, setLoadedIds] = useState<ID[]>([]);
+  const [mapPage, setMapPage] = useState<MapPageType>({});
 
-  const prefix = useProxyPrefix(connectionId)
+  const prefix = useProxyPrefix(connectionId);
 
   const formatOrgs = (orgs: any, parentId: ID | null = null) =>
     orgs.map((it: any) => ({
       parentId,
       id: it.id,
       title: it.login,
-      type: 'org'
-    }))
+      type: 'org',
+    }));
 
   const formatRepos = (repos: any, parentId: ID | null = null) =>
     repos.map((it: any) => ({
@@ -68,115 +68,111 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
       language: it.language,
       description: it.description,
       cloneUrl: it.clone_url,
-      HTMLUrl: it.html_url
-    }))
+      HTMLUrl: it.html_url,
+    }));
 
   const setLoaded = useCallback(
     (loaded: boolean, id: ID, nextPage: number) => {
       if (loaded) {
-        setLoadedIds([...loadedIds, id])
+        setLoadedIds([...loadedIds, id]);
       } else {
-        setMapPage({ ...mapPage, [`${id}`]: nextPage })
+        setMapPage({ ...mapPage, [`${id}`]: nextPage });
       }
     },
-    [loadedIds, mapPage]
-  )
+    [loadedIds, mapPage],
+  );
 
   useEffect(() => {
-    ;(async () => {
-      const user = await API.getUser(prefix)
+    (async () => {
+      const user = await API.getUser(prefix);
       const orgs = await API.getUserOrgs(prefix, user.login, {
         page: 1,
-        per_page: DEFAULT_PAGE_SIZE
-      })
+        per_page: DEFAULT_PAGE_SIZE,
+      });
 
-      const loaded = !orgs.length || orgs.length < DEFAULT_PAGE_SIZE
+      const loaded = !orgs.length || orgs.length < DEFAULT_PAGE_SIZE;
 
-      setUser(user)
-      setLoaded(loaded, 'root', 2)
+      setUser(user);
+      setLoaded(loaded, 'root', 2);
       setItems([
         {
           parentId: null,
           id: user.login,
           title: user.login,
-          type: 'org'
+          type: 'org',
         },
-        ...formatOrgs(orgs)
-      ])
-    })()
-  }, [prefix])
+        ...formatOrgs(orgs),
+      ]);
+    })();
+  }, [prefix]);
 
   const onExpandItem = useCallback(
     async (item: GitHubItemType) => {
       if (expandedIds.includes(item.id)) {
-        return
+        return;
       }
 
-      const isUser = item.id === user.login
+      const isUser = item.id === user.login;
       const repos = isUser
         ? await API.getUserRepos(prefix, user.login, {
             page: 1,
-            per_page: DEFAULT_PAGE_SIZE
+            per_page: DEFAULT_PAGE_SIZE,
           })
         : await API.getOrgRepos(prefix, item.title, {
             page: 1,
-            per_page: DEFAULT_PAGE_SIZE
-          })
+            per_page: DEFAULT_PAGE_SIZE,
+          });
 
-      const loaded = !repos.length || repos.length < DEFAULT_PAGE_SIZE
-      setLoaded(loaded, item.id, 2)
-      setExpandedIds([...expandedIds, item.id])
-      setItems([...items, ...formatRepos(repos, item.id)])
+      const loaded = !repos.length || repos.length < DEFAULT_PAGE_SIZE;
+      setLoaded(loaded, item.id, 2);
+      setExpandedIds([...expandedIds, item.id]);
+      setItems([...items, ...formatRepos(repos, item.id)]);
     },
-    [items, prefix]
-  )
+    [items, prefix],
+  );
 
   const onScrollColumn = async (column: GitHubColumnType) => {
-    const page = mapPage[column.parentId ?? 'root']
-    const isUser = column.parentId === user.login
+    const page = mapPage[column.parentId ?? 'root'];
+    const isUser = column.parentId === user.login;
     const orgs = !column.parentId
       ? await API.getUserOrgs(prefix, user.login, {
           page,
-          per_page: DEFAULT_PAGE_SIZE
+          per_page: DEFAULT_PAGE_SIZE,
         })
-      : []
+      : [];
 
     const repos = column.parentId
       ? isUser
         ? await API.getUserRepos(prefix, user.login, {
             page,
-            per_page: DEFAULT_PAGE_SIZE
+            per_page: DEFAULT_PAGE_SIZE,
           })
         : await API.getOrgRepos(prefix, column.parentTitle, {
             page,
-            per_page: DEFAULT_PAGE_SIZE
+            per_page: DEFAULT_PAGE_SIZE,
           })
-      : []
+      : [];
 
     const loaded = !column.parentId
       ? !orgs.length || orgs.length < DEFAULT_PAGE_SIZE
-      : !repos.length || repos.length < DEFAULT_PAGE_SIZE
+      : !repos.length || repos.length < DEFAULT_PAGE_SIZE;
 
-    setLoaded(loaded, column.parentId ?? 'root', page + 1)
-    setItems([
-      ...items,
-      ...formatOrgs(orgs),
-      ...formatRepos(repos, column.parentId)
-    ])
-  }
+    setLoaded(loaded, column.parentId ?? 'root', page + 1);
+    setItems([...items, ...formatOrgs(orgs), ...formatRepos(repos, column.parentId)]);
+  };
 
   return useMemo(
     () => ({
       items,
       getHasMore(column: GitHubColumnType) {
         if (loadedIds.includes(column.parentId ?? 'root')) {
-          return false
+          return false;
         }
-        return true
+        return true;
       },
       onExpandItem,
-      onScrollColumn
+      onScrollColumn,
     }),
-    [items, loadedIds]
-  )
-}
+    [items, loadedIds],
+  );
+};

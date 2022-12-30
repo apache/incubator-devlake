@@ -16,10 +16,10 @@
  *
  */
 
-import type { PluginConfigType } from '@/plugins'
-import { Plugins, PluginType } from '@/plugins'
+import type { PluginConfigType } from '@/plugins';
+import { Plugins, PluginType } from '@/plugins';
 
-import Icon from './assets/icon.svg'
+import Icon from './assets/icon.svg';
 
 export const JenkinsConfig: PluginConfigType = {
   plugin: Plugins.Jenkins,
@@ -33,47 +33,46 @@ export const JenkinsConfig: PluginConfigType = {
         label: 'Connection Name',
         type: 'text',
         required: true,
-        placeholder: 'eg. GitLab'
+        placeholder: 'eg. GitLab',
       },
       {
         key: 'endpoint',
         label: 'Endpoint URL',
         type: 'text',
         required: true,
-        placeholder: 'eg. https://gitlab.com/api/v4/'
+        placeholder: 'eg. https://gitlab.com/api/v4/',
       },
       {
         key: 'username',
         label: 'Username',
         type: 'text',
         required: true,
-        placeholder: 'eg. admin'
+        placeholder: 'eg. admin',
       },
       {
         key: 'password',
         label: 'Password',
         type: 'password',
         required: true,
-        placeholder: 'eg. ************",'
+        placeholder: 'eg. ************",',
       },
       {
         key: 'proxy',
         label: 'Proxy URL',
         type: 'text',
-        placeholder: 'eg. http://proxy.localhost:8080'
+        placeholder: 'eg. http://proxy.localhost:8080',
       },
       {
         key: 'rateLimitPerHour',
         label: 'Rate Limit (per hour)',
         type: 'numeric',
-        tooltip:
-          'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.'
-      }
-    ]
+        tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
+      },
+    ],
   },
   entities: ['CICD'],
   transformation: {
     productionPattern: '',
-    deploymentPattern: ''
-  }
-}
+    deploymentPattern: '',
+  },
+};

@@ -16,31 +16,26 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import { MultiSelector } from '@/components'
+import { MultiSelector } from '@/components';
 
-import { ScopeItemType } from '../../types'
+import { ScopeItemType } from '../../types';
 
-import { useRepoSelector, UseRepoSelectorProps } from './use-repo-selector'
+import { useRepoSelector, UseRepoSelectorProps } from './use-repo-selector';
 
 interface Props extends UseRepoSelectorProps {
-  disabledItems: ScopeItemType[]
-  selectedItems: ScopeItemType[]
-  onChangeItems: (selectedItems: ScopeItemType[]) => void
+  disabledItems: ScopeItemType[];
+  selectedItems: ScopeItemType[];
+  onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const RepoSelector = ({
-  disabledItems,
-  selectedItems,
-  onChangeItems,
-  ...props
-}: Props) => {
-  const { loading, items, onSearch } = useRepoSelector(props)
+export const RepoSelector = ({ disabledItems, selectedItems, onChangeItems, ...props }: Props) => {
+  const { loading, items, onSearch } = useRepoSelector(props);
 
   return (
     <MultiSelector
-      placeholder='Search Repositories...'
+      placeholder="Search Repositories..."
       items={items}
       getKey={(it) => it.githubId}
       getName={(it) => it.name}
@@ -48,8 +43,8 @@ export const RepoSelector = ({
       selectedItems={selectedItems}
       onChangeItems={onChangeItems}
       loading={loading}
-      noResult='No Repositories Available.'
+      noResult="No Repositories Available."
       onQueryChange={onSearch}
     />
-  )
-}
+  );
+};

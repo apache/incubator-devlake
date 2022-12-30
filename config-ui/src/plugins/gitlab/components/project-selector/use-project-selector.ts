@@ -16,38 +16,36 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react';
 
-import type { ScopeItemType } from '../../types'
-import { ScopeFromEnum } from '../../types'
-import { useProxyPrefix } from '../../hooks'
-import * as API from '../../api'
+import type { ScopeItemType } from '../../types';
+import { ScopeFromEnum } from '../../types';
+import { useProxyPrefix } from '../../hooks';
+import * as API from '../../api';
 
 export interface UseProjectSelectorProps {
-  connectionId: ID
+  connectionId: ID;
 }
 
-export const usebProjectSelector = ({
-  connectionId
-}: UseProjectSelectorProps) => {
-  const [loading, setLoading] = useState(false)
-  const [items, setItems] = useState<ScopeItemType[]>([])
-  const [search, setSearch] = useState('')
-  const [membership, setMembership] = useState(true)
+export const useProjectSelector = ({ connectionId }: UseProjectSelectorProps) => {
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState<ScopeItemType[]>([]);
+  const [search, setSearch] = useState('');
+  const [membership, setMembership] = useState(true);
 
-  const prefix = useProxyPrefix(connectionId)
+  const prefix = useProxyPrefix(connectionId);
 
   useEffect(() => {
-    if (!search) return
-    setItems([])
-    setLoading(true)
+    if (!search) return;
+    setItems([]);
+    setLoading(true);
 
     const timer = setTimeout(async () => {
       try {
         const res = await API.searchProject(prefix, {
           search,
-          membership
-        })
+          membership,
+        });
         setItems(
           res.map((it: any) => ({
             from: ScopeFromEnum.PROJECT_SELECTOR,
@@ -61,16 +59,16 @@ export const usebProjectSelector = ({
             starCount: it.star_count,
             visibility: it.visibility,
             webUrl: it.web_url,
-            httpUrlToRepo: it.http_url_to_repo
-          }))
-        )
+            httpUrlToRepo: it.http_url_to_repo,
+          })),
+        );
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }, 1000)
+    }, 1000);
 
-    return () => clearTimeout(timer)
-  }, [prefix, search, membership])
+    return () => clearTimeout(timer);
+  }, [prefix, search, membership]);
 
   return useMemo(
     () => ({
@@ -78,12 +76,12 @@ export const usebProjectSelector = ({
       items,
       membership,
       onSearch(s: string) {
-        setSearch(s)
+        setSearch(s);
       },
       onChangeMembership(e: React.ChangeEvent<HTMLInputElement>) {
-        setMembership(e.target.checked)
-      }
+        setMembership(e.target.checked);
+      },
     }),
-    [loading, items, membership]
-  )
-}
+    [loading, items, membership],
+  );
+};

@@ -16,17 +16,17 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import { Divider } from '@/components'
+import { Divider } from '@/components';
 
-import { IssueTracking, AdditionalSettings } from './components'
-import * as S from './styled'
+import { IssueTracking, AdditionalSettings } from './components';
+import * as S from './styled';
 
 interface Props {
-  connectionId: ID
-  transformation: any
-  setTransformation: React.Dispatch<React.SetStateAction<any>>
+  connectionId: ID;
+  transformation: any;
+  setTransformation: React.Dispatch<React.SetStateAction<any>>;
 }
 
 export const JIRATransformation = ({ ...props }: Props) => {
@@ -36,5 +36,5 @@ export const JIRATransformation = ({ ...props }: Props) => {
       <Divider />
       <AdditionalSettings {...props} />
     </S.TransformationWrapper>
-  )
-}
+  );
+};

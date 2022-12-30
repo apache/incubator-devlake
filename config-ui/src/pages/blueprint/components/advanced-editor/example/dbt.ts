@@ -16,7 +16,7 @@
  *
  */
 
-export default [
+const dbt = [
   [
     {
       plugin: 'dbt',
@@ -28,7 +28,7 @@ export default [
         selectedModels: ['model_one', 'model_two'],
         projectVars: {
           demokey1: 'demovalue1',
-          demokey2: 'demovalue2'
+          demokey2: 'demovalue2',
         },
         failFast: false,
         profilesPath: '',
@@ -41,8 +41,10 @@ export default [
         defer: false,
         noDefer: false,
         fullRefresh: false,
-        args: []
-      }
-    }
-  ]
-]
+        args: [],
+      },
+    },
+  ],
+];
+
+export default dbt;

@@ -16,14 +16,14 @@
  *
  */
 
-import type { PluginConfigType } from '@/plugins'
-import { Plugins, PluginType } from '@/plugins'
+import type { PluginConfigType } from '@/plugins';
+import { Plugins, PluginType } from '@/plugins';
 
-import Icon from './assets/icon.svg'
+import Icon from './assets/icon.svg';
 
 export const FeiShuConfig: PluginConfigType = {
   plugin: Plugins.FeiShu,
   name: 'FeiShu',
   type: PluginType.Pipeline,
-  icon: Icon
-}
+  icon: Icon,
+};

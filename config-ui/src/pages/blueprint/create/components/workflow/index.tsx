@@ -16,37 +16,32 @@
  *
  */
 
-import React, { useMemo } from 'react'
+import React, { useMemo } from 'react';
 
-import { ModeEnum } from '../../../types'
-import { useCreateBP } from '../../bp-context'
+import { ModeEnum } from '../../../types';
+import { useCreateBP } from '../../bp-context';
 
-import * as S from './styled'
+import * as S from './styled';
 
 export const WorkFlow = () => {
-  const { step, mode } = useCreateBP()
+  const { step, mode } = useCreateBP();
 
   const steps = useMemo(
     () =>
       mode === ModeEnum.normal
-        ? [
-            'Add Data Connections',
-            'Set Data Scope',
-            'Add Transformation (Optional)',
-            'Set Sync Policy'
-          ]
+        ? ['Add Data Connections', 'Set Data Scope', 'Add Transformation (Optional)', 'Set Sync Policy']
         : ['Create Advanced Configuration', 'Set Sync Policy'],
-    [mode]
-  )
+    [mode],
+  );
 
   return (
     <S.List>
       {steps.map((it, i) => (
         <S.Item key={it} active={i + 1 === step}>
-          <span className='step'>{i + 1}</span>
-          <span className='name'>{it}</span>
+          <span className="step">{i + 1}</span>
+          <span className="name">{it}</span>
         </S.Item>
       ))}
     </S.List>
-  )
-}
+  );
+};

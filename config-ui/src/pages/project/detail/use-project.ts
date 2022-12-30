@@ -16,45 +16,43 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useState, useEffect, useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
 
-import type { WebhookItemType } from '@/plugins'
-import { Plugins } from '@/plugins'
-import { operator } from '@/utils'
+import type { WebhookItemType } from '@/plugins';
+import { Plugins } from '@/plugins';
+import { operator } from '@/utils';
 
-import type { ProjectType } from './types'
-import * as API from './api'
+import type { ProjectType } from './types';
+import * as API from './api';
 
 export const useProject = (name: string) => {
-  const [loading, setLoading] = useState(false)
-  const [project, setProject] = useState<ProjectType>()
-  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [project, setProject] = useState<ProjectType>();
+  const [saving, setSaving] = useState(false);
 
-  const history = useHistory()
+  const history = useHistory();
 
   const getProject = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await API.getProject(name)
-      const doraMetrics = res.metrics.find(
-        (ms: any) => ms.pluginName === 'dora'
-      )
+      const res = await API.getProject(name);
+      const doraMetrics = res.metrics.find((ms: any) => ms.pluginName === 'dora');
 
       setProject({
         name: res.name,
         description: res.description,
         blueprint: res.blueprint,
-        enableDora: doraMetrics.enable
-      })
+        enableDora: doraMetrics.enable,
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    getProject()
-  }, [])
+    getProject();
+  }, []);
 
   const handleUpdate = async (newName: string, enableDora: boolean) => {
     const payload = {
@@ -64,17 +62,17 @@ export const useProject = (name: string) => {
         {
           pluginName: 'dora',
           pluginOption: '',
-          enable: enableDora
-        }
-      ]
-    }
+          enable: enableDora,
+        },
+      ],
+    };
 
-    const [success] = await operator(() => API.updateProject(name, payload))
+    const [success] = await operator(() => API.updateProject(name, payload));
 
     if (success) {
-      history.push(`/projects/${newName}`)
+      history.push(`/projects/${newName}`);
     }
-  }
+  };
 
   const handleSelectWebhook = async (items: WebhookItemType[]) => {
     const payload = {
@@ -85,23 +83,20 @@ export const useProject = (name: string) => {
           ...project?.blueprint.settings.connections,
           ...items.map((it) => ({
             plugin: Plugins.Webhook,
-            connectionId: it.id
-          }))
-        ]
-      }
-    }
+            connectionId: it.id,
+          })),
+        ],
+      },
+    };
 
-    const [success] = await operator(
-      () => API.updateBlueprint(project?.blueprint.id, payload),
-      {
-        setOperating: setSaving
-      }
-    )
+    const [success] = await operator(() => API.updateBlueprint(project?.blueprint.id, payload), {
+      setOperating: setSaving,
+    });
 
     if (success) {
-      getProject()
+      getProject();
     }
-  }
+  };
 
   const handleCreateWebhook = async (id: ID) => {
     const payload = {
@@ -112,23 +107,20 @@ export const useProject = (name: string) => {
           ...project?.blueprint.settings.connections,
           {
             plugin: Plugins.Webhook,
-            connectionId: id
-          }
-        ]
-      }
-    }
+            connectionId: id,
+          },
+        ],
+      },
+    };
 
-    const [success] = await operator(
-      () => API.updateBlueprint(project?.blueprint.id, payload),
-      {
-        setOperating: setSaving
-      }
-    )
+    const [success] = await operator(() => API.updateBlueprint(project?.blueprint.id, payload), {
+      setOperating: setSaving,
+    });
 
     if (success) {
-      getProject()
+      getProject();
     }
-  }
+  };
 
   return useMemo(
     () => ({
@@ -137,8 +129,8 @@ export const useProject = (name: string) => {
       saving,
       onUpdate: handleUpdate,
       onSelectWebhook: handleSelectWebhook,
-      onCreateWebhook: handleCreateWebhook
+      onCreateWebhook: handleCreateWebhook,
     }),
-    [loading, project, saving]
-  )
-}
+    [loading, project, saving],
+  );
+};

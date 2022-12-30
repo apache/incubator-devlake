@@ -16,16 +16,16 @@
  *
  */
 
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { BrowserRouter } from 'react-router-dom'
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { BrowserRouter } from 'react-router-dom';
 
-import { ErrorBoundary } from '@/error'
-import { VersionContextProvider } from '@/store'
+import { ErrorBoundary } from '@/error';
+import { VersionContextProvider } from '@/store';
 
-import App from './App'
+import App from './App';
 
-import './index.css'
+import './index.css';
 
 ReactDOM.render(
   <BrowserRouter>
@@ -35,5 +35,5 @@ ReactDOM.render(
       </VersionContextProvider>
     </ErrorBoundary>
   </BrowserRouter>,
-  document.getElementById('app')
-)
+  document.getElementById('app'),
+);

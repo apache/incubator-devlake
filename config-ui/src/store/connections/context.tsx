@@ -16,35 +16,35 @@
  *
  */
 
-import React, { useContext } from 'react'
+import React, { useContext } from 'react';
 
-import { PageLoading } from '@/components'
+import { PageLoading } from '@/components';
 
-import type { ConnectionItemType } from './types'
-import type { UseContextValueProps } from './use-context-value'
-import { useContextValue } from './use-context-value'
+import type { ConnectionItemType } from './types';
+import type { UseContextValueProps } from './use-context-value';
+import { useContextValue } from './use-context-value';
 
 const ConnectionContext = React.createContext<{
-  connections: ConnectionItemType[]
-  onRefresh: () => void
-  onTest: (selectedConnection: ConnectionItemType) => void
+  connections: ConnectionItemType[];
+  onRefresh: () => void;
+  onTest: (selectedConnection: ConnectionItemType) => void;
 }>({
   connections: [],
   onRefresh: () => {},
-  onTest: () => {}
-})
+  onTest: () => {},
+});
 
 interface Props extends UseContextValueProps {
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 export const ConnectionContextProvider = ({ children, ...props }: Props) => {
   const { loading, connections, onRefresh, onTest } = useContextValue({
-    ...props
-  })
+    ...props,
+  });
 
   if (loading) {
-    return <PageLoading />
+    return <PageLoading />;
   }
 
   return (
@@ -52,14 +52,14 @@ export const ConnectionContextProvider = ({ children, ...props }: Props) => {
       value={{
         connections,
         onRefresh,
-        onTest
+        onTest,
       }}
     >
       {children}
     </ConnectionContext.Provider>
-  )
-}
+  );
+};
 
-export const ConnectionContextConsumer = ConnectionContext.Consumer
+export const ConnectionContextConsumer = ConnectionContext.Consumer;
 
-export const useConnection = () => useContext(ConnectionContext)
+export const useConnection = () => useContext(ConnectionContext);

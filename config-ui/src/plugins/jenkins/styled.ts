@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const TransformationWrapper = styled.div`
   h3 {
@@ -43,4 +43,4 @@ export const TransformationWrapper = styled.div`
       flex: auto;
     }
   }
-`
+`;

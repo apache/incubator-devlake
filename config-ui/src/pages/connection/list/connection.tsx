@@ -16,51 +16,50 @@
  *
  */
 
-import React, { useState, useEffect, useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
-import { ButtonGroup, Button, Intent, Position } from '@blueprintjs/core'
-import { Popover2 } from '@blueprintjs/popover2'
+import React, { useState, useEffect, useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
+import { ButtonGroup, Button, Intent, Position } from '@blueprintjs/core';
+import { Popover2 } from '@blueprintjs/popover2';
 
-import { Table, ColumnType } from '@/components'
-import { Plugins } from '@/plugins'
-import type { ConnectionItemType } from '@/store'
-import { useConnection, ConnectionStatus } from '@/store'
-import { operator } from '@/utils'
+import { Table, ColumnType } from '@/components';
+import { Plugins } from '@/plugins';
+import type { ConnectionItemType } from '@/store';
+import { useConnection, ConnectionStatus } from '@/store';
+import { operator } from '@/utils';
 
-import * as API from './api'
-import * as S from './styled'
+import * as API from './api';
+import * as S from './styled';
 
 interface Props {
-  plugin: Plugins
+  plugin: Plugins;
 }
 
 export const Connection = ({ plugin }: Props) => {
-  const [operating, setOperating] = useState(false)
+  const [operating, setOperating] = useState(false);
 
-  const history = useHistory()
+  const history = useHistory();
 
-  const { connections, onTest, onRefresh } = useConnection()
+  const { connections, onTest, onRefresh } = useConnection();
 
   useEffect(() => {
-    connections.map((cs) => onTest(cs))
-  }, [])
+    connections.map((cs) => onTest(cs));
+  }, []);
 
-  const handleRefresh = () => onRefresh()
+  const handleRefresh = () => onRefresh();
 
-  const handleCreate = () => history.push(`/connections/${plugin}/create`)
+  const handleCreate = () => history.push(`/connections/${plugin}/create`);
 
-  const handleUpdate = (id: ID) =>
-    history.push(`/connections/${plugin}/${id}`)
+  const handleUpdate = (id: ID) => history.push(`/connections/${plugin}/${id}`);
 
   const handleDelete = async (id: ID) => {
     const [success] = await operator(() => API.deleteConnection(plugin, id), {
-      setOperating
-    })
+      setOperating,
+    });
 
     if (success) {
-      onRefresh()
+      onRefresh();
     }
-  }
+  };
 
   const columns = useMemo(
     () =>
@@ -68,26 +67,24 @@ export const Connection = ({ plugin }: Props) => {
         {
           title: 'ID',
           dataIndex: 'id',
-          key: 'id'
+          key: 'id',
         },
         {
           title: 'Connection Name',
           dataIndex: 'name',
-          key: 'name'
+          key: 'name',
         },
         {
           title: 'Endpoint',
           dataIndex: 'endpoint',
-          key: 'endpoint'
+          key: 'endpoint',
         },
         {
           title: 'Status',
           dataIndex: 'status',
           key: 'status',
           align: 'center',
-          render: (_, row) => (
-            <ConnectionStatus connection={row} onTest={onTest} />
-          )
+          render: (_, row) => <ConnectionStatus connection={row} onTest={onTest} />,
         },
         {
           title: '',
@@ -95,12 +92,7 @@ export const Connection = ({ plugin }: Props) => {
           key: 'action',
           render: (id) => (
             <ButtonGroup>
-              <Button
-                minimal
-                intent={Intent.PRIMARY}
-                icon='edit'
-                onClick={() => handleUpdate(id)}
-              />
+              <Button minimal intent={Intent.PRIMARY} icon="edit" onClick={() => handleUpdate(id)} />
               <Popover2
                 position={Position.TOP}
                 content={
@@ -111,38 +103,29 @@ export const Connection = ({ plugin }: Props) => {
                       <Button
                         loading={operating}
                         intent={Intent.DANGER}
-                        text='Delete'
+                        text="Delete"
                         onClick={() => handleDelete(id)}
                       />
                     </ButtonGroup>
                   </S.DeleteConfirm>
                 }
               >
-                <Button minimal intent={Intent.PRIMARY} icon='delete' />
+                <Button minimal intent={Intent.PRIMARY} icon="delete" />
               </Popover2>
             </ButtonGroup>
-          )
-        }
+          ),
+        },
       ] as ColumnType<ConnectionItemType>,
-    []
-  )
+    [],
+  );
 
   return (
     <S.Wrapper>
-      <ButtonGroup className='action'>
-        <Button
-          intent={Intent.PRIMARY}
-          icon='plus'
-          text='Add Connection'
-          onClick={handleCreate}
-        />
-        <Button
-          icon='refresh'
-          text='Refresh Connections'
-          onClick={handleRefresh}
-        />
+      <ButtonGroup className="action">
+        <Button intent={Intent.PRIMARY} icon="plus" text="Add Connection" onClick={handleCreate} />
+        <Button icon="refresh" text="Refresh Connections" onClick={handleRefresh} />
       </ButtonGroup>
       <Table columns={columns} dataSource={connections} />
     </S.Wrapper>
-  )
-}
+  );
+};

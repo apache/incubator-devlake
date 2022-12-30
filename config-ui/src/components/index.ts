@@ -16,12 +16,12 @@
  *
  */
 
-export * from './loading'
-export * from './divider'
-export * from './page-header'
-export * from './selector'
-export * from './dialog'
-export * from './table'
-export * from './toast'
-export * from './logo'
-export * from './card'
+export * from './loading';
+export * from './divider';
+export * from './page-header';
+export * from './selector';
+export * from './dialog';
+export * from './table';
+export * from './toast';
+export * from './logo';
+export * from './card';

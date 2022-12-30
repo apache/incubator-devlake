@@ -16,8 +16,8 @@
  *
  */
 
-import styled from 'styled-components'
-import { Colors } from '@blueprintjs/core'
+import styled from 'styled-components';
+import { Colors } from '@blueprintjs/core';
 
 export const ConnectionList = styled.ul`
   margin: 0;
@@ -48,7 +48,7 @@ export const ConnectionList = styled.ul`
       }
     }
   }
-`
+`;
 
 export const Tips = styled.p`
   margin: 24px 0 0;
@@ -57,4 +57,4 @@ export const Tips = styled.p`
     color: #7497f7;
     cursor: pointer;
   }
-`
+`;

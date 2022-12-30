@@ -16,35 +16,35 @@
  *
  */
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react';
 
-import { transformError } from '@/error'
+import { transformError } from '@/error';
 
-import type { VersionType } from './types'
-import * as API from './api'
+import type { VersionType } from './types';
+import * as API from './api';
 
 export const useContextValue = () => {
-  const [loading, setLoading] = useState(true)
-  const [version, setVersion] = useState<VersionType>()
-  const [, setError] = useState<any>()
+  const [loading, setLoading] = useState(true);
+  const [version, setVersion] = useState<VersionType>();
+  const [, setError] = useState<any>();
 
   const getVersion = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await API.getVersion()
-      setVersion(res.version)
+      const res = await API.getVersion();
+      setVersion(res.version);
     } catch (err) {
       setError(() => {
-        throw transformError(err)
-      })
+        throw transformError(err);
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    getVersion()
-  }, [])
+    getVersion();
+  }, []);
 
-  return useMemo(() => ({ loading, version }), [loading, version])
-}
+  return useMemo(() => ({ loading, version }), [loading, version]);
+};

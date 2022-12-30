@@ -16,41 +16,40 @@
  *
  */
 
-import React from 'react'
+import React from 'react';
 
-import { Loading } from '@/components'
+import { Loading } from '@/components';
 
-import type { UseDataScopeList } from './use-data-scope-list'
-import { useDataScopeList } from './use-data-scope-list'
-import * as S from './styled'
+import type { UseDataScopeList } from './use-data-scope-list';
+import { useDataScopeList } from './use-data-scope-list';
+import * as S from './styled';
 
 interface Props extends UseDataScopeList {
-  groupByTs: boolean
+  groupByTs: boolean;
 }
 
 export const DataScopeList = ({ groupByTs, ...props }: Props) => {
-  const { loading, scope, scopeTsMap } = useDataScopeList({ ...props })
+  const { loading, scope, scopeTsMap } = useDataScopeList({ ...props });
 
   if (!scope.length) {
-    return <span>No Data Scope Selected</span>
+    return <span>No Data Scope Selected</span>;
   }
 
   if (loading) {
-    return <Loading />
+    return <Loading />;
   }
 
   return (
     <S.ScopeList>
-      {!groupByTs &&
-        scope.map((sc) => <S.ScopeItem key={sc.id}>{sc.name}</S.ScopeItem>)}
+      {!groupByTs && scope.map((sc) => <S.ScopeItem key={sc.id}>{sc.name}</S.ScopeItem>)}
 
       {groupByTs &&
         Object.keys(scopeTsMap).map((name) => (
           <S.ScopeItemMap key={name}>
-            <div className='name'>
+            <div className="name">
               <span>{name}</span>
               {name !== 'No Transformation' && (
-                <div className='action'>
+                <div className="action">
                   {/* <span onClick={() => onUpdateScope(scopeTsMap[name])}>
                 Remove
               </span> */}
@@ -65,5 +64,5 @@ export const DataScopeList = ({ groupByTs, ...props }: Props) => {
           </S.ScopeItemMap>
         ))}
     </S.ScopeList>
-  )
-}
+  );
+};

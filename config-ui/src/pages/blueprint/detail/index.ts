@@ -16,5 +16,5 @@
  *
  */
 
-export * from './blueprint-detail'
-export * from './blueprint-detail-page'
+export * from './blueprint-detail';
+export * from './blueprint-detail-page';

@@ -16,45 +16,38 @@
  *
  */
 
-import React, { useState, useEffect } from 'react'
-import { InputGroup } from '@blueprintjs/core'
+import React, { useState, useEffect } from 'react';
+import { InputGroup } from '@blueprintjs/core';
 
-import { Dialog } from '@/components'
+import { Dialog } from '@/components';
 
 interface Props {
-  name: string
-  operating: boolean
-  onCancel: () => void
-  onSubmit: (name: string) => void
+  name: string;
+  operating: boolean;
+  onCancel: () => void;
+  onSubmit: (name: string) => void;
 }
 
-export const UpdateNameDialog = ({
-  operating,
-  onCancel,
-  onSubmit,
-  ...props
-}: Props) => {
-  const [name, setName] = useState('')
+export const UpdateNameDialog = ({ operating, onCancel, onSubmit, ...props }: Props) => {
+  const [name, setName] = useState('');
 
   useEffect(() => {
-    setName(props.name)
-  }, [props.name])
+    setName(props.name);
+  }, [props.name]);
 
   return (
     <Dialog
       isOpen
-      title='Change Blueprint Name'
-      okText='Save'
+      title="Change Blueprint Name"
+      okText="Save"
       okDisabled={!name || name === props.name}
       okLoading={operating}
       onCancel={onCancel}
       onOk={() => onSubmit(name)}
     >
       <h3>Blueprint Name</h3>
-      <p>
-        Give your Blueprint a unique name to help you identify it in the future.
-      </p>
+      <p>Give your Blueprint a unique name to help you identify it in the future.</p>
       <InputGroup value={name} onChange={(e) => setName(e.target.value)} />
     </Dialog>
-  )
-}
+  );
+};

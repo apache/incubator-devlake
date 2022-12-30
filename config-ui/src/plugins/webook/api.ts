@@ -16,30 +16,29 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
-export const getConnections = () => request('/plugins/webhook/connections')
+export const getConnections = () => request('/plugins/webhook/connections');
 
-export const getConnection = (id: ID) =>
-  request(`/plugins/webhook/connections/${id}`)
+export const getConnection = (id: ID) => request(`/plugins/webhook/connections/${id}`);
 
 type Paylod = {
-  name: string
-}
+  name: string;
+};
 
 export const createConnection = (payload: Paylod) =>
   request('/plugins/webhook/connections', {
     method: 'post',
-    data: payload
-  })
+    data: payload,
+  });
 
 export const updateConnection = (id: ID, payload: Paylod) =>
   request(`/plugins/webhook/connections/${id}`, {
     method: 'patch',
-    data: payload
-  })
+    data: payload,
+  });
 
 export const deleteConnection = (id: ID) =>
   request(`/plugins/webhook/connections/${id}`, {
-    method: 'delete'
-  })
+    method: 'delete',
+  });

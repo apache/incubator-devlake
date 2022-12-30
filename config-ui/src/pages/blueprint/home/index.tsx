@@ -16,26 +16,26 @@
  *
  */
 
-import React, { useMemo } from 'react'
-import { useHistory } from 'react-router-dom'
-import { ButtonGroup, Button, Intent } from '@blueprintjs/core'
+import React, { useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
+import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
-import { PageLoading, PageHeader, Table, ColumnType } from '@/components'
-import { getCron, getCronOptions } from '@/config'
-import { formatTime } from '@/utils'
+import { PageLoading, PageHeader, Table, ColumnType } from '@/components';
+import { getCron, getCronOptions } from '@/config';
+import { formatTime } from '@/utils';
 
-import type { BlueprintType } from '../types'
-import { ModeEnum } from '../types'
+import type { BlueprintType } from '../types';
+import { ModeEnum } from '../types';
 
-import { useHome } from './use-home'
-import * as S from './styled'
+import { useHome } from './use-home';
+import * as S from './styled';
 
 export const BlueprintHomePage = () => {
-  const history = useHistory()
+  const history = useHistory();
 
-  const { loading, dataSource, type, onChangeType } = useHome()
+  const { loading, dataSource, type, onChangeType } = useHome();
 
-  const options = useMemo(() => getCronOptions(), [])
+  const options = useMemo(() => getCronOptions(), []);
 
   const columns = useMemo(
     () =>
@@ -43,33 +43,33 @@ export const BlueprintHomePage = () => {
         {
           title: 'Blueprint Name',
           dataIndex: 'name',
-          key: 'name'
+          key: 'name',
         },
         {
           title: 'Data Connections',
           key: 'connections',
           render: (_, row) => {
             if (row.mode === ModeEnum.advanced) {
-              return 'Advanced Mode'
+              return 'Advanced Mode';
             }
-            return row.settings.connections.map((cs) => cs.plugin).join(',')
-          }
+            return row.settings.connections.map((cs) => cs.plugin).join(',');
+          },
         },
         {
           title: 'Frequency',
           key: 'frequency',
           render: (_, row) => {
-            const cron = getCron(row.isManual, row.cronConfig)
-            return cron.label
-          }
+            const cron = getCron(row.isManual, row.cronConfig);
+            return cron.label;
+          },
         },
         {
           title: 'Next Run Time',
           key: 'nextRunTime',
           render: (_, row) => {
-            const cron = getCron(row.isManual, row.cronConfig)
-            return formatTime(cron.nextTime)
-          }
+            const cron = getCron(row.isManual, row.cronConfig);
+            return formatTime(cron.nextTime);
+          },
         },
         {
           title: '',
@@ -77,30 +77,25 @@ export const BlueprintHomePage = () => {
           key: 'action',
           align: 'center',
           render: (val) => (
-            <Button
-              minimal
-              intent={Intent.PRIMARY}
-              icon='cog'
-              onClick={() => history.push(`/blueprints/${val}`)}
-            />
-          )
-        }
+            <Button minimal intent={Intent.PRIMARY} icon="cog" onClick={() => history.push(`/blueprints/${val}`)} />
+          ),
+        },
       ] as ColumnType<BlueprintType>,
-    []
-  )
+    [],
+  );
 
   if (loading) {
-    return <PageLoading />
+    return <PageLoading />;
   }
 
   return (
     <PageHeader breadcrumbs={[{ name: 'Blueprints', path: '/blueprints' }]}>
       <S.Wrapper>
-        <div className='action'>
+        <div className="action">
           <ButtonGroup>
             <Button
               intent={type === 'all' ? Intent.PRIMARY : Intent.NONE}
-              text='All'
+              text="All"
               onClick={() => onChangeType('all')}
             />
             {options.map(({ label, value }) => (
@@ -112,14 +107,10 @@ export const BlueprintHomePage = () => {
               />
             ))}
           </ButtonGroup>
-          <Button
-            intent={Intent.PRIMARY}
-            text='Create Blueprint'
-            onClick={() => history.push('/blueprints/create')}
-          />
+          <Button intent={Intent.PRIMARY} text="Create Blueprint" onClick={() => history.push('/blueprints/create')} />
         </div>
         <Table columns={columns} dataSource={dataSource} />
       </S.Wrapper>
     </PageHeader>
-  )
-}
+  );
+};

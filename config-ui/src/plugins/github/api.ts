@@ -16,51 +16,39 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
 type PaginationParams = {
-  page: number
-  per_page: number
-}
+  page: number;
+  per_page: number;
+};
 
-export const getUser = (prefix: string) => request(`${prefix}/user`)
+export const getUser = (prefix: string) => request(`${prefix}/user`);
 
-export const getUserOrgs = (
-  prefix: string,
-  username: string,
-  params: PaginationParams
-) =>
+export const getUserOrgs = (prefix: string, username: string, params: PaginationParams) =>
   request(`${prefix}/users/${username}/orgs`, {
     method: 'get',
-    data: params
-  })
+    data: params,
+  });
 
-export const getOrgRepos = (
-  prefix: string,
-  org: string,
-  params: PaginationParams
-) =>
+export const getOrgRepos = (prefix: string, org: string, params: PaginationParams) =>
   request(`${prefix}/orgs/${org}/repos`, {
     method: 'get',
-    data: params
-  })
+    data: params,
+  });
 
-export const getUserRepos = (
-  prefix: string,
-  username: string,
-  params: PaginationParams
-) =>
+export const getUserRepos = (prefix: string, username: string, params: PaginationParams) =>
   request(`${prefix}/users/${username}/repos`, {
     method: 'get',
-    data: params
-  })
+    data: params,
+  });
 
 type SearchRepoParams = {
-  q: string
-}
+  q: string;
+};
 
 export const searchRepo = (prefix: string, params: SearchRepoParams) =>
   request(`${prefix}/search/repositories`, {
     method: 'get',
-    data: params
-  })
+    data: params,
+  });

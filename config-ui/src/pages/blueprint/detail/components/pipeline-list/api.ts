@@ -16,7 +16,6 @@
  *
  */
 
-import { request } from '@/utils'
+import { request } from '@/utils';
 
-export const getPipelineLog = (id: ID) =>
-  request(`/pipelines/${id}/logging.tar.gz`)
+export const getPipelineLog = (id: ID) => request(`/pipelines/${id}/logging.tar.gz`);

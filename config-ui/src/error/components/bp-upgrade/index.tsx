@@ -16,38 +16,33 @@
  *
  */
 
-import React from 'react'
-import { Icon, ButtonGroup, Button, Colors, Intent } from '@blueprintjs/core'
+import React from 'react';
+import { Icon, ButtonGroup, Button, Colors, Intent } from '@blueprintjs/core';
 
-import { Card } from '@/components'
+import { Card } from '@/components';
 
-import type { UseBPUpgradeProps } from './use-bp-upgrade'
-import { useBPUpgrade } from './use-bp-upgrade'
+import type { UseBPUpgradeProps } from './use-bp-upgrade';
+import { useBPUpgrade } from './use-bp-upgrade';
 
 interface Props extends Pick<UseBPUpgradeProps, 'onResetError'> {}
 
 export const BPUpgrade = ({ ...props }: Props) => {
-  const bpId = window.location.pathname.split('/').pop()
-  const { processing, onSubmit } = useBPUpgrade({ id: bpId, ...props })
+  const bpId = window.location.pathname.split('/').pop();
+  const { processing, onSubmit } = useBPUpgrade({ id: bpId, ...props });
 
   return (
     <Card>
       <h2>
-        <Icon icon='outdated' color={Colors.ORANGE5} size={20} />
+        <Icon icon="outdated" color={Colors.ORANGE5} size={20} />
         <span>Current Blueprint Need to Upgrade</span>
       </h2>
       <p>
-        If you have already started, please wait for database migrations to
-        complete, do <strong>NOT</strong> close your browser at this time.
+        If you have already started, please wait for database migrations to complete, do <strong>NOT</strong> close your
+        browser at this time.
       </p>
       <ButtonGroup>
-        <Button
-          loading={processing}
-          text='Proceed to Upgrade'
-          intent={Intent.PRIMARY}
-          onClick={onSubmit}
-        />
+        <Button loading={processing} text="Proceed to Upgrade" intent={Intent.PRIMARY} onClick={onSubmit} />
       </ButtonGroup>
     </Card>
-  )
-}
+  );
+};

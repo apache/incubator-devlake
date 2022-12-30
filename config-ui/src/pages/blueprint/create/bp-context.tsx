@@ -16,18 +16,18 @@
  *
  */
 
-import React, { useState, useMemo, useContext } from 'react'
-import { useHistory } from 'react-router-dom'
+import React, { useState, useMemo, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 
-import type { ConnectionItemType } from '@/store'
-import { useConnection, ConnectionStatusEnum } from '@/store'
-import { operator } from '@/utils'
+import type { ConnectionItemType } from '@/store';
+import { useConnection, ConnectionStatusEnum } from '@/store';
+import { operator } from '@/utils';
 
-import { ModeEnum, FromEnum } from '../types'
-import { validRawPlan } from '../utils'
+import { ModeEnum, FromEnum } from '../types';
+import { validRawPlan } from '../utils';
 
-import type { BPContextType } from './types'
-import * as API from './api'
+import type { BPContextType } from './types';
+import * as API from './api';
 
 export const BPContext = React.createContext<BPContextType>({
   step: 1,
@@ -61,57 +61,55 @@ export const BPContext = React.createContext<BPContextType>({
   onChangeCreatedDateAfter: () => {},
 
   onSave: () => {},
-  onSaveAndRun: () => {}
-})
+  onSaveAndRun: () => {},
+});
 
 interface Props {
-  from: FromEnum
-  projectName: string
-  children: React.ReactNode
+  from: FromEnum;
+  projectName: string;
+  children: React.ReactNode;
 }
 
 export const BPContextProvider = ({ from, projectName, children }: Props) => {
-  const [step, setStep] = useState(1)
-  const [showInspector, setShowInspector] = useState(false)
-  const [showDetail, setShowDetail] = useState(false)
+  const [step, setStep] = useState(1);
+  const [showInspector, setShowInspector] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
 
-  const [name, setName] = useState(
-    from === FromEnum.project ? `${projectName}-BLUEPRINT` : 'MY BLUEPRINT'
-  )
-  const [mode, setMode] = useState<ModeEnum>(ModeEnum.normal)
-  const [rawPlan, setRawPlan] = useState(JSON.stringify([[]], null, '  '))
-  const [uniqueList, setUniqueList] = useState<string[]>([])
-  const [scopeMap, setScopeMap] = useState<Record<string, any>>({})
-  const [cronConfig, setCronConfig] = useState('0 0 * * *')
-  const [isManual, setIsManual] = useState(false)
-  const [skipOnFail, setSkipOnFail] = useState(false)
-  const [createdDateAfter, setCreatedDateAfter] = useState<string | null>(null)
+  const [name, setName] = useState(from === FromEnum.project ? `${projectName}-BLUEPRINT` : 'MY BLUEPRINT');
+  const [mode, setMode] = useState<ModeEnum>(ModeEnum.normal);
+  const [rawPlan, setRawPlan] = useState(JSON.stringify([[]], null, '  '));
+  const [uniqueList, setUniqueList] = useState<string[]>([]);
+  const [scopeMap, setScopeMap] = useState<Record<string, any>>({});
+  const [cronConfig, setCronConfig] = useState('0 0 * * *');
+  const [isManual, setIsManual] = useState(false);
+  const [skipOnFail, setSkipOnFail] = useState(false);
+  const [createdDateAfter, setCreatedDateAfter] = useState<string | null>(null);
 
-  const history = useHistory()
+  const history = useHistory();
 
-  const { connections } = useConnection()
+  const { connections } = useConnection();
 
   const error = useMemo(() => {
     switch (true) {
       case !name:
-        return 'Blueprint Name: Enter a valid Name'
+        return 'Blueprint Name: Enter a valid Name';
       case name.length < 3:
-        return 'Blueprint Name: Name too short, 3 chars minimum.'
+        return 'Blueprint Name: Name too short, 3 chars minimum.';
       case mode === ModeEnum.advanced && validRawPlan(rawPlan):
-        return 'Advanced Mode: Invalid/Empty Configuration'
+        return 'Advanced Mode: Invalid/Empty Configuration';
       case mode === ModeEnum.normal && !uniqueList.length:
-        return 'Normal Mode: No Data Connections selected.'
+        return 'Normal Mode: No Data Connections selected.';
       case mode === ModeEnum.normal &&
         !connections
           .filter((cs) => uniqueList.includes(cs.unique))
           .every((cs) => cs.status === ConnectionStatusEnum.ONLINE):
-        return 'Normal Mode: Has some offline connections'
+        return 'Normal Mode: Has some offline connections';
       case step === 2 && Object.keys(scopeMap).length !== uniqueList.length:
-        return 'No Data Scope is Selected'
+        return 'No Data Scope is Selected';
       default:
-        return ''
+        return '';
     }
-  }, [name, mode, rawPlan, uniqueList, connections, step, scopeMap])
+  }, [name, mode, rawPlan, uniqueList, connections, step, scopeMap]);
 
   const payload = useMemo(() => {
     const params: any = {
@@ -121,38 +119,34 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
       enable: true,
       cronConfig,
       isManual,
-      skipOnFail
-    }
+      skipOnFail,
+    };
 
     if (mode === ModeEnum.normal) {
       params.settings = {
         version: '2.0.0',
         createdDateAfter,
         connections: uniqueList.map((unique) => {
-          const connection = connections.find(
-            (cs) => cs.unique === unique
-          ) as ConnectionItemType
-          const scope = scopeMap[unique] ?? []
+          const connection = connections.find((cs) => cs.unique === unique) as ConnectionItemType;
+          const scope = scopeMap[unique] ?? [];
           return {
             plugin: connection.plugin,
             connectionId: connection.id,
             scopes: scope.map((sc: any) => ({
               id: `${sc.id}`,
-              entities: sc.entities
-            }))
-          }
-        })
-      }
+              entities: sc.entities,
+            })),
+          };
+        }),
+      };
     }
 
     if (mode === ModeEnum.advanced) {
-      params.plan = !validRawPlan(rawPlan)
-        ? JSON.parse(rawPlan)
-        : JSON.stringify([[]], null, '  ')
-      params.settings = null
+      params.plan = !validRawPlan(rawPlan) ? JSON.parse(rawPlan) : JSON.stringify([[]], null, '  ');
+      params.settings = null;
     }
 
-    return params
+    return params;
   }, [
     name,
     projectName,
@@ -164,36 +158,33 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
     rawPlan,
     uniqueList,
     scopeMap,
-    connections
-  ])
+    connections,
+  ]);
 
   const handleSaveAfter = (id: ID) => {
-    const path =
-      from === FromEnum.blueprint
-        ? `/blueprints/${id}`
-        : `/projects/${projectName}`
+    const path = from === FromEnum.blueprint ? `/blueprints/${id}` : `/projects/${projectName}`;
 
-    history.push(path)
-  }
+    history.push(path);
+  };
 
   const handleSave = async () => {
-    const [success, res] = await operator(() => API.createBlueprint(payload))
+    const [success, res] = await operator(() => API.createBlueprint(payload));
 
     if (success) {
-      handleSaveAfter(res.id)
+      handleSaveAfter(res.id);
     }
-  }
+  };
 
   const hanldeSaveAndRun = async () => {
     const [success, res] = await operator(async () => {
-      const res = await API.createBlueprint(payload)
-      return await API.runBlueprint(res.id)
-    })
+      const res = await API.createBlueprint(payload);
+      return await API.runBlueprint(res.id);
+    });
 
     if (success) {
-      handleSaveAfter(res.blueprintId)
+      handleSaveAfter(res.blueprintId);
     }
-  }
+  };
 
   return (
     <BPContext.Provider
@@ -229,14 +220,14 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
         onChangeCreatedDateAfter: setCreatedDateAfter,
 
         onSave: handleSave,
-        onSaveAndRun: hanldeSaveAndRun
+        onSaveAndRun: hanldeSaveAndRun,
       }}
     >
       {children}
     </BPContext.Provider>
-  )
-}
+  );
+};
 
 export const useCreateBP = () => {
-  return useContext(BPContext)
-}
+  return useContext(BPContext);
+};

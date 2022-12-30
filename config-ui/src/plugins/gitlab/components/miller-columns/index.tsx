@@ -16,42 +16,34 @@
  *
  */
 
-import React, { useEffect, useState } from 'react'
-import MillerColumnsSelect from 'miller-columns-select'
+import React, { useEffect, useState } from 'react';
+import MillerColumnsSelect from 'miller-columns-select';
 
-import { Loading } from '@/components'
+import { Loading } from '@/components';
 
-import type { ScopeItemType } from '../../types'
-import { ScopeFromEnum } from '../../types'
+import type { ScopeItemType } from '../../types';
+import { ScopeFromEnum } from '../../types';
 
-import type {
-  UseMillerColumnsProps,
-  GitLabColumnType
-} from './use-miller-columns'
-import { useMillerColumns } from './use-miller-columns'
-import * as S from './styled'
+import type { UseMillerColumnsProps, GitLabColumnType } from './use-miller-columns';
+import { useMillerColumns } from './use-miller-columns';
+import * as S from './styled';
 
 interface Props extends UseMillerColumnsProps {
-  disabledItems: ScopeItemType[]
-  selectedItems: ScopeItemType[]
-  onChangeItems: (selectedItems: ScopeItemType[]) => void
+  disabledItems: ScopeItemType[];
+  selectedItems: ScopeItemType[];
+  onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const MillerColumns = ({
-  connectionId,
-  disabledItems,
-  selectedItems,
-  onChangeItems
-}: Props) => {
-  const [seletedIds, setSelectedIds] = useState<ID[]>([])
+export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
+  const [seletedIds, setSelectedIds] = useState<ID[]>([]);
 
   const { items, getHasMore, onExpandItem, onScrollColumn } = useMillerColumns({
-    connectionId
-  })
+    connectionId,
+  });
 
   useEffect(() => {
-    setSelectedIds(selectedItems.map((it) => it.gitlabId))
-  }, [])
+    setSelectedIds(selectedItems.map((it) => it.gitlabId));
+  }, []);
 
   useEffect(() => {
     const result = items
@@ -69,18 +61,18 @@ export const MillerColumns = ({
         starCount: it.starCount,
         visibility: it.visibility,
         webUrl: it.webUrl,
-        httpUrlToRepo: it.httpUrlToRepo
-      }))
-    onChangeItems(result)
-  }, [seletedIds])
+        httpUrlToRepo: it.httpUrlToRepo,
+      }));
+    onChangeItems(result);
+  }, [seletedIds]);
 
   const renderTitle = (column: GitLabColumnType) => {
-    return !column.parentId && <S.ColumnTitle>Subgroups/Projects</S.ColumnTitle>
-  }
+    return !column.parentId && <S.ColumnTitle>Subgroups/Projects</S.ColumnTitle>;
+  };
 
   const renderLoading = () => {
-    return <Loading size={20} style={{ padding: '4px 12px' }} />
-  }
+    return <Loading size={20} style={{ padding: '4px 12px' }} />;
+  };
 
   return (
     <MillerColumnsSelect
@@ -97,5 +89,5 @@ export const MillerColumns = ({
       onExpandItem={onExpandItem}
       onScrollColumn={onScrollColumn}
     />
-  )
-}
+  );
+};

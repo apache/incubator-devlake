@@ -16,15 +16,17 @@
  *
  */
 
-export default [
+const github = [
   [
     {
       plugin: 'github',
       options: {
         repo: 'lake',
         owner: 'merico-dev',
-        connectionId: 1
-      }
-    }
-  ]
-]
+        connectionId: 1,
+      },
+    },
+  ],
+];
+
+export default github;

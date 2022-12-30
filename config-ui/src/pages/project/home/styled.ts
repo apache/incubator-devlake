@@ -16,7 +16,7 @@
  *
  */
 
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Container = styled.div`
   .card {
@@ -32,7 +32,7 @@ export const Container = styled.div`
       margin: 24px 0;
     }
   }
-`
+`;
 
 export const DialogWrapper = styled.div`
   .block + .block {
@@ -56,4 +56,4 @@ export const DialogWrapper = styled.div`
     margin: 0;
     padding: 0;
   }
-`
+`;

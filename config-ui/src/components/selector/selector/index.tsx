@@ -16,17 +16,17 @@
  *
  */
 
-import React, { useState, useEffect, useMemo } from 'react'
-import { MenuItem, Button } from '@blueprintjs/core'
-import { Select } from '@blueprintjs/select'
+import React, { useState, useEffect, useMemo } from 'react';
+import { MenuItem, Button } from '@blueprintjs/core';
+import { Select } from '@blueprintjs/select';
 
 interface Props<T> {
-  items: T[]
-  disabledItems?: T[]
-  getKey?: (item: T) => ID
-  getName?: (item: T) => string
-  selectedItem?: T
-  onChangeItem?: (selectedItem: T) => void
+  items: T[];
+  disabledItems?: T[];
+  getKey?: (item: T) => ID;
+  getName?: (item: T) => string;
+  selectedItem?: T;
+  onChangeItem?: (selectedItem: T) => void;
 }
 
 export const Selector = <T,>({
@@ -37,46 +37,34 @@ export const Selector = <T,>({
   onChangeItem,
   ...props
 }: Props<T>) => {
-  const [selectedItem, setSelectedItem] = useState<T>()
+  const [selectedItem, setSelectedItem] = useState<T>();
 
   useEffect(() => {
-    setSelectedItem(props.selectedItem)
-  }, [props.selectedItem])
+    setSelectedItem(props.selectedItem);
+  }, [props.selectedItem]);
 
-  const btnText = useMemo(
-    () => (selectedItem ? getName(selectedItem) : 'Select...'),
-    [selectedItem]
-  )
+  const btnText = useMemo(() => (selectedItem ? getName(selectedItem) : 'Select...'), [selectedItem]);
 
   const itemPredicate = (query: string, item: T) => {
-    const name = getName(item)
-    return name.toLowerCase().indexOf(query.toLowerCase()) >= 0
-  }
+    const name = getName(item);
+    return name.toLowerCase().indexOf(query.toLowerCase()) >= 0;
+  };
 
   const itemRenderer = (item: T, { handleClick }: any) => {
-    const key = getKey(item)
-    const name = getName(item)
-    const disabled =
-      !!disabledItems.find((it) => getKey(it) === getKey(item)) ||
-      selectedItem === item
+    const key = getKey(item);
+    const name = getName(item);
+    const disabled = !!disabledItems.find((it) => getKey(it) === getKey(item)) || selectedItem === item;
 
-    return (
-      <MenuItem
-        key={key}
-        disabled={disabled}
-        text={<span>{name}</span>}
-        onClick={handleClick}
-      />
-    )
-  }
+    return <MenuItem key={key} disabled={disabled} text={<span>{name}</span>} onClick={handleClick} />;
+  };
 
   const handleItemSelect = (item: T) => {
     if (onChangeItem) {
-      onChangeItem(item)
+      onChangeItem(item);
     } else {
-      setSelectedItem(item)
+      setSelectedItem(item);
     }
-  }
+  };
 
   return (
     <Select
@@ -86,13 +74,7 @@ export const Selector = <T,>({
       itemRenderer={itemRenderer}
       onItemSelect={handleItemSelect}
     >
-      <Button
-        outlined
-        small
-        fill
-        rightIcon='double-caret-vertical'
-        text={btnText}
-      />
+      <Button outlined small fill rightIcon="double-caret-vertical" text={btnText} />
     </Select>
-  )
-}
+  );
+};

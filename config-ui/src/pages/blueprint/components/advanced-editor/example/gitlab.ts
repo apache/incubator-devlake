@@ -16,14 +16,16 @@
  *
  */
 
-export default [
+const gitlab = [
   [
     {
       plugin: 'gitlab',
       options: {
         projectId: 278964,
-        connectionId: 1
-      }
-    }
-  ]
-]
+        connectionId: 1,
+      },
+    },
+  ],
+];
+
+export default gitlab;
