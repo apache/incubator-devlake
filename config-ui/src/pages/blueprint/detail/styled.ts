@@ -96,3 +96,20 @@ export const StatusPanel = styled.div`
     margin-top: 32px;
   }
 `;
+
+export const JenkinsTips = styled.div`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #3c5088;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+
+  p {
+    margin: 0;
+    color: #fff;
+  }
+`;

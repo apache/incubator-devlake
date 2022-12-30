@@ -77,6 +77,7 @@ export const Sider = styled.div`
 `;
 
 export const Inner = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: auto;
