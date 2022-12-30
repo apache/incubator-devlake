@@ -42,7 +42,7 @@ func CollectApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	incremental := collectorWithState.CanIncrementCollect()
+	incremental := collectorWithState.IsIncremental()
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,

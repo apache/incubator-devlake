@@ -76,7 +76,7 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 		jql = fmt.Sprintf("created >= '%v' %v", createdDateAfter.Format("2006/01/02 15:04"), jql)
 	}
 
-	incremental := collectorWithState.CanIncrementCollect()
+	incremental := collectorWithState.IsIncremental()
 	if incremental {
 		// user didn't specify a time range to sync, try load from database
 		var latestUpdated models.JiraIssue

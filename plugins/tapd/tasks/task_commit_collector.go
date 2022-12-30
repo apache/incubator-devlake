@@ -37,16 +37,23 @@ var _ core.SubTaskEntryPoint = CollectTaskCommits
 func CollectTaskCommits(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_TASK_COMMIT_TABLE, false)
 	db := taskCtx.GetDal()
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
 	logger := taskCtx.GetLogger()
 	logger.Info("collect issueCommits")
-	since := data.Since
+	incremental := collectorWithState.IsIncremental()
 	clauses := []dal.Clause{
 		dal.Select("_tool_tapd_tasks.id as issue_id, modified as update_time"),
 		dal.From(&models.TapdTask{}),
 		dal.Where("_tool_tapd_tasks.connection_id = ? and _tool_tapd_tasks.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
-	if since != nil {
-		clauses = append(clauses, dal.Where("modified > ?", since))
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("created > ?", *collectorWithState.CreatedDateAfter))
+	}
+	if incremental {
+		clauses = append(clauses, dal.Where("modified > ?", *collectorWithState.LatestState.LatestSuccessStart))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -56,10 +63,10 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Incremental:        since != nil,
-		ApiClient:          data.ApiClient,
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
+		Incremental: incremental,
 		//PageSize:    100,
 		Input:       iterator,
 		UrlTemplate: "code_commit_infos",
@@ -84,7 +91,7 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) errors.Error {
 		logger.Error(err, "collect issueCommit error")
 		return err
 	}
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
 
 var CollectTaskCommitMeta = core.SubTaskMeta{

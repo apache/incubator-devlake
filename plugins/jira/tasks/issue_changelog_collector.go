@@ -73,7 +73,7 @@ func CollectIssueChangelogs(taskCtx core.SubTaskContext) errors.Error {
 		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ? AND i.std_type != ? ", data.Options.ConnectionId, data.Options.BoardId, "Epic"),
 		dal.Groupby("i.issue_id, i.updated"),
 	}
-	incremental := collectorWithState.CanIncrementCollect()
+	incremental := collectorWithState.IsIncremental()
 	if incremental {
 		clauses = append(clauses, dal.Having("i.updated > max(c.issue_updated) OR  (max(c.issue_updated) IS NULL AND COUNT(c.changelog_id) > 0)"))
 	}

@@ -67,7 +67,7 @@ func CollectRemotelinks(taskCtx core.SubTaskContext) errors.Error {
 		dal.Where("i.updated > i.created AND bi.connection_id = ?  AND bi.board_id = ?  ", data.Options.ConnectionId, data.Options.BoardId),
 		dal.Groupby("i.issue_id, i.updated"),
 	}
-	incremental := collectorWithState.CanIncrementCollect()
+	incremental := collectorWithState.IsIncremental()
 	if incremental {
 		if collectorWithState.LatestState.LatestSuccessStart != nil {
 			clauses = append(clauses, dal.Having("i.updated > ? AND (i.updated > max(rl.issue_updated) OR max(rl.issue_updated) IS NULL)", collectorWithState.LatestState.LatestSuccessStart))

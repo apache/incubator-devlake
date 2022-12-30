@@ -20,16 +20,12 @@ package tasks
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"net/url"
-	"time"
-
-	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/tapd/models"
 )
 
 const RAW_ITERATION_TABLE = "tapd_api_iterations"
@@ -38,42 +34,35 @@ var _ core.SubTaskEntryPoint = CollectIterations
 
 func CollectIterations(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_ITERATION_TABLE, false)
-	db := taskCtx.GetDal()
 	logger := taskCtx.GetLogger()
 	logger.Info("collect iterations")
-	since := data.Since
-	incremental := false
-	if since == nil {
-		// user didn't specify a time range to sync, try load from database
-		var latestUpdated models.TapdIteration
-		clauses := []dal.Clause{
-			dal.Where("connection_id = ? and workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
-			dal.Orderby("modified DESC"),
-		}
-		err := db.First(&latestUpdated, clauses...)
-		if err != nil && !db.IsErrorNotFound(err) {
-			return errors.NotFound.Wrap(err, "failed to get latest tapd changelog record")
-		}
-		if latestUpdated.Id > 0 {
-			since = (*time.Time)(latestUpdated.Modified)
-			incremental = true
-		}
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	if err != nil {
+		return err
 	}
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		Incremental:        incremental,
-		ApiClient:          data.ApiClient,
-		PageSize:           100,
-		Concurrency:        3,
-		UrlTemplate:        "iterations",
+	incremental := collectorWithState.IsIncremental()
+
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		Incremental: incremental,
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
+		Concurrency: 3,
+		UrlTemplate: "iterations",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			query.Set("workspace_id", fmt.Sprintf("%v", data.Options.WorkspaceId))
 			query.Set("page", fmt.Sprintf("%v", reqData.Pager.Page))
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			query.Set("order", "created asc")
-			if since != nil {
-				query.Set("modified", fmt.Sprintf(">%s", since.In(data.Options.CstZone).Format("2006-01-02")))
+			if data.CreatedDateAfter != nil {
+				query.Set("created",
+					fmt.Sprintf(">%s",
+						data.CreatedDateAfter.In(data.Options.CstZone).Format("2006-01-02")))
+			}
+			if incremental {
+				query.Set("modified",
+					fmt.Sprintf(">%s",
+						collectorWithState.LatestState.LatestSuccessStart.In(data.Options.CstZone).Format("2006-01-02")))
 			}
 			return query, nil
 		},
@@ -89,7 +78,7 @@ func CollectIterations(taskCtx core.SubTaskContext) errors.Error {
 		logger.Error(err, "collect iteration error")
 		return err
 	}
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
 
 var CollectIterationMeta = core.SubTaskMeta{

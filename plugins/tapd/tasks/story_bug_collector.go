@@ -35,16 +35,23 @@ var _ core.SubTaskEntryPoint = CollectStoryBugs
 func CollectStoryBugs(taskCtx core.SubTaskContext) errors.Error {
 	rawDataSubTaskArgs, data := CreateRawDataSubTaskArgs(taskCtx, RAW_STORY_BUG_TABLE, false)
 	db := taskCtx.GetDal()
+	collectorWithState, err := helper.NewApiCollectorWithState(*rawDataSubTaskArgs, data.CreatedDateAfter)
+	if err != nil {
+		return err
+	}
 	logger := taskCtx.GetLogger()
 	logger.Info("collect storyBugs")
-	since := data.Since
+	incremental := collectorWithState.IsIncremental()
 	clauses := []dal.Clause{
 		dal.Select("id as issue_id, modified as update_time"),
 		dal.From(&models.TapdStory{}),
 		dal.Where("_tool_tapd_stories.connection_id = ? and _tool_tapd_stories.workspace_id = ? ", data.Options.ConnectionId, data.Options.WorkspaceId),
 	}
-	if since != nil {
-		clauses = append(clauses, dal.Where("modified > ?", since))
+	if collectorWithState.CreatedDateAfter != nil {
+		clauses = append(clauses, dal.Where("created > ?", *collectorWithState.CreatedDateAfter))
+	}
+	if incremental {
+		clauses = append(clauses, dal.Where("modified > ?", *collectorWithState.LatestState.LatestSuccessStart))
 	}
 	cursor, err := db.Cursor(clauses...)
 	if err != nil {
@@ -54,12 +61,12 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	collector, err := helper.NewApiCollector(helper.ApiCollectorArgs{
-		RawDataSubTaskArgs: *rawDataSubTaskArgs,
-		ApiClient:          data.ApiClient,
-		Incremental:        since != nil,
-		Input:              iterator,
-		UrlTemplate:        "stories/get_related_bugs",
+	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
+		ApiClient:   data.ApiClient,
+		PageSize:    100,
+		Incremental: incremental,
+		Input:       iterator,
+		UrlTemplate: "stories/get_related_bugs",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			input := reqData.Input.(*models.Input)
 			query := url.Values{}
@@ -73,7 +80,7 @@ func CollectStoryBugs(taskCtx core.SubTaskContext) errors.Error {
 		logger.Error(err, "collect storyBug error")
 		return err
 	}
-	return collector.Execute()
+	return collectorWithState.Execute()
 }
 
 var CollectStoryBugMeta = core.SubTaskMeta{
