@@ -224,43 +224,38 @@ func EnrichOptions(taskCtx core.TaskContext,
 		dal.Where(`connection_id = ? and full_name = ?`,
 			op.ConnectionId, op.JobFullName))
 	if err == nil {
-		op.Name = jenkinsJob.Name
-		op.JobPath = jenkinsJob.Path
+		// op.Name = jenkinsJob.Name
+		// op.JobPath = jenkinsJob.Path
 		if op.TransformationRuleId == 0 {
 			op.TransformationRuleId = jenkinsJob.TransformationRuleId
 		}
-	} else {
-		if taskCtx.GetDal().IsErrorNotFound(err) && op.JobFullName != "" {
+	}
 
-			pathSplit := strings.Split(op.JobFullName, "/")
-			lastOne := len(pathSplit)
+	pathSplit := strings.Split(op.JobFullName, "/")
+	lastOne := len(pathSplit)
 
-			path := "job/" + strings.Join(pathSplit[0:lastOne-1], "job/")
-			if path == "job/" {
-				path = ""
-			}
-			name := pathSplit[lastOne-1]
+	//path := "job/" + strings.Join(pathSplit[0:lastOne-1], "job/")
+	path := "job/" + strings.Join(pathSplit, "/job/")
+	if path == "job/" {
+		path = ""
+	}
+	name := pathSplit[lastOne-1]
 
-			err = api.GetJob(apiClient, path, name, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
-				log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
-				op.Name = job.Name
-				op.JobPath = job.Path
-				jenkinsJob := ConvertJobToJenkinsJob(job, op)
-				err = taskCtx.GetDal().CreateIfNotExist(jenkinsJob)
-				return err
-			})
-			if err != nil {
-				return err
-			}
-		} else {
-			return errors.Default.Wrap(err, fmt.Sprintf("fail to find repo %s", op.Name))
-		}
+	err = api.GetJob(apiClient, path, name, op.JobFullName, 100, func(job *models.Job, isPath bool) errors.Error {
+		log.Debug(fmt.Sprintf("Current job: %s", job.FullName))
+		op.Name = job.Name
+		op.JobPath = job.Path
+		jenkinsJob := ConvertJobToJenkinsJob(job, op)
+		err = taskCtx.GetDal().CreateIfNotExist(jenkinsJob)
+		return err
+	})
+	if err != nil {
+		return err
 	}
 
 	if !strings.HasSuffix(op.JobPath, "/") {
 		op.JobPath = fmt.Sprintf("%s/", op.JobPath)
 	}
-
 	// We only set op.JenkinsTransformationRule when it's nil and we have op.TransformationRuleId != 0
 	if op.JenkinsTransformationRule == nil && op.TransformationRuleId != 0 {
 		var transformationRule models.JenkinsTransformationRule
