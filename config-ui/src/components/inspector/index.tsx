@@ -19,13 +19,16 @@
 import React from 'react';
 import { Drawer, DrawerSize, Classes, IconName } from '@blueprintjs/core';
 
-import { useCreateBP } from '../../bp-context';
-
 import * as S from './styled';
 
-export const Inspector = () => {
-  const { name, payload, showInspector, onChangeShowInspector } = useCreateBP();
+interface Props {
+  isOpen: boolean;
+  data: any;
+  title?: string;
+  onClose?: () => void;
+}
 
+export const Inspector = ({ isOpen, data, title, onClose }: Props) => {
   const props = {
     icon: 'code' as IconName,
     size: DrawerSize.SMALL,
@@ -35,9 +38,9 @@ export const Inspector = () => {
     enforceFocus: true,
     hasBackdrop: false,
     usePortal: true,
-    isOpen: showInspector,
-    title: name,
-    onClose: () => onChangeShowInspector(false),
+    isOpen,
+    title,
+    onClose,
   };
 
   return (
@@ -49,7 +52,7 @@ export const Inspector = () => {
         </div>
         <div className="content">
           <code>
-            <pre>{JSON.stringify(payload, null, '  ')}</pre>
+            <pre>{JSON.stringify(data, null, '  ')}</pre>
           </code>
         </div>
       </S.Container>

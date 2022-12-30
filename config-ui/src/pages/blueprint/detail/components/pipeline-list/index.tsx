@@ -16,13 +16,15 @@
  *
  */
 
-import React, { useMemo } from 'react';
-import { ButtonGroup, Button, Icon, Intent, Colors, IconName } from '@blueprintjs/core';
+import React, { useState, useMemo } from 'react';
+import { ButtonGroup, Button, Icon, Intent, Colors, Position, IconName } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
+import { pick } from 'lodash';
 import { saveAs } from 'file-saver';
 import styled from 'styled-components';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { Card, Table, ColumnType, Loading } from '@/components';
+import { Card, Table, ColumnType, Loading, Inspector } from '@/components';
 import { PipelineType, StatusEnum, STATUS_ICON, STATUS_LABEL, STATUS_CLS } from '@/pages';
 import { formatTime, duration } from '@/utils';
 
@@ -59,6 +61,9 @@ interface Props {
 }
 
 export const PipelineList = ({ pipelines }: Props) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [json, setJson] = useState<any>({});
+
   const handleDownloadLog = async (id: ID) => {
     const res = await API.getPipelineLog(id);
     if (res) {
@@ -106,10 +111,22 @@ export const PipelineList = ({ pipelines }: Props) => {
           title: '',
           dataIndex: 'id',
           key: 'action',
-          render: (id: ID) => (
+          render: (id: ID, row) => (
             <ButtonGroup>
-              {/* <Button minimal intent={Intent.PRIMARY} icon='code' /> */}
-              <Button minimal intent={Intent.PRIMARY} icon="document" onClick={() => handleDownloadLog(id)} />
+              <Tooltip2 position={Position.TOP} intent={Intent.PRIMARY} content="View JSON">
+                <Button
+                  minimal
+                  intent={Intent.PRIMARY}
+                  icon="code"
+                  onClick={() => {
+                    setIsOpen(true);
+                    setJson(pick(row, ['id', 'name', 'plan', 'skipOnFail']));
+                  }}
+                />
+              </Tooltip2>
+              <Tooltip2 position={Position.TOP} intent={Intent.PRIMARY} content="Download Log">
+                <Button minimal intent={Intent.PRIMARY} icon="document" onClick={() => handleDownloadLog(id)} />
+              </Tooltip2>
               {/* <Button minimal intent={Intent.PRIMARY} icon='chevron-right' /> */}
             </ButtonGroup>
           ),
@@ -121,6 +138,9 @@ export const PipelineList = ({ pipelines }: Props) => {
   return !pipelines.length ? (
     <Card>There are no historical runs associated with this blueprint.</Card>
   ) : (
-    <Table columns={columns} dataSource={pipelines} />
+    <div>
+      <Table columns={columns} dataSource={pipelines} />
+      <Inspector isOpen={isOpen} title={`Pipeline ${json?.id}`} data={json} onClose={() => setIsOpen(false)} />
+    </div>
   );
 };
