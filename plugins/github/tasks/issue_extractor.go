@@ -206,16 +206,19 @@ func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, gith
 		if issueRegexes.TypeBugRegex != nil {
 			if ok := issueRegexes.TypeBugRegex.MatchString(label.Name); ok {
 				githubIssue.Type = ticket.BUG
+				githubIssue.OriginalType = label.Name
 			}
 		}
 		if issueRegexes.TypeRequirementRegex != nil {
 			if ok := issueRegexes.TypeRequirementRegex.MatchString(label.Name); ok {
 				githubIssue.Type = ticket.REQUIREMENT
+				githubIssue.OriginalType = label.Name
 			}
 		}
 		if issueRegexes.TypeIncidentRegex != nil {
 			if ok := issueRegexes.TypeIncidentRegex.MatchString(label.Name); ok {
 				githubIssue.Type = ticket.INCIDENT
+				githubIssue.OriginalType = label.Name
 			}
 		}
 	}

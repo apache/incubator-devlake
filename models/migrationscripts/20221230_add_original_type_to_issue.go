@@ -18,21 +18,30 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addInitTables),
-		new(addGithubRunsTable),
-		new(addGithubJobsTable),
-		new(addGithubPipelineTable),
-		new(deleteGithubPipelineTable),
-		new(addHeadRepoIdFieldInGithubPr),
-		new(addEnableGraphqlForConnection),
-		new(addTransformationRule20221124),
-		new(concatOwnerAndName),
-		new(addOriginalTypeToIssue221230),
-	}
+var _ core.MigrationScript = (*addOriginalTypeToIssue221230)(nil)
+
+type addOriginalTypeToIssue221230 struct{}
+
+type issue221230 struct {
+	OriginalType string `gorm:"type:varchar(100)"`
+}
+
+func (issue221230) TableName() string {
+	return "issues"
+}
+
+func (script *addOriginalTypeToIssue221230) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&issue221230{})
+}
+
+func (*addOriginalTypeToIssue221230) Version() uint64 {
+	return 20221230162121
+}
+
+func (*addOriginalTypeToIssue221230) Name() string {
+	return "add original type to issue"
 }

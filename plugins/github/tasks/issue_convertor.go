@@ -80,6 +80,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) errors.Error {
 				Description:     issue.Body,
 				Priority:        issue.Priority,
 				Type:            issue.Type,
+				OriginalStatus:  issue.Status,
 				AssigneeId:      accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
 				AssigneeName:    issue.AssigneeName,
 				CreatorId:       accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId),
