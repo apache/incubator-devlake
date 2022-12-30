@@ -23,23 +23,27 @@ import (
 )
 
 type githubIssue221230 struct {
-	OriginalType string `gorm:"type:varchar(100)"`
+	StdType string `gorm:"type:varchar(100)"`
 }
 
 func (githubIssue221230) TableName() string {
 	return "_tool_github_issues"
 }
 
-type addOriginalTypeToIssue221230 struct{}
+type addStdTypeToIssue221230 struct{}
 
-func (script *addOriginalTypeToIssue221230) Up(basicRes core.BasicRes) errors.Error {
-	return basicRes.GetDal().AutoMigrate(&githubIssue221230{})
+func (script *addStdTypeToIssue221230) Up(basicRes core.BasicRes) errors.Error {
+	err := basicRes.GetDal().AutoMigrate(&githubIssue221230{})
+	if err != nil {
+		return err
+	}
+	return basicRes.GetDal().DropColumns("_tool_github_issues", "status")
 }
 
-func (*addOriginalTypeToIssue221230) Version() uint64 {
-	return 20221214095900
+func (*addStdTypeToIssue221230) Version() uint64 {
+	return 20221230095900
 }
 
-func (*addOriginalTypeToIssue221230) Name() string {
-	return "add original type to github issue"
+func (*addStdTypeToIssue221230) Name() string {
+	return "add std type to github issue"
 }

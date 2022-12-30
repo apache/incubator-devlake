@@ -62,7 +62,8 @@ const (
 	BUG         = "BUG"
 	REQUIREMENT = "REQUIREMENT"
 	INCIDENT    = "INCIDENT"
-
+	TASK        = "TASK"
+	
 	TODO        = "TODO"
 	DONE        = "DONE"
 	IN_PROGRESS = "IN_PROGRESS"

@@ -227,19 +227,22 @@ func ExtractApiIssues(taskCtx core.SubTaskContext) errors.Error {
 
 				if issueTypeBugRegex != nil {
 					if ok := issueTypeBugRegex.MatchString(label); ok {
-						gitlabIssue.Type = ticket.BUG
+						gitlabIssue.StdType = ticket.BUG
+						gitlabIssue.Type = label
 					}
 				}
 
 				if issueTypeRequirementRegex != nil {
 					if ok := issueTypeRequirementRegex.MatchString(label); ok {
-						gitlabIssue.Type = ticket.REQUIREMENT
+						gitlabIssue.StdType = ticket.REQUIREMENT
+						gitlabIssue.Type = label
 					}
 				}
 
 				if issueTypeIncidentRegex != nil {
 					if ok := issueTypeIncidentRegex.MatchString(label); ok {
-						gitlabIssue.Type = ticket.INCIDENT
+						gitlabIssue.StdType = ticket.INCIDENT
+						gitlabIssue.Type = label
 					}
 				}
 			}

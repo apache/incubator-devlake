@@ -187,38 +187,38 @@ func convertGithubLabels(issueRegexes *IssueRegexes, issue *IssuesResponse, gith
 		})
 		if issueRegexes.SeverityRegex != nil {
 			groups := issueRegexes.SeverityRegex.FindStringSubmatch(label.Name)
-			if len(groups) > 0 {
+			if len(groups) > 1 {
 				githubIssue.Severity = groups[1]
 			}
 		}
 		if issueRegexes.ComponentRegex != nil {
 			groups := issueRegexes.ComponentRegex.FindStringSubmatch(label.Name)
-			if len(groups) > 0 {
+			if len(groups) > 1 {
 				githubIssue.Component = groups[1]
 			}
 		}
 		if issueRegexes.PriorityRegex != nil {
 			groups := issueRegexes.PriorityRegex.FindStringSubmatch(label.Name)
-			if len(groups) > 0 {
+			if len(groups) > 1 {
 				githubIssue.Priority = groups[1]
 			}
 		}
 		if issueRegexes.TypeBugRegex != nil {
 			if ok := issueRegexes.TypeBugRegex.MatchString(label.Name); ok {
-				githubIssue.Type = ticket.BUG
-				githubIssue.OriginalType = label.Name
+				githubIssue.StdType = ticket.BUG
+				githubIssue.Type = label.Name
 			}
 		}
 		if issueRegexes.TypeRequirementRegex != nil {
 			if ok := issueRegexes.TypeRequirementRegex.MatchString(label.Name); ok {
-				githubIssue.Type = ticket.REQUIREMENT
-				githubIssue.OriginalType = label.Name
+				githubIssue.StdType = ticket.REQUIREMENT
+				githubIssue.Type = label.Name
 			}
 		}
 		if issueRegexes.TypeIncidentRegex != nil {
 			if ok := issueRegexes.TypeIncidentRegex.MatchString(label.Name); ok {
-				githubIssue.Type = ticket.INCIDENT
-				githubIssue.OriginalType = label.Name
+				githubIssue.StdType = ticket.INCIDENT
+				githubIssue.Type = label.Name
 			}
 		}
 	}

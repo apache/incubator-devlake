@@ -77,6 +77,7 @@ func ConvertStory(taskCtx core.SubTaskContext) errors.Error {
 				IssueKey:       strconv.FormatInt(toolEntity.ID, 10),
 				Title:          toolEntity.Title,
 				Type:           ticket.REQUIREMENT,
+				OriginalType:   toolEntity.Type,
 				OriginalStatus: toolEntity.Stage,
 				ResolutionDate: toolEntity.ClosedDate.ToNullableTime(),
 				CreatedDate:    toolEntity.OpenedDate.ToNullableTime(),

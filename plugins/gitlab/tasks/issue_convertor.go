@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -73,7 +74,8 @@ func ConvertIssues(taskCtx core.SubTaskContext) errors.Error {
 				Title:                   issue.Title,
 				Description:             issue.Body,
 				Priority:                issue.Priority,
-				Type:                    issue.Type,
+				Type:                    issue.StdType,
+				OriginalType:            issue.Type,
 				LeadTimeMinutes:         int64(issue.LeadTimeMinutes),
 				Url:                     issue.Url,
 				CreatedDate:             &issue.GitlabCreatedAt,
@@ -90,7 +92,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) errors.Error {
 				AssigneeName:            issue.AssigneeName,
 			}
 
-			if issue.State == "opened" {
+			if strings.ToUpper(issue.State) == "OPENED" {
 				domainIssue.Status = ticket.TODO
 			} else {
 				domainIssue.Status = ticket.DONE

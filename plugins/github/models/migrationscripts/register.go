@@ -33,6 +33,6 @@ func All() []core.MigrationScript {
 		new(addEnableGraphqlForConnection),
 		new(addTransformationRule20221124),
 		new(concatOwnerAndName),
-		new(addOriginalTypeToIssue221230),
+		new(addStdTypeToIssue221230),
 	}
 }

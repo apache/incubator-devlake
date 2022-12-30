@@ -21,6 +21,7 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 
@@ -79,8 +80,9 @@ func ConvertIssues(taskCtx core.SubTaskContext) errors.Error {
 				Title:           issue.Title,
 				Description:     issue.Body,
 				Priority:        issue.Priority,
-				Type:            issue.Type,
-				OriginalStatus:  issue.Status,
+				Type:            issue.StdType,
+				OriginalType:    issue.Type,
+				OriginalStatus:  issue.State,
 				AssigneeId:      accountIdGen.Generate(data.Options.ConnectionId, issue.AssigneeId),
 				AssigneeName:    issue.AssigneeName,
 				CreatorId:       accountIdGen.Generate(data.Options.ConnectionId, issue.AuthorId),
@@ -93,7 +95,7 @@ func ConvertIssues(taskCtx core.SubTaskContext) errors.Error {
 				Severity:        issue.Severity,
 				Component:       issue.Component,
 			}
-			if issue.State == "closed" {
+			if strings.ToUpper(issue.State) == "CLOSED" {
 				domainIssue.Status = ticket.DONE
 			} else {
 				domainIssue.Status = ticket.TODO

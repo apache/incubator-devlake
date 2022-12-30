@@ -66,6 +66,7 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				Title:          toolL.Name,
 				Description:    toolL.Description,
 				Type:           toolL.StdType,
+				OriginalType:   toolL.Type,
 				Status:         toolL.StdStatus,
 				OriginalStatus: toolL.Status,
 				ResolutionDate: (*time.Time)(toolL.Completed),

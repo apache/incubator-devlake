@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -75,7 +76,7 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 			toolL.Type = typeMap.typeIdMappings[toolL.WorkitemTypeId]
 			toolL.StdType = typeMap.stdTypeMappings[toolL.Type]
 			if toolL.StdType == "" {
-				toolL.StdType = "REQUIREMENT"
+				toolL.StdType = ticket.REQUIREMENT
 			}
 
 			toolL.Url = fmt.Sprintf("https://www.tapd.cn/%d/prong/stories/view/%d", toolL.WorkspaceId, toolL.Id)

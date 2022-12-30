@@ -18,18 +18,28 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addInitTables),
-		new(addGitlabCI),
-		new(addPipelineID),
-		new(addPipelineProjects),
-		new(fixDurationToFloat8),
-		new(addTransformationRule20221125),
-		new(addStdTypeToIssue221230),
-	}
+type gitlabIssue221230 struct {
+	StdType string `gorm:"type:varchar(100)"`
+}
+
+func (gitlabIssue221230) TableName() string {
+	return "_tool_gitlab_issues"
+}
+
+type addStdTypeToIssue221230 struct{}
+
+func (script *addStdTypeToIssue221230) Up(basicRes core.BasicRes) errors.Error {
+	return basicRes.GetDal().AutoMigrate(&gitlabIssue221230{})
+}
+
+func (*addStdTypeToIssue221230) Version() uint64 {
+	return 20221230095900
+}
+
+func (*addStdTypeToIssue221230) Name() string {
+	return "add std type to gitlab issue"
 }

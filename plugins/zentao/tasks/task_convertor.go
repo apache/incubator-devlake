@@ -79,6 +79,7 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				Title:          toolEntity.Name,
 				Description:    toolEntity.Description,
 				Type:           "TASK",
+				OriginalType:   toolEntity.Type,
 				OriginalStatus: toolEntity.Status,
 				ResolutionDate: toolEntity.ClosedDate.ToNullableTime(),
 				CreatedDate:    toolEntity.OpenedDate.ToNullableTime(),

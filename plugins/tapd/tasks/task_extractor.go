@@ -66,7 +66,7 @@ func ExtractTasks(taskCtx core.SubTaskContext) errors.Error {
 
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "TASK"
-			toolL.StdType = "TASK"
+			toolL.StdType = ticket.TASK
 			toolL.StdStatus = getTaskStdStatus(toolL.Status)
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
