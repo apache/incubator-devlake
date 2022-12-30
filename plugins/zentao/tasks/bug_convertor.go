@@ -77,6 +77,7 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 				IssueKey:       strconv.FormatInt(toolEntity.ID, 10),
 				Title:          toolEntity.Title,
 				Type:           ticket.BUG,
+				OriginalType:   toolEntity.Type,
 				OriginalStatus: toolEntity.Status,
 				ResolutionDate: toolEntity.ClosedDate.ToNullableTime(),
 				CreatedDate:    toolEntity.OpenedDate.ToNullableTime(),

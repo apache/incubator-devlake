@@ -32,6 +32,7 @@ type Issue struct {
 	Description             string
 	EpicKey                 string `gorm:"type:varchar(255)"`
 	Type                    string `gorm:"type:varchar(100)"`
+	OriginalType            string `gorm:"type:varchar(100)"`
 	Status                  string `gorm:"type:varchar(100)"`
 	OriginalStatus          string `gorm:"type:varchar(100)"`
 	StoryPoint              int64
@@ -61,6 +62,7 @@ const (
 	BUG         = "BUG"
 	REQUIREMENT = "REQUIREMENT"
 	INCIDENT    = "INCIDENT"
+	TASK        = "TASK"
 
 	TODO        = "TODO"
 	DONE        = "DONE"

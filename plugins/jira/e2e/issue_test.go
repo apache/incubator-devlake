@@ -210,6 +210,7 @@ func TestIssueDataFlow(t *testing.T) {
 			"description",
 			"epic_key",
 			"type",
+			"original_type",
 			"status",
 			"original_status",
 			"story_point",

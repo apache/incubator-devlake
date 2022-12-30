@@ -50,7 +50,7 @@ func TestGitlabProjectDataFlow(t *testing.T) {
 	dataflowTester.FlushTabler(&ticket.Board{})
 	dataflowTester.FlushTabler(&devops.CicdScope{})
 	dataflowTester.FlushTabler(&crossdomain.BoardRepo{})
-	dataflowTester.ImportCsvIntoTabler("./snapshot_tables/_tool_gitlab_projects.csv", &models.GitlabProject{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_gitlab_projects.csv", &models.GitlabProject{})
 	dataflowTester.Subtask(tasks.ConvertProjectMeta, taskData)
 	dataflowTester.VerifyTable(
 		code.Repo{},
