@@ -224,8 +224,6 @@ func EnrichOptions(taskCtx core.TaskContext,
 		dal.Where(`connection_id = ? and full_name = ?`,
 			op.ConnectionId, op.JobFullName))
 	if err == nil {
-		// op.Name = jenkinsJob.Name
-		// op.JobPath = jenkinsJob.Path
 		if op.TransformationRuleId == 0 {
 			op.TransformationRuleId = jenkinsJob.TransformationRuleId
 		}
@@ -234,7 +232,7 @@ func EnrichOptions(taskCtx core.TaskContext,
 	pathSplit := strings.Split(op.JobFullName, "/")
 	lastOne := len(pathSplit)
 
-	//path := "job/" + strings.Join(pathSplit[0:lastOne-1], "job/")
+	// Multi-level directory assembly
 	path := "job/" + strings.Join(pathSplit, "/job/")
 	if path == "job/" {
 		path = ""
