@@ -56,6 +56,9 @@ func CollectApiComments(taskCtx core.SubTaskContext) errors.Error {
 			query.Set("state", "all")
 			// if data.CreatedDateAfter != nil, we set since once
 			if data.CreatedDateAfter != nil {
+				// Note that `since` is for filtering records by the `updated` time
+				// which is not ideal for semantic reasons and would result in slightly more records than expected.
+				// But we have no choice since it is the only available field we could exploit from the API.
 				query.Set("since", data.CreatedDateAfter.String())
 			}
 			// if incremental == true, we overwrite it
