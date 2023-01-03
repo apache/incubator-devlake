@@ -18,13 +18,28 @@ limitations under the License.
 package migrationscripts
 
 import (
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/helpers/migrationhelper"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/tapd/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addInitTables),
-		new(increaseFieldLength),
-	}
+type increaseFieldLength struct{}
+
+func (*increaseFieldLength) Up(basicRes core.BasicRes) errors.Error {
+	return migrationhelper.AutoMigrateTables(basicRes,
+		&archived.TapdBug{},
+		&archived.TapdBugCustomFields{},
+		&archived.TapdStory{},
+		&archived.TapdStoryCustomFields{},
+		&archived.TapdTask{},
+		&archived.TapdTaskCustomFields{})
+}
+
+func (*increaseFieldLength) Version() uint64 {
+	return 20230103201138
+}
+
+func (*increaseFieldLength) Name() string {
+	return "Increase field length"
 }
