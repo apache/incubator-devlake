@@ -82,6 +82,14 @@ func pipelineServiceInit() {
 		if err != nil {
 			panic(err)
 		}
+		err = db.UpdateColumn(
+			&models.Task{},
+			"status", models.TASK_FAILED,
+			dal.Where("status = ?", models.TASK_RUNNING),
+		)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	err := ReloadBlueprints(cronManager)

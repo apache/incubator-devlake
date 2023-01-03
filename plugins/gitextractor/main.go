@@ -72,7 +72,7 @@ func main() {
 	}
 	// If we didn't specify output or dburl, we will use db by default
 	if storage == nil {
-		storage = store.NewDatabase(basicRes, *url)
+		storage = store.NewDatabase(basicRes, *id)
 	}
 	defer storage.Close()
 	ctx := context.Background()
