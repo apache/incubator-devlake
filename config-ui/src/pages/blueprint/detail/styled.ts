@@ -18,6 +18,10 @@
 
 import styled from 'styled-components';
 
+export const Wrapper = styled.div`
+  padding-bottom: 24px;
+`;
+
 export const ConfigurationPanel = styled.div`
   .top {
     display: flex;
@@ -98,10 +102,10 @@ export const StatusPanel = styled.div`
 `;
 
 export const JenkinsTips = styled.div`
-  position: absolute;
+  position: fixed;
   right: 0;
   bottom: 0;
-  left: 0;
+  left: 200px;
   background-color: #3c5088;
   display: flex;
   align-items: center;
