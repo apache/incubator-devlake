@@ -72,12 +72,12 @@ export const ConnectionFormPage = () => {
 
   useEffect(() => {
     if (plugin === Plugins.GitHub) {
-      setForm({
+      setForm((form) => ({
         ...form,
         token: Object.values(githubTokens).filter(Boolean).join(','),
-      });
+      }));
     }
-  }, [githubTokens]);
+  }, [plugin]);
 
   const error = useMemo(
     () => !!(fields.filter((field) => field.required) ?? []).find((field) => !form[field.key]),
