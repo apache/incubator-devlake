@@ -33,8 +33,7 @@ export const BlueprintDetailPage = () => {
   const { loading, blueprint } = useDetail({ id });
 
   const showJenkinsTips = useMemo(() => {
-    const jenkins = blueprint && blueprint.settings.connections.find((cs) => cs.plugin === Plugins.Jenkins);
-
+    const jenkins = blueprint && blueprint.settings?.connections.find((cs) => cs.plugin === Plugins.Jenkins);
     return !jenkins?.scopes.length;
   }, [blueprint]);
 
