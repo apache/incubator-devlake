@@ -18,10 +18,11 @@ limitations under the License.
 package store
 
 import (
-	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"reflect"
 
+	"github.com/apache/incubator-devlake/errors"
+
+	"github.com/apache/incubator-devlake/models/common"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/code"
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
@@ -33,17 +34,27 @@ const BathSize = 100
 
 type Database struct {
 	driver *helper.BatchSaveDivider
+	table  string
+	params string
 }
 
-func NewDatabase(basicRes core.BasicRes, repoUrl string) *Database {
-	database := new(Database)
+func NewDatabase(basicRes core.BasicRes, repoId string) *Database {
+	database := &Database{
+		table:  "gitextractor",
+		params: repoId,
+	}
 	database.driver = helper.NewBatchSaveDivider(
 		basicRes,
 		BathSize,
-		"gitextractor",
-		fmt.Sprintf(`{"RepoUrl": "%s"}`, repoUrl),
+		database.table,
+		database.params,
 	)
 	return database
+}
+
+func (d *Database) updateRawDataFields(rawData *common.RawDataOrigin) {
+	rawData.RawDataTable = d.table
+	rawData.RawDataParams = d.params
 }
 
 func (d *Database) RepoCommits(repoCommit *code.RepoCommit) errors.Error {
@@ -51,6 +62,7 @@ func (d *Database) RepoCommits(repoCommit *code.RepoCommit) errors.Error {
 	if err != nil {
 		return err
 	}
+	d.updateRawDataFields(&repoCommit.RawDataOrigin)
 	return batch.Add(repoCommit)
 }
 
@@ -65,6 +77,7 @@ func (d *Database) Commits(commit *code.Commit) errors.Error {
 	if err != nil {
 		return err
 	}
+	d.updateRawDataFields(&account.RawDataOrigin)
 	err = accountBatch.Add(account)
 	if err != nil {
 		return err
@@ -73,6 +86,7 @@ func (d *Database) Commits(commit *code.Commit) errors.Error {
 	if err != nil {
 		return err
 	}
+	d.updateRawDataFields(&account.RawDataOrigin)
 	return commitBatch.Add(commit)
 }
 
@@ -81,6 +95,7 @@ func (d *Database) Refs(ref *code.Ref) errors.Error {
 	if err != nil {
 		return err
 	}
+	d.updateRawDataFields(&ref.RawDataOrigin)
 	return batch.Add(ref)
 }
 
@@ -89,6 +104,7 @@ func (d *Database) CommitFiles(file *code.CommitFile) errors.Error {
 	if err != nil {
 		return err
 	}
+	d.updateRawDataFields(&file.RawDataOrigin)
 	return batch.Add(file)
 }
 
@@ -97,6 +113,7 @@ func (d *Database) CommitFileComponents(commitFileComponent *code.CommitFileComp
 	if err != nil {
 		return err
 	}
+	d.updateRawDataFields(&commitFileComponent.RawDataOrigin)
 	return batch.Add(commitFileComponent)
 }
 
@@ -105,6 +122,7 @@ func (d *Database) RepoSnapshot(snapshotElement *code.RepoSnapshot) errors.Error
 	if err != nil {
 		return err
 	}
+	d.updateRawDataFields(&snapshotElement.RawDataOrigin)
 	return batch.Add(snapshotElement)
 }
 
@@ -113,6 +131,7 @@ func (d *Database) CommitLineChange(commitLineChange *code.CommitLineChange) err
 	if err != nil {
 		return err
 	}
+	d.updateRawDataFields(&commitLineChange.RawDataOrigin)
 	return batch.Add(commitLineChange)
 }
 
@@ -125,6 +144,7 @@ func (d *Database) CommitParents(pp []*code.CommitParent) errors.Error {
 		return err
 	}
 	for _, cp := range pp {
+		d.updateRawDataFields(&cp.RawDataOrigin)
 		err = batch.Add(cp)
 		if err != nil {
 			return err

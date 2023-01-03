@@ -64,7 +64,7 @@ func (plugin GitExtractor) PrepareTaskData(taskCtx core.TaskContext, options map
 	if err := op.Valid(); err != nil {
 		return nil, err
 	}
-	storage := store.NewDatabase(taskCtx, op.Url)
+	storage := store.NewDatabase(taskCtx, op.RepoId)
 	repo, err := NewGitRepo(taskCtx.GetLogger(), storage, op)
 	if err != nil {
 		return nil, err
