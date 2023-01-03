@@ -170,13 +170,13 @@ func DownloadLogs(c *gin.Context) {
 
 // RerunPipeline rerun all failed tasks of the specified pipeline
 // @Summary rerun tasks
-// @Tags framework/pipeline
+// @Tags framework/pipelines
 // @Accept application/json
 // @Param pipelineId path int true "pipelineId"
 // @Success 200  {object} []models.Task
 // @Failure 400  {object} shared.ApiBody "Bad Request"
 // @Failure 500  {object} shared.ApiBody "Internal Error"
-// @Router /pipeline/{pipelineId}/rerun [post]
+// @Router /pipelines/{pipelineId}/rerun [post]
 func PostRerun(c *gin.Context) {
 	pipelineId := c.Param("pipelineId")
 	id, err := strconv.ParseUint(pipelineId, 10, 64)
