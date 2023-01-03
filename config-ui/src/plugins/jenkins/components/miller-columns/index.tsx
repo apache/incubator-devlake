@@ -66,7 +66,7 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
 
   return (
     <MillerColumnsSelect
-      columnCount={2}
+      columnCount={2.5}
       columnHeight={300}
       getCanExpand={(it) => it.type === 'folder'}
       getHasMore={getHasMore}
