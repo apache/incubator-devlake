@@ -16,7 +16,4 @@
  *
  */
 
-export * from './types';
-export * from './misc';
-export * from './components';
-export * from './detail';
+export * from './historical';

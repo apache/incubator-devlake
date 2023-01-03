@@ -16,7 +16,8 @@
  *
  */
 
-export * from './types';
-export * from './misc';
-export * from './components';
-export * from './detail';
+import { request } from '@/utils';
+
+export const getPipelineHistorical = (id: ID) => request(`/blueprints/${id}/pipelines`);
+
+export const getPipelineLog = (id: ID) => request(`/pipelines/${id}/logging.tar.gz`);
