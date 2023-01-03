@@ -26,9 +26,7 @@ import (
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/jira/models"
 )
 
 const RAW_ISSUE_TABLE = "jira_api_issues"
@@ -44,7 +42,6 @@ var CollectIssuesMeta = core.SubTaskMeta{
 }
 
 func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
-	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*JiraTaskData)
 
 	collectorWithState, err := helper.NewApiCollectorWithState(helper.RawDataSubTaskArgs{
@@ -78,24 +75,7 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 
 	incremental := collectorWithState.IsIncremental()
 	if incremental {
-		// user didn't specify a time range to sync, try load from database
-		var latestUpdated models.JiraIssue
-		clauses := []dal.Clause{
-			dal.Select("_tool_jira_issues.*"),
-			dal.From("_tool_jira_issues"),
-			dal.Join("LEFT JOIN _tool_jira_board_issues bi ON (bi.connection_id = _tool_jira_issues.connection_id AND bi.issue_id = _tool_jira_issues.issue_id)"),
-			dal.Where("bi.connection_id = ? and bi.board_id = ?", data.Options.ConnectionId, data.Options.BoardId),
-			dal.Orderby("_tool_jira_issues.updated DESC"),
-		}
-		err := db.First(&latestUpdated, clauses...)
-		if err != nil && !db.IsErrorNotFound(err) {
-			return errors.NotFound.Wrap(err, "failed to get latest jira issue record")
-		}
-		if latestUpdated.IssueId > 0 {
-			jql = fmt.Sprintf("updated >= '%v' AND %v", latestUpdated.Updated.Format("2006/01/02 15:04"), jql)
-		} else {
-			incremental = false
-		}
+		jql = fmt.Sprintf("updated >= '%v' AND %v", collectorWithState.LatestState.LatestSuccessStart.Format("2006/01/02 15:04"), jql)
 	}
 
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
