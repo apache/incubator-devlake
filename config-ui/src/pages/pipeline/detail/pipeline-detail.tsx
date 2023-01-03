@@ -16,40 +16,64 @@
  *
  */
 
-import React, { useState, useMemo } from 'react';
-import { Icon, Button, Collapse, IconName, Intent } from '@blueprintjs/core';
+import React, { useState } from 'react';
+import { Icon, Button, Collapse, Intent, IconName } from '@blueprintjs/core';
 import { groupBy } from 'lodash';
 import classNames from 'classnames';
 
 import { Card, Loading } from '@/components';
+import { useAutoRefresh } from '@/hooks';
 import { formatTime, duration } from '@/utils';
 
+import type { PipelineType, TaskType } from '../types';
 import { StatusEnum } from '../types';
 import { STATUS_ICON, STATUS_LABEL, STATUS_CLS } from '../misc';
 
-import type { UseDetailProps } from './use-detail';
 import { useDetail } from './use-detail';
 import { Task } from './components';
+import * as API from './api';
 import * as S from './styled';
 
-interface Props extends UseDetailProps {}
+interface Props {
+  id: ID;
+}
 
-export const PipelineDetail = ({ ...props }: Props) => {
+export const PipelineDetail = ({ id }: Props) => {
   const [isOpen, setIsOpen] = useState(true);
 
-  const { loading, operating, pipeline, tasks, onCancel, onRerun, onRerunTask } = useDetail({ ...props });
+  const { version, operating, onCancel, onRerun, onRerunTask } = useDetail({ id });
 
-  const stages = useMemo(() => groupBy(tasks, 'pipelineRow'), [tasks]);
+  const { loading, data } = useAutoRefresh<{
+    pipeline: PipelineType;
+    tasks: TaskType[];
+  }>(
+    async () => {
+      const [pipeRes, taskRes] = await Promise.all([API.getPipeline(id), API.getPipelineTasks(id)]);
 
-  if (loading) {
+      return {
+        pipeline: pipeRes,
+        tasks: taskRes.tasks,
+      };
+    },
+    [version],
+    {
+      cancel: (data) => {
+        const { pipeline } = data ?? {};
+        return !!(
+          pipeline && [StatusEnum.COMPLETED, StatusEnum.FAILED, StatusEnum.CANCELLED].includes(pipeline.status)
+        );
+      },
+    },
+  );
+
+  if (loading || !data) {
     return <Loading />;
   }
 
-  if (!pipeline) {
-    return <Card>There is no current run for this blueprint.</Card>;
-  }
+  const { pipeline, tasks } = data;
 
   const { status, beganAt, finishedAt, stage, finishedTasks, totalTasks, message } = pipeline;
+  const stages = groupBy(tasks, 'pipelineRow');
 
   const handleToggleOpen = () => {
     setIsOpen(!isOpen);

@@ -16,4 +16,4 @@
  *
  */
 
-export * from './pipeline-info';
+export * from './use-auto-refresh';

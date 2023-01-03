@@ -16,4 +16,20 @@
  *
  */
 
-export * from './pipeline-info';
+import React from 'react';
+
+import { Card } from '@/components';
+
+import { PipelineDetail } from './pipeline-detail';
+
+interface Props {
+  id?: ID;
+}
+
+export const PipelineInfo = ({ id }: Props) => {
+  if (!id) {
+    return <Card>There is no current run for this blueprint.</Card>;
+  }
+
+  return <PipelineDetail id={id} />;
+};

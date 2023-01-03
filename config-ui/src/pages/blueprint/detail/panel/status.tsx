@@ -22,7 +22,7 @@ import dayjs from 'dayjs';
 
 import { getCron } from '@/config';
 import type { PipelineType } from '@/pages';
-import { PipelineDetail } from '@/pages';
+import { PipelineInfo } from '@/pages';
 
 import type { BlueprintType } from '../../types';
 
@@ -84,7 +84,7 @@ export const Status = ({ blueprint, pipelines, pipelineId, operating, onRun, onU
       </div>
       <div className="block">
         <h3>Current Pipeline</h3>
-        <PipelineDetail id={pipelineId} />
+        <PipelineInfo id={pipelineId} />
       </div>
       <div className="block">
         <h3>Historical Pipelines</h3>
