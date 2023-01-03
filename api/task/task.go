@@ -50,7 +50,7 @@ type getTaskResponse struct {
 
 // GetTaskByPipeline return most recent tasks
 // @Summary Get tasks, only the most recent tasks will be returned
-// @Tags framework/task
+// @Tags framework/tasks
 // @Accept application/json
 // @Param pipelineId path int true "pipelineId"
 // @Success 200  {object} getTaskResponse
@@ -73,7 +73,7 @@ func GetTaskByPipeline(c *gin.Context) {
 
 // RerunTask rerun the specified task.
 // @Summary rerun task
-// @Tags framework/task
+// @Tags framework/tasks
 // @Accept application/json
 // @Success 200  {object} models.Task
 // @Failure 400  {object} shared.ApiBody "Bad Request"
