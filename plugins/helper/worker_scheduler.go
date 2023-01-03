@@ -151,6 +151,11 @@ func (s *WorkerScheduler) NextTick(task func() errors.Error) {
 func (s *WorkerScheduler) Wait() errors.Error {
 	s.waitGroup.Wait()
 	if len(s.workerErrors) > 0 {
+		for _, err := range s.workerErrors {
+			if errors.Is(err, context.Canceled) {
+				return errors.Default.Wrap(err, "task canceled")
+			}
+		}
 		return errors.Default.Combine(s.workerErrors)
 	}
 	return nil
