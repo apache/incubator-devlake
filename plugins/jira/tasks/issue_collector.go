@@ -70,10 +70,10 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 	// IMPORTANT: we have to keep paginated data in a consistence order to avoid data-missing, if we sort issues by
 	//  `updated`, issue will be jumping between pages if it got updated during the collection process
 	createdDateAfter := data.CreatedDateAfter
-	jql := "ORDER BY created ASC"
+	jql := "created is not null ORDER BY created ASC"
 	if createdDateAfter != nil {
 		// prepend a time range criteria if `since` was specified, either by user or from database
-		jql = fmt.Sprintf("created >= '%v' %v", createdDateAfter.Format("2006/01/02 15:04"), jql)
+		jql = fmt.Sprintf("created >= '%v' AND %v", createdDateAfter.Format("2006/01/02 15:04"), jql)
 	}
 
 	incremental := collectorWithState.IsIncremental()
@@ -92,7 +92,7 @@ func CollectIssues(taskCtx core.SubTaskContext) errors.Error {
 			return errors.NotFound.Wrap(err, "failed to get latest jira issue record")
 		}
 		if latestUpdated.IssueId > 0 {
-			jql = fmt.Sprintf("updated >= '%v' %v", latestUpdated.Updated.Format("2006/01/02 15:04"), jql)
+			jql = fmt.Sprintf("updated >= '%v' AND %v", latestUpdated.Updated.Format("2006/01/02 15:04"), jql)
 		} else {
 			incremental = false
 		}

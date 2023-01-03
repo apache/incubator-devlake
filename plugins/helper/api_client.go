@@ -185,6 +185,7 @@ func (apiClient *ApiClient) GetAfterFunction() common.ApiClientAfterResponse {
 }
 
 // SetAfterFunction will set afterResponseFunction
+// don't call this function directly in collector, use Collector.AfterResponse instead.
 func (apiClient *ApiClient) SetAfterFunction(callback common.ApiClientAfterResponse) {
 	apiClient.afterResponse = callback
 }

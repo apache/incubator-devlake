@@ -39,12 +39,6 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.BitbucketConne
 		req.Header.Set("Authorization", fmt.Sprintf("Basic %v", token))
 		return nil
 	})
-	apiClient.SetAfterFunction(func(res *http.Response) errors.Error {
-		if res.StatusCode == http.StatusUnauthorized {
-			return errors.Unauthorized.New("authentication failed, please check your Basic Auth configuration")
-		}
-		return nil
-	})
 
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{
