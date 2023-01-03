@@ -41,7 +41,7 @@ export const useDetail = ({ id }: Props) => {
   };
 
   const handlePipelineRerun = async () => {
-    const [success] = await operator(() => API.pipeLineRerun(id), {
+    const [success] = await operator(() => API.pipelineRerun(id), {
       setOperating,
     });
 

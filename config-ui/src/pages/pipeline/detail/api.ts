@@ -27,8 +27,8 @@ export const deletePipeline = (id: ID) =>
     method: 'delete',
   });
 
-export const pipeLineRerun = (id: ID) =>
-  request(`/pipeline/${id}/rerun`, {
+export const pipelineRerun = (id: ID) =>
+  request(`/pipelines/${id}/rerun`, {
     method: 'post',
   });
 
