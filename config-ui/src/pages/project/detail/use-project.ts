@@ -131,6 +131,6 @@ export const useProject = (name: string) => {
       onSelectWebhook: handleSelectWebhook,
       onCreateWebhook: handleCreateWebhook,
     }),
-    [loading, project, saving],
+    [loading, project, saving, name],
   );
 };

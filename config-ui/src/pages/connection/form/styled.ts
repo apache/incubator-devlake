@@ -67,22 +67,3 @@ export const RateLimit = styled.div`
     margin-right: 8px;
   }
 `;
-
-export const GitHubToken = styled.div`
-  p {
-    margin: 0 0 8px;
-  }
-
-  h3 {
-    margin: 0 0 8px;
-    padding: 0;
-    font-size: 14px;
-  }
-
-  .token {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-`;

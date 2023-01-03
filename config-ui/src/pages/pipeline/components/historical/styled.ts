@@ -16,23 +16,31 @@
  *
  */
 
-import { request } from '@/utils';
+import { Colors } from '@blueprintjs/core';
+import styled from 'styled-components';
 
-export const getPipeline = (id: ID) => request(`/pipelines/${id}`);
+export const StatusColumn = styled.div`
+  display: flex;
+  align-items: center;
 
-export const getPipelineTasks = (id: ID) => request(`/pipelines/${id}/tasks`);
+  .bp4-icon {
+    margin-right: 4px;
+  }
 
-export const deletePipeline = (id: ID) =>
-  request(`/pipelines/${id}`, {
-    method: 'delete',
-  });
+  &.ready,
+  &.cancel {
+    color: #94959f;
+  }
 
-export const pipelineRerun = (id: ID) =>
-  request(`/pipelines/${id}/rerun`, {
-    method: 'post',
-  });
+  &.loading {
+    color: #7497f7;
+  }
 
-export const taskRerun = (id: ID) =>
-  request(`/tasks/${id}/rerun`, {
-    method: 'post',
-  });
+  &.success {
+    color: ${Colors.GREEN3};
+  }
+
+  &.error {
+    color: ${Colors.RED3};
+  }
+`;

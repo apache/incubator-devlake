@@ -17,52 +17,45 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { ButtonGroup, Button, Icon, Intent, Colors, Position, IconName } from '@blueprintjs/core';
+import { Icon, ButtonGroup, Button, Position, Intent, IconName } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 import { pick } from 'lodash';
 import { saveAs } from 'file-saver';
-import styled from 'styled-components';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { Card, Table, ColumnType, Loading, Inspector } from '@/components';
-import { PipelineType, StatusEnum, STATUS_ICON, STATUS_LABEL, STATUS_CLS } from '@/pages';
+import { Card, Loading, Table, ColumnType, Inspector } from '@/components';
+import { useAutoRefresh } from '@/hooks';
 import { formatTime, duration } from '@/utils';
 
-import * as API from './api';
+import type { PipelineType } from '../../types';
+import { StatusEnum } from '../../types';
+import { STATUS_ICON, STATUS_LABEL, STATUS_CLS } from '../../misc';
+import * as API from '../../api';
 
-const StatusColumn = styled.div`
-  display: flex;
-  align-items: center;
-
-  .bp4-icon {
-    margin-right: 4px;
-  }
-
-  &.ready,
-  &.cancel {
-    color: #94959f;
-  }
-
-  &.loading {
-    color: #7497f7;
-  }
-
-  &.success {
-    color: ${Colors.GREEN3};
-  }
-
-  &.error {
-    color: ${Colors.RED3};
-  }
-`;
+import * as S from './styled';
 
 interface Props {
-  pipelines: PipelineType[];
+  blueprintId: ID;
 }
 
-export const PipelineList = ({ pipelines }: Props) => {
+export const PipelineHistorical = ({ blueprintId }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [json, setJson] = useState<any>({});
+
+  const { loading, data } = useAutoRefresh<PipelineType[]>(
+    async () => {
+      const res = await API.getPipelineHistorical(blueprintId);
+      return res.pipelines;
+    },
+    [],
+    {
+      cancel: (data) =>
+        !!(
+          data &&
+          data.every((it) => [StatusEnum.COMPLETED, StatusEnum.CANCELLED, StatusEnum.FAILED].includes(it.status))
+        ),
+    },
+  );
 
   const handleDownloadLog = async (id: ID) => {
     const res = await API.getPipelineLog(id);
@@ -79,14 +72,14 @@ export const PipelineList = ({ pipelines }: Props) => {
           dataIndex: 'status',
           key: 'status',
           render: (val: StatusEnum) => (
-            <StatusColumn className={STATUS_CLS(val)}>
+            <S.StatusColumn className={STATUS_CLS(val)}>
               {STATUS_ICON[val] === 'loading' ? (
                 <Loading style={{ marginRight: 4 }} size={14} />
               ) : (
                 <Icon style={{ marginRight: 4 }} icon={STATUS_ICON[val] as IconName} />
               )}
               <span>{STATUS_LABEL[val]}</span>
-            </StatusColumn>
+            </S.StatusColumn>
           ),
         },
         {
@@ -135,11 +128,21 @@ export const PipelineList = ({ pipelines }: Props) => {
     [],
   );
 
-  return !pipelines.length ? (
-    <Card>There are no historical runs associated with this blueprint.</Card>
-  ) : (
+  if (loading) {
+    return (
+      <Card>
+        <Loading />
+      </Card>
+    );
+  }
+
+  if (!data) {
+    return <Card>There are no historical runs associated with this blueprint.</Card>;
+  }
+
+  return (
     <div>
-      <Table columns={columns} dataSource={pipelines} />
+      <Table columns={columns} dataSource={data} />
       <Inspector isOpen={isOpen} title={`Pipeline ${json?.id}`} data={json} onClose={() => setIsOpen(false)} />
     </div>
   );

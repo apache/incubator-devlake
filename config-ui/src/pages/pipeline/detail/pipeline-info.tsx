@@ -16,6 +16,20 @@
  *
  */
 
-import { request } from '@/utils';
+import React from 'react';
 
-export const getPipelineLog = (id: ID) => request(`/pipelines/${id}/logging.tar.gz`);
+import { Card } from '@/components';
+
+import { PipelineDetail } from './pipeline-detail';
+
+interface Props {
+  id?: ID;
+}
+
+export const PipelineInfo = ({ id }: Props) => {
+  if (!id) {
+    return <Card>There is no current run for this blueprint.</Card>;
+  }
+
+  return <PipelineDetail id={id} />;
+};

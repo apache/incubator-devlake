@@ -76,7 +76,7 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
 
   return (
     <MillerColumnsSelect
-      columnCount={3}
+      columnCount={2.5}
       columnHeight={300}
       getCanExpand={(it) => it.type === 'group'}
       getHasMore={getHasMore}

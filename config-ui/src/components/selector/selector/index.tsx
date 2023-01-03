@@ -17,8 +17,8 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { MenuItem, Button } from '@blueprintjs/core';
-import { Select } from '@blueprintjs/select';
+import { MenuItem, Button, Alignment } from '@blueprintjs/core';
+import { Select2 } from '@blueprintjs/select';
 
 interface Props<T> {
   items: T[];
@@ -67,14 +67,14 @@ export const Selector = <T,>({
   };
 
   return (
-    <Select
+    <Select2
       items={items}
       activeItem={selectedItem}
       itemPredicate={itemPredicate}
       itemRenderer={itemRenderer}
       onItemSelect={handleItemSelect}
     >
-      <Button outlined small fill rightIcon="double-caret-vertical" text={btnText} />
-    </Select>
+      <Button outlined small fill alignText={Alignment.LEFT} rightIcon="double-caret-vertical" text={btnText} />
+    </Select2>
   );
 };

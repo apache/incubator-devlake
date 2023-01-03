@@ -16,27 +16,18 @@
  *
  */
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 
 import { PageHeader, PageLoading } from '@/components';
-import { Plugins } from '@/plugins';
 
 import { useDetail } from './use-detail';
 import { BlueprintDetail } from './blueprint-detail';
-
-import * as S from './styled';
 
 export const BlueprintDetailPage = () => {
   const { id } = useParams<{ id: string }>();
 
   const { loading, blueprint } = useDetail({ id });
-
-  const showJenkinsTips = useMemo(() => {
-    const jenkins = blueprint && blueprint.settings.connections.find((cs) => cs.plugin === Plugins.Jenkins);
-
-    return !jenkins?.scopes.length;
-  }, [blueprint]);
 
   if (loading || !blueprint) {
     return <PageLoading />;
@@ -50,11 +41,6 @@ export const BlueprintDetailPage = () => {
       ]}
     >
       <BlueprintDetail id={blueprint.id} />
-      {showJenkinsTips && (
-        <S.JenkinsTips>
-          <p>Please add the "Jenkins jobs" to collect before this Blueprint can run again.</p>
-        </S.JenkinsTips>
-      )}
     </PageHeader>
   );
 };

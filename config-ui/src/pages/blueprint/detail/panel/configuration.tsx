@@ -63,7 +63,8 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
             icon: plugin.icon,
             name: plugin.name,
             connectionId: cs.connectionId,
-            entities: cs.scopes[0].entities,
+            entities: plugin.entities,
+            selectedEntites: cs.scopes[0].entities,
             plugin: cs.plugin,
             scopeIds: cs.scopes.map((sc: any) => sc.id),
           };
@@ -117,8 +118,8 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
         },
         {
           title: 'Data Entities',
-          dataIndex: 'entities',
-          key: 'entities',
+          dataIndex: 'selectedEntites',
+          key: 'selectedEntites',
           render: (val: string[]) => (
             <>
               {val.map((it) => (

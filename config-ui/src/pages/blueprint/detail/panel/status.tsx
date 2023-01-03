@@ -21,17 +21,14 @@ import { Button, Switch, Intent } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import { getCron } from '@/config';
-import type { PipelineType } from '@/pages';
-import { PipelineDetail } from '@/pages';
+import { PipelineInfo, PipelineHistorical } from '@/pages';
 
 import type { BlueprintType } from '../../types';
 
-import { PipelineList } from '../components';
 import * as S from '../styled';
 
 interface Props {
   blueprint: BlueprintType;
-  pipelines: PipelineType[];
   pipelineId?: ID;
   operating: boolean;
   onRun: () => void;
@@ -39,7 +36,7 @@ interface Props {
   onDelete: () => void;
 }
 
-export const Status = ({ blueprint, pipelines, pipelineId, operating, onRun, onUpdate, onDelete }: Props) => {
+export const Status = ({ blueprint, pipelineId, operating, onRun, onUpdate, onDelete }: Props) => {
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
   const handleRunNow = () => onRun();
@@ -84,11 +81,11 @@ export const Status = ({ blueprint, pipelines, pipelineId, operating, onRun, onU
       </div>
       <div className="block">
         <h3>Current Pipeline</h3>
-        <PipelineDetail id={pipelineId} />
+        <PipelineInfo id={pipelineId} />
       </div>
       <div className="block">
         <h3>Historical Pipelines</h3>
-        <PipelineList pipelines={pipelines} />
+        <PipelineHistorical blueprintId={blueprint.id} />
       </div>
     </S.StatusPanel>
   );

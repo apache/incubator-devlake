@@ -28,7 +28,10 @@ export interface UseDataScope {
   plugin: string;
   connectionId: ID;
   entities: string[];
-  initialValues?: any;
+  initialValues?: {
+    scope?: any;
+    entites?: string[];
+  };
   onSave?: (scope: any) => void;
 }
 
@@ -38,12 +41,12 @@ export const useDataScope = ({ plugin, connectionId, entities, initialValues, on
   const [selectedEntities, setSelectedEntities] = useState<string[]>([]);
 
   useEffect(() => {
-    setSelectedScope(initialValues ?? []);
-  }, [initialValues]);
+    setSelectedScope(initialValues?.scope ?? []);
+  }, [initialValues?.scope]);
 
   useEffect(() => {
-    setSelectedEntities(entities ?? []);
-  }, [entities]);
+    setSelectedEntities(initialValues?.entites ?? entities);
+  }, [entities, initialValues?.entites]);
 
   const getPluginId = (scope: any) => {
     switch (true) {

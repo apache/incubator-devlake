@@ -18,7 +18,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { MenuItem, Checkbox, Intent } from '@blueprintjs/core';
-import { MultiSelect } from '@blueprintjs/select';
+import { MultiSelect2 } from '@blueprintjs/select';
 
 interface Props<T> {
   placeholder?: string;
@@ -98,11 +98,14 @@ export const MultiSelector = <T,>({
   };
 
   return (
-    <MultiSelect
+    <MultiSelect2
       fill
       resetOnSelect
       placeholder={placeholder ?? 'Select...'}
       items={items}
+      // https://github.com/palantir/blueprint/issues/3596
+      // set activeItem to null will fixed the scrollBar to top when the selectedItems changed
+      activeItem={null}
       selectedItems={selectedItems}
       itemRenderer={itemRenderer}
       tagRenderer={tagRenderer}

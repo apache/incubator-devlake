@@ -18,21 +18,6 @@
 
 import { request } from '@/utils';
 
-export const getPipeline = (id: ID) => request(`/pipelines/${id}`);
+export const getPipelineHistorical = (id: ID) => request(`/blueprints/${id}/pipelines`);
 
-export const getPipelineTasks = (id: ID) => request(`/pipelines/${id}/tasks`);
-
-export const deletePipeline = (id: ID) =>
-  request(`/pipelines/${id}`, {
-    method: 'delete',
-  });
-
-export const pipelineRerun = (id: ID) =>
-  request(`/pipelines/${id}/rerun`, {
-    method: 'post',
-  });
-
-export const taskRerun = (id: ID) =>
-  request(`/tasks/${id}/rerun`, {
-    method: 'post',
-  });
+export const getPipelineLog = (id: ID) => request(`/pipelines/${id}/logging.tar.gz`);

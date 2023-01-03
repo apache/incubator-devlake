@@ -24,5 +24,6 @@ export type ConfigConnectionItemType = {
   connectionId: ID;
   plugin: Plugins;
   entities: string[];
+  selectedEntites: string[];
   scopeIds: ID[];
 };

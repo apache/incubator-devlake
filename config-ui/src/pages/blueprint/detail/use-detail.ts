@@ -21,7 +21,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Error } from '@/error';
 import { operator } from '@/utils';
 
-import type { BlueprintType, PipelineType } from '@/pages';
+import type { BlueprintType } from '@/pages';
 import * as API from './api';
 
 export interface UseDetailProps {
@@ -32,7 +32,6 @@ export const useDetail = ({ id }: UseDetailProps) => {
   const [loading, setLoading] = useState(false);
   const [operating, setOperating] = useState(false);
   const [blueprint, setBlueprint] = useState<BlueprintType>();
-  const [pipelines, setPipelines] = useState<PipelineType[]>([]);
   const [pipelineId, setPipelineId] = useState<ID>();
   const [, setError] = useState();
 
@@ -49,7 +48,6 @@ export const useDetail = ({ id }: UseDetailProps) => {
       }
 
       setBlueprint(bpRes);
-      setPipelines(plRes.pipelines);
       setPipelineId(plRes.pipelines?.[0]?.id);
     } finally {
       setLoading(false);
@@ -102,13 +100,12 @@ export const useDetail = ({ id }: UseDetailProps) => {
       loading,
       operating,
       blueprint,
-      pipelines,
       pipelineId,
       onRun: handleRun,
       onUpdate: handleUpdate,
       onDelete: handleDelete,
       onRefresh: getBlueprint,
     }),
-    [loading, operating, blueprint, pipelines, pipelineId],
+    [loading, operating, blueprint, pipelineId],
   );
 };
