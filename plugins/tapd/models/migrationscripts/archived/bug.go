@@ -70,10 +70,10 @@ type TapdBug struct {
 	Closer           string          `json:"closer" gorm:"type:varchar(50)"`
 	Platform         string          `json:"platform" gorm:"type:varchar(50)"`
 	Os               string          `json:"os" gorm:"type:varchar(50)"`
-	Testtype         string          `json:"testtype" gorm:"type:varchar(20)"`
+	Testtype         string          `json:"testtype" gorm:"type:varchar(255)"`
 	Testphase        string          `json:"testphase" gorm:"type:varchar(255)"`
 	Frequency        string          `json:"frequency" gorm:"type:varchar(255)"`
-	RegressionNumber string          `json:"regression_number" gorm:"type:varchar(20)"`
+	RegressionNumber string          `json:"regression_number" gorm:"type:varchar(255)"`
 	Flows            string          `json:"flows" gorm:"type:varchar(255)"`
 	Testmode         string          `json:"testmode" gorm:"type:varchar(50)"`
 	IssueId          uint64          `json:"issue_id,string"`
@@ -89,7 +89,7 @@ type TapdBug struct {
 	StoryId          uint64          `json:"story_id,string"`
 	StdStatus        string          `gorm:"type:varchar(20)"`
 	StdType          string          `gorm:"type:varchar(20)"`
-	Type             string          `gorm:"type:varchar(20)"`
+	Type             string          `gorm:"type:varchar(255)"`
 	Url              string          `gorm:"type:varchar(255)"`
 
 	SupportId       uint64  `json:"support_id,string"`
@@ -104,7 +104,7 @@ type TapdBug struct {
 	Remain          float32 `json:"remain,string"`
 	Progress        string  `json:"progress" gorm:"type:varchar(255)"`
 	Estimate        float32 `json:"estimate,string"`
-	Bugtype         string  `json:"bugtype" gorm:"type:varchar(20)"`
+	Bugtype         string  `json:"bugtype" gorm:"type:varchar(255)"`
 
 	Milestone        string `json:"milestone" gorm:"type:varchar(255)"`
 	CustomFieldOne   string `json:"custom_field_one" gorm:"type:text"`
