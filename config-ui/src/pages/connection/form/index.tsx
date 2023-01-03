@@ -18,7 +18,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { omit, pick } from 'lodash';
+import { pick } from 'lodash';
 import {
   FormGroup,
   InputGroup,
@@ -36,13 +36,13 @@ import { PageHeader, Card, PageLoading } from '@/components';
 import type { PluginConfigConnectionType } from '@/plugins';
 import { Plugins, PluginConfig } from '@/plugins';
 
+import { GitHubToken } from './components';
 import { useForm } from './use-form';
 import * as S from './styled';
 
 export const ConnectionFormPage = () => {
   const [form, setForm] = useState<Record<string, any>>({});
   const [showRateLimit, setShowRateLimit] = useState(false);
-  const [githubTokens, setGitHubTokens] = useState<Record<string, string>>({});
 
   const history = useHistory();
   const { plugin, cid } = useParams<{ plugin: Plugins; cid?: string }>();
@@ -60,48 +60,13 @@ export const ConnectionFormPage = () => {
       ...(connection ?? {}),
     });
 
-    setGitHubTokens(
-      (connection?.token ?? '').split(',').reduce((acc: any, cur: string, index: number) => {
-        acc[index] = cur;
-        return acc;
-      }, {} as any),
-    );
-
     setShowRateLimit(connection?.rateLimitPerHour ? true : false);
   }, [initialValues, connection]);
-
-  useEffect(() => {
-    if (plugin === Plugins.GitHub) {
-      setForm((form) => ({
-        ...form,
-        token: Object.values(githubTokens).filter(Boolean).join(','),
-      }));
-    }
-  }, [plugin]);
 
   const error = useMemo(
     () => !!(fields.filter((field) => field.required) ?? []).find((field) => !form[field.key]),
     [form, fields],
   );
-
-  const handleChangeGitHubToken = (key: string, token: string) => {
-    setGitHubTokens({
-      ...githubTokens,
-      [key]: token,
-    });
-  };
-
-  const handleCreateToken = () => {
-    const keys = Object.keys(githubTokens);
-    setGitHubTokens({
-      ...githubTokens,
-      [+keys[keys.length - 1] + 1]: '',
-    });
-  };
-
-  const handleRemoveToken = (key: string) => {
-    setGitHubTokens(omit(githubTokens, [key]));
-  };
 
   const handleTest = () =>
     onTest(pick(form, ['endpoint', 'token', 'username', 'password', 'app_id', 'secret_key', 'proxy']));
@@ -182,43 +147,16 @@ export const ConnectionFormPage = () => {
           />
         )}
         {type === 'github-token' && (
-          <S.GitHubToken>
-            <p>
-              Add one or more personal token(s) for authentication from you and your organization members. Multiple
-              tokens can help speed up the data collection process.{' '}
-            </p>
-            <p>
-              <a
-                href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Learn about how to create a personal access token
-              </a>
-            </p>
-            <h3>Personal Access Token(s)</h3>
-            {Object.entries(githubTokens).map(([key, value]) => (
-              <div className="token" key={key}>
-                <InputGroup
-                  placeholder="token"
-                  type="password"
-                  value={value}
-                  onChange={(e) => handleChangeGitHubToken(key, e.target.value)}
-                />
-                <Button minimal icon="cross" onClick={() => handleRemoveToken(key)} />
-              </div>
-            ))}
-            <div className="action">
-              <Button
-                outlined
-                small
-                intent={Intent.PRIMARY}
-                text="Another Token"
-                icon="plus"
-                onClick={handleCreateToken}
-              />
-            </div>
-          </S.GitHubToken>
+          <GitHubToken
+            form={form}
+            value={form.token}
+            onChange={(value) =>
+              setForm({
+                ...form,
+                token: value,
+              })
+            }
+          />
         )}
       </FormGroup>
     );

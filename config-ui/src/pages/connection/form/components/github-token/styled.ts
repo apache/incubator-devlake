@@ -20,50 +20,37 @@ import { Colors } from '@blueprintjs/core';
 import styled from 'styled-components';
 
 export const Wrapper = styled.div`
-  .bp4-form-group {
+  p {
+    margin: 0 0 8px;
+  }
+
+  h3 {
+    margin: 0 0 8px;
+    padding: 0;
+    font-size: 14px;
+  }
+
+  .token {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 8px;
 
-    .bp4-label {
-      flex: 0 0 200px;
-      font-weight: 600;
+    .input {
+      display: flex;
+      align-items: center;
 
-      .bp4-popover2-target {
-        display: inline;
-        margin: 0;
-        line-height: 1;
+      & > span {
         margin-left: 4px;
-      }
 
-      .bp4-text-muted {
-        color: ${Colors.RED3};
+        &.error {
+          color: ${Colors.RED3};
+        }
+
+        &.success {
+          color: ${Colors.GREEN3};
+        }
       }
     }
-
-    .bp4-form-content {
-      flex: auto;
-    }
-  }
-
-  .footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 32px;
-  }
-`;
-
-export const Label = styled.span`
-  display: inline-flex;
-  align-items: center;
-`;
-
-export const RateLimit = styled.div`
-  display: flex;
-  align-items: center;
-
-  & > .bp4-numeric-input {
-    margin-right: 8px;
   }
 `;
