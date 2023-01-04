@@ -63,7 +63,7 @@ export const useColumns = ({ onDetail }: Props) => {
               minimal
               intent={Intent.PRIMARY}
               icon="add"
-              text="Add Transformation"
+              text="Edit Transformation"
               onClick={() => onDetail(connection)}
             />
           ),

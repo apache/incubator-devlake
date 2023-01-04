@@ -20,7 +20,7 @@ import React, { useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import type { ColumnType } from '@/components';
-import { DataScopeList } from '@/plugins';
+import { Plugins, DataScopeList } from '@/plugins';
 
 import type { BPConnectionItemType } from '../types';
 
@@ -28,9 +28,10 @@ import * as S from './styled';
 
 interface Props {
   onDetail: (connection: BPConnectionItemType) => void;
+  onDelete: (plugin: Plugins, connectionId: ID, scopeId: ID) => void;
 }
 
-export const useColumns = ({ onDetail }: Props) => {
+export const useColumns = ({ onDetail, onDelete }: Props) => {
   return useMemo(
     () =>
       [
@@ -50,7 +51,13 @@ export const useColumns = ({ onDetail }: Props) => {
           dataIndex: ['plugin', 'id', 'scope'],
           key: 'unique',
           render: ({ plugin, id, scope }: Pick<BPConnectionItemType, 'plugin' | 'id' | 'scope'>) => (
-            <DataScopeList groupByTs={false} plugin={plugin} connectionId={id} scopeIds={scope.map((sc) => sc.id)} />
+            <DataScopeList
+              groupByTs={false}
+              plugin={plugin}
+              connectionId={id}
+              scopeIds={scope.map((sc) => sc.id)}
+              onDelete={onDelete}
+            />
           ),
         },
         {
@@ -69,6 +76,6 @@ export const useColumns = ({ onDetail }: Props) => {
           ),
         },
       ] as ColumnType<BPConnectionItemType>,
-    [],
+    [onDetail, onDelete],
   );
 };

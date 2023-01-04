@@ -21,7 +21,7 @@ import { Icon } from '@blueprintjs/core';
 
 import { Card, Table, Divider } from '@/components';
 import { useConnection } from '@/store';
-import { DataScope } from '@/plugins';
+import { Plugins, DataScope } from '@/plugins';
 
 import type { BPConnectionItemType } from '../types';
 import { useCreateBP } from '../bp-context';
@@ -44,6 +44,15 @@ export const StepTwo = () => {
     onChangeShowDetail(false);
   };
 
+  const handleDeleteScope = (plugin: Plugins, connectionId: ID, scopeId: ID) => {
+    const unique = `${plugin}-${connectionId}`;
+
+    onChangeScopeMap({
+      ...scopeMap,
+      [`${unique}`]: scopeMap[unique].filter((sc: any) => sc.id !== scopeId),
+    });
+  };
+
   const handleSave = (scope: any) => {
     if (!connection) return;
     onChangeScopeMap({
@@ -53,7 +62,7 @@ export const StepTwo = () => {
     handleBack();
   };
 
-  const columns = useColumns({ onDetail: handleGoDetail });
+  const columns = useColumns({ onDetail: handleGoDetail, onDelete: handleDeleteScope });
   const dataSource = useMemo(
     () =>
       uniqueList.map((unique) => {
@@ -63,7 +72,7 @@ export const StepTwo = () => {
           ...connection,
           scope: scope.map((sc: any) => ({
             id: `${sc.id}`,
-            entities: `${sc.entities}`,
+            entities: sc.entities,
           })),
         };
       }),
@@ -88,6 +97,9 @@ export const StepTwo = () => {
         plugin={connection.plugin}
         connectionId={connection.id}
         entities={connection.entities}
+        initialValues={{
+          scope: connection.scope,
+        }}
         onCancel={handleBack}
         onSave={handleSave}
       />
