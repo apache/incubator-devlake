@@ -39,7 +39,7 @@ export const ProjectDetailPage = () => {
     <PageHeader
       breadcrumbs={[
         { name: 'Projects', path: '/projects' },
-        { name: pname, path: `/projects/${pname}` },
+        { name: project.name, path: `/projects/${pname}` },
       ]}
     >
       <S.Wrapper>
