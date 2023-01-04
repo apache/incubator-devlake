@@ -21,12 +21,15 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/apache/incubator-devlake/errors"
 
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 )
+
+var lock sync.Mutex
 
 // BatchSave performs mulitple records persistence of a specific type in one sql query to improve the performance
 type BatchSave struct {
@@ -76,6 +79,8 @@ func NewBatchSave(basicRes core.BasicRes, slotType reflect.Type, size int, table
 
 // Add record to cache. BatchSave would flush them into Database when cache is max out
 func (c *BatchSave) Add(slot interface{}) errors.Error {
+	lock.Lock()
+	defer lock.Unlock()
 	// type checking
 	if reflect.TypeOf(slot) != c.slotType {
 		return errors.Default.New("sub cache type mismatched")
