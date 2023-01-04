@@ -18,6 +18,7 @@ limitations under the License.
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"regexp"
@@ -207,6 +208,10 @@ func RunTasksStandalone(parentLogger core.Logger, taskIds []uint64) errors.Error
 		for _, e := range errs {
 			_, _ = sb.WriteString(e.Error())
 			_, _ = sb.WriteString("\n")
+			if errors.Is(e, context.Canceled) {
+				parentLogger.Info("task canceled")
+				return errors.Convert(e)
+			}
 		}
 		err = errors.Default.New(sb.String())
 	}

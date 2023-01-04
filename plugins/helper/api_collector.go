@@ -168,7 +168,8 @@ func (collector *ApiCollector) Execute() errors.Error {
 					break
 				}
 			}
-			input, err := iterator.Fetch()
+			var input interface{}
+			input, err = iterator.Fetch()
 			if err != nil {
 				break
 			}
