@@ -89,8 +89,10 @@ func genPlanJsonV200(
 	sourcePlans := make([]core.PipelinePlan, len(connections))
 	scopes := make([]core.Scope, 0, len(connections))
 	for i, connection := range connections {
-		if len(connection.Scopes) == 0 && connection.Plugin != `webhook` {
-			return nil, nil, errors.Default.New(fmt.Sprintf("connections[%d].scope is empty", i))
+		if len(connection.Scopes) == 0 && connection.Plugin != `webhook` && connection.Plugin != `jenkins` {
+			// webhook needn't scopes
+			// jenkins may upgrade from v100 and its' scope is empty
+			return nil, nil, errors.Default.New(fmt.Sprintf("connections[%d].scopes is empty", i))
 		}
 		plugin, err := core.GetPlugin(connection.Plugin)
 		if err != nil {
