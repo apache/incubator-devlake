@@ -183,8 +183,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	cmd := exec.Command(dbtExecParams[0], dbtExecParams[1:]...)
 	log.Info("dbt run script: ", cmd)
 	stdout, _ := cmd.StdoutPipe()
-	err = errors.Convert(cmd.Start())
-	if err != nil {
+	if err = errors.Convert(cmd.Start()); err != nil {
 		return err
 	}
 	// ProcessState contains information about an exited process, available after a call to Wait.
@@ -195,7 +194,12 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}()
 
 	// prevent zombie process
-	defer cmd.Wait() //nolint
+	defer func() {
+		err := errors.Convert(cmd.Wait())
+		if err != nil {
+			log.Error(nil, "dbt run cmd.Wait() error")
+		}
+	}()
 
 	scanner := bufio.NewScanner(stdout)
 	var errStr string
@@ -211,6 +215,11 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}
 	if err := errors.Convert(scanner.Err()); err != nil {
 		return err
+	}
+
+	// close stdout
+	if closeErr := stdout.Close(); closeErr != nil && err == nil {
+		return errors.Convert(closeErr)
 	}
 
 	return nil
