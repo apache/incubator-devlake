@@ -146,7 +146,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
                 handleUpdateConnection({
                   plugin,
                   connectionId,
-                  scopes: scope.filter((sc) => sc.id !== scopeId),
+                  scopes: scope.filter((sc) => sc.id !== `${scopeId}`),
                 })
               }
             />
