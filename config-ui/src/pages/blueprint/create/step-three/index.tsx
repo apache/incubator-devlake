@@ -69,9 +69,10 @@ export const StepThree = () => {
         <Icon icon="arrow-left" size={14} />
         <span>Cancel and Go Back</span>
       </div>
-      <h2>Create/Select a Transformation</h2>
+      <h2>Add Transformation</h2>
       <Divider />
       <Transformation
+        from="create"
         plugin={connection.plugin}
         connectionId={connection.id}
         scopeIds={connection.scope.map((sc: any) => sc.id)}

@@ -33,10 +33,11 @@ import { useTransformation } from './use-transformation';
 import * as S from './styled';
 
 interface Props extends Omit<UseTransformationProps, 'name' | 'selectedRule' | 'setSelectedScope'> {
+  from: 'create' | 'update';
   onCancel?: () => void;
 }
 
-export const Transformation = ({ plugin, connectionId, onCancel, ...props }: Props) => {
+export const Transformation = ({ from, plugin, connectionId, onCancel, ...props }: Props) => {
   const [type, setType] = useState<TransformationType>();
   const [name, setName] = useState('');
   const [selectedRule, setSelectedRule] = useState<RuleItem>();
@@ -60,14 +61,17 @@ export const Transformation = ({ plugin, connectionId, onCancel, ...props }: Pro
   return (
     <S.Wrapper>
       <div className="block">
-        <h3>Create a New or Select an Existing Transformation *</h3>
         <RadioGroup selectedValue={type} onChange={handleChangeType}>
-          <Radio label="Create a new transformation from a blank template" value="create" />
+          <Radio label="Creating a new transformation" value="create" />
           <Radio
-            label="Create a new transformation by duplicating an exisitng transformation as the template"
+            label={
+              from === 'create'
+                ? 'Create a new transformation by duplicating an exisitng transformation'
+                : 'Duplicating an existing transformation'
+            }
             value="createByExist"
           />
-          <Radio label="Select an existing transformation" value="selectExist" />
+          <Radio label="Selecting an existing transformation" value="selectExist" />
         </RadioGroup>
       </div>
 
