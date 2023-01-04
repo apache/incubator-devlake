@@ -16,7 +16,7 @@
  *
  */
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { operator } from '@/utils';
 
@@ -118,7 +118,7 @@ export const useBPUpgrade = ({ id, onResetError }: UseBPUpgradeProps) => {
   const upgradeConnection = async (connection: any) => {
     const { plugin, connectionId } = connection;
 
-    const scopeList = await Promise.all(connection.scope.map((sc: any) => upgradeScope(plugin, connectionId, sc)));
+    const scopeList = await Promise.all((connection.scope ?? []).map((sc: any) => upgradeScope(plugin, connectionId, sc)));
     return {
       plugin,
       connectionId,
