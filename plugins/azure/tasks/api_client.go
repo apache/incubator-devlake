@@ -21,8 +21,6 @@ import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/azure/models"
-	"net/http"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
@@ -37,13 +35,6 @@ func CreateApiClient(taskCtx core.TaskContext, connection *models.AzureConnectio
 	if err != nil {
 		return nil, err
 	}
-
-	apiClient.SetAfterFunction(func(res *http.Response) errors.Error {
-		if res.StatusCode == http.StatusUnauthorized {
-			return errors.Unauthorized.New("authentication failed, please check your Username/Password")
-		}
-		return nil
-	})
 
 	// TODO add some check after request if necessary
 	// create rate limit calculator
