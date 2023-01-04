@@ -16,13 +16,7 @@
  *
  */
 
-export enum ScopeFromEnum {
-  MILLER_COLUMNS = 'miller-columns',
-  REPO_SELECTOR = 'repo-selector',
-}
-
 export type ScopeItemType = {
-  from: ScopeFromEnum;
   connectionId: ID;
   githubId: number;
   name: string;

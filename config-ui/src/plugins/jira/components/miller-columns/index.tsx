@@ -27,35 +27,41 @@ import type { UseMillerColumnsProps } from './use-miller-columns';
 import { useMillerColumns } from './use-miller-columns';
 
 interface Props extends UseMillerColumnsProps {
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
+  disabledItems?: ScopeItemType[];
+  selectedItems?: ScopeItemType[];
+  onChangeItems?: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Props) => {
-  const [seletedIds, setSelectedIds] = useState<ID[]>([]);
+export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
+  const [disabledIds, setDisabledIds] = useState<ID[]>([]);
+  const [selectedIds, setSelectedIds] = useState<ID[]>([]);
 
   const { items, getHasMore, onScrollColumn } = useMillerColumns({
     connectionId,
   });
 
   useEffect(() => {
-    setSelectedIds(selectedItems.map((it) => it.boardId));
-  }, []);
+    setDisabledIds((disabledItems ?? []).map((it) => it.boardId));
+  }, [disabledItems]);
 
   useEffect(() => {
-    onChangeItems(
-      items
-        .filter((it) => seletedIds.includes(it.id))
-        .map((it) => ({
-          connectionId,
-          boardId: it.boardId,
-          name: it.name,
-          self: it.self,
-          type: it.type,
-          projectId: it.projectId,
-        })),
-    );
-  }, [seletedIds]);
+    setSelectedIds((selectedItems ?? []).map((it) => it.boardId));
+  }, [selectedItems]);
+
+  const handleChangeItems = (selectedIds: ID[]) => {
+    const result = items
+      .filter((it) => selectedIds.includes(it.id))
+      .map((it) => ({
+        connectionId,
+        boardId: it.boardId,
+        name: it.name,
+        self: it.self,
+        type: it.type,
+        projectId: it.projectId,
+      }));
+
+    onChangeItems?.(result);
+  };
 
   const renderLoading = () => {
     return <Loading size={20} style={{ padding: '4px 12px' }} />;
@@ -68,8 +74,9 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
       getHasMore={getHasMore}
       renderLoading={renderLoading}
       items={items}
-      selectedIds={seletedIds}
-      onSelectItemIds={setSelectedIds}
+      disabledIds={disabledIds}
+      selectedIds={selectedIds}
+      onSelectItemIds={handleChangeItems}
       onScrollColumn={onScrollColumn}
     />
   );

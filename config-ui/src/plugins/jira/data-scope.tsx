@@ -24,16 +24,17 @@ import { MillerColumns } from './components/miller-columns';
 
 interface Props {
   connectionId: ID;
+  disabledItems: ScopeItemType[];
   selectedItems: ScopeItemType[];
   onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const JIRADataScope = ({ connectionId, selectedItems, onChangeItems }: Props) => {
+export const JIRADataScope = ({ connectionId, disabledItems, onChangeItems }: Props) => {
   return (
     <>
       <h3>Boards *</h3>
       <p>Select the boards you would like to sync.</p>
-      <MillerColumns connectionId={connectionId} selectedItems={selectedItems} onChangeItems={onChangeItems} />
+      <MillerColumns connectionId={connectionId} disabledItems={disabledItems} onChangeItems={onChangeItems} />
     </>
   );
 };

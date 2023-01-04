@@ -19,7 +19,6 @@
 import { useState, useEffect, useMemo } from 'react';
 
 import type { ScopeItemType } from '../../types';
-import { ScopeFromEnum } from '../../types';
 import { useProxyPrefix } from '../../hooks';
 import * as API from '../../api';
 
@@ -44,7 +43,6 @@ export const useRepoSelector = ({ connectionId }: UseRepoSelectorProps) => {
         const res = await API.searchRepo(prefix, { q: search });
         setItems(
           res.items.map((it: any) => ({
-            from: ScopeFromEnum.REPO_SELECTOR,
             connectionId,
             githubId: it.id,
             name: `${it.owner.login}/${it.name}`,

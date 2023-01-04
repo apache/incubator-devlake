@@ -25,9 +25,9 @@ import { ScopeItemType } from '../../types';
 import { useRepoSelector, UseRepoSelectorProps } from './use-repo-selector';
 
 interface Props extends UseRepoSelectorProps {
-  disabledItems: ScopeItemType[];
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
+  disabledItems?: ScopeItemType[];
+  selectedItems?: ScopeItemType[];
+  onChangeItems?: (selectedItems: ScopeItemType[]) => void;
 }
 
 export const RepoSelector = ({ disabledItems, selectedItems, onChangeItems, ...props }: Props) => {
