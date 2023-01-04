@@ -57,9 +57,6 @@ func CollectPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			query := url.Values{}
 			// if data.CreatedDateAfter != nil, we set since once
-			// Actually we should use create instead of since, but this api only has since as query param
-			// Using since will return data updated(and created) after the given time.
-			// So here we will get more data than what we want
 			if data.CreatedDateAfter != nil {
 				// Note that `since` is for filtering records by the `updated` time
 				// which is not ideal for semantic reasons and would result in slightly more records than expected.
