@@ -70,10 +70,7 @@ export const StepTwo = () => {
         const scope = scopeMap[unique] ?? [];
         return {
           ...connection,
-          scope: scope.map((sc: any) => ({
-            id: `${sc.id}`,
-            entities: sc.entities,
-          })),
+          scopeIds: scope.map((sc: any) => sc.id),
         };
       }),
     [uniqueList, connections, scopeMap],
@@ -98,7 +95,7 @@ export const StepTwo = () => {
         connectionId={connection.id}
         entities={connection.entities}
         initialValues={{
-          scope: connection.scope,
+          scope: connection.scopeIds.map((id) => ({ id })),
         }}
         onCancel={handleBack}
         onSave={handleSave}

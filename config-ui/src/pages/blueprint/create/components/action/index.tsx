@@ -54,7 +54,7 @@ export const Action = () => {
         {isLast ? (
           <>
             <Button intent={Intent.PRIMARY} text="Save Blueprint" onClick={onSave} />
-            <Button intent={Intent.DANGER} text="Save and Run Now" onClick={onSaveAndRun} />
+            <Button outlined intent={Intent.PRIMARY} text="Save and Run Now" onClick={onSaveAndRun} />
           </>
         ) : (
           <Button

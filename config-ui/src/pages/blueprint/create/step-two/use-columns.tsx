@@ -48,14 +48,14 @@ export const useColumns = ({ onDetail, onDelete }: Props) => {
         },
         {
           title: 'Data Scope',
-          dataIndex: ['plugin', 'id', 'scope'],
+          dataIndex: ['plugin', 'id', 'scopeIds'],
           key: 'unique',
-          render: ({ plugin, id, scope }: Pick<BPConnectionItemType, 'plugin' | 'id' | 'scope'>) => (
+          render: ({ plugin, id, scopeIds }: Pick<BPConnectionItemType, 'plugin' | 'id' | 'scopeIds'>) => (
             <DataScopeList
               groupByTs={false}
               plugin={plugin}
               connectionId={id}
-              scopeIds={scope.map((sc) => sc.id)}
+              scopeIds={scopeIds}
               onDelete={onDelete}
             />
           ),

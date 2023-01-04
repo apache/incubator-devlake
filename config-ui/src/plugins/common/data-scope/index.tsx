@@ -19,6 +19,7 @@
 import React from 'react';
 import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
+import { transformEntities } from '@/config';
 import { Plugins } from '@/plugins';
 import { GitHubDataScope } from '@/plugins/github';
 import { JIRADataScope } from '@/plugins/jira';
@@ -95,7 +96,13 @@ export const DataScope = ({ plugin, connectionId, entities, onCancel, ...props }
             Learn about data entities
           </a>
         </p>
-        <MultiSelector items={entities} selectedItems={selectedEntities} onChangeItems={onChangeEntites} />
+        <MultiSelector
+          items={transformEntities(entities)}
+          getKey={(item) => item.value}
+          getName={(item) => item.label}
+          selectedItems={selectedEntities}
+          onChangeItems={onChangeEntites}
+        />
       </div>
 
       <ButtonGroup>

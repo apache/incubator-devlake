@@ -24,7 +24,7 @@ import { Plugins } from '@/plugins';
 import * as API from './api';
 
 type ScopeItem = {
-  id: ID;
+  id: string;
   name: string;
   transformationRuleName?: string;
 };
@@ -32,7 +32,7 @@ type ScopeItem = {
 export interface UseDataScopeList {
   plugin: Plugins;
   connectionId: ID;
-  scopeIds: ID[];
+  scopeIds: string[];
 }
 
 export const useDataScopeList = ({ plugin, connectionId, scopeIds }: UseDataScopeList) => {
@@ -44,19 +44,19 @@ export const useDataScopeList = ({ plugin, connectionId, scopeIds }: UseDataScop
       switch (true) {
         case plugin === Plugins.GitHub:
           return {
-            id: sc.githubId,
+            id: `${sc.githubId}`,
             name: sc.name,
             transformationRuleName: sc.transformationRuleName,
           };
         case plugin === Plugins.JIRA:
           return {
-            id: sc.boardId,
+            id: `${sc.boardId}`,
             name: sc.name,
             transformationRuleName: sc.transformationRuleName,
           };
         case plugin === Plugins.GitLab:
           return {
-            id: sc.gitlabId,
+            id: `${sc.gitlabId}`,
             name: sc.name,
             transformationRuleName: sc.transformationRuleName,
           };

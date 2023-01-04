@@ -21,7 +21,7 @@ import { Icon, Button, Colors, Intent } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import { Table, ColumnType } from '@/components';
-import { getCron } from '@/config';
+import { getCron, transformEntities } from '@/config';
 import { PluginConfig, DataScopeList, Plugins } from '@/plugins';
 
 import type { BlueprintType } from '../../types';
@@ -67,6 +67,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
             selectedEntites: cs.scopes?.[0].entities ?? [],
             plugin: cs.plugin,
             scope: cs.scopes,
+            scopeIds: cs.scopes.map((sc: any) => sc.id),
           };
         })
         .filter(Boolean),
@@ -122,31 +123,32 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
           key: 'selectedEntites',
           render: (val: string[]) => (
             <>
-              {val.map((it) => (
-                <div key={it}>{it}</div>
+              {transformEntities(val).map(({ label, value }) => (
+                <div key={value}>{label}</div>
               ))}
             </>
           ),
         },
         {
           title: 'Data Scope and Transformation',
-          dataIndex: ['plugin', 'connectionId', 'scope'],
+          dataIndex: ['plugin', 'connectionId', 'scopeIds', 'scope'],
           key: 'sopce',
           render: ({
             plugin,
             connectionId,
+            scopeIds,
             scope,
-          }: Pick<ConfigConnectionItemType, 'plugin' | 'connectionId' | 'scope'>) => (
+          }: Pick<ConfigConnectionItemType, 'plugin' | 'connectionId' | 'scopeIds' | 'scope'>) => (
             <DataScopeList
               groupByTs
               plugin={plugin}
               connectionId={connectionId}
-              scopeIds={scope?.map((sc) => sc.id)}
+              scopeIds={scopeIds}
               onDelete={(plugin: Plugins, connectionId: ID, scopeId: ID) =>
                 handleUpdateConnection({
                   plugin,
                   connectionId,
-                  scopes: scope.filter((sc) => sc.id !== `${scopeId}`),
+                  scopes: scope.filter((sc) => sc.id !== scopeId),
                 })
               }
             />

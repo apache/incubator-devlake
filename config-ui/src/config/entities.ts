@@ -16,6 +16,16 @@
  *
  */
 
-export * from './cron';
-export * from './endpoint';
-export * from './entities';
+export const EntitiesLabel: Record<string, string> = {
+  CODE: 'Source Code Management',
+  TICKET: 'Issue Tracking',
+  CODEREVIEW: 'Code Review',
+  CICD: 'CI/CD',
+  CROSS: 'Cross Domain',
+};
+
+export const transformEntities = (entities: string[]) =>
+  entities.map((it) => ({
+    label: EntitiesLabel[it],
+    value: it,
+  }));

@@ -17,7 +17,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { Icon, Intent } from '@blueprintjs/core';
+import { Icon, Intent, Position, Colors } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
 import type { PluginConfigType } from '@/plugins';
@@ -102,7 +102,9 @@ export const Task = ({ task, operating, onRerun }: Props) => {
       </S.Info>
       <S.Duration>
         {[StatusEnum.COMPLETED, StatusEnum.FAILED, StatusEnum.CANCELLED].includes(status) && (
-          <Icon icon="repeat" onClick={handleRerun} />
+          <Tooltip2 position={Position.TOP} content="Rerun task">
+            <Icon icon="repeat" style={{ color: Colors.BLUE3 }} onClick={handleRerun} />
+          </Tooltip2>
         )}
         <span>{duration(beganAt, finishedAt)}</span>
       </S.Duration>

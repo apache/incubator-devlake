@@ -34,14 +34,11 @@ export const AddScopeDialog = ({ connection, onCancel, onSubmit }: Props) => {
 
   const { plugin, connectionId, entities, scope } = connection;
 
-  const handleSaveScope = (sc: any) => {
+  const handleSaveScope = (scope: any) => {
     onSubmit({
       plugin,
       connectionId,
-      scopes: sc.map((it: any) => ({
-        ...it,
-        id: `${it.id}`,
-      })),
+      scopes: scope,
     });
   };
 
