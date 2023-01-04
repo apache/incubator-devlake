@@ -44,7 +44,7 @@ export type BlueprintType = {
       plugin: Plugins;
       connectionId: ID;
       scopes: Array<{
-        id: ID;
+        id: string;
         entities: string[];
       }>;
     }>;

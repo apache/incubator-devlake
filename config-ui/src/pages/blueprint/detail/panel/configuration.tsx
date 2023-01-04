@@ -141,12 +141,12 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
               groupByTs
               plugin={plugin}
               connectionId={connectionId}
-              scopeIds={scope?.map((sc) => sc.id)}
+              scopeIds={scope.map((sc) => sc.id)}
               onDelete={(plugin: Plugins, connectionId: ID, scopeId: ID) =>
                 handleUpdateConnection({
                   plugin,
                   connectionId,
-                  scopes: scope.filter((sc) => sc.id !== `${scopeId}`),
+                  scopes: scope.filter((sc) => sc.id !== scopeId),
                 })
               }
             />

@@ -96,11 +96,11 @@ export const useDataScope = ({ plugin, connectionId, entities, initialValues, on
     if (success) {
       onSave?.([
         ...(initialValues?.scope ?? []).map((it: any) => ({
-          id: it.id,
+          id: `${it.id}`,
           entities: selectedEntities.map((it: any) => it.value),
         })),
         ...res.map((it: any) => ({
-          id: getPluginId(it),
+          id: `${getPluginId(it)}`,
           entities: selectedEntities.map((it: any) => it.value),
         })),
       ]);

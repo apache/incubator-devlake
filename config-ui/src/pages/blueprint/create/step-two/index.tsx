@@ -70,10 +70,7 @@ export const StepTwo = () => {
         const scope = scopeMap[unique] ?? [];
         return {
           ...connection,
-          scope: scope.map((sc: any) => ({
-            id: `${sc.id}`,
-            entities: sc.entities,
-          })),
+          scope,
         };
       }),
     [uniqueList, connections, scopeMap],

@@ -132,10 +132,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
           return {
             plugin: connection.plugin,
             connectionId: connection.id,
-            scopes: scope.map((sc: any) => ({
-              id: `${sc.id}`,
-              entities: sc.entities,
-            })),
+            scopes: scope,
           };
         }),
       };

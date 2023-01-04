@@ -44,19 +44,19 @@ export const useDataScopeList = ({ plugin, connectionId, scopeIds }: UseDataScop
       switch (true) {
         case plugin === Plugins.GitHub:
           return {
-            id: sc.githubId,
+            id: `${sc.githubId}`,
             name: sc.name,
             transformationRuleName: sc.transformationRuleName,
           };
         case plugin === Plugins.JIRA:
           return {
-            id: sc.boardId,
+            id: `${sc.boardId}`,
             name: sc.name,
             transformationRuleName: sc.transformationRuleName,
           };
         case plugin === Plugins.GitLab:
           return {
-            id: sc.gitlabId,
+            id: `${sc.gitlabId}`,
             name: sc.name,
             transformationRuleName: sc.transformationRuleName,
           };
