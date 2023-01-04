@@ -19,7 +19,6 @@
 import { useState, useEffect, useMemo } from 'react';
 
 import type { ScopeItemType } from '../../types';
-import { ScopeFromEnum } from '../../types';
 import { useProxyPrefix } from '../../hooks';
 import * as API from '../../api';
 
@@ -48,7 +47,6 @@ export const useProjectSelector = ({ connectionId }: UseProjectSelectorProps) =>
         });
         setItems(
           res.map((it: any) => ({
-            from: ScopeFromEnum.PROJECT_SELECTOR,
             gitlabId: it.id,
             name: it.path_with_namespace,
             pathWithNamespace: it.path_with_namespace,

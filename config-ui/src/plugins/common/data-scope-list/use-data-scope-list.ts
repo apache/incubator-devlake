@@ -88,7 +88,7 @@ export const useDataScopeList = ({ plugin, connectionId, scopeIds }: UseDataScop
 
   useEffect(() => {
     getScopeDetail();
-  }, []);
+  }, [scopeIds]);
 
   return useMemo(
     () => ({

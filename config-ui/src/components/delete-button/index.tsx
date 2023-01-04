@@ -16,25 +16,41 @@
  *
  */
 
-import React from 'react';
+import React, { useState } from 'react';
+import { Position } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
 
-import type { ScopeItemType } from './types';
-
-import { MillerColumns } from './components/miller-columns';
+import { Dialog } from '@/components';
 
 interface Props {
-  connectionId: ID;
-  disabledItems: ScopeItemType[];
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
+  children: JSX.Element;
+  loading?: boolean;
+  onDelete: () => void;
 }
 
-export const JIRADataScope = ({ connectionId, disabledItems, onChangeItems }: Props) => {
+export const DeleteButton = ({ children, loading = false, onDelete }: Props) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleDelete = () => {
+    onDelete();
+    setIsOpen(false);
+  };
+
   return (
     <>
-      <h3>Boards *</h3>
-      <p>Select the boards you would like to sync.</p>
-      <MillerColumns connectionId={connectionId} disabledItems={disabledItems} onChangeItems={onChangeItems} />
+      <Tooltip2 position={Position.TOP} content="Delete">
+        {React.cloneElement(children, {
+          onClick: () => setIsOpen(true),
+        })}
+      </Tooltip2>
+      <Dialog
+        isOpen={isOpen}
+        title="Are you sure you want to delete this data scope?"
+        onCancel={() => setIsOpen(false)}
+        okLoading={loading}
+        okText="Confirm"
+        onOk={handleDelete}
+      />
     </>
   );
 };

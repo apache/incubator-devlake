@@ -30,7 +30,7 @@ import { validRawPlan } from '../../utils';
 import { AdvancedEditor } from '../../components';
 
 import type { ConfigConnectionItemType } from '../types';
-import { UpdateNameDialog, UpdatePolicyDialog, UpdateScopeDialog, UpdateTransformationDialog } from '../components';
+import { UpdateNameDialog, UpdatePolicyDialog, AddScopeDialog, UpdateTransformationDialog } from '../components';
 import * as S from '../styled';
 
 type Type = 'name' | 'frequency' | 'scope' | 'transformation';
@@ -66,7 +66,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
             entities: plugin.entities,
             selectedEntites: cs.scopes[0].entities,
             plugin: cs.plugin,
-            scopeIds: cs.scopes.map((sc: any) => sc.id),
+            scope: cs.scopes,
           };
         })
         .filter(Boolean),
@@ -130,14 +130,26 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
         },
         {
           title: 'Data Scope and Transformation',
-          dataIndex: ['plugin', 'connectionId', 'scopeIds'],
+          dataIndex: ['plugin', 'connectionId', 'scope'],
           key: 'sopce',
           render: ({
             plugin,
             connectionId,
-            scopeIds,
-          }: Pick<ConfigConnectionItemType, 'plugin' | 'connectionId' | 'scopeIds'>) => (
-            <DataScopeList groupByTs plugin={plugin} connectionId={connectionId} scopeIds={scopeIds} />
+            scope,
+          }: Pick<ConfigConnectionItemType, 'plugin' | 'connectionId' | 'scope'>) => (
+            <DataScopeList
+              groupByTs
+              plugin={plugin}
+              connectionId={connectionId}
+              scopeIds={scope?.map((sc) => sc.id)}
+              onDelete={(plugin: Plugins, connectionId: ID, scopeId: ID) =>
+                handleUpdateConnection({
+                  plugin,
+                  connectionId,
+                  scopes: scope.filter((sc) => sc.id !== `${scopeId}`),
+                })
+              }
+            />
           ),
         },
         {
@@ -154,7 +166,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
                 }}
               >
                 <Icon icon="annotation" color={Colors.BLUE2} />
-                <span>Change Data Scope</span>
+                <span>Add Data Scope</span>
               </div>
               <div
                 className="item"
@@ -164,7 +176,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
                 }}
               >
                 <Icon icon="annotation" color={Colors.BLUE2} />
-                <span>Change Transformation</span>
+                <span>Edit Transformation</span>
               </div>
             </S.ActionColumn>
           ),
@@ -230,7 +242,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
         />
       )}
       {type === 'scope' && (
-        <UpdateScopeDialog connection={curConnection} onCancel={handleCancel} onSubmit={handleUpdateConnection} />
+        <AddScopeDialog connection={curConnection} onCancel={handleCancel} onSubmit={handleUpdateConnection} />
       )}
       {type === 'transformation' && (
         <UpdateTransformationDialog connection={curConnection} onCancel={handleCancel} onRefresh={onRefresh} />

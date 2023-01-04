@@ -30,6 +30,10 @@ export const ScopeItem = styled.li`
   &:last-child {
     margin-bottom: 0;
   }
+
+  .bp4-button {
+    margin-left: 6px;
+  }
 `;
 
 export const ScopeItemMap = styled(ScopeItem)`
@@ -40,26 +44,12 @@ export const ScopeItemMap = styled(ScopeItem)`
     align-items: center;
     font-size: 12px;
 
-    & > span {
+    span {
       font-weight: 600;
     }
 
-    .action {
-      margin-left: 8px;
-
-      & > span {
-        font-size: 11px;
-        color: #7497f7;
-        cursor: pointer;
-
-        &:hover {
-          color: #106ba3;
-        }
-      }
-
-      span + span {
-        margin-left: 4px;
-      }
+    span.bp4-icon {
+      margin-right: 6px;
     }
   }
 

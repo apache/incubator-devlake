@@ -27,12 +27,14 @@ import type { UseMillerColumnsProps } from './use-miller-columns';
 import { useMillerColumns } from './use-miller-columns';
 
 interface Props extends UseMillerColumnsProps {
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
+  disabledItems?: ScopeItemType[];
+  selectedItems?: ScopeItemType[];
+  onChangeItems?: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Props) => {
-  const [seletedIds, setSelectedIds] = useState<ID[]>([]);
+export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
+  const [disabledIds, setDisabledIds] = useState<ID[]>([]);
+  const [selectedIds, setSelectedIds] = useState<ID[]>([]);
 
   const { items, getHasMore, onExpandItem } = useMillerColumns({
     connectionId,
@@ -45,20 +47,24 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
   };
 
   useEffect(() => {
-    setSelectedIds(selectedItems.map((it) => it.jobFullName));
-  }, []);
+    setDisabledIds((disabledItems ?? []).map((it) => it.jobFullName));
+  }, [disabledItems]);
 
   useEffect(() => {
+    setSelectedIds((selectedItems ?? []).map((it) => it.jobFullName));
+  }, [selectedItems]);
+
+  const handleChangeItems = (selectedIds: ID[]) => {
     const result = items
-      .filter((it) => seletedIds.includes(it.id) && it.type !== 'folder')
+      .filter((it) => selectedIds.includes(it.id) && it.type !== 'folder')
       .map((it: any) => ({
         connectionId,
         jobFullName: getJobFullName(it),
         name: getJobFullName(it),
       }));
 
-    onChangeItems(result);
-  }, [seletedIds]);
+    onChangeItems?.(result);
+  };
 
   const renderLoading = () => {
     return <Loading size={20} style={{ padding: '4px 12px' }} />;
@@ -72,8 +78,9 @@ export const MillerColumns = ({ connectionId, selectedItems, onChangeItems }: Pr
       getHasMore={getHasMore}
       renderLoading={renderLoading}
       items={items}
-      selectedIds={seletedIds}
-      onSelectItemIds={setSelectedIds}
+      disabledIds={disabledIds}
+      selectedIds={selectedIds}
+      onSelectItemIds={handleChangeItems}
       onExpandItem={onExpandItem}
     />
   );

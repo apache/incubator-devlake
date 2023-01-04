@@ -23,7 +23,7 @@ import * as S from './styled';
 
 interface Props {
   isOpen: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   style?: React.CSSProperties;
   title?: string;
   footer?: React.ReactNode | null;

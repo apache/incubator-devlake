@@ -28,9 +28,9 @@ import { useProjectSelector } from './use-project-selector';
 import * as S from './styled';
 
 interface Props extends UseProjectSelectorProps {
-  disabledItems: ScopeItemType[];
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
+  disabledItems?: ScopeItemType[];
+  selectedItems?: ScopeItemType[];
+  onChangeItems?: (selectedItems: ScopeItemType[]) => void;
 }
 
 export const ProjectSelector = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {

@@ -23,33 +23,36 @@ import MillerColumnsSelect from 'miller-columns-select';
 import { Loading } from '@/components';
 
 import type { ScopeItemType } from '../../types';
-import { ScopeFromEnum } from '../../types';
 
 import { useMillerColumns, UseMillerColumnsProps } from './use-miller-columns';
 import * as S from './styled';
 
 interface Props extends UseMillerColumnsProps {
-  disabledItems: ScopeItemType[];
-  selectedItems: ScopeItemType[];
-  onChangeItems: (selectedItems: ScopeItemType[]) => void;
+  disabledItems?: ScopeItemType[];
+  selectedItems?: ScopeItemType[];
+  onChangeItems?: (selectedItems: ScopeItemType[]) => void;
 }
 
 export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
-  const [seletedIds, setSelectedIds] = useState<ID[]>([]);
+  const [disabledIds, setDisabledIds] = useState<ID[]>([]);
+  const [selectedIds, setSelectedIds] = useState<ID[]>([]);
 
   const { items, getHasMore, onExpandItem, onScrollColumn } = useMillerColumns({
     connectionId,
   });
 
   useEffect(() => {
-    setSelectedIds(selectedItems.map((it) => it.githubId));
-  }, []);
+    setDisabledIds((disabledItems ?? []).map((it) => it.githubId));
+  }, [disabledItems]);
 
   useEffect(() => {
+    setSelectedIds((selectedItems ?? []).map((it) => it.githubId));
+  }, [selectedItems]);
+
+  const handleChangeItems = (selectedIds: ID[]) => {
     const result = items
-      .filter((it) => seletedIds.includes(it.id) && it.type === 'repo')
+      .filter((it) => selectedIds.includes(it.id) && it.type === 'repo')
       .map((it) => ({
-        from: ScopeFromEnum.MILLER_COLUMNS,
         connectionId,
         githubId: it.githubId,
         name: it.name,
@@ -60,8 +63,8 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
         HTMLUrl: it.HTMLUrl,
       }));
 
-    onChangeItems(result);
-  }, [seletedIds]);
+    onChangeItems?.(result);
+  };
 
   const renderTitle = (column: ColumnType<any>) => {
     return !column.parentId && <S.ColumnTitle>Organizations/Owners</S.ColumnTitle>;
@@ -80,9 +83,9 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
       renderTitle={renderTitle}
       renderLoading={renderLoading}
       items={items}
-      selectedIds={seletedIds}
-      disabledIds={disabledItems.map((it) => it.githubId)}
-      onSelectItemIds={setSelectedIds}
+      selectedIds={selectedIds}
+      disabledIds={disabledIds}
+      onSelectItemIds={handleChangeItems}
       onExpandItem={onExpandItem}
       onScrollColumn={onScrollColumn}
     />
