@@ -182,7 +182,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}
 	cmd := exec.Command(dbtExecParams[0], dbtExecParams[1:]...)
 	log.Info("dbt run script: ", cmd)
-	readCloser, _ := cmd.StdoutPipe()
+	stdout, _ := cmd.StdoutPipe()
 	if err = errors.Convert(cmd.Start()); err != nil {
 		return err
 	}
@@ -201,7 +201,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		}
 	}()
 
-	scanner := bufio.NewScanner(readCloser)
+	scanner := bufio.NewScanner(stdout)
 	var errStr string
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -217,10 +217,8 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 
-	// it is important that we close stdout here; if we do not close
-	// stdout, the subprocess will keep running, and the deffered call
-	// cmd.Wait() may block for a long time.
-	if closeErr := readCloser.Close(); closeErr != nil && err == nil {
+	// close stdout
+	if closeErr := stdout.Close(); closeErr != nil && err == nil {
 		return errors.Convert(closeErr)
 	}
 
