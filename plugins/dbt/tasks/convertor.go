@@ -181,10 +181,9 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		dbtExecParams = append(dbtExecParams, profile)
 	}
 	cmd := exec.Command(dbtExecParams[0], dbtExecParams[1:]...)
-	log.Info("dbt run script: %v", cmd)
-	stdout, _ := cmd.StdoutPipe()
-	err = errors.Convert(cmd.Start())
-	if err != nil {
+	log.Info("dbt run script: ", cmd)
+	readCloser, _ := cmd.StdoutPipe()
+	if err = errors.Convert(cmd.Start()); err != nil {
 		return err
 	}
 	// ProcessState contains information about an exited process, available after a call to Wait.
@@ -195,9 +194,14 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}()
 
 	// prevent zombie process
-	defer cmd.Wait() //nolint
+	defer func() {
+		err := errors.Convert(cmd.Wait())
+		if err != nil {
+			log.Error(nil, "dbt run cmd.Wait() error")
+		}
+	}()
 
-	scanner := bufio.NewScanner(stdout)
+	scanner := bufio.NewScanner(readCloser)
 	var errStr string
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -211,6 +215,13 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}
 	if err := errors.Convert(scanner.Err()); err != nil {
 		return err
+	}
+
+	// it is important that we close stdout here; if we do not close
+	// stdout, the subprocess will keep running, and the deffered call
+	// cmd.Wait() may block for a long time.
+	if closeErr := readCloser.Close(); closeErr != nil && err == nil {
+		return errors.Convert(closeErr)
 	}
 
 	return nil
