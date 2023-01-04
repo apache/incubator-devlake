@@ -21,7 +21,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	err "errors"
 	"fmt"
 	"regexp"
 	"sort"
@@ -36,7 +35,7 @@ import (
 	git "github.com/libgit2/git2go/v33"
 )
 
-var TypeNotMatchError = err.New("the requested type does not match the type in the ODB")
+var TypeNotMatchError = "the requested type does not match the type in the ODB"
 
 type GitRepo struct {
 	store   models.Store
@@ -119,8 +118,8 @@ func (r *GitRepo) CountCommits(ctx context.Context) (int, errors.Error) {
 		default:
 		}
 		commit, e := r.repo.LookupCommit(id)
-		if e != nil && !errors.Is(e, TypeNotMatchError) {
-			r.logger.Error(e, "")
+		if e != nil && e.Error() != TypeNotMatchError {
+			return errors.Convert(e)
 		}
 		if commit != nil {
 			count++
@@ -142,10 +141,8 @@ func (r *GitRepo) CollectTags(subtaskCtx core.SubTaskContext) errors.Error {
 		var tag *git.Tag
 		var tagCommit string
 		tag, err1 = r.repo.LookupTag(id)
-		if err1 != nil {
-			if err1 != nil {
-				r.logger.Error(err1, "")
-			}
+		if err1 != nil && err1.Error() != TypeNotMatchError {
+			return errors.Convert(err1)
 		}
 		if tag != nil {
 			tagCommit = tag.TargetId().String()
@@ -186,7 +183,7 @@ func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) errors.Error {
 		}
 		if branch.IsBranch() || branch.IsRemote() {
 			name, err1 := branch.Name()
-			if err1 != nil && !errors.Is(err1, TypeNotMatchError) {
+			if err1 != nil && err1.Error() != TypeNotMatchError {
 				return err1
 			}
 			var sha string
@@ -201,11 +198,11 @@ func (r *GitRepo) CollectBranches(subtaskCtx core.SubTaskContext) errors.Error {
 				RefType:      BRANCH,
 			}
 			ref.IsDefault, err1 = branch.IsHead()
-			if err1 != nil && !errors.Is(err1, TypeNotMatchError) {
-				r.logger.Error(err1, "")
+			if err1 != nil && err1.Error() != TypeNotMatchError {
+				return err1
 			}
 			err1 = r.store.Refs(ref)
-			if err1 != nil && !errors.Is(err1, TypeNotMatchError) {
+			if err1 != nil && err1.Error() != TypeNotMatchError {
 				return err1
 			}
 			subtaskCtx.IncProgress(1)
@@ -242,8 +239,8 @@ func (r *GitRepo) CollectCommits(subtaskCtx core.SubTaskContext) errors.Error {
 		default:
 		}
 		commit, err1 := r.repo.LookupCommit(id)
-		if err1 != nil && !errors.Is(err1, TypeNotMatchError) {
-			r.logger.Error(err1, "")
+		if err1 != nil && err1.Error() != TypeNotMatchError {
+			return errors.Convert(err1)
 		}
 		if commit == nil {
 			return nil
@@ -419,21 +416,21 @@ func (r *GitRepo) CollectDiffLine(subtaskCtx core.SubTaskContext) errors.Error {
 	//get currently head commitsha, dafault is master branch
 	// check branch, if not master, checkout to branch's head
 	commitOid, err1 := repo.Head()
-	if err1 != nil && !errors.Is(err1, TypeNotMatchError) {
-		r.logger.Error(err1, "")
+	if err1 != nil && err1.Error() != TypeNotMatchError {
+		return errors.Convert(err1)
 	}
 	//get head commit object and add into commitList
 	commit, err1 := repo.LookupCommit(commitOid.Target())
-	if err1 != nil && !errors.Is(err1, TypeNotMatchError) {
-		r.logger.Error(err1, "")
+	if err1 != nil && err1.Error() != TypeNotMatchError {
+		return errors.Convert(err1)
 	}
 	commitList = append(commitList, *commit)
 	// if current head has parents, get parent commitsha
 	for commit != nil && commit.ParentCount() > 0 {
 		pid := commit.ParentId(0)
 		commit, err1 = repo.LookupCommit(pid)
-		if err1 != nil && !errors.Is(err1, TypeNotMatchError) {
-			r.logger.Error(err1, "")
+		if err1 != nil && err1.Error() != TypeNotMatchError {
+			return errors.Convert(err1)
 		}
 		commitList = append(commitList, *commit)
 	}

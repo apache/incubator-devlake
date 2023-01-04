@@ -18,7 +18,6 @@ limitations under the License.
 package impl
 
 import (
-	err "errors"
 	"fmt"
 	"strings"
 
@@ -102,5 +101,3 @@ func NewGitRepo(logger core.Logger, storage models.Store, op tasks.GitExtractorO
 	}
 	return repo, err
 }
-
-var TypeNotMatchError = err.New("the requested type does not match the type in the ODB")
