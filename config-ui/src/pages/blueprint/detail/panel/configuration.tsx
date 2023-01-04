@@ -21,7 +21,7 @@ import { Icon, Button, Colors, Intent } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import { Table, ColumnType } from '@/components';
-import { getCron } from '@/config';
+import { getCron, transformEntities } from '@/config';
 import { PluginConfig, DataScopeList, Plugins } from '@/plugins';
 
 import type { BlueprintType } from '../../types';
@@ -122,8 +122,8 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
           key: 'selectedEntites',
           render: (val: string[]) => (
             <>
-              {val.map((it) => (
-                <div key={it}>{it}</div>
+              {transformEntities(val).map(({ label, value }) => (
+                <div key={value}>{label}</div>
               ))}
             </>
           ),
