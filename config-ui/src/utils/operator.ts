@@ -49,6 +49,7 @@ export const operator = async <T>(request: () => Promise<T>, config?: OperateCon
     });
     return [true, res];
   } catch (err) {
+    console.error('Operation failed.', err)
     const reason = formatReason?.(err) ?? 'Operation failed.';
     Toast.show({
       intent: Intent.DANGER,

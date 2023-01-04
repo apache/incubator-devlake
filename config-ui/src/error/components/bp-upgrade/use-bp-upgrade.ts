@@ -49,7 +49,7 @@ export const useBPUpgrade = ({ id, onResetError }: UseBPUpgradeProps) => {
       return {
         connectionId,
         githubId: res.id,
-        name: `${res.owner.login}/${it.name}`,
+        name: `${res.owner.login}/${res.name}`,
         ownerId: res.owner.id,
         language: res.language,
         description: res.description,
@@ -90,11 +90,11 @@ export const useBPUpgrade = ({ id, onResetError }: UseBPUpgradeProps) => {
   };
 
   const upgradeScope = async (plugin: string, connectionId: ID, scope: any) => {
-    let transfromationRule;
+    let transformationRule;
 
     if (scope.transformation) {
       // create transfromation template
-      transfromationRule = await API.createTransformation(plugin, {
+      transformationRule = await API.createTransformation(plugin, {
         ...scope.transformation,
         name: `upgrade-${plugin}-${connectionId}-${new Date().getTime()}`,
       });
@@ -104,13 +104,13 @@ export const useBPUpgrade = ({ id, onResetError }: UseBPUpgradeProps) => {
     const scopeDetail = await getScopeDetail(plugin, connectionId, scope.options);
 
     // put data scope
-    const res = await API.updateDataScope(plugin, connectionId, getScopeId(plugin, scopeDetail), {
+    await API.updateDataScope(plugin, connectionId, getScopeId(plugin, scopeDetail), {
       ...scopeDetail,
-      transformationRuleId: transfromationRule?.id,
+      transformationRuleId: transformationRule?.id,
     });
 
     return {
-      id: res.id,
+      id: `${getScopeId(plugin, scopeDetail)}`,
       entities: scope.entities,
     };
   };
@@ -118,11 +118,11 @@ export const useBPUpgrade = ({ id, onResetError }: UseBPUpgradeProps) => {
   const upgradeConnection = async (connection: any) => {
     const { plugin, connectionId } = connection;
 
-    const scope = await Promise.all(connection.scope.map((sc: any) => upgradeScope(plugin, connectionId, sc)));
+    const scopeList = await Promise.all(connection.scope.map((sc: any) => upgradeScope(plugin, connectionId, sc)));
     return {
       plugin,
       connectionId,
-      scope,
+      scopes: scopeList,
     };
   };
 
