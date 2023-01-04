@@ -29,10 +29,10 @@ interface Props {
   onSubmit: (connection: any) => void;
 }
 
-export const UpdateScopeDialog = ({ connection, onCancel, onSubmit }: Props) => {
+export const AddScopeDialog = ({ connection, onCancel, onSubmit }: Props) => {
   if (!connection) return null;
 
-  const { plugin, connectionId, entities, selectedEntites } = connection;
+  const { plugin, connectionId, entities, scope } = connection;
 
   const handleSaveScope = (sc: any) => {
     onSubmit({
@@ -52,7 +52,7 @@ export const UpdateScopeDialog = ({ connection, onCancel, onSubmit }: Props) => 
         connectionId={connectionId}
         entities={entities}
         initialValues={{
-          entites: selectedEntites,
+          scope,
         }}
         onCancel={onCancel}
         onSave={handleSaveScope}
