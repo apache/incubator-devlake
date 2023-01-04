@@ -44,7 +44,7 @@ export const BlueprintCreatePage = ({ from }: Props) => {
       from === FromEnum.project
         ? [
             { name: 'Projects', path: '/projects' },
-            { name: pname, path: `/projects/${pname}` },
+            { name: window.decodeURIComponent(pname), path: `/projects/${pname}` },
             {
               name: 'Create a Blueprint',
               path: `/projects/${pname}/create-blueprint`,

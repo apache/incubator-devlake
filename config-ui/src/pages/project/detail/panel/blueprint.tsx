@@ -33,7 +33,8 @@ interface Props {
 export const BlueprintPanel = ({ project }: Props) => {
   const history = useHistory();
 
-  const handleGoCreateBlueprint = () => history.push(`/projects/${project.name}/create-blueprint`);
+  const handleGoCreateBlueprint = () =>
+    history.push(`/projects/${window.encodeURIComponent(project.name)}/create-blueprint`);
 
   return !project.blueprint ? (
     <Card>

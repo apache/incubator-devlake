@@ -162,7 +162,8 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
   ]);
 
   const handleSaveAfter = (id: ID) => {
-    const path = from === FromEnum.blueprint ? `/blueprints/${id}` : `/projects/${projectName}`;
+    const path =
+      from === FromEnum.blueprint ? `/blueprints/${id}` : `/projects/${window.encodeURIComponent(projectName)}`;
 
     history.push(path);
   };

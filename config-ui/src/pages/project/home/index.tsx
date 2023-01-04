@@ -54,7 +54,7 @@ export const ProjectHomePage = () => {
           dataIndex: 'name',
           key: 'name',
           render: (name: string) => (
-            <Link to={`/projects/${name}`} style={{ color: '#292b3f' }}>
+            <Link to={`/projects/${window.encodeURIComponent(name)}`} style={{ color: '#292b3f' }}>
               {name}
             </Link>
           ),
@@ -65,7 +65,12 @@ export const ProjectHomePage = () => {
           align: 'right' as const,
           key: 'action',
           render: (name: any) => (
-            <Button outlined intent={Intent.PRIMARY} icon="cog" onClick={() => history.push(`/projects/${name}`)} />
+            <Button
+              outlined
+              intent={Intent.PRIMARY}
+              icon="cog"
+              onClick={() => history.push(`/projects/${window.encodeURIComponent(name)}`)}
+            />
           ),
         },
       ] as ColumnType<ProjectItem>,
