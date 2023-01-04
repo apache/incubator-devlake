@@ -92,7 +92,7 @@ func RunTask(
 				{ColumnName: "failed_sub_task", Value: subTaskName},
 			})
 			if dbe != nil {
-				log.Error(err, "failed to finalize task status into db (task failed)")
+				log.Error(dbe, "failed to finalize task status into db (task failed)")
 			}
 		} else {
 			dbe := db.UpdateColumns(task, []dal.DalSet{
@@ -102,8 +102,17 @@ func RunTask(
 				{ColumnName: "spent_seconds", Value: spentSeconds},
 			})
 			if dbe != nil {
-				log.Error(err, "failed to finalize task status into db (task succeeded)")
+				log.Error(dbe, "failed to finalize task status into db (task succeeded)")
 			}
+		}
+		// update finishedTasks
+		dbe := db.UpdateColumn(
+			&models.DbPipeline{},
+			"finished_tasks", dal.Expr("finished_tasks + 1"),
+			dal.Where("id=?", task.PipelineId),
+		)
+		if dbe != nil {
+			log.Error(dbe, "update pipeline state failed")
 		}
 	}()
 

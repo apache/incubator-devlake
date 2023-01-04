@@ -90,13 +90,6 @@ func runPipelineTasks(
 				return err
 			}
 		}
-
-		// update finishedTasks
-		err = db.UpdateColumn(dbPipeline, "finished_tasks", dal.Expr("finished_tasks + ?", len(row)))
-		if err != nil {
-			log.Error(err, "update pipeline state failed")
-			return err
-		}
 	}
 	log.Info("pipeline finished in %d ms: %v", time.Now().UnixMilli()-dbPipeline.BeganAt.UnixMilli(), err)
 	return err
