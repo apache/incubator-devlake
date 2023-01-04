@@ -16,9 +16,9 @@
  *
  */
 
-import {useMemo, useState} from 'react';
+import { useMemo, useState } from 'react';
 
-import {operator} from '@/utils';
+import { operator } from '@/utils';
 
 import * as API from './api';
 
