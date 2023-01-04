@@ -118,9 +118,7 @@ export const useBPUpgrade = ({ id, onResetError }: UseBPUpgradeProps) => {
   const upgradeConnection = async (connection: any) => {
     const { plugin, connectionId } = connection;
 
-    const scopeList = connection.scope
-      ? await Promise.all(connection.scope.map((sc: any) => upgradeScope(plugin, connectionId, sc)))
-      : [];
+    const scopeList = await Promise.all((connection.scope ?? []).map((sc: any) => upgradeScope(plugin, connectionId, sc)));
     return {
       plugin,
       connectionId,
