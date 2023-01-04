@@ -21,7 +21,7 @@ import type { ConnectionItemType } from '@/store';
 import { ModeEnum } from '../types';
 
 export type BPConnectionItemType = ConnectionItemType & {
-  scope: Array<{ id: ID; entities: string[] }>;
+  scopeIds: string[];
 };
 
 export type BPContextType = {

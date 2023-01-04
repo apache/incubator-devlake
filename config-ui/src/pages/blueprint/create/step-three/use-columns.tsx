@@ -47,10 +47,10 @@ export const useColumns = ({ onDetail }: Props) => {
         },
         {
           title: 'Data Scope and Transformation',
-          dataIndex: ['plugin', 'id', 'scope'],
+          dataIndex: ['plugin', 'id', 'scopeIds'],
           key: 'unique',
-          render: ({ plugin, id, scope }: Pick<BPConnectionItemType, 'plugin' | 'id' | 'scope'>) => (
-            <DataScopeList groupByTs plugin={plugin} connectionId={id} scopeIds={scope.map((sc) => sc.id)} />
+          render: ({ plugin, id, scopeIds }: Pick<BPConnectionItemType, 'plugin' | 'id' | 'scopeIds'>) => (
+            <DataScopeList groupByTs plugin={plugin} connectionId={id} scopeIds={scopeIds} />
           ),
         },
         {

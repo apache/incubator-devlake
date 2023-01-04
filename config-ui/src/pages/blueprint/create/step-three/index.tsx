@@ -52,7 +52,7 @@ export const StepThree = () => {
         const scope = scopeMap[unique] ?? [];
         return {
           ...connection,
-          scope,
+          scopeIds: scope.map((sc: any) => sc.id),
         };
       }),
     [uniqueList, connections, scopeMap],
@@ -72,7 +72,7 @@ export const StepThree = () => {
         from="create"
         plugin={connection.plugin}
         connectionId={connection.id}
-        scopeIds={connection.scope.map((sc: any) => sc.id)}
+        scopeIds={connection.scopeIds}
         onCancel={handleBack}
         onSave={handleBack}
       />

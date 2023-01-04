@@ -67,6 +67,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
             selectedEntites: cs.scopes?.[0].entities ?? [],
             plugin: cs.plugin,
             scope: cs.scopes,
+            scopeIds: cs.scopes.map((sc: any) => sc.id),
           };
         })
         .filter(Boolean),
@@ -130,18 +131,19 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
         },
         {
           title: 'Data Scope and Transformation',
-          dataIndex: ['plugin', 'connectionId', 'scope'],
+          dataIndex: ['plugin', 'connectionId', 'scopeIds', 'scope'],
           key: 'sopce',
           render: ({
             plugin,
             connectionId,
+            scopeIds,
             scope,
-          }: Pick<ConfigConnectionItemType, 'plugin' | 'connectionId' | 'scope'>) => (
+          }: Pick<ConfigConnectionItemType, 'plugin' | 'connectionId' | 'scopeIds' | 'scope'>) => (
             <DataScopeList
               groupByTs
               plugin={plugin}
               connectionId={connectionId}
-              scopeIds={scope.map((sc) => sc.id)}
+              scopeIds={scopeIds}
               onDelete={(plugin: Plugins, connectionId: ID, scopeId: ID) =>
                 handleUpdateConnection({
                   plugin,

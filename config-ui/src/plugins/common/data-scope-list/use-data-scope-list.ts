@@ -24,7 +24,7 @@ import { Plugins } from '@/plugins';
 import * as API from './api';
 
 type ScopeItem = {
-  id: ID;
+  id: string;
   name: string;
   transformationRuleName?: string;
 };
@@ -32,7 +32,7 @@ type ScopeItem = {
 export interface UseDataScopeList {
   plugin: Plugins;
   connectionId: ID;
-  scopeIds: ID[];
+  scopeIds: string[];
 }
 
 export const useDataScopeList = ({ plugin, connectionId, scopeIds }: UseDataScopeList) => {
