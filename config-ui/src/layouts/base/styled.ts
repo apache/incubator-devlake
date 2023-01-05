@@ -88,6 +88,20 @@ export const Header = styled(Navbar)`
   flex: 0 0 50px;
   background-color: #f9f9fa;
   box-shadow: none;
+
+  a {
+    display: flex;
+    align-items: center;
+
+    img {
+      margin-right: 4px;
+      width: 16px;
+    }
+
+    span {
+      font-size: 12px;
+    }
+  }
 `;
 
 export const Content = styled.div`
@@ -95,21 +109,4 @@ export const Content = styled.div`
   margin: 24px auto;
   max-width: 900px;
   width: 100%;
-`;
-
-export const SlackContainer = styled.div`
-  padding: 10px;
-  width: 200px;
-  font-size: 12px;
-
-  & > img {
-    display: block;
-    margin: 0 auto;
-    width: 130px;
-    height: 50px;
-  }
-
-  & > p {
-    text-align: center;
-  }
 `;
