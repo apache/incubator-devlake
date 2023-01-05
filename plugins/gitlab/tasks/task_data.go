@@ -26,10 +26,10 @@ import (
 )
 
 type GitlabOptions struct {
-	ConnectionId                     uint64   `json:"connectionId"`
-	ProjectId                        int      `json:"projectId"`
-	TransformationRuleId             uint64   `json:"transformationRuleId"`
-	Tasks                            []string `json:"tasks,omitempty"`
+	ConnectionId                     uint64   `mapstructure:"connectionId" json:"connectionId"`
+	ProjectId                        int      `mapstructure:"projectId" json:"projectId"`
+	TransformationRuleId             uint64   `mapstructure:"transformationRuleId" json:"transformationRuleId"`
+	Tasks                            []string `mapstructure:"tasks" json:"tasks,omitempty"`
 	CreatedDateAfter                 string
 	*models.GitlabTransformationRule `mapstructure:"transformationRules" json:"transformationRules"`
 }
