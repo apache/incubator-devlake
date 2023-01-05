@@ -47,7 +47,7 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
 
   useEffect(() => {
     setSelectedIds((selectedItems ?? []).map((it) => it.gitlabId));
-  }, []);
+  }, [selectedItems]);
 
   const handleChangeItems = (selectedIds: ID[]) => {
     const result = items
