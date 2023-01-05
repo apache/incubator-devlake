@@ -74,7 +74,7 @@ export const Sider = styled.div`
     text-align: center;
     color: rgba(124, 124, 124, 0.7);
     padding: 0 20px;
-    div {
+    .version {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
