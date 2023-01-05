@@ -18,7 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"bufio"
 	"encoding/json"
 	"net"
 	"net/url"
@@ -190,47 +189,12 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	cmd := exec.Command(dbtExecParams[0], dbtExecParams[1:]...)
 	log.Info("dbt run script: ", cmd)
 
-	stdout, stdoutErr := cmd.StdoutPipe()
+	stdout, stdoutErr := cmd.CombinedOutput()
 	if stdoutErr != nil {
 		return errors.Convert(stdoutErr)
 	}
-
-	if err = errors.Convert(cmd.Start()); err != nil {
-		return err
-	}
-	defer stdout.Close()
-
-	// prevent zombie process
-	defer func() {
-		ProcessState, err := cmd.Process.Wait()
-		if err != nil || !ProcessState.Success() {
-			log.Error(err, "dbt run cmd.Wait() error")
-		}
-		log.Info("End of dbt program execution.")
-	}()
-
-	scanner := bufio.NewScanner(stdout)
-	var errStr string
-	for scanner.Scan() {
-		line := scanner.Text()
-		log.Info(line)
-		if strings.Contains(line, "Encountered an error") || errStr != "" {
-			errStr += line + "\n"
-		}
-		if strings.Contains(line, "of") && strings.Contains(line, "OK") {
-			taskCtx.IncProgress(1)
-		}
-	}
-	if err := errors.Convert(scanner.Err()); err != nil {
-		log.Error(err, "dbt read stdout failed.")
-		return err
-	}
-
-	// close stdout
-	if closeErr := stdout.Close(); closeErr != nil && err == nil {
-		log.Error(closeErr, "dbt close stdout failed.")
-		return errors.Convert(closeErr)
-	}
+	log.Info("dbt run log: ", string(stdout))
+	log.Info("End of dbt program execution.")
 
 	return nil
 }
