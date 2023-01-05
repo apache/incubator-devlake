@@ -27,6 +27,9 @@ export const JenkinsConfig: PluginConfigType = {
   type: PluginType.Connection,
   icon: Icon,
   connection: {
+    initialValues: {
+      rateLimitPerHour: 10000,
+    },
     fields: [
       {
         key: 'name',
@@ -64,8 +67,8 @@ export const JenkinsConfig: PluginConfigType = {
       },
       {
         key: 'rateLimitPerHour',
-        label: 'Rate Limit (per hour)',
-        type: 'numeric',
+        label: 'Fixed Rate Limit (per hour)',
+        type: 'rateLimit',
         tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
       },
     ],
