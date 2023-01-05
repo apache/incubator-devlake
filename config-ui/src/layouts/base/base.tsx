@@ -18,17 +18,17 @@
 
 import React from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import { Menu, MenuItem, Navbar, Icon, Button, Alignment, Position, Intent } from '@blueprintjs/core';
-import { Popover2 } from '@blueprintjs/popover2';
+import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
 
 import { Logo } from '@/components';
+import { useVersion } from '@/store';
 
-import SlackIcon from '@/images/slack-mark-monochrome-black.svg';
-import SlackLogo from '@/images/slack-rgb.svg';
+import FileIcon from '@/images/icons/file.svg';
+import GitHubIcon from '@/images/icons/github.svg';
+import SlackIcon from '@/images/icons/slack.svg';
 
 import { useMenu, MenuItemType } from './use-menu';
 import * as S from './styled';
-import { useVersion } from "@/store";
 
 interface Props {
   children: React.ReactNode;
@@ -83,41 +83,29 @@ export const BaseLayout = ({ children }: Props) => {
       <S.Inner>
         <S.Header>
           <Navbar.Group align={Alignment.RIGHT}>
-            <a href="https://github.com/apache/incubator-devlake" rel="noreferrer" target="_blank">
-              <Icon icon="git-branch" size={16} />
+            <a href="https://devlake.apache.org/docs/UserManuals/ConfigUI/Tutorial/" rel="noreferrer" target="_blank">
+              <img src={FileIcon} alt="documents" />
+              <span>Docs</span>
             </a>
             <Navbar.Divider />
-            <a href="mailto:hello@merico.dev" rel="noreferrer" target="_blank" className="navIconLink">
-              <Icon icon="envelope" size={16} />
-            </a>
-            <Navbar.Divider />
-            <Popover2
-              position={Position.LEFT}
-              content={
-                <S.SlackContainer>
-                  <img src={SlackLogo} alt="" />
-                  <p>
-                    <span>Want to interact with the </span>
-                    <strong>Merico Community</strong>
-                    <span>? Join us on our Slack Channel.</span>
-                  </p>
-                  <p>
-                    <a
-                      href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ"
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      <Button intent={Intent.WARNING}>
-                        <span>Message us on </span>
-                        <strong>Slack</strong>
-                      </Button>
-                    </a>
-                  </p>
-                </S.SlackContainer>
-              }
+            <a
+              href="https://github.com/apache/incubator-devlake"
+              rel="noreferrer"
+              target="_blank"
+              className="navIconLink"
             >
-              <img src={SlackIcon} width={30} alt="" style={{ cursor: 'pointer' }} />
-            </Popover2>
+              <img src={GitHubIcon} alt="github" />
+              <span>GitHub</span>
+            </a>
+            <Navbar.Divider />
+            <a
+              href="https://join.slack.com/t/devlake-io/shared_invite/zt-17b6vuvps-x98pqseoUagM7EAmKC82xQ"
+              rel="noreferrer"
+              target="_blank"
+            >
+              <img src={SlackIcon} alt="slack" />
+              <span>Slack</span>
+            </a>
           </Navbar.Group>
         </S.Header>
         <S.Content>{children}</S.Content>
