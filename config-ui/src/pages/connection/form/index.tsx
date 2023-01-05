@@ -19,30 +19,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { pick } from 'lodash';
-import {
-  FormGroup,
-  InputGroup,
-  NumericInput,
-  Switch,
-  ButtonGroup,
-  Button,
-  Icon,
-  Intent,
-  Position,
-} from '@blueprintjs/core';
+import { FormGroup, InputGroup, Switch, ButtonGroup, Button, Icon, Intent, Position } from '@blueprintjs/core';
 import { Tooltip2 } from '@blueprintjs/popover2';
 
 import { PageHeader, Card, PageLoading } from '@/components';
 import type { PluginConfigConnectionType } from '@/plugins';
 import { Plugins, PluginConfig } from '@/plugins';
 
-import { GitHubToken } from './components';
+import { GitHubToken, RateLimit } from './components';
 import { useForm } from './use-form';
 import * as S from './styled';
 
 export const ConnectionFormPage = () => {
   const [form, setForm] = useState<Record<string, any>>({});
-  const [showRateLimit, setShowRateLimit] = useState(false);
 
   const history = useHistory();
   const { plugin, cid } = useParams<{ plugin: Plugins; cid?: string }>();
@@ -56,11 +45,8 @@ export const ConnectionFormPage = () => {
   useEffect(() => {
     setForm({
       ...form,
-      ...(initialValues ?? {}),
       ...(connection ?? {}),
     });
-
-    setShowRateLimit(connection?.rateLimitPerHour ? true : false);
   }, [initialValues, connection]);
 
   const error = useMemo(
@@ -115,33 +101,25 @@ export const ConnectionFormPage = () => {
             onChange={(e) => setForm({ ...form, [`${key}`]: e.target.value })}
           />
         )}
-        {type === 'numeric' && (
-          <S.RateLimit>
-            {showRateLimit && (
-              <NumericInput
-                placeholder={placeholder}
-                value={form[key]}
-                onValueChange={(value) =>
-                  setForm({
-                    ...form,
-                    [key]: value,
-                  })
-                }
-              />
-            )}
-            <Switch
-              checked={showRateLimit}
-              onChange={(e) => setShowRateLimit((e.target as HTMLInputElement).checked)}
-            />
-          </S.RateLimit>
-        )}
         {type === 'switch' && (
           <Switch
-            checked={form[key] ?? false}
+            checked={form[key] ?? initialValues?.[key] ?? false}
             onChange={(e) =>
               setForm({
                 ...form,
                 [key]: (e.target as HTMLInputElement).checked,
+              })
+            }
+          />
+        )}
+        {type === 'rateLimit' && (
+          <RateLimit
+            initialValue={initialValues?.rateLimitPerHour}
+            value={form.rateLimitPerHour}
+            onChange={(value) =>
+              setForm({
+                ...form,
+                rateLimitPerHour: value,
               })
             }
           />
