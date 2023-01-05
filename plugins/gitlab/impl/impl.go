@@ -19,7 +19,6 @@ package impl
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -185,16 +184,17 @@ func (plugin Gitlab) PrepareTaskData(taskCtx core.TaskContext, options map[strin
 		}
 	}
 
-	if op.GitlabTransformationRule == nil && op.ProjectId != 0 {
-		repo, err := api.GetRepoByConnectionIdAndscopeId(op.ConnectionId, strconv.Itoa(op.ProjectId))
+	if op.GitlabTransformationRule == nil && op.TransformationRuleId != 0 {
+		var transformationRule models.GitlabTransformationRule
+		db := taskCtx.GetDal()
+		err = db.First(&transformationRule, dal.Where("id = ?", op.TransformationRuleId))
 		if err != nil {
-			return nil, err
+			if db.IsErrorNotFound(err) {
+				return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find transformationRules by transformationRuleId [%d]", op.TransformationRuleId))
+			}
+			return nil, errors.Default.Wrap(err, fmt.Sprintf("fail to find transformationRules by transformationRuleId [%d]", op.TransformationRuleId))
 		}
-		transformationRule, err := api.GetTransformationRuleByRepo(repo)
-		if err != nil {
-			return nil, err
-		}
-		op.GitlabTransformationRule = transformationRule
+		op.GitlabTransformationRule = &transformationRule
 	}
 
 	taskData := tasks.GitlabTaskData{

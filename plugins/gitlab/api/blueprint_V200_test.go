@@ -128,8 +128,9 @@ func TestMakeDataSourcePipelinePlanV200(t *testing.T) {
 					tasks.ExtractApiPipelinesMeta.Name,
 				},
 				Options: map[string]interface{}{
-					"connectionId": uint64(1),
-					"projectId":    testID,
+					"connectionId":         uint64(1),
+					"projectId":            testID,
+					"transformationRuleId": testTransformationRuleId,
 				},
 			},
 			{

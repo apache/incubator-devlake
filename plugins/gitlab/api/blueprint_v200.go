@@ -132,6 +132,7 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 		options := make(map[string]interface{})
 		options["connectionId"] = connection.ID
 		options["projectId"] = intScopeId
+		options["transformationRuleId"] = transformationRules.ID
 		if syncPolicy.CreatedDateAfter != nil {
 			options["createdDateAfter"] = syncPolicy.CreatedDateAfter.Format(time.RFC3339)
 		}
@@ -181,9 +182,13 @@ func makePipelinePlanV200(subtaskMetas []core.SubTaskMeta, scopes []*core.Bluepr
 
 // GetRepoByConnectionIdAndscopeId get tbe repo by the connectionId and the scopeId
 func GetRepoByConnectionIdAndscopeId(connectionId uint64, scopeId string) (*models.GitlabProject, errors.Error) {
+	gitlabId, e := strconv.Atoi(scopeId)
+	if e != nil {
+		return nil, errors.Default.Wrap(e, fmt.Sprintf("scopeId %s is not integer", scopeId))
+	}
 	repo := &models.GitlabProject{}
 	db := basicRes.GetDal()
-	err := db.First(repo, dal.Where("connection_id = ? AND gitlab_id = ?", connectionId, scopeId))
+	err := db.First(repo, dal.Where("connection_id = ? AND gitlab_id = ?", connectionId, gitlabId))
 	if err != nil {
 		if db.IsErrorNotFound(err) {
 			return nil, errors.Default.Wrap(err, fmt.Sprintf("can not find repo by connection [%d] scope [%s]", connectionId, scopeId))
