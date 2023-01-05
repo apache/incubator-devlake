@@ -27,6 +27,9 @@ export const JIRAConfig: PluginConfigType = {
   type: PluginType.Connection,
   icon: Icon,
   connection: {
+    initialValues: {
+      rateLimitPerHour: 3000,
+    },
     fields: [
       {
         key: 'name',
@@ -65,8 +68,8 @@ export const JIRAConfig: PluginConfigType = {
       },
       {
         key: 'rateLimitPerHour',
-        label: 'Rate Limit (per hour)',
-        type: 'numeric',
+        label: 'Fixed Rate Limit (per hour)',
+        type: 'rateLimit',
         tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
       },
     ],

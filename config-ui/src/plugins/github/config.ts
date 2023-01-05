@@ -29,6 +29,7 @@ export const GitHubConfig: PluginConfigType = {
   connection: {
     initialValues: {
       enableGraphql: true,
+      rateLimitPerHour: 4500,
     },
     fields: [
       {
@@ -67,8 +68,8 @@ export const GitHubConfig: PluginConfigType = {
       },
       {
         key: 'rateLimitPerHour',
-        label: 'Rate Limit (per hour)',
-        type: 'numeric',
+        label: 'Fixed Rate Limit (per hour)',
+        type: 'rateLimit',
         tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
       },
     ],

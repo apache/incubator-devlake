@@ -16,5 +16,17 @@
  *
  */
 
-export * from './github-token';
-export * from './rate-limit';
+import styled from 'styled-components';
+
+export const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+
+  & > .bp4-numeric-input {
+    margin-right: 8px;
+  }
+
+  & > .bp4-switch {
+    margin: 0;
+  }
+`;
