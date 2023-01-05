@@ -36,9 +36,12 @@ func TestGitlabJobDataFlow(t *testing.T) {
 
 	taskData := &tasks.GitlabTaskData{
 		Options: &tasks.GitlabOptions{
-			ConnectionId:             1,
-			ProjectId:                44,
-			GitlabTransformationRule: new(models.GitlabTransformationRule),
+			ConnectionId: 1,
+			ProjectId:    44,
+			GitlabTransformationRule: &models.GitlabTransformationRule{
+				DeploymentPattern: "(?i)compile",
+				ProductionPattern: "(?i)compile",
+			},
 		},
 	}
 	// import raw data table
