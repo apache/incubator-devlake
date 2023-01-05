@@ -25,8 +25,12 @@ export const TAPDConfig: PluginConfigType = {
   plugin: Plugins.TAPD,
   name: 'TAPD',
   type: PluginType.Connection,
+  isBeta: true,
   icon: Icon,
   connection: {
+    initialValues: {
+      rateLimitPerHour: 3000,
+    },
     fields: [
       {
         key: 'name',
@@ -64,8 +68,8 @@ export const TAPDConfig: PluginConfigType = {
       },
       {
         key: 'rateLimitPerHour',
-        label: 'Rate Limit (per hour)',
-        type: 'numeric',
+        label: 'Fixed Rate Limit (per hour)',
+        type: 'rateLimit',
         tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
       },
     ],
