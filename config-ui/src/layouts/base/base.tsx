@@ -76,8 +76,8 @@ export const BaseLayout = ({ children }: Props) => {
           ))}
         </Menu>
         <div className="copyright">
-          <div>{version}</div>
-          <span>Apache 2.0 License</span>
+          <div>Apache 2.0 License</div>
+          <div className="version">{version}</div>
         </div>
       </S.Sider>
       <S.Inner>
