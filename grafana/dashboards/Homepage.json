@@ -1,0 +1,835 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 25,
+  "links": [],
+  "panels": [
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 32,
+      "options": {
+        "content": "# Welcome to Apache DevLake\n\n  - DevLake provides following dashboards, grouped by use cases and data sources.\n  - The data displayed in these dashboards are queried from DevLake's domain layer data, see [schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema).\n  - You can also make your own dashboard based on the [domain layer schema](https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema), the SQL exmaples of [engineering metrics](https://devlake.apache.org/docs/Metrics), and [Grafana manuals](https://devlake.apache.org/docs/UserManuals/Dashboards/GrafanaUserGuide).\n  - Feel free to [fire an issue](https://github.com/apache/incubator-devlake/issues/new/choose) if you have any question.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 22,
+      "options": {
+        "folderId": 0,
+        "maxItems": 10,
+        "query": "",
+        "showHeadings": false,
+        "showRecentlyViewed": false,
+        "showSearch": false,
+        "showStarred": true,
+        "tags": []
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "Starred Dashboards",
+      "type": "dashlist"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "folderId": 0,
+        "maxItems": 50,
+        "query": "",
+        "showHeadings": false,
+        "showRecentlyViewed": false,
+        "showSearch": true,
+        "showStarred": false,
+        "tags": []
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "queryType": "randomWalk",
+          "refId": "A"
+        }
+      ],
+      "title": "All Dashboards",
+      "type": "dashlist"
+    },
+    {
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "id": 10,
+      "title": "For Engineering Leads",
+      "type": "row"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 8
+      },
+      "id": 6,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/qNo8_0M4z/dora?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/dora.svg\" alt=\"dora\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>DORA</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 8
+      },
+      "id": 20,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/ZF6abXX7z/engineering-overview?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/engineering-overview.svg\" alt=\"engineering-overview\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Engineering Overview</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 8
+      },
+      "id": 18,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/Jaaimc67k/engineering-throughput-and-cycle-time?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/engineering-throughput.svg\" alt=\"engineering-throughput\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Engineering Throughput and Cycle Time</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 8
+      },
+      "id": 19,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/nJ1ijje7k/engineering-throughput-and-cycle-time-team-view?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/engineering-throughput-team-view.svg\" alt=\"engineering-throughput-team-view\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin-top:20px; color:#666666\"><b>Engineering Throughput and Cycle Time - Team View</b></p>\n        <p style=\"text-align:center;font-size:14px;color:#AAAAAA\">(Required Team Configuration)</p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 13
+      },
+      "id": 17,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/L4dp9mn4z/gitextractor-metrics-dashboard?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/component-and-file-level-metrics.svg\" alt=\"component-and-file-level-metrics\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Component and File-level Metrics</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 12,
+      "panels": [],
+      "title": "For OSS Maintainers",
+      "type": "row"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 19
+      },
+      "id": 8,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/VTr6Y_q7z/weekly-community-retro?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/weekly-community-retro.svg\" alt=\"weekly-community-retro\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Weekly Community Retro</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 19
+      },
+      "id": 21,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/bwsP5Nz4z/community-experience?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/contributor-experience.svg\" alt=\"contributor-experience\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Contributor Experience</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 19
+      },
+      "id": 23,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/2xuOaQUnk4/github_release_quality_and_contribution_analysis?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/github-release-quality-and-contribution-analysis.svg\" alt=\"github-release-quality-and-contribution-analysis\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>GitHub Release Quality and Contribution Analysis</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "id": 16,
+      "panels": [],
+      "title": "For QA Engineers",
+      "type": "row"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 25
+      },
+      "id": 24,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/-5EKA5w7k/weekly-bug-retro?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/weekly-bug-retro.svg\" alt=\"weekly-bug-retro\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Weekly Bug Retro</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "id": 14,
+      "panels": [],
+      "title": "By Data Sources",
+      "type": "row"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 31
+      },
+      "id": 25,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/F5vqBQl7z/jira?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/jira.svg\" alt=\"jira\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Jira</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 31
+      },
+      "id": 28,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/KXWvOFQnz/github?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/github.svg\" alt=\"github\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>GitHub</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 31
+      },
+      "id": 29,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/msSjEq97z/gitlab?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/gitlab.svg\" alt=\"gitlab\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>GitLab</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 31
+      },
+      "id": 30,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/W8AiDFQnk/jenkins?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/jenkins.svg\" alt=\"jenkins\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Jenkins</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 30,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Homepage",
+  "uid": "lCO8w-pVk",
+  "version": 46
+}
