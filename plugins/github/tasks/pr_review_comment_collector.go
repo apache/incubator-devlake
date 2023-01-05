@@ -58,6 +58,9 @@ func CollectPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 			query := url.Values{}
 			// if data.CreatedDateAfter != nil, we set since once
 			if data.CreatedDateAfter != nil {
+				// Note that `since` is for filtering records by the `updated` time
+				// which is not ideal for semantic reasons and would result in slightly more records than expected.
+				// But we have no choice since it is the only available field we could exploit from the API.
 				query.Set("since", data.CreatedDateAfter.String())
 			}
 			// if incremental == true, we overwrite it
@@ -88,7 +91,7 @@ func CollectPrReviewComments(taskCtx core.SubTaskContext) errors.Error {
 }
 
 var CollectApiPrReviewCommentsMeta = core.SubTaskMeta{
-	Name:             "CollectApiPrReviewCommentsMeta",
+	Name:             "collectApiPrReviewCommentsMeta",
 	EntryPoint:       CollectPrReviewComments,
 	EnabledByDefault: true,
 	Description:      "Collect pr review comments data from Github api",
