@@ -29,12 +29,17 @@ interface Props {
   onChangeItems: (selectedItems: ScopeItemType[]) => void;
 }
 
-export const JIRADataScope = ({ connectionId, disabledItems, onChangeItems }: Props) => {
+export const JIRADataScope = ({ connectionId, disabledItems, selectedItems, onChangeItems }: Props) => {
   return (
     <>
       <h3>Boards *</h3>
       <p>Select the boards you would like to sync.</p>
-      <MillerColumns connectionId={connectionId} disabledItems={disabledItems} onChangeItems={onChangeItems} />
+      <MillerColumns
+        connectionId={connectionId}
+        disabledItems={disabledItems}
+        selectedItems={selectedItems}
+        onChangeItems={onChangeItems}
+      />
     </>
   );
 };
