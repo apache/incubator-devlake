@@ -49,7 +49,7 @@ export const GitHubConfig: PluginConfigType = {
       {
         key: 'token',
         label: 'Basic Auth Token',
-        type: 'github-token',
+        type: 'githubToken',
         required: true,
         tooltip: "Due to Github's rate limit, input more tokens, \ncomma separated, to accelerate data collection.",
       },

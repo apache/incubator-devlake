@@ -18,9 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"reflect"
-	"regexp"
-
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/domainlayer"
 	"github.com/apache/incubator-devlake/models/domainlayer/devops"
@@ -29,6 +26,7 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	gitlabModels "github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"reflect"
 )
 
 var ConvertJobMeta = core.SubTaskMeta{
@@ -42,15 +40,10 @@ var ConvertJobMeta = core.SubTaskMeta{
 func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 	db := taskCtx.GetDal()
 	data := taskCtx.GetData().(*GitlabTaskData)
-
-	var deployTagRegexp *regexp.Regexp
 	deploymentPattern := data.Options.DeploymentPattern
-	if len(deploymentPattern) > 0 {
-		deployTagRegexp, err = errors.Convert01(regexp.Compile(deploymentPattern))
-		if err != nil {
-			return errors.Default.Wrap(err, "regexp compile deploymentPattern failed")
-		}
-	}
+	productionPattern := data.Options.ProductionPattern
+	regexEnricher := helper.NewRegexEnricher()
+	err = regexEnricher.AddRegexp(deploymentPattern, productionPattern)
 
 	cursor, err := db.Cursor(dal.From(gitlabModels.GitlabJob{}),
 		dal.Where("project_id = ? and connection_id = ?", data.Options.ProjectId, data.Options.ConnectionId))
@@ -106,11 +99,8 @@ func ConvertJobs(taskCtx core.SubTaskContext) (err errors.Error) {
 				FinishedDate: gitlabJob.FinishedAt,
 				CicdScopeId:  projectIdGen.Generate(data.Options.ConnectionId, gitlabJob.ProjectId),
 			}
-			if deployTagRegexp != nil {
-				if deployFlag := deployTagRegexp.FindString(gitlabJob.Name); deployFlag != "" {
-					domainJob.Type = devops.DEPLOYMENT
-				}
-			}
+			domainJob.Type = regexEnricher.GetEnrichResult(deploymentPattern, gitlabJob.Name, devops.DEPLOYMENT)
+			domainJob.Environment = regexEnricher.GetEnrichResult(productionPattern, gitlabJob.Name, devops.PRODUCTION)
 
 			return []interface{}{
 				domainJob,
