@@ -39,7 +39,6 @@ import { ZenTaoConfig } from './zentao';
 export const PluginConfig: PluginConfigType[] = [
   AEConfig,
   AzureConfig,
-  BitBucketConfig,
   DBTConfig,
   DORAConfig,
   FeiShuConfig,
@@ -52,7 +51,8 @@ export const PluginConfig: PluginConfigType[] = [
   JIRAConfig,
   RefDiffConfig,
   StarRocksConfig,
+  BitBucketConfig,
   TAPDConfig,
-  WebhookConfig,
   ZenTaoConfig,
+  WebhookConfig,
 ];
