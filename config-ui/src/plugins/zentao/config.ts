@@ -24,6 +24,52 @@ import Icon from './assets/icon.svg';
 export const ZenTaoConfig: PluginConfigType = {
   plugin: Plugins.ZenTao,
   name: 'ZenTao',
-  type: PluginType.Pipeline,
+  type: PluginType.Connection,
   icon: Icon,
+  connection: {
+    fields: [
+      {
+        key: 'name',
+        label: 'Connection Name',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. ZenTao',
+      },
+      {
+        key: 'endpoint',
+        label: 'Endpoint URL',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. https://your-domain:port/api.php/v1/',
+      },
+      {
+        key: 'username',
+        label: 'Username',
+        type: 'text',
+        required: true,
+        placeholder: 'eg. admin',
+      },
+      {
+        key: 'password',
+        label: 'Password',
+        type: 'password',
+        required: true,
+        placeholder: 'eg. ************',
+      },
+      {
+        key: 'proxy',
+        label: 'Proxy URL',
+        type: 'text',
+        placeholder: 'eg. http://proxy.localhost:8080',
+      },
+      {
+        key: 'rateLimitPerHour',
+        label: 'Rate Limit (per hour)',
+        type: 'numeric',
+        tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
+      },
+    ],
+  },
+  entities: ['TICKET'],
+  transformation: {},
 };
