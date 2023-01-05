@@ -48,6 +48,7 @@ export type PluginConfigConnectionType = {
   name: string;
   type: PluginType.Connection;
   icon: string;
+  isBeta?: boolean;
   connection: {
     initialValues?: Record<string, any>;
     fields: Array<{
