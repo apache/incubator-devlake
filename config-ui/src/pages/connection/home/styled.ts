@@ -40,6 +40,7 @@ export const Wrapper = styled.div`
   }
 
   li {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -54,12 +55,18 @@ export const Wrapper = styled.div`
       box-shadow: 0 2px 2px 0 rgb(0 0 0 / 16%), 0 0 2px 0 rgb(0 0 0 / 12%);
     }
 
-    img {
-      width: 50px;
+    & > img {
+      width: 45px;
     }
 
-    span {
+    & > span {
       margin-top: 4px;
+    }
+
+    & > .bp4-tag {
+      position: absolute;
+      top: -4px;
+      right: 4px;
     }
   }
 

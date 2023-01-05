@@ -18,7 +18,9 @@
 
 import React, { useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
+import { Tag, Intent } from '@blueprintjs/core';
 
+import type { PluginConfigConnectionType } from '@/plugins';
 import { PluginConfig, PluginType, Plugins } from '@/plugins';
 
 import * as S from './styled';
@@ -28,7 +30,7 @@ export const ConnectionHomePage = () => {
 
   const [connections, webhook] = useMemo(
     () => [
-      PluginConfig.filter((p) => p.type === PluginType.Connection),
+      PluginConfig.filter((p) => p.type === PluginType.Connection) as PluginConfigConnectionType[],
       PluginConfig.filter((p) => p.plugin === Plugins.Webhook),
     ],
     [],
@@ -44,6 +46,11 @@ export const ConnectionHomePage = () => {
             <li key={cs.plugin} onClick={() => history.push(`/connections/${cs.plugin}`)}>
               <img src={cs.icon} alt="" />
               <span>{cs.name}</span>
+              {cs.isBeta && (
+                <Tag intent={Intent.WARNING} round>
+                  beta
+                </Tag>
+              )}
             </li>
           ))}
         </ul>

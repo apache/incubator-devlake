@@ -124,7 +124,7 @@ export const ConnectionFormPage = () => {
             }
           />
         )}
-        {type === 'github-token' && (
+        {type === 'githubToken' && (
           <GitHubToken
             form={form}
             value={form.token}
