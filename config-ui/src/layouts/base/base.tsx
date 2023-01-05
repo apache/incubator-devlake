@@ -18,7 +18,7 @@
 
 import React from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
-import { Menu, MenuItem, Navbar, Alignment } from '@blueprintjs/core';
+import { Menu, MenuItem, Tag, Navbar, Intent, Alignment } from '@blueprintjs/core';
 
 import { Logo } from '@/components';
 import { useVersion } from '@/store';
@@ -66,7 +66,12 @@ export const BaseLayout = ({ children }: Props) => {
                 <MenuItem
                   key={cit.key}
                   className="sub-menu-item"
-                  text={cit.title}
+                  text={
+                    <S.SiderMenuItem>
+                      <span>{cit.title}</span>
+                      {cit.isBeta && <Tag intent={Intent.WARNING}>beta</Tag>}
+                    </S.SiderMenuItem>
+                  }
                   icon={cit.icon ?? <img src={cit.iconUrl} width={16} alt="" />}
                   active={pathname.includes(cit.path)}
                   onClick={() => handlePushPath(cit)}

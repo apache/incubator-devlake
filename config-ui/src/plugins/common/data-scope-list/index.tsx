@@ -28,11 +28,12 @@ import * as S from './styled';
 
 interface Props extends UseDataScopeList {
   groupByTs: boolean;
+  scopeIds: string[];
   onDelete?: (plugin: Plugins, connectionId: ID, scopeId: ID) => void;
 }
 
-export const DataScopeList = ({ groupByTs, onDelete, ...props }: Props) => {
-  const { loading, scope, scopeTsMap } = useDataScopeList({ ...props });
+export const DataScopeList = ({ groupByTs, scopeIds, onDelete, ...props }: Props) => {
+  const { loading, scope, scopeTsMap } = useDataScopeList({ scopeIds, ...props });
 
   if (!scope.length) {
     return <span>No Data Scope Selected</span>;
@@ -65,7 +66,7 @@ export const DataScopeList = ({ groupByTs, onDelete, ...props }: Props) => {
               {scopeTsMap[name].map((sc) => (
                 <li key={sc.id}>
                   <span>{sc.name}</span>
-                  {onDelete && (
+                  {onDelete && scopeIds.length > 1 && (
                     <DeleteButton onDelete={() => onDelete(props.plugin, props.connectionId, sc.id)}>
                       <Button small minimal intent={Intent.PRIMARY} icon="cross" />
                     </DeleteButton>

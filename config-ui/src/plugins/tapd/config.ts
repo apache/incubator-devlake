@@ -37,7 +37,7 @@ export const TAPDConfig: PluginConfigType = {
         label: 'Connection Name',
         type: 'text',
         required: true,
-        placeholder: 'eg. ZenTao',
+        placeholder: 'eg. TAPD',
       },
       {
         key: 'endpoint',

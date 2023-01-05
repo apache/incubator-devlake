@@ -104,7 +104,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
           .filter((cs) => uniqueList.includes(cs.unique))
           .every((cs) => cs.status === ConnectionStatusEnum.ONLINE):
         return 'Normal Mode: Has some offline connections';
-      case step === 2 && Object.keys(scopeMap).length !== uniqueList.length:
+      case step === 2 && Object.keys(scopeMap).filter((key) => scopeMap[key].length).length !== uniqueList.length:
         return 'No Data Scope is Selected';
       default:
         return '';
