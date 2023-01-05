@@ -116,3 +116,12 @@ export const Content = styled.div`
   max-width: 900px;
   width: 100%;
 `;
+
+export const SiderMenuItem = styled.div`
+  display: flex;
+  align-items: center;
+
+  & > .bp4-tag {
+    margin-left: 8px;
+  }
+`;
