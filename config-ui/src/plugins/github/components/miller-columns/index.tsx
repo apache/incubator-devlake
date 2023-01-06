@@ -17,6 +17,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { uniqWith, isEqual } from 'lodash';
 import type { ID, ColumnType } from 'miller-columns-select';
 import MillerColumnsSelect from 'miller-columns-select';
 
@@ -50,18 +51,24 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
   }, [selectedItems]);
 
   const handleChangeItems = (selectedIds: ID[]) => {
-    const result = items
-      .filter((it) => selectedIds.includes(it.id) && it.type === 'repo')
-      .map((it) => ({
-        connectionId,
-        githubId: it.githubId,
-        name: it.name,
-        ownerId: it.ownerId,
-        language: it.language,
-        description: it.description,
-        cloneUrl: it.cloneUrl,
-        HTMLUrl: it.HTMLUrl,
-      }));
+    const result = uniqWith(
+      [
+        ...items
+          .filter((it) => it.type === 'repo')
+          .map((it) => ({
+            connectionId,
+            githubId: it.githubId,
+            name: it.name,
+            ownerId: it.ownerId,
+            language: it.language,
+            description: it.description,
+            cloneUrl: it.cloneUrl,
+            HTMLUrl: it.HTMLUrl,
+          })),
+        ...(selectedItems ?? []),
+      ],
+      isEqual,
+    ).filter((it) => selectedIds.includes(it.githubId));
 
     onChangeItems?.(result);
   };

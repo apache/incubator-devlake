@@ -17,6 +17,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { uniqWith, isEqual } from 'lodash';
 import MillerColumnsSelect from 'miller-columns-select';
 
 import { Loading } from '@/components';
@@ -50,22 +51,28 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
   }, [selectedItems]);
 
   const handleChangeItems = (selectedIds: ID[]) => {
-    const result = items
-      .filter((it) => selectedIds.includes(it.id) && it.type === 'project')
-      .map((it) => ({
-        connectionId,
-        gitlabId: it.id,
-        name: it.name,
-        pathWithNamespace: it.pathWithNamespace,
-        creatorId: it.creatorId,
-        defaultBranch: it.defaultBranch,
-        description: it.description,
-        openIssuesCount: it.openIssuesCount,
-        starCount: it.starCount,
-        visibility: it.visibility,
-        webUrl: it.webUrl,
-        httpUrlToRepo: it.httpUrlToRepo,
-      }));
+    const result = uniqWith(
+      [
+        ...items
+          .filter((it) => it.type === 'project')
+          .map((it) => ({
+            connectionId,
+            gitlabId: it.id,
+            name: it.name,
+            pathWithNamespace: it.pathWithNamespace,
+            creatorId: it.creatorId,
+            defaultBranch: it.defaultBranch,
+            description: it.description,
+            openIssuesCount: it.openIssuesCount,
+            starCount: it.starCount,
+            visibility: it.visibility,
+            webUrl: it.webUrl,
+            httpUrlToRepo: it.httpUrlToRepo,
+          })),
+        ...(selectedItems ?? []),
+      ],
+      isEqual,
+    ).filter((it) => selectedIds.includes(it.gitlabId));
 
     onChangeItems?.(result);
   };
