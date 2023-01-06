@@ -123,7 +123,7 @@ func TestMakePipelinePlan(t *testing.T) {
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
 					"repoId": "bitbucket:BitbucketRepo:1:thenicetgp/lake",
-					"url":    "https://thenicetgp:Password@bitbucket.org/thenicetgp/lake.git",
+					"url":    "https://Username:Password@bitbucket.org/thenicetgp/lake.git",
 				},
 			},
 		},

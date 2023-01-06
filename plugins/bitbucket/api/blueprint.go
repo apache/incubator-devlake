@@ -142,7 +142,7 @@ func makePipelinePlan(subtaskMetas []core.SubTaskMeta, scope []*core.BlueprintSc
 			if err != nil {
 				return nil, err
 			}
-			cloneUrl.User = url.UserPassword(op.Owner, connection.Password)
+			cloneUrl.User = url.UserPassword(connection.Username, connection.Password)
 			stage = append(stage, &core.PipelineTask{
 				Plugin: "gitextractor",
 				Options: map[string]interface{}{
