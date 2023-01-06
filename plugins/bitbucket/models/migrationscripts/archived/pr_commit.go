@@ -15,19 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package archived
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
 )
 
-// All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
-		new(addInitTables20220803),
-		new(addPipeline20220914),
-		new(addPrCommits20221008),
-		new(addDeployment20221013),
-		new(addRepoIdAndCommitShaField20221014),
-	}
+type BitbucketPrCommit struct {
+	ConnectionId  uint64 `gorm:"primaryKey"`
+	CommitSha     string `gorm:"primaryKey;type:varchar(40)"`
+	PullRequestId int    `gorm:"primaryKey;autoIncrement:false"`
+	archived.NoPKModel
+}
+
+func (BitbucketPrCommit) TableName() string {
+	return "_tool_bitbucket_pull_request_commits"
 }
