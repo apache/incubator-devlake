@@ -77,7 +77,6 @@ func ConvertPipelines(taskCtx core.SubTaskContext) errors.Error {
 					Generate(bitbucketPipeline.ConnectionId, bitbucketPipeline.RepoId),
 				CommitSha: bitbucketPipeline.CommitSha,
 				Branch:    bitbucketPipeline.RefName,
-				Repo:      bitbucketPipeline.WebUrl,
 			}
 			domainPipeline := &devops.CICDPipeline{
 				DomainEntity: domainlayer.DomainEntity{
