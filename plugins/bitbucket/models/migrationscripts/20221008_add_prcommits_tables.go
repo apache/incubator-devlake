@@ -18,16 +18,15 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"context"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models/migrationscripts/archived"
-	"gorm.io/gorm"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
 type addPrCommits20221008 struct{}
 
-func (*addPrCommits20221008) Up(ctx context.Context, db *gorm.DB) errors.Error {
-	err := db.Migrator().AutoMigrate(&archived.BitbucketPrCommit{})
+func (*addPrCommits20221008) Up(basicRes core.BasicRes) errors.Error {
+	err := basicRes.GetDal().AutoMigrate(&archived.BitbucketPrCommit{})
 	if err != nil {
 		return errors.Convert(err)
 	}

@@ -18,9 +18,6 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
-	"net/url"
-
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -52,14 +49,8 @@ func CollectApiPullRequestCommits(taskCtx core.SubTaskContext) errors.Error {
 		Incremental:        false,
 		Input:              iterator,
 		UrlTemplate:        "repositories/{{ .Params.Owner }}/{{ .Params.Repo }}/pullrequests/{{ .Input.BitbucketId }}/commits",
-		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
-			query := url.Values{}
-			query.Set("state", "all")
-			query.Set("pagelen", fmt.Sprintf("%v", reqData.Pager.Size))
-
-			return query, nil
-		},
-		ResponseParser: GetRawMessageFromResponse,
+		Query:              GetQuery,
+		ResponseParser:     GetRawMessageFromResponse,
 	})
 
 	if err != nil {
