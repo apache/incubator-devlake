@@ -17,7 +17,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { ButtonGroup, Button, Intent } from '@blueprintjs/core';
 
 import { PageLoading, PageHeader, Table, ColumnType } from '@/components';
@@ -70,6 +70,12 @@ export const BlueprintHomePage = () => {
             const cron = getCron(row.isManual, row.cronConfig);
             return formatTime(cron.nextTime);
           },
+        },
+        {
+          title: 'Project',
+          dataIndex: 'projectName',
+          key: 'project',
+          render: (val) => (val ? <Link to={`/projects/${window.encodeURIComponent(val)}`}> {val}</Link> : val),
         },
         {
           title: '',
