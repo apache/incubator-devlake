@@ -22,7 +22,7 @@ import styled from 'styled-components';
 export const Wrapper = styled.div`
   .bp4-form-group {
     display: flex;
-    align-items: center;
+    align-items: start;
     justify-content: space-between;
 
     .bp4-label {
@@ -34,6 +34,10 @@ export const Wrapper = styled.div`
         margin: 0;
         line-height: 1;
         margin-left: 4px;
+
+        & > .bp4-icon {
+          display: block;
+        }
       }
 
       .bp4-text-muted {
@@ -59,11 +63,7 @@ export const Label = styled.span`
   align-items: center;
 `;
 
-export const RateLimit = styled.div`
+export const SwitchWrapper = styled.div`
   display: flex;
   align-items: center;
-
-  & > .bp4-numeric-input {
-    margin-right: 8px;
-  }
 `;

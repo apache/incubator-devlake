@@ -82,7 +82,7 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
   const [scopeMap, setScopeMap] = useState<Record<string, any>>({});
   const [cronConfig, setCronConfig] = useState('0 0 * * *');
   const [isManual, setIsManual] = useState(false);
-  const [skipOnFail, setSkipOnFail] = useState(false);
+  const [skipOnFail, setSkipOnFail] = useState(true);
   const [createdDateAfter, setCreatedDateAfter] = useState<string | null>(null);
 
   const history = useHistory();

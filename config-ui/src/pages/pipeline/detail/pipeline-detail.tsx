@@ -115,7 +115,7 @@ export const PipelineDetail = ({ id }: Props) => {
             </strong>
           </li>
           <li>
-            {[StatusEnum.ACTIVE, StatusEnum.RUNNING].includes(status) && (
+            {[StatusEnum.CREATED, StatusEnum.PENDING, StatusEnum.ACTIVE, StatusEnum.RUNNING].includes(status) && (
               <Button loading={operating} outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
             )}
 

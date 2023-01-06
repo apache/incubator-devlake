@@ -31,7 +31,16 @@ export const IssueTracking = ({ transformation, setTransformation }: Props) => {
         <span>Issue Tracking</span>
         <Tag minimal>RegExp</Tag>
       </h3>
-      <p>Map your issue labels with each category to view corresponding metrics in the dashboard.</p>
+      <p>
+        Map your issue labels with each category to view corresponding metrics in the dashboard.
+        <a
+          href="https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub/#issue-tracking"
+          rel="noreferrer"
+          target="_blank"
+        >
+          See doc
+        </a>
+      </p>
       <FormGroup inline label="Severity">
         <InputGroup
           placeholder="severity/(.*)$"

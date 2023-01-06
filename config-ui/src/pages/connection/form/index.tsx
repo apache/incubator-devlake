@@ -102,15 +102,17 @@ export const ConnectionFormPage = () => {
           />
         )}
         {type === 'switch' && (
-          <Switch
-            checked={form[key] ?? initialValues?.[key] ?? false}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                [key]: (e.target as HTMLInputElement).checked,
-              })
-            }
-          />
+          <S.SwitchWrapper>
+            <Switch
+              checked={form[key] ?? initialValues?.[key] ?? false}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  [key]: (e.target as HTMLInputElement).checked,
+                })
+              }
+            />
+          </S.SwitchWrapper>
         )}
         {type === 'rateLimit' && (
           <RateLimit

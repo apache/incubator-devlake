@@ -58,7 +58,7 @@ export const BlueprintCreatePage = ({ from }: Props) => {
   );
 
   return (
-    <ConnectionContextProvider>
+    <ConnectionContextProvider filterBeta>
       <BPContextProvider from={from} projectName={pname}>
         <BPContext.Consumer>
           {({ step, mode, name, payload, showInspector, onChangeShowInspector }) => (

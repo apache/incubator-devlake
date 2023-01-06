@@ -89,7 +89,7 @@ export const DataScope = ({ plugin, connectionId, entities, onCancel, ...props }
         <p>
           <span>Select the data entities you wish to collect for the projects.</span>
           <a
-            href="https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema/"
+            href="https://devlake.apache.org/docs/DataModels/DevLakeDomainLayerSchema/#data-models"
             target="_blank"
             rel="noreferrer"
           >

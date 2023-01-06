@@ -39,6 +39,7 @@ export const TableRow = styled.li`
 
   & > span {
     flex: 1;
+    overflow: hidden;
   }
 `;
 

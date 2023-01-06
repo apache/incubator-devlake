@@ -40,7 +40,7 @@ export const ConnectionHomePage = () => {
     <S.Wrapper>
       <div className="block">
         <h2>Data Connections</h2>
-        <p> connections are available for data collection.</p>
+        <p>Connections are available for data collection.</p>
         <ul>
           {connections.map((cs) => (
             <li key={cs.plugin} onClick={() => history.push(`/connections/${cs.plugin}`)}>
