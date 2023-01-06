@@ -50,6 +50,7 @@ func ExtractTasks(taskCtx core.SubTaskContext) errors.Error {
 			return ticket.TODO
 		}
 	}
+	stdTypeMappings := getStdTypeMappings(data)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
@@ -65,8 +66,11 @@ func ExtractTasks(taskCtx core.SubTaskContext) errors.Error {
 			toolL := taskBody.Task
 
 			toolL.ConnectionId = data.Options.ConnectionId
-			toolL.Type = "TASK"
-			toolL.StdType = ticket.TASK
+			toolL.Type = "task"
+			toolL.StdType = stdTypeMappings[toolL.Type]
+			if toolL.StdType == "" {
+				toolL.StdType = ticket.TASK
+			}
 			toolL.StdStatus = getTaskStdStatus(toolL.Status)
 			if strings.Contains(toolL.Owner, ";") {
 				toolL.Owner = strings.Split(toolL.Owner, ";")[0]
