@@ -17,7 +17,8 @@
  */
 
 import React from 'react';
-import { Button, Icon, Intent } from '@blueprintjs/core';
+import { Button, Icon, Intent, Position } from '@blueprintjs/core';
+import { Tooltip2 } from '@blueprintjs/popover2';
 
 import { Loading, DeleteButton } from '@/components';
 import { Plugins } from '@/plugins';
@@ -58,14 +59,16 @@ export const DataScopeList = ({ groupByTs, scopeIds, onDelete, ...props }: Props
       {groupByTs &&
         Object.keys(scopeTsMap).map((name) => (
           <S.ScopeItemMap key={name}>
-            <div className="name">
+            <div className="title">
               <Icon icon="function" />
               <span>{name}</span>
             </div>
             <ul>
               {scopeTsMap[name].map((sc) => (
                 <li key={sc.id}>
-                  <span>{sc.name}</span>
+                  <Tooltip2 className="name" content={sc.name} position={Position.TOP}>
+                    <span>{sc.name}</span>
+                  </Tooltip2>
                   {onDelete && scopeIds.length > 1 && (
                     <DeleteButton onDelete={() => onDelete(props.plugin, props.connectionId, sc.id)}>
                       <Button small minimal intent={Intent.PRIMARY} icon="cross" />

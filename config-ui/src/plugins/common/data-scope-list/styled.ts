@@ -39,7 +39,7 @@ export const ScopeItem = styled.li`
 export const ScopeItemMap = styled(ScopeItem)`
   margin-bottom: 12px;
 
-  .name {
+  .title {
     display: flex;
     align-items: center;
     font-size: 12px;
@@ -53,11 +53,23 @@ export const ScopeItemMap = styled(ScopeItem)`
     }
   }
 
-  ul {
+  & > ul {
     margin: 0;
     padding: 0;
     list-style: none;
     padding-left: 24px;
     margin-top: 4px;
+
+    li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      span.name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
   }
 `;
