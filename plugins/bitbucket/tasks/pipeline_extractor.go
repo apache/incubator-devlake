@@ -23,7 +23,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"time"
 )
 
 type bitbucketApiCommit struct {
@@ -72,14 +71,14 @@ type BitbucketApiPipeline struct {
 		Name string `json:"name"`
 		Type string `json:"type"`
 	} `json:"trigger"`
-	CreatedOn         *time.Time `json:"created_on"`
-	CompletedOn       *time.Time `json:"completed_on"`
-	RunNumber         int        `json:"run_number"`
-	DurationInSeconds uint64     `json:"duration_in_seconds"`
-	BuildSecondsUsed  int        `json:"build_seconds_used"`
-	FirstSuccessful   bool       `json:"first_successful"`
-	Expired           bool       `json:"expired"`
-	HasVariables      bool       `json:"has_variables"`
+	CreatedOn         *helper.Iso8601Time `json:"created_on"`
+	CompletedOn       *helper.Iso8601Time `json:"completed_on"`
+	RunNumber         int                 `json:"run_number"`
+	DurationInSeconds uint64              `json:"duration_in_seconds"`
+	BuildSecondsUsed  int                 `json:"build_seconds_used"`
+	FirstSuccessful   bool                `json:"first_successful"`
+	Expired           bool                `json:"expired"`
+	HasVariables      bool                `json:"has_variables"`
 	Links             struct {
 		Self struct {
 			Href string `json:"href"`
@@ -120,8 +119,8 @@ func ExtractApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 				CommitSha:           bitbucketApiPipeline.Target.Commit.Hash,
 				RepoId:              bitbucketApiPipeline.Repo.FullName,
 				DurationInSeconds:   bitbucketApiPipeline.DurationInSeconds,
-				BitbucketCreatedOn:  bitbucketApiPipeline.CreatedOn,
-				BitbucketCompleteOn: bitbucketApiPipeline.CompletedOn,
+				BitbucketCreatedOn:  helper.Iso8601TimeToTime(bitbucketApiPipeline.CreatedOn),
+				BitbucketCompleteOn: helper.Iso8601TimeToTime(bitbucketApiPipeline.CompletedOn),
 			}
 			if err != nil {
 				return nil, err

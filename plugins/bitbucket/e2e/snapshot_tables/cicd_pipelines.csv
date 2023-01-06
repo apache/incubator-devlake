@@ -1,0 +1,11 @@
+id,name,result,status,type,duration_sec,created_date,finished_date,environment
+bitbucket:BitbucketPipeline:1:{0af285e5-c07d-48eb-b0e9-b579f63f6f54},bitbucket:BitbucketPipeline:1:main,MANUAL,IN_PROGRESS,CI/CD,10,2022-09-14T04:35:41.306+00:00,,
+bitbucket:BitbucketPipeline:1:{0b0986ff-87ab-4c61-8244-72ee93270992},bitbucket:BitbucketPipeline:1:main,MANUAL,IN_PROGRESS,CI/CD,10,2022-09-20T12:40:10.785+00:00,,
+bitbucket:BitbucketPipeline:1:{105b3616-0140-4f17-993e-65d8836cbfd4},bitbucket:BitbucketPipeline:1:pipeline,MANUAL,IN_PROGRESS,CI/CD,9,2022-09-20T12:41:07.095+00:00,,
+bitbucket:BitbucketPipeline:1:{60bd9ab0-57d7-4da6-bf39-3b04e8133223},bitbucket:BitbucketPipeline:1:feature/pipelinetest,FAILURE,DONE,CI/CD,0,2022-09-20T12:44:05.761+00:00,2022-09-20T12:44:05.745+00:00,
+bitbucket:BitbucketPipeline:1:{76e9c380-bedf-48f8-ad11-9b4a60307dd6},bitbucket:BitbucketPipeline:1:pipeline,ABORT,DONE,CI/CD,0,2022-09-20T12:42:14.300+00:00,2022-09-20T12:42:23.084+00:00,
+bitbucket:BitbucketPipeline:1:{844365c2-2d8c-4b67-9e27-21c2fcda7bd7},bitbucket:BitbucketPipeline:1:main,MANUAL,IN_PROGRESS,CI/CD,10,2022-09-14T04:35:17.076+00:00,,
+bitbucket:BitbucketPipeline:1:{a57ab3dc-2afd-4e23-acd3-7acf1bb0cf28},bitbucket:BitbucketPipeline:1:main,SUCCESS,DONE,CI/CD,14,2022-09-13T14:10:22.042+00:00,2022-09-13T14:14:03.870+00:00,
+bitbucket:BitbucketPipeline:1:{accb6177-eea1-4d13-9806-037645ca3f67},bitbucket:BitbucketPipeline:1:,FAILURE,DONE,CI/CD,0,2022-09-20T12:45:52.175+00:00,2022-09-20T12:45:52.155+00:00,
+bitbucket:BitbucketPipeline:1:{d676e969-7294-4ca2-9173-4fba9b419fe9},bitbucket:BitbucketPipeline:1:pipeline,FAILURE,DONE,CI/CD,0,2022-09-20T12:45:51.130+00:00,2022-09-20T12:45:51.117+00:00,
+bitbucket:BitbucketPipeline:1:{fc8cfdbd-2e0f-4789-9abb-19bf326f704b},bitbucket:BitbucketPipeline:1:feature/pipelinetest,MANUAL,IN_PROGRESS,CI/CD,12,2022-09-20T12:34:39.893+00:00,,
