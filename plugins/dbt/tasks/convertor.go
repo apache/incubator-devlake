@@ -18,6 +18,7 @@ limitations under the License.
 package tasks
 
 import (
+	"bufio"
 	"encoding/json"
 	"net"
 	"net/url"
@@ -44,7 +45,6 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	projectVars := data.Options.ProjectVars
 	args := data.Options.Args
 	failFast := data.Options.FailFast
-	threads := data.Options.Threads
 	noVersionCheck := data.Options.NoVersionCheck
 	excludeModels := data.Options.ExcludeModels
 	selector := data.Options.Selector
@@ -127,7 +127,8 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		}
 
 	}
-	dbtExecParams := []string{"dbt", "run", "--project-dir", projectPath}
+	//set default threads = 1, prevent dbt threads can not release, so occur zombie process
+	dbtExecParams := []string{"dbt", "run", "--project-dir", projectPath, "--threads", "1"}
 	if projectVars != nil {
 		jsonProjectVars, err := json.Marshal(projectVars)
 		if err != nil {
@@ -145,10 +146,6 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}
 	if failFast {
 		dbtExecParams = append(dbtExecParams, "--fail-fast")
-	}
-	if threads != 0 {
-		dbtExecParams = append(dbtExecParams, "--threads")
-		dbtExecParams = append(dbtExecParams, strconv.Itoa(threads))
 	}
 	if noVersionCheck {
 		dbtExecParams = append(dbtExecParams, "--no-version-check")
@@ -189,12 +186,47 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	cmd := exec.Command(dbtExecParams[0], dbtExecParams[1:]...)
 	log.Info("dbt run script: ", cmd)
 
-	stdout, stdoutErr := cmd.CombinedOutput()
+	stdout, stdoutErr := cmd.StdoutPipe()
 	if stdoutErr != nil {
 		return errors.Convert(stdoutErr)
 	}
-	log.Info("dbt run log: ", string(stdout))
-	log.Info("End of dbt program execution.")
+
+	if err = errors.Convert(cmd.Start()); err != nil {
+		return err
+	}
+
+	// prevent zombie process
+	defer func() {
+		err := errors.Convert(cmd.Wait())
+		if err != nil {
+			log.Error(err, "The DBT project run failed!")
+		} else {
+			log.Info("The DBT project run ended.")
+		}
+	}()
+
+	scanner := bufio.NewScanner(stdout)
+	var errStr string
+	for scanner.Scan() {
+		line := scanner.Text()
+		log.Info(line)
+		if strings.Contains(line, "Encountered an error") || errStr != "" {
+			errStr += line + "\n"
+		}
+		if strings.Contains(line, "of") && strings.Contains(line, "OK") {
+			taskCtx.IncProgress(1)
+		}
+	}
+	if err := errors.Convert(scanner.Err()); err != nil {
+		log.Error(err, "dbt read stdout failed.")
+		return err
+	}
+
+	// close stdout
+	if closeErr := stdout.Close(); closeErr != nil && err == nil {
+		log.Error(closeErr, "dbt close stdout failed.")
+		return errors.Convert(closeErr)
+	}
 
 	return nil
 }
