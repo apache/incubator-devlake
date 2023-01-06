@@ -83,6 +83,7 @@ body:
         Which version of Apache DevLake are you running?
       options:
         - main
+        - v0.15.0
         - v0.14.2
         - v0.14.1
         - v0.14.0
