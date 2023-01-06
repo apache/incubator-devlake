@@ -67,4 +67,5 @@ const (
 	TODO        = "TODO"
 	DONE        = "DONE"
 	IN_PROGRESS = "IN_PROGRESS"
+	OTHER       = "OTHER"
 )
