@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 20,
-  "iteration": 1672983005672,
+  "id": 22,
+  "iteration": 1672982963558,
   "links": [
     {
       "asDropdown": false,
@@ -56,7 +56,7 @@
       },
       "id": 128,
       "options": {
-        "content": "- Use Cases: This dashboard shows the basic project management metrics from Jira.\n- Data Source Required: Jira",
+        "content": "- Use Cases: This dashboard shows the basic project management metrics from TAPD.\n- Data Source Required: TAPD",
         "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
@@ -977,7 +977,7 @@
           ]
         },
         "datasource": "mysql",
-        "definition": "select concat(name, '--', id) from boards where id like 'jira%'",
+        "definition": "select concat(name, '--', id) from boards where id like 'tapd%'",
         "description": null,
         "error": null,
         "hide": 0,
@@ -986,7 +986,7 @@
         "multi": true,
         "name": "board_id",
         "options": [],
-        "query": "select concat(name, '--', id) from boards where id like 'jira%'",
+        "query": "select concat(name, '--', id) from boards where id like 'tapd%'",
         "refresh": 1,
         "regex": "/^(?<text>.*)--(?<value>.*)$/",
         "skipUrlSync": false,
@@ -1025,7 +1025,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Jira",
-  "uid": "F5vqBQl7z",
-  "version": 2
+  "title": "TAPD",
+  "uid": "hi-907hVk",
+  "version": 3
 }

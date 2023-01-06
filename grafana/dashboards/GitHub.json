@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 2,
-  "iteration": 1660821712964,
+  "id": 3,
+  "iteration": 1672983056105,
   "links": [],
   "panels": [
     {
@@ -1973,7 +1973,7 @@
           ]
         },
         "datasource": "mysql",
-        "definition": "select concat(name, '--', id) as text from repos",
+        "definition": "select concat(name, '--', id) as text from repos where id like 'github%'",
         "description": null,
         "error": null,
         "hide": 0,
@@ -1982,7 +1982,7 @@
         "multi": true,
         "name": "repo_id",
         "options": [],
-        "query": "select concat(name, '--', id) as text from repos",
+        "query": "select concat(name, '--', id) as text from repos where id like 'github%'",
         "refresh": 1,
         "regex": "/^(?<text>.*)--(?<value>.*)$/",
         "skipUrlSync": false,
@@ -1999,5 +1999,5 @@
   "timezone": "",
   "title": "GitHub",
   "uid": "KXWvOFQnz",
-  "version": 4
+  "version": 2
 }

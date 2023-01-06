@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 25,
+  "id": 13,
   "links": [],
   "panels": [
     {
@@ -123,7 +123,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/qNo8_0M4z/dora?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/dora.svg\" alt=\"dora\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>DORA</b></p>\n    </div>\n</a>",
+        "content": "<a style= 'text-decoration:none' href=\"/grafana/d/qNo8_0M4z/dora?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/dora.svg\" alt=\"dora\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>DORA</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -174,7 +174,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/ZF6abXX7z/engineering-overview?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/engineering-overview.svg\" alt=\"engineering-overview\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Engineering Overview</b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/ZF6abXX7z/engineering-overview?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/engineering-overview.svg\" alt=\"engineering-overview\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>Engineering Overview</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -225,7 +225,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/Jaaimc67k/engineering-throughput-and-cycle-time?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/engineering-throughput.svg\" alt=\"engineering-throughput\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Engineering Throughput and Cycle Time</b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/Jaaimc67k/engineering-throughput-and-cycle-time?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/engineering-throughput.svg\" alt=\"engineering-throughput\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>Engineering Throughput and Cycle Time</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -276,7 +276,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/nJ1ijje7k/engineering-throughput-and-cycle-time-team-view?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/engineering-throughput-team-view.svg\" alt=\"engineering-throughput-team-view\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin-top:20px; color:#666666\"><b>Engineering Throughput and Cycle Time - Team View</b></p>\n        <p style=\"text-align:center;font-size:14px;color:#AAAAAA\">(Required Team Configuration)</p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/nJ1ijje7k/engineering-throughput-and-cycle-time-team-view?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/engineering-throughput-team-view.svg\" alt=\"engineering-throughput-team-view\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin-top:20px;\"><b>Engineering Throughput and Cycle Time - Team View</b></p>\n        <p style=\"text-align:center;font-size:14px;color:#AAAAAA\">(Team Configuration Required)</p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -327,7 +327,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/L4dp9mn4z/gitextractor-metrics-dashboard?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/component-and-file-level-metrics.svg\" alt=\"component-and-file-level-metrics\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Component and File-level Metrics</b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/KxUh7IG4z/component-and-file-level-metrics?orgId=1\">\n    <div style=\"vertical-align:center;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/component-and-file-level-metrics.svg\" alt=\"component-and-file-level-metrics\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>Component and File-level Metrics</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -392,7 +392,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/VTr6Y_q7z/weekly-community-retro?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/weekly-community-retro.svg\" alt=\"weekly-community-retro\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Weekly Community Retro</b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/VTr6Y_q7z/weekly-community-retro?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/weekly-community-retro.svg\" alt=\"weekly-community-retro\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>Weekly Community Retro</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -443,7 +443,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/bwsP5Nz4z/community-experience?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/contributor-experience.svg\" alt=\"contributor-experience\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Contributor Experience</b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/bwsP5Nz4z/contributor-experience?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/contributor-experience.svg\" alt=\"contributor-experience\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>Contributor Experience</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -494,7 +494,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/2xuOaQUnk4/github_release_quality_and_contribution_analysis?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/github-release-quality-and-contribution-analysis.svg\" alt=\"github-release-quality-and-contribution-analysis\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>GitHub Release Quality and Contribution Analysis</b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/2xuOaQUnk4/github_release_quality_and_contribution_analysis?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/github-release-quality-and-contribution-analysis.svg\" alt=\"github-release-quality-and-contribution-analysis\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>GitHub Release Quality and Contribution Analysis</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -559,7 +559,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/-5EKA5w7k/weekly-bug-retro?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/weekly-bug-retro.svg\" alt=\"weekly-bug-retro\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Weekly Bug Retro</b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/-5EKA5w7k/weekly-bug-retro?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/weekly-bug-retro.svg\" alt=\"weekly-bug-retro\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>Weekly Bug Retro</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -624,7 +624,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/F5vqBQl7z/jira?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/jira.svg\" alt=\"jira\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Jira</b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/F5vqBQl7z/jira?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/jira.svg\" alt=\"jira\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>Jira</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -675,7 +675,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/KXWvOFQnz/github?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/github.svg\" alt=\"github\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>GitHub</b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/KXWvOFQnz/github?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/github.svg\" alt=\"github\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>GitHub</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -726,7 +726,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/msSjEq97z/gitlab?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/gitlab.svg\" alt=\"gitlab\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>GitLab</b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/msSjEq97z/gitlab?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/gitlab.svg\" alt=\"gitlab\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>GitLab</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -777,7 +777,109 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/W8AiDFQnk/jenkins?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/jenkins.svg\" alt=\"jenkins\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px; color:#666666\"><b>Jenkins</b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/W8AiDFQnk/jenkins?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/jenkins.svg\" alt=\"jenkins\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>Jenkins</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 36
+      },
+      "id": 33,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/hi-907hVk/tapd?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/tapd.svg\" alt=\"tapd\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>TAPD</b></p>\n    </div>\n</a>",
+        "mode": "html"
+      },
+      "pluginVersion": "8.0.6",
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  create_time AS \"time\",\n  progress\nFROM ca_analysis\nWHERE\n  $__timeFilter(create_time)\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "progress"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "ca_analysis",
+          "timeColumn": "create_time",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "type": "text"
+    },
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 36
+      },
+      "id": 34,
+      "interval": null,
+      "links": [],
+      "options": {
+        "content": "<a href=\"/grafana/d/0tyOx7h4z/zentao?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/zentao.png\" alt=\"zentao\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>Zentao</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -831,5 +933,5 @@
   "timezone": "",
   "title": "Homepage",
   "uid": "lCO8w-pVk",
-  "version": 46
+  "version": 17
 }

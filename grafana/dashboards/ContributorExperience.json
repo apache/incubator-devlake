@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 18,
-  "iteration": 1660820599845,
+  "id": 11,
+  "iteration": 1672981230078,
   "links": [],
   "panels": [
     {
@@ -825,7 +825,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Community Experience",
+  "title": "Contributor Experience",
   "uid": "bwsP5Nz4z",
-  "version": 3
+  "version": 2
 }
