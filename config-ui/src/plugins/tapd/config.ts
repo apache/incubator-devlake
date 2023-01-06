@@ -65,6 +65,7 @@ export const TAPDConfig: PluginConfigType = {
         label: 'Proxy URL',
         type: 'text',
         placeholder: 'eg. http://proxy.localhost:8080',
+        tooltip: 'Add a proxy if your network can not access TAPD directly.',
       },
       {
         key: 'rateLimitPerHour',

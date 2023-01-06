@@ -39,7 +39,7 @@ interface Props {
 }
 
 export const GitHubToken = ({ form, value, onChange }: Props) => {
-  const [tokens, setTokens] = useState<TokenItem[]>([]);
+  const [tokens, setTokens] = useState<TokenItem[]>([{ value: '', status: 'idle' }]);
 
   const testToken = async (token: string): Promise<TokenItem> => {
     try {

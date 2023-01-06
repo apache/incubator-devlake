@@ -25,8 +25,4 @@ export const Wrapper = styled.div`
   & > .bp4-numeric-input {
     margin-right: 8px;
   }
-
-  & > .bp4-switch {
-    margin: 0;
-  }
 `;

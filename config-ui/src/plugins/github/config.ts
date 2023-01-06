@@ -58,6 +58,7 @@ export const GitHubConfig: PluginConfigType = {
         label: 'Proxy URL',
         type: 'text',
         placeholder: 'eg. http://proxy.localhost:8080',
+        tooltip: 'Add a proxy if your network can not access GitHub directly.',
       },
       {
         key: 'enableGraphql',
