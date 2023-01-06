@@ -16,8 +16,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 12,
-  "iteration": 1665554394618,
+  "id": 9,
+  "iteration": 1672982007817,
   "links": [],
   "panels": [
     {
@@ -1059,7 +1059,7 @@
     ]
   },
   "timezone": "",
-  "title": "Gitextractor Metrics",
+  "title": "Component and File-level Metrics",
   "uid": "KxUh7IG4z",
-  "version": 16
+  "version": 3
 }
