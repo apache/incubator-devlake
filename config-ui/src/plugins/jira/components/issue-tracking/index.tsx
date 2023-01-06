@@ -147,30 +147,9 @@ export const IssueTracking = ({ connectionId, transformation, setTransformation 
         />
       </S.Item>
       <S.Item>
-        <span>Epic Link</span>
-        <Selector
-          items={fields}
-          disabledItems={
-            transformation.storyPoint ? fields.filter((it) => it.id === transformation.storyPointField) : []
-          }
-          getKey={(it) => it.id}
-          getName={(it) => it.name}
-          selectedItem={fields.find((it) => it.id === transformation.epicKeyField)}
-          onChangeItem={(selectedItem) =>
-            setTransformation({
-              ...transformation,
-              epicKeyField: selectedItem.id,
-            })
-          }
-        />
-      </S.Item>
-      <S.Item>
         <span>Story Point</span>
         <Selector
           items={fields}
-          disabledItems={
-            transformation.epicKeyField ? fields.filter((it) => it.id === transformation.epicKeyField) : []
-          }
           getKey={(it) => it.id}
           getName={(it) => it.name}
           selectedItem={fields.find((it) => it.id === transformation.storyPointField)}

@@ -77,7 +77,6 @@ export const JIRAConfig: PluginConfigType = {
   },
   entities: ['TICKET', 'CROSS'],
   transformation: {
-    epicKeyField: '',
     storyPointField: '',
     remotelinkCommitShaPattern: '',
     typeMappings: {},
