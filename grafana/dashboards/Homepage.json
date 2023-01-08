@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 13,
+  "id": 14,
   "links": [],
   "panels": [
     {
@@ -879,7 +879,7 @@
       "interval": null,
       "links": [],
       "options": {
-        "content": "<a href=\"/grafana/d/0tyOx7h4z/zentao?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/zentao.png\" alt=\"zentao\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>Zentao</b></p>\n    </div>\n</a>",
+        "content": "<a href=\"/grafana/d/yMb4MKh4k/zentao?orgId=1\">\n    <div style=\"vertical-align:middle;text-align:center;margin:15px;\">\n        <img border=\"0\" src=\"/grafana/public/img/lake/zentao.png\" alt=\"zentao\" width=\"60\">\n        <p style=\"text-align:center;font-size:18px;margin:20px;\"><b>Zentao</b></p>\n    </div>\n</a>",
         "mode": "html"
       },
       "pluginVersion": "8.0.6",
@@ -933,5 +933,5 @@
   "timezone": "",
   "title": "Homepage",
   "uid": "lCO8w-pVk",
-  "version": 17
+  "version": 3
 }
