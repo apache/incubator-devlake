@@ -23,7 +23,7 @@ import { Popover2 } from '@blueprintjs/popover2';
 import { getCron, getCronOptions } from '@/config';
 import CronHelp from '@/images/cron-help.png';
 
-import StartFromSelector from './StartFromSelector';
+import StartFromSelector from './start-from-selector';
 import * as S from './styled';
 
 interface Props {
