@@ -17,3 +17,4 @@
  */
 
 export * from './advanced-editor';
+export * from './sync-policy';

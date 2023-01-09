@@ -18,11 +18,11 @@
 
 import React from 'react';
 
-import { SyncPolicy } from '@/plugins';
 import { Card, Divider } from '@/components';
 
 import { ModeEnum } from '../../types';
 import { useCreateBP } from '../bp-context';
+import { SyncPolicy } from '../../components';
 
 export const StepFour = () => {
   const {
