@@ -17,7 +17,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Icon, Button, Colors, Intent } from '@blueprintjs/core';
+import { Icon, Button, Switch, Colors, Intent } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import { Table, ColumnType } from '@/components';
@@ -87,6 +87,8 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
     await onUpdate(policy);
     handleCancel();
   };
+
+  const handleToggleEnabled = (checked: boolean) => onUpdate({ enable: checked });
 
   const handleUpdateConnection = (updated: any) =>
     onUpdate({
@@ -201,10 +203,18 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
           <h3>Sync Policy</h3>
           <div className="detail">
             <span>
-              {cron.label}
-              {cron.value !== 'manual' ? dayjs(cron.nextTime).format('HH:mm A') : null}
+              {cron.label} {cron.value !== 'manual' ? dayjs(cron.nextTime).format('HH:mm A') : null}
             </span>
             <Icon icon="annotation" color={Colors.BLUE2} onClick={() => setType('frequency')} />
+          </div>
+        </div>
+        <div className="block">
+          <h3>Enabled</h3>
+          <div className="detail">
+            <Switch
+              checked={blueprint.enable}
+              onChange={(e) => handleToggleEnabled((e.target as HTMLInputElement).checked)}
+            />
           </div>
         </div>
       </div>

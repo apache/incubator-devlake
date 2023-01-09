@@ -85,16 +85,6 @@ export const useDetail = ({ id }: UseDetailProps) => {
     }
   };
 
-  const handleDelete = async () => {
-    const [success] = await operator(() => API.deleteBluprint(id), {
-      setOperating,
-    });
-
-    if (success) {
-      getBlueprint();
-    }
-  };
-
   return useMemo(
     () => ({
       loading,
@@ -103,7 +93,6 @@ export const useDetail = ({ id }: UseDetailProps) => {
       pipelineId,
       onRun: handleRun,
       onUpdate: handleUpdate,
-      onDelete: handleDelete,
       onRefresh: getBlueprint,
     }),
     [loading, operating, blueprint, pipelineId],
