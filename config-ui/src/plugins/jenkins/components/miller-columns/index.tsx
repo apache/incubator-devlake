@@ -40,12 +40,6 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
     connectionId,
   });
 
-  const getJobFullName = (item: any): string => {
-    if (!item.parentId) return item.title;
-    const parentItem = items.find((it) => it.id === item.parentId);
-    return `${getJobFullName(parentItem)}/${item.title}`;
-  };
-
   useEffect(() => {
     setDisabledIds((disabledItems ?? []).map((it) => it.jobFullName));
   }, [disabledItems]);
@@ -59,8 +53,8 @@ export const MillerColumns = ({ connectionId, disabledItems, selectedItems, onCh
       .filter((it) => selectedIds.includes(it.id) && it.type !== 'folder')
       .map((it: any) => ({
         connectionId,
-        jobFullName: getJobFullName(it),
-        name: getJobFullName(it),
+        jobFullName: it.id,
+        name: it.id,
       }));
 
     onChangeItems?.(result);

@@ -42,7 +42,7 @@ export const getGroupSubgroups = (prefix: string, gid: ID, params: PaginationPar
 
 export const getGroupProjects = (prefix: string, gid: ID, params: PaginationParams) =>
   request(`${prefix}/groups/${gid}/projects`, {
-    data: params,
+    data: { with_shared: false, ...params },
   });
 
 type SearchProjectParams = {
