@@ -63,6 +63,7 @@ func main() {
 	cmd := &cobra.Command{Use: "StarRocks"}
 	sourceType := cmd.Flags().StringP("source_type", "st", "", "Source type")
 	sourceDsn := cmd.Flags().StringP("source_dsn", "sd", "", "Source dsn")
+	updateColumn := cmd.Flags().StringP("update_column", "uc", "", "Update column")
 	_ = cmd.MarkFlagRequired("host")
 	host := cmd.Flags().StringP("host", "h", "", "StarRocks host")
 	_ = cmd.MarkFlagRequired("port")
@@ -85,19 +86,20 @@ func main() {
 	orderBy := cmd.Flags().StringP("order_by", "o", "", "Source tables order by, default is primary key")
 	cmd.Run = func(cmd *cobra.Command, args []string) {
 		runner.DirectRun(cmd, args, PluginEntry, map[string]interface{}{
-			"source_type": sourceType,
-			"source_dsn":  sourceDsn,
-			"host":        host,
-			"port":        port,
-			"user":        user,
-			"password":    password,
-			"database":    database,
-			"be_host":     beHost,
-			"be_port":     bePort,
-			"tables":      tables,
-			"batch_size":  batchSize,
-			"extra":       extra,
-			"order_by":    orderBy,
+			"source_type":   sourceType,
+			"source_dsn":    sourceDsn,
+			"update_column": updateColumn,
+			"host":          host,
+			"port":          port,
+			"user":          user,
+			"password":      password,
+			"database":      database,
+			"be_host":       beHost,
+			"be_port":       bePort,
+			"tables":        tables,
+			"batch_size":    batchSize,
+			"extra":         extra,
+			"order_by":      orderBy,
 		})
 	}
 	runner.RunCmd(cmd)
