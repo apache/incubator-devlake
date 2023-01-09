@@ -153,16 +153,23 @@ func computePipelineStatus(pipeline *models.DbPipeline) (string, errors.Error) {
 	if err != nil {
 		return "", err
 	}
-	succeeded, failed := 0, 0
+
+	succeeded, failed, pending, running := 0, 0, 0, 0
 
 	for _, task := range tasks {
 		if task.Status == models.TASK_COMPLETED {
 			succeeded += 1
 		} else if task.Status == models.TASK_FAILED || task.Status == models.TASK_CANCELLED {
 			failed += 1
+		} else if task.Status == models.TASK_RUNNING {
+			running += 1
 		} else {
-			return "", errors.Default.New("unexpected status, did you call computePipelineStatus at a wrong timing?")
+			pending += 1
 		}
+	}
+
+	if running > 0 || (pipeline.SkipOnFail && pending > 0) {
+		return "", errors.Default.New("unexpected status, did you call computePipelineStatus at a wrong timing?")
 	}
 
 	if failed == 0 {

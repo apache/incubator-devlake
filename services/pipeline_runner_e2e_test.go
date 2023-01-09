@@ -70,7 +70,7 @@ func TestComputePipelineStatus(t *testing.T) {
 		PipelineRow: 1,
 		PipelineCol: 2,
 		Plugin:      "gitext",
-		Status:      models.TASK_COMPLETED,
+		Status:      models.TASK_FAILED,
 	}
 	err = db.Create(task_row1_col2)
 	assert.Nil(t, err)
@@ -81,14 +81,27 @@ func TestComputePipelineStatus(t *testing.T) {
 		PipelineRow: 2,
 		PipelineCol: 1,
 		Plugin:      "refdiff",
-		Status:      models.TASK_COMPLETED,
+		Status:      models.TASK_CREATED,
 	}
 	err = db.Create(task_row2_col1)
 	assert.Nil(t, err)
 	assert.NotZero(t, task_row2_col1.ID)
 
-	// pipeline.status == "completed" if all latest tasks were succeeded
+	// pipeline.status == "failed" if SkipOnFailed=false and any tasks failed
 	status, err := computePipelineStatus(pipeline)
+	if !assert.Nil(t, err) {
+		println(err.Messages().Format())
+	}
+	assert.Equal(t, models.TASK_FAILED, status)
+
+	// pipeline.status == "completed" if all latest tasks were succeeded
+	task_row1_col2.Status = models.TASK_COMPLETED
+	err = db.Update(task_row1_col2)
+	assert.Nil(t, err)
+	task_row2_col1.Status = models.TASK_COMPLETED
+	err = db.Update(task_row2_col1)
+	assert.Nil(t, err)
+	status, err = computePipelineStatus(pipeline)
 	if !assert.Nil(t, err) {
 		println(err.Messages().Format())
 	}
