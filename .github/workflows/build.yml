@@ -17,9 +17,6 @@
 
 name: Build-Images-Push-Docker
 env:
-  IMAGE_LAKE: ${{ secrets.DOCKERHUB_OWNER }}/devlake
-  IMAGE_CONFIG_UI: ${{ secrets.DOCKERHUB_OWNER }}/devlake-config-ui
-  IMAGE_GRAFANA: ${{ secrets.DOCKERHUB_OWNER }}/devlake-dashboard
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USER }}
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 on:
@@ -27,79 +24,197 @@ on:
     tags:
       - 'v*'
 jobs:
-  build-lake:
-    name: Build and Push lake image
-    runs-on: ubuntu-20.04
+  build-and-push-builder:
+    name: Build and Push devlake builder
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Cache Build-Images-Push-Docker
-        id: cache-Build-Images-Push-Docker
-        uses: actions/cache@v3
+      - uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
         with:
-          path: Build-Images-Push-Docker
-          key: ${{ runner.os }}-Build-Images-Push-Docker
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+      - name: Build and push lake image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          target: builder
+          tags: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
+          platforms: linux/amd64
+          cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
+          cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
+  build-and-push-base:
+    name: Build and Push devlake base
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+      - name: Build and push lake image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          target: base
+          tags: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
+          platforms: linux/amd64,linux/arm64
+          cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
+          cache-to: ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
+  build-devlake:
+    needs: build-and-push-builder
+    name: Build and cache devlake
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: ['arm64', 'amd64']
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get short sha
+        id: get_short_sha
+        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+      - uses: actions/cache@v3
+        with:
+          path: /tmp/devlake-build-cache-${{ matrix.platform }}
+          key: buildx-devlake-build-cache-${{ github.run_id }}-${{ matrix.platform }}
+      - name: Build and cache lake build
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: false
+          target: build
+          tags: ${{ secrets.DOCKERHUB_OWNER }}/devlake:build-cache-${{ matrix.platform }}
+          platforms: linux/${{ matrix.platform }}
+          cache-from: ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
+          cache-to: type=local,mode=min,dest=/tmp/devlake-build-cache-${{ matrix.platform }}
+          build-args: |
+            TAG=${{ github.ref_name }}
+            SHA=${{ steps.get_short_sha.outputs.SHORT_SHA }}
+  build-and-push-devlake:
+    needs: [build-devlake, build-and-push-base]
+    name: Build and Push devlake image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get short sha
+        id: get_short_sha
+        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+      - uses: actions/cache@v3
+        with:
+          path: /tmp/devlake-build-cache-amd64
+          key: buildx-devlake-build-cache-${{ github.run_id }}-amd64
+      - uses: actions/cache@v3
+        with:
+          path: /tmp/devlake-build-cache-arm64
+          key: buildx-devlake-build-cache-${{ github.run_id }}-arm64
+      - name: Get push tags
+        id: get_push_tags
+        run: |
+            image_name=${{ secrets.DOCKERHUB_OWNER }}/devlake
+            if printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
+                echo "TAGS=${image_name}:latest,${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            else
+                echo "TAGS=${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            fi
+      - name: Build and push lake image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.get_push_tags.outputs.TAGS }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: |
+            ${{ secrets.DOCKERHUB_OWNER }}/devlake:amd64-builder
+            ${{ secrets.DOCKERHUB_OWNER }}/devlake:base
+            type=local,src=/tmp/devlake-build-cache-amd64
+            type=local,src=/tmp/devlake-build-cache-arm64
+          build-args: |
+            TAG=${{ github.ref_name }}
+            SHA=${{ steps.get_short_sha.outputs.SHORT_SHA }}
+      - name: Clear cache
+        uses: actions/github-script@v6
+        if: always()
+        with:
+          script: |
+            for (const arch of ['amd64', 'arm64']) {
+              try {
+                await github.rest.actions.deleteActionsCacheByKey({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  key: `buildx-devlake-build-cache-${context.runId}-${arch}`,
+                })
+                console.log(`Clear cache buildx-devlake-build-cache-${context.runId}-${arch}`)
+              } catch (e) {
+                console.warn(`Error clear cache buildx-devlake-build-cache-${context.runId}-${arch}: ${e}`)
+              }
+            }
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
-      - name: Build lake image
-        run: |
-          docker build --build-arg TAG=${{ github.ref_name }} --build-arg SHA=${{ github.sha }} -t ${{ env.IMAGE_LAKE }}:latest --file ./Dockerfile .
-          docker tag ${{ env.IMAGE_LAKE }}:latest ${{ env.IMAGE_LAKE }}:${{ github.ref_name }}
-          docker push ${{ env.IMAGE_LAKE }}:${{ github.ref_name }}
-          if printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
-            echo "push latest tag"
-            docker push ${{ env.IMAGE_LAKE }}:latest
-          fi
-  build-configui:
-    name: Build and Push config-ui image
-    runs-on: ubuntu-20.04
+  build-and-push-other-image:
+    name: Build and Push ${{ matrix.build.name }} image
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build:
+          - name: config-ui
+            image: devlake-config-ui
+            context: config-ui
+          - name: grafana
+            image: devlake-dashboard
+            context: grafana
     steps:
-      - uses: actions/checkout@v2
-      - name: Cache config-ui
-        id: cache-config-ui
-        uses: actions/cache@v3
-        with:
-          path: config-ui
-          key: ${{ runner.os }}-config-ui
+      - uses: actions/checkout@v3
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ env.DOCKERHUB_TOKEN }}
-      - name: Build config ui image
+      - name: Get push tags
+        id: get_push_tags
         run: |
-          cd config-ui
-          docker build -t ${{ env.IMAGE_CONFIG_UI }}:latest --file ./Dockerfile .
-          docker tag ${{ env.IMAGE_CONFIG_UI }}:latest ${{ env.IMAGE_CONFIG_UI }}:${{ github.ref_name }}
-          docker push ${{ env.IMAGE_CONFIG_UI }}:${{ github.ref_name }}
-          if printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
-            docker push ${{ env.IMAGE_CONFIG_UI }}:latest
-          fi
-  build-grafana:
-    name: Build and Push grafana image
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: Cache grafana
-        id: cache-grafana
-        uses: actions/cache@v3
+            image_name=${{ secrets.DOCKERHUB_OWNER }}/${{ matrix.build.image }}
+            if printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
+                echo "TAGS=${image_name}:latest,${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            else
+                echo "TAGS=${image_name}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            fi
+      - name: Build and push ${{ matrix.build.name }} image
+        uses: docker/build-push-action@v3
         with:
-          path: grafana
-          key: ${{ runner.os }}-grafana
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
-      - name: Build grafana
-        run: |
-          cd grafana
-          docker build -t ${{ env.IMAGE_GRAFANA }}:latest --file ./Dockerfile .
-          docker tag ${{ env.IMAGE_GRAFANA }}:latest ${{ env.IMAGE_GRAFANA }}:${{ github.ref_name }}
-          docker push ${{ env.IMAGE_GRAFANA }}:${{ github.ref_name }}
-          if printf ${{ github.ref_name }} | grep -Pq '^v(\d+).(\d+).(\d+)$'; then
-            docker push ${{ env.IMAGE_GRAFANA }}:latest
-          fi
+          context: ${{ matrix.build.context }}
+          push: true
+          tags: ${{ steps.get_push_tags.outputs.TAGS }}
+          platforms: linux/amd64,linux/arm64
+
