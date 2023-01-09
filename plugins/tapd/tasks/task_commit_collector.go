@@ -65,9 +65,7 @@ func CollectTaskCommits(taskCtx core.SubTaskContext) errors.Error {
 	}
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		ApiClient:   data.ApiClient,
-		PageSize:    100,
 		Incremental: incremental,
-		//PageSize:    100,
 		Input:       iterator,
 		UrlTemplate: "code_commit_infos",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {

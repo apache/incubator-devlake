@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 28,
-  "iteration": 1671764780962,
+  "id": 4,
+  "iteration": 1673270412454,
   "links": [],
   "panels": [
     {
@@ -987,7 +987,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.url,\n    pr.author_id,\n    min(c.authored_date) as first_commit_authored_date,\n    pr.created_date as pr_issued_date,\n    min(prc.created_date) as first_comment_date,\n    max(prc.created_date) as last_comment_date,\n    pr.merged_date as pr_merged_date\n  FROM pull_requests pr\n    left join pull_request_comments prc on pr.id = prc.pull_request_id\n    left join pull_request_commits prc2 on pr.id = prc2.pull_request_id\n    left join commits c on prc2.commit_sha = c.sha\n    join project_mapping pm on pr.base_repo_id = pm.row_id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in ($project)\n  GROUP BY 1,2,3,5,8\n),\n\n_deduped_prs as(\n  SELECT distinct \n    id,\n    url,\n    first_commit_authored_date,\n    pr_issued_date,\n    first_comment_date,\n    last_comment_date,\n    pr_merged_date\n  FROM _prs\n  WHERE\n    -- remove edge data and make data scope for all cycle time metrics consistent\n    (first_commit_authored_date is null or first_commit_authored_date < pr_issued_date)\n    and (first_comment_date is null or pr_issued_date < first_comment_date)\n    and (last_comment_date is null or first_comment_date < last_comment_date)\n    and (pr_merged_date is null or first_comment_date < pr_merged_date)\n),\n\n_coding_pickup_review_time as(\n  SELECT \n    id,\n    url,\n    pr_issued_date,\n    case when first_commit_authored_date is null then 0 else TIMESTAMPDIFF(Minute,first_commit_authored_date,pr_issued_date)/60 end as coding_time,\n    case when first_comment_date is null then 0 else TIMESTAMPDIFF(Minute,pr_issued_date,first_comment_date)/60 end as pickup_time,\n    case when $review_end_date is null then 0 else TIMESTAMPDIFF(Minute,first_comment_date,$review_end_date)/60 end as review_time\n  FROM _deduped_prs\n),\n\n_cycle_time as(\n  SELECT \n    *, \n    case when coding_time is null and pickup_time is null and review_time is null then null else coalesce(coding_time,0) + coalesce(pickup_time,0) + coalesce(review_time,0) end as cycle_time \n  FROM _coding_pickup_review_time\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(cycle_time) as 'Cycle Time(h)'\nFROM _cycle_time\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n\t\tprm.pr_cycle_time/60 as cycle_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in ($project)\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -DAYOFMONTH(date(pr_issued_date))+1 DAY) as time,\n  avg(cycle_time) as 'Cycle Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1091,7 +1091,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.url,\n    pr.author_id,\n    min(c.authored_date) as first_commit_authored_date,\n    pr.created_date as pr_issued_date,\n    min(prc.created_date) as first_comment_date,\n    max(prc.created_date) as last_comment_date,\n    pr.merged_date as pr_merged_date\n  FROM pull_requests pr\n    left join pull_request_comments prc on pr.id = prc.pull_request_id\n    left join pull_request_commits prc2 on pr.id = prc2.pull_request_id\n    left join commits c on prc2.commit_sha = c.sha\n    join project_mapping pm on pr.base_repo_id = pm.row_id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in ($project)\n  GROUP BY 1,2,3,5,8\n),\n\n_deduped_prs as(\n  SELECT distinct \n    id,\n    url,\n    first_commit_authored_date,\n    pr_issued_date,\n    first_comment_date,\n    last_comment_date,\n    pr_merged_date\n  FROM _prs\n  WHERE\n    -- remove edge data and make data scope for all cycle time metrics consistent\n    (first_commit_authored_date is null or first_commit_authored_date < pr_issued_date)\n    and (first_comment_date is null or pr_issued_date < first_comment_date)\n    and (last_comment_date is null or first_comment_date < last_comment_date)\n    and (pr_merged_date is null or first_comment_date < pr_merged_date)\n),\n\n_coding_pickup_review_time as(\n  SELECT \n    id,\n    url,\n    pr_issued_date,\n    case when first_commit_authored_date is null then 0 else TIMESTAMPDIFF(Minute,first_commit_authored_date,pr_issued_date)/60 end as coding_time,\n    case when first_comment_date is null then 0 else TIMESTAMPDIFF(Minute,pr_issued_date,first_comment_date)/60 end as pickup_time,\n    case when $review_end_date is null then 0 else TIMESTAMPDIFF(Minute,first_comment_date,$review_end_date)/60 end as review_time\n  FROM _deduped_prs\n),\n\n_cycle_time as(\n  SELECT \n    *, \n    case when coding_time is null and pickup_time is null and review_time is null then null else coalesce(coding_time,0) + coalesce(pickup_time,0) + coalesce(review_time,0) end as cycle_time \n  FROM _coding_pickup_review_time\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(coding_time) as 'Coding Time(h)'\nFROM _cycle_time\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n\t\tprm.pr_coding_time/60 as coding_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in ($project)\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(coding_time) as 'Coding Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1226,7 +1226,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.url,\n    pr.author_id,\n    min(c.authored_date) as first_commit_authored_date,\n    pr.created_date as pr_issued_date,\n    min(prc.created_date) as first_comment_date,\n    max(prc.created_date) as last_comment_date,\n    pr.merged_date as pr_merged_date\n  FROM pull_requests pr\n    left join pull_request_comments prc on pr.id = prc.pull_request_id\n    left join pull_request_commits prc2 on pr.id = prc2.pull_request_id\n    left join commits c on prc2.commit_sha = c.sha\n    join project_mapping pm on pr.base_repo_id = pm.row_id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in ($project)\n  GROUP BY 1,2,3,5,8\n),\n\n_deduped_prs as(\n  SELECT distinct \n    id,\n    url,\n    first_commit_authored_date,\n    pr_issued_date,\n    first_comment_date,\n    last_comment_date,\n    pr_merged_date\n  FROM _prs\n  WHERE\n    -- remove edge data and make data scope for all cycle time metrics consistent\n    (first_commit_authored_date is null or first_commit_authored_date < pr_issued_date)\n    and (first_comment_date is null or pr_issued_date < first_comment_date)\n    and (last_comment_date is null or first_comment_date < last_comment_date)\n    and (pr_merged_date is null or first_comment_date < pr_merged_date)\n),\n\n_coding_pickup_review_time as(\n  SELECT \n    id,\n    url,\n    pr_issued_date,\n    case when first_commit_authored_date is null then 0 else TIMESTAMPDIFF(Minute,first_commit_authored_date,pr_issued_date)/60 end as coding_time,\n    case when first_comment_date is null then 0 else TIMESTAMPDIFF(Minute,pr_issued_date,first_comment_date)/60 end as pickup_time,\n    case when $review_end_date is null then 0 else TIMESTAMPDIFF(Minute,first_comment_date,$review_end_date)/60 end as review_time\n  FROM _deduped_prs\n),\n\n_cycle_time as(\n  SELECT \n    *, \n    case when coding_time is null and pickup_time is null and review_time is null then null else coalesce(coding_time,0) + coalesce(pickup_time,0) + coalesce(review_time,0) end as cycle_time \n  FROM _coding_pickup_review_time\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(pickup_time) as 'Pickup Time(h)'\nFROM _cycle_time\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n\t\tprm.pr_pickup_time/60 as pickup_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in ($project)\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(pickup_time) as 'Pickup Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1361,7 +1361,7 @@
           "hide": false,
           "metricColumn": "none",
           "rawQuery": true,
-          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.url,\n    pr.author_id,\n    min(c.authored_date) as first_commit_authored_date,\n    pr.created_date as pr_issued_date,\n    min(prc.created_date) as first_comment_date,\n    max(prc.created_date) as last_comment_date,\n    pr.merged_date as pr_merged_date\n  FROM pull_requests pr\n    left join pull_request_comments prc on pr.id = prc.pull_request_id\n    left join pull_request_commits prc2 on pr.id = prc2.pull_request_id\n    left join commits c on prc2.commit_sha = c.sha\n    join project_mapping pm on pr.base_repo_id = pm.row_id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in ($project)\n  GROUP BY 1,2,3,5,8\n),\n\n_deduped_prs as(\n  SELECT distinct \n    id,\n    url,\n    first_commit_authored_date,\n    pr_issued_date,\n    first_comment_date,\n    last_comment_date,\n    pr_merged_date\n  FROM _prs\n  WHERE\n    -- remove edge data and make data scope for all cycle time metrics consistent\n    (first_commit_authored_date is null or first_commit_authored_date < pr_issued_date)\n    and (first_comment_date is null or pr_issued_date < first_comment_date)\n    and (last_comment_date is null or first_comment_date < last_comment_date)\n    and (pr_merged_date is null or first_comment_date < pr_merged_date)\n),\n\n_coding_pickup_review_time as(\n  SELECT \n    id,\n    url,\n    pr_issued_date,\n    case when first_commit_authored_date is null then 0 else TIMESTAMPDIFF(Minute,first_commit_authored_date,pr_issued_date)/60 end as coding_time,\n    case when first_comment_date is null then 0 else TIMESTAMPDIFF(Minute,pr_issued_date,first_comment_date)/60 end as pickup_time,\n    case when $review_end_date is null then 0 else TIMESTAMPDIFF(Minute,first_comment_date,$review_end_date)/60 end as review_time\n  FROM _deduped_prs\n),\n\n_cycle_time as(\n  SELECT \n    *, \n    case when coding_time is null and pickup_time is null and review_time is null then null else coalesce(coding_time,0) + coalesce(pickup_time,0) + coalesce(review_time,0) end as cycle_time \n  FROM _coding_pickup_review_time\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(review_time) as 'Review Time(h)'\nFROM _cycle_time\nGROUP BY 1\nORDER BY 1",
+          "rawSql": "with _prs as(\n  SELECT\n    pr.id,\n    pr.created_date as pr_issued_date,\n\t\tprm.pr_review_time/60 as review_time\n  FROM pull_requests pr\n    left join project_pr_metrics prm on pr.id = prm.id\n    join project_mapping pm on pr.base_repo_id = pm.row_id\n  WHERE\n    $__timeFilter(pr.created_date)\n    and pm.project_name in ($project)\n  GROUP BY 1,2,3\n)\n\nSELECT \n  DATE_ADD(date(pr_issued_date), INTERVAL -$interval(date(pr_issued_date))+1 DAY) as time,\n  avg(review_time) as 'Review Time(h)'\nFROM _prs\nGROUP BY 1\nORDER BY 1",
           "refId": "A",
           "select": [
             [
@@ -1421,8 +1421,12 @@
         "allValue": null,
         "current": {
           "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "text": [
+            "Louis"
+          ],
+          "value": [
+            "Louis"
+          ]
         },
         "datasource": "mysql",
         "definition": "select distinct project_name from project_mapping",
@@ -1444,7 +1448,7 @@
       {
         "allValue": "",
         "current": {
-          "selected": true,
+          "selected": false,
           "text": [
             "All"
           ],
@@ -1472,7 +1476,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "Month",
           "value": "DAYOFMONTH"
         },
@@ -1503,7 +1507,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "Last Comment Date",
           "value": "last_comment_date"
         },
@@ -1541,5 +1545,5 @@
   "timezone": "",
   "title": "Engineering Throughput and Cycle Time",
   "uid": "Jaaimc67k",
-  "version": 6
+  "version": 2
 }
