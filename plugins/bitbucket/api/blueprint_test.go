@@ -19,6 +19,8 @@ package api
 
 import (
 	"github.com/apache/incubator-devlake/mocks"
+	"github.com/apache/incubator-devlake/plugins/bitbucket/models"
+	"github.com/apache/incubator-devlake/plugins/helper"
 	"testing"
 
 	"github.com/apache/incubator-devlake/errors"
@@ -28,8 +30,13 @@ import (
 
 func TestMakePipelinePlan(t *testing.T) {
 	var mockGetter repoGetter
-	mockGetter = func(connectionId uint64, owner, repo string) (string, string, errors.Error) {
-		return "https://thenicetgp@bitbucket.org/thenicetgp/lake.git", "secret", nil
+	mockGetter = func(connectionId uint64, owner, repo string) (string, *models.BitbucketConnection, errors.Error) {
+		return "https://user:pass@bitbucket.org/thenicetgp/lake.git", &models.BitbucketConnection{
+			BasicAuth: helper.BasicAuth{
+				Username: "user",
+				Password: "pass",
+			},
+		}, nil
 	}
 	scope := &core.BlueprintScopeV100{
 		Entities: []string{core.DOMAIN_TYPE_CODE, core.DOMAIN_TYPE_TICKET, core.DOMAIN_TYPE_CODE_REVIEW, core.DOMAIN_TYPE_CROSS},
@@ -48,7 +55,7 @@ func TestMakePipelinePlan(t *testing.T) {
 	for _, stage := range plan {
 		for _, task := range stage {
 			if task.Plugin == "gitextractor" {
-				assert.Equal(t, task.Options["url"], "https://thenicetgp:secret@bitbucket.org/thenicetgp/lake.git")
+				assert.Equal(t, task.Options["url"], "https://user:pass@bitbucket.org/thenicetgp/lake.git")
 				return
 			}
 		}
