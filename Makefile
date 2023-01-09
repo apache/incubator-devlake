@@ -111,7 +111,7 @@ unit-test: mock build
 	set -e; for m in $$(go list ./... | egrep -v 'test|models|e2e'); do echo $$m; go test -timeout 60s -v $$m; done
 
 e2e-test: build
-	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -timeout 300s -v ./test/...
+	PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -timeout 300s -p 1 -v ./test/...
 
 e2e-plugins:
 	export ENV_PATH=$(shell readlink -f .env); set -e; for m in $$(go list ./plugins/... | egrep 'e2e'); do echo $$m; go test -timeout 300s -gcflags=all=-l -v $$m; done
