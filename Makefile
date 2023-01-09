@@ -54,7 +54,7 @@ build: build-plugin build-server
 all: build build-worker
 
 build-server-image:
-	docker build -t $(IMAGE_REPO)/devlake:$(TAG) --file ./Dockerfile .
+	docker build -t $(IMAGE_REPO)/devlake:$(TAG) --build-arg TAG=$(TAG) --build-arg SHA=$(SHA) --file ./Dockerfile .
 
 build-config-ui-image:
 	cd config-ui; docker build -t $(IMAGE_REPO)/devlake-config-ui:$(TAG) --file ./Dockerfile .

@@ -65,12 +65,12 @@ export const CodeReview = ({ transformation, setTransformation }: Props) => {
       <FormGroup
         inline
         label={
-          <span>
+          <S.Tips>
             PR Body Pattern
             <Popover2
               position={Position.TOP}
               content={
-                <S.Tips>
+                <S.TipsContent>
                   <p>
                     <Icon icon="tick-circle" size={10} color={Colors.GREEN4} style={{ marginRight: '4px' }} />
                     Example 1: PR #321 body contains "<strong>Closes #1234</strong>" (PR #321 and issue #1234 will be
@@ -81,12 +81,12 @@ export const CodeReview = ({ transformation, setTransformation }: Props) => {
                     Example 2: PR #321 body contains "<strong>Related to #1234</strong>" (PR #321 and issue #1234 will
                     NOT be mapped by the following RegEx)
                   </p>
-                </S.Tips>
+                </S.TipsContent>
               }
             >
               <Icon icon="help" size={12} color={Colors.GRAY3} style={{ marginLeft: '4px', marginBottom: '4px' }} />
             </Popover2>
-          </span>
+          </S.Tips>
         }
       >
         <TextArea

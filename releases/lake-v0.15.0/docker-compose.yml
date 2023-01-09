@@ -36,6 +36,7 @@ services:
       - grafana-storage:/var/lib/grafana
     environment:
       GF_SERVER_ROOT_URL: "http://localhost:4000/grafana"
+      GF_USERS_DEFAULT_THEME: "light"
       MYSQL_URL: mysql:3306
       MYSQL_DATABASE: lake
       MYSQL_USER: merico

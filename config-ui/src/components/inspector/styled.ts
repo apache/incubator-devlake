@@ -38,8 +38,12 @@ export const Container = styled.div`
     }
   }
 
+  p.description {
+    margin: 8px 0 16px;
+    font-size: 12px;
+  }
+
   .content {
-    margin-top: 16px;
     padding: 10px;
     max-height: 600;
     background-color: #ffff;
