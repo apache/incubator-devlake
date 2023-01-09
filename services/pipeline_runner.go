@@ -130,7 +130,7 @@ func runPipeline(pipelineId uint64) errors.Error {
 		dbPipeline.Message = err.Error()
 		dbPipeline.ErrorName = err.Messages().Format()
 	}
-	dbPipeline.Status, err = computePipelineStatus(dbPipeline)
+	dbPipeline.Status, err = ComputePipelineStatus(dbPipeline)
 	if err != nil {
 		globalPipelineLog.Error(err, "compute pipeline status failed")
 		return err
@@ -144,11 +144,11 @@ func runPipeline(pipelineId uint64) errors.Error {
 	return NotifyExternal(pipelineId)
 }
 
-// computePipelineStatus determines pipleline status by its latest(rerun included) tasks statuses
+// ComputePipelineStatus determines pipleline status by its latest(rerun included) tasks statuses
 // 1. TASK_COMPLETED: all tasks were executed sucessfully
 // 2. TASK_FAILED: SkipOnFail=false with failed task(s)
 // 3. TASK_PARTIAL: SkipOnFail=true with failed task(s)
-func computePipelineStatus(pipeline *models.DbPipeline) (string, errors.Error) {
+func ComputePipelineStatus(pipeline *models.DbPipeline) (string, errors.Error) {
 	tasks, err := GetLatestTasksOfPipeline(pipeline)
 	if err != nil {
 		return "", err

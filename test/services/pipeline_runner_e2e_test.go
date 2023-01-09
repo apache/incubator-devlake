@@ -24,8 +24,12 @@ import (
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/services"
 	"github.com/stretchr/testify/assert"
 )
+
+var basicRes core.BasicRes
+var migrator core.Migrator
 
 // init setup services module
 func init() {
@@ -38,7 +42,7 @@ func init() {
 	encKey := core.RandomEncKey()
 	cfg.Set(core.EncodeKeyEnvStr, encKey)
 
-	initMigrator()
+	basicRes, migrator = services.InitMigrator()
 	err := migrator.Execute()
 	if err != nil {
 		panic(err)
@@ -46,6 +50,7 @@ func init() {
 }
 
 func TestComputePipelineStatus(t *testing.T) {
+	db := basicRes.GetDal()
 	// insert fake tasks to datbase
 	pipeline := &models.DbPipeline{
 		TotalTasks: 3,
@@ -88,7 +93,7 @@ func TestComputePipelineStatus(t *testing.T) {
 	assert.NotZero(t, task_row2_col1.ID)
 
 	// pipeline.status == "failed" if SkipOnFailed=false and any tasks failed
-	status, err := computePipelineStatus(pipeline)
+	status, err := services.ComputePipelineStatus(pipeline)
 	if !assert.Nil(t, err) {
 		println(err.Messages().Format())
 	}
@@ -101,7 +106,7 @@ func TestComputePipelineStatus(t *testing.T) {
 	task_row2_col1.Status = models.TASK_COMPLETED
 	err = db.Update(task_row2_col1)
 	assert.Nil(t, err)
-	status, err = computePipelineStatus(pipeline)
+	status, err = services.ComputePipelineStatus(pipeline)
 	if !assert.Nil(t, err) {
 		println(err.Messages().Format())
 	}
@@ -110,7 +115,7 @@ func TestComputePipelineStatus(t *testing.T) {
 	pipeline.SkipOnFail = true
 	err = db.Update(pipeline)
 	assert.Nil(t, err)
-	status, err = computePipelineStatus(pipeline)
+	status, err = services.ComputePipelineStatus(pipeline)
 	assert.Nil(t, err)
 	assert.Equal(t, models.TASK_COMPLETED, status)
 
@@ -118,7 +123,7 @@ func TestComputePipelineStatus(t *testing.T) {
 	task_row1_col1.Status = models.TASK_FAILED
 	err = db.Update(task_row1_col1)
 	assert.Nil(t, err)
-	status, err = computePipelineStatus(pipeline)
+	status, err = services.ComputePipelineStatus(pipeline)
 	assert.Nil(t, err)
 	assert.Equal(t, models.TASK_PARTIAL, status)
 
@@ -132,7 +137,7 @@ func TestComputePipelineStatus(t *testing.T) {
 	task_row2_col1.Status = models.TASK_FAILED
 	err = db.Update(task_row2_col1)
 	assert.Nil(t, err)
-	status, err = computePipelineStatus(pipeline)
+	status, err = services.ComputePipelineStatus(pipeline)
 	assert.Nil(t, err)
 	assert.Equal(t, models.TASK_FAILED, status)
 
@@ -170,7 +175,7 @@ func TestComputePipelineStatus(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotZero(t, task_row2_col1.ID)
 
-	status, err = computePipelineStatus(pipeline)
+	status, err = services.ComputePipelineStatus(pipeline)
 	assert.Nil(t, err)
 	assert.Equal(t, models.TASK_COMPLETED, status)
 
@@ -178,7 +183,7 @@ func TestComputePipelineStatus(t *testing.T) {
 	task_row1_col1_rerun.Status = models.TASK_CANCELLED
 	err = db.Update(task_row1_col1_rerun)
 	assert.Nil(t, err)
-	status, err = computePipelineStatus(pipeline)
+	status, err = services.ComputePipelineStatus(pipeline)
 	assert.Nil(t, err)
 	assert.Equal(t, models.TASK_PARTIAL, status)
 }

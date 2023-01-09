@@ -45,7 +45,7 @@ var vld *validator.Validate
 
 const failToCreateCronJob = "created cron job failed"
 
-func initMigrator() {
+func InitMigrator() (core.BasicRes, core.Migrator) {
 	var err error
 
 	// basic resources initialization
@@ -62,11 +62,14 @@ func initMigrator() {
 	}
 	log.Info("migration initialized")
 	migrator.Register(migrationscripts.All(), "Framework")
+
+	return basicRes, migrator
+
 }
 
 // Init the services module
 func Init() {
-	initMigrator()
+	InitMigrator()
 
 	// lock the database to avoid multiple devlake instances from sharing the same one
 	lockDb()
