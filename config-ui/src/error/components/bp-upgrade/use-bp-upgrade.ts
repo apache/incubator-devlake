@@ -118,6 +118,13 @@ export const useBPUpgrade = ({ id, onResetError }: UseBPUpgradeProps) => {
   const upgradeConnection = async (connection: any) => {
     const { plugin, connectionId } = connection;
 
+    if (plugin == 'jenkins') {
+      return {
+        plugin,
+        connectionId,
+        scopes: [],
+      };
+    }
     const scope = await Promise.all((connection.scope ?? []).map((sc: any) => upgradeScope(plugin, connectionId, sc)));
 
     return {
