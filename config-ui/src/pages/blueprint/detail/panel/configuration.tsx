@@ -203,8 +203,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
           <h3>Sync Policy</h3>
           <div className="detail">
             <span>
-              {cron.label}
-              {cron.value !== 'manual' ? dayjs(cron.nextTime).format('HH:mm A') : null}
+              {cron.label} {cron.value !== 'manual' ? dayjs(cron.nextTime).format('HH:mm A') : null}
             </span>
             <Icon icon="annotation" color={Colors.BLUE2} onClick={() => setType('frequency')} />
           </div>
