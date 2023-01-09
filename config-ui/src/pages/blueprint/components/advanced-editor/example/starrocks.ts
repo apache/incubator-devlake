@@ -23,6 +23,7 @@ export default [
       options: {
         source_type: '', // mysql or postgres
         source_dsn: '', // gorm dsn
+        update_column: '', // update column
         host: '127.0.0.1',
         port: 9030,
         user: 'root',
