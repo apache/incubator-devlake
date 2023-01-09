@@ -18,10 +18,10 @@
 
 import React, { useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
-import dayjs from 'dayjs';
 
 import { getCron } from '@/config';
 import { PipelineInfo, PipelineHistorical } from '@/pages';
+import { formatTime } from '@/utils';
 
 import type { BlueprintType } from '../../types';
 
@@ -42,9 +42,7 @@ export const Status = ({ blueprint, pipelineId, operating, onRun }: Props) => {
   return (
     <S.StatusPanel>
       <div className="info">
-        <span>
-          {cron.label} {cron.value !== 'manual' ? dayjs(cron.nextTime).format('HH:mm A') : null}
-        </span>
+        <span>{cron.value === 'manual' ? 'Manual' : `Next Run: ${formatTime(cron.nextTime, 'YYYY-MM-DD HH:mm')}`}</span>
         <span>
           <Button
             disabled={!blueprint.enable}
