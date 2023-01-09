@@ -38,7 +38,7 @@ export const useMenu = () => {
     const suffix = '/d/lCO8w-pVk/homepage?orgId=1';
     const { protocol, hostname } = window.location;
 
-    return process.env.LOCAL ? `${protocol}//${hostname}:3002${suffix}` : `/grafana/${suffix}`;
+    return process.env.LOCAL ? `${protocol}//${hostname}:3002${suffix}` : `/grafana${suffix}`;
   };
 
   return useMemo(
