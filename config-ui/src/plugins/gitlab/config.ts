@@ -48,7 +48,7 @@ export const GitLabConfig: PluginConfigType = {
       {
         key: 'token',
         label: 'Access Token',
-        type: 'password',
+        type: 'gitlabToken',
         required: true,
         placeholder: 'eg. ff9d1ad0e5c04f1f98fa',
       },

@@ -53,7 +53,7 @@ export type PluginConfigConnectionType = {
     initialValues?: Record<string, any>;
     fields: Array<{
       key: string;
-      type: 'text' | 'password' | 'switch' | 'rateLimit' | 'githubToken';
+      type: 'text' | 'password' | 'switch' | 'rateLimit' | 'githubToken' | 'gitlabToken';
       label: string;
       required?: boolean;
       placeholder?: string;
