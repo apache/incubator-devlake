@@ -17,7 +17,7 @@
  */
 
 import React, { useMemo } from 'react';
-import { Button, Switch, Intent } from '@blueprintjs/core';
+import { Button, Intent } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
 import { getCron } from '@/config';
@@ -32,18 +32,12 @@ interface Props {
   pipelineId?: ID;
   operating: boolean;
   onRun: () => void;
-  onUpdate: (payload: any) => void;
-  onDelete: () => void;
 }
 
-export const Status = ({ blueprint, pipelineId, operating, onRun, onUpdate, onDelete }: Props) => {
+export const Status = ({ blueprint, pipelineId, operating, onRun }: Props) => {
   const cron = useMemo(() => getCron(blueprint.isManual, blueprint.cronConfig), [blueprint]);
 
   const handleRunNow = () => onRun();
-
-  const handleToggleEnabled = (checked: boolean) => onUpdate({ enable: checked });
-
-  const handleDelete = () => onDelete();
 
   return (
     <S.StatusPanel>
@@ -59,23 +53,6 @@ export const Status = ({ blueprint, pipelineId, operating, onRun, onUpdate, onDe
             intent={Intent.PRIMARY}
             text="Run Now"
             onClick={handleRunNow}
-          />
-        </span>
-        <span>
-          <Switch
-            label="Blueprint Enabled"
-            checked={blueprint.enable}
-            onChange={(e) => handleToggleEnabled((e.target as HTMLInputElement).checked)}
-          />
-        </span>
-        <span>
-          <Button
-            disabled={blueprint.enable}
-            loading={operating}
-            small
-            intent={Intent.DANGER}
-            icon="trash"
-            onClick={handleDelete}
           />
         </span>
       </div>
