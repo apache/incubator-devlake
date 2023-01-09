@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/impl/dalgorm"
@@ -116,7 +117,12 @@ func LoadData(c core.SubTaskContext) errors.Error {
 		starrocksTmpTable := fmt.Sprintf("%s_tmp", starrocksTable)
 		var columnMap map[string]string
 		var orderBy string
-		columnMap, orderBy, err = createTmpTable(starrocks, db, starrocksTmpTable, table, c, config)
+		var skip bool
+		columnMap, orderBy, skip, err = createTmpTable(starrocks, db, starrocksTable, starrocksTmpTable, table, c, config)
+		if skip {
+			c.GetLogger().Info(fmt.Sprintf("table %s is up to date, so skip it", table))
+			continue
+		}
 		if err != nil {
 			c.GetLogger().Error(err, "create table %s in starrocks error", table)
 			return errors.Convert(err)
@@ -150,18 +156,19 @@ func LoadData(c core.SubTaskContext) errors.Error {
 	return nil
 }
 
-func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTmpTable string, table string, c core.SubTaskContext, config *StarRocksConfig) (map[string]string, string, errors.Error) {
-	columeMetas, err := db.GetColumns(&Table{name: table}, nil)
+func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTable string, starrocksTmpTable string, table string, c core.SubTaskContext, config *StarRocksConfig) (map[string]string, string, bool, errors.Error) {
+	columnMetas, err := db.GetColumns(&Table{name: table}, nil)
+	updateColumn := config.UpdateColumn
 	columnMap := make(map[string]string)
 	if err != nil {
 		if strings.Contains(err.Error(), "cached plan must not change result type") {
 			c.GetLogger().Warn(err, "skip err: cached plan must not change result type")
-			columeMetas, err = db.GetColumns(&Table{name: table}, nil)
+			columnMetas, err = db.GetColumns(&Table{name: table}, nil)
 			if err != nil {
-				return nil, "", errors.Convert(err)
+				return nil, "", false, errors.Convert(err)
 			}
 		} else {
-			return nil, "", errors.Convert(err)
+			return nil, "", false, errors.Convert(err)
 		}
 	}
 
@@ -174,15 +181,52 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTmpTable string, tab
 	} else if db.Dialect() == "mysql" {
 		separator = "`"
 	} else {
-		return nil, "", errors.NotFound.New(fmt.Sprintf("unsupported dialect %s", db.Dialect()))
+		return nil, "", false, errors.NotFound.New(fmt.Sprintf("unsupported dialect %s", db.Dialect()))
 	}
 	firstcm := ""
 	firstcmName := ""
-	for _, cm := range columeMetas {
+	for _, cm := range columnMetas {
 		name := cm.Name()
+		if name == updateColumn {
+			// check update column to detect skip or not
+			rows, err := db.Cursor(
+				dal.From(table),
+				dal.Select(updateColumn),
+				dal.Limit(1),
+				dal.Orderby(fmt.Sprintf("%s desc", updateColumn)),
+			)
+			if err != nil {
+				return nil, "", false, err
+			}
+			var updatedFrom time.Time
+			if rows.Next() {
+				err = errors.Convert(rows.Scan(&updatedFrom))
+				if err != nil {
+					return nil, "", false, err
+				}
+			}
+			var starrocksErr error
+			rowsInStarRocks, starrocksErr := starrocks.Query(fmt.Sprintf("select %s from %s order by %s desc limit 1", updateColumn, starrocksTable, updateColumn))
+			if starrocksErr != nil {
+				if !strings.Contains(starrocksErr.Error(), "Unknown table") {
+					return nil, "", false, errors.Convert(starrocksErr)
+				}
+			} else {
+				var updatedTo time.Time
+				if rowsInStarRocks.Next() {
+					err = errors.Convert(rowsInStarRocks.Scan(&updatedTo))
+					if err != nil {
+						return nil, "", false, err
+					}
+				}
+				if updatedFrom.Equal(updatedTo) {
+					return nil, "", true, nil
+				}
+			}
+		}
 		columnDatatype, ok := cm.ColumnType()
 		if !ok {
-			return columnMap, "", errors.Default.New(fmt.Sprintf("Get [%s] ColumeType Failed", name))
+			return columnMap, "", false, errors.Default.New(fmt.Sprintf("Get [%s] ColumeType Failed", name))
 		}
 		dataType := utils.GetStarRocksDataType(columnDatatype)
 		columnMap[name] = dataType
@@ -220,7 +264,7 @@ func createTmpTable(starrocks *sql.DB, db dal.Dal, starrocksTmpTable string, tab
 	tableSql := fmt.Sprintf("drop table if exists %s; create table if not exists `%s` ( %s ) %s", starrocksTmpTable, starrocksTmpTable, strings.Join(columns, ","), extra)
 	c.GetLogger().Debug(tableSql)
 	_, err = errors.Convert01(starrocks.Exec(tableSql))
-	return columnMap, orderBy, err
+	return columnMap, orderBy, false, err
 }
 
 func loadData(starrocks *sql.DB, c core.SubTaskContext, starrocksTable, starrocksTmpTable, table string, columnMap map[string]string, db dal.Dal, config *StarRocksConfig, orderBy string) error {

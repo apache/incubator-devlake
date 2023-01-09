@@ -18,18 +18,19 @@ limitations under the License.
 package tasks
 
 type StarRocksConfig struct {
-	SourceType  string `mapstructure:"source_type"`
-	SourceDsn   string `mapstructure:"source_dsn"`
-	Host        string
-	Port        int
-	User        string
-	Password    string
-	Database    string
-	BeHost      string `mapstructure:"be_host"`
-	BePort      int    `mapstructure:"be_port"`
-	Tables      []string
-	BatchSize   int               `mapstructure:"batch_size"`
-	OrderBy     map[string]string `mapstructure:"order_by"`
-	DomainLayer string            `mapstructure:"domain_layer"`
-	Extra       map[string]string
+	SourceType   string `mapstructure:"source_type"`
+	SourceDsn    string `mapstructure:"source_dsn"`
+	UpdateColumn string `mapstructure:"update_column"`
+	Host         string
+	Port         int
+	User         string
+	Password     string
+	Database     string
+	BeHost       string `mapstructure:"be_host"`
+	BePort       int    `mapstructure:"be_port"`
+	Tables       []string
+	BatchSize    int               `mapstructure:"batch_size"`
+	OrderBy      map[string]string `mapstructure:"order_by"`
+	DomainLayer  string            `mapstructure:"domain_layer"`
+	Extra        map[string]string
 }
