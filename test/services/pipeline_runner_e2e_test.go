@@ -20,37 +20,14 @@ package services
 import (
 	"testing"
 
-	"github.com/apache/incubator-devlake/config"
-	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models"
-	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/services"
+	_ "github.com/apache/incubator-devlake/test"
 	"github.com/stretchr/testify/assert"
 )
 
-var basicRes core.BasicRes
-var migrator core.Migrator
-
-// init setup services module
-func init() {
-	cfg := config.GetConfig()
-	e2eDbUrl := cfg.GetString(`E2E_DB_URL`)
-	if e2eDbUrl == "" {
-		panic(errors.Default.New("e2e can only run with E2E_DB_URL, please set it in .env"))
-	}
-	cfg.Set("DB_URL", cfg.GetString("E2E_DB_URL"))
-	encKey := core.RandomEncKey()
-	cfg.Set(core.EncodeKeyEnvStr, encKey)
-
-	basicRes, migrator = services.InitMigrator()
-	err := migrator.Execute()
-	if err != nil {
-		panic(err)
-	}
-}
-
 func TestComputePipelineStatus(t *testing.T) {
-	db := basicRes.GetDal()
+	db := services.GetBasicRes().GetDal()
 	// insert fake tasks to datbase
 	pipeline := &models.DbPipeline{
 		TotalTasks: 3,
