@@ -33,6 +33,7 @@ data:
   MYSQL_URL: mysql:3306
   # grafana deployment
   GF_SERVER_ROOT_URL: http://YOURDOMAIN:30002/grafana
+  GF_USERS_DEFAULT_THEME: "light"
   # for devlake deployment
   DB_URL: mysql://merico:merico@mysql:3306/lake?charset=utf8mb4&parseTime=True
   DEVLAKE_ENDPOINT: devlake.devlake.svc.cluster.local:8080
@@ -60,7 +61,7 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: mysql:8.0.26
+          image: mysql:8
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3306
