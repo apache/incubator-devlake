@@ -72,7 +72,7 @@ export const SyncPolicy = ({
         <div className="block">
           <h3>Time Filter *</h3>
           <p>Select the data range you wish to collect. DevLake will collect the last six months of data by default.</p>
-          <StartFromSelector autoFillDefault={true} date={createdDateAfter} onSave={onChangeCreatedDateAfter} />
+          <StartFromSelector value={createdDateAfter} onChange={onChangeCreatedDateAfter} />
         </div>
       )}
       <div className="block">

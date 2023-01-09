@@ -23,6 +23,7 @@ export const Wrapper = styled.div`
     margin-top: 24px;
   }
 `;
+
 export const Input = styled.div`
   display: flex;
   align-items: center;
@@ -45,5 +46,24 @@ export const Help = styled.div`
 
   img {
     width: 100%;
+  }
+`;
+
+export const FromTimeWrapper = styled.div`
+  .quick-selection {
+    margin-bottom: 16px;
+
+    & > .bp4-tag {
+      cursor: pointer;
+    }
+  }
+
+  .time-selection {
+    display: flex;
+    align-items: center;
+
+    & > strong {
+      margin-left: 4px;
+    }
   }
 `;

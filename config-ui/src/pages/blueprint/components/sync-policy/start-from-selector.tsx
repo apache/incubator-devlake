@@ -19,27 +19,19 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { Tag } from '@blueprintjs/core';
 import { TimePrecision } from '@blueprintjs/datetime';
 import { DateInput2 } from '@blueprintjs/datetime2';
-import dayjs from 'dayjs';
 
-const StartFromSelector = ({
-  placeholder = 'Select start from',
-  disabled = false,
-  autoFillDefault = false,
-  date,
-  onSave,
-}: {
-  placeholder?: string;
-  disabled?: boolean;
-  autoFillDefault?: boolean;
-  date: string | null;
-  onSave: (newDate: string | null, isUserChange?: boolean) => void;
-}) => {
-  const formatDate = useCallback((date: Date | string) => dayjs(date).format('YYYY-MM-DD[T]HH:mm:ssZ'), []);
-  const displayDate = useCallback((date: Date) => dayjs(date).format('L LTS'), []);
-  const parseDate = useCallback((str: string) => dayjs(str).toDate(), []);
-  const chooseDate = (date: Date | string | null) => {
-    onSave(date ? formatDate(date) : null);
-  };
+import { formatTime } from '@/utils';
+
+import * as S from './styled';
+
+interface Props {
+  value: string | null;
+  onChange: (val: string | null) => void;
+}
+
+const StartFromSelector = ({ value, onChange }: Props) => {
+  const formatDate = useCallback((date: Date) => formatTime(date), []);
+  const parseDate = useCallback((str: string) => new Date(str), []);
 
   const quickDates = useMemo(() => {
     const now = new Date();
@@ -60,46 +52,45 @@ const StartFromSelector = ({
     ];
   }, []);
 
+  const handleChangeDate = (val: string | Date | null) => {
+    onChange(val ? formatTime(val, 'YYYY-MM-DD[T]HH:mm:ssZ') : null);
+  };
+
   useEffect(() => {
-    if (!date && autoFillDefault) {
-      onSave(formatDate(quickDates[0].date));
+    if (!value) {
+      handleChangeDate(quickDates[0].date);
     }
-  }, [date]);
+  }, [value]);
 
   return (
-    <>
-      <div className="start-from">
-        <div className="123" style={{ display: 'flex', marginBottom: '10px' }}>
-          {quickDates.map((quickDate) => (
-            <Tag
-              key={quickDate.date.toISOString()}
-              minimal={formatDate(quickDate.date) !== date}
-              intent="primary"
-              interactive={!disabled}
-              onClick={() => chooseDate(quickDate.date)}
-              style={{ marginRight: 5 }}
-            >
-              {quickDate.label}
-            </Tag>
-          ))}
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'baseline' }}>
-          <DateInput2
-            disabled={disabled}
-            timePrecision={TimePrecision.MINUTE}
-            formatDate={displayDate}
-            parseDate={parseDate}
-            fill={false}
-            placeholder={placeholder}
-            onChange={chooseDate}
-            popoverProps={{ placement: 'bottom' }}
-            value={date}
-          />
-          <span style={{ fontWeight: 'bold' }}> to Now</span>
-        </div>
+    <S.FromTimeWrapper>
+      <div className="quick-selection">
+        {quickDates.map((quickDate) => (
+          <Tag
+            key={quickDate.date.toISOString()}
+            minimal={formatDate(quickDate.date) !== formatTime(value)}
+            intent="primary"
+            onClick={() => handleChangeDate(quickDate.date)}
+            style={{ marginRight: 5 }}
+          >
+            {quickDate.label}
+          </Tag>
+        ))}
       </div>
-    </>
+
+      <div className="time-selection">
+        <DateInput2
+          timePrecision={TimePrecision.MINUTE}
+          formatDate={formatDate}
+          parseDate={parseDate}
+          placeholder="Select start from"
+          popoverProps={{ placement: 'bottom' }}
+          value={value}
+          onChange={handleChangeDate}
+        />{' '}
+        <strong>to Now</strong>
+      </div>
+    </S.FromTimeWrapper>
   );
 };
 
