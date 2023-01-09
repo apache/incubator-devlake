@@ -50,6 +50,7 @@ export const Inspector = ({ isOpen, data, title, onClose }: Props) => {
           <h3>JSON CONFIGURATION</h3>
           <span>application/json</span>
         </div>
+        <p className="description">This is the configuration format used in a blueprint's advanced mode.</p>
         <div className="content">
           <code>
             <pre>{JSON.stringify(data, null, '  ')}</pre>

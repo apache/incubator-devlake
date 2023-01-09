@@ -42,8 +42,8 @@ const general = [
     {
       plugin: 'github',
       options: {
-        repo: 'lake',
-        owner: 'merico-dev',
+        repo: 'incubator-devlake',
+        owner: 'apache',
         connectionId: 1,
       },
     },

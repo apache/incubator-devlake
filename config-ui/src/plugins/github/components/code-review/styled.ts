@@ -18,11 +18,11 @@
 
 import styled from 'styled-components';
 
-export const Tips = styled.p`
-  margin: 24px 0 0;
+export const Tips = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
-  span:last-child {
-    color: #7497f7;
-    cursor: pointer;
-  }
+export const TipsContent = styled.div`
+  padding: 8px;
 `;

@@ -55,7 +55,7 @@ export const useForm = ({ plugin, id }: Props) => {
   const handleTest = async (payload: any) => {
     const [success] = await operator(() => API.testConnection(plugin, payload), {
       setOperating,
-      formatReason: (err) => (err as any)?.response?.data?.message,
+      formatReason: () => 'Test Failed.Please check your configuration.',
     });
 
     if (success) {
