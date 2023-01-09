@@ -122,6 +122,7 @@ func GetTasks(query *TaskQuery) ([]*models.Task, int64, errors.Error) {
 }
 
 // GetTasksWithLastStatus returns task list of the pipeline, only the most recently tasks would be returned
+// TODO: adopts GetLatestTasksOfPipeline
 func GetTasksWithLastStatus(pipelineId uint64) ([]*models.Task, errors.Error) {
 	var tasks []*models.Task
 	err := db.All(&tasks, dal.Where("pipeline_id = ?", pipelineId), dal.Orderby("id DESC"))

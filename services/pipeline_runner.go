@@ -27,6 +27,7 @@ import (
 	"github.com/apache/incubator-devlake/logger"
 	"github.com/apache/incubator-devlake/models"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/runner"
 	"github.com/apache/incubator-devlake/worker/app"
 	"go.temporal.io/sdk/client"
@@ -126,18 +127,81 @@ func runPipeline(pipelineId uint64) errors.Error {
 		dbPipeline.SpentSeconds = int(finishedAt.Unix() - dbPipeline.BeganAt.Unix())
 	}
 	if err != nil {
-		dbPipeline.Status = models.TASK_FAILED
 		dbPipeline.Message = err.Error()
 		dbPipeline.ErrorName = err.Messages().Format()
-	} else {
-		dbPipeline.Status = models.TASK_COMPLETED
-		dbPipeline.Message = ""
+	}
+	dbPipeline.Status, err = computePipelineStatus(dbPipeline)
+	if err != nil {
+		globalPipelineLog.Error(err, "compute pipeline status failed")
+		return err
 	}
 	err = db.Update(dbPipeline)
 	if err != nil {
 		globalPipelineLog.Error(err, "update pipeline state failed")
-		return errors.Convert(err)
+		return err
 	}
 	// notify external webhook
 	return NotifyExternal(pipelineId)
+}
+
+// computePipelineStatus determines pipleline status by its latest(rerun included) tasks statuses
+// 1. TASK_COMPLETED: all tasks were executed sucessfully
+// 2. TASK_FAILED: SkipOnFail=false with failed task(s)
+// 3. TASK_PARTIAL: SkipOnFail=true with failed task(s)
+func computePipelineStatus(pipeline *models.DbPipeline) (string, errors.Error) {
+	tasks, err := GetLatestTasksOfPipeline(pipeline)
+	if err != nil {
+		return "", err
+	}
+	succeeded, failed := 0, 0
+
+	for _, task := range tasks {
+		if task.Status == models.TASK_COMPLETED {
+			succeeded += 1
+		} else if task.Status == models.TASK_FAILED || task.Status == models.TASK_CANCELLED {
+			failed += 1
+		} else {
+			return "", errors.Default.New("unexpected status, did you call computePipelineStatus at a wrong timing?")
+		}
+	}
+
+	if failed == 0 {
+		return models.TASK_COMPLETED, nil
+	}
+	if pipeline.SkipOnFail && succeeded > 0 {
+		return models.TASK_PARTIAL, nil
+	}
+	return models.TASK_FAILED, nil
+}
+
+// GetLatestTasksOfPipeline returns latest tasks (reran tasks are excluding) of specified pipeline
+func GetLatestTasksOfPipeline(pipeline *models.DbPipeline) ([]*models.Task, errors.Error) {
+	task := &models.Task{}
+	cursor, err := db.Cursor(
+		dal.From(task),
+		dal.Where("pipeline_id = ?", pipeline.ID),
+		dal.Orderby("id DESC"), // sort it by id so we can hit the latest task first for the RERUNed row/col
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close()
+	tasks := make([]*models.Task, 0, pipeline.TotalTasks)
+	// define a struct for composite key to dedupe RERUNed tasks
+	type rowcol struct{ row, col int }
+	memorized := make(map[rowcol]bool)
+	for cursor.Next() {
+		if e := db.Fetch(cursor, task); e != nil {
+			return nil, errors.Convert(e)
+		}
+		// dedupe reran tasks
+		key := rowcol{task.PipelineRow, task.PipelineCol}
+		if memorized[key] {
+			continue
+		}
+		memorized[key] = true
+		tasks = append(tasks, task)
+		task = &models.Task{}
+	}
+	return tasks, nil
 }

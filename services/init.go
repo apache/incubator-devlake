@@ -45,8 +45,7 @@ var vld *validator.Validate
 
 const failToCreateCronJob = "created cron job failed"
 
-// Init the services module
-func Init() {
+func initMigrator() {
 	var err error
 
 	// basic resources initialization
@@ -56,9 +55,6 @@ func Init() {
 	log = basicRes.GetLogger()
 	db = basicRes.GetDal()
 
-	// lock the database to avoid multiple devlake instances from sharing the same one
-	lockDb()
-
 	// initialize db migrator
 	migrator, err = runner.InitMigrator(basicRes)
 	if err != nil {
@@ -66,11 +62,20 @@ func Init() {
 	}
 	log.Info("migration initialized")
 	migrator.Register(migrationscripts.All(), "Framework")
+}
 
+// Init the services module
+func Init() {
+	initMigrator()
+
+	// lock the database to avoid multiple devlake instances from sharing the same one
+	lockDb()
+
+	var err error
 	// now, load the plugins
 	err = runner.LoadPlugins(basicRes)
 	if err != nil {
-		panic(err)
+		log.Error(err, "failed to load plugins")
 	}
 
 	// pull migration scripts from plugins to migrator
