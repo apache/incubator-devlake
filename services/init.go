@@ -70,6 +70,11 @@ func GetBasicRes() core.BasicRes {
 	return basicRes
 }
 
+// GetMigrator returns the core.Migrator instance used by services module
+func GetMigrator() core.Migrator {
+	return migrator
+}
+
 // Init the services module
 func Init() {
 	InitResources()
