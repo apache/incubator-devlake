@@ -87,7 +87,7 @@ export const TransformationHomePage = () => {
                     />
                   ))}
                 </ButtonGroup>
-                <Button intent={Intent.PRIMARY} text="Create Transfromation" onClick={() => setIsOpen(true)} />
+                <Button intent={Intent.PRIMARY} text="Create Transformation" onClick={() => setIsOpen(true)} />
               </div>
               <Table
                 columns={columns}

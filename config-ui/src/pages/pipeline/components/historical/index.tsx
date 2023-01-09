@@ -117,7 +117,7 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
                   }}
                 />
               </Tooltip2>
-              <Tooltip2 position={Position.TOP} intent={Intent.PRIMARY} content="Download Log">
+              <Tooltip2 position={Position.TOP} intent={Intent.PRIMARY} content="Download Logs">
                 <Button minimal intent={Intent.PRIMARY} icon="document" onClick={() => handleDownloadLog(id)} />
               </Tooltip2>
               {/* <Button minimal intent={Intent.PRIMARY} icon='chevron-right' /> */}
