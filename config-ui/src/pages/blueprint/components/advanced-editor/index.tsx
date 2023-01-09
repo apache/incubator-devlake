@@ -59,7 +59,12 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
   return (
     <Wrapper>
       <h3>Task Editor</h3>
-      <p>Enter JSON Configuration or preload from a template</p>
+      <p>
+        <span>Enter JSON Configuration or preload from a template.</span>
+        <a href="https://devlake.apache.org/docs/UserManuals/ConfigUI/AdvancedMode/" rel="noreferrer" target="_blank">
+          See examples
+        </a>
+      </p>
       <TextArea fill value={value} onChange={(e) => onChange(e.target.value)} />
       <ButtonGroup minimal>
         <Button small text="Reset" icon="eraser" onClick={() => onChange(JSON.stringify([[]], null, '  '))} />

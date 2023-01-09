@@ -129,7 +129,12 @@ export const ProjectHomePage = () => {
                   checked={enableDora}
                   onChange={(e) => setEnableDora((e.target as HTMLInputElement).checked)}
                 />
-                <p>DORA metrics are four widely-adopted metrics for measuring software delivery performance.</p>
+                <p>
+                  <a href="https://devlake.apache.org/docs/UserManuals/DORA/" rel="noreferrer" target="_blank">
+                    DORA metrics
+                  </a>{' '}
+                  <span>are four widely-adopted metrics for measuring software delivery performance.</span>
+                </p>
               </div>
             </div>
           </S.DialogWrapper>

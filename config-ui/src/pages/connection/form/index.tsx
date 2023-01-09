@@ -138,6 +138,25 @@ export const ConnectionFormPage = () => {
             }
           />
         )}
+        {type === 'gitlabToken' && (
+          <div>
+            <p>
+              <a
+                href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Learn about how to create a personal access token
+              </a>
+            </p>
+            <InputGroup
+              placeholder={placeholder}
+              type="password"
+              value={form[key] ?? ''}
+              onChange={(e) => setForm({ ...form, [`${key}`]: e.target.value })}
+            />
+          </div>
+        )}
       </FormGroup>
     );
   };
