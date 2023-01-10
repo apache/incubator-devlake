@@ -36,7 +36,7 @@ const general = [
       plugin: 'jenkins',
       options: {
         connectionId: 1,
-        jobName: 'unit_test',
+        jobFullName: 'unit_test',
       },
     },
     {
