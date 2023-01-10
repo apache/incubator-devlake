@@ -60,7 +60,8 @@ export const PipelineDetail = ({ id }: Props) => {
       cancel: (data) => {
         const { pipeline } = data ?? {};
         return !!(
-          pipeline && [StatusEnum.COMPLETED, StatusEnum.FAILED, StatusEnum.CANCELLED].includes(pipeline.status)
+          pipeline &&
+          [StatusEnum.COMPLETED, StatusEnum.PARTIAL, StatusEnum.FAILED, StatusEnum.CANCELLED].includes(pipeline.status)
         );
       },
     },
@@ -142,7 +143,7 @@ export const PipelineDetail = ({ id }: Props) => {
                 case !!stages[key].find((task) => [StatusEnum.ACTIVE, StatusEnum.RUNNING].includes(task.status)):
                   status = 'loading';
                   break;
-                case stages[key].every((task) => task.status === StatusEnum.COMPLETED):
+                case stages[key].every((task) => [StatusEnum.COMPLETED, StatusEnum.PARTIAL].includes(task.status)):
                   status = 'success';
                   break;
                 case !!stages[key].find((task) => task.status === StatusEnum.FAILED):

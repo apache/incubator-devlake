@@ -27,6 +27,7 @@ export const STATUS_ICON = {
   [StatusEnum.RUNNING]: 'loading',
   [StatusEnum.RERUN]: 'loading',
   [StatusEnum.COMPLETED]: 'tick-circle',
+  [StatusEnum.PARTIAL]: 'tick-circle',
   [StatusEnum.FAILED]: 'delete',
   [StatusEnum.CANCELLED]: 'undo',
 };
@@ -38,6 +39,7 @@ export const STATUS_LABEL = {
   [StatusEnum.RUNNING]: 'In Progress',
   [StatusEnum.RERUN]: 'In Progress',
   [StatusEnum.COMPLETED]: 'Succeeded',
+  [StatusEnum.PARTIAL]: 'Partial Succeeded',
   [StatusEnum.FAILED]: 'Failed',
   [StatusEnum.CANCELLED]: 'Cancelled',
 };
@@ -46,7 +48,7 @@ export const STATUS_CLS = (status: StatusEnum) =>
   classNames({
     ready: [StatusEnum.CREATED, StatusEnum.PENDING].includes(status),
     loading: [StatusEnum.ACTIVE, StatusEnum.RUNNING, StatusEnum.RERUN].includes(status),
-    success: status === StatusEnum.COMPLETED,
+    success: [StatusEnum.COMPLETED, StatusEnum.PARTIAL].includes(status),
     error: status === StatusEnum.FAILED,
     cancel: status === StatusEnum.CANCELLED,
   });
