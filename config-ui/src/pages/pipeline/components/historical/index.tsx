@@ -54,7 +54,9 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
       cancel: (data) =>
         !!(
           data &&
-          data.every((it) => [StatusEnum.COMPLETED, StatusEnum.CANCELLED, StatusEnum.FAILED].includes(it.status))
+          data.every((it) =>
+            [StatusEnum.COMPLETED, StatusEnum.PARTIAL, StatusEnum.CANCELLED, StatusEnum.FAILED].includes(it.status),
+          )
         ),
     },
   );
