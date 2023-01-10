@@ -67,7 +67,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
             name: plugin.name,
             connectionId: cs.connectionId,
             entities: plugin.entities,
-            selectedEntites: cs.scopes?.[0].entities ?? [],
+            selectedEntites: cs.scopes?.[0]?.entities ?? [],
             plugin: cs.plugin,
             scope: cs.scopes,
             scopeIds: cs.scopes.map((sc: any) => sc.id),
