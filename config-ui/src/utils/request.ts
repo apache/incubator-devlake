@@ -31,11 +31,10 @@ export type ReuqestConfig = {
   timeout?: number;
   signal?: AbortSignal;
   headers?: Record<string, string>;
-  paramsSerializer?: AxiosRequestConfig['paramsSerializer'];
 };
 
 export const request = (path: string, config?: ReuqestConfig) => {
-  const { method = 'get', data, timeout, headers, signal, paramsSerializer } = config || {};
+  const { method = 'get', data, timeout, headers, signal } = config || {};
 
   const cancelTokenSource = axios.CancelToken.source();
   const params: any = {
@@ -44,7 +43,6 @@ export const request = (path: string, config?: ReuqestConfig) => {
     timeout,
     headers,
     cancelToken: cancelTokenSource?.token,
-    paramsSerializer,
   };
 
   if (['GET', 'get'].includes(method)) {

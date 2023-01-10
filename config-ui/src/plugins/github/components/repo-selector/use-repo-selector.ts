@@ -40,7 +40,7 @@ export const useRepoSelector = ({ connectionId }: UseRepoSelectorProps) => {
 
     const timer = setTimeout(async () => {
       try {
-        const res = await API.searchRepo(prefix, { q: search });
+        const res = await API.searchRepo(prefix, { q: `${search} fork:true` });
         setItems(
           res.items.map((it: any) => ({
             connectionId,
