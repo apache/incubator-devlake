@@ -39,7 +39,7 @@ export const STATUS_LABEL = {
   [StatusEnum.RUNNING]: 'In Progress',
   [StatusEnum.RERUN]: 'In Progress',
   [StatusEnum.COMPLETED]: 'Succeeded',
-  [StatusEnum.PARTIAL]: 'Partial Succeeded',
+  [StatusEnum.PARTIAL]: 'Partial Success',
   [StatusEnum.FAILED]: 'Failed',
   [StatusEnum.CANCELLED]: 'Cancelled',
 };
