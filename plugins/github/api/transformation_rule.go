@@ -26,7 +26,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/github/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/mitchellh/mapstructure"
 )
 
 // CreateTransformationRule create transformation rule for Github
@@ -41,13 +40,13 @@ import (
 // @Router /plugins/github/transformation_rules [POST]
 func CreateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	var rule models.GithubTransformationRule
-	err := mapstructure.Decode(input.Body, &rule)
+	err := helper.Decode(input.Body, &rule, vld)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error in decoding transformation rule")
+		return nil, errors.BadInput.Wrap(err, "error in decoding transformation rule")
 	}
 	err = basicRes.GetDal().Create(&rule)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
+		return nil, errors.BadInput.Wrap(err, "error on saving TransformationRule")
 	}
 	return &core.ApiResourceOutput{Body: rule, Status: http.StatusOK}, nil
 }
@@ -80,7 +79,7 @@ func UpdateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 	old.ID = transformationRuleId
 	err = basicRes.GetDal().Update(&old, dal.Where("id = ?", transformationRuleId))
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
+		return nil, errors.BadInput.Wrap(err, "error on saving TransformationRule")
 	}
 	return &core.ApiResourceOutput{Body: old, Status: http.StatusOK}, nil
 }

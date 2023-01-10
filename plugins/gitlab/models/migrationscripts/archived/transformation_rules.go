@@ -24,7 +24,7 @@ import (
 
 type GitlabTransformationRule struct {
 	archived.Model
-	Name                 string `gorm:"type:varchar(255)"`
+	Name                 string `gorm:"type:varchar(255);index:idx_name,unique" validate:"required"`
 	PrType               string `mapstructure:"prType" json:"prType" gorm:"type:varchar(255)"`
 	PrComponent          string `mapstructure:"prComponent" json:"prComponent" gorm:"type:varchar(255)"`
 	PrBodyClosePattern   string `mapstructure:"prBodyClosePattern" json:"prBodyClosePattern" gorm:"type:varchar(255)"`
