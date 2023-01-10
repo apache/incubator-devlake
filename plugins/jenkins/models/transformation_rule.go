@@ -21,7 +21,7 @@ import "github.com/apache/incubator-devlake/models/common"
 
 type JenkinsTransformationRule struct {
 	common.Model      `mapstructure:"-"`
-	Name              string `gorm:"type:varchar(255);index:idx_name,unique" validate:"required" mapstructure:"name" json:"name"`
+	Name              string `gorm:"type:varchar(255);index:idx_name_jenkins,unique" validate:"required" mapstructure:"name" json:"name"`
 	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern,omitempty" json:"deploymentPattern"`
 	ProductionPattern string `gorm:"type:varchar(255)" mapstructure:"productionPattern,omitempty" json:"productionPattern"`
 }
