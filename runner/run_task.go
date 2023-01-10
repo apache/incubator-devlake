@@ -83,8 +83,12 @@ func RunTask(
 			} else {
 				lakeErr = errors.Convert(err)
 			}
+			status := models.TASK_FAILED
+			if lakeErr.Unwrap() == context.Canceled {
+				status = models.TASK_CANCELLED
+			}
 			dbe := db.UpdateColumns(task, []dal.DalSet{
-				{ColumnName: "status", Value: models.TASK_FAILED},
+				{ColumnName: "status", Value: status},
 				{ColumnName: "message", Value: lakeErr.Error()},
 				{ColumnName: "error_name", Value: lakeErr.Messages().Format()},
 				{ColumnName: "finished_at", Value: finishedAt},
@@ -267,6 +271,10 @@ func RunPluginSubTasks(
 		}
 		err = runSubtask(basicRes, subtaskCtx, task.ID, subtaskNumber, subtaskMeta.EntryPoint)
 		if err != nil {
+			if errors.Is(err, context.Canceled) {
+				log.Error(err, "")
+				return err
+			}
 			err = errors.SubtaskErr.Wrap(err, fmt.Sprintf("subtask %s ended unexpectedly", subtaskMeta.Name), errors.WithData(&subtaskMeta))
 			log.Error(err, "")
 			return err
