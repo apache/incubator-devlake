@@ -153,6 +153,9 @@ func parseBlueprint(dbBlueprint *models.DbBlueprint) *models.Blueprint {
 		Model:       dbBlueprint.Model,
 		Labels:      labelList,
 	}
+	if len(blueprint.Settings) == 0 {
+		blueprint.Settings = nil
+	}
 	return &blueprint
 }
 

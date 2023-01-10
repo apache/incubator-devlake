@@ -87,6 +87,7 @@ func Init() {
 	err = runner.LoadPlugins(basicRes)
 	if err != nil {
 		log.Error(err, "failed to load plugins")
+		panic(err)
 	}
 
 	// pull migration scripts from plugins to migrator
