@@ -150,6 +150,6 @@ export const useTransformation = ({
       onUpdateScope: handleUpdateScope,
       onChangeTransformation: setTransformation,
     }),
-    [loading, rules, scope, saving, transformation, plugin, selectedScope, onSave],
+    [loading, rules, scope, saving, transformation, plugin, selectedScope, name, onSave],
   );
 };
