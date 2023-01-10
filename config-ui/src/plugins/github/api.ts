@@ -51,4 +51,7 @@ export const searchRepo = (prefix: string, params: SearchRepoParams) =>
   request(`${prefix}/search/repositories`, {
     method: 'get',
     data: params,
+    paramsSerializer: ({ q }) => {
+      return `q=${encodeURIComponent(q)}+fork:true`;
+    },
   });
