@@ -142,7 +142,7 @@ export const ConnectionFormPage = () => {
           <div>
             <p>
               <a
-                href="https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html"
+                href="https://devlake.apache.org/docs/UserManuals/ConfigUI/GitLab/#auth-tokens"
                 target="_blank"
                 rel="noreferrer"
               >

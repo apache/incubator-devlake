@@ -61,7 +61,11 @@ export const AdvancedEditor = ({ value, onChange }: Props) => {
       <h3>Task Editor</h3>
       <p>
         <span>Enter JSON Configuration or preload from a template.</span>
-        <a href="https://devlake.apache.org/docs/UserManuals/ConfigUI/AdvancedMode/" rel="noreferrer" target="_blank">
+        <a
+          href="https://devlake.apache.org/docs/UserManuals/ConfigUI/AdvancedMode/#examples"
+          rel="noreferrer"
+          target="_blank"
+        >
           See examples
         </a>
       </p>
