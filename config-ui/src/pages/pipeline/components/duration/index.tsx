@@ -23,11 +23,15 @@ import { StatusEnum } from '../../types';
 
 interface Props {
   status: StatusEnum;
-  beganAt: string;
+  beganAt: string | null;
   finishedAt: string | null;
 }
 
 export const PipelineDuration = ({ status, beganAt, finishedAt }: Props) => {
+  if (!beganAt) {
+    return <span>-</span>;
+  }
+
   if (![StatusEnum.CANCELLED, StatusEnum.COMPLETED, StatusEnum.FAILED].includes(status)) {
     return <span>{dayjs(beganAt).toNow(true)}</span>;
   }

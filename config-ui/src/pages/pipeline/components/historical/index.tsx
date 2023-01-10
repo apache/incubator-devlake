@@ -90,13 +90,13 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
           title: 'Started at',
           dataIndex: 'beganAt',
           key: 'beganAt',
-          render: (val: string) => (val ? formatTime(val) : '-'),
+          render: (val: string | null) => (val ? formatTime(val) : '-'),
         },
         {
           title: 'Completed at',
           dataIndex: 'finishedAt',
           key: 'finishedAt',
-          render: (val: string) => (val ? formatTime(val) : '-'),
+          render: (val: string | null) => (val ? formatTime(val) : '-'),
         },
         {
           title: 'Duration',

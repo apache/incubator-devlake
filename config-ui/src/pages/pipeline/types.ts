@@ -33,8 +33,8 @@ export enum StatusEnum {
 export type PipelineType = {
   id: ID;
   status: StatusEnum;
-  beganAt: string;
-  finishedAt: string;
+  beganAt: string | null;
+  finishedAt: string | null;
   stage: number;
   finishedTasks: number;
   totalTasks: number;
@@ -47,7 +47,7 @@ export type TaskType = {
   status: StatusEnum;
   pipelineRow: number;
   pipelineCol: number;
-  beganAt: string;
+  beganAt: string | null;
   finishedAt: string | null;
   options: string;
   message: string;
