@@ -68,7 +68,7 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) errors.Error {
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	clIdGen := didgen.NewDomainIdGenerator(&models.TapdStoryChangelog{})
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdStory{})
-
+	stdTypeMappings := getStdTypeMappings(data)
 	clauses := []dal.Clause{
 		dal.Select("tc.created, tc.id, tc.workspace_id, tc.story_id, tc.creator, _tool_tapd_story_changelog_items.*"),
 		dal.From(&models.TapdStoryChangelogItem{}),
@@ -110,7 +110,15 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) errors.Error {
 					domainCl.ToValue = getStdStatus(domainCl.OriginalToValue)
 				}
 			}
-
+			if domainCl.FieldName == "workitem_type_id" {
+				// As OriginalFromValue is value_before_parsed, so we don't need to transform id to name
+				if stdTypeMappings[domainCl.OriginalFromValue] != "" {
+					domainCl.FromValue = stdTypeMappings[domainCl.OriginalFromValue]
+				}
+				if stdTypeMappings[domainCl.OriginalToValue] != "" {
+					domainCl.ToValue = stdTypeMappings[domainCl.OriginalToValue]
+				}
+			}
 			return []interface{}{
 				domainCl,
 			}, nil

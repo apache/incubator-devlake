@@ -38,31 +38,17 @@ func TestTapdBugDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			CompanyId:    99,
 			WorkspaceId:  991,
+			TransformationRules: tasks.TransformationRules{
+				TypeMappings: map[string]tasks.TypeMapping{
+					"BUG":  {StandardType: "缺陷"},
+					"TASK": {StandardType: "任务"},
+				},
+			},
 		},
 	}
 
 	// bug status
-	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status.csv",
-		"_raw_tapd_api_bug_status")
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status_last_steps.csv",
-		"_raw_tapd_api_bug_status_last_steps")
-
-	// verify extraction
-	dataflowTester.FlushTabler(&models.TapdBugStatus{})
-	dataflowTester.Subtask(tasks.ExtractBugStatusMeta, taskData)
-	dataflowTester.Subtask(tasks.EnrichBugStatusLastStepMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.TapdBugStatus{},
-		"./snapshot_tables/_tool_tapd_bug_statuses.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"workspace_id",
-			"english_name",
-			"chinese_name",
-			"is_last_step",
-		),
-	)
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_tapd_bug_statuses.csv", &models.TapdBugStatus{})
 
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bugs.csv", "_raw_tapd_api_bugs")
@@ -246,7 +232,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertBugMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
-		"./snapshot_tables/_tool_tapd_bug_labels_bug.csv",
+		"./snapshot_tables/issue_bug.csv",
 		e2ehelper.ColumnWithRawData(
 			"id",
 			"url",

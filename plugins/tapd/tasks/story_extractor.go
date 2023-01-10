@@ -48,7 +48,8 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	customStatusMap := getStatusMapping(data)
-	typeMap, err := getTypeMappings(data, db, "story")
+	stdTypeMappings := getStdTypeMappings(data)
+	typeIdMapping, err := getTapdTypeMappings(data, db, "story")
 	if err != nil {
 		return err
 	}
@@ -73,8 +74,8 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 
 			toolL.ConnectionId = data.Options.ConnectionId
 
-			toolL.Type = typeMap.typeIdMappings[toolL.WorkitemTypeId]
-			toolL.StdType = typeMap.stdTypeMappings[toolL.Type]
+			toolL.Type = typeIdMapping[toolL.WorkitemTypeId]
+			toolL.StdType = stdTypeMappings[toolL.Type]
 			if toolL.StdType == "" {
 				toolL.StdType = ticket.REQUIREMENT
 			}
@@ -120,9 +121,4 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 	}
 
 	return extractor.Execute()
-}
-
-type typeMappings struct {
-	typeIdMappings  map[uint64]string
-	stdTypeMappings map[string]string
 }
