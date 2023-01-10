@@ -17,6 +17,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Icon, Button, Switch, Colors, Intent } from '@blueprintjs/core';
 import dayjs from 'dayjs';
 
@@ -46,6 +47,8 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
   const [type, setType] = useState<Type>();
   const [curConnection, setCurConnection] = useState<ConfigConnectionItemType>();
   const [rawPlan, setRawPlan] = useState('');
+
+  const history = useHistory();
 
   useEffect(() => {
     setRawPlan(JSON.stringify(blueprint.plan, null, '  '));
@@ -169,7 +172,7 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
                   setCurConnection(row);
                 }}
               >
-                <Icon icon="annotation" color={Colors.BLUE2} />
+                <Icon icon="add" color={Colors.BLUE2} />
                 <span>Add Data Scope</span>
               </div>
               <div
@@ -180,7 +183,11 @@ export const Configuration = ({ blueprint, operating, onUpdate, onRefresh }: Pro
                 }}
               >
                 <Icon icon="annotation" color={Colors.BLUE2} />
-                <span>Edit Transformation</span>
+                <span>Re-apply Transformation</span>
+              </div>
+              <div className="item" onClick={() => history.push('/transformations')}>
+                <Icon icon="cog" color={Colors.BLUE2} />
+                <span>Manage Transformations</span>
               </div>
             </S.ActionColumn>
           ),
