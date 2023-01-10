@@ -18,10 +18,11 @@
 
 import React, { useState, useMemo, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 import type { ConnectionItemType } from '@/store';
 import { useConnection, ConnectionStatusEnum } from '@/store';
-import { operator } from '@/utils';
+import { operator, formatTime } from '@/utils';
 
 import { ModeEnum, FromEnum } from '../types';
 import { validRawPlan } from '../utils';
@@ -83,7 +84,9 @@ export const BPContextProvider = ({ from, projectName, children }: Props) => {
   const [cronConfig, setCronConfig] = useState('0 0 * * *');
   const [isManual, setIsManual] = useState(false);
   const [skipOnFail, setSkipOnFail] = useState(true);
-  const [createdDateAfter, setCreatedDateAfter] = useState<string | null>(null);
+  const [createdDateAfter, setCreatedDateAfter] = useState<string | null>(
+    formatTime(dayjs().subtract(6, 'month').startOf('day').toDate()),
+  );
 
   const history = useHistory();
 
