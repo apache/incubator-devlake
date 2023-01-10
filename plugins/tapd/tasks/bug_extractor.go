@@ -64,10 +64,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) errors.Error {
 
 			toolL.Status = statusLanguageMap[toolL.Status]
 			toolL.ConnectionId = data.Options.ConnectionId
-			toolL.Type = toolL.Bugtype
-			if toolL.Type == "" {
-				toolL.Type = "bug"
-			}
+			toolL.Type = "BUG"
 			toolL.StdType = stdTypeMappings[toolL.Type]
 			if toolL.StdType == "" {
 				toolL.StdType = ticket.BUG

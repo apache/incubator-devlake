@@ -61,7 +61,6 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) errors.Error {
 	if err != nil {
 		return err
 	}
-	stdTypeMappings := getStdTypeMappings(data)
 	customStatusMap := getStatusMapping(data)
 	logger.Info("convert changelog :%d", data.Options.WorkspaceId)
 	issueIdGen := didgen.NewDomainIdGenerator(&models.TapdBug{})
@@ -109,10 +108,6 @@ func ConvertBugChangelog(taskCtx core.SubTaskContext) errors.Error {
 					domainCl.FromValue = getStdStatus(domainCl.OriginalFromValue)
 					domainCl.ToValue = getStdStatus(domainCl.OriginalToValue)
 				}
-			}
-			if domainCl.FieldName == "bugtype" {
-				domainCl.FromValue = stdTypeMappings[domainCl.OriginalFromValue]
-				domainCl.ToValue = stdTypeMappings[domainCl.OriginalToValue]
 			}
 			return []interface{}{
 				domainCl,

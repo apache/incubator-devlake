@@ -38,28 +38,20 @@ func TestTapdStoryDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			CompanyId:    99,
 			WorkspaceId:  991,
+			TransformationRules: tasks.TransformationRules{
+				TypeMappings: map[string]tasks.TypeMapping{
+					"BUG":  {StandardType: "缺陷"},
+					"TASK": {StandardType: "任务"},
+					"需求":   {StandardType: "故事需求"},
+					"技术债":  {StandardType: "技术需求债务"},
+					"长篇故事": {StandardType: "Epic需求"},
+				},
+			},
 		},
 	}
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_status.csv",
-		"_raw_tapd_api_story_status")
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_status_last_steps.csv",
-		"_raw_tapd_api_story_status_last_steps")
-	// verify extraction
-	dataflowTester.FlushTabler(&models.TapdWorkitemType{})
-	dataflowTester.FlushTabler(&models.TapdStoryStatus{})
-	dataflowTester.Subtask(tasks.ExtractStoryStatusMeta, taskData)
-	dataflowTester.Subtask(tasks.EnrichStoryStatusLastStepMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.TapdStoryStatus{},
-		"./snapshot_tables/_tool_tapd_story_statuses.csv",
-		e2ehelper.ColumnWithRawData(
-			"connection_id",
-			"workspace_id",
-			"english_name",
-			"chinese_name",
-			"is_last_step",
-		),
-	)
+
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_tapd_workitem_types.csv", &models.TapdWorkitemType{})
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_tapd_story_statuses.csv", &models.TapdStoryStatus{})
 
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_stories.csv",

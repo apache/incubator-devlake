@@ -66,7 +66,7 @@ func ExtractTasks(taskCtx core.SubTaskContext) errors.Error {
 			toolL := taskBody.Task
 
 			toolL.ConnectionId = data.Options.ConnectionId
-			toolL.Type = "task"
+			toolL.Type = "TASK"
 			toolL.StdType = stdTypeMappings[toolL.Type]
 			if toolL.StdType == "" {
 				toolL.StdType = ticket.TASK
