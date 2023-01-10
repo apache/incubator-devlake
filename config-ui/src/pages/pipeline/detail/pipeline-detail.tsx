@@ -123,7 +123,7 @@ export const PipelineDetail = ({ id }: Props) => {
               <Button loading={operating} outlined intent={Intent.PRIMARY} text="Cancel" onClick={onCancel} />
             )}
 
-            {StatusEnum.FAILED === status && (
+            {[StatusEnum.FAILED, StatusEnum.PARTIAL].includes(status) && (
               <Button
                 loading={operating}
                 outlined
