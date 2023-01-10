@@ -93,7 +93,7 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) errors.Error {
 					Id: fmt.Sprintf("%s:%s", clIdGen.Generate(data.Options.ConnectionId, cl.Id), cl.Field),
 				},
 				IssueId:           issueIdGen.Generate(data.Options.ConnectionId, cl.StoryId),
-				AuthorId:          didgen.NewDomainIdGenerator(&models.TapdAccount{}).Generate(data.Options.ConnectionId, cl.Creator),
+				AuthorId:          getAccountIdGen().Generate(data.Options.ConnectionId, cl.Creator),
 				AuthorName:        cl.Creator,
 				FieldId:           cl.Field,
 				FieldName:         cl.Field,

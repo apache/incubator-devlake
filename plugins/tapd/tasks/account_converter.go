@@ -25,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/models/domainlayer/crossdomain"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
-	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
 	"github.com/apache/incubator-devlake/plugins/helper"
@@ -53,7 +52,6 @@ func ConvertAccounts(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	defer cursor.Close()
-	accountIdGen := didgen.NewDomainIdGenerator(&models.TapdAccount{})
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdAccount{}),
@@ -62,7 +60,7 @@ func ConvertAccounts(taskCtx core.SubTaskContext) errors.Error {
 			userTool := inputRow.(*models.TapdAccount)
 			issue := &crossdomain.Account{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: accountIdGen.Generate(data.Options.ConnectionId, userTool.User),
+					Id: getAccountIdGen().Generate(data.Options.ConnectionId, userTool.User),
 				},
 				UserName: userTool.User,
 				FullName: userTool.Name,

@@ -43,10 +43,30 @@ type Data struct {
 	Count int `json:"count"`
 }
 
-var UserIdGen *didgen.DomainIdGenerator
-var WorkspaceIdGen *didgen.DomainIdGenerator
-var IssueIdGen *didgen.DomainIdGenerator
-var IterIdGen *didgen.DomainIdGenerator
+var accountIdGen *didgen.DomainIdGenerator
+var workspaceIdGen *didgen.DomainIdGenerator
+var iterIdGen *didgen.DomainIdGenerator
+
+func getAccountIdGen() *didgen.DomainIdGenerator {
+	if accountIdGen == nil {
+		accountIdGen = didgen.NewDomainIdGenerator(&models.TapdAccount{})
+	}
+	return accountIdGen
+}
+
+func getWorkspaceIdGen() *didgen.DomainIdGenerator {
+	if workspaceIdGen == nil {
+		workspaceIdGen = didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
+	}
+	return workspaceIdGen
+}
+
+func getIterIdGen() *didgen.DomainIdGenerator {
+	if iterIdGen == nil {
+		iterIdGen = didgen.NewDomainIdGenerator(&models.TapdIteration{})
+	}
+	return iterIdGen
+}
 
 // res will not be used
 func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {

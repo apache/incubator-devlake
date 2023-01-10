@@ -51,7 +51,7 @@ func TestTapdIterationDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdIteration{},
 		"./snapshot_tables/_tool_tapd_iterations.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"name",
@@ -69,24 +69,16 @@ func TestTapdIterationDataFlow(t *testing.T) {
 			"launchdate",
 			"notice",
 			"releasename",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.TapdWorkspaceIteration{},
 		"./snapshot_tables/_tool_tapd_workspace_iterations.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"workspace_id",
 			"iteration_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.FlushTabler(&ticket.Sprint{})
 	dataflowTester.FlushTabler(&ticket.BoardSprint{})
@@ -94,11 +86,7 @@ func TestTapdIterationDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		ticket.Sprint{},
 		"./snapshot_tables/sprints.csv",
-		[]string{
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
+		e2ehelper.ColumnWithRawData(
 			"id",
 			"name",
 			"url",
@@ -107,18 +95,14 @@ func TestTapdIterationDataFlow(t *testing.T) {
 			"ended_date",
 			"completed_date",
 			"original_board_id",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		ticket.BoardSprint{},
 		"./snapshot_tables/board_sprints.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"board_id",
 			"sprint_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

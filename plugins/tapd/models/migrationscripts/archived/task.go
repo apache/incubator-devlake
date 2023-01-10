@@ -45,7 +45,7 @@ type TapdTask struct {
 	Remain          float32         `json:"remain,string"`
 	StdStatus       string          `gorm:"type:varchar(20)"`
 	StdType         string          `gorm:"type:varchar(20)"`
-	Type            string          `gorm:"type:varchar(20)"`
+	Type            string          `gorm:"type:varchar(255)"`
 	StoryId         uint64          `json:"story_id,string"`
 	Progress        int16           `json:"progress,string"`
 	HasAttachment   string          `gorm:"type:varchar(255)"`

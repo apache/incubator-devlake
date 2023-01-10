@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"github.com/apache/incubator-devlake/models/domainlayer"
-	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/core/dal"
@@ -37,7 +36,6 @@ func ConvertIteration(taskCtx core.SubTaskContext) errors.Error {
 	logger := taskCtx.GetLogger()
 	db := taskCtx.GetDal()
 	logger.Info("collect board:%d", data.Options.WorkspaceId)
-	iterIdGen := didgen.NewDomainIdGenerator(&models.TapdIteration{})
 	clauses := []dal.Clause{
 		dal.From(&models.TapdIteration{}),
 		dal.Where("connection_id = ? AND workspace_id = ?", data.Options.ConnectionId, data.Options.WorkspaceId),
@@ -56,8 +54,6 @@ func ConvertIteration(taskCtx core.SubTaskContext) errors.Error {
 			return ""
 		}
 	}
-	workspaceIdGen := didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
-
 	converter, err := helper.NewDataConverter(helper.DataConverterArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		InputRowType:       reflect.TypeOf(models.TapdIteration{}),
@@ -65,13 +61,13 @@ func ConvertIteration(taskCtx core.SubTaskContext) errors.Error {
 		Convert: func(inputRow interface{}) ([]interface{}, errors.Error) {
 			iter := inputRow.(*models.TapdIteration)
 			domainIter := &ticket.Sprint{
-				DomainEntity:    domainlayer.DomainEntity{Id: iterIdGen.Generate(data.Options.ConnectionId, iter.Id)},
+				DomainEntity:    domainlayer.DomainEntity{Id: getIterIdGen().Generate(data.Options.ConnectionId, iter.Id)},
 				Url:             fmt.Sprintf("https://www.tapd.cn/%d/prong/iterations/view/%d", iter.WorkspaceId, iter.Id),
 				Status:          getStdSprintStatus(iter.Status),
 				Name:            iter.Name,
 				StartedDate:     (*time.Time)(iter.Startdate),
 				EndedDate:       (*time.Time)(iter.Enddate),
-				OriginalBoardID: workspaceIdGen.Generate(iter.ConnectionId, iter.WorkspaceId),
+				OriginalBoardID: getWorkspaceIdGen().Generate(iter.ConnectionId, iter.WorkspaceId),
 				CompletedDate:   (*time.Time)(iter.Completed),
 			}
 			results := make([]interface{}, 0)
