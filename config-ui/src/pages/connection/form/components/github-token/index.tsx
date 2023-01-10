@@ -104,7 +104,7 @@ export const GitHubToken = ({ form, value, onChange }: Props) => {
       </p>
       <p>
         <a
-          href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token"
+          href="https://devlake.apache.org/docs/UserManuals/ConfigUI/GitHub/#auth-tokens"
           target="_blank"
           rel="noreferrer"
         >
