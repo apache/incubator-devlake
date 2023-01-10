@@ -46,4 +46,5 @@ dayjs.extend(LocalizedFormat);
 dayjs.extend(utc);
 dayjs.updateLocale('en', localeConfiguration);
 
-export const formatTime = (val: string | null, format = 'YYYY-MM-DD HH:mm') => (val ? dayjs(val).format(format) : '-');
+export const formatTime = (val: Date | string | null, format = 'YYYY-MM-DD HH:mm') =>
+  val ? dayjs(val).format(format) : '-';

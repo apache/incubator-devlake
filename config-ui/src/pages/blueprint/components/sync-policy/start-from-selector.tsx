@@ -44,6 +44,7 @@ const StartFromSelector = ({ value, onChange }: Props) => {
     ago30d.setDate(ago30d.getDate() - 30);
     const ago1y = new Date(now);
     ago1y.setUTCFullYear(ago1y.getFullYear() - 1);
+
     return [
       { label: 'Last 6 months', date: ago6m },
       { label: 'Last 90 days', date: ago90d },
@@ -55,12 +56,6 @@ const StartFromSelector = ({ value, onChange }: Props) => {
   const handleChangeDate = (val: string | Date | null) => {
     onChange(val ? formatTime(val, 'YYYY-MM-DD[T]HH:mm:ssZ') : null);
   };
-
-  useEffect(() => {
-    if (!value) {
-      handleChangeDate(quickDates[0].date);
-    }
-  }, [value]);
 
   return (
     <S.FromTimeWrapper>
