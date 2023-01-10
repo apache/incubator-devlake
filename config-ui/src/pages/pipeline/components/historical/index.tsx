@@ -25,12 +25,14 @@ import { saveAs } from 'file-saver';
 import { DEVLAKE_ENDPOINT } from '@/config';
 import { Card, Loading, Table, ColumnType, Inspector } from '@/components';
 import { useAutoRefresh } from '@/hooks';
-import { formatTime, duration } from '@/utils';
+import { formatTime } from '@/utils';
 
 import type { PipelineType } from '../../types';
 import { StatusEnum } from '../../types';
 import { STATUS_ICON, STATUS_LABEL, STATUS_CLS } from '../../misc';
 import * as API from '../../api';
+
+import { PipelineDuration } from '../duration';
 
 import * as S from './styled';
 
@@ -96,9 +98,11 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
         },
         {
           title: 'Duration',
-          dataIndex: ['beganAt', 'finishedAt'],
+          dataIndex: ['status', 'beganAt', 'finishedAt'],
           key: 'duration',
-          render: ({ beganAt, finishedAt }) => <span>{duration(beganAt, finishedAt)}</span>,
+          render: ({ status, beganAt, finishedAt }) => (
+            <PipelineDuration status={status} beganAt={beganAt} finishedAt={finishedAt} />
+          ),
         },
         {
           title: '',

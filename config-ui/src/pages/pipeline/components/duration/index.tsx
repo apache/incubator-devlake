@@ -16,5 +16,25 @@
  *
  */
 
-export * from './historical';
-export * from './duration';
+import React from 'react';
+import dayjs from 'dayjs';
+
+import { StatusEnum } from '../../types';
+
+interface Props {
+  status: StatusEnum;
+  beganAt: string;
+  finishedAt: string | null;
+}
+
+export const PipelineDuration = ({ status, beganAt, finishedAt }: Props) => {
+  if (![StatusEnum.CANCELLED, StatusEnum.COMPLETED, StatusEnum.FAILED].includes(status)) {
+    return <span>{dayjs(beganAt).toNow(true)}</span>;
+  }
+
+  if (!finishedAt) {
+    return <span>-</span>;
+  }
+
+  return <span>{dayjs(beganAt).from(finishedAt, true)}</span>;
+};
