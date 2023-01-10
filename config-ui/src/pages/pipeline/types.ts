@@ -46,8 +46,8 @@ export type TaskType = {
   status: StatusEnum;
   pipelineRow: number;
   pipelineCol: number;
-  beganAt?: string;
-  finishedAt?: string;
+  beganAt: string;
+  finishedAt: string | null;
   options: string;
   message: string;
   progressDetail?: {

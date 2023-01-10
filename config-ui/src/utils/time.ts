@@ -47,13 +47,3 @@ dayjs.extend(utc);
 dayjs.updateLocale('en', localeConfiguration);
 
 export const formatTime = (val: string | null, format = 'YYYY-MM-DD HH:mm') => (val ? dayjs(val).format(format) : '-');
-
-export const duration = (beganAt?: string, finishedAt?: string) => {
-  if (beganAt && finishedAt) {
-    return dayjs(beganAt).from(finishedAt, true);
-  } else if (beganAt) {
-    return dayjs(beganAt).toNow(true);
-  } else {
-    return '-';
-  }
-};

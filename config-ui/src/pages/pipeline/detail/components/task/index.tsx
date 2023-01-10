@@ -22,8 +22,8 @@ import { Tooltip2 } from '@blueprintjs/popover2';
 
 import type { PluginConfigType } from '@/plugins';
 import { Plugins, PluginConfig } from '@/plugins';
-import { duration } from '@/utils';
 
+import { PipelineDuration } from '../../../components';
 import { StatusEnum, TaskType } from '../../../types';
 import { STATUS_CLS } from '../../../misc';
 
@@ -106,7 +106,7 @@ export const Task = ({ task, operating, onRerun }: Props) => {
             <Icon icon="repeat" style={{ color: Colors.BLUE3 }} onClick={handleRerun} />
           </Tooltip2>
         )}
-        <span>{duration(beganAt, finishedAt)}</span>
+        <PipelineDuration status={status} beganAt={beganAt} finishedAt={finishedAt} />
       </S.Duration>
     </S.Wrapper>
   );
