@@ -38,6 +38,12 @@ func TestTapdTaskDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			CompanyId:    99,
 			WorkspaceId:  991,
+			TransformationRules: tasks.TransformationRules{
+				TypeMappings: map[string]tasks.TypeMapping{
+					"BUG":  {StandardType: "缺陷"},
+					"TASK": {StandardType: "任务"},
+				},
+			},
 		},
 	}
 	// import raw data table
