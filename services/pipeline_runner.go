@@ -113,6 +113,7 @@ func runPipeline(pipelineId uint64) errors.Error {
 	} else {
 		err = pipelineRun.runPipelineStandalone()
 	}
+	isCancelled := errors.Is(err, context.Canceled)
 	if err != nil {
 		err = errors.Default.Wrap(err, fmt.Sprintf("Error running pipeline %d.", pipelineId))
 	}
@@ -130,7 +131,7 @@ func runPipeline(pipelineId uint64) errors.Error {
 		dbPipeline.Message = err.Error()
 		dbPipeline.ErrorName = err.Messages().Format()
 	}
-	dbPipeline.Status, err = ComputePipelineStatus(dbPipeline)
+	dbPipeline.Status, err = ComputePipelineStatus(dbPipeline, isCancelled)
 	if err != nil {
 		globalPipelineLog.Error(err, "compute pipeline status failed")
 		return err
@@ -148,7 +149,7 @@ func runPipeline(pipelineId uint64) errors.Error {
 // 1. TASK_COMPLETED: all tasks were executed sucessfully
 // 2. TASK_FAILED: SkipOnFail=false with failed task(s)
 // 3. TASK_PARTIAL: SkipOnFail=true with failed task(s)
-func ComputePipelineStatus(pipeline *models.DbPipeline) (string, errors.Error) {
+func ComputePipelineStatus(pipeline *models.DbPipeline, isCancelled bool) (string, errors.Error) {
 	tasks, err := GetLatestTasksOfPipeline(pipeline)
 	if err != nil {
 		return "", err
@@ -168,7 +169,7 @@ func ComputePipelineStatus(pipeline *models.DbPipeline) (string, errors.Error) {
 		}
 	}
 
-	if running > 0 || (pipeline.SkipOnFail && pending > 0) {
+	if running > 0 || (!isCancelled && pipeline.SkipOnFail && pending > 0) {
 		return "", errors.Default.New("unexpected status, did you call computePipelineStatus at a wrong timing?")
 	}
 
