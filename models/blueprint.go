@@ -36,14 +36,14 @@ type Blueprint struct {
 	Name        string          `json:"name" validate:"required"`
 	ProjectName string          `json:"projectName" gorm:"type:varchar(255)"`
 	Mode        string          `json:"mode" gorm:"varchar(20)" validate:"required,oneof=NORMAL ADVANCED"`
-	Plan        json.RawMessage `json:"plan"`
+	Plan        json.RawMessage `json:"plan,omitempty"`
 	Enable      bool            `json:"enable"`
 	//please check this https://crontab.guru/ for detail
 	CronConfig   string          `json:"cronConfig" format:"* * * * *" example:"0 0 * * 1"`
 	IsManual     bool            `json:"isManual"`
 	SkipOnFail   bool            `json:"skipOnFail"`
 	Labels       []string        `json:"labels"`
-	Settings     json.RawMessage `json:"settings" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
+	Settings     json.RawMessage `json:"settings,omitempty" swaggertype:"array,string" example:"please check api: /blueprints/<PLUGIN_NAME>/blueprint-setting"`
 	common.Model `swaggerignore:"true"`
 }
 
