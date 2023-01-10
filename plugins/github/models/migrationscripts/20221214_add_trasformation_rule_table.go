@@ -40,7 +40,7 @@ func (script *addTransformationRule20221124) Up(basicRes core.BasicRes) errors.E
 }
 
 func (*addTransformationRule20221124) Version() uint64 {
-	return 20221214095900
+	return 20221214095902
 }
 
 func (*addTransformationRule20221124) Name() string {

@@ -23,7 +23,7 @@ import (
 
 type JenkinsTransformationRule struct {
 	archived.Model
-	Name              string `gorm:"type:varchar(255)"`
+	Name              string `gorm:"type:varchar(255);index:idx_name,unique" validate:"required"`
 	DeploymentPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern" json:"deploymentPattern"`
 	ProductionPattern string `gorm:"type:varchar(255)" mapstructure:"deploymentPattern,omitempty" json:"productionPattern"`
 }

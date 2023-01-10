@@ -41,7 +41,7 @@ type TypeMapping struct {
 type TypeMappings map[string]TypeMapping
 
 type JiraTransformationRule struct {
-	Name                       string       `gorm:"type:varchar(255)"`
+	Name                       string       `gorm:"type:varchar(255)" validate:"required"`
 	EpicKeyField               string       `json:"epicKeyField"`
 	StoryPointField            string       `json:"storyPointField"`
 	RemotelinkCommitShaPattern string       `json:"remotelinkCommitShaPattern"`

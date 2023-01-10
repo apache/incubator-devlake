@@ -27,7 +27,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/jira/models"
 	"github.com/apache/incubator-devlake/plugins/jira/tasks"
-	"github.com/mitchellh/mapstructure"
 )
 
 // CreateTransformationRule create transformation rule for Jira
@@ -43,11 +42,14 @@ import (
 func CreateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	rule, err := makeDbTransformationRuleFromInput(input)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error in makeJiraTransformationRule")
+		return nil, errors.BadInput.Wrap(err, "error in makeJiraTransformationRule")
 	}
 	err = basicRes.GetDal().Create(&rule)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
+		if basicRes.GetDal().IsDuplicationError(err) {
+			return nil, errors.BadInput.New("there was a transformation rule with the same name, please choose another name")
+		}
+		return nil, errors.BadInput.Wrap(err, "error on saving TransformationRule")
 	}
 	return &core.ApiResourceOutput{Body: rule, Status: http.StatusOK}, nil
 }
@@ -64,12 +66,12 @@ func CreateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 // @Failure 500  {object} shared.ApiBody "Internal Error"
 // @Router /plugins/jira/transformation_rules/{id} [PATCH]
 func UpdateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
-	transformationRuleId, err := strconv.ParseUint(input.Params["id"], 10, 64)
-	if err != nil {
-		return nil, errors.Default.Wrap(err, "the transformation rule ID should be an integer")
+	transformationRuleId, e := strconv.ParseUint(input.Params["id"], 10, 64)
+	if e != nil {
+		return nil, errors.Default.Wrap(e, "the transformation rule ID should be an integer")
 	}
 	var old models.JiraTransformationRule
-	err = basicRes.GetDal().First(&old, dal.Where("id = ?", transformationRuleId))
+	err := basicRes.GetDal().First(&old, dal.Where("id = ?", transformationRuleId))
 	if err != nil {
 		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
 	}
@@ -80,16 +82,19 @@ func UpdateTransformationRule(input *core.ApiResourceInput) (*core.ApiResourceOu
 	old.ID = transformationRuleId
 	err = basicRes.GetDal().Update(&old, dal.Where("id = ?", transformationRuleId))
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error on saving TransformationRule")
+		if basicRes.GetDal().IsDuplicationError(err) {
+			return nil, errors.BadInput.New("there was a transformation rule with the same name, please choose another name")
+		}
+		return nil, errors.BadInput.Wrap(err, "error on saving TransformationRule")
 	}
 	return &core.ApiResourceOutput{Body: old, Status: http.StatusOK}, nil
 }
 
 func makeDbTransformationRuleFromInput(input *core.ApiResourceInput) (*models.JiraTransformationRule, errors.Error) {
 	var req tasks.JiraTransformationRule
-	err := mapstructure.Decode(input.Body, &req)
+	err := helper.Decode(input.Body, &req, vld)
 	if err != nil {
-		return nil, errors.Default.Wrap(err, "error decoding map into transformationRule")
+		return nil, err
 	}
 	return req.ToDb()
 }
