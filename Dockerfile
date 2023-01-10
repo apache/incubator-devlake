@@ -48,6 +48,12 @@ COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 
 ENV PATH="/app/bin:${PATH}"
 
+# add tini
+ENV TINI_VERSION v0.19.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+ENTRYPOINT ["/tini", "--"]
+
 CMD ["lake"]
 
 # Notes: Docker for Mac(M1) sets up qemu emulation, you can try to use the amd64 image by adding the --platform=linux/amd64 flag. 

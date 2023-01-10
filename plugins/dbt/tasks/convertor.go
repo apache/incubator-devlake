@@ -45,6 +45,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	projectVars := data.Options.ProjectVars
 	args := data.Options.Args
 	failFast := data.Options.FailFast
+	threads := data.Options.Threads
 	noVersionCheck := data.Options.NoVersionCheck
 	excludeModels := data.Options.ExcludeModels
 	selector := data.Options.Selector
@@ -127,8 +128,8 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		}
 
 	}
-	//set default threads = 1, prevent dbt threads can not release, so occur zombie process
-	dbtExecParams := []string{"dbt", "run", "--project-dir", projectPath, "--threads", "1"}
+
+	dbtExecParams := []string{"dbt", "run", "--project-dir", projectPath}
 	if projectVars != nil {
 		jsonProjectVars, err := json.Marshal(projectVars)
 		if err != nil {
@@ -146,6 +147,10 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}
 	if failFast {
 		dbtExecParams = append(dbtExecParams, "--fail-fast")
+	}
+	if threads != 0 {
+		dbtExecParams = append(dbtExecParams, "--threads")
+		dbtExecParams = append(dbtExecParams, strconv.Itoa(threads))
 	}
 	if noVersionCheck {
 		dbtExecParams = append(dbtExecParams, "--no-version-check")

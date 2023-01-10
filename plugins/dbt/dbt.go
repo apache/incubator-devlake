@@ -87,6 +87,7 @@ func main() {
 	failFast := dbtCmd.Flags().BoolP("failFast", "", false, "dbt fail fast")
 	profilesPath := dbtCmd.Flags().StringP("profilesPath", "", "/Users/abeizn/.dbt", "dbt profiles path")
 	profile := dbtCmd.Flags().StringP("profile", "", "default", "dbt profile")
+	threads := dbtCmd.Flags().IntP("threads", "", 1, "dbt threads")
 	noVersionCheck := dbtCmd.Flags().BoolP("noVersionCheck", "", false, "dbt no version check")
 	excludeModels := dbtCmd.Flags().StringSliceP("excludeModels", "", []string{}, "dbt exclude models")
 	selector := dbtCmd.Flags().StringP("selector", "", "", "dbt selector")
@@ -116,6 +117,7 @@ func main() {
 			"failFast":       *failFast,
 			"profilesPath":   *profilesPath,
 			"profile":        *profile,
+			"threads":        *threads,
 			"noVersionCheck": *noVersionCheck,
 			"excludeModels":  *excludeModels,
 			"selector":       *selector,
