@@ -122,8 +122,3 @@ func ExtractStories(taskCtx core.SubTaskContext) errors.Error {
 
 	return extractor.Execute()
 }
-
-type typeMappings struct {
-	typeIdMappings  map[uint64]string
-	stdTypeMappings map[string]string
-}

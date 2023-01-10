@@ -111,6 +111,7 @@ func ConvertStoryChangelog(taskCtx core.SubTaskContext) errors.Error {
 				}
 			}
 			if domainCl.FieldName == "workitem_type_id" {
+				// As OriginalFromValue is value_before_parsed, so we don't need to transform id to name
 				if stdTypeMappings[domainCl.OriginalFromValue] != "" {
 					domainCl.FromValue = stdTypeMappings[domainCl.OriginalFromValue]
 				}
