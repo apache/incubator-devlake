@@ -47,7 +47,7 @@ func TestTapdCompanyDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdWorkspace{},
 		"./snapshot_tables/_tool_tapd_workspaces.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"name",
@@ -61,11 +61,7 @@ func TestTapdCompanyDataFlow(t *testing.T) {
 			"parent_id",
 			"creator",
 			"created",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 }

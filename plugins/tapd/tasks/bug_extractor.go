@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/models/domainlayer/ticket"
 	"strings"
 
 	"github.com/apache/incubator-devlake/plugins/core"
@@ -47,7 +48,7 @@ func ExtractBugs(taskCtx core.SubTaskContext) errors.Error {
 		return err
 	}
 	customStatusMap := getStatusMapping(data)
-
+	stdTypeMappings := getStdTypeMappings(data)
 	extractor, err := helper.NewApiExtractor(helper.ApiExtractorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		BatchSize:          100,
@@ -64,7 +65,10 @@ func ExtractBugs(taskCtx core.SubTaskContext) errors.Error {
 			toolL.Status = statusLanguageMap[toolL.Status]
 			toolL.ConnectionId = data.Options.ConnectionId
 			toolL.Type = "BUG"
-			toolL.StdType = "BUG"
+			toolL.StdType = stdTypeMappings[toolL.Type]
+			if toolL.StdType == "" {
+				toolL.StdType = ticket.BUG
+			}
 			if len(customStatusMap) != 0 {
 				toolL.StdStatus = customStatusMap[toolL.Status]
 			} else {

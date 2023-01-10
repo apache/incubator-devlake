@@ -48,16 +48,12 @@ func TestTapdStoryBugDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdStoryBug{},
 		"./snapshot_tables/_tool_tapd_story_bugs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"workspace_id",
 			"story_id",
 			"bug_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 }

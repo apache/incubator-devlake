@@ -42,7 +42,8 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_status.csv",
 		"_raw_tapd_api_story_status")
-
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_story_status_last_steps.csv",
+		"_raw_tapd_api_story_status_last_steps")
 	// verify extraction
 	dataflowTester.FlushTabler(&models.TapdStoryStatus{})
 	dataflowTester.Subtask(tasks.ExtractStoryStatusMeta, taskData)
@@ -50,24 +51,21 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdStoryStatus{},
 		"./snapshot_tables/_tool_tapd_story_statuses.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"workspace_id",
 			"english_name",
 			"chinese_name",
 			"is_last_step",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	// bug status
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status.csv",
 		"_raw_tapd_api_bug_status")
-
+	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status_last_steps.csv",
+		"_raw_tapd_api_bug_status_last_steps")
 	// verify extraction
 	dataflowTester.FlushTabler(&models.TapdBugStatus{})
 	dataflowTester.Subtask(tasks.ExtractBugStatusMeta, taskData)
@@ -75,16 +73,12 @@ func TestTapdStoryAndBugStatusDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdBugStatus{},
 		"./snapshot_tables/_tool_tapd_bug_statuses.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"workspace_id",
 			"english_name",
 			"chinese_name",
 			"is_last_step",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }

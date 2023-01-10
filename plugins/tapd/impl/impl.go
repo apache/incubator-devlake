@@ -25,7 +25,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 
 	"github.com/apache/incubator-devlake/migration"
-	"github.com/apache/incubator-devlake/models/domainlayer/didgen"
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/tapd/api"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
@@ -205,10 +204,6 @@ func (plugin Tapd) PrepareTaskData(taskCtx core.TaskContext, options map[string]
 	if !since.IsZero() {
 		taskData.Since = &since
 	}
-	tasks.WorkspaceIdGen = didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
-	tasks.IssueIdGen = didgen.NewDomainIdGenerator(&models.TapdIssue{})
-	tasks.IterIdGen = didgen.NewDomainIdGenerator(&models.TapdIteration{})
-
 	return taskData, nil
 }
 

@@ -21,8 +21,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"net/http"
-
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/tapd/models"
@@ -39,12 +37,6 @@ func NewTapdApiClient(taskCtx core.TaskContext, connection *models.TapdConnectio
 	if err != nil {
 		return nil, err
 	}
-	apiClient.SetAfterFunction(func(res *http.Response) errors.Error {
-		if res.StatusCode == http.StatusUnprocessableEntity {
-			return errors.HttpStatus(res.StatusCode).New("authentication failed, please check your AccessToken")
-		}
-		return nil
-	})
 
 	// create rate limit calculator
 	rateLimiter := &helper.ApiRateLimitCalculator{

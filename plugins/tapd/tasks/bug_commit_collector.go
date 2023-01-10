@@ -86,9 +86,8 @@ func CollectBugCommits(taskCtx core.SubTaskContext) errors.Error {
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		Incremental:        incremental,
 		ApiClient:          data.ApiClient,
-		//PageSize:    100,
-		Input:       iterator,
-		UrlTemplate: "code_commit_infos",
+		Input:              iterator,
+		UrlTemplate:        "code_commit_infos",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
 			input := reqData.Input.(*SimpleBug)
 			query := url.Values{}

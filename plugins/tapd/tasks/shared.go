@@ -43,10 +43,30 @@ type Data struct {
 	Count int `json:"count"`
 }
 
-var UserIdGen *didgen.DomainIdGenerator
-var WorkspaceIdGen *didgen.DomainIdGenerator
-var IssueIdGen *didgen.DomainIdGenerator
-var IterIdGen *didgen.DomainIdGenerator
+var accountIdGen *didgen.DomainIdGenerator
+var workspaceIdGen *didgen.DomainIdGenerator
+var iterIdGen *didgen.DomainIdGenerator
+
+func getAccountIdGen() *didgen.DomainIdGenerator {
+	if accountIdGen == nil {
+		accountIdGen = didgen.NewDomainIdGenerator(&models.TapdAccount{})
+	}
+	return accountIdGen
+}
+
+func getWorkspaceIdGen() *didgen.DomainIdGenerator {
+	if workspaceIdGen == nil {
+		workspaceIdGen = didgen.NewDomainIdGenerator(&models.TapdWorkspace{})
+	}
+	return workspaceIdGen
+}
+
+func getIterIdGen() *didgen.DomainIdGenerator {
+	if iterIdGen == nil {
+		iterIdGen = didgen.NewDomainIdGenerator(&models.TapdIteration{})
+	}
+	return iterIdGen
+}
 
 // res will not be used
 func GetTotalPagesFromResponse(r *http.Response, args *helper.ApiCollectorArgs) (int, errors.Error) {
@@ -142,7 +162,8 @@ func CreateRawDataSubTaskArgs(taskCtx core.SubTaskContext, rawTable string, useC
 	return rawDataSubTaskArgs, &filteredData
 }
 
-func getTypeMappings(data *TapdTaskData, db dal.Dal, system string) (*typeMappings, errors.Error) {
+// getTapdTypeMappings will map story types in _tool_tapd_workitem_types to our typeMapping
+func getTapdTypeMappings(data *TapdTaskData, db dal.Dal, system string) (map[uint64]string, errors.Error) {
 	typeIdMapping := make(map[uint64]string)
 	issueTypes := make([]models.TapdWorkitemType, 0)
 	clauses := []dal.Clause{
@@ -157,14 +178,15 @@ func getTypeMappings(data *TapdTaskData, db dal.Dal, system string) (*typeMappin
 	for _, issueType := range issueTypes {
 		typeIdMapping[issueType.Id] = issueType.Name
 	}
+	return typeIdMapping, nil
+}
+
+func getStdTypeMappings(data *TapdTaskData) map[string]string {
 	stdTypeMappings := make(map[string]string)
 	for userType, stdType := range data.Options.TransformationRules.TypeMappings {
 		stdTypeMappings[userType] = strings.ToUpper(stdType.StandardType)
 	}
-	return &typeMappings{
-		typeIdMappings:  typeIdMapping,
-		stdTypeMappings: stdTypeMappings,
-	}, nil
+	return stdTypeMappings
 }
 
 func getStatusMapping(data *TapdTaskData) map[string]string {

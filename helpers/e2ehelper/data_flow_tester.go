@@ -349,6 +349,22 @@ func formatDbValue(value interface{}) string {
 	return ``
 }
 
+// ColumnWithRawData create an Column string with _raw_data_* appending
+func ColumnWithRawData(column ...string) []string {
+	return append(
+		column,
+		"_raw_data_params",
+		"_raw_data_table",
+		"_raw_data_id",
+		"_raw_data_remark",
+	)
+}
+
+// VerifyTableWithRawData use VerifyTable and append the _raw_data_* checking after targetFields
+func (t *DataFlowTester) VerifyTableWithRawData(dst schema.Tabler, csvRelPath string, targetFields []string) {
+	t.VerifyTable(dst, csvRelPath, ColumnWithRawData(targetFields...))
+}
+
 // VerifyTable reads rows from csv file and compare with records from database one by one. You must specify the
 // Primary Key Fields with `pkFields` so DataFlowTester could select the exact record from database, as well as which
 // fields to compare with by specifying `targetFields` parameter. Leaving `targetFields` empty/nil will compare all fields.

@@ -42,7 +42,7 @@ type TapdStory struct {
 	Developer       string          `gorm:"type:varchar(255)" json:"developer"`
 	IterationId     uint64          `json:"iteration_id,string"`
 	TestFocus       string          `json:"test_focus" gorm:"type:varchar(255)"`
-	Type            string          `json:"type" gorm:"type:varchar(20)"`
+	Type            string          `json:"type" gorm:"type:varchar(255)"`
 	Source          string          `json:"source" gorm:"type:varchar(255)"`
 	Module          string          `json:"module" gorm:"type:varchar(255)"`
 	Version         string          `json:"version" gorm:"type:varchar(255)"`

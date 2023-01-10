@@ -52,7 +52,7 @@ func ConvertSubWorkspace(taskCtx core.SubTaskContext) errors.Error {
 			workspace := inputRow.(*models.TapdSubWorkspace)
 			domainBoard := &ticket.Board{
 				DomainEntity: domainlayer.DomainEntity{
-					Id: WorkspaceIdGen.Generate(workspace.ConnectionId, workspace.Id),
+					Id: getWorkspaceIdGen().Generate(workspace.ConnectionId, workspace.Id),
 				},
 				Name: workspace.Name,
 				Url:  fmt.Sprintf("%s/%d", "https://tapd.cn", workspace.Id),

@@ -38,35 +38,17 @@ func TestTapdBugDataFlow(t *testing.T) {
 			ConnectionId: 1,
 			CompanyId:    99,
 			WorkspaceId:  991,
+			TransformationRules: tasks.TransformationRules{
+				TypeMappings: map[string]tasks.TypeMapping{
+					"BUG":  {StandardType: "缺陷"},
+					"TASK": {StandardType: "任务"},
+				},
+			},
 		},
 	}
 
 	// bug status
-	// import raw data table
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status.csv",
-		"_raw_tapd_api_bug_status")
-	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bug_status_last_steps.csv",
-		"_raw_tapd_api_bug_status_last_steps")
-
-	// verify extraction
-	dataflowTester.FlushTabler(&models.TapdBugStatus{})
-	dataflowTester.Subtask(tasks.ExtractBugStatusMeta, taskData)
-	dataflowTester.Subtask(tasks.EnrichBugStatusLastStepMeta, taskData)
-	dataflowTester.VerifyTable(
-		models.TapdBugStatus{},
-		"./snapshot_tables/_tool_tapd_bug_statuses.csv",
-		[]string{
-			"connection_id",
-			"workspace_id",
-			"english_name",
-			"chinese_name",
-			"is_last_step",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
-	)
+	dataflowTester.ImportCsvIntoTabler("./raw_tables/_tool_tapd_bug_statuses.csv", &models.TapdBugStatus{})
 
 	// import raw data table
 	dataflowTester.ImportCsvIntoRawTable("./raw_tables/_raw_tapd_api_bugs.csv", "_raw_tapd_api_bugs")
@@ -80,7 +62,7 @@ func TestTapdBugDataFlow(t *testing.T) {
 	dataflowTester.VerifyTable(
 		models.TapdBug{},
 		"./snapshot_tables/_tool_tapd_bugs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"id",
 			"epic_key",
@@ -100,10 +82,6 @@ func TestTapdBugDataFlow(t *testing.T) {
 			"release_id",
 			"created_from",
 			"feature",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"severity",
 			"reporter",
 			"resolved",
@@ -215,48 +193,36 @@ func TestTapdBugDataFlow(t *testing.T) {
 			"custom_field48",
 			"custom_field49",
 			"custom_field50",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.TapdWorkSpaceBug{},
 		"./snapshot_tables/_tool_tapd_workspace_bugs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"workspace_id",
 			"bug_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.TapdIterationBug{},
 		"./snapshot_tables/_tool_tapd_iteration_bugs.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"connection_id",
 			"workspace_id",
 			"iteration_id",
 			"bug_id",
 			"resolution_date",
 			"bug_created_date",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		models.TapdBugLabel{},
 		"./snapshot_tables/_tool_tapd_bug_labels.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"label_name",
 			"bug_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 
 	dataflowTester.FlushTabler(&ticket.Issue{})
@@ -266,13 +232,9 @@ func TestTapdBugDataFlow(t *testing.T) {
 	dataflowTester.Subtask(tasks.ConvertBugMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.Issue{},
-		"./snapshot_tables/_tool_tapd_bug_labels_bug.csv",
-		[]string{
+		"./snapshot_tables/issue_bug.csv",
+		e2ehelper.ColumnWithRawData(
 			"id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
 			"url",
 			"issue_key",
 			"title",
@@ -298,43 +260,31 @@ func TestTapdBugDataFlow(t *testing.T) {
 			"component",
 			"icon_url",
 			"creator_name",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		ticket.BoardIssue{},
 		"./snapshot_tables/board_issues_bug.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"board_id",
 			"issue_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.VerifyTable(
 		ticket.SprintIssue{},
 		"./snapshot_tables/sprint_issues_bug.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"issue_id",
 			"sprint_id",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 	dataflowTester.Subtask(tasks.ConvertBugLabelsMeta, taskData)
 	dataflowTester.VerifyTable(
 		ticket.IssueLabel{},
 		"./snapshot_tables/issue_labels_bug.csv",
-		[]string{
+		e2ehelper.ColumnWithRawData(
 			"issue_id",
 			"label_name",
-			"_raw_data_params",
-			"_raw_data_table",
-			"_raw_data_id",
-			"_raw_data_remark",
-		},
+		),
 	)
 }
