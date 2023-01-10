@@ -46,7 +46,6 @@ func CollectApiPipelines(taskCtx core.SubTaskContext) errors.Error {
 	err = collectorWithState.InitCollector(helper.ApiCollectorArgs{
 		RawDataSubTaskArgs: *rawDataSubTaskArgs,
 		ApiClient:          data.ApiClient,
-		Concurrency:        5,
 		PageSize:           100,
 		Incremental:        incremental,
 		UrlTemplate:        "projects/{{ .Params.ProjectId }}/pipelines",

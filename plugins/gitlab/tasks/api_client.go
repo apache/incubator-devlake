@@ -19,14 +19,13 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/apache/incubator-devlake/plugins/gitlab/models"
-
+	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/gitlab/models"
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
@@ -54,7 +53,11 @@ func NewGitlabApiClient(taskCtx core.TaskContext, connection *models.GitlabConne
 				return 0, 0, errors.Default.Wrap(err, "failed to parse RateLimit-Limit header")
 			}
 			// seems like gitlab rate limit is on minute basis
-			return rateLimit, 1 * time.Minute, nil
+			if rateLimit > 200 {
+				return 200, 1 * time.Minute, nil
+			} else {
+				return rateLimit, 1 * time.Minute, nil
+			}
 		},
 	}
 	asyncApiClient, err := helper.CreateAsyncApiClient(
