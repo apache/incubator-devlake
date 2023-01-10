@@ -19,10 +19,10 @@
 import React, { useState, useEffect } from 'react';
 
 import { Dialog } from '@/components';
-import { SyncPolicy } from '@/plugins';
 
 import type { BlueprintType } from '../../../types';
 import { ModeEnum } from '../../../types';
+import { SyncPolicy } from '../../../components';
 
 interface Props {
   blueprint: BlueprintType;
