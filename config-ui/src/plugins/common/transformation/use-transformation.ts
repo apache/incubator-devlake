@@ -118,7 +118,7 @@ export const useTransformation = ({
       }));
 
       if (payload.length) {
-        API.updateDataScope(plugin, connectionId, {
+        await API.updateDataScope(plugin, connectionId, {
           data: payload,
         });
       }
