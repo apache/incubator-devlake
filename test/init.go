@@ -15,13 +15,29 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package greetings
+package test
 
-import "fmt"
+import (
+	"github.com/apache/incubator-devlake/config"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/services"
+)
 
-// Hello returns a greeting for the named person.
-func Hello(name string) string {
-	// Return a greeting that embeds the name in a message.
-	message := fmt.Sprintf("Hi, %v. Welcome!", name)
-	return message
+func init() {
+	v := config.GetConfig()
+	encKey := v.GetString(core.EncodeKeyEnvStr)
+	if encKey == "" {
+		// Randomly generate a bunch of encryption keys and set them to config
+		encKey = core.RandomEncKey()
+		v.Set(core.EncodeKeyEnvStr, encKey)
+		err := config.WriteConfig(v)
+		if err != nil {
+			panic(err)
+		}
+	}
+	services.InitResources()
+	err := services.GetMigrator().Execute()
+	if err != nil {
+		panic(err)
+	}
 }

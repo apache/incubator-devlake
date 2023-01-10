@@ -49,7 +49,7 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
   const formatJobs = (jobs: any, parentId: ID | null = null) =>
     jobs.map((it: any) => ({
       parentId,
-      id: it.name,
+      id: parentId ? `${parentId}/${it.name}` : it.name,
       title: it.name,
       type: it.jobs ? 'folder' : 'file',
     }));
@@ -62,23 +62,12 @@ export const useMillerColumns = ({ connectionId }: UseMillerColumnsProps) => {
     })();
   }, [prefix]);
 
-  const getJobs = (item?: JenkinsItemType): ID[] => {
-    let result = [];
-
-    if (item) {
-      result.push(item.id);
-      result.unshift(...getJobs(items.find((it) => it.id === item.parentId)));
-    }
-    return result;
-  };
-
   const onExpandItem = async (item: JenkinsItemType) => {
     if (expandedIds.includes(item.id)) {
       return;
     }
 
-    const jobs = getJobs(item);
-    const res = await API.getJobChildJobs(prefix, jobs.join('/job/'));
+    const res = await API.getJobChildJobs(prefix, (item.id as string).split('/').join('/job/'));
 
     setExpandedIds([...expandedIds, item.id]);
     setLoadedIds([...loadedIds, item.id]);
