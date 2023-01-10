@@ -20,8 +20,11 @@ services:
     volumes:
       - mysql-storage:/var/lib/mysql
     restart: always
-    ports:
-      - 127.0.0.1:3306:3306
+    # ports:
+    #   - 127.0.0.1:3306:3306
+    networks:
+      devlake_network: 
+        ipv4_address: 10.6.1.13
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: lake
@@ -44,12 +47,15 @@ services:
     image: mericodev/devlake-dashboard:latest
     build:
       context: grafana/
-    ports:
-      - 3002:3000
+    # ports:
+    #   - 3002:3000
+    networks:
+      devlake_network: 
+        ipv4_address: 10.6.1.12
     volumes:
       - grafana-storage:/var/lib/grafana
     environment:
-      GF_SERVER_ROOT_URL: "http://localhost:4000/grafana"
+      GF_SERVER_ROOT_URL: "http://10.6.1.12:4000/grafana"
       GF_USERS_DEFAULT_THEME: "light"
       MYSQL_URL: mysql:3306
       MYSQL_DATABASE: lake
@@ -66,8 +72,11 @@ services:
       args:
         HTTPS_PROXY: "${HTTPS_PROXY}"
         GOPROXY: "${GOPROXY}"
-    ports:
-      - 127.0.0.1:8080:8080
+    # ports:
+    #   - 127.0.0.1:8080:8080
+    networks:
+      devlake_network: 
+        ipv4_address: 10.6.1.10
     restart: always
     volumes:
       - ./.env:/app/.env
@@ -81,8 +90,11 @@ services:
     image: mericodev/devlake-config-ui:latest
     build:
       context: "config-ui"
-    ports:
-      - 127.0.0.1:4000:4000
+    # ports:
+    #   - 127.0.0.1:4000:4000
+    networks:
+      devlake_network: 
+        ipv4_address: 10.6.1.11
     env_file:
       - ./.env
     environment:
@@ -93,6 +105,12 @@ services:
     depends_on:
       - devlake
 
+networks:
+  devlake_network:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.6.1.0/24
 volumes:
   mysql-storage:
   grafana-storage:
