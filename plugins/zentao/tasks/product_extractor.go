@@ -56,7 +56,7 @@ func ExtractProducts(taskCtx core.SubTaskContext) errors.Error {
 			}
 			product := &models.ZentaoProduct{
 				ConnectionId:   data.Options.ConnectionId,
-				Id:             uint64(res.ID),
+				Id:             int64(res.ID),
 				Program:        res.Program,
 				Name:           res.Name,
 				Code:           res.Code,

@@ -15,23 +15,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package errors
 
-import (
-	"github.com/apache/incubator-devlake/models/common"
-)
+import "errors"
 
-type ZentaoAccount struct {
-	common.NoPKModel
-	ConnectionId uint64 `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           int64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
-	Account      string `json:"account" gorm:"type:varchar(100);index"`
-	Avatar       string `json:"avatar" gorm:"type:varchar(255)"`
-	Realname     string `json:"realname" gorm:"type:varchar(100);index"`
-	Role         string `json:"role" gorm:"type:varchar(100);index"`
-	Dept         int64  `json:"dept" gorm:"type:BIGINT  NOT NULL;index"`
+// Is convenience passthrough for the native errors.Is method
+func Is(err, target error) bool {
+	return errors.Is(err, target)
 }
 
-func (ZentaoAccount) TableName() string {
-	return "_tool_zentao_accounts"
+// As convenience passthrough for the native errors.As method
+func As(err error, target any) bool {
+	return errors.As(err, &target)
 }

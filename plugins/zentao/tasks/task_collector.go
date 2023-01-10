@@ -45,8 +45,7 @@ func CollectTask(taskCtx core.SubTaskContext) errors.Error {
 			Table: RAW_TASK_TABLE,
 		},
 		ApiClient: data.ApiClient,
-
-		PageSize: 100,
+		PageSize:  100,
 		// TODO write which api would you want request
 		UrlTemplate: "/executions/{{ .Params.ExecutionId }}/tasks",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {

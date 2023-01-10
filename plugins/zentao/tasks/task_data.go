@@ -25,9 +25,9 @@ import (
 
 type ZentaoApiParams struct {
 	ConnectionId uint64
-	ProductId    uint64
-	ExecutionId  uint64
-	ProjectId    uint64
+	ProductId    int64
+	ExecutionId  int64
+	ProjectId    int64
 }
 
 type ZentaoOptions struct {
@@ -36,9 +36,9 @@ type ZentaoOptions struct {
 	// Such As How many rows do your want
 	// You can use it in sub tasks and you need pass it in main.go and pipelines.
 	ConnectionId uint64 `json:"connectionId"`
-	ProductId    uint64
-	ExecutionId  uint64
-	ProjectId    uint64
+	ProductId    int64
+	ExecutionId  int64
+	ProjectId    int64
 	Tasks        []string `json:"tasks,omitempty"`
 	Since        string
 }

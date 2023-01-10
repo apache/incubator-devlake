@@ -46,8 +46,6 @@ func CollectExecution(taskCtx core.SubTaskContext) errors.Error {
 			Table: RAW_EXECUTION_TABLE,
 		},
 		ApiClient: data.ApiClient,
-
-		PageSize: 100,
 		// TODO write which api would you want request
 		UrlTemplate: "executions/{{ .Params.ExecutionId }}",
 		Query: func(reqData *helper.RequestData) (url.Values, errors.Error) {
@@ -56,7 +54,6 @@ func CollectExecution(taskCtx core.SubTaskContext) errors.Error {
 			query.Set("limit", fmt.Sprintf("%v", reqData.Pager.Size))
 			return query, nil
 		},
-		GetTotalPages: GetTotalPagesFromResponse,
 		ResponseParser: func(res *http.Response) ([]json.RawMessage, errors.Error) {
 			body, err := io.ReadAll(res.Body)
 			if err != nil {

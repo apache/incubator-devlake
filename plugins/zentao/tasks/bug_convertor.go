@@ -74,7 +74,7 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: bugIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),
 				},
-				IssueKey:       strconv.FormatUint(toolEntity.ID, 10),
+				IssueKey:       strconv.FormatInt(toolEntity.ID, 10),
 				Title:          toolEntity.Title,
 				Type:           ticket.BUG,
 				OriginalStatus: toolEntity.Status,
@@ -83,9 +83,9 @@ func ConvertBug(taskCtx core.SubTaskContext) errors.Error {
 				UpdatedDate:    toolEntity.LastEditedDate.ToNullableTime(),
 				ParentIssueId:  storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Story),
 				Priority:       string(rune(toolEntity.Pri)),
-				CreatorId:      strconv.FormatUint(toolEntity.OpenedById, 10),
+				CreatorId:      strconv.FormatInt(toolEntity.OpenedById, 10),
 				CreatorName:    toolEntity.OpenedByName,
-				AssigneeId:     strconv.FormatUint(toolEntity.AssignedToId, 10),
+				AssigneeId:     strconv.FormatInt(toolEntity.AssignedToId, 10),
 				AssigneeName:   toolEntity.AssignedToName,
 				Severity:       string(rune(toolEntity.Severity)),
 			}

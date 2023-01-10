@@ -23,10 +23,10 @@ import (
 )
 
 type ZentaoStoryRes struct {
-	ID               uint64              `json:"id"`
+	ID               int64               `json:"id"`
 	Vision           string              `json:"vision"`
-	Parent           uint64              `json:"parent"`
-	Product          uint64              `json:"product"`
+	Parent           int64               `json:"parent"`
+	Product          int64               `json:"product"`
 	Branch           int                 `json:"branch"`
 	Module           int                 `json:"module"`
 	Plan             string              `json:"plan"`
@@ -46,7 +46,7 @@ type ZentaoStoryRes struct {
 	Stage            string              `json:"stage"`
 	Mailto           []interface{}       `json:"mailto"`
 	Lib              int                 `json:"lib"`
-	FromStory        uint64              `json:"fromStory"`
+	FromStory        int64               `json:"fromStory"`
 	FromVersion      int                 `json:"fromVersion"`
 	OpenedBy         *ZentaoAccount      `json:"openedBy"`
 	OpenedDate       *helper.Iso8601Time `json:"openedDate"`
@@ -67,7 +67,7 @@ type ZentaoStoryRes struct {
 	ChildStories     string              `json:"childStories"`
 	LinkStories      string              `json:"linkStories"`
 	LinkRequirements string              `json:"linkRequirements"`
-	DuplicateStory   uint64              `json:"duplicateStory"`
+	DuplicateStory   int64               `json:"duplicateStory"`
 	Version          int                 `json:"version"`
 	StoryChanged     string              `json:"storyChanged"`
 	FeedbackBy       string              `json:"feedbackBy"`
@@ -82,13 +82,13 @@ type ZentaoStoryRes struct {
 type ZentaoStory struct {
 	common.NoPKModel
 	ConnectionId uint64  `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           uint64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
-	Product      uint64  `json:"product"`
+	ID           int64   `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
+	Product      int64   `json:"product"`
 	Branch       int     `json:"branch"`
 	Version      int     `json:"version"`
 	OrderIn      int     `json:"order"`
 	Vision       string  `json:"vision"`
-	Parent       uint64  `json:"parent"`
+	Parent       int64   `json:"parent"`
 	Module       int     `json:"module"`
 	Plan         string  `json:"plan"`
 	Source       string  `json:"source"`
@@ -106,22 +106,22 @@ type ZentaoStory struct {
 	Color        string  `json:"color"`
 	Stage        string  `json:"stage"`
 	//Mailto           []interface{} `json:"mailto"`
-	Lib              int    `json:"lib"`
-	FromStory        uint64 `json:"fromStory"`
-	FromVersion      int    `json:"fromVersion"`
-	OpenedById       uint64
+	Lib              int   `json:"lib"`
+	FromStory        int64 `json:"fromStory"`
+	FromVersion      int   `json:"fromVersion"`
+	OpenedById       int64
 	OpenedByName     string
 	OpenedDate       *helper.Iso8601Time `json:"openedDate"`
-	AssignedToId     uint64
+	AssignedToId     int64
 	AssignedToName   string
 	AssignedDate     *helper.Iso8601Time `json:"assignedDate"`
 	ApprovedDate     *helper.Iso8601Time `json:"approvedDate"`
-	LastEditedId     uint64
+	LastEditedId     int64
 	LastEditedDate   *helper.Iso8601Time `json:"lastEditedDate"`
 	ChangedDate      *helper.Iso8601Time `json:"changedDate"`
-	ReviewedById     uint64              `json:"reviewedBy"`
+	ReviewedById     int64               `json:"reviewedBy"`
 	ReviewedDate     *helper.Iso8601Time `json:"reviewedDate"`
-	ClosedId         uint64
+	ClosedId         int64
 	ClosedDate       *helper.Iso8601Time `json:"closedDate"`
 	ClosedReason     string              `json:"closedReason"`
 	ActivatedDate    *helper.Iso8601Time `json:"activatedDate"`
@@ -129,7 +129,7 @@ type ZentaoStory struct {
 	ChildStories     string              `json:"childStories"`
 	LinkStories      string              `json:"linkStories"`
 	LinkRequirements string              `json:"linkRequirements"`
-	DuplicateStory   uint64              `json:"duplicateStory"`
+	DuplicateStory   int64               `json:"duplicateStory"`
 	StoryChanged     string              `json:"storyChanged"`
 	FeedbackBy       string              `json:"feedbackBy"`
 	NotifyEmail      string              `json:"notifyEmail"`

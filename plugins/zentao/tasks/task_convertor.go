@@ -44,7 +44,7 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 	data := taskCtx.GetData().(*ZentaoTaskData)
 	db := taskCtx.GetDal()
 	storyIdGen := didgen.NewDomainIdGenerator(&models.ZentaoStory{})
-	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoProduct{})
+	boardIdGen := didgen.NewDomainIdGenerator(&models.ZentaoExecution{})
 	taskIdGen := didgen.NewDomainIdGenerator(&models.ZentaoTask{})
 	cursor, err := db.Cursor(
 		dal.From(&models.ZentaoTask{}),
@@ -75,7 +75,7 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				DomainEntity: domainlayer.DomainEntity{
 					Id: taskIdGen.Generate(toolEntity.ConnectionId, toolEntity.ID),
 				},
-				IssueKey:       strconv.FormatUint(toolEntity.ID, 10),
+				IssueKey:       strconv.FormatInt(toolEntity.ID, 10),
 				Title:          toolEntity.Name,
 				Description:    toolEntity.Description,
 				Type:           "TASK",
@@ -85,9 +85,9 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				UpdatedDate:    toolEntity.LastEditedDate.ToNullableTime(),
 				ParentIssueId:  storyIdGen.Generate(data.Options.ConnectionId, toolEntity.Parent),
 				Priority:       string(rune(toolEntity.Pri)),
-				CreatorId:      strconv.FormatUint(toolEntity.OpenedById, 10),
+				CreatorId:      strconv.FormatInt(toolEntity.OpenedById, 10),
 				CreatorName:    toolEntity.OpenedByName,
-				AssigneeId:     strconv.FormatUint(toolEntity.AssignedToId, 10),
+				AssigneeId:     strconv.FormatInt(toolEntity.AssignedToId, 10),
 				AssigneeName:   toolEntity.AssignedToName,
 			}
 			switch toolEntity.Status {
@@ -102,7 +102,7 @@ func ConvertTask(taskCtx core.SubTaskContext) errors.Error {
 				domainEntity.LeadTimeMinutes = int64(toolEntity.ClosedDate.ToNullableTime().Sub(toolEntity.OpenedDate.ToTime()).Minutes())
 			}
 			domainBoardIssue := &ticket.BoardIssue{
-				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ProductId),
+				BoardId: boardIdGen.Generate(data.Options.ConnectionId, data.Options.ExecutionId),
 				IssueId: domainEntity.Id,
 			}
 			results := make([]interface{}, 0)

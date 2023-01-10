@@ -25,14 +25,14 @@ import (
 type ZentaoStory struct {
 	archived.NoPKModel
 	ConnectionId uint64  `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID           uint64  `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
-	Project      uint64  `json:"project"`
-	Product      uint64  `json:"product"`
+	ID           int64   `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL" `
+	Project      int64   `json:"project"`
+	Product      int64   `json:"product"`
 	Branch       int     `json:"branch"`
 	Version      int     `json:"version"`
 	OrderIn      int     `json:"order"`
 	Vision       string  `json:"vision"`
-	Parent       uint64  `json:"parent"`
+	Parent       int64   `json:"parent"`
 	Module       int     `json:"module"`
 	Plan         string  `json:"plan"`
 	Source       string  `json:"source"`
@@ -50,24 +50,24 @@ type ZentaoStory struct {
 	SubStatus    string  `json:"subStatus"`
 	Color        string  `json:"color"`
 	Stage        string  `json:"stage"`
-	StagedById   uint64  `json:"stagedBy"`
+	StagedById   int64   `json:"stagedBy"`
 	//Mailto           []interface{} `json:"mailto"`
-	Lib              int    `json:"lib"`
-	FromStory        uint64 `json:"fromStory"`
-	FromVersion      int    `json:"fromVersion"`
-	OpenedById       uint64
+	Lib              int   `json:"lib"`
+	FromStory        int64 `json:"fromStory"`
+	FromVersion      int   `json:"fromVersion"`
+	OpenedById       int64
 	OpenedByName     string
 	OpenedDate       *helper.Iso8601Time `json:"openedDate"`
-	AssignedToId     uint64
+	AssignedToId     int64
 	AssignedToName   string
 	AssignedDate     *helper.Iso8601Time `json:"assignedDate"`
 	ApprovedDate     *helper.Iso8601Time `json:"approvedDate"`
-	LastEditedId     uint64
+	LastEditedId     int64
 	LastEditedDate   *helper.Iso8601Time `json:"lastEditedDate"`
 	ChangedDate      *helper.Iso8601Time `json:"changedDate"`
-	ReviewedById     uint64              `json:"reviewedBy"`
+	ReviewedById     int64               `json:"reviewedBy"`
 	ReviewedDate     *helper.Iso8601Time `json:"reviewedDate"`
-	ClosedId         uint64
+	ClosedId         int64
 	ClosedDate       *helper.Iso8601Time `json:"closedDate"`
 	ClosedReason     string              `json:"closedReason"`
 	ActivatedDate    *helper.Iso8601Time `json:"activatedDate"`
@@ -75,7 +75,7 @@ type ZentaoStory struct {
 	ChildStories     string              `json:"childStories"`
 	LinkStories      string              `json:"linkStories"`
 	LinkRequirements string              `json:"linkRequirements"`
-	DuplicateStory   uint64              `json:"duplicateStory"`
+	DuplicateStory   int64               `json:"duplicateStory"`
 	StoryChanged     string              `json:"storyChanged"`
 	NotifyEmail      string              `json:"notifyEmail"`
 	URChanged        string              `json:"URChanged"`

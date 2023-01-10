@@ -38,13 +38,13 @@ type TestConnectionRequest struct {
 // This object conforms to what the frontend currently expects.
 type ZentaoResponse struct {
 	Name string `json:"name"`
-	ID   uint64 `json:"id"`
+	ID   int64  `json:"id"`
 	ZentaoConnection
 }
 
 // Using User because it requires authentication.
 type ApiUserResponse struct {
-	Id   uint64
+	Id   int64
 	Name string `json:"name"`
 }
 

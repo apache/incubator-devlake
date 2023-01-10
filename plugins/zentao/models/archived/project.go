@@ -25,8 +25,8 @@ import (
 type ZentaoProject struct {
 	archived.NoPKModel
 	ConnectionId  uint64              `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	ID            uint64              `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Project       uint64              `json:"project"`
+	ID            int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Project       int64               `json:"project"`
 	Model         string              `json:"model"`
 	Type          string              `json:"type"`
 	Lifetime      string              `json:"lifetime"`
@@ -37,7 +37,7 @@ type ZentaoProject struct {
 	Milestone     string              `json:"milestone"`
 	Output        string              `json:"output"`
 	Auth          string              `json:"auth"`
-	Parent        uint64              `json:"parent"`
+	Parent        int64               `json:"parent"`
 	Path          string              `json:"path"`
 	Grade         int                 `json:"grade"`
 	Name          string              `json:"name"`
@@ -89,13 +89,13 @@ type ZentaoProject struct {
 	TotalReal     int     `json:"totalReal"`
 }
 type PM struct {
-	PmId       uint64 `json:"id"`
+	PmId       int64  `json:"id"`
 	PmAccount  string `json:"account"`
 	PmAvatar   string `json:"avatar"`
 	PmRealname string `json:"realname"`
 }
 type Whitelist []struct {
-	WhitelistID       uint64 `json:"id"`
+	WhitelistID       int64  `json:"id"`
 	WhitelistAccount  string `json:"account"`
 	WhitelistAvatar   string `json:"avatar"`
 	WhitelistRealname string `json:"realname"`

@@ -679,7 +679,7 @@ const BlueprintSettings = (props) => {
                       c.scope?.map((s) => s.options?.boardId),
                       [
                         ...allJiraResources?.boards,
-                        ...c.scope.map((s) => s.options)
+                        ...(c.scope?.map((s) => s.options) ?? [])
                       ]
                     )
                   : []
@@ -707,7 +707,7 @@ const BlueprintSettings = (props) => {
                       c.scope?.map((s) => s.options?.boardId),
                       [
                         ...allJiraResources?.boards,
-                        ...c.scope.map((s) => s.options)
+                        ...(c.scope?.map((s) => s.options) ?? [])
                       ]
                     )
                   : []
@@ -918,7 +918,7 @@ const BlueprintSettings = (props) => {
                 ...c,
                 boardsList: getJiraMappedBoards(c.boardIds, [
                   ...(boards ?? []),
-                  ...c.scope.map((s) => s.options)
+                  ...(c.scope?.map((s) => s.options) ?? [])
                 ])
               })
           )
@@ -951,7 +951,7 @@ const BlueprintSettings = (props) => {
                 ...c,
                 boardsList: getJiraMappedBoards(c.boardIds, [
                   ...(boards ?? []),
-                  ...c.scope.map((s) => s.options)
+                  ...(c.scope?.map((s) => s.options) ?? [])
                 ])
               })
           )

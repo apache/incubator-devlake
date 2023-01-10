@@ -23,8 +23,8 @@ import (
 )
 
 type ZentaoExecutionRes struct {
-	ID             uint64              `json:"id"`
-	Project        uint64              `json:"project"`
+	ID             int64               `json:"id"`
+	Project        int64               `json:"project"`
 	Model          string              `json:"model"`
 	Type           string              `json:"type"`
 	Lifetime       string              `json:"lifetime"`
@@ -35,7 +35,7 @@ type ZentaoExecutionRes struct {
 	Milestone      string              `json:"milestone"`
 	Output         string              `json:"output"`
 	Auth           string              `json:"auth"`
-	Parent         uint64              `json:"parent"`
+	Parent         int64               `json:"parent"`
 	Path           string              `json:"path"`
 	Grade          int                 `json:"grade"`
 	Name           string              `json:"name"`
@@ -79,8 +79,8 @@ type ZentaoExecutionRes struct {
 	TotalConsumed  float64             `json:"totalConsumed"`
 	TotalLeft      float64             `json:"totalLeft"`
 	ProjectInfo    struct {
-		ID             uint64              `json:"id"`
-		Project        uint64              `json:"project"`
+		ID             int64               `json:"id"`
+		Project        int64               `json:"project"`
 		Model          string              `json:"model"`
 		Type           string              `json:"type"`
 		Lifetime       string              `json:"lifetime"`
@@ -91,7 +91,7 @@ type ZentaoExecutionRes struct {
 		Milestone      string              `json:"milestone"`
 		Output         string              `json:"output"`
 		Auth           string              `json:"auth"`
-		Parent         uint64              `json:"parent"`
+		Parent         int64               `json:"parent"`
 		Path           string              `json:"path"`
 		Grade          int                 `json:"grade"`
 		Name           string              `json:"name"`
@@ -133,7 +133,7 @@ type ZentaoExecutionRes struct {
 	} `json:"projectInfo"`
 	Progress    float64 `json:"progress"`
 	TeamMembers []struct {
-		ID         uint64  `json:"id"`
+		ID         int64   `json:"id"`
 		Root       int     `json:"root"`
 		Type       string  `json:"type"`
 		Account    string  `json:"account"`
@@ -147,11 +147,11 @@ type ZentaoExecutionRes struct {
 		Left       string  `json:"left"`
 		OrderIn    int     `json:"order"`
 		TotalHours float64 `json:"totalHours"`
-		UserID     uint64  `json:"userID"`
+		UserID     int64   `json:"userID"`
 		Realname   string  `json:"realname"`
 	} `json:"teamMembers"`
 	Products []struct {
-		ID    uint64        `json:"id"`
+		ID    int64         `json:"id"`
 		Name  string        `json:"name"`
 		Plans []interface{} `json:"plans"`
 	} `json:"products"`
@@ -160,8 +160,8 @@ type ZentaoExecutionRes struct {
 
 type ZentaoExecution struct {
 	ConnectionId   uint64              `gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Id             uint64              `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
-	Project        uint64              `json:"project"`
+	Id             int64               `json:"id" gorm:"primaryKey;type:BIGINT  NOT NULL"`
+	Project        int64               `json:"project"`
 	Model          string              `json:"model"`
 	Type           string              `json:"type"`
 	Lifetime       string              `json:"lifetime"`
@@ -172,7 +172,7 @@ type ZentaoExecution struct {
 	Milestone      string              `json:"milestone"`
 	Output         string              `json:"output"`
 	Auth           string              `json:"auth"`
-	Parent         uint64              `json:"parent"`
+	Parent         int64               `json:"parent"`
 	Path           string              `json:"path"`
 	Grade          int                 `json:"grade"`
 	Name           string              `json:"name"`
@@ -189,20 +189,20 @@ type ZentaoExecution struct {
 	ParentVersion  int                 `json:"parentVersion"`
 	PlanDuration   int                 `json:"planDuration"`
 	RealDuration   int                 `json:"realDuration"`
-	OpenedById     uint64
+	OpenedById     int64
 	OpenedDate     *helper.Iso8601Time `json:"openedDate"`
 	OpenedVersion  string              `json:"openedVersion"`
-	LastEditedById uint64
+	LastEditedById int64
 	LastEditedDate *helper.Iso8601Time `json:"lastEditedDate"`
-	ClosedById     uint64
+	ClosedById     int64
 	ClosedDate     *helper.Iso8601Time `json:"closedDate"`
-	CanceledById   uint64
+	CanceledById   int64
 	CanceledDate   *helper.Iso8601Time `json:"canceledDate"`
 	SuspendedDate  *helper.Iso8601Time `json:"suspendedDate"`
-	POId           uint64
-	PMId           uint64
-	QDId           uint64
-	RDId           uint64
+	POId           int64
+	PMId           int64
+	QDId           int64
+	RDId           int64
 	Team           string  `json:"team"`
 	Acl            string  `json:"acl"`
 	OrderIn        int     `json:"order"`
@@ -214,7 +214,7 @@ type ZentaoExecution struct {
 	TotalEstimate  float64 `json:"totalEstimate"`
 	TotalConsumed  float64 `json:"totalConsumed"`
 	TotalLeft      float64 `json:"totalLeft"`
-	ProjectId      uint64
+	ProjectId      int64
 	Progress       float64 `json:"progress"`
 	CaseReview     bool    `json:"caseReview"`
 	common.NoPKModel

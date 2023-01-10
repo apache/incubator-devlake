@@ -30,7 +30,10 @@ const (
 	TASK_RUNNING   = "TASK_RUNNING"
 	TASK_COMPLETED = "TASK_COMPLETED"
 	TASK_FAILED    = "TASK_FAILED"
+	TASK_CANCELLED = "TASK_CANCELLED"
 )
+
+var PendingTaskStatus = []string{TASK_CREATED, TASK_RUNNING}
 
 type TaskProgressDetail struct {
 	TotalSubTasks    int    `json:"totalSubTasks"`
