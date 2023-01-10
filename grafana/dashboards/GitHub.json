@@ -29,7 +29,7 @@
       },
       "id": 99,
       "options": {
-        "content": "- Use Cases: This dashboard shows the basic Git and Code Reivew metrics from GitHub.\n- Data Source Required: GitHub",
+        "content": "- Use Cases: This dashboard shows the basic Git and Code Review metrics from GitHub.\n- Data Source Required: GitHub",
         "mode": "markdown"
       },
       "pluginVersion": "8.0.6",
