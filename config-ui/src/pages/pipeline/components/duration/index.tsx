@@ -32,7 +32,7 @@ export const PipelineDuration = ({ status, beganAt, finishedAt }: Props) => {
     return <span>-</span>;
   }
 
-  if (![StatusEnum.CANCELLED, StatusEnum.COMPLETED, StatusEnum.FAILED].includes(status)) {
+  if (![StatusEnum.CANCELLED, StatusEnum.COMPLETED, StatusEnum.PARTIAL, StatusEnum.FAILED].includes(status)) {
     return <span>{dayjs(beganAt).toNow(true)}</span>;
   }
 
