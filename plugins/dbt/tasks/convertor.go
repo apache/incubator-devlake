@@ -34,7 +34,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
+func DbtConverter(taskCtx core.SubTaskContext) (err errors.Error) {
 	log := taskCtx.GetLogger()
 	taskCtx.SetProgress(0, -1)
 	data := taskCtx.GetData().(*DbtTaskData)
@@ -45,6 +45,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	projectVars := data.Options.ProjectVars
 	args := data.Options.Args
 	failFast := data.Options.FailFast
+	threads := data.Options.Threads
 	noVersionCheck := data.Options.NoVersionCheck
 	excludeModels := data.Options.ExcludeModels
 	selector := data.Options.Selector
@@ -56,7 +57,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	profile := data.Options.Profile
 
 	defaultProfilesPath := filepath.Join(projectPath, "profiles.yml")
-	_, err := errors.Convert01(os.Stat(defaultProfilesPath))
+	_, err = errors.Convert01(os.Stat(defaultProfilesPath))
 	// if profiles.yml not exist, create it manually
 	if err != nil {
 		dbUrl := taskCtx.GetConfig("DB_URL")
@@ -118,7 +119,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		log.Info("dbt deps run script: ", cmdDeps)
 		// prevent zombie process
 		defer func() {
-			if err := errors.Convert(cmdDeps.Wait()); err != nil {
+			if err = errors.Convert(cmdDeps.Wait()); err != nil {
 				log.Error(nil, "dbt deps run cmd.cmdDeps() error")
 			}
 		}()
@@ -127,8 +128,8 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		}
 
 	}
-	//set default threads = 1, prevent dbt threads can not release, so occur zombie process
-	dbtExecParams := []string{"dbt", "run", "--project-dir", projectPath, "--threads", "1"}
+
+	dbtExecParams := []string{"dbt", "run", "--project-dir", projectPath}
 	if projectVars != nil {
 		jsonProjectVars, err := json.Marshal(projectVars)
 		if err != nil {
@@ -146,6 +147,10 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 	}
 	if failFast {
 		dbtExecParams = append(dbtExecParams, "--fail-fast")
+	}
+	if threads != 0 {
+		dbtExecParams = append(dbtExecParams, "--threads")
+		dbtExecParams = append(dbtExecParams, strconv.Itoa(threads))
 	}
 	if noVersionCheck {
 		dbtExecParams = append(dbtExecParams, "--no-version-check")
@@ -197,7 +202,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 
 	// prevent zombie process
 	defer func() {
-		err := errors.Convert(cmd.Wait())
+		err = errors.Convert(cmd.Wait())
 		if err != nil {
 			log.Error(err, "The DBT project run failed!")
 		} else {
@@ -217,7 +222,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 			taskCtx.IncProgress(1)
 		}
 	}
-	if err := errors.Convert(scanner.Err()); err != nil {
+	if err = errors.Convert(scanner.Err()); err != nil {
 		log.Error(err, "dbt read stdout failed.")
 		return err
 	}
@@ -228,7 +233,7 @@ func DbtConverter(taskCtx core.SubTaskContext) errors.Error {
 		return errors.Convert(closeErr)
 	}
 
-	return nil
+	return err
 }
 
 var DbtConverterMeta = core.SubTaskMeta{
