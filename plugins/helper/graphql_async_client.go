@@ -141,7 +141,7 @@ func (apiClient *GraphqlAsyncClient) SetGetRateCost(getRateCost func(q interface
 // Query send a graphql request when get lock
 // []graphql.DataError are the errors returned in response body
 // errors.Error is other error
-func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]interface{}) ([]graphql.DataError, errors.Error) {
+func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]interface{}) ([]graphql.DataError, error) {
 	apiClient.waitGroup.Add(1)
 	defer apiClient.waitGroup.Done()
 	apiClient.mu.Lock()
@@ -165,7 +165,7 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 			var dataErrors []graphql.DataError
 			dataErrors, err := apiClient.client.Query(apiClient.ctx, q, variables)
 			if err == context.Canceled {
-				return nil, errors.Default.Wrap(err, `context canceled`)
+				return nil, err
 			}
 			if err != nil {
 				apiClient.logger.Warn(err, "retry #%d graphql calling after %ds", retryTime, apiClient.waitBeforeRetry/time.Second)
@@ -189,7 +189,7 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 }
 
 // NextTick to return the NextTick of scheduler
-func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error, taskErrorChecker func(err errors.Error)) {
+func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error, taskErrorChecker func(err error)) {
 	// to make sure task will be enqueued
 	apiClient.waitGroup.Add(1)
 	go func() {
