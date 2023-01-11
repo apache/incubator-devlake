@@ -120,6 +120,7 @@ func (apiClient *GraphqlAsyncClient) updateRateRemaining(rateRemaining int, rese
 		}
 		select {
 		case <-apiClient.ctx.Done():
+			// finish go routine when context done
 			return
 		case <-time.After(nextDuring):
 			newRateRemaining, newResetAt, err := apiClient.getRateRemaining(apiClient.ctx, apiClient.client, apiClient.logger)
@@ -163,6 +164,9 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 		default:
 			var dataErrors []graphql.DataError
 			dataErrors, err := apiClient.client.Query(apiClient.ctx, q, variables)
+			if err == context.Canceled {
+				return nil, errors.Default.Wrap(err, `context canceled`)
+			}
 			if err != nil {
 				apiClient.logger.Warn(err, "retry #%d graphql calling after %ds", retryTime, apiClient.waitBeforeRetry/time.Second)
 				retryTime++
@@ -194,7 +198,7 @@ func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error, taskErro
 			return
 		default:
 			go func() {
-				// if set waitGroup done here, a serial of goruntine will block until son goruntine finish.
+				// if set waitGroup done here, a serial of goroutine will block until son goruntine finish.
 				// But if done out of this go func, so task will run after waitGroup finish
 				// I have no idea about this now...
 				defer apiClient.waitGroup.Done()
