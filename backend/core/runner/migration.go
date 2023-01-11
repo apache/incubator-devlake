@@ -23,14 +23,18 @@ import (
 	"github.com/apache/incubator-devlake/core/migration"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"sync"
+
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/impl/migration"
+	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-var migrator plugin.Migrator
+var migrator core.Migrator
 
 var lock sync.Mutex
 
 // InitMigrator a Migrator singleton
-func InitMigrator(basicRes context.BasicRes) (plugin.Migrator, errors.Error) {
+func InitMigrator(basicRes core.BasicRes) (core.Migrator, errors.Error) {
 	lock.Lock()
 	defer lock.Unlock()
 
@@ -43,18 +47,18 @@ func InitMigrator(basicRes context.BasicRes) (plugin.Migrator, errors.Error) {
 }
 
 // GetMigrator returns the shared Migrator singleton
-func GetMigrator() plugin.Migrator {
+func GetMigrator() core.Migrator {
 	return migrator
 }
 
 /*
 // RegisterMigrationScripts FIXME ...
-func RegisterMigrationScripts(scripts []migration.Script, comment string, config plugin.ConfigGetter, logger plugin.Logger) {
+func RegisterMigrationScripts(scripts []core.MigrationScript, comment string, config core.ConfigGetter, logger core.Logger) {
 	for _, script := range scripts {
-		if s, ok := script.(plugin.InjectConfigGetter); ok {
+		if s, ok := script.(core.InjectConfigGetter); ok {
 			s.SetConfigGetter(config)
 		}
-		if s, ok := script.(plugin.InjectLogger); ok {
+		if s, ok := script.(core.InjectLogger); ok {
 			s.SetLogger(logger)
 		}
 	}

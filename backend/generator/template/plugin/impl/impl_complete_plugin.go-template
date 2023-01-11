@@ -19,9 +19,9 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/migration"
-	core "github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/core"
     "github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/api"
     "github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models"
     "github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models/migrationscripts"
@@ -88,7 +88,7 @@ func (plugin {{ .PluginName }}) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}"
 }
 
-func (plugin {{ .PluginName }}) MigrationScripts() []migration.Script {
+func (plugin {{ .PluginName }}) MigrationScripts() []core.MigrationScript {
 	return migrationscripts.All()
 }
 

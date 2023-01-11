@@ -19,16 +19,17 @@ package migrationscripts
 
 import (
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models/migrationscripts/archived"
 )
 
-type addInitTables struct {}
+type addInitTables struct{}
 
-func (*{{ .Purpose }}) Up(basicRes core.BasicRes) errors.Error {
+func (*addInitTables) Up(basicRes core.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		// TO Add models
+		&archived.SonarqubeConnection{},
 	)
 }
 

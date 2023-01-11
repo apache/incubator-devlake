@@ -29,7 +29,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
-// TODO Please modify the following code to fit your needs
 func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
@@ -52,7 +51,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return nil, err
 	}
 
-	res, err := apiClient.Get("user", nil, nil)
+	res, err := apiClient.Get("server/version", nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -68,15 +67,15 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	return nil, nil
 }
 
-//TODO Please modify the folowing code to adapt to your plugin
 /*
 POST /plugins/Sonarqube/connections
-{
-	"name": "Sonarqube data connection name",
-	"endpoint": "Sonarqube api endpoint, i.e. https://example.com",
-	"username": "username, usually should be email address",
-	"password": "Sonarqube api access token"
-}
+
+	{
+		"name": "Sonarqube data connection name",
+		"endpoint": "Sonarqube api endpoint, i.e. http://host:port/api/",
+		"username": "Actually, we should use sonarqube user token",
+		"password": "Actually, we should set this empty"
+	}
 */
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
@@ -88,15 +87,15 @@ func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
-//TODO Please modify the folowing code to adapt to your plugin
 /*
 PATCH /plugins/Sonarqube/connections/:connectionId
-{
-	"name": "Sonarqube data connection name",
-	"endpoint": "Sonarqube api endpoint, i.e. https://example.com",
-	"username": "username, usually should be email address",
-	"password": "Sonarqube api access token"
-}
+
+	{
+		"name": "Sonarqube data connection name",
+		"endpoint": "Sonarqube api endpoint, i.e. http://host:port/api/",
+		"username": "Actually, we should use sonarqube user token",
+		"password": "Actually, we should set this empty"
+	}
 */
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
 	connection := &models.SonarqubeConnection{}
@@ -137,7 +136,7 @@ func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, err
 GET /plugins/Sonarqube/connections/:connectionId
 {
 	"name": "Sonarqube data connection name",
-	"endpoint": "Sonarqube api endpoint, i.e. http://34.212.61.87:30008/api/",
+	"endpoint": "Sonarqube api endpoint, i.e. http://host:port/api/",
 	"username": "Actually, we should use sonarqube user token",
 	"password": "Actually, we should set this empty"
 }

@@ -23,16 +23,16 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
-	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
 func NewSonarqubeApiClient(taskCtx core.TaskContext, connection *models.SonarqubeConnection) (*helper.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
+		"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
 	}
 	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
 	if err != nil {

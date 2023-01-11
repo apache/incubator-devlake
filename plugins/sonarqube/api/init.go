@@ -21,7 +21,6 @@ import (
 	"github.com/apache/incubator-devlake/plugins/core"
 	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/go-playground/validator/v10"
-	"github.com/spf13/viper"
 )
 
 var vld *validator.Validate

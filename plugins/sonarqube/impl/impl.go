@@ -20,14 +20,12 @@ package impl
 import (
 	"fmt"
 	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/migration"
 	"github.com/apache/incubator-devlake/plugins/core"
-    "github.com/apache/incubator-devlake/plugins/sonarqube/api"
-    "github.com/apache/incubator-devlake/plugins/sonarqube/models"
-    "github.com/apache/incubator-devlake/plugins/sonarqube/models/migrationscripts"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/tasks"
 	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/spf13/viper"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/api"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models/migrationscripts"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/tasks"
 )
 
 // make sure interface is implemented
@@ -37,8 +35,6 @@ var _ core.PluginTask = (*Sonarqube)(nil)
 var _ core.PluginApi = (*Sonarqube)(nil)
 var _ core.PluginBlueprintV100 = (*Sonarqube)(nil)
 var _ core.CloseablePluginTask = (*Sonarqube)(nil)
-
-
 
 type Sonarqube struct{}
 
@@ -53,34 +49,33 @@ func (plugin Sonarqube) Init(br core.BasicRes) errors.Error {
 
 func (plugin Sonarqube) SubTaskMetas() []core.SubTaskMeta {
 	// TODO add your sub task here
-	return []core.SubTaskMeta{
-	}
+	return []core.SubTaskMeta{}
 }
 
 func (plugin Sonarqube) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
-    if err != nil {
-        return nil, err
-    }
-    connectionHelper := helper.NewConnectionHelper(
-        taskCtx,
-        nil,
-    )
-    connection := &models.SonarqubeConnection{}
-    err = connectionHelper.FirstById(connection, op.ConnectionId)
-    if err != nil {
-        return nil, errors.Default.Wrap(err, "unable to get Sonarqube connection by the given connection ID")
-    }
+	if err != nil {
+		return nil, err
+	}
+	connectionHelper := helper.NewConnectionHelper(
+		taskCtx,
+		nil,
+	)
+	connection := &models.SonarqubeConnection{}
+	err = connectionHelper.FirstById(connection, op.ConnectionId)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "unable to get Sonarqube connection by the given connection ID")
+	}
 
-    apiClient, err := tasks.NewSonarqubeApiClient(taskCtx, connection)
-    if err != nil {
-        return nil, errors.Default.Wrap(err, "unable to get Sonarqube API client instance")
-    }
+	apiClient, err := tasks.NewSonarqubeApiClient(taskCtx, connection)
+	if err != nil {
+		return nil, errors.Default.Wrap(err, "unable to get Sonarqube API client instance")
+	}
 
-    return &tasks.SonarqubeTaskData{
-        Options:   op,
-        ApiClient: apiClient,
-    }, nil
+	return &tasks.SonarqubeTaskData{
+		Options:   op,
+		ApiClient: apiClient,
+	}, nil
 }
 
 // PkgPath information lost when compiled as plugin(.so)
@@ -88,25 +83,25 @@ func (plugin Sonarqube) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/sonarqube"
 }
 
-func (plugin Sonarqube) MigrationScripts() []migration.Script {
+func (plugin Sonarqube) MigrationScripts() []core.MigrationScript {
 	return migrationscripts.All()
 }
 
 func (plugin Sonarqube) ApiResources() map[string]map[string]core.ApiResourceHandler {
-    return map[string]map[string]core.ApiResourceHandler{
-        "test": {
-            "POST": api.TestConnection,
-        },
-        "connections": {
-            "POST": api.PostConnections,
-            "GET":  api.ListConnections,
-        },
-        "connections/:connectionId": {
-            "GET":    api.GetConnection,
-            "PATCH":  api.PatchConnection,
-            "DELETE": api.DeleteConnection,
-        },
-    }
+	return map[string]map[string]core.ApiResourceHandler{
+		"test": {
+			"POST": api.TestConnection,
+		},
+		"connections": {
+			"POST": api.PostConnections,
+			"GET":  api.ListConnections,
+		},
+		"connections/:connectionId": {
+			"GET":    api.GetConnection,
+			"PATCH":  api.PatchConnection,
+			"DELETE": api.DeleteConnection,
+		},
+	}
 }
 
 func (plugin Sonarqube) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {

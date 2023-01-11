@@ -15,22 +15,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package models
+package archived
 
-import "github.com/apache/incubator-devlake/plugins/helper"
+import (
+	"github.com/apache/incubator-devlake/models/migrationscripts/archived"
+)
 
-//TODO Please modify the following code to fit your needs
-// This object conforms to what the frontend currently sends.
 type SonarqubeConnection struct {
-	helper.RestConnection `mapstructure:",squash"`
-	// For sonarqube, we can use either username/password or user_token/<EMPTY_PASSWORD>
-	helper.BasicAuth `mapstructure:",squash"`
+	Name string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
+	archived.Model
+	BasicAuth `mapstructure:",squash"`
 }
 
 type TestConnectionRequest struct {
-	Endpoint         string `json:"endpoint"`
-	Proxy            string `json:"proxy"`
-	helper.BasicAuth `mapstructure:",squash"`
+	Endpoint  string `json:"endpoint"`
+	Proxy     string `json:"proxy"`
+	BasicAuth `mapstructure:",squash"`
+}
+
+// For sonarqube, we can use either username/password or user_token/<EMPTY_PASSWORD>
+type BasicAuth struct {
+	Username string `mapstructure:"username" validate:"required" json:"username"`
+	Password string `mapstructure:"password" validate:"required" json:"password"`
 }
 
 // This object conforms to what the frontend currently expects.
