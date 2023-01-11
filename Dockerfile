@@ -158,5 +158,9 @@ COPY --from=build /app/config/tap /app/config/tap
 
 ENV PATH="/app/bin:${PATH}"
 
+# add tini
+RUN apk add --no-cache tini
+ENTRYPOINT ["/sbin/tini", "--"]
+
 CMD ["lake"]
 
