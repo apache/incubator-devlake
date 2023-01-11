@@ -18,6 +18,7 @@ limitations under the License.
 package helper
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/apache/incubator-devlake/errors"
 	"github.com/apache/incubator-devlake/models/common"
@@ -256,7 +257,12 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	logger := collector.args.Ctx.GetLogger()
 	dataErrors, err := collector.args.GraphqlClient.Query(query, variables)
 	if err != nil {
-		collector.checkError(errors.Default.Wrap(err, `graphql query failed`))
+		if err == context.Canceled {
+			// direct error message for error combine
+			collector.checkError(err)
+		} else {
+			collector.checkError(errors.Default.Wrap(err, `graphql query failed`))
+		}
 		return
 	}
 	if len(dataErrors) > 0 {
@@ -349,7 +355,7 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	}
 }
 
-func (collector *GraphqlCollector) checkError(err errors.Error) {
+func (collector *GraphqlCollector) checkError(err error) {
 	if err == nil {
 		return
 	}

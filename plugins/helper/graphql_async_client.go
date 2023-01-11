@@ -120,6 +120,7 @@ func (apiClient *GraphqlAsyncClient) updateRateRemaining(rateRemaining int, rese
 		}
 		select {
 		case <-apiClient.ctx.Done():
+			// finish go routine when context done
 			return
 		case <-time.After(nextDuring):
 			newRateRemaining, newResetAt, err := apiClient.getRateRemaining(apiClient.ctx, apiClient.client, apiClient.logger)
@@ -140,7 +141,7 @@ func (apiClient *GraphqlAsyncClient) SetGetRateCost(getRateCost func(q interface
 // Query send a graphql request when get lock
 // []graphql.DataError are the errors returned in response body
 // errors.Error is other error
-func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]interface{}) ([]graphql.DataError, errors.Error) {
+func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]interface{}) ([]graphql.DataError, error) {
 	apiClient.waitGroup.Add(1)
 	defer apiClient.waitGroup.Done()
 	apiClient.mu.Lock()
@@ -163,6 +164,9 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 		default:
 			var dataErrors []graphql.DataError
 			dataErrors, err := apiClient.client.Query(apiClient.ctx, q, variables)
+			if err == context.Canceled {
+				return nil, err
+			}
 			if err != nil {
 				apiClient.logger.Warn(err, "retry #%d graphql calling after %ds", retryTime, apiClient.waitBeforeRetry/time.Second)
 				retryTime++
@@ -185,7 +189,7 @@ func (apiClient *GraphqlAsyncClient) Query(q interface{}, variables map[string]i
 }
 
 // NextTick to return the NextTick of scheduler
-func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error, taskErrorChecker func(err errors.Error)) {
+func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error, taskErrorChecker func(err error)) {
 	// to make sure task will be enqueued
 	apiClient.waitGroup.Add(1)
 	go func() {
@@ -194,7 +198,7 @@ func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error, taskErro
 			return
 		default:
 			go func() {
-				// if set waitGroup done here, a serial of goruntine will block until son goruntine finish.
+				// if set waitGroup done here, a serial of goroutine will block until sub-goroutine finish.
 				// But if done out of this go func, so task will run after waitGroup finish
 				// I have no idea about this now...
 				defer apiClient.waitGroup.Done()
