@@ -255,13 +255,13 @@ func (collector *GraphqlCollector) fetchAsync(divider *BatchSaveDivider, reqData
 	}
 
 	logger := collector.args.Ctx.GetLogger()
-	dataErrors, err := collector.args.GraphqlClient.Query(query, variables)
-	if err != nil {
-		if errors.Is(err, context.Canceled) {
+	dataErrors, queryErr := collector.args.GraphqlClient.Query(query, variables)
+	if queryErr != nil {
+		if errors.Is(queryErr, context.Canceled) {
 			// direct error message for error combine
-			collector.checkError(errors.Default.Wrap(err, `graphql query canceled`))
+			collector.checkError(queryErr)
 		} else {
-			collector.checkError(errors.Default.Wrap(err, `graphql query failed`))
+			collector.checkError(errors.Default.Wrap(queryErr, `graphql query failed`))
 		}
 		return
 	}

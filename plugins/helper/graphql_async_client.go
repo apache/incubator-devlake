@@ -198,7 +198,7 @@ func (apiClient *GraphqlAsyncClient) NextTick(task func() errors.Error, taskErro
 			return
 		default:
 			go func() {
-				// if set waitGroup done here, a serial of goroutine will block until son goruntine finish.
+				// if set waitGroup done here, a serial of goroutine will block until sub-goroutine finish.
 				// But if done out of this go func, so task will run after waitGroup finish
 				// I have no idea about this now...
 				defer apiClient.waitGroup.Done()
