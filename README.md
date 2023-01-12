@@ -1,6 +1,6 @@
 <div align="center">
 <br/>
-<img src="resources/img/logo.svg" width="120px">
+<img src="resources/img/logo.svg" width="120px" alt="">
 <br/>
 
 # Apache DevLake(Incubating)
