@@ -41,7 +41,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		context.TODO(),
 		connection.Endpoint,
 		map[string]string{
-			"Authorization": fmt.Sprintf("Basic %v", connection.GetEncodedToken()),
+			"Authorization": fmt.Sprintf("%s:", connection.Token),
 		},
 		3*time.Second,
 		connection.Proxy,
@@ -55,12 +55,6 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 	if err != nil {
 		return nil, err
 	}
-	resBody := &models.ApiUserResponse{}
-	err = helper.UnmarshalResponse(res, resBody)
-	if err != nil {
-		return nil, err
-	}
-
 	if res.StatusCode != http.StatusOK {
 		return nil, errors.HttpStatus(res.StatusCode).New(fmt.Sprintf("unexpected status code: %d", res.StatusCode))
 	}
@@ -73,8 +67,7 @@ POST /plugins/Sonarqube/connections
 	{
 		"name": "Sonarqube data connection name",
 		"endpoint": "Sonarqube api endpoint, i.e. http://host:port/api/",
-		"username": "Actually, we should use sonarqube user token",
-		"password": "Actually, we should set this empty"
+		"token": "Sonarqube user token"
 	}
 */
 func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
@@ -93,8 +86,7 @@ PATCH /plugins/Sonarqube/connections/:connectionId
 	{
 		"name": "Sonarqube data connection name",
 		"endpoint": "Sonarqube api endpoint, i.e. http://host:port/api/",
-		"username": "Actually, we should use sonarqube user token",
-		"password": "Actually, we should set this empty"
+		"token": "Sonarqube user token"
 	}
 */
 func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
@@ -137,8 +129,7 @@ GET /plugins/Sonarqube/connections/:connectionId
 {
 	"name": "Sonarqube data connection name",
 	"endpoint": "Sonarqube api endpoint, i.e. http://host:port/api/",
-	"username": "Actually, we should use sonarqube user token",
-	"password": "Actually, we should set this empty"
+	"token": "Sonarqube user token"
 }
 */
 func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {

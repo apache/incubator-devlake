@@ -24,19 +24,18 @@ import (
 type SonarqubeConnection struct {
 	Name string `gorm:"type:varchar(100);uniqueIndex" json:"name" validate:"required"`
 	archived.Model
-	BasicAuth `mapstructure:",squash"`
+	AccessToken `mapstructure:",squash"`
 }
 
 type TestConnectionRequest struct {
-	Endpoint  string `json:"endpoint"`
-	Proxy     string `json:"proxy"`
-	BasicAuth `mapstructure:",squash"`
+	Endpoint    string `json:"endpoint"`
+	Proxy       string `json:"proxy"`
+	AccessToken `mapstructure:",squash"`
 }
 
-// For sonarqube, we can use either username/password or user_token/<EMPTY_PASSWORD>
-type BasicAuth struct {
-	Username string `mapstructure:"username" validate:"required" json:"username"`
-	Password string `mapstructure:"password" validate:"required" json:"password"`
+// For sonarqube, we can `use user_token:`
+type AccessToken struct {
+	Token string `mapstructure:"token" validate:"required" json:"token" encrypt:"yes"`
 }
 
 // This object conforms to what the frontend currently expects.

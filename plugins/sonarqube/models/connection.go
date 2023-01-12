@@ -19,18 +19,17 @@ package models
 
 import "github.com/apache/incubator-devlake/plugins/helper"
 
-//TODO Please modify the following code to fit your needs
 // This object conforms to what the frontend currently sends.
 type SonarqubeConnection struct {
 	helper.RestConnection `mapstructure:",squash"`
-	// For sonarqube, we can use either username/password or user_token/<EMPTY_PASSWORD>
-	helper.BasicAuth `mapstructure:",squash"`
+	// For sonarqube, we can `use user_token:`
+	helper.AccessToken `mapstructure:",squash"`
 }
 
 type TestConnectionRequest struct {
-	Endpoint         string `json:"endpoint"`
-	Proxy            string `json:"proxy"`
-	helper.BasicAuth `mapstructure:",squash"`
+	Endpoint           string `json:"endpoint"`
+	Proxy              string `json:"proxy"`
+	helper.AccessToken `mapstructure:",squash"`
 }
 
 // This object conforms to what the frontend currently expects.
