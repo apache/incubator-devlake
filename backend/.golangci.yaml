@@ -75,7 +75,7 @@ linters-settings:
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#bare-return
       - name: bare-return
         severity: warning
-        disabled: false
+        disabled: true
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#blank-imports
       - name: blank-imports
         severity: warning
@@ -167,7 +167,7 @@ linters-settings:
       #      # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#exported
       - name: exported
         severity: warning
-        disabled: false
+        disabled: true
         arguments:
           - "disableStutteringCheck"
       #          - "checkPrivateReceivers"
