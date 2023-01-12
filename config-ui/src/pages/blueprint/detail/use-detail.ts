@@ -61,6 +61,7 @@ export const useDetail = ({ id }: UseDetailProps) => {
   const handleRun = async () => {
     const [success] = await operator(() => API.runBlueprint(id), {
       setOperating,
+      formatReason: (err) => (err as any).response?.data?.message,
     });
 
     if (success) {
