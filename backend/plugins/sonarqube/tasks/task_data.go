@@ -18,8 +18,8 @@ limitations under the License.
 package tasks
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
 type SonarqubeApiParams struct {
@@ -37,12 +37,12 @@ type SonarqubeOptions struct {
 
 type SonarqubeTaskData struct {
 	Options   *SonarqubeOptions
-	ApiClient *helper.ApiAsyncClient
+	ApiClient *api.ApiAsyncClient
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*SonarqubeOptions, errors.Error) {
 	var op SonarqubeOptions
-	if err := helper.Decode(options, &op, nil); err != nil {
+	if err := api.Decode(options, &op, nil); err != nil {
 		return nil, err
 	}
 	if op.ConnectionId == 0 {

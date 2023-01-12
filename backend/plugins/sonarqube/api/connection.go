@@ -20,24 +20,23 @@ package api
 import (
 	"context"
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 	"net/http"
 	"time"
-
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+func TestConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
 	var connection models.TestConnectionRequest
-	if err = helper.Decode(input.Body, &connection, vld); err != nil {
+	if err = api.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
 	}
 	// test connection
-	apiClient, err := helper.NewApiClient(
+	apiClient, err := api.NewApiClient(
 		context.TODO(),
 		connection.Endpoint,
 		map[string]string{
@@ -70,14 +69,14 @@ POST /plugins/Sonarqube/connections
 		"token": "Sonarqube user token"
 	}
 */
-func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+func PostConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
 	connection := &models.SonarqubeConnection{}
 	err := connectionHelper.Create(connection, input)
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
 /*
@@ -89,38 +88,38 @@ PATCH /plugins/Sonarqube/connections/:connectionId
 		"token": "Sonarqube user token"
 	}
 */
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+func PatchConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.SonarqubeConnection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: connection}, nil
+	return &plugin.ApiResourceOutput{Body: connection}, nil
 }
 
 /*
 DELETE /plugins/Sonarqube/connections/:connectionId
 */
-func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+func DeleteConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.SonarqubeConnection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
 	err = connectionHelper.Delete(connection)
-	return &core.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Body: connection}, err
 }
 
 /*
 GET /plugins/Sonarqube/connections
 */
-func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+func ListConnections(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var connections []models.SonarqubeConnection
 	err := connectionHelper.List(&connections)
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
 //TODO Please modify the folowing code to adapt to your plugin
@@ -132,8 +131,8 @@ GET /plugins/Sonarqube/connections/:connectionId
 	"token": "Sonarqube user token"
 }
 */
-func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+func GetConnection(input *plugin.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.SonarqubeConnection{}
 	err := connectionHelper.First(connection, input.Params)
-	return &core.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Body: connection}, err
 }

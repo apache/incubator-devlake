@@ -38,7 +38,7 @@ type {{ .PluginName }}Options struct {
 
 type {{ .PluginName }}TaskData struct {
 	Options   *{{ .PluginName }}Options
-	ApiClient *helper.ApiAsyncClient
+	ApiClient *api.ApiAsyncClient
 }
 
 func DecodeAndValidateTaskOptions(options map[string]interface{}) (*{{ .PluginName }}Options, errors.Error) {

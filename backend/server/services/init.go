@@ -65,7 +65,7 @@ func InitResources() {
 	migrator.Register(migrationscripts.All(), "Framework")
 }
 
-// GetBasicRes returns the core.BasicRes instance used by services module
+// GetBasicRes returns the context.BasicRes instance used by services module
 func GetBasicRes() context.BasicRes {
 	return basicRes
 }

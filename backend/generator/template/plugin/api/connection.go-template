@@ -30,7 +30,7 @@ import (
 )
 
 //TODO Please modify the following code to fit your needs
-func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+func TestConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// decode
 	var err errors.Error
 	var connection models.TestConnectionRequest
@@ -38,7 +38,7 @@ func TestConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, erro
 		return nil, err
 	}
 	// test connection
-	apiClient, err := helper.NewApiClient(
+	apiClient, err := api.NewApiClient(
 		context.TODO(),
 		connection.Endpoint,
 		map[string]string{
@@ -78,14 +78,14 @@ POST /plugins/{{ .PluginName }}/connections
 	"password": "{{ .PluginName }} api access token"
 }
 */
-func PostConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+func PostConnections(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	// update from request and save to database
 	connection := &models.{{ .PluginName }}Connection{}
 	err := connectionHelper.Create(connection, input)
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connection, Status: http.StatusOK}, nil
 }
 
 //TODO Please modify the folowing code to adapt to your plugin
@@ -98,38 +98,38 @@ PATCH /plugins/{{ .PluginName }}/connections/:connectionId
 	"password": "{{ .PluginName }} api access token"
 }
 */
-func PatchConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+func PatchConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.{{ .PluginName }}Connection{}
 	err := connectionHelper.Patch(connection, input)
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: connection}, nil
+	return &plugin.ApiResourceOutput{Body: connection}, nil
 }
 
 /*
 DELETE /plugins/{{ .PluginName }}/connections/:connectionId
 */
-func DeleteConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+func DeleteConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.{{ .PluginName }}Connection{}
 	err := connectionHelper.First(connection, input.Params)
 	if err != nil {
 		return nil, err
 	}
 	err = connectionHelper.Delete(connection)
-	return &core.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Body: connection}, err
 }
 
 /*
 GET /plugins/{{ .PluginName }}/connections
 */
-func ListConnections(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+func ListConnections(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	var connections []models.{{ .PluginName }}Connection
 	err := connectionHelper.List(&connections)
 	if err != nil {
 		return nil, err
 	}
-	return &core.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
+	return &plugin.ApiResourceOutput{Body: connections, Status: http.StatusOK}, nil
 }
 
 //TODO Please modify the folowing code to adapt to your plugin
@@ -142,8 +142,8 @@ GET /plugins/{{ .PluginName }}/connections/:connectionId
 	"password": "{{ .PluginName }} api access token"
 }
 */
-func GetConnection(input *core.ApiResourceInput) (*core.ApiResourceOutput, errors.Error) {
+func GetConnection(input *core.ApiResourceInput) (*plugin.ApiResourceOutput, errors.Error) {
 	connection := &models.{{ .PluginName }}Connection{}
 	err := connectionHelper.First(connection, input.Params)
-	return &core.ApiResourceOutput{Body: connection}, err
+	return &plugin.ApiResourceOutput{Body: connection}, err
 }

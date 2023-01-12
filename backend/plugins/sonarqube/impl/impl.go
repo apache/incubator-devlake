@@ -19,9 +19,11 @@ package impl
 
 import (
 	"fmt"
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+
 	"github.com/apache/incubator-devlake/plugins/sonarqube/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models/migrationscripts"
@@ -29,30 +31,30 @@ import (
 )
 
 // make sure interface is implemented
-var _ core.PluginMeta = (*Sonarqube)(nil)
-var _ core.PluginInit = (*Sonarqube)(nil)
-var _ core.PluginTask = (*Sonarqube)(nil)
-var _ core.PluginApi = (*Sonarqube)(nil)
-var _ core.PluginBlueprintV100 = (*Sonarqube)(nil)
-var _ core.CloseablePluginTask = (*Sonarqube)(nil)
+var _ plugin.PluginMeta = (*Sonarqube)(nil)
+var _ plugin.PluginInit = (*Sonarqube)(nil)
+var _ plugin.PluginTask = (*Sonarqube)(nil)
+var _ plugin.PluginApi = (*Sonarqube)(nil)
+var _ plugin.PluginBlueprintV100 = (*Sonarqube)(nil)
+var _ plugin.CloseablePluginTask = (*Sonarqube)(nil)
 
 type Sonarqube struct{}
 
-func (plugin Sonarqube) Description() string {
+func (p Sonarqube) Description() string {
 	return "collect some Sonarqube data"
 }
 
-func (plugin Sonarqube) Init(br core.BasicRes) errors.Error {
+func (p Sonarqube) Init(br context.BasicRes) errors.Error {
 	api.Init(br)
 	return nil
 }
 
-func (plugin Sonarqube) SubTaskMetas() []core.SubTaskMeta {
+func (p Sonarqube) SubTaskMetas() []plugin.SubTaskMeta {
 	// TODO add your sub task here
-	return []core.SubTaskMeta{}
+	return []plugin.SubTaskMeta{}
 }
 
-func (plugin Sonarqube) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+func (p Sonarqube) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
 	if err != nil {
 		return nil, err
@@ -79,16 +81,16 @@ func (plugin Sonarqube) PrepareTaskData(taskCtx core.TaskContext, options map[st
 }
 
 // PkgPath information lost when compiled as plugin(.so)
-func (plugin Sonarqube) RootPkgPath() string {
+func (p Sonarqube) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/sonarqube"
 }
 
-func (plugin Sonarqube) MigrationScripts() []core.MigrationScript {
+func (p Sonarqube) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (plugin Sonarqube) ApiResources() map[string]map[string]core.ApiResourceHandler {
-	return map[string]map[string]core.ApiResourceHandler{
+func (p Sonarqube) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
+	return map[string]map[string]plugin.ApiResourceHandler{
 		"test": {
 			"POST": api.TestConnection,
 		},
@@ -104,11 +106,11 @@ func (plugin Sonarqube) ApiResources() map[string]map[string]core.ApiResourceHan
 	}
 }
 
-func (plugin Sonarqube) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
-	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
+func (p Sonarqube) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
+	return api.MakePipelinePlan(p.SubTaskMetas(), connectionId, scope)
 }
 
-func (plugin Sonarqube) Close(taskCtx core.TaskContext) errors.Error {
+func (p Sonarqube) Close(taskCtx plugin.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.SonarqubeTaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

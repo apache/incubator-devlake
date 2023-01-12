@@ -25,9 +25,9 @@ import (
 	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/tasks"
 )
 
-func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
+func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
 	var err error
-	plan := make(core.PipelinePlan, len(scope))
+	plan := make(plugin.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
 		taskOptions := make(map[string]interface{})
 		err = json.Unmarshal(scopeElem.Options, &taskOptions)

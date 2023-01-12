@@ -50,7 +50,7 @@ func Extract{{ .ExtractorDataName }}(taskCtx core.SubTaskContext) errors.Error {
 	return extractor.Execute()
 }
 
-var Extract{{ .ExtractorDataName }}Meta = core.SubTaskMeta{
+var Extract{{ .ExtractorDataName }}Meta = plugin.SubTaskMeta{
 	Name:             "Extract{{ .ExtractorDataName }}",
 	EntryPoint:       Extract{{ .ExtractorDataName }},
 	EnabledByDefault: true,

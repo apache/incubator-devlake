@@ -25,7 +25,7 @@ import (
 
 type {{ .Purpose }} struct{}
 
-func (*{{ .Purpose }}) Up(basicRes core.BasicRes) errors.Error {
+func (*{{ .Purpose }}) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		// TO Add models

@@ -31,12 +31,12 @@ import (
 )
 
 // make sure interface is implemented
-var _ core.PluginMeta = (*{{ .PluginName }})(nil)
-var _ core.PluginInit = (*{{ .PluginName }})(nil)
-var _ core.PluginTask = (*{{ .PluginName }})(nil)
-var _ core.PluginApi = (*{{ .PluginName }})(nil)
-var _ core.PluginBlueprintV100 = (*{{ .PluginName }})(nil)
-var _ core.CloseablePluginTask = (*{{ .PluginName }})(nil)
+var _ plugin.PluginMeta = (*{{ .PluginName }})(nil)
+var _ plugin.PluginInit = (*{{ .PluginName }})(nil)
+var _ plugin.PluginTask = (*{{ .PluginName }})(nil)
+var _ plugin.PluginApi = (*{{ .PluginName }})(nil)
+var _ plugin.PluginBlueprintV100 = (*{{ .PluginName }})(nil)
+var _ plugin.CloseablePluginTask = (*{{ .PluginName }})(nil)
 
 
 
@@ -46,18 +46,18 @@ func (plugin {{ .PluginName }}) Description() string {
 	return "collect some {{ .PluginName }} data"
 }
 
-func (plugin {{ .PluginName }}) Init(br core.BasicRes) errors.Error {
+func (plugin {{ .PluginName }}) Init(br context.BasicRes) errors.Error {
 	api.Init(br)
 	return nil
 }
 
-func (plugin {{ .PluginName }}) SubTaskMetas() []core.SubTaskMeta {
+func (plugin {{ .PluginName }}) SubTaskMetas() []plugin.SubTaskMeta {
 	// TODO add your sub task here
-	return []core.SubTaskMeta{
+	return []plugin.SubTaskMeta{
 	}
 }
 
-func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	op, err := tasks.DecodeAndValidateTaskOptions(options)
     if err != nil {
         return nil, err
@@ -88,12 +88,12 @@ func (plugin {{ .PluginName }}) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}"
 }
 
-func (plugin {{ .PluginName }}) MigrationScripts() []core.MigrationScript {
+func (plugin {{ .PluginName }}) MigrationScripts() []plugin.MigrationScript {
 	return migrationscripts.All()
 }
 
-func (plugin {{ .PluginName }}) ApiResources() map[string]map[string]core.ApiResourceHandler {
-    return map[string]map[string]core.ApiResourceHandler{
+func (plugin {{ .PluginName }}) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
+    return map[string]map[string]plugin.ApiResourceHandler{
         "test": {
             "POST": api.TestConnection,
         },
@@ -109,11 +109,11 @@ func (plugin {{ .PluginName }}) ApiResources() map[string]map[string]core.ApiRes
     }
 }
 
-func (plugin {{ .PluginName }}) MakePipelinePlan(connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
+func (plugin {{ .PluginName }}) MakePipelinePlan(connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
 	return api.MakePipelinePlan(plugin.SubTaskMetas(), connectionId, scope)
 }
 
-func (plugin {{ .PluginName }}) Close(taskCtx core.TaskContext) errors.Error {
+func (plugin {{ .PluginName }}) Close(taskCtx plugin.TaskContext) errors.Error {
 	data, ok := taskCtx.GetData().(*tasks.{{ .PluginName }}TaskData)
 	if !ok {
 		return errors.Default.New(fmt.Sprintf("GetData failed when try to close %+v", taskCtx))

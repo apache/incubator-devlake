@@ -29,12 +29,12 @@ import (
 	"github.com/apache/incubator-devlake/plugins/helper"
 )
 
-func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext, connection *models.{{ .PluginName }}Connection) (*helper.ApiAsyncClient, errors.Error) {
+func New{{ .PluginName }}ApiClient(taskCtx plugin.TaskContext, connection *models.{{ .PluginName }}Connection) (*api.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
 	}
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
+	apiClient, err := api.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext, connection *models.
 	})
 
 	// create rate limit calculator
-	rateLimiter := &helper.ApiRateLimitCalculator{
+	rateLimiter := &api.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
 		DynamicRateLimit: func(res *http.Response) (int, time.Duration, errors.Error) {
 			rateLimitHeader := res.Header.Get("RateLimit-Limit")
@@ -62,7 +62,7 @@ func New{{ .PluginName }}ApiClient(taskCtx core.TaskContext, connection *models.
 			return rateLimit, 1 * time.Minute, nil
 		},
 	}
-	asyncApiClient, err := helper.CreateAsyncApiClient(
+	asyncApiClient, err := api.CreateAsyncApiClient(
 		taskCtx,
 		apiClient,
 		rateLimiter,

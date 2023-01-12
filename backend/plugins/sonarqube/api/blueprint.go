@@ -19,15 +19,15 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/tasks"
 )
 
-func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scope []*core.BlueprintScopeV100) (core.PipelinePlan, errors.Error) {
+func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
 	var err error
-	plan := make(core.PipelinePlan, len(scope))
+	plan := make(plugin.PipelinePlan, len(scope))
 	for i, scopeElem := range scope {
 		taskOptions := make(map[string]interface{})
 		err = json.Unmarshal(scopeElem.Options, &taskOptions)
@@ -57,7 +57,7 @@ func MakePipelinePlan(subtaskMetas []core.SubTaskMeta, connectionId uint64, scop
 		if err != nil {
 			return nil, err
 		}
-		plan[i] = core.PipelineStage{
+		plan[i] = plugin.PipelineStage{
 			{
 				Plugin:   "sonarqube",
 				Subtasks: subtasks,

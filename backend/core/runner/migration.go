@@ -23,18 +23,14 @@ import (
 	"github.com/apache/incubator-devlake/core/migration"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"sync"
-
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/impl/migration"
-	"github.com/apache/incubator-devlake/plugins/core"
 )
 
-var migrator core.Migrator
+var migrator plugin.Migrator
 
 var lock sync.Mutex
 
 // InitMigrator a Migrator singleton
-func InitMigrator(basicRes core.BasicRes) (core.Migrator, errors.Error) {
+func InitMigrator(basicRes context.BasicRes) (plugin.Migrator, errors.Error) {
 	lock.Lock()
 	defer lock.Unlock()
 
@@ -47,13 +43,13 @@ func InitMigrator(basicRes core.BasicRes) (core.Migrator, errors.Error) {
 }
 
 // GetMigrator returns the shared Migrator singleton
-func GetMigrator() core.Migrator {
+func GetMigrator() plugin.Migrator {
 	return migrator
 }
 
 /*
 // RegisterMigrationScripts FIXME ...
-func RegisterMigrationScripts(scripts []core.MigrationScript, comment string, config core.ConfigGetter, logger core.Logger) {
+func RegisterMigrationScripts(scripts []plugin.MigrationScript, comment string, config core.ConfigGetter, logger core.Logger) {
 	for _, script := range scripts {
 		if s, ok := script.(core.InjectConfigGetter); ok {
 			s.SetConfigGetter(config)

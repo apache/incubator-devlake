@@ -18,16 +18,16 @@ limitations under the License.
 package api
 
 import (
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/core/context"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"github.com/go-playground/validator/v10"
 )
 
 var vld *validator.Validate
 var connectionHelper *helper.ConnectionApiHelper
-var basicRes core.BasicRes
+var basicRes context.BasicRes
 
-func Init(br core.BasicRes) {
+func Init(br context.BasicRes) {
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = helper.NewConnectionHelper(

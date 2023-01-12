@@ -25,9 +25,9 @@ import (
 
 var vld *validator.Validate
 var connectionHelper *helper.ConnectionApiHelper
-var basicRes core.BasicRes
+var basicRes context.BasicRes
 
-func Init(br core.BasicRes) {
+func Init(br context.BasicRes) {
 	basicRes = br
 	vld = validator.New()
 	connectionHelper = helper.NewConnectionHelper(

@@ -17,26 +17,11 @@ limitations under the License.
 
 package migrationscripts
 
-import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/sonarqube/models/migrationscripts/archived"
-)
+import "github.com/apache/incubator-devlake/core/plugin"
 
-type addInitTables struct{}
-
-func (*addInitTables) Up(basicRes core.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		&archived.SonarqubeConnection{},
-	)
-}
-
-func (*addInitTables) Version() uint64 {
-	return 20230111000001
-}
-
-func (*addInitTables) Name() string {
-	return "sonarqube init schemas"
+// All return all the migration scripts
+func All() []plugin.MigrationScript {
+	return []plugin.MigrationScript{
+		new(addInitTables),
+	}
 }

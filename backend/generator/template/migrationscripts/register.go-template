@@ -20,8 +20,8 @@ package migrationscripts
 import "github.com/apache/incubator-devlake/plugins/core"
 
 // All return all the migration scripts
-func All() []core.MigrationScript {
-	return []core.MigrationScript{
+func All() []plugin.MigrationScript {
+	return []plugin.MigrationScript{
 		new(addInitTables),
 	}
 }

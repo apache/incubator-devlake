@@ -18,8 +18,8 @@ limitations under the License.
 package main
 
 import (
+	"github.com/apache/incubator-devlake/core/runner"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/impl"
-	"github.com/apache/incubator-devlake/runner"
 	"github.com/spf13/cobra"
 )
 

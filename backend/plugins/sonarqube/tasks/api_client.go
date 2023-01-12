@@ -19,22 +19,22 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/plugins/helper"
 	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
-func NewSonarqubeApiClient(taskCtx core.TaskContext, connection *models.SonarqubeConnection) (*helper.ApiAsyncClient, errors.Error) {
+func NewSonarqubeApiClient(taskCtx plugin.TaskContext, connection *models.SonarqubeConnection) (*api.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
 		"Authorization": fmt.Sprintf("%s:", connection.Token),
 	}
-	apiClient, err := helper.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
+	apiClient, err := api.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func NewSonarqubeApiClient(taskCtx core.TaskContext, connection *models.Sonarqub
 	})
 
 	// create rate limit calculator
-	rateLimiter := &helper.ApiRateLimitCalculator{
+	rateLimiter := &api.ApiRateLimitCalculator{
 		UserRateLimitPerHour: connection.RateLimitPerHour,
 		DynamicRateLimit: func(res *http.Response) (int, time.Duration, errors.Error) {
 			rateLimitHeader := res.Header.Get("RateLimit-Limit")
@@ -62,7 +62,7 @@ func NewSonarqubeApiClient(taskCtx core.TaskContext, connection *models.Sonarqub
 			return rateLimit, 1 * time.Minute, nil
 		},
 	}
-	asyncApiClient, err := helper.CreateAsyncApiClient(
+	asyncApiClient, err := api.CreateAsyncApiClient(
 		taskCtx,
 		apiClient,
 		rateLimiter,
