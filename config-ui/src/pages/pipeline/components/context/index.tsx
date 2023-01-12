@@ -16,6 +16,23 @@
  *
  */
 
-export * from './context';
-export * from './historical';
-export * from './duration';
+import React, { useContext, useState } from 'react';
+
+const PipelineContext = React.createContext<{
+  version: number;
+  setVersion: React.Dispatch<React.SetStateAction<number>>;
+}>({
+  version: 0,
+  setVersion: () => {},
+});
+
+interface Props {
+  children: React.ReactNode;
+}
+
+export const PipelineContextProvider = ({ children }: Props) => {
+  const [version, setVersion] = useState(0);
+  return <PipelineContext.Provider value={{ version, setVersion }}>{children}</PipelineContext.Provider>;
+};
+
+export const usePipeline = () => useContext(PipelineContext);
