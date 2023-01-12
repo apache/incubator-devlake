@@ -29,32 +29,32 @@ import (
 )
 
 // make sure interface is implemented
-var _ core.PluginMeta = (*{{ .PluginName }})(nil)
-var _ core.PluginInit = (*{{ .PluginName }})(nil)
-var _ core.PluginTask = (*{{ .PluginName }})(nil)
-var _ core.PluginApi = (*{{ .PluginName }})(nil)
+var _ plugin.PluginMeta = (*{{ .PluginName }})(nil)
+var _ plugin.PluginInit = (*{{ .PluginName }})(nil)
+var _ plugin.PluginTask = (*{{ .PluginName }})(nil)
+var _ plugin.PluginApi = (*{{ .PluginName }})(nil)
 
 // PluginEntry exports a symbol for Framework to load
 var PluginEntry {{ .PluginName }} //nolint
 
 type {{ .PluginName }} struct{}
 
-func (plugin {{ .PluginName }}) Description() string {
+func (p {{ .PluginName }}) Description() string {
 	return "collect some {{ .PluginName }} data"
 }
 
-func (plugin {{ .PluginName }}) Init(br core.BasicRes) errors.Error {
+func (p {{ .PluginName }}) Init(br context.BasicRes) errors.Error {
 	api.Init(br)
 	return nil
 }
 
-func (plugin {{ .PluginName }}) SubTaskMetas() []core.SubTaskMeta {
+func (p {{ .PluginName }}) SubTaskMetas() []plugin.SubTaskMeta {
 	// TODO add your sub task here
-	return []core.SubTaskMeta{
+	return []plugin.SubTaskMeta{
 	}
 }
 
-func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx core.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
+func (p {{ .PluginName }}) PrepareTaskData(taskCtx plugin.TaskContext, options map[string]interface{}) (interface{}, errors.Error) {
 	var op tasks.{{ .PluginName }}Options
 	if err := helper.Decode(input.Body, &connection, vld); err != nil {
 		return nil, err
@@ -65,11 +65,11 @@ func (plugin {{ .PluginName }}) PrepareTaskData(taskCtx core.TaskContext, option
 }
 
 // PkgPath information lost when compiled as plugin(.so)
-func (plugin {{ .PluginName }}) RootPkgPath() string {
+func (p {{ .PluginName }}) RootPkgPath() string {
 	return "github.com/apache/incubator-devlake/plugins/{{ .pluginName }}"
 }
 
-func (plugin {{ .PluginName }}) ApiResources() map[string]map[string]core.ApiResourceHandler {
+func (p {{ .PluginName }}) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 	return nil
 }
 

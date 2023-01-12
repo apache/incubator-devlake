@@ -41,8 +41,8 @@ type BaseConnection struct {
 
 // BasicAuth FIXME ...
 type BasicAuth struct {
-	Username string `mapstructure:"username" validate:"required" json:"username"`
-	Password string `mapstructure:"password" validate:"required" json:"password" encrypt:"yes"`
+	Username string `mapstructure:"username" validate:"required" json:"username" encrypt:"yes"`
+	Password string `mapstructure:"password" validate:"required" json:"password"`
 }
 
 // GetEncodedToken FIXME ...

@@ -49,12 +49,12 @@ func GetMigrator() plugin.Migrator {
 
 /*
 // RegisterMigrationScripts FIXME ...
-func RegisterMigrationScripts(scripts []migration.Script, comment string, config plugin.ConfigGetter, logger plugin.Logger) {
+func RegisterMigrationScripts(scripts []plugin.MigrationScript, comment string, config core.ConfigGetter, logger core.Logger) {
 	for _, script := range scripts {
-		if s, ok := script.(plugin.InjectConfigGetter); ok {
+		if s, ok := script.(core.InjectConfigGetter); ok {
 			s.SetConfigGetter(config)
 		}
-		if s, ok := script.(plugin.InjectLogger); ok {
+		if s, ok := script.(core.InjectLogger); ok {
 			s.SetLogger(logger)
 		}
 	}

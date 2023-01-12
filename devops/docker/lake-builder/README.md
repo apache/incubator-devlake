@@ -7,7 +7,7 @@ https://hub.docker.com/r/mericodev/lake-builder
 ## release
 
 ```shell
-export VERSION=0.0.2
+export VERSION=0.0.3
 docker build -t mericodev/lake-builder:$VERSION .
 docker push mericodev/lake-builder:$VERSION
 ```

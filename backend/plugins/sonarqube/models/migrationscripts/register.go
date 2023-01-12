@@ -17,25 +17,11 @@ limitations under the License.
 
 package migrationscripts
 
-import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
-)
+import "github.com/apache/incubator-devlake/core/plugin"
 
-type {{ .Purpose }} struct{}
-
-func (*{{ .Purpose }}) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
-		basicRes,
-		// TO Add models
-	)
-}
-
-func (*{{ .Purpose }}) Version() uint64 {
-	return {{ .Date }}{{ .Count }}
-}
-
-func (*{{ .Purpose }}) Name() string {
-	return "UpdateSchemas for {{ .Purpose }}"
+// All return all the migration scripts
+func All() []plugin.MigrationScript {
+	return []plugin.MigrationScript{
+		new(addInitTables),
+	}
 }

@@ -83,7 +83,7 @@ Type in which plugin do you want init migrations in, then generator will create 
 		util.WriteTemplates(migrationPath, templates)
 		if modifyExistCode {
 			println("Last Step: add some code in plugin to implement Migratable like this:\n" +
-				"func (plugin " + strcase.ToCamel(pluginName) + ") MigrationScripts() []migration.Script {\n\treturn migrationscripts.All()\n}")
+				"func (p " + strcase.ToCamel(pluginName) + ") MigrationScripts() []plugin.MigrationScript {\n\treturn migrationscripts.All()\n}")
 		}
 	},
 }

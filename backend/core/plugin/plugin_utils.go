@@ -82,14 +82,14 @@ func Decrypt(encKey, encryptedText string) (string, errors.Error) {
 	return "", errors.Default.New("invalid encKey")
 }
 
-// PKCS7 padding
+// PKCS7Padding PKCS7 padding
 func PKCS7Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padtext...)
 }
 
-// PKCS7 unPadding
+// PKCS7UnPadding PKCS7 unPadding
 func PKCS7UnPadding(origData []byte) []byte {
 	length := len(origData)
 	if length == 0 {
@@ -102,7 +102,7 @@ func PKCS7UnPadding(origData []byte) []byte {
 	return origData[:(length - unpadding)]
 }
 
-// AES encryption, CBC
+// AesEncrypt AES encryption, CBC
 func AesEncrypt(origData, key []byte) ([]byte, errors.Error) {
 	// data alignment fill and encryption
 	sha256Key := sha256.Sum256(key)
@@ -120,7 +120,7 @@ func AesEncrypt(origData, key []byte) ([]byte, errors.Error) {
 	return crypted, nil
 }
 
-// AES decryption
+// AesDecrypt AES decryption
 func AesDecrypt(crypted, key []byte) ([]byte, errors.Error) {
 	// Uniformly use sha256 to process as 32-bit Byte (256-bit bit)
 	sha256Key := sha256.Sum256(key)
@@ -143,7 +143,7 @@ func AesDecrypt(crypted, key []byte) ([]byte, errors.Error) {
 	return origData, nil
 }
 
-// A random string of length len uppercase characters
+// RandomCapsStr A random string of length len uppercase characters
 func RandomCapsStr(len int) string {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
 	randomBytes := make([]byte, len)

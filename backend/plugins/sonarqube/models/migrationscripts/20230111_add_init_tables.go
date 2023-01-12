@@ -18,24 +18,25 @@ limitations under the License.
 package migrationscripts
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
+	"github.com/apache/incubator-devlake/core/context"
+	"github.com/apache/incubator-devlake/core/errors"
 	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models/migrationscripts/archived"
 )
 
-type {{ .Purpose }} struct{}
+type addInitTables struct{}
 
-func (*{{ .Purpose }}) Up(basicRes context.BasicRes) errors.Error {
+func (*addInitTables) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
-		// TO Add models
+		&archived.SonarqubeConnection{},
 	)
 }
 
-func (*{{ .Purpose }}) Version() uint64 {
-	return {{ .Date }}{{ .Count }}
+func (*addInitTables) Version() uint64 {
+	return 20230111000011
 }
 
-func (*{{ .Purpose }}) Name() string {
-	return "UpdateSchemas for {{ .Purpose }}"
+func (*addInitTables) Name() string {
+	return "sonarqube init schemas"
 }

@@ -38,7 +38,8 @@ var _ plugin.PluginModel = (*GitExtractor)(nil)
 type GitExtractor struct{}
 
 func (p GitExtractor) GetTablesInfo() []dal.Tabler {
-	return []dal.Tabler{}}
+	return []dal.Tabler{}
+}
 
 func (p GitExtractor) Description() string {
 	return "extract infos from git repository"

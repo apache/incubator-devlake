@@ -20,9 +20,9 @@ package api
 import (
 	"encoding/json"
 	"github.com/apache/incubator-devlake/core/errors"
-	core "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/plugins/helper"
-	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/tasks"
+	"github.com/apache/incubator-devlake/core/plugin"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/tasks"
 )
 
 func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, scope []*plugin.BlueprintScopeV100) (plugin.PipelinePlan, errors.Error) {
@@ -57,9 +57,9 @@ func MakePipelinePlan(subtaskMetas []plugin.SubTaskMeta, connectionId uint64, sc
 		if err != nil {
 			return nil, err
 		}
-		plan[i] = core.PipelineStage{
+		plan[i] = plugin.PipelineStage{
 			{
-				Plugin:   "{{ .plugin_name }}",
+				Plugin:   "sonarqube",
 				Subtasks: subtasks,
 				Options:  taskOptions,
 			},

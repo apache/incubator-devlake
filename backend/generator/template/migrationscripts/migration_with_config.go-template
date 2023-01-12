@@ -31,7 +31,7 @@ func (u *{{ .Purpose }}) SetConfigGetter(config core.ConfigGetter) {
 	u.config = config
 }
 
-func (*{{ .Purpose }}) Up(basicRes core.BasicRes) errors.Error {
+func (*{{ .Purpose }}) Up(basicRes context.BasicRes) errors.Error {
 	return migrationhelper.AutoMigrateTables(
 		basicRes,
 		// TO Add models

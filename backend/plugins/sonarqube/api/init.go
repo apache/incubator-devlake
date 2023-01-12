@@ -15,27 +15,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package migrationscripts
+package api
 
 import (
-	"github.com/apache/incubator-devlake/errors"
-	"github.com/apache/incubator-devlake/plugins/core"
-	"github.com/apache/incubator-devlake/helpers/migrationhelper"
+	"github.com/apache/incubator-devlake/core/context"
+	helper "github.com/apache/incubator-devlake/helpers/pluginhelper/api"
+	"github.com/go-playground/validator/v10"
 )
 
-type {{ .Purpose }} struct{}
+var vld *validator.Validate
+var connectionHelper *helper.ConnectionApiHelper
+var basicRes context.BasicRes
 
-func (*{{ .Purpose }}) Up(basicRes context.BasicRes) errors.Error {
-	return migrationhelper.AutoMigrateTables(
+func Init(br context.BasicRes) {
+	basicRes = br
+	vld = validator.New()
+	connectionHelper = helper.NewConnectionHelper(
 		basicRes,
-		// TO Add models
+		vld,
 	)
-}
-
-func (*{{ .Purpose }}) Version() uint64 {
-	return {{ .Date }}{{ .Count }}
-}
-
-func (*{{ .Purpose }}) Name() string {
-	return "UpdateSchemas for {{ .Purpose }}"
 }

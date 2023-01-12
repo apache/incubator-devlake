@@ -19,20 +19,20 @@ package tasks
 
 import (
 	"fmt"
+	"github.com/apache/incubator-devlake/core/errors"
+	"github.com/apache/incubator-devlake/core/plugin"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/apache/incubator-devlake/plugins/{{ .plugin_name }}/models"
-	core "github.com/apache/incubator-devlake/core/plugin"
-	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/plugins/sonarqube/models"
 )
 
-func New{{ .PluginName }}ApiClient(taskCtx plugin.TaskContext, connection *models.{{ .PluginName }}Connection) (*api.ApiAsyncClient, errors.Error) {
+func NewSonarqubeApiClient(taskCtx plugin.TaskContext, connection *models.SonarqubeConnection) (*api.ApiAsyncClient, errors.Error) {
 	// create synchronize api client so we can calculate api rate limit dynamically
 	headers := map[string]string{
-		"Authorization": fmt.Sprintf("Bearer %v", connection.Token),
+		"Authorization": fmt.Sprintf("%s:", connection.Token),
 	}
 	apiClient, err := api.NewApiClient(taskCtx.GetContext(), connection.Endpoint, headers, 0, connection.Proxy, taskCtx)
 	if err != nil {

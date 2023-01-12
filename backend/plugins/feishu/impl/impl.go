@@ -46,7 +46,7 @@ func (p Feishu) Init(basicRes context.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin Feishu) GetTablesInfo() []dal.Tabler {
+func (p Feishu) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.FeishuConnection{},
 		&models.FeishuMeetingTopUserItem{},

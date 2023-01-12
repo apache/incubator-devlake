@@ -33,17 +33,17 @@ import (
 )
 
 // NewGormDb creates a new *gorm.DB and set it up properly
-func NewGormDb(config config.ConfigReader, logger log.Logger) (*gorm.DB, errors.Error) {
-	return NewGormDbEx(config, logger, &dal.SessionConfig{
+func NewGormDb(configReader config.ConfigReader, logger log.Logger) (*gorm.DB, errors.Error) {
+	return NewGormDbEx(configReader, logger, &dal.SessionConfig{
 		PrepareStmt:            true,
 		SkipDefaultTransaction: true,
 	})
 }
 
 // NewGormDbEx acts like NewGormDb but accept extra sessionConfig
-func NewGormDbEx(config config.ConfigReader, logger log.Logger, sessionConfig *dal.SessionConfig) (*gorm.DB, errors.Error) {
+func NewGormDbEx(configReader config.ConfigReader, logger log.Logger, sessionConfig *dal.SessionConfig) (*gorm.DB, errors.Error) {
 	dbLoggingLevel := gormLogger.Error
-	switch strings.ToLower(config.GetString("DB_LOGGING_LEVEL")) {
+	switch strings.ToLower(configReader.GetString("DB_LOGGING_LEVEL")) {
 	case "silent":
 		dbLoggingLevel = gormLogger.Silent
 	case "warn":
@@ -52,11 +52,11 @@ func NewGormDbEx(config config.ConfigReader, logger log.Logger, sessionConfig *d
 		dbLoggingLevel = gormLogger.Info
 	}
 
-	idleConns := config.GetInt("DB_IDLE_CONNS")
+	idleConns := configReader.GetInt("DB_IDLE_CONNS")
 	if idleConns <= 0 {
 		idleConns = 10
 	}
-	dbMaxOpenConns := config.GetInt("DB_MAX_CONNS")
+	dbMaxOpenConns := configReader.GetInt("DB_MAX_CONNS")
 	if dbMaxOpenConns <= 0 {
 		dbMaxOpenConns = 100
 	}
@@ -74,7 +74,7 @@ func NewGormDbEx(config config.ConfigReader, logger log.Logger, sessionConfig *d
 		PrepareStmt:            sessionConfig.PrepareStmt,
 		SkipDefaultTransaction: sessionConfig.SkipDefaultTransaction,
 	}
-	dbUrl := config.GetString("DB_URL")
+	dbUrl := configReader.GetString("DB_URL")
 	if dbUrl == "" {
 		return nil, errors.BadInput.New("DB_URL is required")
 	}

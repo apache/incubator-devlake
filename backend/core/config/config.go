@@ -19,6 +19,7 @@ package config
 
 import "time"
 
+// ConfigReader defined a serial of interfaces
 type ConfigReader interface {
 	Get(key string) interface{}
 	GetBool(name string) bool

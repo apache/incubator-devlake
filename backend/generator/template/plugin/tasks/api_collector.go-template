@@ -70,7 +70,7 @@ func Collect{{ .CollectorDataName }}(taskCtx core.SubTaskContext) errors.Error {
 	return collector.Execute()
 }
 
-var Collect{{ .CollectorDataName }}Meta = core.SubTaskMeta{
+var Collect{{ .CollectorDataName }}Meta = plugin.SubTaskMeta{
 	Name:             "Collect{{ .CollectorDataName }}",
 	EntryPoint:       Collect{{ .CollectorDataName }},
 	EnabledByDefault: true,

@@ -44,7 +44,7 @@ func (p Dbt) SubTaskMetas() []plugin.SubTaskMeta {
 	}
 }
 
-func (plugin Dbt) GetTablesInfo() []dal.Tabler {
+func (p Dbt) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{}
 }
 

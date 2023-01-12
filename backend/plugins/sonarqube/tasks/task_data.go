@@ -18,32 +18,31 @@ limitations under the License.
 package tasks
 
 import (
-	"fmt"
 	"github.com/apache/incubator-devlake/core/errors"
-	"github.com/apache/incubator-devlake/plugins/helper"
+	"github.com/apache/incubator-devlake/helpers/pluginhelper/api"
 )
 
-type {{ .PluginName }}ApiParams struct {
+type SonarqubeApiParams struct {
 }
 
-type {{ .PluginName }}Options struct {
+type SonarqubeOptions struct {
 	// TODO add some custom options here if necessary
 	// options means some custom params required by plugin running.
 	// Such As How many rows do your want
 	// You can use it in sub tasks and you need pass it in main.go and pipelines.
-    ConnectionId               uint64   `json:"connectionId"`
-    Tasks                      []string `json:"tasks,omitempty"`
-    Since                      string
+	ConnectionId uint64   `json:"connectionId"`
+	Tasks        []string `json:"tasks,omitempty"`
+	Since        string
 }
 
-type {{ .PluginName }}TaskData struct {
-	Options   *{{ .PluginName }}Options
+type SonarqubeTaskData struct {
+	Options   *SonarqubeOptions
 	ApiClient *api.ApiAsyncClient
 }
 
-func DecodeAndValidateTaskOptions(options map[string]interface{}) (*{{ .PluginName }}Options, errors.Error) {
-	var op {{ .PluginName }}Options
-	if err := helper.Decode(options, &op, nil); err != nil {
+func DecodeAndValidateTaskOptions(options map[string]interface{}) (*SonarqubeOptions, errors.Error) {
+	var op SonarqubeOptions
+	if err := api.Decode(options, &op, nil); err != nil {
 		return nil, err
 	}
 	if op.ConnectionId == 0 {

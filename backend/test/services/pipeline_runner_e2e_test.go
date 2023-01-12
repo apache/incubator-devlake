@@ -20,9 +20,9 @@ package services
 import (
 	"github.com/apache/incubator-devlake/core/models"
 	"github.com/apache/incubator-devlake/server/services"
-	"testing"
 	_ "github.com/apache/incubator-devlake/test"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestComputePipelineStatus(t *testing.T) {
