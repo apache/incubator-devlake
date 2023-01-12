@@ -16,7 +16,45 @@
  *
  */
 
-export * from './context';
-export * from './historical';
-export * from './info';
-export * from './tasks';
+import { Colors } from '@blueprintjs/core';
+import styled from 'styled-components';
+
+import { Card } from '@/components';
+
+export const Wrapper = styled(Card)`
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    align-items: center;
+  }
+
+  li {
+    flex: 5;
+    display: flex;
+    flex-direction: column;
+
+    &:last-child {
+      flex: 1;
+    }
+
+    & > span {
+      font-size: 12px;
+      color: #94959f;
+      text-align: center;
+    }
+
+    & > strong {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 8px;
+    }
+  }
+
+  p.message {
+    margin: 8px 0 0;
+    color: ${Colors.RED3};
+  }
+`;
