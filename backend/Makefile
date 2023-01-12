@@ -96,3 +96,6 @@ fmt:
 
 clean:
 	@rm -rf bin
+
+build-server-image:
+	docker build -t $(IMAGE_REPO)/devlake:$(TAG) --build-arg TAG=$(TAG) --build-arg SHA=$(SHA) --file ./Dockerfile .

@@ -23,13 +23,13 @@ IMAGE_REPO ?= "apache"
 VERSION = $(TAG)@$(SHA)
 
 build-server-image:
-	docker build -t $(IMAGE_REPO)/devlake:$(TAG) --build-arg TAG=$(TAG) --build-arg SHA=$(SHA) --file ./Dockerfile .
+	make build-server-image -C backend
 
 build-config-ui-image:
 	cd config-ui; docker build -t $(IMAGE_REPO)/devlake-config-ui:$(TAG) --file ./Dockerfile .
 
 build-grafana-image:
-	cd grafana; docker build -t $(IMAGE_REPO)/devlake-dashboard:$(TAG) --file ./Dockerfile .
+	cd grafana; docker build -t $(IMAGE_REPO)/devlake-dashboard:$(TAG) --file ./backend/Dockerfile .
 
 build-images: build-server-image build-config-ui-image build-grafana-image
 
@@ -55,3 +55,73 @@ commit:
 
 restart:
 	docker-compose down; docker-compose up -d
+
+# Actually execute in ./backend
+go-dep:
+	make go-dep -C backend
+
+python-dep:
+	make python-dep -C backend
+
+dep: go-dep python-dep
+
+swag:
+	make swag -C backend
+
+build-plugin:
+	make build-plugin -C backend
+
+build-plugin-debug:
+	make build-plugin-debug -C backend
+
+build-worker:
+	make build-worker -C backend
+
+build-server:
+	make build-server -C backend
+
+build: build-plugin build-server
+
+all: build build-worker
+
+tap-models:
+	make tap-models -C backend
+
+run:
+	make run -C backend
+
+worker:
+	make worker -C backend
+
+dev:
+	make dev -C backend
+
+debug:
+	make debug -C backend
+
+mock:
+	make mock -C backend
+
+test: unit-test e2e-test
+
+unit-test: mock unit-test-only
+
+unit-test-only:
+	make unit-test-only -C backend
+
+e2e-test: build e2e-test-only
+
+e2e-test-only:
+	#PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -timeout 300s -v ./test/...
+
+e2e-plugins-test:
+	make e2e-plugins-test -C backend
+
+lint:
+	make lint -C backend
+
+fmt:
+	make fmt -C backend
+
+clean:
+	make clean -C backend
