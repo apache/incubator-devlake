@@ -20,7 +20,8 @@ import React, { useMemo } from 'react';
 import { Button, Intent } from '@blueprintjs/core';
 
 import { getCron } from '@/config';
-import { PipelineInfo, PipelineHistorical } from '@/pages';
+import { Card } from '@/components';
+import { PipelineContextProvider, PipelineInfo, PipelineTasks, PipelineHistorical } from '@/pages';
 import { formatTime } from '@/utils';
 
 import type { BlueprintType } from '../../types';
@@ -54,14 +55,25 @@ export const Status = ({ blueprint, pipelineId, operating, onRun }: Props) => {
           />
         </span>
       </div>
-      <div className="block">
-        <h3>Current Pipeline</h3>
-        <PipelineInfo id={pipelineId} />
-      </div>
-      <div className="block">
-        <h3>Historical Pipelines</h3>
-        <PipelineHistorical blueprintId={blueprint.id} />
-      </div>
+      <PipelineContextProvider>
+        <div className="block">
+          <h3>Current Pipeline</h3>
+          {!pipelineId ? (
+            <Card>There is no current run for this blueprint.</Card>
+          ) : (
+            <>
+              <PipelineInfo id={pipelineId} />
+              <Card style={{ marginTop: 16 }}>
+                <PipelineTasks id={pipelineId} />
+              </Card>
+            </>
+          )}
+        </div>
+        <div className="block">
+          <h3>Historical Pipelines</h3>
+          <PipelineHistorical blueprintId={blueprint.id} />
+        </div>
+      </PipelineContextProvider>
     </S.StatusPanel>
   );
 };
