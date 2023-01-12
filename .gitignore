@@ -124,7 +124,7 @@ mysql-data/
 .docker/
 
 # config files
-config/local.js
+local.js
 
 # Editors
 .idea
@@ -154,8 +154,8 @@ libgit2
 .air.toml
 
 # auto generated code
-mocks/
-api/docs/swagger.json
-api/docs/swagger.yaml
-api/docs/docs.go
+backend/mocks/
+backend/server/api/docs/swagger.json
+backend/server/api/docs/swagger.yaml
+backend/server/api/docs/docs.go
 *.result/
