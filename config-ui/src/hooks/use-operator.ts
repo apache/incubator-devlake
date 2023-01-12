@@ -16,5 +16,37 @@
  *
  */
 
-export * from './use-auto-refresh';
-export * from './use-operator';
+import { useState, useMemo } from 'react';
+
+import { operator } from '@/utils';
+
+export const useOperator = <T>(
+  request: (paylod?: any) => Promise<T>,
+  options?: {
+    callback?: () => void;
+    formatReason?: () => string;
+    formatMessage?: () => string;
+  },
+) => {
+  const [operating, setOperating] = useState(false);
+
+  const handleSubmit = async (paylod?: any) => {
+    const [success] = await operator(() => request(paylod), {
+      setOperating,
+      formatReason: options?.formatReason,
+      formatMessage: options?.formatMessage,
+    });
+
+    if (success) {
+      options?.callback?.();
+    }
+  };
+
+  return useMemo(
+    () => ({
+      operating,
+      onSubmit: handleSubmit,
+    }),
+    [operating],
+  );
+};
