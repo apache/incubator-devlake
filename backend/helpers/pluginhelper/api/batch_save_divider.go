@@ -30,8 +30,8 @@ import (
 // BatchSaveDivider creates and caches BatchSave, this is helpful when dealing with massive amount of data records
 // with arbitrary types.
 type BatchSaveDivider struct {
-	basicRes context.BasicRes
-	log      log.Logger
+	basicRes  context.BasicRes
+	log       log.Logger
 	db        dal.Dal
 	batches   map[reflect.Type]*BatchSave
 	batchSize int

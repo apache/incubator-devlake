@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: golangci-lint
-          key: ${{ runner.os }}-golangci-lint
+          key: ${{ runner.os }}-backend-golangci-lint
       - name: generate mock
         run: |
           cd backend

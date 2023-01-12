@@ -27,7 +27,7 @@ type Tabler interface {
 	TableName() string
 }
 
-// Default Table is working for the Tabler interface witch only need TableName
+// DefaultTabler is working for the Tabler interface witch only need TableName
 type DefaultTabler struct {
 	Name string
 }

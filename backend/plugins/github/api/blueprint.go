@@ -105,9 +105,9 @@ func makePipelinePlan(subtaskMetas []plugin.SubTaskMeta, scopeV100s []*plugin.Bl
 			ops := refdiffRules.(map[string]interface{})
 			ops["repoId"] = didgen.NewDomainIdGenerator(&models.GithubRepo{}).Generate(connection.ID, repo.GithubId)
 			plan[j] = plugin.PipelineStage{{
-					Plugin:  "refdiff",
-					Options: ops,
-				},
+				Plugin:  "refdiff",
+				Options: ops,
+			},
 			}
 			// remove it from github transformationRules
 			delete(transformationRules, "refdiff")

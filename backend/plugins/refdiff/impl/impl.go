@@ -34,9 +34,6 @@ var _ plugin.PluginMetric = (*RefDiff)(nil)
 
 type RefDiff struct{}
 
-// PluginEntry is a variable exported for Framework to search and load
-var PluginEntry RefDiff //nolint
-
 func (p RefDiff) Description() string {
 	return "Calculate commits diff for specified ref pairs based on `commits` and `commit_parents` tables"
 }

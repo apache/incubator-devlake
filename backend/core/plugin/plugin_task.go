@@ -39,7 +39,7 @@ type RunningProgress struct {
 	Total         int
 	SubTaskName   string
 	SubTaskNumber int
-}
+} // nolint
 
 // ExecContext This interface define all resources that needed for task/subtask execution
 type ExecContext interface {
@@ -67,16 +67,16 @@ type TaskContext interface {
 type SubTask interface {
 	// Execute FIXME ...
 	Execute() errors.Error
-}
+} // nolint
 
 // SubTaskEntryPoint All subtasks from plugins should comply to this prototype, so they could be orchestrated by framework
 type SubTaskEntryPoint func(c SubTaskContext) errors.Error
 
-const DOMAIN_TYPE_CODE = "CODE"
-const DOMAIN_TYPE_TICKET = "TICKET"
-const DOMAIN_TYPE_CODE_REVIEW = "CODEREVIEW"
-const DOMAIN_TYPE_CROSS = "CROSS"
-const DOMAIN_TYPE_CICD = "CICD"
+const DOMAIN_TYPE_CODE = "CODE"              //nolint
+const DOMAIN_TYPE_TICKET = "TICKET"          //nolint
+const DOMAIN_TYPE_CODE_REVIEW = "CODEREVIEW" //nolint
+const DOMAIN_TYPE_CROSS = "CROSS"            //nolint
+const DOMAIN_TYPE_CICD = "CICD"              //nolint
 
 var DOMAIN_TYPES = []string{
 	DOMAIN_TYPE_CODE,
@@ -84,7 +84,7 @@ var DOMAIN_TYPES = []string{
 	DOMAIN_TYPE_CODE_REVIEW,
 	DOMAIN_TYPE_CROSS,
 	DOMAIN_TYPE_CICD,
-}
+} //nolint
 
 // SubTaskMeta Metadata of a subtask
 type SubTaskMeta struct {

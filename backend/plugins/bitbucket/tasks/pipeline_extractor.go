@@ -73,12 +73,12 @@ type BitbucketApiPipeline struct {
 	} `json:"trigger"`
 	CreatedOn         *api.Iso8601Time `json:"created_on"`
 	CompletedOn       *api.Iso8601Time `json:"completed_on"`
-	RunNumber         int                 `json:"run_number"`
-	DurationInSeconds uint64              `json:"duration_in_seconds"`
-	BuildSecondsUsed  int                 `json:"build_seconds_used"`
-	FirstSuccessful   bool                `json:"first_successful"`
-	Expired           bool                `json:"expired"`
-	HasVariables      bool                `json:"has_variables"`
+	RunNumber         int              `json:"run_number"`
+	DurationInSeconds uint64           `json:"duration_in_seconds"`
+	BuildSecondsUsed  int              `json:"build_seconds_used"`
+	FirstSuccessful   bool             `json:"first_successful"`
+	Expired           bool             `json:"expired"`
+	HasVariables      bool             `json:"has_variables"`
 	Links             struct {
 		Self struct {
 			Href string `json:"href"`

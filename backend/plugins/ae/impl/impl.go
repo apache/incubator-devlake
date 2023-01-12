@@ -45,7 +45,7 @@ func (p AE) Init(basicRes context.BasicRes) errors.Error {
 	return nil
 }
 
-func (plugin AE) GetTablesInfo() []dal.Tabler {
+func (p AE) GetTablesInfo() []dal.Tabler {
 	return []dal.Tabler{
 		&models.AECommit{},
 		&models.AEProject{},

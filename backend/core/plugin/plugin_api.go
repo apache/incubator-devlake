@@ -23,7 +23,7 @@ import (
 	"net/url"
 )
 
-// Contains api request information
+// ApiResourceInput Contains api request information
 type ApiResourceInput struct {
 	Params  map[string]string      // path variables
 	Query   url.Values             // query string
@@ -37,7 +37,7 @@ type OutputFile struct {
 	Data        []byte
 }
 
-// Describe response data of a api
+// ApiResourceOutput Describe response data of a api
 type ApiResourceOutput struct {
 	Body        interface{} // response body
 	Status      int
@@ -47,10 +47,10 @@ type ApiResourceOutput struct {
 
 type ApiResourceHandler func(input *ApiResourceInput) (*ApiResourceOutput, errors.Error)
 
-// Implement this interface if plugin offered API
+// PluginApi: Implement this interface if plugin offered API
 // Code sample to register a api on `sources/:connectionId`:
 //
-//	func (plugin Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
+//	func (p Jira) ApiResources() map[string]map[string]plugin.ApiResourceHandler {
 //		return map[string]map[string]plugin.ApiResourceHandler{
 //			"connections/:connectionId": {
 //				"PUT":    api.PutConnection,
