@@ -17,39 +17,41 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Icon, ButtonGroup, Button, Position, Intent, IconName } from '@blueprintjs/core';
-import { Tooltip2 } from '@blueprintjs/popover2';
+import { ButtonGroup } from '@blueprintjs/core';
 import { pick } from 'lodash';
 import { saveAs } from 'file-saver';
 
 import { DEVLAKE_ENDPOINT } from '@/config';
-import { Card, Loading, Table, ColumnType, Inspector } from '@/components';
+import type { ColumnType } from '@/components';
+import { Card, Loading, Table, Inspector, Dialog, IconButton } from '@/components';
 import { useAutoRefresh } from '@/hooks';
 import { formatTime } from '@/utils';
 
 import type { PipelineType } from '../../types';
 import { StatusEnum } from '../../types';
-import { STATUS_ICON, STATUS_LABEL, STATUS_CLS } from '../../misc';
 import * as API from '../../api';
 
+import { usePipeline } from '../context';
+import { PipelineStatus } from '../status';
 import { PipelineDuration } from '../duration';
-
-import * as S from './styled';
+import { PipelineTasks } from '../tasks';
 
 interface Props {
   blueprintId: ID;
 }
 
 export const PipelineHistorical = ({ blueprintId }: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [json, setJson] = useState<any>({});
+  const [JSON, setJSON] = useState<any>(null);
+  const [ID, setID] = useState<ID | null>(null);
+
+  const { version } = usePipeline();
 
   const { loading, data } = useAutoRefresh<PipelineType[]>(
     async () => {
       const res = await API.getPipelineHistorical(blueprintId);
       return res.pipelines;
     },
-    [],
+    [version],
     {
       cancel: (data) =>
         !!(
@@ -61,11 +63,19 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
     },
   );
 
+  const handleShowJSON = (row: PipelineType) => {
+    setJSON(pick(row, ['id', 'name', 'plan', 'skipOnFail']));
+  };
+
   const handleDownloadLog = async (id: ID) => {
     const res = await API.getPipelineLog(id);
     if (res) {
       saveAs(`${DEVLAKE_ENDPOINT}/pipelines/${id}/logging.tar.gz`, 'logging.tar.gz');
     }
+  };
+
+  const handleShowDetails = (id: ID) => {
+    setID(id);
   };
 
   const columns = useMemo(
@@ -75,33 +85,27 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
           title: 'Status',
           dataIndex: 'status',
           key: 'status',
-          render: (val: StatusEnum) => (
-            <S.StatusColumn className={STATUS_CLS(val)}>
-              {STATUS_ICON[val] === 'loading' ? (
-                <Loading style={{ marginRight: 4 }} size={14} />
-              ) : (
-                <Icon style={{ marginRight: 4 }} icon={STATUS_ICON[val] as IconName} />
-              )}
-              <span>{STATUS_LABEL[val]}</span>
-            </S.StatusColumn>
-          ),
+          render: (val) => <PipelineStatus status={val} />,
         },
         {
           title: 'Started at',
           dataIndex: 'beganAt',
           key: 'beganAt',
+          align: 'center',
           render: (val: string | null) => (val ? formatTime(val) : '-'),
         },
         {
           title: 'Completed at',
           dataIndex: 'finishedAt',
           key: 'finishedAt',
+          align: 'center',
           render: (val: string | null) => (val ? formatTime(val) : '-'),
         },
         {
           title: 'Duration',
           dataIndex: ['status', 'beganAt', 'finishedAt'],
           key: 'duration',
+          align: 'center',
           render: ({ status, beganAt, finishedAt }) => (
             <PipelineDuration status={status} beganAt={beganAt} finishedAt={finishedAt} />
           ),
@@ -110,23 +114,12 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
           title: '',
           dataIndex: 'id',
           key: 'action',
+          align: 'center',
           render: (id: ID, row) => (
             <ButtonGroup>
-              <Tooltip2 position={Position.TOP} intent={Intent.PRIMARY} content="View JSON">
-                <Button
-                  minimal
-                  intent={Intent.PRIMARY}
-                  icon="code"
-                  onClick={() => {
-                    setIsOpen(true);
-                    setJson(pick(row, ['id', 'name', 'plan', 'skipOnFail']));
-                  }}
-                />
-              </Tooltip2>
-              <Tooltip2 position={Position.TOP} intent={Intent.PRIMARY} content="Download Logs">
-                <Button minimal intent={Intent.PRIMARY} icon="document" onClick={() => handleDownloadLog(id)} />
-              </Tooltip2>
-              {/* <Button minimal intent={Intent.PRIMARY} icon='chevron-right' /> */}
+              <IconButton icon="code" tooltip="View JSON" onClick={() => handleShowJSON(row)} />
+              <IconButton icon="document" tooltip="Download Logs" onClick={() => handleDownloadLog(id)} />
+              <IconButton icon="chevron-right" tooltip="View Details" onClick={() => handleShowDetails(id)} />
             </ButtonGroup>
           ),
         },
@@ -149,7 +142,12 @@ export const PipelineHistorical = ({ blueprintId }: Props) => {
   return (
     <div>
       <Table columns={columns} dataSource={data} />
-      <Inspector isOpen={isOpen} title={`Pipeline ${json?.id}`} data={json} onClose={() => setIsOpen(false)} />
+      {JSON && <Inspector isOpen title={`Pipeline ${JSON?.id}`} data={JSON} onClose={() => setJSON(null)} />}
+      {ID && (
+        <Dialog style={{ width: 720 }} isOpen title={`Pipeline ${ID}`} footer={null} onCancel={() => setID(null)}>
+          <PipelineTasks id={ID} />
+        </Dialog>
+      )}
     </div>
   );
 };
