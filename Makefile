@@ -112,7 +112,7 @@ unit-test-only:
 e2e-test: build e2e-test-only
 
 e2e-test-only:
-	#PLUGIN_DIR=$(shell readlink -f bin/plugins) go test -timeout 300s -v ./test/...
+	make e2e-test-only -C backend
 
 e2e-plugins-test:
 	make e2e-plugins-test -C backend
