@@ -35,7 +35,7 @@ func init() {
 			panic(err)
 		}
 	}
-	services.InitResources()
+	services.Init()
 	err := services.GetMigrator().Execute()
 	if err != nil {
 		panic(err)
