@@ -156,5 +156,9 @@ COPY --from=build /app/resources/tap /app/resources/tap
 
 ENV PATH="/app/bin:${PATH}"
 
+# add tini, prevent zombie process
+RUN apk add --no-cache tini
+ENTRYPOINT ["/sbin/tini", "--"]
+
 CMD ["lake"]
 
