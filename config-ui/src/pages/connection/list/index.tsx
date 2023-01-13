@@ -21,7 +21,8 @@ import { useParams } from 'react-router-dom';
 
 import { PageHeader } from '@/components';
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginConfig, WebHookConnection } from '@/plugins';
+import { Plugins, PluginConfig } from '@/plugins';
+import { WebHookConnection } from '@/plugins/register/webook';
 import { ConnectionContextProvider } from '@/store';
 
 import { Connection } from './connection';

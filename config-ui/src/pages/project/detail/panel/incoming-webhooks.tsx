@@ -21,8 +21,9 @@ import { Button, Intent } from '@blueprintjs/core';
 
 import NoData from '@/images/no-webhook.svg';
 import { Card } from '@/components';
-import type { WebhookItemType } from '@/plugins';
-import { Plugins, WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins';
+import { Plugins } from '@/plugins';
+import type { WebhookItemType } from '@/plugins/register/webook';
+import { WebhookCreateDialog, WebhookSelectorDialog, WebHookConnection } from '@/plugins/register/webook';
 
 import type { ProjectType } from '../types';
 

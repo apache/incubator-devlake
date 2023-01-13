@@ -17,24 +17,24 @@
  */
 
 import type { PluginConfigType } from './types';
-import { AEConfig } from './ae';
-import { AzureConfig } from './azure';
-import { BitBucketConfig } from './bitbucket';
-import { DBTConfig } from './dbt';
-import { DORAConfig } from './dora';
-import { FeiShuConfig } from './feishu';
-import { GiteeConfig } from './gitee';
-import { GitExtractorConfig } from './gitextractor';
-import { GitHubConfig } from './github';
-import { GitHubGraphqlConfig } from './github_graphql';
-import { GitLabConfig } from './gitlab';
-import { JenkinsConfig } from './jenkins';
-import { JIRAConfig } from './jira';
-import { RefDiffConfig } from './refdiff';
-import { StarRocksConfig } from './starrocks';
-import { TAPDConfig } from './tapd';
-import { WebhookConfig } from './webook';
-import { ZenTaoConfig } from './zentao';
+import { AEConfig } from './register/ae';
+import { AzureConfig } from './register/azure';
+import { BitBucketConfig } from './register/bitbucket';
+import { DBTConfig } from './register/dbt';
+import { DORAConfig } from './register/dora';
+import { FeiShuConfig } from './register/feishu';
+import { GiteeConfig } from './register/gitee';
+import { GitExtractorConfig } from './register/gitextractor';
+import { GitHubConfig } from './register/github';
+import { GitHubGraphqlConfig } from './register/github_graphql';
+import { GitLabConfig } from './register/gitlab';
+import { JenkinsConfig } from './register/jenkins';
+import { JIRAConfig } from './register/jira';
+import { RefDiffConfig } from './register/refdiff';
+import { StarRocksConfig } from './register/starrocks';
+import { TAPDConfig } from './register/tapd';
+import { WebhookConfig } from './register/webook';
+import { ZenTaoConfig } from './register/zentao';
 
 export const PluginConfig: PluginConfigType[] = [
   AEConfig,
