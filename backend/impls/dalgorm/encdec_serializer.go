@@ -70,11 +70,11 @@ func (es *EncDecSerializer) Scan(ctx context.Context, field *schema.Field, dst r
 // Value implements serializer interface
 func (es *EncDecSerializer) Value(ctx context.Context, field *schema.Field, dst reflect.Value, fieldValue interface{}) (interface{}, error) {
 	var target string
-	switch fieldValue.(type) {
+	switch v := fieldValue.(type) {
 	case json.RawMessage:
-		target = string(fieldValue.(json.RawMessage))
+		target = string(v)
 	case string:
-		target = fieldValue.(string)
+		target = v
 	default:
 		return nil, fmt.Errorf("failed to encrypt value: %#v", fieldValue)
 	}

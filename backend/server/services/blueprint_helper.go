@@ -47,7 +47,7 @@ func SaveDbBlueprint(blueprint *models.Blueprint) errors.Error {
 				Name:        blueprint.Labels[i],
 			})
 		}
-		err = db.Create(&blueprint.Labels)
+		err = db.Create(&blueprintLabels)
 		if err != nil {
 			return errors.Default.Wrap(err, "error creating DB blueprint's labelModels")
 		}

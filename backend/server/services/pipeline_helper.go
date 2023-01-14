@@ -185,30 +185,6 @@ func GetDbPipeline(pipelineId uint64) (*models.Pipeline, errors.Error) {
 	return dbPipeline, nil
 }
 
-// parsePipeline converts DbPipeline to Pipeline
-func parsePipeline(dbPipeline *models.Pipeline) *models.Pipeline {
-	labelList := dbPipeline.Labels
-
-	pipeline := models.Pipeline{
-		Model:         dbPipeline.Model,
-		Name:          dbPipeline.Name,
-		BlueprintId:   dbPipeline.BlueprintId,
-		Plan:          []byte(dbPipeline.Plan),
-		TotalTasks:    dbPipeline.TotalTasks,
-		FinishedTasks: dbPipeline.FinishedTasks,
-		BeganAt:       dbPipeline.BeganAt,
-		FinishedAt:    dbPipeline.FinishedAt,
-		Status:        dbPipeline.Status,
-		Message:       dbPipeline.Message,
-		ErrorName:     dbPipeline.ErrorName,
-		SpentSeconds:  dbPipeline.SpentSeconds,
-		Stage:         dbPipeline.Stage,
-		SkipOnFail:    dbPipeline.SkipOnFail,
-		Labels:        labelList,
-	}
-	return &pipeline
-}
-
 func fillPipelineDetail(pipeline *models.Pipeline) errors.Error {
 	err := basicRes.GetDal().Pluck("name", &pipeline.Labels, dal.From(&models.DbPipelineLabel{}), dal.Where("pipeline_id = ?", pipeline.ID))
 	if err != nil {
