@@ -19,6 +19,7 @@ package dalgorm
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/apache/incubator-devlake/core/plugin"
 	"reflect"
@@ -36,6 +37,7 @@ type EncDecSerializer struct {
 
 // Scan implements serializer interface
 func (es *EncDecSerializer) Scan(ctx context.Context, field *schema.Field, dst reflect.Value, dbValue interface{}) (err error) {
+	fieldValue := reflect.New(field.FieldType)
 	if dbValue != nil {
 		var base64str string
 		switch v := dbValue.(type) {
@@ -51,14 +53,32 @@ func (es *EncDecSerializer) Scan(ctx context.Context, field *schema.Field, dst r
 		if err != nil {
 			return err
 		}
-		field.ReflectValueOf(ctx, dst).SetString(decrypted)
+		switch fieldValue.Elem().Kind() {
+		case reflect.Slice:
+			bytes := []byte(decrypted)
+			_ = json.Unmarshal(bytes, fieldValue.Interface())
+			field.ReflectValueOf(ctx, dst).Set(fieldValue.Elem())
+		case reflect.String:
+			field.ReflectValueOf(ctx, dst).SetString(decrypted)
+		default:
+			return fmt.Errorf("failed to decrypt value: %#v", dbValue)
+		}
 	}
 	return nil
 }
 
 // Value implements serializer interface
 func (es *EncDecSerializer) Value(ctx context.Context, field *schema.Field, dst reflect.Value, fieldValue interface{}) (interface{}, error) {
-	return plugin.Encrypt(es.encKey, fieldValue.(string))
+	var target string
+	switch fieldValue.(type) {
+	case json.RawMessage:
+		target = string(fieldValue.(json.RawMessage))
+	case string:
+		target = fieldValue.(string)
+	default:
+		return nil, fmt.Errorf("failed to encrypt value: %#v", fieldValue)
+	}
+	return plugin.Encrypt(es.encKey, target)
 }
 
 // Init the encdec serializer

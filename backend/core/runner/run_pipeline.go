@@ -62,7 +62,7 @@ func runPipelineTasks(
 	db := basicRes.GetDal()
 	log := basicRes.GetLogger()
 	// load pipeline from db
-	dbPipeline := &models.DbPipeline{}
+	dbPipeline := &models.Pipeline{}
 	err := db.First(dbPipeline, dal.Where("id = ?", pipelineId))
 	if err != nil {
 		return err

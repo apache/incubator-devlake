@@ -48,16 +48,10 @@ func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 	if err != nil {
 		return err
 	}
-	dbBlueprint := parseDbBlueprint(blueprint)
-	dbBlueprint, err = encryptDbBlueprint(dbBlueprint)
+	err = SaveDbBlueprint(blueprint)
 	if err != nil {
 		return err
 	}
-	err = SaveDbBlueprint(dbBlueprint)
-	if err != nil {
-		return err
-	}
-	blueprint.Model = dbBlueprint.Model
 	err = ReloadBlueprints(cronManager)
 	if err != nil {
 		return errors.Internal.Wrap(err, "error reloading blueprints")
@@ -67,36 +61,22 @@ func CreateBlueprint(blueprint *models.Blueprint) errors.Error {
 
 // GetBlueprints returns a paginated list of Blueprints based on `query`
 func GetBlueprints(query *BlueprintQuery) ([]*models.Blueprint, int64, errors.Error) {
-	dbBlueprints, count, err := GetDbBlueprints(query)
+	blueprints, count, err := GetDbBlueprints(query)
 	if err != nil {
 		return nil, 0, errors.Convert(err)
-	}
-	blueprints := make([]*models.Blueprint, 0)
-	for _, dbBlueprint := range dbBlueprints {
-		dbBlueprint, err = decryptDbBlueprint(dbBlueprint)
-		if err != nil {
-			return nil, 0, err
-		}
-		blueprint := parseBlueprint(dbBlueprint)
-		blueprints = append(blueprints, blueprint)
 	}
 	return blueprints, count, nil
 }
 
 // GetBlueprint returns the detail of a given Blueprint ID
 func GetBlueprint(blueprintId uint64) (*models.Blueprint, errors.Error) {
-	dbBlueprint, err := GetDbBlueprint(blueprintId)
+	blueprint, err := GetDbBlueprint(blueprintId)
 	if err != nil {
 		if db.IsErrorNotFound(err) {
 			return nil, errors.NotFound.New("blueprint not found")
 		}
 		return nil, errors.Internal.Wrap(err, "error getting the blueprint from database")
 	}
-	dbBlueprint, err = decryptDbBlueprint(dbBlueprint)
-	if err != nil {
-		return nil, err
-	}
-	blueprint := parseBlueprint(dbBlueprint)
 	return blueprint, nil
 }
 
@@ -105,7 +85,7 @@ func GetBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Er
 	if projectName == "" {
 		return nil, errors.Internal.New("can not use the empty projectName to search the unique blueprint")
 	}
-	dbBlueprint, err := GetDbBlueprintByProjectName(projectName)
+	blueprint, err := GetDbBlueprintByProjectName(projectName)
 	if err != nil {
 		// Allow specific projectName to fail to find the corresponding blueprint
 		if db.IsErrorNotFound(err) {
@@ -113,15 +93,13 @@ func GetBlueprintByProjectName(projectName string) (*models.Blueprint, errors.Er
 		}
 		return nil, errors.Internal.Wrap(err, fmt.Sprintf("error getting the blueprint from database with project %s", projectName))
 	}
-	dbBlueprint, err = decryptDbBlueprint(dbBlueprint)
-	if err != nil {
-		return nil, err
-	}
-	blueprint := parseBlueprint(dbBlueprint)
 	return blueprint, nil
 }
 
 func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
+	if len(blueprint.Settings) == 0 {
+		blueprint.Settings = nil
+	}
 	// validation
 	err := vld.Struct(blueprint)
 	if err != nil {
@@ -175,7 +153,6 @@ func validateBlueprintAndMakePlan(blueprint *models.Blueprint) errors.Error {
 			return errors.Default.Wrap(err, "failed to markshal plan")
 		}
 	}
-
 	return nil
 }
 
@@ -185,14 +162,7 @@ func saveBlueprint(blueprint *models.Blueprint) (*models.Blueprint, errors.Error
 	if err != nil {
 		return nil, errors.BadInput.WrapRaw(err)
 	}
-
-	// save
-	dbBlueprint := parseDbBlueprint(blueprint)
-	dbBlueprint, err = encryptDbBlueprint(dbBlueprint)
-	if err != nil {
-		return nil, err
-	}
-	err = SaveDbBlueprint(dbBlueprint)
+	err = SaveDbBlueprint(blueprint)
 	if err != nil {
 		return nil, err
 	}
@@ -236,7 +206,7 @@ func PatchBlueprint(id uint64, body map[string]interface{}) (*models.Blueprint, 
 func ReloadBlueprints(c *cron.Cron) errors.Error {
 	enable := true
 	isManual := false
-	dbBlueprints, _, err := GetDbBlueprints(&BlueprintQuery{Enable: &enable, IsManual: &isManual})
+	blueprints, _, err := GetDbBlueprints(&BlueprintQuery{Enable: &enable, IsManual: &isManual})
 	if err != nil {
 		return err
 	}
@@ -244,12 +214,7 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 		c.Remove(e.ID)
 	}
 	c.Stop()
-	for _, dbBlueprint := range dbBlueprints {
-		dbBlueprint, err = decryptDbBlueprint(dbBlueprint)
-		if err != nil {
-			return err
-		}
-		blueprint := parseBlueprint(dbBlueprint)
+	for _, blueprint := range blueprints {
 		if err != nil {
 			blueprintLog.Error(err, failToCreateCronJob)
 			return err
@@ -266,10 +231,10 @@ func ReloadBlueprints(c *cron.Cron) errors.Error {
 			return errors.Default.Wrap(err, "created cron job failed")
 		}
 	}
-	if len(dbBlueprints) > 0 {
+	if len(blueprints) > 0 {
 		c.Start()
 	}
-	logger.Info("total %d blueprints were scheduled", len(dbBlueprints))
+	logger.Info("total %d blueprints were scheduled", len(blueprints))
 	return nil
 }
 

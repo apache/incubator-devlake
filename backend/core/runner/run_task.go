@@ -48,7 +48,7 @@ func RunTask(
 	if task.Status == models.TASK_COMPLETED {
 		return errors.Default.New("invalid task status")
 	}
-	dbPipeline := &models.DbPipeline{}
+	dbPipeline := &models.Pipeline{}
 	if err := db.First(dbPipeline, dal.Where("id = ? ", task.PipelineId)); err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func RunTask(
 		}
 		// update finishedTasks
 		dbe := db.UpdateColumn(
-			&models.DbPipeline{},
+			&models.Pipeline{},
 			"finished_tasks", dal.Expr("finished_tasks + 1"),
 			dal.Where("id=?", task.PipelineId),
 		)
