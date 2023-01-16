@@ -39,7 +39,7 @@ export const ConnectionFormPage = () => {
 
   const {
     name,
-    connection: { initialValues, fields },
+    connection: { fields },
   } = useMemo(() => PluginConfig.find((p) => p.plugin === plugin) as PluginConfigConnectionType, [plugin]);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export const ConnectionFormPage = () => {
       ...form,
       ...(connection ?? {}),
     });
-  }, [initialValues, connection]);
+  }, [connection]);
 
   const error = useMemo(
     () => !!(fields.filter((field) => field.required) ?? []).find((field) => !form[field.key]),
@@ -68,6 +68,7 @@ export const ConnectionFormPage = () => {
     required,
     placeholder,
     tooltip,
+    initialValue,
   }: PluginConfigConnectionType['connection']['fields']['0']) => {
     return (
       <FormGroup
@@ -89,7 +90,7 @@ export const ConnectionFormPage = () => {
         {type === 'text' && (
           <InputGroup
             placeholder={placeholder}
-            value={form[key] ?? ''}
+            value={form[key] ?? initialValue ?? ''}
             onChange={(e) => setForm({ ...form, [`${key}`]: e.target.value })}
           />
         )}
@@ -104,7 +105,7 @@ export const ConnectionFormPage = () => {
         {type === 'switch' && (
           <S.SwitchWrapper>
             <Switch
-              checked={form[key] ?? initialValues?.[key] ?? false}
+              checked={form[key] ?? initialValue ?? false}
               onChange={(e) =>
                 setForm({
                   ...form,
@@ -116,7 +117,7 @@ export const ConnectionFormPage = () => {
         )}
         {type === 'rateLimit' && (
           <RateLimit
-            initialValue={initialValues?.rateLimitPerHour}
+            initialValue={initialValue}
             value={form.rateLimitPerHour}
             onChange={(value) =>
               setForm({

@@ -36,14 +36,13 @@ export const JIRAConfig: PluginConfigType = {
   name: 'JIRA',
   icon: Icon,
   connection: {
-    initialValues: {
-      rateLimitPerHour: 3000,
-    },
     fields: [
       ConnectionName({
+        initialValue: 'JIRA',
         placeholder: 'eg. JIRA',
       }),
       ConnectionEndpoint({
+        initialValue: 'https://your-domain.atlassian.net/rest/',
         placeholder: 'eg. https://your-domain.atlassian.net/rest/',
       }),
       ConnectionUsername({
@@ -53,7 +52,9 @@ export const JIRAConfig: PluginConfigType = {
         tooltip: 'If you are using JIRA Cloud or JIRA Server,\nyour API Token should be used as password.',
       }),
       ConnectionProxy(),
-      ConnectionRatelimit(),
+      ConnectionRatelimit({
+        initialValue: 3000,
+      }),
     ],
   },
   entities: ['TICKET', 'CROSS'],

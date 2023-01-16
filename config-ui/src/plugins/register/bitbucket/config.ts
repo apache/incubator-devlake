@@ -37,22 +37,24 @@ export const BitBucketConfig: PluginConfigType = {
   icon: Icon,
   isBeta: true,
   connection: {
-    initialValues: {
-      rateLimitPerHour: 10000,
-    },
     fields: [
       ConnectionName({
+        initialValue: 'BitBucket',
         placeholder: 'eg. BitBucket',
       }),
       ConnectionEndpoint({
+        initialValue: 'https://api.bitbucket.org/2.0/',
         placeholder: 'eg. https://api.bitbucket.org/2.0/',
       }),
       ConnectionUsername(),
       ConnectionPassword({
         label: 'App Password',
+        placeholder: 'App Password',
       }),
       ConnectionProxy(),
-      ConnectionRatelimit(),
+      ConnectionRatelimit({
+        initialValue: 10000,
+      }),
     ],
   },
   entities: [],

@@ -37,6 +37,7 @@ export const ConnectionUsername = (custom = {}) => ({
   label: 'Username',
   type: 'text' as const,
   required: true,
+  placeholder: 'Username',
   ...custom,
 });
 
@@ -45,6 +46,7 @@ export const ConnectionPassword = (custom = {}) => ({
   label: 'Password',
   type: 'password' as const,
   required: true,
+  placeholder: 'Password',
   ...custom,
 });
 
@@ -61,7 +63,7 @@ export const ConnectionProxy = (custom = {}) => ({
   label: 'Proxy URL',
   type: 'text' as const,
   placeholder: 'eg. http://proxy.localhost:8080',
-  tooltip: 'Add a proxy if your network can not access GitLab directly.',
+  tooltip: 'Add a proxy if your network can not access Server directly.',
   ...custom,
 });
 
@@ -71,4 +73,29 @@ export const ConnectionRatelimit = (custom = {}) => ({
   type: 'rateLimit' as const,
   tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
   ...custom,
+});
+
+export const ConnectionGitHubToken = () => ({
+  key: 'token',
+  label: 'Basic Auth Token',
+  type: 'githubToken' as const,
+  required: true,
+  tooltip: "Due to Github's rate limit, input more tokens, \ncomma separated, to accelerate data collection.",
+});
+
+export const ConnectionGitHubGraphql = () => ({
+  key: 'enableGraphql',
+  label: 'Use Graphql APIs',
+  type: 'switch' as const,
+  tooltip:
+    'GraphQL APIs are 10+ times faster than REST APIs, but it may not be supported in GitHub on-premise versions.',
+  initialValue: true,
+});
+
+export const ConnectionGitLabToken = () => ({
+  key: 'token',
+  label: 'Access Token',
+  type: 'gitlabToken' as const,
+  required: true,
+  placeholder: 'eg. ff9d1ad0e5c04f1f98fa',
 });

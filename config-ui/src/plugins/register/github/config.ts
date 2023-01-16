@@ -22,6 +22,8 @@ import {
   BaseConnectionConfig,
   ConnectionName,
   ConnectionEndpoint,
+  ConnectionGitHubToken,
+  ConnectionGitHubGraphql,
   ConnectionProxy,
   ConnectionRatelimit,
 } from '../base';
@@ -34,33 +36,21 @@ export const GitHubConfig: PluginConfigType = {
   name: 'GitHub',
   icon: Icon,
   connection: {
-    initialValues: {
-      enableGraphql: true,
-      rateLimitPerHour: 4500,
-    },
     fields: [
       ConnectionName({
+        initialValue: 'GitHub',
         placeholder: 'eg. GitHub',
       }),
       ConnectionEndpoint({
+        initialValue: 'https://api.github.com/',
         placeholder: 'eg. https://api.github.com/',
       }),
-      {
-        key: 'token',
-        label: 'Basic Auth Token',
-        type: 'githubToken',
-        required: true,
-        tooltip: "Due to Github's rate limit, input more tokens, \ncomma separated, to accelerate data collection.",
-      },
+      ConnectionGitHubToken(),
+      ConnectionGitHubGraphql(),
       ConnectionProxy(),
-      {
-        key: 'enableGraphql',
-        label: 'Use Graphql APIs',
-        type: 'switch',
-        tooltip:
-          'GraphQL APIs are 10+ times faster than REST APIs, but it may not be supported in GitHub on-premise versions.',
-      },
-      ConnectionRatelimit(),
+      ConnectionRatelimit({
+        initialValue: 4500,
+      }),
     ],
   },
   entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],

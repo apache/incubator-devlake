@@ -29,7 +29,6 @@ export type PluginConfigConnectionType = {
   icon: string;
   isBeta?: boolean;
   connection: {
-    initialValues?: Record<string, any>;
     fields: Array<{
       key: string;
       type: 'text' | 'password' | 'switch' | 'rateLimit' | 'githubToken' | 'gitlabToken';
@@ -37,6 +36,7 @@ export type PluginConfigConnectionType = {
       required?: boolean;
       placeholder?: string;
       tooltip?: string;
+      initialValue?: any;
     }>;
   };
   entities: string[];

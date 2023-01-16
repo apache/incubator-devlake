@@ -36,20 +36,21 @@ export const JenkinsConfig: PluginConfigType = {
   name: 'Jenkins',
   icon: Icon,
   connection: {
-    initialValues: {
-      rateLimitPerHour: 10000,
-    },
     fields: [
       ConnectionName({
+        initialValue: 'Jenkins',
         placeholder: 'eg. Jenkins',
       }),
       ConnectionEndpoint({
+        initialValue: 'https://api.jenkins.io/',
         placeholder: 'eg. https://api.jenkins.io/',
       }),
       ConnectionUsername(),
       ConnectionPassword(),
       ConnectionProxy(),
-      ConnectionRatelimit(),
+      ConnectionRatelimit({
+        initialValue: 10000,
+      }),
     ],
   },
   entities: ['CICD'],
