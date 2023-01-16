@@ -17,13 +17,12 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
+import { Plugins } from '@/plugins';
 
-import Icon from './assets/icon.svg';
+import { BasePipelineConfig } from '../base';
 
 export const DBTConfig: PluginConfigType = {
+  ...BasePipelineConfig,
   plugin: Plugins.DBT,
   name: 'DBT',
-  type: PluginType.Pipeline,
-  icon: Icon,
 };

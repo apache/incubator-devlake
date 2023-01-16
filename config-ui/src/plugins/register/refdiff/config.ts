@@ -17,13 +17,12 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
+import { Plugins } from '@/plugins';
 
-import Icon from './assets/icon.svg';
+import { BasePipelineConfig } from '../base';
 
 export const RefDiffConfig: PluginConfigType = {
+  ...BasePipelineConfig,
   plugin: Plugins.RefDiff,
   name: 'RefDiff',
-  type: PluginType.Pipeline,
-  icon: Icon,
 };

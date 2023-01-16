@@ -17,14 +17,22 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
+import { Plugins } from '@/plugins';
+
+import {
+  BaseConnectionConfig,
+  ConnectionName,
+  ConnectionEndpoint,
+  ConnectionProxy,
+  ConnectionRatelimit,
+} from '../base';
 
 import Icon from './assets/icon.svg';
 
 export const GitHubConfig: PluginConfigType = {
+  ...BaseConnectionConfig,
   plugin: Plugins.GitHub,
   name: 'GitHub',
-  type: PluginType.Connection,
   icon: Icon,
   connection: {
     initialValues: {
@@ -32,20 +40,12 @@ export const GitHubConfig: PluginConfigType = {
       rateLimitPerHour: 4500,
     },
     fields: [
-      {
-        key: 'name',
-        label: 'Connection Name',
-        type: 'text',
-        required: true,
+      ConnectionName({
         placeholder: 'eg. GitHub',
-      },
-      {
-        key: 'endpoint',
-        label: 'Endpoint URL',
-        type: 'text',
-        required: true,
+      }),
+      ConnectionEndpoint({
         placeholder: 'eg. https://api.github.com/',
-      },
+      }),
       {
         key: 'token',
         label: 'Basic Auth Token',
@@ -53,13 +53,7 @@ export const GitHubConfig: PluginConfigType = {
         required: true,
         tooltip: "Due to Github's rate limit, input more tokens, \ncomma separated, to accelerate data collection.",
       },
-      {
-        key: 'proxy',
-        label: 'Proxy URL',
-        type: 'text',
-        placeholder: 'eg. http://proxy.localhost:8080',
-        tooltip: 'Add a proxy if your network can not access GitHub directly.',
-      },
+      ConnectionProxy(),
       {
         key: 'enableGraphql',
         label: 'Use Graphql APIs',
@@ -67,12 +61,7 @@ export const GitHubConfig: PluginConfigType = {
         tooltip:
           'GraphQL APIs are 10+ times faster than REST APIs, but it may not be supported in GitHub on-premise versions.',
       },
-      {
-        key: 'rateLimitPerHour',
-        label: 'Fixed Rate Limit (per hour)',
-        type: 'rateLimit',
-        tooltip: 'Rate Limit requests per hour,\nEnter a numeric value > 0 to enable.',
-      },
+      ConnectionRatelimit(),
     ],
   },
   entities: ['CODE', 'TICKET', 'CODEREVIEW', 'CROSS', 'CICD'],

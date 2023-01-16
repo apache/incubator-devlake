@@ -17,13 +17,15 @@
  */
 
 import type { PluginConfigType } from '@/plugins';
-import { Plugins, PluginType } from '@/plugins';
+import { Plugins } from '@/plugins';
+
+import { BasePipelineConfig } from '../base';
 
 import Icon from './assets/icon.svg';
 
 export const GitExtractorConfig: PluginConfigType = {
+  ...BasePipelineConfig,
   plugin: Plugins.GitExtractor,
   name: 'GitExtractor',
-  type: PluginType.Pipeline,
   icon: Icon,
 };

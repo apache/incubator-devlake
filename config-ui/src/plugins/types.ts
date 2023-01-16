@@ -44,9 +44,9 @@ export enum PluginType {
 }
 
 export type PluginConfigConnectionType = {
+  type: PluginType.Connection;
   plugin: Plugins;
   name: string;
-  type: PluginType.Connection;
   icon: string;
   isBeta?: boolean;
   connection: {
@@ -65,9 +65,9 @@ export type PluginConfigConnectionType = {
 };
 
 export type PluginConfigAnotherType = {
+  type: PluginType.Incoming_Connection | PluginType.Pipeline;
   plugin: Plugins;
   name: string;
-  type: PluginType.Incoming_Connection | PluginType.Pipeline;
   icon: string;
 };
 
