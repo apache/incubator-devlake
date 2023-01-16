@@ -26,7 +26,7 @@ import { PageHeader, Card, PageLoading } from '@/components';
 import type { PluginConfigConnectionType } from '@/plugins';
 import { PluginConfig } from '@/plugins';
 
-import { GitHubToken, RateLimit } from './components';
+import { RateLimit, GitHubToken, GitLabToken } from './components';
 import { useForm } from './use-form';
 import * as S from './styled';
 
@@ -139,23 +139,17 @@ export const ConnectionFormPage = () => {
           />
         )}
         {type === 'gitlabToken' && (
-          <div>
-            <p>
-              <a
-                href="https://devlake.apache.org/docs/UserManuals/ConfigUI/GitLab/#auth-tokens"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Learn about how to create a personal access token
-              </a>
-            </p>
-            <InputGroup
-              placeholder={placeholder}
-              type="password"
-              value={form[key] ?? ''}
-              onChange={(e) => setForm({ ...form, [`${key}`]: e.target.value })}
-            />
-          </div>
+          <GitLabToken
+            placeholder={placeholder}
+            initialValue={initialValue}
+            value={form.token}
+            onChange={(value) =>
+              setForm({
+                ...form,
+                token: value,
+              })
+            }
+          />
         )}
       </FormGroup>
     );
